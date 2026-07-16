@@ -1,0 +1,3814 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Squat": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Squat"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Присед"
+          }
+        }
+      }
+    },
+    "Feet shoulder-width apart, toes slightly out, weight over the whole foot.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feet shoulder-width apart, toes slightly out, weight over the whole foot."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стопы на ширине плеч, носки слегка наружу, вес на всей стопе."
+          }
+        }
+      }
+    },
+    "Sit back and down for ~2 seconds; knees track over the toes, back straight.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sit back and down for ~2 seconds; knees track over the toes, back straight."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Садись назад и вниз ~2 секунды; колени идут за носками, спина прямая."
+          }
+        }
+      }
+    },
+    "Thighs parallel to the floor at the bottom; drive up on an exhale.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thighs parallel to the floor at the bottom; drive up on an exhale."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Внизу бёдра параллельны полу; вверх — на выдохе."
+          }
+        }
+      }
+    },
+    "Knees caving inward — keep them tracking over your feet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Knees caving inward — keep them tracking over your feet."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Колени заваливаются внутрь — держи их над стопами."
+          }
+        }
+      }
+    },
+    "Heels lifting off the floor — depth matters more than speed.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heels lifting off the floor — depth matters more than speed."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пятки отрываются от пола — глубина важнее скорости."
+          }
+        }
+      }
+    },
+    "Bulgarian split squat": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bulgarian split squat"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Болгарские приседания"
+          }
+        }
+      }
+    },
+    "Rear foot on a chair or couch behind you, front foot a stride ahead.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rear foot on a chair or couch behind you, front foot a stride ahead."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Положи подъём стопы задней ноги на стул или диван; передняя нога — в шаге впереди."
+          }
+        }
+      }
+    },
+    "Lower straight down until the rear knee almost touches the floor.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower straight down until the rear knee almost touches the floor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Опускайся вертикально, пока заднее колено почти не коснётся пола."
+          }
+        }
+      }
+    },
+    "Drive up through the front heel; torso leaning slightly forward.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drive up through the front heel; torso leaning slightly forward."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вверх через пятку передней ноги; корпус слегка наклонён вперёд."
+          }
+        }
+      }
+    },
+    "Stance too short — the front knee travels far past the toes.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stance too short — the front knee travels far past the toes."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слишком короткий шаг — колено уходит далеко за носок."
+          }
+        }
+      }
+    },
+    "Loading the rear leg — it is only there for balance.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading the rear leg — it is only there for balance."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Опора на заднюю ногу — она нужна только для равновесия."
+          }
+        }
+      }
+    },
+    "Pistol squat": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pistol squat"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Приседания «пистолетик»"
+          }
+        }
+      }
+    },
+    "Stand on one leg, the other extended forward, arms out for balance.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stand on one leg, the other extended forward, arms out for balance."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стоя на одной ноге, вторую вытяни вперёд, руки перед собой для равновесия."
+          }
+        }
+      }
+    },
+    "Lower slowly until the hamstring rests on the calf, heel on the floor.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower slowly until the hamstring rests on the calf, heel on the floor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Медленно садись до касания бедром икры, пятка на полу."
+          }
+        }
+      }
+    },
+    "Stand up without your hands; start with a doorframe assist if needed.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stand up without your hands; start with a doorframe assist if needed."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вверх без помощи рук; сначала можно придерживаться за дверной косяк."
+          }
+        }
+      }
+    },
+    "Dropping down without control — the descent must be slow.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dropping down without control — the descent must be slow."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Падение вниз без контроля — опускайся медленно и подконтрольно."
+          }
+        }
+      }
+    },
+    "Knee drifting sideways — keep it tracking over the foot.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Knee drifting sideways — keep it tracking over the foot."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Колено гуляет в сторону — веди его строго над стопой."
+          }
+        }
+      }
+    },
+    "Shrimp squat": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shrimp squat"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Приседания «креветка»"
+          }
+        }
+      }
+    },
+    "Stand on one leg; bend the other back and hold its foot with one hand.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stand on one leg; bend the other back and hold its foot with one hand."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стоя на одной ноге, согни вторую назад и возьми её стопу рукой."
+          }
+        }
+      }
+    },
+    "Lower slowly until the back knee gently touches the floor.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower slowly until the back knee gently touches the floor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Медленно опускайся, пока заднее колено мягко не коснётся пола."
+          }
+        }
+      }
+    },
+    "Stand up through the heel of the working leg, chest up.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stand up through the heel of the working leg, chest up."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вверх через пятку рабочей ноги, грудь смотрит вперёд."
+          }
+        }
+      }
+    },
+    "Knee crashing into the floor — the descent stays slow and controlled.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Knee crashing into the floor — the descent stays slow and controlled."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Колено ударяется об пол — опускание должно быть медленным."
+          }
+        }
+      }
+    },
+    "Leaning far forward — keep the chest up and the core braced.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leaning far forward — keep the chest up and the core braced."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сильный наклон вперёд — держи грудь выше, мышцы корпуса в напряжении."
+          }
+        }
+      }
+    },
+    "Knee push-up": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Knee push-up"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отжимания с колен"
+          }
+        }
+      }
+    },
+    "Hands under the shoulders, knees on the floor; head to knees form a straight line.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hands under the shoulders, knees on the floor; head to knees form a straight line."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ладони под плечами, колени на полу; от макушки до колен — прямая линия."
+          }
+        }
+      }
+    },
+    "Lower for ~2 seconds until the chest nearly touches the floor, elbows about 45° from the torso.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower for ~2 seconds until the chest nearly touches the floor, elbows about 45° from the torso."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Опускайся ~2 секунды до касания грудью пола, локти под 45° к корпусу."
+          }
+        }
+      }
+    },
+    "Press up on an exhale, keeping the belly tight.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press up on an exhale, keeping the belly tight."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вверх на выдохе, живот подтянут."
+          }
+        }
+      }
+    },
+    "Sagging hips — squeeze your glutes and abs.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sagging hips — squeeze your glutes and abs."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Таз провисает — включи пресс и ягодицы."
+          }
+        }
+      }
+    },
+    "Cutting the range short — the chest should almost touch the floor.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cutting the range short — the chest should almost touch the floor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Короткая амплитуда — грудь должна почти касаться пола."
+          }
+        }
+      }
+    },
+    "Push-up": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Push-up"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отжимания классические"
+          }
+        }
+      }
+    },
+    "Hands under the shoulders; the body is one straight line from head to heels.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hands under the shoulders; the body is one straight line from head to heels."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ладони под плечами; тело — прямая линия от макушки до пят."
+          }
+        }
+      }
+    },
+    "Press up on an exhale; don't fully lock the elbows at the top.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press up on an exhale; don't fully lock the elbows at the top."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вверх на выдохе; в верхней точке не блокируй локти полностью."
+          }
+        }
+      }
+    },
+    "Sagging hips or a raised butt — the core stops working.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sagging hips or a raised butt — the core stops working."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Провисший таз или поднятые ягодицы — выключаются мышцы корпуса."
+          }
+        }
+      }
+    },
+    "Elbows flared out to 90° — this overloads the shoulders.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elbows flared out to 90° — this overloads the shoulders."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Локти разведены на 90° в стороны — перегружаются плечи."
+          }
+        }
+      }
+    },
+    "Feet-elevated push-up": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feet-elevated push-up"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отжимания, ноги на возвышении"
+          }
+        }
+      }
+    },
+    "Feet on a chair or couch, hands under the shoulders on the floor.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feet on a chair or couch, hands under the shoulders on the floor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стопы на стуле или диване, ладони под плечами на полу."
+          }
+        }
+      }
+    },
+    "Keep the body rigid and lower until the chest nearly touches the floor.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep the body rigid and lower until the chest nearly touches the floor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Держи корпус жёстким, опускайся до касания грудью пола."
+          }
+        }
+      }
+    },
+    "The higher the support, the harder it gets — start low.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The higher the support, the harder it gets — start low."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чем выше опора для ног, тем тяжелее — начинай с невысокой."
+          }
+        }
+      }
+    },
+    "Lower back arching — don't let the hips sag.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower back arching — don't let the hips sag."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Прогиб в пояснице — таз не должен провисать."
+          }
+        }
+      }
+    },
+    "Leading with the head — keep the neck in line with the torso.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leading with the head — keep the neck in line with the torso."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Голова опускается первой — шея на одной линии с корпусом."
+          }
+        }
+      }
+    },
+    "Archer push-up": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archer push-up"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отжимания «лучник»"
+          }
+        }
+      }
+    },
+    "Take a wide hand position; the body stays one straight line.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take a wide hand position; the body stays one straight line."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поставь руки широко; тело — одна прямая линия."
+          }
+        }
+      }
+    },
+    "Lower toward one hand, bending that elbow; the other arm stays straight.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower toward one hand, bending that elbow; the other arm stays straight."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Опускайся к одной руке, сгибая её локоть; вторая рука прямая."
+          }
+        }
+      }
+    },
+    "Press up and repeat to the same side for the whole set, then switch.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press up and repeat to the same side for the whole set, then switch."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выжмись вверх; весь подход в одну сторону, затем смени руку."
+          }
+        }
+      }
+    },
+    "Hips rotating — shoulders and hips stay square to the floor.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hips rotating — shoulders and hips stay square to the floor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Разворот таза — плечи и таз параллельны полу."
+          }
+        }
+      }
+    },
+    "Half range — the chest goes down to the working hand.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Half range — the chest goes down to the working hand."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Неполная амплитуда — грудь опускается к рабочей руке."
+          }
+        }
+      }
+    },
+    "Glute bridge": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glute bridge"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ягодичный мостик"
+          }
+        }
+      }
+    },
+    "Lie on your back, feet close to the glutes hip-width apart, arms at your sides.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lie on your back, feet close to the glutes hip-width apart, arms at your sides."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Лёжа на спине, стопы у ягодиц на ширине таза, руки вдоль тела."
+          }
+        }
+      }
+    },
+    "Lift the hips until knees, hips and shoulders form one straight line.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lift the hips until knees, hips and shoulders form one straight line."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подними таз, пока колени, таз и плечи не образуют одну прямую линию."
+          }
+        }
+      }
+    },
+    "Squeeze the glutes for a second at the top, then lower slowly without touching the floor.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Squeeze the glutes for a second at the top, then lower slowly without touching the floor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сожми ягодицы на секунду вверху, затем медленно опустись, не касаясь пола."
+          }
+        }
+      }
+    },
+    "Arching the lower back — don't push past the straight line.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arching the lower back — don't push past the straight line."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Прогиб в пояснице — не выталкивай таз выше прямой линии."
+          }
+        }
+      }
+    },
+    "Pushing through the toes — keep the weight on the heels.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pushing through the toes — keep the weight on the heels."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Толчок через носки — вес должен быть на пятках."
+          }
+        }
+      }
+    },
+    "Single-leg glute bridge": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Single-leg glute bridge"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ягодичный мостик на одной ноге"
+          }
+        }
+      }
+    },
+    "Lie on your back, one foot near the glutes, the other leg extended.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lie on your back, one foot near the glutes, the other leg extended."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Лёжа на спине, одна стопа у ягодиц, вторая нога вытянута."
+          }
+        }
+      }
+    },
+    "Lift the hips with one leg to a straight line, keeping the pelvis level.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lift the hips with one leg to a straight line, keeping the pelvis level."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подними таз одной ногой до прямой линии, таз держи ровно."
+          }
+        }
+      }
+    },
+    "Pause a second at the top, lower slowly.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pause a second at the top, lower slowly."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Секунда паузы вверху, медленно вниз."
+          }
+        }
+      }
+    },
+    "Pelvis tilting sideways — keep both hip bones pointing at the ceiling.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pelvis tilting sideways — keep both hip bones pointing at the ceiling."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Таз перекашивается — обе тазовые кости смотрят в потолок."
+          }
+        }
+      }
+    },
+    "Helping with the free leg — it stays out of the movement.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Helping with the free leg — it stays out of the movement."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Помощь свободной ногой — она не участвует в движении."
+          }
+        }
+      }
+    },
+    "Single-leg Romanian deadlift": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Single-leg Romanian deadlift"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Румынская тяга на одной ноге"
+          }
+        }
+      }
+    },
+    "Stand on one leg with a soft knee; hinge forward from the hips with a flat back.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stand on one leg with a soft knee; hinge forward from the hips with a flat back."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стоя на одной ноге с мягким коленом, наклоняйся вперёд с прямой спиной."
+          }
+        }
+      }
+    },
+    "The free leg extends back; torso and leg form one line, hands reaching toward the floor.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The free leg extends back; torso and leg form one line, hands reaching toward the floor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Свободная нога уходит назад; корпус и нога — одна линия, руки к полу."
+          }
+        }
+      }
+    },
+    "Stand back up by squeezing the glute of the standing leg.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stand back up by squeezing the glute of the standing leg."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поднимись обратно, напрягая ягодицу опорной ноги."
+          }
+        }
+      }
+    },
+    "Rounding the back — keep the shoulder blades set, hinge from the hips.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rounding the back — keep the shoulder blades set, hinge from the hips."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Круглая спина — держи лопатки собранными, наклон из таза."
+          }
+        }
+      }
+    },
+    "Pelvis rotating open — keep the hips square to the floor.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pelvis rotating open — keep the hips square to the floor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Разворот таза в сторону — бёдра параллельны полу."
+          }
+        }
+      }
+    },
+    "Sliding leg curl": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sliding leg curl"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сгибание ног скольжением"
+          }
+        }
+      }
+    },
+    "Lie on your back, heels on a towel on a smooth floor, hips lifted.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lie on your back, heels on a towel on a smooth floor, hips lifted."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Лёжа на спине, пятки на полотенце на гладком полу, таз поднят."
+          }
+        }
+      }
+    },
+    "Slide the heels away until the legs are almost straight, hips stay up.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slide the heels away until the legs are almost straight, hips stay up."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скользи пятками от себя почти до прямых ног, таз не опускается."
+          }
+        }
+      }
+    },
+    "Pull the heels back toward the glutes — that's one rep.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pull the heels back toward the glutes — that's one rep."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подтяни пятки обратно к ягодицам — это один повтор."
+          }
+        }
+      }
+    },
+    "Hips dropping as the legs extend — keep the bridge the whole time.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hips dropping as the legs extend — keep the bridge the whole time."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Таз падает при выпрямлении ног — держи мостик всё время."
+          }
+        }
+      }
+    },
+    "Jerky pulls — slide out and back slowly, with control.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jerky pulls — slide out and back slowly, with control."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Рывки — скользи туда и обратно медленно, под контролем."
+          }
+        }
+      }
+    },
+    "Y-T-W raises": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Y-T-W raises"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Разведения Y-T-W лёжа"
+          }
+        }
+      }
+    },
+    "Lie face down, forehead near the floor, arms extended in a Y shape.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lie face down, forehead near the floor, arms extended in a Y shape."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Лёжа на животе, лоб у пола, руки вытянуты в форме буквы Y."
+          }
+        }
+      }
+    },
+    "Lift the straight arms for 2 seconds, squeezing the shoulder blades, then lower.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lift the straight arms for 2 seconds, squeezing the shoulder blades, then lower."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подними прямые руки на 2 секунды, сведя лопатки, опусти."
+          }
+        }
+      }
+    },
+    "Repeat in a T position and a W position — together that's one rep.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repeat in a T position and a W position — together that's one rep."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повтори в позиции T и W — вместе это один повтор."
+          }
+        }
+      }
+    },
+    "Jerking the torso up — only the arms and shoulder blades lift.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jerking the torso up — only the arms and shoulder blades lift."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Рывок корпусом — поднимаются только руки и лопатки."
+          }
+        }
+      }
+    },
+    "Shoulders creeping toward the ears — pull the blades down and back.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shoulders creeping toward the ears — pull the blades down and back."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Плечи ползут к ушам — тяни лопатки вниз и назад."
+          }
+        }
+      }
+    },
+    "Inverted row (table)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inverted row (table)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тяга под опорой"
+          }
+        }
+      }
+    },
+    "Lie under a sturdy table and grab the edge with a shoulder-width grip.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lie under a sturdy table and grab the edge with a shoulder-width grip."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ляг под прочный стол и возьмись за край хватом на ширине плеч."
+          }
+        }
+      }
+    },
+    "Body straight from shoulders to heels; pull the chest to the edge, squeezing the shoulder blades.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Body straight from shoulders to heels; pull the chest to the edge, squeezing the shoulder blades."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тело прямое от плеч до пят; подтяни грудь к краю, сводя лопатки."
+          }
+        }
+      }
+    },
+    "Lower slowly until the arms are straight.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower slowly until the arms are straight."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Медленно опустись до прямых рук."
+          }
+        }
+      }
+    },
+    "Sagging hips — hold the body like a plank.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sagging hips — hold the body like a plank."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Таз провисает — держи корпус как в планке."
+          }
+        }
+      }
+    },
+    "Pulling only with the arms — start by squeezing the shoulder blades.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pulling only with the arms — start by squeezing the shoulder blades."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тяга только руками — движение начинается со сведения лопаток."
+          }
+        }
+      }
+    },
+    "Feet-elevated inverted row": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feet-elevated inverted row"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тяга под опорой, ноги на возвышении"
+          }
+        }
+      }
+    },
+    "Same setup, but feet up on a chair — the body is parallel to the floor.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Same setup, but feet up on a chair — the body is parallel to the floor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "То же, но стопы подняты на стул — тело параллельно полу."
+          }
+        }
+      }
+    },
+    "Pull the chest to the table edge with a rigid torso.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pull the chest to the table edge with a rigid torso."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подтягивай грудь к краю стола, корпус жёсткий."
+          }
+        }
+      }
+    },
+    "Pause a second at the top; lower under control.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pause a second at the top; lower under control."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Секунда паузы вверху; опускание под контролем."
+          }
+        }
+      }
+    },
+    "Reaching with the chin instead of the chest — lead with the chest.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reaching with the chin instead of the chest — lead with the chest."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подбородок тянется вместо груди — веди движение грудью."
+          }
+        }
+      }
+    },
+    "Rushing the reps — control both directions.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rushing the reps — control both directions."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слишком быстрый темп — контролируй движение в обе стороны."
+          }
+        }
+      }
+    },
+    "Archer inverted row": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archer inverted row"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тяга «лучник» под опорой"
+          }
+        }
+      }
+    },
+    "Set up under the table with a wide grip, body straight.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up under the table with a wide grip, body straight."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ляг под стол и возьмись за край широким хватом, тело прямое."
+          }
+        }
+      }
+    },
+    "Pull the chest toward one hand; the other arm stays nearly straight.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pull the chest toward one hand; the other arm stays nearly straight."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тяни грудь к одной руке; вторая рука почти прямая."
+          }
+        }
+      }
+    },
+    "Lower under control; whole set to one side, then switch.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower under control; whole set to one side, then switch."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Опускайся под контролем; весь подход в одну сторону, затем смена."
+          }
+        }
+      }
+    },
+    "Hips sagging — hold the plank line through the set.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hips sagging — hold the plank line through the set."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Таз провисает — держи линию планки весь подход."
+          }
+        }
+      }
+    },
+    "Both arms pulling equally — the working arm does the job.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Both arms pulling equally — the working arm does the job."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обе руки тянут одинаково — работать должна одна."
+          }
+        }
+      }
+    },
+    "Wall push-up": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wall push-up"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отжимания у стены"
+          }
+        }
+      }
+    },
+    "Stand a step away from a wall, palms on it slightly wider than shoulders, at chest height.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stand a step away from a wall, palms on it slightly wider than shoulders, at chest height."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Встань в шаге от стены, ладони на ней чуть шире плеч на уровне груди."
+          }
+        }
+      }
+    },
+    "Bend the elbows, bringing the face toward the wall, body in one line.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bend the elbows, bringing the face toward the wall, body in one line."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Согни локти, приближая лицо к стене, тело — одна линия."
+          }
+        }
+      }
+    },
+    "Push back to straight arms; the farther the feet, the harder.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Push back to straight arms; the farther the feet, the harder."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оттолкнись до прямых рук; чем дальше стопы, тем тяжелее."
+          }
+        }
+      }
+    },
+    "Hips dropping back — the whole body moves as one line.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hips dropping back — the whole body moves as one line."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Таз уходит назад — двигается всё тело единой линией."
+          }
+        }
+      }
+    },
+    "Elbows flared to 90° — keep them closer to the torso.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elbows flared to 90° — keep them closer to the torso."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Локти разведены на 90° — держи их ближе к корпусу."
+          }
+        }
+      }
+    },
+    "Pike push-up": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pike push-up"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отжимания «щучкой»"
+          }
+        }
+      }
+    },
+    "From a push-up position, lift the hips high — the body forms an inverted V.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From a push-up position, lift the hips high — the body forms an inverted V."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Из упора лёжа подними таз вверх — тело углом, перевёрнутой V."
+          }
+        }
+      }
+    },
+    "Bend the elbows, lowering the top of the head toward the floor between the hands.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bend the elbows, lowering the top of the head toward the floor between the hands."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сгибай локти, опуская макушку к полу между ладонями."
+          }
+        }
+      }
+    },
+    "Press back up without dropping the hips.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press back up without dropping the hips."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выжми себя вверх, не опуская таз."
+          }
+        }
+      }
+    },
+    "Hips dropping as the arms bend — keep the V shape.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hips dropping as the arms bend — keep the V shape."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Таз опускается при сгибании рук — сохраняй угол."
+          }
+        }
+      }
+    },
+    "Bumping the head on the floor — lower slowly, with control.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bumping the head on the floor — lower slowly, with control."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Голова бьётся об пол — опускайся медленно, на контроле."
+          }
+        }
+      }
+    },
+    "Wall handstand push-up": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wall handstand push-up"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отжимания в стойке у стены"
+          }
+        }
+      }
+    },
+    "Kick up into a handstand with your back to the wall, heels resting on it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kick up into a handstand with your back to the wall, heels resting on it."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выйди в стойку на руках спиной к стене, пятки на стене."
+          }
+        }
+      }
+    },
+    "Bend the elbows slowly, lowering the top of the head toward the floor.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bend the elbows slowly, lowering the top of the head toward the floor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Медленно сгибай локти, опуская макушку к полу."
+          }
+        }
+      }
+    },
+    "Press back up; know how to exit safely — step down one leg at a time.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press back up; know how to exit safely — step down one leg at a time."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выжми вверх; умей безопасно выйти из стойки — по одной ноге."
+          }
+        }
+      }
+    },
+    "Arching the lower back — keep the core and glutes tight.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arching the lower back — keep the core and glutes tight."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Прогиб в пояснице — держи мышцы корпуса и ягодицы в напряжении."
+          }
+        }
+      }
+    },
+    "Elbows drifting outward — track them forward and down.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elbows drifting outward — track them forward and down."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Локти разъезжаются в стороны — веди их вперёд-вниз."
+          }
+        }
+      }
+    },
+    "Chest-to-wall handstand push-up": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chest-to-wall handstand push-up"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отжимания в стойке грудью к стене"
+          }
+        }
+      }
+    },
+    "Walk your feet up the wall, chest facing it, body close to vertical.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Walk your feet up the wall, chest facing it, body close to vertical."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Зайди ногами по стене, грудью к ней, тело почти вертикально."
+          }
+        }
+      }
+    },
+    "Bend the elbows slowly, lowering the head to the floor.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bend the elbows slowly, lowering the head to the floor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Медленно сгибай локти, опуская голову к полу."
+          }
+        }
+      }
+    },
+    "Press back up; keep the body in one tight line.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press back up; keep the body in one tight line."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выжмись вверх; держи тело одной жёсткой линией."
+          }
+        }
+      }
+    },
+    "Arching away from the wall — stay close, ribs tucked in.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arching away from the wall — stay close, ribs tucked in."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Прогиб от стены — держись ближе, рёбра подобраны."
+          }
+        }
+      }
+    },
+    "Uncontrolled descent — the head must land softly.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uncontrolled descent — the head must land softly."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Неконтролируемое опускание — голова касается пола мягко."
+          }
+        }
+      }
+    },
+    "Static lunge": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Static lunge"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выпады на месте"
+          }
+        }
+      }
+    },
+    "Step into a lunge stance and stay in it for the whole set.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Step into a lunge stance and stay in it for the whole set."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Шагни в позицию выпада и оставайся в ней весь подход."
+          }
+        }
+      }
+    },
+    "Drive up through the front heel, torso upright.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drive up through the front heel, torso upright."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вверх через пятку передней ноги, корпус прямой."
+          }
+        }
+      }
+    },
+    "Front knee traveling far past the toes — take a longer stance.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Front knee traveling far past the toes — take a longer stance."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Колено передней ноги уходит далеко за носок — шаг шире."
+          }
+        }
+      }
+    },
+    "Torso tipping forward — keep the chest up.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Torso tipping forward — keep the chest up."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Корпус заваливается вперёд — грудь смотрит прямо."
+          }
+        }
+      }
+    },
+    "Reverse lunge": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reverse lunge"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выпады назад"
+          }
+        }
+      }
+    },
+    "From standing, step back and lower the rear knee almost to the floor.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From standing, step back and lower the rear knee almost to the floor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Из положения стоя шагни назад, опустив заднее колено почти до пола."
+          }
+        }
+      }
+    },
+    "The front shin stays near vertical; weight on the front heel.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The front shin stays near vertical; weight on the front heel."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Передняя голень вертикальна, вес на пятке передней ноги."
+          }
+        }
+      }
+    },
+    "Push off and return to standing — that's one rep.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Push off and return to standing — that's one rep."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оттолкнись и вернись в стойку — это один повтор."
+          }
+        }
+      }
+    },
+    "Too short a step back — the front knee gets overloaded.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too short a step back — the front knee gets overloaded."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слишком короткий шаг назад — перегружается переднее колено."
+          }
+        }
+      }
+    },
+    "Losing balance — fix your eyes on a point ahead.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Losing balance — fix your eyes on a point ahead."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Потеря равновесия — фиксируй взгляд перед собой."
+          }
+        }
+      }
+    },
+    "Jump lunge": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jump lunge"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выпады в прыжке"
+          }
+        }
+      }
+    },
+    "From a lunge, jump up and switch legs in the air.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From a lunge, jump up and switch legs in the air."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Из позиции выпада выпрыгни вверх и смени ноги в воздухе."
+          }
+        }
+      }
+    },
+    "Land softly in a lunge on the other side, knee almost to the floor.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Land softly in a lunge on the other side, knee almost to the floor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Приземляйся мягко в выпад на другую ногу, колено почти до пола."
+          }
+        }
+      }
+    },
+    "Keep a steady rhythm; use the arms for balance.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep a steady rhythm; use the arms for balance."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Держи ритм; руки помогают удерживать равновесие."
+          }
+        }
+      }
+    },
+    "Landing stiff on a straight leg — absorb by bending.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Landing stiff on a straight leg — absorb by bending."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Жёсткое приземление на прямую ногу — амортизируй сгибанием."
+          }
+        }
+      }
+    },
+    "Knee slamming into the floor — control the depth.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Knee slamming into the floor — control the depth."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Колено бьётся об пол — контролируй глубину."
+          }
+        }
+      }
+    },
+    "Paused jump lunge": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paused jump lunge"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выпады в прыжке с паузой"
+          }
+        }
+      }
+    },
+    "Jump and switch legs in the air, landing softly in a lunge.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jump and switch legs in the air, landing softly in a lunge."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выпрыгни со сменой ног в воздухе, приземлись мягко в выпад."
+          }
+        }
+      }
+    },
+    "Hold the bottom position for a full 2 seconds, knee near the floor.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold the bottom position for a full 2 seconds, knee near the floor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Задержись внизу на честные 2 секунды, колено у пола."
+          }
+        }
+      }
+    },
+    "Explode up into the next switch — pause every landing.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Explode up into the next switch — pause every landing."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Взрывно выпрыгни в следующую смену — пауза на каждом приземлении."
+          }
+        }
+      }
+    },
+    "Skipping the pause — hold an honest 2 seconds at the bottom.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skipping the pause — hold an honest 2 seconds at the bottom."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пауза пропускается — держи честные 2 секунды внизу."
+          }
+        }
+      }
+    },
+    "Shallow landings — the knee comes close to the floor each rep.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shallow landings — the knee comes close to the floor each rep."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Мелкие приземления — колено опускается к полу каждый повтор."
+          }
+        }
+      }
+    },
+    "Knee plank": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Knee plank"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Планка на коленях"
+          }
+        }
+      }
+    },
+    "Forearms on the floor, elbows under the shoulders, knees down.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forearms on the floor, elbows under the shoulders, knees down."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Предплечья на полу, локти под плечами, колени на полу."
+          }
+        }
+      }
+    },
+    "Head to knees — one straight line; belly pulled in.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Head to knees — one straight line; belly pulled in."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "От макушки до колен — прямая линия; живот подтянут."
+          }
+        }
+      }
+    },
+    "Breathe steadily and hold for the planned time.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Breathe steadily and hold for the planned time."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дыши ровно и держи время из плана."
+          }
+        }
+      }
+    },
+    "Hips sagging — tuck the pelvis slightly.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hips sagging — tuck the pelvis slightly."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Таз провисает — слегка подкрути его на себя."
+          }
+        }
+      }
+    },
+    "Shoulders at the ears — push the floor away, keep the neck long.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shoulders at the ears — push the floor away, keep the neck long."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Плечи у ушей — оттолкнись от пола, шея длинная."
+          }
+        }
+      }
+    },
+    "Plank": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plank"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Планка"
+          }
+        }
+      }
+    },
+    "Forearms on the floor, elbows under the shoulders, feet hip-width.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forearms on the floor, elbows under the shoulders, feet hip-width."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Предплечья на полу, локти под плечами, стопы на ширине таза."
+          }
+        }
+      }
+    },
+    "One straight line from head to heels; glutes and abs braced.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One straight line from head to heels; glutes and abs braced."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Прямая линия от макушки до пят; ягодицы и пресс в тонусе."
+          }
+        }
+      }
+    },
+    "Breathe steadily; shaking is fine, a sagging line is not.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Breathe steadily; shaking is fine, a sagging line is not."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дыши ровно; дрожь мышц — норма, провал линии — стоп."
+          }
+        }
+      }
+    },
+    "Hips hiked up — easier, but pointless.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hips hiked up — easier, but pointless."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Таз задран вверх — так легче, но бесполезнее."
+          }
+        }
+      }
+    },
+    "Lower back sagging — that strains the spine; better to stop early.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower back sagging — that strains the spine; better to stop early."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поясница провисает — это риск для спины, лучше закончить раньше."
+          }
+        }
+      }
+    },
+    "Hollow hold": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hollow hold"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Лодочка» (удержание)"
+          }
+        }
+      }
+    },
+    "Lie on your back, press the lower back into the floor, arms extended overhead.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lie on your back, press the lower back into the floor, arms extended overhead."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Лёжа на спине, прижми поясницу к полу, руки вытяни за голову."
+          }
+        }
+      }
+    },
+    "Lift the shoulder blades and straight legs 15–20 cm off the floor.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lift the shoulder blades and straight legs 15–20 cm off the floor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оторви лопатки и прямые ноги от пола на 15–20 см."
+          }
+        }
+      }
+    },
+    "Hold the shape with the lower back pressed down the whole time.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold the shape with the lower back pressed down the whole time."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Держи «лодочку», поясница всё время прижата."
+          }
+        }
+      }
+    },
+    "Lower back lifting off the floor — raise the legs higher or bend the knees.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower back lifting off the floor — raise the legs higher or bend the knees."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поясница отрывается от пола — подними ноги выше или согни колени."
+          }
+        }
+      }
+    },
+    "Holding your breath — keep breathing shallow and steady.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Holding your breath — keep breathing shallow and steady."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Задержка дыхания — дыши ровно и неглубоко."
+          }
+        }
+      }
+    },
+    "Long-lever plank": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long-lever plank"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Планка с удлинённым рычагом"
+          }
+        }
+      }
+    },
+    "Take a plank on the forearms, elbows well ahead of the shoulders.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take a plank on the forearms, elbows well ahead of the shoulders."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Встань в планку на предплечьях, локти заметно впереди плеч."
+          }
+        }
+      }
+    },
+    "Keep one straight line from head to heels, glutes tight.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep one straight line from head to heels, glutes tight."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Держи одну прямую линию от макушки до пят, ягодицы в тонусе."
+          }
+        }
+      }
+    },
+    "The farther the elbows, the harder — breathe steadily and hold.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The farther the elbows, the harder — breathe steadily and hold."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чем дальше локти, тем тяжелее — дыши ровно и держи."
+          }
+        }
+      }
+    },
+    "Hips sagging — tuck the pelvis and brace the abs.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hips sagging — tuck the pelvis and brace the abs."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Таз провисает — подкрути таз и напряги пресс."
+          }
+        }
+      }
+    },
+    "Elbows too far too soon — increase the lever gradually.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elbows too far too soon — increase the lever gradually."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Локти слишком далеко сразу — удлиняй рычаг постепенно."
+          }
+        }
+      }
+    },
+    "Bird dog (hold)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bird dog (hold)"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Птица-собака» (удержание)"
+          }
+        }
+      }
+    },
+    "On all fours: hands under the shoulders, knees under the hips.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On all fours: hands under the shoulders, knees under the hips."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На четвереньках: ладони под плечами, колени под тазом."
+          }
+        }
+      }
+    },
+    "Extend the opposite arm and leg into one line with the torso.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extend the opposite arm and leg into one line with the torso."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вытяни противоположные руку и ногу в одну линию с корпусом."
+          }
+        }
+      }
+    },
+    "Hold without wobbling; pelvis and shoulders stay level.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold without wobbling; pelvis and shoulders stay level."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Держи, не раскачиваясь; таз и плечи параллельны полу."
+          }
+        }
+      }
+    },
+    "Lower back arching as the leg lifts — the leg goes no higher than the torso.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower back arching as the leg lifts — the leg goes no higher than the torso."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Прогиб в пояснице при подъёме ноги — нога не выше корпуса."
+          }
+        }
+      }
+    },
+    "Torso rotating — imagine a glass of water on your lower back.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Torso rotating — imagine a glass of water on your lower back."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Корпус разворачивается — представь стакан воды на пояснице."
+          }
+        }
+      }
+    },
+    "Side plank": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Side plank"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Боковая планка"
+          }
+        }
+      }
+    },
+    "Lie on your side, elbow under the shoulder, feet stacked.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lie on your side, elbow under the shoulder, feet stacked."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Лёжа на боку, локоть под плечом, стопы друг на друге."
+          }
+        }
+      }
+    },
+    "Lift the hips until feet–hips–shoulders form a straight line.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lift the hips until feet–hips–shoulders form a straight line."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подними таз до прямой линии стопы—таз—плечи."
+          }
+        }
+      }
+    },
+    "Hold without letting the hips drop; free hand on the waist or up.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold without letting the hips drop; free hand on the waist or up."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Держи, не позволяя тазу опускаться; свободная рука на поясе или вверх."
+          }
+        }
+      }
+    },
+    "Hips sagging — keep the body line straight.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hips sagging — keep the body line straight."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Таз провисает вниз — линия тела должна быть прямой."
+          }
+        }
+      }
+    },
+    "Torso tipping forward — shoulders and hips in one plane.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Torso tipping forward — shoulders and hips in one plane."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Заваливание корпуса вперёд — плечи и таз в одной плоскости."
+          }
+        }
+      }
+    },
+    "Side plank with leg raise": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Side plank with leg raise"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Боковая планка с подъёмом ноги"
+          }
+        }
+      }
+    },
+    "Get into a side plank on the elbow.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get into a side plank on the elbow."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Встань в боковую планку на локте."
+          }
+        }
+      }
+    },
+    "Raise the top leg 20–30 cm and hold it straight.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raise the top leg 20–30 cm and hold it straight."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подними верхнюю ногу на 20–30 см и держи её прямой."
+          }
+        }
+      }
+    },
+    "Hips high, the body in one plane.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hips high, the body in one plane."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Таз высоко, тело — одна плоскость."
+          }
+        }
+      }
+    },
+    "Hips dropping when the leg lifts — stabilize the plank first.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hips dropping when the leg lifts — stabilize the plank first."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Таз падает при подъёме ноги — сначала добейся устойчивой планки."
+          }
+        }
+      }
+    },
+    "Leg drifting forward — keep it in line with the torso.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leg drifting forward — keep it in line with the torso."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нога уходит вперёд — держи её в линии с корпусом."
+          }
+        }
+      }
+    },
+    "Star side plank": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Star side plank"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Боковая планка «звезда»"
+          }
+        }
+      }
+    },
+    "From a side plank, raise the top leg and the top arm at once.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From a side plank, raise the top leg and the top arm at once."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Из боковой планки подними верхнюю ногу и верхнюю руку одновременно."
+          }
+        }
+      }
+    },
+    "The body forms a star: straight line plus raised limbs.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The body forms a star: straight line plus raised limbs."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тело образует звезду: прямая линия плюс поднятые конечности."
+          }
+        }
+      }
+    },
+    "Hips high the whole hold; look straight ahead.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hips high the whole hold; look straight ahead."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Таз высоко всё удержание; взгляд перед собой."
+          }
+        }
+      }
+    },
+    "Hips dropping — the base line comes first, the star second.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hips dropping — the base line comes first, the star second."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Таз опускается — сначала базовая линия, потом «звезда»."
+          }
+        }
+      }
+    },
+    "Body folding forward — shoulders, hips and legs in one plane.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Body folding forward — shoulders, hips and legs in one plane."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тело складывается вперёд — плечи, таз и ноги в одной плоскости."
+          }
+        }
+      }
+    },
+    "Calf raises": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calf raises"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подъёмы на носки"
+          }
+        }
+      }
+    },
+    "Stand with feet hip-width; hand on a wall for balance.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stand with feet hip-width; hand on a wall for balance."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стоя, стопы на ширине таза; рука на стене для равновесия."
+          }
+        }
+      }
+    },
+    "Rise as high as you can onto the balls of the feet, pause a second at the top.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rise as high as you can onto the balls of the feet, pause a second at the top."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поднимись на носки максимально высоко, секунда паузы вверху."
+          }
+        }
+      }
+    },
+    "Lower slowly; for more range, stand with the toes on a step edge.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower slowly; for more range, stand with the toes on a step edge."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Медленно опустись; для амплитуды — носки на край ступеньки."
+          }
+        }
+      }
+    },
+    "Fast bouncing — move slowly with a pause at the top.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fast bouncing — move slowly with a pause at the top."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Быстрые «отскоки» — работай медленно, с паузой вверху."
+          }
+        }
+      }
+    },
+    "Cutting the range — rise all the way up.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cutting the range — rise all the way up."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Неполная амплитуда — тянись вверх до конца."
+          }
+        }
+      }
+    },
+    "Single-leg calf raise": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Single-leg calf raise"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подъёмы на носки на одной ноге"
+          }
+        }
+      }
+    },
+    "Stand on one leg, hand on a wall for balance.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stand on one leg, hand on a wall for balance."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стоя на одной ноге, рука на стене для равновесия."
+          }
+        }
+      }
+    },
+    "Rise onto the ball of the foot as high as possible, pause for a second.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rise onto the ball of the foot as high as possible, pause for a second."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поднимись на носок максимально высоко, пауза секунда."
+          }
+        }
+      }
+    },
+    "Lower slowly, heel to the floor (or below step level).": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower slowly, heel to the floor (or below step level)."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Медленно вниз, пятка до пола (или ниже ступеньки)."
+          }
+        }
+      }
+    },
+    "Helping with the other leg — it stays off the floor.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Helping with the other leg — it stays off the floor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Помощь второй ногой — она полностью в воздухе."
+          }
+        }
+      }
+    },
+    "Ankle rolling outward — press through the big toe.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ankle rolling outward — press through the big toe."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Заваливание стопы наружу — давление через большой палец."
+          }
+        }
+      }
+    },
+    "Single-leg calf raise with pause": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Single-leg calf raise with pause"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подъёмы на одной ноге с паузой"
+          }
+        }
+      }
+    },
+    "Same as the single-leg raise, but with a 3-second pause at the top.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Same as the single-leg raise, but with a 3-second pause at the top."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "То же, что на одной ноге, но с паузой 3 секунды вверху."
+          }
+        }
+      }
+    },
+    "Up in 1 second, hold for 3, down for 3.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Up in 1 second, hold for 3, down for 3."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вверх 1 секунду, держи 3, вниз 3."
+          }
+        }
+      }
+    },
+    "Full range beats rep count.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full range beats rep count."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Полная амплитуда важнее количества."
+          }
+        }
+      }
+    },
+    "Skipping the pause — hold an honest 3 seconds at the top.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skipping the pause — hold an honest 3 seconds at the top."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пауза «проскакивается» — честные 3 секунды вверху."
+          }
+        }
+      }
+    },
+    "Knee bending — the leg stays straight; only the ankle works.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Knee bending — the leg stays straight; only the ankle works."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Колено сгибается — нога прямая, работает только голеностоп."
+          }
+        }
+      }
+    },
+    "Single-leg calf raise on a step": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Single-leg calf raise on a step"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подъёмы на одной ноге на ступеньке"
+          }
+        }
+      }
+    },
+    "Stand on one leg with the ball of the foot on a step edge.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stand on one leg with the ball of the foot on a step edge."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стоя на одной ноге, носок на краю ступеньки."
+          }
+        }
+      }
+    },
+    "Lower the heel below the step level, feel the stretch.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower the heel below the step level, feel the stretch."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Опусти пятку ниже уровня ступеньки, почувствуй растяжение."
+          }
+        }
+      }
+    },
+    "Rise as high as possible, pause a second, lower for 3 seconds.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rise as high as possible, pause a second, lower for 3 seconds."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поднимись максимально высоко, секунда паузы, вниз 3 секунды."
+          }
+        }
+      }
+    },
+    "Short bottom range — the heel must drop below the step.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Short bottom range — the heel must drop below the step."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Короткая нижняя фаза — пятка должна уходить ниже ступеньки."
+          }
+        }
+      }
+    },
+    "Bouncing out of the stretch — pause briefly at the bottom too.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bouncing out of the stretch — pause briefly at the bottom too."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отскок из растяжения — внизу тоже короткая пауза."
+          }
+        }
+      }
+    },
+    "Horizontal push": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Horizontal push"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Жим горизонт."
+          }
+        }
+      }
+    },
+    "Hinge": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hinge"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Наклон"
+          }
+        }
+      }
+    },
+    "Pull": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pull"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тяга"
+          }
+        }
+      }
+    },
+    "Vertical push": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vertical push"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Жим вертик."
+          }
+        }
+      }
+    },
+    "Lunges": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lunges"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выпады"
+          }
+        }
+      }
+    },
+    "Core · plank": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Core · plank"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Корпус · планка"
+          }
+        }
+      }
+    },
+    "Core · rotation": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Core · rotation"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Корпус · бок"
+          }
+        }
+      }
+    },
+    "Calves": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calves"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Голень"
+          }
+        }
+      }
+    },
+    "per side": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "per side"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "на сторону"
+          }
+        }
+      }
+    },
+    "sec": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "sec"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "сек"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

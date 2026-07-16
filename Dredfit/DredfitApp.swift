@@ -2,16 +2,18 @@
 //  DredfitApp.swift
 //  Dredfit
 //
-//  Created by Dmitry Novikov on 16/07/2026.
-//
 
 import SwiftUI
 
 @main
 struct DredfitApp: App {
+    @State private var store = AppStore()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
+                .environment(store)
+                .preferredColorScheme(.light)
         }
     }
 }

@@ -1,0 +1,38 @@
+{
+  "configurations" : [
+    {
+      "id" : "98BFA15D-E159-48CE-B154-3C83C6CE8E26",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "performanceAntipatternCheckerEnabled" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Dredfit.xcodeproj",
+      "identifier" : "AF2F7BA43008FD9200249B07",
+      "name" : "Dredfit"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:Dredfit.xcodeproj",
+        "identifier" : "AF2F7BB13008FD9300249B07",
+        "name" : "DredfitTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:Dredfit.xcodeproj",
+        "identifier" : "AF2F7BBB3008FD9300249B07",
+        "name" : "DredfitUITests"
+      }
+    }
+  ],
+  "version" : 1
+}
