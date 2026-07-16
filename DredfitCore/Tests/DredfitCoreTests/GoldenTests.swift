@@ -11,6 +11,9 @@
 import XCTest
 @testable import DredfitCore
 
+// Disambiguate from the Pattern type introduced in the macOS 26 SDK
+private typealias Pattern = DredfitCore.Pattern
+
 // MARK: - Fixture model
 
 private struct Golden: Decodable {

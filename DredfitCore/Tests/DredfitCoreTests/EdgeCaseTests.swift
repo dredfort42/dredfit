@@ -6,6 +6,9 @@
 import XCTest
 @testable import DredfitCore
 
+// Disambiguate from the Pattern type introduced in the macOS 26 SDK
+private typealias Pattern = DredfitCore.Pattern
+
 final class EdgeCaseTests: XCTestCase {
 
     // MARK: - Actual values: bounds and special cases
