@@ -41,6 +41,10 @@ jobs:
           echo "device=$device" >> "$GITHUB_OUTPUT"
 
       - name: Build and test
+        env:
+          # UI tests are slow and flaky on CI runners: PRs run unit tests only,
+          # the full suite runs on pushes to develop/release/hotfix/main
+          SKIP_UI_TESTS: ${{ github.event_name == 'pull_request' && '-skip-testing:DredfitUITests' || '' }}
         run: |
           set -o pipefail
           xcodebuild test \
@@ -48,6 +52,7 @@ jobs:
             -scheme Dredfit \
             -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.device }}" \
             CODE_SIGNING_ALLOWED=NO \
+            $SKIP_UI_TESTS \
             | xcbeautify --renderer github-actions
 
       - name: Upload test results on failure
