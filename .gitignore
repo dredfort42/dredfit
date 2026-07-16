@@ -1,0 +1,27 @@
+# macOS
+.DS_Store
+
+# Xcode
+## Build generated
+build/
+DerivedData/
+
+## User settings
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+
+## Swift Package Manager
+.build/
+.swiftpm/
+
+## CocoaPods / Carthage (если появятся)
+Pods/
+Carthage/Build/
+
+## Fastlane / prov profiles
+*.mobileprovision
+*.ipa
+*.dSYM.zip
+*.dSYM
