@@ -183,7 +183,8 @@ final class DredfitUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["total level"].waitForExistence(timeout: 3))
         // 6 patterns × (+2) = 12
         XCTAssertTrue(app.staticTexts["12"].exists, "the total level after \"easy\" should be 12")
-        XCTAssertTrue(app.staticTexts["1 workouts"].exists)
+        // "%lld workouts" is pluralized — count 1 renders the singular in English
+        XCTAssertTrue(app.staticTexts["1 workout"].exists)
     }
 
     // MARK: - Persistence across relaunch
