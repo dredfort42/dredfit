@@ -6,6 +6,7 @@
 import SwiftUI
 
 @main
+@MainActor
 struct DredfitApp: App {
     @State private var store = AppStore()
 

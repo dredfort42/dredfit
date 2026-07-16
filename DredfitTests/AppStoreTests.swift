@@ -10,6 +10,7 @@ import DredfitCore
 @testable import Dredfit
 
 @MainActor
+@MainActor
 final class AppStoreTests: XCTestCase {
 
     nonisolated(unsafe) private var tempURL: URL!
