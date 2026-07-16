@@ -1,0 +1,23 @@
+name: Lint
+
+on:
+  push:
+    branches: [main, develop, "release/**", "hotfix/**"]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: lint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  swiftlint:
+    name: SwiftLint
+    runs-on: ubuntu-latest
+    container: ghcr.io/realm/swiftlint:latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run SwiftLint
+        run: swiftlint lint --reporter github-actions-logging

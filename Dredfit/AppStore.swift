@@ -8,6 +8,7 @@
 
 import Foundation
 import Observation
+import os
 import DredfitCore
 
 /// A completed workout record (feeds the calendar, history and progress chart).
@@ -28,8 +29,11 @@ private struct AppData: Codable {
     var records: [WorkoutRecord]
 }
 
+@MainActor
 @Observable
 final class AppStore {
+
+    private static let logger = Logger(subsystem: "app.dredfit", category: "store")
 
     private(set) var engineState: EngineState
     private(set) var records: [WorkoutRecord]
@@ -44,14 +48,18 @@ final class AppStore {
         if CommandLine.arguments.contains("--uitest-reset") {
             try? FileManager.default.removeItem(at: storageURL)
         }
-        if let data = try? Data(contentsOf: storageURL),
-           let decoded = try? JSONDecoder().decode(AppData.self, from: data) {
-            engineState = decoded.engineState
-            records = decoded.records
-        } else {
-            engineState = .initial
-            records = []
+        if let data = try? Data(contentsOf: storageURL) {
+            do {
+                let decoded = try JSONDecoder().decode(AppData.self, from: data)
+                engineState = decoded.engineState
+                records = decoded.records
+                return
+            } catch {
+                Self.logger.error("State file is corrupted, starting fresh: \(error.localizedDescription)")
+            }
         }
+        engineState = .initial
+        records = []
     }
 
     // MARK: - Derived
@@ -142,9 +150,12 @@ final class AppStore {
     }
 
     private func persist() {
-        let data = AppData(engineState: engineState, records: records)
-        if let encoded = try? JSONEncoder().encode(data) {
-            try? encoded.write(to: storageURL, options: .atomic)
+        do {
+            let encoded = try JSONEncoder().encode(AppData(engineState: engineState, records: records))
+            try encoded.write(to: storageURL, options: .atomic)
+        } catch {
+            Self.logger.error("Failed to persist state: \(error.localizedDescription)")
+            assertionFailure("State persistence failed: \(error)")
         }
     }
 }

@@ -119,6 +119,10 @@ final class DredfitUITests: XCTestCase {
         app.buttons["Start"].tap()
         app.buttons["Done"].tap()          // one set
         app.buttons["Exit"].firstMatch.tap()
+        // UPDATE-7: exit now asks for confirmation
+        let endButton = app.buttons["End workout"]
+        XCTAssertTrue(endButton.waitForExistence(timeout: 3), "exit confirmation dialog did not appear")
+        endButton.tap()
         // the workout is not recorded — Start is back in place
         XCTAssertTrue(app.buttons["Start"].waitForExistence(timeout: 3),
                       "after Exit the workout must not count as completed")
@@ -179,7 +183,8 @@ final class DredfitUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["total level"].waitForExistence(timeout: 3))
         // 6 patterns × (+2) = 12
         XCTAssertTrue(app.staticTexts["12"].exists, "the total level after \"easy\" should be 12")
-        XCTAssertTrue(app.staticTexts["1 workouts"].exists)
+        // "%lld workouts" is pluralized — count 1 renders the singular in English
+        XCTAssertTrue(app.staticTexts["1 workout"].exists)
     }
 
     // MARK: - Persistence across relaunch

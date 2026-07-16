@@ -1,0 +1,31 @@
+included:
+  - Dredfit
+  - DredfitCore
+  - DredfitTests
+  - DredfitUITests
+
+excluded:
+  - DredfitCore/.build
+
+disabled_rules:
+  # Trailing commas in collection literals are valid modern Swift and used throughout this codebase
+  - trailing_comma
+
+identifier_name:
+  # Short names (i, p, dx) are idiomatic in the math/geometry-heavy engine code
+  min_length: 1
+
+type_name:
+  min_length: 2
+
+line_length:
+  warning: 140
+  error: 200
+
+type_body_length:
+  warning: 400
+  error: 600
+
+file_length:
+  warning: 600
+  error: 1200

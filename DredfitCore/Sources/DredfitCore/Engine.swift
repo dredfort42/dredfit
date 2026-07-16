@@ -85,7 +85,7 @@ public struct EngineState: Codable, Equatable, Sendable {
 // MARK: - Level encoding
 
 public struct LevelDecoded: Equatable, Sendable {
-    public let tier: Int   // 1...3
+    public let tier: Int   // 1...4 (v2.1)
     public let reps: Int   // 8...15
     public let hold: Int   // 20...55 (sec)
 }

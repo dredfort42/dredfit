@@ -31,6 +31,7 @@ struct WorkoutFlowView: View {
     @State private var techniqueShown = false
     @State private var actuals: [Pattern: Int] = [:]
     @State private var adjusting = false
+    @State private var exitConfirmShown = false
     @State private var adjustValue = 0
 
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -77,6 +78,14 @@ struct WorkoutFlowView: View {
         .sheet(isPresented: $techniqueShown) {
             TechniqueSheet(exercise: exercise)
         }
+        .confirmationDialog(String(localized: "End the workout?"),
+                            isPresented: $exitConfirmShown,
+                            titleVisibility: .visible) {
+            Button(String(localized: "End workout"), role: .destructive) { dismiss() }
+            Button(String(localized: "Cancel"), role: .cancel) { }
+        } message: {
+            Text("Progress of this session won't be saved.")
+        }
     }
 
     // MARK: - Header with progress segments
@@ -85,11 +94,13 @@ struct WorkoutFlowView: View {
     private var header: some View {
         if phase != .feedback {
             VStack(spacing: 10) {
-                HStack {
-                    Button(String(localized: "Exit")) { dismiss() }
-                        .font(.system(size: 14))
-                        .foregroundStyle(Theme.ink3)
-                    Spacer()
+                ZStack {
+                    HStack {
+                        Button(String(localized: "Exit")) { exitConfirmShown = true }
+                            .font(.system(size: 14))
+                            .foregroundStyle(Theme.ink3)
+                        Spacer()
+                    }
                     Group {
                         if phase == .work {
                             Text("\(exIndex + 1) / \(session.exercises.count)")
@@ -100,8 +111,6 @@ struct WorkoutFlowView: View {
                     .font(.system(size: 13, weight: .semibold))
                     .kerning(0.5)
                     .foregroundStyle(Theme.ink3)
-                    Spacer()
-                    Button(String(localized: "Exit")) { }.font(.system(size: 14)).hidden() // symmetry
                 }
                 HStack(spacing: 5) {
                     ForEach(0..<session.exercises.count, id: \.self) { i in

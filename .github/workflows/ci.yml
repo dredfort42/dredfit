@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop, "release/**", "hotfix/**"]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core-tests:
+    name: DredfitCore package tests
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run tests
+        working-directory: DredfitCore
+        run: swift test --parallel
+
+  app-tests:
+    name: Dredfit app tests (iOS Simulator)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select iPhone simulator
+        id: sim
+        run: |
+          device=$(xcrun simctl list devices available | grep -E '^\s+iPhone' | head -1 | sed 's/ (.*//' | xargs)
+          if [ -z "$device" ]; then
+            echo "No iPhone simulator found on runner" >&2
+            exit 1
+          fi
+          echo "Using simulator: $device"
+          echo "device=$device" >> "$GITHUB_OUTPUT"
+
+      - name: Build and test
+        env:
+          # UI tests are slow and flaky on CI runners: PRs run unit tests only,
+          # the full suite runs on pushes to develop/release/hotfix/main
+          SKIP_UI_TESTS: ${{ github.event_name == 'pull_request' && '-skip-testing:DredfitUITests' || '' }}
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project Dredfit.xcodeproj \
+            -scheme Dredfit \
+            -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.device }}" \
+            CODE_SIGNING_ALLOWED=NO \
+            $SKIP_UI_TESTS \
+            | xcbeautify --renderer github-actions
+
+      - name: Upload test results on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcresult
+          path: ~/Library/Developer/Xcode/DerivedData/**/Logs/Test/*.xcresult
+          if-no-files-found: ignore
