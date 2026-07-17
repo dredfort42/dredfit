@@ -63,7 +63,7 @@ public enum EngineConfig {
     public static let deloadDrop = 3        // deload rollback
     public static let warmupMin = 5
     public static let cooldownMin = 3
-    public static var levelMax: Int { tiers * stepsPerTier - 1 } // 23
+    public static var levelMax: Int { tiers * stepsPerTier - 1 } // 31 (v2.1)
 }
 
 // MARK: - State
@@ -228,17 +228,24 @@ public enum Engine {
     /// Applying feedback. The only state mutation.
     /// - overrides: per-pattern actual values (reps or seconds) that
     ///   override the overall rating for their pattern.
+    /// - skipped: patterns the user skipped in this session (v2.1.1).
+    ///   A skipped pattern was not trained: its level and failStreak stay
+    ///   untouched (the streak is frozen, not reset), overrides for it are
+    ///   ignored. Patterns not in the session are ignored. The counter
+    ///   still advances — the session took place.
     public static func applyFeedback(
         state: EngineState,
         session: Session,
         result: FeedbackResult,
-        overrides: [Pattern: Int] = [:]
+        overrides: [Pattern: Int] = [:],
+        skipped: Set<Pattern> = []
     ) -> EngineState {
         var next = state
         next.counter = state.counter + 1
 
         for ex in session.exercises {
             let p = ex.pattern
+            if skipped.contains(p) { continue } // v2.1.1: not trained — no change
             let oldL = state.levels[p] ?? 0
             var newL: Int
 

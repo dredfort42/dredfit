@@ -8,7 +8,6 @@
 
 import Foundation
 import Observation
-import os
 import DredfitCore
 
 /// A completed workout record (feeds the calendar, history and progress chart).
@@ -22,6 +21,9 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     // UPDATE-3 decode as nil and show a graceful placeholder.
     var exercises: [SessionExercise]? = nil
     var actuals: [Pattern: Int]? = nil
+    // v1.1 additions, optional for the same migration reason:
+    var skipped: Set<Pattern>? = nil        // exercises skipped during the workout
+    var levelsAfter: [Pattern: Int]? = nil  // per-pattern level snapshot (feeds future charts)
 }
 
 private struct AppData: Codable {
@@ -29,11 +31,8 @@ private struct AppData: Codable {
     var records: [WorkoutRecord]
 }
 
-@MainActor
 @Observable
 final class AppStore {
-
-    private static let logger = Logger(subsystem: "app.dredfit", category: "store")
 
     private(set) var engineState: EngineState
     private(set) var records: [WorkoutRecord]
@@ -48,18 +47,23 @@ final class AppStore {
         if CommandLine.arguments.contains("--uitest-reset") {
             try? FileManager.default.removeItem(at: storageURL)
         }
-        if let data = try? Data(contentsOf: storageURL) {
-            do {
-                let decoded = try JSONDecoder().decode(AppData.self, from: data)
-                engineState = decoded.engineState
-                records = decoded.records
-                return
-            } catch {
-                Self.logger.error("State file is corrupted, starting fresh: \(error.localizedDescription)")
-            }
+        if let data = try? Data(contentsOf: storageURL),
+           let decoded = try? JSONDecoder().decode(AppData.self, from: data) {
+            engineState = decoded.engineState
+            records = decoded.records
+        } else {
+            engineState = .initial
+            records = []
         }
-        engineState = .initial
-        records = []
+        // UI-test hook: session 1 completed yesterday → today offers session 2
+        // (the only way for UI tests to reach hold exercises deterministically).
+        if CommandLine.arguments.contains("--uitest-session2") {
+            engineState = .initial
+            records = []
+            completeWorkout(session: Engine.generateSession(engineState),
+                            result: .plan,
+                            date: Calendar.current.date(byAdding: .day, value: -1, to: .now)!)
+        }
     }
 
     // MARK: - Derived
@@ -127,16 +131,20 @@ final class AppStore {
     func completeWorkout(session: Session,
                          result: FeedbackResult,
                          overrides: [Pattern: Int] = [:],
+                         skipped: Set<Pattern> = [],
                          date: Date = .now) {
         engineState = Engine.applyFeedback(state: engineState, session: session,
-                                           result: result, overrides: overrides)
+                                           result: result, overrides: overrides,
+                                           skipped: skipped)
         records.append(WorkoutRecord(
             sessionNumber: session.sessionNumber,
             date: date,
             result: result,
             totalLevelAfter: totalLevel,
             exercises: session.exercises,
-            actuals: overrides.isEmpty ? nil : overrides))
+            actuals: overrides.isEmpty ? nil : overrides,
+            skipped: skipped.isEmpty ? nil : skipped,
+            levelsAfter: engineState.levels))
         persist()
     }
 
@@ -150,12 +158,9 @@ final class AppStore {
     }
 
     private func persist() {
-        do {
-            let encoded = try JSONEncoder().encode(AppData(engineState: engineState, records: records))
-            try encoded.write(to: storageURL, options: .atomic)
-        } catch {
-            Self.logger.error("Failed to persist state: \(error.localizedDescription)")
-            assertionFailure("State persistence failed: \(error)")
+        let data = AppData(engineState: engineState, records: records)
+        if let encoded = try? JSONEncoder().encode(data) {
+            try? encoded.write(to: storageURL, options: .atomic)
         }
     }
 }

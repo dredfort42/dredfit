@@ -38,8 +38,10 @@ final class AppStoreTests: XCTestCase {
     func testCompleteWorkoutPersistsAndReloads() {
         let store = AppStore(storageURL: tempURL)
         let session = store.nextSession
+        let skippedPattern = session.exercises[1].pattern
         store.completeWorkout(session: session, result: .more,
-                              overrides: [session.exercises[0].pattern: 6])
+                              overrides: [session.exercises[0].pattern: 6],
+                              skipped: [skippedPattern])
 
         // a separate store on the same file sees the same state
         let reloaded = AppStore(storageURL: tempURL)
@@ -49,6 +51,21 @@ final class AppStoreTests: XCTestCase {
         XCTAssertEqual(reloaded.records.last?.exercises?.count,
                        session.exercises.count, "workout snapshot was not saved")
         XCTAssertEqual(reloaded.records.last?.actuals?[session.exercises[0].pattern], 6)
+        // v1.1: skips and the per-pattern level snapshot survive the reload
+        XCTAssertEqual(reloaded.records.last?.skipped, [skippedPattern])
+        XCTAssertEqual(reloaded.records.last?.levelsAfter, store.engineState.levels)
+    }
+
+    func testSkippedExerciseKeepsItsLevel() {
+        let store = AppStore(storageURL: tempURL)
+        let session = store.nextSession
+        let skippedPattern = session.exercises[2].pattern
+        store.completeWorkout(session: session, result: .more, skipped: [skippedPattern])
+        XCTAssertEqual(store.engineState.levels[skippedPattern], 0,
+                       "a skipped pattern must not level up")
+        XCTAssertEqual(store.engineState.levels[session.exercises[0].pattern], 2,
+                       "a trained pattern must still move by the rating")
+        XCTAssertEqual(store.records.last?.skipped, [skippedPattern])
     }
 
     func testCorruptedStorageFallsBackToInitial() throws {
@@ -78,6 +95,8 @@ final class AppStoreTests: XCTestCase {
         XCTAssertEqual(store.records.count, 1, "the legacy record did not decode")
         XCTAssertNil(store.records[0].exercises, "a legacy record should have no snapshot")
         XCTAssertNil(store.records[0].actuals)
+        XCTAssertNil(store.records[0].skipped, "v1.0 records have no skips")
+        XCTAssertNil(store.records[0].levelsAfter, "v1.0 records have no level snapshot")
         XCTAssertEqual(store.totalLevel, 12)
     }
 

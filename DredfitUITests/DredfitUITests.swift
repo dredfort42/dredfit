@@ -3,6 +3,10 @@
 //  UI tests of the full feature set. Run on the English locale
 //  with clean state (--uitest-reset), except the persistence test.
 //
+//  Hold-timer tests use --uitest-session2: session 1 is pre-completed
+//  "yesterday", so today's workout is session 2, which contains the two
+//  hold exercises (plank at #4, side plank at #5) at their 20 s level.
+//
 
 import XCTest
 
@@ -119,10 +123,6 @@ final class DredfitUITests: XCTestCase {
         app.buttons["Start"].tap()
         app.buttons["Done"].tap()          // one set
         app.buttons["Exit"].firstMatch.tap()
-        // UPDATE-7: exit now asks for confirmation
-        let endButton = app.buttons["End workout"]
-        XCTAssertTrue(endButton.waitForExistence(timeout: 3), "exit confirmation dialog did not appear")
-        endButton.tap()
         // the workout is not recorded — Start is back in place
         XCTAssertTrue(app.buttons["Start"].waitForExistence(timeout: 3),
                       "after Exit the workout must not count as completed")
@@ -134,6 +134,18 @@ final class DredfitUITests: XCTestCase {
         for _ in 0..<6 { app.buttons["Skip exercise"].tap() }
         XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 3),
                       "skipping all exercises should lead to the rating")
+        // v1.1: the rating screen lists the skipped exercises
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label == 'skipped'")).firstMatch.exists,
+            "skipped exercises are not listed on the rating screen")
+
+        // honest skips: even an "easy" rating must not level up untrained patterns
+        app.staticTexts["Easy, could do more"].tap()
+        _ = app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5)
+        app.tabBars.buttons["Progress"].tap()
+        XCTAssertTrue(app.staticTexts["total level"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["0"].exists,
+                      "skipped exercises must not raise the level (honest skips)")
     }
 
     // MARK: - Calendar and history
@@ -183,8 +195,53 @@ final class DredfitUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["total level"].waitForExistence(timeout: 3))
         // 6 patterns × (+2) = 12
         XCTAssertTrue(app.staticTexts["12"].exists, "the total level after \"easy\" should be 12")
-        // "%lld workouts" is pluralized — count 1 renders the singular in English
-        XCTAssertTrue(app.staticTexts["1 workout"].exists)
+        // singular form — the catalog's plural variations must be intact
+        XCTAssertTrue(app.staticTexts["1 workout"].exists,
+                      "\"1 workout\" must use the singular (plural variations lost?)")
+    }
+
+    // MARK: - Hold timer (v1.1)
+
+    /// Session 2 via --uitest-session2; skips the three rep exercises
+    /// (pull, vertical push, lunges) to land on the plank (a hold, 20 s).
+    private func launchIntoSession2AndReachPlank() {
+        app.launchArguments = ["--uitest-session2", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Workout 2"].waitForExistence(timeout: 5),
+                      "--uitest-session2 must open on workout 2")
+        app.buttons["Start"].tap()
+        for _ in 0..<3 { app.buttons["Skip exercise"].tap() }
+        XCTAssertTrue(app.buttons["Start hold"].waitForExistence(timeout: 3),
+                      "the hold exercise did not offer the countdown")
+    }
+
+    func testHoldTimerEarlyStopCapturesActual() {
+        launchIntoSession2AndReachPlank()
+        app.buttons["Start hold"].tap()
+        let stop = app.buttons["Stop"]
+        XCTAssertTrue(stop.waitForExistence(timeout: 2), "no Stop during the countdown")
+        stop.tap()   // ~1 s held → rounds to the 5 s minimum
+        // an early stop flows into rest, the held seconds became the actual
+        let skipRest = app.buttons["Skip rest"]
+        XCTAssertTrue(skipRest.waitForExistence(timeout: 3),
+                      "an early stop should flow into rest")
+        skipRest.tap()
+        XCTAssertTrue(app.staticTexts["actual 5"].waitForExistence(timeout: 3),
+                      "the held seconds were not recorded as the actual")
+    }
+
+    func testHoldTimerAutoAdvancesAtZero() {
+        launchIntoSession2AndReachPlank()
+        // shorten the hold to the 5 s minimum: 20 → 15 → 10 → 5
+        app.buttons["Went differently"].tap()
+        let minus = app.buttons["minus"]
+        XCTAssertTrue(minus.waitForExistence(timeout: 2), "the stepper did not open")
+        minus.tap(); minus.tap(); minus.tap()
+        app.buttons["OK"].tap()
+        app.buttons["Start hold"].tap()
+        // at zero the countdown must advance to rest by itself
+        XCTAssertTrue(app.buttons["Skip rest"].waitForExistence(timeout: 9),
+                      "the hold did not auto-advance to rest at zero")
     }
 
     // MARK: - Persistence across relaunch

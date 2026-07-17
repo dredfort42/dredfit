@@ -5,6 +5,11 @@
 //  The workout flow: exercise (big number, set dots) and rest (ring timer).
 //  State machine: work > rest > … > feedback.
 //
+//  v1.1: hold exercises run a countdown (start by button, 3-2-1 signals,
+//  auto-advance at zero; an early stop records the held seconds as the
+//  actual). Skipped exercises are collected and passed to the engine so
+//  their patterns honestly keep their level. The screen stays awake.
+//
 
 import Combine
 import SwiftUI
@@ -30,15 +35,25 @@ struct WorkoutFlowView: View {
     @State private var restEndDate: Date?
     @State private var techniqueShown = false
     @State private var actuals: [Pattern: Int] = [:]
+    @State private var skippedPatterns: Set<Pattern> = []
     @State private var adjusting = false
-    @State private var exitConfirmShown = false
     @State private var adjustValue = 0
+
+    // Hold-exercise countdown (v1.1): date-based so it survives backgrounding.
+    // Per-side holds run the countdown twice (left/right); the actual is the
+    // smaller of the two — the honest bottleneck.
+    @State private var holdEndDate: Date?
+    @State private var holdRemaining = 0
+    @State private var holdTotal = 0
+    @State private var holdSecondSide = false
+    @State private var firstSideHeld: Int?
 
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     private var exercise: SessionExercise { session.exercises[exIndex] }
     private var isLastSet: Bool { setIndex == exercise.sets - 1 }
     private var isLastExercise: Bool { exIndex == session.exercises.count - 1 }
+    private var holding: Bool { holdEndDate != nil }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -50,8 +65,10 @@ struct WorkoutFlowView: View {
             case .rest:
                 restView
             case .feedback:
-                FeedbackView(session: session, actuals: actuals) { result, overrides in
-                    store.completeWorkout(session: session, result: result, overrides: overrides)
+                FeedbackView(session: session, actuals: actuals,
+                             skipped: skippedPatterns) { result, overrides in
+                    store.completeWorkout(session: session, result: result,
+                                          overrides: overrides, skipped: skippedPatterns)
                     dismiss()
                 }
             }
@@ -59,32 +76,17 @@ struct WorkoutFlowView: View {
         .padding(.horizontal, 24)
         .background(Color.white)
         .onReceive(timer) { _ in
-            guard case .rest = phase, let end = restEndDate else { return }
-            let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
-            guard newRemaining != restRemaining else { return }
-            if newRemaining == 0 {
-                restEndDate = nil
-                restRemaining = 0
-                playGo()
-                advanceAfterRest()
-            } else {
-                // tick once per second in the 3-2-1 zone (no spam after backgrounding)
-                if newRemaining <= Self.countdownSignalSeconds && newRemaining < restRemaining {
-                    playTick()
-                }
-                restRemaining = newRemaining
+            if case .rest = phase {
+                tickRest()
+            } else if phase == .work && holding {
+                tickHold()
             }
         }
+        // Keep the screen awake for the whole workout (timers, holds).
+        .onAppear { UIApplication.shared.isIdleTimerDisabled = true }
+        .onDisappear { UIApplication.shared.isIdleTimerDisabled = false }
         .sheet(isPresented: $techniqueShown) {
             TechniqueSheet(exercise: exercise)
-        }
-        .confirmationDialog(String(localized: "End the workout?"),
-                            isPresented: $exitConfirmShown,
-                            titleVisibility: .visible) {
-            Button(String(localized: "End workout"), role: .destructive) { dismiss() }
-            Button(String(localized: "Cancel"), role: .cancel) { }
-        } message: {
-            Text("Progress of this session won't be saved.")
         }
     }
 
@@ -94,13 +96,11 @@ struct WorkoutFlowView: View {
     private var header: some View {
         if phase != .feedback {
             VStack(spacing: 10) {
-                ZStack {
-                    HStack {
-                        Button(String(localized: "Exit")) { exitConfirmShown = true }
-                            .font(.system(size: 14))
-                            .foregroundStyle(Theme.ink3)
-                        Spacer()
-                    }
+                HStack {
+                    Button(String(localized: "Exit")) { dismiss() }
+                        .font(.system(size: 14))
+                        .foregroundStyle(Theme.ink3)
+                    Spacer()
                     Group {
                         if phase == .work {
                             Text("\(exIndex + 1) / \(session.exercises.count)")
@@ -111,6 +111,8 @@ struct WorkoutFlowView: View {
                     .font(.system(size: 13, weight: .semibold))
                     .kerning(0.5)
                     .foregroundStyle(Theme.ink3)
+                    Spacer()
+                    Button(String(localized: "Exit")) { }.font(.system(size: 14)).hidden() // symmetry
                 }
                 HStack(spacing: 5) {
                     ForEach(0..<session.exercises.count, id: \.self) { i in
@@ -145,10 +147,11 @@ struct WorkoutFlowView: View {
             .padding(.top, 10)
 
             VStack(spacing: 4) {
-                Text("\(actuals[exercise.pattern] ?? exercise.load)")
+                Text("\(holding ? holdRemaining : (actuals[exercise.pattern] ?? exercise.load))")
                     .font(.system(size: 112, weight: .heavy))
                     .tracking(-4)
                     .monospacedDigit()
+                    .contentTransition(.numericText(countsDown: true))
                 Text(loadCaption)
                     .font(.system(size: 17, weight: .medium))
                     .foregroundStyle(Theme.ink2)
@@ -165,7 +168,11 @@ struct WorkoutFlowView: View {
             .padding(.top, 30)
 
             Group {
-                if let actual = actuals[exercise.pattern], actual != exercise.load {
+                if holdSecondSide {
+                    Text("second side")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Theme.accent)
+                } else if let actual = actuals[exercise.pattern], actual != exercise.load {
                     Text("actual \(actual)")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(Theme.accent)
@@ -184,7 +191,15 @@ struct WorkoutFlowView: View {
                     .padding(.bottom, 8)
             }
 
-            PrimaryButton(title: String(localized: "Done")) { completeSet() }
+            if exercise.unit == .hold {
+                if holding {
+                    PrimaryButton(title: String(localized: "Stop")) { stopHoldEarly() }
+                } else {
+                    PrimaryButton(title: String(localized: "Start hold")) { startHold() }
+                }
+            } else {
+                PrimaryButton(title: String(localized: "Done")) { completeSet() }
+            }
 
             HStack(spacing: 26) {
                 Button(String(localized: "Went differently")) { startAdjusting() }
@@ -193,6 +208,8 @@ struct WorkoutFlowView: View {
             .font(.system(size: 14.5))
             .foregroundStyle(Theme.ink2)
             .padding(.vertical, 14)
+            .opacity(holding ? 0 : 1)      // no adjusting/skipping mid-hold
+            .disabled(holding)
         }
     }
 
@@ -336,6 +353,10 @@ struct WorkoutFlowView: View {
 
     private func skipExercise() {
         adjusting = false
+        holdSecondSide = false
+        firstSideHeld = nil
+        actuals.removeValue(forKey: exercise.pattern)   // a skip wins over an actual
+        skippedPatterns.insert(exercise.pattern)
         if isLastExercise {
             phase = .feedback
         } else {
@@ -349,6 +370,83 @@ struct WorkoutFlowView: View {
         restRemaining = seconds
         restEndDate = Date.now.addingTimeInterval(TimeInterval(seconds))
         phase = .rest(seconds: seconds)
+    }
+
+    private func tickRest() {
+        guard let end = restEndDate else { return }
+        let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
+        guard newRemaining != restRemaining else { return }
+        if newRemaining == 0 {
+            restEndDate = nil
+            restRemaining = 0
+            playGo()
+            advanceAfterRest()
+        } else {
+            // tick once per second in the 3-2-1 zone (no spam after backgrounding)
+            if newRemaining <= Self.countdownSignalSeconds && newRemaining < restRemaining {
+                playTick()
+            }
+            restRemaining = newRemaining
+        }
+    }
+
+    // MARK: - Hold countdown (v1.1)
+
+    private func startHold() {
+        adjusting = false
+        holdTotal = actuals[exercise.pattern] ?? exercise.load
+        holdRemaining = holdTotal
+        holdEndDate = Date.now.addingTimeInterval(TimeInterval(holdTotal))
+    }
+
+    private func tickHold() {
+        guard let end = holdEndDate else { return }
+        let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
+        guard newRemaining != holdRemaining else { return }
+        if newRemaining == 0 {
+            playGo()
+            finishHold(heldSeconds: holdTotal)
+        } else {
+            if newRemaining <= Self.countdownSignalSeconds && newRemaining < holdRemaining {
+                playTick()
+            }
+            holdRemaining = newRemaining
+        }
+    }
+
+    /// Early stop: the seconds actually held become the actual.
+    private func stopHoldEarly() {
+        guard let end = holdEndDate else { return }
+        let remaining = max(0, end.timeIntervalSinceNow)
+        finishHold(heldSeconds: Int((Double(holdTotal) - remaining).rounded()))
+    }
+
+    /// One countdown finished. Per-side holds wait for the second side
+    /// (started by button, giving time to switch); the recorded actual is
+    /// the smaller of the two sides.
+    private func finishHold(heldSeconds: Int) {
+        holdEndDate = nil
+        if exercise.perSide && !holdSecondSide {
+            firstSideHeld = heldSeconds
+            holdSecondSide = true
+            return
+        }
+        let held = min(heldSeconds, firstSideHeld ?? heldSeconds)
+        holdSecondSide = false
+        firstSideHeld = nil
+        recordHoldActual(heldSeconds: held)
+        completeSet()
+    }
+
+    /// Rounds to the 5-second step (same as the manual adjuster), within 5...90.
+    /// Holding exactly the planned value removes the override — that is "on plan".
+    private func recordHoldActual(heldSeconds: Int) {
+        let rounded = min(max(Int((Double(heldSeconds) / 5).rounded()) * 5, 5), 90)
+        if rounded == exercise.load {
+            actuals.removeValue(forKey: exercise.pattern)
+        } else {
+            actuals[exercise.pattern] = rounded
+        }
     }
 
     // MARK: - Audible countdown of the last rest seconds

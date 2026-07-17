@@ -6,9 +6,6 @@
 import XCTest
 @testable import DredfitCore
 
-// Disambiguate from the Pattern type introduced in the macOS 26 SDK
-private typealias Pattern = DredfitCore.Pattern
-
 final class EngineTests: XCTestCase {
 
     // MARK: Level encoding
@@ -155,6 +152,102 @@ final class EngineTests: XCTestCase {
         let data = try JSONEncoder().encode(state)
         let decoded = try JSONDecoder().decode(EngineState.self, from: data)
         XCTAssertEqual(decoded, state)
+    }
+
+    // MARK: Honest skips (v2.1.1)
+
+    /// A state with non-zero levels and zero streaks (5 "plan" sessions).
+    private func warmedUpState() -> EngineState {
+        var state = EngineState.initial
+        for _ in 0..<5 {
+            let s = Engine.generateSession(state)
+            state = Engine.applyFeedback(state: state, session: s, result: .plan)
+        }
+        return state
+    }
+
+    func testSkippedPatternKeepsLevelAndStreak() {
+        let state = warmedUpState()
+        let s = Engine.generateSession(state)
+        for result in [FeedbackResult.less, .plan, .more] {
+            for ex in s.exercises {
+                let p = ex.pattern
+                let after = Engine.applyFeedback(state: state, session: s,
+                                                 result: result, skipped: [p])
+                XCTAssertEqual(after.levels[p], state.levels[p],
+                               "\(result)/\(p): a skipped pattern must not change level")
+                XCTAssertEqual(after.failStreak[p], state.failStreak[p],
+                               "\(result)/\(p): a skipped pattern must not change streak")
+                XCTAssertEqual(after.counter, state.counter + 1)
+                // a neighbour still moves by the ordinary delta
+                let other = s.exercises.first { $0.pattern != p }!.pattern
+                let expected = min(max((state.levels[other] ?? 0) + result.delta, 0),
+                                   EngineConfig.levelMax)
+                XCTAssertEqual(after.levels[other], expected,
+                               "\(result)/\(p): neighbour \(other) moved wrong")
+            }
+        }
+    }
+
+    func testSkipBeatsOverride() {
+        let state = warmedUpState()
+        let s = Engine.generateSession(state)
+        let p = s.exercises[0].pattern
+        let after = Engine.applyFeedback(state: state, session: s, result: .plan,
+                                         overrides: [p: 14], skipped: [p])
+        XCTAssertEqual(after.levels[p], state.levels[p],
+                       "an override for a skipped pattern must be ignored")
+    }
+
+    func testAllSkippedAdvancesOnlyCounter() {
+        let state = warmedUpState()
+        let s = Engine.generateSession(state)
+        let after = Engine.applyFeedback(state: state, session: s, result: .more,
+                                         skipped: Set(s.exercises.map(\.pattern)))
+        XCTAssertEqual(after.counter, state.counter + 1)
+        XCTAssertEqual(after.levels, state.levels, "all skipped: levels must stay")
+        XCTAssertEqual(after.failStreak, state.failStreak, "all skipped: streaks must stay")
+    }
+
+    func testSkipOutsideSessionIsNoop() {
+        let state = warmedUpState()
+        let s = Engine.generateSession(state)
+        let inSession = Set(s.exercises.map(\.pattern))
+        let outside = Pattern.ordered.first { !inSession.contains($0) }!
+        let a = Engine.applyFeedback(state: state, session: s, result: .plan)
+        let b = Engine.applyFeedback(state: state, session: s, result: .plan,
+                                     skipped: [outside])
+        XCTAssertEqual(a, b, "skipping a pattern outside the session must be a no-op")
+    }
+
+    func testSkipFreezesFailStreakAndPostponesDeload() {
+        // pump pull up, then two real underperformances → streak 2
+        var state = EngineState.initial
+        for _ in 0..<8 {
+            let s = Engine.generateSession(state)
+            state = Engine.applyFeedback(state: state, session: s, result: .more)
+        }
+        for _ in 0..<2 {
+            let s = Engine.generateSession(state)
+            state = Engine.applyFeedback(state: state, session: s, result: .less)
+        }
+        XCTAssertEqual(state.failStreak[.pull], 2, "setup: pull must be at streak 2")
+        let level = state.levels[.pull]!
+
+        // a skipped "less" session: the streak is frozen, not reset
+        let frozen = Engine.applyFeedback(state: state,
+                                          session: Engine.generateSession(state),
+                                          result: .less, skipped: [.pull])
+        XCTAssertEqual(frozen.failStreak[.pull], 2, "skip must freeze the streak")
+        XCTAssertEqual(frozen.levels[.pull], level, "skip must keep the level")
+
+        // the next real underperformance is the 3rd → deload −1−3
+        let deloaded = Engine.applyFeedback(state: frozen,
+                                            session: Engine.generateSession(frozen),
+                                            result: .less)
+        XCTAssertEqual(deloaded.levels[.pull], level - 1 - EngineConfig.deloadDrop,
+                       "the 3rd real fail after a freeze must deload")
+        XCTAssertEqual(deloaded.failStreak[.pull], 0, "deload must reset the streak")
     }
 
     // MARK: Library

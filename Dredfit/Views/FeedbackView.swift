@@ -9,6 +9,9 @@
 //  chosen rating applies to all non-adjusted exercises, per-exercise
 //  actuals override it for theirs. The separate adjustment sheet is gone.
 //
+//  v1.1: skipped exercises are listed too — the rating does not apply to
+//  them (the engine keeps their level unchanged).
+//
 
 import SwiftUI
 import DredfitCore
@@ -16,6 +19,7 @@ import DredfitCore
 struct FeedbackView: View {
     let session: Session
     let actuals: [Pattern: Int]
+    var skipped: Set<Pattern> = []
     let onComplete: (FeedbackResult, [Pattern: Int]) -> Void
 
     var body: some View {
@@ -47,7 +51,7 @@ struct FeedbackView: View {
 
             Spacer()
 
-            if !actuals.isEmpty {
+            if !actuals.isEmpty || !skipped.isEmpty {
                 adjustedSummary
                     .padding(.bottom, 24)
             }
@@ -68,6 +72,17 @@ struct FeedbackView: View {
                         .font(.system(size: 14, weight: .semibold))
                         .monospacedDigit()
                         .foregroundStyle(Theme.accent)
+                }
+            }
+            ForEach(session.exercises.filter { skipped.contains($0.pattern) }) { ex in
+                HStack {
+                    Text(ex.name)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(Theme.ink3)
+                    Spacer()
+                    Text("skipped")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Theme.ink3)
                 }
             }
             Text("Your rating applies to the rest")
