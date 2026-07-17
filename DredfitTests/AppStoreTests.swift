@@ -194,6 +194,27 @@ final class AppStoreTests: XCTestCase {
         XCTAssertEqual(store.settings.healthExportedThrough, 0)
     }
 
+    // MARK: - Widget snapshot (v1.3)
+
+    func testWidgetSnapshotMirrorsWeekStatuses() throws {
+        let store = AppStore(storageURL: tempURL)
+        guard let url = SharedStorage.snapshotURL else {
+            throw XCTSkip("no App Group container in this environment")
+        }
+        store.completeWorkout(session: store.nextSession, result: .plan)   // today → done
+
+        let snap = try JSONDecoder().decode(WidgetSnapshot.self,
+                                            from: Data(contentsOf: url))
+        XCTAssertEqual(snap.days.count, 7, "the snapshot must cover 7 days")
+        XCTAssertEqual(snap.days[0].date, Calendar.current.startOfDay(for: .now))
+        XCTAssertEqual(snap.days[0].status, .done)
+        for day in snap.days.dropFirst() {
+            XCTAssertEqual(day.status, store.isRestDay(day.date) ? .rest : .workout,
+                           "future days must mirror the rest-day settings")
+            XCTAssertNil(day.sessionNumber, "only today carries a session number")
+        }
+    }
+
     // MARK: - Week summary (v1.3)
 
     func testWeekSummaryCountsMondayToSunday() {
