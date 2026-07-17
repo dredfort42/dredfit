@@ -1,0 +1,23 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "NSHealthUpdateUsageDescription" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dredfit saves completed workouts to Health. Nothing else is shared."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dredfit записывает завершённые тренировки в «Здоровье». Данные никуда больше не передаются."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

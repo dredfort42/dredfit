@@ -68,6 +68,14 @@ struct ProgressScreen: View {
         store.engineState.hasBar || (store.engineState.levels[.pullBar] ?? 0) > 0
     }
 
+    /// The projection actually shown. If the bar was turned off while its
+    /// chip was selected, the chip is gone — fall back to the total view so
+    /// the chart never renders an empty, unselectable state.
+    private var effectivePattern: Pattern? {
+        if chartPattern == .pullBar && !barBranchExists { return nil }
+        return chartPattern
+    }
+
     // MARK: - Week summary (v1.3)
 
     /// "This week · 2 workouts · +6 levels". Calm: no streaks, no guilt —
@@ -97,7 +105,7 @@ struct ProgressScreen: View {
     /// level from the journal snapshots. Records made before snapshots
     /// existed (v1.0) are simply skipped — the line starts where history does.
     private var chartPoints: [LevelPoint] {
-        if let p = chartPattern {
+        if let p = effectivePattern {
             return store.records
                 .compactMap { r in r.levelsAfter?[p].map { (r.date, $0) } }
                 .enumerated()
@@ -122,7 +130,7 @@ struct ProgressScreen: View {
     }
 
     private func chip(_ p: Pattern?) -> some View {
-        let selected = chartPattern == p
+        let selected = effectivePattern == p
         return Button {
             chartPattern = p
         } label: {

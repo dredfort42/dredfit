@@ -77,6 +77,7 @@ final class AppStore {
 
     private let storageURL: URL
     private let health: WorkoutHealthWriting
+    private var backfillInFlight = false   // v1.3: guards concurrent Health backfills
 
     init(storageURL: URL = AppStore.defaultFileURL,
          health: WorkoutHealthWriting = HealthKitWorkoutWriter()) {
@@ -214,7 +215,8 @@ final class AppStore {
             levelsAfter: engineState.levels,
             durationSec: durationSec))
         if settings.healthEnabled, let record = records.last {
-            settings.healthExportedThrough = record.sessionNumber
+            // The mark advances inside saveToHealth only on a confirmed save,
+            // so a failed export is never mistaken for a completed one.
             saveToHealth(record)
         }
         persist()
@@ -301,16 +303,26 @@ final class AppStore {
         records.filter { $0.sessionNumber > settings.healthExportedThrough }.count
     }
 
-    /// Exports every record above the high-water mark, then advances it.
+    /// Exports every record above the high-water mark in order, advancing the
+    /// mark one record at a time and only on a confirmed save. It stops at the
+    /// first failure so the unexported tail can be retried later — a failed
+    /// save is never declared exported. The in-flight guard forbids a second
+    /// concurrent backfill (double-export window).
     func backfillHealth() async {
-        let candidates = records.filter { $0.sessionNumber > settings.healthExportedThrough }
+        guard !backfillInFlight else { return }
+        backfillInFlight = true
+        defer { backfillInFlight = false }
+        let candidates = records
+            .filter { $0.sessionNumber > settings.healthExportedThrough }
+            .sorted { $0.sessionNumber < $1.sessionNumber }
         for record in candidates {
             let duration = TimeInterval(record.durationSec ?? estimatedDurationSec(for: record))
-            _ = await health.saveWorkout(start: record.date.addingTimeInterval(-duration),
-                                         end: record.date)
+            let ok = await health.saveWorkout(start: record.date.addingTimeInterval(-duration),
+                                              end: record.date)
+            guard ok else { break }   // keep the mark at the last confirmed export
+            settings.healthExportedThrough = max(settings.healthExportedThrough, record.sessionNumber)
+            persist()
         }
-        settings.healthExportedThrough = records.last?.sessionNumber ?? settings.healthExportedThrough
-        persist()
     }
 
     /// "Only new ones": past workouts are declared already-handled so they
@@ -320,10 +332,20 @@ final class AppStore {
         persist()
     }
 
+    /// Fire-and-forget export of one just-completed workout. The high-water
+    /// mark advances only after the save is confirmed — a failed save leaves
+    /// the workout unexported so a later backfill can pick it up.
     private func saveToHealth(_ record: WorkoutRecord) {
         let duration = TimeInterval(record.durationSec ?? estimatedDurationSec(for: record))
         let end = record.date
-        Task { _ = await health.saveWorkout(start: end.addingTimeInterval(-duration), end: end) }
+        let start = end.addingTimeInterval(-duration)
+        Task { [weak self] in
+            let ok = await self?.health.saveWorkout(start: start, end: end) ?? false
+            guard ok, let self else { return }
+            self.settings.healthExportedThrough =
+                max(self.settings.healthExportedThrough, record.sessionNumber)
+            self.persist()
+        }
     }
 
     /// Session-estimate fallback for records that predate duration capture:
@@ -391,9 +413,15 @@ final class AppStore {
         defer { if secured { url.stopAccessingSecurityScopedResource() } }
         let data = try Data(contentsOf: url)
         let decoded = try JSONDecoder().decode(AppData.self, from: data)
+        // The Health high-water mark tracks an external, device-local side
+        // effect (HKWorkouts already written). It must never move backwards on
+        // import — an older backup would otherwise re-export samples already
+        // in Health, which the write-only design cannot detect.
+        let priorHealthMark = settings.healthExportedThrough
         engineState = decoded.engineState
         records = decoded.records
         settings = decoded.settings ?? AppSettings()
+        settings.healthExportedThrough = max(priorHealthMark, settings.healthExportedThrough)
         persist()
         rescheduleReminders()
     }

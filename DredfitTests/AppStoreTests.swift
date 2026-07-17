@@ -107,17 +107,99 @@ final class AppStoreTests: XCTestCase {
 
     // MARK: - Apple Health (v1.3)
 
-    /// A Health spy: records saved intervals, grants or denies on demand.
+    /// A Health spy: records saved intervals, grants or denies on demand,
+    /// and can simulate save failures (all, or from a given 1-based call).
     private final class HealthSpy: WorkoutHealthWriting, @unchecked Sendable {
         var available = true
         var grant = true
+        var allFail = false
+        var failFromCall: Int?
         var saved: [(start: Date, end: Date)] = []
+        private var callCount = 0
         var isAvailable: Bool { available }
         func requestWriteAuthorization() async -> Bool { grant }
         func saveWorkout(start: Date, end: Date) async -> Bool {
+            callCount += 1
             saved.append((start, end))
+            if allFail { return false }
+            if let f = failFromCall, callCount >= f { return false }
             return true
         }
+    }
+
+    /// A failed save must not advance the high-water mark — the workout stays
+    /// retriable via a later backfill (no silent data loss).
+    func testHealthFailedSaveKeepsWorkoutRetriable() async {
+        let spy = HealthSpy()
+        let store = AppStore(storageURL: tempURL, health: spy)
+        _ = await store.enableHealth()
+        spy.allFail = true
+        store.completeWorkout(session: store.nextSession, result: .plan, durationSec: 30 * 60)
+        await Task.yield()
+        try? await Task.sleep(for: .milliseconds(80))
+        XCTAssertEqual(spy.saved.count, 1, "the save was attempted")
+        XCTAssertEqual(store.healthBackfillCount, 1,
+                       "a failed save must not mark the workout exported")
+        // the retry succeeds and clears the backlog
+        spy.allFail = false
+        await store.backfillHealth()
+        XCTAssertEqual(store.healthBackfillCount, 0, "the retry exported the missed workout")
+        XCTAssertEqual(spy.saved.count, 2)
+    }
+
+    /// A backfill stops at the first failure and keeps the mark at the last
+    /// confirmed export, so the unexported tail can resume later.
+    func testHealthBackfillStopsAtFirstFailure() async {
+        let spy = HealthSpy()
+        let store = AppStore(storageURL: tempURL, health: spy)
+        store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 14))
+        store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 15))
+        store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 16))
+        _ = await store.enableHealth()
+
+        spy.failFromCall = 2               // session 1 exports, session 2 fails
+        await store.backfillHealth()
+        XCTAssertEqual(store.healthBackfillCount, 2,
+                       "backfill must stop at the first failure, not mark the tail exported")
+
+        spy.failFromCall = nil             // resume
+        await store.backfillHealth()
+        XCTAssertEqual(store.healthBackfillCount, 0, "the resumed backfill exports the rest")
+    }
+
+    /// Importing an older backup (no Health mark) must not move the mark
+    /// backwards — otherwise re-enabling would re-export samples already in
+    /// Health, which the write-only design cannot detect.
+    func testImportKeepsHealthMarkMonotonic() async throws {
+        let spy = HealthSpy()
+        let store = AppStore(storageURL: tempURL, health: spy)
+        store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 14))
+        store.completeWorkout(session: store.nextSession, result: .more, date: date(2026, 7, 16))
+        _ = await store.enableHealth()
+        await store.backfillHealth()
+        XCTAssertEqual(store.healthBackfillCount, 0, "both workouts start out exported")
+
+        // a pre-1.3 backup of the same two workouts — no healthExportedThrough
+        let old = """
+        {"engineState":{"counter":2,
+          "levels":["squat",2,"push_h",2,"hinge",2,"pull",4,"push_v",2,"lunge",2,
+                    "core_anti_ext",1,"core_rot",1,"calf",1],
+          "failStreak":["squat",0,"push_h",0,"hinge",0,"pull",0,"push_v",0,"lunge",0,
+                        "core_anti_ext",0,"core_rot",0,"calf",0]},
+         "records":[
+           {"sessionNumber":1,"date":700000000,"result":"plan","totalLevelAfter":12},
+           {"sessionNumber":2,"date":700100000,"result":"more","totalLevelAfter":18}],
+         "settings":{"restWeekdays":[1],"soundsEnabled":true,
+                     "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
+        """
+        let backupURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("dredfit-oldbackup-\(UUID().uuidString).json")
+        defer { try? FileManager.default.removeItem(at: backupURL) }
+        try Data(old.utf8).write(to: backupURL)
+        try store.importBackup(from: backupURL)
+
+        XCTAssertEqual(store.healthBackfillCount, 0,
+                       "an old backup must not reset the mark and re-export handled workouts")
     }
 
     func testHealthDenialLeavesToggleOff() async {
@@ -217,24 +299,29 @@ final class AppStoreTests: XCTestCase {
 
     // MARK: - Week summary (v1.3)
 
-    func testWeekSummaryCountsMondayToSunday() {
+    func testWeekSummaryUsesMondayFirstIsoWeeks() {
         let store = AppStore(storageURL: tempURL)
-        // previous week (baseline): Friday Jul 10, 2026
-        store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 10))
-        let baseline = store.records.last!.totalLevelAfter
-        // current week (Mon Jul 13 – Sun Jul 19): two workouts
+        // Sunday Jul 12, 2026 closes the ISO week Mon Jul 6 – Sun Jul 12.
+        store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 12))
+        let sundayLevel = store.records.last!.totalLevelAfter
+        // Monday Jul 13 opens the next ISO week Mon Jul 13 – Sun Jul 19.
         store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 14))
         store.completeWorkout(session: store.nextSession, result: .more, date: date(2026, 7, 16))
         let last = store.records.last!.totalLevelAfter
 
-        let week = store.weekSummary(for: date(2026, 7, 16))
-        XCTAssertEqual(week.workouts, 2)
-        XCTAssertEqual(week.levelsDelta, last - baseline)
+        // The week of Wed Jul 15 must contain ONLY the two Mon–Sun workouts.
+        // A Sunday-first calendar (US default) would wrongly pull in Jul 12 —
+        // this asserts the Monday boundary, which the old Fri/Tue dates could not.
+        let thisWeek = store.weekSummary(for: date(2026, 7, 15))
+        XCTAssertEqual(thisWeek.workouts, 2,
+                       "the Sunday-Jul-12 workout must fall in the previous ISO week")
+        XCTAssertEqual(thisWeek.levelsDelta, last - sundayLevel,
+                       "the delta counts from the last record before Monday")
 
-        // Monday boundary: the Jul 10 workout belongs to the previous week
-        let previous = store.weekSummary(for: date(2026, 7, 10))
-        XCTAssertEqual(previous.workouts, 1)
-        XCTAssertEqual(previous.levelsDelta, baseline, "the first week counts from zero")
+        // The Sunday workout belongs to the previous ISO week on its own.
+        let prevWeek = store.weekSummary(for: date(2026, 7, 12))
+        XCTAssertEqual(prevWeek.workouts, 1, "Sunday closes the previous ISO week")
+        XCTAssertEqual(prevWeek.levelsDelta, sundayLevel, "the first week counts from zero")
     }
 
     func testWeekSummaryEmptyWeekIsZero() {
