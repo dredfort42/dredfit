@@ -29,15 +29,15 @@ final class EdgeCaseTests: XCTestCase {
     /// A hold actual rounds to the nearest 5 s step.
     func testHoldOverrideRoundsToNearestStep() {
         // 22 s → step round(0.4)=0 → level 0; 23 s → step round(0.6)=1 → level 1
-        XCTAssertEqual(Level.fromActual(pattern: .coreAntiExt, tier: 1, actual: 22), 0)
-        XCTAssertEqual(Level.fromActual(pattern: .coreAntiExt, tier: 1, actual: 23), 1)
-        XCTAssertEqual(Level.fromActual(pattern: .coreAntiExt, tier: 1, actual: 55), 7)
+        XCTAssertEqual(Level.fromActual(pattern: .coreAntiExt, tier: 1, sets: 3, actual: 22), 0)
+        XCTAssertEqual(Level.fromActual(pattern: .coreAntiExt, tier: 1, sets: 3, actual: 23), 1)
+        XCTAssertEqual(Level.fromActual(pattern: .coreAntiExt, tier: 1, sets: 3, actual: 55), 7)
     }
 
     /// An actual below the bottom of the range drops the level into the previous tier (continuous formula).
     func testOverrideBelowRangeDropsToLowerTier() {
         // tier 2, actual 5 reps: (2-1)*8 + (5-8) = 5 → tier 1, 13 reps
-        let l = Level.fromActual(pattern: .squat, tier: 2, actual: 5)
+        let l = Level.fromActual(pattern: .squat, tier: 2, sets: 3, actual: 5)
         XCTAssertEqual(l, 5)
         XCTAssertEqual(Level.decode(l).tier, 1)
         XCTAssertEqual(Level.decode(l).reps, 13)
@@ -45,8 +45,8 @@ final class EdgeCaseTests: XCTestCase {
 
     /// Extreme actuals clamp to [0, levelMax].
     func testOverrideExtremesClamp() {
-        XCTAssertEqual(Level.fromActual(pattern: .squat, tier: 1, actual: 0), 0)
-        XCTAssertEqual(Level.fromActual(pattern: .squat, tier: 4, actual: 99),
+        XCTAssertEqual(Level.fromActual(pattern: .squat, tier: 1, sets: 3, actual: 0), 0)
+        XCTAssertEqual(Level.fromActual(pattern: .squat, tier: 4, sets: 5, actual: 99),
                        EngineConfig.levelMax)
     }
 
@@ -152,10 +152,11 @@ final class EdgeCaseTests: XCTestCase {
         XCTAssertEqual(decoded, state)
     }
 
-    /// All display strings are non-empty and contain numbers (for any levels).
+    /// All display strings are non-empty and contain numbers (for any levels,
+    /// including the v2.2 four- and five-set bands).
     func testDisplayStringsWellFormed() {
         var state = EngineState.initial
-        for step in 0..<32 {
+        for step in 0..<48 {
             for p in Pattern.ordered { state.levels[p] = min(step, EngineConfig.levelMax) }
             let s = Engine.generateSession(state)
             for ex in s.exercises {
