@@ -3808,6 +3808,414 @@
           }
         }
       }
+    },
+    "Vertical pull": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vertical pull"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вертикальная тяга"
+          }
+        }
+      }
+    },
+    "Bar hang": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bar hang"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вис на турнике"
+          }
+        }
+      }
+    },
+    "Negative pull-up": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Negative pull-up"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Негативные подтягивания"
+          }
+        }
+      }
+    },
+    "Partial pull-up": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partial pull-up"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Частичные подтягивания"
+          }
+        }
+      }
+    },
+    "Pull-up": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pull-up"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подтягивания"
+          }
+        }
+      }
+    },
+    "Grab the bar slightly wider than shoulder width, palms facing away.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grab the bar slightly wider than shoulder width, palms facing away."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Возьмись за перекладину хватом чуть шире плеч, ладони от себя."
+          }
+        }
+      }
+    },
+    "Hang on straight arms and pull the shoulders slightly down — an active hang, head not shrugged in.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hang on straight arms and pull the shoulders slightly down — an active hang, head not shrugged in."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повисни на прямых руках и слегка потяни плечи вниз — вис активный, голова не втянута."
+          }
+        }
+      }
+    },
+    "Keep the body tight, legs together; breathe steadily for the whole hang.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep the body tight, legs together; breathe steadily for the whole hang."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Держи корпус собранным, ноги вместе; дыши ровно всё время виса."
+          }
+        }
+      }
+    },
+    "Shoulders at the ears — pull the shoulder blades down; the hang must be active.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shoulders at the ears — pull the shoulder blades down; the hang must be active."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Плечи у ушей — потяни лопатки вниз, вис должен быть активным."
+          }
+        }
+      }
+    },
+    "Swinging — keep the body braced, no pendulum.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swinging — keep the body braced, no pendulum."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Раскачивание — держи корпус в тонусе, без маятника."
+          }
+        }
+      }
+    },
+    "Step on a support or jump so the chin ends up above the bar.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Step on a support or jump so the chin ends up above the bar."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Встань на опору или подпрыгни так, чтобы подбородок оказался над перекладиной."
+          }
+        }
+      }
+    },
+    "Lower yourself slowly to straight arms over 3–5 seconds, controlling every inch.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower yourself slowly to straight arms over 3–5 seconds, controlling every inch."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Медленно опускайся на прямые руки 3–5 секунд, контролируя каждый сантиметр."
+          }
+        }
+      }
+    },
+    "Get back on the support and repeat — no pulling up needed.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get back on the support and repeat — no pulling up needed."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вернись на опору и повтори — подниматься силой не нужно."
+          }
+        }
+      }
+    },
+    "Dropping instead of lowering — the negative takes at least 3 seconds.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dropping instead of lowering — the negative takes at least 3 seconds."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Падение вместо опускания — негатив длится не меньше 3 секунд."
+          }
+        }
+      }
+    },
+    "Relaxed shoulders at the bottom — keep the shoulder blades engaged to the end.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Relaxed shoulders at the bottom — keep the shoulder blades engaged to the end."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Расслабленные плечи внизу — держи лопатки в тонусе до конца."
+          }
+        }
+      }
+    },
+    "Hang on straight arms, grip slightly wider than shoulders, palms facing away.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hang on straight arms, grip slightly wider than shoulders, palms facing away."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повисни на прямых руках, хват чуть шире плеч, ладони от себя."
+          }
+        }
+      }
+    },
+    "Start by squeezing the shoulder blades and pull up to a right angle at the elbows.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start by squeezing the shoulder blades and pull up to a right angle at the elbows."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Начни со сведения лопаток и подтянись до прямого угла в локтях."
+          }
+        }
+      }
+    },
+    "Lower slowly to straight arms — that's one rep.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower slowly to straight arms — that's one rep."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Медленно опустись на прямые руки — это одно повторение."
+          }
+        }
+      }
+    },
+    "Jerking and kicking with the legs — only the back and arms work.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jerking and kicking with the legs — only the back and arms work."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Рывки и помощь ногами — работают только спина и руки."
+          }
+        }
+      }
+    },
+    "Cutting the bottom range — every rep starts from fully straight arms.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cutting the bottom range — every rep starts from fully straight arms."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Срезанная амплитуда внизу — каждое повторение с полностью прямых рук."
+          }
+        }
+      }
+    },
+    "Pull up, starting by squeezing the shoulder blades, until the chin rises above the bar.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pull up, starting by squeezing the shoulder blades, until the chin rises above the bar."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подтянись, начиная со сведения лопаток, пока подбородок не поднимется над перекладиной."
+          }
+        }
+      }
+    },
+    "Lower under control to fully straight arms, no swinging.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower under control to fully straight arms, no swinging."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Опустись подконтрольно до полностью прямых рук, без раскачки."
+          }
+        }
+      }
+    },
+    "Swinging and jerking the body — kipping doesn't count.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swinging and jerking the body — kipping doesn't count."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Раскачивание и рывки корпусом — киппинг не считается."
+          }
+        }
+      }
+    },
+    "Half range at the bottom — each rep starts from straight arms.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Half range at the bottom — each rep starts from straight arms."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Неполное разгибание рук внизу — повторение начинается с прямых рук."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

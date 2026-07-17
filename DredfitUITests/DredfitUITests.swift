@@ -299,6 +299,51 @@ final class DredfitUITests: XCTestCase {
         app.buttons["Got it"].tap()
     }
 
+    // MARK: - Pull-up bar (v2.2)
+
+    /// Smoke of the bar module end-to-end: the settings toggle flips the
+    /// derived session 2 (odd counter) to the vertical pull, the hang runs
+    /// as a hold with a working technique sheet, and the flow reaches the
+    /// rating screen.
+    func testBarWorkoutFlowsToRating() {
+        app.launchArguments = ["--uitest-session2", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Workout 2"].waitForExistence(timeout: 5))
+
+        app.buttons["settings"].tap()
+        let toggle = app.switches["hasbar-toggle"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 3), "no pull-up bar toggle in settings")
+        toggle.tap()
+        app.buttons["Got it"].tap()
+        XCTAssertTrue(app.staticTexts["Bar hang"].waitForExistence(timeout: 3),
+                      "with the bar on, session 2 must swap in the bar hang")
+
+        startWorkout()
+        // slot 1 — the hang: a bilateral hold with the technique sheet
+        XCTAssertTrue(app.buttons["Start hold"].waitForExistence(timeout: 3),
+                      "the bar hang must run as a hold exercise")
+        app.buttons["technique"].tap()
+        XCTAssertTrue(app.staticTexts["TECHNIQUE"].waitForExistence(timeout: 3),
+                      "the technique sheet must open for a bar exercise")
+        app.buttons["Got it"].tap()
+        app.buttons["Start hold"].tap()
+        let stop = app.buttons["Stop"]
+        XCTAssertTrue(stop.waitForExistence(timeout: 2), "no Stop during the hang countdown")
+        stop.tap()
+        XCTAssertTrue(app.buttons["Skip rest"].waitForExistence(timeout: 3),
+                      "the stopped hang must flow into rest")
+        app.buttons["Skip rest"].tap()
+
+        // the rest of the workout is not the point of this smoke — skip through
+        for _ in 0..<6 where !app.staticTexts["How did it go?"].exists {
+            app.buttons["Skip exercise"].tap()
+        }
+        XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 3))
+        app.staticTexts["On plan"].tap()
+        XCTAssertTrue(app.staticTexts["Workout 2 completed"].waitForExistence(timeout: 5),
+                      "the bar workout must complete like any other")
+    }
+
     // MARK: - Persistence across relaunch
 
     func testStateSurvivesRelaunch() {

@@ -19,6 +19,9 @@ import Foundation
 public enum Pattern: String, Codable, CaseIterable, Sendable {
     case squat, pushH = "push_h", hinge, pull, pushV = "push_v", lunge
     case coreAntiExt = "core_anti_ext", coreRot = "core_rot", calf
+    // v2.2: vertical pull (the "pull-up bar" module). Not part of the rotation —
+    // with hasBar on it takes over the fixed pull slot on odd counters.
+    case pullBar = "pull_bar"
 
     /// Fixed order — defines the rotation. Cannot be changed without a migration.
     public static let ordered: [Pattern] = [
@@ -37,6 +40,7 @@ public enum Pattern: String, Codable, CaseIterable, Sendable {
         case .coreAntiExt: return String(localized: "Core · plank", bundle: .module)
         case .coreRot:     return String(localized: "Core · rotation", bundle: .module)
         case .calf:        return String(localized: "Calves", bundle: .module)
+        case .pullBar:     return String(localized: "Vertical pull", bundle: .module)
         }
     }
 }
@@ -49,7 +53,8 @@ public enum EngineConfig {
     public static let tiers = 4             // variations per pattern (v2.1: added tier 4)
     public static let holdMin = 20          // bottom of the hold range, sec
     public static let holdStepSec = 5       // hold step per level step
-    public static let sets = 3              // sets per exercise
+    public static let setsBase = 3          // sets in the 0...31 level band
+    public static let setsMax = 5           // sets ceiling (v2.2: bands 4 and 5 above tier 4)
     public static let restSetSec = 60       // pause between sets
     public static let restExerciseSec = 60  // pause between exercises
     public static let tempoSecPerRep = 2.5  // tempo for duration estimation
@@ -63,7 +68,8 @@ public enum EngineConfig {
     public static let deloadDrop = 3        // deload rollback
     public static let warmupMin = 5
     public static let cooldownMin = 3
-    public static var levelMax: Int { tiers * stepsPerTier - 1 } // 31 (v2.1)
+    // v2.2: two set bands above tier 4 — six bands of 8 steps
+    public static var levelMax: Int { (tiers + setsMax - setsBase) * stepsPerTier - 1 } // 47
 }
 
 // MARK: - State
@@ -72,12 +78,37 @@ public struct EngineState: Codable, Equatable, Sendable {
     public var counter: Int
     public var levels: [Pattern: Int]
     public var failStreak: [Pattern: Int]
+    public var hasBar: Bool   // v2.2: the "pull-up bar" toggle lives in engine state
+
+    public init(counter: Int, levels: [Pattern: Int],
+                failStreak: [Pattern: Int], hasBar: Bool = false) {
+        self.counter = counter
+        self.levels = levels
+        self.failStreak = failStreak
+        self.hasBar = hasBar
+    }
+
+    /// v2.2 migration: files written before hasBar/pull_bar existed decode
+    /// with the defaults (hasBar off, missing patterns at level 0).
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        counter = try c.decode(Int.self, forKey: .counter)
+        var lv = try c.decode([Pattern: Int].self, forKey: .levels)
+        var fs = try c.decode([Pattern: Int].self, forKey: .failStreak)
+        for p in Pattern.allCases {
+            if lv[p] == nil { lv[p] = 0 }
+            if fs[p] == nil { fs[p] = 0 }
+        }
+        levels = lv
+        failStreak = fs
+        hasBar = try c.decodeIfPresent(Bool.self, forKey: .hasBar) ?? false
+    }
 
     public static var initial: EngineState {
         EngineState(
             counter: 0,
-            levels: Dictionary(uniqueKeysWithValues: Pattern.ordered.map { ($0, 0) }),
-            failStreak: Dictionary(uniqueKeysWithValues: Pattern.ordered.map { ($0, 0) })
+            levels: Dictionary(uniqueKeysWithValues: Pattern.allCases.map { ($0, 0) }),
+            failStreak: Dictionary(uniqueKeysWithValues: Pattern.allCases.map { ($0, 0) })
         )
     }
 }
@@ -85,35 +116,50 @@ public struct EngineState: Codable, Equatable, Sendable {
 // MARK: - Level encoding
 
 public struct LevelDecoded: Equatable, Sendable {
-    public let tier: Int   // 1...4 (v2.1)
+    public let tier: Int   // 1...4
+    public let sets: Int   // 3 | 4 | 5 (v2.2: set bands above tier 4)
     public let reps: Int   // 8...15
     public let hold: Int   // 20...55 (sec)
+
+    public init(tier: Int, sets: Int, reps: Int, hold: Int) {
+        self.tier = tier
+        self.sets = sets
+        self.reps = reps
+        self.hold = hold
+    }
 }
 
 public enum Level {
-    /// tier = 1 + L/8; reps = 8 + L%8; hold = 20 + (L%8)*5
+    /// tier = min(4, 1 + L/8); sets = 3 (L≤31) | 4 (32...39) | 5 (40...47);
+    /// reps = 8 + L%8; hold = 20 + (L%8)*5
     public static func decode(_ level: Int) -> LevelDecoded {
         let l = min(max(level, 0), EngineConfig.levelMax)
+        let band = l / EngineConfig.stepsPerTier   // 0...5
         let step = l % EngineConfig.stepsPerTier
         return LevelDecoded(
-            tier: 1 + l / EngineConfig.stepsPerTier,
+            tier: min(EngineConfig.tiers, 1 + band),
+            sets: EngineConfig.setsBase + max(0, band - (EngineConfig.tiers - 1)),
             reps: EngineConfig.repMin + step,
             hold: EngineConfig.holdMin + step * EngineConfig.holdStepSec
         )
     }
 
-    /// Level from an actual value (reps or seconds) given a known tier.
-    public static func fromActual(pattern: Pattern, tier: Int, actual: Int) -> Int {
+    /// Level from an actual value (reps or seconds) given the planned tier and
+    /// sets. v2.2: tier 4 spans three set bands, so the base depends on sets;
+    /// the unit comes from the (pattern, tier) library record.
+    public static func fromActual(pattern: Pattern, tier: Int, sets: Int, actual: Int) -> Int {
         let lib = ExerciseLibrary.entry(for: pattern)
         let step: Int
-        switch lib.unit {
+        switch lib.unit(forTier: tier) {
         case .reps:
             step = actual - EngineConfig.repMin
         case .hold:
             step = Int((Double(actual - EngineConfig.holdMin) / Double(EngineConfig.holdStepSec)).rounded())
         }
-        let raw = (tier - 1) * EngineConfig.stepsPerTier + step
-        return min(max(raw, 0), EngineConfig.levelMax)
+        let base = sets <= EngineConfig.setsBase
+            ? (tier - 1) * EngineConfig.stepsPerTier
+            : (EngineConfig.tiers + sets - EngineConfig.setsBase - 1) * EngineConfig.stepsPerTier
+        return min(max(base + step, 0), EngineConfig.levelMax)
     }
 }
 
@@ -178,6 +224,8 @@ public enum Engine {
     /// v2.1: pull is a fixed slot in every session (push/pull balance);
     /// the other 8 patterns rotate over 5 places with a shift of 3 —
     /// over 8 sessions each appears exactly 5 times.
+    /// v2.2: with hasBar on, odd counters hand the pull slot to the vertical
+    /// branch (pullBar), which inherits pull's position in the session order.
     public static func generateSession(_ state: EngineState) -> Session {
         let n = rotating.count
         let start = (state.counter * EngineConfig.rotationStep) % n
@@ -185,27 +233,30 @@ public enum Engine {
             rotating[(start + $0) % n]
         }
         let chosen = Set([Pattern.pull] + five)
+        let useBar = state.hasBar && state.counter % 2 == 1
         let patterns = Pattern.ordered.filter { chosen.contains($0) } // ordering follows Pattern.ordered
+            .map { $0 == .pull && useBar ? Pattern.pullBar : $0 }
 
         var workSec = 0.0
         let exercises: [SessionExercise] = patterns.map { p in
             let lib = ExerciseLibrary.entry(for: p)
             let d = Level.decode(state.levels[p] ?? 0)
             let variation = lib.variations[d.tier - 1]
+            let unit = lib.unit(forTier: d.tier)
             let sides = variation.unilateral ? 2 : 1
-            let load = lib.unit == .reps ? d.reps : d.hold
+            let load = unit == .reps ? d.reps : d.hold
 
-            let workPerSet: Double = lib.unit == .reps
+            let workPerSet: Double = unit == .reps
                 ? Double(d.reps * sides) * EngineConfig.tempoSecPerRep
                 : Double(d.hold * sides)
-            workSec += Double(EngineConfig.sets) * workPerSet
-                + Double((EngineConfig.sets - 1) * EngineConfig.restSetSec)
+            workSec += Double(d.sets) * workPerSet
+                + Double((d.sets - 1) * EngineConfig.restSetSec)
                 + Double(EngineConfig.restExerciseSec)
 
             return SessionExercise(
                 pattern: p, name: variation.name, tier: d.tier,
-                unit: lib.unit, load: load, perSide: variation.unilateral,
-                sets: EngineConfig.sets,
+                unit: unit, load: load, perSide: variation.unilateral,
+                sets: d.sets,
                 restSetSec: EngineConfig.restSetSec,
                 restExerciseSec: EngineConfig.restExerciseSec
             )
@@ -250,7 +301,8 @@ public enum Engine {
             var newL: Int
 
             if let actual = overrides[p] {
-                let factL = Level.fromActual(pattern: p, tier: ex.tier, actual: actual)
+                let factL = Level.fromActual(pattern: p, tier: ex.tier,
+                                             sets: ex.sets, actual: actual)
                 newL = min(max(factL, 0), oldL + EngineConfig.maxUpPerSession)
             } else {
                 newL = oldL + result.delta

@@ -30,6 +30,7 @@ struct SettingsSheet: View {
                         .padding(.top, 26)
 
                     restDaysSection
+                    equipmentSection
                     soundsSection
                     reminderSection
                     backupSection
@@ -45,6 +46,10 @@ struct SettingsSheet: View {
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .onAppear { exportURL = try? store.exportURL() }
+        // The share copy is a point-in-time snapshot: toggles flipped in this
+        // very sheet (rest days, the pull-up bar) must land in the export.
+        .onChange(of: store.settings) { exportURL = try? store.exportURL() }
+        .onChange(of: store.engineState) { exportURL = try? store.exportURL() }
         .fileImporter(isPresented: $importPickerShown,
                       allowedContentTypes: [.json]) { result in
             if case .success(let url) = result {
@@ -107,6 +112,25 @@ struct SettingsSheet: View {
                 .foregroundStyle(isRest ? Theme.accent : Theme.ink2)
         }
         .accessibilityIdentifier("weekday-\(weekday)")
+    }
+
+    // MARK: - Equipment (v2.2)
+
+    private var equipmentSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Kicker(text: String(localized: "Equipment"))
+            Toggle(isOn: Binding(
+                get: { store.engineState.hasBar },
+                set: { store.setHasBar($0) })) {
+                Text("Pull-up bar")
+                    .font(.system(size: 16, weight: .medium))
+            }
+            .tint(Theme.accent)
+            .accessibilityIdentifier("hasbar-toggle")
+            Text("Every other workout swaps the row for a vertical pull")
+                .font(.system(size: 12.5))
+                .foregroundStyle(Theme.ink3)
+        }
     }
 
     // MARK: - Sounds

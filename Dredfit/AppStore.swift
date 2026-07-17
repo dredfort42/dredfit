@@ -184,6 +184,14 @@ final class AppStore {
         persist()
     }
 
+    /// v2.2: the "pull-up bar" toggle writes straight into engine state —
+    /// alternation is derived from it and the session counter. Turning it
+    /// off freezes the vertical branch; its level is kept.
+    func setHasBar(_ on: Bool) {
+        engineState.hasBar = on
+        persist()
+    }
+
     func setReminderEnabled(_ on: Bool) {
         settings.reminderEnabled = on
         persist()

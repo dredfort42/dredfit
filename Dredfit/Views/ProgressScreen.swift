@@ -39,6 +39,11 @@ struct ProgressScreen: View {
                 ForEach(Pattern.ordered, id: \.self) { p in
                     levelRow(p)
                 }
+                // v2.2: the vertical branch appears once it exists — with the
+                // bar enabled or with progress already earned on it.
+                if store.engineState.hasBar || (store.engineState.levels[.pullBar] ?? 0) > 0 {
+                    levelRow(.pullBar)
+                }
             }
             .padding(.top, 22)
 
