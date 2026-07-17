@@ -43,6 +43,7 @@ struct WorkoutFlowView: View {
     @State private var adjusting = false
     @State private var adjustValue = 0
     @State private var workoutStart: Date?   // v1.3: actual duration for Health
+    @State private var liveActivity = WorkoutActivityController()   // v1.3
 
     // Hold-exercise countdown (v1.1): date-based so it survives backgrounding.
     // Per-side holds run the countdown twice (left/right); the actual is the
@@ -100,10 +101,17 @@ struct WorkoutFlowView: View {
         .onAppear {
             // Keep the screen awake for the whole workout (timers, holds).
             UIApplication.shared.isIdleTimerDisabled = true
-            if workoutStart == nil { workoutStart = .now }
+            if workoutStart == nil {
+                workoutStart = .now
+                liveActivity.start(sessionNumber: session.sessionNumber,
+                                   state: activityWorkState())
+            }
             if phase == .warmup && warmupEndDate == nil { startWarmupMove(0) }
         }
-        .onDisappear { UIApplication.shared.isIdleTimerDisabled = false }
+        .onDisappear {
+            UIApplication.shared.isIdleTimerDisabled = false
+            liveActivity.end()
+        }
         .sheet(isPresented: $techniqueShown) {
             TechniqueSheet(exercise: exercise)
         }
@@ -234,6 +242,21 @@ struct WorkoutFlowView: View {
     private func finishWarmup() {
         warmupEndDate = nil
         phase = .work
+        liveActivity.update(activityWorkState())
+    }
+
+    // MARK: - Live Activity (v1.3)
+
+    /// The lock-screen state for the current work phase. Strings leave the
+    /// app pre-localized — the extension renders them verbatim.
+    private func activityWorkState() -> RestActivityAttributes.ContentState {
+        if phase == .warmup {
+            return .init(phase: .work, title: String(localized: "WARM-UP"),
+                         detail: "", restEndDate: nil)
+        }
+        return .init(phase: .work, title: exercise.name,
+                     detail: String(localized: "set \(setIndex + 1) of \(exercise.sets)"),
+                     restEndDate: nil)
     }
 
     // MARK: - Work
@@ -453,6 +476,7 @@ struct WorkoutFlowView: View {
         adjusting = false
         if isLastSet && isLastExercise {
             phase = .feedback
+            liveActivity.end()
         } else if isLastSet {
             startRest(exercise.restExerciseSec)
         } else {
@@ -468,10 +492,12 @@ struct WorkoutFlowView: View {
         skippedPatterns.insert(exercise.pattern)
         if isLastExercise {
             phase = .feedback
+            liveActivity.end()
         } else {
             exIndex += 1
             setIndex = 0
             phase = .work
+            liveActivity.update(activityWorkState())
         }
     }
 
@@ -479,6 +505,9 @@ struct WorkoutFlowView: View {
         restRemaining = seconds
         restEndDate = Date.now.addingTimeInterval(TimeInterval(seconds))
         phase = .rest(seconds: seconds)
+        liveActivity.update(.init(phase: .rest, title: nextLabel,
+                                  detail: String(localized: "Next up"),
+                                  restEndDate: restEndDate))
     }
 
     private func tickRest() {
@@ -587,5 +616,6 @@ struct WorkoutFlowView: View {
             setIndex += 1
         }
         phase = .work
+        liveActivity.update(activityWorkState())
     }
 }

@@ -104,6 +104,7 @@ final class AppStore {
                             result: .plan,
                             date: Calendar.current.date(byAdding: .day, value: -1, to: .now)!)
         }
+        refreshWidgetSnapshot()   // v1.3: the widget mirrors state from launch
     }
 
     // MARK: - Derived
@@ -411,5 +412,6 @@ final class AppStore {
         if let encoded = try? JSONEncoder().encode(data) {
             try? encoded.write(to: storageURL, options: .atomic)
         }
+        refreshWidgetSnapshot()   // v1.3: every persisted change reaches the widget
     }
 }
