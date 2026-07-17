@@ -18,15 +18,14 @@
     -webkit-font-smoothing:antialiased;
   }
   .wrap{max-width:720px;margin:0 auto;padding:0 24px}
+  header.wrap,.wrap.foot{max-width:1080px}
 
-  header{padding:28px 0}
-  .nav{display:flex;align-items:center;justify-content:space-between;
-    max-width:1080px;margin:0 auto;padding:0 24px}
+  .nav{display:flex;align-items:center;justify-content:space-between}
   .logo{display:flex;align-items:center;gap:12px;font-weight:800;font-size:19px;
     letter-spacing:-.02em;color:var(--ink);text-decoration:none}
   .logo svg{display:block}
-  .nav a.back{font-size:14px;color:var(--ink2);text-decoration:none}
-  .nav a.back:hover{color:var(--ink)}
+  .nav a.gh{font-size:14px;color:var(--ink2);text-decoration:none}
+  .nav a.gh:hover{color:var(--ink)}
 
   .hero{padding:40px 0 8px}
   .sec-kick{font-size:13px;font-weight:650;letter-spacing:.1em;color:var(--acc);text-transform:uppercase}
@@ -53,8 +52,7 @@
   .divider .dots i:nth-child(3){border:2px solid #D8D9DB}
 
   footer{padding:48px 0 64px;border-top:1px solid var(--hair);margin-top:72px}
-  .foot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;
-    max-width:1080px;margin:0 auto;padding:0 24px}
+  .foot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
   .foot .flogo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:16px;
     letter-spacing:-.02em;color:var(--ink);text-decoration:none}
   .foot .links{display:flex;gap:26px}
@@ -69,13 +67,13 @@
 </head>
 <body>
 
-<header>
+<header class="wrap">
   <nav class="nav">
     <a class="logo" href="index.html">
       <svg width="34" height="34" viewBox="0 0 64 64"><circle cx="16" cy="32" r="6.5" fill="#111214"/><circle cx="32" cy="32" r="6.5" fill="#E8590C"/><circle cx="48" cy="32" r="6.5" fill="none" stroke="#D8D9DB" stroke-width="3"/></svg>
       Dredfit
     </a>
-    <a class="back" href="index.html">← Back to dredfit.com</a>
+    <a class="gh" href="https://github.com/dredfort42/dredfit">GitHub →</a>
   </nav>
 </header>
 
@@ -130,7 +128,7 @@
 </div>
 
 <footer>
-  <div class="foot">
+  <div class="wrap foot">
     <a class="flogo" href="index.html">
       <svg width="26" height="26" viewBox="0 0 64 64"><circle cx="16" cy="32" r="6.5" fill="#111214"/><circle cx="32" cy="32" r="6.5" fill="#E8590C"/><circle cx="48" cy="32" r="6.5" fill="none" stroke="#D8D9DB" stroke-width="3"/></svg>
       Dredfit

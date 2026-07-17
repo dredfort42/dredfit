@@ -26,9 +26,9 @@
   .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
 
   /* ---------- header ---------- */
-  header{padding:28px 0}
   .nav{display:flex;align-items:center;justify-content:space-between}
-  .logo{display:flex;align-items:center;gap:12px;font-weight:800;font-size:19px;letter-spacing:-.02em}
+  .logo{display:flex;align-items:center;gap:12px;font-weight:800;font-size:19px;
+    letter-spacing:-.02em;color:var(--ink);text-decoration:none}
   .logo svg{display:block}
   .nav a.gh{font-size:14px;color:var(--ink2);text-decoration:none}
   .nav a.gh:hover{color:var(--ink)}
@@ -128,10 +128,10 @@
 
 <header class="wrap">
   <nav class="nav">
-    <div class="logo">
+    <a class="logo" href="index.html">
       <svg width="34" height="34" viewBox="0 0 64 64"><circle cx="16" cy="32" r="6.5" fill="#111214"/><circle cx="32" cy="32" r="6.5" fill="#E8590C"/><circle cx="48" cy="32" r="6.5" fill="none" stroke="#D8D9DB" stroke-width="3"/></svg>
       Dredfit
-    </div>
+    </a>
     <a class="gh" href="https://github.com/dredfort42/dredfit">GitHub →</a>
   </nav>
 </header>
