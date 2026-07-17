@@ -319,6 +319,26 @@
         }
       }
     },
+    "Equipment" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оборудование"
+          }
+        }
+      }
+    },
+    "Every other workout swaps the row for a vertical pull" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Каждая вторая тренировка — вертикальная тяга вместо горизонтальной"
+          }
+        }
+      }
+    },
     "Exit" : {
       "localizations" : {
         "ru" : {
@@ -570,6 +590,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Прогресс"
+          }
+        }
+      }
+    },
+    "Pull-up bar" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Есть турник"
           }
         }
       }

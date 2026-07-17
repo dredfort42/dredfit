@@ -99,6 +99,38 @@ final class AppStoreTests: XCTestCase {
         XCTAssertNil(store.records[0].levelsAfter, "v1.0 records have no level snapshot")
         XCTAssertEqual(store.totalLevel, 12)
         XCTAssertEqual(store.settings, AppSettings(), "v1.0 files load with default settings")
+        // v2.2: pre-bar files load with the bar module off and the branch at zero
+        XCTAssertFalse(store.engineState.hasBar, "legacy files must decode with hasBar off")
+        XCTAssertEqual(store.engineState.levels[.pullBar], 0)
+        XCTAssertEqual(store.engineState.failStreak[.pullBar], 0)
+    }
+
+    // MARK: - Pull-up bar (v2.2)
+
+    func testHasBarPersistsAndDrivesAlternation() {
+        let store = AppStore(storageURL: tempURL)
+        store.setHasBar(true)
+        // session 1 (counter 0) stays horizontal even with the bar on
+        XCTAssertFalse(store.nextSession.exercises.contains { $0.pattern == .pullBar })
+        store.completeWorkout(session: store.nextSession, result: .plan)
+        // session 2 (counter 1) trains the vertical branch
+        let second = store.nextSession
+        XCTAssertTrue(second.exercises.contains { $0.pattern == .pullBar },
+                      "with the bar on, the second session must swap in the vertical pull")
+        XCTAssertFalse(second.exercises.contains { $0.pattern == .pull })
+
+        // the toggle and the branch snapshot survive a reload
+        store.completeWorkout(session: second, result: .more)
+        XCTAssertEqual(store.records.last?.levelsAfter?[.pullBar], 2,
+                       "the journal snapshot must include the pull_bar level")
+        let reloaded = AppStore(storageURL: tempURL)
+        XCTAssertTrue(reloaded.engineState.hasBar)
+        XCTAssertEqual(reloaded.engineState.levels[.pullBar], 2)
+
+        // turning the bar off freezes the branch but keeps its progress
+        reloaded.setHasBar(false)
+        XCTAssertFalse(reloaded.nextSession.exercises.contains { $0.pattern == .pullBar })
+        XCTAssertEqual(reloaded.engineState.levels[.pullBar], 2)
     }
 
     // MARK: - Calendar logic
