@@ -31,16 +31,17 @@ final class DredfitUITests: XCTestCase {
         if skipWarmup.waitForExistence(timeout: 3) { skipWarmup.tap() }
     }
 
-    /// Polls hittability without raising. A bare `.isHittable` or `.tap()` on
-    /// an element whose frame is momentarily invalid mid-animation issues a
-    /// hard "activation point invalid" failure; the predicate wait returns
-    /// false during that window so the caller can wait it out or let the run
-    /// retry, instead of failing on a transient render.
-    @discardableResult
-    private func waitForHittable(_ element: XCUIElement, timeout: TimeInterval) -> Bool {
-        let hittable = NSPredicate(format: "exists == true AND isHittable == true")
-        let expectation = XCTNSPredicateExpectation(predicate: hittable, object: element)
-        return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
+    /// Taps an element at the centre of its own frame, bypassing hittability
+    /// resolution. Inside the workout's fullScreenCover the CI simulator
+    /// sometimes reports degenerate ancestor frames ({inf,inf},{0,0}); walking
+    /// them to compute an activation point then fails with "activation point
+    /// invalid" even though the control is fully on screen (the failure
+    /// screenshots show a pristine rest screen with the button in place). The
+    /// button's own leaf frame is valid, so a coordinate tap lands reliably.
+    /// This is the reason `.tap()`/`.isHittable`/an isHittable predicate wait
+    /// all raise here — every one of them resolves hittability first.
+    private func coordinateTap(_ element: XCUIElement) {
+        element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
     }
 
     /// Runs the whole workout: Done on every set, Skip rest on every rest.
@@ -60,22 +61,17 @@ final class DredfitUITests: XCTestCase {
         let done = app.buttons["Done"]
         let skipRest = app.buttons["Skip rest"]
         let rating = app.staticTexts["How did it go?"]
-        // 6 exercises × 3 sets = 18 Done, a rest between each. Tap whichever
-        // control is hittable; if a slow runner leaves neither actionable for
-        // a few rounds, break so the job's retry gets a fresh attempt instead
-        // of spinning here for minutes.
+        // 6 exercises × 3 sets = 18 Done, a rest between each. Coordinate-tap
+        // whichever control is present: this loop fires ~35 taps through rapid
+        // phase transitions, and a normal `.tap()` hits the fullScreenCover
+        // hittability quirk often enough to flake. The 1 s rating poll doubles
+        // as the settle between phases.
         var guardCounter = 0
-        var idleRounds = 0
-        while !rating.exists && guardCounter < 80 {
-            if waitForHittable(done, timeout: 2) {
-                done.tap()
-                idleRounds = 0
-            } else if waitForHittable(skipRest, timeout: 2) {
-                skipRest.tap()
-                idleRounds = 0
-            } else {
-                idleRounds += 1
-                if idleRounds >= 3 { break }
+        while !rating.waitForExistence(timeout: 1) && guardCounter < 80 {
+            if done.exists {
+                coordinateTap(done)
+            } else if skipRest.exists {
+                coordinateTap(skipRest)
             }
             guardCounter += 1
         }
@@ -353,14 +349,13 @@ final class DredfitUITests: XCTestCase {
         stop.tap()
         XCTAssertTrue(app.buttons["Skip rest"].waitForExistence(timeout: 3),
                       "the stopped hang must flow into rest")
-        waitForHittable(app.buttons["Skip rest"], timeout: 3)
-        app.buttons["Skip rest"].tap()
+        coordinateTap(app.buttons["Skip rest"])
 
         // the rest of the workout is not the point of this smoke — skip through
         let rating = app.staticTexts["How did it go?"]
         for _ in 0..<6 where !rating.exists {
             let skip = app.buttons["Skip exercise"]
-            if waitForHittable(skip, timeout: 3) { skip.tap() }
+            if skip.waitForExistence(timeout: 3) { coordinateTap(skip) }
         }
         XCTAssertTrue(rating.waitForExistence(timeout: 3))
         app.staticTexts["On plan"].tap()
