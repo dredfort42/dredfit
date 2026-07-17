@@ -46,6 +46,10 @@ struct SettingsSheet: View {
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .onAppear { exportURL = try? store.exportURL() }
+        // The share copy is a point-in-time snapshot: toggles flipped in this
+        // very sheet (rest days, the pull-up bar) must land in the export.
+        .onChange(of: store.settings) { exportURL = try? store.exportURL() }
+        .onChange(of: store.engineState) { exportURL = try? store.exportURL() }
         .fileImporter(isPresented: $importPickerShown,
                       allowedContentTypes: [.json]) { result in
             if case .success(let url) = result {
