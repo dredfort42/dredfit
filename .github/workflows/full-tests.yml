@@ -1,42 +1,27 @@
-name: CI
+name: Full Tests
 
-# Fast feedback: unit tests only (~5 min). The full suite including UI tests
-# runs in full-tests.yml — nightly, on release/hotfix branches, and manually.
+# The complete test plan including UI tests (~20-45 min, occasionally flaky
+# on shared runners). Runs where it matters, off the PR hot path:
+#   - nightly on the default branch (develop)
+#   - on every push to release/** and hotfix/**
+#   - manually via "Run workflow"
 
 on:
+  schedule:
+    - cron: "30 2 * * *"
   push:
-    branches: [main, develop, "release/**", "hotfix/**"]
-  pull_request:
-    branches: [main, develop]
+    branches: ["release/**", "hotfix/**"]
+  workflow_dispatch:
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: full-tests-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  core-tests:
-    name: DredfitCore package tests
+  full-suite:
+    name: Full test plan (unit + UI)
     runs-on: macos-latest
-    timeout-minutes: 15
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Select latest stable Xcode
-        run: |
-          xcode=$(ls -d /Applications/Xcode_*.app | grep -v beta | sort -V | tail -1)
-          echo "Selected: $xcode"
-          sudo xcode-select -s "$xcode"
-          xcodebuild -version
-
-      - name: Run tests
-        working-directory: DredfitCore
-        run: swift test --parallel
-
-  app-tests:
-    name: Dredfit app unit tests (iOS Simulator)
-    runs-on: macos-latest
-    timeout-minutes: 30
+    timeout-minutes: 90
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -59,14 +44,14 @@ jobs:
           echo "Using simulator: $device"
           echo "device=$device" >> "$GITHUB_OUTPUT"
 
-      - name: Build and test (UI tests excluded)
+      - name: Run the full test plan
         run: |
           set -o pipefail
           xcodebuild test \
             -project Dredfit.xcodeproj \
             -scheme Dredfit \
+            -testPlan Dredfit \
             -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.device }}" \
-            -skip-testing:DredfitUITests \
             CODE_SIGNING_ALLOWED=NO \
             | xcbeautify --renderer github-actions
 
@@ -74,6 +59,6 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: xcresult
+          name: xcresult-full
           path: ~/Library/Developer/Xcode/DerivedData/**/Logs/Test/*.xcresult
           if-no-files-found: ignore
