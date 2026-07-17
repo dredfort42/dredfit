@@ -19,6 +19,7 @@ struct SettingsSheet: View {
     @State private var pendingImportURL: URL?
     @State private var importConfirmShown = false
     @State private var importFailed = false
+    @State private var backfillPromptShown = false   // v1.3: Apple Health
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -33,6 +34,7 @@ struct SettingsSheet: View {
                     equipmentSection
                     soundsSection
                     reminderSection
+                    healthSection
                     backupSection
                 }
                 .padding(.horizontal, 24)
@@ -178,6 +180,52 @@ struct SettingsSheet: View {
             set: {
                 let c = Calendar.current.dateComponents([.hour, .minute], from: $0)
                 store.setReminderTime(hour: c.hour ?? 9, minute: c.minute ?? 0)
+            })
+    }
+
+    // MARK: - Apple Health (v1.3)
+
+    private var healthSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Kicker(text: String(localized: "Health"))
+            Toggle(isOn: healthBinding) {
+                Text("Save workouts to Health")
+                    .font(.system(size: 16, weight: .medium))
+            }
+            .tint(Theme.accent)
+            .accessibilityIdentifier("health-toggle")
+            Text("Workouts appear in the Health app. Nothing is read or shared.")
+                .font(.system(size: 12.5))
+                .foregroundStyle(Theme.ink3)
+        }
+        .confirmationDialog(String(localized: "Add past workouts to Health?"),
+                            isPresented: $backfillPromptShown,
+                            titleVisibility: .visible) {
+            Button {
+                Task { await store.backfillHealth() }
+            } label: {
+                Text("Export \(store.healthBackfillCount) workouts")
+            }
+            Button {
+                store.skipHealthBackfill()
+            } label: {
+                Text("Only new ones")
+            }
+        }
+    }
+
+    /// Enabling asks for write-only authorization first; a denial simply
+    /// leaves the toggle off. On success, past history is offered once.
+    private var healthBinding: Binding<Bool> {
+        Binding(
+            get: { store.settings.healthEnabled },
+            set: { on in
+                guard on else { return store.disableHealth() }
+                Task {
+                    if await store.enableHealth(), store.healthBackfillCount > 0 {
+                        backfillPromptShown = true
+                    }
+                }
             })
     }
 

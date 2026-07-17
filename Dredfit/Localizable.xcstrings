@@ -84,6 +84,58 @@
         }
       }
     },
+    "%lld levels" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld level"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld levels"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld уровня"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld уровней"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld уровень"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld уровня"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld s" : {
       "localizations" : {
         "ru" : {
@@ -186,6 +238,16 @@
         }
       }
     },
+    "Add past workouts to Health?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавить прошлые тренировки в «Здоровье»?"
+          }
+        }
+      }
+    },
     "Adjust by exercise" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -203,6 +265,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Скорректировано"
+          }
+        }
+      }
+    },
+    "All" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Все"
           }
         }
       }
@@ -349,6 +421,58 @@
         }
       }
     },
+    "Export %lld workouts" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Export %lld workout"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Export %lld workouts"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Выгрузить %lld тренировки"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Выгрузить %lld тренировок"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Выгрузить %lld тренировку"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Выгрузить %lld тренировки"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "Export history" : {
       "localizations" : {
         "ru" : {
@@ -376,6 +500,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Полуприседы"
+          }
+        }
+      }
+    },
+    "Health" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Здоровье"
           }
         }
       }
@@ -563,6 +697,16 @@
         }
       }
     },
+    "Only new ones" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Только новые"
+          }
+        }
+      }
+    },
     "plan: %@" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -690,6 +834,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Дни отдыха"
+          }
+        }
+      }
+    },
+    "Save workouts to Health" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Записывать в «Здоровье»"
           }
         }
       }
@@ -844,6 +998,16 @@
         }
       }
     },
+    "The chart will appear after a couple of workouts" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "График появится после пары тренировок"
+          }
+        }
+      }
+    },
     "the next one will be easier" : {
       "localizations" : {
         "ru" : {
@@ -860,6 +1024,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "За месяц"
+          }
+        }
+      }
+    },
+    "This week" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эта неделя"
           }
         }
       }
@@ -1021,6 +1195,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Оценка тренировки"
+          }
+        }
+      }
+    },
+    "Workouts appear in the Health app. Nothing is read or shared." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тренировки появляются в приложении «Здоровье». Ничего не читается и никуда не передаётся."
           }
         }
       }

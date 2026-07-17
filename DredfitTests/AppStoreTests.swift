@@ -105,6 +105,125 @@ final class AppStoreTests: XCTestCase {
         XCTAssertEqual(store.engineState.failStreak[.pullBar], 0)
     }
 
+    // MARK: - Apple Health (v1.3)
+
+    /// A Health spy: records saved intervals, grants or denies on demand.
+    private final class HealthSpy: WorkoutHealthWriting, @unchecked Sendable {
+        var available = true
+        var grant = true
+        var saved: [(start: Date, end: Date)] = []
+        var isAvailable: Bool { available }
+        func requestWriteAuthorization() async -> Bool { grant }
+        func saveWorkout(start: Date, end: Date) async -> Bool {
+            saved.append((start, end))
+            return true
+        }
+    }
+
+    func testHealthDenialLeavesToggleOff() async {
+        let spy = HealthSpy()
+        spy.grant = false
+        let store = AppStore(storageURL: tempURL, health: spy)
+        let granted = await store.enableHealth()
+        XCTAssertFalse(granted)
+        XCTAssertFalse(store.settings.healthEnabled, "denial must leave the toggle off")
+    }
+
+    func testHealthBackfillExportsOnceAndNeverDuplicates() async {
+        let spy = HealthSpy()
+        let store = AppStore(storageURL: tempURL, health: spy)
+        store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 14))
+        store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 16))
+
+        let granted = await store.enableHealth()
+        XCTAssertTrue(granted)
+        XCTAssertEqual(store.healthBackfillCount, 2)
+        await store.backfillHealth()
+        XCTAssertEqual(spy.saved.count, 2, "the backfill must export both past workouts")
+        XCTAssertEqual(store.healthBackfillCount, 0)
+
+        // toggling off and on again must not re-export old workouts
+        store.disableHealth()
+        _ = await store.enableHealth()
+        XCTAssertEqual(store.healthBackfillCount, 0, "re-enabling must not duplicate")
+
+        // estimate fallback: pre-1.3 records carry no duration — the interval
+        // still ends at the record date and has a positive length
+        let last = spy.saved.last!
+        XCTAssertEqual(last.end, date(2026, 7, 16))
+        XCTAssertGreaterThan(last.end.timeIntervalSince(last.start), 10 * 60)
+    }
+
+    func testHealthSkipBackfillMarksHistoryHandled() async {
+        let spy = HealthSpy()
+        let store = AppStore(storageURL: tempURL, health: spy)
+        store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 14))
+        _ = await store.enableHealth()
+        store.skipHealthBackfill()
+        XCTAssertEqual(store.healthBackfillCount, 0)
+        XCTAssertTrue(spy.saved.isEmpty, "\"only new ones\" must not export the past")
+
+        // a new workout with a captured duration exports automatically
+        store.completeWorkout(session: store.nextSession, result: .plan,
+                              durationSec: 40 * 60, date: date(2026, 7, 16))
+        // the export task is fire-and-forget — give it a beat
+        await Task.yield()
+        try? await Task.sleep(for: .milliseconds(50))
+        XCTAssertEqual(spy.saved.count, 1, "a completed workout must land in Health")
+        XCTAssertEqual(spy.saved[0].end.timeIntervalSince(spy.saved[0].start),
+                       40 * 60, accuracy: 1, "the actual duration must be used")
+    }
+
+    func testV11SettingsFileLoadsWithHealthDefaults() throws {
+        // a v1.1-era file: settings exist but know nothing about Health
+        let v11 = """
+        {"engineState":{"counter":0,
+          "levels":["squat",0,"push_h",0,"hinge",0,"pull",0,"push_v",0,"lunge",0,
+                    "core_anti_ext",0,"core_rot",0,"calf",0],
+          "failStreak":["squat",0,"push_h",0,"hinge",0,"pull",0,"push_v",0,"lunge",0,
+                        "core_anti_ext",0,"core_rot",0,"calf",0]},
+         "records":[],
+         "settings":{"restWeekdays":[1,2],"soundsEnabled":false,
+                     "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
+        """
+        try Data(v11.utf8).write(to: tempURL)
+        let store = AppStore(storageURL: tempURL)
+        XCTAssertEqual(store.settings.restWeekdays, [1, 2], "old settings must survive")
+        XCTAssertFalse(store.settings.soundsEnabled)
+        XCTAssertFalse(store.settings.healthEnabled, "Health defaults off for old files")
+        XCTAssertEqual(store.settings.healthExportedThrough, 0)
+    }
+
+    // MARK: - Week summary (v1.3)
+
+    func testWeekSummaryCountsMondayToSunday() {
+        let store = AppStore(storageURL: tempURL)
+        // previous week (baseline): Friday Jul 10, 2026
+        store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 10))
+        let baseline = store.records.last!.totalLevelAfter
+        // current week (Mon Jul 13 – Sun Jul 19): two workouts
+        store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 14))
+        store.completeWorkout(session: store.nextSession, result: .more, date: date(2026, 7, 16))
+        let last = store.records.last!.totalLevelAfter
+
+        let week = store.weekSummary(for: date(2026, 7, 16))
+        XCTAssertEqual(week.workouts, 2)
+        XCTAssertEqual(week.levelsDelta, last - baseline)
+
+        // Monday boundary: the Jul 10 workout belongs to the previous week
+        let previous = store.weekSummary(for: date(2026, 7, 10))
+        XCTAssertEqual(previous.workouts, 1)
+        XCTAssertEqual(previous.levelsDelta, baseline, "the first week counts from zero")
+    }
+
+    func testWeekSummaryEmptyWeekIsZero() {
+        let store = AppStore(storageURL: tempURL)
+        store.completeWorkout(session: store.nextSession, result: .more, date: date(2026, 7, 10))
+        let week = store.weekSummary(for: date(2026, 7, 22))
+        XCTAssertEqual(week, AppStore.WeekSummary(workouts: 0, levelsDelta: 0),
+                       "a week without workouts must read 0 · +0, not carry old gains")
+    }
+
     // MARK: - Pull-up bar (v2.2)
 
     func testHasBarPersistsAndDrivesAlternation() {

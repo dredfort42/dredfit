@@ -42,6 +42,7 @@ struct WorkoutFlowView: View {
     @State private var skippedPatterns: Set<Pattern> = []
     @State private var adjusting = false
     @State private var adjustValue = 0
+    @State private var workoutStart: Date?   // v1.3: actual duration for Health
 
     // Hold-exercise countdown (v1.1): date-based so it survives backgrounding.
     // Per-side holds run the countdown twice (left/right); the actual is the
@@ -74,7 +75,10 @@ struct WorkoutFlowView: View {
                 FeedbackView(session: session, actuals: actuals,
                              skipped: skippedPatterns) { result, overrides in
                     store.completeWorkout(session: session, result: result,
-                                          overrides: overrides, skipped: skippedPatterns)
+                                          overrides: overrides, skipped: skippedPatterns,
+                                          durationSec: workoutStart.map {
+                                              Int(Date.now.timeIntervalSince($0))
+                                          })
                     dismiss()
                 }
             }
@@ -96,6 +100,7 @@ struct WorkoutFlowView: View {
         .onAppear {
             // Keep the screen awake for the whole workout (timers, holds).
             UIApplication.shared.isIdleTimerDisabled = true
+            if workoutStart == nil { workoutStart = .now }
             if phase == .warmup && warmupEndDate == nil { startWarmupMove(0) }
         }
         .onDisappear { UIApplication.shared.isIdleTimerDisabled = false }
