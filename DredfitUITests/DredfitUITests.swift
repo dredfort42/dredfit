@@ -269,7 +269,8 @@ final class DredfitUITests: XCTestCase {
 
     func testSettingsTogglesRestDay() {
         app.launch()
-        app.tabBars.buttons["Progress"].tap()
+        // The settings icon overlays every tab — reachable straight from
+        // Today (the default landing tab), no detour through Progress.
         app.buttons["settings"].tap()
         XCTAssertTrue(app.staticTexts["REST DAYS"].waitForExistence(timeout: 3),
                       "the settings sheet did not open")
@@ -279,8 +280,23 @@ final class DredfitUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Sounds and haptics"].exists)
         XCTAssertTrue(app.staticTexts["BACKUP"].exists)
         app.buttons["Got it"].tap()
-        XCTAssertTrue(app.staticTexts["total level"].waitForExistence(timeout: 3),
-                      "closing settings should return to Progress")
+        XCTAssertTrue(app.staticTexts["Workout 1"].waitForExistence(timeout: 3),
+                      "closing settings should return to Today")
+    }
+
+    func testSettingsReachableFromEveryTab() {
+        app.launch()
+        app.tabBars.buttons["Calendar"].tap()
+        app.buttons["settings"].tap()
+        XCTAssertTrue(app.staticTexts["REST DAYS"].waitForExistence(timeout: 3),
+                      "settings must open from the Calendar tab too")
+        app.buttons["Got it"].tap()
+
+        app.tabBars.buttons["Progress"].tap()
+        app.buttons["settings"].tap()
+        XCTAssertTrue(app.staticTexts["REST DAYS"].waitForExistence(timeout: 3),
+                      "settings must open from the Progress tab too")
+        app.buttons["Got it"].tap()
     }
 
     // MARK: - Persistence across relaunch

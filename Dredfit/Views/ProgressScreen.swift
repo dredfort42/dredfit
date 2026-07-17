@@ -11,23 +11,11 @@ import DredfitCore
 
 struct ProgressScreen: View {
     @Environment(AppStore.self) private var store
-    @State private var settingsShown = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                Kicker(text: String(localized: "Progress"))
-                Spacer()
-                Button {
-                    settingsShown = true
-                } label: {
-                    Image(systemName: "gearshape")
-                        .font(.system(size: 17, weight: .medium))
-                        .foregroundStyle(Theme.ink2)
-                }
-                .accessibilityIdentifier("settings")
-            }
-            .padding(.top, 18)
+            Kicker(text: String(localized: "Progress"))
+                .padding(.top, 18)
 
             HStack(alignment: .firstTextBaseline, spacing: 10) {
                 Text("\(store.totalLevel)")
@@ -57,9 +45,6 @@ struct ProgressScreen: View {
             Spacer()
         }
         .padding(.horizontal, 24)
-        .sheet(isPresented: $settingsShown) {
-            SettingsSheet()
-        }
     }
 
     // MARK: - Total-level line across sessions
