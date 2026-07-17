@@ -31,6 +31,18 @@ final class DredfitUITests: XCTestCase {
         if skipWarmup.waitForExistence(timeout: 3) { skipWarmup.tap() }
     }
 
+    /// Polls hittability without raising. A bare `.isHittable` or `.tap()` on
+    /// an element whose frame is momentarily invalid mid-animation issues a
+    /// hard "activation point invalid" failure; the predicate wait returns
+    /// false during that window so the caller can wait it out or let the run
+    /// retry, instead of failing on a transient render.
+    @discardableResult
+    private func waitForHittable(_ element: XCUIElement, timeout: TimeInterval) -> Bool {
+        let hittable = NSPredicate(format: "exists == true AND isHittable == true")
+        let expectation = XCTNSPredicateExpectation(predicate: hittable, object: element)
+        return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
+    }
+
     /// Runs the whole workout: Done on every set, Skip rest on every rest.
     /// Returns control on the "How did it go?" screen.
     private func completeWorkout(adjustFirstExercise: Bool = false) {
@@ -48,13 +60,22 @@ final class DredfitUITests: XCTestCase {
         let done = app.buttons["Done"]
         let skipRest = app.buttons["Skip rest"]
         let rating = app.staticTexts["How did it go?"]
-        // 6 exercises × 3 sets = 18 Done; between them — Skip rest
+        // 6 exercises × 3 sets = 18 Done, a rest between each. Tap whichever
+        // control is hittable; if a slow runner leaves neither actionable for
+        // a few rounds, break so the job's retry gets a fresh attempt instead
+        // of spinning here for minutes.
         var guardCounter = 0
+        var idleRounds = 0
         while !rating.exists && guardCounter < 80 {
-            if done.waitForExistence(timeout: 3) && done.isHittable {
+            if waitForHittable(done, timeout: 2) {
                 done.tap()
-            } else if skipRest.exists && skipRest.isHittable {
+                idleRounds = 0
+            } else if waitForHittable(skipRest, timeout: 2) {
                 skipRest.tap()
+                idleRounds = 0
+            } else {
+                idleRounds += 1
+                if idleRounds >= 3 { break }
             }
             guardCounter += 1
         }
@@ -332,13 +353,16 @@ final class DredfitUITests: XCTestCase {
         stop.tap()
         XCTAssertTrue(app.buttons["Skip rest"].waitForExistence(timeout: 3),
                       "the stopped hang must flow into rest")
+        waitForHittable(app.buttons["Skip rest"], timeout: 3)
         app.buttons["Skip rest"].tap()
 
         // the rest of the workout is not the point of this smoke — skip through
-        for _ in 0..<6 where !app.staticTexts["How did it go?"].exists {
-            app.buttons["Skip exercise"].tap()
+        let rating = app.staticTexts["How did it go?"]
+        for _ in 0..<6 where !rating.exists {
+            let skip = app.buttons["Skip exercise"]
+            if waitForHittable(skip, timeout: 3) { skip.tap() }
         }
-        XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 3))
+        XCTAssertTrue(rating.waitForExistence(timeout: 3))
         app.staticTexts["On plan"].tap()
         XCTAssertTrue(app.staticTexts["Workout 2 completed"].waitForExistence(timeout: 5),
                       "the bar workout must complete like any other")

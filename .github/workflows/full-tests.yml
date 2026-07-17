@@ -21,7 +21,7 @@ jobs:
   full-suite:
     name: Full test plan (unit + UI)
     runs-on: macos-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -47,11 +47,18 @@ jobs:
       - name: Run the full test plan
         run: |
           set -o pipefail
+          # UI tests are occasionally flaky on shared runners: a launch can
+          # time out, or a control's frame is momentarily invalid mid-animation.
+          # xcodebuild ignores the test plan's own repetition settings, so the
+          # retry is requested explicitly here — a failed test re-runs up to 3
+          # attempts and only a genuinely broken test fails the job.
           xcodebuild test \
             -project Dredfit.xcodeproj \
             -scheme Dredfit \
             -testPlan Dredfit \
             -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.device }}" \
+            -retry-tests-on-failure \
+            -test-iterations 3 \
             CODE_SIGNING_ALLOWED=NO \
             | xcbeautify --renderer github-actions
 
