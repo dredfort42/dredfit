@@ -23,6 +23,7 @@ struct WorkoutFlowView: View {
     @Environment(AppStore.self) private var store
 
     private enum Phase: Equatable {
+        case warmup
         case work
         case rest(seconds: Int)
         case feedback
@@ -30,7 +31,10 @@ struct WorkoutFlowView: View {
 
     @State private var exIndex = 0
     @State private var setIndex = 0          // 0-based
-    @State private var phase: Phase = .work
+    @State private var phase: Phase = .warmup
+    @State private var warmupIndex = 0
+    @State private var warmupRemaining = 0
+    @State private var warmupEndDate: Date?
     @State private var restRemaining = 0
     @State private var restEndDate: Date?
     @State private var techniqueShown = false
@@ -60,6 +64,8 @@ struct WorkoutFlowView: View {
             header
 
             switch phase {
+            case .warmup:
+                warmupView
             case .work:
                 workView
             case .rest:
@@ -76,14 +82,22 @@ struct WorkoutFlowView: View {
         .padding(.horizontal, 24)
         .background(Color.white)
         .onReceive(timer) { _ in
-            if case .rest = phase {
+            switch phase {
+            case .warmup:
+                tickWarmup()
+            case .rest:
                 tickRest()
-            } else if phase == .work && holding {
+            case .work where holding:
                 tickHold()
+            default:
+                break
             }
         }
-        // Keep the screen awake for the whole workout (timers, holds).
-        .onAppear { UIApplication.shared.isIdleTimerDisabled = true }
+        .onAppear {
+            // Keep the screen awake for the whole workout (timers, holds).
+            UIApplication.shared.isIdleTimerDisabled = true
+            if phase == .warmup && warmupEndDate == nil { startWarmupMove(0) }
+        }
         .onDisappear { UIApplication.shared.isIdleTimerDisabled = false }
         .sheet(isPresented: $techniqueShown) {
             TechniqueSheet(exercise: exercise)
@@ -102,9 +116,12 @@ struct WorkoutFlowView: View {
                         .foregroundStyle(Theme.ink3)
                     Spacer()
                     Group {
-                        if phase == .work {
+                        switch phase {
+                        case .work:
                             Text("\(exIndex + 1) / \(session.exercises.count)")
-                        } else {
+                        case .warmup:
+                            Text("WARM-UP")
+                        default:
                             Text("REST")
                         }
                     }
@@ -114,17 +131,104 @@ struct WorkoutFlowView: View {
                     Spacer()
                     Button(String(localized: "Exit")) { }.font(.system(size: 14)).hidden() // symmetry
                 }
-                HStack(spacing: 5) {
-                    ForEach(0..<session.exercises.count, id: \.self) { i in
-                        Capsule()
-                            .fill(i <= exIndex ? Theme.ink : Theme.hairline)
-                            .frame(height: 4)
+                if phase != .warmup {
+                    HStack(spacing: 5) {
+                        ForEach(0..<session.exercises.count, id: \.self) { i in
+                            Capsule()
+                                .fill(i <= exIndex ? Theme.ink : Theme.hairline)
+                                .frame(height: 4)
+                        }
                     }
+                    .frame(width: 200)
                 }
-                .frame(width: 200)
             }
             .padding(.top, 12)
         }
+    }
+
+    // MARK: - Warm-up (v1.1)
+
+    /// Six universal mobility moves, 30 s each — ~3 minutes before the first
+    /// exercise. No levels involved; the whole block can be skipped.
+    private static let warmupMoves: [String.LocalizationValue] = [
+        "Marching in place", "Arm circles", "Torso rotations",
+        "Hip circles", "Half squats", "Cat-cow",
+    ]
+    private static let warmupMoveSeconds = 30
+
+    private var warmupView: some View {
+        VStack(spacing: 0) {
+            Spacer()
+            Text(String(localized: Self.warmupMoves[warmupIndex]))
+                .font(.system(size: 23, weight: .bold))
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 300)
+
+            VStack(spacing: 4) {
+                Text("\(warmupRemaining)")
+                    .font(.system(size: 112, weight: .heavy))
+                    .tracking(-4)
+                    .monospacedDigit()
+                    .contentTransition(.numericText(countsDown: true))
+                Text("sec")
+                    .font(.system(size: 15))
+                    .foregroundStyle(Theme.ink2)
+            }
+            .padding(.top, 20)
+
+            HStack(spacing: 10) {
+                ForEach(0..<Self.warmupMoves.count, id: \.self) { i in
+                    Circle()
+                        .fill(i < warmupIndex ? Theme.ink
+                              : (i == warmupIndex ? Theme.accent : Theme.hairline))
+                        .frame(width: 10, height: 10)
+                }
+            }
+            .padding(.top, 30)
+
+            Spacer()
+
+            Button {
+                finishWarmup()
+            } label: {
+                Text("Skip warm-up")
+                    .font(.system(size: 17, weight: .medium))
+                    .foregroundStyle(Theme.ink2)
+                    .frame(maxWidth: .infinity, minHeight: 56)
+                    .overlay(RoundedRectangle(cornerRadius: 18).stroke(Theme.hairline, lineWidth: 1.5))
+            }
+            .padding(.bottom, 20)
+        }
+    }
+
+    private func startWarmupMove(_ index: Int) {
+        warmupIndex = index
+        warmupRemaining = Self.warmupMoveSeconds
+        warmupEndDate = Date.now.addingTimeInterval(TimeInterval(Self.warmupMoveSeconds))
+    }
+
+    private func tickWarmup() {
+        guard let end = warmupEndDate else { return }
+        let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
+        guard newRemaining != warmupRemaining else { return }
+        if newRemaining == 0 {
+            playGo()
+            if warmupIndex + 1 < Self.warmupMoves.count {
+                startWarmupMove(warmupIndex + 1)
+            } else {
+                finishWarmup()
+            }
+        } else {
+            if newRemaining <= Self.countdownSignalSeconds && newRemaining < warmupRemaining {
+                playTick()
+            }
+            warmupRemaining = newRemaining
+        }
+    }
+
+    private func finishWarmup() {
+        warmupEndDate = nil
+        phase = .work
     }
 
     // MARK: - Work
@@ -456,13 +560,16 @@ struct WorkoutFlowView: View {
 
     /// A short tick on 3-2-1. The system sound respects silent mode,
     /// a light vibration duplicates the signal for silent mode.
+    /// Both obey the "Sounds and haptics" setting (v1.1).
     private func playTick() {
+        guard store.settings.soundsEnabled else { return }
         AudioServicesPlaySystemSound(1103) // Tink
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
 
     /// The "set start" signal at zero — lower in tone and with a haptic accent.
     private func playGo() {
+        guard store.settings.soundsEnabled else { return }
         AudioServicesPlaySystemSound(1104) // Tock
         UINotificationFeedbackGenerator().notificationOccurred(.success)
     }

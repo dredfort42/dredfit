@@ -24,10 +24,17 @@ final class DredfitUITests: XCTestCase {
 
     // MARK: - Helpers
 
+    /// Taps Start and skips the v1.1 warm-up block.
+    private func startWorkout() {
+        app.buttons["Start"].tap()
+        let skipWarmup = app.buttons["Skip warm-up"]
+        if skipWarmup.waitForExistence(timeout: 3) { skipWarmup.tap() }
+    }
+
     /// Runs the whole workout: Done on every set, Skip rest on every rest.
     /// Returns control on the "How did it go?" screen.
     private func completeWorkout(adjustFirstExercise: Bool = false) {
-        app.buttons["Start"].tap()
+        startWorkout()
 
         if adjustFirstExercise {
             app.buttons["Went differently"].tap()
@@ -109,7 +116,7 @@ final class DredfitUITests: XCTestCase {
 
     func testTechniqueSheetDuringWorkout() {
         app.launch()
-        app.buttons["Start"].tap()
+        startWorkout()
         app.buttons["technique"].tap()
         XCTAssertTrue(app.staticTexts["TECHNIQUE"].waitForExistence(timeout: 3))
         app.buttons["Got it"].tap()
@@ -120,7 +127,7 @@ final class DredfitUITests: XCTestCase {
 
     func testExitDiscardsWorkout() {
         app.launch()
-        app.buttons["Start"].tap()
+        startWorkout()
         app.buttons["Done"].tap()          // one set
         app.buttons["Exit"].firstMatch.tap()
         // the workout is not recorded — Start is back in place
@@ -130,7 +137,7 @@ final class DredfitUITests: XCTestCase {
 
     func testSkipAllExercisesStillReachesRating() {
         app.launch()
-        app.buttons["Start"].tap()
+        startWorkout()
         for _ in 0..<6 { app.buttons["Skip exercise"].tap() }
         XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 3),
                       "skipping all exercises should lead to the rating")
@@ -209,7 +216,7 @@ final class DredfitUITests: XCTestCase {
         app.launch()
         XCTAssertTrue(app.staticTexts["Workout 2"].waitForExistence(timeout: 5),
                       "--uitest-session2 must open on workout 2")
-        app.buttons["Start"].tap()
+        startWorkout()
         for _ in 0..<3 { app.buttons["Skip exercise"].tap() }
         XCTAssertTrue(app.buttons["Start hold"].waitForExistence(timeout: 3),
                       "the hold exercise did not offer the countdown")
@@ -242,6 +249,38 @@ final class DredfitUITests: XCTestCase {
         // at zero the countdown must advance to rest by itself
         XCTAssertTrue(app.buttons["Skip rest"].waitForExistence(timeout: 9),
                       "the hold did not auto-advance to rest at zero")
+    }
+
+    // MARK: - Warm-up (v1.1)
+
+    func testWarmupShowsAndSkips() {
+        app.launch()
+        app.buttons["Start"].tap()
+        XCTAssertTrue(app.staticTexts["WARM-UP"].waitForExistence(timeout: 3),
+                      "the workout must open with the warm-up")
+        XCTAssertTrue(app.staticTexts["Marching in place"].exists,
+                      "the first warm-up move is missing")
+        app.buttons["Skip warm-up"].tap()
+        XCTAssertTrue(app.buttons["Done"].waitForExistence(timeout: 3),
+                      "skipping the warm-up must lead to the first exercise")
+    }
+
+    // MARK: - Settings (v1.1)
+
+    func testSettingsTogglesRestDay() {
+        app.launch()
+        app.tabBars.buttons["Progress"].tap()
+        app.buttons["settings"].tap()
+        XCTAssertTrue(app.staticTexts["REST DAYS"].waitForExistence(timeout: 3),
+                      "the settings sheet did not open")
+        // Monday becomes a rest day and back — the chip reacts without errors
+        app.buttons["weekday-2"].tap()
+        app.buttons["weekday-2"].tap()
+        XCTAssertTrue(app.staticTexts["Sounds and haptics"].exists)
+        XCTAssertTrue(app.staticTexts["BACKUP"].exists)
+        app.buttons["Got it"].tap()
+        XCTAssertTrue(app.staticTexts["total level"].waitForExistence(timeout: 3),
+                      "closing settings should return to Progress")
     }
 
     // MARK: - Persistence across relaunch

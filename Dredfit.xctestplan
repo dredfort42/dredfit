@@ -20,6 +20,14 @@
     {
       "parallelizable" : true,
       "target" : {
+        "containerPath" : "container:DredfitCore",
+        "identifier" : "DredfitCoreTests",
+        "name" : "DredfitCoreTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
         "containerPath" : "container:Dredfit.xcodeproj",
         "identifier" : "AF2F7BB13008FD9300249B07",
         "name" : "DredfitTests"

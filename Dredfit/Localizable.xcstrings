@@ -179,6 +179,17 @@
         }
       }
     },
+    "Adjust by exercise" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уточнить по упражнениям"
+          }
+        }
+      }
+    },
     "Adjusted" : {
       "localizations" : {
         "ru" : {
@@ -189,12 +200,54 @@
         }
       }
     },
+    "Arm circles" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Круги руками"
+          }
+        }
+      }
+    },
+    "Backup" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Резервная копия"
+          }
+        }
+      }
+    },
     "Calendar" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Календарь"
+          }
+        }
+      }
+    },
+    "Cancel" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отмена"
+          }
+        }
+      }
+    },
+    "Cat-cow" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кошка-корова"
           }
         }
       }
@@ -229,6 +282,16 @@
         }
       }
     },
+    "Couldn't read this file." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось прочитать файл."
+          }
+        }
+      }
+    },
     "Done" : {
       "localizations" : {
         "ru" : {
@@ -259,6 +322,16 @@
         }
       }
     },
+    "Export history" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Экспорт истории"
+          }
+        }
+      }
+    },
     "Got it" : {
       "localizations" : {
         "ru" : {
@@ -269,12 +342,86 @@
         }
       }
     },
+    "Half squats" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Полуприседы"
+          }
+        }
+      }
+    },
+    "Highlighted days are rest days" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выделенные дни — отдых"
+          }
+        }
+      }
+    },
+    "Hip circles" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Круги тазом"
+          }
+        }
+      }
+    },
+    "History" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "История"
+          }
+        }
+      }
+    },
     "How did it go?" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Как прошло?"
+          }
+        }
+      }
+    },
+    "Import history" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Импорт истории"
+          }
+        }
+      }
+    },
+    "Import replaces your current history and settings." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Импорт заменит текущую историю и настройки."
+          }
+        }
+      }
+    },
+    "Marching in place" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Марш на месте"
           }
         }
       }
@@ -389,6 +536,17 @@
         }
       }
     },
+    "plan: %@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "план: %@"
+          }
+        }
+      }
+    },
     "planned" : {
       "localizations" : {
         "ru" : {
@@ -439,6 +597,36 @@
         }
       }
     },
+    "Reminder" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Напоминание"
+          }
+        }
+      }
+    },
+    "Replace" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заменить"
+          }
+        }
+      }
+    },
+    "Replace history?" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заменить историю?"
+          }
+        }
+      }
+    },
     "reps" : {
       "localizations" : {
         "ru" : {
@@ -455,6 +643,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ОТДЫХ"
+          }
+        }
+      }
+    },
+    "Rest days" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дни отдыха"
           }
         }
       }
@@ -499,6 +697,16 @@
         }
       }
     },
+    "Settings" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки"
+          }
+        }
+      }
+    },
     "Skip exercise" : {
       "localizations" : {
         "ru" : {
@@ -519,12 +727,32 @@
         }
       }
     },
+    "Skip warm-up" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пропустить разминку"
+          }
+        }
+      }
+    },
     "skipped" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "пропущено"
+          }
+        }
+      }
+    },
+    "Sounds and haptics" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Звуки и вибрация"
           }
         }
       }
@@ -609,6 +837,16 @@
         }
       }
     },
+    "Time" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Время"
+          }
+        }
+      }
+    },
     "today" : {
       "localizations" : {
         "ru" : {
@@ -629,12 +867,33 @@
         }
       }
     },
+    "Today's workout is ready" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тренировка на сегодня готова"
+          }
+        }
+      }
+    },
     "tomorrow" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "завтра"
+          }
+        }
+      }
+    },
+    "Torso rotations" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Повороты корпуса"
           }
         }
       }
@@ -665,6 +924,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Тяжело, сделал меньше"
+          }
+        }
+      }
+    },
+    "WARM-UP" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "РАЗМИНКА"
           }
         }
       }
