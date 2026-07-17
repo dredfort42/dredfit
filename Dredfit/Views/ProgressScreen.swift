@@ -142,8 +142,10 @@ struct ProgressScreen: View {
                 .background(
                     Capsule()
                         .fill(selected ? Theme.accentSoft : Color.white)
-                        .overlay(Capsule().stroke(selected ? Theme.accent : Theme.hairline,
-                                                  lineWidth: 1.5))
+                        // strokeBorder insets the line inside the shape so its
+                        // outer half is never clipped on the straight edges.
+                        .overlay(Capsule().strokeBorder(selected ? Theme.accent : Theme.hairline,
+                                                        lineWidth: 1.5))
                 )
                 .foregroundStyle(selected ? Theme.accent : Theme.ink2)
         }
@@ -177,7 +179,7 @@ struct ProgressScreen: View {
             }
         } else {
             RoundedRectangle(cornerRadius: 14)
-                .stroke(Theme.hairline, lineWidth: 1.5)
+                .strokeBorder(Theme.hairline, lineWidth: 1.5)
                 .overlay(
                     Text("The chart will appear after a couple of workouts")
                         .font(.system(size: 12.5))
