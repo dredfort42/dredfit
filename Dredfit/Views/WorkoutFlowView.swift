@@ -5,6 +5,11 @@
 //  The workout flow: exercise (big number, set dots) and rest (ring timer).
 //  State machine: work > rest > … > feedback.
 //
+//  v1.1: hold exercises run a countdown (start by button, 3-2-1 signals,
+//  auto-advance at zero; an early stop records the held seconds as the
+//  actual). Skipped exercises are collected and passed to the engine so
+//  their patterns honestly keep their level. The screen stays awake.
+//
 
 import Combine
 import SwiftUI
@@ -18,6 +23,7 @@ struct WorkoutFlowView: View {
     @Environment(AppStore.self) private var store
 
     private enum Phase: Equatable {
+        case warmup
         case work
         case rest(seconds: Int)
         case feedback
@@ -25,33 +31,50 @@ struct WorkoutFlowView: View {
 
     @State private var exIndex = 0
     @State private var setIndex = 0          // 0-based
-    @State private var phase: Phase = .work
+    @State private var phase: Phase = .warmup
+    @State private var warmupIndex = 0
+    @State private var warmupRemaining = 0
+    @State private var warmupEndDate: Date?
     @State private var restRemaining = 0
     @State private var restEndDate: Date?
     @State private var techniqueShown = false
     @State private var actuals: [Pattern: Int] = [:]
+    @State private var skippedPatterns: Set<Pattern> = []
     @State private var adjusting = false
-    @State private var exitConfirmShown = false
     @State private var adjustValue = 0
+
+    // Hold-exercise countdown (v1.1): date-based so it survives backgrounding.
+    // Per-side holds run the countdown twice (left/right); the actual is the
+    // smaller of the two — the honest bottleneck.
+    @State private var holdEndDate: Date?
+    @State private var holdRemaining = 0
+    @State private var holdTotal = 0
+    @State private var holdSecondSide = false
+    @State private var firstSideHeld: Int?
 
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     private var exercise: SessionExercise { session.exercises[exIndex] }
     private var isLastSet: Bool { setIndex == exercise.sets - 1 }
     private var isLastExercise: Bool { exIndex == session.exercises.count - 1 }
+    private var holding: Bool { holdEndDate != nil }
 
     var body: some View {
         VStack(spacing: 0) {
             header
 
             switch phase {
+            case .warmup:
+                warmupView
             case .work:
                 workView
             case .rest:
                 restView
             case .feedback:
-                FeedbackView(session: session, actuals: actuals) { result, overrides in
-                    store.completeWorkout(session: session, result: result, overrides: overrides)
+                FeedbackView(session: session, actuals: actuals,
+                             skipped: skippedPatterns) { result, overrides in
+                    store.completeWorkout(session: session, result: result,
+                                          overrides: overrides, skipped: skippedPatterns)
                     dismiss()
                 }
             }
@@ -59,32 +82,25 @@ struct WorkoutFlowView: View {
         .padding(.horizontal, 24)
         .background(Color.white)
         .onReceive(timer) { _ in
-            guard case .rest = phase, let end = restEndDate else { return }
-            let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
-            guard newRemaining != restRemaining else { return }
-            if newRemaining == 0 {
-                restEndDate = nil
-                restRemaining = 0
-                playGo()
-                advanceAfterRest()
-            } else {
-                // tick once per second in the 3-2-1 zone (no spam after backgrounding)
-                if newRemaining <= Self.countdownSignalSeconds && newRemaining < restRemaining {
-                    playTick()
-                }
-                restRemaining = newRemaining
+            switch phase {
+            case .warmup:
+                tickWarmup()
+            case .rest:
+                tickRest()
+            case .work where holding:
+                tickHold()
+            default:
+                break
             }
         }
+        .onAppear {
+            // Keep the screen awake for the whole workout (timers, holds).
+            UIApplication.shared.isIdleTimerDisabled = true
+            if phase == .warmup && warmupEndDate == nil { startWarmupMove(0) }
+        }
+        .onDisappear { UIApplication.shared.isIdleTimerDisabled = false }
         .sheet(isPresented: $techniqueShown) {
             TechniqueSheet(exercise: exercise)
-        }
-        .confirmationDialog(String(localized: "End the workout?"),
-                            isPresented: $exitConfirmShown,
-                            titleVisibility: .visible) {
-            Button(String(localized: "End workout"), role: .destructive) { dismiss() }
-            Button(String(localized: "Cancel"), role: .cancel) { }
-        } message: {
-            Text("Progress of this session won't be saved.")
         }
     }
 
@@ -94,35 +110,125 @@ struct WorkoutFlowView: View {
     private var header: some View {
         if phase != .feedback {
             VStack(spacing: 10) {
-                ZStack {
-                    HStack {
-                        Button(String(localized: "Exit")) { exitConfirmShown = true }
-                            .font(.system(size: 14))
-                            .foregroundStyle(Theme.ink3)
-                        Spacer()
-                    }
+                HStack {
+                    Button(String(localized: "Exit")) { dismiss() }
+                        .font(.system(size: 14))
+                        .foregroundStyle(Theme.ink3)
+                    Spacer()
                     Group {
-                        if phase == .work {
+                        switch phase {
+                        case .work:
                             Text("\(exIndex + 1) / \(session.exercises.count)")
-                        } else {
+                        case .warmup:
+                            Text("WARM-UP")
+                        default:
                             Text("REST")
                         }
                     }
                     .font(.system(size: 13, weight: .semibold))
                     .kerning(0.5)
                     .foregroundStyle(Theme.ink3)
+                    Spacer()
+                    Button(String(localized: "Exit")) { }.font(.system(size: 14)).hidden() // symmetry
                 }
-                HStack(spacing: 5) {
-                    ForEach(0..<session.exercises.count, id: \.self) { i in
-                        Capsule()
-                            .fill(i <= exIndex ? Theme.ink : Theme.hairline)
-                            .frame(height: 4)
+                if phase != .warmup {
+                    HStack(spacing: 5) {
+                        ForEach(0..<session.exercises.count, id: \.self) { i in
+                            Capsule()
+                                .fill(i <= exIndex ? Theme.ink : Theme.hairline)
+                                .frame(height: 4)
+                        }
                     }
+                    .frame(width: 200)
                 }
-                .frame(width: 200)
             }
             .padding(.top, 12)
         }
+    }
+
+    // MARK: - Warm-up (v1.1)
+
+    /// Six universal mobility moves, 30 s each — ~3 minutes before the first
+    /// exercise. No levels involved; the whole block can be skipped.
+    private static let warmupMoves: [String.LocalizationValue] = [
+        "Marching in place", "Arm circles", "Torso rotations",
+        "Hip circles", "Half squats", "Cat-cow",
+    ]
+    private static let warmupMoveSeconds = 30
+
+    private var warmupView: some View {
+        VStack(spacing: 0) {
+            Spacer()
+            Text(String(localized: Self.warmupMoves[warmupIndex]))
+                .font(.system(size: 23, weight: .bold))
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 300)
+
+            VStack(spacing: 4) {
+                Text("\(warmupRemaining)")
+                    .font(.system(size: 112, weight: .heavy))
+                    .tracking(-4)
+                    .monospacedDigit()
+                    .contentTransition(.numericText(countsDown: true))
+                Text("sec")
+                    .font(.system(size: 15))
+                    .foregroundStyle(Theme.ink2)
+            }
+            .padding(.top, 20)
+
+            HStack(spacing: 10) {
+                ForEach(0..<Self.warmupMoves.count, id: \.self) { i in
+                    Circle()
+                        .fill(i < warmupIndex ? Theme.ink
+                              : (i == warmupIndex ? Theme.accent : Theme.hairline))
+                        .frame(width: 10, height: 10)
+                }
+            }
+            .padding(.top, 30)
+
+            Spacer()
+
+            Button {
+                finishWarmup()
+            } label: {
+                Text("Skip warm-up")
+                    .font(.system(size: 17, weight: .medium))
+                    .foregroundStyle(Theme.ink2)
+                    .frame(maxWidth: .infinity, minHeight: 56)
+                    .overlay(RoundedRectangle(cornerRadius: 18).stroke(Theme.hairline, lineWidth: 1.5))
+            }
+            .padding(.bottom, 20)
+        }
+    }
+
+    private func startWarmupMove(_ index: Int) {
+        warmupIndex = index
+        warmupRemaining = Self.warmupMoveSeconds
+        warmupEndDate = Date.now.addingTimeInterval(TimeInterval(Self.warmupMoveSeconds))
+    }
+
+    private func tickWarmup() {
+        guard let end = warmupEndDate else { return }
+        let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
+        guard newRemaining != warmupRemaining else { return }
+        if newRemaining == 0 {
+            playGo()
+            if warmupIndex + 1 < Self.warmupMoves.count {
+                startWarmupMove(warmupIndex + 1)
+            } else {
+                finishWarmup()
+            }
+        } else {
+            if newRemaining <= Self.countdownSignalSeconds && newRemaining < warmupRemaining {
+                playTick()
+            }
+            warmupRemaining = newRemaining
+        }
+    }
+
+    private func finishWarmup() {
+        warmupEndDate = nil
+        phase = .work
     }
 
     // MARK: - Work
@@ -145,10 +251,11 @@ struct WorkoutFlowView: View {
             .padding(.top, 10)
 
             VStack(spacing: 4) {
-                Text("\(actuals[exercise.pattern] ?? exercise.load)")
+                Text("\(holding ? holdRemaining : (actuals[exercise.pattern] ?? exercise.load))")
                     .font(.system(size: 112, weight: .heavy))
                     .tracking(-4)
                     .monospacedDigit()
+                    .contentTransition(.numericText(countsDown: true))
                 Text(loadCaption)
                     .font(.system(size: 17, weight: .medium))
                     .foregroundStyle(Theme.ink2)
@@ -165,7 +272,11 @@ struct WorkoutFlowView: View {
             .padding(.top, 30)
 
             Group {
-                if let actual = actuals[exercise.pattern], actual != exercise.load {
+                if holdSecondSide {
+                    Text("second side")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Theme.accent)
+                } else if let actual = actuals[exercise.pattern], actual != exercise.load {
                     Text("actual \(actual)")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(Theme.accent)
@@ -184,7 +295,15 @@ struct WorkoutFlowView: View {
                     .padding(.bottom, 8)
             }
 
-            PrimaryButton(title: String(localized: "Done")) { completeSet() }
+            if exercise.unit == .hold {
+                if holding {
+                    PrimaryButton(title: String(localized: "Stop")) { stopHoldEarly() }
+                } else {
+                    PrimaryButton(title: String(localized: "Start hold")) { startHold() }
+                }
+            } else {
+                PrimaryButton(title: String(localized: "Done")) { completeSet() }
+            }
 
             HStack(spacing: 26) {
                 Button(String(localized: "Went differently")) { startAdjusting() }
@@ -193,6 +312,8 @@ struct WorkoutFlowView: View {
             .font(.system(size: 14.5))
             .foregroundStyle(Theme.ink2)
             .padding(.vertical, 14)
+            .opacity(holding ? 0 : 1)      // no adjusting/skipping mid-hold
+            .disabled(holding)
         }
     }
 
@@ -336,6 +457,10 @@ struct WorkoutFlowView: View {
 
     private func skipExercise() {
         adjusting = false
+        holdSecondSide = false
+        firstSideHeld = nil
+        actuals.removeValue(forKey: exercise.pattern)   // a skip wins over an actual
+        skippedPatterns.insert(exercise.pattern)
         if isLastExercise {
             phase = .feedback
         } else {
@@ -351,6 +476,83 @@ struct WorkoutFlowView: View {
         phase = .rest(seconds: seconds)
     }
 
+    private func tickRest() {
+        guard let end = restEndDate else { return }
+        let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
+        guard newRemaining != restRemaining else { return }
+        if newRemaining == 0 {
+            restEndDate = nil
+            restRemaining = 0
+            playGo()
+            advanceAfterRest()
+        } else {
+            // tick once per second in the 3-2-1 zone (no spam after backgrounding)
+            if newRemaining <= Self.countdownSignalSeconds && newRemaining < restRemaining {
+                playTick()
+            }
+            restRemaining = newRemaining
+        }
+    }
+
+    // MARK: - Hold countdown (v1.1)
+
+    private func startHold() {
+        adjusting = false
+        holdTotal = actuals[exercise.pattern] ?? exercise.load
+        holdRemaining = holdTotal
+        holdEndDate = Date.now.addingTimeInterval(TimeInterval(holdTotal))
+    }
+
+    private func tickHold() {
+        guard let end = holdEndDate else { return }
+        let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
+        guard newRemaining != holdRemaining else { return }
+        if newRemaining == 0 {
+            playGo()
+            finishHold(heldSeconds: holdTotal)
+        } else {
+            if newRemaining <= Self.countdownSignalSeconds && newRemaining < holdRemaining {
+                playTick()
+            }
+            holdRemaining = newRemaining
+        }
+    }
+
+    /// Early stop: the seconds actually held become the actual.
+    private func stopHoldEarly() {
+        guard let end = holdEndDate else { return }
+        let remaining = max(0, end.timeIntervalSinceNow)
+        finishHold(heldSeconds: Int((Double(holdTotal) - remaining).rounded()))
+    }
+
+    /// One countdown finished. Per-side holds wait for the second side
+    /// (started by button, giving time to switch); the recorded actual is
+    /// the smaller of the two sides.
+    private func finishHold(heldSeconds: Int) {
+        holdEndDate = nil
+        if exercise.perSide && !holdSecondSide {
+            firstSideHeld = heldSeconds
+            holdSecondSide = true
+            return
+        }
+        let held = min(heldSeconds, firstSideHeld ?? heldSeconds)
+        holdSecondSide = false
+        firstSideHeld = nil
+        recordHoldActual(heldSeconds: held)
+        completeSet()
+    }
+
+    /// Rounds to the 5-second step (same as the manual adjuster), within 5...90.
+    /// Holding exactly the planned value removes the override — that is "on plan".
+    private func recordHoldActual(heldSeconds: Int) {
+        let rounded = min(max(Int((Double(heldSeconds) / 5).rounded()) * 5, 5), 90)
+        if rounded == exercise.load {
+            actuals.removeValue(forKey: exercise.pattern)
+        } else {
+            actuals[exercise.pattern] = rounded
+        }
+    }
+
     // MARK: - Audible countdown of the last rest seconds
 
     /// How many seconds before the end of rest to start "ticking".
@@ -358,13 +560,16 @@ struct WorkoutFlowView: View {
 
     /// A short tick on 3-2-1. The system sound respects silent mode,
     /// a light vibration duplicates the signal for silent mode.
+    /// Both obey the "Sounds and haptics" setting (v1.1).
     private func playTick() {
+        guard store.settings.soundsEnabled else { return }
         AudioServicesPlaySystemSound(1103) // Tink
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
 
     /// The "set start" signal at zero — lower in tone and with a haptic accent.
     private func playGo() {
+        guard store.settings.soundsEnabled else { return }
         AudioServicesPlaySystemSound(1104) // Tock
         UINotificationFeedbackGenerator().notificationOccurred(.success)
     }

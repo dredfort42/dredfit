@@ -41,7 +41,11 @@ struct HistorySheet: View {
                                 .font(.system(size: 15))
                                 .monospacedDigit()
                                 .foregroundStyle(Theme.ink2)
-                            if let actual = record.actuals?[ex.pattern], actual != ex.load {
+                            if record.skipped?.contains(ex.pattern) == true {
+                                Text("skipped")
+                                    .font(.system(size: 12.5))
+                                    .foregroundStyle(Theme.ink3)
+                            } else if let actual = record.actuals?[ex.pattern], actual != ex.load {
                                 Text("actual \(actual)")
                                     .font(.system(size: 12.5))
                                     .monospacedDigit()

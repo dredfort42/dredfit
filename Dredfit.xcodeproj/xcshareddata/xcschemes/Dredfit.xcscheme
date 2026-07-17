@@ -34,30 +34,6 @@
             default = "YES">
          </TestPlanReference>
       </TestPlans>
-      <Testables>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "AF2F7BB13008FD9300249B07"
-               BuildableName = "DredfitTests.xctest"
-               BlueprintName = "DredfitTests"
-               ReferencedContainer = "container:Dredfit.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "AF2F7BBB3008FD9300249B07"
-               BuildableName = "DredfitUITests.xctest"
-               BlueprintName = "DredfitUITests"
-               ReferencedContainer = "container:Dredfit.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
