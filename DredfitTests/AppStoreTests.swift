@@ -274,6 +274,124 @@ final class AppStoreTests: XCTestCase {
         XCTAssertFalse(store.settings.soundsEnabled)
         XCTAssertFalse(store.settings.healthEnabled, "Health defaults off for old files")
         XCTAssertEqual(store.settings.healthExportedThrough, 0)
+        XCTAssertFalse(store.settings.onboardingCompleted, "v1.4 onboarding flag defaults off")
+        XCTAssertNil(store.settings.lastReviewRequestAt, "v1.4 review stamp defaults to never")
+    }
+
+    /// A v1.3-era file knows about Health but not about the v1.4 fields. It must
+    /// keep every v1.3 value and gain the new ones at their defaults.
+    func testV13SettingsFileLoadsWithWaveFourDefaults() throws {
+        let v13 = """
+        {"engineState":{"counter":4,
+          "levels":["squat",3,"push_h",2,"hinge",1,"pull",4,"push_v",0,"lunge",2,
+                    "core_anti_ext",1,"core_rot",0,"calf",3,"pull_bar",5],
+          "failStreak":["squat",0,"push_h",1,"hinge",0,"pull",0,"push_v",0,"lunge",0,
+                        "core_anti_ext",0,"core_rot",0,"calf",0,"pull_bar",0],
+          "hasBar":true},
+         "records":[],
+         "settings":{"restWeekdays":[1,4],"soundsEnabled":true,
+                     "reminderEnabled":true,"reminderHour":7,"reminderMinute":30,
+                     "healthEnabled":true,"healthExportedThrough":3}}
+        """
+        try Data(v13.utf8).write(to: tempURL)
+        let store = AppStore(storageURL: tempURL)
+        // everything v1.3 knew about survives untouched
+        XCTAssertEqual(store.settings.restWeekdays, [1, 4])
+        XCTAssertEqual(store.settings.reminderHour, 7)
+        XCTAssertEqual(store.settings.reminderMinute, 30)
+        XCTAssertTrue(store.settings.healthEnabled)
+        XCTAssertEqual(store.settings.healthExportedThrough, 3)
+        XCTAssertTrue(store.engineState.hasBar)
+        XCTAssertEqual(store.engineState.levels[.pullBar], 5)
+        // and the v1.4 fields arrive at their defaults
+        XCTAssertFalse(store.settings.onboardingCompleted)
+        XCTAssertNil(store.settings.lastReviewRequestAt)
+    }
+
+    // MARK: - Onboarding gate (v1.4)
+
+    func testOnboardingShowsOnceOnAFreshInstall() {
+        let store = AppStore(storageURL: tempURL)
+        XCTAssertTrue(store.shouldShowOnboarding, "a fresh install must see it")
+
+        store.completeOnboarding()
+        XCTAssertFalse(store.shouldShowOnboarding, "not twice in the same run")
+        XCTAssertFalse(AppStore(storageURL: tempURL).shouldShowOnboarding,
+                       "and not after a relaunch either")
+    }
+
+    func testOnboardingIsSkippedForUsersWithHistory() {
+        let store = AppStore(storageURL: tempURL)
+        store.completeWorkout(session: store.nextSession, result: .plan)
+        // a user upgrading from 1.3 has history but no flag — still no onboarding
+        XCTAssertFalse(store.settings.onboardingCompleted)
+        XCTAssertFalse(store.shouldShowOnboarding,
+                       "history means the app has already been learned")
+    }
+
+    // MARK: - App Store review gate (v1.4)
+
+    /// Every condition satisfied — and only then — produces a request.
+    func testReviewGateAsksWhenEveryConditionHolds() {
+        let store = AppStore(storageURL: tempURL)
+        for _ in 0..<AppStore.reviewMinWorkouts {
+            store.completeWorkout(session: store.nextSession, result: .plan)
+        }
+        XCTAssertEqual(store.engineState.counter, 5)
+        XCTAssertTrue(store.shouldRequestReview(lastResult: .plan))
+        XCTAssertTrue(store.shouldRequestReview(lastResult: .more))
+    }
+
+    func testReviewGateStaysSilentBelowTheWorkoutFloor() {
+        let store = AppStore(storageURL: tempURL)
+        for _ in 0..<(AppStore.reviewMinWorkouts - 1) {
+            store.completeWorkout(session: store.nextSession, result: .plan)
+        }
+        XCTAssertEqual(store.engineState.counter, 4)
+        XCTAssertFalse(store.shouldRequestReview(lastResult: .plan),
+                       "four workouts is too early to ask")
+    }
+
+    /// A workout the user found too hard is the wrong moment to ask.
+    func testReviewGateStaysSilentAfterAToughSession() {
+        let store = AppStore(storageURL: tempURL)
+        for _ in 0..<AppStore.reviewMinWorkouts {
+            store.completeWorkout(session: store.nextSession, result: .plan)
+        }
+        XCTAssertFalse(store.shouldRequestReview(lastResult: .less))
+        XCTAssertFalse(store.shouldRequestReview(lastResult: nil))
+    }
+
+    func testReviewGateRespectsTheSixtyDayCooldown() {
+        let store = AppStore(storageURL: tempURL)
+        for _ in 0..<AppStore.reviewMinWorkouts {
+            store.completeWorkout(session: store.nextSession, result: .plan)
+        }
+        let now = Date(timeIntervalSince1970: 1_784_000_000)
+        store.recordReviewRequest(at: now)
+
+        let cal = Calendar.current
+        let justUnder = cal.date(byAdding: .day, value: AppStore.reviewMinDaysBetween - 1, to: now)!
+        let exactly = cal.date(byAdding: .day, value: AppStore.reviewMinDaysBetween, to: now)!
+        XCTAssertFalse(store.shouldRequestReview(lastResult: .plan, now: justUnder),
+                       "59 days is still inside the cooldown")
+        XCTAssertTrue(store.shouldRequestReview(lastResult: .plan, now: exactly),
+                      "60 days clears it")
+    }
+
+    /// The v1.4 fields must round-trip through a save/reload like every other
+    /// setting — the onboarding must not reappear after a relaunch.
+    func testWaveFourSettingsSurviveReload() {
+        let store = AppStore(storageURL: tempURL)
+        XCTAssertFalse(store.settings.onboardingCompleted)
+        store.completeOnboarding()
+        let stamp = Date(timeIntervalSince1970: 1_784_000_000)
+        store.recordReviewRequest(at: stamp)
+
+        let reloaded = AppStore(storageURL: tempURL)
+        XCTAssertTrue(reloaded.settings.onboardingCompleted,
+                      "the onboarding flag must survive a relaunch")
+        XCTAssertEqual(reloaded.settings.lastReviewRequestAt, stamp)
     }
 
     // MARK: - Widget snapshot (v1.3)
