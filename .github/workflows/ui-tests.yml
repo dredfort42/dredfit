@@ -63,7 +63,9 @@ jobs:
           # the whole run aborts. Disable parallelization so everything runs
           # on one simulator, serially — slower but stable. The same flag is
           # required locally; without it the runner is denied launch with
-          # "Application failed preflight checks".
+          # "Application failed preflight checks". (Locally that same error
+          # also appears when the simulator already has the app installed by
+          # hand — see instructions/GIT_FLOW.md step 0.)
           #
           # Retry is requested explicitly (xcodebuild ignores the test plan's
           # own repetition settings): a genuinely flaky test re-runs up to 3

@@ -56,8 +56,10 @@ develop ──► release/X.Y.Z ──► main ──► тег vX.Y.Z
 UI-тесты в CI не гоняются на релизных ветках и релиз не блокируют (см. таблицу ниже). Их ворота — локальная машина, до создания ветки:
 
 ```bash
-# Симулятор должен быть чистым: чужое установленное приложение приводит к
-# "Application failed preflight checks" и раннер UI-тестов не стартует.
+# Симулятор должен быть чистым. Ошибка "Application failed preflight checks"
+# (раннер UI-тестов не стартует) бывает по двум причинам: на устройстве уже
+# стоит вручную установленное приложение, либо xcodebuild плодит клоны
+# симулятора. Erase лечит первую, флаг -parallel-testing-enabled NO — вторую.
 xcrun simctl shutdown all
 xcrun simctl erase "iPhone 17 Pro"
 
@@ -190,8 +192,8 @@ git push origin --delete hotfix/crash-on-export
 
 | Workflow | Триггер | Содержимое | Время | Ворота? |
 |---|---|---|---|---|
-| **CI** | push/PR в `develop`, `main`, `release/**`, `hotfix/**` | юнит-тесты пакета + приложения (без UI) | ~5–15 мин | **да** |
-| **Lint** | push/PR туда же | SwiftLint | ~20 с | **да** |
+| **CI** | push в `develop`, `main`, `release/**`, `hotfix/**`; PR **в** `develop`/`main` | юнит-тесты пакета + приложения (без UI) | ~5–15 мин | **да** |
+| **Lint** | триггеры те же, что у CI | SwiftLint | ~20 с | **да** |
 | **UI Tests** | ночью (02:30 UTC) на `develop`; вручную (Run workflow) | только `DredfitUITests` | ~20–45 мин | нет |
 | **CodeQL** | push в `develop`/`main` + еженедельно | анализ безопасности Swift | ~15 мин | нет |
 | **Release** | тег `v*` | GitHub Release с changelog из коммитов | ~1 мин | — |
