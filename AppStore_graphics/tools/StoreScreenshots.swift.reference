@@ -1,0 +1,122 @@
+//
+//  StoreScreenshots.swift
+//  DredfitUITests
+//
+//  Marketing-screenshot driver. NOT part of the test suite: copy into
+//  DredfitUITests/ to capture, delete afterwards. See tools/README.md.
+//
+
+import XCTest
+
+final class StoreScreenshots: XCTestCase {
+
+    private struct L {
+        let langArg: String, locale: String
+        let ratingTitle: String, onPlan: String
+        let skipWarmup: String, done: String, skipRest: String
+        let startHold: String, stop: String, start: String
+    }
+    private static let en = L(langArg: "(en)", locale: "en_US",
+                              ratingTitle: "How did it go?", onPlan: "On plan",
+                              skipWarmup: "Skip warm-up", done: "Done",
+                              skipRest: "Skip rest", startHold: "Start hold",
+                              stop: "Stop", start: "Start")
+    private static let ru = L(langArg: "(ru)", locale: "ru_RU",
+                              ratingTitle: "Как прошло?", onPlan: "По плану",
+                              skipWarmup: "Пропустить разминку", done: "Сделал",
+                              skipRest: "Пропустить отдых", startHold: "Начать удержание",
+                              stop: "Стоп", start: "Начать")
+
+    override func setUpWithError() throws {
+        continueAfterFailure = false
+    }
+
+    private func snap(_ name: String) {
+        guard let dir = ProcessInfo.processInfo.environment["SCREENSHOT_DIR"] else {
+            XCTFail("SCREENSHOT_DIR is not set"); return
+        }
+        let png = XCUIScreen.main.screenshot().pngRepresentation
+        let url = URL(fileURLWithPath: dir).appendingPathComponent("\(name).png")
+        XCTAssertNoThrow(try png.write(to: url), "could not write \(name)")
+    }
+
+    private func launch(_ args: [String], _ l: L) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = args + ["-AppleLanguages", l.langArg, "-AppleLocale", l.locale]
+        app.launch()
+        return app
+    }
+
+    private func coordinateTap(_ element: XCUIElement) {
+        element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+    }
+
+    // MARK: - Screens
+
+    private func captureComeback(_ l: L, tag: String) {
+        let app = launch(["--uitest-reset", "--uitest-comeback"], l)
+        XCTAssertTrue(app.buttons["comeback-accept"].waitForExistence(timeout: 8))
+        Thread.sleep(forTimeInterval: 1)
+        snap("comeback_\(tag)")
+        app.terminate()
+    }
+
+    private func captureHowItWorks(_ l: L, tag: String) {
+        let app = launch(["--uitest-reset"], l)
+        XCTAssertTrue(app.buttons["settings"].waitForExistence(timeout: 8))
+        app.buttons["settings"].tap()
+        XCTAssertTrue(app.buttons["how-it-works"].waitForExistence(timeout: 5))
+        app.buttons["how-it-works"].tap()
+        XCTAssertTrue(app.buttons["how-it-works-done"].waitForExistence(timeout: 5))
+        Thread.sleep(forTimeInterval: 1)
+        snap("howitworks_\(tag)")
+        app.terminate()
+    }
+
+    private func captureMilestone(_ l: L, tag: String) {
+        let app = launch(["--uitest-reset", "--uitest-milestone"], l)
+        XCTAssertTrue(app.buttons[l.start].waitForExistence(timeout: 8))
+        app.buttons[l.start].tap()
+        let skipWarmup = app.buttons[l.skipWarmup]
+        if skipWarmup.waitForExistence(timeout: 3) { skipWarmup.tap() }
+
+        let done = app.buttons[l.done]
+        let skipRest = app.buttons[l.skipRest]
+        let startHold = app.buttons[l.startHold]
+        let stopHold = app.buttons[l.stop]
+        let rating = app.staticTexts[l.ratingTitle]
+        var guardCounter = 0
+        while !rating.waitForExistence(timeout: 1) && guardCounter < 120 {
+            if done.exists {
+                coordinateTap(done)
+            } else if startHold.exists {
+                coordinateTap(startHold)
+            } else if stopHold.exists {
+                coordinateTap(stopHold)
+            } else if skipRest.exists {
+                coordinateTap(skipRest)
+            }
+            guardCounter += 1
+        }
+        XCTAssertTrue(rating.waitForExistence(timeout: 5), "did not reach the rating screen")
+        app.staticTexts[l.onPlan].tap()
+        XCTAssertTrue(app.buttons["milestone-done"].waitForExistence(timeout: 8))
+        Thread.sleep(forTimeInterval: 2)   // let the accent rule animation settle
+        snap("milestone_\(tag)")
+        app.terminate()
+    }
+
+    // MARK: - Tests
+
+    func testCaptureEnglish() {
+        captureComeback(Self.en, tag: "en")
+        captureHowItWorks(Self.en, tag: "en")
+        captureMilestone(Self.en, tag: "en")
+    }
+
+    func testCaptureRussian() {
+        captureComeback(Self.ru, tag: "ru")
+        captureHowItWorks(Self.ru, tag: "ru")
+        captureMilestone(Self.ru, tag: "ru")
+    }
+}
