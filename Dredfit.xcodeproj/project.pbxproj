@@ -12,13 +12,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		AF7B100000000000000000BE /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AF2F7B9D3008FD9200249B07 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AF7B100000000000000000B1;
-			remoteInfo = DredfitWidgets;
-		};
 		AF2F7BB33008FD9300249B07 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = AF2F7B9D3008FD9200249B07 /* Project object */;
@@ -32,6 +25,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = AF2F7BA43008FD9200249B07;
 			remoteInfo = Dredfit;
+		};
+		AF7B100000000000000000BE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AF2F7B9D3008FD9200249B07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AF7B100000000000000000B1;
+			remoteInfo = DredfitWidgets;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -802,7 +802,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-	AF7B100000000000000000B8 /* Build configuration list for PBXNativeTarget "DredfitWidgets" */ = {
+		AF7B100000000000000000B8 /* Build configuration list for PBXNativeTarget "DredfitWidgets" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AF7B100000000000000000B9 /* Debug */,
