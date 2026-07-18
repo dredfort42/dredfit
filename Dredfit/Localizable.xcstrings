@@ -599,13 +599,13 @@
         }
       }
     },
-    "Dredfit gives you a plan, you say how it went, and the next plan shifts. The first workout is deliberately easy — it is the starting point. Answer honestly afterwards and within two or three workouts the load becomes yours." : {
+    "Dredfit gives you a plan, you say how it went, and the next plan shifts. The first workout is deliberately easy — it is the starting point. Answer honestly afterwards and the load becomes yours, step by step." : {
       "extractionState" : "manual",
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dredfit дает план, ты говоришь, как прошло, — следующий план сдвигается. Первая тренировка нарочно легкая: это точка отсчета. Ответь после нее честно — и за 2–3 тренировки нагрузка станет твоей."
+            "value" : "Dredfit дает план, ты говоришь, как прошло, — следующий план сдвигается. Первая тренировка нарочно легкая: это точка отсчета. Ответь после нее честно — и нагрузка шаг за шагом станет твоей."
           }
         }
       }

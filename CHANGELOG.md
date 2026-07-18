@@ -37,6 +37,14 @@ first workout back after a break.
 - Level arithmetic is untouched: same 48 levels, same deltas, same deload,
   same rotation. Tier 1 is identical to before.
 
+### Copy
+
+- Onboarding card 2 no longer promises the load "within two or three
+  workouts" — it says the load becomes yours step by step. With calibration
+  the old count is true only for someone who enters an exact number; the
+  softer wording is honest for everyone. This deliberately changes the
+  reference Russian text («и нагрузка шаг за шагом станет твоей»).
+
 ### Verification
 
 - Reference: 4,150 property checks, 0 failures (was 3,223).
