@@ -48,9 +48,11 @@ def text_centered(canvas, text, font, fill, top):
 
 def compose(raw_path, headline_lines, subtitle, out_path):
     canvas = gradient()
+    # two-line headlines push the whole device down, as in the original set
+    dy = 117 if len(headline_lines) > 1 else 0
     layer = rounded_layer((W, H), [
-        ((FX0, FY0, FX1, FY1), FRAD, FRAME + (255,)),
-        ((SX0, SY0, SX1, SY1), SRAD, (255, 255, 255, 255)),
+        ((FX0, FY0 + dy, FX1, FY1 + dy), FRAD, FRAME + (255,)),
+        ((SX0, SY0 + dy, SX1, SY1 + dy), SRAD, (255, 255, 255, 255)),
     ])
     canvas.paste(layer, (0, 0), layer)
 
@@ -64,10 +66,10 @@ def compose(raw_path, headline_lines, subtitle, out_path):
     strip_c = scaled.getpixel((24, 96))
     ImageDraw.Draw(scaled).rectangle([0, 0, sw, 130], fill=strip_c)
     mask = rounded_layer((sw, sh), [((0, 0, sw - 1, sh - 1), SRAD, (255, 255, 255, 255))])
-    canvas.paste(scaled, (SX0, SY0), mask.split()[3])
+    canvas.paste(scaled, (SX0, SY0 + dy), mask.split()[3])
 
-    pill = rounded_layer((W, H), [((W // 2 - PILL_W // 2, PILL_Y,
-                                    W // 2 + PILL_W // 2, PILL_Y + PILL_H),
+    pill = rounded_layer((W, H), [((W // 2 - PILL_W // 2, PILL_Y + dy,
+                                    W // 2 + PILL_W // 2, PILL_Y + dy + PILL_H),
                                    PILL_H // 2, (0, 0, 0, 255))])
     canvas.paste(pill, (0, 0), pill)
 
@@ -85,6 +87,18 @@ RAW = "/private/tmp/claude-501/-Users-dnovikov-Projects-DREDFIT/d86d7aa9-bfa4-42
 OUT = "/Users/dnovikov/Projects/DREDFIT/AppStore_graphics/screenshots"
 
 jobs = [
+    (f"{RAW}/today_en.png",      ["Zero setup."], "Open the app — your workout is ready.", f"{OUT}/en/s1.png"),
+    (f"{RAW}/today_ru.png",      ["Ноль настроек."], "Открой приложение — тренировка готова.", f"{OUT}/ru/s1.png"),
+    (f"{RAW}/set_en.png",        ["One focus at a time"], "Big numbers, one tap per set.", f"{OUT}/en/s2.png"),
+    (f"{RAW}/set_ru.png",        ["Один фокус за раз"], "Крупные цифры, один тап на подход.", f"{OUT}/ru/s2.png"),
+    (f"{RAW}/rest_en.png",       ["Rest is timed for you"], "60 seconds, counted down automatically.", f"{OUT}/en/s3.png"),
+    (f"{RAW}/rest_ru.png",       ["Отдых отсчитается", "сам"], "60 секунд — таймер уже запущен.", f"{OUT}/ru/s3.png"),
+    (f"{RAW}/rating_en.png",     ["It adapts to you"], "One tap — the next workout adjusts.", f"{OUT}/en/s4.png"),
+    (f"{RAW}/rating_ru.png",     ["Подстраивается под", "тебя"], "Один тап — следующая тренировка изменится.", f"{OUT}/ru/s4.png"),
+    (f"{RAW}/progress_en.png",   ["Progress you can see"], "Every muscle group, level by level.", f"{OUT}/en/s5.png"),
+    (f"{RAW}/progress_ru.png",   ["Прогресс, который", "видно"], "Каждая группа мышц, уровень за уровнем.", f"{OUT}/ru/s5.png"),
+    (f"{RAW}/dial_en.png",       ["Life happens —", "adjust"], "Did fewer reps? Record it right at the exercise.", f"{OUT}/en/s6.png"),
+    (f"{RAW}/dial_ru.png",       ["Вышло иначе?", "Поправь"], "Факт записывается прямо у упражнения.", f"{OUT}/ru/s6.png"),
     (f"{RAW}/milestone_en.png",  ["New step unlocked"], "A harder variation, one calm screen. No confetti.", f"{OUT}/en/s7.png"),
     (f"{RAW}/milestone_ru.png",  ["Новая ступень"], "Вариация сложнее — один спокойный экран. Без конфетти.", f"{OUT}/ru/s7.png"),
     (f"{RAW}/howitworks_en.png", ["No black box"], "Seven plain facts about how the plan moves.", f"{OUT}/en/s8.png"),

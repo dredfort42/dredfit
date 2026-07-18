@@ -188,7 +188,6 @@ And the first experience grew up:
 Suggested store order: **s1, s4, s7, s9, s5, s8, s2, s3, s6**
 (hook → adaptation → reward → forgiveness → proof → transparency → flow details).
 
-Note: s1–s6 were captured on 1.3.0 and still show pre-1.5 strings (e.g. «Подъёмы»
-with «ё»); content is otherwise current. Refresh them the same way if wanted —
-the capture/compose pipeline lives in `tools/` (StoreScreenshots.swift.reference
-+ compose.py, see tools/README.md).
+The whole set is captured live from 1.5.0 on an iPhone 17 Pro Max simulator.
+To refresh for a future release, use the pipeline in `tools/` (seed.py +
+StoreScreenshots.swift.reference + compose.py, see tools/README.md).
