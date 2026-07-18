@@ -231,6 +231,7 @@ Log every failure found while running this plan. Keep entries until they ship fi
 | I-1 | 2026-07-18 | Workout flow | **Exit** during a workout discards the session with no confirmation — an accidental tap loses all progress | medium | open — backlog item 4 |
 | I-2 | 2026-07-18 | Today | Today does not render a rest-day state; only the Calendar and widget mark rest days. Product decision or gap — needs a call | low | open — needs owner decision |
 | I-3 | 2026-07-18 | Accessibility | Text sizing is hardcoded via `.font(.system(size:))` throughout, so it does not scale with Dynamic Type at all; no `dynamicTypeSize` caps exist | medium | open — scheduled for v1.4 accessibility audit |
-| I-4 | 2026-07-18 | Calendar | Rest days render identically to out-of-month days (dimmed number, no shape, no legend entry), so a configured rest day is not actually visible in the grid | low | open — needs owner decision |
+| I-4 | 2026-07-18 | Calendar | Rest days render identically to out-of-month days (dimmed number, no shape, no legend entry), so a configured rest day is not actually visible in the grid | low | open — scheduled for v1.4 |
+| I-5 | 2026-07-18 | UI tests / CI | 6 of 16 UI tests fail on GitHub runners with `No matches found for … "Skip rest" IN identifiers`, while the same suite passes 16/16 locally. Timing flakiness under runner load, not a product defect — the rest phase advances before the tap lands. Survives the workflow's 3 retries | medium | open — UI tests no longer gate releases; fix before relying on the nightly |
 
 **Severity.** *high* — data loss, crash, or a broken core flow · *medium* — a feature misbehaves but there is a way around it · *low* — cosmetic or a rare edge case.

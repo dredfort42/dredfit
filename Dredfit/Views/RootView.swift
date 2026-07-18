@@ -19,6 +19,7 @@ struct RootView: View {
     @State private var tab: Tab = .today
     @State private var didSetInitialTab = false
     @State private var settingsShown = false
+    @State private var onboardingShown = false
 
     var body: some View {
         TabView(selection: $tab) {
@@ -38,21 +39,31 @@ struct RootView: View {
                 settingsShown = true
             } label: {
                 Image(systemName: "gearshape")
-                    .font(.system(size: 17, weight: .medium))
+                    .dredfitFont(17, weight: .medium)
                     .foregroundStyle(Theme.ink2)
                     .frame(width: 44, height: 44)
             }
             .accessibilityIdentifier("settings")
+            .accessibilityLabel(Text("Settings"))
             .padding(.top, 4)
             .padding(.trailing, 11)
         }
         .sheet(isPresented: $settingsShown) {
             SettingsSheet()
         }
+        .fullScreenCover(isPresented: $onboardingShown) {
+            OnboardingView {
+                store.completeOnboarding()
+                onboardingShown = false
+            }
+        }
         .onAppear {
             guard !didSetInitialTab else { return }
             didSetInitialTab = true
             if store.doneToday { tab = .calendar }
+            // Deliberately after the tab decision: a fresh install has nothing
+            // done today, so the cover always opens over Today.
+            onboardingShown = store.shouldShowOnboarding
         }
     }
 }

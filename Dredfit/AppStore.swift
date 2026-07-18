@@ -105,6 +105,14 @@ final class AppStore {
             records = []
             settings = AppSettings()
         }
+        // UI-test hook: a reset install would otherwise open on the v1.4
+        // onboarding and hide the app from every existing test. Reset means
+        // "clean state", not "first run", so the explainer is marked seen —
+        // unless a test explicitly asks to exercise it.
+        if CommandLine.arguments.contains("--uitest-reset"),
+           !CommandLine.arguments.contains("--uitest-onboarding") {
+            settings.onboardingCompleted = true
+        }
         // UI-test hook: session 1 completed yesterday → today offers session 2
         // (the only way for UI tests to reach hold exercises deterministically).
         if CommandLine.arguments.contains("--uitest-session2") {

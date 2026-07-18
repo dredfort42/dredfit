@@ -24,6 +24,50 @@ final class DredfitUITests: XCTestCase {
 
     // MARK: - Helpers
 
+    // MARK: - Onboarding (v1.4)
+
+    /// The explainer must appear on a genuinely fresh install, and finishing it
+    /// must land on Today — not leave the cover stuck over the app.
+    func testOnboardingAppearsOnFirstRunAndFinishes() {
+        app.launchArguments.append("--uitest-onboarding")
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Training at home. No questionnaires."]
+                        .waitForExistence(timeout: 5),
+                      "a first run must open on the onboarding")
+
+        let primary = app.buttons["onboarding-primary"]
+        primary.tap()
+        XCTAssertTrue(app.staticTexts["It adjusts like a thermostat."]
+                        .waitForExistence(timeout: 3), "card 2 is missing")
+        primary.tap()
+        XCTAssertTrue(app.staticTexts["One tap after the workout."]
+                        .waitForExistence(timeout: 3), "card 3 is missing")
+
+        primary.tap()
+        XCTAssertTrue(app.buttons["Start"].waitForExistence(timeout: 3),
+                      "finishing the onboarding must reveal Today")
+        XCTAssertFalse(app.staticTexts["Training at home. No questionnaires."].exists,
+                       "the onboarding must be gone")
+    }
+
+    /// Skipping counts as seen: the flag is written and survives a relaunch.
+    func testOnboardingSkipIsRememberedAcrossRelaunch() {
+        app.launchArguments.append("--uitest-onboarding")
+        app.launch()
+        XCTAssertTrue(app.buttons["onboarding-skip"].waitForExistence(timeout: 5))
+        app.buttons["onboarding-skip"].tap()
+        XCTAssertTrue(app.buttons["Start"].waitForExistence(timeout: 3),
+                      "skipping must land on Today")
+
+        // Relaunch WITHOUT the reset flag so the stored flag is what decides.
+        let relaunch = XCUIApplication()
+        relaunch.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        relaunch.launch()
+        XCTAssertTrue(relaunch.buttons["Start"].waitForExistence(timeout: 5))
+        XCTAssertFalse(relaunch.staticTexts["Training at home. No questionnaires."].exists,
+                       "a skipped onboarding must not come back")
+    }
+
     /// Taps Start and skips the v1.1 warm-up block.
     private func startWorkout() {
         app.buttons["Start"].tap()
