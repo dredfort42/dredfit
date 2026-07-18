@@ -14,11 +14,43 @@ import DredfitCore
 struct ProgressScreen: View {
     @Environment(AppStore.self) private var store
     @State private var chartPattern: Pattern?   // nil = the total-level view
+    @State private var cardURL: URL?            // v1.4: the share card
+
+    /// Nothing to show off before the first workout — the card would read
+    /// "0 workouts · total level 0".
+    private var canShare: Bool { !store.records.isEmpty }
+
+    @ViewBuilder
+    private var shareButton: some View {
+        if canShare, let cardURL {
+            ShareLink(item: cardURL,
+                      preview: SharePreview(summaryHeadline)) {
+                Image(systemName: "square.and.arrow.up")
+                    .dredfitFont(16, weight: .medium)
+                    .foregroundStyle(Theme.ink2)
+                    .frame(width: 44, height: 44)
+            }
+            .accessibilityIdentifier("progress-share")
+            .accessibilityLabel(Text("Share progress"))
+        }
+    }
+
+    private var summaryHeadline: String {
+        ShareCardFactory.summaryHeadline(workouts: store.records.count,
+                                         totalLevel: store.totalLevel)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Kicker(text: String(localized: "Progress"))
-                .padding(.top, 18)
+            HStack {
+                Kicker(text: String(localized: "Progress"))
+                Spacer()
+                shareButton
+            }
+            .padding(.top, 18)
+            // Leaves room for the settings gear, which overlays the top-right
+            // corner of every tab.
+            .padding(.trailing, 46)
 
             HStack(alignment: .firstTextBaseline, spacing: 10) {
                 Text("\(store.totalLevel)")
@@ -62,6 +94,16 @@ struct ProgressScreen: View {
             }
         }
         .padding(.horizontal, 24)
+        .onAppear { refreshCard() }
+        // The totals move with every workout; a stale card would share numbers
+        // the user is no longer looking at.
+        .onChange(of: store.records.count) { refreshCard() }
+        .onChange(of: store.totalLevel) { refreshCard() }
+    }
+
+    private func refreshCard() {
+        guard canShare else { return cardURL = nil }
+        cardURL = ShareCardFactory.fileURL(headline: summaryHeadline, slot: .progress)
     }
 
     private var barBranchExists: Bool {

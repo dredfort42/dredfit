@@ -27,6 +27,7 @@ struct WorkoutFlowView: View {
         case work
         case rest(seconds: Int)
         case feedback
+        case milestone([Milestone])   // v1.4 — only when the workout earned one
     }
 
     @State private var exIndex = 0
@@ -63,6 +64,7 @@ struct WorkoutFlowView: View {
     private var isLastSet: Bool { setIndex == exercise.sets - 1 }
     private var isLastExercise: Bool { exIndex == session.exercises.count - 1 }
     private var holding: Bool { holdEndDate != nil }
+    private var isMilestone: Bool { if case .milestone = phase { return true }; return false }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -78,13 +80,22 @@ struct WorkoutFlowView: View {
             case .feedback:
                 FeedbackView(session: session, actuals: actuals,
                              skipped: skippedPatterns) { result, overrides in
-                    store.completeWorkout(session: session, result: result,
-                                          overrides: overrides, skipped: skippedPatterns,
-                                          durationSec: workoutStart.map {
-                                              Int(Date.now.timeIntervalSince($0))
-                                          })
-                    dismiss()
+                    let earned = store.completeWorkout(
+                        session: session, result: result,
+                        overrides: overrides, skipped: skippedPatterns,
+                        durationSec: workoutStart.map {
+                            Int(Date.now.timeIntervalSince($0))
+                        })
+                    // The workout is already recorded either way — the
+                    // milestone screen is a coda, never a gate.
+                    if earned.isEmpty {
+                        dismiss()
+                    } else {
+                        phase = .milestone(earned)
+                    }
                 }
+            case .milestone(let earned):
+                MilestoneView(milestones: earned) { dismiss() }
             }
         }
         .padding(.horizontal, 24)
@@ -124,7 +135,9 @@ struct WorkoutFlowView: View {
 
     @ViewBuilder
     private var header: some View {
-        if phase != .feedback {
+        // Feedback and the milestone screen own the full screen: no exit
+        // button, no progress segments — the workout is already over.
+        if phase != .feedback, !isMilestone {
             VStack(spacing: 10) {
                 HStack {
                     Button(String(localized: "Exit")) { dismiss() }

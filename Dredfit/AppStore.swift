@@ -122,6 +122,19 @@ final class AppStore {
                             result: .plan,
                             date: Calendar.current.date(byAdding: .day, value: -1, to: .now)!)
         }
+        // UI-test hook: one workout away from several milestones at once —
+        // two patterns at the top of tier 1, counter on the eve of the tenth
+        // workout. Seeds state only; the milestones are still derived by the
+        // real path when the workout completes.
+        if CommandLine.arguments.contains("--uitest-milestone") {
+            records = []
+            var seeded = EngineState.initial
+            seeded.counter = 9
+            for ex in Engine.generateSession(seeded).exercises.prefix(2) {
+                seeded.levels[ex.pattern] = 7
+            }
+            engineState = seeded
+        }
         refreshWidgetSnapshot()   // v1.3: the widget mirrors state from launch
     }
 
@@ -212,12 +225,17 @@ final class AppStore {
 
     // MARK: - The only mutation
 
+    /// - Returns: the milestones this workout earned (v1.4). Derived here
+    ///   because this is the only place that still holds the pre-feedback
+    ///   state; nothing about them is persisted.
+    @discardableResult
     func completeWorkout(session: Session,
                          result: FeedbackResult,
                          overrides: [Pattern: Int] = [:],
                          skipped: Set<Pattern> = [],
                          durationSec: Int? = nil,
-                         date: Date = .now) {
+                         date: Date = .now) -> [Milestone] {
+        let before = engineState
         engineState = Engine.applyFeedback(state: engineState, session: session,
                                            result: result, overrides: overrides,
                                            skipped: skipped)
@@ -237,6 +255,8 @@ final class AppStore {
             saveToHealth(record)
         }
         persist()
+        return MilestoneDetector.detect(before: before, after: engineState,
+                                        session: session, skipped: skipped)
     }
 
     // MARK: - Settings (v1.1)

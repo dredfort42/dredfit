@@ -110,10 +110,20 @@ final class DredfitUITests: XCTestCase {
         // phase transitions, and a normal `.tap()` hits the fullScreenCover
         // hittability quirk often enough to flake. The 1 s rating poll doubles
         // as the settle between phases.
+        // Sessions past the first can contain hold exercises (plank, hang),
+        // which run a countdown instead of a Done button. Starting and
+        // immediately stopping records the held seconds as the actual — fine
+        // for a driver whose job is only to reach the rating screen.
+        let startHold = app.buttons["Start hold"]
+        let stopHold = app.buttons["Stop"]
         var guardCounter = 0
-        while !rating.waitForExistence(timeout: 1) && guardCounter < 80 {
+        while !rating.waitForExistence(timeout: 1) && guardCounter < 120 {
             if done.exists {
                 coordinateTap(done)
+            } else if startHold.exists {
+                coordinateTap(startHold)
+            } else if stopHold.exists {
+                coordinateTap(stopHold)
             } else if skipRest.exists {
                 coordinateTap(skipRest)
             }
@@ -427,6 +437,45 @@ final class DredfitUITests: XCTestCase {
         app.staticTexts["On plan"].tap()
         XCTAssertTrue(app.staticTexts["Workout 2 completed"].waitForExistence(timeout: 5),
                       "the bar workout must complete like any other")
+    }
+
+    // MARK: - Milestones (v1.4)
+
+    /// The whole path: a workout that earns milestones ends on one screen
+    /// listing all of them, tier-ups above the jubilee, and "Done" returns to
+    /// Today with the workout recorded.
+    func testMilestoneScreenListsEverythingEarned() {
+        app.launchArguments = ["--uitest-reset", "--uitest-milestone",
+                               "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Workout 10"].waitForExistence(timeout: 5),
+                      "the seeded state should offer the tenth workout")
+
+        completeWorkout()
+        app.staticTexts["On plan"].tap()
+
+        XCTAssertTrue(app.staticTexts["WORKOUT #10"].waitForExistence(timeout: 5),
+                      "the jubilee row is missing")
+        // Match on the rendered label: Kicker uppercases, so the catalog key
+        // ("New step") and what is on screen deliberately differ.
+        XCTAssertEqual(app.staticTexts.matching(
+            NSPredicate(format: "label == %@", "NEW STEP")).count, 2,
+            "both tier-ups should be listed")
+
+        app.buttons["milestone-done"].tap()
+        XCTAssertTrue(app.staticTexts["Workout 10 completed"].waitForExistence(timeout: 5),
+                      "Done should return to Today with the workout recorded")
+    }
+
+    /// The screen is a coda, not a fixture: an ordinary workout goes straight
+    /// back to Today.
+    func testNoMilestoneScreenForAnOrdinaryWorkout() {
+        app.launch()
+        completeWorkout()
+        app.staticTexts["On plan"].tap()
+        XCTAssertTrue(app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["milestone-done"].exists,
+                       "workout 1 earns nothing and must not show the screen")
     }
 
     // MARK: - Persistence across relaunch
