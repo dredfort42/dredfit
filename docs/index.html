@@ -191,8 +191,8 @@
       <div class="step-card">
         <div class="num">2</div>
         <h4>One integer per movement</h4>
-        <p>Your progress is one small number per movement — ten of them. Each level encodes the variation, the rep target and the set count at once: harder variations unlock automatically, and above the top tier the sets grow instead.</p>
-        <div class="code">tier = min(4, 1 + L / 8) · reps = 8 + L % 8</div>
+        <p>Your progress is one small number per movement — ten of them. Each level encodes the variation, the rep target and the set count at once: harder variations unlock automatically — starting their count lower, so the change lands softly — and above the top tier the sets grow instead.</p>
+        <div class="code">tier = min(4, 1 + L / 8) · reps = start(tier) + L % 8</div>
       </div>
       <div class="step-card">
         <div class="num">3</div>
