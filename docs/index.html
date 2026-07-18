@@ -142,14 +142,13 @@
       <h1>Open the app.<br>Your workout <em>is ready.</em></h1>
       <p class="lede">Dredfit is an adaptive bodyweight trainer for iPhone. No onboarding quiz, no equipment, no account — it starts easy and adjusts every next workout to how the last one actually went.</p>
       <div class="cta">
-        <!-- После публикации замените href на ссылку из App Store Connect -->
-        <a class="appstore" href="#">
+        <a class="appstore" href="https://apps.apple.com/app/id6791739610">
           <svg width="20" height="24" viewBox="0 0 20 24" fill="#fff"><path d="M16.4 12.7c0-3 2.5-4.5 2.6-4.6-1.4-2-3.6-2.3-4.3-2.3-1.8-.2-3.6 1.1-4.5 1.1-.9 0-2.4-1.1-3.9-1-2 0-3.9 1.2-4.9 3-2.1 3.6-.5 9 1.5 11.9 1 1.4 2.2 3 3.7 3 1.5-.1 2.1-1 3.9-1s2.3 1 3.9.9c1.6 0 2.6-1.4 3.6-2.9 1.1-1.7 1.6-3.3 1.6-3.4-.1 0-3.1-1.2-3.2-4.7zM13.4 3.9c.8-1 1.4-2.4 1.2-3.9-1.2.1-2.7.8-3.5 1.9-.8.9-1.5 2.4-1.3 3.8 1.4.1 2.8-.7 3.6-1.8z"/></svg>
           Download on the App Store
         </a>
-        <span class="soon">Coming soon</span>
+        <span class="soon">Free · iPhone · iOS 17+</span>
       </div>
-      <div class="privacy-chip"><i></i>No account · No ads · No network · Your data never leaves your phone</div>
+      <div class="privacy-chip"><i></i>No account · No ads · No network requests · Your data never reaches us</div>
     </div>
 
     <!-- Экран приложения, собранный в HTML — как в самом Dredfit -->
@@ -160,12 +159,12 @@
         <h3>Workout 12</h3>
         <div class="meta">≈ 36 min · 6 exercises</div>
         <div style="margin-top:14px">
-          <div class="exrow"><span class="n">Bulgarian split squat</span><span class="l">3 × 10 /side</span></div>
-          <div class="exrow"><span class="n">Push-up</span><span class="l">3 × 12</span></div>
+          <div class="exrow"><span class="n">Push-up</span><span class="l">3 × 10</span></div>
           <div class="exrow"><span class="n">Single-leg glute bridge</span><span class="l">3 × 10 /side</span></div>
-          <div class="exrow"><span class="n">Inverted row (table)</span><span class="l">3 × 12</span></div>
-          <div class="exrow"><span class="n">Plank</span><span class="l">3 × 40 s</span></div>
-          <div class="exrow"><span class="n">Single-leg calf raise</span><span class="l">3 × 12 /side</span></div>
+          <div class="exrow"><span class="n">Inverted row (table)</span><span class="l">3 × 10</span></div>
+          <div class="exrow"><span class="n">Pike push-up</span><span class="l">3 × 10</span></div>
+          <div class="exrow"><span class="n">Reverse lunge</span><span class="l">3 × 10 /side</span></div>
+          <div class="exrow"><span class="n">Plank</span><span class="l">3 × 30 s</span></div>
         </div>
         <div class="startbtn">Start</div>
         <div class="tabbar">
@@ -187,18 +186,18 @@
       <div class="step-card">
         <div class="num">1</div>
         <h4>Start at a comfortable minimum</h4>
-        <p>Day one is deliberately easy. Within two or three sessions the regulator converges on your real level — no fitness test required.</p>
+        <p>Day one is deliberately easy — every movement starts at the bottom of its range. From there the regulator raises the load after each session until it settles at the edge of what you can actually do. No fitness test required.</p>
       </div>
       <div class="step-card">
         <div class="num">2</div>
-        <h4>One integer per muscle group</h4>
-        <p>Your entire progress is nine small numbers. Each level encodes both the exercise variation and the rep target — harder variations unlock automatically.</p>
-        <div class="code">tier = 1 + L / 8 · reps = 8 + L % 8</div>
+        <h4>One integer per movement</h4>
+        <p>Your progress is one small number per movement — ten of them. Each level encodes the variation, the rep target and the set count at once: harder variations unlock automatically, and above the top tier the sets grow instead.</p>
+        <div class="code">tier = min(4, 1 + L / 8) · reps = 8 + L % 8</div>
       </div>
       <div class="step-card">
         <div class="num">3</div>
         <h4>Answer one question</h4>
-        <p>Tough, on plan, or easy — one tap and the next workout adjusts. Three hard days in a row trigger an automatic deload. Progress without burnout.</p>
+        <p>Tough, on plan, or easy — one tap and the next workout adjusts. When a single movement falls short three times running, that movement alone rolls back a few steps and starts again. Progress without burnout.</p>
       </div>
     </div>
   </div>
@@ -209,12 +208,15 @@
     <div class="sec-kick">What's inside</div>
     <h2>Everything you need. Nothing you don't.</h2>
     <div class="features">
-      <div class="feat"><div class="dot"></div><div><b>36 exercises, zero equipment</b><span>A chair, a wall and a towel cover the whole library — knee push-ups to archer push-ups.</span></div></div>
-      <div class="feat"><div class="dot"></div><div><b>Nine movement patterns weekly</b><span>Squat, hinge, lunge, pushes, pulls in every session, core and calves — balanced, verified volume.</span></div></div>
-      <div class="feat"><div class="dot"></div><div><b>Adjust in the moment</b><span>Did fewer reps? Record the actual number right at the exercise, one tap.</span></div></div>
-      <div class="feat"><div class="dot"></div><div><b>Rest timed for you</b><span>A ring timer with a 3-2-1 sound countdown that survives switching apps.</span></div></div>
-      <div class="feat"><div class="dot"></div><div><b>Plain-language technique</b><span>Three steps and two common mistakes for every exercise. No jargon.</span></div></div>
-      <div class="feat"><div class="dot"></div><div><b>History you can see</b><span>A calendar of completed workouts and a level chart for every muscle group. English &amp; Russian.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>40 exercises, household props</b><span>A chair, a table, a wall, a towel and a step cover 36 of them — knee push-ups to archer push-ups, squats to shrimp squats. The four pull-up variations are the only ones that need a bar, and they stay off until you switch them on.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Balanced by design</b><span>A pull in every session for shoulder health; the other patterns rotate so each comes round five times in eight workouts.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Got a pull-up bar?</b><span>Turn it on and every other session swaps the floor pull for a vertical one — bar hang through full pull-ups, tracked separately.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Adjust in the moment</b><span>Did fewer reps? Dial the real number right at the exercise, without leaving it. Skipping is free — a skipped exercise simply doesn't count.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Warm-up, holds and rest, timed</b><span>A guided warm-up, a hold timer for planks, and a rest ring with a 3-2-1 countdown. Every timer is wall-clock based, so locking the phone loses nothing.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Progress you can see</b><span>A level chart across sessions, a weekly summary, per-movement bars, and a calendar of everything you've done.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>On your lock screen</b><span>A Live Activity counts the rest down on the lock screen and Dynamic Island; a home-screen widget shows today at a glance.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Fits your week</b><span>Pick your rest days, get a reminder on training days, and export or import your whole history as plain JSON.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Plain-language technique</b><span>Three steps and two common mistakes for every exercise, in English and Russian. No jargon.</span></div></div>
     </div>
   </div>
 </section>
@@ -225,7 +227,8 @@
       <div class="zero">0</div>
       <div>
         <h2>Zero data collected</h2>
-        <p>No analytics, no ads, no third-party SDKs, no network requests at all. Your training history lives on your phone and nowhere else. That's not a promise — it's the architecture.</p>
+        <p>No analytics, no ads, no third-party SDKs, no network requests at all. Dredfit has no servers and never transmits your training history — it is stored on your device and never reaches us. That's not a promise, it's the architecture.</p>
+        <p>It leaves your phone only when you decide: a JSON backup you export and share yourself, workouts you opt into writing to Apple Health, or a standard iOS device backup. The <a href="privacy.html" style="color:#fff">privacy policy</a> spells all three out.</p>
       </div>
     </div>
   </div>
