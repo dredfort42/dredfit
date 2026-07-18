@@ -20,6 +20,9 @@ struct FeedbackView: View {
     let session: Session
     let actuals: [Pattern: Int]
     var skipped: Set<Pattern> = []
+    /// v1.5: true when the journal was empty before this session. Calibration
+    /// only fires from a zero level, so the hint is worth showing exactly once.
+    var isFirstWorkout = false
     let onComplete: (FeedbackResult, [Pattern: Int]) -> Void
 
     var body: some View {
@@ -27,10 +30,10 @@ struct FeedbackView: View {
             VStack(alignment: .leading, spacing: 6) {
                 Kicker(text: String(localized: "Workout \(session.sessionNumber)"))
                 Text("How did it go?")
-                    .font(.system(size: 32, weight: .heavy))
+                    .dredfitFont(32, weight: .heavy)
                     .tracking(-0.5)
                 Text("One tap — the next workout adapts")
-                    .font(.system(size: 15))
+                    .dredfitFont(15)
                     .foregroundStyle(Theme.ink2)
             }
             .padding(.top, 18)
@@ -47,6 +50,18 @@ struct FeedbackView: View {
                 optionCard(title: String(localized: "Easy, could do more"),
                            caption: String(localized: "next: +2 reps"),
                            result: .more, primary: false)
+            }
+
+            // v1.5: the one moment where an exact number is worth more than a
+            // rating — from zero it sets the level outright instead of moving
+            // it by two. Only shown when there is no exact number yet.
+            if isFirstWorkout && actuals.isEmpty {
+                Text("Came out well above the plan? Open the list and put in what you actually did — the system will land on your level right away.")
+                    .dredfitFont(13.5)
+                    .foregroundStyle(Theme.ink3)
+                    .lineSpacing(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, 14)
             }
 
             Spacer()
@@ -66,10 +81,10 @@ struct FeedbackView: View {
             ForEach(session.exercises.filter { actuals[$0.pattern] != nil }) { ex in
                 HStack {
                     Text(ex.name)
-                        .font(.system(size: 14, weight: .medium))
+                        .dredfitFont(14, weight: .medium)
                     Spacer()
                     Text("actual \(actuals[ex.pattern] ?? 0)")
-                        .font(.system(size: 14, weight: .semibold))
+                        .dredfitFont(14, weight: .semibold)
                         .monospacedDigit()
                         .foregroundStyle(Theme.accent)
                 }
@@ -77,16 +92,16 @@ struct FeedbackView: View {
             ForEach(session.exercises.filter { skipped.contains($0.pattern) }) { ex in
                 HStack {
                     Text(ex.name)
-                        .font(.system(size: 14, weight: .medium))
+                        .dredfitFont(14, weight: .medium)
                         .foregroundStyle(Theme.ink3)
                     Spacer()
                     Text("skipped")
-                        .font(.system(size: 14, weight: .semibold))
+                        .dredfitFont(14, weight: .semibold)
                         .foregroundStyle(Theme.ink3)
                 }
             }
             Text("Your rating applies to the rest")
-                .font(.system(size: 12.5))
+                .dredfitFont(12.5)
                 .foregroundStyle(Theme.ink3)
         }
         .padding(.horizontal, 18)
@@ -102,10 +117,10 @@ struct FeedbackView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(title)
-                        .font(.system(size: 18, weight: .semibold))
+                        .dredfitFont(18, weight: .semibold)
                         .foregroundStyle(primary ? .white : Theme.ink)
                     Text(caption)
-                        .font(.system(size: 13))
+                        .dredfitFont(13)
                         .foregroundStyle(primary ? .white.opacity(0.55) : Theme.ink3)
                 }
                 Spacer()

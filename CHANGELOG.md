@@ -1,5 +1,109 @@
 # Changelog
 
+## 1.5.0
+
+Engine v2.3. Three changes to how the regulator behaves, aimed at the two
+moments where the old model was worst: your very first workout, and your
+first workout back after a break.
+
+### Calibration — the first workout now counts properly
+
+- A pointed number entered from a standing start sets the level outright
+  instead of being capped at +2. Someone who does 3×20 against a 3×8 plan
+  lands on their real load in one workout rather than about ten.
+- The cap is unchanged everywhere else, a skip still outranks a number, and a
+  number below the plan at zero leaves you at zero without starting a
+  shortfall streak.
+- The rating screen says so on the first workout, once, and only while no
+  exact number has been entered.
+
+### Coming back after a break
+
+- Two weeks away or more, and Today offers to start a couple of steps lower —
+  further down the longer the break, to a floor of eight steps at twenty weeks.
+  Accepting recalculates the plan; declining leaves it exactly as it was. Either
+  answer closes the question for that break.
+- Shortfall streaks reset on return. Without that, the first hard session back
+  would ride the old streak straight into a deload and drop the level twice.
+- After half a year there is also a quiet option to start from scratch. The
+  journal survives, and so does the pull-up bar setting.
+- No push notification, no count of missed workouts, no apology asked for.
+
+### Softer tier changes
+
+- Reps and holds now start lower on harder variations, so moving up a tier is
+  a step down in volume rather than a jump onto a harder movement at full
+  reps. A pistol squat arrives at 5 per side instead of 8.
+- Level arithmetic is untouched: same 48 levels, same deltas, same deload,
+  same rotation. Tier 1 is identical to before.
+
+### Copy
+
+- Onboarding card 2 no longer promises the load "within two or three
+  workouts" — it says the load becomes yours step by step. With calibration
+  the old count is true only for someone who enters an exact number; the
+  softer wording is honest for everyone. This deliberately changes the
+  reference Russian text («и нагрузка шаг за шагом станет твоей»).
+
+### Verification
+
+- Reference: 4,150 property checks, 0 failures (was 3,223).
+- Golden fixtures regenerated with two new scenarios (calibration, comeback).
+  Every changed step in the existing fixtures was classified against the rules
+  for what this change is allowed to move; nothing fell outside them.
+- Core suite 38 → 56 tests, app suite gains the comeback and migration cases.
+
+## 1.4.0
+
+First experience and milestones. The engine is untouched in this release — the
+adaptive core is identical to 1.3.0, bit for bit.
+
+### First run
+
+- **Onboarding.** Three cards on a fresh install, explaining the one thing the
+  UI cannot show by itself: the plan moves because you answer, and the first
+  workout is deliberately easy because it is a starting point, not a test.
+  Skipping counts as seen.
+- **"How it works"** — the first row in Settings. Six sections covering the
+  level, what a rating does, deload, rotation, skips, and why there are no
+  questionnaires. Every number in it matches the engine rather than rounding
+  for the story.
+
+### Milestones
+
+- A workout that unlocks a harder variation, crosses into another set band, or
+  lands on the 10th, 25th or every 50th session ends on one screen listing what
+  it earned. Tier-ups above the jubilee, no confetti, no badges.
+- Only upward movement is announced. A deload or a shortfall is never
+  commented on.
+- **Share card** — rendered on device at 1080×1350 and passed to the system
+  share sheet: a milestone line, a date, the wordmark. No body metrics, no
+  streak, no network. Also available from Progress as a totals card.
+
+### Asking for a review
+
+- One automatic trigger: closing a milestone screen, and only after five
+  workouts, never following a session rated harder than planned, and at most
+  once every sixty days. Settings gains an About section so a review can always
+  be left on purpose instead.
+
+### Accessibility
+
+- Every screen honours Dynamic Type. The few display numbers that are already
+  enormous by design scale to a cap rather than pushing the screen out from
+  under themselves; the rest timer's ring grows with the countdown it frames.
+- VoiceOver labels on the controls that were reading as bare symbol names, and
+  decorative icons hidden from the rotor.
+
+### Fixes
+
+- A rest day showed a live plan with a Start button on Today while the widget
+  said "Rest day" and the next-workout date skipped the day — three answers to
+  one question. Today now agrees with both, and keeps a "Train anyway" escape
+  hatch, because a rest day is the user's own setting.
+- Rest days in the calendar carried no mark and read like days outside the
+  month. They now have a soft fill and a legend entry.
+
 ## 1.3.0
 
 Two development waves ship together: the engine work originally staged as 1.2.0 (which was never released) and the progress-and-integrations wave.

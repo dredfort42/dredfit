@@ -95,8 +95,8 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 | 6.2 | Chip order | Starts at the locale's first weekday (Monday for ru, Sunday for en-US) |
 | 6.3 | Select a second rest day | Both highlighted; Calendar marks both |
 | 6.4 | Try to select a **7th** rest day | Refused — six is the maximum |
-| 6.5 | Calendar rendering on a rest day | A plain dimmed number with **no shape** — rest days carry no mark and no legend entry, so they look the same as days outside the month. Confirm this is intended ([I-4](#issue-registry)) |
-| 6.6 | **Today** screen on a rest day | Today shows the normal plan — it does **not** render a rest-day state. Confirm this is intended ([I-2](#issue-registry)) |
+| 6.5 | Calendar rendering on a rest day | A soft filled circle, clearly distinct from an out-of-month day; the legend lists **rest** |
+| 6.6 | **Today** screen on a rest day | Reads "Rest day" with the next workout date and a recovery line; **no Start button**. "Train anyway" opens the normal flow |
 | 6.7 | Complete a workout, then check the "Next" card | Skips over rest days when naming the next training day ("tomorrow", "on Wednesday") |
 
 ### 7. Reminders
@@ -214,11 +214,93 @@ The automated snapshot test (`testWidgetSnapshotMirrorsWeekStatuses`) skips itse
 
 | # | Check | Expected |
 |---|---|---|
-| 16.1 | Dynamic Type at the largest accessibility size | All screens remain usable; nothing overlaps unreadably (known gaps — see [I-3](#issue-registry)) |
+| 16.1 | Dynamic Type at the largest accessibility size | Every screen usable, nothing clipped. The rep counter, rest countdown, total level and completion tick grow to a cap; the rest ring grows with its countdown |
 | 16.2 | VoiceOver through the workout flow | Every control is reachable and announced meaningfully |
 | 16.3 | Dark mode / light mode | Both render correctly |
 | 16.4 | Smallest supported device (iPhone SE) | Nothing clipped |
 | 16.5 | Reduce Motion enabled | No motion sickness triggers |
+
+### 17. First run and the explainer (1.4)
+
+| # | Check | Expected |
+|---|---|---|
+| 17.1 | Delete the app, reinstall, launch | Opens on the onboarding: "Training at home. No questionnaires." |
+| 17.2 | Page through all three cards, tap **Start** | Lands on Today with the workout plan |
+| 17.3 | Relaunch | The onboarding does **not** come back |
+| 17.4 | Reinstall, tap **Skip** on card 1 | Lands on Today; a relaunch does not show it again |
+| 17.5 | Install over existing history (upgrade from 1.3) | No onboarding — it is for a genuinely fresh install only |
+| 17.6 | Settings → first row → **How it works** | Six numbered sections; the numbers agree with the engine (±1/+2, three shortfalls → −3, five of eight rotations) |
+| 17.7 | Same screen in Russian | Fully translated, no English left, no `ё` |
+
+### 18. Milestones (1.4)
+
+| # | Check | Expected |
+|---|---|---|
+| 18.1 | Finish a workout that crosses a tier on some pattern | One screen, "NEW STEP", the name of the **newly unlocked** exercise, "<pattern> · step N of 4" |
+| 18.2 | Finish an ordinary workout | No milestone screen — straight back to Today |
+| 18.3 | Finish a workout rated **less** | No milestone screen (a step down is never announced) |
+| 18.4 | Finish the 10th workout | "WORKOUT #10" with "10 workouts behind you" |
+| 18.5 | A workout that both tiers up and hits a jubilee | Both on one screen, tier-up above the jubilee |
+| 18.6 | Cross from level 31 to 32 | "Now 4 sets" rather than a tier-up |
+| 18.7 | Skip an exercise that would otherwise have tiered up | No milestone for it — a skip changes nothing |
+| 18.8 | **Done** on the milestone screen | Returns to Today with the workout recorded |
+
+### 19. Share card (1.4)
+
+| # | Check | Expected |
+|---|---|---|
+| 19.1 | **Share** on a milestone screen → save the image | PNG, exactly 1080×1350 |
+| 19.2 | Inspect the card | Wordmark, accent rule, milestone line, date without a time, `dredfit.com`. **No** body metrics, weight, photo or name |
+| 19.3 | Progress tab → share icon | Card reads "N workouts · total level M" |
+| 19.4 | Progress tab on a fresh install | No share icon (nothing to show yet) |
+| 19.5 | Aeroplane mode | Card still renders — generation is entirely local |
+| 19.6 | Card in Russian | Correct plural forms ("10 тренировок", "4 подхода" vs "5 подходов") |
+
+### 20. Review request (1.4)
+
+| # | Check | Expected |
+|---|---|---|
+| 20.1 | Milestone screen closed with fewer than 5 workouts | No review prompt |
+| 20.2 | Milestone after a session rated **less** | No review prompt |
+| 20.3 | Milestone, ≥5 workouts, not rated less, never asked before | System review prompt may appear (iOS may still suppress it) |
+| 20.4 | Trigger the conditions again the next day | No second prompt — the 60-day floor is recorded even if iOS showed nothing |
+| 20.5 | Settings → About → **Rate in App Store** | Opens the App Store review sheet for id6791739610 |
+| 20.6 | Settings → About → **Recommend Dredfit** | System share sheet with the App Store link |
+
+### 21. Calibration on the first workout (1.5)
+
+| # | Check | Expected |
+|---|---|---|
+| 21.1 | Fresh install → first workout → rating screen | A hint under the rating: open the list and enter what you actually did |
+| 21.2 | Enter 20 against a plan of 8, rate "on plan" | That pattern jumps to level 12 immediately, not to 2 |
+| 21.3 | Second workout, enter an enormous number on the same pattern | Level moves by exactly +2 — the cap is back |
+| 21.4 | Enter 5 against a plan of 8 on the first workout | Level stays 0; no deload builds up from it |
+| 21.5 | Enter a number and skip that same exercise | The skip wins; level unchanged |
+| 21.6 | Hint after any workout but the first | Not shown |
+
+### 22. Comeback after a break (1.5)
+
+| # | Check | Expected |
+|---|---|---|
+| 22.1 | Last workout 13 days ago | No card |
+| 22.2 | Last workout 20 days ago | "Welcome back" card above Start |
+| 22.3 | Tap **Start easier** | Plan drops two steps; card gone; nothing new in the journal |
+| 22.4 | Tap **Leave as it was** | Plan unchanged; card gone |
+| 22.5 | Relaunch after either answer | Card does not return |
+| 22.6 | Complete a workout, then wait another 14+ days | Card is offered again — a new break is a new question |
+| 22.7 | Last workout 200 days ago | Card also offers **Start from scratch**, behind a confirmation |
+| 22.8 | Confirm Start from scratch | Levels reset; history kept; pull-up bar setting kept |
+| 22.9 | First hard session after a comeback | A plain −1, no deload — the streak was reset |
+
+### 23. Softer tier changes (1.5)
+
+| # | Check | Expected |
+|---|---|---|
+| 23.1 | Cross from level 7 to 8 on any pattern | New variation asks for 6 reps, not 8 |
+| 23.2 | Reach a tier-3 exercise (pistol squat, level 16) | 5 per side |
+| 23.3 | Reach a tier-4 exercise (level 24) | 4 per side |
+| 23.4 | Levels 0–7 on any pattern | Identical to 1.4 — 8 to 15 reps, 20 to 55 s |
+| 23.5 | Adjust an actual on a tier-2+ exercise | Placeholder shows the planned number from the session, not a hardcoded 8 |
 
 ---
 
@@ -229,8 +311,9 @@ Log every failure found while running this plan. Keep entries until they ship fi
 | ID | Found | Area | Description | Severity | Status |
 |---|---|---|---|---|---|
 | I-1 | 2026-07-18 | Workout flow | **Exit** during a workout discards the session with no confirmation — an accidental tap loses all progress | medium | open — backlog item 4 |
-| I-2 | 2026-07-18 | Today | Today does not render a rest-day state; only the Calendar and widget mark rest days. Product decision or gap — needs a call | low | open — needs owner decision |
-| I-3 | 2026-07-18 | Accessibility | Text sizing is hardcoded via `.font(.system(size:))` throughout, so it does not scale with Dynamic Type at all; no `dynamicTypeSize` caps exist | medium | open — scheduled for v1.4 accessibility audit |
-| I-4 | 2026-07-18 | Calendar | Rest days render identically to out-of-month days (dimmed number, no shape, no legend entry), so a configured rest day is not actually visible in the grid | low | open — needs owner decision |
+| I-2 | 2026-07-18 | Today | Today did not render a rest-day state; only the Calendar and widget marked rest days | low | **fixed in 1.4.0** — Today shows a rest state with a "Train anyway" escape hatch (§6.6) |
+| I-3 | 2026-07-18 | Accessibility | Text sizing was hardcoded via `.font(.system(size:))` throughout, so it did not scale with Dynamic Type at all | medium | **fixed in 1.4.0** — 88 call sites moved to `dredfitFont`; display numbers scale to a cap (§16) |
+| I-4 | 2026-07-18 | Calendar | Rest days rendered identically to out-of-month days (dimmed number, no shape, no legend entry) | low | **fixed in 1.4.0** — soft fill plus a legend entry (§6.5) |
+| I-5 | 2026-07-18 | UI tests / CI | 6 of 16 UI tests fail on GitHub runners with `No matches found for … "Skip rest" IN identifiers`, while the same suite passes 16/16 locally. Timing flakiness under runner load, not a product defect — the rest phase advances before the tap lands. Survives the workflow's 3 retries | medium | open — UI tests no longer gate releases; fix before relying on the nightly |
 
 **Severity.** *high* — data loss, crash, or a broken core flow · *medium* — a feature misbehaves but there is a way around it · *low* — cosmetic or a rare edge case.

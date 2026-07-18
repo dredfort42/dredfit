@@ -42,12 +42,24 @@ struct AppSettings: Codable, Equatable {
     // v1.3 — Apple Health (both default off/zero for pre-1.3 files)
     var healthEnabled = false
     var healthExportedThrough = 0      // high-water sessionNumber already in Health
+    // v1.4 — first-run onboarding and the App Store review gate.
+    // Both default to "never happened", so pre-1.4 files behave as if the user
+    // has neither seen the onboarding nor been asked for a review. Users with
+    // history are kept out of the onboarding by the journal check, not by this.
+    var onboardingCompleted = false
+    var lastReviewRequestAt: Date? = nil
+    // v1.5: the date of the last workout for which the comeback question was
+    // already answered. Keyed on that date rather than a bool so it expires by
+    // itself: after the next workout the stored date is stale and a future
+    // break asks again, while the current break never asks twice.
+    var comebackDecidedFor: Date? = nil
 
     init() {}
 
     private enum CodingKeys: String, CodingKey {
         case restWeekdays, soundsEnabled, reminderEnabled, reminderHour, reminderMinute
         case healthEnabled, healthExportedThrough
+        case onboardingCompleted, lastReviewRequestAt, comebackDecidedFor
     }
 
     init(from decoder: Decoder) throws {
@@ -59,6 +71,9 @@ struct AppSettings: Codable, Equatable {
         reminderMinute = try c.decodeIfPresent(Int.self, forKey: .reminderMinute) ?? 0
         healthEnabled = try c.decodeIfPresent(Bool.self, forKey: .healthEnabled) ?? false
         healthExportedThrough = try c.decodeIfPresent(Int.self, forKey: .healthExportedThrough) ?? 0
+        onboardingCompleted = try c.decodeIfPresent(Bool.self, forKey: .onboardingCompleted) ?? false
+        lastReviewRequestAt = try c.decodeIfPresent(Date.self, forKey: .lastReviewRequestAt)
+        comebackDecidedFor = try c.decodeIfPresent(Date.self, forKey: .comebackDecidedFor)
     }
 }
 
@@ -96,6 +111,14 @@ final class AppStore {
             records = []
             settings = AppSettings()
         }
+        // UI-test hook: a reset install would otherwise open on the v1.4
+        // onboarding and hide the app from every existing test. Reset means
+        // "clean state", not "first run", so the explainer is marked seen —
+        // unless a test explicitly asks to exercise it.
+        if CommandLine.arguments.contains("--uitest-reset"),
+           !CommandLine.arguments.contains("--uitest-onboarding") {
+            settings.onboardingCompleted = true
+        }
         // UI-test hook: session 1 completed yesterday → today offers session 2
         // (the only way for UI tests to reach hold exercises deterministically).
         if CommandLine.arguments.contains("--uitest-session2") {
@@ -104,6 +127,38 @@ final class AppStore {
             completeWorkout(session: Engine.generateSession(engineState),
                             result: .plan,
                             date: Calendar.current.date(byAdding: .day, value: -1, to: .now)!)
+        }
+        // UI-test hook: one workout away from several milestones at once —
+        // two patterns at the top of tier 1, counter on the eve of the tenth
+        // workout. Seeds state only; the milestones are still derived by the
+        // real path when the workout completes.
+        if CommandLine.arguments.contains("--uitest-milestone") {
+            records = []
+            var seeded = EngineState.initial
+            seeded.counter = 9
+            for ex in Engine.generateSession(seeded).exercises.prefix(2) {
+                seeded.levels[ex.pattern] = 7
+            }
+            engineState = seeded
+        }
+        // UI-test hook: a journal whose only workout was 20 days ago, so
+        // today opens on the comeback card.
+        if CommandLine.arguments.contains("--uitest-comeback") {
+            var seeded = EngineState.initial
+            seeded.counter = 11
+            for p in Pattern.allCases { seeded.levels[p] = 20 }
+            engineState = seeded
+            records = [WorkoutRecord(
+                sessionNumber: 11,
+                date: Calendar.current.date(byAdding: .day, value: -20, to: .now)!,
+                result: .plan,
+                totalLevelAfter: 180)]
+            settings.comebackDecidedFor = nil
+            settings.restWeekdays = []
+        }
+        // UI-test hook: make today a rest day, whichever weekday that is.
+        if CommandLine.arguments.contains("--uitest-restday") {
+            settings.restWeekdays = [Calendar.current.component(.weekday, from: .now)]
         }
         refreshWidgetSnapshot()   // v1.3: the widget mirrors state from launch
     }
@@ -195,12 +250,17 @@ final class AppStore {
 
     // MARK: - The only mutation
 
+    /// - Returns: the milestones this workout earned (v1.4). Derived here
+    ///   because this is the only place that still holds the pre-feedback
+    ///   state; nothing about them is persisted.
+    @discardableResult
     func completeWorkout(session: Session,
                          result: FeedbackResult,
                          overrides: [Pattern: Int] = [:],
                          skipped: Set<Pattern> = [],
                          durationSec: Int? = nil,
-                         date: Date = .now) {
+                         date: Date = .now) -> [Milestone] {
+        let before = engineState
         engineState = Engine.applyFeedback(state: engineState, session: session,
                                            result: result, overrides: overrides,
                                            skipped: skipped)
@@ -220,6 +280,8 @@ final class AppStore {
             saveToHealth(record)
         }
         persist()
+        return MilestoneDetector.detect(before: before, after: engineState,
+                                        session: session, skipped: skipped)
     }
 
     // MARK: - Settings (v1.1)
@@ -276,6 +338,115 @@ final class AppStore {
         persist()
         rescheduleReminders()
     }
+
+    // MARK: - Onboarding (v1.4)
+
+    /// The first-run explainer is for genuinely new installs only: an empty
+    /// journal, an untouched engine, and no earlier run that finished it.
+    /// Anyone with history has already learned the app by using it.
+    var shouldShowOnboarding: Bool {
+        records.isEmpty && engineState.counter == 0 && !settings.onboardingCompleted
+    }
+
+    /// Called when the onboarding is finished **or skipped** — both count as
+    /// "seen". Deliberately not called when it merely appears: an app killed
+    /// mid-pager shows it again rather than silently swallowing the one
+    /// explanation of how the thermostat works.
+    func completeOnboarding() {
+        settings.onboardingCompleted = true
+        persist()
+    }
+
+    // MARK: - Comeback after a break (v1.5)
+
+    /// Whole calendar days between the last workout and now, measured at local
+    /// midnights so a late-evening workout and an early-morning launch are one
+    /// day apart, not zero.
+    func gapDays(now: Date = .now) -> Int? {
+        guard let last = records.last else { return nil }
+        let cal = Calendar.current
+        return cal.dateComponents([.day],
+                                  from: cal.startOfDay(for: last.date),
+                                  to: cal.startOfDay(for: now)).day
+    }
+
+    /// Whether to offer the comeback card. Asked once per break: the answer is
+    /// stamped against the last workout's date, so it goes stale by itself
+    /// after the next workout instead of needing to be cleared.
+    func shouldOfferComeback(now: Date = .now) -> Bool {
+        guard let last = records.last, let gap = gapDays(now: now) else { return false }
+        guard gap >= EngineConfig.comebackMinGapDays else { return false }
+        guard let decided = settings.comebackDecidedFor else { return true }
+        return !Calendar.current.isDate(decided, inSameDayAs: last.date)
+    }
+
+    /// How far the levels would drop — used by the card to say it plainly.
+    func comebackDrop(now: Date = .now) -> Int {
+        guard let gap = gapDays(now: now) else { return 0 }
+        let before = engineState
+        let after = Engine.applyComeback(state: before, gapDays: gap)
+        return (before.levels[.pull] ?? 0) - (after.levels[.pull] ?? 0)
+    }
+
+    /// A gap this long makes the old levels meaningless rather than merely
+    /// optimistic, so starting over becomes an option worth offering.
+    func offersFreshStart(now: Date = .now) -> Bool {
+        (gapDays(now: now) ?? 0) >= Self.comebackFreshStartDays
+    }
+
+    /// "Start easier": lower the levels and close the question for this break.
+    /// Nothing is written to the journal — the next record's levelsAfter
+    /// snapshot shows the step down on its own.
+    func acceptComeback(now: Date = .now) {
+        guard let gap = gapDays(now: now) else { return }
+        engineState = Engine.applyComeback(state: engineState, gapDays: gap)
+        closeComebackQuestion()
+    }
+
+    /// "Leave it as it was": no state change, but the question is answered.
+    func declineComeback() {
+        closeComebackQuestion()
+    }
+
+    /// Clean slate after a very long break. The journal and settings survive —
+    /// only the engine resets — and `hasBar` is deliberately kept: the pull-up
+    /// bar did not disappear from the doorway while the user was away.
+    func resetProgress() {
+        let hadBar = engineState.hasBar
+        engineState = .initial
+        engineState.hasBar = hadBar
+        closeComebackQuestion()
+    }
+
+    private func closeComebackQuestion() {
+        settings.comebackDecidedFor = records.last?.date
+        persist()
+        refreshWidgetSnapshot()
+    }
+
+    static let comebackFreshStartDays = 180
+
+    // MARK: - App Store review (v1.4)
+
+    /// Whether to ask for a review right now. Pure and injectable so the gate
+    /// is unit-testable without StoreKit: every condition must hold.
+    /// Asking after a workout the user found too hard would be tone-deaf, so
+    /// a `.less` rating disqualifies the session outright.
+    func shouldRequestReview(lastResult: FeedbackResult?, now: Date = .now) -> Bool {
+        guard engineState.counter >= Self.reviewMinWorkouts else { return false }
+        guard let lastResult, lastResult != .less else { return false }
+        guard let previous = settings.lastReviewRequestAt else { return true }
+        let days = Calendar.current.dateComponents([.day], from: previous, to: now).day ?? 0
+        return days >= Self.reviewMinDaysBetween
+    }
+
+    func recordReviewRequest(at date: Date = .now) {
+        settings.lastReviewRequestAt = date
+        persist()
+    }
+
+    static let reviewMinWorkouts = 5
+    static let reviewMinDaysBetween = 60
 
     // MARK: - Apple Health (v1.3)
 

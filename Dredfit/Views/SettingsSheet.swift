@@ -20,22 +20,25 @@ struct SettingsSheet: View {
     @State private var importConfirmShown = false
     @State private var importFailed = false
     @State private var backfillPromptShown = false   // v1.3: Apple Health
+    @State private var howItWorksShown = false       // v1.4
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 28) {
                     Text("Settings")
-                        .font(.system(size: 28, weight: .heavy))
+                        .dredfitFont(28, weight: .heavy)
                         .tracking(-0.5)
                         .padding(.top, 26)
 
+                    howItWorksSection
                     restDaysSection
                     equipmentSection
                     soundsSection
                     reminderSection
                     healthSection
                     backupSection
+                    aboutSection
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 12)
@@ -52,6 +55,9 @@ struct SettingsSheet: View {
         // very sheet (rest days, the pull-up bar) must land in the export.
         .onChange(of: store.settings) { exportURL = try? store.exportURL() }
         .onChange(of: store.engineState) { exportURL = try? store.exportURL() }
+        .sheet(isPresented: $howItWorksShown) {
+            HowItWorksView()
+        }
         .fileImporter(isPresented: $importPickerShown,
                       allowedContentTypes: [.json]) { result in
             if case .success(let url) = result {
@@ -72,6 +78,20 @@ struct SettingsSheet: View {
         }
     }
 
+    // MARK: - How it works (v1.4)
+
+    /// First section deliberately: the one thing a user cannot infer from the
+    /// rest of the UI is why the plan keeps moving.
+    private var howItWorksSection: some View {
+        Button {
+            howItWorksShown = true
+        } label: {
+            backupRow(icon: "questionmark.circle",
+                      title: String(localized: "How it works"))
+        }
+        .accessibilityIdentifier("how-it-works")
+    }
+
     // MARK: - Rest days
 
     /// Weekdays in the user's calendar order (respects the locale's first day).
@@ -89,7 +109,7 @@ struct SettingsSheet: View {
                 }
             }
             Text("Highlighted days are rest days")
-                .font(.system(size: 12.5))
+                .dredfitFont(12.5)
                 .foregroundStyle(Theme.ink3)
         }
     }
@@ -101,7 +121,7 @@ struct SettingsSheet: View {
             store.toggleRestDay(weekday)
         } label: {
             Text(symbol)
-                .font(.system(size: 13, weight: .semibold))
+                .dredfitFont(13, weight: .semibold)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
                 .frame(maxWidth: .infinity, minHeight: 38)
@@ -125,12 +145,12 @@ struct SettingsSheet: View {
                 get: { store.engineState.hasBar },
                 set: { store.setHasBar($0) })) {
                 Text("Pull-up bar")
-                    .font(.system(size: 16, weight: .medium))
+                    .dredfitFont(16, weight: .medium)
             }
             .tint(Theme.accent)
             .accessibilityIdentifier("hasbar-toggle")
             Text("Every other workout swaps the row for a vertical pull")
-                .font(.system(size: 12.5))
+                .dredfitFont(12.5)
                 .foregroundStyle(Theme.ink3)
         }
     }
@@ -142,7 +162,7 @@ struct SettingsSheet: View {
             get: { store.settings.soundsEnabled },
             set: { store.setSounds($0) })) {
             Text("Sounds and haptics")
-                .font(.system(size: 16, weight: .medium))
+                .dredfitFont(16, weight: .medium)
         }
         .tint(Theme.accent)
     }
@@ -155,7 +175,7 @@ struct SettingsSheet: View {
                 get: { store.settings.reminderEnabled },
                 set: { store.setReminderEnabled($0) })) {
                 Text("Reminder")
-                    .font(.system(size: 16, weight: .medium))
+                    .dredfitFont(16, weight: .medium)
             }
             .tint(Theme.accent)
 
@@ -163,7 +183,7 @@ struct SettingsSheet: View {
                 DatePicker(String(localized: "Time"),
                            selection: reminderTimeBinding,
                            displayedComponents: .hourAndMinute)
-                    .font(.system(size: 15))
+                    .dredfitFont(15)
                     .foregroundStyle(Theme.ink2)
                     .tint(Theme.accent)
             }
@@ -190,12 +210,12 @@ struct SettingsSheet: View {
             Kicker(text: String(localized: "Health"))
             Toggle(isOn: healthBinding) {
                 Text("Save workouts to Health")
-                    .font(.system(size: 16, weight: .medium))
+                    .dredfitFont(16, weight: .medium)
             }
             .tint(Theme.accent)
             .accessibilityIdentifier("health-toggle")
             Text("Workouts appear in the Health app. Nothing is read or shared.")
-                .font(.system(size: 12.5))
+                .dredfitFont(12.5)
                 .foregroundStyle(Theme.ink3)
         }
         .confirmationDialog(String(localized: "Add past workouts to Health?"),
@@ -252,15 +272,49 @@ struct SettingsSheet: View {
     private func backupRow(icon: String, title: String) -> some View {
         HStack(spacing: 10) {
             Image(systemName: icon)
-                .font(.system(size: 15, weight: .medium))
+                .dredfitFont(15, weight: .medium)
+                .accessibilityHidden(true)
             Text(title)
-                .font(.system(size: 16, weight: .medium))
+                .dredfitFont(16, weight: .medium)
             Spacer()
         }
         .foregroundStyle(Theme.ink)
         .padding(.horizontal, 16)
         .padding(.vertical, 13)
         .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 14))
+    }
+
+    // MARK: - About (v1.4)
+
+    /// The two places a review can be asked for on purpose. The automatic ask
+    /// happens once, after a milestone; these are here so someone who wants to
+    /// leave one never has to wait for it.
+    private var aboutSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Kicker(text: String(localized: "About"))
+            Link(destination: Self.reviewURL) {
+                backupRow(icon: "star", title: String(localized: "Rate in App Store"))
+            }
+            .accessibilityIdentifier("rate-app")
+            ShareLink(item: Self.appStoreURL) {
+                backupRow(icon: "heart", title: String(localized: "Recommend Dredfit"))
+            }
+            .accessibilityIdentifier("recommend-app")
+            Text(versionLine)
+                .dredfitFont(12.5)
+                .foregroundStyle(Theme.ink3)
+        }
+    }
+
+    private static let appStoreURL = URL(string: "https://apps.apple.com/app/id6791739610")!
+    private static let reviewURL = URL(string:
+        "https://apps.apple.com/app/id6791739610?action=write-review")!
+
+    private var versionLine: String {
+        let info = Bundle.main.infoDictionary
+        let version = info?["CFBundleShortVersionString"] as? String ?? "—"
+        let build = info?["CFBundleVersion"] as? String ?? "—"
+        return "Dredfit \(version) (\(build))"
     }
 
     private func runImport() {

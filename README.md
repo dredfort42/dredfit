@@ -2,7 +2,7 @@
 
 **Adaptive bodyweight training for iOS. Zero setup — open the app, your workout is ready.**
 
-Dredfit works like a thermostat. There is no onboarding quiz, no goal picker, no timer settings. The app starts you at a conservative minimum and regulates itself: it proposes a plan, you do it, you answer one question — *how did it go?* — and the next workout adjusts. Within two or three sessions the system converges on your real level and then keeps the load right at the edge of what you can do, which is where progress happens.
+Dredfit works like a thermostat. There is no quiz, no goal picker, no timer settings. The app starts you at a conservative minimum and regulates itself: it proposes a plan, you do it, you answer one question — *how did it go?* — and the next workout adjusts. Tell it what you actually managed on the first workout and it lands on your real level right away; answer with a rating alone and it converges over a handful of sessions. Either way it then keeps the load right at the edge of what you can do, which is where progress happens.
 
 No equipment required. No account. No network. Your entire training state is a session counter plus two small integers per movement pattern — a level and a fail-streak — on your device.
 
@@ -70,17 +70,17 @@ DredfitWidgets/         widget extension — TodayStatusWidget, RestLiveActivity
 Shared/                 the App Group snapshot contract
 ```
 
-The engine was first written and verified as a JavaScript reference (3,223 property checks and scenario simulations), then ported to Swift. `golden.json` is the reference's recorded trace — 113 steps across 7 scenarios — and the Swift port must reproduce it exactly. Changing engine behavior means changing the reference first, re-verifying, regenerating fixtures, then porting. Plausible-but-different is a failing test, not a judgment call. (The JS reference lives outside this repository; the recorded fixture is what ships.)
+The engine was first written and verified as a JavaScript reference (4,150 property checks and scenario simulations), then ported to Swift. `golden.json` is the reference's recorded trace — 133 steps across 9 scenarios — and the Swift port must reproduce it exactly. Changing engine behavior means changing the reference first, re-verifying, regenerating fixtures, then porting. Plausible-but-different is a failing test, not a judgment call. (The JS reference lives outside this repository; the recorded fixture is what ships.)
 
 ## Testing
 
-Three layers, 81 automated tests:
+Three layers, 142 automated tests:
 
 | Layer | Count | What it covers |
 |---|---|---|
-| Core invariants + golden | 38 | encoding bijectivity, rotation properties, pull:push balance, deload timing, override caps, skip semantics, bar-branch independence, reference parity |
-| App unit tests | 27 | persistence round-trips, corrupted-file recovery, legacy-record migration, rest-day calendar math, Health export idempotence, widget snapshot |
-| UI tests | 16 | the full workout flow, in-workout adjustment, history, cold-start routing, relaunch persistence |
+| Core invariants + golden | 56 | encoding bijectivity, rotation properties, pull:push balance, deload timing, override caps, skip semantics, bar-branch independence, reference parity |
+| App unit tests | 62 | persistence round-trips, corrupted-file recovery, legacy-record migration, rest-day calendar math, Health export idempotence, widget snapshot |
+| UI tests | 24 | the full workout flow, in-workout adjustment, history, cold-start routing, relaunch persistence |
 
 Plus [TESTPLAN.md](TESTPLAN.md): a manual QA checklist (locale passes, date rollover, backgrounding during rest, device-only integrations) and a registry of found issues with their status.
 

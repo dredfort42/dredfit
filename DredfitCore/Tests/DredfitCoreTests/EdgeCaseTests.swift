@@ -36,8 +36,9 @@ final class EdgeCaseTests: XCTestCase {
 
     /// An actual below the bottom of the range drops the level into the previous tier (continuous formula).
     func testOverrideBelowRangeDropsToLowerTier() {
-        // tier 2, actual 5 reps: (2-1)*8 + (5-8) = 5 → tier 1, 13 reps
-        let l = Level.fromActual(pattern: .squat, tier: 2, sets: 3, actual: 5)
+        // v2.3: tier 2 starts at 6 reps, so an actual of 3 is what now sits
+        // three steps below its floor: (2-1)*8 + (3-6) = 5 → tier 1, 13 reps.
+        let l = Level.fromActual(pattern: .squat, tier: 2, sets: 3, actual: 3)
         XCTAssertEqual(l, 5)
         XCTAssertEqual(Level.decode(l).tier, 1)
         XCTAssertEqual(Level.decode(l).reps, 13)
