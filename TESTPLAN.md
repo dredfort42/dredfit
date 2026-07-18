@@ -267,6 +267,41 @@ The automated snapshot test (`testWidgetSnapshotMirrorsWeekStatuses`) skips itse
 | 20.5 | Settings → About → **Rate in App Store** | Opens the App Store review sheet for id6791739610 |
 | 20.6 | Settings → About → **Recommend Dredfit** | System share sheet with the App Store link |
 
+### 21. Calibration on the first workout (1.5)
+
+| # | Check | Expected |
+|---|---|---|
+| 21.1 | Fresh install → first workout → rating screen | A hint under the rating: open the list and enter what you actually did |
+| 21.2 | Enter 20 against a plan of 8, rate "on plan" | That pattern jumps to level 12 immediately, not to 2 |
+| 21.3 | Second workout, enter an enormous number on the same pattern | Level moves by exactly +2 — the cap is back |
+| 21.4 | Enter 5 against a plan of 8 on the first workout | Level stays 0; no deload builds up from it |
+| 21.5 | Enter a number and skip that same exercise | The skip wins; level unchanged |
+| 21.6 | Hint after any workout but the first | Not shown |
+
+### 22. Comeback after a break (1.5)
+
+| # | Check | Expected |
+|---|---|---|
+| 22.1 | Last workout 13 days ago | No card |
+| 22.2 | Last workout 20 days ago | "Welcome back" card above Start |
+| 22.3 | Tap **Start easier** | Plan drops two steps; card gone; nothing new in the journal |
+| 22.4 | Tap **Leave as it was** | Plan unchanged; card gone |
+| 22.5 | Relaunch after either answer | Card does not return |
+| 22.6 | Complete a workout, then wait another 14+ days | Card is offered again — a new break is a new question |
+| 22.7 | Last workout 200 days ago | Card also offers **Start from scratch**, behind a confirmation |
+| 22.8 | Confirm Start from scratch | Levels reset; history kept; pull-up bar setting kept |
+| 22.9 | First hard session after a comeback | A plain −1, no deload — the streak was reset |
+
+### 23. Softer tier changes (1.5)
+
+| # | Check | Expected |
+|---|---|---|
+| 23.1 | Cross from level 7 to 8 on any pattern | New variation asks for 6 reps, not 8 |
+| 23.2 | Reach a tier-3 exercise (pistol squat, level 16) | 5 per side |
+| 23.3 | Reach a tier-4 exercise (level 24) | 4 per side |
+| 23.4 | Levels 0–7 on any pattern | Identical to 1.4 — 8 to 15 reps, 20 to 55 s |
+| 23.5 | Adjust an actual on a tier-2+ exercise | Placeholder shows the planned number from the session, not a hardcoded 8 |
+
 ---
 
 ## Issue registry

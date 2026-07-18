@@ -14,6 +14,7 @@ struct TodayView: View {
     @State private var workoutPresented = false
     @State private var techniqueFor: SessionExercise?
     @State private var nextPreviewShown = false
+    @State private var freshStartConfirmShown = false   // v1.5
 
     var body: some View {
         Group {
@@ -37,6 +38,16 @@ struct TodayView: View {
         }
         .sheet(isPresented: $nextPreviewShown) {
             NextWorkoutSheet()
+        }
+        .confirmationDialog(String(localized: "Start from scratch?"),
+                            isPresented: $freshStartConfirmShown,
+                            titleVisibility: .visible) {
+            Button(String(localized: "Reset levels"), role: .destructive) {
+                store.resetProgress()
+            }
+            Button(String(localized: "Cancel"), role: .cancel) { }
+        } message: {
+            Text("Levels go back to the beginning. Your history stays.")
         }
     }
 
@@ -67,6 +78,16 @@ struct TodayView: View {
             }
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
+
+            // v1.5: after a break, the offer to come back easier sits directly
+            // above Start — it is about the workout that is about to happen.
+            if store.shouldOfferComeback() {
+                ComebackCard(offersFreshStart: store.offersFreshStart(),
+                             onAccept: { store.acceptComeback() },
+                             onDecline: { store.declineComeback() },
+                             onFreshStart: { freshStartConfirmShown = true })
+                    .padding(.top, 10)
+            }
 
             PrimaryButton(title: String(localized: "Start")) { workoutPresented = true }
                 .padding(.top, 10)
