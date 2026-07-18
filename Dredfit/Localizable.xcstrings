@@ -18,6 +18,27 @@
         }
       }
     },
+    "“Less · On plan · More” — that is enough. If you want to be exact, open the list and put in what you actually did." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Меньше · По плану · Больше» — этого достаточно. Захочешь точности — раскрой список и впиши, сколько вышло на самом деле."
+          }
+        }
+      }
+    },
+    "“On plan” adds a step, “more” adds two, “less” takes one away. An exact number for a single exercise outweighs the overall rating. The level never climbs more than two steps in one workout — it builds up gradually." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«По плану» — плюс ступень, «больше» — две, «меньше» — минус одна. Точный факт по упражнению сильнее общей оценки. За одну тренировку уровень поднимается не больше чем на две ступени — система прибавляет постепенно."
+          }
+        }
+      }
+    },
     "%@ · set %lld of %lld" : {
       "localizations" : {
         "ru" : {
@@ -153,6 +174,16 @@
         }
       }
     },
+    "%lld seconds of rest left" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Осталось отдыха: %lld сек"
+          }
+        }
+      }
+    },
     "%lld workouts" : {
       "localizations" : {
         "en" : {
@@ -205,6 +236,58 @@
         }
       }
     },
+    "%lld workouts behind you" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld workout behind you"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld workouts behind you"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld тренировки позади"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld тренировок позади"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld тренировка позади"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld тренировки позади"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "≈ %lld min · %lld exercises" : {
       "localizations" : {
         "ru" : {
@@ -231,6 +314,47 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "20–55 сек"
+          }
+        }
+      }
+    },
+    "A questionnaire can be wrong; what you actually did cannot. Dredfit finds your level from real workouts and keeps the load right at the edge of what you can manage." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Анкета ошибается, факт — нет. Система выходит на твой уровень по реальным тренировкам и держит нагрузку на границе посильного."
+          }
+        }
+      }
+    },
+    "A skipped exercise simply doesn't count: its level stays where it was. No penalty, no rollback." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пропущенное упражнение просто не считается: его уровень не меняется. Ни штрафа, ни отката."
+          }
+        }
+      }
+    },
+    "About" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "О приложении"
+          }
+        }
+      }
+    },
+    "actual" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "факт"
           }
         }
       }
@@ -282,6 +406,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Все"
+          }
+        }
+      }
+    },
+    "All your data stays on your device. If you have problems with your joints, heart or blood pressure, talk to a doctor first. Sharp pain during an exercise always means stop." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Все данные остаются на устройстве. Если есть проблемы с суставами, сердцем или давлением — сначала посоветуйся с врачом. Острая боль во время упражнения — всегда стоп."
           }
         }
       }
@@ -368,6 +503,17 @@
         }
       }
     },
+    "Continue" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дальше"
+          }
+        }
+      }
+    },
     "Couldn't read this file." : {
       "localizations" : {
         "ru" : {
@@ -382,12 +528,33 @@
       "comment" : "A line on a level chart.",
       "isCommentAutoGenerated" : true
     },
+    "Deload" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разгрузка"
+          }
+        }
+      }
+    },
     "Done" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сделал"
+          }
+        }
+      }
+    },
+    "Dredfit gives you a plan, you say how it went, and the next plan shifts. The first workout is deliberately easy — it is the starting point. Answer honestly afterwards and within two or three workouts the load becomes yours." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dredfit дает план, ты говоришь, как прошло, — следующий план сдвигается. Первая тренировка нарочно легкая: это точка отсчета. Ответь после нее честно — и за 2–3 тренировки нагрузка станет твоей."
           }
         }
       }
@@ -494,6 +661,16 @@
         }
       }
     },
+    "Fewer" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Меньше на шаг"
+          }
+        }
+      }
+    },
     "Got it" : {
       "localizations" : {
         "ru" : {
@@ -567,6 +744,16 @@
         }
       }
     },
+    "How it works" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Как это работает"
+          }
+        }
+      }
+    },
     "Import history" : {
       "localizations" : {
         "ru" : {
@@ -587,6 +774,17 @@
         }
       }
     },
+    "It adjusts like a thermostat." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подстраивается, как термостат."
+          }
+        }
+      }
+    },
     "level" : {
       "comment" : "A line on a level chart.",
       "isCommentAutoGenerated" : true
@@ -598,6 +796,42 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Марш на месте"
+          }
+        }
+      }
+    },
+    "milestone.done" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Готово"
+          }
+        }
+      }
+    },
+    "More" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Больше на шаг"
+          }
+        }
+      }
+    },
+    "New step" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Новая ступень"
           }
         }
       }
@@ -622,12 +856,32 @@
         }
       }
     },
+    "Next month" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Следующий месяц"
+          }
+        }
+      }
+    },
     "Next up" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Дальше"
+          }
+        }
+      }
+    },
+    "Next workout %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Следующая тренировка %@"
           }
         }
       }
@@ -672,6 +926,69 @@
         }
       }
     },
+    "No questions about your goal, your level or how much time you have. Open the app and train — the first workout is already waiting. About 33 minutes, no equipment." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Никаких вопросов про цель, уровень и свободное время. Открыл — и тренируешься: первая тренировка уже готова. Около 33 минут, без инвентаря."
+          }
+        }
+      }
+    },
+    "Now %lld sets" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Now %lld set"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Now %lld sets"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Теперь %lld подхода"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Теперь %lld подходов"
+                }
+              },
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Теперь %lld подход"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Теперь %lld подхода"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "OK" : {
       "localizations" : {
         "ru" : {
@@ -702,6 +1019,16 @@
         }
       }
     },
+    "One number per movement: it encodes both the variation and the reps. Top out the reps and the variation gets harder while the count starts over. The fourth variation is the last one — above it the sets grow instead, from three to five." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На каждое движение — одно число: оно кодирует вариацию и повторы. Дошел до потолка повторов — вариация становится сложнее, а счет начинается заново. Четвертая вариация последняя: выше нее растут подходы, с трех до пяти."
+          }
+        }
+      }
+    },
     "One tap — the next workout adapts" : {
       "localizations" : {
         "ru" : {
@@ -712,12 +1039,45 @@
         }
       }
     },
+    "One tap after the workout." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Один тап после тренировки."
+          }
+        }
+      }
+    },
     "Only new ones" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Только новые"
+          }
+        }
+      }
+    },
+    "plan" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "план"
+          }
+        }
+      }
+    },
+    "Plan, then your actual result, then the next plan" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "План, затем твой факт, затем следующий план"
           }
         }
       }
@@ -743,6 +1103,16 @@
         }
       }
     },
+    "Previous month" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Предыдущий месяц"
+          }
+        }
+      }
+    },
     "Progress" : {
       "localizations" : {
         "ru" : {
@@ -753,12 +1123,32 @@
         }
       }
     },
+    "Pull is in every workout — that is what keeps your shoulders balanced. The rest come round in a cycle: over eight workouts each one turns up five times. With the pull-up bar switched on, the pull slot alternates between horizontal and vertical." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тяга есть в каждой тренировке — это баланс для плеч. Остальные движения идут по кругу: за восемь тренировок каждое встретится пять раз. Если включен турник, слот тяги чередуется: горизонтальная тяга, вертикальная, снова горизонтальная."
+          }
+        }
+      }
+    },
     "Pull-up bar" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Есть турник"
+          }
+        }
+      }
+    },
+    "Rate in App Store" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оценить в App Store"
           }
         }
       }
@@ -789,6 +1179,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Оценка: тяжело — следующая будет легче"
+          }
+        }
+      }
+    },
+    "Recommend Dredfit" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Порекомендовать Dredfit"
+          }
+        }
+      }
+    },
+    "Recovery is part of the plan — the load only sticks if you let it settle." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Восстановление — часть плана: нагрузка закрепляется именно в дни отдыха."
           }
         }
       }
@@ -833,6 +1243,16 @@
         }
       }
     },
+    "rest" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "отдых"
+          }
+        }
+      }
+    },
     "REST" : {
       "localizations" : {
         "ru" : {
@@ -843,12 +1263,32 @@
         }
       }
     },
+    "Rest day" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "День отдыха"
+          }
+        }
+      }
+    },
     "Rest days" : {
       "localizations" : {
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Дни отдыха"
+          }
+        }
+      }
+    },
+    "Rotation" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ротация"
           }
         }
       }
@@ -913,6 +1353,47 @@
         }
       }
     },
+    "Share" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поделиться"
+          }
+        }
+      }
+    },
+    "Share progress" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поделиться прогрессом"
+          }
+        }
+      }
+    },
+    "Six things worth knowing about the regulator." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Шесть фактов о регуляторе."
+          }
+        }
+      }
+    },
+    "Skip" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пропустить"
+          }
+        }
+      }
+    },
     "Skip exercise" : {
       "localizations" : {
         "ru" : {
@@ -953,6 +1434,27 @@
         }
       }
     },
+    "Skips" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пропуски"
+          }
+        }
+      }
+    },
+    "Skips the introduction" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пропускает вступление"
+          }
+        }
+      }
+    },
     "Sounds and haptics" : {
       "localizations" : {
         "ru" : {
@@ -979,6 +1481,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Начать удержание"
+          }
+        }
+      }
+    },
+    "step %lld of 4" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ступень %lld из 4"
           }
         }
       }
@@ -1023,6 +1535,16 @@
         }
       }
     },
+    "The level" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уровень"
+          }
+        }
+      }
+    },
     "the next one will be easier" : {
       "localizations" : {
         "ru" : {
@@ -1049,6 +1571,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Эта неделя"
+          }
+        }
+      }
+    },
+    "Three shortfalls in a row and the level rolls back three steps. Not a punishment — a breather, so you come back with something in reserve." : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Три недовыполнения подряд — откат на три ступени. Не наказание, а передышка: вернешься с запасом."
           }
         }
       }
@@ -1134,6 +1666,16 @@
         }
       }
     },
+    "total level %lld" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "суммарный уровень %lld"
+          }
+        }
+      }
+    },
     "Total level after: %lld" : {
       "localizations" : {
         "ru" : {
@@ -1154,6 +1696,37 @@
         }
       }
     },
+    "Train anyway" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Все равно тренироваться"
+          }
+        }
+      }
+    },
+    "Training at home. No questionnaires." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тренировки дома. Без анкет."
+          }
+        }
+      }
+    },
+    "Unlocked: %@" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разблокировано: %@"
+          }
+        }
+      }
+    },
     "WARM-UP" : {
       "localizations" : {
         "ru" : {
@@ -1170,6 +1743,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Получилось иначе"
+          }
+        }
+      }
+    },
+    "What your answer does" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Реакция на ответ"
+          }
+        }
+      }
+    },
+    "Why there are no questionnaires" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Почему без анкет"
+          }
+        }
+      }
+    },
+    "Workout #%lld" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тренировка №%lld"
           }
         }
       }

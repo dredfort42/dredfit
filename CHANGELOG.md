@@ -1,5 +1,56 @@
 # Changelog
 
+## 1.4.0
+
+First experience and milestones. The engine is untouched in this release — the
+adaptive core is identical to 1.3.0, bit for bit.
+
+### First run
+
+- **Onboarding.** Three cards on a fresh install, explaining the one thing the
+  UI cannot show by itself: the plan moves because you answer, and the first
+  workout is deliberately easy because it is a starting point, not a test.
+  Skipping counts as seen.
+- **"How it works"** — the first row in Settings. Six sections covering the
+  level, what a rating does, deload, rotation, skips, and why there are no
+  questionnaires. Every number in it matches the engine rather than rounding
+  for the story.
+
+### Milestones
+
+- A workout that unlocks a harder variation, crosses into another set band, or
+  lands on the 10th, 25th or every 50th session ends on one screen listing what
+  it earned. Tier-ups above the jubilee, no confetti, no badges.
+- Only upward movement is announced. A deload or a shortfall is never
+  commented on.
+- **Share card** — rendered on device at 1080×1350 and passed to the system
+  share sheet: a milestone line, a date, the wordmark. No body metrics, no
+  streak, no network. Also available from Progress as a totals card.
+
+### Asking for a review
+
+- One automatic trigger: closing a milestone screen, and only after five
+  workouts, never following a session rated harder than planned, and at most
+  once every sixty days. Settings gains an About section so a review can always
+  be left on purpose instead.
+
+### Accessibility
+
+- Every screen honours Dynamic Type. The few display numbers that are already
+  enormous by design scale to a cap rather than pushing the screen out from
+  under themselves; the rest timer's ring grows with the countdown it frames.
+- VoiceOver labels on the controls that were reading as bare symbol names, and
+  decorative icons hidden from the rotor.
+
+### Fixes
+
+- A rest day showed a live plan with a Start button on Today while the widget
+  said "Rest day" and the next-workout date skipped the day — three answers to
+  one question. Today now agrees with both, and keeps a "Train anyway" escape
+  hatch, because a rest day is the user's own setting.
+- Rest days in the calendar carried no mark and read like days outside the
+  month. They now have a soft fill and a legend entry.
+
 ## 1.3.0
 
 Two development waves ship together: the engine work originally staged as 1.2.0 (which was never released) and the progress-and-integrations wave.

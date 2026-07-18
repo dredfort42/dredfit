@@ -2,7 +2,7 @@
 
 **Adaptive bodyweight training for iOS. Zero setup — open the app, your workout is ready.**
 
-Dredfit works like a thermostat. There is no onboarding quiz, no goal picker, no timer settings. The app starts you at a conservative minimum and regulates itself: it proposes a plan, you do it, you answer one question — *how did it go?* — and the next workout adjusts. Within two or three sessions the system converges on your real level and then keeps the load right at the edge of what you can do, which is where progress happens.
+Dredfit works like a thermostat. There is no quiz, no goal picker, no timer settings. The app starts you at a conservative minimum and regulates itself: it proposes a plan, you do it, you answer one question — *how did it go?* — and the next workout adjusts. Within a handful of sessions the system converges on your real level and then keeps the load right at the edge of what you can do, which is where progress happens.
 
 No equipment required. No account. No network. Your entire training state is a session counter plus two small integers per movement pattern — a level and a fail-streak — on your device.
 

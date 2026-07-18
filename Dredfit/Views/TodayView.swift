@@ -19,6 +19,11 @@ struct TodayView: View {
         Group {
             if store.doneToday {
                 doneView
+            } else if store.isRestDay(.now) {
+                // v1.4 (I-2): a rest day used to show a live plan with a Start
+                // button while the widget said "Rest day" and nextTrainingDate
+                // skipped the day entirely — three answers to one question.
+                restView
             } else {
                 planView
             }
@@ -44,10 +49,10 @@ struct TodayView: View {
                 Kicker(text: Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide))
                     .capitalized)
                 Text("Workout \(session.sessionNumber)")
-                    .font(.system(size: 32, weight: .heavy))
+                    .dredfitFont(32, weight: .heavy)
                     .tracking(-0.5)
                 Text("≈ \(Int(session.estimatedTotalMin.rounded())) min · \(session.exercises.count) exercises")
-                    .font(.system(size: 15))
+                    .dredfitFont(15)
                     .foregroundStyle(Theme.ink2)
             }
             .padding(.top, 18)
@@ -69,6 +74,50 @@ struct TodayView: View {
         }
     }
 
+    // MARK: - Rest day (v1.4)
+
+    /// Rest is a plan, not a lockout. The day states its own case and points
+    /// at the next workout; training anyway stays available as a quiet
+    /// secondary action, because a rest day is the user's own setting and
+    /// they are allowed to change their mind about it.
+    private var restView: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 6) {
+                Kicker(text: Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide))
+                    .capitalized)
+                Text("Rest day")
+                    .dredfitFont(32, weight: .heavy)
+                    .tracking(-0.5)
+                Text("Next workout \(store.nextTrainingDateLabel)")
+                    .dredfitFont(15)
+                    .foregroundStyle(Theme.ink2)
+            }
+            .padding(.top, 18)
+
+            Text("Recovery is part of the plan — the load only sticks if you let it settle.")
+                .dredfitFont(15.5)
+                .foregroundStyle(Theme.ink3)
+                .lineSpacing(3)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 22)
+
+            Spacer()
+
+            Button {
+                workoutPresented = true
+            } label: {
+                Text("Train anyway")
+                    .dredfitFont(17, weight: .medium)
+                    .foregroundStyle(Theme.ink2)
+                    .frame(maxWidth: .infinity, minHeight: 56)
+                    .overlay(RoundedRectangle(cornerRadius: 18)
+                        .strokeBorder(Theme.hairline, lineWidth: 1.5))
+            }
+            .accessibilityIdentifier("train-anyway")
+            .padding(.bottom, 14)
+        }
+    }
+
     // MARK: - Completed state
 
     private var doneView: some View {
@@ -87,17 +136,19 @@ struct TodayView: View {
                     .fill(Theme.cardBG)
                     .frame(width: 120, height: 120)
                 Image(systemName: "checkmark")
-                    .font(.system(size: 44, weight: .bold))
+                    .dredfitFont(44, weight: .bold, cap: 66)
                     .foregroundStyle(Theme.ink)
+                    // The line below already says the workout is done.
+                    .accessibilityHidden(true)
             }
 
             Text("Workout \(store.lastRecord?.sessionNumber ?? 0) completed")
-                .font(.system(size: 24, weight: .heavy))
+                .dredfitFont(24, weight: .heavy)
                 .tracking(-0.4)
                 .padding(.top, 24)
 
             Text(resultCaption)
-                .font(.system(size: 15))
+                .dredfitFont(15)
                 .foregroundStyle(Theme.ink2)
                 .padding(.top, 6)
 
@@ -111,12 +162,12 @@ struct TodayView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Kicker(text: String(localized: "Next"))
                         Text("Workout \(store.nextSession.sessionNumber) · \(store.nextTrainingDateLabel)")
-                            .font(.system(size: 16.5, weight: .semibold))
+                            .dredfitFont(16.5, weight: .semibold)
                             .foregroundStyle(Theme.ink)
                     }
                     Spacer()
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 14, weight: .semibold))
+                        .dredfitFont(14, weight: .semibold)
                         .foregroundStyle(Theme.ink3)
                 }
                 .padding(.horizontal, 20)
@@ -145,15 +196,15 @@ struct ExerciseRow: View {
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
             Text(exercise.name)
-                .font(.system(size: 16.5, weight: .medium))
+                .dredfitFont(16.5, weight: .medium)
                 .foregroundStyle(Theme.ink)
             Spacer()
             Text(shortLoad)
-                .font(.system(size: 15.5))
+                .dredfitFont(15.5)
                 .monospacedDigit()
                 .foregroundStyle(Theme.ink2)
             Image(systemName: "chevron.right")
-                .font(.system(size: 12, weight: .semibold))
+                .dredfitFont(12, weight: .semibold)
                 .foregroundStyle(Theme.ink3.opacity(0.7))
         }
         .padding(.vertical, 4)

@@ -24,6 +24,50 @@ final class DredfitUITests: XCTestCase {
 
     // MARK: - Helpers
 
+    // MARK: - Onboarding (v1.4)
+
+    /// The explainer must appear on a genuinely fresh install, and finishing it
+    /// must land on Today — not leave the cover stuck over the app.
+    func testOnboardingAppearsOnFirstRunAndFinishes() {
+        app.launchArguments.append("--uitest-onboarding")
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Training at home. No questionnaires."]
+                        .waitForExistence(timeout: 5),
+                      "a first run must open on the onboarding")
+
+        let primary = app.buttons["onboarding-primary"]
+        primary.tap()
+        XCTAssertTrue(app.staticTexts["It adjusts like a thermostat."]
+                        .waitForExistence(timeout: 3), "card 2 is missing")
+        primary.tap()
+        XCTAssertTrue(app.staticTexts["One tap after the workout."]
+                        .waitForExistence(timeout: 3), "card 3 is missing")
+
+        primary.tap()
+        XCTAssertTrue(app.buttons["Start"].waitForExistence(timeout: 3),
+                      "finishing the onboarding must reveal Today")
+        XCTAssertFalse(app.staticTexts["Training at home. No questionnaires."].exists,
+                       "the onboarding must be gone")
+    }
+
+    /// Skipping counts as seen: the flag is written and survives a relaunch.
+    func testOnboardingSkipIsRememberedAcrossRelaunch() {
+        app.launchArguments.append("--uitest-onboarding")
+        app.launch()
+        XCTAssertTrue(app.buttons["onboarding-skip"].waitForExistence(timeout: 5))
+        app.buttons["onboarding-skip"].tap()
+        XCTAssertTrue(app.buttons["Start"].waitForExistence(timeout: 3),
+                      "skipping must land on Today")
+
+        // Relaunch WITHOUT the reset flag so the stored flag is what decides.
+        let relaunch = XCUIApplication()
+        relaunch.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        relaunch.launch()
+        XCTAssertTrue(relaunch.buttons["Start"].waitForExistence(timeout: 5))
+        XCTAssertFalse(relaunch.staticTexts["Training at home. No questionnaires."].exists,
+                       "a skipped onboarding must not come back")
+    }
+
     /// Taps Start and skips the v1.1 warm-up block.
     private func startWorkout() {
         app.buttons["Start"].tap()
@@ -66,10 +110,20 @@ final class DredfitUITests: XCTestCase {
         // phase transitions, and a normal `.tap()` hits the fullScreenCover
         // hittability quirk often enough to flake. The 1 s rating poll doubles
         // as the settle between phases.
+        // Sessions past the first can contain hold exercises (plank, hang),
+        // which run a countdown instead of a Done button. Starting and
+        // immediately stopping records the held seconds as the actual — fine
+        // for a driver whose job is only to reach the rating screen.
+        let startHold = app.buttons["Start hold"]
+        let stopHold = app.buttons["Stop"]
         var guardCounter = 0
-        while !rating.waitForExistence(timeout: 1) && guardCounter < 80 {
+        while !rating.waitForExistence(timeout: 1) && guardCounter < 120 {
             if done.exists {
                 coordinateTap(done)
+            } else if startHold.exists {
+                coordinateTap(startHold)
+            } else if stopHold.exists {
+                coordinateTap(stopHold)
             } else if skipRest.exists {
                 coordinateTap(skipRest)
             }
@@ -316,6 +370,28 @@ final class DredfitUITests: XCTestCase {
         app.buttons["Got it"].tap()
     }
 
+    /// v1.4: the explainer opens from the first settings row, carries all six
+    /// sections, and hands the user back to settings on dismissal.
+    func testHowItWorksOpensFromSettings() {
+        app.launch()
+        app.buttons["settings"].tap()
+        XCTAssertTrue(app.buttons["how-it-works"].waitForExistence(timeout: 3),
+                      "the explainer row should be the first thing in settings")
+        app.buttons["how-it-works"].tap()
+
+        XCTAssertTrue(app.staticTexts["The level"].waitForExistence(timeout: 3),
+                      "the explainer did not open")
+        for section in ["What your answer does", "Deload", "Rotation",
+                        "Skips", "Why there are no questionnaires"] {
+            XCTAssertTrue(app.staticTexts[section].exists,
+                          "section \"\(section)\" is missing")
+        }
+
+        app.buttons["how-it-works-done"].tap()
+        XCTAssertTrue(app.staticTexts["REST DAYS"].waitForExistence(timeout: 3),
+                      "closing the explainer should return to settings")
+    }
+
     // MARK: - Pull-up bar (v2.2)
 
     /// Smoke of the bar module end-to-end: the settings toggle flips the
@@ -361,6 +437,88 @@ final class DredfitUITests: XCTestCase {
         app.staticTexts["On plan"].tap()
         XCTAssertTrue(app.staticTexts["Workout 2 completed"].waitForExistence(timeout: 5),
                       "the bar workout must complete like any other")
+    }
+
+    /// v1.4: both deliberate ways to leave a review live in settings, so a
+    /// user never has to wait for the automatic ask.
+    func testAboutSectionOffersBothWaysToRecommend() {
+        app.launch()
+        app.buttons["settings"].tap()
+        XCTAssertTrue(app.staticTexts["REST DAYS"].waitForExistence(timeout: 3))
+        app.swipeUp()
+        app.swipeUp()
+        XCTAssertTrue(app.staticTexts["ABOUT"].waitForExistence(timeout: 3),
+                      "no About section in settings")
+        XCTAssertTrue(app.staticTexts["Rate in App Store"].exists)
+        XCTAssertTrue(app.staticTexts["Recommend Dredfit"].exists)
+    }
+
+    // MARK: - Rest days (v1.4, issue I-2)
+
+    /// Today used to render a live plan with a Start button on a rest day,
+    /// while the widget said "Rest day" and the next-training date skipped it.
+    /// Today must now agree with them — without locking anyone out.
+    func testRestDayShowsRestStateInsteadOfALivePlan() {
+        app.launchArguments = ["--uitest-reset", "--uitest-restday",
+                               "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+
+        XCTAssertTrue(app.staticTexts["Rest day"].waitForExistence(timeout: 5),
+                      "a rest day must say so on Today")
+        XCTAssertFalse(app.buttons["Start"].exists,
+                       "a rest day must not offer a live workout as the main action")
+        XCTAssertTrue(app.buttons["train-anyway"].exists,
+                      "rest is a plan, not a lockout — training anyway stays available")
+    }
+
+    /// Training anyway still works: the escape hatch is real, not decorative.
+    func testTrainAnywayStartsTheWorkoutOnARestDay() {
+        app.launchArguments = ["--uitest-reset", "--uitest-restday",
+                               "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+        XCTAssertTrue(app.buttons["train-anyway"].waitForExistence(timeout: 5))
+        app.buttons["train-anyway"].tap()
+        XCTAssertTrue(app.buttons["Skip warm-up"].waitForExistence(timeout: 5),
+                      "Train anyway must open the workout flow")
+    }
+
+    // MARK: - Milestones (v1.4)
+
+    /// The whole path: a workout that earns milestones ends on one screen
+    /// listing all of them, tier-ups above the jubilee, and "Done" returns to
+    /// Today with the workout recorded.
+    func testMilestoneScreenListsEverythingEarned() {
+        app.launchArguments = ["--uitest-reset", "--uitest-milestone",
+                               "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Workout 10"].waitForExistence(timeout: 5),
+                      "the seeded state should offer the tenth workout")
+
+        completeWorkout()
+        app.staticTexts["On plan"].tap()
+
+        XCTAssertTrue(app.staticTexts["WORKOUT #10"].waitForExistence(timeout: 5),
+                      "the jubilee row is missing")
+        // Match on the rendered label: Kicker uppercases, so the catalog key
+        // ("New step") and what is on screen deliberately differ.
+        XCTAssertEqual(app.staticTexts.matching(
+            NSPredicate(format: "label == %@", "NEW STEP")).count, 2,
+            "both tier-ups should be listed")
+
+        app.buttons["milestone-done"].tap()
+        XCTAssertTrue(app.staticTexts["Workout 10 completed"].waitForExistence(timeout: 5),
+                      "Done should return to Today with the workout recorded")
+    }
+
+    /// The screen is a coda, not a fixture: an ordinary workout goes straight
+    /// back to Today.
+    func testNoMilestoneScreenForAnOrdinaryWorkout() {
+        app.launch()
+        completeWorkout()
+        app.staticTexts["On plan"].tap()
+        XCTAssertTrue(app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["milestone-done"].exists,
+                       "workout 1 earns nothing and must not show the screen")
     }
 
     // MARK: - Persistence across relaunch

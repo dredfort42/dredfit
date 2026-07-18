@@ -25,13 +25,15 @@ struct CalendarScreen: View {
 
             HStack {
                 Text(monthTitle)
-                    .font(.system(size: 19, weight: .bold))
+                    .dredfitFont(19, weight: .bold)
                 Spacer()
                 HStack(spacing: 26) {
                     Button { monthOffset -= 1 } label: { Image(systemName: "chevron.left") }
+                        .accessibilityLabel(Text("Previous month"))
                     Button { monthOffset += 1 } label: { Image(systemName: "chevron.right") }
+                        .accessibilityLabel(Text("Next month"))
                 }
-                .font(.system(size: 16, weight: .medium))
+                .dredfitFont(16, weight: .medium)
                 .foregroundStyle(Theme.ink3)
             }
             .padding(.top, 20)
@@ -40,7 +42,7 @@ struct CalendarScreen: View {
             HStack(spacing: 0) {
                 ForEach(weekdayHeaders, id: \.self) { d in
                     Text(d)
-                        .font(.system(size: 11, weight: .semibold))
+                        .dredfitFont(11, weight: .semibold)
                         .foregroundStyle(Theme.ink3)
                         .frame(maxWidth: .infinity)
                 }
@@ -89,15 +91,15 @@ struct CalendarScreen: View {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Completed today ✓")
-                        .font(.system(size: 16, weight: .semibold))
+                        .dredfitFont(16, weight: .semibold)
                         .foregroundStyle(.white)
                     Text("Next: workout \(store.nextSession.sessionNumber) · \(store.nextTrainingDateLabel)")
-                        .font(.system(size: 13))
+                        .dredfitFont(13)
                         .foregroundStyle(.white.opacity(0.6))
                 }
                 Spacer()
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
+                    .dredfitFont(14, weight: .semibold)
                     .foregroundStyle(.white.opacity(0.6))
             }
             .padding(.horizontal, 20)
@@ -133,7 +135,7 @@ struct CalendarScreen: View {
 
     private func dayLabel(_ day: Day) -> some View {
         Text("\(day.number)")
-            .font(.system(size: 15, weight: day.state == .today ? .bold : .regular))
+            .dredfitFont(15, weight: day.state == .today ? .bold : .regular)
             .monospacedDigit()
             .foregroundStyle(foreground(day.state))
             .frame(width: 36, height: 36)
@@ -145,7 +147,12 @@ struct CalendarScreen: View {
                     Circle().stroke(Color(red: 0.85, green: 0.85, blue: 0.86), lineWidth: 1.5)
                 case .today:
                     Circle().stroke(Theme.accent, lineWidth: 2)
-                case .rest, .out:
+                case .rest:
+                    // v1.4 (I-4): a rest day used to carry no mark at all,
+                    // leaving it to read like a day outside the month. A soft
+                    // fill says "a day, deliberately quiet".
+                    Circle().fill(Theme.cardBG)
+                case .out:
                     EmptyView()
                 }
             }
@@ -217,9 +224,10 @@ struct CalendarScreen: View {
     // MARK: - Legend and month stat
 
     private var legend: some View {
-        HStack(spacing: 20) {
+        HStack(spacing: 16) {
             legendItem(AnyView(Circle().fill(Theme.ink)), label: String(localized: "completed"))
             legendItem(AnyView(Circle().stroke(Theme.ink3, lineWidth: 1.5)), label: String(localized: "planned"))
+            legendItem(AnyView(Circle().fill(Theme.cardBG)), label: String(localized: "rest"))
             legendItem(AnyView(Circle().stroke(Theme.accent, lineWidth: 2)), label: String(localized: "today"))
         }
         .frame(maxWidth: .infinity)
@@ -228,7 +236,7 @@ struct CalendarScreen: View {
     private func legendItem(_ shape: AnyView, label: String) -> some View {
         HStack(spacing: 7) {
             shape.frame(width: 13, height: 13)
-            Text(label).font(.system(size: 12.5)).foregroundStyle(Theme.ink2)
+            Text(label).dredfitFont(12.5).foregroundStyle(Theme.ink2)
         }
     }
 
@@ -241,11 +249,11 @@ struct CalendarScreen: View {
 
         return HStack {
             Text("This month")
-                .font(.system(size: 13.5))
+                .dredfitFont(13.5)
                 .foregroundStyle(Theme.ink2)
             Spacer()
             Text("\(done) completed")
-                .font(.system(size: 15, weight: .semibold))
+                .dredfitFont(15, weight: .semibold)
                 .monospacedDigit()
         }
         .padding(.horizontal, 18)
