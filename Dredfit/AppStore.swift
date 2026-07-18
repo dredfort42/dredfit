@@ -25,16 +25,41 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     // v1.1 additions, optional for the same migration reason:
     var skipped: Set<Pattern>? = nil        // exercises skipped during the workout
     var levelsAfter: [Pattern: Int]? = nil  // per-pattern level snapshot (feeds future charts)
+    // v1.3: the actual wall-clock workout duration (feeds Apple Health)
+    var durationSec: Int? = nil
 }
 
 /// User preferences (v1.1). Stored in the same JSON file; optional on
 /// decode, so files written by v1.0 load with the defaults.
+/// v1.3: decoding is field-by-field tolerant — every key is optional with a
+/// default, so files written by any older version keep loading losslessly.
 struct AppSettings: Codable, Equatable {
     var restWeekdays: Set<Int> = [1]   // Calendar weekday numbers: 1 = Sunday
     var soundsEnabled = true
     var reminderEnabled = false
     var reminderHour = 9
     var reminderMinute = 0
+    // v1.3 — Apple Health (both default off/zero for pre-1.3 files)
+    var healthEnabled = false
+    var healthExportedThrough = 0      // high-water sessionNumber already in Health
+
+    init() {}
+
+    private enum CodingKeys: String, CodingKey {
+        case restWeekdays, soundsEnabled, reminderEnabled, reminderHour, reminderMinute
+        case healthEnabled, healthExportedThrough
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        restWeekdays = try c.decodeIfPresent(Set<Int>.self, forKey: .restWeekdays) ?? [1]
+        soundsEnabled = try c.decodeIfPresent(Bool.self, forKey: .soundsEnabled) ?? true
+        reminderEnabled = try c.decodeIfPresent(Bool.self, forKey: .reminderEnabled) ?? false
+        reminderHour = try c.decodeIfPresent(Int.self, forKey: .reminderHour) ?? 9
+        reminderMinute = try c.decodeIfPresent(Int.self, forKey: .reminderMinute) ?? 0
+        healthEnabled = try c.decodeIfPresent(Bool.self, forKey: .healthEnabled) ?? false
+        healthExportedThrough = try c.decodeIfPresent(Int.self, forKey: .healthExportedThrough) ?? 0
+    }
 }
 
 private struct AppData: Codable {
@@ -51,9 +76,13 @@ final class AppStore {
     private(set) var settings: AppSettings
 
     private let storageURL: URL
+    private let health: WorkoutHealthWriting
+    private var backfillInFlight = false   // v1.3: guards concurrent Health backfills
 
-    init(storageURL: URL = AppStore.defaultFileURL) {
+    init(storageURL: URL = AppStore.defaultFileURL,
+         health: WorkoutHealthWriting = HealthKitWorkoutWriter()) {
         self.storageURL = storageURL
+        self.health = health
         if CommandLine.arguments.contains("--uitest-reset") {
             try? FileManager.default.removeItem(at: storageURL)
         }
@@ -76,6 +105,7 @@ final class AppStore {
                             result: .plan,
                             date: Calendar.current.date(byAdding: .day, value: -1, to: .now)!)
         }
+        refreshWidgetSnapshot()   // v1.3: the widget mirrors state from launch
     }
 
     // MARK: - Derived
@@ -125,6 +155,29 @@ final class AppStore {
         return d
     }
 
+    /// Calendar-week summary for the progress screen (v1.3): workouts and the
+    /// total-level delta. The week is Monday–Sunday regardless of locale.
+    struct WeekSummary: Equatable {
+        let workouts: Int
+        let levelsDelta: Int
+    }
+
+    /// Counts the records of the calendar week containing `date` and the
+    /// total-level change over that week (against the last record before it).
+    /// Deload weeks can be negative — that is honest, not an error.
+    func weekSummary(for date: Date = .now) -> WeekSummary {
+        var cal = Calendar(identifier: .iso8601)   // Monday-first weeks
+        cal.timeZone = Calendar.current.timeZone
+        guard let week = cal.dateInterval(of: .weekOfYear, for: date) else {
+            return WeekSummary(workouts: 0, levelsDelta: 0)
+        }
+        let inWeek = records.filter { $0.date >= week.start && $0.date < week.end }
+        guard let last = inWeek.last else { return WeekSummary(workouts: 0, levelsDelta: 0) }
+        let baseline = records.last { $0.date < week.start }?.totalLevelAfter ?? 0
+        return WeekSummary(workouts: inWeek.count,
+                           levelsDelta: last.totalLevelAfter - baseline)
+    }
+
     /// "today" / "tomorrow" / "on Saturday" (Russian uses inflected weekday prepositions).
     var nextTrainingDateLabel: String {
         let cal = Calendar.current
@@ -146,6 +199,7 @@ final class AppStore {
                          result: FeedbackResult,
                          overrides: [Pattern: Int] = [:],
                          skipped: Set<Pattern> = [],
+                         durationSec: Int? = nil,
                          date: Date = .now) {
         engineState = Engine.applyFeedback(state: engineState, session: session,
                                            result: result, overrides: overrides,
@@ -158,7 +212,13 @@ final class AppStore {
             exercises: session.exercises,
             actuals: overrides.isEmpty ? nil : overrides,
             skipped: skipped.isEmpty ? nil : skipped,
-            levelsAfter: engineState.levels))
+            levelsAfter: engineState.levels,
+            durationSec: durationSec))
+        if settings.healthEnabled, let record = records.last {
+            // The mark advances inside saveToHealth only on a confirmed save,
+            // so a failed export is never mistaken for a completed one.
+            saveToHealth(record)
+        }
         persist()
     }
 
@@ -217,6 +277,95 @@ final class AppStore {
         rescheduleReminders()
     }
 
+    // MARK: - Apple Health (v1.3)
+
+    /// Turning the toggle on: ask for write-only authorization. On denial
+    /// the toggle stays off — reality over wishful state, no nagging.
+    func enableHealth() async -> Bool {
+        guard health.isAvailable else { return false }
+        let granted = await health.requestWriteAuthorization()
+        if granted {
+            settings.healthEnabled = true
+            persist()
+        }
+        return granted
+    }
+
+    /// Turning it off keeps the exported high-water mark — re-enabling
+    /// later never duplicates workouts already in Health.
+    func disableHealth() {
+        settings.healthEnabled = false
+        persist()
+    }
+
+    /// How many past workouts a backfill would add to Health.
+    var healthBackfillCount: Int {
+        records.filter { $0.sessionNumber > settings.healthExportedThrough }.count
+    }
+
+    /// Exports every record above the high-water mark in order, advancing the
+    /// mark one record at a time and only on a confirmed save. It stops at the
+    /// first failure so the unexported tail can be retried later — a failed
+    /// save is never declared exported. The in-flight guard forbids a second
+    /// concurrent backfill (double-export window).
+    func backfillHealth() async {
+        guard !backfillInFlight else { return }
+        backfillInFlight = true
+        defer { backfillInFlight = false }
+        let candidates = records
+            .filter { $0.sessionNumber > settings.healthExportedThrough }
+            .sorted { $0.sessionNumber < $1.sessionNumber }
+        for record in candidates {
+            let duration = TimeInterval(record.durationSec ?? estimatedDurationSec(for: record))
+            let ok = await health.saveWorkout(start: record.date.addingTimeInterval(-duration),
+                                              end: record.date)
+            guard ok else { break }   // keep the mark at the last confirmed export
+            settings.healthExportedThrough = max(settings.healthExportedThrough, record.sessionNumber)
+            persist()
+        }
+    }
+
+    /// "Only new ones": past workouts are declared already-handled so they
+    /// never export later, even after toggling off and on.
+    func skipHealthBackfill() {
+        settings.healthExportedThrough = records.last?.sessionNumber ?? 0
+        persist()
+    }
+
+    /// Fire-and-forget export of one just-completed workout. The high-water
+    /// mark advances only after the save is confirmed — a failed save leaves
+    /// the workout unexported so a later backfill can pick it up.
+    private func saveToHealth(_ record: WorkoutRecord) {
+        let duration = TimeInterval(record.durationSec ?? estimatedDurationSec(for: record))
+        let end = record.date
+        let start = end.addingTimeInterval(-duration)
+        Task { [weak self] in
+            let ok = await self?.health.saveWorkout(start: start, end: end) ?? false
+            guard ok, let self else { return }
+            self.settings.healthExportedThrough =
+                max(self.settings.healthExportedThrough, record.sessionNumber)
+            self.persist()
+        }
+    }
+
+    /// Session-estimate fallback for records that predate duration capture:
+    /// mirrors the engine's duration formula over the stored snapshot,
+    /// skipping skipped exercises. Snapshot-less v1.0 records get a flat 35 min.
+    private func estimatedDurationSec(for record: WorkoutRecord) -> Int {
+        guard let exercises = record.exercises, !exercises.isEmpty else { return 35 * 60 }
+        let skipped = record.skipped ?? []
+        var workSec = 0.0
+        for ex in exercises where !skipped.contains(ex.pattern) {
+            let sides = ex.perSide ? 2 : 1
+            let perSet = ex.unit == .reps
+                ? Double(ex.load * sides) * 2.5
+                : Double(ex.load * sides)
+            workSec += Double(ex.sets) * perSet
+                + Double((ex.sets - 1) * ex.restSetSec + ex.restExerciseSec)
+        }
+        return Int(workSec) + (5 + 3) * 60   // warm-up + cool-down
+    }
+
     // MARK: - Local reminders (v1.1)
 
     private static let reminderIDs = (1...7).map { "reminder-wd-\($0)" }
@@ -264,9 +413,15 @@ final class AppStore {
         defer { if secured { url.stopAccessingSecurityScopedResource() } }
         let data = try Data(contentsOf: url)
         let decoded = try JSONDecoder().decode(AppData.self, from: data)
+        // The Health high-water mark tracks an external, device-local side
+        // effect (HKWorkouts already written). It must never move backwards on
+        // import — an older backup would otherwise re-export samples already
+        // in Health, which the write-only design cannot detect.
+        let priorHealthMark = settings.healthExportedThrough
         engineState = decoded.engineState
         records = decoded.records
         settings = decoded.settings ?? AppSettings()
+        settings.healthExportedThrough = max(priorHealthMark, settings.healthExportedThrough)
         persist()
         rescheduleReminders()
     }
@@ -285,5 +440,6 @@ final class AppStore {
         if let encoded = try? JSONEncoder().encode(data) {
             try? encoded.write(to: storageURL, options: .atomic)
         }
+        refreshWidgetSnapshot()   // v1.3: every persisted change reaches the widget
     }
 }

@@ -8,9 +8,17 @@
 
 /* Begin PBXBuildFile section */
 		AF41149A3009065C005220C8 /* DredfitCore in Frameworks */ = {isa = PBXBuildFile; productRef = AF4114993009065C005220C8 /* DredfitCore */; };
+		AF7B100000000000000000BC /* DredfitWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AF7B100000000000000000B2 /* DredfitWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		AF7B100000000000000000BE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AF2F7B9D3008FD9200249B07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AF7B100000000000000000B1;
+			remoteInfo = DredfitWidgets;
+		};
 		AF2F7BB33008FD9300249B07 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = AF2F7B9D3008FD9200249B07 /* Project object */;
@@ -27,13 +35,38 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		AF7B100000000000000000BB /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				AF7B100000000000000000BC /* DredfitWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		AF2F7BA53008FD9200249B07 /* Dredfit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Dredfit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF2F7BB23008FD9300249B07 /* DredfitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DredfitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF2F7BBC3008FD9300249B07 /* DredfitUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DredfitUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AF41149B30090731005220C8 /* Dredfit.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Dredfit.xctestplan; sourceTree = "<group>"; };
 		AF4114AB3009999900249B07 /* DredfitCore */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = DredfitCore; sourceTree = "<group>"; };
+		AF7B100000000000000000B2 /* DredfitWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DredfitWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AF7B100000000000000000BF /* Exceptions for "DredfitWidgets" folder in "DredfitWidgets" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = AF7B100000000000000000B1 /* DredfitWidgets */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		AF2F7BA73008FD9200249B07 /* Dredfit */ = {
@@ -49,6 +82,19 @@
 		AF2F7BBF3008FD9300249B07 /* DredfitUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = DredfitUITests;
+			sourceTree = "<group>";
+		};
+		AF7B100000000000000000B6 /* DredfitWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AF7B100000000000000000BF /* Exceptions for "DredfitWidgets" folder in "DredfitWidgets" target */,
+			);
+			path = DredfitWidgets;
+			sourceTree = "<group>";
+		};
+		AF7B100000000000000000B7 /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -76,6 +122,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AF7B100000000000000000B4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -85,6 +138,8 @@
 				AF41149B30090731005220C8 /* Dredfit.xctestplan */,
 				AF4114AB3009999900249B07 /* DredfitCore */,
 				AF2F7BA73008FD9200249B07 /* Dredfit */,
+				AF7B100000000000000000B7 /* Shared */,
+				AF7B100000000000000000B6 /* DredfitWidgets */,
 				AF2F7BB53008FD9300249B07 /* DredfitTests */,
 				AF2F7BBF3008FD9300249B07 /* DredfitUITests */,
 				AF2F7BA63008FD9200249B07 /* Products */,
@@ -97,6 +152,7 @@
 				AF2F7BA53008FD9200249B07 /* Dredfit.app */,
 				AF2F7BB23008FD9300249B07 /* DredfitTests.xctest */,
 				AF2F7BBC3008FD9300249B07 /* DredfitUITests.xctest */,
+				AF7B100000000000000000B2 /* DredfitWidgets.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -111,13 +167,16 @@
 				AF2F7BA13008FD9200249B07 /* Sources */,
 				AF2F7BA23008FD9200249B07 /* Frameworks */,
 				AF2F7BA33008FD9200249B07 /* Resources */,
+				AF7B100000000000000000BB /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				AF7B100000000000000000BD /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				AF2F7BA73008FD9200249B07 /* Dredfit */,
+				AF7B100000000000000000B7 /* Shared */,
 			);
 			name = Dredfit;
 			packageProductDependencies = (
@@ -173,6 +232,29 @@
 			productReference = AF2F7BBC3008FD9300249B07 /* DredfitUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		AF7B100000000000000000B1 /* DredfitWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AF7B100000000000000000B8 /* Build configuration list for PBXNativeTarget "DredfitWidgets" */;
+			buildPhases = (
+				AF7B100000000000000000B3 /* Sources */,
+				AF7B100000000000000000B4 /* Frameworks */,
+				AF7B100000000000000000B5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AF7B100000000000000000B6 /* DredfitWidgets */,
+				AF7B100000000000000000B7 /* Shared */,
+			);
+			name = DredfitWidgets;
+			packageProductDependencies = (
+			);
+			productName = DredfitWidgets;
+			productReference = AF7B100000000000000000B2 /* DredfitWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -194,6 +276,9 @@
 						CreatedOnToolsVersion = 26.6;
 						TestTargetID = AF2F7BA43008FD9200249B07;
 					};
+					AF7B100000000000000000B1 = {
+						CreatedOnToolsVersion = 26.6;
+					};
 				};
 			};
 			buildConfigurationList = AF2F7BA03008FD9200249B07 /* Build configuration list for PBXProject "Dredfit" */;
@@ -214,6 +299,7 @@
 			projectRoot = "";
 			targets = (
 				AF2F7BA43008FD9200249B07 /* Dredfit */,
+				AF7B100000000000000000B1 /* DredfitWidgets */,
 				AF2F7BB13008FD9300249B07 /* DredfitTests */,
 				AF2F7BBB3008FD9300249B07 /* DredfitUITests */,
 			);
@@ -236,6 +322,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		AF2F7BBA3008FD9300249B07 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AF7B100000000000000000B5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -266,6 +359,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AF7B100000000000000000B3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -278,6 +378,11 @@
 			isa = PBXTargetDependency;
 			target = AF2F7BA43008FD9200249B07 /* Dredfit */;
 			targetProxy = AF2F7BBD3008FD9300249B07 /* PBXContainerItemProxy */;
+		};
+		AF7B100000000000000000BD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AF7B100000000000000000B1 /* DredfitWidgets */;
+			targetProxy = AF7B100000000000000000BE /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -403,6 +508,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Dredfit/Dredfit.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = JQ2STKM674;
@@ -413,6 +519,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Dredfit saves completed workouts to Health. Nothing else is shared.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -430,7 +538,7 @@
 				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.dredfit.Dredfit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				REGISTER_APP_GROUPS = NO;
+				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -449,6 +557,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Dredfit/Dredfit.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = JQ2STKM674;
@@ -459,6 +568,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Dredfit saves completed workouts to Health. Nothing else is shared.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -476,7 +587,7 @@
 				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.dredfit.Dredfit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				REGISTER_APP_GROUPS = NO;
+				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -592,6 +703,64 @@
 			};
 			name = Release;
 		};
+		AF7B100000000000000000B9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = DredfitWidgets/DredfitWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = JQ2STKM674;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DredfitWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Dredfit;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dredfit.Dredfit.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		AF7B100000000000000000BA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = DredfitWidgets/DredfitWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = JQ2STKM674;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DredfitWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Dredfit;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dredfit.Dredfit.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -627,6 +796,15 @@
 			buildConfigurations = (
 				AF2F7BCD3008FD9300249B07 /* Debug */,
 				AF2F7BCE3008FD9300249B07 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+	AF7B100000000000000000B8 /* Build configuration list for PBXNativeTarget "DredfitWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AF7B100000000000000000B9 /* Debug */,
+				AF7B100000000000000000BA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
