@@ -135,6 +135,10 @@ final class AppStore {
             }
             engineState = seeded
         }
+        // UI-test hook: make today a rest day, whichever weekday that is.
+        if CommandLine.arguments.contains("--uitest-restday") {
+            settings.restWeekdays = [Calendar.current.component(.weekday, from: .now)]
+        }
         refreshWidgetSnapshot()   // v1.3: the widget mirrors state from launch
     }
 

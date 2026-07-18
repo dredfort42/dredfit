@@ -453,6 +453,35 @@ final class DredfitUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Recommend Dredfit"].exists)
     }
 
+    // MARK: - Rest days (v1.4, issue I-2)
+
+    /// Today used to render a live plan with a Start button on a rest day,
+    /// while the widget said "Rest day" and the next-training date skipped it.
+    /// Today must now agree with them — without locking anyone out.
+    func testRestDayShowsRestStateInsteadOfALivePlan() {
+        app.launchArguments = ["--uitest-reset", "--uitest-restday",
+                               "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+
+        XCTAssertTrue(app.staticTexts["Rest day"].waitForExistence(timeout: 5),
+                      "a rest day must say so on Today")
+        XCTAssertFalse(app.buttons["Start"].exists,
+                       "a rest day must not offer a live workout as the main action")
+        XCTAssertTrue(app.buttons["train-anyway"].exists,
+                      "rest is a plan, not a lockout — training anyway stays available")
+    }
+
+    /// Training anyway still works: the escape hatch is real, not decorative.
+    func testTrainAnywayStartsTheWorkoutOnARestDay() {
+        app.launchArguments = ["--uitest-reset", "--uitest-restday",
+                               "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+        XCTAssertTrue(app.buttons["train-anyway"].waitForExistence(timeout: 5))
+        app.buttons["train-anyway"].tap()
+        XCTAssertTrue(app.buttons["Skip warm-up"].waitForExistence(timeout: 5),
+                      "Train anyway must open the workout flow")
+    }
+
     // MARK: - Milestones (v1.4)
 
     /// The whole path: a workout that earns milestones ends on one screen

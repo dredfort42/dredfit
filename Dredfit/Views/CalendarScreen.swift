@@ -147,7 +147,12 @@ struct CalendarScreen: View {
                     Circle().stroke(Color(red: 0.85, green: 0.85, blue: 0.86), lineWidth: 1.5)
                 case .today:
                     Circle().stroke(Theme.accent, lineWidth: 2)
-                case .rest, .out:
+                case .rest:
+                    // v1.4 (I-4): a rest day used to carry no mark at all,
+                    // leaving it to read like a day outside the month. A soft
+                    // fill says "a day, deliberately quiet".
+                    Circle().fill(Theme.cardBG)
+                case .out:
                     EmptyView()
                 }
             }
@@ -219,9 +224,10 @@ struct CalendarScreen: View {
     // MARK: - Legend and month stat
 
     private var legend: some View {
-        HStack(spacing: 20) {
+        HStack(spacing: 16) {
             legendItem(AnyView(Circle().fill(Theme.ink)), label: String(localized: "completed"))
             legendItem(AnyView(Circle().stroke(Theme.ink3, lineWidth: 1.5)), label: String(localized: "planned"))
+            legendItem(AnyView(Circle().fill(Theme.cardBG)), label: String(localized: "rest"))
             legendItem(AnyView(Circle().stroke(Theme.accent, lineWidth: 2)), label: String(localized: "today"))
         }
         .frame(maxWidth: .infinity)

@@ -19,6 +19,11 @@ struct TodayView: View {
         Group {
             if store.doneToday {
                 doneView
+            } else if store.isRestDay(.now) {
+                // v1.4 (I-2): a rest day used to show a live plan with a Start
+                // button while the widget said "Rest day" and nextTrainingDate
+                // skipped the day entirely — three answers to one question.
+                restView
             } else {
                 planView
             }
@@ -66,6 +71,50 @@ struct TodayView: View {
             PrimaryButton(title: String(localized: "Start")) { workoutPresented = true }
                 .padding(.top, 10)
                 .padding(.bottom, 14)   // breathing room above the tab bar
+        }
+    }
+
+    // MARK: - Rest day (v1.4)
+
+    /// Rest is a plan, not a lockout. The day states its own case and points
+    /// at the next workout; training anyway stays available as a quiet
+    /// secondary action, because a rest day is the user's own setting and
+    /// they are allowed to change their mind about it.
+    private var restView: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 6) {
+                Kicker(text: Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide))
+                    .capitalized)
+                Text("Rest day")
+                    .dredfitFont(32, weight: .heavy)
+                    .tracking(-0.5)
+                Text("Next workout \(store.nextTrainingDateLabel)")
+                    .dredfitFont(15)
+                    .foregroundStyle(Theme.ink2)
+            }
+            .padding(.top, 18)
+
+            Text("Recovery is part of the plan — the load only sticks if you let it settle.")
+                .dredfitFont(15.5)
+                .foregroundStyle(Theme.ink3)
+                .lineSpacing(3)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 22)
+
+            Spacer()
+
+            Button {
+                workoutPresented = true
+            } label: {
+                Text("Train anyway")
+                    .dredfitFont(17, weight: .medium)
+                    .foregroundStyle(Theme.ink2)
+                    .frame(maxWidth: .infinity, minHeight: 56)
+                    .overlay(RoundedRectangle(cornerRadius: 18)
+                        .strokeBorder(Theme.hairline, lineWidth: 1.5))
+            }
+            .accessibilityIdentifier("train-anyway")
+            .padding(.bottom, 14)
         }
     }
 
