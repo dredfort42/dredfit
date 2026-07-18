@@ -68,6 +68,17 @@ public enum EngineConfig {
     public static let deloadDrop = 3        // deload rollback
     public static let warmupMin = 5
     public static let cooldownMin = 3
+    // v2.3 (возврат после перерыва): 14–34 дня → −2; 35–55 → −3; 56–76 → −4;
+    // …; 140+ → −8. Движок событийный, поэтому паузу должен внести app-слой.
+    public static let comebackMinGapDays = 14
+    public static let comebackBase = 2
+    public static let comebackStepDays = 21
+    public static let comebackMax = 8
+    // v2.3 (сглаживание): низ диапазона повторов/удержания зависит от тира —
+    // чем сложнее вариация, тем ниже старт, и первая ступень нового тира
+    // ложится мягко вместо скачка «тир1×15 → тир2×8».
+    public static let repStart = [1: 8, 2: 6, 3: 5, 4: 4]
+    public static let holdStart = [1: 20, 2: 15, 3: 15, 4: 10]
     // v2.2: two set bands above tier 4 — six bands of 8 steps
     public static var levelMax: Int { (tiers + setsMax - setsBase) * stepsPerTier - 1 } // 47
 }
@@ -131,16 +142,19 @@ public struct LevelDecoded: Equatable, Sendable {
 
 public enum Level {
     /// tier = min(4, 1 + L/8); sets = 3 (L≤31) | 4 (32...39) | 5 (40...47);
-    /// reps = 8 + L%8; hold = 20 + (L%8)*5
+    /// v2.3: reps = repStart[tier] + L%8; hold = holdStart[tier] + (L%8)*5.
+    /// Арифметика L → (тир, ступень) не изменилась — изменился только рендер.
     public static func decode(_ level: Int) -> LevelDecoded {
         let l = min(max(level, 0), EngineConfig.levelMax)
         let band = l / EngineConfig.stepsPerTier   // 0...5
         let step = l % EngineConfig.stepsPerTier
+        let tier = min(EngineConfig.tiers, 1 + band)
         return LevelDecoded(
-            tier: min(EngineConfig.tiers, 1 + band),
+            tier: tier,
             sets: EngineConfig.setsBase + max(0, band - (EngineConfig.tiers - 1)),
-            reps: EngineConfig.repMin + step,
-            hold: EngineConfig.holdMin + step * EngineConfig.holdStepSec
+            reps: (EngineConfig.repStart[tier] ?? EngineConfig.repMin) + step,
+            hold: (EngineConfig.holdStart[tier] ?? EngineConfig.holdMin)
+                + step * EngineConfig.holdStepSec
         )
     }
 
@@ -149,12 +163,14 @@ public enum Level {
     /// the unit comes from the (pattern, tier) library record.
     public static func fromActual(pattern: Pattern, tier: Int, sets: Int, actual: Int) -> Int {
         let lib = ExerciseLibrary.entry(for: pattern)
+        // v2.3: инверсия считается от старта тира плана, а не от общего пола.
         let step: Int
         switch lib.unit(forTier: tier) {
         case .reps:
-            step = actual - EngineConfig.repMin
+            step = actual - (EngineConfig.repStart[tier] ?? EngineConfig.repMin)
         case .hold:
-            step = Int((Double(actual - EngineConfig.holdMin) / Double(EngineConfig.holdStepSec)).rounded())
+            let start = EngineConfig.holdStart[tier] ?? EngineConfig.holdMin
+            step = Int((Double(actual - start) / Double(EngineConfig.holdStepSec)).rounded())
         }
         let base = sets <= EngineConfig.setsBase
             ? (tier - 1) * EngineConfig.stepsPerTier
@@ -303,7 +319,12 @@ public enum Engine {
             if let actual = overrides[p] {
                 let factL = Level.fromActual(pattern: p, tier: ex.tier,
                                              sets: ex.sets, actual: actual)
-                newL = min(max(factL, 0), oldL + EngineConfig.maxUpPerSession)
+                // v2.3 (калибровка): с нулевой отметки кап не применяется —
+                // доверять нечему, кроме факта, а кап +2 растягивал выход
+                // тренированного новичка на реальную нагрузку на ~10 сессий.
+                newL = oldL == 0
+                    ? min(max(factL, 0), EngineConfig.levelMax)
+                    : min(max(factL, 0), oldL + EngineConfig.maxUpPerSession)
             } else {
                 newL = oldL + result.delta
             }
@@ -321,6 +342,34 @@ public enum Engine {
                 next.failStreak[p] = 0
             }
             next.levels[p] = newL
+        }
+        return next
+    }
+
+    /// Возврат после перерыва (v2.3). Четвёртая функция API и вторая, что
+    /// меняет состояние — но вызывается не из потока тренировки, а app-слоем
+    /// при открытии приложения после паузы.
+    ///
+    /// Снижаются все паттерны, включая `pullBar` при `hasBar == false`:
+    /// перерыв детренирует всё тело, а не только то, что было в плане.
+    /// `failStreak` обнуляется обязательно — иначе первое недовыполнение
+    /// после возврата доедет до разгрузки на старой серии и уронит уровень
+    /// второй раз. `counter` не двигается: тренировок не было, но и «долга»
+    /// за пропуск нет.
+    ///
+    /// При откате сохраняется ступень внутри тира (`L % 8`), поэтому −8 —
+    /// это ровно тир ниже с тем же номером ступени: движение легче, а число
+    /// повторов переходит в диапазон более лёгкого тира.
+    public static func applyComeback(state: EngineState, gapDays: Int) -> EngineState {
+        guard gapDays >= EngineConfig.comebackMinGapDays else { return state }
+        let raw = EngineConfig.comebackBase
+            + (gapDays - EngineConfig.comebackMinGapDays) / EngineConfig.comebackStepDays
+        let drop = min(max(raw, 2), EngineConfig.comebackMax)
+
+        var next = state
+        for p in Pattern.allCases {
+            next.levels[p] = max(0, (state.levels[p] ?? 0) - drop)
+            next.failStreak[p] = 0
         }
         return next
     }

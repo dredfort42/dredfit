@@ -18,22 +18,30 @@ final class EngineTests: XCTestCase {
             let d = Level.decode(l)
             XCTAssertTrue((1...EngineConfig.tiers).contains(d.tier), "L=\(l) tier")
             XCTAssertTrue((EngineConfig.setsBase...EngineConfig.setsMax).contains(d.sets), "L=\(l) sets")
-            XCTAssertTrue((8...15).contains(d.reps), "L=\(l) reps")
-            XCTAssertTrue((20...55).contains(d.hold), "L=\(l) hold")
+            // v2.3: the range is per tier — 8...15 / 6...13 / 5...12 / 4...11
+            let repLo = EngineConfig.repStart[d.tier]!
+            let holdLo = EngineConfig.holdStart[d.tier]!
+            XCTAssertTrue((repLo...(repLo + EngineConfig.stepsPerTier - 1)).contains(d.reps),
+                          "L=\(l) reps \(d.reps) outside tier \(d.tier) range")
+            XCTAssertTrue((holdLo...(holdLo + (EngineConfig.stepsPerTier - 1) * EngineConfig.holdStepSec))
+                            .contains(d.hold),
+                          "L=\(l) hold \(d.hold) outside tier \(d.tier) range")
         }
     }
 
     func testLevelDecodeTierTransitions() {
         XCTAssertEqual(Level.decode(7), LevelDecoded(tier: 1, sets: 3, reps: 15, hold: 55))
-        XCTAssertEqual(Level.decode(8), LevelDecoded(tier: 2, sets: 3, reps: 8, hold: 20))
-        XCTAssertEqual(Level.decode(23), LevelDecoded(tier: 3, sets: 3, reps: 15, hold: 55))
-        XCTAssertEqual(Level.decode(24), LevelDecoded(tier: 4, sets: 3, reps: 8, hold: 20))  // v2.1
-        XCTAssertEqual(Level.decode(31), LevelDecoded(tier: 4, sets: 3, reps: 15, hold: 55))
+        // v2.3: each tier starts lower, so entering a tier is a step down in
+        // reps — the whole point of the smoothing.
+        XCTAssertEqual(Level.decode(8), LevelDecoded(tier: 2, sets: 3, reps: 6, hold: 15))
+        XCTAssertEqual(Level.decode(23), LevelDecoded(tier: 3, sets: 3, reps: 12, hold: 50))
+        XCTAssertEqual(Level.decode(24), LevelDecoded(tier: 4, sets: 3, reps: 4, hold: 10))
+        XCTAssertEqual(Level.decode(31), LevelDecoded(tier: 4, sets: 3, reps: 11, hold: 45))
         // v2.2: set bands above tier 4
-        XCTAssertEqual(Level.decode(32), LevelDecoded(tier: 4, sets: 4, reps: 8, hold: 20))
-        XCTAssertEqual(Level.decode(39), LevelDecoded(tier: 4, sets: 4, reps: 15, hold: 55))
-        XCTAssertEqual(Level.decode(40), LevelDecoded(tier: 4, sets: 5, reps: 8, hold: 20))
-        XCTAssertEqual(Level.decode(47), LevelDecoded(tier: 4, sets: 5, reps: 15, hold: 55)) // ceiling
+        XCTAssertEqual(Level.decode(32), LevelDecoded(tier: 4, sets: 4, reps: 4, hold: 10))
+        XCTAssertEqual(Level.decode(39), LevelDecoded(tier: 4, sets: 4, reps: 11, hold: 45))
+        XCTAssertEqual(Level.decode(40), LevelDecoded(tier: 4, sets: 5, reps: 4, hold: 10))
+        XCTAssertEqual(Level.decode(47), LevelDecoded(tier: 4, sets: 5, reps: 11, hold: 45)) // ceiling
     }
 
     func testLevelDecodeClamps() {
@@ -56,9 +64,11 @@ final class EngineTests: XCTestCase {
             XCTAssertEqual(Level.fromActual(pattern: .pullBar, tier: d.tier,
                                             sets: d.sets, actual: barActual), l, "pullBar L=\(l)")
         }
-        // the spec's worked example: 6 reps against a 4-set plan → level 30 (tier 4, 3×14)
-        XCTAssertEqual(Level.fromActual(pattern: .pull, tier: 4, sets: 4, actual: 6), 30)
-        XCTAssertEqual(Level.decode(30), LevelDecoded(tier: 4, sets: 3, reps: 14, hold: 50))
+        // The spec's worked example: an actual below the band's floor drops back
+        // a band. v2.3 moved the tier-4 floor from 8 reps to 4, so the example
+        // input moves with it (6 → 2) — the property under test is unchanged.
+        XCTAssertEqual(Level.fromActual(pattern: .pull, tier: 4, sets: 4, actual: 2), 30)
+        XCTAssertEqual(Level.decode(30), LevelDecoded(tier: 4, sets: 3, reps: 10, hold: 40))
     }
 
     // MARK: Rotation v2.1
@@ -113,7 +123,9 @@ final class EngineTests: XCTestCase {
         for ex in s.exercises {
             XCTAssertEqual(ex.tier, EngineConfig.tiers, "at the ceiling tier \(EngineConfig.tiers) is expected")
             XCTAssertEqual(ex.sets, EngineConfig.setsMax, "at the ceiling \(EngineConfig.setsMax) sets are expected")
-            XCTAssertEqual(ex.load, ex.unit == .reps ? 15 : 55, "at the ceiling the load must be maxed")
+            // v2.3: the ceiling is the top step of tier 4 — 11 reps / 45 s.
+            XCTAssertEqual(ex.load, ex.unit == .reps ? 11 : 45,
+                           "at the ceiling the load must be the top of tier 4")
         }
     }
 
@@ -129,7 +141,7 @@ final class EngineTests: XCTestCase {
         s = Engine.generateSession(state)
         let ex = s.exercises.first { $0.pattern == .pull }!
         XCTAssertEqual(ex.sets, 4)
-        XCTAssertEqual(ex.load, 9, "33 = 4×9")
+        XCTAssertEqual(ex.load, 5, "33 = 4×5 (v2.3: tier 4 starts at 4 reps)")
 
         // a third consecutive fail at 33 deloads back across the boundary: 33 → 32−3 = 29
         state.failStreak[.pull] = 2
@@ -183,10 +195,19 @@ final class EngineTests: XCTestCase {
         guard let ex = s.exercises.first(where: { $0.unit == .reps }) else {
             return XCTFail("no rep-based exercise in the first session")
         }
-        // plan 8 reps (level 0), actual 14 → growth capped at +2
+        // v2.3: from zero there is no cap — the fact IS the calibration.
         let next = Engine.applyFeedback(state: state, session: s, result: .plan,
                                         overrides: [ex.pattern: 14])
-        XCTAssertEqual(next.levels[ex.pattern], 2)
+        XCTAssertEqual(next.levels[ex.pattern], 6, "a fact from zero sets the level exactly")
+
+        // The cap still applies once the level is non-zero. Uses pull, which is
+        // in every session, so the override is guaranteed to land.
+        let before = next.levels[.pull] ?? 0
+        XCTAssertGreaterThan(before, 0, "pull must be above zero for the cap to apply")
+        let capped = Engine.applyFeedback(state: next, session: Engine.generateSession(next),
+                                          result: .plan, overrides: [.pull: 99])
+        XCTAssertEqual(capped.levels[.pull], before + EngineConfig.maxUpPerSession,
+                       "above zero the +2 cap is unchanged")
     }
 
     func testDeterminism() {
@@ -395,7 +416,7 @@ final class EngineTests: XCTestCase {
         bar = s.exercises.first { $0.pattern == .pullBar }!
         XCTAssertEqual(bar.unit, .reps)
         XCTAssertEqual(bar.tier, 2)
-        XCTAssertEqual(bar.load, 8)
+        XCTAssertEqual(bar.load, 6, "v2.3: tier 2 starts at 6 reps")
     }
 
     /// Skips (v2.1.1) apply to the bar branch with zero special cases:

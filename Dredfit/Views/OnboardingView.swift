@@ -115,8 +115,8 @@ struct OnboardingView: View {
                   body: String(localized: """
                   Dredfit gives you a plan, you say how it went, and the next plan \
                   shifts. The first workout is deliberately easy — it is the starting \
-                  point. Answer honestly afterwards and within two or three workouts \
-                  the load becomes yours.
+                  point. Answer honestly afterwards and the load becomes yours, \
+                  step by step.
                   """)) {
             loopDiagram.padding(.top, 28)
         }
