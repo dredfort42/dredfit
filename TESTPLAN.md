@@ -164,6 +164,8 @@ Simulator HealthKit is unreliable; run this on a device.
 
 ### 12. Home-screen widget
 
+The automated snapshot test (`testWidgetSnapshotMirrorsWeekStatuses`) skips itself whenever there is no App Group container — which is the case for any unsigned test run, including CI. These manual checks are therefore the only real coverage the widget gets.
+
 | # | Check | Expected |
 |---|---|---|
 | 12.1 | Add the small **Today's status** widget | Renders without a placeholder |
