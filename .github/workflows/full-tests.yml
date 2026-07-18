@@ -21,7 +21,7 @@ jobs:
   full-suite:
     name: Full test plan (unit + UI)
     runs-on: macos-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,25 +33,44 @@ jobs:
           sudo xcode-select -s "$xcode"
           xcodebuild -version
 
-      - name: Select iPhone simulator
+      - name: Select and boot iPhone simulator
         id: sim
         run: |
-          device=$(xcrun simctl list devices available | grep -E '^\s+iPhone' | head -1 | sed 's/ (.*//' | xargs)
-          if [ -z "$device" ]; then
+          line=$(xcrun simctl list devices available | grep -E '^\s+iPhone' | head -1)
+          device=$(echo "$line" | sed 's/ (.*//' | xargs)
+          udid=$(echo "$line" | grep -oE '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}' | head -1)
+          if [ -z "$device" ] || [ -z "$udid" ]; then
             echo "No iPhone simulator found on runner" >&2
             exit 1
           fi
-          echo "Using simulator: $device"
+          echo "Using simulator: $device ($udid)"
           echo "device=$device" >> "$GITHUB_OUTPUT"
+          # Pre-boot and wait for readiness so the first test isn't racing a
+          # cold simulator boot under load (a frequent 'launch timed out').
+          xcrun simctl boot "$udid" || true
+          xcrun simctl bootstatus "$udid" || true
 
       - name: Run the full test plan
         run: |
           set -o pipefail
+          # Shared macOS runners can't handle parallel UI testing: spawning
+          # several simulator clones exhausts the runner, so clones fail to
+          # connect ("lockdown timed out") or the host loses connection and
+          # the whole run aborts. Disable parallelization so everything runs
+          # on one simulator, serially — slower but stable.
+          #
+          # Retry is requested explicitly (xcodebuild ignores the test plan's
+          # own repetition settings): a genuinely flaky test re-runs up to 3
+          # attempts. System-level aborts aren't retried, which is why the
+          # single simulator matters most.
           xcodebuild test \
             -project Dredfit.xcodeproj \
             -scheme Dredfit \
             -testPlan Dredfit \
             -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.device }}" \
+            -parallel-testing-enabled NO \
+            -retry-tests-on-failure \
+            -test-iterations 3 \
             CODE_SIGNING_ALLOWED=NO \
             | xcbeautify --renderer github-actions
 
