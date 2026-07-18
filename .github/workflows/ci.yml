@@ -1,5 +1,12 @@
 name: CI
 
+# Unit tests only (~5-15 min) — core package plus app units, no UI.
+#
+# This is the gate: green CI is what a merge and a release branch require.
+# UI tests are deliberately not here. They are slow and occasionally flaky on
+# shared runners, so they run nightly in ui-tests.yml and gate nothing; before
+# cutting a release branch you run them locally instead (instructions/GIT_FLOW.md).
+
 on:
   push:
     branches: [main, develop, "release/**", "hotfix/**"]
@@ -14,20 +21,36 @@ jobs:
   core-tests:
     name: DredfitCore package tests
     runs-on: macos-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Select latest stable Xcode
+        run: |
+          xcode=$(ls -d /Applications/Xcode_*.app | grep -v beta | sort -V | tail -1)
+          echo "Selected: $xcode"
+          sudo xcode-select -s "$xcode"
+          xcodebuild -version
 
       - name: Run tests
         working-directory: DredfitCore
         run: swift test --parallel
 
   app-tests:
-    name: Dredfit app tests (iOS Simulator)
+    name: Dredfit app unit tests (iOS Simulator, no UI)
     runs-on: macos-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Select latest stable Xcode
+        run: |
+          xcode=$(ls -d /Applications/Xcode_*.app | grep -v beta | sort -V | tail -1)
+          echo "Selected: $xcode"
+          sudo xcode-select -s "$xcode"
+          xcodebuild -version
 
       - name: Select iPhone simulator
         id: sim
@@ -40,19 +63,15 @@ jobs:
           echo "Using simulator: $device"
           echo "device=$device" >> "$GITHUB_OUTPUT"
 
-      - name: Build and test
-        env:
-          # UI tests are slow and flaky on CI runners: PRs run unit tests only,
-          # the full suite runs on pushes to develop/release/hotfix/main
-          SKIP_UI_TESTS: ${{ github.event_name == 'pull_request' && '-skip-testing:DredfitUITests' || '' }}
+      - name: Build and test (UI tests excluded)
         run: |
           set -o pipefail
           xcodebuild test \
             -project Dredfit.xcodeproj \
             -scheme Dredfit \
             -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.device }}" \
+            -skip-testing:DredfitUITests \
             CODE_SIGNING_ALLOWED=NO \
-            $SKIP_UI_TESTS \
             | xcbeautify --renderer github-actions
 
       - name: Upload test results on failure

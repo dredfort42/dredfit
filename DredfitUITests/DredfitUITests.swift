@@ -31,6 +31,19 @@ final class DredfitUITests: XCTestCase {
         if skipWarmup.waitForExistence(timeout: 3) { skipWarmup.tap() }
     }
 
+    /// Taps an element at the centre of its own frame, bypassing hittability
+    /// resolution. Inside the workout's fullScreenCover the CI simulator
+    /// sometimes reports degenerate ancestor frames ({inf,inf},{0,0}); walking
+    /// them to compute an activation point then fails with "activation point
+    /// invalid" even though the control is fully on screen (the failure
+    /// screenshots show a pristine rest screen with the button in place). The
+    /// button's own leaf frame is valid, so a coordinate tap lands reliably.
+    /// This is the reason `.tap()`/`.isHittable`/an isHittable predicate wait
+    /// all raise here — every one of them resolves hittability first.
+    private func coordinateTap(_ element: XCUIElement) {
+        element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+    }
+
     /// Runs the whole workout: Done on every set, Skip rest on every rest.
     /// Returns control on the "How did it go?" screen.
     private func completeWorkout(adjustFirstExercise: Bool = false) {
@@ -48,13 +61,17 @@ final class DredfitUITests: XCTestCase {
         let done = app.buttons["Done"]
         let skipRest = app.buttons["Skip rest"]
         let rating = app.staticTexts["How did it go?"]
-        // 6 exercises × 3 sets = 18 Done; between them — Skip rest
+        // 6 exercises × 3 sets = 18 Done, a rest between each. Coordinate-tap
+        // whichever control is present: this loop fires ~35 taps through rapid
+        // phase transitions, and a normal `.tap()` hits the fullScreenCover
+        // hittability quirk often enough to flake. The 1 s rating poll doubles
+        // as the settle between phases.
         var guardCounter = 0
-        while !rating.exists && guardCounter < 80 {
-            if done.waitForExistence(timeout: 3) && done.isHittable {
-                done.tap()
-            } else if skipRest.exists && skipRest.isHittable {
-                skipRest.tap()
+        while !rating.waitForExistence(timeout: 1) && guardCounter < 80 {
+            if done.exists {
+                coordinateTap(done)
+            } else if skipRest.exists {
+                coordinateTap(skipRest)
             }
             guardCounter += 1
         }
@@ -269,7 +286,8 @@ final class DredfitUITests: XCTestCase {
 
     func testSettingsTogglesRestDay() {
         app.launch()
-        app.tabBars.buttons["Progress"].tap()
+        // The settings icon overlays every tab — reachable straight from
+        // Today (the default landing tab), no detour through Progress.
         app.buttons["settings"].tap()
         XCTAssertTrue(app.staticTexts["REST DAYS"].waitForExistence(timeout: 3),
                       "the settings sheet did not open")
@@ -279,8 +297,70 @@ final class DredfitUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Sounds and haptics"].exists)
         XCTAssertTrue(app.staticTexts["BACKUP"].exists)
         app.buttons["Got it"].tap()
-        XCTAssertTrue(app.staticTexts["total level"].waitForExistence(timeout: 3),
-                      "closing settings should return to Progress")
+        XCTAssertTrue(app.staticTexts["Workout 1"].waitForExistence(timeout: 3),
+                      "closing settings should return to Today")
+    }
+
+    func testSettingsReachableFromEveryTab() {
+        app.launch()
+        app.tabBars.buttons["Calendar"].tap()
+        app.buttons["settings"].tap()
+        XCTAssertTrue(app.staticTexts["REST DAYS"].waitForExistence(timeout: 3),
+                      "settings must open from the Calendar tab too")
+        app.buttons["Got it"].tap()
+
+        app.tabBars.buttons["Progress"].tap()
+        app.buttons["settings"].tap()
+        XCTAssertTrue(app.staticTexts["REST DAYS"].waitForExistence(timeout: 3),
+                      "settings must open from the Progress tab too")
+        app.buttons["Got it"].tap()
+    }
+
+    // MARK: - Pull-up bar (v2.2)
+
+    /// Smoke of the bar module end-to-end: the settings toggle flips the
+    /// derived session 2 (odd counter) to the vertical pull, the hang runs
+    /// as a hold with a working technique sheet, and the flow reaches the
+    /// rating screen.
+    func testBarWorkoutFlowsToRating() {
+        app.launchArguments = ["--uitest-session2", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Workout 2"].waitForExistence(timeout: 5))
+
+        app.buttons["settings"].tap()
+        let toggle = app.switches["hasbar-toggle"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 3), "no pull-up bar toggle in settings")
+        toggle.tap()
+        app.buttons["Got it"].tap()
+        XCTAssertTrue(app.staticTexts["Bar hang"].waitForExistence(timeout: 3),
+                      "with the bar on, session 2 must swap in the bar hang")
+
+        startWorkout()
+        // slot 1 — the hang: a bilateral hold with the technique sheet
+        XCTAssertTrue(app.buttons["Start hold"].waitForExistence(timeout: 3),
+                      "the bar hang must run as a hold exercise")
+        app.buttons["technique"].tap()
+        XCTAssertTrue(app.staticTexts["TECHNIQUE"].waitForExistence(timeout: 3),
+                      "the technique sheet must open for a bar exercise")
+        app.buttons["Got it"].tap()
+        app.buttons["Start hold"].tap()
+        let stop = app.buttons["Stop"]
+        XCTAssertTrue(stop.waitForExistence(timeout: 2), "no Stop during the hang countdown")
+        stop.tap()
+        XCTAssertTrue(app.buttons["Skip rest"].waitForExistence(timeout: 3),
+                      "the stopped hang must flow into rest")
+        coordinateTap(app.buttons["Skip rest"])
+
+        // the rest of the workout is not the point of this smoke — skip through
+        let rating = app.staticTexts["How did it go?"]
+        for _ in 0..<6 where !rating.exists {
+            let skip = app.buttons["Skip exercise"]
+            if skip.waitForExistence(timeout: 3) { coordinateTap(skip) }
+        }
+        XCTAssertTrue(rating.waitForExistence(timeout: 3))
+        app.staticTexts["On plan"].tap()
+        XCTAssertTrue(app.staticTexts["Workout 2 completed"].waitForExistence(timeout: 5),
+                      "the bar workout must complete like any other")
     }
 
     // MARK: - Persistence across relaunch
