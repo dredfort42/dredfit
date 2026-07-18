@@ -295,6 +295,16 @@
         }
       }
     },
+    "About": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "О приложении"
+          }
+        }
+      }
+    },
     "Add past workouts to Health?": {
       "localizations": {
         "ru": {
@@ -933,6 +943,16 @@
         }
       }
     },
+    "Rate in App Store": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оценить в App Store"
+          }
+        }
+      }
+    },
     "Rating: easy — next: +2 reps": {
       "localizations": {
         "ru": {
@@ -959,6 +979,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Оценка: тяжело — следующая будет легче"
+          }
+        }
+      }
+    },
+    "Recommend Dredfit": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Порекомендовать Dredfit"
           }
         }
       }

@@ -14,6 +14,7 @@
 import Combine
 import SwiftUI
 import AudioToolbox
+import StoreKit
 import UIKit
 import DredfitCore
 
@@ -21,6 +22,7 @@ struct WorkoutFlowView: View {
     let session: Session
     @Environment(\.dismiss) private var dismiss
     @Environment(AppStore.self) private var store
+    @Environment(\.requestReview) private var requestReview
 
     private enum Phase: Equatable {
         case warmup
@@ -47,6 +49,7 @@ struct WorkoutFlowView: View {
     @State private var adjusting = false
     @State private var adjustValue = 0
     @State private var workoutStart: Date?   // v1.3: actual duration for Health
+    @State private var lastResult: FeedbackResult?   // v1.4: gates the review ask
     @State private var liveActivity = WorkoutActivityController()   // v1.3
 
     // Hold-exercise countdown (v1.1): date-based so it survives backgrounding.
@@ -65,6 +68,17 @@ struct WorkoutFlowView: View {
     private var isLastExercise: Bool { exIndex == session.exercises.count - 1 }
     private var holding: Bool { holdEndDate != nil }
     private var isMilestone: Bool { if case .milestone = phase { return true }; return false }
+
+    /// The only place the app ever asks for a review (v1.4): closing a
+    /// milestone screen, and only when every condition in the store's gate
+    /// holds. The stamp is written whether or not iOS decides to show the
+    /// prompt — Apple rate-limits it invisibly, and a request we cannot see
+    /// the outcome of still counts against our own 60-day floor.
+    private func askForReviewIfEarned() {
+        guard store.shouldRequestReview(lastResult: lastResult) else { return }
+        store.recordReviewRequest()
+        requestReview()
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -91,11 +105,15 @@ struct WorkoutFlowView: View {
                     if earned.isEmpty {
                         dismiss()
                     } else {
+                        lastResult = result
                         phase = .milestone(earned)
                     }
                 }
             case .milestone(let earned):
-                MilestoneView(milestones: earned) { dismiss() }
+                MilestoneView(milestones: earned) {
+                    askForReviewIfEarned()
+                    dismiss()
+                }
             }
         }
         .padding(.horizontal, 24)

@@ -439,6 +439,20 @@ final class DredfitUITests: XCTestCase {
                       "the bar workout must complete like any other")
     }
 
+    /// v1.4: both deliberate ways to leave a review live in settings, so a
+    /// user never has to wait for the automatic ask.
+    func testAboutSectionOffersBothWaysToRecommend() {
+        app.launch()
+        app.buttons["settings"].tap()
+        XCTAssertTrue(app.staticTexts["REST DAYS"].waitForExistence(timeout: 3))
+        app.swipeUp()
+        app.swipeUp()
+        XCTAssertTrue(app.staticTexts["ABOUT"].waitForExistence(timeout: 3),
+                      "no About section in settings")
+        XCTAssertTrue(app.staticTexts["Rate in App Store"].exists)
+        XCTAssertTrue(app.staticTexts["Recommend Dredfit"].exists)
+    }
+
     // MARK: - Milestones (v1.4)
 
     /// The whole path: a workout that earns milestones ends on one screen

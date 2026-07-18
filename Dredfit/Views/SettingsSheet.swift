@@ -38,6 +38,7 @@ struct SettingsSheet: View {
                     reminderSection
                     healthSection
                     backupSection
+                    aboutSection
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 12)
@@ -280,6 +281,39 @@ struct SettingsSheet: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 13)
         .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 14))
+    }
+
+    // MARK: - About (v1.4)
+
+    /// The two places a review can be asked for on purpose. The automatic ask
+    /// happens once, after a milestone; these are here so someone who wants to
+    /// leave one never has to wait for it.
+    private var aboutSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Kicker(text: String(localized: "About"))
+            Link(destination: Self.reviewURL) {
+                backupRow(icon: "star", title: String(localized: "Rate in App Store"))
+            }
+            .accessibilityIdentifier("rate-app")
+            ShareLink(item: Self.appStoreURL) {
+                backupRow(icon: "heart", title: String(localized: "Recommend Dredfit"))
+            }
+            .accessibilityIdentifier("recommend-app")
+            Text(versionLine)
+                .font(.system(size: 12.5))
+                .foregroundStyle(Theme.ink3)
+        }
+    }
+
+    private static let appStoreURL = URL(string: "https://apps.apple.com/app/id6791739610")!
+    private static let reviewURL = URL(string:
+        "https://apps.apple.com/app/id6791739610?action=write-review")!
+
+    private var versionLine: String {
+        let info = Bundle.main.infoDictionary
+        let version = info?["CFBundleShortVersionString"] as? String ?? "—"
+        let build = info?["CFBundleVersion"] as? String ?? "—"
+        return "Dredfit \(version) (\(build))"
     }
 
     private func runImport() {
