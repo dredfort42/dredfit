@@ -2,7 +2,8 @@
 //  HowItWorksView.swift
 //  Dredfit
 //
-//  The regulator explained in six sections (v1.4). Onboarding says the app
+//  The regulator explained in seven sections (v1.4, +breaks in v1.5).
+//  Onboarding says the app
 //  adapts; this says how, for the user who wants to know why the plan moved.
 //
 //  Every number here is a fact from DredfitCore, not a marketing round-up:
@@ -30,16 +31,20 @@ struct HowItWorksView: View {
                     body: String(localized: """
                     One number per movement: it encodes both the variation and \
                     the reps. Top out the reps and the variation gets harder \
-                    while the count starts over. The fourth variation is the \
-                    last one — above it the sets grow instead, from three to five.
+                    while the count starts over — and on the harder variations \
+                    the count starts lower, so the change lands softly. The \
+                    fourth variation is the last one — above it the sets grow \
+                    instead, from three to five.
                     """)),
             Section(id: 2,
                     title: String(localized: "What your answer does"),
                     body: String(localized: """
                     “On plan” adds a step, “more” adds two, “less” takes one \
                     away. An exact number for a single exercise outweighs the \
-                    overall rating. The level never climbs more than two steps \
-                    in one workout — it builds up gradually.
+                    overall rating. From a standing start an exact number sets \
+                    the level immediately — the first workout calibrates the \
+                    system. After that the level climbs at most two steps per \
+                    workout.
                     """)),
             Section(id: 3,
                     title: String(localized: "Deload"),
@@ -57,12 +62,20 @@ struct HowItWorksView: View {
                     on, the pull slot alternates between horizontal and vertical.
                     """)),
             Section(id: 5,
+                    title: String(localized: "Breaks"),
+                    body: String(localized: """
+                    After two weeks away the plan meets you a couple of steps \
+                    lower — further down the longer the break. Nothing is lost: \
+                    the levels climb back quickly, and coming back is the only \
+                    thing that matters.
+                    """)),
+            Section(id: 6,
                     title: String(localized: "Skips"),
                     body: String(localized: """
                     A skipped exercise simply doesn't count: its level stays \
                     where it was. No penalty, no rollback.
                     """)),
-            Section(id: 6,
+            Section(id: 7,
                     title: String(localized: "Why there are no questionnaires"),
                     body: String(localized: """
                     A questionnaire can be wrong; what you actually did cannot. \
@@ -82,7 +95,7 @@ struct HowItWorksView: View {
                         .padding(.top, 30)
                         .fixedSize(horizontal: false, vertical: true)
 
-                    Text("Six things worth knowing about the regulator.")
+                    Text("Seven things worth knowing about the regulator.")
                         .dredfitFont(15)
                         .foregroundStyle(Theme.ink2)
                         .padding(.top, 8)
@@ -121,7 +134,7 @@ struct HowItWorksView: View {
                     .dredfitFont(17, weight: .semibold)
                     .fixedSize(horizontal: false, vertical: true)
                     // Header trait rather than combining title+body: it keeps
-                    // the six titles skimmable by rotor instead of forcing a
+                    // the titles skimmable by rotor instead of forcing a
                     // full paragraph read per section.
                     .accessibilityAddTraits(.isHeader)
                 Text(section.body)

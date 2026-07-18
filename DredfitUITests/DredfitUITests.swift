@@ -482,6 +482,59 @@ final class DredfitUITests: XCTestCase {
                       "Train anyway must open the workout flow")
     }
 
+    // MARK: - Comeback after a break (v1.5)
+
+    /// The whole point of the card: after a break the plan meets you lower.
+    /// "Start easier" must actually move the plan, not just dismiss.
+    func testComebackCardStartsEasier() {
+        app.launchArguments = ["--uitest-reset", "--uitest-comeback",
+                               "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+
+        XCTAssertTrue(app.staticTexts["Welcome back"].waitForExistence(timeout: 5),
+                      "a 20-day break should offer the comeback card")
+        // Level 20 is tier 3 step 4 -> 9 reps; -2 gives level 18, tier 3 step 2 -> 7.
+        XCTAssertTrue(app.staticTexts["3 × 9"].exists, "plan before the comeback")
+
+        app.buttons["comeback-accept"].tap()
+
+        XCTAssertTrue(app.staticTexts["3 × 7"].waitForExistence(timeout: 3),
+                      "accepting must lower the plan two steps")
+        XCTAssertFalse(app.staticTexts["Welcome back"].exists,
+                       "the card is answered and gone")
+    }
+
+    /// "Leave as it was" is a real answer, not a snooze: the plan is untouched
+    /// and the card does not come back on relaunch.
+    func testComebackCardCanBeDeclinedForGood() {
+        app.launchArguments = ["--uitest-reset", "--uitest-comeback",
+                               "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Welcome back"].waitForExistence(timeout: 5))
+
+        app.buttons["comeback-decline"].tap()
+        XCTAssertFalse(app.staticTexts["Welcome back"].exists)
+        XCTAssertTrue(app.staticTexts["3 × 9"].exists, "the plan is unchanged")
+
+        // Relaunch without the seeding hook: the stored answer is what decides.
+        let relaunch = XCUIApplication()
+        relaunch.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        relaunch.launch()
+        XCTAssertTrue(relaunch.buttons["Start"].waitForExistence(timeout: 5))
+        XCTAssertFalse(relaunch.staticTexts["Welcome back"].exists,
+                       "an answered break does not ask again")
+    }
+
+    /// A 20-day break is not long enough to offer starting over.
+    func testFreshStartIsNotOfferedForAShortBreak() {
+        app.launchArguments = ["--uitest-reset", "--uitest-comeback",
+                               "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Welcome back"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["comeback-fresh"].exists,
+                       "starting from scratch is for half-year breaks, not three weeks")
+    }
+
     // MARK: - Milestones (v1.4)
 
     /// The whole path: a workout that earns milestones ends on one screen

@@ -96,7 +96,8 @@ struct WorkoutFlowView: View {
                 restView
             case .feedback:
                 FeedbackView(session: session, actuals: actuals,
-                             skipped: skippedPatterns) { result, overrides in
+                             skipped: skippedPatterns,
+                             isFirstWorkout: store.records.isEmpty) { result, overrides in
                     let earned = store.completeWorkout(
                         session: session, result: result,
                         overrides: overrides, skipped: skippedPatterns,

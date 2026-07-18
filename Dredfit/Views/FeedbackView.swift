@@ -20,6 +20,9 @@ struct FeedbackView: View {
     let session: Session
     let actuals: [Pattern: Int]
     var skipped: Set<Pattern> = []
+    /// v1.5: true when the journal was empty before this session. Calibration
+    /// only fires from a zero level, so the hint is worth showing exactly once.
+    var isFirstWorkout = false
     let onComplete: (FeedbackResult, [Pattern: Int]) -> Void
 
     var body: some View {
@@ -47,6 +50,18 @@ struct FeedbackView: View {
                 optionCard(title: String(localized: "Easy, could do more"),
                            caption: String(localized: "next: +2 reps"),
                            result: .more, primary: false)
+            }
+
+            // v1.5: the one moment where an exact number is worth more than a
+            // rating — from zero it sets the level outright instead of moving
+            // it by two. Only shown when there is no exact number yet.
+            if isFirstWorkout && actuals.isEmpty {
+                Text("Came out well above the plan? Open the list and put in what you actually did — the system will land on your level right away.")
+                    .dredfitFont(13.5)
+                    .foregroundStyle(Theme.ink3)
+                    .lineSpacing(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, 14)
             }
 
             Spacer()
