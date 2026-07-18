@@ -22,10 +22,10 @@ struct NextWorkoutSheet: View {
             VStack(alignment: .leading, spacing: 6) {
                 Kicker(text: String(localized: "Next · \(store.nextTrainingDateLabel)"))
                 Text("Workout \(session.sessionNumber)")
-                    .font(.system(size: 28, weight: .heavy))
+                    .dredfitFont(28, weight: .heavy)
                     .tracking(-0.5)
                 Text("≈ \(Int(session.estimatedTotalMin.rounded())) min · \(session.exercises.count) exercises")
-                    .font(.system(size: 15))
+                    .dredfitFont(15)
                     .foregroundStyle(Theme.ink2)
             }
             .padding(.top, 26)

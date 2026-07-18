@@ -21,12 +21,12 @@ struct TechniqueSheet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(variation.name)
-                        .font(.system(size: 28, weight: .heavy))
+                        .dredfitFont(28, weight: .heavy)
                         .tracking(-0.5)
                         .padding(.top, 30)
 
                     Text(tierTag)
-                        .font(.system(size: 13))
+                        .dredfitFont(13)
                         .foregroundStyle(Theme.ink2)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 5)
@@ -37,12 +37,12 @@ struct TechniqueSheet: View {
                     ForEach(Array(variation.steps.enumerated()), id: \.offset) { i, step in
                         HStack(alignment: .top, spacing: 14) {
                             Text("\(i + 1)")
-                                .font(.system(size: 13, weight: .semibold))
+                                .dredfitFont(13, weight: .semibold)
                                 .foregroundStyle(.white)
                                 .frame(width: 26, height: 26)
                                 .background(Theme.ink, in: Circle())
                             Text(step)
-                                .font(.system(size: 16.5))
+                                .dredfitFont(16.5)
                                 .lineSpacing(4)
                         }
                         .padding(.vertical, 13)
@@ -52,12 +52,13 @@ struct TechniqueSheet: View {
                     ForEach(variation.mistakes, id: \.self) { mistake in
                         HStack(alignment: .top, spacing: 14) {
                             Image(systemName: "xmark")
-                                .font(.system(size: 11, weight: .bold))
+                                .dredfitFont(11, weight: .bold)
                                 .foregroundStyle(Theme.accent)
                                 .frame(width: 26, height: 26)
                                 .background(Theme.accentSoft, in: Circle())
+                                .accessibilityHidden(true)   // a bullet, not content
                             Text(mistake)
-                                .font(.system(size: 16.5))
+                                .dredfitFont(16.5)
                                 .lineSpacing(4)
                                 .foregroundStyle(Theme.ink2)
                         }

@@ -61,6 +61,9 @@ struct WorkoutFlowView: View {
     @State private var holdSecondSide = false
     @State private var firstSideHeld: Int?
 
+    /// The rest ring scales with the countdown it frames (v1.4).
+    @ScaledMetric(relativeTo: .largeTitle) private var restRingSize: CGFloat = 240
+
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     private var exercise: SessionExercise { session.exercises[exIndex] }
@@ -159,7 +162,7 @@ struct WorkoutFlowView: View {
             VStack(spacing: 10) {
                 HStack {
                     Button(String(localized: "Exit")) { dismiss() }
-                        .font(.system(size: 14))
+                        .dredfitFont(14)
                         .foregroundStyle(Theme.ink3)
                     Spacer()
                     Group {
@@ -172,11 +175,11 @@ struct WorkoutFlowView: View {
                             Text("REST")
                         }
                     }
-                    .font(.system(size: 13, weight: .semibold))
+                    .dredfitFont(13, weight: .semibold)
                     .kerning(0.5)
                     .foregroundStyle(Theme.ink3)
                     Spacer()
-                    Button(String(localized: "Exit")) { }.font(.system(size: 14)).hidden() // symmetry
+                    Button(String(localized: "Exit")) { }.dredfitFont(14).hidden() // symmetry
                 }
                 if phase != .warmup {
                     HStack(spacing: 5) {
@@ -207,18 +210,18 @@ struct WorkoutFlowView: View {
         VStack(spacing: 0) {
             Spacer()
             Text(String(localized: Self.warmupMoves[warmupIndex]))
-                .font(.system(size: 23, weight: .bold))
+                .dredfitFont(23, weight: .bold)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 300)
 
             VStack(spacing: 4) {
                 Text("\(warmupRemaining)")
-                    .font(.system(size: 112, weight: .heavy))
+                    .dredfitFont(112, weight: .heavy, cap: 150)
                     .tracking(-4)
                     .monospacedDigit()
                     .contentTransition(.numericText(countsDown: true))
                 Text("sec")
-                    .font(.system(size: 15))
+                    .dredfitFont(15)
                     .foregroundStyle(Theme.ink2)
             }
             .padding(.top, 20)
@@ -239,7 +242,7 @@ struct WorkoutFlowView: View {
                 finishWarmup()
             } label: {
                 Text("Skip warm-up")
-                    .font(.system(size: 17, weight: .medium))
+                    .dredfitFont(17, weight: .medium)
                     .foregroundStyle(Theme.ink2)
                     .frame(maxWidth: .infinity, minHeight: 56)
                     .overlay(RoundedRectangle(cornerRadius: 18).stroke(Theme.hairline, lineWidth: 1.5))
@@ -299,7 +302,7 @@ struct WorkoutFlowView: View {
         VStack(spacing: 0) {
             Spacer()
             Text(exercise.name)
-                .font(.system(size: 23, weight: .bold))
+                .dredfitFont(23, weight: .bold)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 300)
 
@@ -307,19 +310,19 @@ struct WorkoutFlowView: View {
                 techniqueExercise = exercise
             } label: {
                 Label(String(localized: "technique"), systemImage: "info.circle")
-                    .font(.system(size: 14, weight: .medium))
+                    .dredfitFont(14, weight: .medium)
                     .foregroundStyle(Theme.ink2)
             }
             .padding(.top, 10)
 
             VStack(spacing: 4) {
                 Text("\(holding ? holdRemaining : (actuals[exercise.pattern] ?? exercise.load))")
-                    .font(.system(size: 112, weight: .heavy))
+                    .dredfitFont(112, weight: .heavy, cap: 150)
                     .tracking(-4)
                     .monospacedDigit()
                     .contentTransition(.numericText(countsDown: true))
                 Text(loadCaption)
-                    .font(.system(size: 17, weight: .medium))
+                    .dredfitFont(17, weight: .medium)
                     .foregroundStyle(Theme.ink2)
             }
             .padding(.top, 20)
@@ -336,15 +339,15 @@ struct WorkoutFlowView: View {
             Group {
                 if holdSecondSide {
                     Text("second side")
-                        .font(.system(size: 14, weight: .semibold))
+                        .dredfitFont(14, weight: .semibold)
                         .foregroundStyle(Theme.accent)
                 } else if let actual = actuals[exercise.pattern], actual != exercise.load {
                     Text("actual \(actual)")
-                        .font(.system(size: 14, weight: .semibold))
+                        .dredfitFont(14, weight: .semibold)
                         .foregroundStyle(Theme.accent)
                 } else {
                     Text("set \(setIndex + 1) of \(exercise.sets)")
-                        .font(.system(size: 14))
+                        .dredfitFont(14)
                         .foregroundStyle(Theme.ink2)
                 }
             }
@@ -371,7 +374,7 @@ struct WorkoutFlowView: View {
                 Button(String(localized: "Went differently")) { startAdjusting() }
                 Button(String(localized: "Skip exercise")) { skipExercise() }
             }
-            .font(.system(size: 14.5))
+            .dredfitFont(14.5)
             .foregroundStyle(Theme.ink2)
             .padding(.vertical, 14)
             .opacity(holding ? 0 : 1)      // no adjusting/skipping mid-hold
@@ -385,7 +388,7 @@ struct WorkoutFlowView: View {
         HStack(spacing: 18) {
             stepButton("minus") { bumpAdjust(-1) }
             Text(exercise.unit == .hold ? "\(adjustValue) s" : "\(adjustValue)")
-                .font(.system(size: 26, weight: .heavy))
+                .dredfitFont(26, weight: .heavy)
                 .monospacedDigit()
                 .frame(minWidth: 76)
             stepButton("plus") { bumpAdjust(+1) }
@@ -398,7 +401,7 @@ struct WorkoutFlowView: View {
                 adjusting = false
             } label: {
                 Text("OK")
-                    .font(.system(size: 15, weight: .semibold))
+                    .dredfitFont(15, weight: .semibold)
                     .foregroundStyle(.white)
                     .padding(.horizontal, 22)
                     .padding(.vertical, 10)
@@ -413,11 +416,17 @@ struct WorkoutFlowView: View {
     private func stepButton(_ icon: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: icon)
-                .font(.system(size: 15, weight: .semibold))
+                .dredfitFont(15, weight: .semibold)
                 .foregroundStyle(Theme.ink)
                 .frame(width: 40, height: 40)
                 .background(Circle().stroke(Theme.hairline, lineWidth: 1.5))
         }
+        // "minus"/"plus" alone is what VoiceOver would otherwise announce.
+        .accessibilityLabel(Text(icon == "minus"
+                                 ? String(localized: "Fewer")
+                                 : String(localized: "More")))
+        // Pinned so the label change does not move the symbol-derived id.
+        .accessibilityIdentifier(icon)
     }
 
     private func startAdjusting() {
@@ -455,21 +464,26 @@ struct WorkoutFlowView: View {
                     .animation(.linear(duration: 1), value: restRemaining)
                 VStack(spacing: 2) {
                     Text("\(restRemaining)")
-                        .font(.system(size: 72, weight: .heavy))
+                        .dredfitFont(72, weight: .heavy, cap: 104)
                         .tracking(-2)
                         .monospacedDigit()
                         .contentTransition(.numericText(countsDown: true))
                     Text("sec")
-                        .font(.system(size: 15))
+                        .dredfitFont(15)
                         .foregroundStyle(Theme.ink2)
                 }
             }
-            .frame(width: 240, height: 240)
+            // The ring grows with the countdown inside it, up to a diameter
+            // that still fits the narrowest screen with its 24pt margins.
+            .frame(width: min(restRingSize, 330), height: min(restRingSize, 330))
+            // Read as one thing: "42 seconds of rest", not "42" then "sec".
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text("\(restRemaining) seconds of rest left"))
 
             VStack(spacing: 6) {
                 Kicker(text: String(localized: "Next up"))
                 Text(nextLabel)
-                    .font(.system(size: 17, weight: .semibold))
+                    .dredfitFont(17, weight: .semibold)
             }
             .padding(.top, 44)
 
@@ -479,7 +493,7 @@ struct WorkoutFlowView: View {
                 techniqueExercise = restTargetExercise
             } label: {
                 Label(String(localized: "technique"), systemImage: "info.circle")
-                    .font(.system(size: 14, weight: .medium))
+                    .dredfitFont(14, weight: .medium)
                     .foregroundStyle(Theme.ink2)
             }
             .padding(.top, 16)
@@ -492,7 +506,7 @@ struct WorkoutFlowView: View {
                 advanceAfterRest()
             } label: {
                 Text("Skip rest")
-                    .font(.system(size: 17, weight: .medium))
+                    .dredfitFont(17, weight: .medium)
                     .foregroundStyle(Theme.ink2)
                     .frame(maxWidth: .infinity, minHeight: 56)
                     .overlay(RoundedRectangle(cornerRadius: 18).stroke(Theme.hairline, lineWidth: 1.5))

@@ -131,6 +131,16 @@
         }
       }
     },
+    "%lld seconds of rest left": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Осталось отдыха: %lld сек"
+          }
+        }
+      }
+    },
     "%lld workouts": {
       "localizations": {
         "en": {
@@ -583,6 +593,16 @@
         }
       }
     },
+    "Fewer": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Меньше на шаг"
+          }
+        }
+      }
+    },
     "Got it": {
       "localizations": {
         "ru": {
@@ -708,6 +728,16 @@
         }
       }
     },
+    "More": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Больше на шаг"
+          }
+        }
+      }
+    },
     "New step": {
       "localizations": {
         "ru": {
@@ -724,6 +754,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Следующая"
+          }
+        }
+      }
+    },
+    "Next month": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Следующий месяц"
           }
         }
       }
@@ -902,6 +942,16 @@
         }
       },
       "extractionState": "manual"
+    },
+    "Previous month": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Предыдущий месяц"
+          }
+        }
+      }
     },
     "Progress": {
       "localizations": {

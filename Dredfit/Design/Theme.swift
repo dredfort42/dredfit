@@ -24,14 +24,18 @@ enum Theme {
 private struct ScaledFont: ViewModifier {
     @ScaledMetric private var size: CGFloat
     private let weight: Font.Weight
+    private let cap: CGFloat?
 
-    init(size: CGFloat, weight: Font.Weight, relativeTo style: Font.TextStyle) {
+    init(size: CGFloat, weight: Font.Weight, relativeTo style: Font.TextStyle,
+         cap: CGFloat?) {
         _size = ScaledMetric(wrappedValue: size, relativeTo: style)
         self.weight = weight
+        self.cap = cap
     }
 
     func body(content: Content) -> some View {
-        content.font(.system(size: size, weight: weight))
+        content.font(.system(size: min(size, cap ?? .greatestFiniteMagnitude),
+                             weight: weight))
     }
 }
 
@@ -40,12 +44,20 @@ extension View {
     ///
     /// `relativeTo` is inferred from the size so call sites stay terse; pass it
     /// explicitly when a size sits at a bucket boundary and reads wrong.
+    ///
+    /// `cap` bounds the scaled result. Body text should never use it — clipping
+    /// the reader's setting is the thing Dynamic Type exists to prevent. It is
+    /// for the few display numbers (the rep counter, the total level) that are
+    /// already enormous by design: past a point they stop gaining legibility
+    /// and start pushing the rest of the screen off it.
     func dredfitFont(_ size: CGFloat,
                      weight: Font.Weight = .regular,
-                     relativeTo style: Font.TextStyle? = nil) -> some View {
+                     relativeTo style: Font.TextStyle? = nil,
+                     cap: CGFloat? = nil) -> some View {
         modifier(ScaledFont(size: size,
                             weight: weight,
-                            relativeTo: style ?? Font.TextStyle.forDesignSize(size)))
+                            relativeTo: style ?? Font.TextStyle.forDesignSize(size),
+                            cap: cap))
     }
 }
 

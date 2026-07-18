@@ -20,10 +20,10 @@ struct HistorySheet: View {
                 Kicker(text: record.date.formatted(.dateTime.weekday(.wide).day().month(.wide))
                     .capitalized)
                 Text("Workout \(record.sessionNumber)")
-                    .font(.system(size: 28, weight: .heavy))
+                    .dredfitFont(28, weight: .heavy)
                     .tracking(-0.5)
                 Text(resultCaption)
-                    .font(.system(size: 15))
+                    .dredfitFont(15)
                     .foregroundStyle(Theme.ink2)
             }
             .padding(.top, 26)
@@ -33,21 +33,21 @@ struct HistorySheet: View {
                 List(exercises) { ex in
                     HStack(alignment: .firstTextBaseline) {
                         Text(ex.name)
-                            .font(.system(size: 16, weight: .medium))
+                            .dredfitFont(16, weight: .medium)
                             .foregroundStyle(Theme.ink)
                         Spacer()
                         VStack(alignment: .trailing, spacing: 2) {
                             Text(ex.display)
-                                .font(.system(size: 15))
+                                .dredfitFont(15)
                                 .monospacedDigit()
                                 .foregroundStyle(Theme.ink2)
                             if record.skipped?.contains(ex.pattern) == true {
                                 Text("skipped")
-                                    .font(.system(size: 12.5))
+                                    .dredfitFont(12.5)
                                     .foregroundStyle(Theme.ink3)
                             } else if let actual = record.actuals?[ex.pattern], actual != ex.load {
                                 Text("actual \(actual)")
-                                    .font(.system(size: 12.5))
+                                    .dredfitFont(12.5)
                                     .monospacedDigit()
                                     .foregroundStyle(Theme.accent)
                             }
@@ -62,7 +62,7 @@ struct HistorySheet: View {
                 // records created before UPDATE-3 have no snapshot
                 Spacer()
                 Text("No details saved for this workout.")
-                    .font(.system(size: 15))
+                    .dredfitFont(15)
                     .foregroundStyle(Theme.ink3)
                     .frame(maxWidth: .infinity)
                 Spacer()
@@ -70,7 +70,7 @@ struct HistorySheet: View {
 
             HStack {
                 Text("Total level after: \(record.totalLevelAfter)")
-                    .font(.system(size: 13.5))
+                    .dredfitFont(13.5)
                     .monospacedDigit()
                     .foregroundStyle(Theme.ink2)
                 Spacer()

@@ -27,7 +27,7 @@ struct SettingsSheet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 28) {
                     Text("Settings")
-                        .font(.system(size: 28, weight: .heavy))
+                        .dredfitFont(28, weight: .heavy)
                         .tracking(-0.5)
                         .padding(.top, 26)
 
@@ -109,7 +109,7 @@ struct SettingsSheet: View {
                 }
             }
             Text("Highlighted days are rest days")
-                .font(.system(size: 12.5))
+                .dredfitFont(12.5)
                 .foregroundStyle(Theme.ink3)
         }
     }
@@ -121,7 +121,7 @@ struct SettingsSheet: View {
             store.toggleRestDay(weekday)
         } label: {
             Text(symbol)
-                .font(.system(size: 13, weight: .semibold))
+                .dredfitFont(13, weight: .semibold)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
                 .frame(maxWidth: .infinity, minHeight: 38)
@@ -145,12 +145,12 @@ struct SettingsSheet: View {
                 get: { store.engineState.hasBar },
                 set: { store.setHasBar($0) })) {
                 Text("Pull-up bar")
-                    .font(.system(size: 16, weight: .medium))
+                    .dredfitFont(16, weight: .medium)
             }
             .tint(Theme.accent)
             .accessibilityIdentifier("hasbar-toggle")
             Text("Every other workout swaps the row for a vertical pull")
-                .font(.system(size: 12.5))
+                .dredfitFont(12.5)
                 .foregroundStyle(Theme.ink3)
         }
     }
@@ -162,7 +162,7 @@ struct SettingsSheet: View {
             get: { store.settings.soundsEnabled },
             set: { store.setSounds($0) })) {
             Text("Sounds and haptics")
-                .font(.system(size: 16, weight: .medium))
+                .dredfitFont(16, weight: .medium)
         }
         .tint(Theme.accent)
     }
@@ -175,7 +175,7 @@ struct SettingsSheet: View {
                 get: { store.settings.reminderEnabled },
                 set: { store.setReminderEnabled($0) })) {
                 Text("Reminder")
-                    .font(.system(size: 16, weight: .medium))
+                    .dredfitFont(16, weight: .medium)
             }
             .tint(Theme.accent)
 
@@ -183,7 +183,7 @@ struct SettingsSheet: View {
                 DatePicker(String(localized: "Time"),
                            selection: reminderTimeBinding,
                            displayedComponents: .hourAndMinute)
-                    .font(.system(size: 15))
+                    .dredfitFont(15)
                     .foregroundStyle(Theme.ink2)
                     .tint(Theme.accent)
             }
@@ -210,12 +210,12 @@ struct SettingsSheet: View {
             Kicker(text: String(localized: "Health"))
             Toggle(isOn: healthBinding) {
                 Text("Save workouts to Health")
-                    .font(.system(size: 16, weight: .medium))
+                    .dredfitFont(16, weight: .medium)
             }
             .tint(Theme.accent)
             .accessibilityIdentifier("health-toggle")
             Text("Workouts appear in the Health app. Nothing is read or shared.")
-                .font(.system(size: 12.5))
+                .dredfitFont(12.5)
                 .foregroundStyle(Theme.ink3)
         }
         .confirmationDialog(String(localized: "Add past workouts to Health?"),
@@ -272,9 +272,10 @@ struct SettingsSheet: View {
     private func backupRow(icon: String, title: String) -> some View {
         HStack(spacing: 10) {
             Image(systemName: icon)
-                .font(.system(size: 15, weight: .medium))
+                .dredfitFont(15, weight: .medium)
+                .accessibilityHidden(true)
             Text(title)
-                .font(.system(size: 16, weight: .medium))
+                .dredfitFont(16, weight: .medium)
             Spacer()
         }
         .foregroundStyle(Theme.ink)
@@ -300,7 +301,7 @@ struct SettingsSheet: View {
             }
             .accessibilityIdentifier("recommend-app")
             Text(versionLine)
-                .font(.system(size: 12.5))
+                .dredfitFont(12.5)
                 .foregroundStyle(Theme.ink3)
         }
     }

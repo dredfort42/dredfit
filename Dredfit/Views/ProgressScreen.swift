@@ -54,14 +54,14 @@ struct ProgressScreen: View {
 
             HStack(alignment: .firstTextBaseline, spacing: 10) {
                 Text("\(store.totalLevel)")
-                    .font(.system(size: 56, weight: .heavy))
+                    .dredfitFont(56, weight: .heavy, cap: 84)
                     .tracking(-2)
                     .monospacedDigit()
                 VStack(alignment: .leading, spacing: 1) {
                     Text("total level")
                     Text("\(store.records.count) workouts")
                 }
-                .font(.system(size: 14.5))
+                .dredfitFont(14.5)
                 .foregroundStyle(Theme.ink2)
             }
             .padding(.top, 12)
@@ -130,7 +130,7 @@ struct ProgressScreen: View {
             + Text("\(week.workouts) workouts")
             + Text(" · \(sign)")
             + Text("\(week.levelsDelta) levels"))
-            .font(.system(size: 13.5))
+            .dredfitFont(13.5)
             .monospacedDigit()
             .foregroundStyle(Theme.ink2)
     }
@@ -177,7 +177,7 @@ struct ProgressScreen: View {
             chartPattern = p
         } label: {
             Text(p?.displayName ?? String(localized: "All"))
-                .font(.system(size: 13, weight: .semibold))
+                .dredfitFont(13, weight: .semibold)
                 .lineLimit(1)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 7)
@@ -215,6 +215,7 @@ struct ProgressScreen: View {
                 AxisMarks(position: .trailing, values: .automatic(desiredCount: 3)) {
                     AxisGridLine().foregroundStyle(Theme.hairline)
                     AxisValueLabel()
+                        // Chart axis marks are not Views — no dredfitFont here.
                         .font(.system(size: 10))
                         .foregroundStyle(Theme.ink3)
                 }
@@ -224,7 +225,7 @@ struct ProgressScreen: View {
                 .strokeBorder(Theme.hairline, lineWidth: 1.5)
                 .overlay(
                     Text("The chart will appear after a couple of workouts")
-                        .font(.system(size: 12.5))
+                        .dredfitFont(12.5)
                         .foregroundStyle(Theme.ink3)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 16)
@@ -238,7 +239,7 @@ struct ProgressScreen: View {
         let level = store.engineState.levels[p] ?? 0
         return HStack(spacing: 12) {
             Text(p.displayName)
-                .font(.system(size: 14, weight: .medium))
+                .dredfitFont(14, weight: .medium)
                 .frame(width: 118, alignment: .leading)
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
@@ -250,7 +251,7 @@ struct ProgressScreen: View {
             }
             .frame(height: 6)
             Text("\(level)")
-                .font(.system(size: 13.5, weight: .semibold))
+                .dredfitFont(13.5, weight: .semibold)
                 .monospacedDigit()
                 .foregroundStyle(Theme.ink2)
                 .frame(width: 30, alignment: .trailing)
