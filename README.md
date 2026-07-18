@@ -84,7 +84,7 @@ Three layers, 81 automated tests:
 
 Plus [TESTPLAN.md](TESTPLAN.md): a manual QA checklist (locale passes, date rollover, backgrounding during rest, device-only integrations) and a registry of found issues with their status.
 
-CI runs unit tests on every push and the full plan including UI tests nightly and on release branches.
+CI runs the unit suites on every push — that is the gate for merges and releases. UI tests are slow and occasionally flaky on shared runners, so they run nightly on their own and gate nothing; they are run locally before cutting a release branch instead.
 
 ## Building
 
