@@ -20,6 +20,7 @@ struct SettingsSheet: View {
     @State private var importConfirmShown = false
     @State private var importFailed = false
     @State private var backfillPromptShown = false   // v1.3: Apple Health
+    @State private var howItWorksShown = false       // v1.4
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -30,6 +31,7 @@ struct SettingsSheet: View {
                         .tracking(-0.5)
                         .padding(.top, 26)
 
+                    howItWorksSection
                     restDaysSection
                     equipmentSection
                     soundsSection
@@ -52,6 +54,9 @@ struct SettingsSheet: View {
         // very sheet (rest days, the pull-up bar) must land in the export.
         .onChange(of: store.settings) { exportURL = try? store.exportURL() }
         .onChange(of: store.engineState) { exportURL = try? store.exportURL() }
+        .sheet(isPresented: $howItWorksShown) {
+            HowItWorksView()
+        }
         .fileImporter(isPresented: $importPickerShown,
                       allowedContentTypes: [.json]) { result in
             if case .success(let url) = result {
@@ -70,6 +75,20 @@ struct SettingsSheet: View {
         .alert(String(localized: "Couldn't read this file."), isPresented: $importFailed) {
             Button("OK", role: .cancel) { }
         }
+    }
+
+    // MARK: - How it works (v1.4)
+
+    /// First section deliberately: the one thing a user cannot infer from the
+    /// rest of the UI is why the plan keeps moving.
+    private var howItWorksSection: some View {
+        Button {
+            howItWorksShown = true
+        } label: {
+            backupRow(icon: "questionmark.circle",
+                      title: String(localized: "How it works"))
+        }
+        .accessibilityIdentifier("how-it-works")
     }
 
     // MARK: - Rest days

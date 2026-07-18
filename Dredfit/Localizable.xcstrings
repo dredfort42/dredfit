@@ -223,6 +223,26 @@
         }
       }
     },
+    "A questionnaire can be wrong; what you actually did cannot. Dredfit finds your level from real workouts and keeps the load right at the edge of what you can manage.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Анкета ошибается, факт — нет. Система выходит на твой уровень по реальным тренировкам и держит нагрузку на границе посильного."
+          }
+        }
+      }
+    },
+    "A skipped exercise simply doesn't count: its level stays where it was. No penalty, no rollback.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пропущенное упражнение просто не считается: его уровень не меняется. Ни штрафа, ни отката."
+          }
+        }
+      }
+    },
     "Add past workouts to Health?": {
       "localizations": {
         "ru": {
@@ -364,6 +384,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Не удалось прочитать файл."
+          }
+        }
+      }
+    },
+    "Deload": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Разгрузка"
           }
         }
       }
@@ -564,6 +594,16 @@
         }
       }
     },
+    "How it works": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Как это работает"
+          }
+        }
+      }
+    },
     "Import history": {
       "localizations": {
         "ru": {
@@ -687,6 +727,16 @@
         }
       }
     },
+    "One number per movement: it encodes both the variation and the reps. Top out the reps and the variation gets harder while the count starts over. The fourth variation is the last one — above it the sets grow instead, from three to five.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На каждое движение — одно число: оно кодирует вариацию и повторы. Дошел до потолка повторов — вариация становится сложнее, а счет начинается заново. Четвертая вариация последняя: выше нее растут подходы, с трех до пяти."
+          }
+        }
+      }
+    },
     "One tap after the workout.": {
       "localizations": {
         "ru": {
@@ -735,6 +785,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Прогресс"
+          }
+        }
+      }
+    },
+    "Pull is in every workout — that is what keeps your shoulders balanced. The rest come round in a cycle: over eight workouts each one turns up five times. With the pull-up bar switched on, the pull slot alternates between horizontal and vertical.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тяга есть в каждой тренировке — это баланс для плеч. Остальные движения идут по кругу: за восемь тренировок каждое встретится пять раз. Если включен турник, слот тяги чередуется: горизонтальная тяга, вертикальная, снова горизонтальная."
           }
         }
       }
@@ -829,6 +889,16 @@
         }
       }
     },
+    "Rotation": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ротация"
+          }
+        }
+      }
+    },
     "Save workouts to Health": {
       "localizations": {
         "ru": {
@@ -845,6 +915,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Настройки"
+          }
+        }
+      }
+    },
+    "Six things worth knowing about the regulator.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Шесть фактов о регуляторе."
           }
         }
       }
@@ -886,6 +966,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Пропустить разминку"
+          }
+        }
+      }
+    },
+    "Skips": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пропуски"
           }
         }
       }
@@ -961,6 +1051,16 @@
         }
       }
     },
+    "The level": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Уровень"
+          }
+        }
+      }
+    },
     "This month": {
       "localizations": {
         "ru": {
@@ -977,6 +1077,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Эта неделя"
+          }
+        }
+      }
+    },
+    "Three shortfalls in a row and the level rolls back three steps. Not a punishment — a breather, so you come back with something in reserve.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Три недовыполнения подряд — откат на три ступени. Не наказание, а передышка: вернешься с запасом."
           }
         }
       }
@@ -1069,6 +1179,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Получилось иначе"
+          }
+        }
+      }
+    },
+    "What your answer does": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Реакция на ответ"
+          }
+        }
+      }
+    },
+    "Why there are no questionnaires": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Почему без анкет"
           }
         }
       }
@@ -1364,6 +1494,16 @@
         }
       },
       "extractionState": "manual"
+    },
+    "“On plan” adds a step, “more” adds two, “less” takes one away. An exact number for a single exercise outweighs the overall rating. The level never climbs more than two steps in one workout — it builds up gradually.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«По плану» — плюс ступень, «больше» — две, «меньше» — минус одна. Точный факт по упражнению сильнее общей оценки. За одну тренировку уровень поднимается не больше чем на две ступени — система прибавляет постепенно."
+          }
+        }
+      }
     },
     "≈ %lld min · %lld exercises": {
       "localizations": {

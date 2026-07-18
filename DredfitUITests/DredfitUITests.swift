@@ -360,6 +360,28 @@ final class DredfitUITests: XCTestCase {
         app.buttons["Got it"].tap()
     }
 
+    /// v1.4: the explainer opens from the first settings row, carries all six
+    /// sections, and hands the user back to settings on dismissal.
+    func testHowItWorksOpensFromSettings() {
+        app.launch()
+        app.buttons["settings"].tap()
+        XCTAssertTrue(app.buttons["how-it-works"].waitForExistence(timeout: 3),
+                      "the explainer row should be the first thing in settings")
+        app.buttons["how-it-works"].tap()
+
+        XCTAssertTrue(app.staticTexts["The level"].waitForExistence(timeout: 3),
+                      "the explainer did not open")
+        for section in ["What your answer does", "Deload", "Rotation",
+                        "Skips", "Why there are no questionnaires"] {
+            XCTAssertTrue(app.staticTexts[section].exists,
+                          "section \"\(section)\" is missing")
+        }
+
+        app.buttons["how-it-works-done"].tap()
+        XCTAssertTrue(app.staticTexts["REST DAYS"].waitForExistence(timeout: 3),
+                      "closing the explainer should return to settings")
+    }
+
     // MARK: - Pull-up bar (v2.2)
 
     /// Smoke of the bar module end-to-end: the settings toggle flips the
