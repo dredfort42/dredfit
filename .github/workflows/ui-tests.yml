@@ -1,25 +1,29 @@
-name: Full Tests
+name: UI Tests
 
-# The complete test plan including UI tests (~20-45 min, occasionally flaky
-# on shared runners). Runs where it matters, off the PR hot path:
+# UI tests only — the unit suites already run on every push in ci.yml.
+#
+# These are slow (~20-45 min) and occasionally flaky on shared runners, so
+# they deliberately do NOT gate anything: no PR checks, no release branches.
+# A red run here is a signal to investigate before the next release, not a
+# reason to hold one back. Release branches are gated by ci.yml (unit tests)
+# plus a local UI run — see instructions/GIT_FLOW.md.
+#
+# Triggers:
 #   - nightly on the default branch (develop)
-#   - on every push to release/** and hotfix/**
-#   - manually via "Run workflow"
+#   - manually via "Run workflow" (any branch)
 
 on:
   schedule:
     - cron: "30 2 * * *"
-  push:
-    branches: ["release/**", "hotfix/**"]
   workflow_dispatch:
 
 concurrency:
-  group: full-tests-${{ github.ref }}
+  group: ui-tests-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  full-suite:
-    name: Full test plan (unit + UI)
+  ui-suite:
+    name: DredfitUITests (iOS Simulator)
     runs-on: macos-latest
     timeout-minutes: 120
     steps:
@@ -50,14 +54,18 @@ jobs:
           xcrun simctl boot "$udid" || true
           xcrun simctl bootstatus "$udid" || true
 
-      - name: Run the full test plan
+      - name: Run the UI tests
         run: |
           set -o pipefail
           # Shared macOS runners can't handle parallel UI testing: spawning
           # several simulator clones exhausts the runner, so clones fail to
           # connect ("lockdown timed out") or the host loses connection and
           # the whole run aborts. Disable parallelization so everything runs
-          # on one simulator, serially — slower but stable.
+          # on one simulator, serially — slower but stable. The same flag is
+          # required locally; without it the runner is denied launch with
+          # "Application failed preflight checks". (Locally that same error
+          # also appears when the simulator already has the app installed by
+          # hand — see instructions/GIT_FLOW.md step 0.)
           #
           # Retry is requested explicitly (xcodebuild ignores the test plan's
           # own repetition settings): a genuinely flaky test re-runs up to 3
@@ -67,6 +75,7 @@ jobs:
             -project Dredfit.xcodeproj \
             -scheme Dredfit \
             -testPlan Dredfit \
+            -only-testing:DredfitUITests \
             -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.device }}" \
             -parallel-testing-enabled NO \
             -retry-tests-on-failure \
@@ -78,6 +87,6 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: xcresult-full
+          name: xcresult-ui
           path: ~/Library/Developer/Xcode/DerivedData/**/Logs/Test/*.xcresult
           if-no-files-found: ignore

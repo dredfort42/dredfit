@@ -1,7 +1,11 @@
 name: CI
 
-# Fast feedback: unit tests only (~5 min). The full suite including UI tests
-# runs in full-tests.yml — nightly, on release/hotfix branches, and manually.
+# Unit tests only (~5-15 min) — core package plus app units, no UI.
+#
+# This is the gate: green CI is what a merge and a release branch require.
+# UI tests are deliberately not here. They are slow and occasionally flaky on
+# shared runners, so they run nightly in ui-tests.yml and gate nothing; before
+# cutting a release branch you run them locally instead (instructions/GIT_FLOW.md).
 
 on:
   push:
@@ -34,7 +38,7 @@ jobs:
         run: swift test --parallel
 
   app-tests:
-    name: Dredfit app unit tests (iOS Simulator)
+    name: Dredfit app unit tests (iOS Simulator, no UI)
     runs-on: macos-latest
     timeout-minutes: 30
     steps:
