@@ -83,7 +83,7 @@ def compose(raw_path, headline_lines, subtitle, out_path):
     canvas.save(out_path)
     print("wrote", out_path)
 
-RAW = "/private/tmp/claude-501/-Users-dnovikov-Projects-DREDFIT/d86d7aa9-bfa4-42e0-825d-b1811f961e0d/scratchpad/raw"
+RAW = "/private/tmp/claude-501/-Users-dnovikov-Projects-DREDFIT/b1875a84-e826-4259-8641-e6c9a1efcf95/scratchpad/raw"
 OUT = "/Users/dnovikov/Projects/DREDFIT/AppStore_graphics/screenshots"
 
 jobs = [
@@ -106,5 +106,11 @@ jobs = [
     (f"{RAW}/comeback_en.png",   ["Breaks are normal"], "The plan meets you a couple of steps lower.", f"{OUT}/en/s9.png"),
     (f"{RAW}/comeback_ru.png",   ["Возвращаться легко"], "План встретит тебя на пару ступеней ниже.", f"{OUT}/ru/s9.png"),
 ]
+# Partial recaptures are normal (milestone/comeback need the older capture
+# driver from git history) — frames without a fresh raw keep their last set.
+import os
 for j in jobs:
-    compose(*j)
+    if os.path.exists(j[0]):
+        compose(*j)
+    else:
+        print("skip (no raw):", j[0])
