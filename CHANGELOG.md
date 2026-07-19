@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.5.1
 
 Hardening wave after a full-project review. No new features; the engine's
 arithmetic is untouched (golden parity holds bit for bit).
