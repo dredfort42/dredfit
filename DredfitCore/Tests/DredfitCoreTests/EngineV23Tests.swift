@@ -220,6 +220,16 @@ final class EngineV23Tests: XCTestCase {
 
     // MARK: - Per-tier starts (C3)
 
+    /// Every tier must have an explicit start — otherwise a future `tiers`
+    /// bump would silently fall back to `?? repMin` / `?? holdMin` and skew
+    /// the whole encoding for the new tier.
+    func testPerTierStartsCoverEveryTier() {
+        XCTAssertEqual(Set(EngineConfig.repStart.keys), Set(1...EngineConfig.tiers),
+                       "repStart must define exactly tiers 1...\(EngineConfig.tiers)")
+        XCTAssertEqual(Set(EngineConfig.holdStart.keys), Set(1...EngineConfig.tiers),
+                       "holdStart must define exactly tiers 1...\(EngineConfig.tiers)")
+    }
+
     func testForwardEncodingUsesPerTierStarts() {
         for level in 0...EngineConfig.levelMax {
             let d = Level.decode(level)

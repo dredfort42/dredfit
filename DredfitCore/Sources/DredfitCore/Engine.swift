@@ -16,6 +16,11 @@ import Foundation
 
 // MARK: - Movement patterns
 
+// WARNING: Pattern must never adopt CodingKeyRepresentable. Swift encodes a
+// [Pattern: Int] as an UNKEYED array [rawValue, count, rawValue, count, ...]
+// precisely because Pattern is a plain String-raw enum; adopting the protocol
+// would flip the wire format to a keyed object and break the saved state of
+// every existing install (EngineState.decodeLenient parses the array form).
 public enum Pattern: String, Codable, CaseIterable, Sendable {
     case squat, pushH = "push_h", hinge, pull, pushV = "push_v", lunge
     case coreAntiExt = "core_anti_ext", coreRot = "core_rot", calf
@@ -48,7 +53,7 @@ public enum Pattern: String, Codable, CaseIterable, Sendable {
 // MARK: - Configuration (all model constants)
 
 public enum EngineConfig {
-    public static let repMin = 8            // bottom of the rep range
+    public static let repMin = 8            // tier-1 rep floor; only a fallback for repStart (v2.3: the real floor is per tier)
     public static let stepsPerTier = 8      // level steps within a tier
     public static let tiers = 4             // variations per pattern (v2.1: added tier 4)
     public static let holdMin = 20          // bottom of the hold range, sec
@@ -91,6 +96,13 @@ public struct EngineState: Codable, Equatable, Sendable {
     public var failStreak: [Pattern: Int]
     public var hasBar: Bool   // v2.2: the "pull-up bar" toggle lives in engine state
 
+    // Spelled out (same names the compiler would synthesize) so that
+    // decodeLenient can reference the type — synthesized CodingKeys are only
+    // visible inside init(from:)/encode(to:). The wire format is unchanged.
+    private enum CodingKeys: String, CodingKey {
+        case counter, levels, failStreak, hasBar
+    }
+
     public init(counter: Int, levels: [Pattern: Int],
                 failStreak: [Pattern: Int], hasBar: Bool = false) {
         self.counter = counter
@@ -100,12 +112,17 @@ public struct EngineState: Codable, Equatable, Sendable {
     }
 
     /// v2.2 migration: files written before hasBar/pull_bar existed decode
-    /// with the defaults (hasBar off, missing patterns at level 0).
+    /// with the defaults (hasBar off, missing patterns at level 0). Lenient
+    /// the other way too: entries for unknown patterns (a file written by a
+    /// future version, opened after a downgrade) are dropped instead of
+    /// failing the whole decode and losing the user's history.
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
-        counter = try c.decode(Int.self, forKey: .counter)
-        var lv = try c.decode([Pattern: Int].self, forKey: .levels)
-        var fs = try c.decode([Pattern: Int].self, forKey: .failStreak)
+        // A corrupt or hand-edited file must not feed a negative counter into
+        // the rotation — clamp instead of failing; 0 is the safe restart.
+        counter = max(0, try c.decode(Int.self, forKey: .counter))
+        var lv = try Self.decodeLenient(c, forKey: .levels)
+        var fs = try Self.decodeLenient(c, forKey: .failStreak)
         for p in Pattern.allCases {
             if lv[p] == nil { lv[p] = 0 }
             if fs[p] == nil { fs[p] = 0 }
@@ -113,6 +130,26 @@ public struct EngineState: Codable, Equatable, Sendable {
         levels = lv
         failStreak = fs
         hasBar = try c.decodeIfPresent(Bool.self, forKey: .hasBar) ?? false
+    }
+
+    /// Manual decode of the exact wire format Swift synthesizes for a
+    /// [Pattern: Int]: an UNKEYED array alternating [rawValue, count, ...]
+    /// (Pattern is String-raw and not CodingKeyRepresentable — see the
+    /// warning on Pattern). Pairs whose raw value is not a known Pattern are
+    /// dropped: a future version may add a pattern, and its file must still
+    /// open after a downgrade. The encode side stays synthesized — the wire
+    /// format is byte-compatible and pinned by testLegacyStateDecodesWithBarDefaults.
+    private static func decodeLenient(
+        _ c: KeyedDecodingContainer<CodingKeys>, forKey key: CodingKeys
+    ) throws -> [Pattern: Int] {
+        var uc = try c.nestedUnkeyedContainer(forKey: key)
+        var out: [Pattern: Int] = [:]
+        while !uc.isAtEnd {
+            let raw = try uc.decode(String.self)
+            let count = try uc.decode(Int.self)   // a malformed pair is still a real error
+            if let p = Pattern(rawValue: raw) { out[p] = count }
+        }
+        return out
     }
 
     public static var initial: EngineState {
@@ -129,8 +166,8 @@ public struct EngineState: Codable, Equatable, Sendable {
 public struct LevelDecoded: Equatable, Sendable {
     public let tier: Int   // 1...4
     public let sets: Int   // 3 | 4 | 5 (v2.2: set bands above tier 4)
-    public let reps: Int   // 8...15
-    public let hold: Int   // 20...55 (sec)
+    public let reps: Int   // 4...15 (v2.3: the floor is repStart[tier], not a global 8)
+    public let hold: Int   // 10...55 sec (v2.3: the floor is holdStart[tier])
 
     public init(tier: Int, sets: Int, reps: Int, hold: Int) {
         self.tier = tier
@@ -244,7 +281,11 @@ public enum Engine {
     /// branch (pullBar), which inherits pull's position in the session order.
     public static func generateSession(_ state: EngineState) -> Session {
         let n = rotating.count
-        let start = (state.counter * EngineConfig.rotationStep) % n
+        // Nonnegative modulo: Swift's % is a remainder and goes negative with
+        // a negative counter, which would index out of bounds below. Decode
+        // already clamps counter to >= 0 — this is defense in depth, and it
+        // is bit-identical to plain % for every nonnegative counter.
+        let start = (((state.counter * EngineConfig.rotationStep) % n) + n) % n
         let five = (0..<(EngineConfig.patternsPerSession - 1)).map {
             rotating[(start + $0) % n]
         }
@@ -293,6 +334,16 @@ public enum Engine {
     }
 
     /// Applying feedback. The only state mutation.
+    ///
+    /// Invariant: feedback is only valid for the session generated from this
+    /// exact state, i.e. `session.sessionNumber == state.counter + 1`.
+    /// Anything else — the same feedback replayed after a crash, or a stale
+    /// session kept around across state changes — returns the state
+    /// untouched, so applying the same (state, session) twice is safe.
+    /// Known limitation: `applyComeback` does not advance `counter`, so a
+    /// session generated *before* a comeback still passes this check and its
+    /// feedback lands on the post-comeback levels.
+    ///
     /// - overrides: per-pattern actual values (reps or seconds) that
     ///   override the overall rating for their pattern.
     /// - skipped: patterns the user skipped in this session (v2.1.1).
@@ -307,6 +358,9 @@ public enum Engine {
         overrides: [Pattern: Int] = [:],
         skipped: Set<Pattern> = []
     ) -> EngineState {
+        // Replay guard: a session that does not belong to this state must not
+        // mutate it (see the invariant in the doc comment above).
+        guard session.sessionNumber == state.counter + 1 else { return state }
         var next = state
         next.counter = state.counter + 1
 
@@ -360,6 +414,10 @@ public enum Engine {
     /// При откате сохраняется ступень внутри тира (`L % 8`), поэтому −8 —
     /// это ровно тир ниже с тем же номером ступени: движение легче, а число
     /// повторов переходит в диапазон более лёгкого тира.
+    ///
+    /// NOT idempotent: every call subtracts the drop again. The caller must
+    /// apply it at most once per break — the app keys this decision on
+    /// `comebackDecidedFor`, so the same gap is never applied twice.
     public static func applyComeback(state: EngineState, gapDays: Int) -> EngineState {
         guard gapDays >= EngineConfig.comebackMinGapDays else { return state }
         let raw = EngineConfig.comebackBase
