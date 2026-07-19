@@ -15,6 +15,10 @@ struct ProgressScreen: View {
     @Environment(AppStore.self) private var store
     @State private var chartPattern: Pattern?   // nil = the total-level view
     @State private var cardURL: URL?            // v1.4: the share card
+    /// What the current card was rendered from. Rendering is a main-thread
+    /// 1080×1350 pass plus a PNG write — worth skipping when nothing moved
+    /// (every tab switch, and the double onChange after each workout).
+    @State private var renderedCardKey: [Int]?
 
     /// Nothing to show off before the first workout — the card would read
     /// "0 workouts · total level 0".
@@ -42,21 +46,17 @@ struct ProgressScreen: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                Kicker(text: String(localized: "Progress"))
-                Spacer()
-                shareButton
-            }
-            .padding(.top, 18)
-            // Leaves room for the settings gear, which overlays the top-right
-            // corner of every tab.
-            .padding(.trailing, 46)
+            Kicker(text: String(localized: "Progress"))
+                .padding(.top, 18)
 
             HStack(alignment: .firstTextBaseline, spacing: 10) {
+                // The identifier lets UI tests assert on THIS value — a bare
+                // staticTexts["0"] query used to match a chart axis label.
                 Text("\(store.totalLevel)")
                     .dredfitFont(56, weight: .heavy, cap: 84)
                     .tracking(-2)
                     .monospacedDigit()
+                    .accessibilityIdentifier("total-level")
                 VStack(alignment: .leading, spacing: 1) {
                     Text("total level")
                     Text("\(store.records.count) workouts")
@@ -94,6 +94,13 @@ struct ProgressScreen: View {
             }
         }
         .padding(.horizontal, 24)
+        // Mirrors the settings gear's overlay metrics in RootView (top 4,
+        // trailing 11 + its 44pt frame) so the two icons sit as one even row.
+        .overlay(alignment: .topTrailing) {
+            shareButton
+                .padding(.top, 4)
+                .padding(.trailing, 55)
+        }
         .onAppear { refreshCard() }
         // The totals move with every workout; a stale card would share numbers
         // the user is no longer looking at.
@@ -102,7 +109,14 @@ struct ProgressScreen: View {
     }
 
     private func refreshCard() {
-        guard canShare else { return cardURL = nil }
+        guard canShare else {
+            cardURL = nil
+            renderedCardKey = nil
+            return
+        }
+        let key = [store.records.count, store.totalLevel]
+        guard key != renderedCardKey else { return }
+        renderedCardKey = key
         cardURL = ShareCardFactory.fileURL(headline: summaryHeadline, slot: .progress)
     }
 
@@ -191,6 +205,8 @@ struct ProgressScreen: View {
                 )
                 .foregroundStyle(selected ? Theme.accent : Theme.ink2)
         }
+        // Colour alone doesn't reach VoiceOver — state has to be a trait.
+        .accessibilityAddTraits(selected ? [.isSelected] : [])
     }
 
     @ViewBuilder

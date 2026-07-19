@@ -77,10 +77,17 @@ struct WorkoutFlowView: View {
     /// holds. The stamp is written whether or not iOS decides to show the
     /// prompt — Apple rate-limits it invisibly, and a request we cannot see
     /// the outcome of still counts against our own 60-day floor.
+    /// The request itself waits out the cover's dismissal transition: StoreKit
+    /// may silently drop a prompt asked for mid-transition, which would burn
+    /// the 60-day stamp on a prompt nobody saw.
     private func askForReviewIfEarned() {
         guard store.shouldRequestReview(lastResult: lastResult) else { return }
-        store.recordReviewRequest()
-        requestReview()
+        let store = self.store
+        let requestReview = self.requestReview
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+            store.recordReviewRequest()
+            requestReview()
+        }
     }
 
     var body: some View {
@@ -96,8 +103,7 @@ struct WorkoutFlowView: View {
                 restView
             case .feedback:
                 FeedbackView(session: session, actuals: actuals,
-                             skipped: skippedPatterns,
-                             isFirstWorkout: store.records.isEmpty) { result, overrides in
+                             skipped: skippedPatterns) { result, overrides in
                     let earned = store.completeWorkout(
                         session: session, result: result,
                         overrides: overrides, skipped: skippedPatterns,
@@ -162,9 +168,11 @@ struct WorkoutFlowView: View {
         if phase != .feedback, !isMilestone {
             VStack(spacing: 10) {
                 HStack {
+                    // ink2, not ink3: this is the only way out of the workout,
+                    // and ink3 (~2.4:1) fails contrast for interactive text.
                     Button(String(localized: "Exit")) { dismiss() }
                         .dredfitFont(14)
-                        .foregroundStyle(Theme.ink3)
+                        .foregroundStyle(Theme.ink2)
                     Spacer()
                     Group {
                         switch phase {
@@ -264,8 +272,17 @@ struct WorkoutFlowView: View {
         guard newRemaining != warmupRemaining else { return }
         if newRemaining == 0 {
             playGo()
-            if warmupIndex + 1 < Self.warmupMoves.count {
-                startWarmupMove(warmupIndex + 1)
+            // Absorb backgrounded time: unlike rest/hold, each move has its
+            // own end date, so a 4-minute absence used to advance a single
+            // move and silently stretch a 3-minute warm-up to 7. Jump over
+            // every move the elapsed time already covered.
+            let overshoot = max(0, -end.timeIntervalSinceNow)
+            let movesPassed = 1 + Int(overshoot) / Self.warmupMoveSeconds
+            if warmupIndex + movesPassed < Self.warmupMoves.count {
+                warmupIndex += movesPassed
+                let remainder = Int(overshoot) % Self.warmupMoveSeconds
+                warmupRemaining = Self.warmupMoveSeconds - remainder
+                warmupEndDate = Date.now.addingTimeInterval(TimeInterval(warmupRemaining))
             } else {
                 finishWarmup()
             }
@@ -273,7 +290,9 @@ struct WorkoutFlowView: View {
             if newRemaining <= Self.countdownSignalSeconds && newRemaining < warmupRemaining {
                 playTick()
             }
-            warmupRemaining = newRemaining
+            // Animated so contentTransition(.numericText) actually rolls the
+            // digits — a bare mutation swaps them with no transaction.
+            withAnimation(.linear(duration: 0.3)) { warmupRemaining = newRemaining }
         }
     }
 
@@ -380,6 +399,24 @@ struct WorkoutFlowView: View {
             .padding(.vertical, 14)
             .opacity(holding ? 0 : 1)      // no adjusting/skipping mid-hold
             .disabled(holding)
+
+            // The calibration hint (v1.5): from a zero level an exact number
+            // sets the level outright instead of moving it by two. It lives
+            // here, next to the button it points to — on the rating screen it
+            // arrived after the last chance to act on it. Opacity, not `if`:
+            // the reserved height keeps the layout still when the hint's job
+            // is done mid-exercise.
+            if store.records.isEmpty {
+                Text("Came out well above the plan? Tap “Went differently” and put in what you actually did — the system will land on your level right away.")
+                    .dredfitFont(12.5)
+                    .foregroundStyle(Theme.ink3)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.bottom, 10)
+                    .opacity(holding || adjusting
+                             || actuals[exercise.pattern] != nil ? 0 : 1)
+            }
         }
     }
 
@@ -595,7 +632,7 @@ struct WorkoutFlowView: View {
             if newRemaining <= Self.countdownSignalSeconds && newRemaining < restRemaining {
                 playTick()
             }
-            restRemaining = newRemaining
+            withAnimation(.linear(duration: 0.3)) { restRemaining = newRemaining }
         }
     }
 
@@ -619,15 +656,29 @@ struct WorkoutFlowView: View {
             if newRemaining <= Self.countdownSignalSeconds && newRemaining < holdRemaining {
                 playTick()
             }
-            holdRemaining = newRemaining
+            withAnimation(.linear(duration: 0.3)) { holdRemaining = newRemaining }
         }
     }
 
-    /// Early stop: the seconds actually held become the actual.
+    /// Below this, a "Stop" is read as a mis-tap, not a 2-second plank.
+    private static let holdMistapSeconds = 3.0
+
+    /// Early stop: the seconds actually held become the actual. "Stop" sits
+    /// exactly where "Start hold" was, so a stop within the first seconds is
+    /// treated as an accidental double-tap: the countdown is cancelled and
+    /// the set stays available — otherwise one mis-tap would consume the set
+    /// and record a 5-second actual (which on the first workout would also
+    /// feed the zero-level calibration).
     private func stopHoldEarly() {
         guard let end = holdEndDate else { return }
         let remaining = max(0, end.timeIntervalSinceNow)
-        finishHold(heldSeconds: Int((Double(holdTotal) - remaining).rounded()))
+        let held = Double(holdTotal) - remaining
+        if held < Self.holdMistapSeconds {
+            holdEndDate = nil
+            holdRemaining = holdTotal
+            return
+        }
+        finishHold(heldSeconds: Int(held.rounded()))
     }
 
     /// One countdown finished. Per-side holds wait for the second side

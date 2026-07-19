@@ -9,9 +9,18 @@
 import SwiftUI
 import DredfitCore
 
+/// The item behind the workout cover: the session is snapshotted at tap time,
+/// not read live from the store inside the cover closure — completeWorkout
+/// advances the engine before the cover dismisses, and a live read would flip
+/// the feedback screen to the *next* session's data mid-transition.
+private struct ActiveWorkout: Identifiable {
+    let session: Session
+    var id: Int { session.sessionNumber }
+}
+
 struct TodayView: View {
     @Environment(AppStore.self) private var store
-    @State private var workoutPresented = false
+    @State private var activeWorkout: ActiveWorkout?
     @State private var techniqueFor: SessionExercise?
     @State private var nextPreviewShown = false
     @State private var freshStartConfirmShown = false   // v1.5
@@ -20,7 +29,7 @@ struct TodayView: View {
         Group {
             if store.doneToday {
                 doneView
-            } else if store.isRestDay(.now) {
+            } else if store.isRestDay(store.today) {
                 // v1.4 (I-2): a rest day used to show a live plan with a Start
                 // button while the widget said "Rest day" and nextTrainingDate
                 // skipped the day entirely — three answers to one question.
@@ -30,8 +39,8 @@ struct TodayView: View {
             }
         }
         .padding(.horizontal, 24)
-        .fullScreenCover(isPresented: $workoutPresented) {
-            WorkoutFlowView(session: store.nextSession)
+        .fullScreenCover(item: $activeWorkout) { active in
+            WorkoutFlowView(session: active.session)
         }
         .sheet(item: $techniqueFor) { ex in
             TechniqueSheet(exercise: ex)
@@ -57,7 +66,7 @@ struct TodayView: View {
         let session = store.nextSession
         return VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 6) {
-                Kicker(text: Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide))
+                Kicker(text: store.today.formatted(.dateTime.weekday(.wide).day().month(.wide))
                     .capitalized)
                 Text("Workout \(session.sessionNumber)")
                     .dredfitFont(32, weight: .heavy)
@@ -89,7 +98,9 @@ struct TodayView: View {
                     .padding(.top, 10)
             }
 
-            PrimaryButton(title: String(localized: "Start")) { workoutPresented = true }
+            PrimaryButton(title: String(localized: "Start")) {
+                activeWorkout = ActiveWorkout(session: store.nextSession)
+            }
                 .padding(.top, 10)
                 .padding(.bottom, 14)   // breathing room above the tab bar
         }
@@ -104,7 +115,7 @@ struct TodayView: View {
     private var restView: some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 6) {
-                Kicker(text: Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide))
+                Kicker(text: store.today.formatted(.dateTime.weekday(.wide).day().month(.wide))
                     .capitalized)
                 Text("Rest day")
                     .dredfitFont(32, weight: .heavy)
@@ -125,7 +136,7 @@ struct TodayView: View {
             Spacer()
 
             Button {
-                workoutPresented = true
+                activeWorkout = ActiveWorkout(session: store.nextSession)
             } label: {
                 Text("Train anyway")
                     .dredfitFont(17, weight: .medium)
@@ -144,7 +155,7 @@ struct TodayView: View {
     private var doneView: some View {
         VStack(spacing: 0) {
             HStack {
-                Kicker(text: Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide))
+                Kicker(text: store.today.formatted(.dateTime.weekday(.wide).day().month(.wide))
                     .capitalized)
                 Spacer()
             }

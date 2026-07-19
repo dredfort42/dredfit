@@ -1,6 +1,6 @@
 # Dredfit — manual QA checklist
 
-Automated coverage (81 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
+Automated coverage (161 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
 
 **How to use.** Run the *Release smoke* block before every release. Run *Full pass* when the engine, persistence or an integration changed. Device-only rows cannot pass on a simulator and are marked ⌚. Record anything that fails in the [Issue registry](#issue-registry) at the bottom rather than fixing it silently.
 
@@ -159,12 +159,12 @@ Simulator HealthKit is unreliable; run this on a device.
 | 11.3 | Dynamic Island (iPhone 14 Pro and later) | Compact shows a training glyph + countdown; expanded shows the next exercise |
 | 11.4 | Finish the workout | The activity disappears immediately |
 | 11.5 | Exit mid-workout | The activity disappears |
-| 11.6 | Force-quit the app during a rest | The activity goes stale on its own — no zombie card left on the lock screen |
+| 11.6 | Force-quit the app during a rest | The card dims once stale; the next cold launch of the app removes it entirely (no zombie card until the system cap) |
 | 11.7 | Start a second workout right after a first | Exactly one activity is present, not two |
 
 ### 12. Home-screen widget
 
-The automated snapshot test (`testWidgetSnapshotMirrorsWeekStatuses`) skips itself whenever there is no App Group container — which is the case for any unsigned test run, including CI and the local pre-release run. These manual checks are therefore the only real coverage the widget gets.
+The snapshot-mirroring logic is unit-tested on every run (the snapshot URL is injected, so `testWidgetSnapshotMirrorsWeekStatuses` no longer skips on unsigned/CI runs). What these manual checks still own is the WidgetKit side: timeline rendering, reload timing, and the real App Group container.
 
 | # | Check | Expected |
 |---|---|---|

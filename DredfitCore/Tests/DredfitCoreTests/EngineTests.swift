@@ -450,6 +450,61 @@ final class EngineTests: XCTestCase {
         XCTAssertEqual(state.levels[.pull], 5, "existing levels must survive")
     }
 
+    // MARK: Robust decode and replay safety
+
+    /// A file written by a future version that added a pattern must still
+    /// open after a downgrade: unknown raw values are dropped, known entries
+    /// survive, the rest backfill to 0.
+    func testUnknownPatternDecodesLeniently() throws {
+        let future = """
+        {"counter":5,"hasBar":true,
+         "levels":["squat",2,"front_lever",9,"pull",5],
+         "failStreak":["front_lever",3,"pull",1]}
+        """
+        let state = try JSONDecoder().decode(EngineState.self, from: Data(future.utf8))
+        XCTAssertEqual(state.levels[.squat], 2, "known entries must survive")
+        XCTAssertEqual(state.levels[.pull], 5)
+        XCTAssertEqual(state.failStreak[.pull], 1)
+        XCTAssertEqual(state.levels.count, Pattern.allCases.count,
+                       "the unknown pattern must leave no trace")
+        XCTAssertEqual(state.failStreak.count, Pattern.allCases.count)
+        XCTAssertEqual(state.levels[.hinge], 0, "missing patterns backfill to 0")
+        XCTAssertEqual(state.failStreak[.squat], 0)
+        XCTAssertTrue(state.hasBar)
+    }
+
+    /// A corrupt negative counter clamps to 0 on decode, and the rotation
+    /// math itself tolerates a negative counter without trapping.
+    func testNegativeCounterDecodesAsZero() throws {
+        let corrupt = """
+        {"counter":-1,"levels":["squat",2],"failStreak":[]}
+        """
+        let state = try JSONDecoder().decode(EngineState.self, from: Data(corrupt.utf8))
+        XCTAssertEqual(state.counter, 0, "a negative counter must clamp to 0")
+        let session = Engine.generateSession(state)
+        XCTAssertEqual(session.sessionNumber, 1)
+        var zero = EngineState.initial
+        zero.levels[.squat] = 2
+        XCTAssertEqual(session, Engine.generateSession(zero), "must behave as counter 0")
+
+        // Defense in depth: even a programmatically negative counter must not
+        // push the rotation index out of bounds.
+        var negative = EngineState.initial
+        negative.counter = -7
+        _ = Engine.generateSession(negative)
+    }
+
+    /// Replayed feedback (a crash between persisting the state and clearing
+    /// the pending session) must be a no-op the second time.
+    func testReplayedFeedbackIsANoOp() {
+        let state = warmedUpState()
+        let session = Engine.generateSession(state)
+        let once = Engine.applyFeedback(state: state, session: session, result: .more)
+        XCTAssertNotEqual(once, state, "setup: the first application must change the state")
+        let twice = Engine.applyFeedback(state: once, session: session, result: .more)
+        XCTAssertEqual(twice, once, "the same session must not apply twice")
+    }
+
     // MARK: Library
 
     func testLibraryComplete() {

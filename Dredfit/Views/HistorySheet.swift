@@ -32,7 +32,7 @@ struct HistorySheet: View {
             if let exercises = record.exercises, !exercises.isEmpty {
                 List(exercises) { ex in
                     HStack(alignment: .firstTextBaseline) {
-                        Text(ex.name)
+                        Text(currentName(ex))
                             .dredfitFont(16, weight: .medium)
                             .foregroundStyle(Theme.ink)
                         Spacer()
@@ -84,6 +84,16 @@ struct HistorySheet: View {
         }
         .presentationDetents([.large, .medium])
         .presentationDragIndicator(.visible)
+    }
+
+    /// The persisted snapshot froze `name` in the language active when the
+    /// session was generated; resolve it again so history follows the UI
+    /// language after a switch. The stored name stays the fallback for any
+    /// tier the current library no longer has.
+    private func currentName(_ ex: SessionExercise) -> String {
+        let variations = ExerciseLibrary.entry(for: ex.pattern).variations
+        guard (1...variations.count).contains(ex.tier) else { return ex.name }
+        return variations[ex.tier - 1].name
     }
 
     private var resultCaption: String {

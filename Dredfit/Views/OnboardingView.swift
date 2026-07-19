@@ -54,9 +54,10 @@ struct OnboardingView: View {
     private var skipRow: some View {
         HStack {
             Spacer()
+            // ink2, not ink3: an interactive control needs ≥3:1 contrast.
             Button(String(localized: "Skip"), action: onFinish)
                 .dredfitFont(15)
-                .foregroundStyle(Theme.ink3)
+                .foregroundStyle(Theme.ink2)
                 .accessibilityIdentifier("onboarding-skip")
                 .accessibilityHint(Text("Skips the introduction"))
         }
@@ -81,24 +82,34 @@ struct OnboardingView: View {
     private func cardShell<Content: View>(title: String,
                                           body text: String,
                                           @ViewBuilder extra: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Spacer(minLength: 0)
-            Text(title)
-                .dredfitFont(32, weight: .heavy)
-                .tracking(-0.6)
-                .foregroundStyle(Theme.ink)
-                .fixedSize(horizontal: false, vertical: true)
-            Text(text)
-                .dredfitFont(16.5)
-                .foregroundStyle(Theme.ink2)
-                .lineSpacing(3)
-                .padding(.top, 16)
-                .fixedSize(horizontal: false, vertical: true)
-            extra()
-            Spacer(minLength: 0)
+        // Built eagerly: GeometryReader's content closure escapes, and the
+        // non-escaping builder parameter cannot be captured inside it.
+        let extraContent = extra()
+        // Centred while it fits, scrollable once it doesn't: at accessibility
+        // text sizes a card's title and body outgrow the pager's height, and
+        // a fixed VStack would clip them instead of scrolling.
+        return GeometryReader { proxy in
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 0) {
+                    Spacer(minLength: 0)
+                    Text(title)
+                        .dredfitFont(32, weight: .heavy)
+                        .tracking(-0.6)
+                        .foregroundStyle(Theme.ink)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text(text)
+                        .dredfitFont(16.5)
+                        .foregroundStyle(Theme.ink2)
+                        .lineSpacing(3)
+                        .padding(.top, 16)
+                        .fixedSize(horizontal: false, vertical: true)
+                    extraContent
+                    Spacer(minLength: 0)
+                }
+                .frame(maxWidth: .infinity, minHeight: proxy.size.height, alignment: .leading)
+                .padding(.horizontal, 24)
+            }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 24)
     }
 
     private var card1: some View {
@@ -126,7 +137,7 @@ struct OnboardingView: View {
         cardShell(title: String(localized: "One tap after the workout."),
                   body: String(localized: """
                   “Less · On plan · More” — that is enough. If you want to be exact, \
-                  open the list and put in what you actually did.
+                  tap “Went differently” right on the exercise and put in your number.
                   """)) {
             careBlock.padding(.top, 28)
         }

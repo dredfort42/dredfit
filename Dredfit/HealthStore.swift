@@ -46,8 +46,11 @@ struct HealthKitWorkoutWriter: WorkoutHealthWriting {
         do {
             try await builder.beginCollection(at: start)
             try await builder.endCollection(at: end)
-            _ = try await builder.finishWorkout()
-            return true
+            // finishWorkout can report "no workout" without throwing — that
+            // must read as a failure, or the record is flagged exported while
+            // nothing reached Health.
+            let workout: HKWorkout? = try await builder.finishWorkout()
+            return workout != nil
         } catch {
             return false
         }

@@ -20,55 +20,49 @@ struct FeedbackView: View {
     let session: Session
     let actuals: [Pattern: Int]
     var skipped: Set<Pattern> = []
-    /// v1.5: true when the journal was empty before this session. Calibration
-    /// only fires from a zero level, so the hint is worth showing exactly once.
-    var isFirstWorkout = false
     let onComplete: (FeedbackResult, [Pattern: Int]) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            VStack(alignment: .leading, spacing: 6) {
-                Kicker(text: String(localized: "Workout \(session.sessionNumber)"))
-                Text("How did it go?")
-                    .dredfitFont(32, weight: .heavy)
-                    .tracking(-0.5)
-                Text("One tap — the next workout adapts")
-                    .dredfitFont(15)
-                    .foregroundStyle(Theme.ink2)
-            }
-            .padding(.top, 18)
+        // Centred while it fits, scrollable once it doesn't (the MilestoneView
+        // construction): at accessibility text sizes the header plus three
+        // cards outgrow the screen, and a fixed VStack would clip the
+        // mandatory rating step instead of scrolling it.
+        GeometryReader { proxy in
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 0) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Kicker(text: String(localized: "Workout \(session.sessionNumber)"))
+                        Text("How did it go?")
+                            .dredfitFont(32, weight: .heavy)
+                            .tracking(-0.5)
+                        Text("One tap — the next workout adapts")
+                            .dredfitFont(15)
+                            .foregroundStyle(Theme.ink2)
+                    }
+                    .padding(.top, 18)
 
-            Spacer()
+                    Spacer(minLength: 20)
 
-            VStack(spacing: 14) {
-                optionCard(title: String(localized: "Tough, did less"),
-                           caption: String(localized: "the next one will be easier"),
-                           result: .less, primary: false)
-                optionCard(title: String(localized: "On plan"),
-                           caption: String(localized: "next: +1 rep"),
-                           result: .plan, primary: true)
-                optionCard(title: String(localized: "Easy, could do more"),
-                           caption: String(localized: "next: +2 reps"),
-                           result: .more, primary: false)
-            }
+                    VStack(spacing: 14) {
+                        optionCard(title: String(localized: "Tough, did less"),
+                                   caption: String(localized: "the next one will be easier"),
+                                   result: .less, primary: false)
+                        optionCard(title: String(localized: "On plan"),
+                                   caption: String(localized: "next: +1 rep"),
+                                   result: .plan, primary: true)
+                        optionCard(title: String(localized: "Easy, could do more"),
+                                   caption: String(localized: "next: +2 reps"),
+                                   result: .more, primary: false)
+                    }
 
-            // v1.5: the one moment where an exact number is worth more than a
-            // rating — from zero it sets the level outright instead of moving
-            // it by two. Only shown when there is no exact number yet.
-            if isFirstWorkout && actuals.isEmpty {
-                Text("Came out well above the plan? Open the list and put in what you actually did — the system will land on your level right away.")
-                    .dredfitFont(13.5)
-                    .foregroundStyle(Theme.ink3)
-                    .lineSpacing(2)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.top, 14)
-            }
+                    Spacer(minLength: 20)
 
-            Spacer()
-
-            if !actuals.isEmpty || !skipped.isEmpty {
-                adjustedSummary
-                    .padding(.bottom, 24)
+                    if !actuals.isEmpty || !skipped.isEmpty {
+                        adjustedSummary
+                            .padding(.bottom, 24)
+                    }
+                }
+                .frame(maxWidth: .infinity, minHeight: proxy.size.height, alignment: .leading)
             }
         }
     }

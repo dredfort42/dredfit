@@ -35,6 +35,8 @@
     },
     {
       "parallelizable" : true,
+      "testRepetitionMode" : "retryOnFailure",
+      "maximumTestRepetitions" : 3,
       "target" : {
         "containerPath" : "container:Dredfit.xcodeproj",
         "identifier" : "AF2F7BBB3008FD9300249B07",

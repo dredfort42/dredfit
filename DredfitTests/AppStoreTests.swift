@@ -75,6 +75,48 @@ final class AppStoreTests: XCTestCase {
         XCTAssertEqual(store.totalLevel, 0)
     }
 
+    /// v1.6: an unreadable state file is moved aside, not silently replaced —
+    /// the journal must stay recoverable after the next persist().
+    func testCorruptedStorageIsQuarantinedNotOverwritten() throws {
+        try Data("{not a json".utf8).write(to: tempURL)
+        let corruptURL = tempURL.deletingLastPathComponent()
+            .appendingPathComponent(tempURL.deletingPathExtension().lastPathComponent + ".corrupt.json")
+        defer { try? FileManager.default.removeItem(at: corruptURL) }
+
+        let store = AppStore(storageURL: tempURL)
+        store.setSounds(false)   // any persisted mutation
+        XCTAssertTrue(FileManager.default.fileExists(atPath: corruptURL.path),
+                      "the unreadable file must be kept aside")
+        XCTAssertEqual(try Data(contentsOf: corruptURL), Data("{not a json".utf8),
+                       "the quarantined copy must be the original bytes")
+    }
+
+    /// v1.6: one unreadable journal entry (e.g. written by a newer version)
+    /// must not throw away the readable rest of the file.
+    func testOneBadRecordDoesNotDropTheJournal() throws {
+        let mixed = """
+        {"engineState":{"counter":2,
+          "levels":["squat",2,"push_h",2,"hinge",2,"pull",2,"push_v",2,"lunge",2,
+                    "core_anti_ext",0,"core_rot",0,"calf",0],
+          "failStreak":["squat",0,"push_h",0,"hinge",0,"pull",0,"push_v",0,"lunge",0,
+                        "core_anti_ext",0,"core_rot",0,"calf",0]},
+         "records":[
+           {"sessionNumber":1,"date":700000000,"result":"plan","totalLevelAfter":12},
+           {"sessionNumber":2,"date":"not-a-date","result":"someday","totalLevelAfter":18}]}
+        """
+        try Data(mixed.utf8).write(to: tempURL)
+        let corruptURL = tempURL.deletingLastPathComponent()
+            .appendingPathComponent(tempURL.deletingPathExtension().lastPathComponent + ".corrupt.json")
+        defer { try? FileManager.default.removeItem(at: corruptURL) }
+
+        let store = AppStore(storageURL: tempURL)
+        XCTAssertEqual(store.records.count, 1, "the readable record must survive")
+        XCTAssertEqual(store.records.first?.sessionNumber, 1)
+        XCTAssertEqual(store.totalLevel, 12, "engine state must load untouched")
+        XCTAssertTrue(FileManager.default.fileExists(atPath: corruptURL.path),
+                      "the full original must be kept aside when entries are dropped")
+    }
+
     // MARK: - Migration: records without a snapshot
 
     func testLegacyRecordsWithoutSnapshotDecode() throws {
@@ -127,16 +169,15 @@ final class AppStoreTests: XCTestCase {
         }
     }
 
-    /// A failed save must not advance the high-water mark — the workout stays
-    /// retriable via a later backfill (no silent data loss).
+    /// A failed save must not flag the workout exported — it stays retriable
+    /// via a later backfill (no silent data loss).
     func testHealthFailedSaveKeepsWorkoutRetriable() async {
         let spy = HealthSpy()
         let store = AppStore(storageURL: tempURL, health: spy)
         _ = await store.enableHealth()
         spy.allFail = true
         store.completeWorkout(session: store.nextSession, result: .plan, durationSec: 30 * 60)
-        await Task.yield()
-        try? await Task.sleep(for: .milliseconds(80))
+        await store.healthExportTask?.value
         XCTAssertEqual(spy.saved.count, 1, "the save was attempted")
         XCTAssertEqual(store.healthBackfillCount, 1,
                        "a failed save must not mark the workout exported")
@@ -145,6 +186,60 @@ final class AppStoreTests: XCTestCase {
         await store.backfillHealth()
         XCTAssertEqual(store.healthBackfillCount, 0, "the retry exported the missed workout")
         XCTAssertEqual(spy.saved.count, 2)
+    }
+
+    /// Regression (v1.6): a failed live export of workout N followed by a
+    /// successful workout N+1 used to advance the high-water mark past N,
+    /// excluding it from every future backfill — a permanent, invisible hole.
+    func testHealthLaterSuccessDoesNotLoseEarlierFailedExport() async {
+        let spy = HealthSpy()
+        let store = AppStore(storageURL: tempURL, health: spy)
+        _ = await store.enableHealth()
+
+        spy.allFail = true
+        store.completeWorkout(session: store.nextSession, result: .plan,
+                              date: date(2026, 7, 14))
+        await store.healthExportTask?.value
+        XCTAssertEqual(store.healthBackfillCount, 1, "workout 1 stays pending")
+
+        spy.allFail = false
+        store.completeWorkout(session: store.nextSession, result: .plan,
+                              date: date(2026, 7, 16))
+        await store.healthExportTask?.value
+        XCTAssertEqual(store.healthBackfillCount, 0,
+                       "the next workout's export must retry the failed one first")
+        XCTAssertEqual(spy.saved.count, 3, "one failed attempt plus both real exports")
+        XCTAssertEqual(spy.saved[1].end, date(2026, 7, 14),
+                       "the older workout exports before the newer one")
+        XCTAssertEqual(spy.saved[2].end, date(2026, 7, 16))
+    }
+
+    /// v1.6: after "Start from scratch" session numbers repeat, which used to
+    /// poison every mechanism keyed on them — record identity stays unique and
+    /// the export state of old workouts survives untouched.
+    func testResetProgressKeepsRecordIdentityAndHealthStateSound() async {
+        let spy = HealthSpy()
+        let store = AppStore(storageURL: tempURL, health: spy)
+        store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 10))
+        store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 12))
+        _ = await store.enableHealth()
+        await store.backfillHealth()
+        XCTAssertEqual(spy.saved.count, 2)
+
+        store.resetProgress()
+        store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 16))
+        XCTAssertEqual(store.records.last?.sessionNumber, 1,
+                       "after the reset the journal reuses session numbers")
+        XCTAssertEqual(Set(store.records.map(\.id)).count, store.records.count,
+                       "record ids must stay unique across a reset")
+
+        await store.healthExportTask?.value
+        XCTAssertEqual(store.healthBackfillCount, 0)
+        XCTAssertEqual(spy.saved.count, 3, "only the new workout exports — no duplicates")
+        // "Only new ones" after the reset must not unmark or re-export anything
+        store.skipHealthBackfill()
+        await store.backfillHealth()
+        XCTAssertEqual(spy.saved.count, 3, "skip must never re-export handled workouts")
     }
 
     /// A backfill stops at the first failure and keeps the mark at the last
@@ -248,9 +343,7 @@ final class AppStoreTests: XCTestCase {
         // a new workout with a captured duration exports automatically
         store.completeWorkout(session: store.nextSession, result: .plan,
                               durationSec: 40 * 60, date: date(2026, 7, 16))
-        // the export task is fire-and-forget — give it a beat
-        await Task.yield()
-        try? await Task.sleep(for: .milliseconds(50))
+        await store.healthExportTask?.value
         XCTAssertEqual(spy.saved.count, 1, "a completed workout must land in Health")
         XCTAssertEqual(spy.saved[0].end.timeIntervalSince(spy.saved[0].start),
                        40 * 60, accuracy: 1, "the actual duration must be used")
@@ -396,11 +489,13 @@ final class AppStoreTests: XCTestCase {
 
     // MARK: - Widget snapshot (v1.3)
 
+    /// v1.6: the snapshot URL is injected, so this runs everywhere — it used
+    /// to XCTSkip on every unsigned (CI) run and read as green coverage.
     func testWidgetSnapshotMirrorsWeekStatuses() throws {
-        let store = AppStore(storageURL: tempURL)
-        guard let url = SharedStorage.snapshotURL else {
-            throw XCTSkip("no App Group container in this environment")
-        }
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("dredfit-widget-\(UUID().uuidString).json")
+        defer { try? FileManager.default.removeItem(at: url) }
+        let store = AppStore(storageURL: tempURL, widgetSnapshotURL: url)
         store.completeWorkout(session: store.nextSession, result: .plan)   // today → done
 
         let snap = try JSONDecoder().decode(WidgetSnapshot.self,
@@ -616,4 +711,5 @@ final class AppStoreTests: XCTestCase {
                              "a foreign JSON must not import")
         XCTAssertTrue(store.records.isEmpty, "state must stay intact after a failed import")
     }
+
 }

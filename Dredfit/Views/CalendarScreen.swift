@@ -27,11 +27,21 @@ struct CalendarScreen: View {
                 Text(monthTitle)
                     .dredfitFont(19, weight: .bold)
                 Spacer()
-                HStack(spacing: 26) {
-                    Button { monthOffset -= 1 } label: { Image(systemName: "chevron.left") }
-                        .accessibilityLabel(Text("Previous month"))
-                    Button { monthOffset += 1 } label: { Image(systemName: "chevron.right") }
-                        .accessibilityLabel(Text("Next month"))
+                // 44pt frames: the bare chevron glyphs were ~20pt tap targets
+                // sitting 26pt apart — easy to mis-tap.
+                HStack(spacing: 4) {
+                    Button { monthOffset -= 1 } label: {
+                        Image(systemName: "chevron.left")
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
+                    }
+                    .accessibilityLabel(Text("Previous month"))
+                    Button { monthOffset += 1 } label: {
+                        Image(systemName: "chevron.right")
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
+                    }
+                    .accessibilityLabel(Text("Next month"))
                 }
                 .dredfitFont(16, weight: .medium)
                 .foregroundStyle(Theme.ink3)
@@ -144,7 +154,7 @@ struct CalendarScreen: View {
                 case .done:
                     Circle().fill(Theme.ink)
                 case .planned:
-                    Circle().stroke(Color(red: 0.85, green: 0.85, blue: 0.86), lineWidth: 1.5)
+                    Circle().stroke(Theme.planned, lineWidth: 1.5)
                 case .today:
                     Circle().stroke(Theme.accent, lineWidth: 2)
                 case .rest:
@@ -157,6 +167,25 @@ struct CalendarScreen: View {
                 }
             }
             .frame(height: 44)
+            // VoiceOver: a bare number reads as noise — say the date and the
+            // state the ring conveys visually. Out-of-month padding is noise
+            // either way and disappears from the accessibility tree.
+            .accessibilityHidden(day.state == .out)
+            .accessibilityLabel(Text(accessibilityText(day)))
+            // UI tests address cells by number: the label now carries the
+            // full spoken date, so it is no longer a stable query key.
+            .accessibilityIdentifier("day-\(day.number)")
+    }
+
+    private func accessibilityText(_ day: Day) -> String {
+        let date = day.date.formatted(.dateTime.weekday(.wide).day().month(.wide))
+        switch day.state {
+        case .done:    return date + ", " + String(localized: "completed")
+        case .planned: return date + ", " + String(localized: "planned")
+        case .today:   return date + ", " + String(localized: "today")
+        case .rest:    return date + ", " + String(localized: "rest")
+        case .out:     return date
+        }
     }
 
     private func foreground(_ s: DayState) -> Color {
@@ -171,7 +200,7 @@ struct CalendarScreen: View {
     // MARK: - Month data
 
     private var shownMonth: Date {
-        calendar.date(byAdding: .month, value: monthOffset, to: .now)!
+        calendar.date(byAdding: .month, value: monthOffset, to: store.today)!
     }
 
     private var monthTitle: String {
@@ -202,7 +231,7 @@ struct CalendarScreen: View {
             let state: DayState
             if doneDays.contains(comps) {
                 state = .done
-            } else if calendar.isDateInToday(d) {
+            } else if calendar.isDate(d, inSameDayAs: store.today) {
                 state = .today
             } else if store.isRestDay(d) {
                 state = .rest
@@ -226,7 +255,7 @@ struct CalendarScreen: View {
     private var legend: some View {
         HStack(spacing: 16) {
             legendItem(AnyView(Circle().fill(Theme.ink)), label: String(localized: "completed"))
-            legendItem(AnyView(Circle().stroke(Theme.ink3, lineWidth: 1.5)), label: String(localized: "planned"))
+            legendItem(AnyView(Circle().stroke(Theme.planned, lineWidth: 1.5)), label: String(localized: "planned"))
             legendItem(AnyView(Circle().fill(Theme.cardBG)), label: String(localized: "rest"))
             legendItem(AnyView(Circle().stroke(Theme.accent, lineWidth: 2)), label: String(localized: "today"))
         }

@@ -85,6 +85,15 @@ final class GoldenTests: XCTestCase {
         return try JSONDecoder().decode(Golden.self, from: Data(contentsOf: url))
     }
 
+    /// The fixture must come from the pinned reference version — a fixture
+    /// regenerated from the wrong adaptive_engine.js would silently
+    /// re-baseline every number instead of catching a port bug.
+    func testGeneratorIsThePinnedReferenceVersion() throws {
+        let g = try loadGolden()
+        XCTAssertEqual(g.generator, "adaptive_engine.js v2.3.0",
+                       "golden.json regenerated from an unexpected reference version")
+    }
+
     func testPatternOrderMatchesReference() throws {
         let g = try loadGolden()
         XCTAssertEqual(g.patternOrder, Pattern.ordered.map(\.rawValue),

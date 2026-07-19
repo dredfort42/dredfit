@@ -111,23 +111,23 @@ final class DredfitUITests: XCTestCase {
         // hittability quirk often enough to flake. The 1 s rating poll doubles
         // as the settle between phases.
         // Sessions past the first can contain hold exercises (plank, hang),
-        // which run a countdown instead of a Done button. Starting and
-        // immediately stopping records the held seconds as the actual — fine
-        // for a driver whose job is only to reach the rating screen.
+        // which run a countdown instead of a Done button. The driver starts
+        // a hold and lets it reach zero on its own: tapping Stop races both
+        // the v1.6 mis-tap grace and the auto-advance at zero, and losing
+        // either race flakes. The 1 s rating poll idles the loop while the
+        // countdown runs; seeded hold levels stay short (20 s).
         let startHold = app.buttons["Start hold"]
-        let stopHold = app.buttons["Stop"]
-        var guardCounter = 0
-        while !rating.waitForExistence(timeout: 1) && guardCounter < 120 {
+        // Wall-clock bound, not an iteration count: a session with both hold
+        // exercises spends ~3 minutes just letting countdowns reach zero.
+        let deadline = Date.now.addingTimeInterval(360)
+        while !rating.waitForExistence(timeout: 1) && Date.now < deadline {
             if done.exists {
                 coordinateTap(done)
             } else if startHold.exists {
                 coordinateTap(startHold)
-            } else if stopHold.exists {
-                coordinateTap(stopHold)
             } else if skipRest.exists {
                 coordinateTap(skipRest)
             }
-            guardCounter += 1
         }
         XCTAssertTrue(rating.waitForExistence(timeout: 5), "did not reach the rating screen")
     }
@@ -217,13 +217,16 @@ final class DredfitUITests: XCTestCase {
             NSPredicate(format: "label == 'skipped'")).firstMatch.exists,
             "skipped exercises are not listed on the rating screen")
 
-        // honest skips: even an "easy" rating must not level up untrained patterns
+        // honest skips: even an "easy" rating must not level up untrained patterns.
+        // Assert on the identified value — a bare "0" query used to match a
+        // chart axis label and could never fail.
         app.staticTexts["Easy, could do more"].tap()
         _ = app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5)
         app.tabBars.buttons["Progress"].tap()
-        XCTAssertTrue(app.staticTexts["total level"].waitForExistence(timeout: 3))
-        XCTAssertTrue(app.staticTexts["0"].exists,
-                      "skipped exercises must not raise the level (honest skips)")
+        let totalLevel = app.staticTexts["total-level"]
+        XCTAssertTrue(totalLevel.waitForExistence(timeout: 3))
+        XCTAssertEqual(totalLevel.label, "0",
+                       "skipped exercises must not raise the level (honest skips)")
     }
 
     // MARK: - Calendar and history
@@ -237,9 +240,10 @@ final class DredfitUITests: XCTestCase {
         app.tabBars.buttons["Calendar"].tap()
         XCTAssertTrue(app.staticTexts["Completed today ✓"].waitForExistence(timeout: 3))
 
-        // tapping today's (filled) day opens the history
+        // tapping today's (filled) day opens the history — by identifier:
+        // the accessibility label carries the full spoken date and state
         let day = Calendar.current.component(.day, from: .now)
-        app.buttons.matching(NSPredicate(format: "label == '\(day)'")).firstMatch.tap()
+        app.buttons["day-\(day)"].tap()
         XCTAssertTrue(app.staticTexts["Workout 1"].waitForExistence(timeout: 3),
                       "history did not open on the day tap")
         XCTAssertTrue(app.staticTexts["actual 5"].exists, "the actual is not shown in the history")
@@ -271,8 +275,10 @@ final class DredfitUITests: XCTestCase {
 
         app.tabBars.buttons["Progress"].tap()
         XCTAssertTrue(app.staticTexts["total level"].waitForExistence(timeout: 3))
-        // 6 patterns × (+2) = 12
-        XCTAssertTrue(app.staticTexts["12"].exists, "the total level after \"easy\" should be 12")
+        // 6 patterns × (+2) = 12 — asserted on the identified element, not a
+        // bare "12" query that an axis or date label could satisfy.
+        let totalLevel = app.staticTexts["total-level"]
+        XCTAssertEqual(totalLevel.label, "12", "the total level after \"easy\" should be 12")
         // singular form — the catalog's plural variations must be intact
         XCTAssertTrue(app.staticTexts["1 workout"].exists,
                       "\"1 workout\" must use the singular (plural variations lost?)")
@@ -298,8 +304,18 @@ final class DredfitUITests: XCTestCase {
         app.buttons["Start hold"].tap()
         let stop = app.buttons["Stop"]
         XCTAssertTrue(stop.waitForExistence(timeout: 2), "no Stop during the countdown")
-        stop.tap()   // ~1 s held → rounds to the 5 s minimum
-        // an early stop flows into rest, the held seconds became the actual
+
+        // v1.6: a stop within the first seconds is a mis-tap — the countdown
+        // cancels and the set survives instead of recording a 2-second plank.
+        stop.tap()
+        XCTAssertTrue(app.buttons["Start hold"].waitForExistence(timeout: 2),
+                      "an immediate stop must cancel the countdown, not consume the set")
+
+        // a real early stop (past the grace) records the held seconds
+        app.buttons["Start hold"].tap()
+        XCTAssertTrue(stop.waitForExistence(timeout: 2))
+        Thread.sleep(forTimeInterval: 3.5)
+        stop.tap()
         let skipRest = app.buttons["Skip rest"]
         XCTAssertTrue(skipRest.waitForExistence(timeout: 3),
                       "an early stop should flow into rest")
@@ -422,6 +438,7 @@ final class DredfitUITests: XCTestCase {
         app.buttons["Start hold"].tap()
         let stop = app.buttons["Stop"]
         XCTAssertTrue(stop.waitForExistence(timeout: 2), "no Stop during the hang countdown")
+        Thread.sleep(forTimeInterval: 3.5)   // past the v1.6 mis-tap grace
         stop.tap()
         XCTAssertTrue(app.buttons["Skip rest"].waitForExistence(timeout: 3),
                       "the stopped hang must flow into rest")

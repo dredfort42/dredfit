@@ -1,5 +1,75 @@
 # Changelog
 
+## 1.5.1
+
+Hardening wave after a full-project review. No new features; the engine's
+arithmetic is untouched (golden parity holds bit for bit).
+
+### Data safety
+
+- An unreadable state file is moved aside (`dredfit-state.corrupt.json`)
+  instead of being silently replaced on the next save; one unreadable journal
+  entry no longer discards the rest of the file; unknown engine patterns
+  (e.g. after an app downgrade) decode leniently instead of wiping progress.
+- Feedback replay protection: a session that does not match the engine's
+  counter is rejected by both the engine and the store, so a crash between
+  saving and clearing feedback can no longer advance levels twice.
+- The UI-test hooks (`--uitest-*`) are compiled out of Release builds — a
+  production binary can no longer be told to wipe its own journal.
+- Persist failures are logged instead of swallowed.
+
+### Apple Health
+
+- Export is tracked per record instead of a high-water session number. A
+  failed export can no longer be leapfrogged by a later success (previously
+  that workout was silently lost to Health forever), "Start from scratch" no
+  longer confuses the export bookkeeping, and "Only new ones" can no longer
+  re-export old workouts after a reset.
+- `finishWorkout` returning no workout without throwing now counts as a
+  failure and stays retriable.
+
+### Time and Live Activity
+
+- Crossing midnight while the app sits in memory now refreshes Today, the
+  calendar ring and the week summary on the next activation (previously the
+  app could show yesterday's "completed" state with no Start button until a
+  cold launch).
+- A killed or crashed workout no longer leaves a frozen Live Activity on the
+  lock screen: stale content dims, and the next launch removes orphans.
+  Activity updates are serialized, so a quick "Skip rest" can no longer lose
+  the race and leave a stale countdown.
+- The warm-up absorbs backgrounded time instead of replaying one move per
+  expiry; an accidental "Stop" in the first three seconds of a hold cancels
+  the countdown instead of recording a 5-second set.
+
+### UI, accessibility, localization
+
+- Feedback and onboarding screens scroll at accessibility text sizes instead
+  of clipping; workout "Exit", onboarding "Skip" and "Start from scratch" meet
+  contrast requirements; rest-day and chart chips announce their selected
+  state to VoiceOver; calendar days speak their date and state, and the month
+  chevrons grew to full tap targets.
+- The workout cover snapshots its session, so the rating screen no longer
+  flashes the next session's data during dismissal; the share card renders
+  only when its numbers changed; the review prompt waits out the dismissal
+  transition instead of burning its 60-day stamp on a dropped request.
+- History resolves exercise names in the current language; the calendar
+  legend and grid use one planned-day color; the widget snapshot refreshes on
+  every backgrounding; reminders re-request authorization after an import;
+  Russian is registered in the project, the Health share purpose string is
+  localized, and stale catalog entries are gone.
+
+### Testing
+
+- 142 → 161 automated tests: reminder scheduling (new injectable seam),
+  corrupted-file quarantine, Health export ordering regressions, day-anchor
+  rollover, Live Activity staleDate arithmetic, lenient decode, replay
+  no-ops, config-integrity and golden-generator pins.
+- The widget snapshot test injects its URL and runs on CI instead of
+  self-skipping; sleep-based waits replaced with awaitable tasks; UI-test
+  assertions that could never fail now target identified elements; the UI
+  target retries on failure in the test plan.
+
 ## 1.5.0
 
 Engine v2.3. Three changes to how the regulator behaves, aimed at the two
