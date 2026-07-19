@@ -15,7 +15,10 @@ import SwiftUI
 struct RestLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: RestActivityAttributes.self) { context in
+            // Stale content (the app stopped updating — backgrounded past the
+            // staleDate or killed) dims instead of impersonating a live state.
             lockScreen(context.state)
+                .opacity(context.isStale ? 0.45 : 1)
         } dynamicIsland: { context in
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
