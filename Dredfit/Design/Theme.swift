@@ -13,6 +13,9 @@ enum Theme {
     static let accent = Color(red: 0xE8/255, green: 0x59/255, blue: 0x0C/255)
     static let accentSoft = Color(red: 0xFB/255, green: 0xE3/255, blue: 0xD6/255)
     static let cardBG = Color(red: 0xF7/255, green: 0xF7/255, blue: 0xF5/255)
+    /// The planned-day ring in the calendar — named so the grid and its
+    /// legend can never drift apart again.
+    static let planned = Color(red: 0xD9/255, green: 0xD9/255, blue: 0xDB/255)
 }
 
 // MARK: - Type that scales (v1.4)

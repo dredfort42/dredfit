@@ -21,6 +21,10 @@ struct SettingsSheet: View {
     @State private var importFailed = false
     @State private var backfillPromptShown = false   // v1.3: Apple Health
     @State private var howItWorksShown = false       // v1.4
+    /// Optimistic Health-toggle value while authorization is in flight —
+    /// without it the switch visibly bounces off before the system sheet
+    /// appears (settings.healthEnabled only flips after the async grant).
+    @State private var healthSwitch: Bool?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -134,6 +138,9 @@ struct SettingsSheet: View {
                 .foregroundStyle(isRest ? Theme.accent : Theme.ink2)
         }
         .accessibilityIdentifier("weekday-\(weekday)")
+        // Colour alone doesn't reach VoiceOver — without the trait a chip
+        // announces only "Mon" and the rest-day state is invisible.
+        .accessibilityAddTraits(isRest ? [.isSelected] : [])
     }
 
     // MARK: - Equipment (v2.2)
@@ -238,11 +245,17 @@ struct SettingsSheet: View {
     /// leaves the toggle off. On success, past history is offered once.
     private var healthBinding: Binding<Bool> {
         Binding(
-            get: { store.settings.healthEnabled },
+            get: { healthSwitch ?? store.settings.healthEnabled },
             set: { on in
-                guard on else { return store.disableHealth() }
+                guard on else {
+                    healthSwitch = nil
+                    return store.disableHealth()
+                }
+                healthSwitch = true
                 Task {
-                    if await store.enableHealth(), store.healthBackfillCount > 0 {
+                    let granted = await store.enableHealth()
+                    healthSwitch = nil   // reality (granted or denied) takes over
+                    if granted, store.healthBackfillCount > 0 {
                         backfillPromptShown = true
                     }
                 }

@@ -60,9 +60,11 @@ struct ComebackCard: View {
             // not optimistic, they are meaningless.
             if offersFreshStart {
                 Button(action: onFreshStart) {
+                    // ink2, not ink3: quiet by design, but still an
+                    // interactive control that has to pass 3:1 contrast.
                     Text("Start from scratch")
                         .dredfitFont(13)
-                        .foregroundStyle(Theme.ink3)
+                        .foregroundStyle(Theme.ink2)
                         .frame(maxWidth: .infinity, minHeight: 30)
                 }
                 .accessibilityIdentifier("comeback-fresh")
