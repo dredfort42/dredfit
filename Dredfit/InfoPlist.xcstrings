@@ -13,6 +13,23 @@
         }
       }
     },
+    "NSHealthShareUsageDescription" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dredfit never reads your Health data. This permission is only part of the API that saves workouts."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dredfit никогда не читает данные «Здоровья». Это разрешение — лишь часть API, через который сохраняются тренировки."
+          }
+        }
+      }
+    },
     "NSHealthUpdateUsageDescription" : {
       "extractionState" : "manual",
       "localizations" : {
