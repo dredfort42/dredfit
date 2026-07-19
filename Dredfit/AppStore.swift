@@ -9,11 +9,14 @@
 import Foundation
 import Observation
 import UserNotifications
+import os
 import DredfitCore
 
 /// A completed workout record (feeds the calendar, history and progress chart).
 struct WorkoutRecord: Codable, Identifiable, Equatable {
-    var id: Int { sessionNumber }
+    // sessionNumber alone is NOT unique: resetProgress restarts the counter
+    // while the journal survives, so identity needs the date too.
+    var id: String { "\(sessionNumber)-\(date.timeIntervalSince1970)" }
     let sessionNumber: Int
     let date: Date
     let result: FeedbackResult
@@ -27,6 +30,11 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     var levelsAfter: [Pattern: Int]? = nil  // per-pattern level snapshot (feeds future charts)
     // v1.3: the actual wall-clock workout duration (feeds Apple Health)
     var durationSec: Int? = nil
+    // v1.6: per-record Health export state. Only `true` is ever written;
+    // nil means "not exported yet" (or a pre-1.6 record, migrated on load).
+    // Replaces the high-water sessionNumber mark, which broke down once
+    // resetProgress made session numbers non-unique.
+    var healthExported: Bool? = nil
 }
 
 /// User preferences (v1.1). Stored in the same JSON file; optional on
@@ -81,6 +89,41 @@ private struct AppData: Codable {
     var engineState: EngineState
     var records: [WorkoutRecord]
     var settings: AppSettings? = nil   // v1.1
+    // v1.6: how many journal entries failed to decode (not encoded) — the
+    // caller keeps the original file aside when this is nonzero.
+    var droppedRecordCount = 0
+
+    init(engineState: EngineState, records: [WorkoutRecord], settings: AppSettings?) {
+        self.engineState = engineState
+        self.records = records
+        self.settings = settings
+    }
+
+    private enum CodingKeys: String, CodingKey { case engineState, records, settings }
+
+    /// v1.6: the journal decodes record-by-record — one unreadable entry
+    /// (e.g. written by a newer version) must not throw away the whole file.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        engineState = try c.decode(EngineState.self, forKey: .engineState)
+        settings = try c.decodeIfPresent(AppSettings.self, forKey: .settings)
+        var decoded: [WorkoutRecord] = []
+        var uc = try c.nestedUnkeyedContainer(forKey: .records)
+        while !uc.isAtEnd {
+            let index = uc.currentIndex
+            if let record = try? uc.decode(WorkoutRecord.self) {
+                decoded.append(record)
+            } else {
+                // Discard's empty init always succeeds, consuming the element.
+                _ = try? uc.decode(Discard.self)
+                droppedRecordCount += 1
+            }
+            if uc.currentIndex == index { break }   // safety: never spin in place
+        }
+        records = decoded
+    }
+
+    private struct Discard: Decodable { init(from decoder: Decoder) {} }
 }
 
 @Observable
@@ -90,27 +133,103 @@ final class AppStore {
     private(set) var records: [WorkoutRecord]
     private(set) var settings: AppSettings
 
+    /// The day the UI is anchored to. Views derive "today" from this rather
+    /// than from `Date.now` so that crossing midnight while the app sits
+    /// suspended invalidates them: RootView calls `refreshDay()` whenever the
+    /// scene becomes active, and mutating this property is what re-renders
+    /// every date-derived view.
+    private(set) var today: Date = .now
+
     private let storageURL: URL
     private let health: WorkoutHealthWriting
+    private let notifications: NotificationScheduling
+    let widgetSnapshotURL: URL?
     private var backfillInFlight = false   // v1.3: guards concurrent Health backfills
+    /// The in-flight Health export spawned by completeWorkout. Held so tests
+    /// can await the fire-and-forget path instead of sleeping.
+    private(set) var healthExportTask: Task<Void, Never>?
+    /// Same, for the notification-authorization request in setReminderEnabled.
+    private(set) var reminderAuthTask: Task<Void, Never>?
+
+    private static let log = Logger(subsystem: "app.dredfit", category: "store")
 
     init(storageURL: URL = AppStore.defaultFileURL,
-         health: WorkoutHealthWriting = HealthKitWorkoutWriter()) {
+         health: WorkoutHealthWriting = HealthKitWorkoutWriter(),
+         notifications: NotificationScheduling = UserNotificationScheduler(),
+         widgetSnapshotURL: URL? = SharedStorage.snapshotURL) {
         self.storageURL = storageURL
         self.health = health
+        self.notifications = notifications
+        self.widgetSnapshotURL = widgetSnapshotURL
+        #if DEBUG
+        // UI-test hooks are DEBUG-only: a release binary launched with
+        // --uitest-reset must never be able to wipe a user's journal.
         if CommandLine.arguments.contains("--uitest-reset") {
             try? FileManager.default.removeItem(at: storageURL)
         }
-        if let data = try? Data(contentsOf: storageURL),
-           let decoded = try? JSONDecoder().decode(AppData.self, from: data) {
-            engineState = decoded.engineState
-            records = decoded.records
-            settings = decoded.settings ?? AppSettings()
-        } else {
-            engineState = .initial
-            records = []
-            settings = AppSettings()
+        #endif
+        var loaded: AppData?
+        if let data = try? Data(contentsOf: storageURL) {
+            do {
+                loaded = try JSONDecoder().decode(AppData.self, from: data)
+            } catch {
+                // The unreadable file is moved aside, not left in place: the
+                // next persist() would overwrite the only copy of the journal.
+                // Starting clean is the fallback; the data stays recoverable.
+                Self.quarantineStateFile(at: storageURL, keepOriginal: false)
+                Self.log.fault("state file failed to decode, moved aside: \(error.localizedDescription)")
+            }
         }
+        engineState = loaded?.engineState ?? .initial
+        records = loaded?.records ?? []
+        settings = loaded?.settings ?? AppSettings()
+        if let dropped = loaded?.droppedRecordCount, dropped > 0 {
+            // Partial corruption: keep the full original aside before the next
+            // persist() rewrites the file without the unreadable entries.
+            Self.quarantineStateFile(at: storageURL, keepOriginal: true)
+            Self.log.error("dropped \(dropped) unreadable record(s), original kept aside")
+        }
+        migrateHealthMarkToFlags()
+        #if DEBUG
+        applyUITestHooks()
+        #endif
+        refreshWidgetSnapshot()   // v1.3: the widget mirrors state from launch
+    }
+
+    /// If the day rolled over while the process was alive (an overnight
+    /// suspension), re-anchor and thereby invalidate every date-derived view.
+    /// Mutating `today` on every activation would re-render for nothing.
+    func refreshDay(now: Date = .now) {
+        if !Calendar.current.isDate(today, inSameDayAs: now) { today = now }
+    }
+
+    /// Moves the state file to `<name>.corrupt.json` (or copies, when the
+    /// readable part is being kept) so decode failures never cost the journal.
+    private static func quarantineStateFile(at url: URL, keepOriginal: Bool) {
+        let dest = url.deletingLastPathComponent()
+            .appendingPathComponent(url.deletingPathExtension().lastPathComponent + ".corrupt.json")
+        try? FileManager.default.removeItem(at: dest)
+        if keepOriginal {
+            try? FileManager.default.copyItem(at: url, to: dest)
+        } else {
+            try? FileManager.default.moveItem(at: url, to: dest)
+        }
+    }
+
+    /// v1.6: converts the pre-1.6 high-water sessionNumber mark into
+    /// per-record flags. The mark itself keeps being written so a downgraded
+    /// build still sees a sane value.
+    private func migrateHealthMarkToFlags() {
+        guard settings.healthExportedThrough > 0 else { return }
+        for i in records.indices
+        where records[i].healthExported == nil
+            && records[i].sessionNumber <= settings.healthExportedThrough {
+            records[i].healthExported = true
+        }
+    }
+
+    #if DEBUG
+    private func applyUITestHooks() {
         // UI-test hook: a reset install would otherwise open on the v1.4
         // onboarding and hide the app from every existing test. Reset means
         // "clean state", not "first run", so the explainer is marked seen —
@@ -118,6 +237,16 @@ final class AppStore {
         if CommandLine.arguments.contains("--uitest-reset"),
            !CommandLine.arguments.contains("--uitest-onboarding") {
             settings.onboardingCompleted = true
+        }
+        // The suite must not depend on the weekday it runs on: a clean
+        // state's default Sunday rest day used to fail most of the suite
+        // every Sunday (Today opens on "Rest day", not "Workout N"). Tests
+        // that need a rest day ask for one via --uitest-restday, applied
+        // last so it wins over this.
+        if CommandLine.arguments.contains("--uitest-reset")
+            || CommandLine.arguments.contains("--uitest-session2")
+            || CommandLine.arguments.contains("--uitest-milestone") {
+            settings.restWeekdays = []
         }
         // UI-test hook: session 1 completed yesterday → today offers session 2
         // (the only way for UI tests to reach hold exercises deterministically).
@@ -160,8 +289,8 @@ final class AppStore {
         if CommandLine.arguments.contains("--uitest-restday") {
             settings.restWeekdays = [Calendar.current.component(.weekday, from: .now)]
         }
-        refreshWidgetSnapshot()   // v1.3: the widget mirrors state from launch
     }
+    #endif
 
     // MARK: - Derived
 
@@ -176,7 +305,7 @@ final class AppStore {
     var lastRecord: WorkoutRecord? { records.last }
 
     /// Has today's workout already been completed?
-    var doneToday: Bool { isDone(on: .now) }
+    var doneToday: Bool { isDone(on: today) }
 
     func isDone(on date: Date) -> Bool {
         guard let last = records.last else { return false }
@@ -195,7 +324,7 @@ final class AppStore {
 
     /// Next training date: `now` if not yet trained and not a rest day;
     /// otherwise the nearest future non-rest day.
-    var nextTrainingDate: Date { nextTrainingDate(from: .now) }
+    var nextTrainingDate: Date { nextTrainingDate(from: today) }
 
     func nextTrainingDate(from now: Date) -> Date {
         let cal = Calendar.current
@@ -220,7 +349,9 @@ final class AppStore {
     /// Counts the records of the calendar week containing `date` and the
     /// total-level change over that week (against the last record before it).
     /// Deload weeks can be negative — that is honest, not an error.
-    func weekSummary(for date: Date = .now) -> WeekSummary {
+    /// nil = the store's `today` anchor, so callers stay midnight-reactive.
+    func weekSummary(for date: Date? = nil) -> WeekSummary {
+        let date = date ?? today
         var cal = Calendar(identifier: .iso8601)   // Monday-first weeks
         cal.timeZone = Calendar.current.timeZone
         guard let week = cal.dateInterval(of: .weekOfYear, for: date) else {
@@ -260,6 +391,10 @@ final class AppStore {
                          skipped: Set<Pattern> = [],
                          durationSec: Int? = nil,
                          date: Date = .now) -> [Milestone] {
+        // Mirror of the engine's replay guard: a session that does not belong
+        // to this state (replayed feedback, a stale snapshot) must not append
+        // a duplicate journal entry either.
+        guard session.sessionNumber == engineState.counter + 1 else { return [] }
         let before = engineState
         engineState = Engine.applyFeedback(state: engineState, session: session,
                                            result: result, overrides: overrides,
@@ -274,12 +409,13 @@ final class AppStore {
             skipped: skipped.isEmpty ? nil : skipped,
             levelsAfter: engineState.levels,
             durationSec: durationSec))
-        if settings.healthEnabled, let record = records.last {
-            // The mark advances inside saveToHealth only on a confirmed save,
-            // so a failed export is never mistaken for a completed one.
-            saveToHealth(record)
-        }
         persist()
+        if settings.healthEnabled {
+            // v1.6: the just-finished workout goes through the same contiguous
+            // export path as the manual backfill — an older failed export gets
+            // retried first, so a success can never leapfrog an earlier hole.
+            healthExportTask = Task { await self.backfillHealth() }
+        }
         return MilestoneDetector.detect(before: before, after: engineState,
                                         session: session, skipped: skipped)
     }
@@ -318,18 +454,16 @@ final class AppStore {
         settings.reminderEnabled = on
         persist()
         guard on else { return rescheduleReminders() }
-        UNUserNotificationCenter.current()
-            .requestAuthorization(options: [.alert, .sound]) { granted, _ in
-                DispatchQueue.main.async {
-                    if granted {
-                        self.rescheduleReminders()
-                    } else {
-                        // the system said no — reflect reality in the toggle
-                        self.settings.reminderEnabled = false
-                        self.persist()
-                    }
-                }
+        reminderAuthTask = Task { [weak self] in
+            guard let self else { return }
+            if await self.notifications.requestAuthorization() {
+                self.rescheduleReminders()
+            } else {
+                // the system said no — reflect reality in the toggle
+                self.settings.reminderEnabled = false
+                self.persist()
             }
+        }
     }
 
     func setReminderTime(hour: Int, minute: Int) {
@@ -361,19 +495,19 @@ final class AppStore {
 
     /// Whole calendar days between the last workout and now, measured at local
     /// midnights so a late-evening workout and an early-morning launch are one
-    /// day apart, not zero.
-    func gapDays(now: Date = .now) -> Int? {
+    /// day apart, not zero. nil `now` = the store's midnight-reactive anchor.
+    func gapDays(now: Date? = nil) -> Int? {
         guard let last = records.last else { return nil }
         let cal = Calendar.current
         return cal.dateComponents([.day],
                                   from: cal.startOfDay(for: last.date),
-                                  to: cal.startOfDay(for: now)).day
+                                  to: cal.startOfDay(for: now ?? today)).day
     }
 
     /// Whether to offer the comeback card. Asked once per break: the answer is
     /// stamped against the last workout's date, so it goes stale by itself
     /// after the next workout instead of needing to be cleared.
-    func shouldOfferComeback(now: Date = .now) -> Bool {
+    func shouldOfferComeback(now: Date? = nil) -> Bool {
         guard let last = records.last, let gap = gapDays(now: now) else { return false }
         guard gap >= EngineConfig.comebackMinGapDays else { return false }
         guard let decided = settings.comebackDecidedFor else { return true }
@@ -381,7 +515,7 @@ final class AppStore {
     }
 
     /// How far the levels would drop — used by the card to say it plainly.
-    func comebackDrop(now: Date = .now) -> Int {
+    func comebackDrop(now: Date? = nil) -> Int {
         guard let gap = gapDays(now: now) else { return 0 }
         let before = engineState
         let after = Engine.applyComeback(state: before, gapDays: gap)
@@ -390,14 +524,14 @@ final class AppStore {
 
     /// A gap this long makes the old levels meaningless rather than merely
     /// optimistic, so starting over becomes an option worth offering.
-    func offersFreshStart(now: Date = .now) -> Bool {
+    func offersFreshStart(now: Date? = nil) -> Bool {
         (gapDays(now: now) ?? 0) >= Self.comebackFreshStartDays
     }
 
     /// "Start easier": lower the levels and close the question for this break.
     /// Nothing is written to the journal — the next record's levelsAfter
     /// snapshot shows the step down on its own.
-    func acceptComeback(now: Date = .now) {
+    func acceptComeback(now: Date? = nil) {
         guard let gap = gapDays(now: now) else { return }
         engineState = Engine.applyComeback(state: engineState, gapDays: gap)
         closeComebackQuestion()
@@ -471,27 +605,30 @@ final class AppStore {
 
     /// How many past workouts a backfill would add to Health.
     var healthBackfillCount: Int {
-        records.filter { $0.sessionNumber > settings.healthExportedThrough }.count
+        records.filter { $0.healthExported != true }.count
     }
 
-    /// Exports every record above the high-water mark in order, advancing the
-    /// mark one record at a time and only on a confirmed save. It stops at the
-    /// first failure so the unexported tail can be retried later — a failed
-    /// save is never declared exported. The in-flight guard forbids a second
-    /// concurrent backfill (double-export window).
+    /// Exports every unexported record in journal order, flagging one record
+    /// at a time and only on a confirmed save. It stops at the first failure
+    /// so the unexported tail can be retried later — a failed save is never
+    /// declared exported, and a later success can never leapfrog it (the old
+    /// max()-mark design silently lost exactly that workout). The in-flight
+    /// guard forbids a second concurrent run (double-export window); the
+    /// while-loop re-reads the journal so a workout completed mid-run is
+    /// picked up by the run already in flight.
     func backfillHealth() async {
         guard !backfillInFlight else { return }
         backfillInFlight = true
         defer { backfillInFlight = false }
-        let candidates = records
-            .filter { $0.sessionNumber > settings.healthExportedThrough }
-            .sorted { $0.sessionNumber < $1.sessionNumber }
-        for record in candidates {
+        while let index = records.firstIndex(where: { $0.healthExported != true }) {
+            let record = records[index]
             let duration = TimeInterval(record.durationSec ?? estimatedDurationSec(for: record))
             let ok = await health.saveWorkout(start: record.date.addingTimeInterval(-duration),
                                               end: record.date)
-            guard ok else { break }   // keep the mark at the last confirmed export
-            settings.healthExportedThrough = max(settings.healthExportedThrough, record.sessionNumber)
+            guard ok else { break }   // the tail stays pending for a later retry
+            records[index].healthExported = true
+            settings.healthExportedThrough = max(settings.healthExportedThrough,
+                                                 record.sessionNumber)
             persist()
         }
     }
@@ -499,24 +636,10 @@ final class AppStore {
     /// "Only new ones": past workouts are declared already-handled so they
     /// never export later, even after toggling off and on.
     func skipHealthBackfill() {
-        settings.healthExportedThrough = records.last?.sessionNumber ?? 0
+        for i in records.indices { records[i].healthExported = true }
+        settings.healthExportedThrough = max(settings.healthExportedThrough,
+                                             records.last?.sessionNumber ?? 0)
         persist()
-    }
-
-    /// Fire-and-forget export of one just-completed workout. The high-water
-    /// mark advances only after the save is confirmed — a failed save leaves
-    /// the workout unexported so a later backfill can pick it up.
-    private func saveToHealth(_ record: WorkoutRecord) {
-        let duration = TimeInterval(record.durationSec ?? estimatedDurationSec(for: record))
-        let end = record.date
-        let start = end.addingTimeInterval(-duration)
-        Task { [weak self] in
-            let ok = await self?.health.saveWorkout(start: start, end: end) ?? false
-            guard ok, let self else { return }
-            self.settings.healthExportedThrough =
-                max(self.settings.healthExportedThrough, record.sessionNumber)
-            self.persist()
-        }
     }
 
     /// Session-estimate fallback for records that predate duration capture:
@@ -544,23 +667,16 @@ final class AppStore {
     /// One weekly repeating notification per training weekday at the chosen
     /// time. Rebuilt from scratch on every settings change — no drift.
     func rescheduleReminders() {
-        let center = UNUserNotificationCenter.current()
-        center.removePendingNotificationRequests(withIdentifiers: Self.reminderIDs)
+        notifications.removePendingRequests(withIdentifiers: Self.reminderIDs)
         guard settings.reminderEnabled else { return }
-
-        let content = UNMutableNotificationContent()
-        content.title = "Dredfit"
-        content.body = String(localized: "Today's workout is ready")
-        content.sound = .default
-
         for weekday in 1...7 where !settings.restWeekdays.contains(weekday) {
-            var comps = DateComponents()
-            comps.weekday = weekday
-            comps.hour = settings.reminderHour
-            comps.minute = settings.reminderMinute
-            let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: true)
-            center.add(UNNotificationRequest(identifier: "reminder-wd-\(weekday)",
-                                             content: content, trigger: trigger))
+            notifications.addWeeklyReminder(
+                id: "reminder-wd-\(weekday)",
+                title: "Dredfit",
+                body: String(localized: "Today's workout is ready"),
+                weekday: weekday,
+                hour: settings.reminderHour,
+                minute: settings.reminderMinute)
         }
     }
 
@@ -593,8 +709,18 @@ final class AppStore {
         records = decoded.records
         settings = decoded.settings ?? AppSettings()
         settings.healthExportedThrough = max(priorHealthMark, settings.healthExportedThrough)
+        // v1.6: new backups carry per-record flags; old ones carry only the
+        // mark — the migration turns whichever mark won above into flags.
+        migrateHealthMarkToFlags()
         persist()
-        rescheduleReminders()
+        if settings.reminderEnabled {
+            // Notification authorization is per-device: a backup restored onto
+            // a new phone must actually ask, and a denial must flip the toggle
+            // off instead of promising reminders that will never fire.
+            setReminderEnabled(true)
+        } else {
+            rescheduleReminders()   // clears anything left behind
+        }
     }
 
     // MARK: - Persistence
@@ -608,9 +734,54 @@ final class AppStore {
 
     private func persist() {
         let data = AppData(engineState: engineState, records: records, settings: settings)
-        if let encoded = try? JSONEncoder().encode(data) {
-            try? encoded.write(to: storageURL, options: .atomic)
+        do {
+            try JSONEncoder().encode(data).write(to: storageURL, options: .atomic)
+        } catch {
+            // The in-memory state is still correct and the next mutation
+            // retries the full write — but a silent failure here is the app's
+            // only durability path, so it must at least leave a trace.
+            Self.log.fault("persist failed: \(error.localizedDescription)")
         }
         refreshWidgetSnapshot()   // v1.3: every persisted change reaches the widget
+    }
+}
+
+// MARK: - Notification seam (v1.6)
+
+/// Injectable seam mirroring the Health one: AppStore schedules reminders
+/// through this protocol, unit tests substitute a spy.
+protocol NotificationScheduling {
+    /// Asks for alert+sound authorization. Returns true only when granted.
+    func requestAuthorization() async -> Bool
+    func removePendingRequests(withIdentifiers ids: [String])
+    /// One weekly repeating calendar-trigger notification.
+    func addWeeklyReminder(id: String, title: String, body: String,
+                           weekday: Int, hour: Int, minute: Int)
+}
+
+struct UserNotificationScheduler: NotificationScheduling {
+    func requestAuthorization() async -> Bool {
+        (try? await UNUserNotificationCenter.current()
+            .requestAuthorization(options: [.alert, .sound])) ?? false
+    }
+
+    func removePendingRequests(withIdentifiers ids: [String]) {
+        UNUserNotificationCenter.current()
+            .removePendingNotificationRequests(withIdentifiers: ids)
+    }
+
+    func addWeeklyReminder(id: String, title: String, body: String,
+                           weekday: Int, hour: Int, minute: Int) {
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+        var comps = DateComponents()
+        comps.weekday = weekday
+        comps.hour = hour
+        comps.minute = minute
+        let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: true)
+        UNUserNotificationCenter.current()
+            .add(UNNotificationRequest(identifier: id, content: content, trigger: trigger))
     }
 }

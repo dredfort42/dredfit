@@ -14,6 +14,7 @@ import SwiftUI
 
 struct RootView: View {
     @Environment(AppStore.self) private var store
+    @Environment(\.scenePhase) private var scenePhase
 
     enum Tab: Hashable { case today, calendar, progress }
     @State private var tab: Tab = .today
@@ -64,6 +65,25 @@ struct RootView: View {
             // Deliberately after the tab decision: a fresh install has nothing
             // done today, so the cover always opens over Today.
             onboardingShown = store.shouldShowOnboarding
+        }
+        // A cold start cannot have a workout in progress — any Live Activity
+        // still alive belongs to a killed session and must leave the lock
+        // screen now, not when its multi-hour system cap expires.
+        .task { WorkoutActivityController.endOrphans() }
+        .onChange(of: scenePhase) { _, phase in
+            switch phase {
+            case .active:
+                // Re-anchor "today": an overnight suspension must not keep
+                // showing yesterday's "completed" state without a Start button.
+                store.refreshDay()
+            case .background:
+                // The widget snapshot covers 7 days from its last write; each
+                // backgrounding restarts that window so the widget survives a
+                // week without a cold launch.
+                store.refreshWidgetSnapshot()
+            default:
+                break
+            }
         }
     }
 }

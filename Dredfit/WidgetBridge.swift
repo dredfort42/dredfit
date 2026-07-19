@@ -15,7 +15,9 @@ import DredfitCore
 extension AppStore {
 
     func refreshWidgetSnapshot(now: Date = .now) {
-        guard let url = SharedStorage.snapshotURL else { return }
+        // v1.6: the URL is injected (App Group by default) so unit tests can
+        // point it at a temp directory and actually exercise the mirroring.
+        guard let url = widgetSnapshotURL else { return }
         let cal = Calendar.current
         let today = cal.startOfDay(for: now)
         let days: [WidgetSnapshot.Day] = (0..<7).map { offset in
