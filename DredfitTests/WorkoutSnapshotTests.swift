@@ -212,6 +212,31 @@ final class WorkoutSnapshotTests: XCTestCase {
         XCTAssertNil(store.pendingWorkout)
     }
 
+    // MARK: - Cost of writing so often
+
+    /// A full session writes some 35 snapshots. None of them can change what
+    /// the widget shows — its three states are workout / done / rest — so
+    /// none of them may spend a WidgetKit reload. Completion still must.
+    func testSnapshotWritesDoNotTouchTheWidget() throws {
+        let widgetURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("dredfit-widget-\(UUID().uuidString).json")
+        defer { try? FileManager.default.removeItem(at: widgetURL) }
+        let store = AppStore(storageURL: tempURL, widgetSnapshotURL: widgetURL)
+
+        // The init already wrote one; clear it and watch who writes next.
+        try FileManager.default.removeItem(at: widgetURL)
+        store.saveWorkoutSnapshot(makeSnapshot(for: store))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: widgetURL.path),
+                       "a mid-workout snapshot must not rewrite the widget snapshot")
+        store.clearWorkoutSnapshot()
+        XCTAssertFalse(FileManager.default.fileExists(atPath: widgetURL.path),
+                       "dropping a snapshot changes nothing the widget shows")
+
+        store.completeWorkout(session: store.nextSession, result: .plan)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: widgetURL.path),
+                      "completing the workout must still reach the widget")
+    }
+
     // MARK: - Robustness
 
     /// A snapshot written by a newer version (or plain corruption) must

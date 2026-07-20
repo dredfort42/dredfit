@@ -508,19 +508,24 @@ final class AppStore {
         return snap
     }
 
-    /// Called by the workout flow on every phase transition. Cheap by design:
-    /// the same JSON file the journal already lives in, one extra key.
+    /// Called by the workout flow on every phase transition — some 35 times
+    /// in a full session. `refreshWidget: false` is not an optimization but
+    /// the truth: none of the widget's three states (workout / done / rest)
+    /// can change while a workout is in progress, and poking WidgetKit on
+    /// every set would spend the day's reload budget on identical content.
     func saveWorkoutSnapshot(_ snapshot: WorkoutSnapshot) {
         pendingWorkout = snapshot
-        persist()
+        persist(refreshWidget: false)
     }
 
     /// The workout ended in any deliberate way — completed, discarded via
-    /// Exit, or restarted from scratch. Nothing is left to resume.
+    /// Exit, or restarted from scratch. Nothing is left to resume. Same
+    /// reasoning as above: dropping a snapshot changes nothing the widget
+    /// shows (completion goes through completeWorkout, which does refresh).
     func clearWorkoutSnapshot() {
         guard pendingWorkout != nil else { return }
         pendingWorkout = nil
-        persist()
+        persist(refreshWidget: false)
     }
 
     // MARK: - Settings (v1.1)
@@ -841,7 +846,7 @@ final class AppStore {
         return dir.appendingPathComponent("dredfit-state.json")
     }
 
-    private func persist() {
+    private func persist(refreshWidget: Bool = true) {
         let data = AppData(engineState: engineState, records: records,
                            settings: settings, pendingWorkout: pendingWorkout)
         do {
@@ -852,7 +857,9 @@ final class AppStore {
             // only durability path, so it must at least leave a trace.
             Self.log.fault("persist failed: \(error.localizedDescription)")
         }
-        refreshWidgetSnapshot()   // v1.3: every persisted change reaches the widget
+        // v1.3: every persisted change reaches the widget — except the ones
+        // that provably cannot change what it shows (see saveWorkoutSnapshot).
+        if refreshWidget { refreshWidgetSnapshot() }
     }
 }
 
