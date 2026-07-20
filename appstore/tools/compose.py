@@ -83,8 +83,14 @@ def compose(raw_path, headline_lines, subtitle, out_path):
     canvas.save(out_path)
     print("wrote", out_path)
 
-RAW = "/private/tmp/claude-501/-Users-dnovikov-Projects-DREDFIT/b1875a84-e826-4259-8641-e6c9a1efcf95/scratchpad/raw"
-OUT = "/Users/dnovikov/Projects/DREDFIT/appstore/screenshots"
+import os
+
+# Both overridable, so a recapture never has to edit this file:
+#   RAW_DIR=/path/to/raw python3 compose.py
+RAW = os.environ.get("RAW_DIR", "/tmp/dredfit-raw")
+OUT = os.environ.get("OUT_DIR",
+                     os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                  os.pardir, "screenshots"))
 
 jobs = [
     (f"{RAW}/today_en.png",      ["Zero setup."], "Open the app — your workout is ready.", f"{OUT}/en/s1.png"),

@@ -13,9 +13,16 @@ python3 seed.py <udid> B   # counter 34, total level 158 → Progress
 ```
 
 Seed A feeds `testSeeded*` and `testRating*`; seed B feeds `testProgress*`.
-Re-seed between the two groups. Milestone and comeback screens don't need
-seeding — they use the app's own `--uitest-milestone` / `--uitest-comeback`
-launch hooks (see git history of the reference file for those captures).
+Milestone and comeback screens don't need seeding — they use the app's own
+`--uitest-milestone` / `--uitest-comeback` launch hooks (see git history of
+the reference file for those captures).
+
+**Re-seed before every capture that runs a workout, not just between the two
+groups.** Since 1.6.0 the flow snapshots its position, and `testRating*`
+stops on the rating screen without answering — so it leaves an unfinished
+workout behind. The next launch then opens Today on "Continue the workout?"
+instead of the Start button the capture waits for, and the run fails.
+Re-seeding rewrites the state file and clears the snapshot with it.
 
 ## 2. Capture raw screens
 
@@ -37,8 +44,9 @@ the .swift file afterwards — it is not part of the suite.
 
 ## 3. Compose framed images
 
-Edit paths/captions at the bottom of `compose.py`, then `python3 compose.py`
-(needs Pillow). Style constants at the top were measured from the 1.3.0 set
+`RAW_DIR=/path/to/raw python3 compose.py` (needs Pillow). Frames without a
+fresh raw keep their last set, so a partial recapture is just a matter of
+which raws exist. Captions live at the bottom of the file. Style constants at the top were measured from the 1.3.0 set
 (`en/s1.png`): Helvetica Bold 106 headline, Helvetica 43 subtitle, frame
 (26,26,28) radius 166, background gradient (246,245,242)→(237,235,230).
 Two-line headlines shift the whole device down by 117 px, as in the original
