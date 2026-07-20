@@ -20,6 +20,10 @@ struct FeedbackView: View {
     let session: Session
     let actuals: [Pattern: Int]
     var skipped: Set<Pattern> = []
+    /// The exercise "Finish now" cut mid-way (v1.7). To the engine it is a
+    /// skip like the others; to the person who did 24 push-ups of 36 it is
+    /// "not finished", and the summary label says so.
+    var interrupted: Pattern? = nil
     let onComplete: (FeedbackResult, [Pattern: Int]) -> Void
 
     var body: some View {
@@ -43,16 +47,21 @@ struct FeedbackView: View {
 
                     Spacer(minLength: 20)
 
+                    // Three equal cards on purpose (v1.7): the rating is the
+                    // regulator's only input, and a filled "On plan" card read
+                    // as "the correct answer is the middle one" — an
+                    // agreeable user would pick the highlighted card over the
+                    // honest one. Order alone carries the scale.
                     VStack(spacing: 14) {
                         optionCard(title: String(localized: "Tough, did less"),
                                    caption: String(localized: "the next one will be easier"),
-                                   result: .less, primary: false)
+                                   result: .less)
                         optionCard(title: String(localized: "On plan"),
-                                   caption: String(localized: "next: +1 rep"),
-                                   result: .plan, primary: true)
+                                   caption: String(localized: "next: +1 step"),
+                                   result: .plan)
                         optionCard(title: String(localized: "Easy, could do more"),
-                                   caption: String(localized: "next: +2 reps"),
-                                   result: .more, primary: false)
+                                   caption: String(localized: "next: +2 steps"),
+                                   result: .more)
                     }
 
                     Spacer(minLength: 20)
@@ -80,7 +89,7 @@ struct FeedbackView: View {
                     Text("actual \(actuals[ex.pattern] ?? 0)")
                         .dredfitFont(14, weight: .semibold)
                         .monospacedDigit()
-                        .foregroundStyle(Theme.accent)
+                        .foregroundStyle(Theme.accentText)
                 }
             }
             ForEach(session.exercises.filter { skipped.contains($0.pattern) }) { ex in
@@ -89,14 +98,18 @@ struct FeedbackView: View {
                         .dredfitFont(14, weight: .medium)
                         .foregroundStyle(Theme.ink3)
                     Spacer()
-                    Text("skipped")
+                    // ink2 for the state word: the dimmed name signals
+                    // exclusion, but WHY it is dimmed has to stay readable.
+                    Text(ex.pattern == interrupted
+                         ? String(localized: "not finished")
+                         : String(localized: "skipped"))
                         .dredfitFont(14, weight: .semibold)
-                        .foregroundStyle(Theme.ink3)
+                        .foregroundStyle(Theme.ink2)
                 }
             }
             Text("Your rating applies to the rest")
                 .dredfitFont(12.5)
-                .foregroundStyle(Theme.ink3)
+                .foregroundStyle(Theme.ink2)
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 14)
@@ -104,7 +117,7 @@ struct FeedbackView: View {
     }
 
     private func optionCard(title: String, caption: String,
-                            result: FeedbackResult, primary: Bool) -> some View {
+                            result: FeedbackResult) -> some View {
         Button {
             onComplete(result, actuals)
         } label: {
@@ -112,22 +125,24 @@ struct FeedbackView: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(title)
                         .dredfitFont(18, weight: .semibold)
-                        .foregroundStyle(primary ? .white : Theme.ink)
+                        .foregroundStyle(Theme.ink)
+                    // ink2, not ink3: what the answer will DO to the next
+                    // plan is information, not decoration.
                     Text(caption)
                         .dredfitFont(13)
-                        .foregroundStyle(primary ? .white.opacity(0.55) : Theme.ink3)
+                        .foregroundStyle(Theme.ink2)
                 }
                 Spacer()
                 Image(systemName: "chevron.right")
-                    .foregroundStyle(primary ? .white.opacity(0.6) : Theme.ink3)
+                    .foregroundStyle(Theme.ink3)
             }
             .padding(.horizontal, 22)
             .padding(.vertical, 20)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(primary ? Theme.ink : Color.white)
+                    .fill(Color.white)
                     .overlay(RoundedRectangle(cornerRadius: 20)
-                        .stroke(primary ? Theme.ink : Theme.hairline, lineWidth: 1.5))
+                        .stroke(Theme.hairline, lineWidth: 1.5))
             )
         }
     }

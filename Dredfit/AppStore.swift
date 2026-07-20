@@ -85,21 +85,69 @@ struct AppSettings: Codable, Equatable {
     }
 }
 
+/// v1.7: a mid-workout progress snapshot, written on every phase transition
+/// of the flow. It exists so that iOS evicting the process during a rest
+/// (music, a message, a swipe-kill) does not cost the user 30 minutes of
+/// work — on the next launch Today offers to continue from this position.
+struct WorkoutSnapshot: Codable, Equatable {
+    /// The session this snapshot belongs to. The engine state has not moved
+    /// (feedback was never given), so the same session regenerates from it —
+    /// this number is the guard that proves it still does.
+    var sessionNumber: Int
+    /// The position exactly as the live flow held it. During rest that is
+    /// still the set the rest FOLLOWS (the flow advances after rest) — the
+    /// restore path replays that same advance when the countdown has expired.
+    var exIndex: Int
+    var setIndex: Int
+    /// Set while resting. Still in the future → resume inside the countdown;
+    /// already past → resume at the set the rest was leading into.
+    var restEndDate: Date? = nil
+    var restTotalSec: Int? = nil
+    var actuals: [Pattern: Int] = [:]
+    var skipped: Set<Pattern> = []
+    var workoutStart: Date
+    var savedAt: Date
+    /// Deterministic print of the generated exercise list. The session
+    /// number alone is not identity: the bar toggle and an accepted comeback
+    /// both regenerate a *different* session under the *same* number, and a
+    /// snapshot must never resume into exercises it was not taken from.
+    /// Optional (with the others below) so an older snapshot decodes — and
+    /// then fails the fingerprint check instead of the whole-file decode.
+    var fingerprint: String? = nil
+    /// True once the flow reached the rating screen: restore lands there,
+    /// not back on the last set the position fields still describe.
+    var atFeedback: Bool? = nil
+    /// The exercise "Finish now" cut mid-way — the rating screen labels it
+    /// "not finished" instead of "skipped".
+    var interrupted: Pattern? = nil
+
+    static func fingerprint(of session: Session) -> String {
+        session.exercises
+            .map { "\($0.pattern.rawValue):\($0.tier):\($0.load):\($0.sets)" }
+            .joined(separator: "|")
+    }
+}
+
 private struct AppData: Codable {
     var engineState: EngineState
     var records: [WorkoutRecord]
     var settings: AppSettings? = nil   // v1.1
+    var pendingWorkout: WorkoutSnapshot? = nil   // v1.7
     // v1.6: how many journal entries failed to decode (not encoded) — the
     // caller keeps the original file aside when this is nonzero.
     var droppedRecordCount = 0
 
-    init(engineState: EngineState, records: [WorkoutRecord], settings: AppSettings?) {
+    init(engineState: EngineState, records: [WorkoutRecord],
+         settings: AppSettings?, pendingWorkout: WorkoutSnapshot? = nil) {
         self.engineState = engineState
         self.records = records
         self.settings = settings
+        self.pendingWorkout = pendingWorkout
     }
 
-    private enum CodingKeys: String, CodingKey { case engineState, records, settings }
+    private enum CodingKeys: String, CodingKey {
+        case engineState, records, settings, pendingWorkout
+    }
 
     /// v1.6: the journal decodes record-by-record — one unreadable entry
     /// (e.g. written by a newer version) must not throw away the whole file.
@@ -107,6 +155,9 @@ private struct AppData: Codable {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         engineState = try c.decode(EngineState.self, forKey: .engineState)
         settings = try c.decodeIfPresent(AppSettings.self, forKey: .settings)
+        // try? , not try: a snapshot written by a newer version must degrade
+        // to "nothing to resume", never to a quarantined journal.
+        pendingWorkout = try? c.decodeIfPresent(WorkoutSnapshot.self, forKey: .pendingWorkout)
         var decoded: [WorkoutRecord] = []
         var uc = try c.nestedUnkeyedContainer(forKey: .records)
         while !uc.isAtEnd {
@@ -132,6 +183,9 @@ final class AppStore {
     private(set) var engineState: EngineState
     private(set) var records: [WorkoutRecord]
     private(set) var settings: AppSettings
+    /// v1.7: the last persisted mid-workout snapshot, if any. Read through
+    /// `resumableWorkout`, which applies the freshness and validity checks.
+    private(set) var pendingWorkout: WorkoutSnapshot?
 
     /// The day the UI is anchored to. Views derive "today" from this rather
     /// than from `Date.now` so that crossing midnight while the app sits
@@ -183,6 +237,7 @@ final class AppStore {
         engineState = loaded?.engineState ?? .initial
         records = loaded?.records ?? []
         settings = loaded?.settings ?? AppSettings()
+        pendingWorkout = loaded?.pendingWorkout
         if let dropped = loaded?.droppedRecordCount, dropped > 0 {
             // Partial corruption: keep the full original aside before the next
             // persist() rewrites the file without the unreadable entries.
@@ -395,6 +450,7 @@ final class AppStore {
         // to this state (replayed feedback, a stale snapshot) must not append
         // a duplicate journal entry either.
         guard session.sessionNumber == engineState.counter + 1 else { return [] }
+        pendingWorkout = nil   // v1.7: the workout is over — nothing to resume
         let before = engineState
         engineState = Engine.applyFeedback(state: engineState, session: session,
                                            result: result, overrides: overrides,
@@ -418,6 +474,58 @@ final class AppStore {
         }
         return MilestoneDetector.detect(before: before, after: engineState,
                                         session: session, skipped: skipped)
+    }
+
+    // MARK: - Workout in progress (v1.7)
+
+    /// A snapshot older than this is a different training occasion, not an
+    /// interrupted one — offering to "continue" a workout from this morning
+    /// at 9 pm would be dishonest about what the session was.
+    static let workoutResumeWindow: TimeInterval = 3 * 60 * 60
+
+    /// The snapshot Today may offer to continue, or nil. Valid only while it
+    /// still matches the engine (no feedback was applied since), regenerates
+    /// the very same exercises, holds actual progress, nothing was completed
+    /// today, and it is fresh enough to be the same occasion.
+    func resumableWorkout(now: Date = .now) -> WorkoutSnapshot? {
+        guard let snap = pendingWorkout,
+              snap.sessionNumber == engineState.counter + 1,
+              // The same number can be a different session: the bar toggle
+              // and an accepted comeback regenerate the exercise list
+              // without moving the counter, and the snapshot's indices,
+              // actuals and skips belong to the OLD list.
+              snap.fingerprint == WorkoutSnapshot.fingerprint(of: nextSession),
+              !doneToday,
+              now.timeIntervalSince(snap.savedAt) < Self.workoutResumeWindow,
+              // Mirror of the flow's hasProgress: a snapshot from the moment
+              // the warm-up ended (first set untouched, nothing recorded)
+              // has nothing to offer — the honest card for that launch is
+              // the plain Start, warm-up included.
+              snap.atFeedback == true || snap.restEndDate != nil
+                  || snap.exIndex > 0 || snap.setIndex > 0
+                  || !snap.actuals.isEmpty || !snap.skipped.isEmpty
+        else { return nil }
+        return snap
+    }
+
+    /// Called by the workout flow on every phase transition — some 35 times
+    /// in a full session. `refreshWidget: false` is not an optimization but
+    /// the truth: none of the widget's three states (workout / done / rest)
+    /// can change while a workout is in progress, and poking WidgetKit on
+    /// every set would spend the day's reload budget on identical content.
+    func saveWorkoutSnapshot(_ snapshot: WorkoutSnapshot) {
+        pendingWorkout = snapshot
+        persist(refreshWidget: false)
+    }
+
+    /// The workout ended in any deliberate way — completed, discarded via
+    /// Exit, or restarted from scratch. Nothing is left to resume. Same
+    /// reasoning as above: dropping a snapshot changes nothing the widget
+    /// shows (completion goes through completeWorkout, which does refresh).
+    func clearWorkoutSnapshot() {
+        guard pendingWorkout != nil else { return }
+        pendingWorkout = nil
+        persist(refreshWidget: false)
     }
 
     // MARK: - Settings (v1.1)
@@ -549,6 +657,9 @@ final class AppStore {
         let hadBar = engineState.hasBar
         engineState = .initial
         engineState.hasBar = hadBar
+        // Session numbers restart — a pre-reset snapshot could otherwise
+        // collide with the new counter and resume into the wrong workout.
+        pendingWorkout = nil
         closeComebackQuestion()
     }
 
@@ -708,6 +819,9 @@ final class AppStore {
         engineState = decoded.engineState
         records = decoded.records
         settings = decoded.settings ?? AppSettings()
+        // A half-finished workout is tied to the device and moment it was
+        // interrupted on — it does not travel with a restored history.
+        pendingWorkout = nil
         settings.healthExportedThrough = max(priorHealthMark, settings.healthExportedThrough)
         // v1.6: new backups carry per-record flags; old ones carry only the
         // mark — the migration turns whichever mark won above into flags.
@@ -732,8 +846,9 @@ final class AppStore {
         return dir.appendingPathComponent("dredfit-state.json")
     }
 
-    private func persist() {
-        let data = AppData(engineState: engineState, records: records, settings: settings)
+    private func persist(refreshWidget: Bool = true) {
+        let data = AppData(engineState: engineState, records: records,
+                           settings: settings, pendingWorkout: pendingWorkout)
         do {
             try JSONEncoder().encode(data).write(to: storageURL, options: .atomic)
         } catch {
@@ -742,7 +857,9 @@ final class AppStore {
             // only durability path, so it must at least leave a trace.
             Self.log.fault("persist failed: \(error.localizedDescription)")
         }
-        refreshWidgetSnapshot()   // v1.3: every persisted change reaches the widget
+        // v1.3: every persisted change reaches the widget — except the ones
+        // that provably cannot change what it shows (see saveWorkoutSnapshot).
+        if refreshWidget { refreshWidgetSnapshot() }
     }
 }
 

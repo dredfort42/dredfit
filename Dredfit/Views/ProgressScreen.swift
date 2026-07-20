@@ -24,15 +24,27 @@ struct ProgressScreen: View {
     /// "0 workouts · total level 0".
     private var canShare: Bool { !store.records.isEmpty }
 
+    // A labelled pill that lives next to the stat it shares, not floating in
+    // the top corner beside the global settings gear. Echoes the pattern-chip
+    // capsule style right below it.
     @ViewBuilder
     private var shareButton: some View {
         if canShare, let cardURL {
             ShareLink(item: cardURL,
                       preview: SharePreview(summaryHeadline)) {
-                Image(systemName: "square.and.arrow.up")
-                    .dredfitFont(16, weight: .medium)
-                    .foregroundStyle(Theme.ink2)
-                    .frame(width: 44, height: 44)
+                HStack(spacing: 6) {
+                    Image(systemName: "square.and.arrow.up")
+                    Text("Share")
+                }
+                .dredfitFont(13, weight: .semibold)
+                .foregroundStyle(Theme.ink2)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 7)
+                .background(
+                    Capsule()
+                        .fill(Color.white)
+                        .overlay(Capsule().strokeBorder(Theme.hairline, lineWidth: 1.5))
+                )
             }
             .accessibilityIdentifier("progress-share")
             .accessibilityLabel(Text("Share progress"))
@@ -49,20 +61,25 @@ struct ProgressScreen: View {
             Kicker(text: String(localized: "Progress"))
                 .padding(.top, 18)
 
-            HStack(alignment: .firstTextBaseline, spacing: 10) {
-                // The identifier lets UI tests assert on THIS value — a bare
-                // staticTexts["0"] query used to match a chart axis label.
-                Text("\(store.totalLevel)")
-                    .dredfitFont(56, weight: .heavy, cap: 84)
-                    .tracking(-2)
-                    .monospacedDigit()
-                    .accessibilityIdentifier("total-level")
-                VStack(alignment: .leading, spacing: 1) {
-                    Text("total level")
-                    Text("\(store.records.count) workouts")
+            HStack(alignment: .center, spacing: 12) {
+                HStack(alignment: .firstTextBaseline, spacing: 10) {
+                    // The identifier lets UI tests assert on THIS value — a bare
+                    // staticTexts["0"] query used to match a chart axis label.
+                    Text("\(store.totalLevel)")
+                        .dredfitFont(56, weight: .heavy, cap: 84)
+                        .tracking(-2)
+                        .monospacedDigit()
+                        .accessibilityIdentifier("total-level")
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text("total level")
+                        Text("\(store.records.count) workouts")
+                    }
+                    .dredfitFont(14.5)
+                    .foregroundStyle(Theme.ink2)
                 }
-                .dredfitFont(14.5)
-                .foregroundStyle(Theme.ink2)
+                Spacer(minLength: 8)
+                // Sits with the numbers it shares; centred against the big total.
+                shareButton
             }
             .padding(.top, 12)
 
@@ -94,13 +111,6 @@ struct ProgressScreen: View {
             }
         }
         .padding(.horizontal, 24)
-        // Mirrors the settings gear's overlay metrics in RootView (top 4,
-        // trailing 11 + its 44pt frame) so the two icons sit as one even row.
-        .overlay(alignment: .topTrailing) {
-            shareButton
-                .padding(.top, 4)
-                .padding(.trailing, 55)
-        }
         .onAppear { refreshCard() }
         // The totals move with every workout; a stale card would share numbers
         // the user is no longer looking at.
@@ -203,7 +213,9 @@ struct ProgressScreen: View {
                         .overlay(Capsule().strokeBorder(selected ? Theme.accent : Theme.hairline,
                                                         lineWidth: 1.5))
                 )
-                .foregroundStyle(selected ? Theme.accent : Theme.ink2)
+                // ink, not accent: accent on accentSoft is 2.91:1 — the fill
+                // and stroke already say "selected", the text just reads.
+                .foregroundStyle(selected ? Theme.ink : Theme.ink2)
         }
         // Colour alone doesn't reach VoiceOver — state has to be a trait.
         .accessibilityAddTraits(selected ? [.isSelected] : [])
@@ -242,7 +254,7 @@ struct ProgressScreen: View {
                 .overlay(
                     Text("The chart will appear after a couple of workouts")
                         .dredfitFont(12.5)
-                        .foregroundStyle(Theme.ink3)
+                        .foregroundStyle(Theme.ink2)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 16)
                 )

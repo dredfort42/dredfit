@@ -196,14 +196,143 @@ final class DredfitUITests: XCTestCase {
 
     // MARK: - Exit and data integrity
 
-    func testExitDiscardsWorkout() {
+    func testExitDiscardsWorkoutAfterConfirmation() {
         app.launch()
         startWorkout()
         app.buttons["Done"].tap()          // one set
         app.buttons["Exit"].firstMatch.tap()
+        // v1.7: progress on the clock means Exit asks before throwing it away
+        let discard = app.buttons["Discard workout"]
+        XCTAssertTrue(discard.waitForExistence(timeout: 3),
+                      "Exit with progress must ask for confirmation")
+        discard.tap()
         // the workout is not recorded — Start is back in place
         XCTAssertTrue(app.buttons["Start"].waitForExistence(timeout: 3),
-                      "after Exit the workout must not count as completed")
+                      "after a discard the workout must not count as completed")
+    }
+
+    /// v1.7: with nothing done yet (warm-up, first set untouched), Exit
+    /// leaves quietly — there is no progress to protect with a dialog.
+    func testExitWithNoProgressNeedsNoConfirmation() {
+        app.launch()
+        startWorkout()
+        app.buttons["Exit"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["Start"].waitForExistence(timeout: 3),
+                      "an empty workout should exit without a dialog")
+    }
+
+    /// v1.7: the honest middle path — "Finish now" marks the remaining
+    /// exercises as skipped and leads to the rating, so running out of time
+    /// ends in a recorded workout instead of a discarded one.
+    func testExitCanFinishNowThroughTheRating() {
+        app.launch()
+        startWorkout()
+        app.buttons["Done"].tap()          // one set → rest
+        app.buttons["Exit"].firstMatch.tap()
+        let finishNow = app.buttons["Finish now"]
+        XCTAssertTrue(finishNow.waitForExistence(timeout: 3))
+        finishNow.tap()
+
+        XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 3),
+                      "Finish now must lead to the rating screen")
+        // Н-4: the exercise cut mid-way (one set done) is "not finished";
+        // the fully untouched ones behind it are "skipped".
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label == 'not finished'")).firstMatch.exists,
+            "the interrupted exercise must read 'not finished', not 'skipped'")
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label == 'skipped'")).firstMatch.exists,
+            "the untouched exercises must be listed as skipped")
+
+        app.staticTexts["On plan"].tap()
+        XCTAssertTrue(app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5),
+                      "a finished-early workout is still a recorded workout")
+    }
+
+    // MARK: - Resuming an interrupted workout (v1.7)
+
+    /// The audit's headline scenario: the process dies mid-workout (here: a
+    /// terminate during rest), and the relaunch offers to continue instead of
+    /// silently presenting a fresh plan.
+    func testInterruptedWorkoutCanBeResumedAfterRelaunch() {
+        app.launch()
+        startWorkout()
+        app.buttons["Done"].tap()          // set 1 done → rest (snapshot written)
+        XCTAssertTrue(app.buttons["Skip rest"].waitForExistence(timeout: 3))
+        app.terminate()
+
+        let relaunch = XCUIApplication()
+        relaunch.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        relaunch.launch()
+        XCTAssertTrue(relaunch.staticTexts["Continue the workout?"]
+                        .waitForExistence(timeout: 5),
+                      "a fresh interrupted workout must be offered back")
+
+        relaunch.buttons["resume-continue"].tap()
+        // The snapshot was taken entering rest — the flow resumes inside it.
+        XCTAssertTrue(relaunch.buttons["Skip rest"].waitForExistence(timeout: 5),
+                      "continuing must land back inside the workout")
+    }
+
+    /// Н-3: a kill on the rating screen comes back to the rating screen —
+    /// the workout itself is behind, only the answer is missing.
+    func testResumeLandsOnRatingWhenKilledThere() {
+        app.launch()
+        startWorkout()
+        for _ in 0..<6 { app.buttons["Skip exercise"].tap() }
+        XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 3))
+        app.terminate()
+
+        let relaunch = XCUIApplication()
+        relaunch.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        relaunch.launch()
+        XCTAssertTrue(relaunch.staticTexts["Continue the workout?"]
+                        .waitForExistence(timeout: 5))
+        XCTAssertTrue(relaunch.staticTexts["The workout is done — only the rating is left."]
+                        .exists, "the card must say the truth: only the rating is left")
+
+        relaunch.buttons["resume-continue"].tap()
+        XCTAssertTrue(relaunch.staticTexts["How did it go?"].waitForExistence(timeout: 5),
+                      "continuing must reopen the rating, not a set already done")
+        relaunch.staticTexts["On plan"].tap()
+        XCTAssertTrue(relaunch.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5),
+                      "the resumed rating must record the workout")
+    }
+
+    /// Н-2: a snapshot with nothing done (warm-up just ended, first set
+    /// untouched) is not offered — the honest launch is the plain Start.
+    func testNoResumeCardWithoutProgress() {
+        app.launch()
+        startWorkout()
+        XCTAssertTrue(app.buttons["Done"].waitForExistence(timeout: 3))
+        app.terminate()
+
+        let relaunch = XCUIApplication()
+        relaunch.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        relaunch.launch()
+        XCTAssertTrue(relaunch.buttons["Start"].waitForExistence(timeout: 5),
+                      "an empty interruption must fall back to the plain Start")
+        XCTAssertFalse(relaunch.staticTexts["Continue the workout?"].exists,
+                       "there is nothing to continue — the card must not show")
+    }
+
+    /// "Start over" is a real answer: the snapshot is dropped and a fresh
+    /// session starts from the warm-up.
+    func testResumeCardCanStartOver() {
+        app.launch()
+        startWorkout()
+        app.buttons["Done"].tap()
+        XCTAssertTrue(app.buttons["Skip rest"].waitForExistence(timeout: 3))
+        app.terminate()
+
+        let relaunch = XCUIApplication()
+        relaunch.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        relaunch.launch()
+        XCTAssertTrue(relaunch.staticTexts["Continue the workout?"]
+                        .waitForExistence(timeout: 5))
+        relaunch.buttons["resume-restart"].tap()
+        XCTAssertTrue(relaunch.buttons["Skip warm-up"].waitForExistence(timeout: 5),
+                      "starting over must open a fresh session from the warm-up")
     }
 
     func testSkipAllExercisesStillReachesRating() {
@@ -250,19 +379,26 @@ final class DredfitUITests: XCTestCase {
         app.buttons["Got it"].tap()
     }
 
-    func testCalendarColdStartWhenDoneToday() {
+    /// v1.7: the app always opens on Today — a stable home instead of a tab
+    /// that moves with the day. Today's own "completed" state answers the
+    /// after-workout launch; the calendar keeps its card one tap away.
+    func testColdStartOpensTodayEvenWhenDone() {
         app.launch()
         completeWorkout()
         app.staticTexts["On plan"].tap()
         _ = app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5)
 
-        // relaunch WITHOUT a reset — the app should open on the calendar
+        // relaunch WITHOUT a reset — still Today, in its completed state
         let relaunch = XCUIApplication()
         relaunch.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         relaunch.terminate()
         relaunch.launch()
-        XCTAssertTrue(relaunch.staticTexts["Completed today ✓"].waitForExistence(timeout: 5),
-                      "a cold start with a completed workout should open the calendar")
+        XCTAssertTrue(relaunch.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5),
+                      "a cold start must open Today in its completed state")
+
+        relaunch.tabBars.buttons["Calendar"].tap()
+        XCTAssertTrue(relaunch.staticTexts["Completed today ✓"].waitForExistence(timeout: 3),
+                      "the calendar keeps its completed-today card")
     }
 
     // MARK: - Progress
@@ -347,6 +483,10 @@ final class DredfitUITests: XCTestCase {
                       "the workout must open with the warm-up")
         XCTAssertTrue(app.staticTexts["Marching in place"].exists,
                       "the first warm-up move is missing")
+        // v1.7: one impossible move must not cost the other five
+        app.buttons["Skip this move"].tap()
+        XCTAssertTrue(app.staticTexts["Arm circles"].waitForExistence(timeout: 3),
+                      "skipping one move must advance to the next, not exit")
         app.buttons["Skip warm-up"].tap()
         XCTAssertTrue(app.buttons["Done"].waitForExistence(timeout: 3),
                       "skipping the warm-up must lead to the first exercise")
@@ -366,7 +506,7 @@ final class DredfitUITests: XCTestCase {
         app.buttons["weekday-2"].tap()
         XCTAssertTrue(app.staticTexts["Sounds and haptics"].exists)
         XCTAssertTrue(app.staticTexts["BACKUP"].exists)
-        app.buttons["Got it"].tap()
+        app.buttons["settings-done"].tap()
         XCTAssertTrue(app.staticTexts["Workout 1"].waitForExistence(timeout: 3),
                       "closing settings should return to Today")
     }
@@ -377,13 +517,13 @@ final class DredfitUITests: XCTestCase {
         app.buttons["settings"].tap()
         XCTAssertTrue(app.staticTexts["REST DAYS"].waitForExistence(timeout: 3),
                       "settings must open from the Calendar tab too")
-        app.buttons["Got it"].tap()
+        app.buttons["settings-done"].tap()
 
         app.tabBars.buttons["Progress"].tap()
         app.buttons["settings"].tap()
         XCTAssertTrue(app.staticTexts["REST DAYS"].waitForExistence(timeout: 3),
                       "settings must open from the Progress tab too")
-        app.buttons["Got it"].tap()
+        app.buttons["settings-done"].tap()
     }
 
     /// v1.4: the explainer opens from the first settings row, carries all six
@@ -423,7 +563,7 @@ final class DredfitUITests: XCTestCase {
         let toggle = app.switches["hasbar-toggle"]
         XCTAssertTrue(toggle.waitForExistence(timeout: 3), "no pull-up bar toggle in settings")
         toggle.tap()
-        app.buttons["Got it"].tap()
+        app.buttons["settings-done"].tap()
         XCTAssertTrue(app.staticTexts["Bar hang"].waitForExistence(timeout: 3),
                       "with the bar on, session 2 must swap in the bar hang")
 

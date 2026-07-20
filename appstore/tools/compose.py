@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Compose framed App Store screenshots in the existing Dredfit style.
 
-Style constants measured from AppStore_graphics/screenshots/en/s1.png:
+Style constants measured from appstore/screenshots/en/s1.png:
 canvas 1320x2868, bg gradient (246,245,242)->(237,235,230),
 frame rect (119,448)-(1200,2715) color (26,26,28) radius ~166, border 30,
 screen rect (149,476)-(1170,2687) radius ~136, pill 320x92 at y506 centered,
@@ -83,8 +83,14 @@ def compose(raw_path, headline_lines, subtitle, out_path):
     canvas.save(out_path)
     print("wrote", out_path)
 
-RAW = "/private/tmp/claude-501/-Users-dnovikov-Projects-DREDFIT/b1875a84-e826-4259-8641-e6c9a1efcf95/scratchpad/raw"
-OUT = "/Users/dnovikov/Projects/DREDFIT/AppStore_graphics/screenshots"
+import os
+
+# Both overridable, so a recapture never has to edit this file:
+#   RAW_DIR=/path/to/raw python3 compose.py
+RAW = os.environ.get("RAW_DIR", "/tmp/dredfit-raw")
+OUT = os.environ.get("OUT_DIR",
+                     os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                  os.pardir, "screenshots"))
 
 jobs = [
     (f"{RAW}/today_en.png",      ["Zero setup."], "Open the app — your workout is ready.", f"{OUT}/en/s1.png"),

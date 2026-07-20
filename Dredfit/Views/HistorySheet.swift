@@ -44,12 +44,12 @@ struct HistorySheet: View {
                             if record.skipped?.contains(ex.pattern) == true {
                                 Text("skipped")
                                     .dredfitFont(12.5)
-                                    .foregroundStyle(Theme.ink3)
+                                    .foregroundStyle(Theme.ink2)
                             } else if let actual = record.actuals?[ex.pattern], actual != ex.load {
                                 Text("actual \(actual)")
                                     .dredfitFont(12.5)
                                     .monospacedDigit()
-                                    .foregroundStyle(Theme.accent)
+                                    .foregroundStyle(Theme.accentText)
                             }
                         }
                     }
@@ -63,7 +63,7 @@ struct HistorySheet: View {
                 Spacer()
                 Text("No details saved for this workout.")
                     .dredfitFont(15)
-                    .foregroundStyle(Theme.ink3)
+                    .foregroundStyle(Theme.ink2)
                     .frame(maxWidth: .infinity)
                 Spacer()
             }
@@ -99,8 +99,8 @@ struct HistorySheet: View {
     private var resultCaption: String {
         switch record.result {
         case .less: return String(localized: "Rating: tough — the next one will be easier")
-        case .plan: return String(localized: "Rating: on plan — next: +1 rep")
-        case .more: return String(localized: "Rating: easy — next: +2 reps")
+        case .plan: return String(localized: "Rating: on plan — next: +1 step")
+        case .more: return String(localized: "Rating: easy — next: +2 steps")
         }
     }
 }

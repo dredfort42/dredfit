@@ -2,8 +2,10 @@
 //  CalendarScreen.swift
 //  Dredfit
 //
-//  Four day states: completed (fill), planned (outline), today (accent ring),
-//  rest (no mark). Missed days are NOT flagged — the engine adapts anyway.
+//  Day states: completed (fill), planned (outline, future only), today
+//  (accent ring), rest (quiet fill). Missed days are NOT flagged — they are
+//  plain dimmed numbers, deliberately unmarked and unshamed, and since v1.7
+//  the code finally agrees with this sentence.
 //  UPDATE-3: tapping a completed day opens that workout's history.
 //
 
@@ -44,7 +46,8 @@ struct CalendarScreen: View {
                     .accessibilityLabel(Text("Next month"))
                 }
                 .dredfitFont(16, weight: .medium)
-                .foregroundStyle(Theme.ink3)
+                // ink2, not ink3: interactive controls need ≥3:1 contrast.
+                .foregroundStyle(Theme.ink2)
             }
             .padding(.top, 20)
 
@@ -120,7 +123,11 @@ struct CalendarScreen: View {
 
     // MARK: - Day cell
 
-    private enum DayState { case done, planned, today, rest, out }
+    // v1.7 adds `missed`: a past training day that did not happen. It is NOT
+    // the same as `planned` — the header's promise ("missed days are left as
+    // plain dimmed numbers, deliberately unmarked and unshamed") used to be
+    // broken by giving past days the planned ring.
+    private enum DayState { case done, planned, missed, today, rest, out }
 
     private struct Day {
         let date: Date
@@ -161,8 +168,11 @@ struct CalendarScreen: View {
                     // v1.4 (I-4): a rest day used to carry no mark at all,
                     // leaving it to read like a day outside the month. A soft
                     // fill says "a day, deliberately quiet".
-                    Circle().fill(Theme.cardBG)
-                case .out:
+                    // restFill, not cardBG (v1.7): cardBG on white is 1.07:1 —
+                    // on most real screens the fill simply was not there and
+                    // the I-4 fix never landed.
+                    Circle().fill(Theme.restFill)
+                case .missed, .out:
                     EmptyView()
                 }
             }
@@ -184,7 +194,9 @@ struct CalendarScreen: View {
         case .planned: return date + ", " + String(localized: "planned")
         case .today:   return date + ", " + String(localized: "today")
         case .rest:    return date + ", " + String(localized: "rest")
-        case .out:     return date
+        // Deliberately just the date: VoiceOver gets the same unshamed
+        // silence about a missed day that sighted users do.
+        case .missed, .out: return date
         }
     }
 
@@ -192,7 +204,10 @@ struct CalendarScreen: View {
         switch s {
         case .done:    return .white
         case .planned, .today: return Theme.ink
-        case .rest:    return Theme.ink3
+        // ink2, not ink3 (v1.7): the rest fill is now visible, so its digit
+        // has to be readable on it too.
+        case .rest:    return Theme.ink2
+        case .missed:  return Theme.ink3
         case .out:     return Theme.hairline
         }
     }
@@ -235,6 +250,10 @@ struct CalendarScreen: View {
                 state = .today
             } else if store.isRestDay(d) {
                 state = .rest
+            } else if d < calendar.startOfDay(for: store.today) {
+                // A "planned" ring on a day already in the past would be a
+                // shaming mark wearing a neutral name (v1.7).
+                state = .missed
             } else {
                 state = .planned
             }
@@ -256,7 +275,7 @@ struct CalendarScreen: View {
         HStack(spacing: 16) {
             legendItem(AnyView(Circle().fill(Theme.ink)), label: String(localized: "completed"))
             legendItem(AnyView(Circle().stroke(Theme.planned, lineWidth: 1.5)), label: String(localized: "planned"))
-            legendItem(AnyView(Circle().fill(Theme.cardBG)), label: String(localized: "rest"))
+            legendItem(AnyView(Circle().fill(Theme.restFill)), label: String(localized: "rest"))
             legendItem(AnyView(Circle().stroke(Theme.accent, lineWidth: 2)), label: String(localized: "today"))
         }
         .frame(maxWidth: .infinity)

@@ -15,6 +15,8 @@ import DredfitCore
 /// the feedback screen to the *next* session's data mid-transition.
 private struct ActiveWorkout: Identifiable {
     let session: Session
+    // v1.7: set when the cover should pick up an interrupted workout.
+    var resume: WorkoutSnapshot? = nil
     var id: Int { session.sessionNumber }
 }
 
@@ -40,7 +42,7 @@ struct TodayView: View {
         }
         .padding(.horizontal, 24)
         .fullScreenCover(item: $activeWorkout) { active in
-            WorkoutFlowView(session: active.session)
+            WorkoutFlowView(session: active.session, resume: active.resume)
         }
         .sheet(item: $techniqueFor) { ex in
             TechniqueSheet(exercise: ex)
@@ -98,12 +100,80 @@ struct TodayView: View {
                     .padding(.top, 10)
             }
 
-            PrimaryButton(title: String(localized: "Start")) {
-                activeWorkout = ActiveWorkout(session: store.nextSession)
+            // v1.7: an interrupted workout (iOS evicted the process, a swipe
+            // kill) is offered back instead of silently costing its 30
+            // minutes. The card replaces Start — its own two actions already
+            // are "continue" and "start over".
+            if let snap = store.resumableWorkout() {
+                resumeCard(snap)
+                    .padding(.top, 10)
+                    .padding(.bottom, 14)
+            } else {
+                PrimaryButton(title: String(localized: "Start")) {
+                    activeWorkout = ActiveWorkout(session: store.nextSession)
+                }
+                    .padding(.top, 10)
+                    .padding(.bottom, 14)   // breathing room above the tab bar
             }
-                .padding(.top, 10)
-                .padding(.bottom, 14)   // breathing room above the tab bar
         }
+    }
+
+    // MARK: - Interrupted workout (v1.7)
+
+    private func resumeCard(_ snap: WorkoutSnapshot) -> some View {
+        let total = store.nextSession.exercises.count
+        let position = min(snap.exIndex + 1, total)
+        return VStack(alignment: .leading, spacing: 0) {
+            Text("Continue the workout?")
+                .dredfitFont(20, weight: .heavy)
+                .tracking(-0.3)
+                .foregroundStyle(Theme.ink)
+
+            Group {
+                if snap.atFeedback == true {
+                    // Н-3: the flow got all the way to the rating — say that,
+                    // not a misleading exercise position.
+                    Text("The workout is done — only the rating is left.")
+                } else {
+                    Text("You stopped at exercise \(position) of \(total) — everything done so far is still in place.")
+                }
+            }
+            .dredfitFont(14.5)
+            .foregroundStyle(Theme.ink2)
+            .lineSpacing(2.5)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.top, 8)
+
+            HStack(spacing: 10) {
+                Button {
+                    activeWorkout = ActiveWorkout(session: store.nextSession,
+                                                  resume: snap)
+                } label: {
+                    Text(String(localized: "resume.continue", defaultValue: "Continue"))
+                        .dredfitFont(15.5, weight: .semibold)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity, minHeight: 46)
+                        .background(Theme.ink, in: RoundedRectangle(cornerRadius: 14))
+                }
+                .accessibilityIdentifier("resume-continue")
+
+                Button {
+                    store.clearWorkoutSnapshot()
+                    activeWorkout = ActiveWorkout(session: store.nextSession)
+                } label: {
+                    Text("Start over")
+                        .dredfitFont(15.5, weight: .medium)
+                        .foregroundStyle(Theme.ink2)
+                        .frame(maxWidth: .infinity, minHeight: 46)
+                        .background(RoundedRectangle(cornerRadius: 14)
+                            .strokeBorder(Theme.hairline, lineWidth: 1.5))
+                }
+                .accessibilityIdentifier("resume-restart")
+            }
+            .padding(.top, 16)
+        }
+        .padding(18)
+        .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 18))
     }
 
     // MARK: - Rest day (v1.4)
@@ -126,27 +196,35 @@ struct TodayView: View {
             }
             .padding(.top, 18)
 
+            // ink2, not ink3: this sentence is the rest day's whole argument.
             Text("Recovery is part of the plan — the load only sticks if you let it settle.")
                 .dredfitFont(15.5)
-                .foregroundStyle(Theme.ink3)
+                .foregroundStyle(Theme.ink2)
                 .lineSpacing(3)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 22)
 
             Spacer()
 
-            Button {
-                activeWorkout = ActiveWorkout(session: store.nextSession)
-            } label: {
-                Text("Train anyway")
-                    .dredfitFont(17, weight: .medium)
-                    .foregroundStyle(Theme.ink2)
-                    .frame(maxWidth: .infinity, minHeight: 56)
-                    .overlay(RoundedRectangle(cornerRadius: 18)
-                        .strokeBorder(Theme.hairline, lineWidth: 1.5))
+            // v1.7: a "train anyway" session interrupted mid-way comes back
+            // here too — the rest day must not eat it.
+            if let snap = store.resumableWorkout() {
+                resumeCard(snap)
+                    .padding(.bottom, 14)
+            } else {
+                Button {
+                    activeWorkout = ActiveWorkout(session: store.nextSession)
+                } label: {
+                    Text("Train anyway")
+                        .dredfitFont(17, weight: .medium)
+                        .foregroundStyle(Theme.ink2)
+                        .frame(maxWidth: .infinity, minHeight: 56)
+                        .overlay(RoundedRectangle(cornerRadius: 18)
+                            .strokeBorder(Theme.hairline, lineWidth: 1.5))
+                }
+                .accessibilityIdentifier("train-anyway")
+                .padding(.bottom, 14)
             }
-            .accessibilityIdentifier("train-anyway")
-            .padding(.bottom, 14)
         }
     }
 
@@ -213,8 +291,8 @@ struct TodayView: View {
     private var resultCaption: String {
         switch store.lastRecord?.result {
         case .less: return String(localized: "Rating: tough — the next one will be easier")
-        case .plan: return String(localized: "Rating: on plan — next: +1 rep")
-        case .more: return String(localized: "Rating: easy — next: +2 reps")
+        case .plan: return String(localized: "Rating: on plan — next: +1 step")
+        case .more: return String(localized: "Rating: easy — next: +2 steps")
         case nil:   return ""
         }
     }

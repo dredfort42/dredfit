@@ -33,10 +33,10 @@ The 40-exercise library is 10 patterns × 4 tiers: 8 rotating patterns (32), the
 
 SwiftUI, iOS 17+, iPhone, portrait. Three tabs, a settings sheet reachable from all of them, and one flow:
 
-- **Today** — the generated plan and one Start button; a completed state once you're done, with a card for the next workout.
-- **Workout** — warm-up, then one exercise at a time: a big number, set dots, a date-based rest ring with a 3-2-1 audio countdown, a hold timer for static exercises, in-the-moment actual adjustment, per-exercise skip. Every countdown is wall-clock based, so locking the phone mid-rest loses nothing.
-- **Rating** — the one question, with an honest summary of anything you adjusted or skipped.
-- **Calendar** — filled days are tappable history (what you did, with actuals and skips); planned days are outlines; today gets an accent ring; rest and missed days are left as plain dimmed numbers, deliberately unmarked and unshamed.
+- **Today** — the generated plan and one Start button; a completed state once you're done, with a card for the next workout. If a session was cut short by iOS reclaiming memory or a swipe-kill, this is where it is offered back.
+- **Workout** — warm-up, then one exercise at a time: a big number, set dots, a date-based rest ring with a 3-2-1 audio countdown, a hold timer for static exercises, in-the-moment actual adjustment, per-exercise skip. Every countdown is wall-clock based, so locking the phone mid-rest loses nothing — and the position is snapshotted on every transition, so neither does losing the process. Leaving asks first, and offers to finish early rather than discard.
+- **Rating** — the one question on three equal cards, with an honest summary of anything you adjusted, skipped or left unfinished.
+- **Calendar** — filled days are tappable history (what you did, with actuals and skips); *upcoming* planned days are outlines; today gets an accent ring; rest days a quiet fill; missed days are left as plain dimmed numbers, deliberately unmarked and unshamed.
 - **Progress** — total level, a line chart across sessions with per-pattern projections, a weekly summary, per-pattern level bars.
 - **Settings** — rest days, the pull-up bar, sounds and haptics, a reminder on training days, Apple Health export, backup export/import.
 
@@ -59,7 +59,7 @@ DredfitCore/            Swift package — the engine, pure functions, no UI impo
 
 Dredfit/                SwiftUI app target
   AppStore.swift        the only mutable state + JSON persistence; also owns
-                        the Health export high-water mark
+                        the Health export flags and the in-progress snapshot
   HealthStore.swift     write-only HealthKit bridge, stateless
   LiveActivityController.swift, WidgetBridge.swift
   Views/                Today, WorkoutFlow, Feedback, Progress, Calendar,
@@ -74,13 +74,13 @@ The engine was first written and verified as a JavaScript reference (4,150 prope
 
 ## Testing
 
-Three layers, 161 automated tests:
+Three layers, 182 automated tests:
 
 | Layer | Count | What it covers |
 |---|---|---|
 | Core invariants + golden | 61 | encoding bijectivity, rotation properties, pull:push balance, deload timing, override caps, skip semantics, bar-branch independence, lenient state decode, feedback replay safety, reference parity |
-| App unit tests | 73 | persistence round-trips, corrupted-file quarantine, legacy-record migration, rest-day calendar math, Health export ordering and idempotence, reminder scheduling, day-anchor rollover, widget snapshot |
-| UI tests | 27 | the full workout flow, in-workout adjustment, hold mis-tap grace, history, cold-start routing, relaunch persistence |
+| App unit tests | 88 | persistence round-trips, corrupted-file quarantine, legacy-record migration, in-progress snapshot validity, rest-day calendar math, Health export ordering and idempotence, reminder scheduling, day-anchor rollover, widget snapshot |
+| UI tests | 33 | the full workout flow, in-workout adjustment, hold mis-tap grace, resume after a kill, the three exit paths, history, relaunch persistence |
 
 Plus [TESTPLAN.md](TESTPLAN.md): a manual QA checklist (locale passes, date rollover, backgrounding during rest, device-only integrations) and a registry of found issues with their status.
 

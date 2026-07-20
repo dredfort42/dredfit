@@ -48,7 +48,12 @@ struct SettingsSheet: View {
                 .padding(.bottom, 12)
             }
 
-            PrimaryButton(title: String(localized: "Got it")) { dismiss() }
+            // "Done", not "Got it": settings are a place you act in, not a
+            // message you acknowledge. Keyed like milestone.done — the same
+            // English word as the workout's set button, different meaning.
+            PrimaryButton(title: String(localized: "settings.done",
+                                        defaultValue: "Done")) { dismiss() }
+                .accessibilityIdentifier("settings-done")
                 .padding(.horizontal, 24)
                 .padding(.bottom, 16)
         }
@@ -112,9 +117,10 @@ struct SettingsSheet: View {
                     dayChip(wd)
                 }
             }
+            // ink2, not ink3: the one line explaining what the chips mean.
             Text("Highlighted days are rest days")
                 .dredfitFont(12.5)
-                .foregroundStyle(Theme.ink3)
+                .foregroundStyle(Theme.ink2)
         }
     }
 
@@ -135,7 +141,10 @@ struct SettingsSheet: View {
                         .overlay(RoundedRectangle(cornerRadius: 12)
                             .stroke(isRest ? Theme.accent : Theme.hairline, lineWidth: 1.5))
                 )
-                .foregroundStyle(isRest ? Theme.accent : Theme.ink2)
+                // ink, not accent: accent text on accentSoft is 2.91:1. The
+                // fill and stroke already carry "selected"; the label's only
+                // job is to be readable.
+                .foregroundStyle(isRest ? Theme.ink : Theme.ink2)
         }
         .accessibilityIdentifier("weekday-\(weekday)")
         // Colour alone doesn't reach VoiceOver — without the trait a chip
@@ -158,7 +167,7 @@ struct SettingsSheet: View {
             .accessibilityIdentifier("hasbar-toggle")
             Text("Every other workout swaps the row for a vertical pull")
                 .dredfitFont(12.5)
-                .foregroundStyle(Theme.ink3)
+                .foregroundStyle(Theme.ink2)
         }
     }
 
@@ -223,7 +232,7 @@ struct SettingsSheet: View {
             .accessibilityIdentifier("health-toggle")
             Text("Workouts appear in the Health app. Nothing is read or shared.")
                 .dredfitFont(12.5)
-                .foregroundStyle(Theme.ink3)
+                .foregroundStyle(Theme.ink2)
         }
         .confirmationDialog(String(localized: "Add past workouts to Health?"),
                             isPresented: $backfillPromptShown,
