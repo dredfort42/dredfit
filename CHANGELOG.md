@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.6.0
 
 Design-audit wave (2026-07): the three findings that cost user trust —
 workouts dying with the process, an Exit that could only discard, and a
