@@ -2,8 +2,9 @@
 //  RootView.swift
 //  Dredfit
 //
-//  If today's workout is already done, the app opens on the Calendar tab.
-//  The switch happens only on cold start, never mid-session.
+//  The app always opens on Today (v1.7): a home that moves with the day is
+//  a home nobody's muscle memory can settle into. Today's own "completed"
+//  state is the right answer to "why did I open the app after training".
 //
 //  The settings icon lives here, not in ProgressScreen: it overlays the
 //  TabView at a fixed position so it's reachable from any tab, not just
@@ -18,7 +19,6 @@ struct RootView: View {
 
     enum Tab: Hashable { case today, calendar, progress }
     @State private var tab: Tab = .today
-    @State private var didSetInitialTab = false
     @State private var settingsShown = false
     @State private var onboardingShown = false
 
@@ -59,16 +59,12 @@ struct RootView: View {
             }
         }
         .onAppear {
-            guard !didSetInitialTab else { return }
-            didSetInitialTab = true
-            if store.doneToday { tab = .calendar }
-            // Deliberately after the tab decision: a fresh install has nothing
-            // done today, so the cover always opens over Today.
             onboardingShown = store.shouldShowOnboarding
         }
-        // A cold start cannot have a workout in progress — any Live Activity
-        // still alive belongs to a killed session and must leave the lock
-        // screen now, not when its multi-hour system cap expires.
+        // A cold start has no LIVE workout: even a session that Today will
+        // offer to resume starts a fresh Live Activity when it is picked up.
+        // Any activity still alive belongs to the killed process and must
+        // leave the lock screen now, not when its multi-hour cap expires.
         .task { WorkoutActivityController.endOrphans() }
         .onChange(of: scenePhase) { _, phase in
             switch phase {
