@@ -1,6 +1,6 @@
 # Dredfit — manual QA checklist
 
-Automated coverage (161 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
+Automated coverage (182 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
 
 **How to use.** Run the *Release smoke* block before every release. Run *Full pass* when the engine, persistence or an integration changed. Device-only rows cannot pass on a simulator and are marked ⌚. Record anything that fails in the [Issue registry](#issue-registry) at the bottom rather than fixing it silently.
 
@@ -34,12 +34,17 @@ Legend: ✅ pass · ❌ fail (log it) · ➖ not applicable this run · ⌚ devi
 | 1.2 | Tap **Start** | Full-screen flow opens on **WARM-UP**; the screen does not auto-lock for the whole workout |
 | 1.3 | Let the warm-up run | 6 moves × 30 s. At 3-2-1 a tick sound + light haptic; at 0 a lower tone + success haptic; dots advance; total 3 min |
 | 1.4 | Tap **Skip warm-up** | The *entire* warm-up block ends (not just the current move) and exercise 1 appears |
+| 1.4a | Tap **Skip this move** during the warm-up | Only the current move is skipped — the next one starts its own 30 s; on the last move it ends the warm-up |
 | 1.5 | Work screen layout | Header "1 / 6" and 6 capsules; exercise name; **technique** button; big planned number; "reps" (or "reps per side"); set dots; "set 1 of 3" |
 | 1.6 | Tap **technique** during work | Sheet opens for the current exercise; it does not swap if the phase changes underneath |
 | 1.7 | Tap **Done** on a non-final set | Rest starts at 60 s |
 | 1.8 | Rest screen | "REST", a ring counting down from 60, "Next up" + next label, a **technique** button for the *next* exercise, **Skip rest** |
 | 1.9 | Complete all sets of all 6 exercises | Flow reaches the rating screen |
-| 1.10 | Tap **Exit** mid-workout | Returns to Today; **nothing is recorded** — the session is discarded (there is no confirmation dialog; see [I-1](#issue-registry)) |
+| 1.10 | Tap **Exit** with progress on the clock (a set done, an actual entered, or mid-rest) | Confirmation dialog: **Finish now** / **Discard workout** (destructive) / **Cancel** |
+| 1.10a | Choose **Finish now** | Remaining exercises are marked skipped, the rating screen opens; after rating, the workout is recorded. The exercise cut mid-way reads "not finished", fully untouched ones read "skipped" |
+| 1.10b | Choose **Discard workout** | Returns to Today; nothing is recorded and no resume card appears later |
+| 1.10c | Choose **Cancel** | Back in the workout exactly where it was |
+| 1.10d | Tap **Exit** during the warm-up or on the very first set with nothing done | Leaves quietly — no dialog, nothing to protect |
 
 ### 2. Rest ring and backgrounding
 
@@ -81,7 +86,7 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 | # | Check | Expected |
 |---|---|---|
 | 5.1 | Layout | "Workout N" kicker, "How did it go?", subtitle "One tap — the next workout adapts" |
-| 5.2 | Three options | "Tough, did less" / "On plan" (highlighted) / "Easy, could do more" with captions −1 / +1 / +2 |
+| 5.2 | Three options | "Tough, did less" / "On plan" / "Easy, could do more" — **equal visual weight** (no filled card), captions "the next one will be easier" / "next: +1 step" / "next: +2 steps" |
 | 5.3 | No adjustments made | No summary card is shown |
 | 5.4 | With adjustments/skips | "Adjusted" card lists them; footer "Your rating applies to the rest" |
 | 5.5 | Tap any option | Submits immediately — the card *is* the button; returns to Today |
@@ -180,11 +185,11 @@ The snapshot-mirroring logic is unit-tested on every run (the snapshot URL is in
 | # | Check | Expected |
 |---|---|---|
 | 13.1 | Complete a workout, then move the clock past midnight | Today returns to the plan state offering the next workout |
-| 13.2 | Cold-start the app on a day already completed | Opens on the **Calendar** tab, not Today |
-| 13.3 | Cold-start on a day not yet completed | Opens on **Today** |
+| 13.2 | Cold-start the app on a day already completed | Opens on **Today** in its completed state (the calendar keeps its "Completed today" card one tap away) |
+| 13.3 | Cold-start on a day not yet completed | Opens on **Today** with the plan |
 | 13.4 | Complete a workout at 23:59, check the calendar at 00:01 | The record sits on the day it was performed |
 | 13.5 | Change the device timezone, reopen | No duplicated or missing calendar days |
-| 13.6 | Kill the app mid-workout and relaunch | No partial record is written; Today still offers the workout |
+| 13.6 | Kill the app mid-workout and relaunch | No partial record is written; Today offers **Continue the workout?** (see §24) |
 
 ### 14. Localization (run the whole Full pass in both locales)
 
@@ -302,6 +307,34 @@ The snapshot-mirroring logic is unit-tested on every run (the snapshot URL is in
 | 23.4 | Levels 0–7 on any pattern | Identical to 1.4 — 8 to 15 reps, 20 to 55 s |
 | 23.5 | Adjust an actual on a tier-2+ exercise | Placeholder shows the planned number from the session, not a hardcoded 8 |
 
+### 24. Interrupted workout and resume (design-audit wave)
+
+Simulate process death by swipe-killing the app from the app switcher (or `terminate` in a debugger). The snapshot is written on every phase transition.
+
+| # | Check | Expected |
+|---|---|---|
+| 24.1 | Kill during a **rest**, relaunch within minutes, tap **Continue** | The flow reopens **inside the same countdown** (wall-clock accurate), then advances normally |
+| 24.2 | Kill during a rest, wait until the rest would be long over, **Continue** | Lands on the **work screen of the set the rest was leading into** — the finished set is not replayed |
+| 24.3 | Kill on a **work** screen mid-set | Resumes at that exercise and set; a hold that was counting simply starts the set over |
+| 24.4 | Kill on the **rating screen**, relaunch, **Continue** | Card says the workout is done and only the rating is left; Continue opens the **rating screen** (not the last set); actuals and skips are intact |
+| 24.5 | Tap **Start over** on the resume card | A fresh session starts from the warm-up; the old snapshot is gone for good |
+| 24.6 | Kill right after the warm-up with the first set untouched | **No resume card** — plain Start (with its warm-up); "continue nothing" is never offered |
+| 24.7 | Relaunch more than **3 hours** after the interruption | No resume card — a different training occasion, not an interrupted one |
+| 24.8 | Interrupt a workout, toggle the **pull-up bar** in settings, return to Today | No resume card — the session would regenerate with different exercises, and the snapshot must not resume into them |
+| 24.9 | Interrupt a workout, accept a **comeback** offer (if present), return | Same: no resume card once the plan regenerated differently |
+| 24.10 | Complete the workout normally (or discard via Exit) | No resume card afterwards, ever |
+| 24.11 | Rate a resumed workout | Exactly **one** record in the journal; actuals and skips from before the kill are in it |
+| 24.12 | Resume card in Russian | «Продолжить тренировку?», позиция упражнения, «Продолжить» / «Начать заново» — no English leaks |
+
+### 25. Calendar day states (design-audit wave)
+
+| # | Check | Expected |
+|---|---|---|
+| 25.1 | A **past** training day with no workout | A plain dimmed number — **no ring, no mark**; VoiceOver reads just the date |
+| 25.2 | A **future** training day | The grey "planned" ring |
+| 25.3 | A rest day (any past or future) | The soft filled circle, visible both in the grid and as the 13 pt legend dot |
+| 25.4 | The legend | completed · planned · rest · today — every dot distinguishable on a real screen at normal brightness |
+
 ---
 
 ## Issue registry
@@ -310,7 +343,7 @@ Log every failure found while running this plan. Keep entries until they ship fi
 
 | ID | Found | Area | Description | Severity | Status |
 |---|---|---|---|---|---|
-| I-1 | 2026-07-18 | Workout flow | **Exit** during a workout discards the session with no confirmation — an accidental tap loses all progress | medium | open — backlog item 4 |
+| I-1 | 2026-07-18 | Workout flow | **Exit** during a workout discards the session with no confirmation — an accidental tap loses all progress | medium | **fixed in the design-audit wave** — confirmation dialog with a "Finish now" path (§1.10), plus mid-workout snapshots make even a kill recoverable (§24) |
 | I-2 | 2026-07-18 | Today | Today did not render a rest-day state; only the Calendar and widget marked rest days | low | **fixed in 1.4.0** — Today shows a rest state with a "Train anyway" escape hatch (§6.6) |
 | I-3 | 2026-07-18 | Accessibility | Text sizing was hardcoded via `.font(.system(size:))` throughout, so it did not scale with Dynamic Type at all | medium | **fixed in 1.4.0** — 88 call sites moved to `dredfitFont`; display numbers scale to a cap (§16) |
 | I-4 | 2026-07-18 | Calendar | Rest days rendered identically to out-of-month days (dimmed number, no shape, no legend entry) | low | **fixed in 1.4.0** — soft fill plus a legend entry (§6.5) |

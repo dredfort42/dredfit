@@ -1,5 +1,82 @@
 # Changelog
 
+## Unreleased
+
+Design-audit wave (2026-07): the three findings that cost user trust —
+workouts dying with the process, an Exit that could only discard, and a
+rating screen that nudged toward "On plan" — plus a contrast pass.
+
+### Workouts survive
+
+- The flow snapshots its position (exercise, set, rest countdown, actuals,
+  skips) into the state file on every phase transition. If iOS evicts the
+  app mid-workout — or it is swipe-killed — Today offers "Continue the
+  workout?" with "Start over" as the alternative for up to three hours.
+  Completing, discarding or resetting clears the snapshot; a corrupt
+  snapshot degrades to "nothing to resume" without touching the journal.
+- The snapshot carries a fingerprint of the generated exercise list: a
+  session number alone is not identity (the bar toggle and an accepted
+  comeback regenerate a different session under the same number), and a
+  mismatched snapshot is never offered. A snapshot with no actual progress
+  (warm-up just ended, first set untouched) is not offered either — that
+  launch gets the plain Start, warm-up included. A kill on the rating
+  screen resumes onto the rating screen, not the last set.
+- Snapshot writes deliberately skip the WidgetKit poke that every other
+  persisted change makes: none of the widget's three states can change
+  while a workout is running, and 35 reloads of identical content per
+  session would spend the day's refresh budget for nothing.
+- Exit now confirms when there is progress on the clock, and offers
+  "Finish now": the remaining exercises are marked as skipped (keeping
+  their level, as skips always did) and the flow proceeds to the rating —
+  running out of time no longer means losing the workout. The exercise cut
+  mid-way is labelled "not finished" on the rating summary; only fully
+  untouched ones read "skipped". With nothing done yet, Exit still leaves
+  quietly.
+
+### Honest inputs
+
+- The three rating cards carry equal visual weight. The filled "On plan"
+  card read as "the correct answer is the middle one" — a nudge aimed at
+  the regulator's only input. Order alone now carries the scale.
+- "next: +1 rep" became "next: +1 step" (also in Today's and history's
+  rating captions): a step up can be a new, harder variation, not a rep.
+
+### Calendar
+
+- Past days without a workout no longer wear the "planned" ring — they are
+  plain dimmed numbers, as the header always promised. "Planned" is future
+  only, and VoiceOver stays equally silent about missed days.
+- The rest-day fill is a dedicated `restFill` token (#E2E3E6) instead of
+  cardBG (1.07:1 — invisible on most real screens): quiet at cell size,
+  still visible as the 13 pt legend dot, with an ink2 digit. The planned
+  ring darkened from #D9D9DB (1.41:1) to ink3.
+
+### Contrast pass
+
+- New `accentText` token (#B44504, ≥4.5:1 on white) for accent-colored
+  text: "actual N" in the workout, rating summary and history, "second
+  side", the onboarding diagram. Rings, chart lines and dots keep #E8590C.
+- Selected chips (pattern filter, rest-day picker) use ink text — accent on
+  accentSoft was 2.91:1, and the fill plus stroke already say "selected".
+- Informative captions moved from ink3 (2.35:1) to ink2: the first-run
+  calibration hint (also bumped to 14 pt — it works exactly once), rest-day
+  chip legend, Health and pull-up bar notes, "Your rating applies to the
+  rest", skipped markers, empty states, the rest-day paragraph, the
+  onboarding care note, "2 / 6" in the workout header, month chevrons.
+
+### Smaller
+
+- The app always opens on Today; the cold-start jump to the calendar after
+  a completed workout is gone (Today's own "completed" state answers that
+  launch, with the calendar card one tap away).
+- One warm-up move can be skipped on its own ("Skip this move") without
+  abandoning the whole block.
+- Settings close with "Done" instead of "Got it" — settings are a place you
+  act in, not a message you acknowledge.
+- The Progress share button moved out of the top corner, where it floated
+  beside the global settings gear pinned by a hardcoded mirror of that
+  gear's metrics, into a labelled pill next to the totals it shares.
+
 ## 1.5.1
 
 Hardening wave after a full-project review. No new features; the engine's
