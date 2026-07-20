@@ -4,7 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dredfit — Adaptive home workouts. Zero setup.</title>
-<meta name="description" content="Open the app — your workout is ready. Dredfit is an adaptive bodyweight trainer for iPhone: no setup, no account, no data collection. It adapts to how you actually did.">
+<meta name="description" content="Open the app — your workout is ready. An adaptive bodyweight trainer for iPhone: no setup, no account, no data collection. It adapts to how you actually did.">
+<link rel="canonical" href="https://dredfit.com/">
+<meta name="apple-itunes-app" content="app-id=6791739610">
 <meta property="og:title" content="Dredfit — Adaptive home workouts">
 <meta property="og:description" content="Open the app — your workout is ready. No setup, no account, no data collection. It adapts to how you actually did.">
 <meta property="og:type" content="website">
@@ -13,11 +15,19 @@
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication",
+"name":"Dredfit","operatingSystem":"iOS","applicationCategory":"HealthApplication",
+"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+"url":"https://dredfit.com","image":"https://dredfit.com/og.png",
+"installUrl":"https://apps.apple.com/app/id6791739610"}
+</script>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FFFFFF'/%3E%3Ccircle cx='15' cy='32' r='7' fill='%23111214'/%3E%3Ccircle cx='32' cy='32' r='7' fill='%23E8590C'/%3E%3Ccircle cx='49' cy='32' r='7' fill='none' stroke='%23D8D9DB' stroke-width='3'/%3E%3C/svg%3E">
 <style>
   :root{
     --ink:#111214; --ink2:#6E7075; --ink3:#A7A9AD;
-    --hair:#ECEDEF; --acc:#E8590C; --soft:#FBE3D6; --card:#F7F7F5;
+    --hair:#ECEDEF; --acc:#E8590C; --accText:#B44504; --soft:#FBE3D6; --card:#F7F7F5;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
@@ -50,14 +60,9 @@
   }
   .appstore:hover{transform:translateY(-1px)}
   .appstore svg{display:block}
-  .beta{
-    display:inline-flex;align-items:center;gap:10px;background:#fff;color:var(--ink);
-    border:1.5px solid var(--ink);border-radius:16px;padding:12.5px 24px;
-    text-decoration:none;font-weight:650;font-size:16px;transition:transform .15s ease;
-  }
-  .beta:hover{transform:translateY(-1px)}
-  .beta i{width:8px;height:8px;border-radius:50%;background:var(--acc);display:inline-block}
-  .soon{font-size:13px;color:var(--ink3)}
+  .soon{font-size:13px;color:var(--ink2)}
+  .soon a{color:var(--ink2);text-decoration:underline;text-underline-offset:3px}
+  .soon a:hover{color:var(--ink)}
   .privacy-chip{
     display:inline-flex;align-items:center;gap:8px;margin-top:26px;
     font-size:13.5px;color:var(--ink2);background:var(--card);
@@ -90,7 +95,7 @@
   /* ---------- sections ---------- */
   section{padding:72px 0}
   section.alt{background:var(--card)}
-  .sec-kick{font-size:13px;font-weight:650;letter-spacing:.1em;color:var(--acc);text-transform:uppercase}
+  .sec-kick{font-size:13px;font-weight:650;letter-spacing:.1em;color:var(--accText);text-transform:uppercase}
   h2{font-size:clamp(28px,3.6vw,38px);font-weight:800;letter-spacing:-.03em;margin-top:10px}
   .sec-sub{font-size:17px;color:var(--ink2);margin-top:12px;max-width:560px}
 
@@ -117,6 +122,10 @@
   .private p{color:rgba(255,255,255,.65);font-size:16px;margin-top:12px;max-width:520px}
   .private .zero{font-size:96px;font-weight:800;letter-spacing:-.05em;color:var(--acc);line-height:1;flex-shrink:0}
 
+  .closing{text-align:center;padding:8px 0 24px}
+  .closing .sec-sub{margin:14px auto 0}
+  .closing .appstore{margin-top:30px}
+
   footer{padding:48px 0 64px;border-top:1px solid var(--hair)}
   .foot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
   .foot .links{display:flex;gap:26px}
@@ -125,7 +134,10 @@
   .foot .copy{font-size:13px;color:var(--ink3)}
 
   @media (max-width:880px){
-    .hero{flex-direction:column-reverse;gap:44px;padding:24px 0 64px;text-align:center}
+    /* Text first: the value proposition and the App Store button own the
+       first viewport; the mockup follows, slightly scaled down. */
+    .hero{flex-direction:column;gap:44px;padding:24px 0 64px;text-align:center}
+    .phone{zoom:.82}
     .lede{margin-left:auto;margin-right:auto}
     .cta{justify-content:center}
     .how,.features{grid-template-columns:1fr}
@@ -156,8 +168,7 @@
           <svg width="20" height="24" viewBox="0 0 20 24" fill="#fff"><path d="M16.4 12.7c0-3 2.5-4.5 2.6-4.6-1.4-2-3.6-2.3-4.3-2.3-1.8-.2-3.6 1.1-4.5 1.1-.9 0-2.4-1.1-3.9-1-2 0-3.9 1.2-4.9 3-2.1 3.6-.5 9 1.5 11.9 1 1.4 2.2 3 3.7 3 1.5-.1 2.1-1 3.9-1s2.3 1 3.9.9c1.6 0 2.6-1.4 3.6-2.9 1.1-1.7 1.6-3.3 1.6-3.4-.1 0-3.1-1.2-3.2-4.7zM13.4 3.9c.8-1 1.4-2.4 1.2-3.9-1.2.1-2.7.8-3.5 1.9-.8.9-1.5 2.4-1.3 3.8 1.4.1 2.8-.7 3.6-1.8z"/></svg>
           Download on the App Store
         </a>
-        <a class="beta" href="https://testflight.apple.com/join/bBdUppkf"><i></i>Join the beta on TestFlight</a>
-        <span class="soon">Free · iPhone · iOS 17+</span>
+        <span class="soon">Free · iPhone · iOS 17+ · <a href="https://testflight.apple.com/join/bBdUppkf">beta on TestFlight</a></span>
       </div>
       <div class="privacy-chip"><i></i>No account · No ads · No network requests · Your data never reaches us</div>
     </div>
@@ -219,7 +230,8 @@
     <div class="sec-kick">What's inside</div>
     <h2>Everything you need. Nothing you don't.</h2>
     <div class="features">
-      <div class="feat"><div class="dot"></div><div><b>40 exercises, household props</b><span>A chair, a table, a wall, a towel and a step cover 36 of them — knee push-ups to archer push-ups, squats to shrimp squats. The four pull-up variations are the only ones that need a bar, and they stay off until you switch them on.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>40 exercises, household props</b><span>Classic calisthenics progressions — knee push-ups to archer push-ups, squats to shrimp squats. A chair, a table, a wall, a towel and a step cover 36 of them; the four pull-up variations are the only ones that need a bar, and they stay off until you switch them on.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Free. Actually free</b><span>No subscription, no in-app purchases, no ads, no locked "pro" tier. The app you download is the whole app.</span></div></div>
       <div class="feat"><div class="dot"></div><div><b>Balanced by design</b><span>A pull in every session for shoulder health; the other patterns rotate so each comes round five times in eight workouts.</span></div></div>
       <div class="feat"><div class="dot"></div><div><b>Got a pull-up bar?</b><span>Turn it on and every other session swaps the floor pull for a vertical one — bar hang through full pull-ups, tracked separately.</span></div></div>
       <div class="feat"><div class="dot"></div><div><b>Adjust in the moment</b><span>Did fewer reps? Dial the real number right at the exercise, without leaving it. Skipping is free — a skipped exercise simply doesn't count.</span></div></div>
@@ -232,6 +244,7 @@
       <div class="feat"><div class="dot"></div><div><b>Milestones, not medals</b><span>A workout that unlocks a harder variation, adds a set, or lands on a round number ends on one calm screen you can share. No confetti, no badges, no streaks to lose.</span></div></div>
       <div class="feat"><div class="dot"></div><div><b>Breaks are normal</b><span>Two weeks away or more, and the plan offers to meet you a few steps lower — further down the longer the break. Nothing is lost, and levels catch up quickly.</span></div></div>
       <div class="feat"><div class="dot"></div><div><b>Numbers you can check</b><span>"How it works" in Settings: seven plain facts about the regulator — every number on that screen matches the engine.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Open source</b><span>The entire app — engine, tests and this site — is public on GitHub. Check the math, file an issue, or build it yourself.</span></div></div>
     </div>
   </div>
 </section>
@@ -249,6 +262,19 @@
   </div>
 </section>
 
+<section>
+  <div class="wrap closing">
+    <div class="sec-kick">Get started</div>
+    <h2>Your first workout is already waiting.</h2>
+    <p class="sec-sub">About 30 minutes, no equipment, no questions asked.</p>
+    <a class="appstore" href="https://apps.apple.com/app/id6791739610">
+      <svg width="20" height="24" viewBox="0 0 20 24" fill="#fff"><path d="M16.4 12.7c0-3 2.5-4.5 2.6-4.6-1.4-2-3.6-2.3-4.3-2.3-1.8-.2-3.6 1.1-4.5 1.1-.9 0-2.4-1.1-3.9-1-2 0-3.9 1.2-4.9 3-2.1 3.6-.5 9 1.5 11.9 1 1.4 2.2 3 3.7 3 1.5-.1 2.1-1 3.9-1s2.3 1 3.9.9c1.6 0 2.6-1.4 3.6-2.9 1.1-1.7 1.6-3.3 1.6-3.4-.1 0-3.1-1.2-3.2-4.7zM13.4 3.9c.8-1 1.4-2.4 1.2-3.9-1.2.1-2.7.8-3.5 1.9-.8.9-1.5 2.4-1.3 3.8 1.4.1 2.8-.7 3.6-1.8z"/></svg>
+      Download on the App Store
+    </a>
+    <div class="soon" style="margin-top:16px">Free · iPhone · iOS 17+</div>
+  </div>
+</section>
+
 <footer>
   <div class="wrap foot">
     <div class="logo" style="font-size:16px">
@@ -256,6 +282,7 @@
       Dredfit
     </div>
     <div class="links">
+      <a href="https://apps.apple.com/app/id6791739610">App Store</a>
       <a href="privacy.html">Privacy Policy</a>
       <a href="https://testflight.apple.com/join/bBdUppkf">Beta on TestFlight</a>
       <a href="https://github.com/dredfort42/dredfit">GitHub</a>
