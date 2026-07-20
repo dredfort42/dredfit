@@ -161,7 +161,7 @@ struct OnboardingView: View {
     private func chip(_ text: String, filled: Bool) -> some View {
         Text(text)
             .dredfitFont(13, weight: .semibold)
-            .foregroundStyle(filled ? Theme.accent : Theme.ink2)
+            .foregroundStyle(filled ? Theme.accentText : Theme.ink2)
             .padding(.horizontal, 12)
             .padding(.vertical, 7)
             .background(filled ? Theme.accentSoft : Theme.cardBG,
@@ -182,8 +182,9 @@ struct OnboardingView: View {
         heart or blood pressure, talk to a doctor first. Sharp pain during an \
         exercise always means stop.
         """))
+        // ink2, not ink3: the safety note is quiet, not unreadable.
         .dredfitFont(12.5)
-        .foregroundStyle(Theme.ink3)
+        .foregroundStyle(Theme.ink2)
         .lineSpacing(2)
         .fixedSize(horizontal: false, vertical: true)
     }

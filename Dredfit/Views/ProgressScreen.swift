@@ -213,7 +213,9 @@ struct ProgressScreen: View {
                         .overlay(Capsule().strokeBorder(selected ? Theme.accent : Theme.hairline,
                                                         lineWidth: 1.5))
                 )
-                .foregroundStyle(selected ? Theme.accent : Theme.ink2)
+                // ink, not accent: accent on accentSoft is 2.91:1 — the fill
+                // and stroke already say "selected", the text just reads.
+                .foregroundStyle(selected ? Theme.ink : Theme.ink2)
         }
         // Colour alone doesn't reach VoiceOver — state has to be a trait.
         .accessibilityAddTraits(selected ? [.isSelected] : [])
@@ -252,7 +254,7 @@ struct ProgressScreen: View {
                 .overlay(
                     Text("The chart will appear after a couple of workouts")
                         .dredfitFont(12.5)
-                        .foregroundStyle(Theme.ink3)
+                        .foregroundStyle(Theme.ink2)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 16)
                 )
