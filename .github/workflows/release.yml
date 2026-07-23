@@ -17,20 +17,27 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Build changelog from commits since previous tag
+      - name: Build release notes
         id: changelog
         run: |
-          prev_tag=$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || true)
-          if [ -n "$prev_tag" ]; then
-            range="$prev_tag..$GITHUB_REF_NAME"
+          # Prefer the curated CHANGELOG.md section for this version; fall back
+          # to a commit list if the tag has no matching section.
+          if python3 scripts/changelog_section.py "$GITHUB_REF_NAME" > changelog.md; then
+            echo "Using curated CHANGELOG.md section."
           else
-            range="$GITHUB_REF_NAME"
+            echo "No CHANGELOG.md section for $GITHUB_REF_NAME; using commit log."
+            prev_tag=$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || true)
+            if [ -n "$prev_tag" ]; then
+              range="$prev_tag..$GITHUB_REF_NAME"
+            else
+              range="$GITHUB_REF_NAME"
+            fi
+            {
+              echo "## Changes"
+              echo
+              git log --no-merges --pretty="- %s" "$range"
+            } > changelog.md
           fi
-          {
-            echo "## Changes"
-            echo
-            git log --no-merges --pretty="- %s" "$range"
-          } > changelog.md
           cat changelog.md
 
       - name: Create release

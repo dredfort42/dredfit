@@ -30,12 +30,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Select latest stable Xcode
-        run: |
-          xcode=$(ls -d /Applications/Xcode_*.app | grep -v beta | sort -V | tail -1)
-          echo "Selected: $xcode"
-          sudo xcode-select -s "$xcode"
-          xcodebuild -version
+      - name: Select Xcode
+        uses: ./.github/actions/setup-xcode
 
       - name: Select and boot iPhone simulator
         id: sim
