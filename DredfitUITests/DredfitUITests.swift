@@ -88,8 +88,19 @@ final class DredfitUITests: XCTestCase {
         element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
     }
 
-    /// Runs the whole workout: Done on every set, Skip rest on every rest.
-    /// Returns control on the "How did it go?" screen.
+    /// Runs the whole workout to the "How did it go?" screen: Done on every
+    /// set, Start hold on every hold. Rests are never tapped — they skip
+    /// themselves (see below). Requires --uitest-fast on the launch.
+    ///
+    /// Load-independent by design. The two actionable controls (Done, Start
+    /// hold) are *stable*: each leaves the screen only once we act on it, so a
+    /// coordinate tap can never race it out of existence the way the old loop
+    /// raced the auto-vanishing "Skip rest" ("No matches found for Skip rest").
+    /// Every tap is confirmed by waiting for its control to disappear before
+    /// moving on, so a tap a busy runner drops is simply retried on the next
+    /// pass instead of stranding the flow. Rests are left to auto-advance:
+    /// under --uitest-fast they collapse to ~1 s, so a rest is never the thing
+    /// the loop is waiting on and can never eat the wall-clock budget.
     private func completeWorkout(adjustFirstExercise: Bool = false) {
         startWorkout()
 
@@ -103,30 +114,26 @@ final class DredfitUITests: XCTestCase {
         }
 
         let done = app.buttons["Done"]
-        let skipRest = app.buttons["Skip rest"]
-        let rating = app.staticTexts["How did it go?"]
-        // 6 exercises × 3 sets = 18 Done, a rest between each. Coordinate-tap
-        // whichever control is present: this loop fires ~35 taps through rapid
-        // phase transitions, and a normal `.tap()` hits the fullScreenCover
-        // hittability quirk often enough to flake. The 1 s rating poll doubles
-        // as the settle between phases.
-        // Sessions past the first can contain hold exercises (plank, hang),
-        // which run a countdown instead of a Done button. The driver starts
-        // a hold and lets it reach zero on its own: tapping Stop races both
-        // the v1.6 mis-tap grace and the auto-advance at zero, and losing
-        // either race flakes. The 1 s rating poll idles the loop while the
-        // countdown runs; seeded hold levels stay short (20 s).
         let startHold = app.buttons["Start hold"]
-        // Wall-clock bound, not an iteration count: a session with both hold
-        // exercises spends ~3 minutes just letting countdowns reach zero.
+        let rating = app.staticTexts["How did it go?"]
+        // Wall-clock bound, not an iteration count. With --uitest-fast the
+        // rests collapse to ~1 s, so the only real time sink is the hold
+        // countdowns — a deep session (e.g. milestone workout 10) spends
+        // ~3 minutes just letting those reach zero. That part is wall-clock
+        // and load-independent; the load-sensitive tap/poll portion is small,
+        // so this bound holds even on a saturated runner.
         let deadline = Date.now.addingTimeInterval(360)
-        while !rating.waitForExistence(timeout: 1) && Date.now < deadline {
+        while !rating.exists && Date.now < deadline {
             if done.exists {
                 coordinateTap(done)
+                _ = done.waitForNonExistence(timeout: 3)      // set logged → rest/next
             } else if startHold.exists {
                 coordinateTap(startHold)
-            } else if skipRest.exists {
-                coordinateTap(skipRest)
+                _ = startHold.waitForNonExistence(timeout: 3)  // countdown started
+                // the countdown runs itself down and auto-advances into rest
+            } else {
+                // resting or mid-transition: the fast rest advances on its own
+                _ = rating.waitForExistence(timeout: 2)
             }
         }
         XCTAssertTrue(rating.waitForExistence(timeout: 5), "did not reach the rating screen")
@@ -135,6 +142,7 @@ final class DredfitUITests: XCTestCase {
     // MARK: - Full pass
 
     func testFullWorkoutFlowWithAdjustment() {
+        app.launchArguments.append("--uitest-fast")
         app.launch()
 
         // starting screen: the plan and the button
@@ -159,6 +167,7 @@ final class DredfitUITests: XCTestCase {
     }
 
     func testNextWorkoutPreviewHasNoStartButton() {
+        app.launchArguments.append("--uitest-fast")
         app.launch()
         completeWorkout()
         app.staticTexts["On plan"].tap()
@@ -361,6 +370,7 @@ final class DredfitUITests: XCTestCase {
     // MARK: - Calendar and history
 
     func testCalendarShowsHistoryAfterWorkout() {
+        app.launchArguments.append("--uitest-fast")
         app.launch()
         completeWorkout(adjustFirstExercise: true)
         app.staticTexts["On plan"].tap()
@@ -383,6 +393,7 @@ final class DredfitUITests: XCTestCase {
     /// that moves with the day. Today's own "completed" state answers the
     /// after-workout launch; the calendar keeps its card one tap away.
     func testColdStartOpensTodayEvenWhenDone() {
+        app.launchArguments.append("--uitest-fast")
         app.launch()
         completeWorkout()
         app.staticTexts["On plan"].tap()
@@ -404,6 +415,7 @@ final class DredfitUITests: XCTestCase {
     // MARK: - Progress
 
     func testProgressReflectsCompletedWorkout() {
+        app.launchArguments.append("--uitest-fast")
         app.launch()
         completeWorkout()
         app.staticTexts["Easy, could do more"].tap()
@@ -427,36 +439,55 @@ final class DredfitUITests: XCTestCase {
     private func launchIntoSession2AndReachPlank() {
         app.launchArguments = ["--uitest-session2", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
-        XCTAssertTrue(app.staticTexts["Workout 2"].waitForExistence(timeout: 5),
+        // Session 2 is seeded synchronously at launch (a completed session 1);
+        // on a busy runner the launch + seed + first render can outrun a tight
+        // wait, so give "Workout 2" room to appear.
+        XCTAssertTrue(app.staticTexts["Workout 2"].waitForExistence(timeout: 8),
                       "--uitest-session2 must open on workout 2")
         startWorkout()
-        for _ in 0..<3 { app.buttons["Skip exercise"].tap() }
-        XCTAssertTrue(app.buttons["Start hold"].waitForExistence(timeout: 3),
+        // Skip the three rep exercises to land on the plank. Skipping goes
+        // straight to the next exercise with no rest, but "Skip exercise" and
+        // "Done" carry the same identifiers across consecutive exercises, so
+        // there is no disappearance edge to confirm a skip by. Instead loop on
+        // the goal — Start hold appearing — coordinate-tapping skip and letting
+        // each transition settle. The cap covers a tap the runner drops (three
+        // are needed) without ever over-skipping: we only tap while Start hold
+        // is absent.
+        let startHold = app.buttons["Start hold"]
+        let skip = app.buttons["Skip exercise"]
+        var skips = 0
+        while !startHold.exists && skips < 6 {
+            if skip.exists { coordinateTap(skip); skips += 1 }
+            _ = startHold.waitForExistence(timeout: 1)   // settle + goal check
+        }
+        XCTAssertTrue(startHold.waitForExistence(timeout: 3),
                       "the hold exercise did not offer the countdown")
     }
 
     func testHoldTimerEarlyStopCapturesActual() {
         launchIntoSession2AndReachPlank()
-        app.buttons["Start hold"].tap()
+        // Every tap here is inside the workout cover, so it goes through
+        // coordinateTap to sidestep the intermittent hittability quirk.
+        coordinateTap(app.buttons["Start hold"])
         let stop = app.buttons["Stop"]
-        XCTAssertTrue(stop.waitForExistence(timeout: 2), "no Stop during the countdown")
+        XCTAssertTrue(stop.waitForExistence(timeout: 3), "no Stop during the countdown")
 
         // v1.6: a stop within the first seconds is a mis-tap — the countdown
         // cancels and the set survives instead of recording a 2-second plank.
-        stop.tap()
-        XCTAssertTrue(app.buttons["Start hold"].waitForExistence(timeout: 2),
+        coordinateTap(stop)
+        XCTAssertTrue(app.buttons["Start hold"].waitForExistence(timeout: 3),
                       "an immediate stop must cancel the countdown, not consume the set")
 
         // a real early stop (past the grace) records the held seconds
-        app.buttons["Start hold"].tap()
-        XCTAssertTrue(stop.waitForExistence(timeout: 2))
+        coordinateTap(app.buttons["Start hold"])
+        XCTAssertTrue(stop.waitForExistence(timeout: 3))
         Thread.sleep(forTimeInterval: 3.5)
-        stop.tap()
+        coordinateTap(stop)
         let skipRest = app.buttons["Skip rest"]
         XCTAssertTrue(skipRest.waitForExistence(timeout: 3),
                       "an early stop should flow into rest")
-        skipRest.tap()
-        XCTAssertTrue(app.staticTexts["actual 5"].waitForExistence(timeout: 3),
+        coordinateTap(skipRest)
+        XCTAssertTrue(app.staticTexts["actual 5"].waitForExistence(timeout: 5),
                       "the held seconds were not recorded as the actual")
     }
 
@@ -468,7 +499,7 @@ final class DredfitUITests: XCTestCase {
         XCTAssertTrue(minus.waitForExistence(timeout: 2), "the stepper did not open")
         minus.tap(); minus.tap(); minus.tap()
         app.buttons["OK"].tap()
-        app.buttons["Start hold"].tap()
+        coordinateTap(app.buttons["Start hold"])   // cover hittability quirk
         // at zero the countdown must advance to rest by itself
         XCTAssertTrue(app.buttons["Skip rest"].waitForExistence(timeout: 9),
                       "the hold did not auto-advance to rest at zero")
@@ -555,6 +586,10 @@ final class DredfitUITests: XCTestCase {
     /// as a hold with a working technique sheet, and the flow reaches the
     /// rating screen.
     func testBarWorkoutFlowsToRating() {
+        // No --uitest-fast: this test waits for and taps "Skip rest" itself, so
+        // the rest must stay on screen long enough to see. Its skip-through
+        // hits only one rest (the rest are Skip-exercise, no rest), so the full
+        // 60 s rest is never actually waited out.
         app.launchArguments = ["--uitest-session2", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
         XCTAssertTrue(app.staticTexts["Workout 2"].waitForExistence(timeout: 5))
@@ -575,11 +610,14 @@ final class DredfitUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["TECHNIQUE"].waitForExistence(timeout: 3),
                       "the technique sheet must open for a bar exercise")
         app.buttons["Got it"].tap()
-        app.buttons["Start hold"].tap()
+        // Coordinate-tap inside the cover: a plain tap here hit the
+        // hittability quirk and left the countdown unstarted, so Stop never
+        // appeared ("no Stop during the hang countdown").
+        coordinateTap(app.buttons["Start hold"])
         let stop = app.buttons["Stop"]
-        XCTAssertTrue(stop.waitForExistence(timeout: 2), "no Stop during the hang countdown")
+        XCTAssertTrue(stop.waitForExistence(timeout: 3), "no Stop during the hang countdown")
         Thread.sleep(forTimeInterval: 3.5)   // past the v1.6 mis-tap grace
-        stop.tap()
+        coordinateTap(stop)
         XCTAssertTrue(app.buttons["Skip rest"].waitForExistence(timeout: 3),
                       "the stopped hang must flow into rest")
         coordinateTap(app.buttons["Skip rest"])
@@ -698,7 +736,7 @@ final class DredfitUITests: XCTestCase {
     /// listing all of them, tier-ups above the jubilee, and "Done" returns to
     /// Today with the workout recorded.
     func testMilestoneScreenListsEverythingEarned() {
-        app.launchArguments = ["--uitest-reset", "--uitest-milestone",
+        app.launchArguments = ["--uitest-reset", "--uitest-milestone", "--uitest-fast",
                                "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         app.launch()
         XCTAssertTrue(app.staticTexts["Workout 10"].waitForExistence(timeout: 5),
@@ -723,6 +761,7 @@ final class DredfitUITests: XCTestCase {
     /// The screen is a coda, not a fixture: an ordinary workout goes straight
     /// back to Today.
     func testNoMilestoneScreenForAnOrdinaryWorkout() {
+        app.launchArguments.append("--uitest-fast")
         app.launch()
         completeWorkout()
         app.staticTexts["On plan"].tap()
@@ -734,6 +773,7 @@ final class DredfitUITests: XCTestCase {
     // MARK: - Persistence across relaunch
 
     func testStateSurvivesRelaunch() {
+        app.launchArguments.append("--uitest-fast")
         app.launch()
         completeWorkout()
         app.staticTexts["On plan"].tap()

@@ -677,6 +677,15 @@ struct WorkoutFlowView: View {
     }
 
     private func startRest(_ seconds: Int) {
+        var seconds = seconds
+        #if DEBUG
+        // UI-test hook (--uitest-fast): collapse the 60 s rest so the full-flow
+        // driver never has to depend on the runner skipping it in time. A busy
+        // CI runner used to drop the Skip-rest tap and let the whole 60 s
+        // elapse — 17 of those blew past the wall-clock deadline. Production
+        // rest is untouched; the flag only exists in DEBUG builds.
+        if CommandLine.arguments.contains("--uitest-fast") { seconds = 1 }
+        #endif
         restRemaining = seconds
         restEndDate = Date.now.addingTimeInterval(TimeInterval(seconds))
         phase = .rest(seconds: seconds)
