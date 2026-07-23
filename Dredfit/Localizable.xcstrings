@@ -200,15 +200,39 @@
     "%lld completed" : {
       "localizations" : {
         "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld completados"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld completado"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld completados"
+                }
+              }
+            }
           }
         },
         "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld concluídos"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld concluído"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld concluídos"
+                }
+              }
+            }
           }
         },
         "ru" : {
@@ -332,15 +356,39 @@
     "%lld seconds of rest left" : {
       "localizations" : {
         "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quedan %lld segundos de descanso"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Queda %lld segundo de descanso"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Quedan %lld segundos de descanso"
+                }
+              }
+            }
           }
         },
         "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Faltam %lld segundos de descanso"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Falta %lld segundo de descanso"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Faltam %lld segundos de descanso"
+                }
+              }
+            }
           }
         },
         "ru" : {
