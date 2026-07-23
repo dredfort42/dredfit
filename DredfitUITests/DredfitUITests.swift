@@ -606,7 +606,7 @@ final class DredfitUITests: XCTestCase {
         app.swipeUp()
         XCTAssertTrue(app.staticTexts["ABOUT"].waitForExistence(timeout: 3),
                       "no About section in settings")
-        XCTAssertTrue(app.staticTexts["Rate in App Store"].exists)
+        XCTAssertTrue(app.staticTexts["Rate on the App Store"].exists)
         XCTAssertTrue(app.staticTexts["Recommend Dredfit"].exists)
     }
 
@@ -710,9 +710,9 @@ final class DredfitUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["WORKOUT #10"].waitForExistence(timeout: 5),
                       "the jubilee row is missing")
         // Match on the rendered label: Kicker uppercases, so the catalog key
-        // ("New step") and what is on screen deliberately differ.
+        // ("New variation") and what is on screen deliberately differ.
         XCTAssertEqual(app.staticTexts.matching(
-            NSPredicate(format: "label == %@", "NEW STEP")).count, 2,
+            NSPredicate(format: "label == %@", "NEW VARIATION")).count, 2,
             "both tier-ups should be listed")
 
         app.buttons["milestone-done"].tap()

@@ -27,7 +27,7 @@ Double progression falls out of the encoding for free: reach 15 reps and the nex
 
 **The pull-up bar module.** Vertical pulling is the one honest gap of a no-equipment format. Turn the bar on in settings and every other session swaps the floor pull for a vertical one — bar hang, negative pull-up, partial, full pull-up — tracked as its own independent level. Turn it off and the branch freezes without losing progress.
 
-The 40-exercise library is 10 patterns × 4 tiers: 8 rotating patterns (32), the fixed pull slot (4), and the bar branch (4). Classic calisthenics — squat to shrimp squat, knee push-up to archer push-up — each with reviewed, plain-language technique steps and common mistakes, in English and Russian.
+The 40-exercise library is 10 patterns × 4 tiers: 8 rotating patterns (32), the fixed pull slot (4), and the bar branch (4). Classic calisthenics — squat to shrimp squat, knee push-up to archer push-up — each with reviewed, plain-language technique steps and common mistakes, in English, Russian, Spanish and Brazilian Portuguese.
 
 ## The app
 
@@ -95,7 +95,7 @@ CI runs the unit suites on every push — that is the gate for merges and releas
 
 ## Localization
 
-English is the source language; Russian ships complete — 370 strings across four String Catalogs, including all exercise technique. English base strings live inline at each call site; Russian translations live in the catalogs. Russian copy is idiomatic, reviewed specifically to avoid anglicisms and calques, and uses `е` rather than `ё` throughout.
+English is the source language; Russian, Spanish and Brazilian Portuguese each ship complete — 440 strings across four String Catalogs, including all exercise technique. English base strings live inline at each call site; translations live in the catalogs. Every translation is idiomatic rather than literal: Russian avoids anglicisms and calques and uses `е` rather than `ё` throughout; Spanish and Brazilian Portuguese address the reader informally (`tú` / `você`) and take their exercise and pattern vocabulary from the same glossary as the marketing site.
 
 ## Design principles
 
@@ -105,7 +105,7 @@ No third-party dependencies, no network calls, no analytics of any kind — the 
 
 ## Status
 
-Shipping. Working on device, tested across both locales.
+Shipping. Working on device, tested across all four locales.
 
 Planned work and deliberately-rejected ideas are tracked in the project backlog (`instructions/BACKLOG.md`, kept alongside the engine specification outside this repository).
 

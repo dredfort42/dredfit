@@ -10,6 +10,18 @@
             "value": "Squat"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sentadilla"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agachamento"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -25,6 +37,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Feet shoulder-width apart, toes slightly out, weight over the whole foot."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pies a la anchura de los hombros, puntas ligeramente hacia fuera, el peso en todo el pie."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pés na largura dos ombros, pontas levemente para fora, o peso em todo o pé."
           }
         },
         "ru": {
@@ -44,6 +68,18 @@
             "value": "Sit back and down for ~2 seconds; knees track over the toes, back straight."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Siéntate atrás y abajo durante ~2 segundos; las rodillas siguen la línea de los pies, la espalda recta."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sente para trás e para baixo por ~2 segundos; os joelhos seguem a linha dos pés, a coluna reta."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -59,6 +95,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Thighs parallel to the floor at the bottom; drive up on an exhale."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abajo, los muslos quedan paralelos al suelo; sube soltando el aire."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Embaixo, as coxas ficam paralelas ao chão; suba soltando o ar."
           }
         },
         "ru": {
@@ -78,6 +126,18 @@
             "value": "Knees caving inward — keep them tracking over your feet."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las rodillas se meten hacia dentro: mantenlas alineadas con los pies."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os joelhos caem para dentro: mantenha-os alinhados com os pés."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -93,6 +153,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Heels lifting off the floor — depth matters more than speed."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los talones se levantan del suelo: la profundidad importa más que la velocidad."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os calcanhares saem do chão: a profundidade importa mais que a velocidade."
           }
         },
         "ru": {
@@ -112,6 +184,18 @@
             "value": "Bulgarian split squat"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sentadilla búlgara"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agachamento búlgaro"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -127,6 +211,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Rear foot on a chair or couch behind you, front foot a stride ahead."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El pie de atrás sobre una silla o un sofá; el de delante, a un paso por delante."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O pé de trás sobre uma cadeira ou sofá; o da frente, um passo à frente."
           }
         },
         "ru": {
@@ -146,6 +242,18 @@
             "value": "Lower straight down until the rear knee almost touches the floor."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baja en vertical hasta que la rodilla de atrás casi toque el suelo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desça na vertical até o joelho de trás quase encostar no chão."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -161,6 +269,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Drive up through the front heel; torso leaning slightly forward."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sube empujando con el talón de delante; el torso, ligeramente inclinado al frente."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suba empurrando com o calcanhar da frente; o tronco levemente inclinado à frente."
           }
         },
         "ru": {
@@ -180,6 +300,18 @@
             "value": "Stance too short — the front knee travels far past the toes."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paso demasiado corto: la rodilla de delante se va muy por delante de la punta del pie."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passo curto demais: o joelho da frente avança muito além da ponta do pé."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -195,6 +327,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Loading the rear leg — it is only there for balance."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cargar la pierna de atrás: solo está ahí para el equilibrio."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apoiar na perna de trás: ela está ali só para o equilíbrio."
           }
         },
         "ru": {
@@ -214,6 +358,18 @@
             "value": "Pistol squat"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sentadilla pistol"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agachamento pistol"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -229,6 +385,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Stand on one leg, the other extended forward, arms out for balance."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De pie sobre una pierna, la otra extendida al frente y los brazos delante para equilibrarte."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em pé sobre uma perna, a outra estendida à frente e os braços à frente para equilibrar."
           }
         },
         "ru": {
@@ -248,6 +416,18 @@
             "value": "Lower slowly until the hamstring rests on the calf, heel on the floor."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baja despacio hasta apoyar el muslo sobre el gemelo, con el talón en el suelo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desça devagar até a coxa encostar na panturrilha, com o calcanhar no chão."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -263,6 +443,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Stand up without your hands; start with a doorframe assist if needed."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sube sin ayudarte con las manos; al principio puedes sujetarte al marco de una puerta."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suba sem usar as mãos; no começo dá para se apoiar no batente da porta."
           }
         },
         "ru": {
@@ -282,6 +474,18 @@
             "value": "Dropping down without control — the descent must be slow."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dejarte caer sin control: el descenso tiene que ser lento."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cair sem controle: a descida precisa ser lenta."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -297,6 +501,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Knee drifting sideways — keep it tracking over the foot."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La rodilla se va hacia un lado: llévala siempre sobre el pie."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O joelho foge para o lado: conduza-o sempre sobre o pé."
           }
         },
         "ru": {
@@ -316,6 +532,18 @@
             "value": "Shrimp squat"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sentadilla shrimp"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agachamento shrimp"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -331,6 +559,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Stand on one leg; bend the other back and hold its foot with one hand."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De pie sobre una pierna, dobla la otra hacia atrás y sujétate el pie con una mano."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em pé sobre uma perna, dobre a outra para trás e segure o pé com uma das mãos."
           }
         },
         "ru": {
@@ -350,6 +590,18 @@
             "value": "Lower slowly until the back knee gently touches the floor."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baja despacio hasta que la rodilla de atrás toque el suelo con suavidad."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desça devagar até o joelho de trás tocar o chão com suavidade."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -365,6 +617,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Stand up through the heel of the working leg, chest up."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sube empujando con el talón de la pierna que trabaja, el pecho arriba."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suba empurrando com o calcanhar da perna que trabalha, o peito erguido."
           }
         },
         "ru": {
@@ -384,6 +648,18 @@
             "value": "Knee crashing into the floor — the descent stays slow and controlled."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La rodilla golpea el suelo: el descenso se mantiene lento y controlado."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O joelho bate no chão: a descida continua lenta e controlada."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -399,6 +675,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Leaning far forward — keep the chest up and the core braced."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inclinarte demasiado al frente: pecho arriba y abdomen firme."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inclinar demais para a frente: peito erguido e abdômen firme."
           }
         },
         "ru": {
@@ -418,6 +706,18 @@
             "value": "Knee push-up"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexión con rodillas"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexão com joelhos"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -433,6 +733,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hands under the shoulders, knees on the floor; head to knees form a straight line."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manos bajo los hombros, rodillas en el suelo; de la cabeza a las rodillas, una línea recta."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mãos sob os ombros, joelhos no chão; da cabeça aos joelhos, uma linha reta."
           }
         },
         "ru": {
@@ -452,6 +764,18 @@
             "value": "Lower for ~2 seconds until the chest nearly touches the floor, elbows about 45° from the torso."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baja durante ~2 segundos hasta casi tocar el suelo con el pecho, los codos a unos 45° del torso."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desça por ~2 segundos até o peito quase tocar o chão, os cotovelos a cerca de 45° do tronco."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -467,6 +791,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Press up on an exhale, keeping the belly tight."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empuja hacia arriba soltando el aire, con el abdomen apretado."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empurre para cima soltando o ar, com a barriga contraída."
           }
         },
         "ru": {
@@ -486,6 +822,18 @@
             "value": "Sagging hips — squeeze your glutes and abs."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La cadera se hunde: aprieta glúteos y abdomen."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O quadril afunda: aperte glúteos e abdômen."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -501,6 +849,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cutting the range short — the chest should almost touch the floor."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recorrido corto: el pecho debe casi tocar el suelo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Amplitude curta: o peito deve quase tocar o chão."
           }
         },
         "ru": {
@@ -520,10 +880,22 @@
             "value": "Push-up"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexión"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexão"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Отжимания классические"
+            "value": "Отжимания"
           }
         }
       }
@@ -535,6 +907,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hands under the shoulders; the body is one straight line from head to heels."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manos bajo los hombros; el cuerpo, una línea recta de la cabeza a los talones."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mãos sob os ombros; o corpo, uma linha reta da cabeça aos calcanhares."
           }
         },
         "ru": {
@@ -554,6 +938,18 @@
             "value": "Press up on an exhale; don't fully lock the elbows at the top."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empuja hacia arriba soltando el aire; arriba no bloquees del todo los codos."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empurre para cima soltando o ar; em cima, não trave os cotovelos por completo."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -569,6 +965,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sagging hips or a raised butt — the core stops working."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cadera hundida o glúteos elevados: el abdomen deja de trabajar."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quadril afundado ou bumbum empinado: o core para de trabalhar."
           }
         },
         "ru": {
@@ -588,6 +996,18 @@
             "value": "Elbows flared out to 90° — this overloads the shoulders."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codos abiertos a 90°: eso sobrecarga los hombros."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cotovelos abertos a 90°: isso sobrecarrega os ombros."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -603,6 +1023,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Feet-elevated push-up"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexión con pies elevados"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexão com pés elevados"
           }
         },
         "ru": {
@@ -622,6 +1054,18 @@
             "value": "Feet on a chair or couch, hands under the shoulders on the floor."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pies sobre una silla o un sofá, manos en el suelo bajo los hombros."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pés sobre uma cadeira ou sofá, mãos no chão sob os ombros."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -637,6 +1081,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Keep the body rigid and lower until the chest nearly touches the floor."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén el cuerpo rígido y baja hasta que el pecho casi toque el suelo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantenha o corpo rígido e desça até o peito quase tocar o chão."
           }
         },
         "ru": {
@@ -656,6 +1112,18 @@
             "value": "The higher the support, the harder it gets — start low."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuanto más alto el apoyo, más difícil: empieza con poca altura."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quanto mais alto o apoio, mais difícil: comece baixo."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -671,6 +1139,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lower back arching — don't let the hips sag."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arqueo en la zona lumbar: no dejes que la cadera se hunda."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arco na lombar: não deixe o quadril afundar."
           }
         },
         "ru": {
@@ -690,6 +1170,18 @@
             "value": "Leading with the head — keep the neck in line with the torso."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bajar la cabeza primero: el cuello sigue la línea del torso."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descer a cabeça primeiro: o pescoço segue a linha do tronco."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -705,6 +1197,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Archer push-up"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexión de arquero"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexão arqueiro"
           }
         },
         "ru": {
@@ -724,6 +1228,18 @@
             "value": "Take a wide hand position; the body stays one straight line."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coloca las manos bien abiertas; el cuerpo sigue siendo una línea recta."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coloque as mãos bem abertas; o corpo continua sendo uma linha reta."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -739,6 +1255,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lower toward one hand, bending that elbow; the other arm stays straight."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baja hacia una mano doblando ese codo; el otro brazo se queda estirado."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desça em direção a uma das mãos dobrando aquele cotovelo; o outro braço fica estendido."
           }
         },
         "ru": {
@@ -758,6 +1286,18 @@
             "value": "Press up and repeat to the same side for the whole set, then switch."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empuja hacia arriba y haz toda la serie del mismo lado; después cambia."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empurre para cima e faça a série inteira do mesmo lado; depois troque."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -773,6 +1313,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hips rotating — shoulders and hips stay square to the floor."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La cadera rota: hombros y cadera se mantienen paralelos al suelo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O quadril gira: ombros e quadril ficam paralelos ao chão."
           }
         },
         "ru": {
@@ -792,6 +1344,18 @@
             "value": "Half range — the chest goes down to the working hand."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Medio recorrido: el pecho baja hasta la mano que trabaja."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meia amplitude: o peito desce até a mão que trabalha."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -807,6 +1371,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Glute bridge"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puente de glúteos"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponte de glúteos"
           }
         },
         "ru": {
@@ -826,6 +1402,18 @@
             "value": "Lie on your back, feet close to the glutes hip-width apart, arms at your sides."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acostado boca arriba, pies cerca de los glúteos a la anchura de la cadera, brazos a los lados."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deitado de costas, pés perto dos glúteos na largura do quadril, braços ao lado do corpo."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -841,6 +1429,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lift the hips until knees, hips and shoulders form one straight line."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sube la cadera hasta que rodillas, cadera y hombros formen una línea recta."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suba o quadril até joelhos, quadril e ombros formarem uma linha reta."
           }
         },
         "ru": {
@@ -860,6 +1460,18 @@
             "value": "Squeeze the glutes for a second at the top, then lower slowly without touching the floor."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aprieta los glúteos un segundo arriba y baja despacio sin tocar el suelo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aperte os glúteos por um segundo em cima e desça devagar sem encostar no chão."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -875,6 +1487,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Arching the lower back — don't push past the straight line."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arquear la zona lumbar: no empujes más allá de la línea recta."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arquear a lombar: não empurre além da linha reta."
           }
         },
         "ru": {
@@ -894,6 +1518,18 @@
             "value": "Pushing through the toes — keep the weight on the heels."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empujar con las puntas de los pies: el peso va en los talones."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empurrar com as pontas dos pés: o peso fica nos calcanhares."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -909,6 +1545,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Single-leg glute bridge"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puente de glúteos a una pierna"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponte de glúteos unilateral"
           }
         },
         "ru": {
@@ -928,6 +1576,18 @@
             "value": "Lie on your back, one foot near the glutes, the other leg extended."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acostado boca arriba, un pie cerca de los glúteos y la otra pierna extendida."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deitado de costas, um pé perto dos glúteos e a outra perna estendida."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -943,6 +1603,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lift the hips with one leg to a straight line, keeping the pelvis level."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sube la cadera con una sola pierna hasta la línea recta, manteniendo la pelvis nivelada."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suba o quadril com uma perna só até a linha reta, mantendo a pelve nivelada."
           }
         },
         "ru": {
@@ -962,6 +1634,18 @@
             "value": "Pause a second at the top, lower slowly."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un segundo de pausa arriba y baja despacio."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um segundo de pausa em cima e desça devagar."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -977,6 +1661,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pelvis tilting sideways — keep both hip bones pointing at the ceiling."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La pelvis se inclina hacia un lado: los dos huesos de la cadera miran al techo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A pelve inclina para o lado: os dois ossos do quadril apontam para o teto."
           }
         },
         "ru": {
@@ -996,6 +1692,18 @@
             "value": "Helping with the free leg — it stays out of the movement."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ayudarte con la pierna libre: no participa en el movimiento."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajudar com a perna livre: ela não participa do movimento."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1011,6 +1719,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Single-leg Romanian deadlift"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peso muerto rumano a una pierna"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Levantamento terra romeno unilateral"
           }
         },
         "ru": {
@@ -1030,6 +1750,18 @@
             "value": "Stand on one leg with a soft knee; hinge forward from the hips with a flat back."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De pie sobre una pierna con la rodilla algo flexionada, inclínate al frente desde la cadera con la espalda recta."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em pé sobre uma perna com o joelho levemente flexionado, incline para a frente a partir do quadril com a coluna reta."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1045,6 +1777,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "The free leg extends back; torso and leg form one line, hands reaching toward the floor."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La pierna libre se va hacia atrás; torso y pierna forman una línea, las manos bajan hacia el suelo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A perna livre vai para trás; tronco e perna formam uma linha, as mãos descem em direção ao chão."
           }
         },
         "ru": {
@@ -1064,6 +1808,18 @@
             "value": "Stand back up by squeezing the glute of the standing leg."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vuelve a subir apretando el glúteo de la pierna de apoyo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volte a subir apertando o glúteo da perna de apoio."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1079,6 +1835,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Rounding the back — keep the shoulder blades set, hinge from the hips."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Espalda redondeada: mantén las escápulas firmes y bascula desde la cadera."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coluna arredondada: mantenha as escápulas firmes e incline a partir do quadril."
           }
         },
         "ru": {
@@ -1098,6 +1866,18 @@
             "value": "Pelvis rotating open — keep the hips square to the floor."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La pelvis se abre: mantén las caderas paralelas al suelo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A pelve abre para o lado: mantenha os quadris paralelos ao chão."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1113,6 +1893,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sliding leg curl"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Curl femoral deslizante"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Curl femoral deslizante"
           }
         },
         "ru": {
@@ -1132,6 +1924,18 @@
             "value": "Lie on your back, heels on a towel on a smooth floor, hips lifted."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acostado boca arriba, talones sobre una toalla en suelo liso y la cadera elevada."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deitado de costas, calcanhares sobre uma toalha em piso liso e o quadril elevado."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1147,6 +1951,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Slide the heels away until the legs are almost straight, hips stay up."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desliza los talones hacia fuera hasta casi estirar las piernas; la cadera no baja."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deslize os calcanhares para longe até as pernas quase esticarem; o quadril não desce."
           }
         },
         "ru": {
@@ -1166,6 +1982,18 @@
             "value": "Pull the heels back toward the glutes — that's one rep."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trae los talones de vuelta hacia los glúteos: eso es una repetición."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traga os calcanhares de volta em direção aos glúteos: isso é uma repetição."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1181,6 +2009,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hips dropping as the legs extend — keep the bridge the whole time."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La cadera cae al estirar las piernas: mantén el puente todo el rato."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O quadril cai quando as pernas esticam: mantenha a ponte o tempo todo."
           }
         },
         "ru": {
@@ -1200,6 +2040,18 @@
             "value": "Jerky pulls — slide out and back slowly, with control."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tirones bruscos: desliza hacia fuera y hacia dentro despacio, con control."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puxadas bruscas: deslize para fora e para dentro devagar, com controle."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1215,6 +2067,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Y-T-W raises"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elevaciones Y-T-W"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elevações Y-T-W"
           }
         },
         "ru": {
@@ -1234,6 +2098,18 @@
             "value": "Lie face down, forehead near the floor, arms extended in a Y shape."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acostado boca abajo, la frente cerca del suelo y los brazos extendidos formando una Y."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deitado de barriga para baixo, a testa perto do chão e os braços estendidos formando um Y."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1249,6 +2125,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lift the straight arms for 2 seconds, squeezing the shoulder blades, then lower."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sube los brazos estirados durante 2 segundos juntando las escápulas y baja."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suba os braços esticados por 2 segundos juntando as escápulas e desça."
           }
         },
         "ru": {
@@ -1268,6 +2156,18 @@
             "value": "Repeat in a T position and a W position — together that's one rep."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repite en posición de T y de W: las tres juntas son una repetición."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repita na posição de T e na de W: as três juntas são uma repetição."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1283,6 +2183,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Jerking the torso up — only the arms and shoulder blades lift."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subir el torso de un tirón: solo se levantan los brazos y las escápulas."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subir o tronco num arranco: só os braços e as escápulas se levantam."
           }
         },
         "ru": {
@@ -1302,6 +2214,18 @@
             "value": "Shoulders creeping toward the ears — pull the blades down and back."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los hombros se van hacia las orejas: lleva las escápulas abajo y atrás."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os ombros sobem em direção às orelhas: puxe as escápulas para baixo e para trás."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1319,10 +2243,22 @@
             "value": "Inverted row (table)"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remo invertido (mesa)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remada invertida (mesa)"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Тяга под опорой"
+            "value": "Тяга с опорой"
           }
         }
       }
@@ -1334,6 +2270,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lie under a sturdy table and grab the edge with a shoulder-width grip."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acuéstate bajo una mesa firme y agarra el borde con las manos a la anchura de los hombros."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deite embaixo de uma mesa firme e segure a borda com as mãos na largura dos ombros."
           }
         },
         "ru": {
@@ -1353,6 +2301,18 @@
             "value": "Body straight from shoulders to heels; pull the chest to the edge, squeezing the shoulder blades."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuerpo recto de los hombros a los talones; lleva el pecho al borde juntando las escápulas."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corpo reto dos ombros aos calcanhares; puxe o peito até a borda juntando as escápulas."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1368,6 +2328,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lower slowly until the arms are straight."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baja despacio hasta estirar del todo los brazos."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desça devagar até esticar os braços por completo."
           }
         },
         "ru": {
@@ -1387,6 +2359,18 @@
             "value": "Sagging hips — hold the body like a plank."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La cadera se hunde: sostén el cuerpo como en una plancha."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O quadril afunda: sustente o corpo como numa prancha."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1402,6 +2386,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pulling only with the arms — start by squeezing the shoulder blades."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tirar solo con los brazos: el movimiento empieza juntando las escápulas."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puxar só com os braços: o movimento começa juntando as escápulas."
           }
         },
         "ru": {
@@ -1421,10 +2417,22 @@
             "value": "Feet-elevated inverted row"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remo invertido con pies elevados"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remada invertida com pés elevados"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Тяга под опорой, ноги на возвышении"
+            "value": "Тяга с опорой, ноги на возвышении"
           }
         }
       }
@@ -1436,6 +2444,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Same setup, but feet up on a chair — the body is parallel to the floor."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La misma posición, pero con los pies sobre una silla: el cuerpo queda paralelo al suelo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A mesma posição, mas com os pés sobre uma cadeira: o corpo fica paralelo ao chão."
           }
         },
         "ru": {
@@ -1455,6 +2475,18 @@
             "value": "Pull the chest to the table edge with a rigid torso."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lleva el pecho al borde de la mesa con el torso rígido."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puxe o peito até a borda da mesa com o tronco rígido."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1470,6 +2502,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pause a second at the top; lower under control."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un segundo de pausa arriba; baja con control."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um segundo de pausa em cima; desça com controle."
           }
         },
         "ru": {
@@ -1489,6 +2533,18 @@
             "value": "Reaching with the chin instead of the chest — lead with the chest."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Llegar con la barbilla en lugar del pecho: guía el movimiento con el pecho."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chegar com o queixo em vez do peito: conduza o movimento com o peito."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1504,6 +2560,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Rushing the reps — control both directions."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ir demasiado rápido: controla el movimiento en los dos sentidos."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ir rápido demais: controle o movimento nos dois sentidos."
           }
         },
         "ru": {
@@ -1523,10 +2591,22 @@
             "value": "Archer inverted row"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remo invertido de arquero"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remada invertida arqueiro"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Тяга «лучник» под опорой"
+            "value": "Тяга «лучник» с опорой"
           }
         }
       }
@@ -1538,6 +2618,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Set up under the table with a wide grip, body straight."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Colócate bajo la mesa con un agarre ancho y el cuerpo recto."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posicione-se embaixo da mesa com pegada aberta e o corpo reto."
           }
         },
         "ru": {
@@ -1557,6 +2649,18 @@
             "value": "Pull the chest toward one hand; the other arm stays nearly straight."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lleva el pecho hacia una mano; el otro brazo se queda casi estirado."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puxe o peito em direção a uma das mãos; o outro braço fica quase estendido."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1572,6 +2676,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lower under control; whole set to one side, then switch."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baja con control; toda la serie a un lado y después cambia."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desça com controle; a série inteira de um lado e depois troque."
           }
         },
         "ru": {
@@ -1591,6 +2707,18 @@
             "value": "Hips sagging — hold the plank line through the set."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La cadera se hunde: sostén la línea de plancha durante toda la serie."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O quadril afunda: sustente a linha da prancha durante toda a série."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1606,6 +2734,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Both arms pulling equally — the working arm does the job."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los dos brazos tiran por igual: el trabajo lo hace el brazo activo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os dois braços puxam igual: quem faz o trabalho é o braço ativo."
           }
         },
         "ru": {
@@ -1625,6 +2765,18 @@
             "value": "Wall push-up"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexión en la pared"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexão na parede"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1640,6 +2792,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Stand a step away from a wall, palms on it slightly wider than shoulders, at chest height."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponte a un paso de la pared, con las palmas en ella algo más abiertas que los hombros, a la altura del pecho."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fique a um passo da parede, com as palmas nela um pouco mais abertas que os ombros, na altura do peito."
           }
         },
         "ru": {
@@ -1659,6 +2823,18 @@
             "value": "Bend the elbows, bringing the face toward the wall, body in one line."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dobla los codos acercando la cara a la pared, con el cuerpo en una línea."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dobre os cotovelos aproximando o rosto da parede, com o corpo em uma linha."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1674,6 +2850,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Push back to straight arms; the farther the feet, the harder."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empuja hasta estirar los brazos; cuanto más lejos los pies, más difícil."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empurre até esticar os braços; quanto mais longe os pés, mais difícil."
           }
         },
         "ru": {
@@ -1693,6 +2881,18 @@
             "value": "Hips dropping back — the whole body moves as one line."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La cadera se va hacia atrás: todo el cuerpo se mueve como una sola línea."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O quadril vai para trás: o corpo inteiro se move como uma linha só."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1708,6 +2908,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Elbows flared to 90° — keep them closer to the torso."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codos abiertos a 90°: mantenlos más cerca del torso."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cotovelos abertos a 90°: mantenha-os mais perto do tronco."
           }
         },
         "ru": {
@@ -1727,10 +2939,22 @@
             "value": "Pike push-up"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexión pica"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexão pike"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Отжимания «щучкой»"
+            "value": "Отжимания уголком"
           }
         }
       }
@@ -1742,6 +2966,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "From a push-up position, lift the hips high — the body forms an inverted V."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desde la posición de flexión, sube mucho la cadera: el cuerpo forma una V invertida."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Da posição de flexão, suba bem o quadril: o corpo forma um V invertido."
           }
         },
         "ru": {
@@ -1761,6 +2997,18 @@
             "value": "Bend the elbows, lowering the top of the head toward the floor between the hands."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dobla los codos bajando la coronilla hacia el suelo, entre las manos."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dobre os cotovelos descendo o topo da cabeça em direção ao chão, entre as mãos."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1776,6 +3024,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Press back up without dropping the hips."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empuja hacia arriba sin dejar caer la cadera."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empurre para cima sem deixar o quadril cair."
           }
         },
         "ru": {
@@ -1795,6 +3055,18 @@
             "value": "Hips dropping as the arms bend — keep the V shape."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La cadera baja al doblar los brazos: mantén la forma de V."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O quadril desce quando os braços dobram: mantenha o formato de V."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1810,6 +3082,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bumping the head on the floor — lower slowly, with control."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Golpear la cabeza contra el suelo: baja despacio, con control."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bater a cabeça no chão: desça devagar, com controle."
           }
         },
         "ru": {
@@ -1829,6 +3113,18 @@
             "value": "Wall handstand push-up"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexión en vertical contra la pared"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexão em parada de mão na parede"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1844,6 +3140,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Kick up into a handstand with your back to the wall, heels resting on it."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sube a la vertical de espaldas a la pared, con los talones apoyados en ella."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suba na parada de mão de costas para a parede, com os calcanhares apoiados nela."
           }
         },
         "ru": {
@@ -1863,6 +3171,18 @@
             "value": "Bend the elbows slowly, lowering the top of the head toward the floor."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dobla los codos despacio, bajando la coronilla hacia el suelo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dobre os cotovelos devagar, descendo o topo da cabeça em direção ao chão."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1878,6 +3198,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Press back up; know how to exit safely — step down one leg at a time."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empuja hacia arriba; ten claro cómo salir con seguridad: baja una pierna y después la otra."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empurre para cima; saiba sair com segurança: desça uma perna de cada vez."
           }
         },
         "ru": {
@@ -1897,6 +3229,18 @@
             "value": "Arching the lower back — keep the core and glutes tight."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arqueo en la zona lumbar: mantén el abdomen y los glúteos apretados."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arco na lombar: mantenha o core e os glúteos contraídos."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1912,6 +3256,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Elbows drifting outward — track them forward and down."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los codos se abren hacia fuera: llévalos hacia delante y abajo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os cotovelos abrem para fora: conduza-os para a frente e para baixo."
           }
         },
         "ru": {
@@ -1931,6 +3287,18 @@
             "value": "Chest-to-wall handstand push-up"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexión en vertical de cara a la pared"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexão em parada de mão de frente para a parede"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1946,6 +3314,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Walk your feet up the wall, chest facing it, body close to vertical."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sube caminando con los pies por la pared, el pecho hacia ella y el cuerpo casi vertical."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suba caminhando com os pés pela parede, o peito voltado para ela e o corpo quase vertical."
           }
         },
         "ru": {
@@ -1965,6 +3345,18 @@
             "value": "Bend the elbows slowly, lowering the head to the floor."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dobla los codos despacio, bajando la cabeza hacia el suelo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dobre os cotovelos devagar, descendo a cabeça em direção ao chão."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -1980,6 +3372,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Press back up; keep the body in one tight line."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empuja hacia arriba; mantén el cuerpo en una línea firme."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empurre para cima; mantenha o corpo em uma linha firme."
           }
         },
         "ru": {
@@ -1999,6 +3403,18 @@
             "value": "Arching away from the wall — stay close, ribs tucked in."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arquearte separándote de la pared: quédate cerca, con las costillas metidas."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arquear afastando-se da parede: fique perto, com as costelas encaixadas."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2014,6 +3430,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Uncontrolled descent — the head must land softly."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descenso sin control: la cabeza tiene que llegar suave."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descida sem controle: a cabeça precisa chegar suave."
           }
         },
         "ru": {
@@ -2033,6 +3461,18 @@
             "value": "Static lunge"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zancada estática"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afundo estático"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2048,6 +3488,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Step into a lunge stance and stay in it for the whole set."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Colócate en posición de zancada y quédate en ella toda la serie."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Assuma a posição de afundo e permaneça nela durante toda a série."
           }
         },
         "ru": {
@@ -2067,6 +3519,18 @@
             "value": "Drive up through the front heel, torso upright."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sube empujando con el talón de delante, el torso erguido."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suba empurrando com o calcanhar da frente, o tronco ereto."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2082,6 +3546,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Front knee traveling far past the toes — take a longer stance."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La rodilla de delante se va muy por delante de la punta: alarga el paso."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O joelho da frente avança muito além da ponta do pé: alongue o passo."
           }
         },
         "ru": {
@@ -2101,6 +3577,18 @@
             "value": "Torso tipping forward — keep the chest up."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El torso se va hacia delante: mantén el pecho arriba."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O tronco tomba para a frente: mantenha o peito erguido."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2116,6 +3604,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Reverse lunge"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zancada inversa"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afundo reverso"
           }
         },
         "ru": {
@@ -2135,6 +3635,18 @@
             "value": "From standing, step back and lower the rear knee almost to the floor."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desde de pie, da un paso atrás y baja la rodilla trasera casi hasta el suelo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em pé, dê um passo para trás e desça o joelho de trás quase até o chão."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2150,6 +3662,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "The front shin stays near vertical; weight on the front heel."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La espinilla de delante se mantiene casi vertical; el peso, en el talón de delante."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A canela da frente fica quase vertical; o peso, no calcanhar da frente."
           }
         },
         "ru": {
@@ -2169,6 +3693,18 @@
             "value": "Push off and return to standing — that's one rep."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empuja y vuelve a la posición de pie: eso es una repetición."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empurre e volte à posição em pé: isso é uma repetição."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2184,6 +3720,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Too short a step back — the front knee gets overloaded."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paso atrás demasiado corto: se sobrecarga la rodilla de delante."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passo para trás curto demais: o joelho da frente fica sobrecarregado."
           }
         },
         "ru": {
@@ -2203,6 +3751,18 @@
             "value": "Losing balance — fix your eyes on a point ahead."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pérdida de equilibrio: fija la mirada en un punto al frente."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perda de equilíbrio: fixe o olhar num ponto à frente."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2218,6 +3778,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Jump lunge"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zancada con salto"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afundo com salto"
           }
         },
         "ru": {
@@ -2237,6 +3809,18 @@
             "value": "From a lunge, jump up and switch legs in the air."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desde la zancada, salta y cambia de pierna en el aire."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do afundo, salte e troque as pernas no ar."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2252,6 +3836,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Land softly in a lunge on the other side, knee almost to the floor."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cae suave en zancada con la otra pierna, la rodilla casi en el suelo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caia suave em afundo do outro lado, o joelho quase no chão."
           }
         },
         "ru": {
@@ -2271,6 +3867,18 @@
             "value": "Keep a steady rhythm; use the arms for balance."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén un ritmo constante; ayúdate con los brazos para equilibrarte."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantenha um ritmo constante; use os braços para equilibrar."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2286,6 +3894,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Landing stiff on a straight leg — absorb by bending."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caer rígido con la pierna estirada: amortigua flexionando."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cair duro com a perna esticada: amorteça flexionando."
           }
         },
         "ru": {
@@ -2305,6 +3925,18 @@
             "value": "Knee slamming into the floor — control the depth."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La rodilla golpea el suelo: controla la profundidad."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O joelho bate no chão: controle a profundidade."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2320,6 +3952,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Paused jump lunge"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zancada con salto y pausa"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afundo com salto e pausa"
           }
         },
         "ru": {
@@ -2339,6 +3983,18 @@
             "value": "Jump and switch legs in the air, landing softly in a lunge."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salta cambiando de pierna en el aire y cae suave en zancada."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salte trocando as pernas no ar e caia suave em afundo."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2354,6 +4010,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hold the bottom position for a full 2 seconds, knee near the floor."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aguanta abajo 2 segundos completos, con la rodilla cerca del suelo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Segure embaixo por 2 segundos completos, com o joelho perto do chão."
           }
         },
         "ru": {
@@ -2373,6 +4041,18 @@
             "value": "Explode up into the next switch — pause every landing."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sal hacia arriba de forma explosiva al siguiente cambio: pausa en cada aterrizaje."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exploda para cima na próxima troca: pausa em cada aterrissagem."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2388,6 +4068,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Skipping the pause — hold an honest 2 seconds at the bottom."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saltarte la pausa: aguanta 2 segundos honestos abajo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pular a pausa: segure 2 segundos honestos embaixo."
           }
         },
         "ru": {
@@ -2407,6 +4099,18 @@
             "value": "Shallow landings — the knee comes close to the floor each rep."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aterrizajes cortos: la rodilla baja cerca del suelo en cada repetición."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aterrissagens curtas: o joelho desce perto do chão em cada repetição."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2422,6 +4126,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Knee plank"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plancha con rodillas"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prancha com joelhos"
           }
         },
         "ru": {
@@ -2441,6 +4157,18 @@
             "value": "Forearms on the floor, elbows under the shoulders, knees down."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Antebrazos en el suelo, codos bajo los hombros, rodillas apoyadas."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Antebraços no chão, cotovelos sob os ombros, joelhos apoiados."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2456,6 +4184,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Head to knees — one straight line; belly pulled in."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De la cabeza a las rodillas, una línea recta; el abdomen metido."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Da cabeça aos joelhos, uma linha reta; a barriga contraída."
           }
         },
         "ru": {
@@ -2475,6 +4215,18 @@
             "value": "Breathe steadily and hold for the planned time."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Respira de forma regular y aguanta el tiempo previsto."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Respire de forma regular e segure pelo tempo previsto."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2490,6 +4242,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hips sagging — tuck the pelvis slightly."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La cadera se hunde: bascula un poco la pelvis."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O quadril afunda: incline a pelve levemente."
           }
         },
         "ru": {
@@ -2509,6 +4273,18 @@
             "value": "Shoulders at the ears — push the floor away, keep the neck long."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hombros pegados a las orejas: empuja el suelo y alarga el cuello."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ombros colados nas orelhas: empurre o chão e alongue o pescoço."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2524,6 +4300,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Plank"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plancha"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prancha"
           }
         },
         "ru": {
@@ -2543,6 +4331,18 @@
             "value": "Forearms on the floor, elbows under the shoulders, feet hip-width."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Antebrazos en el suelo, codos bajo los hombros, pies a la anchura de la cadera."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Antebraços no chão, cotovelos sob os ombros, pés na largura do quadril."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2558,6 +4358,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "One straight line from head to heels; glutes and abs braced."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una línea recta de la cabeza a los talones; glúteos y abdomen firmes."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma linha reta da cabeça aos calcanhares; glúteos e abdômen firmes."
           }
         },
         "ru": {
@@ -2577,6 +4389,18 @@
             "value": "Breathe steadily; shaking is fine, a sagging line is not."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Respira de forma regular; temblar es normal, hundirse no."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Respire de forma regular; tremer é normal, afundar não."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2592,6 +4416,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hips hiked up — easier, but pointless."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cadera levantada: es más fácil, pero no sirve de nada."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quadril empinado: fica mais fácil, mas não adianta nada."
           }
         },
         "ru": {
@@ -2611,6 +4447,18 @@
             "value": "Lower back sagging — that strains the spine; better to stop early."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La zona lumbar se hunde: eso carga la columna; mejor parar antes."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A lombar afunda: isso sobrecarrega a coluna; melhor parar antes."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2623,6 +4471,18 @@
       "extractionState": "manual",
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hollow hold"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hollow hold"
+          }
+        },
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
             "value": "Hollow hold"
@@ -2645,6 +4505,18 @@
             "value": "Lie on your back, press the lower back into the floor, arms extended overhead."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acostado boca arriba, pega la zona lumbar al suelo y estira los brazos por encima de la cabeza."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deitado de costas, cole a lombar no chão e estenda os braços acima da cabeça."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2660,6 +4532,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lift the shoulder blades and straight legs 15–20 cm off the floor."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Despega del suelo las escápulas y las piernas estiradas 15–20 cm."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tire do chão as escápulas e as pernas esticadas, 15–20 cm."
           }
         },
         "ru": {
@@ -2679,6 +4563,18 @@
             "value": "Hold the shape with the lower back pressed down the whole time."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén la forma con la zona lumbar pegada al suelo todo el rato."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Segure o formato com a lombar colada no chão o tempo todo."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2694,6 +4590,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lower back lifting off the floor — raise the legs higher or bend the knees."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La zona lumbar se despega del suelo: sube más las piernas o dobla las rodillas."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A lombar sai do chão: suba mais as pernas ou dobre os joelhos."
           }
         },
         "ru": {
@@ -2713,6 +4621,18 @@
             "value": "Holding your breath — keep breathing shallow and steady."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aguantar la respiración: respira suave y de forma regular."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prender a respiração: respire leve e de forma regular."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2728,6 +4648,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Long-lever plank"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plancha con palanca larga"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prancha com alavanca longa"
           }
         },
         "ru": {
@@ -2747,6 +4679,18 @@
             "value": "Take a plank on the forearms, elbows well ahead of the shoulders."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponte en plancha sobre los antebrazos, con los codos bastante por delante de los hombros."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fique em prancha sobre os antebraços, com os cotovelos bem à frente dos ombros."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2762,6 +4706,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Keep one straight line from head to heels, glutes tight."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén una línea recta de la cabeza a los talones, con los glúteos apretados."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantenha uma linha reta da cabeça aos calcanhares, com os glúteos contraídos."
           }
         },
         "ru": {
@@ -2781,6 +4737,18 @@
             "value": "The farther the elbows, the harder — breathe steadily and hold."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuanto más lejos los codos, más difícil: respira de forma regular y aguanta."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quanto mais longe os cotovelos, mais difícil: respire de forma regular e segure."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2796,6 +4764,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hips sagging — tuck the pelvis and brace the abs."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La cadera se hunde: bascula la pelvis y aprieta el abdomen."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O quadril afunda: incline a pelve e contraia o abdômen."
           }
         },
         "ru": {
@@ -2815,6 +4795,18 @@
             "value": "Elbows too far too soon — increase the lever gradually."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codos demasiado lejos demasiado pronto: alarga la palanca poco a poco."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cotovelos longe demais cedo demais: aumente a alavanca aos poucos."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2830,6 +4822,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bird dog (hold)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bird dog (isometría)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bird dog (isometria)"
           }
         },
         "ru": {
@@ -2849,6 +4853,18 @@
             "value": "On all fours: hands under the shoulders, knees under the hips."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A cuatro patas: manos bajo los hombros, rodillas bajo la cadera."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De quatro apoios: mãos sob os ombros, joelhos sob o quadril."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2864,6 +4880,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Extend the opposite arm and leg into one line with the torso."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extiende el brazo y la pierna contrarios hasta alinearlos con el torso."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estenda o braço e a perna opostos até alinhá-los com o tronco."
           }
         },
         "ru": {
@@ -2883,6 +4911,18 @@
             "value": "Hold without wobbling; pelvis and shoulders stay level."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aguanta sin balancearte; pelvis y hombros se mantienen nivelados."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Segure sem balançar; pelve e ombros ficam nivelados."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2898,6 +4938,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lower back arching as the leg lifts — the leg goes no higher than the torso."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arqueo lumbar al subir la pierna: la pierna no sube más que el torso."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arco na lombar quando a perna sobe: a perna não passa da altura do tronco."
           }
         },
         "ru": {
@@ -2917,6 +4969,18 @@
             "value": "Torso rotating — imagine a glass of water on your lower back."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El torso rota: imagina un vaso de agua apoyado en tu zona lumbar."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O tronco gira: imagine um copo d'água apoiado na sua lombar."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2932,6 +4996,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Side plank"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plancha lateral"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prancha lateral"
           }
         },
         "ru": {
@@ -2951,6 +5027,18 @@
             "value": "Lie on your side, elbow under the shoulder, feet stacked."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acuéstate de lado, con el codo bajo el hombro y un pie sobre el otro."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deite de lado, com o cotovelo sob o ombro e um pé sobre o outro."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -2966,6 +5054,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lift the hips until feet–hips–shoulders form a straight line."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sube la cadera hasta que pies, cadera y hombros formen una línea recta."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suba o quadril até pés, quadril e ombros formarem uma linha reta."
           }
         },
         "ru": {
@@ -2985,6 +5085,18 @@
             "value": "Hold without letting the hips drop; free hand on the waist or up."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aguanta sin dejar caer la cadera; la mano libre en la cintura o hacia arriba."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Segure sem deixar o quadril cair; a mão livre na cintura ou para cima."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3000,6 +5112,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hips sagging — keep the body line straight."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La cadera se hunde: la línea del cuerpo tiene que estar recta."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O quadril afunda: a linha do corpo precisa ficar reta."
           }
         },
         "ru": {
@@ -3019,6 +5143,18 @@
             "value": "Torso tipping forward — shoulders and hips in one plane."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El torso se va hacia delante: hombros y cadera en un mismo plano."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O tronco tomba para a frente: ombros e quadril no mesmo plano."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3034,6 +5170,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Side plank with leg raise"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plancha lateral con elevación de pierna"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prancha lateral com elevação de perna"
           }
         },
         "ru": {
@@ -3053,6 +5201,18 @@
             "value": "Get into a side plank on the elbow."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Colócate en plancha lateral sobre el codo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Assuma a prancha lateral apoiado no cotovelo."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3068,6 +5228,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Raise the top leg 20–30 cm and hold it straight."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sube la pierna de arriba 20–30 cm y mantenla estirada."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suba a perna de cima 20–30 cm e mantenha-a esticada."
           }
         },
         "ru": {
@@ -3087,6 +5259,18 @@
             "value": "Hips high, the body in one plane."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La cadera alta y el cuerpo en un mismo plano."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O quadril alto e o corpo no mesmo plano."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3102,6 +5286,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hips dropping when the leg lifts — stabilize the plank first."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La cadera cae al subir la pierna: primero consigue una plancha estable."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O quadril cai quando a perna sobe: primeiro deixe a prancha estável."
           }
         },
         "ru": {
@@ -3121,6 +5317,18 @@
             "value": "Leg drifting forward — keep it in line with the torso."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La pierna se va hacia delante: mantenla alineada con el torso."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A perna vai para a frente: mantenha-a alinhada com o tronco."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3136,6 +5344,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Star side plank"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plancha lateral en estrella"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prancha lateral em estrela"
           }
         },
         "ru": {
@@ -3155,6 +5375,18 @@
             "value": "From a side plank, raise the top leg and the top arm at once."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desde la plancha lateral, sube a la vez la pierna y el brazo de arriba."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Da prancha lateral, suba ao mesmo tempo a perna e o braço de cima."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3170,6 +5402,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "The body forms a star: straight line plus raised limbs."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El cuerpo forma una estrella: la línea recta más las extremidades levantadas."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O corpo forma uma estrela: a linha reta mais os membros levantados."
           }
         },
         "ru": {
@@ -3189,6 +5433,18 @@
             "value": "Hips high the whole hold; look straight ahead."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La cadera alta durante todo el ejercicio; la mirada al frente."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O quadril alto durante todo o exercício; o olhar à frente."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3204,6 +5460,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hips dropping — the base line comes first, the star second."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La cadera cae: primero la línea base, después la estrella."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O quadril cai: primeiro a linha base, depois a estrela."
           }
         },
         "ru": {
@@ -3223,6 +5491,18 @@
             "value": "Body folding forward — shoulders, hips and legs in one plane."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El cuerpo se pliega hacia delante: hombros, cadera y piernas en un mismo plano."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O corpo dobra para a frente: ombros, quadril e pernas no mesmo plano."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3238,6 +5518,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Calf raises"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elevaciones de talones"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elevação de panturrilha"
           }
         },
         "ru": {
@@ -3257,6 +5549,18 @@
             "value": "Stand with feet hip-width; hand on a wall for balance."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De pie con los pies a la anchura de la cadera; una mano en la pared para equilibrarte."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em pé com os pés na largura do quadril; uma mão na parede para equilibrar."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3272,6 +5576,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Rise as high as you can onto the balls of the feet, pause a second at the top."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sube todo lo que puedas sobre las puntas de los pies y haz una pausa de un segundo arriba."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suba o máximo que conseguir na ponta dos pés e faça uma pausa de um segundo em cima."
           }
         },
         "ru": {
@@ -3291,6 +5607,18 @@
             "value": "Lower slowly; for more range, stand with the toes on a step edge."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baja despacio; para más recorrido, apoya las puntas en el borde de un escalón."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desça devagar; para mais amplitude, apoie as pontas dos pés na borda de um degrau."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3306,6 +5634,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Fast bouncing — move slowly with a pause at the top."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rebotes rápidos: muévete despacio y con pausa arriba."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repiques rápidos: mova devagar e com pausa em cima."
           }
         },
         "ru": {
@@ -3325,6 +5665,18 @@
             "value": "Cutting the range — rise all the way up."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recorrido corto: sube del todo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Amplitude curta: suba até o fim."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3340,6 +5692,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Single-leg calf raise"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elevación de talón a una pierna"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elevação de panturrilha unilateral"
           }
         },
         "ru": {
@@ -3359,6 +5723,18 @@
             "value": "Stand on one leg, hand on a wall for balance."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De pie sobre una pierna, con una mano en la pared para equilibrarte."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em pé sobre uma perna, com uma mão na parede para equilibrar."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3374,6 +5750,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Rise onto the ball of the foot as high as possible, pause for a second."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sube sobre la punta del pie todo lo que puedas y haz una pausa de un segundo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suba na ponta do pé o máximo possível e faça uma pausa de um segundo."
           }
         },
         "ru": {
@@ -3393,6 +5781,18 @@
             "value": "Lower slowly, heel to the floor (or below step level)."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baja despacio, con el talón hasta el suelo (o por debajo del escalón)."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desça devagar, com o calcanhar até o chão (ou abaixo do degrau)."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3408,6 +5808,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Helping with the other leg — it stays off the floor."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ayudarte con la otra pierna: se queda en el aire."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajudar com a outra perna: ela fica no ar."
           }
         },
         "ru": {
@@ -3427,6 +5839,18 @@
             "value": "Ankle rolling outward — press through the big toe."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El tobillo se va hacia fuera: haz fuerza a través del dedo gordo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O tornozelo cai para fora: faça força pelo dedão."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3442,6 +5866,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Single-leg calf raise with pause"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elevación de talón a una pierna con pausa"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elevação de panturrilha unilateral com pausa"
           }
         },
         "ru": {
@@ -3461,6 +5897,18 @@
             "value": "Same as the single-leg raise, but with a 3-second pause at the top."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Igual que a una pierna, pero con una pausa de 3 segundos arriba."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Igual à unilateral, mas com uma pausa de 3 segundos em cima."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3476,6 +5924,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Up in 1 second, hold for 3, down for 3."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sube en 1 segundo, aguanta 3 y baja en 3."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suba em 1 segundo, segure 3 e desça em 3."
           }
         },
         "ru": {
@@ -3495,6 +5955,18 @@
             "value": "Full range beats rep count."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El recorrido completo vale más que el número de repeticiones."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A amplitude completa vale mais que o número de repetições."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3510,6 +5982,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Skipping the pause — hold an honest 3 seconds at the top."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saltarte la pausa: aguanta 3 segundos honestos arriba."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pular a pausa: segure 3 segundos honestos em cima."
           }
         },
         "ru": {
@@ -3529,6 +6013,18 @@
             "value": "Knee bending — the leg stays straight; only the ankle works."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La rodilla se dobla: la pierna se queda estirada; solo trabaja el tobillo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O joelho dobra: a perna fica esticada; só o tornozelo trabalha."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3544,6 +6040,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Single-leg calf raise on a step"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elevación de talón a una pierna en un escalón"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elevação de panturrilha unilateral no degrau"
           }
         },
         "ru": {
@@ -3563,6 +6071,18 @@
             "value": "Stand on one leg with the ball of the foot on a step edge."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De pie sobre una pierna, con la punta del pie en el borde de un escalón."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em pé sobre uma perna, com a ponta do pé na borda de um degrau."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3578,6 +6098,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lower the heel below the step level, feel the stretch."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baja el talón por debajo del escalón y nota el estiramiento."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desça o calcanhar abaixo do degrau e sinta o alongamento."
           }
         },
         "ru": {
@@ -3597,6 +6129,18 @@
             "value": "Rise as high as possible, pause a second, lower for 3 seconds."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sube todo lo que puedas, pausa de un segundo y baja en 3 segundos."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suba o máximo possível, pausa de um segundo e desça em 3 segundos."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3612,6 +6156,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Short bottom range — the heel must drop below the step."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poco recorrido abajo: el talón tiene que bajar por debajo del escalón."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pouca amplitude embaixo: o calcanhar precisa descer abaixo do degrau."
           }
         },
         "ru": {
@@ -3631,6 +6187,18 @@
             "value": "Bouncing out of the stretch — pause briefly at the bottom too."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rebotar desde el estiramiento: haz también una pausa corta abajo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repicar a partir do alongamento: faça também uma pausa curta embaixo."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3648,10 +6216,22 @@
             "value": "Horizontal push"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empuje horizontal"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empurrão horizontal"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Жим горизонт."
+            "value": "Горизонтальный жим"
           }
         }
       }
@@ -3663,6 +6243,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hinge"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bisagra"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dobradiça"
           }
         },
         "ru": {
@@ -3682,6 +6274,18 @@
             "value": "Pull"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tracción"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puxada"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3699,10 +6303,22 @@
             "value": "Vertical push"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empuje vertical"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empurrão vertical"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Жим вертик."
+            "value": "Вертикальный жим"
           }
         }
       }
@@ -3714,6 +6330,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lunges"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zancadas"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afundos"
           }
         },
         "ru": {
@@ -3733,6 +6361,18 @@
             "value": "Core · plank"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Core · plancha"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Core · prancha"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3748,6 +6388,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Core · rotation"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Core · rotación"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Core · rotação"
           }
         },
         "ru": {
@@ -3767,10 +6419,22 @@
             "value": "Calves"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pantorrillas"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Panturrilhas"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Голень"
+            "value": "Икры"
           }
         }
       }
@@ -3782,6 +6446,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "per side"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "por lado"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "por lado"
           }
         },
         "ru": {
@@ -3801,6 +6477,18 @@
             "value": "sec"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "s"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "s"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3816,6 +6504,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vertical pull"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tracción vertical"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puxada vertical"
           }
         },
         "ru": {
@@ -3835,6 +6535,18 @@
             "value": "Bar hang"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suspensión en barra"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pendurada na barra"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3850,6 +6562,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Negative pull-up"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dominada negativa"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Barra negativa"
           }
         },
         "ru": {
@@ -3869,6 +6593,18 @@
             "value": "Partial pull-up"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dominada parcial"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Barra parcial"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3884,6 +6620,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pull-up"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dominada"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Barra fixa"
           }
         },
         "ru": {
@@ -3903,6 +6651,18 @@
             "value": "Grab the bar slightly wider than shoulder width, palms facing away."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agarra la barra algo más abierto que la anchura de los hombros, con las palmas hacia fuera."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Segure a barra um pouco mais aberto que a largura dos ombros, com as palmas para fora."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3918,6 +6678,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hang on straight arms and pull the shoulders slightly down — an active hang, head not shrugged in."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuélgate con los brazos estirados y baja un poco los hombros: es una suspensión activa, sin meter la cabeza entre ellos."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pendure-se com os braços esticados e puxe os ombros levemente para baixo: a pendurada é ativa, sem encolher a cabeça."
           }
         },
         "ru": {
@@ -3937,6 +6709,18 @@
             "value": "Keep the body tight, legs together; breathe steadily for the whole hang."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén el cuerpo firme y las piernas juntas; respira de forma regular durante toda la suspensión."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantenha o corpo firme e as pernas juntas; respire de forma regular durante toda a pendurada."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3952,6 +6736,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Shoulders at the ears — pull the shoulder blades down; the hang must be active."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hombros pegados a las orejas: lleva las escápulas hacia abajo; la suspensión tiene que ser activa."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ombros colados nas orelhas: puxe as escápulas para baixo; a pendurada precisa ser ativa."
           }
         },
         "ru": {
@@ -3971,6 +6767,18 @@
             "value": "Swinging — keep the body braced, no pendulum."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balanceo: mantén el cuerpo firme, sin hacer de péndulo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balanço: mantenha o corpo firme, sem virar pêndulo."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -3986,6 +6794,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Step on a support or jump so the chin ends up above the bar."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Súbete a un apoyo o salta para dejar la barbilla por encima de la barra."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suba num apoio ou salte para deixar o queixo acima da barra."
           }
         },
         "ru": {
@@ -4005,6 +6825,18 @@
             "value": "Lower yourself slowly to straight arms over 3–5 seconds, controlling every inch."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baja despacio hasta estirar los brazos, durante 3–5 segundos, controlando cada centímetro."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desça devagar até esticar os braços, ao longo de 3–5 segundos, controlando cada centímetro."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -4020,6 +6852,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Get back on the support and repeat — no pulling up needed."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vuelve al apoyo y repite: no hace falta subir a pulso."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volte para o apoio e repita: não precisa subir na força."
           }
         },
         "ru": {
@@ -4039,6 +6883,18 @@
             "value": "Dropping instead of lowering — the negative takes at least 3 seconds."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dejarte caer en vez de bajar: la negativa dura al menos 3 segundos."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cair em vez de descer: a negativa dura pelo menos 3 segundos."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -4054,6 +6910,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Relaxed shoulders at the bottom — keep the shoulder blades engaged to the end."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hombros relajados abajo: mantén las escápulas activas hasta el final."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ombros relaxados embaixo: mantenha as escápulas ativas até o fim."
           }
         },
         "ru": {
@@ -4073,6 +6941,18 @@
             "value": "Hang on straight arms, grip slightly wider than shoulders, palms facing away."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuélgate con los brazos estirados, con el agarre algo más abierto que los hombros y las palmas hacia fuera."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pendure-se com os braços esticados, a pegada um pouco mais aberta que os ombros e as palmas para fora."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -4088,6 +6968,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Start by squeezing the shoulder blades and pull up to a right angle at the elbows."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empieza juntando las escápulas y sube hasta formar un ángulo recto con los codos."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comece juntando as escápulas e puxe até formar um ângulo reto nos cotovelos."
           }
         },
         "ru": {
@@ -4107,10 +6999,22 @@
             "value": "Lower slowly to straight arms — that's one rep."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baja despacio hasta estirar los brazos: eso es una repetición."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desça devagar até esticar os braços: isso é uma repetição."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Медленно опустись на прямые руки — это одно повторение."
+            "value": "Медленно опустись на прямые руки — это один повтор."
           }
         }
       }
@@ -4122,6 +7026,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Jerking and kicking with the legs — only the back and arms work."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tirones y patadas con las piernas: solo trabajan la espalda y los brazos."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrancos e chutes com as pernas: só as costas e os braços trabalham."
           }
         },
         "ru": {
@@ -4141,10 +7057,22 @@
             "value": "Cutting the bottom range — every rep starts from fully straight arms."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recortar el recorrido abajo: cada repetición empieza con los brazos del todo estirados."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cortar a amplitude embaixo: cada repetição começa com os braços totalmente esticados."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Срезанная амплитуда внизу — каждое повторение с полностью прямых рук."
+            "value": "Срезанная амплитуда внизу — каждый повтор с полностью прямых рук."
           }
         }
       }
@@ -4156,6 +7084,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pull up, starting by squeezing the shoulder blades, until the chin rises above the bar."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sube empezando por juntar las escápulas, hasta que la barbilla pase por encima de la barra."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puxe começando por juntar as escápulas, até o queixo passar acima da barra."
           }
         },
         "ru": {
@@ -4175,6 +7115,18 @@
             "value": "Lower under control to fully straight arms, no swinging."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baja con control hasta estirar del todo los brazos, sin balanceo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desça com controle até esticar os braços por completo, sem balanço."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -4190,6 +7142,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Swinging and jerking the body — kipping doesn't count."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balancear el cuerpo y hacer tirones: el kipping no cuenta."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balançar e dar arrancos com o corpo: kipping não conta."
           }
         },
         "ru": {
@@ -4209,10 +7173,22 @@
             "value": "Half range at the bottom — each rep starts from straight arms."
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Medio recorrido abajo: cada repetición empieza con los brazos estirados."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meia amplitude embaixo: cada repetição começa com os braços esticados."
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Неполное разгибание рук внизу — повторение начинается с прямых рук."
+            "value": "Неполное разгибание рук внизу — повтор начинается с прямых рук."
           }
         }
       }

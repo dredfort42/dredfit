@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dredfit — адаптивные домашние тренировки. Ноль настроек.</title>
+<meta name="description" content="Открой приложение — тренировка готова. Адаптивный тренер для тренировок с собственным весом на iPhone: без настройки, без аккаунта, без сбора данных. Подстраивается под то, как ты справился на самом деле.">
+<link rel="canonical" href="https://dredfit.com/ru/">
+<link rel="alternate" hreflang="en" href="https://dredfit.com/">
+<link rel="alternate" hreflang="ru" href="https://dredfit.com/ru/">
+<link rel="alternate" hreflang="es" href="https://dredfit.com/es/">
+<link rel="alternate" hreflang="pt-br" href="https://dredfit.com/pt-br/">
+<link rel="alternate" hreflang="x-default" href="https://dredfit.com/">
+<meta name="apple-itunes-app" content="app-id=6791739610">
+<meta property="og:title" content="Dredfit — адаптивные домашние тренировки">
+<meta property="og:description" content="Открой приложение — тренировка готова. Без настройки, без аккаунта, без сбора данных. Подстраивается под то, как ты справился на самом деле.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://dredfit.com/ru/">
+<meta property="og:image" content="https://dredfit.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FFFFFF'/%3E%3Ccircle cx='15' cy='32' r='7' fill='%23111214'/%3E%3Ccircle cx='32' cy='32' r='7' fill='%23E8590C'/%3E%3Ccircle cx='49' cy='32' r='7' fill='none' stroke='%23D8D9DB' stroke-width='3'/%3E%3C/svg%3E">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication",
+"name":"Dredfit","operatingSystem":"iOS","applicationCategory":"HealthApplication",
+"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+"url":"https://dredfit.com/ru/","image":"https://dredfit.com/og.png",
+"installUrl":"https://apps.apple.com/app/id6791739610"}
+</script>
+<style>
+  :root{
+    --ink:#111214; --ink2:#6E7075; --ink3:#A7A9AD;
+    --hair:#ECEDEF; --acc:#E8590C; --accText:#B44504; --soft:#FBE3D6; --card:#F7F7F5;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Inter,sans-serif;
+    color:var(--ink); background:#fff; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+  /* ---------- header ---------- */
+  .nav{display:flex;align-items:center;justify-content:space-between}
+  .logo{display:flex;align-items:center;gap:12px;font-weight:800;font-size:19px;
+    letter-spacing:-.02em;color:var(--ink);text-decoration:none}
+  .logo svg{display:block}
+  .navr{display:flex;align-items:center;gap:22px}
+  .langs{display:flex;gap:12px;font-size:13px}
+  .langs a{color:var(--ink2);text-decoration:none;letter-spacing:.02em}
+  .langs a:hover{color:var(--ink)}
+  .langs a.cur{color:var(--ink);font-weight:650}
+  .nav a.gh{font-size:14px;color:var(--ink2);text-decoration:none}
+  .nav a.gh:hover{color:var(--ink)}
+
+  /* ---------- hero ---------- */
+  .hero{display:flex;align-items:center;gap:56px;padding:56px 0 88px}
+  .hero-text{flex:1;min-width:0}
+  h1{font-size:clamp(38px,5.5vw,58px);font-weight:800;letter-spacing:-.035em;line-height:1.05}
+  h1 em{font-style:normal;color:var(--acc)}
+  .lede{font-size:19px;color:var(--ink2);margin-top:20px;max-width:440px}
+  .cta{display:flex;align-items:center;gap:18px;margin-top:36px;flex-wrap:wrap}
+  .appstore{
+    display:inline-flex;align-items:center;gap:12px;background:var(--ink);color:#fff;
+    border-radius:16px;padding:14px 26px;text-decoration:none;font-weight:650;font-size:16px;
+    transition:transform .15s ease;
+  }
+  .appstore:hover{transform:translateY(-1px)}
+  .appstore svg{display:block}
+  .soon{font-size:13px;color:var(--ink2)}
+  .soon a{color:var(--ink2);text-decoration:underline;text-underline-offset:3px}
+  .soon a:hover{color:var(--ink)}
+  .appnote{font-size:13px;color:var(--ink2);margin-top:12px}
+  .privacy-chip{
+    display:inline-flex;align-items:center;gap:8px;margin-top:26px;
+    font-size:13.5px;color:var(--ink2);background:var(--card);
+    border-radius:100px;padding:8px 16px;
+  }
+  .privacy-chip i{width:8px;height:8px;border-radius:50%;background:var(--acc);display:inline-block}
+
+  /* ---------- phone mockup ---------- */
+  .phone{
+    width:320px;height:660px;background:#fff;border-radius:52px;position:relative;overflow:hidden;
+    box-shadow:0 0 0 10px #1a1a1c,0 0 0 12px #3a3a3d,0 40px 80px rgba(0,0,0,.22);
+    flex-shrink:0;
+  }
+  .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:100px;height:30px;border-radius:16px;background:#000}
+  .scr{position:absolute;inset:0;padding:64px 22px 0}
+  .kick{font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--ink3);text-transform:uppercase}
+  .scr h3{font-size:26px;font-weight:800;letter-spacing:-.03em;margin-top:4px}
+  .scr .meta{font-size:12.5px;color:var(--ink2);margin-top:3px}
+  .exrow{display:flex;justify-content:space-between;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--hair)}
+  .exrow .n{font-size:13.5px;font-weight:550}
+  .exrow .l{font-size:12.5px;color:var(--ink2);white-space:nowrap;padding-left:10px}
+  .startbtn{position:absolute;left:22px;right:22px;bottom:70px;height:46px;border-radius:15px;
+    background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;
+    font-size:14px;font-weight:650}
+  .tabbar{position:absolute;left:0;right:0;bottom:0;height:54px;border-top:1px solid var(--hair);
+    display:flex;font-size:9px;color:var(--ink3);background:#fff}
+  .tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+  .tab.on{color:var(--ink)}
+
+  /* ---------- sections ---------- */
+  section{padding:72px 0}
+  section.alt{background:var(--card)}
+  .sec-kick{font-size:13px;font-weight:650;letter-spacing:.1em;color:var(--accText);text-transform:uppercase}
+  h2{font-size:clamp(28px,3.6vw,38px);font-weight:800;letter-spacing:-.03em;margin-top:10px}
+  .sec-sub{font-size:17px;color:var(--ink2);margin-top:12px;max-width:560px}
+
+  .how{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:44px}
+  .step-card{background:#fff;border:1.5px solid var(--hair);border-radius:22px;padding:28px}
+  section.alt .step-card{border-color:transparent}
+  .num{width:32px;height:32px;border-radius:50%;background:var(--ink);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:650}
+  .step-card h4{font-size:18px;font-weight:700;letter-spacing:-.01em;margin-top:16px}
+  .step-card p{font-size:14.5px;color:var(--ink2);margin-top:8px}
+  .step-card .code{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:12.5px;
+    background:var(--card);border-radius:10px;padding:10px 14px;margin-top:14px;color:var(--ink);display:inline-block}
+  section.alt .step-card .code{background:var(--hair)}
+
+  .features{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 22px;margin-top:44px}
+  .feat{display:flex;gap:14px;align-items:flex-start;padding:16px 0}
+  .feat .dot{width:10px;height:10px;border-radius:50%;background:var(--acc);margin-top:7px;flex-shrink:0}
+  .feat b{font-size:15.5px;font-weight:650;display:block;letter-spacing:-.01em}
+  .feat span{font-size:13.5px;color:var(--ink2)}
+
+  .private{background:var(--ink);border-radius:28px;padding:52px;margin-top:0;color:#fff;
+    display:flex;align-items:center;gap:40px;flex-wrap:wrap}
+  .private h2{color:#fff}
+  .private p{color:rgba(255,255,255,.65);font-size:16px;margin-top:12px;max-width:520px}
+  .private .zero{font-size:96px;font-weight:800;letter-spacing:-.05em;color:var(--acc);line-height:1;flex-shrink:0}
+
+  .closing{text-align:center;padding:8px 0 24px}
+  .closing .sec-sub{margin:14px auto 0}
+  .closing .appstore{margin-top:30px}
+
+  footer{padding:48px 0 64px;border-top:1px solid var(--hair)}
+  .foot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+  .foot .links{display:flex;gap:26px;flex-wrap:wrap}
+  .foot a{font-size:14px;color:var(--ink2);text-decoration:none}
+  .foot a:hover{color:var(--ink)}
+  .foot .copy{font-size:13px;color:var(--ink3)}
+
+  @media (max-width:880px){
+    /* Text first: the value proposition and the App Store button own the
+       first viewport; the mockup follows, slightly scaled down. */
+    .hero{flex-direction:column;gap:44px;padding:24px 0 64px;text-align:center}
+    .phone{zoom:.82}
+    .lede{margin-left:auto;margin-right:auto}
+    .cta{justify-content:center}
+    .how,.features{grid-template-columns:1fr}
+    .private{padding:36px 28px;justify-content:center;text-align:center}
+    .private .zero{font-size:72px}
+  }
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <nav class="nav">
+    <a class="logo" href="./">
+      <svg width="34" height="34" viewBox="0 0 64 64"><circle cx="16" cy="32" r="6.5" fill="#111214"/><circle cx="32" cy="32" r="6.5" fill="#E8590C"/><circle cx="48" cy="32" r="6.5" fill="none" stroke="#D8D9DB" stroke-width="3"/></svg>
+      Dredfit
+    </a>
+    <div class="navr">
+      <div class="langs"><a href="https://dredfit.com/">EN</a><a class="cur" href="https://dredfit.com/ru/">RU</a><a href="https://dredfit.com/es/">ES</a><a href="https://dredfit.com/pt-br/">PT</a></div>
+      <a class="gh" href="https://github.com/dredfort42/dredfit">GitHub →</a>
+    </div>
+  </nav>
+</header>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-text">
+      <h1>Открой приложение.<br>Тренировка <em>уже готова.</em></h1>
+      <p class="lede">Dredfit — адаптивный тренер для тренировок с собственным весом на iPhone. Без анкеты при входе, без инвентаря, без аккаунта: он начинает с легкого и подстраивает каждую следующую тренировку под то, как прошла предыдущая.</p>
+      <div class="cta">
+        <a class="appstore" href="https://apps.apple.com/app/id6791739610">
+          <svg width="20" height="24" viewBox="0 0 20 24" fill="#fff"><path d="M16.4 12.7c0-3 2.5-4.5 2.6-4.6-1.4-2-3.6-2.3-4.3-2.3-1.8-.2-3.6 1.1-4.5 1.1-.9 0-2.4-1.1-3.9-1-2 0-3.9 1.2-4.9 3-2.1 3.6-.5 9 1.5 11.9 1 1.4 2.2 3 3.7 3 1.5-.1 2.1-1 3.9-1s2.3 1 3.9.9c1.6 0 2.6-1.4 3.6-2.9 1.1-1.7 1.6-3.3 1.6-3.4-.1 0-3.1-1.2-3.2-4.7zM13.4 3.9c.8-1 1.4-2.4 1.2-3.9-1.2.1-2.7.8-3.5 1.9-.8.9-1.5 2.4-1.3 3.8 1.4.1 2.8-.7 3.6-1.8z"/></svg>
+          Загрузить в App Store
+        </a>
+        <span class="soon">Бесплатно · iPhone · iOS 17+ · <a href="https://testflight.apple.com/join/bBdUppkf">бета в TestFlight</a></span>
+      </div>
+      <div class="privacy-chip"><i></i>Без аккаунта · Без рекламы · Без сетевых запросов · Твои данные не попадают к нам</div>
+    </div>
+
+    <div class="phone" aria-hidden="true">
+      <div class="island"></div>
+      <div class="scr">
+        <div class="kick">Четверг, 16 июля</div>
+        <h3>Тренировка 12</h3>
+        <div class="meta">≈ 36 мин · 6 упражнений</div>
+        <div style="margin-top:14px">
+          <div class="exrow"><span class="n">Отжимания</span><span class="l">3 × 10</span></div>
+          <div class="exrow"><span class="n">Ягодичный мостик на одной ноге</span><span class="l">3 × 10 /стор.</span></div>
+          <div class="exrow"><span class="n">Тяга с опорой</span><span class="l">3 × 10</span></div>
+          <div class="exrow"><span class="n">Отжимания уголком</span><span class="l">3 × 10</span></div>
+          <div class="exrow"><span class="n">Выпады назад</span><span class="l">3 × 10 /стор.</span></div>
+          <div class="exrow"><span class="n">Планка</span><span class="l">3 × 30 с</span></div>
+        </div>
+        <div class="startbtn">Начать</div>
+        <div class="tabbar">
+          <div class="tab on">●<span>Сегодня</span></div>
+          <div class="tab">▦<span>Календарь</span></div>
+          <div class="tab">↗<span>Прогресс</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="alt">
+  <div class="wrap">
+    <div class="sec-kick">Как это работает</div>
+    <h2>Термостат, а не анкета</h2>
+    <p class="sec-sub">Другие приложения задают двадцать вопросов и надеются. Dredfit задает один — после тренировки — и знает.</p>
+    <div class="how">
+      <div class="step-card">
+        <div class="num">1</div>
+        <h4>Начни с легкого — или откалибруй</h4>
+        <p>Первый день сознательно легкий: каждое движение стартует с нижней границы диапазона, и регулятор поднимает нагрузку после каждой сессии, пока она не выйдет на край твоих реальных возможностей. Уже тренируешься? Введи, сколько сделал на самом деле, — первая же тренировка откалибрует систему: уровень выставится сразу, без долгого разгона.</p>
+      </div>
+      <div class="step-card">
+        <div class="num">2</div>
+        <h4>Одно число на движение</h4>
+        <p>Весь прогресс — одно небольшое число на движение, всего их десять. Уровень кодирует сразу вариацию, целевые повторения и число подходов: более сложные вариации открываются сами — и начинают счет с меньшего, чтобы переход лег мягко, — а выше последней ступени растут уже подходы.</p>
+        <div class="code">tier = min(4, 1 + L / 8) · reps = start(tier) + L % 8</div>
+      </div>
+      <div class="step-card">
+        <div class="num">3</div>
+        <h4>Ответь на один вопрос</h4>
+        <p>Тяжело, по плану или легко — один тап, и следующая тренировка подстроится. Хочешь точности? Введи число, которое сделал: для этого движения факт весит больше оценки. А если одно движение не дается три раза подряд, оно само откатится на пару ступеней и начнет заново. Прогресс без выгорания.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-kick">Что внутри</div>
+    <h2>Все, что нужно. Ничего лишнего.</h2>
+    <div class="features">
+      <div class="feat"><div class="dot"></div><div><b>40 упражнений, домашний реквизит</b><span>Классические калистенические прогрессии — от отжиманий с колен до «лучника», от приседаний до «креветки». Стул, стол, стена, полотенце и ступенька закрывают 36 из них; турник нужен только четырем вариациям подтягиваний, и они выключены, пока ты сам их не включишь.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Бесплатно. По-настоящему</b><span>Без подписки, без встроенных покупок, без рекламы, без закрытого «про»-уровня. Приложение, которое ты скачал, — это все приложение.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Сбалансировано по построению</b><span>Тяга в каждой тренировке — для здоровья плеч; остальные паттерны ротируются так, что каждый приходит пять раз за восемь тренировок.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Есть турник?</b><span>Включи — и каждая вторая тренировка заменит горизонтальную тягу вертикальной: от виса до полных подтягиваний, с отдельным учетом.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Поправь в моменте</b><span>Вышло меньше повторений? Введи реальное число прямо у упражнения, не выходя из него. Пропуск ничего не стоит — пропущенное упражнение просто не считается.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Разминка, удержания и отдых — по таймеру</b><span>Пошаговая разминка, таймер удержаний для планок и кольцо отдыха с отсчетом «3-2-1». Все таймеры идут по обычным часам: заблокировал телефон — ничего не потерял.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Прерванная тренировка подождет</b><span>Если телефон закрыл приложение посреди тренировки, следующий запуск предложит продолжить с того же места. Не успеваешь? Закончи раньше — тренировка все равно засчитается: сделанное записано, остальное просто не выполнено.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Прогресс, который видно</b><span>График уровня по тренировкам, недельная сводка, полосы по движениям и календарь всего, что сделано.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>На заблокированном экране</b><span>Live Activity отсчитывает отдых на заблокированном экране и в Dynamic Island; виджет на домашнем экране показывает статус дня одним взглядом.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Подстраивается под неделю</b><span>Выбери дни отдыха, получай напоминание по тренировочным дням и выгружай или загружай всю историю обычным JSON-файлом.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Техника простым языком</b><span>Три шага и две типичные ошибки для каждого упражнения, на русском и английском. Без жаргона.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Вехи, а не медали</b><span>Тренировка, открывшая вариацию сложнее, добавившая подход или попавшая на круглое число, заканчивается одним спокойным экраном, которым можно поделиться. Без конфетти, бейджей и стриков, которые страшно потерять.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Перерывы — это нормально</b><span>Две недели без тренировок или больше — и план предложит встретить тебя на несколько ступеней ниже; чем длиннее перерыв, тем ниже. Ничего не теряется, уровни быстро догоняют.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Числа, которые можно проверить</b><span>«Как это работает» в настройках: семь простых фактов о регуляторе — каждое число на том экране совпадает с движком.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Открытый код</b><span>Все приложение — движок, тесты и этот сайт — открыто на GitHub. Проверь математику, заведи issue или собери сам.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <div class="private">
+      <div class="zero">0</div>
+      <div>
+        <h2>Ноль собранных данных</h2>
+        <p>Ни аналитики, ни рекламы, ни сторонних SDK, ни сетевых запросов вообще. У Dredfit нет серверов, и он никогда не передает историю тренировок — она хранится на твоем устройстве и не доходит до нас. Это не обещание, это архитектура.</p>
+        <p>Данные покидают телефон только по твоему решению: JSON-копия, которую ты сам выгружаешь и отправляешь; карточка вехи, которой ты решил поделиться; тренировки, которые ты разрешил записывать в Apple Health; и стандартная резервная копия iOS. <a href="privacy.html" style="color:#fff">Политика конфиденциальности</a> описывает все четыре пути.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap closing">
+    <div class="sec-kick">Начни сегодня</div>
+    <h2>Первая тренировка уже ждет.</h2>
+    <p class="sec-sub">Около 33 минут, без инвентаря и без вопросов.</p>
+    <a class="appstore" href="https://apps.apple.com/app/id6791739610">
+      <svg width="20" height="24" viewBox="0 0 20 24" fill="#fff"><path d="M16.4 12.7c0-3 2.5-4.5 2.6-4.6-1.4-2-3.6-2.3-4.3-2.3-1.8-.2-3.6 1.1-4.5 1.1-.9 0-2.4-1.1-3.9-1-2 0-3.9 1.2-4.9 3-2.1 3.6-.5 9 1.5 11.9 1 1.4 2.2 3 3.7 3 1.5-.1 2.1-1 3.9-1s2.3 1 3.9.9c1.6 0 2.6-1.4 3.6-2.9 1.1-1.7 1.6-3.3 1.6-3.4-.1 0-3.1-1.2-3.2-4.7zM13.4 3.9c.8-1 1.4-2.4 1.2-3.9-1.2.1-2.7.8-3.5 1.9-.8.9-1.5 2.4-1.3 3.8 1.4.1 2.8-.7 3.6-1.8z"/></svg>
+      Загрузить в App Store
+    </a>
+    <div class="soon" style="margin-top:16px">Бесплатно · iPhone · iOS 17+</div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <a class="logo" style="font-size:16px" href="index.html">
+      <svg width="26" height="26" viewBox="0 0 64 64"><circle cx="16" cy="32" r="6.5" fill="#111214"/><circle cx="32" cy="32" r="6.5" fill="#E8590C"/><circle cx="48" cy="32" r="6.5" fill="none" stroke="#D8D9DB" stroke-width="3"/></svg>
+      Dredfit
+    </a>
+    <div class="links">
+      <a href="https://apps.apple.com/app/id6791739610">App Store</a>
+      <a href="privacy.html">Политика конфиденциальности</a>
+      <a href="https://testflight.apple.com/join/bBdUppkf">Бета в TestFlight</a>
+      <a href="https://github.com/dredfort42/dredfit">GitHub</a>
+      <a href="mailto:dredfort.42@gmail.com">Связаться</a>
+    </div>
+    <div class="copy">© 2026 Dmitry Novikov</div>
+  </div>
+</footer>
+
+</body>
+</html>

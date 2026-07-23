@@ -468,7 +468,7 @@ struct WorkoutFlowView: View {
             // 14pt ink2, not 12.5 ink3: this hint works exactly once, on the
             // first workout, and that one time it has to actually be read.
             if store.records.isEmpty {
-                Text("Came out well above the plan? Tap “Went differently” and put in what you actually did — the system will land on your level right away.")
+                Text("Did far more than planned? Tap “Went differently” and enter what you actually did — the system will land on your level right away.")
                     .dredfitFont(14)
                     .foregroundStyle(Theme.ink2)
                     .multilineTextAlignment(.center)
