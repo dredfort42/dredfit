@@ -112,8 +112,7 @@ No third-party dependencies, no network calls, no analytics of any kind — the 
 
 Every push and PR runs the gate — unit tests (Core + app), SwiftLint, and a
 String Catalog completeness check. UI tests run nightly and gate nothing;
-CodeQL, dependency review, secret scanning, and PR-title linting run alongside
-as advisory checks. Releases are tagged `vX.Y.Z`, which publishes a GitHub
+CodeQL, secret scanning, and PR-title linting run alongside as advisory checks. Releases are tagged `vX.Y.Z`, which publishes a GitHub
 Release from the matching `CHANGELOG.md` section. Full details, the release
 procedure, and how to enable branch protection are in
 [`.github/WORKFLOWS.md`](.github/WORKFLOWS.md).

@@ -14,7 +14,6 @@ step-by-step release procedure. All workflows live in
 | **Localization** — String Catalog completeness | `localization.yml` | same | ✅ **required** | ~10 s |
 | **UI Tests** | `ui-tests.yml` | nightly + manual | ❌ non-gating | ~20–45 min |
 | **CodeQL** — Swift security scan | `codeql.yml` | push to `main`/`develop` + weekly | ❌ advisory | ~15 min |
-| **Dependency Review** | `dependency-review.yml` | PR | ❌ advisory | ~10 s |
 | **PR Title** — Conventional Commits | `pr-title.yml` | PR | ❌ advisory | ~5 s |
 | **Secret Scan** — gitleaks | `gitleaks.yml` | push/PR + weekly | ❌ advisory | ~1 min |
 | **Release Checks** — version/changelog | `release-checks.yml` | push to `release/**`, `hotfix/**` | ❌ advisory* | ~5 s |
@@ -32,9 +31,9 @@ release you run them locally (see the release procedure below).
 
 ### 1. Open / update a pull request → `develop` (or `main`)
 Runs and **must be green to merge**: CI (Core + app unit tests), Lint,
-Localization. Also runs (advisory): Dependency Review, PR Title, Secret Scan,
-CodeQL. Branch protection keeps the merge button disabled until the required
-checks pass — see [Branch protection](#branch-protection).
+Localization. Also runs (advisory): PR Title, Secret Scan. Branch protection
+keeps the merge button disabled until the required checks pass — see
+[Branch protection](#branch-protection).
 
 ### 2. Push to `develop` / `main`
 Same required checks re-run on the branch head, plus CodeQL and Secret Scan.
@@ -99,9 +98,8 @@ What it sets, and why (tuned for a solo maintainer):
 - **No required reviewers** (solo repo); force-pushes and deletions are blocked;
   conversations must be resolved.
 
-The advisory checks (CodeQL, Dependency Review, PR Title, gitleaks) are
-deliberately **not** required, so a third-party action outage can never wedge
-your merges. Promote any of them to required by adding its check-run name to
+The advisory checks (CodeQL, PR Title, gitleaks) are deliberately **not**
+required, so a third-party action outage can never wedge your merges. Promote any of them to required by adding its check-run name to
 `CONTEXTS` in `scripts/setup_branch_protection.sh` and re-running.
 
 ## Local helpers (`scripts/`)
