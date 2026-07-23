@@ -62,7 +62,7 @@ struct ProgressScreen: View {
                 .padding(.top, 18)
 
             HStack(alignment: .center, spacing: 12) {
-                HStack(alignment: .firstTextBaseline, spacing: 10) {
+                HStack(alignment: .lastTextBaseline, spacing: 10) {
                     // The identifier lets UI tests assert on THIS value — a bare
                     // staticTexts["0"] query used to match a chart axis label.
                     Text("\(store.totalLevel)")
@@ -152,7 +152,7 @@ struct ProgressScreen: View {
         return (Text("This week")
             + Text(" · ")
             + Text("\(week.workouts) workouts")
-            + Text(" · \(sign)")
+            + Text(" · \(sign)", comment: "A separator dot followed by the sign of the level change.")
             + Text("\(week.levelsDelta) levels"))
             .dredfitFont(13.5)
             .monospacedDigit()

@@ -80,6 +80,6 @@ struct TechniqueSheet: View {
         let range = exercise.unit == .reps
             ? String(localized: "8–15 reps")
             : String(localized: "20–55 sec")
-        return String(localized: "tier \(exercise.tier) · \(exercise.pattern.displayName.lowercased()) · \(range)")
+        return String(localized: "variation \(exercise.tier) · \(exercise.pattern.displayName.lowercased()) · \(range)")
     }
 }

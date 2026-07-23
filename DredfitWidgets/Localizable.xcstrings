@@ -10,6 +10,18 @@
             "value": "Done ✓"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hecho ✓"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feito ✓"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -22,6 +34,18 @@
       "extractionState": "manual",
       "localizations": {
         "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dredfit"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dredfit"
+          }
+        },
+        "pt-BR": {
           "stringUnit": {
             "state": "translated",
             "value": "Dredfit"
@@ -44,6 +68,18 @@
             "value": "Rest day"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Día de descanso"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dia de descanso"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -59,6 +95,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Today"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoy"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoje"
           }
         },
         "ru": {
@@ -78,6 +126,18 @@
             "value": "Today's status"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estado de hoy"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status de hoje"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -93,6 +153,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Workout %lld"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entrenamiento %lld"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Treino %lld"
           }
         },
         "ru": {
@@ -112,6 +184,18 @@
             "value": "Workout day"
           }
         },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Día de entrenamiento"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dia de treino"
+          }
+        },
         "ru": {
           "stringUnit": {
             "state": "translated",
@@ -127,6 +211,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Workout, done or a rest day at a glance."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El entrenamiento, «hecho» o un día de descanso, de un vistazo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O treino, “feito” ou um dia de descanso, de relance."
           }
         },
         "ru": {

@@ -315,7 +315,7 @@ struct SettingsSheet: View {
         VStack(alignment: .leading, spacing: 12) {
             Kicker(text: String(localized: "About"))
             Link(destination: Self.reviewURL) {
-                backupRow(icon: "star", title: String(localized: "Rate in App Store"))
+                backupRow(icon: "star", title: String(localized: "Rate on the App Store"))
             }
             .accessibilityIdentifier("rate-app")
             ShareLink(item: Self.appStoreURL) {
