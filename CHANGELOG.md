@@ -1,5 +1,35 @@
 # Changelog
 
+## 1.7.0
+
+Localization release: Spanish and Brazilian Portuguese join English and
+Russian, each complete. The engine is untouched — no state, journal or
+settings format changes, and no migrations.
+
+### Localization
+
+- Spanish and Brazilian Portuguese ship complete: every screen, all exercise
+  technique and common mistakes, onboarding, settings, the widget and the
+  Live Activity — 444 keys across four String Catalogs. Both address the
+  reader informally (tú / você) and take their exercise and pattern
+  vocabulary from the shared glossary; each reads as idiomatic rather than
+  literal, and Spanish is neutral (no vosotros, no narrow regionalisms).
+- Spanish and Portuguese count strings that always read plural now inflect:
+  "1 completado" / "1 concluído", not "1 completados".
+
+### Terminology
+
+- English now separates the two senses that "step" used to carry — the
+  exercise you do is a *variation*, the unit of level change is a *step*:
+  "New step" → "New variation", "step N of 4" → "variation N of 4".
+- Russian follows the same split: the rating captions moved from "+1 шаг" to
+  "+1 ступень" (вариация / ступень).
+
+### Site
+
+- The marketing site is now four languages (en, ru, es, pt-BR), served from
+  `docs/`.
+
 ## 1.6.0
 
 Design-audit wave (2026-07): the three findings that cost user trust —
