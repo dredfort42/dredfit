@@ -39,7 +39,9 @@ TEST_RUNNER_SCREENSHOT_DIR=/path/to/raw xcodebuild test \
 ```
 
 `TEST_RUNNER_` env vars must be in xcodebuild's environment, not build
-settings. iPhone 17 Pro Max gives the store's 6.9" size (1320×2868). Delete
+settings. The same run covers all four languages — testSeeded/testProgress/
+testRating × English/Russian/Spanish/Portuguese; raws get `_es` and
+`_pt-br` suffixes, and compose.py writes those frames to `es/` and `pt-br/`. iPhone 17 Pro Max gives the store's 6.9" size (1320×2868). Delete
 the .swift file afterwards — it is not part of the suite.
 
 ## 3. Compose framed images

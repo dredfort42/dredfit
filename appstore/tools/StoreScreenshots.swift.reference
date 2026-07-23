@@ -7,9 +7,9 @@
 //
 //  Seeded tests expect dredfit-state.json planted in the app container from
 //  the host (tools/seed.py) BEFORE the run, and launch WITHOUT --uitest-reset:
-//    seed.py <udid> A  → testSeededEnglish/Russian (today, how-it-works,
-//                        set, dial, rest) and testRatingEnglish/Russian
-//    seed.py <udid> B  → testProgressEnglish/Russian
+//    seed.py <udid> A  → testSeeded* — en/ru/es/pt-BR (today, how-it-works,
+//                        set, dial, rest) and testRating*
+//    seed.py <udid> B  → testProgress*
 //  milestone/comeback screens use the app's own --uitest hooks instead
 //  (see the previous revision of this file in git history).
 //
@@ -23,17 +23,28 @@ final class StoreScreenshots: XCTestCase {
         let ratingTitle: String, skipWarmup: String, done: String
         let skipRest: String, start: String
         let wentDifferently: String, ok: String, progressTab: String
+        let gotIt: String
     }
     private static let en = L(langArg: "(en)", locale: "en_US", tag: "en",
                               ratingTitle: "How did it go?", skipWarmup: "Skip warm-up",
                               done: "Done", skipRest: "Skip rest", start: "Start",
                               wentDifferently: "Went differently", ok: "OK",
-                              progressTab: "Progress")
+                              progressTab: "Progress", gotIt: "Got it")
     private static let ru = L(langArg: "(ru)", locale: "ru_RU", tag: "ru",
                               ratingTitle: "Как прошло?", skipWarmup: "Пропустить разминку",
                               done: "Сделал", skipRest: "Пропустить отдых", start: "Начать",
-                              wentDifferently: "Получилось иначе", ok: "Ок",
-                              progressTab: "Прогресс")
+                              wentDifferently: "Получилось иначе", ok: "ОК",
+                              progressTab: "Прогресс", gotIt: "Понятно")
+    private static let es = L(langArg: "(es)", locale: "es_ES", tag: "es",
+                              ratingTitle: "¿Cómo fue?", skipWarmup: "Saltar el calentamiento",
+                              done: "Hecho", skipRest: "Saltar el descanso", start: "Empezar",
+                              wentDifferently: "Fue distinto", ok: "OK",
+                              progressTab: "Progreso", gotIt: "Entendido")
+    private static let ptBR = L(langArg: "(pt-BR)", locale: "pt_BR", tag: "pt-br",
+                              ratingTitle: "Como foi?", skipWarmup: "Pular o aquecimento",
+                              done: "Feito", skipRest: "Pular o descanso", start: "Começar",
+                              wentDifferently: "Foi diferente", ok: "OK",
+                              progressTab: "Progresso", gotIt: "Entendi")
 
     override func setUpWithError() throws {
         continueAfterFailure = false
@@ -62,7 +73,7 @@ final class StoreScreenshots: XCTestCase {
     // MARK: - Seed A: Today, How it works, and the workout flow
 
     private func seededFlow(_ l: L) {
-        let app = launch([], l)   // no reset: seeded state must survive
+        var app = launch([], l)   // no reset: seeded state must survive
         XCTAssertTrue(app.buttons[l.start].waitForExistence(timeout: 8),
                       "seeded Today should show a plan")
         Thread.sleep(forTimeInterval: 1)
@@ -76,19 +87,19 @@ final class StoreScreenshots: XCTestCase {
         Thread.sleep(forTimeInterval: 1)
         snap("howitworks_\(l.tag)")
         app.buttons["how-it-works-done"].tap()
-        // Settings' own "Got it" is the only other PrimaryButton on screen now.
-        let gotIt = l.tag == "ru" ? "Продолжить" : "Got it"
-        if app.buttons[gotIt].waitForExistence(timeout: 3) { app.buttons[gotIt].tap() }
-        XCTAssertTrue(app.buttons[l.start].waitForExistence(timeout: 5))
+        app.terminate()   // seed A is untouched; relaunch straight to Today for
+                          // the workout, sidestepping the settings sheet entirely
 
         // Workout flow
+        app = launch([], l)
+        XCTAssertTrue(app.buttons[l.start].waitForExistence(timeout: 8), "no Start on Today")
         app.buttons[l.start].tap()
         let skipWarmup = app.buttons[l.skipWarmup]
-        if skipWarmup.waitForExistence(timeout: 3) { skipWarmup.tap() }
+        if skipWarmup.waitForExistence(timeout: 5) { skipWarmup.tap() }
 
         let done = app.buttons[l.done]
         let skipRest = app.buttons[l.skipRest]
-        XCTAssertTrue(done.waitForExistence(timeout: 5), "set screen did not appear")
+        XCTAssertTrue(done.waitForExistence(timeout: 8), "set screen did not appear")
 
         // set 1 → skip rest → set 2
         coordinateTap(done)
@@ -125,6 +136,8 @@ final class StoreScreenshots: XCTestCase {
 
     func testSeededEnglish() { seededFlow(Self.en) }
     func testSeededRussian() { seededFlow(Self.ru) }
+    func testSeededSpanish() { seededFlow(Self.es) }
+    func testSeededPortuguese() { seededFlow(Self.ptBR) }
 
     // MARK: - Seed B: Progress
 
@@ -139,6 +152,8 @@ final class StoreScreenshots: XCTestCase {
 
     func testProgressEnglish() { progress(Self.en) }
     func testProgressRussian() { progress(Self.ru) }
+    func testProgressSpanish() { progress(Self.es) }
+    func testProgressPortuguese() { progress(Self.ptBR) }
 
     // MARK: - Seed A again: a clean rating screen (no adjustments, holds run out)
 
@@ -175,9 +190,87 @@ final class StoreScreenshots: XCTestCase {
 
     func testRatingEnglish() { cleanRating(Self.en) }
     func testRatingRussian() { cleanRating(Self.ru) }
+    func testRatingSpanish() { cleanRating(Self.es) }
+    func testRatingPortuguese() { cleanRating(Self.ptBR) }
+
+    // MARK: - Milestone & comeback (own --uitest hooks, no seeding)
+
+    private func captureComeback(_ l: L) {
+        let app = launch(["--uitest-reset", "--uitest-comeback"], l)
+        XCTAssertTrue(app.buttons["comeback-accept"].waitForExistence(timeout: 10),
+                      "comeback card did not appear")
+        Thread.sleep(forTimeInterval: 1)
+        snap("comeback_\(l.tag)")
+        app.terminate()
+    }
+
+    private func captureMilestone(_ l: L) {
+        let app = launch(["--uitest-reset", "--uitest-milestone"], l)
+        XCTAssertTrue(app.buttons[l.start].waitForExistence(timeout: 10), "no Start on Today")
+        app.buttons[l.start].tap()
+        let skipWarmup = app.buttons[l.skipWarmup]
+        if skipWarmup.waitForExistence(timeout: 4) { skipWarmup.tap() }
+
+        let done = app.buttons[l.done]
+        let skipRest = app.buttons[l.skipRest]
+        let startHold = app.buttons[l.startHoldLabel]
+        let rating = app.staticTexts[l.ratingTitle]
+        var guardCounter = 0
+        while !rating.waitForExistence(timeout: 1) && guardCounter < 250 {
+            if done.exists {
+                coordinateTap(done)
+            } else if startHold.exists {
+                coordinateTap(startHold)
+                _ = skipRest.waitForExistence(timeout: 55)   // let the hold run out
+            } else if skipRest.exists {
+                coordinateTap(skipRest)
+            }
+            guardCounter += 1
+        }
+        XCTAssertTrue(rating.waitForExistence(timeout: 5), "did not reach the rating screen")
+        // Answer "On plan" → tier-up milestone coda. The card Button's a11y
+        // label concatenates title + caption, so match on a substring.
+        let onPlan = app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", l.onPlanLabel)).firstMatch
+        XCTAssertTrue(onPlan.waitForExistence(timeout: 5), "no On-plan card")
+        onPlan.tap()
+        XCTAssertTrue(app.buttons["milestone-done"].waitForExistence(timeout: 8),
+                      "milestone screen did not appear")
+        Thread.sleep(forTimeInterval: 2)   // let the accent rule animation settle
+        snap("milestone_\(l.tag)")
+        app.terminate()
+    }
+
+    func testMilestoneEnglish() { captureMilestone(Self.en) }
+    func testMilestoneRussian() { captureMilestone(Self.ru) }
+    func testMilestoneSpanish() { captureMilestone(Self.es) }
+    func testMilestonePortuguese() { captureMilestone(Self.ptBR) }
+    func testComebackSpanish() { captureComeback(Self.es) }
+    func testComebackPortuguese() { captureComeback(Self.ptBR) }
 }
 
 private extension StoreScreenshots.L {
-    var startHoldLabel: String { langArg == "(ru)" ? "Начать удержание" : "Start hold" }
-    var stopLabel: String { langArg == "(ru)" ? "Стоп" : "Stop" }
+    var startHoldLabel: String {
+        switch tag {
+        case "ru": return "Начать удержание"
+        case "es": return "Empezar la isometría"
+        case "pt-br": return "Iniciar a isometria"
+        default: return "Start hold"
+        }
+    }
+    var stopLabel: String {
+        switch tag {
+        case "ru": return "Стоп"
+        case "es", "pt-br": return "Parar"
+        default: return "Stop"
+        }
+    }
+    var onPlanLabel: String {
+        switch tag {
+        case "ru": return "По плану"
+        case "es": return "Según el plan"
+        case "pt-br": return "Como planejado"
+        default: return "On plan"
+        }
+    }
 }

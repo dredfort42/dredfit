@@ -8,6 +8,8 @@ screen rect (149,476)-(1170,2687) radius ~136, pill 320x92 at y506 centered,
 headline Helvetica Bold 106 color (17,18,20) top y190 (one line) / 186+118 (two),
 subtitle Helvetica 43 color (110,112,117) top y324 (one line) / y441 (two).
 """
+import os
+
 from PIL import Image, ImageDraw, ImageFont
 
 W, H = 1320, 2868
@@ -80,6 +82,7 @@ def compose(raw_path, headline_lines, subtitle, out_path):
         text_centered(canvas, headline_lines[0], HEAD, HEAD_C, 186)
         text_centered(canvas, headline_lines[1], HEAD, HEAD_C, 304)
         text_centered(canvas, subtitle, SUB, SUB_C, 441)
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
     canvas.save(out_path)
     print("wrote", out_path)
 
@@ -95,22 +98,40 @@ OUT = os.environ.get("OUT_DIR",
 jobs = [
     (f"{RAW}/today_en.png",      ["Zero setup."], "Open the app — your workout is ready.", f"{OUT}/en/s1.png"),
     (f"{RAW}/today_ru.png",      ["Ноль настроек."], "Открой приложение — тренировка готова.", f"{OUT}/ru/s1.png"),
+    (f"{RAW}/today_es.png",      ["Cero configuración."], "Abre la app: tu entrenamiento está listo.", f"{OUT}/es/s1.png"),
+    (f"{RAW}/today_pt-br.png",   ["Zero configuração."], "Abra o app: seu treino está pronto.", f"{OUT}/pt-br/s1.png"),
     (f"{RAW}/set_en.png",        ["One focus at a time"], "Big numbers, one tap per set.", f"{OUT}/en/s2.png"),
-    (f"{RAW}/set_ru.png",        ["Один фокус за раз"], "Крупные цифры, один тап на подход.", f"{OUT}/ru/s2.png"),
+    (f"{RAW}/set_ru.png",        ["Один фокус за раз"], "Крупные цифры, одно касание на подход.", f"{OUT}/ru/s2.png"),
+    (f"{RAW}/set_es.png",        ["Una cosa a la vez"], "Números grandes, un toque por serie.", f"{OUT}/es/s2.png"),
+    (f"{RAW}/set_pt-br.png",     ["Uma coisa", "de cada vez"], "Números grandes, um toque por série.", f"{OUT}/pt-br/s2.png"),
     (f"{RAW}/rest_en.png",       ["Rest is timed for you"], "60 seconds, counted down automatically.", f"{OUT}/en/s3.png"),
     (f"{RAW}/rest_ru.png",       ["Отдых отсчитается", "сам"], "60 секунд — таймер уже запущен.", f"{OUT}/ru/s3.png"),
+    (f"{RAW}/rest_es.png",       ["El descanso se", "cuenta solo"], "60 segundos, con cuenta regresiva automática.", f"{OUT}/es/s3.png"),
+    (f"{RAW}/rest_pt-br.png",    ["O descanso conta", "sozinho"], "60 segundos, contados automaticamente.", f"{OUT}/pt-br/s3.png"),
     (f"{RAW}/rating_en.png",     ["It adapts to you"], "One tap — the next workout adjusts.", f"{OUT}/en/s4.png"),
-    (f"{RAW}/rating_ru.png",     ["Подстраивается под", "тебя"], "Один тап — следующая тренировка изменится.", f"{OUT}/ru/s4.png"),
+    (f"{RAW}/rating_ru.png",     ["Подстраивается под", "тебя"], "Одно касание — следующая тренировка изменится.", f"{OUT}/ru/s4.png"),
+    (f"{RAW}/rating_es.png",     ["Se adapta a ti"], "Un toque y el siguiente entrenamiento se ajusta.", f"{OUT}/es/s4.png"),
+    (f"{RAW}/rating_pt-br.png",  ["Se adapta a você"], "Um toque e o próximo treino se ajusta.", f"{OUT}/pt-br/s4.png"),
     (f"{RAW}/progress_en.png",   ["Progress you can see"], "Every muscle group, level by level.", f"{OUT}/en/s5.png"),
     (f"{RAW}/progress_ru.png",   ["Прогресс, который", "видно"], "Каждая группа мышц, уровень за уровнем.", f"{OUT}/ru/s5.png"),
+    (f"{RAW}/progress_es.png",   ["Progreso que se ve"], "Cada grupo muscular, nivel a nivel.", f"{OUT}/es/s5.png"),
+    (f"{RAW}/progress_pt-br.png", ["Progresso que dá", "para ver"], "Cada grupo muscular, nível por nível.", f"{OUT}/pt-br/s5.png"),
     (f"{RAW}/dial_en.png",       ["Life happens —", "adjust"], "Did fewer reps? Record it right at the exercise.", f"{OUT}/en/s6.png"),
     (f"{RAW}/dial_ru.png",       ["Вышло иначе?", "Поправь"], "Факт записывается прямо у упражнения.", f"{OUT}/ru/s6.png"),
-    (f"{RAW}/milestone_en.png",  ["New step unlocked"], "A harder variation, one calm screen. No confetti.", f"{OUT}/en/s7.png"),
-    (f"{RAW}/milestone_ru.png",  ["Новая ступень"], "Вариация сложнее — один спокойный экран. Без конфетти.", f"{OUT}/ru/s7.png"),
+    (f"{RAW}/dial_es.png",       ["¿Salió distinto?", "Ajústalo"], "¿Hiciste menos? Regístralo justo en el ejercicio.", f"{OUT}/es/s6.png"),
+    (f"{RAW}/dial_pt-br.png",    ["Saiu diferente?", "Ajuste"], "Fez menos? Registre ali mesmo no exercício.", f"{OUT}/pt-br/s6.png"),
+    (f"{RAW}/milestone_en.png",  ["New variation", "unlocked"], "A harder variation, one calm screen. No confetti.", f"{OUT}/en/s7.png"),
+    (f"{RAW}/milestone_ru.png",  ["Новая вариация"], "Вариация сложнее — один спокойный экран. Без конфетти.", f"{OUT}/ru/s7.png"),
+    (f"{RAW}/milestone_es.png",  ["Nueva variación"], "Variación más difícil, pantalla tranquila. Sin confeti.", f"{OUT}/es/s7.png"),
+    (f"{RAW}/milestone_pt-br.png", ["Nova variação"], "Variação mais difícil, uma tela calma. Sem confete.", f"{OUT}/pt-br/s7.png"),
     (f"{RAW}/howitworks_en.png", ["No black box"], "Seven plain facts about how the plan moves.", f"{OUT}/en/s8.png"),
     (f"{RAW}/howitworks_ru.png", ["Без черного ящика"], "Семь простых фактов о том, как движется план.", f"{OUT}/ru/s8.png"),
+    (f"{RAW}/howitworks_es.png", ["Sin caja negra"], "Siete datos simples sobre cómo se mueve el plan.", f"{OUT}/es/s8.png"),
+    (f"{RAW}/howitworks_pt-br.png", ["Sem caixa-preta"], "Sete fatos simples sobre como o plano se move.", f"{OUT}/pt-br/s8.png"),
     (f"{RAW}/comeback_en.png",   ["Breaks are normal"], "The plan meets you a couple of steps lower.", f"{OUT}/en/s9.png"),
     (f"{RAW}/comeback_ru.png",   ["Возвращаться легко"], "План встретит тебя на пару ступеней ниже.", f"{OUT}/ru/s9.png"),
+    (f"{RAW}/comeback_es.png",   ["Una pausa es normal"], "El plan te espera un par de pasos más abajo.", f"{OUT}/es/s9.png"),
+    (f"{RAW}/comeback_pt-br.png", ["Pausas são normais"], "O plano te espera um par de passos abaixo.", f"{OUT}/pt-br/s9.png"),
 ]
 # Partial recaptures are normal (milestone/comeback need the older capture
 # driver from git history) — frames without a fresh raw keep their last set.
