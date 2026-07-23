@@ -19,7 +19,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dredfit never reads your Health data. This permission is only part of the API that saves workouts."
+            "value" : "Dredfit never reads your Health data — this permission simply comes with the API that saves workouts."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dredfit nunca lee tus datos de Salud. Este permiso es solo parte de la API que guarda los entrenamientos."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O Dredfit nunca lê seus dados do app Saúde. Esta permissão é apenas parte da API que salva os treinos."
           }
         },
         "ru" : {
@@ -37,6 +49,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dredfit saves completed workouts to Health. Nothing else is shared."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dredfit guarda en Salud los entrenamientos completados. No se comparte nada más."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O Dredfit salva no app Saúde os treinos concluídos. Nada mais é compartilhado."
           }
         },
         "ru" : {

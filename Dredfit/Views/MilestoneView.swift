@@ -132,7 +132,7 @@ struct MilestoneView: View {
         // jubilee key as-is).
         switch milestone {
         case .tierUp, .setBand:
-            return String(localized: "New step")
+            return String(localized: "New variation")
         case .jubilee(let workouts):
             return String(localized: "Workout #\(workouts)")
         }
@@ -154,7 +154,7 @@ struct MilestoneView: View {
     private func caption(_ milestone: Milestone) -> String? {
         switch milestone {
         case .tierUp(let pattern, let tier, _):
-            return "\(pattern.displayName) · " + String(localized: "step \(tier) of 4")
+            return "\(pattern.displayName) · " + String(localized: "variation \(tier) of 4")
         case .setBand(let pattern, _, let exercise):
             return "\(pattern.displayName) · \(exercise)"
         case .jubilee:

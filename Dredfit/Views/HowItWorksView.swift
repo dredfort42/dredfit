@@ -59,7 +59,7 @@ struct HowItWorksView: View {
                     Pull is in every workout — that is what keeps your shoulders \
                     balanced. The rest come round in a cycle: over eight workouts \
                     each one turns up five times. With the pull-up bar switched \
-                    on, the pull slot alternates between horizontal and vertical.
+                    on, the pull alternates between horizontal and vertical.
                     """)),
             Section(id: 5,
                     title: String(localized: "Breaks"),

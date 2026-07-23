@@ -27,7 +27,7 @@ struct ComebackCard: View {
                 .tracking(-0.3)
                 .foregroundStyle(Theme.ink)
 
-            Text("A break is normal. Let's start a couple of steps easier — it is an easier way back into the rhythm, and the levels catch up quickly.")
+            Text("A break is normal. Let's start a couple of steps easier — a gentler way back into the rhythm, and the levels catch up quickly.")
                 .dredfitFont(14.5)
                 .foregroundStyle(Theme.ink2)
                 .lineSpacing(2.5)

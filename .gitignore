@@ -63,4 +63,5 @@ fastlane/test_output
 
 reference/
 instructions/
+sitegen/
 store_*.md
