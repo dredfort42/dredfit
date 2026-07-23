@@ -1,0 +1,33 @@
+name: Secret Scan
+
+# Scans commits for leaked secrets (API keys, tokens, private keys) with
+# gitleaks. Free for public repositories. Advisory — surfaces a leak fast but
+# is not a required check. If it ever flags a false positive, allowlist it in a
+# .gitleaks.toml at the repo root.
+
+on:
+  push:
+    branches: [main, develop, "release/**", "hotfix/**"]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    - cron: "0 5 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  gitleaks:
+    name: gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

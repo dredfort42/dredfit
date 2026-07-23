@@ -1,0 +1,27 @@
+name: Release Checks
+
+# Runs when a release/** or hotfix/** branch is pushed. Verifies the marketing
+# version matches the branch name, build numbers agree across targets, and the
+# CHANGELOG has a section for this version — so a mistake is caught while the
+# release branch is being prepared, not after the tag ships. See
+# .github/WORKFLOWS.md ("Release procedure").
+
+on:
+  push:
+    branches: ["release/**", "hotfix/**"]
+
+concurrency:
+  group: release-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  version:
+    name: Version consistency
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check version and changelog
+        run: python3 scripts/check_version.py "${GITHUB_REF_NAME}"

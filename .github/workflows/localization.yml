@@ -1,0 +1,30 @@
+name: Localization
+
+# Fails if any shipping language (es, pt-BR, ru) is missing a translation in a
+# String Catalog. English is the source language. Fast (~10s, ubuntu) and runs
+# on every push/PR, so it is a required check — see .github/WORKFLOWS.md.
+#
+# Intentional same-as-source keys (punctuation, brand name) are declared in
+# scripts/localization_config.json.
+
+on:
+  push:
+    branches: [main, develop, "release/**", "hotfix/**"]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: localization-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  strings:
+    name: Localization
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check String Catalog completeness
+        run: python3 scripts/check_localization.py

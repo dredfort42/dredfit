@@ -1,0 +1,33 @@
+name: Select Xcode
+description: >
+  Select a pinned major Xcode version on the runner for reproducible builds,
+  falling back to the latest stable Xcode if that major is not installed.
+
+inputs:
+  version:
+    description: >
+      Major Xcode version to pin (e.g. "26"). The highest installed
+      non-beta Xcode matching this major is chosen. Leave empty to always
+      take the latest stable.
+    required: false
+    default: "26"
+
+runs:
+  using: composite
+  steps:
+    - name: Select Xcode ${{ inputs.version }}
+      shell: bash
+      run: |
+        set -o pipefail
+        want="${{ inputs.version }}"
+        xcode=""
+        if [ -n "$want" ]; then
+          xcode=$(ls -d /Applications/Xcode_${want}*.app 2>/dev/null | grep -v beta | sort -V | tail -1 || true)
+        fi
+        if [ -z "$xcode" ]; then
+          echo "::warning::Xcode major '${want:-<latest>}' not found on this runner; falling back to latest stable."
+          xcode=$(ls -d /Applications/Xcode_*.app | grep -v beta | sort -V | tail -1)
+        fi
+        echo "Selected: $xcode"
+        sudo xcode-select -s "$xcode"
+        xcodebuild -version
