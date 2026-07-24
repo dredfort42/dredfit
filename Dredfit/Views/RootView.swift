@@ -74,6 +74,10 @@ struct RootView: View {
                 // Re-anchor "today": an overnight suspension must not keep
                 // showing yesterday's "completed" state without a Start button.
                 store.refreshDay()
+                // Slide the one-shot reminder window forward. Every activation
+                // rebuilds it, so the window also heals after restarts and
+                // never runs dry while the app is being used at all.
+                store.rescheduleReminders()
             case .background:
                 // The widget snapshot covers 7 days from its last write; each
                 // backgrounding restarts that window so the widget survives a
