@@ -44,7 +44,7 @@ if seed == "A":
 else:
     levels = {"squat": 20, "push_h": 18, "hinge": 20, "pull": 25, "push_v": 15,
               "lunge": 17, "core_anti_ext": 14, "core_rot": 13, "calf": 16}
-    total = sum(levels.values())  # 158
+    total = sum(levels.values())
     counter = 34
     totals = [round(9 + (total - 9) * (i / (counter - 1)) ** 1.4) for i in range(counter)]
     totals[-1] = total

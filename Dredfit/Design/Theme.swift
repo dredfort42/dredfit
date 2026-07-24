@@ -18,18 +18,18 @@ enum Theme {
     static let accentSoft = Color(red: 0xFB/255, green: 0xE3/255, blue: 0xD6/255)
     static let cardBG = Color(red: 0xF7/255, green: 0xF7/255, blue: 0xF5/255)
     /// The planned-day ring in the calendar — named so the grid and its
-    /// legend can never drift apart again. ink3, not the old #D9D9DB: a ring
-    /// that means "a workout is planned here" is meaningful graphics, and
-    /// 1.41:1 made it invisible on most real screens.
+    /// legend cannot drift apart. ink3, not a lighter grey: a ring that means
+    /// "a workout is planned here" is meaningful graphics, and anything near
+    /// 1.4:1 is invisible on most real screens.
     static let planned = ink3
     /// The rest-day fill in the calendar (grid AND legend). Deliberately the
-    /// quietest mark on the screen, but a 13pt legend dot in hairline
-    /// (1.17:1) vanished — this half-step (≈1.35:1) keeps it readable at dot
-    /// size without shouting at cell size.
+    /// quietest mark on the screen, but hairline (1.17:1) is too faint for a
+    /// 13pt legend dot — this half-step (≈1.35:1) stays readable at dot size
+    /// without shouting at cell size.
     static let restFill = Color(red: 0xE2/255, green: 0xE3/255, blue: 0xE6/255)
 }
 
-// MARK: - Type that scales (v1.4)
+// MARK: - Type that scales
 
 /// The design is specified in absolute point sizes, but `.system(size:)` is
 /// frozen — it ignores Dynamic Type entirely. This scales a design size

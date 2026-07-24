@@ -24,14 +24,10 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: Select latest stable Xcode
-        run: |
-          xcode=$(ls -d /Applications/Xcode_*.app | grep -v beta | sort -V | tail -1)
-          echo "Selected: $xcode"
-          sudo xcode-select -s "$xcode"
-          xcodebuild -version
+      - name: Select Xcode
+        uses: ./.github/actions/setup-xcode
 
       - name: Run tests
         working-directory: DredfitCore
@@ -43,14 +39,10 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: Select latest stable Xcode
-        run: |
-          xcode=$(ls -d /Applications/Xcode_*.app | grep -v beta | sort -V | tail -1)
-          echo "Selected: $xcode"
-          sudo xcode-select -s "$xcode"
-          xcodebuild -version
+      - name: Select Xcode
+        uses: ./.github/actions/setup-xcode
 
       - name: Select iPhone simulator
         id: sim
@@ -71,12 +63,30 @@ jobs:
             -scheme Dredfit \
             -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.device }}" \
             -skip-testing:DredfitUITests \
+            -enableCodeCoverage YES \
             CODE_SIGNING_ALLOWED=NO \
             | xcbeautify --renderer github-actions
 
+      - name: Coverage summary
+        if: always()
+        run: |
+          # Best-effort per-target coverage into the run summary. Informational
+          # only — never fails the job.
+          xcresult=$(find ~/Library/Developer/Xcode/DerivedData -type d -name '*.xcresult' -path '*/Logs/Test/*' 2>/dev/null | sort | tail -1)
+          if [ -z "$xcresult" ]; then
+            echo "No .xcresult found; skipping coverage." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          {
+            echo "### Code coverage (per target)"
+            echo '```'
+            xcrun xccov view --report --only-targets "$xcresult" 2>/dev/null || echo "coverage unavailable"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Upload test results on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: xcresult
           path: ~/Library/Developer/Xcode/DerivedData/**/Logs/Test/*.xcresult

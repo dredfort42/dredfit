@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dredfit — Entrenamiento adaptativo en casa. Cero configuración.</title>
-<meta name="description" content="Abre la app: tu entrenamiento está listo. Un entrenador adaptativo con peso corporal para iPhone: sin configuración, sin cuenta, sin recopilación de datos. Se adapta a lo que realmente hiciste.">
+<meta name="description" content="Abre la app: tu entrenamiento está listo. Entrenador adaptativo con peso corporal para iPhone, sin cuenta ni recopilación de datos. Se adapta a lo que hiciste.">
 <link rel="canonical" href="https://dredfit.com/es/">
 <link rel="alternate" hreflang="en" href="https://dredfit.com/">
 <link rel="alternate" hreflang="ru" href="https://dredfit.com/ru/">
@@ -28,6 +28,9 @@
 "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
 "url":"https://dredfit.com/es/","image":"https://dredfit.com/og.png",
 "installUrl":"https://apps.apple.com/app/id6791739610"}
+</script>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "¿Dredfit es realmente gratis?", "acceptedAnswer": {"@type": "Answer", "text": "Sí: sin suscripción, sin compras dentro de la app, sin anuncios ni funciones bloqueadas. La app que descargas es la app completa, y es open source: puedes comprobarlo."}}, {"@type": "Question", "name": "¿Funciona sin conexión?", "acceptedAnswer": {"@type": "Answer", "text": "Siempre. Dredfit no hace peticiones de red — no hay servidores. El plan, los temporizadores y todo tu historial viven en tu iPhone."}}, {"@type": "Question", "name": "¿Necesito equipamiento o gimnasio?", "acceptedAnswer": {"@type": "Answer", "text": "No. Una silla, una mesa, una pared, una toalla y un escalón cubren 36 de los 40 ejercicios. Solo las cuatro variaciones de tracción vertical necesitan una barra de dominadas, y quedan desactivadas hasta que las actives."}}, {"@type": "Question", "name": "¿Necesito una cuenta? ¿Qué datos se recopilan?", "acceptedAnswer": {"@type": "Answer", "text": "No hay nada que registrar y nada que recopilar: sin cuenta, sin analítica, sin SDK de terceros. Tu historial de entrenamiento no sale de tu teléfono, a menos que tú mismo lo exportes."}}, {"@type": "Question", "name": "¿Y si dejo pasar una o dos semanas?", "acceptedAnswer": {"@type": "Answer", "text": "No se pierde nada. Tras dos semanas de pausa, el plan propone retomar unos pasos más abajo — cuanto más larga la pausa, más abajo — y los niveles se recuperan rápido."}}, {"@type": "Question", "name": "Soy principiante total, ¿me sirve?", "acceptedAnswer": {"@type": "Answer", "text": "Es el caso por defecto. El primer entrenamiento es fácil a propósito: unos 33 minutos, sin equipamiento. Calibra el sistema, y cada entrenamiento siguiente se ajusta a cómo fue realmente el anterior."}}]}
 </script>
 <style>
   :root{
@@ -126,6 +129,12 @@
   .feat .dot{width:10px;height:10px;border-radius:50%;background:var(--acc);margin-top:7px;flex-shrink:0}
   .feat b{font-size:15.5px;font-weight:650;display:block;letter-spacing:-.01em}
   .feat span{font-size:13.5px;color:var(--ink2)}
+
+  .faq{max-width:760px;margin-top:24px}
+  .qa{padding:22px 0;border-bottom:1px solid var(--hair)}
+  .qa:last-child{border-bottom:none}
+  .qa h3{font-size:17px;font-weight:700;letter-spacing:-.01em}
+  .qa p{font-size:15px;color:var(--ink2);margin-top:8px;max-width:640px}
 
   .private{background:var(--ink);border-radius:28px;padding:52px;margin-top:0;color:#fff;
     display:flex;align-items:center;gap:40px;flex-wrap:wrap}
@@ -264,6 +273,21 @@
 </section>
 
 <section class="alt">
+  <div class="wrap">
+    <div class="sec-kick">FAQ</div>
+    <h2>Preguntas frecuentes</h2>
+    <div class="faq">
+      <div class="qa"><h3>¿Dredfit es realmente gratis?</h3><p>Sí: sin suscripción, sin compras dentro de la app, sin anuncios ni funciones bloqueadas. La app que descargas es la app completa, y es open source: puedes comprobarlo.</p></div>
+      <div class="qa"><h3>¿Funciona sin conexión?</h3><p>Siempre. Dredfit no hace peticiones de red — no hay servidores. El plan, los temporizadores y todo tu historial viven en tu iPhone.</p></div>
+      <div class="qa"><h3>¿Necesito equipamiento o gimnasio?</h3><p>No. Una silla, una mesa, una pared, una toalla y un escalón cubren 36 de los 40 ejercicios. Solo las cuatro variaciones de tracción vertical necesitan una barra de dominadas, y quedan desactivadas hasta que las actives.</p></div>
+      <div class="qa"><h3>¿Necesito una cuenta? ¿Qué datos se recopilan?</h3><p>No hay nada que registrar y nada que recopilar: sin cuenta, sin analítica, sin SDK de terceros. Tu historial de entrenamiento no sale de tu teléfono, a menos que tú mismo lo exportes.</p></div>
+      <div class="qa"><h3>¿Y si dejo pasar una o dos semanas?</h3><p>No se pierde nada. Tras dos semanas de pausa, el plan propone retomar unos pasos más abajo — cuanto más larga la pausa, más abajo — y los niveles se recuperan rápido.</p></div>
+      <div class="qa"><h3>Soy principiante total, ¿me sirve?</h3><p>Es el caso por defecto. El primer entrenamiento es fácil a propósito: unos 33 minutos, sin equipamiento. Calibra el sistema, y cada entrenamiento siguiente se ajusta a cómo fue realmente el anterior.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
   <div class="wrap">
     <div class="private">
       <div class="zero">0</div>

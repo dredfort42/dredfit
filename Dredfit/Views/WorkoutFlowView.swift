@@ -2,26 +2,22 @@
 //  WorkoutFlowView.swift
 //  Dredfit
 //
-//  The workout flow: exercise (big number, set dots) and rest (ring timer).
-//  State machine: work > rest > … > feedback.
-//
-//  v1.1: hold exercises run a countdown (start by button, 3-2-1 signals,
-//  auto-advance at zero; an early stop records the held seconds as the
-//  actual). Skipped exercises are collected and passed to the engine so
-//  their patterns honestly keep their level. The screen stays awake.
+//  The workout flow: warm-up > work > rest > … > feedback. Exercise shows a
+//  big number and set dots; rest shows a ring timer. Hold exercises run a
+//  countdown; skipped exercises are passed to the engine so their patterns
+//  honestly keep their level. The screen stays awake for the whole session.
 //
 
 import Combine
 import SwiftUI
-import AudioToolbox
 import StoreKit
 import UIKit
 import DredfitCore
 
 struct WorkoutFlowView: View {
     let session: Session
-    /// v1.7: a mid-workout snapshot to pick up from (the "Continue" path on
-    /// Today). nil starts the session from the warm-up as always.
+    /// A mid-workout snapshot to pick up from (the "Continue" path on Today).
+    /// nil starts the session from the warm-up as always.
     var resume: WorkoutSnapshot? = nil
     @Environment(\.dismiss) private var dismiss
     @Environment(AppStore.self) private var store
@@ -32,7 +28,7 @@ struct WorkoutFlowView: View {
         case work
         case rest(seconds: Int)
         case feedback
-        case milestone([Milestone])   // v1.4 — only when the workout earned one
+        case milestone([Milestone])   // only when the workout earned one
     }
 
     @State private var exIndex = 0
@@ -51,10 +47,10 @@ struct WorkoutFlowView: View {
     @State private var skippedPatterns: Set<Pattern> = []
     @State private var adjusting = false
     @State private var adjustValue = 0
-    @State private var workoutStart: Date?   // v1.3: actual duration for Health
-    @State private var lastResult: FeedbackResult?   // v1.4: gates the review ask
-    @State private var liveActivity = WorkoutActivityController()   // v1.3
-    @State private var exitConfirmShown = false   // v1.7
+    @State private var workoutStart: Date?   // actual duration for Health
+    @State private var lastResult: FeedbackResult?   // gates the review ask
+    @State private var liveActivity = WorkoutActivityController()
+    @State private var exitConfirmShown = false
     /// The exercise "Finish now" cut mid-way — labelled "not finished" on
     /// the rating screen while the engine still treats it as a skip.
     @State private var interruptedPattern: Pattern?
@@ -62,7 +58,7 @@ struct WorkoutFlowView: View {
     /// sheets presented over the flow can make it fire more than once.
     @State private var didStart = false
 
-    // Hold-exercise countdown (v1.1): date-based so it survives backgrounding.
+    // Hold-exercise countdown: date-based so it survives backgrounding.
     // Per-side holds run the countdown twice (left/right); the actual is the
     // smaller of the two — the honest bottleneck.
     @State private var holdEndDate: Date?
@@ -71,7 +67,7 @@ struct WorkoutFlowView: View {
     @State private var holdSecondSide = false
     @State private var firstSideHeld: Int?
 
-    /// The rest ring scales with the countdown it frames (v1.4).
+    /// The rest ring scales with the countdown it frames.
     @ScaledMetric(relativeTo: .largeTitle) private var restRingSize: CGFloat = 240
 
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -82,14 +78,13 @@ struct WorkoutFlowView: View {
     private var holding: Bool { holdEndDate != nil }
     private var isMilestone: Bool { if case .milestone = phase { return true }; return false }
 
-    /// The only place the app ever asks for a review (v1.4): closing a
-    /// milestone screen, and only when every condition in the store's gate
-    /// holds. The stamp is written whether or not iOS decides to show the
-    /// prompt — Apple rate-limits it invisibly, and a request we cannot see
-    /// the outcome of still counts against our own 60-day floor.
-    /// The request itself waits out the cover's dismissal transition: StoreKit
-    /// may silently drop a prompt asked for mid-transition, which would burn
-    /// the 60-day stamp on a prompt nobody saw.
+    /// The only place the app ever asks for a review: closing a milestone
+    /// screen, and only when every condition in the store's gate holds. The
+    /// stamp is written whether or not iOS decides to show the prompt —
+    /// Apple rate-limits it invisibly, and an unseen request still counts
+    /// against our own 60-day floor. The request waits out the cover's
+    /// dismissal transition: StoreKit may silently drop a prompt asked for
+    /// mid-transition, burning the stamp on a prompt nobody saw.
     private func askForReviewIfEarned() {
         guard store.shouldRequestReview(lastResult: lastResult) else { return }
         let store = self.store
@@ -119,7 +114,8 @@ struct WorkoutFlowView: View {
                         session: session, result: result,
                         overrides: overrides, skipped: skippedPatterns,
                         durationSec: workoutStart.map {
-                            Int(Date.now.timeIntervalSince($0))
+                            // max: the wall clock can move backwards mid-workout
+                            max(0, Int(Date.now.timeIntervalSince($0)))
                         })
                     // The workout is already recorded either way — the
                     // milestone screen is a coda, never a gate.
@@ -156,6 +152,9 @@ struct WorkoutFlowView: View {
             UIApplication.shared.isIdleTimerDisabled = true
             guard !didStart else { return }
             didStart = true
+            // Pay the audio-session setup (category, tone generation,
+            // prepareToPlay) here — not on the first tick of a countdown.
+            if store.settings.soundsEnabled { CountdownSounds.shared.prime() }
             if let resume { restore(from: resume) }
             if workoutStart == nil { workoutStart = .now }
             // No Live Activity when resuming straight onto the rating —
@@ -173,10 +172,9 @@ struct WorkoutFlowView: View {
         .sheet(item: $techniqueExercise) { ex in
             TechniqueSheet(exercise: ex)
         }
-        // v1.7: leaving is never silent data loss anymore. "Finish now" is
-        // the honest middle path the backlog asked for — the engine already
-        // knows how to skip, so running out of time on exercise 4 of 6 ends
-        // in a recorded, rated workout instead of a discarded one.
+        // Leaving is never silent data loss: "Finish now" ends in a recorded,
+        // rated workout — the remaining exercises go through the engine's
+        // skip path instead of the whole session being discarded.
         .confirmationDialog(String(localized: "Leave the workout?"),
                             isPresented: $exitConfirmShown,
                             titleVisibility: .visible) {
@@ -246,7 +244,7 @@ struct WorkoutFlowView: View {
         }
     }
 
-    // MARK: - Warm-up (v1.1)
+    // MARK: - Warm-up
 
     /// Six universal mobility moves, 30 s each — ~3 minutes before the first
     /// exercise. No levels involved; the whole block can be skipped.
@@ -287,8 +285,7 @@ struct WorkoutFlowView: View {
             .padding(.top, 30)
 
             // A single move can be impossible today (no floor space, a sore
-            // wrist) without the whole warm-up being worthless — skipping one
-            // must not cost the other five.
+            // wrist) — skipping it must not cost the other five.
             Button {
                 if warmupIndex + 1 < Self.warmupMoves.count {
                     startWarmupMove(warmupIndex + 1)
@@ -330,10 +327,10 @@ struct WorkoutFlowView: View {
         guard newRemaining != warmupRemaining else { return }
         if newRemaining == 0 {
             playGo()
-            // Absorb backgrounded time: unlike rest/hold, each move has its
-            // own end date, so a 4-minute absence used to advance a single
-            // move and silently stretch a 3-minute warm-up to 7. Jump over
-            // every move the elapsed time already covered.
+            // Absorb backgrounded time: each move has its own end date, so a
+            // long absence would otherwise advance a single move and silently
+            // stretch the warm-up. Jump over every move the elapsed time
+            // already covered.
             let overshoot = max(0, -end.timeIntervalSinceNow)
             let movesPassed = 1 + Int(overshoot) / Self.warmupMoveSeconds
             if warmupIndex + movesPassed < Self.warmupMoves.count {
@@ -361,7 +358,7 @@ struct WorkoutFlowView: View {
         persistProgress()
     }
 
-    // MARK: - Live Activity (v1.3)
+    // MARK: - Live Activity
 
     /// The lock-screen state for the current work phase. Strings leave the
     /// app pre-localized — the extension renders them verbatim.
@@ -459,14 +456,12 @@ struct WorkoutFlowView: View {
             .opacity(holding ? 0 : 1)      // no adjusting/skipping mid-hold
             .disabled(holding)
 
-            // The calibration hint (v1.5): from a zero level an exact number
-            // sets the level outright instead of moving it by two. It lives
-            // here, next to the button it points to — on the rating screen it
-            // arrived after the last chance to act on it. Opacity, not `if`:
-            // the reserved height keeps the layout still when the hint's job
-            // is done mid-exercise.
-            // 14pt ink2, not 12.5 ink3: this hint works exactly once, on the
-            // first workout, and that one time it has to actually be read.
+            // Calibration hint: from a zero level an exact number sets the
+            // level outright instead of moving it by two. It lives next to
+            // the button it points to — the rating screen would be too late
+            // to act on it. Opacity, not `if`: the reserved height keeps the
+            // layout still when the hint's job is done mid-exercise. 14pt
+            // ink2: the hint works exactly once and has to actually be read.
             if store.records.isEmpty {
                 Text("Did far more than planned? Tap “Went differently” and enter what you actually did — the system will land on your level right away.")
                     .dredfitFont(14)
@@ -481,7 +476,7 @@ struct WorkoutFlowView: View {
         }
     }
 
-    // MARK: - Inline actual adjuster (UPDATE-5)
+    // MARK: - Inline actual adjuster
 
     private var adjustPanel: some View {
         HStack(spacing: 18) {
@@ -498,7 +493,7 @@ struct WorkoutFlowView: View {
                     actuals.removeValue(forKey: exercise.pattern) // back to the plan
                 }
                 adjusting = false
-                persistProgress()   // v1.7: an entered actual is worth keeping
+                persistProgress()   // an entered actual is worth keeping
             } label: {
                 Text("OK")
                     .dredfitFont(15, weight: .semibold)
@@ -587,8 +582,8 @@ struct WorkoutFlowView: View {
             }
             .padding(.top, 44)
 
-            // v1.3: review the technique of what's coming up while you rest —
-            // the same sheet the work screen offers, aimed at the next move.
+            // Review the technique of what's coming up while resting — the
+            // same sheet the work screen offers, aimed at the next move.
             Button {
                 techniqueExercise = restTargetExercise
             } label: {
@@ -647,8 +642,8 @@ struct WorkoutFlowView: View {
         if isLastSet && isLastExercise {
             phase = .feedback
             liveActivity.end()
-            // Snapshotted too (Н-3): dying on the rating screen must come
-            // back to the rating screen, not to a set already done.
+            // Snapshotted too: dying on the rating screen must come back to
+            // the rating screen, not to a set already done.
             persistProgress()
         } else if isLastSet {
             startRest(exercise.restExerciseSec)
@@ -677,6 +672,12 @@ struct WorkoutFlowView: View {
     }
 
     private func startRest(_ seconds: Int) {
+        #if DEBUG
+        // UI-test hook (--uitest-fast): collapse the rest so the full-flow
+        // driver never depends on the runner tapping Skip in time on a busy
+        // CI machine. Production rest is untouched; DEBUG builds only.
+        let seconds = CommandLine.arguments.contains("--uitest-fast") ? 1 : seconds
+        #endif
         restRemaining = seconds
         restEndDate = Date.now.addingTimeInterval(TimeInterval(seconds))
         phase = .rest(seconds: seconds)
@@ -707,13 +708,12 @@ struct WorkoutFlowView: View {
 
 // MARK: - Holds, signals and session persistence
 
-/// The second half of the flow, in an extension of its own: the phase views
-/// and the state machine above are one concern, the hold countdown, the
-/// audible signals and the snapshot that lets a killed session come back are
-/// another. Same file, so the private state stays private.
+/// The second half of the flow: the hold countdown, the audible signals and
+/// the snapshot that lets a killed session come back. Same file, so the
+/// private state stays private.
 private extension WorkoutFlowView {
 
-    // MARK: - Hold countdown (v1.1)
+    // MARK: - Hold countdown
 
     func startHold() {
         adjusting = false
@@ -744,8 +744,8 @@ private extension WorkoutFlowView {
     /// exactly where "Start hold" was, so a stop within the first seconds is
     /// treated as an accidental double-tap: the countdown is cancelled and
     /// the set stays available — otherwise one mis-tap would consume the set
-    /// and record a 5-second actual (which on the first workout would also
-    /// feed the zero-level calibration).
+    /// and record a bogus actual (which on the first workout would also feed
+    /// the zero-level calibration).
     func stopHoldEarly() {
         guard let end = holdEndDate else { return }
         let remaining = max(0, end.timeIntervalSinceNow)
@@ -791,19 +791,21 @@ private extension WorkoutFlowView {
     /// How many seconds before the end of rest to start "ticking".
     static let countdownSignalSeconds = 3
 
-    /// A short tick on 3-2-1. The system sound respects silent mode,
-    /// a light vibration duplicates the signal for silent mode.
-    /// Both obey the "Sounds and haptics" setting (v1.1).
+    /// A short tick on 3-2-1 — at media volume, mixed over whatever is
+    /// playing (a system sound would follow the ringer volume and drown
+    /// under music). The tone respects silent mode; a light vibration
+    /// duplicates the signal there. Obeys the "Sounds and haptics" setting.
     func playTick() {
         guard store.settings.soundsEnabled else { return }
-        AudioServicesPlaySystemSound(1103) // Tink
+        CountdownSounds.shared.playTick()
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
 
-    /// The "set start" signal at zero — lower in tone and with a haptic accent.
+    /// The "set start" signal at zero — a longer two-tone rise, more
+    /// noticeable than the ticks it concludes, with a haptic accent.
     func playGo() {
         guard store.settings.soundsEnabled else { return }
-        AudioServicesPlaySystemSound(1104) // Tock
+        CountdownSounds.shared.playGo()
         UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
 
@@ -819,11 +821,11 @@ private extension WorkoutFlowView {
         persistProgress()
     }
 
-    // MARK: - Surviving process death (v1.7)
+    // MARK: - Surviving process death
 
     /// Writes the current position to the store. Called on every phase
-    /// transition and whenever an actual changes — the workout can now be
-    /// picked up from here if iOS evicts the process mid-session.
+    /// transition and whenever an actual changes — the workout can be picked
+    /// up from here if iOS evicts the process mid-session.
     func persistProgress() {
         var restEnd: Date?
         var restTotal: Int?
@@ -855,8 +857,8 @@ private extension WorkoutFlowView {
         skippedPatterns = snap.skipped
         workoutStart = snap.workoutStart
         interruptedPattern = snap.interrupted
-        // The rating was already on screen — everything below the position
-        // fields describes sets that are behind, not ahead (Н-3).
+        // The rating was already on screen — the position fields describe
+        // sets that are behind, not ahead.
         if snap.atFeedback == true {
             phase = .feedback
             return
@@ -907,10 +909,10 @@ private extension WorkoutFlowView {
         // only what comes after it is unfinished.
         var firstUnfinished = exIndex
         if case .rest = phase, isLastSet { firstUnfinished = exIndex + 1 }
-        // The exercise cut with sets already behind it reads "not finished"
-        // on the rating screen — "skipped" would call 24 push-ups of 36 a
+        // An exercise cut with sets already behind it reads "not finished" on
+        // the rating screen — "skipped" would call 24 push-ups of 36 a
         // no-show. The engine still freezes its level like any skip; the
-        // label is the only difference (Н-4).
+        // label is the only difference.
         if firstUnfinished == exIndex {
             let midway: Bool
             if case .rest = phase {

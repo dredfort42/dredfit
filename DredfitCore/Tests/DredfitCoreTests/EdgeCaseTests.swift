@@ -36,8 +36,8 @@ final class EdgeCaseTests: XCTestCase {
 
     /// An actual below the bottom of the range drops the level into the previous tier (continuous formula).
     func testOverrideBelowRangeDropsToLowerTier() {
-        // v2.3: tier 2 starts at 6 reps, so an actual of 3 is what now sits
-        // three steps below its floor: (2-1)*8 + (3-6) = 5 → tier 1, 13 reps.
+        // tier 2 starts at 6 reps, so an actual of 3 sits three steps below
+        // its floor: (2-1)*8 + (3-6) = 5 → tier 1, 13 reps
         let l = Level.fromActual(pattern: .squat, tier: 2, sets: 3, actual: 3)
         XCTAssertEqual(l, 5)
         XCTAssertEqual(Level.decode(l).tier, 1)
@@ -154,7 +154,7 @@ final class EdgeCaseTests: XCTestCase {
     }
 
     /// All display strings are non-empty and contain numbers (for any levels,
-    /// including the v2.2 four- and five-set bands).
+    /// including the four- and five-set bands).
     func testDisplayStringsWellFormed() {
         var state = EngineState.initial
         for step in 0..<48 {

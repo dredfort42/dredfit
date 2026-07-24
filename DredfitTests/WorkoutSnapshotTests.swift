@@ -2,11 +2,9 @@
 //  WorkoutSnapshotTests.swift
 //  DredfitTests
 //
-//  v1.7: the mid-workout snapshot that lets a session survive process
-//  death. The invariants under test: it persists across a relaunch, it is
-//  only offered while it is honest to offer it (fresh, matching the engine,
-//  nothing completed today), and a corrupted snapshot can never take the
-//  journal down with it.
+//  The mid-workout snapshot that lets a session survive process death:
+//  it persists across a relaunch, is only offered while still valid, and
+//  a corrupted snapshot can never take the journal down with it.
 //
 
 import XCTest
@@ -45,8 +43,8 @@ final class WorkoutSnapshotTests: XCTestCase {
 
     // MARK: - The point of the feature
 
-    /// The exact scenario from the audit: iOS evicts the app during a rest,
-    /// the user relaunches — five finished exercises must still be there.
+    /// iOS evicts the app during a rest, the user relaunches — the finished
+    /// exercises must still be there.
     func testSnapshotSurvivesRelaunch() {
         let store = AppStore(storageURL: tempURL)
         store.saveWorkoutSnapshot(makeSnapshot(for: store))
@@ -106,7 +104,7 @@ final class WorkoutSnapshotTests: XCTestCase {
                      "session 5 does not belong to a counter at 0")
     }
 
-    /// Н-1: the session number is not identity. Toggling the pull-up bar
+    /// The session number is not identity: toggling the pull-up bar
     /// regenerates a different session under the same number — the
     /// fingerprint must catch it, or the snapshot's indices, actuals and
     /// skips would land on a different exercise list.
@@ -123,7 +121,7 @@ final class WorkoutSnapshotTests: XCTestCase {
                      "the bar toggle regenerated session 2 — the old snapshot must not resume into it")
     }
 
-    /// Н-1, same guard, other entrance: an accepted comeback lowers levels
+    /// Same guard, other entrance: an accepted comeback lowers levels
     /// without moving the counter, so the regenerated session differs too.
     func testAcceptedComebackInvalidatesTheSnapshot() {
         let store = AppStore(storageURL: tempURL)
@@ -138,9 +136,9 @@ final class WorkoutSnapshotTests: XCTestCase {
                      "a comeback regenerates the plan — the old snapshot must not resume into it")
     }
 
-    /// Н-2: a snapshot from the moment the warm-up ended — first set
-    /// untouched, nothing recorded — offers nothing. The honest launch for
-    /// it is the plain Start, warm-up included.
+    /// A snapshot from the moment the warm-up ended — first set untouched,
+    /// nothing recorded — offers nothing. The honest launch for it is the
+    /// plain Start, warm-up included.
     func testSnapshotWithNoProgressIsNotOffered() {
         let store = AppStore(storageURL: tempURL)
         store.saveWorkoutSnapshot(WorkoutSnapshot(
@@ -164,7 +162,7 @@ final class WorkoutSnapshotTests: XCTestCase {
                         "a set was completed — this interruption is worth offering back")
     }
 
-    /// Н-3: reaching the rating screen is progress in itself — the snapshot
+    /// Reaching the rating screen is progress in itself — the snapshot
     /// stays resumable (and the flow restores straight onto the rating).
     func testFeedbackSnapshotIsOffered() {
         let store = AppStore(storageURL: tempURL)

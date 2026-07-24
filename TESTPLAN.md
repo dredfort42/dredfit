@@ -1,6 +1,6 @@
 # Dredfit — manual QA checklist
 
-Automated coverage (182 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
+Automated coverage (198 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
 
 **How to use.** Run the *Release smoke* block before every release. Run *Full pass* when the engine, persistence or an integration changed. Device-only rows cannot pass on a simulator and are marked ⌚. Record anything that fails in the [Issue registry](#issue-registry) at the bottom rather than fixing it silently.
 
@@ -32,7 +32,9 @@ Legend: ✅ pass · ❌ fail (log it) · ➖ not applicable this run · ⌚ devi
 |---|---|---|
 | 1.1 | Tap an exercise row on Today before starting | Technique sheet opens; the workout does **not** start |
 | 1.2 | Tap **Start** | Full-screen flow opens on **WARM-UP**; the screen does not auto-lock for the whole workout |
-| 1.3 | Let the warm-up run | 6 moves × 30 s. At 3-2-1 a tick sound + light haptic; at 0 a lower tone + success haptic; dots advance; total 3 min |
+| 1.3 | Let the warm-up run | 6 moves × 30 s. At 3-2-1 a tick sound + light haptic; at 0 a two-tone rise + success haptic; dots advance; total 3 min |
+| 1.3a | ⌚ Play music, run a countdown to 0 | The 3-2-1 ticks and the finale are clearly audible over the music at typical media volume; the music keeps playing (mixed, not paused) |
+| 1.3b | ⌚ Silent switch on | Signals are silent — haptics only. Same with **Sounds** off in settings |
 | 1.4 | Tap **Skip warm-up** | The *entire* warm-up block ends (not just the current move) and exercise 1 appears |
 | 1.4a | Tap **Skip this move** during the warm-up | Only the current move is skipped — the next one starts its own 30 s; on the last move it ends the warm-up |
 | 1.5 | Work screen layout | Header "1 / 6" and 6 capsules; exercise name; **technique** button; big planned number; "reps" (or "reps per side"); set dots; "set 1 of 3" |
@@ -62,7 +64,7 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 | # | Check | Expected |
 |---|---|---|
 | 3.1 | Tap **Start hold** | Countdown runs down from the planned seconds |
-| 3.2 | Let it finish | 3-2-1 signals, then completion tone; rest begins automatically |
+| 3.2 | Let it finish | 3-2-1 signals, then the two-tone finale; rest begins automatically |
 | 3.3 | **Stop the hold early** | The recorded actual is rounded to the **nearest multiple of 5** and clamped to 5…90 s |
 | 3.4 | Verify 3.3 on the rating screen | The summary shows "actual N" where N is a multiple of 5 |
 | 3.5 | A per-side hold | Two countdowns run; the second is marked "second side"; the recorded actual is the **smaller** of the two sides |
@@ -110,11 +112,12 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 |---|---|---|
 | 7.1 | Enable **Reminder** | iOS permission prompt appears (alert + sound, no badge) |
 | 7.2 | Deny the permission | The toggle flips back **off** — it reflects the system's answer |
-| 7.3 | Allow, then keep the default rest day | Exactly **6** notifications scheduled (one per non-rest weekday) |
-| 7.4 | Change **Time** | Reminders reschedule to the new time |
-| 7.5 | Add a rest day while the reminder is on | That weekday's reminder disappears |
+| 7.3 | Allow, then keep the default rest day | A 28-day window of **one-shot** notifications, one per training date (**24** with the default rest day); none on rest days. The window refills every time the app becomes active |
+| 7.4 | Change **Time** | Every pending slot moves to the new time |
+| 7.5 | Add a rest day while the reminder is on | That weekday's dates disappear from the window |
 | 7.6 | Disable the reminder | All pending reminders are removed |
-| 7.7 | ⌚ Wait for a scheduled fire | Notification titled "Dredfit", body "Today's workout is ready" |
+| 7.7 | Complete today's workout **before** the reminder time | No notification that day; tomorrow's slot stays |
+| 7.8 | ⌚ Wait for a scheduled fire | Notification titled "Dredfit", body "Today's workout is ready" |
 
 ### 8. Backup export / import
 
@@ -348,5 +351,6 @@ Log every failure found while running this plan. Keep entries until they ship fi
 | I-3 | 2026-07-18 | Accessibility | Text sizing was hardcoded via `.font(.system(size:))` throughout, so it did not scale with Dynamic Type at all | medium | **fixed in 1.4.0** — 88 call sites moved to `dredfitFont`; display numbers scale to a cap (§16) |
 | I-4 | 2026-07-18 | Calendar | Rest days rendered identically to out-of-month days (dimmed number, no shape, no legend entry) | low | **fixed in 1.4.0** — soft fill plus a legend entry (§6.5) |
 | I-5 | 2026-07-18 | UI tests / CI | 6 of 16 UI tests fail on GitHub runners with `No matches found for … "Skip rest" IN identifiers`, while the same suite passes 16/16 locally. Timing flakiness under runner load, not a product defect — the rest phase advances before the tap lands. Survives the workflow's 3 retries | medium | open — UI tests no longer gate releases; fix before relying on the nightly |
+| I-6 | 2026-07-24 | Workout flow | `testMilestoneScreenListsEverythingEarned` intermittently hangs mid-workout: the app stops responding (neither **Done** nor **Start hold** is present, the rating never arrives) and XCTest kills it — "Test crashed with signal term". Failed twice on a busy machine at `99704ef` and on the 1.7.1 branch, passed on a quiet one, and did not reproduce at `dc67b20` — the commit before the audible countdown. Suspect: audio playback on the main actor stalling under simulator load | medium | open — watch the nightly; if it recurs, sample the app while it is stuck rather than re-running |
 
 **Severity.** *high* — data loss, crash, or a broken core flow · *medium* — a feature misbehaves but there is a way around it · *low* — cosmetic or a rare edge case.

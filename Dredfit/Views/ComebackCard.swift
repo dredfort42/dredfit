@@ -2,14 +2,12 @@
 //  ComebackCard.swift
 //  Dredfit
 //
-//  Shown on Today after a break of two weeks or more (v1.5). The engine is
-//  event-driven: without this, a plan three weeks old is still waiting at the
-//  old level, the first workout back is punishing, and the user leaves for
-//  good.
+//  Shown on Today after a break of two weeks or more. The engine is
+//  event-driven: without this, an old plan waits at the old level and the
+//  first workout back is punishing.
 //
-//  The tone is the point. No count of missed workouts, no streak broken, no
-//  apology asked for. A break is a normal thing that happens to people, and
-//  the app's only job is to make coming back easy.
+//  The tone is the point: no missed-workout counts, no broken streaks —
+//  the card's only job is to make coming back easy.
 //
 
 import SwiftUI

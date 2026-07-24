@@ -2,7 +2,7 @@
 //  ComebackTests.swift
 //  DredfitTests
 //
-//  The app-layer half of the v1.5 comeback: when the card is offered, what
+//  The app-layer half of the comeback flow: when the card is offered, what
 //  each answer does, and that the question is asked once per break.
 //
 
@@ -142,7 +142,7 @@ final class ComebackTests: XCTestCase {
 
     // MARK: - Migration
 
-    /// A v1.4 file knows nothing about comebacks and must load unchanged.
+    /// A file predating the comeback feature must load unchanged.
     func testV14FileLoadsWithComebackDefaults() throws {
         let v14 = """
         {"engineState":{"counter":6,
@@ -159,7 +159,7 @@ final class ComebackTests: XCTestCase {
         try Data(v14.utf8).write(to: tempURL)
         let store = AppStore(storageURL: tempURL)
 
-        // everything v1.4 knew survives
+        // everything the old file knew survives
         XCTAssertEqual(store.settings.restWeekdays, [3])
         XCTAssertEqual(store.settings.reminderHour, 18)
         XCTAssertEqual(store.settings.reminderMinute, 45)

@@ -4,13 +4,11 @@
 //
 //  The heart of the "thermostat": one tap to rate the workout.
 //
-//  UPDATE-5: actuals arrive already collected during the workout (see
-//  WorkoutFlowView). This screen shows them as a read-only summary; the
-//  chosen rating applies to all non-adjusted exercises, per-exercise
-//  actuals override it for theirs. The separate adjustment sheet is gone.
-//
-//  v1.1: skipped exercises are listed too — the rating does not apply to
-//  them (the engine keeps their level unchanged).
+//  Actuals arrive already collected during the workout (see WorkoutFlowView)
+//  and show here as a read-only summary; the chosen rating applies to all
+//  non-adjusted exercises, per-exercise actuals override it for theirs.
+//  Skipped exercises are listed too — the rating does not apply to them
+//  (the engine keeps their level unchanged).
 //
 
 import SwiftUI
@@ -20,9 +18,9 @@ struct FeedbackView: View {
     let session: Session
     let actuals: [Pattern: Int]
     var skipped: Set<Pattern> = []
-    /// The exercise "Finish now" cut mid-way (v1.7). To the engine it is a
-    /// skip like the others; to the person who did 24 push-ups of 36 it is
-    /// "not finished", and the summary label says so.
+    /// The exercise "Finish now" cut mid-way. To the engine it is a skip like
+    /// the others; to the person who did 24 push-ups of 36 it is "not
+    /// finished", and the summary label says so.
     var interrupted: Pattern? = nil
     let onComplete: (FeedbackResult, [Pattern: Int]) -> Void
 
@@ -47,9 +45,9 @@ struct FeedbackView: View {
 
                     Spacer(minLength: 20)
 
-                    // Three equal cards on purpose (v1.7): the rating is the
-                    // regulator's only input, and a filled "On plan" card read
-                    // as "the correct answer is the middle one" — an
+                    // Three equal cards on purpose: the rating is the
+                    // regulator's only input, and a filled "On plan" card
+                    // reads as "the correct answer is the middle one" — an
                     // agreeable user would pick the highlighted card over the
                     // honest one. Order alone carries the scale.
                     VStack(spacing: 14) {
@@ -76,7 +74,7 @@ struct FeedbackView: View {
         }
     }
 
-    // MARK: - Read-only summary of in-workout adjustments (UPDATE-5)
+    // MARK: - Read-only summary of in-workout adjustments
 
     private var adjustedSummary: some View {
         VStack(alignment: .leading, spacing: 8) {

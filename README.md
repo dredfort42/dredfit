@@ -1,5 +1,10 @@
 # Dredfit
 
+[![CI](https://github.com/dredfort42/dredfit/actions/workflows/ci.yml/badge.svg)](https://github.com/dredfort42/dredfit/actions/workflows/ci.yml)
+[![Lint](https://github.com/dredfort42/dredfit/actions/workflows/lint.yml/badge.svg)](https://github.com/dredfort42/dredfit/actions/workflows/lint.yml)
+[![Localization](https://github.com/dredfort42/dredfit/actions/workflows/localization.yml/badge.svg)](https://github.com/dredfort42/dredfit/actions/workflows/localization.yml)
+[![CodeQL](https://github.com/dredfort42/dredfit/actions/workflows/codeql.yml/badge.svg)](https://github.com/dredfort42/dredfit/actions/workflows/codeql.yml)
+
 **Adaptive bodyweight training for iOS. Zero setup — open the app, your workout is ready.**
 
 Dredfit works like a thermostat. There is no quiz, no goal picker, no timer settings. The app starts you at a conservative minimum and regulates itself: it proposes a plan, you do it, you answer one question — *how did it go?* — and the next workout adjusts. Tell it what you actually managed on the first workout and it lands on your real level right away; answer with a rating alone and it converges over a handful of sessions. Either way it then keeps the load right at the edge of what you can do, which is where progress happens.
@@ -74,12 +79,12 @@ The engine was first written and verified as a JavaScript reference (4,150 prope
 
 ## Testing
 
-Three layers, 182 automated tests:
+Three layers, 198 automated tests:
 
 | Layer | Count | What it covers |
 |---|---|---|
 | Core invariants + golden | 61 | encoding bijectivity, rotation properties, pull:push balance, deload timing, override caps, skip semantics, bar-branch independence, lenient state decode, feedback replay safety, reference parity |
-| App unit tests | 88 | persistence round-trips, corrupted-file quarantine, legacy-record migration, in-progress snapshot validity, rest-day calendar math, Health export ordering and idempotence, reminder scheduling, day-anchor rollover, widget snapshot |
+| App unit tests | 104 | persistence round-trips, corrupted-file quarantine, a frozen journal and its reload, legacy-record migration, in-progress snapshot validity, rest-day calendar math, Health export ordering and idempotence, the one-shot reminder window, day-anchor rollover, widget snapshot |
 | UI tests | 33 | the full workout flow, in-workout adjustment, hold mis-tap grace, resume after a kill, the three exit paths, history, relaunch persistence |
 
 Plus [TESTPLAN.md](TESTPLAN.md): a manual QA checklist (locale passes, date rollover, backgrounding during rest, device-only integrations) and a registry of found issues with their status.
@@ -102,6 +107,15 @@ English is the source language; Russian, Spanish and Brazilian Portuguese each s
 One accent color. System typography. No gamification, no streaks, no guilt: a missed day stays a quiet outline in the calendar, because the engine adapts anyway. The app asks the user exactly one question per day, and it's answerable with one thumb.
 
 No third-party dependencies, no network calls, no analytics of any kind — the App Store privacy label "Data Not Collected" is literally true.
+
+## Continuous integration
+
+Every push and PR runs the gate — unit tests (Core + app), SwiftLint, and a
+String Catalog completeness check. UI tests run nightly and gate nothing;
+CodeQL, secret scanning, and PR-title linting run alongside as advisory checks. Releases are tagged `vX.Y.Z`, which publishes a GitHub
+Release from the matching `CHANGELOG.md` section. Full details, the release
+procedure, and how to enable branch protection are in
+[`.github/WORKFLOWS.md`](.github/WORKFLOWS.md).
 
 ## Status
 
