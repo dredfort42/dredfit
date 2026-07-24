@@ -2,20 +2,18 @@
 //  CountdownSounds.swift
 //  Dredfit
 //
-//  The audible 3-2-1 countdown (v1.8). The flow used to play the system
-//  Tink/Tock sounds — those follow the *ringer* volume, which routinely
-//  sits near zero while music plays at full media volume, so the signals
-//  drowned exactly when they were needed most.
+//  The audible 3-2-1 countdown, played at *media* volume: a system sound
+//  would follow the ringer volume, which routinely sits near zero while
+//  music plays at full media volume.
 //
 
 import AVFoundation
 
 /// Plays the countdown signals: a short tick on 3-2-1 and a longer two-tone
-/// rise at zero. The `.ambient` session keeps both promises the old system
-/// sounds made — it mixes with whatever is already playing instead of
-/// pausing it, and the silent switch still mutes it (haptics remain the
-/// silent-mode channel) — while moving the signals from ringer volume to
-/// media volume, which is what actually made them inaudible.
+/// rise at zero. The `.ambient` session mixes with whatever is already
+/// playing instead of pausing it, and the silent switch still mutes it
+/// (haptics remain the silent-mode channel) — while the signals themselves
+/// play at media volume, not ringer volume.
 @MainActor
 final class CountdownSounds {
 
@@ -24,13 +22,18 @@ final class CountdownSounds {
     private let tick: AVAudioPlayer?
     private let go: AVAudioPlayer?
 
-    init() {
+    private init() {
         try? AVAudioSession.sharedInstance().setCategory(.ambient, options: .mixWithOthers)
         tick = try? AVAudioPlayer(data: SignalTone.tick)
         go = try? AVAudioPlayer(data: SignalTone.go)
         tick?.prepareToPlay()
         go?.prepareToPlay()
     }
+
+    /// Construction is the actual work — the session category, the generated
+    /// tones and prepareToPlay all happen in init. Calling this when the
+    /// workout flow appears means the first countdown tick pays none of it.
+    func prime() {}
 
     func playTick() { play(tick) }
     func playGo() { play(go) }
