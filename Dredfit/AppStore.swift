@@ -21,45 +21,35 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     let date: Date
     let result: FeedbackResult
     let totalLevelAfter: Int          // level sum after the session — a chart point
-    // Workout snapshot for history. Optional — records created before
-    // UPDATE-3 decode as nil and show a graceful placeholder.
-    var exercises: [SessionExercise]? = nil
+    // Fields below were added over time and are optional so older records
+    // still decode (history shows a placeholder for nil snapshots).
+    var exercises: [SessionExercise]? = nil   // workout snapshot for history
     var actuals: [Pattern: Int]? = nil
-    // v1.1 additions, optional for the same migration reason:
-    var skipped: Set<Pattern>? = nil        // exercises skipped during the workout
-    var levelsAfter: [Pattern: Int]? = nil  // per-pattern level snapshot (feeds future charts)
-    // v1.3: the actual wall-clock workout duration (feeds Apple Health)
-    var durationSec: Int? = nil
-    // v1.6: per-record Health export state. Only `true` is ever written;
-    // nil means "not exported yet" (or a pre-1.6 record, migrated on load).
-    // Replaces the high-water sessionNumber mark, which broke down once
-    // resetProgress made session numbers non-unique.
+    var skipped: Set<Pattern>? = nil          // exercises skipped during the workout
+    var levelsAfter: [Pattern: Int]? = nil    // per-pattern level snapshot
+    var durationSec: Int? = nil               // actual wall-clock duration (feeds Apple Health)
+    // Per-record Health export state. Only `true` is ever written; nil means
+    // "not exported yet" (or an old record, migrated on load).
     var healthExported: Bool? = nil
 }
 
-/// User preferences (v1.1). Stored in the same JSON file; optional on
-/// decode, so files written by v1.0 load with the defaults.
-/// v1.3: decoding is field-by-field tolerant — every key is optional with a
-/// default, so files written by any older version keep loading losslessly.
+/// User preferences, stored in the same JSON file. Decoding is field-by-field
+/// tolerant — every key is optional with a default, so files written by any
+/// older version keep loading losslessly.
 struct AppSettings: Codable, Equatable {
     var restWeekdays: Set<Int> = [1]   // Calendar weekday numbers: 1 = Sunday
     var soundsEnabled = true
     var reminderEnabled = false
     var reminderHour = 9
     var reminderMinute = 0
-    // v1.3 — Apple Health (both default off/zero for pre-1.3 files)
     var healthEnabled = false
     var healthExportedThrough = 0      // high-water sessionNumber already in Health
-    // v1.4 — first-run onboarding and the App Store review gate.
-    // Both default to "never happened", so pre-1.4 files behave as if the user
-    // has neither seen the onboarding nor been asked for a review. Users with
-    // history are kept out of the onboarding by the journal check, not by this.
     var onboardingCompleted = false
     var lastReviewRequestAt: Date? = nil
-    // v1.5: the date of the last workout for which the comeback question was
-    // already answered. Keyed on that date rather than a bool so it expires by
-    // itself: after the next workout the stored date is stale and a future
-    // break asks again, while the current break never asks twice.
+    // The last workout's date at the time the comeback question was answered.
+    // A date rather than a bool so it expires by itself: after the next
+    // workout it is stale and a future break asks again, while the current
+    // break never asks twice.
     var comebackDecidedFor: Date? = nil
 
     init() {}
@@ -85,10 +75,9 @@ struct AppSettings: Codable, Equatable {
     }
 }
 
-/// v1.7: a mid-workout progress snapshot, written on every phase transition
-/// of the flow. It exists so that iOS evicting the process during a rest
-/// (music, a message, a swipe-kill) does not cost the user 30 minutes of
-/// work — on the next launch Today offers to continue from this position.
+/// A mid-workout progress snapshot, written on every phase transition of the
+/// flow, so that iOS evicting the process during a rest does not lose the
+/// session — on the next launch Today offers to continue from this position.
 struct WorkoutSnapshot: Codable, Equatable {
     /// The session this snapshot belongs to. The engine state has not moved
     /// (feedback was never given), so the same session regenerates from it —
@@ -131,10 +120,10 @@ struct WorkoutSnapshot: Codable, Equatable {
 private struct AppData: Codable {
     var engineState: EngineState
     var records: [WorkoutRecord]
-    var settings: AppSettings? = nil   // v1.1
-    var pendingWorkout: WorkoutSnapshot? = nil   // v1.7
-    // v1.6: how many journal entries failed to decode (not encoded) — the
-    // caller keeps the original file aside when this is nonzero.
+    var settings: AppSettings? = nil
+    var pendingWorkout: WorkoutSnapshot? = nil
+    // How many journal entries failed to decode (not encoded) — the caller
+    // keeps the original file aside when this is nonzero.
     var droppedRecordCount = 0
 
     init(engineState: EngineState, records: [WorkoutRecord],
@@ -149,13 +138,13 @@ private struct AppData: Codable {
         case engineState, records, settings, pendingWorkout
     }
 
-    /// v1.6: the journal decodes record-by-record — one unreadable entry
-    /// (e.g. written by a newer version) must not throw away the whole file.
+    /// The journal decodes record-by-record — one unreadable entry (e.g.
+    /// written by a newer version) must not throw away the whole file.
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         engineState = try c.decode(EngineState.self, forKey: .engineState)
         settings = try c.decodeIfPresent(AppSettings.self, forKey: .settings)
-        // try? , not try: a snapshot written by a newer version must degrade
+        // try?, not try: a snapshot written by a newer version must degrade
         // to "nothing to resume", never to a quarantined journal.
         pendingWorkout = try? c.decodeIfPresent(WorkoutSnapshot.self, forKey: .pendingWorkout)
         var decoded: [WorkoutRecord] = []
@@ -183,7 +172,7 @@ final class AppStore {
     private(set) var engineState: EngineState
     private(set) var records: [WorkoutRecord]
     private(set) var settings: AppSettings
-    /// v1.7: the last persisted mid-workout snapshot, if any. Read through
+    /// The last persisted mid-workout snapshot, if any. Read through
     /// `resumableWorkout`, which applies the freshness and validity checks.
     private(set) var pendingWorkout: WorkoutSnapshot?
 
@@ -198,7 +187,13 @@ final class AppStore {
     private let health: WorkoutHealthWriting
     private let notifications: NotificationScheduling
     let widgetSnapshotURL: URL?
-    private var backfillInFlight = false   // v1.3: guards concurrent Health backfills
+    /// Set when the state file existed but could not be read (data protection
+    /// before the first unlock in a prewarmed launch, a transient I/O
+    /// failure). While set, persist() is a no-op: the file on disk is the
+    /// only copy of the journal and must never be overwritten from the empty
+    /// in-memory state. Cleared by reloadIfNeeded().
+    private var loadFailed = false
+    private var backfillInFlight = false   // guards concurrent Health backfills
     /// The in-flight Health export spawned by completeWorkout. Held so tests
     /// can await the fire-and-forget path instead of sleeping.
     private(set) var healthExportTask: Task<Void, Never>?
@@ -233,6 +228,13 @@ final class AppStore {
                 Self.quarantineStateFile(at: storageURL, keepOriginal: false)
                 Self.log.fault("state file failed to decode, moved aside: \(error.localizedDescription)")
             }
+        } else if FileManager.default.fileExists(atPath: storageURL.path) {
+            // The file is there but unreadable. Unlike the decode failure
+            // above, the journal itself may be perfectly fine — e.g. still
+            // protected before the first unlock. Freeze persistence instead
+            // of quarantining; reloadIfNeeded() lifts the freeze.
+            loadFailed = true
+            Self.log.fault("state file exists but could not be read — persistence frozen")
         }
         engineState = loaded?.engineState ?? .initial
         records = loaded?.records ?? []
@@ -248,7 +250,33 @@ final class AppStore {
         #if DEBUG
         applyUITestHooks()
         #endif
-        refreshWidgetSnapshot()   // v1.3: the widget mirrors state from launch
+        if !loadFailed { refreshWidgetSnapshot() }   // the widget mirrors state from launch
+    }
+
+    /// Second chance for a launch whose state file could not be read (see
+    /// loadFailed): called when the scene becomes active — i.e. once the
+    /// device is certainly unlocked. On success the real state replaces the
+    /// empty one and persistence unfreezes; while the file stays unreadable
+    /// the store keeps running without writing anything.
+    func reloadIfNeeded() {
+        guard loadFailed, let data = try? Data(contentsOf: storageURL) else { return }
+        loadFailed = false
+        do {
+            let loaded = try JSONDecoder().decode(AppData.self, from: data)
+            engineState = loaded.engineState
+            records = loaded.records
+            settings = loaded.settings ?? AppSettings()
+            pendingWorkout = loaded.pendingWorkout
+            if loaded.droppedRecordCount > 0 {
+                Self.quarantineStateFile(at: storageURL, keepOriginal: true)
+                Self.log.error("dropped \(loaded.droppedRecordCount) unreadable record(s) on reload, original kept aside")
+            }
+            migrateHealthMarkToFlags()
+        } catch {
+            Self.quarantineStateFile(at: storageURL, keepOriginal: false)
+            Self.log.fault("state file failed to decode on reload, moved aside: \(error.localizedDescription)")
+        }
+        refreshWidgetSnapshot()
     }
 
     /// If the day rolled over while the process was alive (an overnight
@@ -271,9 +299,9 @@ final class AppStore {
         }
     }
 
-    /// v1.6: converts the pre-1.6 high-water sessionNumber mark into
-    /// per-record flags. The mark itself keeps being written so a downgraded
-    /// build still sees a sane value.
+    /// Converts the legacy high-water sessionNumber mark into per-record
+    /// flags. The mark itself keeps being written so a downgraded build
+    /// still sees a sane value.
     private func migrateHealthMarkToFlags() {
         guard settings.healthExportedThrough > 0 else { return }
         for i in records.indices
@@ -285,26 +313,23 @@ final class AppStore {
 
     #if DEBUG
     private func applyUITestHooks() {
-        // UI-test hook: a reset install would otherwise open on the v1.4
-        // onboarding and hide the app from every existing test. Reset means
-        // "clean state", not "first run", so the explainer is marked seen —
-        // unless a test explicitly asks to exercise it.
+        // Reset means "clean state", not "first run": the onboarding is
+        // marked seen so it stays out of every existing test — unless a test
+        // explicitly asks to exercise it.
         if CommandLine.arguments.contains("--uitest-reset"),
            !CommandLine.arguments.contains("--uitest-onboarding") {
             settings.onboardingCompleted = true
         }
-        // The suite must not depend on the weekday it runs on: a clean
-        // state's default Sunday rest day used to fail most of the suite
-        // every Sunday (Today opens on "Rest day", not "Workout N"). Tests
-        // that need a rest day ask for one via --uitest-restday, applied
-        // last so it wins over this.
+        // The suite must not depend on the weekday it runs on (the default
+        // Sunday rest day would change what Today shows). Tests that need a
+        // rest day ask via --uitest-restday, applied last so it wins.
         if CommandLine.arguments.contains("--uitest-reset")
             || CommandLine.arguments.contains("--uitest-session2")
             || CommandLine.arguments.contains("--uitest-milestone") {
             settings.restWeekdays = []
         }
-        // UI-test hook: session 1 completed yesterday → today offers session 2
-        // (the only way for UI tests to reach hold exercises deterministically).
+        // Session 1 completed yesterday → today offers session 2 (the only
+        // deterministic way for UI tests to reach hold exercises).
         if CommandLine.arguments.contains("--uitest-session2") {
             engineState = .initial
             records = []
@@ -312,10 +337,8 @@ final class AppStore {
                             result: .plan,
                             date: Calendar.current.date(byAdding: .day, value: -1, to: .now)!)
         }
-        // UI-test hook: one workout away from several milestones at once —
-        // two patterns at the top of tier 1, counter on the eve of the tenth
-        // workout. Seeds state only; the milestones are still derived by the
-        // real path when the workout completes.
+        // One workout away from several milestones at once. Seeds state only;
+        // the milestones are still derived by the real path on completion.
         if CommandLine.arguments.contains("--uitest-milestone") {
             records = []
             var seeded = EngineState.initial
@@ -325,8 +348,8 @@ final class AppStore {
             }
             engineState = seeded
         }
-        // UI-test hook: a journal whose only workout was 20 days ago, so
-        // today opens on the comeback card.
+        // A journal whose only workout was 20 days ago, so today opens on
+        // the comeback card.
         if CommandLine.arguments.contains("--uitest-comeback") {
             var seeded = EngineState.initial
             seeded.counter = 11
@@ -340,7 +363,7 @@ final class AppStore {
             settings.comebackDecidedFor = nil
             settings.restWeekdays = []
         }
-        // UI-test hook: make today a rest day, whichever weekday that is.
+        // Make today a rest day, whichever weekday that is.
         if CommandLine.arguments.contains("--uitest-restday") {
             settings.restWeekdays = [Calendar.current.component(.weekday, from: .now)]
         }
@@ -359,7 +382,6 @@ final class AppStore {
 
     var lastRecord: WorkoutRecord? { records.last }
 
-    /// Has today's workout already been completed?
     var doneToday: Bool { isDone(on: today) }
 
     func isDone(on date: Date) -> Bool {
@@ -394,7 +416,7 @@ final class AppStore {
         return d
     }
 
-    /// Calendar-week summary for the progress screen (v1.3): workouts and the
+    /// Calendar-week summary for the progress screen: workouts and the
     /// total-level delta. The week is Monday–Sunday regardless of locale.
     struct WeekSummary: Equatable {
         let workouts: Int
@@ -436,9 +458,9 @@ final class AppStore {
 
     // MARK: - The only mutation
 
-    /// - Returns: the milestones this workout earned (v1.4). Derived here
-    ///   because this is the only place that still holds the pre-feedback
-    ///   state; nothing about them is persisted.
+    /// - Returns: the milestones this workout earned. Derived here because
+    ///   this is the only place that still holds the pre-feedback state;
+    ///   nothing about them is persisted.
     @discardableResult
     func completeWorkout(session: Session,
                          result: FeedbackResult,
@@ -450,7 +472,7 @@ final class AppStore {
         // to this state (replayed feedback, a stale snapshot) must not append
         // a duplicate journal entry either.
         guard session.sessionNumber == engineState.counter + 1 else { return [] }
-        pendingWorkout = nil   // v1.7: the workout is over — nothing to resume
+        pendingWorkout = nil   // the workout is over — nothing to resume
         let before = engineState
         engineState = Engine.applyFeedback(state: engineState, session: session,
                                            result: result, overrides: overrides,
@@ -467,7 +489,7 @@ final class AppStore {
             durationSec: durationSec))
         persist()
         if settings.healthEnabled {
-            // v1.6: the just-finished workout goes through the same contiguous
+            // The just-finished workout goes through the same contiguous
             // export path as the manual backfill — an older failed export gets
             // retried first, so a success can never leapfrog an earlier hole.
             healthExportTask = Task { await self.backfillHealth() }
@@ -476,7 +498,7 @@ final class AppStore {
                                         session: session, skipped: skipped)
     }
 
-    // MARK: - Workout in progress (v1.7)
+    // MARK: - Workout in progress
 
     /// A snapshot older than this is a different training occasion, not an
     /// interrupted one — offering to "continue" a workout from this morning
@@ -519,16 +541,15 @@ final class AppStore {
     }
 
     /// The workout ended in any deliberate way — completed, discarded via
-    /// Exit, or restarted from scratch. Nothing is left to resume. Same
-    /// reasoning as above: dropping a snapshot changes nothing the widget
-    /// shows (completion goes through completeWorkout, which does refresh).
+    /// Exit, or restarted from scratch. Nothing is left to resume. Widget
+    /// untouched for the same reason as in saveWorkoutSnapshot.
     func clearWorkoutSnapshot() {
         guard pendingWorkout != nil else { return }
         pendingWorkout = nil
         persist(refreshWidget: false)
     }
 
-    // MARK: - Settings (v1.1)
+    // MARK: - Settings
 
     /// Toggles a rest day. Refuses to turn the last training day into rest —
     /// at least one training day always remains (nextTrainingDate relies on it).
@@ -550,7 +571,7 @@ final class AppStore {
         persist()
     }
 
-    /// v2.2: the "pull-up bar" toggle writes straight into engine state —
+    /// The "pull-up bar" toggle writes straight into engine state —
     /// alternation is derived from it and the session counter. Turning it
     /// off freezes the vertical branch; its level is kept.
     func setHasBar(_ on: Bool) {
@@ -581,13 +602,16 @@ final class AppStore {
         rescheduleReminders()
     }
 
-    // MARK: - Onboarding (v1.4)
+    // MARK: - Onboarding
 
     /// The first-run explainer is for genuinely new installs only: an empty
     /// journal, an untouched engine, and no earlier run that finished it.
     /// Anyone with history has already learned the app by using it.
     var shouldShowOnboarding: Bool {
-        records.isEmpty && engineState.counter == 0 && !settings.onboardingCompleted
+        // A frozen launch (unreadable journal) knows nothing about the user —
+        // never mistake it for a fresh install.
+        !loadFailed && records.isEmpty && engineState.counter == 0
+            && !settings.onboardingCompleted
     }
 
     /// Called when the onboarding is finished **or skipped** — both count as
@@ -599,7 +623,7 @@ final class AppStore {
         persist()
     }
 
-    // MARK: - Comeback after a break (v1.5)
+    // MARK: - Comeback after a break
 
     /// Whole calendar days between the last workout and now, measured at local
     /// midnights so a late-evening workout and an early-morning launch are one
@@ -671,7 +695,7 @@ final class AppStore {
 
     static let comebackFreshStartDays = 180
 
-    // MARK: - App Store review (v1.4)
+    // MARK: - App Store review
 
     /// Whether to ask for a review right now. Pure and injectable so the gate
     /// is unit-testable without StoreKit: every condition must hold.
@@ -693,7 +717,7 @@ final class AppStore {
     static let reviewMinWorkouts = 5
     static let reviewMinDaysBetween = 60
 
-    // MARK: - Apple Health (v1.3)
+    // MARK: - Apple Health
 
     /// Turning the toggle on: ask for write-only authorization. On denial
     /// the toggle stays off — reality over wishful state, no nagging.
@@ -720,24 +744,31 @@ final class AppStore {
     }
 
     /// Exports every unexported record in journal order, flagging one record
-    /// at a time and only on a confirmed save. It stops at the first failure
-    /// so the unexported tail can be retried later — a failed save is never
-    /// declared exported, and a later success can never leapfrog it (the old
-    /// max()-mark design silently lost exactly that workout). The in-flight
-    /// guard forbids a second concurrent run (double-export window); the
-    /// while-loop re-reads the journal so a workout completed mid-run is
-    /// picked up by the run already in flight.
+    /// at a time and only on a confirmed save. Stops at the first failure so
+    /// the unexported tail can be retried later — a failed save is never
+    /// declared exported, and a later success can never leapfrog it. The
+    /// in-flight guard forbids a second concurrent run; the while-loop
+    /// re-reads the journal so a workout completed mid-run is picked up by
+    /// the run already in flight, and re-checks the Health toggle so
+    /// switching it off stops the run at the next record boundary.
     func backfillHealth() async {
         guard !backfillInFlight else { return }
         backfillInFlight = true
         defer { backfillInFlight = false }
-        while let index = records.firstIndex(where: { $0.healthExported != true }) {
+        while settings.healthEnabled,
+              let index = records.firstIndex(where: { $0.healthExported != true }) {
             let record = records[index]
-            let duration = TimeInterval(record.durationSec ?? estimatedDurationSec(for: record))
+            // Clamped: a wall clock moved backwards mid-workout can leave a
+            // negative stored duration, and an interval that does not move
+            // forward fails the save forever — blocking the whole tail.
+            let duration = max(60, TimeInterval(record.durationSec ?? estimatedDurationSec(for: record)))
             let ok = await health.saveWorkout(start: record.date.addingTimeInterval(-duration),
                                               end: record.date)
             guard ok else { break }   // the tail stays pending for a later retry
-            records[index].healthExported = true
+            // The await may have replaced the whole journal (importBackup) —
+            // flag the record by identity, never by the pre-await index.
+            guard let i = records.firstIndex(where: { $0.id == record.id }) else { continue }
+            records[i].healthExported = true
             settings.healthExportedThrough = max(settings.healthExportedThrough,
                                                  record.sessionNumber)
             persist()
@@ -753,9 +784,9 @@ final class AppStore {
         persist()
     }
 
-    /// Session-estimate fallback for records that predate duration capture:
-    /// mirrors the engine's duration formula over the stored snapshot,
-    /// skipping skipped exercises. Snapshot-less v1.0 records get a flat 35 min.
+    /// Fallback for records that predate duration capture: mirrors the
+    /// engine's duration formula over the stored snapshot, skipping skipped
+    /// exercises. Records without a snapshot get a flat 35 min.
     private func estimatedDurationSec(for record: WorkoutRecord) -> Int {
         guard let exercises = record.exercises, !exercises.isEmpty else { return 35 * 60 }
         let skipped = record.skipped ?? []
@@ -771,7 +802,7 @@ final class AppStore {
         return Int(workSec) + (5 + 3) * 60   // warm-up + cool-down
     }
 
-    // MARK: - Local reminders (v1.1)
+    // MARK: - Local reminders
 
     private static let reminderIDs = (1...7).map { "reminder-wd-\($0)" }
 
@@ -791,7 +822,7 @@ final class AppStore {
         }
     }
 
-    // MARK: - Backup (v1.1)
+    // MARK: - Backup
 
     /// A dated copy of the state file for the share sheet.
     func exportURL() throws -> URL {
@@ -823,8 +854,8 @@ final class AppStore {
         // interrupted on — it does not travel with a restored history.
         pendingWorkout = nil
         settings.healthExportedThrough = max(priorHealthMark, settings.healthExportedThrough)
-        // v1.6: new backups carry per-record flags; old ones carry only the
-        // mark — the migration turns whichever mark won above into flags.
+        // New backups carry per-record flags; old ones carry only the mark —
+        // the migration turns whichever mark won above into flags.
         migrateHealthMarkToFlags()
         persist()
         if settings.reminderEnabled {
@@ -847,23 +878,26 @@ final class AppStore {
     }
 
     private func persist(refreshWidget: Bool = true) {
+        // A journal that could not be read must never be overwritten by the
+        // empty state that replaced it (see loadFailed).
+        guard !loadFailed else { return }
         let data = AppData(engineState: engineState, records: records,
                            settings: settings, pendingWorkout: pendingWorkout)
         do {
             try JSONEncoder().encode(data).write(to: storageURL, options: .atomic)
         } catch {
             // The in-memory state is still correct and the next mutation
-            // retries the full write — but a silent failure here is the app's
-            // only durability path, so it must at least leave a trace.
+            // retries the full write — but this is the app's only durability
+            // path, so a failure must at least leave a trace.
             Self.log.fault("persist failed: \(error.localizedDescription)")
         }
-        // v1.3: every persisted change reaches the widget — except the ones
-        // that provably cannot change what it shows (see saveWorkoutSnapshot).
+        // Every persisted change reaches the widget — except the ones that
+        // provably cannot change what it shows (see saveWorkoutSnapshot).
         if refreshWidget { refreshWidgetSnapshot() }
     }
 }
 
-// MARK: - Notification seam (v1.6)
+// MARK: - Notification seam
 
 /// Injectable seam mirroring the Health one: AppStore schedules reminders
 /// through this protocol, unit tests substitute a spy.
