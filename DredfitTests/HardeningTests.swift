@@ -202,6 +202,37 @@ final class HardeningTests: XCTestCase {
         XCTAssertTrue(spy.scheduled.isEmpty, "disabling must remove every pending reminder")
     }
 
+    /// A launch that could not read its journal knows nothing about the user's
+    /// settings — it must leave the pending window alone instead of clearing
+    /// it from an empty in-memory state.
+    func testFrozenLaunchKeepsThePendingReminderWindow() async throws {
+        try XCTSkipIf(getuid() == 0, "root reads through 0o000 permissions")
+        let spy = NotificationSpy()
+        let seed = AppStore(storageURL: tempURL, notifications: spy)
+        seed.setReminderEnabled(true)
+        await seed.reminderAuthTask?.value
+        let pending = spy.scheduled.count
+        XCTAssertGreaterThan(pending, 0)
+
+        try FileManager.default.setAttributes([.posixPermissions: 0o000],
+                                              ofItemAtPath: tempURL.path)
+        defer {
+            try? FileManager.default.setAttributes([.posixPermissions: 0o644],
+                                                   ofItemAtPath: tempURL.path)
+        }
+        let frozen = AppStore(storageURL: tempURL, notifications: spy)
+        frozen.rescheduleReminders()
+        XCTAssertEqual(spy.scheduled.count, pending,
+                       "a frozen launch must not clear the reminders it cannot see")
+
+        try FileManager.default.setAttributes([.posixPermissions: 0o644],
+                                              ofItemAtPath: tempURL.path)
+        frozen.reloadIfNeeded()
+        frozen.rescheduleReminders()
+        XCTAssertEqual(spy.scheduled.count, pending,
+                       "the window is rebuilt once the journal is readable again")
+    }
+
     func testReminderDenialFlipsToggleOff() async {
         let spy = NotificationSpy()
         spy.grant = false

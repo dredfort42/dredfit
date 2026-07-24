@@ -825,6 +825,10 @@ final class AppStore {
     /// Rebuilt from scratch on every settings change, scene activation and
     /// workout completion — no drift, and the window slides forward.
     func rescheduleReminders(now: Date = .now) {
+        // A frozen launch knows neither the settings nor the journal: leave
+        // whatever iOS already holds rather than clearing a window the user
+        // still expects. reloadIfNeeded() rebuilds it once the file is read.
+        guard !loadFailed else { return }
         notifications.removePendingRequests(withIdentifiers: Self.reminderIDs)
         guard settings.reminderEnabled else { return }
         let cal = Calendar.current
