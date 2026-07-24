@@ -29,6 +29,9 @@
 "url":"https://dredfit.com/","image":"https://dredfit.com/og.png",
 "installUrl":"https://apps.apple.com/app/id6791739610"}
 </script>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is Dredfit really free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes — no subscription, no in-app purchases, no ads, no locked features. The app you download is the whole app, and it's open source, so you can check."}}, {"@type": "Question", "name": "Does it work offline?", "acceptedAnswer": {"@type": "Answer", "text": "Always. Dredfit makes no network requests — there are no servers. The plan, the timers and your whole history live on your phone."}}, {"@type": "Question", "name": "Do I need equipment or a gym?", "acceptedAnswer": {"@type": "Answer", "text": "No. A chair, a table, a wall, a towel and a step cover 36 of the 40 exercises. The four pull-up variations are the only ones that need a bar, and they stay off until you switch them on."}}, {"@type": "Question", "name": "Do I need an account? What data is collected?", "acceptedAnswer": {"@type": "Answer", "text": "There's nothing to sign up for and nothing is collected: no account, no analytics, no third-party SDKs. Your training history never leaves your phone unless you export it yourself."}}, {"@type": "Question", "name": "What if I skip a week or two?", "acceptedAnswer": {"@type": "Answer", "text": "Nothing is lost. After two weeks away the plan offers to meet you a few steps lower — the longer the break, the lower — and levels catch up quickly."}}, {"@type": "Question", "name": "I'm a complete beginner — will it fit?", "acceptedAnswer": {"@type": "Answer", "text": "That's the default. The first workout is deliberately easy — about 33 minutes, no equipment: it calibrates the system, and every next workout adjusts to how the last one actually went."}}]}
+</script>
 <style>
   :root{
     --ink:#111214; --ink2:#6E7075; --ink3:#A7A9AD;
@@ -126,6 +129,12 @@
   .feat .dot{width:10px;height:10px;border-radius:50%;background:var(--acc);margin-top:7px;flex-shrink:0}
   .feat b{font-size:15.5px;font-weight:650;display:block;letter-spacing:-.01em}
   .feat span{font-size:13.5px;color:var(--ink2)}
+
+  .faq{max-width:760px;margin-top:24px}
+  .qa{padding:22px 0;border-bottom:1px solid var(--hair)}
+  .qa:last-child{border-bottom:none}
+  .qa h3{font-size:17px;font-weight:700;letter-spacing:-.01em}
+  .qa p{font-size:15px;color:var(--ink2);margin-top:8px;max-width:640px}
 
   .private{background:var(--ink);border-radius:28px;padding:52px;margin-top:0;color:#fff;
     display:flex;align-items:center;gap:40px;flex-wrap:wrap}
@@ -263,6 +272,21 @@
 </section>
 
 <section class="alt">
+  <div class="wrap">
+    <div class="sec-kick">FAQ</div>
+    <h2>Common questions</h2>
+    <div class="faq">
+      <div class="qa"><h3>Is Dredfit really free?</h3><p>Yes — no subscription, no in-app purchases, no ads, no locked features. The app you download is the whole app, and it's open source, so you can check.</p></div>
+      <div class="qa"><h3>Does it work offline?</h3><p>Always. Dredfit makes no network requests — there are no servers. The plan, the timers and your whole history live on your phone.</p></div>
+      <div class="qa"><h3>Do I need equipment or a gym?</h3><p>No. A chair, a table, a wall, a towel and a step cover 36 of the 40 exercises. The four pull-up variations are the only ones that need a bar, and they stay off until you switch them on.</p></div>
+      <div class="qa"><h3>Do I need an account? What data is collected?</h3><p>There's nothing to sign up for and nothing is collected: no account, no analytics, no third-party SDKs. Your training history never leaves your phone unless you export it yourself.</p></div>
+      <div class="qa"><h3>What if I skip a week or two?</h3><p>Nothing is lost. After two weeks away the plan offers to meet you a few steps lower — the longer the break, the lower — and levels catch up quickly.</p></div>
+      <div class="qa"><h3>I'm a complete beginner — will it fit?</h3><p>That's the default. The first workout is deliberately easy — about 33 minutes, no equipment: it calibrates the system, and every next workout adjusts to how the last one actually went.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
   <div class="wrap">
     <div class="private">
       <div class="zero">0</div>

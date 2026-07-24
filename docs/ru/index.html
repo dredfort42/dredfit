@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dredfit — адаптивные домашние тренировки. Ноль настроек.</title>
-<meta name="description" content="Открой приложение — тренировка готова. Адаптивный тренер для тренировок с собственным весом на iPhone: без настройки, без аккаунта, без сбора данных. Подстраивается под то, как ты справился на самом деле.">
+<meta name="description" content="Открой приложение — тренировка готова. Тренировки с собственным весом на iPhone: без аккаунта и сбора данных. План подстраивается под то, как ты справился.">
 <link rel="canonical" href="https://dredfit.com/ru/">
 <link rel="alternate" hreflang="en" href="https://dredfit.com/">
 <link rel="alternate" hreflang="ru" href="https://dredfit.com/ru/">
@@ -28,6 +28,9 @@
 "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
 "url":"https://dredfit.com/ru/","image":"https://dredfit.com/og.png",
 "installUrl":"https://apps.apple.com/app/id6791739610"}
+</script>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Dredfit правда бесплатный?", "acceptedAnswer": {"@type": "Answer", "text": "Да — без подписки, встроенных покупок и рекламы. Скачал — получил приложение целиком, без закрытых «про»-функций. Код открыт: можно проверить."}}, {"@type": "Question", "name": "Работает без интернета?", "acceptedAnswer": {"@type": "Answer", "text": "Всегда. Dredfit не делает сетевых запросов — серверов просто нет. План, таймеры и вся история живут на твоем iPhone."}}, {"@type": "Question", "name": "Нужен инвентарь или зал?", "acceptedAnswer": {"@type": "Answer", "text": "Нет. Стул, стол, стена, полотенце и ступенька закрывают 36 из 40 упражнений. Турник нужен только четырем вариациям вертикальной тяги — они выключены, пока ты их не включишь."}}, {"@type": "Question", "name": "Нужен аккаунт? Какие данные собираются?", "acceptedAnswer": {"@type": "Answer", "text": "Регистрации нет, и собирать нечего: ни аккаунта, ни аналитики, ни сторонних SDK. История тренировок не покидает телефон, пока ты сам ее не экспортируешь."}}, {"@type": "Question", "name": "Что будет, если пропущу неделю-другую?", "acceptedAnswer": {"@type": "Answer", "text": "Ничего не потеряется. После двух недель паузы план предложит встретить тебя на пару ступеней ниже — чем дольше перерыв, тем ниже, — а уровни быстро догоняют."}}, {"@type": "Question", "name": "Я совсем новичок — подойдет?", "acceptedAnswer": {"@type": "Answer", "text": "Это сценарий по умолчанию. Первая тренировка нарочно легкая — около 33 минут, без инвентаря: она калибрует систему, а дальше каждая тренировка подстраивается под то, как прошла предыдущая."}}]}
 </script>
 <style>
   :root{
@@ -126,6 +129,12 @@
   .feat .dot{width:10px;height:10px;border-radius:50%;background:var(--acc);margin-top:7px;flex-shrink:0}
   .feat b{font-size:15.5px;font-weight:650;display:block;letter-spacing:-.01em}
   .feat span{font-size:13.5px;color:var(--ink2)}
+
+  .faq{max-width:760px;margin-top:24px}
+  .qa{padding:22px 0;border-bottom:1px solid var(--hair)}
+  .qa:last-child{border-bottom:none}
+  .qa h3{font-size:17px;font-weight:700;letter-spacing:-.01em}
+  .qa p{font-size:15px;color:var(--ink2);margin-top:8px;max-width:640px}
 
   .private{background:var(--ink);border-radius:28px;padding:52px;margin-top:0;color:#fff;
     display:flex;align-items:center;gap:40px;flex-wrap:wrap}
@@ -263,6 +272,21 @@
 </section>
 
 <section class="alt">
+  <div class="wrap">
+    <div class="sec-kick">FAQ</div>
+    <h2>Частые вопросы</h2>
+    <div class="faq">
+      <div class="qa"><h3>Dredfit правда бесплатный?</h3><p>Да — без подписки, встроенных покупок и рекламы. Скачал — получил приложение целиком, без закрытых «про»-функций. Код открыт: можно проверить.</p></div>
+      <div class="qa"><h3>Работает без интернета?</h3><p>Всегда. Dredfit не делает сетевых запросов — серверов просто нет. План, таймеры и вся история живут на твоем iPhone.</p></div>
+      <div class="qa"><h3>Нужен инвентарь или зал?</h3><p>Нет. Стул, стол, стена, полотенце и ступенька закрывают 36 из 40 упражнений. Турник нужен только четырем вариациям вертикальной тяги — они выключены, пока ты их не включишь.</p></div>
+      <div class="qa"><h3>Нужен аккаунт? Какие данные собираются?</h3><p>Регистрации нет, и собирать нечего: ни аккаунта, ни аналитики, ни сторонних SDK. История тренировок не покидает телефон, пока ты сам ее не экспортируешь.</p></div>
+      <div class="qa"><h3>Что будет, если пропущу неделю-другую?</h3><p>Ничего не потеряется. После двух недель паузы план предложит встретить тебя на пару ступеней ниже — чем дольше перерыв, тем ниже, — а уровни быстро догоняют.</p></div>
+      <div class="qa"><h3>Я совсем новичок — подойдет?</h3><p>Это сценарий по умолчанию. Первая тренировка нарочно легкая — около 33 минут, без инвентаря: она калибрует систему, а дальше каждая тренировка подстраивается под то, как прошла предыдущая.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
   <div class="wrap">
     <div class="private">
       <div class="zero">0</div>
