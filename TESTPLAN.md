@@ -32,7 +32,9 @@ Legend: ✅ pass · ❌ fail (log it) · ➖ not applicable this run · ⌚ devi
 |---|---|---|
 | 1.1 | Tap an exercise row on Today before starting | Technique sheet opens; the workout does **not** start |
 | 1.2 | Tap **Start** | Full-screen flow opens on **WARM-UP**; the screen does not auto-lock for the whole workout |
-| 1.3 | Let the warm-up run | 6 moves × 30 s. At 3-2-1 a tick sound + light haptic; at 0 a lower tone + success haptic; dots advance; total 3 min |
+| 1.3 | Let the warm-up run | 6 moves × 30 s. At 3-2-1 a tick sound + light haptic; at 0 a two-tone rise + success haptic; dots advance; total 3 min |
+| 1.3a | ⌚ Play music, run a countdown to 0 | The 3-2-1 ticks and the finale are clearly audible over the music at typical media volume; the music keeps playing (mixed, not paused) |
+| 1.3b | ⌚ Silent switch on | Signals are silent — haptics only. Same with **Sounds** off in settings |
 | 1.4 | Tap **Skip warm-up** | The *entire* warm-up block ends (not just the current move) and exercise 1 appears |
 | 1.4a | Tap **Skip this move** during the warm-up | Only the current move is skipped — the next one starts its own 30 s; on the last move it ends the warm-up |
 | 1.5 | Work screen layout | Header "1 / 6" and 6 capsules; exercise name; **technique** button; big planned number; "reps" (or "reps per side"); set dots; "set 1 of 3" |
@@ -62,7 +64,7 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 | # | Check | Expected |
 |---|---|---|
 | 3.1 | Tap **Start hold** | Countdown runs down from the planned seconds |
-| 3.2 | Let it finish | 3-2-1 signals, then completion tone; rest begins automatically |
+| 3.2 | Let it finish | 3-2-1 signals, then the two-tone finale; rest begins automatically |
 | 3.3 | **Stop the hold early** | The recorded actual is rounded to the **nearest multiple of 5** and clamped to 5…90 s |
 | 3.4 | Verify 3.3 on the rating screen | The summary shows "actual N" where N is a multiple of 5 |
 | 3.5 | A per-side hold | Two countdowns run; the second is marked "second side"; the recorded actual is the **smaller** of the two sides |
