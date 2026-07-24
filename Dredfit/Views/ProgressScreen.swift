@@ -2,9 +2,8 @@
 //  ProgressScreen.swift
 //  Dredfit
 //
-//  Total level, the week summary, a level chart over time (v1.3) and
-//  per-pattern level bars. One data color (accent) — one metric in
-//  several projections.
+//  Total level, the week summary, a level chart over time and per-pattern
+//  level bars. One data color (accent) — one metric in several projections.
 //
 
 import Charts
@@ -14,7 +13,7 @@ import DredfitCore
 struct ProgressScreen: View {
     @Environment(AppStore.self) private var store
     @State private var chartPattern: Pattern?   // nil = the total-level view
-    @State private var cardURL: URL?            // v1.4: the share card
+    @State private var cardURL: URL?            // the share card
     /// What the current card was rendered from. Rendering is a main-thread
     /// 1080×1350 pass plus a PNG write — worth skipping when nothing moved
     /// (every tab switch, and the double onChange after each workout).
@@ -64,7 +63,7 @@ struct ProgressScreen: View {
             HStack(alignment: .center, spacing: 12) {
                 HStack(alignment: .lastTextBaseline, spacing: 10) {
                     // The identifier lets UI tests assert on THIS value — a bare
-                    // staticTexts["0"] query used to match a chart axis label.
+                    // staticTexts["0"] query can match a chart axis label.
                     Text("\(store.totalLevel)")
                         .dredfitFont(56, weight: .heavy, cap: 84)
                         .tracking(-2)
@@ -78,7 +77,6 @@ struct ProgressScreen: View {
                     .foregroundStyle(Theme.ink2)
                 }
                 Spacer(minLength: 8)
-                // Sits with the numbers it shares; centred against the big total.
                 shareButton
             }
             .padding(.top, 12)
@@ -99,7 +97,7 @@ struct ProgressScreen: View {
                         ForEach(Pattern.ordered, id: \.self) { p in
                             levelRow(p)
                         }
-                        // v2.2: the vertical branch appears once it exists — with the
+                        // The vertical branch appears once it exists — with the
                         // bar enabled or with progress already earned on it.
                         if barBranchExists {
                             levelRow(.pullBar)
@@ -142,7 +140,7 @@ struct ProgressScreen: View {
         return chartPattern
     }
 
-    // MARK: - Week summary (v1.3)
+    // MARK: - Week summary
 
     /// "This week · 2 workouts · +6 levels". Calm: no streaks, no guilt —
     /// a deload week honestly shows a minus.
@@ -159,7 +157,7 @@ struct ProgressScreen: View {
             .foregroundStyle(Theme.ink2)
     }
 
-    // MARK: - Level chart (v1.3)
+    // MARK: - Level chart
 
     private struct LevelPoint: Identifiable {
         let id: Int
@@ -168,8 +166,8 @@ struct ProgressScreen: View {
     }
 
     /// The selected projection: the total level for "All", or a pattern's
-    /// level from the journal snapshots. Records made before snapshots
-    /// existed (v1.0) are simply skipped — the line starts where history does.
+    /// level from the journal snapshots. Older records without snapshots are
+    /// simply skipped — the line starts where history does.
     private var chartPoints: [LevelPoint] {
         if let p = effectivePattern {
             return store.records

@@ -50,7 +50,7 @@ def text_centered(canvas, text, font, fill, top):
 
 def compose(raw_path, headline_lines, subtitle, out_path):
     canvas = gradient()
-    # two-line headlines push the whole device down, as in the original set
+    # two-line headlines push the whole device down
     dy = 117 if len(headline_lines) > 1 else 0
     layer = rounded_layer((W, H), [
         ((FX0, FY0 + dy, FX1, FY1 + dy), FRAD, FRAME + (255,)),

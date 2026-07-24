@@ -2,7 +2,7 @@
 //  Library.swift
 //  DredfitCore
 //
-//  Library: 10 patterns × 4 tiers = 40 positions (v2.2: + vertical pull).
+//  Exercise catalog: 10 patterns × 4 tiers = 40 positions.
 //  Base language English, translation Russian (Resources/Localizable.xcstrings).
 //  Technique: 3 steps + 2 common mistakes. Mirrors LIBRARY/TECHNIQUE in the
 //  reference adaptive_engine.js.
@@ -21,7 +21,7 @@ public struct ExerciseEntry: Equatable, Sendable {
     public let pattern: Pattern
     public let unit: LoadUnit
     public let variations: [ExerciseVariation]  // index = tier − 1
-    // v2.2: per-tier unit override (pullBar: hold at tier 1, reps above).
+    // Per-tier unit override (pullBar: hold at tier 1, reps above).
     // nil means the scalar `unit` applies to every tier.
     public var units: [LoadUnit]?
 

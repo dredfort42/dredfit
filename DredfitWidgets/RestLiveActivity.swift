@@ -2,7 +2,7 @@
 //  RestLiveActivity.swift
 //  DredfitWidgets
 //
-//  v1.3: the workout on the lock screen and in the Dynamic Island.
+//  The workout on the lock screen and in the Dynamic Island.
 //  During rest the system ticks the countdown itself via
 //  Text(timerInterval:) — no updates needed from the app.
 //  All strings arrive pre-localized in the content state.

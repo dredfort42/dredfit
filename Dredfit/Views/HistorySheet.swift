@@ -2,9 +2,9 @@
 //  HistorySheet.swift
 //  Dredfit
 //
-//  UPDATE-3 (new): a completed workout viewed from the calendar.
-//  Shows the plan that was performed; exercises adjusted via
-//  "Adjust by exercise" additionally show the actual value.
+//  A completed workout viewed from the calendar. Shows the plan that was
+//  performed; exercises adjusted via "Adjust by exercise" additionally
+//  show the actual value.
 //
 
 import SwiftUI
@@ -59,7 +59,7 @@ struct HistorySheet: View {
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
             } else {
-                // records created before UPDATE-3 have no snapshot
+                // Not every record carries an exercise snapshot.
                 Spacer()
                 Text("No details saved for this workout.")
                     .dredfitFont(15)

@@ -2,8 +2,7 @@
 //  HowItWorksView.swift
 //  Dredfit
 //
-//  The regulator explained in seven sections (v1.4, +breaks in v1.5).
-//  Onboarding says the app
+//  The regulator explained in seven sections. Onboarding says the app
 //  adapts; this says how, for the user who wants to know why the plan moved.
 //
 //  Every number here is a fact from DredfitCore, not a marketing round-up:

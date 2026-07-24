@@ -2,8 +2,8 @@
 //  TodayView.swift
 //  Dredfit
 //
-//  Two states: the plan for today + Start, or the "completed" state with
-//  a preview of the next workout under its honest date.
+//  Three states: the plan for today + Start, a rest day, or the "completed"
+//  state with a preview of the next workout under its honest date.
 //
 
 import SwiftUI
@@ -15,7 +15,7 @@ import DredfitCore
 /// the feedback screen to the *next* session's data mid-transition.
 private struct ActiveWorkout: Identifiable {
     let session: Session
-    // v1.7: set when the cover should pick up an interrupted workout.
+    // Set when the cover should pick up an interrupted workout.
     var resume: WorkoutSnapshot? = nil
     var id: Int { session.sessionNumber }
 }
@@ -25,16 +25,15 @@ struct TodayView: View {
     @State private var activeWorkout: ActiveWorkout?
     @State private var techniqueFor: SessionExercise?
     @State private var nextPreviewShown = false
-    @State private var freshStartConfirmShown = false   // v1.5
+    @State private var freshStartConfirmShown = false
 
     var body: some View {
         Group {
             if store.doneToday {
                 doneView
             } else if store.isRestDay(store.today) {
-                // v1.4 (I-2): a rest day used to show a live plan with a Start
-                // button while the widget said "Rest day" and nextTrainingDate
-                // skipped the day entirely — three answers to one question.
+                // Must agree with the widget and nextTrainingDate — one answer
+                // to "is today a training day".
                 restView
             } else {
                 planView
@@ -90,7 +89,7 @@ struct TodayView: View {
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
 
-            // v1.5: after a break, the offer to come back easier sits directly
+            // After a break, the offer to come back easier sits directly
             // above Start — it is about the workout that is about to happen.
             if store.shouldOfferComeback() {
                 ComebackCard(offersFreshStart: store.offersFreshStart(),
@@ -100,10 +99,10 @@ struct TodayView: View {
                     .padding(.top, 10)
             }
 
-            // v1.7: an interrupted workout (iOS evicted the process, a swipe
-            // kill) is offered back instead of silently costing its 30
-            // minutes. The card replaces Start — its own two actions already
-            // are "continue" and "start over".
+            // An interrupted workout (iOS evicted the process, a swipe kill)
+            // is offered back instead of silently costing its 30 minutes. The
+            // card replaces Start — its own two actions already are
+            // "continue" and "start over".
             if let snap = store.resumableWorkout() {
                 resumeCard(snap)
                     .padding(.top, 10)
@@ -118,7 +117,7 @@ struct TodayView: View {
         }
     }
 
-    // MARK: - Interrupted workout (v1.7)
+    // MARK: - Interrupted workout
 
     private func resumeCard(_ snap: WorkoutSnapshot) -> some View {
         let total = store.nextSession.exercises.count
@@ -131,7 +130,7 @@ struct TodayView: View {
 
             Group {
                 if snap.atFeedback == true {
-                    // Н-3: the flow got all the way to the rating — say that,
+                    // The flow got all the way to the rating — say that,
                     // not a misleading exercise position.
                     Text("The workout is done — only the rating is left.")
                 } else {
@@ -176,7 +175,7 @@ struct TodayView: View {
         .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 18))
     }
 
-    // MARK: - Rest day (v1.4)
+    // MARK: - Rest day
 
     /// Rest is a plan, not a lockout. The day states its own case and points
     /// at the next workout; training anyway stays available as a quiet
@@ -206,7 +205,7 @@ struct TodayView: View {
 
             Spacer()
 
-            // v1.7: a "train anyway" session interrupted mid-way comes back
+            // A "train anyway" session interrupted mid-way comes back
             // here too — the rest day must not eat it.
             if let snap = store.resumableWorkout() {
                 resumeCard(snap)

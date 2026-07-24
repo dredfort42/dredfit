@@ -2,11 +2,12 @@
 //  SettingsSheet.swift
 //  Dredfit
 //
-//  v1.1: the few settings the thermostat allows itself — rest days,
-//  sounds, a reminder, and a manual backup. No questionnaires.
+//  The few settings the thermostat allows itself — rest days, equipment,
+//  sounds, a reminder, Apple Health, and a manual backup. No questionnaires.
 //
 
 import SwiftUI
+import CoreTransferable
 import UniformTypeIdentifiers
 import DredfitCore
 
@@ -14,13 +15,12 @@ struct SettingsSheet: View {
     @Environment(AppStore.self) private var store
     @Environment(\.dismiss) private var dismiss
 
-    @State private var exportURL: URL?
     @State private var importPickerShown = false
     @State private var pendingImportURL: URL?
     @State private var importConfirmShown = false
     @State private var importFailed = false
-    @State private var backfillPromptShown = false   // v1.3: Apple Health
-    @State private var howItWorksShown = false       // v1.4
+    @State private var backfillPromptShown = false   // Apple Health
+    @State private var howItWorksShown = false
     /// Optimistic Health-toggle value while authorization is in flight —
     /// without it the switch visibly bounces off before the system sheet
     /// appears (settings.healthEnabled only flips after the async grant).
@@ -59,11 +59,6 @@ struct SettingsSheet: View {
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
-        .onAppear { exportURL = try? store.exportURL() }
-        // The share copy is a point-in-time snapshot: toggles flipped in this
-        // very sheet (rest days, the pull-up bar) must land in the export.
-        .onChange(of: store.settings) { exportURL = try? store.exportURL() }
-        .onChange(of: store.engineState) { exportURL = try? store.exportURL() }
         .sheet(isPresented: $howItWorksShown) {
             HowItWorksView()
         }
@@ -87,7 +82,7 @@ struct SettingsSheet: View {
         }
     }
 
-    // MARK: - How it works (v1.4)
+    // MARK: - How it works
 
     /// First section deliberately: the one thing a user cannot infer from the
     /// rest of the UI is why the plan keeps moving.
@@ -152,7 +147,7 @@ struct SettingsSheet: View {
         .accessibilityAddTraits(isRest ? [.isSelected] : [])
     }
 
-    // MARK: - Equipment (v2.2)
+    // MARK: - Equipment
 
     private var equipmentSection: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -219,7 +214,7 @@ struct SettingsSheet: View {
             })
     }
 
-    // MARK: - Apple Health (v1.3)
+    // MARK: - Apple Health
 
     private var healthSection: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -276,18 +271,25 @@ struct SettingsSheet: View {
     private var backupSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Kicker(text: String(localized: "Backup"))
-            if let exportURL {
-                ShareLink(item: exportURL) {
-                    backupRow(icon: "square.and.arrow.up",
-                              title: String(localized: "Export history"))
-                }
+            // Lazy item: the backup JSON is written when the user commits to
+            // sharing — always current, and toggles flipped in this very
+            // sheet land in it without rebuilding a file on every change.
+            ShareLink(item: BackupFile { [store] in try store.exportURL() },
+                      preview: SharePreview(String(localized: "Export history"))) {
+                backupRow(icon: "square.and.arrow.up",
+                          title: String(localized: "Export history"))
             }
+            // A launch that could not read the journal has nothing to export
+            // and nowhere safe to import into — both would work off the empty
+            // state that stood in for the real one.
+            .disabled(store.journalFrozen)
             Button {
                 importPickerShown = true
             } label: {
                 backupRow(icon: "square.and.arrow.down",
                           title: String(localized: "Import history"))
             }
+            .disabled(store.journalFrozen)
         }
     }
 
@@ -306,7 +308,7 @@ struct SettingsSheet: View {
         .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 14))
     }
 
-    // MARK: - About (v1.4)
+    // MARK: - About
 
     /// The two places a review can be asked for on purpose. The automatic ask
     /// happens once, after a milestone; these are here so someone who wants to
@@ -344,9 +346,23 @@ struct SettingsSheet: View {
         pendingImportURL = nil
         do {
             try store.importBackup(from: url)
-            exportURL = try? store.exportURL()   // refresh the share copy
         } catch {
             importFailed = true
+        }
+    }
+}
+
+// MARK: - Lazy backup file
+
+/// The backup as a lazily-written file: ShareLink wants its item up front,
+/// but the JSON itself is produced only when the user actually commits to
+/// sharing — not on every settings change while the sheet sits open.
+private nonisolated struct BackupFile: Transferable {
+    let makeURL: @MainActor @Sendable () throws -> URL
+
+    static var transferRepresentation: some TransferRepresentation {
+        FileRepresentation(exportedContentType: .json) { backup in
+            SentTransferredFile(try await backup.makeURL())
         }
     }
 }
