@@ -1,5 +1,59 @@
 # Changelog
 
+## 1.7.1
+
+A fix release: signals you can actually hear, reminders that know the workout
+is already done, and a journal that is never overwritten by a launch that
+could not read it. No new features; the engine, the state format and the
+journal format are untouched, so there are no migrations.
+
+### Countdown and reminders
+
+- The 3-2-1 countdown and the tone at zero play at **media** volume through an
+  ambient audio session. They used to be the system Tink/Tock sounds, which
+  follow the *ringer* volume — routinely near zero while music plays at full
+  volume, so the signals drowned exactly when they were needed. They still mix
+  with whatever is already playing instead of pausing it, and the silent
+  switch still mutes them (haptics remain the silent-mode channel).
+- The audio session is primed when the workout opens, so the first tick is no
+  longer the one that pays for warming it up.
+- Reminders are one-shot notifications per upcoming training date within a
+  28-day window instead of a weekly repeating series. A workout finished in
+  the morning takes tonight's reminder down with it, tomorrow's still stands,
+  and every activation slides the window forward.
+
+### Data safety
+
+- A state file that exists but cannot be read — data protection before the
+  first unlock, a transient I/O failure — now freezes persistence instead of
+  starting empty and overwriting the journal on the next save. The scene
+  becoming active retries the read and unfreezes it. While frozen the app
+  never shows the first-run onboarding, never publishes an empty widget
+  snapshot, and leaves the pending reminder window untouched.
+- Apple Health export: the backfill re-checks the toggle between records, so
+  switching Health off stops it; it flags a record by identity instead of by
+  an index captured before the save, so an import that replaces the journal
+  mid-export can no longer mark the wrong workout; and the exported duration
+  is clamped to at least a minute, because HealthKit rejects an interval that
+  does not move forward and one bad record used to block the whole tail.
+- The backup file is built when the user actually shares it, instead of being
+  rewritten into the temporary directory on every settings and engine change.
+
+### Site
+
+- All four landing pages gained an FAQ section — free, offline, equipment,
+  data, breaks, beginners — with matching FAQPage structured data.
+
+### Housekeeping
+
+- Version markers ("v1.5:", "v2.2:") are gone from code comments: the git
+  history already records when a thing arrived, and a comment should explain
+  the code as it stands.
+- 182 → 196 automated tests: the frozen-journal launch and its reload, the
+  reminder window a frozen launch must not clear, Health export under a
+  journal that moves mid-flight, a disabled toggle mid-backfill, and
+  non-positive durations. The Health suite moved into its own file.
+
 ## 1.7.0
 
 Localization release: Spanish and Brazilian Portuguese join English and
