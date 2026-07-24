@@ -13,7 +13,6 @@
 
 import Combine
 import SwiftUI
-import AudioToolbox
 import StoreKit
 import UIKit
 import DredfitCore
@@ -800,19 +799,22 @@ private extension WorkoutFlowView {
     /// How many seconds before the end of rest to start "ticking".
     static let countdownSignalSeconds = 3
 
-    /// A short tick on 3-2-1. The system sound respects silent mode,
-    /// a light vibration duplicates the signal for silent mode.
+    /// A short tick on 3-2-1 — at media volume, mixed over whatever is
+    /// playing (the pre-1.8 system Tink followed the ringer volume and
+    /// drowned under music). The tone still respects silent mode; a light
+    /// vibration duplicates the signal there.
     /// Both obey the "Sounds and haptics" setting (v1.1).
     func playTick() {
         guard store.settings.soundsEnabled else { return }
-        AudioServicesPlaySystemSound(1103) // Tink
+        CountdownSounds.shared.playTick()
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
 
-    /// The "set start" signal at zero — lower in tone and with a haptic accent.
+    /// The "set start" signal at zero — a longer two-tone rise, more
+    /// noticeable than the ticks it concludes, with a haptic accent.
     func playGo() {
         guard store.settings.soundsEnabled else { return }
-        AudioServicesPlaySystemSound(1104) // Tock
+        CountdownSounds.shared.playGo()
         UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
 
