@@ -2,9 +2,9 @@
 //  EngineV23Tests.swift
 //  DredfitCoreTests
 //
-//  Invariants introduced by engine v2.3: zero-level calibration, comeback
-//  after a break, and per-tier rep/hold starts. Mirrors the new blocks in
-//  the reference verifier — anything asserted here is asserted there too.
+//  Zero-level calibration, comeback after a break, and per-tier rep/hold
+//  starts. Mirrors the corresponding blocks in the reference verifier —
+//  anything asserted here is asserted there too.
 //
 
 import XCTest
@@ -38,7 +38,7 @@ final class EngineV23Tests: XCTestCase {
     }
 
     /// Calibration is strictly a zero-level affair: one step above it the +2
-    /// cap is back, unchanged from v2.2.
+    /// cap is back.
     func testCapReturnsOnceTheLevelIsNonZero() {
         let state = EngineState.initial
         let first = Engine.applyFeedback(state: state,
@@ -165,7 +165,7 @@ final class EngineV23Tests: XCTestCase {
 
     /// −8 is exactly one tier down at the same step within the tier, so the
     /// movement gets easier while the rep count lands in the easier tier's
-    /// range (which, after v2.3, is usually a little higher).
+    /// range (which is usually a little higher).
     func testEightStepDropIsExactlyOneTierAtTheSameStep() {
         let after = Engine.applyComeback(state: seeded(level: 20, streak: 0), gapDays: 140)
         let level = after.levels[.squat] ?? -1
@@ -241,8 +241,8 @@ final class EngineV23Tests: XCTestCase {
         }
     }
 
-    /// Tier 1 is bit-for-bit what it was before v2.3 — the smoothing only ever
-    /// touches the tiers above it.
+    /// Tier 1 keeps the original encoding — the per-tier floors only ever
+    /// touch the tiers above it.
     func testTierOneIsUnchangedFromTheOldEncoding() {
         for level in 0...7 {
             let d = Level.decode(level)

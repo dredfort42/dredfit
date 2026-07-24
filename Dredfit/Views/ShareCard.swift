@@ -2,7 +2,7 @@
 //  ShareCard.swift
 //  Dredfit
 //
-//  The one image the app ever produces for other people to see (v1.4).
+//  The one image the app ever produces for other people to see.
 //  Rendered locally with ImageRenderer, 1080×1350 (4:5), and handed to the
 //  system share sheet as a file. Nothing leaves the device on its own.
 //
@@ -51,9 +51,8 @@ struct ShareCard: View {
 
             Spacer(minLength: 0)
 
-            // The real domain. The task sheet said "dredfit.app"; the site
-            // that exists is dredfit.com, and a card that goes out to other
-            // people must not point at a domain we do not own.
+            // dredfit.com is the domain we actually own — a card that goes
+            // out to other people must not point anywhere else.
             Text(verbatim: "dredfit.com")
                 .font(.system(size: 34))
                 .foregroundStyle(Color.white.opacity(0.4))

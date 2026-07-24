@@ -2,17 +2,13 @@
 //  LiveActivityController.swift
 //  Dredfit
 //
-//  v1.3: one Live Activity per workout — the rest countdown on the lock
-//  screen and in the Dynamic Island. Started with the workout, updated on
-//  phase changes, always ended on exit. When activities are unavailable
-//  or denied, every call is a silent no-op.
+//  One Live Activity per workout — the rest countdown on the lock screen
+//  and in the Dynamic Island. Started with the workout, updated on phase
+//  changes, always ended on exit. When activities are unavailable or
+//  denied, every call is a silent no-op.
 //
 //  Activity<T> is not Sendable, so all async work looks the activity up
 //  by id inside one task — nothing crosses an isolation boundary.
-//
-//  v1.6: updates are chained FIFO instead of one detached task per call —
-//  two quick phase flips (rest → "Skip rest" → work) used to race, and the
-//  loser could leave a stale rest countdown on the lock screen.
 //
 
 import ActivityKit
@@ -22,7 +18,9 @@ final class WorkoutActivityController {
 
     private var activityID: String?
     /// The tail of the FIFO chain: every operation awaits its predecessor,
-    /// so ActivityKit sees them strictly in call order.
+    /// so ActivityKit sees them strictly in call order — otherwise two
+    /// quick phase flips (rest → "Skip rest" → work) could race and leave
+    /// a stale rest countdown on the lock screen.
     private var chain: Task<Void, Never>?
 
     private func enqueue(_ op: @escaping @Sendable () async -> Void) {
@@ -69,7 +67,7 @@ final class WorkoutActivityController {
         }
     }
 
-    /// Cold-start sweep (v1.6): no workout can be in progress when the process
+    /// Cold-start sweep: no workout can be in progress when the process
     /// launches, so any activity still alive is an orphan from a killed or
     /// crashed session. staleDate alone only dims the content — it never
     /// dismisses, and without this sweep a frozen "set 2 of 3" would sit on

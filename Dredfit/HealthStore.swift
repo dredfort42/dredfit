@@ -2,7 +2,7 @@
 //  HealthStore.swift
 //  Dredfit
 //
-//  v1.3: a write-only bridge to Apple Health. Completed workouts become
+//  Write-only bridge to Apple Health. Completed workouts become
 //  HKWorkout samples (functional strength training, actual duration).
 //  Nothing is ever read from Health and nothing leaves the device —
 //  App Privacy stays an honest "Data Not Collected".

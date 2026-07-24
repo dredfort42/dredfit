@@ -2,7 +2,7 @@
 //  WidgetShared.swift
 //  Dredfit (app + DredfitWidgets)
 //
-//  v1.3: the contract between the app and the widget extension.
+//  The contract between the app and the widget extension.
 //  The app writes; the widget only reads. No logic lives here.
 //
 

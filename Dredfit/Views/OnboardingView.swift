@@ -2,10 +2,10 @@
 //  OnboardingView.swift
 //  Dredfit
 //
-//  First-run explainer (v1.4). Three cards, typography instead of
-//  illustrations. The thermostat idea is the one thing a new user cannot
-//  infer from the UI — without it a trained person sees 3×8 knee push-ups
-//  and leaves before the regulator has had a chance to converge.
+//  First-run explainer: three cards, typography instead of illustrations.
+//  The thermostat idea is the one thing a new user cannot infer from the
+//  UI — without it a trained person sees 3×8 knee push-ups and leaves
+//  before the regulator has had a chance to converge.
 //
 
 import SwiftUI

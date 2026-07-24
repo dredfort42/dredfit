@@ -2,12 +2,10 @@
 //  Milestones.swift
 //  Dredfit
 //
-//  Milestones (v1.4) are derived, never stored: the state before and after
-//  applyFeedback is all it takes. Nothing new is persisted, so a milestone
-//  cannot go stale, be double-counted, or need a migration.
-//
-//  Only upward movement counts. A deload or a shortfall is never announced —
-//  the app does not comment on a bad day.
+//  Milestones are derived, never stored: computed from the state before and
+//  after applyFeedback, so they cannot go stale, be double-counted, or need
+//  a migration. Only upward movement counts — a deload or a shortfall is
+//  never announced.
 //
 
 import Foundation
@@ -37,15 +35,14 @@ enum MilestoneDetector {
         counter == 10 || counter == 25 || (counter > 0 && counter % 50 == 0)
     }
 
-    /// Compares the two states over the patterns that were actually trained.
+    /// Compares the two states over the patterns actually trained.
     ///
-    /// Skipped patterns are excluded: the engine leaves their level untouched,
-    /// so they cannot produce a milestone anyway — excluding them explicitly
-    /// keeps that true even if the engine's skip handling ever changes.
+    /// Skipped patterns are excluded explicitly — the engine leaves their
+    /// level untouched, and this keeps that true even if its skip handling
+    /// ever changes.
     ///
-    /// Order is the spec's: tier-ups, then set bands, then the jubilee. Within
-    /// a kind the session order (Pattern.ordered) decides, so the screen is
-    /// deterministic for a given session.
+    /// Order: tier-ups, then set bands, then the jubilee; within a kind,
+    /// session order (Pattern.ordered) — deterministic for a given session.
     static func detect(before: EngineState,
                        after: EngineState,
                        session: Session,
@@ -57,27 +54,24 @@ enum MilestoneDetector {
             let pattern = ex.pattern
             let old = Level.decode(before.levels[pattern] ?? 0)
             let new = Level.decode(after.levels[pattern] ?? 0)
-            // The name comes from the *new* tier — that is the whole point of
-            // the screen: this is the exercise you just unlocked.
+            // The name comes from the *new* tier — the exercise just unlocked.
             let name = ExerciseLibrary.entry(for: pattern).variations[new.tier - 1].name
 
             if new.tier > old.tier {
                 tierUps.append(.tierUp(pattern: pattern, tier: new.tier, exercise: name))
             }
             // Not an `else`: a single step cannot raise both (tier caps at 4
-            // exactly where the set bands begin), but the screen renders both
-            // correctly if the engine's banding ever changes.
+            // where set bands begin), but both render correctly if the
+            // engine's banding ever changes.
             if new.sets > old.sets {
                 setBands.append(.setBand(pattern: pattern, sets: new.sets, exercise: name))
             }
         }
 
         var result = tierUps + setBands
-        // Deliberately not gated on the session rating. A jubilee fires on one
-        // exact counter value and never again — suppressing it after a hard
-        // session would delete it permanently, and "you have done 10 workouts"
-        // is a fact, not praise for today. (The review request in B5 *is*
-        // gated on the rating; that one can wait for a better day.)
+        // Deliberately not gated on the session rating: a jubilee fires on
+        // one exact counter value and never again — suppressing it after a
+        // hard session would delete it permanently.
         if isJubilee(after.counter) {
             result.append(.jubilee(workouts: after.counter))
         }

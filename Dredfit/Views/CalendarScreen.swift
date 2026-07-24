@@ -3,10 +3,9 @@
 //  Dredfit
 //
 //  Day states: completed (fill), planned (outline, future only), today
-//  (accent ring), rest (quiet fill). Missed days are NOT flagged — they are
-//  plain dimmed numbers, deliberately unmarked and unshamed, and since v1.7
-//  the code finally agrees with this sentence.
-//  UPDATE-3: tapping a completed day opens that workout's history.
+//  (accent ring), rest (quiet fill). Missed days are deliberately unmarked
+//  and unshamed — plain dimmed numbers. Tapping a completed day opens that
+//  workout's history.
 //
 
 import SwiftUI
@@ -123,10 +122,9 @@ struct CalendarScreen: View {
 
     // MARK: - Day cell
 
-    // v1.7 adds `missed`: a past training day that did not happen. It is NOT
-    // the same as `planned` — the header's promise ("missed days are left as
-    // plain dimmed numbers, deliberately unmarked and unshamed") used to be
-    // broken by giving past days the planned ring.
+    // `missed` (a past training day that did not happen) is distinct from
+    // `planned` so past days never carry the planned ring — missed days stay
+    // deliberately unmarked.
     private enum DayState { case done, planned, missed, today, rest, out }
 
     private struct Day {
@@ -138,7 +136,6 @@ struct CalendarScreen: View {
     @ViewBuilder
     private func dayCell(_ day: Day) -> some View {
         if day.state == .done {
-            // UPDATE-3: a completed day is tappable and opens history
             Button {
                 historyRecord = store.record(on: day.date)
             } label: {
@@ -165,12 +162,10 @@ struct CalendarScreen: View {
                 case .today:
                     Circle().stroke(Theme.accent, lineWidth: 2)
                 case .rest:
-                    // v1.4 (I-4): a rest day used to carry no mark at all,
-                    // leaving it to read like a day outside the month. A soft
-                    // fill says "a day, deliberately quiet".
-                    // restFill, not cardBG (v1.7): cardBG on white is 1.07:1 —
-                    // on most real screens the fill simply was not there and
-                    // the I-4 fix never landed.
+                    // A soft fill says "a day, deliberately quiet" — without it
+                    // a rest day reads like a day outside the month. restFill,
+                    // not cardBG: cardBG on white is 1.07:1, effectively
+                    // invisible on most real screens.
                     Circle().fill(Theme.restFill)
                 case .missed, .out:
                     EmptyView()
@@ -182,8 +177,8 @@ struct CalendarScreen: View {
             // either way and disappears from the accessibility tree.
             .accessibilityHidden(day.state == .out)
             .accessibilityLabel(Text(accessibilityText(day)))
-            // UI tests address cells by number: the label now carries the
-            // full spoken date, so it is no longer a stable query key.
+            // UI tests address cells by number: the label carries the full
+            // spoken date, so it is not a stable query key.
             .accessibilityIdentifier("day-\(day.number)")
     }
 
@@ -204,8 +199,7 @@ struct CalendarScreen: View {
         switch s {
         case .done:    return .white
         case .planned, .today: return Theme.ink
-        // ink2, not ink3 (v1.7): the rest fill is now visible, so its digit
-        // has to be readable on it too.
+        // ink2, not ink3: the digit has to be readable on the rest fill.
         case .rest:    return Theme.ink2
         case .missed:  return Theme.ink3
         case .out:     return Theme.hairline
@@ -252,7 +246,7 @@ struct CalendarScreen: View {
                 state = .rest
             } else if d < calendar.startOfDay(for: store.today) {
                 // A "planned" ring on a day already in the past would be a
-                // shaming mark wearing a neutral name (v1.7).
+                // shaming mark wearing a neutral name.
                 state = .missed
             } else {
                 state = .planned

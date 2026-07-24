@@ -2,8 +2,8 @@
 //  DredfitWidgetsBundle.swift
 //  DredfitWidgets
 //
-//  v1.3: one extension hosts both the home-screen widget and the
-//  workout Live Activity.
+//  One extension hosts both the home-screen widget and the workout
+//  Live Activity.
 //
 
 import WidgetKit

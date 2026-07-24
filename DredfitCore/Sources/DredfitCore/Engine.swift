@@ -2,14 +2,15 @@
 //  Engine.swift
 //  DredfitCore
 //
-//  Adaptive general-fitness engine v2 (a "thermostat"). Port of the reference
+//  Adaptive general-fitness engine (a "thermostat"). Port of the reference
 //  adaptive_engine.js. Behavior is verified by golden tests (Fixtures/golden.json)
 //  generated from the JS reference — any divergence = a port bug.
 //
-//  Three pure functions:
+//  API:
 //    EngineState.initial            — starting state (all zeros)
 //    Engine.generateSession(state)  — a workout from state (deterministic)
-//    Engine.applyFeedback(...)      — the only state mutation
+//    Engine.applyFeedback(...)      — the main state mutation
+//    Engine.applyComeback(...)      — level drop after a long break
 //
 
 import Foundation
@@ -24,7 +25,7 @@ import Foundation
 public enum Pattern: String, Codable, CaseIterable, Sendable {
     case squat, pushH = "push_h", hinge, pull, pushV = "push_v", lunge
     case coreAntiExt = "core_anti_ext", coreRot = "core_rot", calf
-    // v2.2: vertical pull (the "pull-up bar" module). Not part of the rotation —
+    // Vertical pull (the "pull-up bar" module). Not part of the rotation —
     // with hasBar on it takes over the fixed pull slot on odd counters.
     case pullBar = "pull_bar"
 
@@ -33,7 +34,7 @@ public enum Pattern: String, Codable, CaseIterable, Sendable {
         .squat, .pushH, .hinge, .pull, .pushV, .lunge, .coreAntiExt, .coreRot, .calf
     ]
 
-    /// Localized pattern name (en is the base, ru the translation; see Resources).
+    /// Localized pattern name.
     public var displayName: String {
         switch self {
         case .squat:       return String(localized: "Squat", bundle: .module)
@@ -53,13 +54,13 @@ public enum Pattern: String, Codable, CaseIterable, Sendable {
 // MARK: - Configuration (all model constants)
 
 public enum EngineConfig {
-    public static let repMin = 8            // tier-1 rep floor; only a fallback for repStart (v2.3: the real floor is per tier)
+    public static let repMin = 8            // fallback rep floor; the real floor is per-tier repStart
     public static let stepsPerTier = 8      // level steps within a tier
-    public static let tiers = 4             // variations per pattern (v2.1: added tier 4)
+    public static let tiers = 4             // variations per pattern
     public static let holdMin = 20          // bottom of the hold range, sec
     public static let holdStepSec = 5       // hold step per level step
     public static let setsBase = 3          // sets in the 0...31 level band
-    public static let setsMax = 5           // sets ceiling (v2.2: bands 4 and 5 above tier 4)
+    public static let setsMax = 5           // sets ceiling (bands 4 and 5 above tier 4)
     public static let restSetSec = 60       // pause between sets
     public static let restExerciseSec = 60  // pause between exercises
     public static let tempoSecPerRep = 2.5  // tempo for duration estimation
@@ -73,18 +74,18 @@ public enum EngineConfig {
     public static let deloadDrop = 3        // deload rollback
     public static let warmupMin = 5
     public static let cooldownMin = 3
-    // v2.3 (возврат после перерыва): 14–34 дня → −2; 35–55 → −3; 56–76 → −4;
-    // …; 140+ → −8. Движок событийный, поэтому паузу должен внести app-слой.
+    // Comeback after a break: 14–34 days → −2; each further 21 days → −1 more,
+    // capped at −8. The engine is event-driven — the app layer applies it.
     public static let comebackMinGapDays = 14
     public static let comebackBase = 2
     public static let comebackStepDays = 21
     public static let comebackMax = 8
-    // v2.3 (сглаживание): низ диапазона повторов/удержания зависит от тира —
-    // чем сложнее вариация, тем ниже старт, и первая ступень нового тира
-    // ложится мягко вместо скачка «тир1×15 → тир2×8».
+    // Per-tier rep/hold floors: the harder the variation, the lower the
+    // start, so the first step of a new tier lands softly instead of the
+    // jump "tier1×15 → tier2×8".
     public static let repStart = [1: 8, 2: 6, 3: 5, 4: 4]
     public static let holdStart = [1: 20, 2: 15, 3: 15, 4: 10]
-    // v2.2: two set bands above tier 4 — six bands of 8 steps
+    // Two set bands above tier 4 — six bands of 8 steps.
     public static var levelMax: Int { (tiers + setsMax - setsBase) * stepsPerTier - 1 } // 47
 }
 
@@ -94,7 +95,7 @@ public struct EngineState: Codable, Equatable, Sendable {
     public var counter: Int
     public var levels: [Pattern: Int]
     public var failStreak: [Pattern: Int]
-    public var hasBar: Bool   // v2.2: the "pull-up bar" toggle lives in engine state
+    public var hasBar: Bool   // the "pull-up bar" toggle lives in engine state
 
     // Spelled out (same names the compiler would synthesize) so that
     // decodeLenient can reference the type — synthesized CodingKeys are only
@@ -111,11 +112,11 @@ public struct EngineState: Codable, Equatable, Sendable {
         self.hasBar = hasBar
     }
 
-    /// v2.2 migration: files written before hasBar/pull_bar existed decode
-    /// with the defaults (hasBar off, missing patterns at level 0). Lenient
-    /// the other way too: entries for unknown patterns (a file written by a
-    /// future version, opened after a downgrade) are dropped instead of
-    /// failing the whole decode and losing the user's history.
+    /// Lenient decode in both directions: files written before hasBar/pull_bar
+    /// existed get the defaults (hasBar off, missing patterns at level 0), and
+    /// entries for unknown patterns (a file written by a future version,
+    /// opened after a downgrade) are dropped instead of failing the whole
+    /// decode and losing the user's history.
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         // A corrupt or hand-edited file must not feed a negative counter into
@@ -165,9 +166,9 @@ public struct EngineState: Codable, Equatable, Sendable {
 
 public struct LevelDecoded: Equatable, Sendable {
     public let tier: Int   // 1...4
-    public let sets: Int   // 3 | 4 | 5 (v2.2: set bands above tier 4)
-    public let reps: Int   // 4...15 (v2.3: the floor is repStart[tier], not a global 8)
-    public let hold: Int   // 10...55 sec (v2.3: the floor is holdStart[tier])
+    public let sets: Int   // 3 | 4 | 5 (set bands above tier 4)
+    public let reps: Int   // 4...15 (floor is repStart[tier])
+    public let hold: Int   // 10...55 sec (floor is holdStart[tier])
 
     public init(tier: Int, sets: Int, reps: Int, hold: Int) {
         self.tier = tier
@@ -179,8 +180,7 @@ public struct LevelDecoded: Equatable, Sendable {
 
 public enum Level {
     /// tier = min(4, 1 + L/8); sets = 3 (L≤31) | 4 (32...39) | 5 (40...47);
-    /// v2.3: reps = repStart[tier] + L%8; hold = holdStart[tier] + (L%8)*5.
-    /// Арифметика L → (тир, ступень) не изменилась — изменился только рендер.
+    /// reps = repStart[tier] + L%8; hold = holdStart[tier] + (L%8)*5.
     public static func decode(_ level: Int) -> LevelDecoded {
         let l = min(max(level, 0), EngineConfig.levelMax)
         let band = l / EngineConfig.stepsPerTier   // 0...5
@@ -196,11 +196,11 @@ public enum Level {
     }
 
     /// Level from an actual value (reps or seconds) given the planned tier and
-    /// sets. v2.2: tier 4 spans three set bands, so the base depends on sets;
-    /// the unit comes from the (pattern, tier) library record.
+    /// sets. Tier 4 spans three set bands, so the base depends on sets; the
+    /// unit comes from the (pattern, tier) library record.
     public static func fromActual(pattern: Pattern, tier: Int, sets: Int, actual: Int) -> Int {
         let lib = ExerciseLibrary.entry(for: pattern)
-        // v2.3: инверсия считается от старта тира плана, а не от общего пола.
+        // The inversion counts from the plan tier's floor, not a global one.
         let step: Int
         switch lib.unit(forTier: tier) {
         case .reps:
@@ -274,11 +274,11 @@ public enum Engine {
     private static let rotating: [Pattern] = Pattern.ordered.filter { $0 != .pull }
 
     /// Session generation. A pure function: the only input is the state.
-    /// v2.1: pull is a fixed slot in every session (push/pull balance);
-    /// the other 8 patterns rotate over 5 places with a shift of 3 —
-    /// over 8 sessions each appears exactly 5 times.
-    /// v2.2: with hasBar on, odd counters hand the pull slot to the vertical
-    /// branch (pullBar), which inherits pull's position in the session order.
+    /// Pull is a fixed slot in every session (push/pull balance); the other
+    /// 8 patterns rotate over 5 places with a shift of 3 — over 8 sessions
+    /// each appears exactly 5 times. With hasBar on, odd counters hand the
+    /// pull slot to the vertical branch (pullBar), which inherits pull's
+    /// position in the session order.
     public static func generateSession(_ state: EngineState) -> Session {
         let n = rotating.count
         // Nonnegative modulo: Swift's % is a remainder and goes negative with
@@ -333,7 +333,7 @@ public enum Engine {
         )
     }
 
-    /// Applying feedback. The only state mutation.
+    /// Applying feedback — the main state mutation.
     ///
     /// Invariant: feedback is only valid for the session generated from this
     /// exact state, i.e. `session.sessionNumber == state.counter + 1`.
@@ -346,11 +346,11 @@ public enum Engine {
     ///
     /// - overrides: per-pattern actual values (reps or seconds) that
     ///   override the overall rating for their pattern.
-    /// - skipped: patterns the user skipped in this session (v2.1.1).
-    ///   A skipped pattern was not trained: its level and failStreak stay
-    ///   untouched (the streak is frozen, not reset), overrides for it are
-    ///   ignored. Patterns not in the session are ignored. The counter
-    ///   still advances — the session took place.
+    /// - skipped: patterns the user skipped in this session. A skipped
+    ///   pattern was not trained: its level and failStreak stay untouched
+    ///   (the streak is frozen, not reset), overrides for it are ignored.
+    ///   Patterns not in the session are ignored. The counter still
+    ///   advances — the session took place.
     public static func applyFeedback(
         state: EngineState,
         session: Session,
@@ -366,16 +366,16 @@ public enum Engine {
 
         for ex in session.exercises {
             let p = ex.pattern
-            if skipped.contains(p) { continue } // v2.1.1: not trained — no change
+            if skipped.contains(p) { continue } // not trained — no change
             let oldL = state.levels[p] ?? 0
             var newL: Int
 
             if let actual = overrides[p] {
                 let factL = Level.fromActual(pattern: p, tier: ex.tier,
                                              sets: ex.sets, actual: actual)
-                // v2.3 (калибровка): с нулевой отметки кап не применяется —
-                // доверять нечему, кроме факта, а кап +2 растягивал выход
-                // тренированного новичка на реальную нагрузку на ~10 сессий.
+                // Calibration: from a zero level the +2 cap does not apply —
+                // there is nothing to trust but the actual, and the cap would
+                // stretch a trained beginner's ramp-up over ~10 sessions.
                 newL = oldL == 0
                     ? min(max(factL, 0), EngineConfig.levelMax)
                     : min(max(factL, 0), oldL + EngineConfig.maxUpPerSession)
@@ -400,20 +400,20 @@ public enum Engine {
         return next
     }
 
-    /// Возврат после перерыва (v2.3). Четвёртая функция API и вторая, что
-    /// меняет состояние — но вызывается не из потока тренировки, а app-слоем
-    /// при открытии приложения после паузы.
+    /// Comeback after a break. The second state-mutating function — called
+    /// not from the workout flow but by the app layer when the app opens
+    /// after a pause.
     ///
-    /// Снижаются все паттерны, включая `pullBar` при `hasBar == false`:
-    /// перерыв детренирует всё тело, а не только то, что было в плане.
-    /// `failStreak` обнуляется обязательно — иначе первое недовыполнение
-    /// после возврата доедет до разгрузки на старой серии и уронит уровень
-    /// второй раз. `counter` не двигается: тренировок не было, но и «долга»
-    /// за пропуск нет.
+    /// All patterns drop, including `pullBar` when `hasBar == false`: a break
+    /// detrains the whole body, not just what was in the plan. `failStreak`
+    /// must reset — otherwise the first underperformance after the return
+    /// would ride the old streak into a deload and drop the level twice.
+    /// `counter` does not move: no workouts happened, but there is no "debt"
+    /// for the gap either.
     ///
-    /// При откате сохраняется ступень внутри тира (`L % 8`), поэтому −8 —
-    /// это ровно тир ниже с тем же номером ступени: движение легче, а число
-    /// повторов переходит в диапазон более лёгкого тира.
+    /// The drop preserves the step within the tier (`L % 8`), so −8 is
+    /// exactly one tier down at the same step: an easier movement, with the
+    /// rep count shifting into the easier tier's range.
     ///
     /// NOT idempotent: every call subtracts the drop again. The caller must
     /// apply it at most once per break — the app keys this decision on

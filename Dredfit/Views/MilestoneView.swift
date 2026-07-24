@@ -2,14 +2,14 @@
 //  MilestoneView.swift
 //  Dredfit
 //
-//  One screen for everything a workout earned (v1.4) — never a carousel.
+//  One screen for everything a workout earned — never a carousel.
 //  Calm by design: no confetti, no badges, no score. The single motion is
 //  an accent rule drawing itself once.
 //
-//  Row count is not fixed at one: v2.3's calibration can hand a first
-//  workout several tier-ups at once, so the layout has to hold 2–4 rows
-//  without breaking. The headline size steps down as rows are added and the
-//  whole thing scrolls.
+//  Row count is not fixed at one: calibration can hand a first workout
+//  several tier-ups at once, so the layout has to hold 2–4 rows without
+//  breaking. The headline size steps down as rows are added and the whole
+//  thing scrolls.
 //
 
 import SwiftUI
@@ -71,10 +71,10 @@ struct MilestoneView: View {
                 .padding(.bottom, 10)
             }
 
-            // Keyed, not literal: "Done" is already taken by the set button in
-            // the workout, where it means "I did this set" (ru «Сделал»).
-            // Here it means "finished reading" (ru «Готово») — same English
-            // word, two different translations, so they need two keys.
+            // Keyed, not literal: "Done" is already taken by the workout's set
+            // button, where it means "I did this set". Here it means "finished
+            // reading" — the same English word takes different translations,
+            // so the two need separate keys.
             PrimaryButton(title: String(localized: "milestone.done",
                                         defaultValue: "Done"),
                           action: onDone)

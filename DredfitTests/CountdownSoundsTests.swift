@@ -2,10 +2,9 @@
 //  CountdownSoundsTests.swift
 //  DredfitTests
 //
-//  The countdown signal tones are generated, not shipped — so the tests can
-//  hold them to what the fix promised: valid playable audio, near-full-scale
-//  loudness at media volume, a finale that stands out from the ticks, and
-//  click-free edges.
+//  The countdown signal tones are generated, not shipped — so the tests
+//  can pin the audio itself: valid playable WAV, near-full-scale loudness,
+//  a finale that stands out from the ticks, and click-free edges.
 //
 
 import XCTest
@@ -55,10 +54,9 @@ final class CountdownSoundsTests: XCTestCase {
         XCTAssertEqual(go.duration, 0.09 + 0.22, accuracy: 0.01)
     }
 
-    // MARK: - What the fix promised
+    // MARK: - Loudness and envelope
 
-    /// The whole point of the change: signals near full scale at media
-    /// volume, instead of the ringer-volume system Tink.
+    /// The tones must sit near full scale so they are audible at media volume.
     func testTonesAreNearFullScale() {
         let tickPeak = samples(SignalTone.tick).map { abs(Int($0)) }.max() ?? 0
         XCTAssertGreaterThan(tickPeak, Int(0.8 * 32_767), "the tick must not whisper")

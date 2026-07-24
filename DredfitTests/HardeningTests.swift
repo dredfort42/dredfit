@@ -2,9 +2,8 @@
 //  HardeningTests.swift
 //  DredfitTests
 //
-//  v1.6 hardening seams: the day anchor that keeps date-derived UI honest
-//  across midnight, the injectable reminder scheduler, and the Live Activity
-//  staleDate arithmetic.
+//  The day anchor that keeps date-derived UI honest across midnight, the
+//  injectable reminder scheduler, and the Live Activity staleDate arithmetic.
 //
 
 import XCTest
@@ -29,9 +28,9 @@ final class HardeningTests: XCTestCase {
 
     // MARK: - Day anchor
 
-    /// Crossing midnight while the process stays alive must re-anchor the
-    /// UI's "today" — the tab used to stay stuck on yesterday's "completed"
-    /// state (with no Start button) until a cold launch.
+    /// Regression: crossing midnight while the process stays alive must
+    /// re-anchor the UI's "today" — the tab must not stay stuck on
+    /// yesterday's "completed" state until a cold launch.
     func testRefreshDayReanchorsAcrossMidnight() {
         let store = AppStore(storageURL: tempURL)
         store.completeWorkout(session: store.nextSession, result: .plan)
