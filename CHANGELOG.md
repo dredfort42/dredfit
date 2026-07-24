@@ -29,7 +29,11 @@ journal format are untouched, so there are no migrations.
   starting empty and overwriting the journal on the next save. The scene
   becoming active retries the read and unfreezes it. While frozen the app
   never shows the first-run onboarding, never publishes an empty widget
-  snapshot, and leaves the pending reminder window untouched.
+  snapshot, leaves the pending reminder window untouched, and refuses to
+  export or import a backup — an empty file that looks like a backup is how
+  a scare turns into real data loss. A launch the user has already worked in
+  stays frozen: swapping the journal in mid-session would erase what they
+  just did and leave the workout unable to record itself.
 - Apple Health export: the backfill re-checks the toggle between records, so
   switching Health off stops it; it flags a record by identity instead of by
   an index captured before the save, so an import that replaces the journal
@@ -49,10 +53,11 @@ journal format are untouched, so there are no migrations.
 - Version markers ("v1.5:", "v2.2:") are gone from code comments: the git
   history already records when a thing arrived, and a comment should explain
   the code as it stands.
-- 182 → 196 automated tests: the frozen-journal launch and its reload, the
-  reminder window a frozen launch must not clear, Health export under a
-  journal that moves mid-flight, a disabled toggle mid-backfill, and
-  non-positive durations. The Health suite moved into its own file.
+- 182 → 198 automated tests: the frozen-journal launch and its reload, the
+  work a reload must not overwrite, the widget snapshot and reminder window a
+  frozen launch must leave alone, Health export under a journal that moves
+  mid-flight, a disabled toggle mid-backfill, and non-positive durations. The
+  Health suite moved into its own file.
 
 ## 1.7.0
 

@@ -15,6 +15,10 @@ import DredfitCore
 extension AppStore {
 
     func refreshWidgetSnapshot(now: Date = .now) {
+        // A launch that could not read the journal knows nothing about the
+        // user: publishing that emptiness would put "nothing done" on the
+        // home screen for a week over a history that is perfectly fine.
+        guard !journalFrozen else { return }
         // The URL is injected (App Group by default) so unit tests can
         // point it at a temp directory and actually exercise the mirroring.
         guard let url = widgetSnapshotURL else { return }

@@ -191,8 +191,16 @@ final class AppStore {
     /// before the first unlock in a prewarmed launch, a transient I/O
     /// failure). While set, persist() is a no-op: the file on disk is the
     /// only copy of the journal and must never be overwritten from the empty
-    /// in-memory state. Cleared by reloadIfNeeded().
-    private var loadFailed = false
+    /// in-memory state. Cleared by reloadIfNeeded(). Read by everything that
+    /// publishes state outward — the widget snapshot and the backup export —
+    /// because an empty in-memory state must not leave this process either.
+    private(set) var journalFrozen = false
+    /// Whether the user changed anything since the freeze. A reload would
+    /// replace those changes with the file's state without a word, and doing
+    /// that mid-workout leaves a session that can never be recorded (the
+    /// engine counter moves under it), so a store that has been used stays
+    /// frozen until the next launch.
+    private var mutatedWhileFrozen = false
     private var backfillInFlight = false   // guards concurrent Health backfills
     /// The in-flight Health export spawned by completeWorkout. Held so tests
     /// can await the fire-and-forget path instead of sleeping.
@@ -233,7 +241,7 @@ final class AppStore {
             // above, the journal itself may be perfectly fine — e.g. still
             // protected before the first unlock. Freeze persistence instead
             // of quarantining; reloadIfNeeded() lifts the freeze.
-            loadFailed = true
+            journalFrozen = true
             Self.log.fault("state file exists but could not be read — persistence frozen")
         }
         engineState = loaded?.engineState ?? .initial
@@ -250,17 +258,23 @@ final class AppStore {
         #if DEBUG
         applyUITestHooks()
         #endif
-        if !loadFailed { refreshWidgetSnapshot() }   // the widget mirrors state from launch
+        refreshWidgetSnapshot()   // the widget mirrors state from launch
     }
 
     /// Second chance for a launch whose state file could not be read (see
-    /// loadFailed): called when the scene becomes active — i.e. once the
+    /// journalFrozen): called when the scene becomes active — i.e. once the
     /// device is certainly unlocked. On success the real state replaces the
-    /// empty one and persistence unfreezes; while the file stays unreadable
-    /// the store keeps running without writing anything.
+    /// empty one, persistence unfreezes and everything derived from state is
+    /// rebuilt; while the file stays unreadable the store keeps running
+    /// without writing anything.
     func reloadIfNeeded() {
-        guard loadFailed, let data = try? Data(contentsOf: storageURL) else { return }
-        loadFailed = false
+        // Reloading over work the user has already done would erase it
+        // silently — mid-workout it would also move the engine counter out
+        // from under the running session, leaving a workout that completes
+        // into nothing. Such a launch stays frozen; the file is untouched.
+        guard journalFrozen, !mutatedWhileFrozen,
+              let data = try? Data(contentsOf: storageURL) else { return }
+        journalFrozen = false
         do {
             let loaded = try JSONDecoder().decode(AppData.self, from: data)
             engineState = loaded.engineState
@@ -277,6 +291,9 @@ final class AppStore {
             Self.log.fault("state file failed to decode on reload, moved aside: \(error.localizedDescription)")
         }
         refreshWidgetSnapshot()
+        // The window was left alone while frozen (see rescheduleReminders):
+        // now that the real settings and journal are here, rebuild it.
+        rescheduleReminders()
     }
 
     /// If the day rolled over while the process was alive (an overnight
@@ -613,7 +630,7 @@ final class AppStore {
     var shouldShowOnboarding: Bool {
         // A frozen launch (unreadable journal) knows nothing about the user —
         // never mistake it for a fresh install.
-        !loadFailed && records.isEmpty && engineState.counter == 0
+        !journalFrozen && records.isEmpty && engineState.counter == 0
             && !settings.onboardingCompleted
     }
 
@@ -828,7 +845,7 @@ final class AppStore {
         // A frozen launch knows neither the settings nor the journal: leave
         // whatever iOS already holds rather than clearing a window the user
         // still expects. reloadIfNeeded() rebuilds it once the file is read.
-        guard !loadFailed else { return }
+        guard !journalFrozen else { return }
         notifications.removePendingRequests(withIdentifiers: Self.reminderIDs)
         guard settings.reminderEnabled else { return }
         let cal = Calendar.current
@@ -852,8 +869,17 @@ final class AppStore {
 
     // MARK: - Backup
 
+    enum BackupError: Error {
+        /// The journal could not be read on this launch, so there is nothing
+        /// honest to export (see journalFrozen).
+        case journalUnavailable
+    }
+
     /// A dated copy of the state file for the share sheet.
     func exportURL() throws -> URL {
+        // Exporting the empty in-memory state would hand the user a file that
+        // looks like a backup and destroys their history when imported.
+        guard !journalFrozen else { throw BackupError.journalUnavailable }
         let stamp = Date.now.formatted(.iso8601.year().month().day().dateSeparator(.dash))
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("Dredfit-backup-\(stamp).json")
@@ -866,6 +892,9 @@ final class AppStore {
     /// Replaces the whole state with the contents of a backup file.
     /// Throws when the file is not a Dredfit backup — the caller shows an alert.
     func importBackup(from url: URL) throws {
+        // Restoring into a frozen store would look like it worked and be gone
+        // at the next launch — the write cannot reach the file either.
+        guard !journalFrozen else { throw BackupError.journalUnavailable }
         let secured = url.startAccessingSecurityScopedResource()
         defer { if secured { url.stopAccessingSecurityScopedResource() } }
         let data = try Data(contentsOf: url)
@@ -907,8 +936,16 @@ final class AppStore {
 
     private func persist(refreshWidget: Bool = true) {
         // A journal that could not be read must never be overwritten by the
-        // empty state that replaced it (see loadFailed).
-        guard !loadFailed else { return }
+        // empty state that replaced it (see journalFrozen). The change stays
+        // in memory for this launch only — and it pins the freeze, so a
+        // later reload cannot swap it out from under the user.
+        guard !journalFrozen else {
+            if !mutatedWhileFrozen {
+                mutatedWhileFrozen = true
+                Self.log.error("state changed while the journal is frozen — kept in memory only")
+            }
+            return
+        }
         let data = AppData(engineState: engineState, records: records,
                            settings: settings, pendingWorkout: pendingWorkout)
         do {

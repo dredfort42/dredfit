@@ -110,6 +110,9 @@ final class AppStoreTests: XCTestCase {
         let store = AppStore(storageURL: tempURL)
         XCTAssertTrue(store.records.isEmpty, "the unreadable launch degrades to empty state")
         XCTAssertFalse(store.shouldShowOnboarding, "an unread journal is not a fresh install")
+        XCTAssertTrue(store.journalFrozen)
+        XCTAssertThrowsError(try store.exportURL(),
+                             "a frozen launch has nothing honest to export")
         store.setSounds(false)   // any mutation that would persist
 
         try FileManager.default.setAttributes([.posixPermissions: 0o644],
@@ -117,12 +120,48 @@ final class AppStoreTests: XCTestCase {
         XCTAssertEqual(try Data(contentsOf: tempURL), original,
                        "the journal on disk must survive the frozen launch byte-for-byte")
 
-        // the scene became active after first unlock — the real state returns
-        store.reloadIfNeeded()
-        XCTAssertEqual(store.records.count, 1, "the journal must load once readable")
-        store.setSounds(false)
+        // A launch nobody touched yet takes the file the moment it can read
+        // it — that is the prewarm-before-first-unlock case this is all for.
+        try FileManager.default.setAttributes([.posixPermissions: 0o000],
+                                              ofItemAtPath: tempURL.path)
+        let untouched = AppStore(storageURL: tempURL)
+        XCTAssertTrue(untouched.journalFrozen)
+        try FileManager.default.setAttributes([.posixPermissions: 0o644],
+                                              ofItemAtPath: tempURL.path)
+        untouched.reloadIfNeeded()
+        XCTAssertEqual(untouched.records.count, 1, "the journal must load once readable")
+        untouched.setSounds(false)
         XCTAssertFalse(AppStore(storageURL: tempURL).settings.soundsEnabled,
                        "persistence must resume after a successful reload")
+    }
+
+    /// A frozen launch the user has already used stays frozen: reloading over
+    /// their work would erase it without a word, and mid-workout it would move
+    /// the engine counter out from under the running session.
+    func testUsedFrozenLaunchIsNotReplacedByTheFileItCouldNotRead() throws {
+        try XCTSkipIf(getuid() == 0, "root reads through 0o000 permissions")
+        let seed = AppStore(storageURL: tempURL)
+        for _ in 0..<3 { seed.completeWorkout(session: seed.nextSession, result: .plan) }
+        let original = try Data(contentsOf: tempURL)
+        try FileManager.default.setAttributes([.posixPermissions: 0o000],
+                                              ofItemAtPath: tempURL.path)
+        defer {
+            try? FileManager.default.setAttributes([.posixPermissions: 0o644],
+                                                   ofItemAtPath: tempURL.path)
+        }
+
+        let store = AppStore(storageURL: tempURL)
+        store.completeWorkout(session: store.nextSession, result: .plan)
+        XCTAssertEqual(store.records.count, 1, "the frozen launch keeps its own work in memory")
+
+        try FileManager.default.setAttributes([.posixPermissions: 0o644],
+                                              ofItemAtPath: tempURL.path)
+        store.reloadIfNeeded()
+        XCTAssertEqual(store.records.count, 1, "a used launch must not be swapped mid-flight")
+        XCTAssertEqual(store.engineState.counter, 1,
+                       "the counter must stay where the running session expects it")
+        XCTAssertEqual(try Data(contentsOf: tempURL), original,
+                       "and the real journal on disk stays untouched")
     }
 
     /// One unreadable journal entry (e.g. written by a newer version)
@@ -342,6 +381,29 @@ final class AppStoreTests: XCTestCase {
                            "future days must mirror the rest-day settings")
             XCTAssertNil(day.sessionNumber, "only today carries a session number")
         }
+    }
+
+    /// The home screen must not be told "nothing done" over a history the
+    /// launch merely failed to read.
+    func testFrozenLaunchLeavesTheWidgetSnapshotAlone() throws {
+        try XCTSkipIf(getuid() == 0, "root reads through 0o000 permissions")
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("dredfit-widget-\(UUID().uuidString).json")
+        defer { try? FileManager.default.removeItem(at: url) }
+        let seed = AppStore(storageURL: tempURL, widgetSnapshotURL: url)
+        seed.completeWorkout(session: seed.nextSession, result: .plan)
+        let published = try Data(contentsOf: url)
+
+        try FileManager.default.setAttributes([.posixPermissions: 0o000],
+                                              ofItemAtPath: tempURL.path)
+        defer {
+            try? FileManager.default.setAttributes([.posixPermissions: 0o644],
+                                                   ofItemAtPath: tempURL.path)
+        }
+        let frozen = AppStore(storageURL: tempURL, widgetSnapshotURL: url)
+        frozen.refreshWidgetSnapshot()   // what backgrounding does
+        XCTAssertEqual(try Data(contentsOf: url), published,
+                       "the widget must keep showing the last state that was real")
     }
 
     // MARK: - Week summary

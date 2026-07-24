@@ -279,12 +279,17 @@ struct SettingsSheet: View {
                 backupRow(icon: "square.and.arrow.up",
                           title: String(localized: "Export history"))
             }
+            // A launch that could not read the journal has nothing to export
+            // and nowhere safe to import into — both would work off the empty
+            // state that stood in for the real one.
+            .disabled(store.journalFrozen)
             Button {
                 importPickerShown = true
             } label: {
                 backupRow(icon: "square.and.arrow.down",
                           title: String(localized: "Import history"))
             }
+            .disabled(store.journalFrozen)
         }
     }
 
