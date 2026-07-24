@@ -110,11 +110,12 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 |---|---|---|
 | 7.1 | Enable **Reminder** | iOS permission prompt appears (alert + sound, no badge) |
 | 7.2 | Deny the permission | The toggle flips back **off** — it reflects the system's answer |
-| 7.3 | Allow, then keep the default rest day | Exactly **6** notifications scheduled (one per non-rest weekday) |
-| 7.4 | Change **Time** | Reminders reschedule to the new time |
-| 7.5 | Add a rest day while the reminder is on | That weekday's reminder disappears |
+| 7.3 | Allow, then keep the default rest day | A 28-day window of **one-shot** notifications, one per training date (**24** with the default rest day); none on rest days. The window refills every time the app becomes active |
+| 7.4 | Change **Time** | Every pending slot moves to the new time |
+| 7.5 | Add a rest day while the reminder is on | That weekday's dates disappear from the window |
 | 7.6 | Disable the reminder | All pending reminders are removed |
-| 7.7 | ⌚ Wait for a scheduled fire | Notification titled "Dredfit", body "Today's workout is ready" |
+| 7.7 | Complete today's workout **before** the reminder time | No notification that day; tomorrow's slot stays |
+| 7.8 | ⌚ Wait for a scheduled fire | Notification titled "Dredfit", body "Today's workout is ready" |
 
 ### 8. Backup export / import
 

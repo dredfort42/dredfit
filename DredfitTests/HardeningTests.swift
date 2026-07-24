@@ -51,9 +51,7 @@ final class HardeningTests: XCTestCase {
 
     private struct ScheduledReminder {
         let id: String
-        let weekday: Int
-        let hour: Int
-        let minute: Int
+        let fireDate: DateComponents
     }
 
     private final class NotificationSpy: NotificationScheduling {
@@ -63,25 +61,89 @@ final class HardeningTests: XCTestCase {
         func removePendingRequests(withIdentifiers ids: [String]) {
             scheduled.removeAll { item in ids.contains(item.id) }
         }
-        func addWeeklyReminder(id: String, title: String, body: String,
-                               weekday: Int, hour: Int, minute: Int) {
-            scheduled.append(ScheduledReminder(id: id, weekday: weekday,
-                                               hour: hour, minute: minute))
+        func addReminder(id: String, title: String, body: String,
+                         fireDate: DateComponents) {
+            scheduled.append(ScheduledReminder(id: id, fireDate: fireDate))
         }
     }
 
-    func testEnablingReminderSchedulesEveryTrainingWeekday() async {
+    /// A concrete moment `days` from today at the given local time — the
+    /// tests pin `now` explicitly so they never depend on when the suite runs.
+    private func moment(days: Int = 0, hour: Int, minute: Int = 0) -> Date {
+        let cal = Calendar.current
+        let day = cal.date(byAdding: .day, value: days, to: cal.startOfDay(for: .now))!
+        return cal.date(bySettingHour: hour, minute: minute, second: 0, of: day)!
+    }
+
+    private func slots(_ spy: NotificationSpy, sameDayAs date: Date) -> [ScheduledReminder] {
+        let cal = Calendar.current
+        return spy.scheduled.filter {
+            guard let fire = cal.date(from: $0.fireDate) else { return false }
+            return cal.isDate(fire, inSameDayAs: date)
+        }
+    }
+
+    func testEnablingReminderSchedulesWindowOfTrainingDays() async {
         let spy = NotificationSpy()
         let store = AppStore(storageURL: tempURL, notifications: spy)
         store.setReminderTime(hour: 8, minute: 15)
         store.setReminderEnabled(true)
         await store.reminderAuthTask?.value
+        store.rescheduleReminders(now: moment(hour: 6))   // before reminder time
 
-        // default rest day is Sunday (1) — six training-day reminders remain
-        XCTAssertEqual(spy.scheduled.count, 6)
-        XCTAssertFalse(spy.scheduled.contains { $0.weekday == 1 },
-                       "no reminder on a rest day")
-        XCTAssertTrue(spy.scheduled.allSatisfy { $0.hour == 8 && $0.minute == 15 })
+        // default rest day is Sunday (1) — any 28-day span holds exactly 4
+        XCTAssertEqual(spy.scheduled.count, 24)
+        XCTAssertLessThan(spy.scheduled.count, 64, "must stay under the iOS pending cap")
+        let cal = Calendar.current
+        XCTAssertFalse(spy.scheduled.contains {
+            cal.component(.weekday, from: cal.date(from: $0.fireDate)!) == 1
+        }, "no reminder on a rest day")
+        XCTAssertTrue(spy.scheduled.allSatisfy {
+            $0.fireDate.year != nil && $0.fireDate.month != nil && $0.fireDate.day != nil
+        }, "every slot is a one-shot for a concrete date, not a weekly series")
+        XCTAssertTrue(spy.scheduled.allSatisfy {
+            $0.fireDate.hour == 8 && $0.fireDate.minute == 15
+        })
+    }
+
+    /// The whole point of the one-shot window: trained in the morning →
+    /// tonight's reminder is gone, tomorrow's still stands.
+    func testMorningWorkoutRemovesTodaysReminder() async {
+        let spy = NotificationSpy()
+        let store = AppStore(storageURL: tempURL, notifications: spy)
+        store.toggleRestDay(1)   // every day trains — no rest-day interference
+        store.setReminderTime(hour: 20, minute: 0)
+        store.setReminderEnabled(true)
+        await store.reminderAuthTask?.value
+
+        let morning = moment(hour: 7)
+        store.completeWorkout(session: store.nextSession, result: .plan, date: morning)
+
+        XCTAssertTrue(slots(spy, sameDayAs: morning).isEmpty,
+                      "a workout done before the reminder time must take today's slot down")
+        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: morning)!
+        XCTAssertFalse(slots(spy, sameDayAs: tomorrow).isEmpty,
+                       "tomorrow's reminder must survive today's workout")
+        XCTAssertEqual(spy.scheduled.count, 27)   // 28-day window minus done today
+    }
+
+    /// Trained after the reminder already fired: nothing to cancel, and the
+    /// rebuild must not schedule a new slot into today's past.
+    func testEveningWorkoutKeepsWindowIntact() async {
+        let spy = NotificationSpy()
+        let store = AppStore(storageURL: tempURL, notifications: spy)
+        store.toggleRestDay(1)
+        store.setReminderTime(hour: 9, minute: 0)
+        store.setReminderEnabled(true)
+        await store.reminderAuthTask?.value
+
+        let evening = moment(hour: 21)
+        store.completeWorkout(session: store.nextSession, result: .plan, date: evening)
+
+        XCTAssertTrue(slots(spy, sameDayAs: evening).isEmpty,
+                      "no slot may be scheduled into today's past")
+        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: evening)!
+        XCTAssertFalse(slots(spy, sameDayAs: tomorrow).isEmpty)
     }
 
     func testToggleRestDayReschedulesReminders() async {
@@ -89,12 +151,45 @@ final class HardeningTests: XCTestCase {
         let store = AppStore(storageURL: tempURL, notifications: spy)
         store.setReminderEnabled(true)
         await store.reminderAuthTask?.value
-        XCTAssertEqual(spy.scheduled.count, 6)
 
-        store.toggleRestDay(2)   // Monday becomes rest
-        XCTAssertEqual(spy.scheduled.count, 5)
-        XCTAssertFalse(spy.scheduled.contains { $0.weekday == 2 },
-                       "a stale Monday reminder must not survive the toggle")
+        store.toggleRestDay(2)   // Monday becomes rest, alongside default Sunday
+        store.rescheduleReminders(now: moment(hour: 6))
+        XCTAssertEqual(spy.scheduled.count, 20)   // 28 minus 4 Sundays and 4 Mondays
+        let cal = Calendar.current
+        XCTAssertFalse(spy.scheduled.contains {
+            cal.component(.weekday, from: cal.date(from: $0.fireDate)!) == 2
+        }, "a stale Monday reminder must not survive the toggle")
+    }
+
+    /// An update from the weekly-series era must clear the old repeating
+    /// requests even while reminders stay disabled.
+    func testLegacyWeeklySeriesIsClearedOnReschedule() {
+        let spy = NotificationSpy()
+        let store = AppStore(storageURL: tempURL, notifications: spy)
+        spy.scheduled.append(ScheduledReminder(id: "reminder-wd-3", fireDate: DateComponents()))
+
+        store.rescheduleReminders(now: moment(hour: 6))
+        XCTAssertTrue(spy.scheduled.isEmpty,
+                      "the pre-1.8 weekly series must be removed and nothing added while disabled")
+    }
+
+    /// A relaunch rebuilds the window on activation, and a time change moves
+    /// every slot — the schedule never drifts from the settings.
+    func testWindowSurvivesRestartAndTimeChange() async {
+        let first = AppStore(storageURL: tempURL, notifications: NotificationSpy())
+        first.setReminderEnabled(true)
+        await first.reminderAuthTask?.value
+
+        let spy = NotificationSpy()
+        let relaunched = AppStore(storageURL: tempURL, notifications: spy)
+        relaunched.rescheduleReminders(now: moment(hour: 6))   // scenePhase .active path
+        XCTAssertEqual(spy.scheduled.count, 24, "a restart must rebuild the full window")
+
+        relaunched.setReminderTime(hour: 7, minute: 45)
+        relaunched.rescheduleReminders(now: moment(hour: 6))
+        XCTAssertTrue(spy.scheduled.allSatisfy {
+            $0.fireDate.hour == 7 && $0.fireDate.minute == 45
+        }, "a time change must move every slot in the window")
     }
 
     func testDisablingReminderClearsEverything() async {
