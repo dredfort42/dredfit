@@ -466,6 +466,9 @@ final class AppStore {
             levelsAfter: engineState.levels,
             durationSec: durationSec))
         persist()
+        // A morning workout takes tonight's reminder down with it: the
+        // rebuilt window skips the day that is now done.
+        rescheduleReminders(now: date)
         if settings.healthEnabled {
             // v1.6: the just-finished workout goes through the same contiguous
             // export path as the manual backfill — an older failed export gets
@@ -771,23 +774,44 @@ final class AppStore {
         return Int(workSec) + (5 + 3) * 60   // warm-up + cool-down
     }
 
-    // MARK: - Local reminders (v1.1)
+    // MARK: - Local reminders (v1.1; one-shot window since v1.8)
 
+    /// How far ahead the one-shot reminder window reaches. 28 daily slots
+    /// stay well under the iOS cap of 64 pending notifications per app; the
+    /// accepted price is that reminders run dry if the app is not opened at
+    /// all for four weeks (BACKLOG №8) — every activation refills the window.
+    static let reminderWindowDays = 28
+
+    /// The pre-1.8 weekly repeating series stays in the removal list so the
+    /// first reschedule after an update clears it.
     private static let reminderIDs = (1...7).map { "reminder-wd-\($0)" }
+        + (0..<reminderWindowDays).map { "reminder-day-\($0)" }
 
-    /// One weekly repeating notification per training weekday at the chosen
-    /// time. Rebuilt from scratch on every settings change — no drift.
-    func rescheduleReminders() {
+    /// One one-shot notification per upcoming training date at the chosen
+    /// time. Repeating weekly triggers cannot skip a single firing, and
+    /// "trained this morning" needs exactly that — with one-shots, a
+    /// completed workout simply rebuilds the window without today in it.
+    /// Rebuilt from scratch on every settings change, scene activation and
+    /// workout completion — no drift, and the window slides forward.
+    func rescheduleReminders(now: Date = .now) {
         notifications.removePendingRequests(withIdentifiers: Self.reminderIDs)
         guard settings.reminderEnabled else { return }
-        for weekday in 1...7 where !settings.restWeekdays.contains(weekday) {
-            notifications.addWeeklyReminder(
-                id: "reminder-wd-\(weekday)",
+        let cal = Calendar.current
+        let start = cal.startOfDay(for: now)
+        for offset in 0..<Self.reminderWindowDays {
+            guard let day = cal.date(byAdding: .day, value: offset, to: start),
+                  !isRestDay(day), !isDone(on: day) else { continue }
+            var comps = cal.dateComponents([.year, .month, .day], from: day)
+            comps.hour = settings.reminderHour
+            comps.minute = settings.reminderMinute
+            // A slot whose time already passed (only ever today's) would
+            // never fire but would sit in the pending list — skip it.
+            guard let fire = cal.date(from: comps), fire > now else { continue }
+            notifications.addReminder(
+                id: "reminder-day-\(offset)",
                 title: "Dredfit",
                 body: String(localized: "Today's workout is ready"),
-                weekday: weekday,
-                hour: settings.reminderHour,
-                minute: settings.reminderMinute)
+                fireDate: comps)
         }
     }
 
@@ -871,9 +895,9 @@ protocol NotificationScheduling {
     /// Asks for alert+sound authorization. Returns true only when granted.
     func requestAuthorization() async -> Bool
     func removePendingRequests(withIdentifiers ids: [String])
-    /// One weekly repeating calendar-trigger notification.
-    func addWeeklyReminder(id: String, title: String, body: String,
-                           weekday: Int, hour: Int, minute: Int)
+    /// One one-shot calendar-trigger notification for a concrete date.
+    func addReminder(id: String, title: String, body: String,
+                     fireDate: DateComponents)
 }
 
 struct UserNotificationScheduler: NotificationScheduling {
@@ -887,17 +911,13 @@ struct UserNotificationScheduler: NotificationScheduling {
             .removePendingNotificationRequests(withIdentifiers: ids)
     }
 
-    func addWeeklyReminder(id: String, title: String, body: String,
-                           weekday: Int, hour: Int, minute: Int) {
+    func addReminder(id: String, title: String, body: String,
+                     fireDate: DateComponents) {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
         content.sound = .default
-        var comps = DateComponents()
-        comps.weekday = weekday
-        comps.hour = hour
-        comps.minute = minute
-        let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: true)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: fireDate, repeats: false)
         UNUserNotificationCenter.current()
             .add(UNNotificationRequest(identifier: id, content: content, trigger: trigger))
     }
