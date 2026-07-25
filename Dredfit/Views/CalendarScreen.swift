@@ -133,11 +133,30 @@ struct CalendarScreen: View {
         let state: DayState
     }
 
+    /// Is this cell the next training day? Only that one is tappable among
+    /// the non-completed days — completed days open history, so a day that
+    /// opens the next-workout preview keeps the affordance consistent. Other
+    /// future days have nothing truthful to show: the sheet always describes
+    /// the one computed next workout. Today's own ring qualifies while the
+    /// workout is still ahead (nextTrainingDate == today) — the most common
+    /// state must not be the one dead cell.
+    private func isNextTrainingDay(_ day: Day) -> Bool {
+        (day.state == .planned || day.state == .today)
+            && Calendar.current.isDate(day.date, inSameDayAs: store.nextTrainingDate)
+    }
+
     @ViewBuilder
     private func dayCell(_ day: Day) -> some View {
         if day.state == .done {
             Button {
                 historyRecord = store.record(on: day.date)
+            } label: {
+                dayLabel(day)
+            }
+            .buttonStyle(.plain)
+        } else if isNextTrainingDay(day) {
+            Button {
+                nextPreviewShown = true
             } label: {
                 dayLabel(day)
             }
