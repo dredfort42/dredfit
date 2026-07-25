@@ -54,11 +54,10 @@ struct MilestoneView: View {
                 }
             }
 
-            // The card shows the first milestone — tier-ups sort above the
-            // jubilee, so that is the one worth sharing.
-            if let cardURL, let first = milestones.first {
-                ShareLink(item: cardURL,
-                          preview: SharePreview(ShareCardFactory.headline(for: first))) {
+            // The card names every variation this workout unlocked, not just
+            // the first row on screen.
+            if let cardURL {
+                ShareLink(item: cardURL, preview: SharePreview(cardHeadline)) {
                     Text("Share")
                         .dredfitFont(17, weight: .semibold)
                         .foregroundStyle(Theme.ink)
@@ -87,13 +86,16 @@ struct MilestoneView: View {
             withAnimation(.easeOut(duration: 0.55).delay(0.1)) { ruleDrawn = true }
             // Rendered once here rather than per tap: ShareLink wants the item
             // up front, and a card is cheap enough to make eagerly.
-            if let first = milestones.first {
-                cardURL = ShareCardFactory.fileURL(
-                    headline: ShareCardFactory.headline(for: first),
-                    slot: .milestone)
+            if !milestones.isEmpty {
+                cardURL = ShareCardFactory.fileURL(headline: cardHeadline,
+                                                   slot: .milestone)
             }
         }
     }
+
+    /// What the card says — shared by the render and the share-sheet preview,
+    /// so the two can never drift apart.
+    private var cardHeadline: String { ShareCardFactory.headline(for: milestones) }
 
     /// The one permitted animation: a short accent rule drawing left to right.
     private var accentRule: some View {

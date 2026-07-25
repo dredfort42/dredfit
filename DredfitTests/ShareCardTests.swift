@@ -58,6 +58,108 @@ final class ShareCardTests: XCTestCase {
             "Now 4 sets")
     }
 
+    func testHeadlineNamesEveryUnlockedVariation() {
+        let headline = ShareCardFactory.headline(for: [
+            .tierUp(pattern: .lunge, tier: 2, exercise: "Bulgarian split squat"),
+            .tierUp(pattern: .pushH, tier: 2, exercise: "Push-up"),
+            .tierUp(pattern: .hinge, tier: 2, exercise: "Single-leg glute bridge"),
+        ])
+        XCTAssertEqual(headline,
+                       "Unlocked: Bulgarian split squat, Push-up, Single-leg glute bridge",
+                       "sharing three unlocks must not send only the first")
+    }
+
+    func testHeadlineForASingleUnlockIsUnchangedByTheList() {
+        XCTAssertEqual(
+            ShareCardFactory.headline(for: [.tierUp(pattern: .squat, tier: 3,
+                                                    exercise: "Pistol squat")]),
+            "Unlocked: Pistol squat")
+    }
+
+    func testHeadlineFallsBackToTheFirstMilestoneWhenNothingUnlocked() {
+        // A set band and a jubilee are each one fact — there is no list to make.
+        XCTAssertEqual(
+            ShareCardFactory.headline(for: [.setBand(pattern: .pushH, sets: 4,
+                                                     exercise: "Push-up"),
+                                            .jubilee(workouts: 50)]),
+            "Now 4 sets")
+    }
+
+    func testUnlocksLeadTheHeadlineOverSetBandsAndJubilees() {
+        let headline = ShareCardFactory.headline(for: [
+            .tierUp(pattern: .squat, tier: 2, exercise: "Split squat"),
+            .setBand(pattern: .pushH, sets: 4, exercise: "Push-up"),
+            .jubilee(workouts: 50),
+        ])
+        XCTAssertEqual(headline, "Unlocked: Split squat")
+    }
+
+    // MARK: - Fit
+
+    /// Vertical room the card leaves the headline: 1350 − 2×88 of padding,
+    /// less the wordmark, the accent rule, the date and the footer.
+    private static let headlineBudget: CGFloat = 940
+
+    /// Height the headline actually occupies inside the card's text column,
+    /// measured with the font the card renders it in. Tracking is negative,
+    /// so this is the pessimistic reading.
+    private func headlineHeight(_ headline: String) -> CGFloat {
+        let style = NSMutableParagraphStyle()
+        style.lineSpacing = 6
+        let font = UIFont.systemFont(ofSize: ShareCard.headlineSize(for: headline),
+                                     weight: .heavy)
+        return (headline as NSString).boundingRect(
+            with: CGSize(width: ShareCard.size.width - 176,   // the 88 pt gutters
+                         height: .greatestFiniteMagnitude),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            attributes: [.font: font, .paragraphStyle: style],
+            context: nil).height
+    }
+
+    func testASingleUnlockKeepsTheFullSizeHeadline() {
+        XCTAssertEqual(ShareCard.headlineSize(for: "Unlocked: Pistol squat"), 92)
+        XCTAssertEqual(ShareCard.headlineSize(for: "Workout #100"), 92)
+    }
+
+    func testEveryUnlockAWorkoutCanEarnStillFitsTheCard() {
+        // Worst case: a calibration workout tiering up on all seven patterns,
+        // with the longest names the library holds — and in Russian, where the
+        // same line is roughly half again as long.
+        let names = ["Болгарский сплит-присед", "Отжимание с ногами на возвышении",
+                     "Ягодичный мостик на одной ноге", "Подтягивание австралийское",
+                     "Отжимание в стойке у стены", "Приседание на одной ноге",
+                     "Планка с подъемом руки и ноги"]
+        let headline = "Разблокировано: " + names.joined(separator: ", ")
+        XCTAssertLessThanOrEqual(headlineHeight(headline), Self.headlineBudget,
+                                 "the headline would push the date off the card")
+    }
+
+    /// A headline of a given length built from real exercise names, English
+    /// and Russian both. Filler of repeated wide glyphs would measure half
+    /// again as wide as anything the library can actually produce and would
+    /// fail the budget on text the card will never be handed.
+    private func headline(ofLength length: Int) -> String {
+        let names = ["Bulgarian split squat", "Отжимание с ногами на возвышении",
+                     "Single-leg glute bridge", "Приседание на одной ноге"]
+        var text = "Unlocked: "
+        var index = 0
+        while text.count < length {
+            text += names[index % names.count] + ", "
+            index += 1
+        }
+        return String(text.prefix(length))
+    }
+
+    func testHeadlineAtEveryStepBoundaryFits() {
+        // The size steps down at 90, 150 and 220 characters, so the tallest
+        // headline in each step is the one just under its ceiling.
+        for length in [89, 149, 219, 300] {
+            XCTAssertLessThanOrEqual(headlineHeight(headline(ofLength: length)),
+                                     Self.headlineBudget,
+                                     "\(length) characters overflow the card")
+        }
+    }
+
     func testSummaryHeadlineCarriesOnlyTotals() {
         let headline = ShareCardFactory.summaryHeadline(workouts: 42, totalLevel: 137)
         XCTAssertEqual(headline, "42 workouts · total level 137")

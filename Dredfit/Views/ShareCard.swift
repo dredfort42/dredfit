@@ -20,6 +20,20 @@ struct ShareCard: View {
 
     static let size = CGSize(width: 1080, height: 1350)
 
+    /// The headline steps down as it grows. One unlock is a poster line; three
+    /// at once is a list, and it still has to fit between the accent rule and
+    /// the date — the card has ~940 pt of vertical room for it. Thresholds are
+    /// in characters so a long Russian name lands in the same step as the
+    /// English one it translates.
+    static func headlineSize(for headline: String) -> CGFloat {
+        switch headline.count {
+        case ..<90:  return 92
+        case ..<150: return 70
+        case ..<220: return 54
+        default:     return 44
+        }
+    }
+
     /// Fixed point sizes on purpose — this is an image of a known pixel size,
     /// not a screen. Dynamic Type must not reflow what other people receive,
     /// so `dredfitFont` is intentionally not used here.
@@ -38,8 +52,9 @@ struct ShareCard: View {
                 .padding(.bottom, 44)
 
             Text(headline)
-                .font(.system(size: 92, weight: .heavy))
-                .tracking(-2.5)
+                .font(.system(size: Self.headlineSize(for: headline), weight: .heavy))
+                // −2.5 at the full 92 pt, proportional below it.
+                .tracking(Self.headlineSize(for: headline) * -0.027)
                 .lineSpacing(6)
                 .foregroundStyle(.white)
                 .fixedSize(horizontal: false, vertical: true)
@@ -77,6 +92,29 @@ enum ShareCardFactory {
         case .jubilee(let workouts):
             return String(localized: "Workout #\(workouts)")
         }
+    }
+
+    /// The headline for everything one workout earned.
+    ///
+    /// A session can unlock several variations at once — calibration routinely
+    /// hands out three or four — so every unlocked one is named. Taking only
+    /// the first read, to the person sharing it, as if the rest had not
+    /// happened. With no unlock at all the first milestone still speaks for
+    /// the card: a set band or a jubilee is one fact, not a list.
+    static func headline(for milestones: [Milestone]) -> String {
+        let unlocked: [String] = milestones.compactMap { milestone in
+            guard case .tierUp(_, _, let exercise) = milestone else { return nil }
+            return exercise
+        }
+        guard !unlocked.isEmpty else {
+            return milestones.first.map(headline(for:)) ?? ""
+        }
+        // Narrow: commas only. The wide form ("A, B and C") spends the card's
+        // biggest type on a conjunction.
+        let list = unlocked.formatted(.list(type: .and, width: .narrow))
+        // Same key as the single-unlock line — the list goes where the one
+        // name used to, so every translation already covers it.
+        return String(localized: "Unlocked: \(list)")
     }
 
     /// The Progress-tab summary: totals only, no per-exercise detail.
