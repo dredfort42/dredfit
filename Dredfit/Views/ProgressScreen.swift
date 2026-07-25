@@ -183,7 +183,10 @@ struct ProgressScreen: View {
                         .frame(height: 134)   // 120 of chart + room for the date axis
                         .padding(.top, 8)
 
-                    VStack(spacing: 0) {
+                    // Rows sit apart, not stacked flush: without the per-row
+                    // detail line there is room to spare, and space between
+                    // them is what keeps ten bars from reading as one block.
+                    VStack(spacing: 6) {
                         ForEach(Pattern.ordered, id: \.self) { p in
                             levelRow(p)
                         }
@@ -193,7 +196,7 @@ struct ProgressScreen: View {
                             levelRow(.pullBar)
                         }
                     }
-                    .padding(.top, 10)
+                    .padding(.top, 16)
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 12)
@@ -367,39 +370,49 @@ struct ProgressScreen: View {
         return Button {
             chartPattern = selected ? nil : p
         } label: {
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 1) {
+            // Across nine rows the per-row detail was nine exercise names and
+            // nine countdowns nobody asked for: the all-patterns view answers
+            // "where am I", not "what exactly is next on each". So the row is
+            // name, bar, number — and the detail belongs to the one pattern
+            // the chart is currently projecting.
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(spacing: 12) {
+                    // Wide enough for "Горизонтальный жим" on one line: at 116
+                    // the long names wrapped, and a two-storey row eats the
+                    // space between rows that the list needs to breathe.
                     Text(p.displayName)
                         .dredfitFont(13.5, weight: .medium)
                         .foregroundStyle(Theme.ink)
-                    // "Push-up · 2/4" — which exercise this level buys and
-                    // where it sits in the four-variation progression. The
-                    // pieces are either core-localized (the name) or
-                    // language-neutral (the count), so the line is verbatim.
-                    Text(verbatim: "\(variation) · \(decoded.tier)/\(EngineConfig.tiers)")
-                        .dredfitFont(11)
-                        .foregroundStyle(Theme.ink2)
                         .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                        .accessibilityLabel(Text(verbatim: variation + ", ") + Text("variation \(decoded.tier) of 4"))
-                }
-                .frame(width: 116, alignment: .leading)
-                levelBar(level: level)
-                VStack(alignment: .trailing, spacing: 1) {
+                        .minimumScaleFactor(0.85)
+                        .frame(width: 152, alignment: .leading)
+                    levelBar(level: level)
                     Text("\(level)")
                         .dredfitFont(13.5, weight: .semibold)
                         .monospacedDigit()
                         .foregroundStyle(Theme.ink2)
-                    nextMilestoneLabel(nextMilestone(level: level, tier: decoded.tier))
-                        .dredfitFont(10.5)
-                        .monospacedDigit()
-                        .foregroundStyle(Theme.ink3)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
+                        .frame(width: 44, alignment: .trailing)
                 }
-                .frame(width: 72, alignment: .trailing)
+                if selected {
+                    // "Push-up · 2/4" — which exercise this level buys and
+                    // where it sits in the four-variation progression. The
+                    // pieces are either core-localized (the name) or
+                    // language-neutral (the count), so the line is verbatim.
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        Text(verbatim: "\(variation) · \(decoded.tier)/\(EngineConfig.tiers)")
+                            .accessibilityLabel(Text(verbatim: variation + ", ")
+                                                + Text("variation \(decoded.tier) of 4"))
+                        Spacer(minLength: 8)
+                        nextMilestoneLabel(nextMilestone(level: level, tier: decoded.tier))
+                            .monospacedDigit()
+                    }
+                    .dredfitFont(11)
+                    .foregroundStyle(Theme.ink2)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                }
             }
-            .padding(.vertical, 5)
+            .padding(.vertical, 8)
             .padding(.horizontal, 8)
             // The tint says "this is what the chart shows"; it reaches 8 pt
             // into the gutters so the highlight breathes past the text.
