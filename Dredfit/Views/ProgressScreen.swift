@@ -152,18 +152,30 @@ struct ProgressScreen: View {
                     // The chips row is gone: it was the same list of patterns
                     // twice. The rows below drive the chart; this line names
                     // the current projection and offers the way back.
+                    //
+                    // The row must not move when a pattern is picked — the
+                    // chart under it would slide out from under the finger
+                    // that picked it. So the title stays on one line however
+                    // long the variation's name is, and "Show all" keeps its
+                    // space when it has nothing to do rather than collapsing
+                    // the row to a shorter height.
                     HStack(alignment: .firstTextBaseline) {
                         Kicker(text: chartTitle)
-                        Spacer()
-                        if effectivePattern != nil {
-                            Button {
-                                chartPattern = nil
-                            } label: {
-                                Text("Show all")
-                                    .dredfitFont(13, weight: .semibold)
-                                    .foregroundStyle(Theme.accentText)
-                            }
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                        Spacer(minLength: 8)
+                        Button {
+                            chartPattern = nil
+                        } label: {
+                            Text("Show all")
+                                .dredfitFont(13, weight: .semibold)
+                                .foregroundStyle(Theme.accentText)
+                                .lineLimit(1)
+                                .fixedSize()
                         }
+                        .opacity(effectivePattern != nil ? 1 : 0)
+                        .disabled(effectivePattern == nil)
+                        .accessibilityHidden(effectivePattern == nil)
                     }
                     .padding(.top, 16)
 
