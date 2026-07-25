@@ -1,67 +1,89 @@
-# Xcode
+# Xcode / Swift
 #
-# gitignore contributors: remember to update Global/Xcode.gitignore, Objective-C.gitignore & Swift.gitignore
+# GitHub's Swift template, trimmed to what this project actually uses: no
+# CocoaPods, no Carthage, no fastlane, no playgrounds. Add a section back if a
+# tool arrives.
 
-## User settings
+## Per-user Xcode state
 xcuserdata/
+*.moved-aside
 
-## Obj-C/Swift specific
+## Build output
+DerivedData/
+build/
+.build/
 *.hmap
+*.xcresult
 
-## App packaging
+## Packaging and symbols
 *.ipa
-*.dSYM.zip
+*.xcarchive
 *.dSYM
+*.dSYM.zip
 
-## Playgrounds
-timeline.xctimeline
-playground.xcworkspace
+## Signing material and secrets — never in the repo
+*.p12
+*.cer
+*.certSigningRequest
+*.mobileprovision
+*.provisionprofile
+.env
 
 # Swift Package Manager
 #
-# Add this line if you want to avoid checking in source code from Swift Package Manager dependencies.
-# Packages/
-# Package.pins
-# Package.resolved
-# *.xcodeproj
+# Package.resolved stays tracked: the day DredfitCore takes a dependency, the
+# pinned versions have to travel with the repo. DredfitCore/.swiftpm holds a
+# shared scheme that is tracked too — only the per-user data under it is
+# ignored, by the xcuserdata rule above.
+.swiftpm/configuration/
+
+# macOS
+.DS_Store
+
+# Python tooling (scripts/, sitegen/, appstore/tools/)
+__pycache__/
+*.py[cod]
+.venv/
+
+# AI assistants and coding agents
 #
-# Xcode automatically generates this directory with a .xcworkspacedata file and xcuserdata
-# hence it is not needed unless you have added a package configuration file to your project
-# .swiftpm
+# Per-project state, caches, chat history and local settings of AI tooling.
+# None of it belongs to the app; each developer's setup stays their own.
+.aider*
+.amazonq/
+.augment/
+.claude/
+.cline/
+.clinerules/
+.codeium/
+.codex/
+.cody/
+.continue/
+.copilot/
+.crush/
+.cursor/
+.factory/
+.gemini/
+.goose/
+.junie/
+.kilocode/
+.opencode/
+.openai/
+.qodo/
+.roo/
+.serena/
+.specstory/
+.tabnine/
+.trae/
+.windsurf/
 
-.build/
-
-# CocoaPods
+# Local-only working material
 #
-# We recommend against adding the Pods directory to your .gitignore. However
-# you should judge for yourself, the pros and cons are mentioned at:
-# https://guides.cocoapods.org/using/using-cocoapods.html#should-i-check-the-pods-directory-into-source-control
-#
-# Pods/
-#
-# Add this line if you want to avoid checking in source code from the Xcode workspace
-# *.xcworkspace
-
-# Carthage
-#
-# Add this line if you want to avoid checking in source code from Carthage dependencies.
-# Carthage/Checkouts
-
-Carthage/Build/
-
-# fastlane
-#
-# It is recommended to not store the screenshots in the git repo.
-# Instead, use fastlane to re-generate the screenshots whenever they are needed.
-# For more information about the recommended setup visit:
-# https://docs.fastlane.tools/best-practices/source-control/#source-control
-
-fastlane/report.xml
-fastlane/Preview.html
-fastlane/screenshots/**/*.png
-fastlane/test_output
-
+# reference/         engine reference chain: spec, verifier, golden generator
+# instructions/      agent task docs, backlog, glossary, release regulation
+# sitegen/           site generator; its published output in docs/ is tracked
+# release_texts_*.md App Store and TestFlight texts for the release in flight
 reference/
 instructions/
 sitegen/
-store_*.md
+release_texts_*.md
