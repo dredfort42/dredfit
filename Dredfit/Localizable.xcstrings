@@ -4115,6 +4115,64 @@
         }
       }
     },
+    "level %lld" : {
+      "comment" : "Share card: the level after the workout count, e.g. \"42 workouts · level 137\".",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "level %lld"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nivel %lld"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nível %lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "уровень %lld"
+          }
+        }
+      }
+    },
+    "progress.levelLabel" : {
+      "comment" : "Caption beside the big total-level number. One word: it shares one row with the number and the share button.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "level"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nivel"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nível"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "уровень"
+          }
+        }
+      }
+    },
     "total level" : {
       "localizations" : {
         "es" : {

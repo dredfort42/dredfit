@@ -162,6 +162,7 @@ final class ShareCardTests: XCTestCase {
 
     func testSummaryHeadlineCarriesOnlyTotals() {
         let headline = ShareCardFactory.summaryHeadline(workouts: 42, totalLevel: 137)
-        XCTAssertEqual(headline, "42 workouts · total level 137")
+        // "level", the same word the Progress header uses beside the number.
+        XCTAssertEqual(headline, "42 workouts · level 137")
     }
 }

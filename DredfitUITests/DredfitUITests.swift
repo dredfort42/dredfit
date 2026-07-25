@@ -397,7 +397,9 @@ final class DredfitUITests: XCTestCase {
         _ = app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5)
 
         app.tabBars.buttons["Progress"].tap()
-        XCTAssertTrue(app.staticTexts["total level"].waitForExistence(timeout: 3))
+        // The caption beside the number is one word; "total level" survives
+        // only as the chart's title, which the Kicker uppercases.
+        XCTAssertTrue(app.staticTexts["level"].waitForExistence(timeout: 3))
         // 6 patterns × (+2) = 12, asserted on the identified element.
         let totalLevel = app.staticTexts["total-level"]
         XCTAssertEqual(totalLevel.label, "12", "the total level after \"easy\" should be 12")

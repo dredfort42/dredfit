@@ -123,10 +123,13 @@ enum ShareCardFactory {
     /// nested plural substitution (Russian inflects "workouts" but not the
     /// level); as two, the workout count reuses the catalog's existing
     /// single-argument plural and the level is a plain number.
+    ///
+    /// "level", not "total level": the same one word the Progress header uses
+    /// beside the number, so the card says what the screen says.
     static func summaryHeadline(workouts: Int, totalLevel: Int) -> String {
         String(localized: "\(workouts) workouts")
             + " · "
-            + String(localized: "total level \(totalLevel)")
+            + String(localized: "level \(totalLevel)")
     }
 
     @MainActor

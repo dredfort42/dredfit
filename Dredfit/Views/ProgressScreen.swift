@@ -12,6 +12,10 @@ import DredfitCore
 
 struct ProgressScreen: View {
     @Environment(AppStore.self) private var store
+    /// The stat row holds the number and its caption side by side only while
+    /// they fit. At accessibility sizes they cannot, and the row would push
+    /// itself off both edges of the screen.
+    @Environment(\.dynamicTypeSize) private var typeSize
     @State private var chartPattern: Pattern?   // nil = the total-level view
     @State private var cardURL: URL?            // the share card
     /// What the current card was rendered from. Rendering is a main-thread
@@ -20,30 +24,31 @@ struct ProgressScreen: View {
     @State private var renderedCardKey: [Int]?
 
     /// Nothing to show off before the first workout — the card would read
-    /// "0 workouts · total level 0".
+    /// "0 workouts · level 0".
     private var canShare: Bool { !store.records.isEmpty }
 
-    // A labelled pill that lives next to the stat it shares, not floating in
-    // the top corner beside the global settings gear. Echoes the pattern-chip
-    // capsule style right below it.
+    // Next to the stat it shares, not floating in the top corner beside the
+    // global settings gear — but an icon rather than a labelled pill. The word
+    // does not fit: in Russian the pill is ~9 pt wider than the room left
+    // beside the number and its label, and a narrow phone (375 pt) takes
+    // another 27 pt away. What used to give was the number, which broke
+    // mid-digit; the button gives instead.
     @ViewBuilder
     private var shareButton: some View {
         if canShare, let cardURL {
             ShareLink(item: cardURL,
                       preview: SharePreview(summaryHeadline)) {
-                HStack(spacing: 6) {
-                    Image(systemName: "square.and.arrow.up")
-                    Text("Share")
-                }
-                .dredfitFont(13, weight: .semibold)
-                .foregroundStyle(Theme.ink2)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 7)
-                .background(
-                    Capsule()
-                        .fill(Color.white)
-                        .overlay(Capsule().strokeBorder(Theme.hairline, lineWidth: 1.5))
-                )
+                Image(systemName: "square.and.arrow.up")
+                    // Capped: the glyph grows with type size, its ring does
+                    // not, and past ~22 pt the arrow spills out of the circle.
+                    .dredfitFont(15, weight: .semibold, cap: 22)
+                    .foregroundStyle(Theme.ink2)
+                    .frame(width: 38, height: 38)
+                    .background(
+                        Circle()
+                            .fill(Color.white)
+                            .overlay(Circle().strokeBorder(Theme.hairline, lineWidth: 1.5))
+                    )
             }
             .accessibilityIdentifier("progress-share")
             .accessibilityLabel(Text("Share progress"))
@@ -53,6 +58,75 @@ struct ProgressScreen: View {
     private var summaryHeadline: String {
         ShareCardFactory.summaryHeadline(workouts: store.records.count,
                                          totalLevel: store.totalLevel)
+    }
+
+    /// The total level and, beside it, what it is and how many workouts are
+    /// behind it.
+    ///
+    /// Both halves keep their intrinsic width: this row is where a four-digit
+    /// total meets a Russian caption, and neither may be squeezed into
+    /// wrapping — a number broken mid-digit ("1 27" / "0") was exactly the
+    /// bug. The share button is the part that yields, which is why it is an
+    /// icon. At accessibility sizes nothing fits side by side, so the caption
+    /// moves under the number instead of forcing the row off both edges.
+    ///
+    /// The button centres on the height of the number's line — not on its
+    /// baseline, where a round icon reads as having slipped down.
+    @ViewBuilder
+    private var statRow: some View {
+        if typeSize.isAccessibilitySize {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(alignment: .center, spacing: 10) {
+                    totalNumber
+                    Spacer(minLength: 8)
+                    shareButton
+                }
+                levelCaption
+            }
+        } else {
+            HStack(alignment: .center, spacing: 10) {
+                // The caption keeps sitting on the number's baseline; only the
+                // button is centred, so this pair is measured as one block.
+                HStack(alignment: .lastTextBaseline, spacing: 10) {
+                    totalNumber
+                    levelCaption.fixedSize()
+                }
+                Spacer(minLength: 8)
+                shareButton
+            }
+        }
+    }
+
+    private var totalNumber: some View {
+        // The identifier lets UI tests assert on THIS value — a bare
+        // staticTexts["0"] query can match a chart axis label.
+        Text("\(store.totalLevel)")
+            .dredfitFont(56, weight: .heavy, cap: 84)
+            .tracking(-2)
+            .monospacedDigit()
+            .lineLimit(1)
+            .fixedSize()
+            .accessibilityIdentifier("total-level")
+    }
+
+    private var levelCaption: some View {
+        VStack(alignment: .leading, spacing: 1) {
+            Text(levelLabel)
+            Text("\(store.records.count) workouts")
+        }
+        .dredfitFont(14.5)
+        .foregroundStyle(Theme.ink2)
+        .lineLimit(typeSize.isAccessibilitySize ? nil : 1)
+    }
+
+    /// One word, in every language. The chart's title below still carries the
+    /// full "total level" — there is room for it there and it is the more
+    /// precise phrase — but beside the number one word says it, and that is
+    /// what keeps a four-digit total and a Russian caption on the same row.
+    private var levelLabel: String {
+        String(localized: "progress.levelLabel",
+               defaultValue: "level",
+               comment: "Caption beside the big total-level number. One word: it shares one row with the number and the share button.")
     }
 
     var body: some View {
@@ -65,26 +139,8 @@ struct ProgressScreen: View {
                 Kicker(text: String(localized: "Progress"))
                     .padding(.top, 18)
 
-                HStack(alignment: .center, spacing: 12) {
-                    HStack(alignment: .lastTextBaseline, spacing: 10) {
-                        // The identifier lets UI tests assert on THIS value — a
-                        // bare staticTexts["0"] query can match an axis label.
-                        Text("\(store.totalLevel)")
-                            .dredfitFont(56, weight: .heavy, cap: 84)
-                            .tracking(-2)
-                            .monospacedDigit()
-                            .accessibilityIdentifier("total-level")
-                        VStack(alignment: .leading, spacing: 1) {
-                            Text("total level")
-                            Text("\(store.records.count) workouts")
-                        }
-                        .dredfitFont(14.5)
-                        .foregroundStyle(Theme.ink2)
-                    }
-                    Spacer(minLength: 8)
-                    shareButton
-                }
-                .padding(.top, 12)
+                statRow
+                    .padding(.top, 12)
 
                 weekSummaryLine
                     .padding(.top, 8)
