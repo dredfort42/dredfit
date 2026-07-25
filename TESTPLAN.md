@@ -1,6 +1,6 @@
 # Dredfit — manual QA checklist
 
-Automated coverage (202 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
+Automated coverage (209 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
 
 **How to use.** Run the *Release smoke* block before every release. Run *Full pass* when the engine, persistence or an integration changed. Device-only rows cannot pass on a simulator and are marked ⌚. Record anything that fails in the [Issue registry](#issue-registry) at the bottom rather than fixing it silently.
 
@@ -211,11 +211,15 @@ The snapshot-mirroring logic is unit-tested on every run (the snapshot URL is in
 
 | # | Check | Expected |
 |---|---|---|
-| 15.1 | Progress header | Total level, "N workouts", and "This week · N workouts · +D levels" |
+| 15.1 | Progress header | Total level, beside it "level" / "N workouts", and "This week · N workouts · +D levels" |
+| 15.1a | Header at a four-digit total, in Russian (1.7.2) | The number stays on **one** line — never broken mid-digit ("1 27" / "0"); the caption stays on two lines |
+| 15.1b | Header share button | A round icon (the word does not fit beside the number in Russian), centred on the height of the number's line |
+| 15.1c | Header at an accessibility type size | The caption drops under the number instead of pushing the row off either edge; the share glyph stays inside its ring |
 | 15.2 | A week containing a deload | The weekly delta honestly shows a **minus** |
 | 15.3 | Chart projection | Tapping a pattern row tints it and plots that pattern only; the kicker over the chart names the projection ("PUSH — PUSH-UP"); "Show all" resets to the total — no chips row |
 | 15.3a | Chart x-axis | Two–three sparse date labels (first / middle / last workout); no label before the second workout |
 | 15.3b | Per-pattern bars | Under each pattern name the current variation and its position ("Push-up · 2/4"); white ticks at band boundaries; right column shows the level and "next in N" (or "+1 set in N" at tier 4) |
+| 15.3c | Selecting a pattern, in Russian (1.7.2) | The kicker and the chart under it **do not move**: the title stays on one line (shrinking, then truncating) and "Show all" keeps its place even while hidden |
 | 15.4 | History of an on-plan workout | Exercises with planned volumes and no "actual" annotations |
 | 15.5 | History of an adjusted workout | "actual N" in accent on the adjusted rows only |
 | 15.6 | History footer | "Total level after: N" |
@@ -262,10 +266,12 @@ The snapshot-mirroring logic is unit-tested on every run (the snapshot URL is in
 |---|---|---|
 | 19.1 | **Share** on a milestone screen → save the image | PNG, exactly 1080×1350 |
 | 19.2 | Inspect the card | Wordmark, accent rule, milestone line, date without a time, `dredfit.com`. **No** body metrics, weight, photo or name |
-| 19.3 | Progress tab → share icon | Card reads "N workouts · total level M" |
+| 19.3 | Progress tab → share icon | Card reads "N workouts · level M" — the same one word the header uses |
 | 19.4 | Progress tab on a fresh install | No share icon (nothing to show yet) |
 | 19.5 | Aeroplane mode | Card still renders — generation is entirely local |
 | 19.6 | Card in Russian | Correct plural forms ("10 тренировок", "4 подхода" vs "5 подходов") |
+| 19.7 | Share a milestone screen with several unlocks (1.7.2) | The card names **every** unlocked variation, comma-separated, not only the first row |
+| 19.8 | The same in Russian, with the longest names, on a calibration workout | The headline steps down in size; the date and `dredfit.com` stay on the card |
 
 ### 20. Review request (1.4)
 
