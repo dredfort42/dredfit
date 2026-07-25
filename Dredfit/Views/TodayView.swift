@@ -26,6 +26,7 @@ struct TodayView: View {
     @State private var techniqueFor: SessionExercise?
     @State private var nextPreviewShown = false
     @State private var freshStartConfirmShown = false
+    @State private var howItWorksShown = false
 
     var body: some View {
         Group {
@@ -49,6 +50,9 @@ struct TodayView: View {
         .sheet(isPresented: $nextPreviewShown) {
             NextWorkoutSheet()
         }
+        .sheet(isPresented: $howItWorksShown) {
+            HowItWorksView()
+        }
         .confirmationDialog(String(localized: "Start from scratch?"),
                             isPresented: $freshStartConfirmShown,
                             titleVisibility: .visible) {
@@ -65,6 +69,7 @@ struct TodayView: View {
 
     private var planView: some View {
         let session = store.nextSession
+        let debuts = store.debutPatterns
         return VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 6) {
                 Kicker(text: store.today.formatted(.dateTime.weekday(.wide).day().month(.wide))
@@ -72,9 +77,26 @@ struct TodayView: View {
                 Text("Workout \(session.sessionNumber)")
                     .dredfitFont(32, weight: .heavy)
                     .tracking(-0.5)
-                Text("≈ \(Int(session.estimatedTotalMin.rounded())) min · \(session.exercises.count) exercises")
-                    .dredfitFont(15)
-                    .foregroundStyle(Theme.ink2)
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    Text("≈ \(Int(session.estimatedTotalMin.rounded())) min · \(session.exercises.count) exercises")
+                        .dredfitFont(15)
+                        .foregroundStyle(Theme.ink2)
+                    // A quiet way into the existing explainer for everyone who
+                    // skipped onboarding and can't interpret "+1 step".
+                    Button {
+                        howItWorksShown = true
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "info.circle")
+                                .dredfitFont(13)
+                            Text("Why this plan?")
+                                .dredfitFont(13, weight: .medium)
+                                .underline(color: Theme.ink3)
+                        }
+                        .foregroundStyle(Theme.ink2)
+                    }
+                    .accessibilityIdentifier("why-this-plan")
+                }
             }
             .padding(.top, 18)
 
@@ -82,7 +104,12 @@ struct TodayView: View {
                 Button {
                     techniqueFor = ex
                 } label: {
-                    ExerciseRow(exercise: ex)
+                    // A tier crossing swaps the exercise itself — the most
+                    // meaningful event in the system deserves more than a row
+                    // that looks like any other.
+                    ExerciseRow(exercise: ex,
+                                badge: debuts.contains(ex.pattern)
+                                    ? String(localized: "new variation") : nil)
                 }
                 .listRowSeparatorTint(Theme.hairline)
             }
@@ -290,8 +317,8 @@ struct TodayView: View {
     private var resultCaption: String {
         switch store.lastRecord?.result {
         case .less: return String(localized: "Rating: tough — the next one will be easier")
-        case .plan: return String(localized: "Rating: on plan — next: +1 step")
-        case .more: return String(localized: "Rating: easy — next: +2 steps")
+        case .plan: return String(localized: "Rating: on plan — the next asks a little more")
+        case .more: return String(localized: "Rating: easy — progressing twice as fast")
         case nil:   return ""
         }
     }
@@ -301,13 +328,24 @@ struct TodayView: View {
 
 struct ExerciseRow: View {
     let exercise: SessionExercise
+    /// A short pill trailing the name ("new variation" on a debut). Non-nil
+    /// only on Today; the row stays a plain name/load line everywhere else.
+    /// The pill is not interactive — the whole row is already a button.
+    ///
+    /// The pill rides INLINE at the end of the name and wraps with it as a
+    /// unit: the longest catalog name (pt-BR "Flexão em parada de mão de
+    /// frente para a parede", ≈360 pt) is wider than the content column by
+    /// itself, so a sibling HStack pill would push the load off screen. Not
+    /// ellipsis either — sibling variations differ at the *end* of the name,
+    /// which is exactly what truncation would hide.
+    var badge: String?
+    @Environment(\.displayScale) private var displayScale
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
-            Text(exercise.name)
-                .dredfitFont(16.5, weight: .medium)
-                .foregroundStyle(Theme.ink)
-            Spacer()
+            nameWithBadge
+                .frame(maxWidth: .infinity, alignment: .leading)
             Text(shortLoad)
                 .dredfitFont(15.5)
                 .monospacedDigit()
@@ -319,11 +357,56 @@ struct ExerciseRow: View {
         .padding(.vertical, 4)
     }
 
+    /// Text concatenation is the only SwiftUI flow that lets the pill follow
+    /// the last word and wrap as one piece, so the pill travels as an inline
+    /// image. Rendered once per (text, scale, type size) — see BadgePill.
+    private var nameWithBadge: some View {
+        var name = Text(exercise.name)
+        if let badge,
+           let pill = BadgePill.image(text: badge, scale: displayScale,
+                                      typeSize: dynamicTypeSize) {
+            name = name + Text(verbatim: " ")
+                + Text(Image(uiImage: pill)).baselineOffset(-4)
+        }
+        return name
+            .dredfitFont(16.5, weight: .medium)
+            .foregroundStyle(Theme.ink)
+            .accessibilityLabel(badge.map { Text(verbatim: "\(exercise.name), \($0)") }
+                ?? Text(verbatim: exercise.name))
+    }
+
     private var shortLoad: String {
         let side = exercise.perSide ? String(localized: " /side") : ""
         switch exercise.unit {
         case .reps: return String(localized: "\(exercise.sets) × \(exercise.load)\(side)")
         case .hold: return String(localized: "\(exercise.sets) × \(exercise.load) s\(side)")
         }
+    }
+}
+
+/// The "new variation" pill as an image, cached per text, display scale and
+/// Dynamic Type size. accentText on accentSoft — accent itself reads 2.91:1
+/// on that fill, short of small-text contrast.
+@MainActor
+private enum BadgePill {
+    private static var cache: [String: UIImage] = [:]
+
+    static func image(text: String, scale: CGFloat,
+                      typeSize: DynamicTypeSize) -> UIImage? {
+        let key = "\(text)|\(scale)|\(typeSize)"
+        if let hit = cache[key] { return hit }
+        let renderer = ImageRenderer(content:
+            Text(text)
+                .dredfitFont(11, weight: .semibold)
+                .foregroundStyle(Theme.accentText)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 2)
+                .background(Theme.accentSoft, in: Capsule())
+                .environment(\.dynamicTypeSize, typeSize)
+        )
+        renderer.scale = scale
+        guard let image = renderer.uiImage else { return nil }
+        cache[key] = image
+        return image
     }
 }

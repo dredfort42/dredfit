@@ -395,6 +395,31 @@ final class AppStore {
     /// only with nextTrainingDate (see NextWorkoutSheet).
     var nextSession: Session { Engine.generateSession(engineState) }
 
+    /// Patterns whose exercise in the next session is a variation the journal
+    /// has never seen performed — crossing into a new tier is the single most
+    /// meaningful event in the system, and the plan list badges its debut.
+    /// Conservative on missing data: records without an exercise snapshot
+    /// (older app versions) can't vouch for what was actually done, so a
+    /// pattern with no snapshotted history is never badged — better a missed
+    /// badge than "new variation" on an exercise the user has done for weeks.
+    var debutPatterns: Set<Pattern> {
+        var maxPerformed: [Pattern: Int] = [:]
+        for record in records {
+            guard let exercises = record.exercises else { continue }
+            let skipped = record.skipped ?? []
+            for ex in exercises where !skipped.contains(ex.pattern) {
+                maxPerformed[ex.pattern] = max(maxPerformed[ex.pattern] ?? 0, ex.tier)
+            }
+        }
+        var debuts: Set<Pattern> = []
+        for ex in nextSession.exercises {
+            if let seen = maxPerformed[ex.pattern], ex.tier > seen {
+                debuts.insert(ex.pattern)
+            }
+        }
+        return debuts
+    }
+
     var totalLevel: Int { engineState.levels.values.reduce(0, +) }
 
     var lastRecord: WorkoutRecord? { records.last }
