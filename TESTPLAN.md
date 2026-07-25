@@ -1,6 +1,6 @@
 # Dredfit — manual QA checklist
 
-Automated coverage (198 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
+Automated coverage (202 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
 
 **How to use.** Run the *Release smoke* block before every release. Run *Full pass* when the engine, persistence or an integration changed. Device-only rows cannot pass on a simulator and are marked ⌚. Record anything that fails in the [Issue registry](#issue-registry) at the bottom rather than fixing it silently.
 
@@ -88,9 +88,10 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 | # | Check | Expected |
 |---|---|---|
 | 5.1 | Layout | "Workout N" kicker, "How did it go?", subtitle "One tap — the next workout adapts" |
-| 5.2 | Three options | "Tough, did less" / "On plan" / "Easy, could do more" — **equal visual weight** (no filled card), captions "the next one will be easier" / "next: +1 step" / "next: +2 steps" |
-| 5.3 | No adjustments made | No summary card is shown |
-| 5.4 | With adjustments/skips | "Adjusted" card lists them; footer "Your rating applies to the rest" |
+| 5.2 | Three options | "Tough, did less" / "On plan" / "Easy, could do more" — **equal visual weight** (no filled card), captions "next workout eases off" / "the next one asks a little more" / "progress comes twice as fast" |
+| 5.3 | No adjustments made | No summary card and no scope chip are shown |
+| 5.4 | With adjustments/skips | With skips a scope chip under the title: "Applies to N of M — … stays put" (N excludes skips **and** adjusted exercises; a "Finish now" interruption reads "not finished", matching the summary row). "Adjusted" card lists them; the "Your rating applies to the rest" footer appears only when nothing was skipped |
+| 5.4a | Second and later workouts | "Last time you chose: <previous rating>" in small print under the cards; absent on the very first workout |
 | 5.5 | Tap any option | Submits immediately — the card *is* the button; returns to Today |
 | 5.6 | Choose "On plan" and check Progress next session | Each non-skipped pattern rose by exactly 1 level |
 
@@ -140,7 +141,7 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 | 9.2 | Look at the next workout, then the one after | The pull slot **alternates**: floor pull, then vertical pull, and so on |
 | 9.3 | Technique for a bar exercise | Opens correctly for Bar hang / Negative pull-up / Partial pull-up / Pull-up |
 | 9.4 | Train the bar branch a few sessions | Its level rises independently of the floor pull's level |
-| 9.5 | Progress tab | A "Vertical pull" chip and level bar appear |
+| 9.5 | Progress tab | A "Vertical pull" level row appears; tapping it projects the bar branch in the chart |
 | 9.6 | Turn the bar back **off** | Sessions return to floor pull only; the Vertical pull row **stays visible** because progress exists; its level is preserved |
 | 9.7 | Re-enable the bar | Resumes at the preserved level, not from zero |
 
@@ -212,7 +213,9 @@ The snapshot-mirroring logic is unit-tested on every run (the snapshot URL is in
 |---|---|---|
 | 15.1 | Progress header | Total level, "N workouts", and "This week · N workouts · +D levels" |
 | 15.2 | A week containing a deload | The weekly delta honestly shows a **minus** |
-| 15.3 | Chart pattern chips | Selecting one plots that pattern only; "All" plots the total |
+| 15.3 | Chart projection | Tapping a pattern row tints it and plots that pattern only; the kicker over the chart names the projection ("PUSH — PUSH-UP"); "Show all" resets to the total — no chips row |
+| 15.3a | Chart x-axis | Two–three sparse date labels (first / middle / last workout); no label before the second workout |
+| 15.3b | Per-pattern bars | Under each pattern name the current variation and its position ("Push-up · 2/4"); white ticks at band boundaries; right column shows the level and "next in N" (or "+1 set in N" at tier 4) |
 | 15.4 | History of an on-plan workout | Exercises with planned volumes and no "actual" annotations |
 | 15.5 | History of an adjusted workout | "actual N" in accent on the adjusted rows only |
 | 15.6 | History footer | "Total level after: N" |
@@ -337,6 +340,20 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 25.2 | A **future** training day | The grey "planned" ring |
 | 25.3 | A rest day (any past or future) | The soft filled circle, visible both in the grid and as the 13 pt legend dot |
 | 25.4 | The legend | completed · planned · rest · today — every dot distinguishable on a real screen at normal brightness |
+| 25.5 | Tap the **next** training day (today's ring before the workout, or the next planned ring after it) | NextWorkoutSheet opens — same preview as the Today done-card; no Start button. Other planned days stay inert |
+
+### 26. Design-review wave (1.8)
+
+| # | Check | Expected |
+|---|---|---|
+| 26.1 | Today header | "Why this plan?" link next to "≈ N min · N exercises"; tapping opens "How it works", "Got it" dismisses |
+| 26.2 | A workout whose plan first shows a harder variation | That row carries a small "new variation" pill; the pill is not separately tappable — the row still opens technique |
+| 26.3 | The badge after a deload and re-climb | Returning to a variation already performed does **not** re-badge it |
+| 26.4 | Badge across languages | «новая вариация» / "nueva variación" / "nova variação" — no clipping next to long exercise names |
+| 26.5 | Badge on the longest name (pt-BR "Flexão em parada de mão de frente para a parede") | The pill trails the name inline and wraps with it as a unit; the name wraps — **no ellipsis**; the load stays on the first line |
+| 26.6 | Progress fits one screen | No chips row; header stats + chart + all 9 rows (10 with the bar branch) visible together on a 6.1" screen at default type |
+| 26.7 | Progress row selection | Tap a row → accentSoft tint + chart re-projects + kicker reads "PATTERN — VARIATION"; a second tap on the same row or "Show all" (accentText) resets to the total; VoiceOver reports the selected trait |
+| 26.8 | Selection tint at the edges | The tint reaches ≈8 pt into both gutters with **rounded** corners — no flat-cut edges |
 
 ---
 
