@@ -99,8 +99,8 @@ struct HistorySheet: View {
     private var resultCaption: String {
         switch record.result {
         case .less: return String(localized: "Rating: tough — the next one will be easier")
-        case .plan: return String(localized: "Rating: on plan — next: +1 step")
-        case .more: return String(localized: "Rating: easy — next: +2 steps")
+        case .plan: return String(localized: "Rating: on plan — the next asks a little more")
+        case .more: return String(localized: "Rating: easy — progressing twice as fast")
         }
     }
 }

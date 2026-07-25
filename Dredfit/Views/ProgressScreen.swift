@@ -57,41 +57,63 @@ struct ProgressScreen: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Kicker(text: String(localized: "Progress"))
-                .padding(.top, 18)
+            // The header carries its own gutters; the ScrollView below spans
+            // the full width so the selected row's tint can reach 8 pt into
+            // the gutters (as designed) without the scroll bounds slicing
+            // its rounded corners flat.
+            VStack(alignment: .leading, spacing: 0) {
+                Kicker(text: String(localized: "Progress"))
+                    .padding(.top, 18)
 
-            HStack(alignment: .center, spacing: 12) {
-                HStack(alignment: .lastTextBaseline, spacing: 10) {
-                    // The identifier lets UI tests assert on THIS value — a bare
-                    // staticTexts["0"] query can match a chart axis label.
-                    Text("\(store.totalLevel)")
-                        .dredfitFont(56, weight: .heavy, cap: 84)
-                        .tracking(-2)
-                        .monospacedDigit()
-                        .accessibilityIdentifier("total-level")
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text("total level")
-                        Text("\(store.records.count) workouts")
+                HStack(alignment: .center, spacing: 12) {
+                    HStack(alignment: .lastTextBaseline, spacing: 10) {
+                        // The identifier lets UI tests assert on THIS value — a
+                        // bare staticTexts["0"] query can match an axis label.
+                        Text("\(store.totalLevel)")
+                            .dredfitFont(56, weight: .heavy, cap: 84)
+                            .tracking(-2)
+                            .monospacedDigit()
+                            .accessibilityIdentifier("total-level")
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text("total level")
+                            Text("\(store.records.count) workouts")
+                        }
+                        .dredfitFont(14.5)
+                        .foregroundStyle(Theme.ink2)
                     }
-                    .dredfitFont(14.5)
-                    .foregroundStyle(Theme.ink2)
+                    Spacer(minLength: 8)
+                    shareButton
                 }
-                Spacer(minLength: 8)
-                shareButton
-            }
-            .padding(.top, 12)
+                .padding(.top, 12)
 
-            weekSummaryLine
-                .padding(.top, 8)
+                weekSummaryLine
+                    .padding(.top, 8)
+            }
+            .padding(.horizontal, 24)
 
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 0) {
-                    patternChips
-                        .padding(.top, 16)
+                    // The chips row is gone: it was the same list of patterns
+                    // twice. The rows below drive the chart; this line names
+                    // the current projection and offers the way back.
+                    HStack(alignment: .firstTextBaseline) {
+                        Kicker(text: chartTitle)
+                        Spacer()
+                        if effectivePattern != nil {
+                            Button {
+                                chartPattern = nil
+                            } label: {
+                                Text("Show all")
+                                    .dredfitFont(13, weight: .semibold)
+                                    .foregroundStyle(Theme.accentText)
+                            }
+                        }
+                    }
+                    .padding(.top, 16)
 
                     levelChart
-                        .frame(height: 120)
-                        .padding(.top, 12)
+                        .frame(height: 134)   // 120 of chart + room for the date axis
+                        .padding(.top, 8)
 
                     VStack(spacing: 0) {
                         ForEach(Pattern.ordered, id: \.self) { p in
@@ -103,12 +125,12 @@ struct ProgressScreen: View {
                             levelRow(.pullBar)
                         }
                     }
-                    .padding(.top, 18)
+                    .padding(.top, 10)
                 }
+                .padding(.horizontal, 24)
                 .padding(.bottom, 12)
             }
         }
-        .padding(.horizontal, 24)
         .onAppear { refreshCard() }
         // The totals move with every workout; a stale card would share numbers
         // the user is no longer looking at.
@@ -165,9 +187,20 @@ struct ProgressScreen: View {
         let value: Int
     }
 
-    /// The selected projection: the total level for "All", or a pattern's
-    /// level from the journal snapshots. Older records without snapshots are
-    /// simply skipped — the line starts where history does.
+    /// First, middle and last workout dates — the sparse x-axis. Dates can
+    /// coincide (several workouts in one span), so duplicates collapse.
+    private func xAxisDates(_ points: [LevelPoint]) -> [Date] {
+        guard let first = points.first?.date, let last = points.last?.date else { return [] }
+        let mid = points[points.count / 2].date
+        var dates = [first]
+        if mid > first && mid < last { dates.append(mid) }
+        if last > first { dates.append(last) }
+        return dates
+    }
+
+    /// The selected projection: the total level when no row is picked, or a
+    /// pattern's level from the journal snapshots. Older records without
+    /// snapshots are simply skipped — the line starts where history does.
     private var chartPoints: [LevelPoint] {
         if let p = effectivePattern {
             return store.records
@@ -179,44 +212,13 @@ struct ProgressScreen: View {
             .map { LevelPoint(id: $0.offset, date: $0.element.date, value: $0.element.totalLevelAfter) }
     }
 
-    private var patternChips: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                chip(nil)
-                ForEach(Pattern.ordered, id: \.self) { p in
-                    chip(p)
-                }
-                if barBranchExists {
-                    chip(.pullBar)
-                }
-            }
-        }
-    }
-
-    private func chip(_ p: Pattern?) -> some View {
-        let selected = effectivePattern == p
-        return Button {
-            chartPattern = p
-        } label: {
-            Text(p?.displayName ?? String(localized: "All"))
-                .dredfitFont(13, weight: .semibold)
-                .lineLimit(1)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 7)
-                .background(
-                    Capsule()
-                        .fill(selected ? Theme.accentSoft : Color.white)
-                        // strokeBorder insets the line inside the shape so its
-                        // outer half is never clipped on the straight edges.
-                        .overlay(Capsule().strokeBorder(selected ? Theme.accent : Theme.hairline,
-                                                        lineWidth: 1.5))
-                )
-                // ink, not accent: accent on accentSoft is 2.91:1 — the fill
-                // and stroke already say "selected", the text just reads.
-                .foregroundStyle(selected ? Theme.ink : Theme.ink2)
-        }
-        // Colour alone doesn't reach VoiceOver — state has to be a trait.
-        .accessibilityAddTraits(selected ? [.isSelected] : [])
+    /// "TOTAL LEVEL", or the projected pattern with its current variation
+    /// ("PUSH — PUSH-UP") — the Kicker uppercases it.
+    private var chartTitle: String {
+        guard let p = effectivePattern else { return String(localized: "total level") }
+        let decoded = Level.decode(store.engineState.levels[p] ?? 0)
+        let variation = ExerciseLibrary.entry(for: p).variations[decoded.tier - 1].name
+        return "\(p.displayName) — \(variation)"
     }
 
     @ViewBuilder
@@ -236,7 +238,15 @@ struct ProgressScreen: View {
                 }
             }
             .chartYScale(domain: 0...max(points.map(\.value).max() ?? 1, 8))
-            .chartXAxis(.hidden)
+            // A rising line with no time axis can't answer "how fast" — three
+            // sparse dates are enough without turning the chart into a grid.
+            .chartXAxis {
+                AxisMarks(values: xAxisDates(points)) { _ in
+                    AxisValueLabel(format: .dateTime.month(.abbreviated).day())
+                        .font(.system(size: 10))
+                        .foregroundStyle(Theme.ink3)
+                }
+            }
             .chartYAxis {
                 AxisMarks(position: .trailing, values: .automatic(desiredCount: 3)) {
                     AxisGridLine().foregroundStyle(Theme.hairline)
@@ -261,27 +271,107 @@ struct ProgressScreen: View {
 
     // MARK: - Pattern level bar
 
+    /// What the row's small print says about where the level is heading.
+    /// Below tier 4 the next band boundary unlocks a variation; at tier 4 it
+    /// adds a set (32, 40); at the ceiling there is nothing left to promise.
+    private enum NextMilestone {
+        case variation(in: Int)
+        case set(in: Int)
+        case ceiling
+    }
+
+    private func nextMilestone(level: Int, tier: Int) -> NextMilestone {
+        let boundary = (level / EngineConfig.stepsPerTier + 1) * EngineConfig.stepsPerTier
+        if tier < EngineConfig.tiers { return .variation(in: boundary - level) }
+        if boundary <= EngineConfig.levelMax { return .set(in: boundary - level) }
+        return .ceiling
+    }
+
     private func levelRow(_ p: Pattern) -> some View {
         let level = store.engineState.levels[p] ?? 0
-        return HStack(spacing: 12) {
-            Text(p.displayName)
-                .dredfitFont(14, weight: .medium)
-                .frame(width: 118, alignment: .leading)
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    Capsule().fill(Theme.hairline)
-                    Capsule().fill(Theme.accent)
-                        .frame(width: max(geo.size.width
-                            * CGFloat(level) / CGFloat(EngineConfig.levelMax), level > 0 ? 6 : 0))
+        let decoded = Level.decode(level)
+        let variation = ExerciseLibrary.entry(for: p).variations[decoded.tier - 1].name
+        let selected = effectivePattern == p
+        // The row IS the chart selector — the chips row it replaced was the
+        // same list of patterns a second time. A second tap on the selected
+        // row deselects it, back to the total view; "Show all" stays as the
+        // visible way out for anyone who won't guess the toggle.
+        return Button {
+            chartPattern = selected ? nil : p
+        } label: {
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(p.displayName)
+                        .dredfitFont(13.5, weight: .medium)
+                        .foregroundStyle(Theme.ink)
+                    // "Push-up · 2/4" — which exercise this level buys and
+                    // where it sits in the four-variation progression. The
+                    // pieces are either core-localized (the name) or
+                    // language-neutral (the count), so the line is verbatim.
+                    Text(verbatim: "\(variation) · \(decoded.tier)/\(EngineConfig.tiers)")
+                        .dredfitFont(11)
+                        .foregroundStyle(Theme.ink2)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                        .accessibilityLabel(Text(verbatim: variation + ", ") + Text("variation \(decoded.tier) of 4"))
+                }
+                .frame(width: 116, alignment: .leading)
+                levelBar(level: level)
+                VStack(alignment: .trailing, spacing: 1) {
+                    Text("\(level)")
+                        .dredfitFont(13.5, weight: .semibold)
+                        .monospacedDigit()
+                        .foregroundStyle(Theme.ink2)
+                    nextMilestoneLabel(nextMilestone(level: level, tier: decoded.tier))
+                        .dredfitFont(10.5)
+                        .monospacedDigit()
+                        .foregroundStyle(Theme.ink3)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+                .frame(width: 72, alignment: .trailing)
+            }
+            .padding(.vertical, 5)
+            .padding(.horizontal, 8)
+            // The tint says "this is what the chart shows"; it reaches 8 pt
+            // into the gutters so the highlight breathes past the text.
+            .background(selected ? Theme.accentSoft : .clear,
+                        in: RoundedRectangle(cornerRadius: 10))
+        }
+        .buttonStyle(.plain)
+        .padding(.horizontal, -8)
+        // Colour alone doesn't reach VoiceOver — state has to be a trait.
+        .accessibilityAddTraits(selected ? [.isSelected] : [])
+    }
+
+    private func levelBar(level: Int) -> some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                Capsule().fill(Theme.hairline)
+                Capsule().fill(Theme.accent)
+                    .frame(width: max(geo.size.width
+                        * CGFloat(level) / CGFloat(EngineConfig.levelMax), level > 0 ? 6 : 0))
+                // Band boundaries — where a variation (or, past tier 4, a
+                // set) unlocks. The geometry uses the same 0...levelMax scale
+                // as the fill so the ticks agree with the number.
+                ForEach(1..<(EngineConfig.levelMax / EngineConfig.stepsPerTier + 1), id: \.self) { band in
+                    Rectangle()
+                        .fill(Color.white)
+                        .frame(width: 2, height: 8)
+                        .offset(x: geo.size.width
+                            * CGFloat(band * EngineConfig.stepsPerTier) / CGFloat(EngineConfig.levelMax))
                 }
             }
-            .frame(height: 6)
-            Text("\(level)")
-                .dredfitFont(13.5, weight: .semibold)
-                .monospacedDigit()
-                .foregroundStyle(Theme.ink2)
-                .frame(width: 30, alignment: .trailing)
         }
-        .padding(.vertical, 9.5)
+        .frame(height: 6)
+    }
+
+    @ViewBuilder
+    private func nextMilestoneLabel(_ milestone: NextMilestone) -> some View {
+        switch milestone {
+        case .variation(let steps): Text("next in \(steps)")
+        case .set(let steps): Text("+1 set in \(steps)")
+        case .ceiling: EmptyView()
+        }
     }
 }

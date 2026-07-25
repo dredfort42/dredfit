@@ -29,6 +29,28 @@
         }
       }
     },
+    "“Finish now” keeps what you've done and goes to the rating — the remaining exercises are marked as skipped." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Terminar ahora» conserva lo que has hecho y pasa a la valoración; los ejercicios restantes se marcan como saltados."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Terminar agora” mantém o que você fez e vai para a avaliação; os exercícios restantes ficam marcados como pulados."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Закончить сейчас» сохранит сделанное и откроет оценку — оставшиеся упражнения будут отмечены как пропущенные."
+          }
+        }
+      }
+    },
     "“Less · On plan · More” — that is enough. If you want to be exact, tap “Went differently” right on the exercise and put in your number." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -575,6 +597,28 @@
         }
       }
     },
+    "+1 set in %lld" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+1 serie en %lld"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+1 série em %lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+1 подход через %lld"
+          }
+        }
+      }
+    },
     "≈ %lld min · %lld exercises" : {
       "localizations" : {
         "es" : {
@@ -863,28 +907,6 @@
         }
       }
     },
-    "All" : {
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Todos"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Todos"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Все"
-          }
-        }
-      }
-    },
     "All your data stays on your device. If you have problems with your joints, heart or blood pressure, talk to a doctor first. Sharp pain during an exercise always means stop." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -904,6 +926,72 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Все данные остаются на устройстве. Если есть проблемы с суставами, сердцем или давлением — сначала посоветуйся с врачом. Острая боль во время упражнения — всегда стоп."
+          }
+        }
+      }
+    },
+    "Applies to %lld of %lld — %@ skipped, stays put" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuenta para %lld de %lld — %@ quedó fuera y no cambia"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vale para %lld de %lld — %@ ficou de fora e não muda"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оценка для %lld из %lld — %@: пропуск, уровень на месте"
+          }
+        }
+      }
+    },
+    "Applies to %lld of %lld — %@ not finished, stays put" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuenta para %lld de %lld — %@ quedó a medias y no cambia"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vale para %lld de %lld — %@ ficou pela metade e não muda"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оценка для %lld из %lld — %@: не закончено, уровень на месте"
+          }
+        }
+      }
+    },
+    "Applies to %lld of %lld — skipped exercises stay put" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuenta para %lld de %lld — los saltados se quedan igual"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vale para %lld de %lld — os pulados ficam como estão"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оценка для %lld из %lld — пропущенные на месте"
           }
         }
       }
@@ -993,28 +1081,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Календарь"
-          }
-        }
-      }
-    },
-    "Did far more than planned? Tap “Went differently” and enter what you actually did — the system will land on your level right away." : {
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Te salió muy por encima del plan? Toca «Fue distinto» y pon lo que hiciste de verdad: el sistema se pondrá en tu nivel al momento."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Saiu bem acima do plano? Toque em “Foi diferente” e informe o que você realmente fez: o sistema se ajusta ao seu nível na hora."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вышло сильно больше плана? Нажми «Получилось иначе» и впиши факт — система сразу встанет на твой уровень."
           }
         }
       }
@@ -1239,6 +1305,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Разгрузка"
+          }
+        }
+      }
+    },
+    "Did far more than planned? Tap “Went differently” and enter what you actually did — the system will land on your level right away." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Te salió muy por encima del plan? Toca «Fue distinto» y pon lo que hiciste de verdad: el sistema se pondrá en tu nivel al momento."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saiu bem acima do plano? Toque em “Foi diferente” e informe o que você realmente fez: o sistema se ajusta ao seu nível na hora."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вышло сильно больше плана? Нажми «Получилось иначе» и впиши факт — система сразу встанет на твой уровень."
           }
         }
       }
@@ -1798,6 +1886,28 @@
         }
       }
     },
+    "Last time you chose: %@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La última vez elegiste: %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Da última vez você escolheu: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В прошлый раз ты выбрал: %@"
+          }
+        }
+      }
+    },
     "Leave as it was" : {
       "localizations" : {
         "es" : {
@@ -1961,6 +2071,28 @@
         }
       }
     },
+    "new variation" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nueva variación"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nova variação"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "новая вариация"
+          }
+        }
+      }
+    },
     "New variation" : {
       "localizations" : {
         "es" : {
@@ -2023,6 +2155,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Следующая · %@"
+          }
+        }
+      }
+    },
+    "next in %lld" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nueva en %lld"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nova em %lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "новая через %lld"
           }
         }
       }
@@ -2093,46 +2247,24 @@
         }
       }
     },
-    "next: +1 step" : {
+    "next workout eases off" : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "siguiente: +1 paso"
+            "value" : "el siguiente afloja un poco"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "próximo: +1 passo"
+            "value" : "o próximo alivia um pouco"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "следующая: +1 ступень"
-          }
-        }
-      }
-    },
-    "next: +2 steps" : {
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "siguiente: +2 pasos"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "próximo: +2 passos"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "следующая: +2 ступени"
+            "value" : "следующая будет полегче"
           }
         }
       }
@@ -2670,46 +2802,46 @@
         }
       }
     },
-    "Rating: easy — next: +2 steps" : {
+    "Rating: easy — progressing twice as fast" : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Valoración: fácil — siguiente: +2 pasos"
+            "value" : "Valoración: fácil — el progreso va el doble de rápido"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Avaliação: fácil — próximo: +2 passos"
+            "value" : "Avaliação: fácil — o progresso vem duas vezes mais rápido"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Оценка: легко — следующая: +2 ступени"
+            "value" : "Оценка: легко — прогресс вдвое быстрее"
           }
         }
       }
     },
-    "Rating: on plan — next: +1 step" : {
+    "Rating: on plan — the next asks a little more" : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Valoración: según el plan — siguiente: +1 paso"
+            "value" : "Valoración: según el plan — el siguiente pide un poco más"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Avaliação: como planejado — próximo: +1 passo"
+            "value" : "Avaliação: como planejado — o próximo pede um pouco mais"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Оценка: по плану — следующая: +1 ступень"
+            "value" : "Оценка: по плану — следующая попросит чуть больше"
           }
         }
       }
@@ -3028,6 +3160,28 @@
         }
       }
     },
+    "the next one asks a little more" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "el siguiente pide un poco más"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "o próximo pede um pouco mais"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "следующая попросит чуть больше"
+          }
+        }
+      }
+    },
     "Save workouts to Health" : {
       "localizations" : {
         "es" : {
@@ -3254,6 +3408,28 @@
         }
       }
     },
+    "Show all" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar todo"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar tudo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показать все"
+          }
+        }
+      }
+    },
     "Skip" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3405,6 +3581,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Пропуски"
+          }
+        }
+      }
+    },
+    "progress comes twice as fast" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "el progreso va el doble de rápido"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "o progresso vem duas vezes mais rápido"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "прогресс вдвое быстрее"
           }
         }
       }
@@ -3586,28 +3784,6 @@
         }
       }
     },
-    "variation %lld of 4" : {
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "variación %lld de 4"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "variação %lld de 4"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "вариация %lld из 4"
-          }
-        }
-      }
-    },
     "Stop" : {
       "localizations" : {
         "es" : {
@@ -3718,28 +3894,6 @@
         }
       }
     },
-    "the next one will be easier" : {
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "el siguiente será más fácil"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "o próximo será mais leve"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "следующая станет легче"
-          }
-        }
-      }
-    },
     "The workout is done — only the rating is left." : {
       "localizations" : {
         "es" : {
@@ -3824,28 +3978,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Три недовыполнения подряд — откат на три ступени. Не наказание, а передышка: вернешься с запасом."
-          }
-        }
-      }
-    },
-    "variation %lld · %@ · %@" : {
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "variación %lld · %@ · %@"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "variação %lld · %@ · %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "вариация %lld · %@ · %@"
           }
         }
       }
@@ -4138,6 +4270,50 @@
         }
       }
     },
+    "variation %lld · %@ · %@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "variación %lld · %@ · %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "variação %lld · %@ · %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "вариация %lld · %@ · %@"
+          }
+        }
+      }
+    },
+    "variation %lld of 4" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "variación %lld de 4"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "variação %lld de 4"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "вариация %lld из 4"
+          }
+        }
+      }
+    },
     "WARM-UP" : {
       "localizations" : {
         "es" : {
@@ -4244,6 +4420,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Почему без анкет"
+          }
+        }
+      }
+    },
+    "Why this plan?" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Por qué este plan?"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por que este plano?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Почему такой план?"
           }
         }
       }
@@ -4420,28 +4618,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Оценка применится к остальным"
-          }
-        }
-      }
-    },
-    "“Finish now” keeps what you've done and goes to the rating — the remaining exercises are marked as skipped." : {
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«Terminar ahora» conserva lo que has hecho y pasa a la valoración; los ejercicios restantes se marcan como saltados."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“Terminar agora” mantém o que você fez e vai para a avaliação; os exercícios restantes ficam marcados como pulados."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«Закончить сейчас» сохранит сделанное и откроет оценку — оставшиеся упражнения будут отмечены как пропущенные."
           }
         }
       }
