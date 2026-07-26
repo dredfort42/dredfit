@@ -462,6 +462,21 @@ final class AppStoreTests: XCTestCase {
                        "the widget must keep showing the last state that was real")
     }
 
+    // MARK: - Level curve
+
+    /// The milestone card belongs to the workout that earned it, so its curve
+    /// must stop there rather than run on to whatever the journal holds now.
+    func testLevelCurveIsCutAtTheGivenDate() throws {
+        let store = AppStore(storageURL: tempURL, widgetSnapshotURL: nil)
+        store.completeWorkout(session: store.nextSession, result: .plan)
+
+        XCTAssertEqual(store.levelCurve(), store.records.map(\.totalLevelAfter))
+        XCTAssertEqual(store.levelCurve(through: .distantPast), [],
+                       "nothing was recorded before the cut, so there is no curve")
+        XCTAssertEqual(store.levelCurve(through: .distantFuture).count,
+                       store.records.count)
+    }
+
     // MARK: - Week summary
 
     func testWeekSummaryUsesMondayFirstIsoWeeks() {

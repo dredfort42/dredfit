@@ -85,12 +85,12 @@ The engine was first written and verified as a JavaScript reference (4,150 prope
 
 ## Testing
 
-Three layers, 211 automated tests:
+Three layers, 215 automated tests:
 
 | Layer | Count | What it covers |
 | --- | --- | --- |
 | Core invariants + golden | 61 | encoding bijectivity, rotation properties, pull:push balance, deload timing, override caps, skip semantics, bar-branch independence, lenient state decode, feedback replay safety, reference parity |
-| App unit tests | 117 | persistence round-trips, corrupted-file quarantine, a frozen journal and its reload, legacy-record migration, in-progress snapshot validity, rest-day calendar math, Health export ordering and idempotence, the one-shot reminder window, day-anchor rollover, the widget snapshot and its backward compatibility, the variation-debut badge, share-card wording and fit |
+| App unit tests | 121 | persistence round-trips, corrupted-file quarantine, a frozen journal and its reload, legacy-record migration, in-progress snapshot validity, rest-day calendar math, Health export ordering and idempotence, the one-shot reminder window, day-anchor rollover, the widget snapshot and its backward compatibility, the variation-debut badge, share-card wording, fit and its level curve |
 | UI tests | 33 | the full workout flow, in-workout adjustment, hold mis-tap grace, resume after a kill, the three exit paths, history, relaunch persistence |
 
 Plus [TESTPLAN.md](TESTPLAN.md): a manual QA checklist (locale passes, date rollover, backgrounding during rest, device-only integrations) and a registry of found issues with their status.
