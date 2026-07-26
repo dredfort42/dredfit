@@ -930,28 +930,6 @@
         }
       }
     },
-    "Applies to %lld of %lld — %@ skipped, stays put" : {
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cuenta para %lld de %lld — %@ quedó fuera y no cambia"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vale para %lld de %lld — %@ ficou de fora e não muda"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Оценка для %lld из %lld — %@: пропуск, уровень на месте"
-          }
-        }
-      }
-    },
     "Applies to %lld of %lld — %@ not finished, stays put" : {
       "localizations" : {
         "es" : {
@@ -970,6 +948,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Оценка для %lld из %lld — %@: не закончено, уровень на месте"
+          }
+        }
+      }
+    },
+    "Applies to %lld of %lld — %@ skipped, stays put" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuenta para %lld de %lld — %@ quedó fuera y no cambia"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vale para %lld de %lld — %@ ficou de fora e não muda"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оценка для %lld из %lld — %@: пропуск, уровень на месте"
           }
         }
       }
@@ -1976,6 +1976,35 @@
         }
       }
     },
+    "level %lld" : {
+      "comment" : "Share card: the level after the workout count, e.g. \"42 workouts · level 137\".",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "level %lld"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nivel %lld"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nível %lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "уровень %lld"
+          }
+        }
+      }
+    },
     "Levels go back to the beginning. Your history stays." : {
       "localizations" : {
         "es" : {
@@ -2736,6 +2765,57 @@
         }
       }
     },
+    "progress comes twice as fast" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "el progreso va el doble de rápido"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "o progresso vem duas vezes mais rápido"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "прогресс вдвое быстрее"
+          }
+        }
+      }
+    },
+    "progress.levelLabel" : {
+      "comment" : "Caption beside the big total-level number. One word: it shares one row with the number and the share button.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "level"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nivel"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nível"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "уровень"
+          }
+        }
+      }
+    },
     "Pull is in every workout — that is what keeps your shoulders balanced. The rest come round in a cycle: over eight workouts each one turns up five times. With the pull-up bar switched on, the pull alternates between horizontal and vertical." : {
       "localizations" : {
         "es" : {
@@ -3160,28 +3240,6 @@
         }
       }
     },
-    "the next one asks a little more" : {
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "el siguiente pide un poco más"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "o próximo pede um pouco mais"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "следующая попросит чуть больше"
-          }
-        }
-      }
-    },
     "Save workouts to Health" : {
       "localizations" : {
         "es" : {
@@ -3585,28 +3643,6 @@
         }
       }
     },
-    "progress comes twice as fast" : {
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "el progreso va el doble de rápido"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "o progresso vem duas vezes mais rápido"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "прогресс вдвое быстрее"
-          }
-        }
-      }
-    },
     "Skips the introduction" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3894,6 +3930,28 @@
         }
       }
     },
+    "the next one asks a little more" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "el siguiente pide un poco más"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "o próximo pede um pouco mais"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "следующая попросит чуть больше"
+          }
+        }
+      }
+    },
     "The workout is done — only the rating is left." : {
       "localizations" : {
         "es" : {
@@ -4115,64 +4173,6 @@
         }
       }
     },
-    "level %lld" : {
-      "comment" : "Share card: the level after the workout count, e.g. \"42 workouts · level 137\".",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "level %lld"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "nivel %lld"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "nível %lld"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "уровень %lld"
-          }
-        }
-      }
-    },
-    "progress.levelLabel" : {
-      "comment" : "Caption beside the big total-level number. One word: it shares one row with the number and the share button.",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "level"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "nivel"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "nível"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "уровень"
-          }
-        }
-      }
-    },
     "total level" : {
       "localizations" : {
         "es" : {
@@ -4196,6 +4196,7 @@
       }
     },
     "total level %lld" : {
+      "extractionState" : "stale",
       "localizations" : {
         "es" : {
           "stringUnit" : {
