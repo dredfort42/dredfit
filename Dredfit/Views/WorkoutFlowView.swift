@@ -128,7 +128,8 @@ struct WorkoutFlowView: View {
                     }
                 }
             case .milestone(let earned):
-                MilestoneView(milestones: earned) {
+                MilestoneView(milestones: earned,
+                              levels: store.levelCurve(through: store.lastRecord?.date)) {
                     askForReviewIfEarned()
                     dismiss()
                 }

@@ -422,6 +422,14 @@ final class AppStore {
 
     var totalLevel: Int { engineState.levels.values.reduce(0, +) }
 
+    /// The total-level history for the share card, oldest first. `through`
+    /// cuts it at a date: a milestone card belongs to the workout that earned
+    /// it, so it must not draw a curve that runs past the event it celebrates.
+    func levelCurve(through date: Date? = nil) -> [Int] {
+        let history = date.map { cut in records.filter { $0.date <= cut } } ?? records
+        return history.map(\.totalLevelAfter)
+    }
+
     var lastRecord: WorkoutRecord? { records.last }
 
     var doneToday: Bool { isDone(on: today) }

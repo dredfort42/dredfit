@@ -17,6 +17,9 @@ import DredfitCore
 
 struct MilestoneView: View {
     let milestones: [Milestone]
+    /// The level history up to the workout that earned these milestones —
+    /// the card celebrates that moment, not whatever came after it.
+    let levels: [Int]
     let onDone: () -> Void
 
     @State private var ruleDrawn = false
@@ -88,7 +91,8 @@ struct MilestoneView: View {
             // up front, and a card is cheap enough to make eagerly.
             if !milestones.isEmpty {
                 cardURL = ShareCardFactory.fileURL(headline: cardHeadline,
-                                                   slot: .milestone)
+                                                   slot: .milestone,
+                                                   levels: levels)
             }
         }
     }
