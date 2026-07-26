@@ -8,17 +8,55 @@
 //
 //  What it deliberately never carries: body metrics, weight, photos, a name,
 //  a streak, or anything that turns a workout into a scoreboard. A milestone
-//  line, a date, and the wordmark.
+//  line, a date, the wordmark — and the level curve, drawn exactly as the
+//  Progress screen draws it, because it is the same fact and not a new one.
 //
 
 import SwiftUI
+import UIKit
 import DredfitCore
 
 struct ShareCard: View {
     let headline: String
     let date: Date
+    /// Total level after each session, oldest first. Fewer than two points
+    /// draws nothing: one workout is a dot, not a history.
+    let levels: [Int]
 
     static let size = CGSize(width: 1080, height: 1350)
+
+    /// Space between the curve and the footer.
+    static let curveGap: CGFloat = 56
+
+    /// Vertical room between the accent rule and the footer: everything the
+    /// headline, the date and the curve have to share.
+    static let contentBudget: CGFloat = 940
+
+    /// How tall the headline actually renders in the card's own column.
+    /// Measured rather than guessed from a character count: the same 89
+    /// characters are four lines of English and seven of Russian, and the
+    /// curve may only ever have what the words leave behind.
+    static func headlineHeight(for headline: String) -> CGFloat {
+        let style = NSMutableParagraphStyle()
+        style.lineSpacing = 6
+        let font = UIFont.systemFont(ofSize: headlineSize(for: headline), weight: .heavy)
+        return (headline as NSString).boundingRect(
+            with: CGSize(width: size.width - 176,   // the 88 pt gutters
+                         height: .greatestFiniteMagnitude),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            attributes: [.font: font, .paragraphStyle: style],
+            context: nil).height
+    }
+
+    /// The curve takes what the headline leaves, capped so it never becomes
+    /// the point of the card — and gives up its place entirely when what is
+    /// left is too thin to read as a line. A calibration workout tiering up
+    /// on seven patterns is the story; the card drops the graphic rather than
+    /// push its own footer off the edge.
+    static func curveHeight(for headline: String) -> CGFloat {
+        let free = contentBudget - headlineHeight(for: headline) - curveGap
+        return free < 140 ? 0 : min(300, free)
+    }
 
     /// The headline steps down as it grows. One unlock is a poster line; three
     /// at once is a list, and it still has to fit between the accent rule and
@@ -66,6 +104,16 @@ struct ShareCard: View {
 
             Spacer(minLength: 0)
 
+            let curveHeight = Self.curveHeight(for: headline)
+            if levels.count > 1 && curveHeight > 0 {
+                LevelCurve(values: levels)
+                    .frame(height: curveHeight)
+                    // Out past the card's own padding: the curve reads as the
+                    // ground the card sits on, not as a chart pasted onto it.
+                    .padding(.horizontal, -88)
+                    .padding(.bottom, Self.curveGap)
+            }
+
             // dredfit.com is the domain we actually own — a card that goes
             // out to other people must not point anywhere else.
             Text(verbatim: "dredfit.com")
@@ -75,6 +123,61 @@ struct ShareCard: View {
         .padding(88)
         .frame(width: Self.size.width, height: Self.size.height, alignment: .leading)
         .background(Theme.ink)
+    }
+}
+
+// MARK: - The curve
+
+/// The total-level history, drawn the way the Progress screen draws it and
+/// no other way: an accent line of straight segments, a dot on the latest
+/// session, and a scale that starts at zero. No fill and no shading — the app
+/// does not own a single gradient, and the card is not the place to invent one.
+private struct LevelCurve: View {
+    let values: [Int]
+
+    /// Keeps the stroke and the end dot off the edges they would clip against.
+    private static let inset: CGFloat = 14
+
+    var body: some View {
+        GeometryReader { proxy in
+            let pts = points(in: proxy.size)
+            ZStack(alignment: .topLeading) {
+                line(pts)
+                    // 6, not the chart's 2: the card is 1080 wide where the
+                    // screen is ~390, so this is the same line at this size.
+                    .stroke(Theme.accent,
+                            style: StrokeStyle(lineWidth: 6, lineCap: .round, lineJoin: .round))
+                if let last = pts.last {
+                    Circle()
+                        .fill(Theme.accent)
+                        .frame(width: 22, height: 22)
+                        .position(last)
+                }
+            }
+        }
+    }
+
+    /// Zero-based, as `chartYScale(domain: 0...max)` is on Progress. Scaling
+    /// from the lowest session instead would turn a quiet fortnight into a
+    /// cliff — the same numbers, told as a bigger story than they are.
+    private func points(in size: CGSize) -> [CGPoint] {
+        guard values.count > 1, let peak = values.max() else { return [] }
+        let inset = Self.inset
+        let width = max(size.width - inset * 2, 1)
+        let height = max(size.height - inset * 2, 1)
+        return values.enumerated().map { index, value in
+            let x = inset + width * CGFloat(index) / CGFloat(values.count - 1)
+            let t = peak <= 0 ? 0 : CGFloat(value) / CGFloat(peak)
+            return CGPoint(x: x, y: inset + height * (1 - t))
+        }
+    }
+
+    private func line(_ pts: [CGPoint]) -> Path {
+        Path { path in
+            guard let first = pts.first else { return }
+            path.move(to: first)
+            for point in pts.dropFirst() { path.addLine(to: point) }
+        }
     }
 }
 
@@ -133,8 +236,9 @@ enum ShareCardFactory {
     }
 
     @MainActor
-    static func png(headline: String, date: Date = .now) -> Data? {
-        let renderer = ImageRenderer(content: ShareCard(headline: headline, date: date))
+    static func png(headline: String, date: Date = .now, levels: [Int] = []) -> Data? {
+        let renderer = ImageRenderer(
+            content: ShareCard(headline: headline, date: date, levels: levels))
         // The card is already specified in final pixels, so scale stays at 1
         // — anything else would silently produce a 2160×2700 image.
         renderer.scale = 1
@@ -152,8 +256,9 @@ enum ShareCardFactory {
     /// One fixed name per slot: cards are regenerated freely, and the
     /// temporary directory never accumulates them.
     @MainActor
-    static func fileURL(headline: String, slot: Slot, date: Date = .now) -> URL? {
-        guard let data = png(headline: headline, date: date) else { return nil }
+    static func fileURL(headline: String, slot: Slot, date: Date = .now,
+                        levels: [Int] = []) -> URL? {
+        guard let data = png(headline: headline, date: date, levels: levels) else { return nil }
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("\(slot.rawValue).png")
         do {

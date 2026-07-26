@@ -1,6 +1,6 @@
 # Dredfit — manual QA checklist
 
-Automated coverage (211 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
+Automated coverage (215 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
 
 **How to use.** Run the *Release smoke* block before every release. Run *Full pass* when the engine, persistence or an integration changed. Device-only rows cannot pass on a simulator and are marked ⌚. Record anything that fails in the [Issue registry](#issue-registry) at the bottom rather than fixing it silently.
 
@@ -285,6 +285,13 @@ The snapshot contract is unit-tested on every run (the snapshot URL is injected,
 | 19.6 | Card in Russian | Correct plural forms ("10 тренировок", "4 подхода" vs "5 подходов") |
 | 19.7 | Share a milestone screen with several unlocks (1.7.2) | The card names **every** unlocked variation, comma-separated, not only the first row |
 | 19.8 | The same in Russian, with the longest names, on a calibration workout | The headline steps down in size; the date and `dredfit.com` stay on the card |
+| 19.9 | Inspect the ground | Flat ink, exactly as before — the app owns no gradients and the card must not either |
+| 19.10 | Share from Progress with a few workouts behind you | A plain accent line runs across the bottom: no fill under it, no shading |
+| 19.11 | Compare the curve with the Progress chart | The same drawing: straight segments, a dot on the latest session, and a scale that starts at zero — the card must not steepen the line the app draws flat |
+| 19.12 | Share a milestone, then finish another workout and re-share the same milestone screen | The milestone card's curve stops at the workout that earned it |
+| 19.13 | Share after the very first workout | No curve at all — one session is a dot, not a history. The card falls back to the earlier layout |
+| 19.14 | A deload week where the total did not move | The curve renders as a flat line, not missing and not a division-by-zero artefact |
+| 19.15 | The longest Russian headline again | The curve steps aside entirely rather than pushing `dredfit.com` off the card |
 
 ### 20. Review request (1.4)
 

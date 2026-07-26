@@ -42,6 +42,49 @@ final class ShareCardTests: XCTestCase {
                           "one file for both would let a new card overwrite an open share")
     }
 
+    // MARK: - The level curve
+
+    /// A fixed date so two renders differ only by the curve, never by the
+    /// line under the headline.
+    private static let pinned = Date(timeIntervalSince1970: 1_785_000_000)
+
+    func testOneSessionIsNotYetACurve() throws {
+        let none = try XCTUnwrap(ShareCardFactory.png(headline: "Workout #1",
+                                                      date: Self.pinned))
+        let one = try XCTUnwrap(ShareCardFactory.png(headline: "Workout #1",
+                                                     date: Self.pinned, levels: [12]))
+        XCTAssertEqual(none, one, "a single session is a dot, not a history")
+        let two = try XCTUnwrap(ShareCardFactory.png(headline: "Workout #1",
+                                                     date: Self.pinned, levels: [12, 26]))
+        XCTAssertNotEqual(none, two, "two sessions are a curve and must show up")
+    }
+
+    /// A deload week can leave every session on the same total, and a very
+    /// first workout can leave it at zero. Neither may divide by the peak.
+    func testAFlatHistoryStillRenders() throws {
+        let zeros = try XCTUnwrap(ShareCardFactory.png(headline: "Workout #2",
+                                                       levels: [0, 0, 0]))
+        XCTAssertFalse(zeros.isEmpty)
+        let data = try XCTUnwrap(ShareCardFactory.png(headline: "Now 4 sets",
+                                                      levels: [96, 96, 96, 96]))
+        let image = try XCTUnwrap(UIImage(data: data))
+        XCTAssertEqual(image.size.width, 1080)
+        XCTAssertEqual(image.size.height, 1350)
+    }
+
+    /// The curve is whatever the words did not need — never the other way
+    /// round, or a calibration workout's seven unlocks would push the footer
+    /// off the card.
+    func testTheCurveOnlyTakesWhatTheHeadlineLeaves() {
+        XCTAssertGreaterThan(ShareCard.curveHeight(for: "Unlocked: Pistol squat"), 0)
+        // 89 characters still take the full 92 pt, and at that size they fill
+        // seven lines — there is nothing left to draw in.
+        let tall = headline(ofLength: 89)
+        XCTAssertEqual(ShareCard.curveHeight(for: tall), 0,
+                       "a headline that fills the card must leave the curve nothing")
+        XCTAssertLessThanOrEqual(claimed(tall), ShareCard.contentBudget)
+    }
+
     // MARK: - Wording
 
     func testHeadlineForEachMilestoneKind() {
@@ -96,9 +139,13 @@ final class ShareCardTests: XCTestCase {
 
     // MARK: - Fit
 
-    /// Vertical room the card leaves the headline: 1350 − 2×88 of padding,
-    /// less the wordmark, the accent rule, the date and the footer.
-    private static let headlineBudget: CGFloat = 940
+    /// What the headline and the curve claim between them. Measured here
+    /// independently of the card's own arithmetic — the point is to catch the
+    /// two disagreeing, which is exactly how the footer would fall off.
+    private func claimed(_ headline: String) -> CGFloat {
+        let curve = ShareCard.curveHeight(for: headline)
+        return headlineHeight(headline) + (curve > 0 ? curve + ShareCard.curveGap : 0)
+    }
 
     /// Height the headline actually occupies inside the card's text column,
     /// measured with the font the card renders it in. Tracking is negative,
@@ -130,7 +177,7 @@ final class ShareCardTests: XCTestCase {
                      "Отжимание в стойке у стены", "Приседание на одной ноге",
                      "Планка с подъемом руки и ноги"]
         let headline = "Разблокировано: " + names.joined(separator: ", ")
-        XCTAssertLessThanOrEqual(headlineHeight(headline), Self.headlineBudget,
+        XCTAssertLessThanOrEqual(claimed(headline), ShareCard.contentBudget,
                                  "the headline would push the date off the card")
     }
 
@@ -154,8 +201,8 @@ final class ShareCardTests: XCTestCase {
         // The size steps down at 90, 150 and 220 characters, so the tallest
         // headline in each step is the one just under its ceiling.
         for length in [89, 149, 219, 300] {
-            XCTAssertLessThanOrEqual(headlineHeight(headline(ofLength: length)),
-                                     Self.headlineBudget,
+            let text = headline(ofLength: length)
+            XCTAssertLessThanOrEqual(claimed(text), ShareCard.contentBudget,
                                      "\(length) characters overflow the card")
         }
     }

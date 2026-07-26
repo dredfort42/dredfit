@@ -218,7 +218,8 @@ struct ProgressScreen: View {
         let key = [store.records.count, store.totalLevel]
         guard key != renderedCardKey else { return }
         renderedCardKey = key
-        cardURL = ShareCardFactory.fileURL(headline: summaryHeadline, slot: .progress)
+        cardURL = ShareCardFactory.fileURL(headline: summaryHeadline, slot: .progress,
+                                           levels: store.levelCurve())
     }
 
     private var barBranchExists: Bool {
