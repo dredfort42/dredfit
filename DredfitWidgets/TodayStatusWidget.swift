@@ -119,18 +119,24 @@ struct TodayStatusView: View {
         .containerBackground(WidgetTheme.background, for: .widget)
     }
 
+    /// Three tiers rather than four corners: the extra width goes to the week
+    /// strip, which spans the whole card instead of crowding into a corner
+    /// and leaving the middle of the widget empty.
     private var medium: some View {
-        HStack(alignment: .top, spacing: 16) {
-            VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
                 kicker
                 Spacer(minLength: 0)
-                statusBlock(size: 20)
-            }
-            VStack(alignment: .trailing, spacing: 0) {
                 totalLevelLine
-                Spacer(minLength: 8)
-                weekStrip
             }
+            Spacer(minLength: 8)
+            statusBlock(size: 22)
+            Spacer(minLength: 8)
+            Rectangle()
+                .fill(WidgetTheme.hairline)
+                .frame(height: 0.5)
+                .padding(.bottom, 10)
+            weekStrip
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .containerBackground(WidgetTheme.background, for: .widget)
@@ -214,18 +220,19 @@ struct TodayStatusView: View {
 
     /// The accent dot plus the headline — the shape the small family has
     /// always had, reused so every size reads as one family.
-    @ViewBuilder
     private func statusBlock(size: CGFloat) -> some View {
-        if entry.status == .workout {
-            Circle()
-                .fill(WidgetTheme.accent)
-                .frame(width: 10, height: 10)
+        VStack(alignment: .leading, spacing: 6) {
+            if entry.status == .workout {
+                Circle()
+                    .fill(WidgetTheme.accent)
+                    .frame(width: 10, height: 10)
+            }
+            headline
+                .font(.system(size: size, weight: .heavy))
+                .foregroundStyle(entry.status == .rest ? WidgetTheme.ink2 : WidgetTheme.ink)
+                .minimumScaleFactor(0.7)
+                .lineLimit(1)
         }
-        headline
-            .font(.system(size: size, weight: .heavy))
-            .foregroundStyle(entry.status == .rest ? WidgetTheme.ink2 : WidgetTheme.ink)
-            .minimumScaleFactor(0.7)
-            .lineLimit(1)
     }
 
     @ViewBuilder
@@ -248,14 +255,19 @@ struct TodayStatusView: View {
     /// The same marks the Calendar tab uses, so a filled dot cannot come to
     /// mean one thing on the home screen and another inside the app.
     private var weekStrip: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 0) {
             ForEach(entry.week, id: \.date) { day in
                 VStack(spacing: 5) {
                     Text(day.date.formatted(.dateTime.weekday(.narrow)))
-                        .font(.system(size: 9.5, weight: .semibold))
-                        .foregroundStyle(WidgetTheme.ink2)
+                        .font(.system(size: 10, weight: .semibold))
+                        // A missed day carries no mark, so without dimming its
+                        // letter the column reads as a failed render rather
+                        // than as the silence it is meant to be.
+                        .foregroundStyle(day.status == .unmarked
+                                         ? WidgetTheme.ink3 : WidgetTheme.ink2)
                     mark(for: day)
                 }
+                .frame(maxWidth: .infinity)
             }
         }
     }

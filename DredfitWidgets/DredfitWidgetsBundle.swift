@@ -35,8 +35,12 @@ enum WidgetTheme {
     static let background = adaptive(light: 0xFFFFFF, dark: 0x1C1C1E)
     static let ink = adaptive(light: 0x111214, dark: 0xF2F2F4)
     static let ink2 = adaptive(light: 0x6E7075, dark: 0x98999E)
-    /// The planned-day ring in the week strip — the Calendar's `planned`.
-    static let planned = adaptive(light: 0xA7A9AD, dark: 0x5C5D62)
+    /// The quietest ink. It carries the weekday letter of a day that was
+    /// missed — the Calendar dims those digits to exactly this rather than
+    /// erasing them, and the strip follows.
+    static let ink3 = adaptive(light: 0xA7A9AD, dark: 0x5C5D62)
+    /// The planned-day ring in the week strip. ink3, as in the app's `Theme`.
+    static let planned = ink3
     /// The rest-day fill in the week strip — the Calendar's `restFill`.
     static let restFill = adaptive(light: 0xE2E3E6, dark: 0x35363A)
     /// The rules between plan rows on the large family.
