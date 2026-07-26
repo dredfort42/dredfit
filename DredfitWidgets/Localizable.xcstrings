@@ -4,6 +4,10 @@
     " · %@": {
       "comment": "A separator dot followed by the sign of the level change."
     },
+    "%lld": {
+      "comment": "The bare total-level number on the medium family. A numeral: nothing to translate.",
+      "shouldTranslate": false
+    },
     "%lld levels": {
       "localizations": {
         "en": {
@@ -561,5 +565,5 @@
       }
     }
   },
-  "version": "1.0"
+  "version": "1.1"
 }
