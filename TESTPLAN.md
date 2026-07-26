@@ -229,7 +229,9 @@ The snapshot contract is unit-tested on every run (the snapshot URL is injected,
 | 15.2 | A week containing a deload | The weekly delta honestly shows a **minus** |
 | 15.3 | Chart projection | Tapping a pattern row tints it and plots that pattern only; the kicker over the chart names the projection ("PUSH — PUSH-UP"); "Show all" resets to the total — no chips row |
 | 15.3a | Chart x-axis | Two–three sparse date labels (first / middle / last workout); no label before the second workout |
-| 15.3b | Per-pattern bars | Under each pattern name the current variation and its position ("Push-up · 2/4"); white ticks at band boundaries; right column shows the level and "next in N" (or "+1 set in N" at tier 4) |
+| 15.3b | Per-pattern bars | One line per pattern: name, bar with white ticks at band boundaries, level. No per-row detail in the all-patterns view |
+| 15.3d | Select a pattern (1.7.2) | Only the selected row grows a detail line under it — the current variation and its position ("Push-up · 2/4") on the left, "next in N" (or "+1 set in N" at tier 4, nothing at the ceiling) on the right; the tint covers both lines |
+| 15.3e | Back to all patterns | The detail line disappears — from the view hierarchy, not merely off-screen |
 | 15.3c | Selecting a pattern, in Russian (1.7.2) | The kicker and the chart under it **do not move**: the title stays on one line (shrinking, then truncating) and "Show all" keeps its place even while hidden |
 | 15.4 | History of an on-plan workout | Exercises with planned volumes and no "actual" annotations |
 | 15.5 | History of an adjusted workout | "actual N" in accent on the adjusted rows only |
@@ -368,7 +370,8 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 26.3 | The badge after a deload and re-climb | Returning to a variation already performed does **not** re-badge it |
 | 26.4 | Badge across languages | «новая вариация» / "nueva variación" / "nova variação" — no clipping next to long exercise names |
 | 26.5 | Badge on the longest name (pt-BR "Flexão em parada de mão de frente para a parede") | The pill trails the name inline and wraps with it as a unit; the name wraps — **no ellipsis**; the load stays on the first line |
-| 26.6 | Progress fits one screen | No chips row; header stats + chart + all 9 rows (10 with the bar branch) visible together on a 6.1" screen at default type |
+| 26.6 | Progress fits one screen | No chips row; header stats + chart + all 9 rows (10 with the bar branch) visible together on a 6.1" screen at default type, spaced apart rather than stacked flush |
+| 26.6a | Pattern names in every language (1.7.2) | Each name holds one line — the widest are "Горизонтальный жим" and "Empurrão horizontal"; a wrapped name would cost the row its air |
 | 26.7 | Progress row selection | Tap a row → accentSoft tint + chart re-projects + kicker reads "PATTERN — VARIATION"; a second tap on the same row or "Show all" (accentText) resets to the total; VoiceOver reports the selected trait |
 | 26.8 | Selection tint at the edges | The tint reaches ≈8 pt into both gutters with **rounded** corners — no flat-cut edges |
 
