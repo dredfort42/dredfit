@@ -373,14 +373,70 @@ final class AppStoreTests: XCTestCase {
 
         let snap = try JSONDecoder().decode(WidgetSnapshot.self,
                                             from: Data(contentsOf: url))
-        XCTAssertEqual(snap.days.count, 7, "the snapshot must cover 7 days")
-        XCTAssertEqual(snap.days[0].date, Calendar.current.startOfDay(for: .now))
-        XCTAssertEqual(snap.days[0].status, .done)
-        for day in snap.days.dropFirst() {
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: .now)
+        var iso = Calendar(identifier: .iso8601)
+        iso.timeZone = cal.timeZone
+        let monday = try XCTUnwrap(iso.dateInterval(of: .weekOfYear, for: today)).start
+
+        XCTAssertEqual(snap.days.count, 14, "the snapshot must cover two weeks")
+        XCTAssertEqual(snap.days[0].date, monday,
+                       "it must start on Monday so any entry can draw its own week")
+        let todayEntry = try XCTUnwrap(snap.days.first { $0.date == today })
+        XCTAssertEqual(todayEntry.status, .done)
+
+        for day in snap.days where day.date > today {
             XCTAssertEqual(day.status, store.isRestDay(day.date) ? .rest : .workout,
                            "future days must mirror the rest-day settings")
-            XCTAssertNil(day.sessionNumber, "only today carries a session number")
         }
+        for day in snap.days where day.date < today {
+            XCTAssertEqual(day.status, store.isRestDay(day.date) ? .rest : .unmarked,
+                           "a past training day with nothing recorded stays unmarked — "
+                           + "the Calendar does not accuse and neither does the widget")
+        }
+        for day in snap.days {
+            XCTAssertNil(day.sessionNumber, "a finished day carries no session number")
+        }
+    }
+
+    /// The medium and large families need more than day statuses, and the
+    /// numbers must be the ones the app itself is showing.
+    func testWidgetSnapshotCarriesTheLevelWeekAndPlan() throws {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("dredfit-widget-\(UUID().uuidString).json")
+        defer { try? FileManager.default.removeItem(at: url) }
+        let store = AppStore(storageURL: tempURL, widgetSnapshotURL: url)
+        store.completeWorkout(session: store.nextSession, result: .plan)
+
+        let snap = try JSONDecoder().decode(WidgetSnapshot.self,
+                                            from: Data(contentsOf: url))
+        XCTAssertEqual(snap.totalLevel, store.totalLevel)
+        XCTAssertEqual(snap.week?.workouts, store.weekSummary().workouts)
+        XCTAssertEqual(snap.week?.levelsDelta, store.weekSummary().levelsDelta)
+        XCTAssertEqual(snap.planSessionNumber, store.nextSession.sessionNumber)
+        XCTAssertEqual(snap.nextDateLabel, store.nextTrainingDateLabel)
+
+        let plan = try XCTUnwrap(snap.plan)
+        XCTAssertEqual(plan.count, store.nextSession.exercises.count)
+        XCTAssertEqual(plan.first?.name, store.nextSession.exercises.first?.name)
+        XCTAssertFalse(plan.contains { $0.detail.isEmpty },
+                       "the widget cannot format loads itself — they arrive ready")
+    }
+
+    /// Right after an update the file on disk is still the one the previous
+    /// build wrote. It has to decode, or the widget blanks out until the app
+    /// is next opened.
+    func testWidgetSnapshotFromAnOlderBuildStillDecodes() throws {
+        let legacy = #"{"days":[{"date":768614400,"status":"workout","sessionNumber":3}]}"#
+        let snap = try JSONDecoder().decode(WidgetSnapshot.self, from: Data(legacy.utf8))
+
+        XCTAssertEqual(snap.days.count, 1)
+        XCTAssertEqual(snap.days[0].status, .workout)
+        XCTAssertEqual(snap.days[0].sessionNumber, 3)
+        XCTAssertNil(snap.totalLevel)
+        XCTAssertNil(snap.week)
+        XCTAssertNil(snap.plan)
+        XCTAssertNil(snap.nextDateLabel)
     }
 
     /// The home screen must not be told "nothing done" over a history the

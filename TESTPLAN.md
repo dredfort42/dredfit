@@ -1,6 +1,6 @@
 # Dredfit — manual QA checklist
 
-Automated coverage (209 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
+Automated coverage (211 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
 
 **How to use.** Run the *Release smoke* block before every release. Run *Full pass* when the engine, persistence or an integration changed. Device-only rows cannot pass on a simulator and are marked ⌚. Record anything that fails in the [Issue registry](#issue-registry) at the bottom rather than fixing it silently.
 
@@ -171,9 +171,9 @@ Simulator HealthKit is unreliable; run this on a device.
 | 11.6 | Force-quit the app during a rest | The card dims once stale; the next cold launch of the app removes it entirely (no zombie card until the system cap) |
 | 11.7 | Start a second workout right after a first | Exactly one activity is present, not two |
 
-### 12. Home-screen widget
+### 12. Widgets and lock-screen accessories
 
-The snapshot-mirroring logic is unit-tested on every run (the snapshot URL is injected, so `testWidgetSnapshotMirrorsWeekStatuses` no longer skips on unsigned/CI runs). What these manual checks still own is the WidgetKit side: timeline rendering, reload timing, and the real App Group container.
+The snapshot contract is unit-tested on every run (the snapshot URL is injected, so these no longer skip on unsigned/CI runs): `testWidgetSnapshotMirrorsWeekStatuses`, `testWidgetSnapshotCarriesTheLevelWeekAndPlan` and `testWidgetSnapshotFromAnOlderBuildStillDecodes`. What these manual checks still own is the WidgetKit side: timeline rendering, reload timing, the real App Group container, and everything that only misbehaves on a real screen.
 
 | # | Check | Expected |
 |---|---|---|
@@ -183,6 +183,17 @@ The snapshot-mirroring logic is unit-tested on every run (the snapshot URL is in
 | 12.4 | On a rest day | "Rest day" in muted ink |
 | 12.5 | Change rest days in settings | The widget reflects the change |
 | 12.6 | Leave the device overnight past midnight | The widget flips to the new day's status **without** the app being launched |
+| 12.7 | Add the **medium** widget | Status on the left; on the right the total level and a Monday–Sunday strip |
+| 12.8 | Compare the strip with the Calendar tab | Same marks for the same days: filled = done, quiet fill = rest, outline = planned, accent ring = today |
+| 12.9 | A training day earlier this week that was missed | Blank in the strip — no ring, no fill, nothing that reads as a reproach |
+| 12.10 | Add the **large** widget on a training day | The plan of today's session: 6 rows, name and load; a weekly summary line at the bottom |
+| 12.11 | The large widget once today is done, or on a rest day | The plan is labelled "Next: Workout N · \<when\>" so it cannot be read as today's |
+| 12.12 | A deload week on the large widget | The summary shows a **negative** level delta, not a hidden or clamped one |
+| 12.13 | Add all three lock-screen accessories | Circular: a glyph only — figure / checkmark / moon. Rectangular: "Today", the headline, minutes and exercise count. Inline: the headline (plus ≈ minutes on a training day) |
+| 12.14 | Glance at the circular accessory on a rest day vs a training day | The two silhouettes are told apart without reading |
+| 12.15 | ⌚ Every family in **dark mode** | Background and ink follow the system; no white tile among dark widgets |
+| 12.16 | ⌚ Live Activity on the lock screen in dark mode | The card is dark, not a white flash; the countdown stays accent and readable |
+| 12.17 | Install over the previous version without opening the app | The widget keeps rendering from the old snapshot instead of blanking (new fields decode as absent) |
 
 ### 13. Date rollover and edge cases
 
