@@ -8,8 +8,8 @@
 //
 //  What it deliberately never carries: body metrics, weight, photos, a name,
 //  a streak, or anything that turns a workout into a scoreboard. A milestone
-//  line, a date, the wordmark — and the level curve, which is the same fact
-//  the Progress screen already draws, not a new one about the person.
+//  line, a date, the wordmark — and the level curve, drawn exactly as the
+//  Progress screen draws it, because it is the same fact and not a new one.
 //
 
 import SwiftUI
@@ -24,11 +24,6 @@ struct ShareCard: View {
     let levels: [Int]
 
     static let size = CGSize(width: 1080, height: 1350)
-
-    /// The ground. Flat ink read as a slab; this keeps the same near-black
-    /// but lets it warm towards the accent in one corner.
-    private static let groundTop = Color(red: 0x1A / 255, green: 0x16 / 255, blue: 0x13 / 255)
-    private static let groundBottom = Color(red: 0x0C / 255, green: 0x0D / 255, blue: 0x0F / 255)
 
     /// Space between the curve and the footer.
     static let curveGap: CGFloat = 56
@@ -127,22 +122,16 @@ struct ShareCard: View {
         }
         .padding(88)
         .frame(width: Self.size.width, height: Self.size.height, alignment: .leading)
-        .background {
-            ZStack {
-                LinearGradient(colors: [Self.groundTop, Theme.ink, Self.groundBottom],
-                               startPoint: .topLeading, endPoint: .bottomTrailing)
-                RadialGradient(colors: [Theme.accent.opacity(0.20), .clear],
-                               center: UnitPoint(x: 0.88, y: 0.06),
-                               startRadius: 0, endRadius: 760)
-            }
-        }
+        .background(Theme.ink)
     }
 }
 
 // MARK: - The curve
 
-/// The total-level history, drawn the way the Progress screen draws it:
-/// straight segments between sessions, no smoothing invented between them.
+/// The total-level history, drawn the way the Progress screen draws it and
+/// no other way: an accent line of straight segments, a dot on the latest
+/// session, and a scale that starts at zero. No fill and no shading — the app
+/// does not own a single gradient, and the card is not the place to invent one.
 private struct LevelCurve: View {
     let values: [Int]
 
@@ -153,12 +142,11 @@ private struct LevelCurve: View {
         GeometryReader { proxy in
             let pts = points(in: proxy.size)
             ZStack(alignment: .topLeading) {
-                area(pts, in: proxy.size)
-                    .fill(LinearGradient(colors: [Theme.accent.opacity(0.26), .clear],
-                                         startPoint: .top, endPoint: .bottom))
                 line(pts)
+                    // 6, not the chart's 2: the card is 1080 wide where the
+                    // screen is ~390, so this is the same line at this size.
                     .stroke(Theme.accent,
-                            style: StrokeStyle(lineWidth: 7, lineCap: .round, lineJoin: .round))
+                            style: StrokeStyle(lineWidth: 6, lineCap: .round, lineJoin: .round))
                 if let last = pts.last {
                     Circle()
                         .fill(Theme.accent)
@@ -169,16 +157,17 @@ private struct LevelCurve: View {
         }
     }
 
+    /// Zero-based, as `chartYScale(domain: 0...max)` is on Progress. Scaling
+    /// from the lowest session instead would turn a quiet fortnight into a
+    /// cliff — the same numbers, told as a bigger story than they are.
     private func points(in size: CGSize) -> [CGPoint] {
-        guard values.count > 1, let lo = values.min(), let hi = values.max() else { return [] }
+        guard values.count > 1, let peak = values.max() else { return [] }
         let inset = Self.inset
         let width = max(size.width - inset * 2, 1)
         let height = max(size.height - inset * 2, 1)
         return values.enumerated().map { index, value in
             let x = inset + width * CGFloat(index) / CGFloat(values.count - 1)
-            // A deload week can flatten the whole span; centre it rather than
-            // dividing by zero or pinning the line to the floor.
-            let t = hi == lo ? 0.5 : CGFloat(value - lo) / CGFloat(hi - lo)
+            let t = peak <= 0 ? 0 : CGFloat(value) / CGFloat(peak)
             return CGPoint(x: x, y: inset + height * (1 - t))
         }
     }
@@ -188,21 +177,6 @@ private struct LevelCurve: View {
             guard let first = pts.first else { return }
             path.move(to: first)
             for point in pts.dropFirst() { path.addLine(to: point) }
-        }
-    }
-
-    /// The fill runs to the card's own edges even though the line stops short
-    /// of them — inset on both would leave a hard vertical seam where the
-    /// shading ends, and that reads as a border nobody drew.
-    private func area(_ pts: [CGPoint], in size: CGSize) -> Path {
-        Path { path in
-            guard let first = pts.first, let last = pts.last else { return }
-            path.move(to: CGPoint(x: 0, y: size.height))
-            path.addLine(to: CGPoint(x: 0, y: first.y))
-            for point in pts { path.addLine(to: point) }
-            path.addLine(to: CGPoint(x: size.width, y: last.y))
-            path.addLine(to: CGPoint(x: size.width, y: size.height))
-            path.closeSubpath()
         }
     }
 }

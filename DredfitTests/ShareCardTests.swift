@@ -59,9 +59,12 @@ final class ShareCardTests: XCTestCase {
         XCTAssertNotEqual(none, two, "two sessions are a curve and must show up")
     }
 
-    /// A deload week can leave every session on the same total. The curve has
-    /// to centre that rather than divide by a zero span.
+    /// A deload week can leave every session on the same total, and a very
+    /// first workout can leave it at zero. Neither may divide by the peak.
     func testAFlatHistoryStillRenders() throws {
+        let zeros = try XCTUnwrap(ShareCardFactory.png(headline: "Workout #2",
+                                                       levels: [0, 0, 0]))
+        XCTAssertFalse(zeros.isEmpty)
         let data = try XCTUnwrap(ShareCardFactory.png(headline: "Now 4 sets",
                                                       levels: [96, 96, 96, 96]))
         let image = try XCTUnwrap(UIImage(data: data))
