@@ -2027,6 +2027,426 @@
         }
       }
     },
+    "life.calf" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spring in every step: stairs and running feel lighter on knees and feet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resorte en cada paso: escaleras y carrera más ligeras para rodillas y pies."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mola em cada passo: escadas e corrida mais leves para joelhos e pés."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пружина в каждом шаге: лестницы и бег легче для коленей и стоп."
+          }
+        }
+      }
+    },
+    "life.core_anti_ext" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A lower back that handles long sitting, bending and a heavy backpack."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una zona lumbar que aguanta horas de silla, inclinaciones y una mochila pesada."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uma lombar que aguenta horas sentado, inclinações e uma mochila pesada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поясница, которая спокойно переносит долгое сидение, наклоны и рюкзак."
+          }
+        }
+      }
+    },
+    "life.core_rot" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carrying weight in one hand, reaching sideways — a torso that holds."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cargar peso con una mano, estirarte hacia un lado — un torso que no falla."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carregar peso em uma mão, esticar para o lado — um tronco que não falha."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нести тяжесть в одной руке, тянуться вбок — корпус не подводит."
+          }
+        }
+      }
+    },
+    "life.hinge" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lifting a bag, a child, a suitcase — with your hips, not your lower back."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Levantar del suelo una bolsa, un niño, una maleta — con las caderas, no con la zona lumbar."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Levantar do chão uma bolsa, uma criança, uma mala — com o quadril, não com a lombar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поднять с пола сумку, ребенка, чемодан — ногами и тазом, а не поясницей."
+          }
+        }
+      }
+    },
+    "life.kicker" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In life"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En la vida"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na vida"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В жизни"
+          }
+        }
+      }
+    },
+    "life.lunge" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A confident step on stairs, uphill, off a curb — balance under load."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un paso seguro en la escalera, cuesta arriba y al bajar del bordillo — equilibrio bajo carga."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um passo firme na escada, na subida e ao descer da calçada — equilíbrio sob carga."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уверенный шаг на лестнице, в горку и с бордюра — равновесие под нагрузкой."
+          }
+        }
+      }
+    },
+    "life.override.pull_bar-4" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lifting your own bodyweight — the base for any physical task."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Levantar el peso de tu propio cuerpo — la base para cualquier tarea física."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Levantar o peso do próprio corpo — a base para qualquer tarefa física."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поднять вес собственного тела — база для любой физической задачи."
+          }
+        }
+      }
+    },
+    "life.override.push_h-2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your own bodyweight — under full control."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu propio peso — bajo control total."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O próprio peso — sob controle total."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Собственный вес — под полным контролем."
+          }
+        }
+      }
+    },
+    "life.override.push_v-4" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your body overhead — a rare level of control."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu cuerpo sobre la cabeza — un nivel de control poco común."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O corpo acima da cabeça — um nível de controle raro."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Свое тело над головой — редкий уровень контроля."
+          }
+        }
+      }
+    },
+    "life.override.squat-3" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standing up from the floor on one leg — no hands, no support."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Levantarte del suelo con una sola pierna — sin manos y sin apoyo."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Levantar do chão com uma perna só — sem as mãos e sem apoio."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Встать с пола на одной ноге — без рук и без опоры."
+          }
+        }
+      }
+    },
+    "life.pull" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A straight back and open shoulders after a day at the desk."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Espalda recta y hombros abiertos después de un día frente al escritorio."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Costas retas e ombros abertos depois de um dia sentado à mesa."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ровная спина и развернутые плечи после дня за столом."
+          }
+        }
+      }
+    },
+    "life.pull_bar" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holding and pulling your own bodyweight — the most honest measure of strength."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sostener y levantar el peso de tu propio cuerpo — la medida más honesta de la fuerza."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Segurar e puxar o peso do próprio corpo — a medida mais honesta da força."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удержать и подтянуть вес собственного тела — самая честная мера силы."
+          }
+        }
+      }
+    },
+    "life.push_h" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pushing a heavy door, getting up from the ground, catching yourself when you fall."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empujar una puerta pesada, levantarte del suelo, amortiguar una caída."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empurrar uma porta pesada, levantar do chão, amortecer uma queda."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Толкнуть тяжелую дверь, подняться из упора, смягчить падение."
+          }
+        }
+      }
+    },
+    "life.push_v" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lifting a suitcase onto the top shelf, reaching the highest cupboard."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subir la maleta al estante más alto, alcanzar el armario de arriba."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Colocar a mala na prateleira de cima, alcançar o armário mais alto."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закинуть чемодан на верхнюю полку, дотянуться до верхнего шкафа."
+          }
+        }
+      }
+    },
+    "life.squat" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Getting up from the floor or a chair, taking stairs at a run — strength you use every day."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Levantarte del suelo o de la silla, subir la escalera corriendo — fuerza que usas cada día."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Levantar do chão ou da cadeira, subir a escada correndo — força que você usa todo dia."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Встать с пола, со стула, взбежать по лестнице — сила, которой пользуешься каждый день."
+          }
+        }
+      }
+    },
     "Marching in place" : {
       "extractionState" : "manual",
       "localizations" : {
