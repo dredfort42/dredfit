@@ -20,6 +20,10 @@ struct MilestoneView: View {
     /// The level history up to the workout that earned these milestones —
     /// the card celebrates that moment, not whatever came after it.
     let levels: [Int]
+    /// The "then → now" comparison for anniversary rows (issue #26). Nil when
+    /// the journal has nothing honest to compare against — the jubilee then
+    /// looks exactly the way it always did.
+    var retrospective: Retrospective?
     let onDone: () -> Void
 
     @State private var ruleDrawn = false
@@ -90,8 +94,18 @@ struct MilestoneView: View {
             // Rendered once here rather than per tap: ShareLink wants the item
             // up front, and a card is cheap enough to make eagerly.
             if !milestones.isEmpty {
+                // The card gets the comparison only when this workout IS an
+                // anniversary — the retrospective belongs to the jubilee, not
+                // to every card rendered while one is possible.
+                let isJubilee = milestones.contains {
+                    if case .jubilee = $0 { return true } else { return false }
+                }
+                let subline = (isJubilee ? retrospective : nil).map {
+                    "\($0.comparisonLine)\n\($0.sinceLine)"
+                }
                 cardURL = ShareCardFactory.fileURL(headline: cardHeadline,
                                                    slot: .milestone,
+                                                   subline: subline,
                                                    levels: levels)
             }
         }
@@ -132,6 +146,20 @@ struct MilestoneView: View {
                     .foregroundStyle(Theme.ink2)
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityIdentifier("milestone-life")
+            }
+            // An anniversary earns the honest comparison (issue #26): the
+            // first snapshot in the journal against today, movement chosen by
+            // the largest gain. Two lines, no chart — the numbers carry it.
+            if case .jubilee = milestone, let retro = retrospective {
+                Text(retro.comparisonLine)
+                    .dredfitFont(15)
+                    .foregroundStyle(Theme.ink2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier("jubilee-retro")
+                Text(retro.sinceLine)
+                    .dredfitFont(15)
+                    .foregroundStyle(Theme.ink2)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

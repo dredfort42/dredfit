@@ -22,6 +22,10 @@ struct ShareCard: View {
     /// Total level after each session, oldest first. Fewer than two points
     /// draws nothing: one workout is a dot, not a history.
     let levels: [Int]
+    /// The jubilee's "then → now" lines (issue #26) — the one exception to
+    /// "a milestone line and nothing else", because it is still the same
+    /// fact: what the workouts added up to. Nil on every other card.
+    var subline: String?
 
     static let size = CGSize(width: 1080, height: 1350)
 
@@ -48,13 +52,30 @@ struct ShareCard: View {
             context: nil).height
     }
 
-    /// The curve takes what the headline leaves, capped so it never becomes
-    /// the point of the card — and gives up its place entirely when what is
-    /// left is too thin to read as a line. A calibration workout tiering up
-    /// on seven patterns is the story; the card drops the graphic rather than
-    /// push its own footer off the edge.
-    static func curveHeight(for headline: String) -> CGFloat {
-        let free = contentBudget - headlineHeight(for: headline) - curveGap
+    /// How tall the subline renders — measured like the headline, at its own
+    /// type size, so the curve budget below stays honest.
+    static func sublineHeight(for subline: String?) -> CGFloat {
+        guard let subline else { return 0 }
+        let style = NSMutableParagraphStyle()
+        style.lineSpacing = 5
+        let font = UIFont.systemFont(ofSize: 36)
+        let height = (subline as NSString).boundingRect(
+            with: CGSize(width: size.width - 176,
+                         height: .greatestFiniteMagnitude),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            attributes: [.font: font, .paragraphStyle: style],
+            context: nil).height
+        return height + 26   // its own top padding
+    }
+
+    /// The curve takes what the headline (and the jubilee subline, when there
+    /// is one) leaves, capped so it never becomes the point of the card — and
+    /// gives up its place entirely when what is left is too thin to read as a
+    /// line. A calibration workout tiering up on seven patterns is the story;
+    /// the card drops the graphic rather than push its own footer off the edge.
+    static func curveHeight(for headline: String, subline: String? = nil) -> CGFloat {
+        let free = contentBudget - headlineHeight(for: headline)
+            - sublineHeight(for: subline) - curveGap
         return free < 140 ? 0 : min(300, free)
     }
 
@@ -102,9 +123,18 @@ struct ShareCard: View {
                 .foregroundStyle(Color.white.opacity(0.55))
                 .padding(.top, 34)
 
+            if let subline {
+                Text(subline)
+                    .font(.system(size: 36))
+                    .lineSpacing(5)
+                    .foregroundStyle(Color.white.opacity(0.7))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, 26)
+            }
+
             Spacer(minLength: 0)
 
-            let curveHeight = Self.curveHeight(for: headline)
+            let curveHeight = Self.curveHeight(for: headline, subline: subline)
             if levels.count > 1 && curveHeight > 0 {
                 LevelCurve(values: levels)
                     .frame(height: curveHeight)
@@ -236,9 +266,11 @@ enum ShareCardFactory {
     }
 
     @MainActor
-    static func png(headline: String, date: Date = .now, levels: [Int] = []) -> Data? {
+    static func png(headline: String, date: Date = .now,
+                    subline: String? = nil, levels: [Int] = []) -> Data? {
         let renderer = ImageRenderer(
-            content: ShareCard(headline: headline, date: date, levels: levels))
+            content: ShareCard(headline: headline, date: date,
+                               levels: levels, subline: subline))
         // The card is already specified in final pixels, so scale stays at 1
         // — anything else would silently produce a 2160×2700 image.
         renderer.scale = 1
@@ -257,8 +289,9 @@ enum ShareCardFactory {
     /// temporary directory never accumulates them.
     @MainActor
     static func fileURL(headline: String, slot: Slot, date: Date = .now,
-                        levels: [Int] = []) -> URL? {
-        guard let data = png(headline: headline, date: date, levels: levels) else { return nil }
+                        subline: String? = nil, levels: [Int] = []) -> URL? {
+        guard let data = png(headline: headline, date: date,
+                             subline: subline, levels: levels) else { return nil }
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("\(slot.rawValue).png")
         do {
