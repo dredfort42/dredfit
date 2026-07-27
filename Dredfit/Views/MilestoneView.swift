@@ -124,6 +124,15 @@ struct MilestoneView: View {
                     .foregroundStyle(Theme.ink2)
                     .fixedSize(horizontal: false, vertical: true)
             }
+            // A new variation reads as an ability, not an index (issue #25):
+            // override → base, resolved by LifeBenefit in one place.
+            if let life = lifeLine(milestone) {
+                Text(life)
+                    .dredfitFont(15)
+                    .foregroundStyle(Theme.ink2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier("milestone-life")
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         // The kicker is a label for the headline, not a separate thought.
@@ -164,6 +173,17 @@ struct MilestoneView: View {
         case .setBand(let pattern, _, let exercise):
             return "\(pattern.displayName) · \(exercise)"
         case .jubilee:
+            return nil
+        }
+    }
+
+    /// Only the "New variation" milestone gets a life line: a set band is the
+    /// same ability grown, and a jubilee is about the habit, not a movement.
+    private func lifeLine(_ milestone: Milestone) -> String? {
+        switch milestone {
+        case .tierUp(let pattern, let tier, _):
+            return LifeBenefit.text(for: pattern, tier: tier)
+        case .setBand, .jubilee:
             return nil
         }
     }

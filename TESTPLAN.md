@@ -368,7 +368,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 25.4 | The legend | completed · planned · rest · today — every dot distinguishable on a real screen at normal brightness |
 | 25.5 | Tap the **next** training day (today's ring before the workout, or the next planned ring after it) | NextWorkoutSheet opens — same preview as the Today done-card; no Start button. Other planned days stay inert |
 
-### 26. Design-review wave (1.8)
+### 26. Design-review wave
 
 | # | Check | Expected |
 |---|---|---|
@@ -381,6 +381,18 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 26.6a | Pattern names in every language (1.7.2) | Each name holds one line — the widest are "Горизонтальный жим" and "Empurrão horizontal"; a wrapped name would cost the row its air |
 | 26.7 | Progress row selection | Tap a row → accentSoft tint + chart re-projects + kicker reads "PATTERN — VARIATION"; a second tap on the same row or "Show all" (accentText) resets to the total; VoiceOver reports the selected trait |
 | 26.8 | Selection tint at the edges | The tint reaches ≈8 pt into both gutters with **rounded** corners — no flat-cut edges |
+
+### 27. Life-benefit line (issue #25)
+
+| # | Check | Expected |
+|---|---|---|
+| 27.1 | Open any technique sheet | An "IN LIFE" section below the mistakes with one line in secondary ink; present for **every** exercise, including bar-module ones |
+| 27.2 | Technique sheet for Pistol squat, Push-up, Pull-up, Chest-to-wall handstand push-up | The **override** line, not the movement's base line |
+| 27.3 | Technique sheet for a non-override variation of the same movements (e.g. Knee push-up, Shrimp squat) | The movement's **base** line |
+| 27.4 | Milestone "New variation" | The life line under "<pattern> · variation N of 4"; override → base rule as above |
+| 27.5 | "Now N sets" and jubilee milestones | **No** life line — abilities belong to variations, not to volume or habit |
+| 27.6 | All four languages (with §14) | Lines read naturally, informal register in es/pt-BR, no "ё" in RU; nothing clips on the sheet or the milestone at default type |
+| 27.7 | Largest accessibility type | Both surfaces wrap without truncation; the sheet scrolls to keep "Got it" reachable |
 
 ---
 

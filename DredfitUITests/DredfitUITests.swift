@@ -171,6 +171,9 @@ final class DredfitUITests: XCTestCase {
         app.buttons.matching(NSPredicate(format: "label CONTAINS '3 ×'")).firstMatch.tap()
         XCTAssertTrue(app.staticTexts["TECHNIQUE"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.staticTexts["COMMON MISTAKES"].exists)
+        // The "why" section (issue #25) is always present, below the mistakes.
+        XCTAssertTrue(app.staticTexts["IN LIFE"].exists)
+        XCTAssertTrue(app.staticTexts["technique-life"].exists)
         app.buttons["Got it"].tap()
         XCTAssertTrue(app.buttons["Start"].waitForExistence(timeout: 3))
     }
@@ -718,6 +721,15 @@ final class DredfitUITests: XCTestCase {
         XCTAssertEqual(app.staticTexts.matching(
             NSPredicate(format: "label == %@", "NEW VARIATION")).count, 2,
             "both tier-ups should be listed")
+        // Each unlocked variation reads as an ability (issue #25). The row
+        // combines its children for VoiceOver, and XCUI then exposes the life
+        // text twice (child + combined parent), so an exact count would pin an
+        // accessibility artifact rather than the UI: assert presence, and
+        // leave "no life line on set bands and jubilees" to the code's switch
+        // and the manual pass (TESTPLAN §27.5).
+        XCTAssertGreaterThanOrEqual(
+            app.staticTexts.matching(identifier: "milestone-life").count, 2,
+            "each tier-up row should carry its life line")
 
         app.buttons["milestone-done"].tap()
         XCTAssertTrue(app.staticTexts["Workout 10 completed"].waitForExistence(timeout: 5),

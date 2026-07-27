@@ -1,5 +1,25 @@
 # Changelog
 
+## Unreleased
+
+### The "why" behind every movement (issue #25)
+
+- Every technique sheet ends with an "In life" line translating the movement
+  into everyday ability — "lifting a bag, a child, a suitcase — with your
+  hips, not your lower back". The app explained *how* since 1.0; this is the
+  first time it says *why*.
+- The "New variation" milestone carries the same line under the variation
+  name: an unlock reads as an ability gained, not an index incremented. Set
+  bands and jubilees are deliberately left alone — volume and habit are not
+  abilities.
+- A closed list of four standout variations (pistol squat, push-up, pull-up,
+  chest-to-wall handstand push-up) overrides the movement line where the
+  variation says more than the movement. The override → base rule lives in
+  one place (`LifeBenefit`), shared by both surfaces.
+- Copy discipline, enforced in review rather than code: every line is a fact
+  of mechanics, never a health promise. 15 new keys × 4 languages; the
+  engine, the state format and the golden fixtures are untouched.
+
 ## 1.7.1
 
 A fix release: signals you can actually hear, reminders that know the workout
