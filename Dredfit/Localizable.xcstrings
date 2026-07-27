@@ -2038,19 +2038,19 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Resorte en cada paso: escaleras y carrera más ligeras para rodillas y pies."
+            "value" : "Resorte en cada paso: subir escaleras y correr se siente más liviano para las rodillas y los pies."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mola em cada passo: escadas e corrida mais leves para joelhos e pés."
+            "value" : "Mola em cada passo: escada e corrida ficam mais leves para os joelhos e os pés."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Пружина в каждом шаге: лестницы и бег легче для коленей и стоп."
+            "value" : "Пружина в каждом шаге: лестница и бег даются легче коленям и стопам."
           }
         }
       }
@@ -2060,13 +2060,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A lower back that handles long sitting, bending and a heavy backpack."
+            "value" : "A lower back that handles long hours of sitting, bending and a heavy backpack."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Una zona lumbar que aguanta horas de silla, inclinaciones y una mochila pesada."
+            "value" : "Una zona lumbar que aguanta horas sentado, inclinarte y cargar una mochila pesada."
           }
         },
         "pt-BR" : {
@@ -2078,7 +2078,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Поясница, которая спокойно переносит долгое сидение, наклоны и рюкзак."
+            "value" : "Поясница, которая спокойно переносит долгое сидение, наклоны и тяжелый рюкзак."
           }
         }
       }
@@ -2094,13 +2094,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cargar peso con una mano, estirarte hacia un lado — un torso que no falla."
+            "value" : "Cargar peso con una mano, estirarte hacia el costado — un torso que no cede."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Carregar peso em uma mão, esticar para o lado — um tronco que não falha."
+            "value" : "Carregar peso em uma mão, se esticar para o lado — um tronco que não cede."
           }
         },
         "ru" : {
@@ -2122,7 +2122,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Levantar del suelo una bolsa, un niño, una maleta — con las caderas, no con la zona lumbar."
+            "value" : "Levantar del suelo una bolsa, a un niño, una maleta — con las caderas, no con la zona lumbar."
           }
         },
         "pt-BR" : {
@@ -2178,7 +2178,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Un paso seguro en la escalera, cuesta arriba y al bajar del bordillo — equilibrio bajo carga."
+            "value" : "Un paso seguro en las escaleras, cuesta arriba y al bajar de la acera — equilibrio bajo carga."
           }
         },
         "pt-BR" : {
@@ -2240,7 +2240,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "O próprio peso — sob controle total."
+            "value" : "Seu próprio peso — sob controle total."
           }
         },
         "ru" : {
@@ -2256,25 +2256,25 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your body overhead — a rare level of control."
+            "value" : "Your whole body above your hands — a rare level of control."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tu cuerpo sobre la cabeza — un nivel de control poco común."
+            "value" : "Todo el cuerpo sobre las manos — un nivel de control poco común."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "O corpo acima da cabeça — um nível de controle raro."
+            "value" : "O corpo inteiro sobre as mãos — um nível raro de controle."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Свое тело над головой — редкий уровень контроля."
+            "value" : "Все тело над руками — редкий уровень контроля."
           }
         }
       }
@@ -2358,7 +2358,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Удержать и подтянуть вес собственного тела — самая честная мера силы."
+            "value" : "Удержать и подтянуть собственный вес — самая честная мера силы."
           }
         }
       }
@@ -2386,7 +2386,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Толкнуть тяжелую дверь, подняться из упора, смягчить падение."
+            "value" : "Толкнуть тяжелую дверь, подняться с земли, смягчить падение."
           }
         }
       }
@@ -2414,7 +2414,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Закинуть чемодан на верхнюю полку, дотянуться до верхнего шкафа."
+            "value" : "Закинуть чемодан на антресоль, дотянуться до верхней полки шкафа."
           }
         }
       }
@@ -2430,7 +2430,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Levantarte del suelo o de la silla, subir la escalera corriendo — fuerza que usas cada día."
+            "value" : "Levantarte del suelo o de la silla, subir las escaleras corriendo — fuerza que usas cada día."
           }
         },
         "pt-BR" : {

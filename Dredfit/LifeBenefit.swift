@@ -58,7 +58,7 @@ enum LifeBenefit {
                           defaultValue: "A confident step on stairs, uphill, off a curb — balance under load.")
         case .coreAntiExt:
             return String(localized: "life.core_anti_ext",
-                          defaultValue: "A lower back that handles long sitting, bending and a heavy backpack.")
+                          defaultValue: "A lower back that handles long hours of sitting, bending and a heavy backpack.")
         case .coreRot:
             return String(localized: "life.core_rot",
                           defaultValue: "Carrying weight in one hand, reaching sideways — a torso that holds.")
@@ -86,7 +86,7 @@ enum LifeBenefit {
                           defaultValue: "Your own bodyweight — under full control.")
         case (.pushV, 4):      // Chest-to-wall handstand push-up
             return String(localized: "life.override.push_v-4",
-                          defaultValue: "Your body overhead — a rare level of control.")
+                          defaultValue: "Your whole body above your hands — a rare level of control.")
         case (.pullBar, 4):    // Pull-up
             return String(localized: "life.override.pull_bar-4",
                           defaultValue: "Lifting your own bodyweight — the base for any physical task.")
