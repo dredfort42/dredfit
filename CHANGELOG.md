@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+### The jubilee remembers where you started (issue #26)
+
+- Anniversary milestones ({10, 25, 50, 100, then every 50}) now carry a
+  "Then → now" comparison with the first workout, built from the levelsAfter
+  snapshots the journal has kept since 1.1: "Then: Knee push-up · 3×8 — Now:
+  Push-up · 3×14", plus how long ago that first workout was (weeks, months
+  from week nine).
+- The movement shown is the one with the largest level gain; ties resolve in
+  rotation order. Every number comes from the core's own encoding
+  (`Level.decode`), so the v2.3 per-tier floors are respected and no level
+  arithmetic lives in the app layer.
+- The milestone share card carries the same two lines — still no body
+  metrics, no names; the level curve gives up room rather than crowding the
+  footer.
+- Honest degradations: a journal without snapshots, a history without growth,
+  or a bar module younger than the first snapshot simply show the jubilee as
+  before. Standing still is never dressed up as progress.
+
 ### The "why" behind every movement (issue #25)
 
 - Every technique sheet ends with an "In life" line translating the movement

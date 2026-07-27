@@ -356,14 +356,22 @@ final class AppStore {
         }
         // One workout away from several milestones at once. Seeds state only;
         // the milestones are still derived by the real path on completion.
+        // The single old record carries a levelsAfter snapshot nine weeks
+        // back, so the workout-10 jubilee also shows the "then → now"
+        // retrospective (issue #26) — through the real builder, not a stub.
         if CommandLine.arguments.contains("--uitest-milestone") {
-            records = []
             var seeded = EngineState.initial
             seeded.counter = 9
             for ex in Engine.generateSession(seeded).exercises.prefix(2) {
                 seeded.levels[ex.pattern] = 7
             }
             engineState = seeded
+            records = [WorkoutRecord(
+                sessionNumber: 1,
+                date: Calendar.current.date(byAdding: .day, value: -63, to: .now)!,
+                result: .plan,
+                totalLevelAfter: 0,
+                levelsAfter: EngineState.initial.levels)]
         }
         // A journal whose only workout was 20 days ago, so today opens on
         // the comeback card.

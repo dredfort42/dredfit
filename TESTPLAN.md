@@ -394,6 +394,18 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 27.6 | All four languages (with §14) | Lines read naturally, informal register in es/pt-BR, no "ё" in RU; nothing clips on the sheet or the milestone at default type |
 | 27.7 | Largest accessibility type | Both surfaces wrap without truncation; the sheet scrolls to keep "Got it" reachable |
 
+### 28. Jubilee retrospective (1.9, issue #26)
+
+| # | Check | Expected |
+|---|---|---|
+| 28.1 | Reach an anniversary (workout 10, 25, 50…) with an old snapshot in the journal | Under "WORKOUT #N": "Then: <variation> · S×R — Now: <variation> · S×R" plus "N weeks/months since your first workout" |
+| 28.2 | The movement named | The one with the **largest level gain** since the first snapshot; sets/reps match what the engine would prescribe at those levels (incl. hold movements as "S×R s") |
+| 28.3 | Fresh install reaching workout 10 with no growth (rate "less" throughout) | Jubilee shows **without** the retrospective — never a zero or negative comparison |
+| 28.4 | Journal imported from a pre-1.1 backup (no levelsAfter anywhere) | Jubilee as before, no crash, no empty "Then:" |
+| 28.5 | **Share** on an anniversary | The card carries the same two lines under the date; the curve yields space rather than pushing the footer off |
+| 28.6 | Non-anniversary milestone share | Card unchanged — no retrospective lines |
+| 28.7 | All four languages | "Тогда/Сейчас", "Antes/Ahora", "Antes/Agora"; week/month plurals correct (RU: неделя/недели/недель) |
+
 ---
 
 ## Issue registry

@@ -716,6 +716,11 @@ final class DredfitUITests: XCTestCase {
 
         XCTAssertTrue(app.staticTexts["WORKOUT #10"].waitForExistence(timeout: 5),
                       "the jubilee row is missing")
+        // The seed plants one snapshot record nine weeks back, so the jubilee
+        // must carry its "then → now" comparison (issue #26) — built by the
+        // real Retrospective path, not stubbed.
+        XCTAssertTrue(app.staticTexts.matching(identifier: "jubilee-retro").firstMatch.exists,
+                      "the jubilee should show the then → now line")
         // Match on the rendered label: Kicker uppercases, so the catalog key
         // ("New variation") and what is on screen deliberately differ.
         XCTAssertEqual(app.staticTexts.matching(
