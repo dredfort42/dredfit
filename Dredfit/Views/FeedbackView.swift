@@ -109,7 +109,12 @@ struct FeedbackView: View {
 
     private var adjustedSummary: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Kicker(text: String(localized: "Adjusted"))
+            // Each kicker labels only its own rows: "Adjusted" over a list of
+            // skips was a leftover from when adjustments were the only thing
+            // this card ever held — a short workout made it obvious.
+            if !actuals.isEmpty {
+                Kicker(text: String(localized: "Adjusted"))
+            }
             ForEach(session.exercises.filter { actuals[$0.pattern] != nil }) { ex in
                 HStack {
                     Text(ex.name)
@@ -121,19 +126,36 @@ struct FeedbackView: View {
                         .foregroundStyle(Theme.accentText)
                 }
             }
+            if !skipped.isEmpty {
+                // The row's own state word stays the source of truth — the
+                // "Finish now" exercise still reads "not finished" under this
+                // header (the H-4 decision).
+                Kicker(text: String(localized: "feedback.skipped", defaultValue: "Skipped"))
+                    .padding(.top, actuals.isEmpty ? 0 : 8)
+            }
             ForEach(session.exercises.filter { skipped.contains($0.pattern) }) { ex in
                 HStack {
+                    // The header says "skipped" once for the whole list — a
+                    // per-row echo of it was noise. The one word that still
+                    // earns its place is "not finished" on the exercise
+                    // "Finish now" cut mid-way: it DIFFERS from the header,
+                    // and that difference is the H-4 decision made visible.
+                    // VoiceOver keeps what sighted users get from the header:
+                    // the name's label carries the state, so nothing only
+                    // LOOKS dimmed.
                     Text(ex.name)
                         .dredfitFont(14, weight: .medium)
                         .foregroundStyle(Theme.ink3)
+                        .accessibilityLabel(ex.pattern == interrupted
+                            ? Text("\(ex.name), not finished")
+                            : Text("\(ex.name), skipped"))
                     Spacer()
-                    // ink2 for the state word: the dimmed name signals
-                    // exclusion, but WHY it is dimmed has to stay readable.
-                    Text(ex.pattern == interrupted
-                         ? String(localized: "not finished")
-                         : String(localized: "skipped"))
-                        .dredfitFont(14, weight: .semibold)
-                        .foregroundStyle(Theme.ink2)
+                    if ex.pattern == interrupted {
+                        Text("not finished")
+                            .dredfitFont(14, weight: .semibold)
+                            .foregroundStyle(Theme.ink2)
+                            .accessibilityHidden(true)   // the label above already says it
+                    }
                 }
             }
             // With skips the scope chip under the title already said this;

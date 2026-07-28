@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+### A workout for the days there is no time (issue #27)
+
+- Today offers a short version under Start: three of the session's six
+  exercises, warm-up and cool-down included, around a third of the clock.
+  The other three are recorded as honest skips — levels frozen, the counter
+  and the rotation advancing exactly as they would have.
+- Which three: the pull slot always (shoulder balance is not negotiable), the
+  first movement of the current rotation window, and the lowest-level
+  movement of what remains. Because the window shifts by three over eight
+  rotating patterns, that anchor visits all eight within any eight
+  consecutive sessions — nothing is starved even for someone who only ever
+  trains short.
+- The session is not regenerated: it is the same list Today shows, so an
+  interrupted short workout resumes short, and its resume card counts "of 3".
+- The choice is never remembered. Every day opens on the full workout, and
+  nothing anywhere says "again?".
+- The engine gained two read-only helpers (the rotation anchor and the
+  duration estimate for a list of exercises) so the app layer holds no copy
+  of either formula. Behaviour and the golden fixtures are unchanged.
+- Along the way: the rating screen's summary now labels its lists separately
+  — "Adjusted" only over adjusted rows, "Skipped" over skips — and says each
+  thing once: skipped rows are dimmed names with no per-row echo of the
+  header. The only per-row word left is "not finished" on a "Finish now"
+  interruption, precisely because it differs from the header. VoiceOver
+  still reads every row with its state.
+
 ### The jubilee remembers where you started (issue #26)
 
 - Anniversary milestones ({10, 25, 50, 100, then every 50}) now carry a

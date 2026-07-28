@@ -279,6 +279,45 @@ public enum Engine {
     /// each appears exactly 5 times. With hasBar on, odd counters hand the
     /// pull slot to the vertical branch (pullBar), which inherits pull's
     /// position in the session order.
+    /// The first movement of the rotation window for a counter — the "anchor"
+    /// of the short workout (issue #27).
+    ///
+    /// Read-only and behaviour-free: it re-derives what `generateSession`
+    /// already computes internally, so the app layer never has to keep its
+    /// own copy of the rotation formula. Nothing in the engine calls it, and
+    /// no fixture can move because of it.
+    ///
+    /// The rotation property that makes it useful: the window shifts by 3
+    /// over 8 rotating patterns each session, so over any 8 consecutive
+    /// sessions the anchor visits all 8 — every movement is trained at least
+    /// once even if the user only ever does short workouts.
+    public static func rotationAnchor(counter: Int) -> Pattern {
+        let n = rotating.count
+        let start = (((counter * EngineConfig.rotationStep) % n) + n) % n
+        return rotating[start]
+    }
+
+    /// Estimated wall-clock minutes for a list of exercises, warm-up and
+    /// cool-down included — the same arithmetic `generateSession` uses for a
+    /// full session, exposed so the short workout can state its own length
+    /// without the app layer re-deriving tempo and rest constants.
+    public static func estimatedMin(exercises: [SessionExercise]) -> Double {
+        var workSec = 0.0
+        for ex in exercises {
+            let sides = ex.perSide ? 2 : 1
+            let workPerSet: Double = ex.unit == .reps
+                ? Double(ex.load * sides) * EngineConfig.tempoSecPerRep
+                : Double(ex.load * sides)
+            workSec += Double(ex.sets) * workPerSet
+                + Double((ex.sets - 1) * ex.restSetSec)
+                + Double(ex.restExerciseSec)
+        }
+        let totalSec = Double(EngineConfig.warmupMin * 60) + workSec
+            + Double(EngineConfig.cooldownMin * 60)
+        // Round to 0.1 min — as in the reference (toFixed(1))
+        return (totalSec / 60 * 10).rounded() / 10
+    }
+
     public static func generateSession(_ state: EngineState) -> Session {
         let n = rotating.count
         // Nonnegative modulo: Swift's % is a remainder and goes negative with
@@ -294,21 +333,12 @@ public enum Engine {
         let patterns = Pattern.ordered.filter { chosen.contains($0) } // ordering follows Pattern.ordered
             .map { $0 == .pull && useBar ? Pattern.pullBar : $0 }
 
-        var workSec = 0.0
         let exercises: [SessionExercise] = patterns.map { p in
             let lib = ExerciseLibrary.entry(for: p)
             let d = Level.decode(state.levels[p] ?? 0)
             let variation = lib.variations[d.tier - 1]
             let unit = lib.unit(forTier: d.tier)
-            let sides = variation.unilateral ? 2 : 1
             let load = unit == .reps ? d.reps : d.hold
-
-            let workPerSet: Double = unit == .reps
-                ? Double(d.reps * sides) * EngineConfig.tempoSecPerRep
-                : Double(d.hold * sides)
-            workSec += Double(d.sets) * workPerSet
-                + Double((d.sets - 1) * EngineConfig.restSetSec)
-                + Double(EngineConfig.restExerciseSec)
 
             return SessionExercise(
                 pattern: p, name: variation.name, tier: d.tier,
@@ -319,10 +349,7 @@ public enum Engine {
             )
         }
 
-        let totalSec = Double(EngineConfig.warmupMin * 60) + workSec
-            + Double(EngineConfig.cooldownMin * 60)
-        // Round to 0.1 min — as in the reference (toFixed(1))
-        let totalMin = (totalSec / 60 * 10).rounded() / 10
+        let totalMin = estimatedMin(exercises: exercises)
 
         return Session(
             sessionNumber: state.counter + 1,

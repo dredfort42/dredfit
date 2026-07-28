@@ -109,6 +109,12 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// The exercise "Finish now" cut mid-way — the rating screen labels it
     /// "not finished" instead of "skipped".
     var interrupted: Pattern? = nil
+    /// The short workout's three patterns (issue #27), when this snapshot was
+    /// taken during one. Optional like everything above it: a snapshot
+    /// written by an older build decodes and simply resumes the full session,
+    /// which is what it was. Not part of the fingerprint — the session is the
+    /// same session either way; this is which slice of it was under way.
+    var shortPlan: [Pattern]? = nil
 
     static func fingerprint(of session: Session) -> String {
         session.exercises

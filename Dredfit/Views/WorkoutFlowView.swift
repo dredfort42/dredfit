@@ -19,6 +19,11 @@ struct WorkoutFlowView: View {
     /// A mid-workout snapshot to pick up from (the "Continue" path on Today).
     /// nil starts the session from the warm-up as always.
     var resume: WorkoutSnapshot? = nil
+    /// The short version's three patterns (issue #27); nil is the full
+    /// session. The session object itself is the same either way — only the
+    /// exercises the flow walks through differ, and everything left out is
+    /// recorded as an honest skip when the workout ends.
+    var shortPlan: Set<Pattern>? = nil
     @Environment(\.dismiss) private var dismiss
     @Environment(AppStore.self) private var store
     @Environment(\.requestReview) private var requestReview
@@ -72,9 +77,22 @@ struct WorkoutFlowView: View {
 
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
-    private var exercise: SessionExercise { session.exercises[exIndex] }
+    /// What this run actually performs: the whole session, or the short
+    /// version's subset in the session's own order. Every position in the
+    /// flow (indices, "N / M", the capsules, restore clamping) counts in
+    /// these, not in session.exercises.
+    private var exercises: [SessionExercise] {
+        guard let shortPlan else { return session.exercises }
+        return session.exercises.filter { shortPlan.contains($0.pattern) }
+    }
+    /// The patterns this run leaves out — skips the moment the workout ends.
+    private var omitted: Set<Pattern> {
+        guard shortPlan != nil else { return [] }
+        return Set(session.exercises.map(\.pattern)).subtracting(exercises.map(\.pattern))
+    }
+    private var exercise: SessionExercise { exercises[exIndex] }
     private var isLastSet: Bool { setIndex == exercise.sets - 1 }
-    private var isLastExercise: Bool { exIndex == session.exercises.count - 1 }
+    private var isLastExercise: Bool { exIndex == exercises.count - 1 }
     private var holding: Bool { holdEndDate != nil }
     private var isMilestone: Bool { if case .milestone = phase { return true }; return false }
 
@@ -108,12 +126,21 @@ struct WorkoutFlowView: View {
                 restView
             case .feedback:
                 FeedbackView(session: session, actuals: actuals,
-                             skipped: skippedPatterns,
+                             // The rating screen counts the short version's
+                             // untouched exercises as skips, so its scope
+                             // chip says "applies to 3 of 6" and the summary
+                             // lists what was left out.
+                             skipped: skippedPatterns.union(omitted),
                              interrupted: interruptedPattern,
                              lastResult: store.lastRecord?.result) { result, overrides in
                     let earned = store.completeWorkout(
                         session: session, result: result,
-                        overrides: overrides, skipped: skippedPatterns,
+                        overrides: overrides,
+                        // The short version's untouched three are skips like
+                        // any other: levels frozen, counter and rotation
+                        // still advance. The engine has no idea the workout
+                        // was short, and that is the point.
+                        skipped: skippedPatterns.union(omitted),
                         durationSec: workoutStart.map {
                             // max: the wall clock can move backwards mid-workout
                             max(0, Int(Date.now.timeIntervalSince($0)))
@@ -219,7 +246,7 @@ struct WorkoutFlowView: View {
                     Group {
                         switch phase {
                         case .work:
-                            Text("\(exIndex + 1) / \(session.exercises.count)")
+                            Text("\(exIndex + 1) / \(exercises.count)")
                         case .warmup:
                             Text("WARM-UP")
                         default:
@@ -236,7 +263,7 @@ struct WorkoutFlowView: View {
                 }
                 if phase != .warmup {
                     HStack(spacing: 5) {
-                        ForEach(0..<session.exercises.count, id: \.self) { i in
+                        ForEach(0..<exercises.count, id: \.self) { i in
                             Capsule()
                                 .fill(i <= exIndex ? Theme.ink : Theme.hairline)
                                 .frame(height: 4)
@@ -623,7 +650,7 @@ struct WorkoutFlowView: View {
     private var nextLabel: String {
         if isLastSet {
             if isLastExercise { return String(localized: "Workout rating") }
-            let next = session.exercises[exIndex + 1]
+            let next = exercises[exIndex + 1]
             return "\(next.name) · \(next.display)"
         }
         return String(localized: "\(exercise.name) · set \(setIndex + 2) of \(exercise.sets)")
@@ -635,7 +662,7 @@ struct WorkoutFlowView: View {
     /// straight to feedback), so the index is always in range.
     private var restTargetExercise: SessionExercise {
         if isLastSet && !isLastExercise {
-            return session.exercises[exIndex + 1]
+            return exercises[exIndex + 1]
         }
         return exercise
     }
@@ -846,7 +873,12 @@ private extension WorkoutFlowView {
             workoutStart: workoutStart ?? .now, savedAt: .now,
             fingerprint: WorkoutSnapshot.fingerprint(of: session),
             atFeedback: phase == .feedback ? true : nil,
-            interrupted: interruptedPattern))
+            interrupted: interruptedPattern,
+            // Additive: a snapshot taken during a short workout must resume
+            // into the short workout. Without it the restore would hand the
+            // person the full six exercises with their indices pointing into
+            // a list they never agreed to.
+            shortPlan: shortPlan.map { Array($0) }))
     }
 
     /// Rebuilds the live state a snapshot captured. A rest whose countdown is
@@ -856,8 +888,8 @@ private extension WorkoutFlowView {
     /// starts over. Indices are clamped: the snapshot was validated against
     /// the engine, but a defensive bound costs nothing.
     func restore(from snap: WorkoutSnapshot) {
-        exIndex = min(max(snap.exIndex, 0), session.exercises.count - 1)
-        setIndex = min(max(snap.setIndex, 0), session.exercises[exIndex].sets - 1)
+        exIndex = min(max(snap.exIndex, 0), exercises.count - 1)
+        setIndex = min(max(snap.setIndex, 0), exercises[exIndex].sets - 1)
         actuals = snap.actuals
         skippedPatterns = snap.skipped
         workoutStart = snap.workoutStart
@@ -927,8 +959,8 @@ private extension WorkoutFlowView {
             }
             if midway { interruptedPattern = exercise.pattern }
         }
-        if firstUnfinished < session.exercises.count {
-            for ex in session.exercises[firstUnfinished...] {
+        if firstUnfinished < exercises.count {
+            for ex in exercises[firstUnfinished...] {
                 actuals.removeValue(forKey: ex.pattern)   // a skip wins over an actual
                 skippedPatterns.insert(ex.pattern)
             }
