@@ -90,7 +90,7 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 | 5.1 | Layout | "Workout N" kicker, "How did it go?", subtitle "One tap — the next workout adapts" |
 | 5.2 | Three options | "Tough, did less" / "On plan" / "Easy, could do more" — **equal visual weight** (no filled card), captions "next workout eases off" / "the next one asks a little more" / "progress comes twice as fast" |
 | 5.3 | No adjustments made | No summary card and no scope chip are shown |
-| 5.4 | With adjustments/skips | With skips a scope chip under the title: "Applies to N of M — … stays put" (N excludes skips **and** adjusted exercises; a "Finish now" interruption reads "not finished", matching the summary row). "Adjusted" card lists them; the "Your rating applies to the rest" footer appears only when nothing was skipped |
+| 5.4 | With adjustments/skips | With skips a scope chip under the title: "Applies to N of M — … stays put" (N excludes skips **and** adjusted exercises). The summary card labels its lists separately: "ADJUSTED" only over adjusted rows, "SKIPPED" only over skipped rows. Skipped rows are dimmed names with **no** per-row word (the header says it once); the one exception is the "Finish now" exercise, whose row reads "not finished" — it differs from the header. VoiceOver still reads every row with its state. The "Your rating applies to the rest" footer appears only when nothing was skipped |
 | 5.4a | Second and later workouts | "Last time you chose: <previous rating>" in small print under the cards; absent on the very first workout |
 | 5.5 | Tap any option | Submits immediately — the card *is* the button; returns to Today |
 | 5.6 | Choose "On plan" and check Progress next session | Each non-skipped pattern rose by exactly 1 level |
@@ -405,6 +405,22 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 28.5 | **Share** on an anniversary | The card carries the same two lines under the date; the curve yields space rather than pushing the footer off |
 | 28.6 | Non-anniversary milestone share | Card unchanged — no retrospective lines |
 | 28.7 | All four languages | "Тогда/Сейчас", "Antes/Ahora", "Antes/Agora"; week/month plurals correct (RU: неделя/недели/недель) |
+
+### 29. Short workout (1.9, issue #27)
+
+| # | Check | Expected |
+|---|---|---|
+| 29.1 | Today, a training day | Under **Start**, a secondary line: "Short on time? Short version · ≈ N min"; N is noticeably below the full estimate above |
+| 29.2 | Tap it | Warm-up as usual, then "1 / 3" and three capsules — the same exercises, same numbers, as the plan above showed |
+| 29.3 | The three chosen | The pull slot (or **Bar hang**/pull-up branch with the bar on), the rotation anchor, and the lowest-level of the rest |
+| 29.4 | Finish and rate | Rating screen lists the untouched three under their own **SKIPPED** header — dimmed names, no per-row word, no "ADJUSTED" when nothing was adjusted; scope chip reads "applies to 3 of 6" |
+| 29.5 | Progress after it | The three trained moved; the three skipped are **unchanged**; the workout counter advanced by one |
+| 29.6 | History for that day | Six exercises, three marked skipped |
+| 29.7 | Kill the app mid-short (swipe up) and relaunch | "Continue the workout?" says "exercise N of **3**"; Continue resumes the **short** flow, not the full six |
+| 29.8 | "Start over" from that card | The full session, warm-up included — starting over is not starting short |
+| 29.9 | Next training day | Today opens on the full session by default; the short version is again only an offer, with no mention of last time |
+| 29.10 | Eight short workouts in a row | Every movement appears at least once across them (the anchor guarantees it) |
+| 29.11 | All four languages | The button fits on one line at default type; es/pt do not clip |
 
 ---
 

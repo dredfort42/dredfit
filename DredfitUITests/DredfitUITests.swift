@@ -187,6 +187,69 @@ final class DredfitUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Done"].waitForExistence(timeout: 3))
     }
 
+    // MARK: - Short workout (issue #27)
+
+    /// The whole short path: three exercises instead of six, the other three
+    /// recorded as skips, and the workout counted like any other.
+    func testShortWorkoutRunsThreeExercisesAndSkipsTheRest() {
+        app.launchArguments.append("--uitest-fast")
+        app.launch()
+        _ = app.staticTexts["Workout 1"].waitForExistence(timeout: 5)
+
+        let short = app.buttons["start-short"]
+        XCTAssertTrue(short.exists, "Today must offer the short version")
+        short.tap()
+
+        let skipWarmup = app.buttons["Skip warm-up"]
+        if skipWarmup.waitForExistence(timeout: 3) { skipWarmup.tap() }
+        // The flow counts in the short list, not in the session's six.
+        XCTAssertTrue(app.staticTexts["1 / 3"].waitForExistence(timeout: 3),
+                      "the short workout walks through three exercises")
+
+        let done = app.buttons["Done"]
+        let startHold = app.buttons["Start hold"]
+        let rating = app.staticTexts["How did it go?"]
+        let deadline = Date.now.addingTimeInterval(240)
+        while !rating.exists && Date.now < deadline {
+            if done.exists {
+                coordinateTap(done)
+                _ = done.waitForNonExistence(timeout: 3)
+            } else if startHold.exists {
+                coordinateTap(startHold)
+                _ = startHold.waitForNonExistence(timeout: 3)
+            } else {
+                _ = rating.waitForExistence(timeout: 2)
+            }
+        }
+        XCTAssertTrue(rating.waitForExistence(timeout: 5), "the short flow must reach the rating")
+        // Three of the session's six were never touched — the scope chip says
+        // so before anything is recorded, and the summary lists them.
+        XCTAssertTrue(app.staticTexts["Applies to 3 of 6 — skipped exercises stay put"].exists,
+                      "the rating must apply to the three that were trained")
+        // The state lives once in the header; the rows carry only dimmed
+        // names on screen — but every row still reads its state to VoiceOver.
+        XCTAssertTrue(app.staticTexts["SKIPPED"].exists,
+                      "the skips section carries its own kicker")
+        XCTAssertEqual(app.staticTexts.matching(
+            NSPredicate(format: "label ENDSWITH %@", ", skipped")).count, 3,
+            "each untouched exercise must still announce its state")
+        XCTAssertFalse(app.staticTexts["ADJUSTED"].exists,
+                       "nothing was adjusted — the Adjusted kicker has no rows")
+
+        app.staticTexts["On plan"].tap()
+        XCTAssertTrue(app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5),
+                      "a short workout still counts as the day's workout")
+    }
+
+    /// The default never drifts: the choice is not remembered, so the next
+    /// day opens on the full session with the short version as the option.
+    func testShortVersionIsNeverTheDefault() {
+        app.launch()
+        _ = app.staticTexts["Workout 1"].waitForExistence(timeout: 5)
+        XCTAssertTrue(app.buttons["Start"].exists, "Start stays the primary action")
+        XCTAssertTrue(app.buttons["start-short"].exists)
+    }
+
     // MARK: - Exit and data integrity
 
     func testExitDiscardsWorkoutAfterConfirmation() {
@@ -226,14 +289,15 @@ final class DredfitUITests: XCTestCase {
 
         XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 3),
                       "Finish now must lead to the rating screen")
-        // The exercise cut mid-way (one set done) is "not finished"; the
-        // fully untouched ones behind it are "skipped".
+        // The exercise cut mid-way (one set done) is "not finished" — the one
+        // per-row word that differs from the section header and therefore
+        // stays visible. The untouched ones live under the SKIPPED header
+        // with no per-row echo.
         XCTAssertTrue(app.staticTexts.matching(
-            NSPredicate(format: "label == 'not finished'")).firstMatch.exists,
+            NSPredicate(format: "label CONTAINS 'not finished'")).firstMatch.exists,
             "the interrupted exercise must read 'not finished', not 'skipped'")
-        XCTAssertTrue(app.staticTexts.matching(
-            NSPredicate(format: "label == 'skipped'")).firstMatch.exists,
-            "the untouched exercises must be listed as skipped")
+        XCTAssertTrue(app.staticTexts["SKIPPED"].exists,
+                      "the skips section carries its header")
 
         app.staticTexts["On plan"].tap()
         XCTAssertTrue(app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5),

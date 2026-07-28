@@ -17,6 +17,9 @@ private struct ActiveWorkout: Identifiable {
     let session: Session
     // Set when the cover should pick up an interrupted workout.
     var resume: WorkoutSnapshot? = nil
+    /// The short version's three patterns (issue #27); nil is the full
+    /// session. Resolved at tap time like the session itself.
+    var shortPlan: Set<Pattern>? = nil
     var id: Int { session.sessionNumber }
 }
 
@@ -42,7 +45,8 @@ struct TodayView: View {
         }
         .padding(.horizontal, 24)
         .fullScreenCover(item: $activeWorkout) { active in
-            WorkoutFlowView(session: active.session, resume: active.resume)
+            WorkoutFlowView(session: active.session, resume: active.resume,
+                            shortPlan: active.shortPlan)
         }
         .sheet(item: $techniqueFor) { ex in
             TechniqueSheet(exercise: ex)
@@ -139,15 +143,37 @@ struct TodayView: View {
                     activeWorkout = ActiveWorkout(session: store.nextSession)
                 }
                     .padding(.top, 10)
-                    .padding(.bottom, 14)   // breathing room above the tab bar
+
+                // The way out of "all or nothing" (issue #27). Secondary by
+                // design: the full workout stays the default every single
+                // day — the choice is never remembered, and nothing here
+                // says "again?".
+                if let plan = ShortWorkout.plan(session: session,
+                                                counter: store.engineState.counter,
+                                                levels: store.engineState.levels) {
+                    Button {
+                        activeWorkout = ActiveWorkout(session: store.nextSession,
+                                                      shortPlan: plan)
+                    } label: {
+                        Text("Short on time? Short version · ≈ \(ShortWorkout.estimatedMin(session: session, plan: plan)) min")
+                            .dredfitFont(15, weight: .medium)
+                            .foregroundStyle(Theme.ink2)
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                    }
+                    .accessibilityIdentifier("start-short")
+                    .padding(.top, 2)
+                }
             }
+            Spacer(minLength: 0).frame(height: 14)   // breathing room above the tab bar
         }
     }
 
     // MARK: - Interrupted workout
 
     private func resumeCard(_ snap: WorkoutSnapshot) -> some View {
-        let total = store.nextSession.exercises.count
+        // "Exercise 2 of 3" for a short workout: the card must count in the
+        // list the person was actually walking through.
+        let total = snap.shortPlan?.count ?? store.nextSession.exercises.count
         let position = min(snap.exIndex + 1, total)
         return VStack(alignment: .leading, spacing: 0) {
             Text("Continue the workout?")
@@ -172,8 +198,11 @@ struct TodayView: View {
 
             HStack(spacing: 10) {
                 Button {
+                    // A workout interrupted mid-short resumes short: the
+                    // snapshot carries which three were under way.
                     activeWorkout = ActiveWorkout(session: store.nextSession,
-                                                  resume: snap)
+                                                  resume: snap,
+                                                  shortPlan: snap.shortPlan.map(Set.init))
                 } label: {
                     Text(String(localized: "resume.continue", defaultValue: "Continue"))
                         .dredfitFont(15.5, weight: .semibold)
