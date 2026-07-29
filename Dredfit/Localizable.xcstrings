@@ -29,6 +29,1182 @@
         }
       }
     },
+    "cooldown.calfWall.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hands on the wall, one leg stepped back, heel on the floor."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manos en la pared, una pierna atrás con el talón en el suelo."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mãos na parede, uma perna atrás com o calcanhar no chão."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ладони на стене, одна нога отставлена назад, пятка на полу."
+          }
+        }
+      }
+    },
+    "cooldown.calfWall.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back knee straight; lean toward the wall until the calf stretches."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rodilla trasera recta; acércate a la pared hasta sentir el estiramiento en el gemelo."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Joelho de trás reto; incline-se para a parede até alongar a panturrilha."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заднее колено прямое; подайся к стене — до растяжения икры."
+          }
+        }
+      }
+    },
+    "cooldown.calfWall.step3" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep the heel down — no bouncing."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El talón no se despega: sin rebotes."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O calcanhar não sai do chão: sem balançar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пятку не отрывай — без пружинящих движений."
+          }
+        }
+      }
+    },
+    "cooldown.chestWall.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forearm on the wall, elbow at shoulder height."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Antebrazo en la pared, codo a la altura del hombro."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Antebraço na parede, cotovelo na altura do ombro."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Предплечье на стене, локоть на уровне плеча."
+          }
+        }
+      }
+    },
+    "cooldown.chestWall.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn the chest away from the wall until the front of the shoulder stretches."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gira el pecho alejándolo de la pared hasta sentir el estiramiento delante del hombro."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gire o peito para longe da parede até alongar a frente do ombro."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разверни грудь от стены — до растяжения передней части плеча."
+          }
+        }
+      }
+    },
+    "cooldown.chestWall.step3" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swap arms halfway through."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A mitad de tiempo, cambia de brazo."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na metade do tempo, troque de braço."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На середине поменяй руки."
+          }
+        }
+      }
+    },
+    "cooldown.forwardFold.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feet hip-width; fold forward from the hips, knees soft."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pies al ancho de cadera; inclínate desde la cadera con las rodillas suaves."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pés na largura do quadril; dobre a partir do quadril, joelhos levemente flexionados."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стопы на ширине таза; наклонись вперед от таза, колени чуть согнуты."
+          }
+        }
+      }
+    },
+    "cooldown.forwardFold.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Let the head and arms hang heavy — no reaching for the floor."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deja colgar la cabeza y los brazos: no fuerces hasta el suelo."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deixe a cabeça e os braços pendurados: não force até o chão."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Голова и руки свободно висят — не тянись к полу."
+          }
+        }
+      }
+    },
+    "cooldown.forwardFold.step3" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To come up, unroll the spine slowly, one vertebra at a time."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para subir, desenrolla la espalda despacio, vértebra a vértebra."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para subir, desenrole as costas devagar, vértebra por vértebra."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поднимайся медленно, раскручивая спину позвонок за позвонком."
+          }
+        }
+      }
+    },
+    "cooldown.hipFlexors.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kneel on one knee, the other foot planted in front."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apoya una rodilla en el suelo, con el otro pie plantado delante."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apoie um joelho no chão, com o outro pé firme à frente."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Опустись на одно колено, другая стопа стоит впереди."
+          }
+        }
+      }
+    },
+    "cooldown.hipFlexors.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tuck the pelvis and shift it slightly forward until the front of the hip stretches."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bascula la pelvis y llévala un poco hacia delante hasta sentir el estiramiento delante de la cadera."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Encaixe a pelve e leve-a um pouco à frente até sentir alongar a frente do quadril."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подкрути таз и подай его чуть вперед — до растяжения по передней поверхности бедра."
+          }
+        }
+      }
+    },
+    "cooldown.hipFlexors.step3" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hold steady and breathe — no bouncing."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantén la posición y respira: sin rebotes."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantenha a posição e respire: sem balançar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Держи положение и дыши — без пружинящих движений."
+          }
+        }
+      }
+    },
+    "cooldown.latStretch.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hold a support at hip height with both hands, feet under the hips."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sujeta un apoyo a la altura de la cadera con ambas manos, pies bajo la cadera."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Segure um apoio na altura do quadril com as duas mãos, pés sob o quadril."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Возьмись обеими руками за опору на уровне таза, стопы под тазом."
+          }
+        }
+      }
+    },
+    "cooldown.latStretch.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sit the hips back on straight arms until the sides of the back stretch."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lleva la cadera atrás con los brazos rectos hasta sentir el estiramiento a los lados de la espalda."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leve o quadril para trás com os braços retos até alongar as laterais das costas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отведи таз назад на прямых руках — до растяжения по бокам спины."
+          }
+        }
+      }
+    },
+    "cooldown.latStretch.step3" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep the head between the arms and breathe."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cabeza entre los brazos; respira tranquilo."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cabeça entre os braços; respire tranquilo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Голова между рук; дыши спокойно."
+          }
+        }
+      }
+    },
+    "cooldown.lyingTwist.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On your back, knees bent; drop both knees to one side."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Boca arriba, rodillas dobladas; déjalas caer hacia un lado."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De costas, joelhos dobrados; deixe-os cair para um lado."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лежа на спине, согни колени и опусти их в сторону."
+          }
+        }
+      }
+    },
+    "cooldown.lyingTwist.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shoulders stay on the floor, head turns the other way."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los hombros siguen en el suelo; la cabeza gira hacia el lado contrario."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os ombros ficam no chão; a cabeça vira para o lado oposto."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Плечи на полу, голова повернута в другую сторону."
+          }
+        }
+      }
+    },
+    "cooldown.lyingTwist.step3" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Let the weight sink on its own — don't push the knees down."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deja que el peso las hunda solo: no empujes las rodillas."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deixe o peso afundar sozinho: não empurre os joelhos."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дай коленям опускаться под своим весом — не дави на них."
+          }
+        }
+      }
+    },
+    "cooldown.restPose.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Knees on the floor, sit back onto the heels."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rodillas en el suelo, siéntate hacia los talones."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Joelhos no chão, sente sobre os calcanhares."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Колени на полу, опусти таз на пятки."
+          }
+        }
+      }
+    },
+    "cooldown.restPose.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fold forward, arms stretched ahead, forehead down."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inclínate hacia delante, brazos estirados y frente al suelo."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incline-se à frente, braços esticados e testa no chão."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Наклонись вперед, вытяни руки, лоб на пол."
+          }
+        }
+      }
+    },
+    "cooldown.restPose.step3" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Breathe slowly, sending the breath into the back."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Respira lento, llevando el aire hacia la espalda."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Respire devagar, levando o ar para as costas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дыши медленно, направляя вдох в спину."
+          }
+        }
+      }
+    },
+    "cooldown.seatedGlute.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sit tall; place one ankle over the opposite knee."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Siéntate erguido; apoya un tobillo sobre la rodilla contraria."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sente-se ereto; apoie um tornozelo sobre o joelho oposto."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сядь ровно; положи лодыжку на противоположное колено."
+          }
+        }
+      }
+    },
+    "cooldown.seatedGlute.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lean forward from the hips with a straight back until the glute stretches."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inclínate hacia delante desde la cadera con la espalda recta hasta sentir el glúteo."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incline-se à frente a partir do quadril com as costas retas até sentir o glúteo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Наклонись вперед от таза с прямой спиной — до растяжения в ягодице."
+          }
+        }
+      }
+    },
+    "cooldown.seatedGlute.step3" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The knee falls open on its own — don't press it down."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La rodilla cae abierta sola: no la presiones."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O joelho abre naturalmente: não o pressione."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Колено свободно смотрит в сторону — не дави на него."
+          }
+        }
+      }
+    },
+    "cooldown.wrists.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arm straight, palm down; gently pull the fingers down and toward you."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brazo recto, palma hacia abajo; con la otra mano tira suave de los dedos hacia abajo y hacia ti."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Braço reto, palma para baixo; com a outra mão puxe de leve os dedos para baixo e na sua direção."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рука прямая, ладонь вниз; другой рукой мягко потяни пальцы вниз и на себя."
+          }
+        }
+      }
+    },
+    "cooldown.wrists.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Then turn the palm up and repeat the gentle pull."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Luego gira la palma hacia arriba y repite el tirón suave."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Depois vire a palma para cima e repita a puxada leve."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Затем разверни ладонь вверх и повтори мягкую тягу."
+          }
+        }
+      }
+    },
+    "cooldown.wrists.step3" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swap hands halfway through."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A mitad de tiempo, cambia de mano."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na metade do tempo, troque de mão."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На середине поменяй руки."
+          }
+        }
+      }
+    },
+    "positionSheet.cooldown" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "cool-down · %lld s"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "vuelta a la calma · %lld s"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "desaquecimento · %lld s"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "заминка · %lld сек"
+          }
+        }
+      }
+    },
+    "positionSheet.cooldownPerSide" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "cool-down · %lld s per side"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "vuelta a la calma · %lld s por lado"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "desaquecimento · %lld s de cada lado"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "заминка · по %lld сек на сторону"
+          }
+        }
+      }
+    },
+    "positionSheet.warmup" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "warm-up · %lld s"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "calentamiento · %lld s"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "aquecimento · %lld s"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "разминка · %lld сек"
+          }
+        }
+      }
+    },
+    "warmup.armCircles.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Circle straight arms forward — big, slow circles."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dibuja círculos grandes y lentos hacia delante con los brazos rectos."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Faça círculos grandes e lentos para a frente com os braços esticados."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Крути прямыми руками вперед — большие медленные круги."
+          }
+        }
+      }
+    },
+    "warmup.armCircles.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Halfway through, switch direction and circle backward."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A mitad de tiempo, cambia de dirección y gira hacia atrás."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na metade do tempo, inverta a direção e gire para trás."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На середине смени направление — крути назад."
+          }
+        }
+      }
+    },
+    "warmup.catCow.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On all fours: exhale, round the back and tuck the chin."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A cuatro patas: exhala, redondea la espalda y mete la barbilla."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De quatro: expire, arredonde as costas e recolha o queixo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На четвереньках: на выдохе округли спину и опусти подбородок."
+          }
+        }
+      }
+    },
+    "warmup.catCow.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inhale, arch gently and look slightly up — one slow wave per breath."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inhala, arquea suave y mira un poco hacia arriba: una ola lenta por respiración."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inspire, arqueie suave e olhe um pouco para cima: uma onda lenta por respiração."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На вдохе мягко прогнись и посмотри чуть вверх — одна медленная волна на цикл дыхания."
+          }
+        }
+      }
+    },
+    "warmup.halfSquats.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sit back to half depth, arms reaching forward for balance."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Baja hasta media sentadilla llevando la cadera atrás; brazos al frente para equilibrar."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desça até meio agachamento levando o quadril para trás; braços à frente para equilibrar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Присядь до половины, отводя таз назад; руки вперед для баланса."
+          }
+        }
+      }
+    },
+    "warmup.halfSquats.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heels stay down; rise smoothly without locking the knees."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Talones en el suelo; sube suave sin bloquear las rodillas."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calcanhares no chão; suba suave sem travar os joelhos."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пятки на полу; вставай плавно, не выпрямляя колени до замка."
+          }
+        }
+      }
+    },
+    "warmup.hipCircles.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hands on the hips, feet shoulder-width; draw slow circles with the hips."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manos en la cadera, pies al ancho de hombros; dibuja círculos lentos con la cadera."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mãos no quadril, pés na largura dos ombros; desenhe círculos lentos com o quadril."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Руки на пояс, стопы на ширине плеч; рисуй тазом медленные круги."
+          }
+        }
+      }
+    },
+    "warmup.hipCircles.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep the knees soft and switch direction halfway."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rodillas suaves; cambia de dirección a mitad de tiempo."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Joelhos levemente flexionados; inverta a direção na metade."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Колени чуть согнуты; на середине смени направление."
+          }
+        }
+      }
+    },
+    "warmup.marching.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "March at an easy pace, lifting the knees to hip height."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marcha a ritmo suave, subiendo las rodillas a la altura de la cadera."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marche em ritmo tranquilo, subindo os joelhos à altura do quadril."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Шагай на месте в спокойном темпе, поднимая колени до уровня таза."
+          }
+        }
+      }
+    },
+    "warmup.marching.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swing the arms freely and keep the shoulders relaxed."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mueve los brazos con soltura y mantén los hombros relajados."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Balance os braços livremente e mantenha os ombros relaxados."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Свободно работай руками, плечи расслаблены."
+          }
+        }
+      }
+    },
+    "warmup.torsoRotations.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feet planted, hips facing forward; turn the torso side to side."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pies firmes, cadera al frente; gira el torso de lado a lado."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pés firmes, quadril para a frente; gire o tronco de um lado para o outro."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стопы на месте, таз смотрит вперед; поворачивай корпус из стороны в сторону."
+          }
+        }
+      }
+    },
+    "warmup.torsoRotations.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Let the arms swing loose — momentum, not force."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deja que los brazos acompañen sueltos: impulso, no fuerza."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deixe os braços acompanharem soltos: embalo, não força."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Руки расслаблены и летят за корпусом — инерция, а не усилие."
+          }
+        }
+      }
+    },
     "“Finish now” keeps what you've done and goes to the rating — the remaining exercises are marked as skipped." : {
       "localizations" : {
         "es" : {

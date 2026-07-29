@@ -58,6 +58,10 @@ struct WorkoutFlowView: View {
     // the sheet is open, so it may flip the phase underneath — the item binding
     // keeps whatever exercise was tapped, immune to that transition.
     @State private var techniqueExercise: SessionExercise?
+    // The position mini-sheet (issue #34). Unlike techniqueExercise above,
+    // presenting it freezes the position countdown — reading is not
+    // stretching — where the rest-phase sheet deliberately keeps ticking.
+    @State private var positionTechnique: PositionTechnique?
     @State private var actuals: [Pattern: Int] = [:]
     @State private var skippedPatterns: Set<Pattern> = []
     @State private var adjusting = false
@@ -226,6 +230,9 @@ struct WorkoutFlowView: View {
         .sheet(item: $techniqueExercise) { ex in
             TechniqueSheet(exercise: ex)
         }
+        .sheet(item: $positionTechnique, onDismiss: resumePositionCountdown) { technique in
+            PositionTechniqueSheet(technique: technique)
+        }
         // Leaving is never silent data loss: "Finish now" ends in a recorded,
         // rated workout — the remaining exercises go through the engine's
         // skip path instead of the whole session being discarded.
@@ -302,36 +309,28 @@ struct WorkoutFlowView: View {
 
     // MARK: - Warm-up
 
-    /// Six universal mobility moves, 30 s each — ~3 minutes before the first
-    /// exercise. No levels involved; the whole block can be skipped.
-    private static let warmupMoves: [String.LocalizationValue] = [
-        "Marching in place", "Arm circles", "Torso rotations",
-        "Hip circles", "Half squats", "Cat-cow",
-    ]
-    private static let warmupMoveSeconds = 30
+    // Six universal mobility moves, 30 s each (Warmup.swift) — ~3 minutes
+    // before the first exercise. No levels; the whole block can be skipped.
 
     private var warmupView: some View {
         VStack(spacing: 0) {
             Spacer()
-            Text(String(localized: Self.warmupMoves[warmupIndex]))
+            Text(Warmup.moves[warmupIndex].name)
                 .dredfitFont(23, weight: .bold)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 300)
 
-            VStack(spacing: 4) {
-                Text("\(warmupRemaining)")
-                    .dredfitFont(112, weight: .heavy, cap: 150)
-                    .tracking(-4)
-                    .monospacedDigit()
-                    .contentTransition(.numericText(countsDown: true))
-                Text("sec")
-                    .dredfitFont(15)
-                    .foregroundStyle(Theme.ink2)
+            // Opens the mini-sheet and freezes the countdown (issue #34).
+            TechniqueButton {
+                openPositionTechnique(PositionTechnique(warmup: Warmup.moves[warmupIndex]))
             }
-            .padding(.top, 20)
+            .padding(.top, 10)
+
+            CountdownNumber(value: warmupRemaining, identifier: "warmup-countdown")
+                .padding(.top, 20)
 
             HStack(spacing: 10) {
-                ForEach(0..<Self.warmupMoves.count, id: \.self) { i in
+                ForEach(0..<Warmup.moves.count, id: \.self) { i in
                     Circle()
                         .fill(i < warmupIndex ? Theme.ink
                               : (i == warmupIndex ? Theme.accent : Theme.hairline))
@@ -343,7 +342,7 @@ struct WorkoutFlowView: View {
             // A single move can be impossible today (no floor space, a sore
             // wrist) — skipping it must not cost the other five.
             Button {
-                if warmupIndex + 1 < Self.warmupMoves.count {
+                if warmupIndex + 1 < Warmup.moves.count {
                     startWarmupMove(warmupIndex + 1)
                 } else {
                     finishWarmup()
@@ -358,23 +357,15 @@ struct WorkoutFlowView: View {
 
             Spacer()
 
-            Button {
-                finishWarmup()
-            } label: {
-                Text("Skip warm-up")
-                    .dredfitFont(17, weight: .medium)
-                    .foregroundStyle(Theme.ink2)
-                    .frame(maxWidth: .infinity, minHeight: 56)
-                    .overlay(RoundedRectangle(cornerRadius: 18).stroke(Theme.hairline, lineWidth: 1.5))
-            }
-            .padding(.bottom, 20)
+            BlockSkipButton(title: String(localized: "Skip warm-up")) { finishWarmup() }
+                .padding(.bottom, 20)
         }
     }
 
     private func startWarmupMove(_ index: Int) {
         warmupIndex = index
-        warmupRemaining = Self.warmupMoveSeconds
-        warmupEndDate = Date.now.addingTimeInterval(TimeInterval(Self.warmupMoveSeconds))
+        warmupRemaining = Warmup.moveSeconds
+        warmupEndDate = Date.now.addingTimeInterval(TimeInterval(Warmup.moveSeconds))
     }
 
     private func tickWarmup() {
@@ -388,11 +379,11 @@ struct WorkoutFlowView: View {
             // stretch the warm-up. Jump over every move the elapsed time
             // already covered.
             let overshoot = max(0, -end.timeIntervalSinceNow)
-            let movesPassed = 1 + Int(overshoot) / Self.warmupMoveSeconds
-            if warmupIndex + movesPassed < Self.warmupMoves.count {
+            let movesPassed = 1 + Int(overshoot) / Warmup.moveSeconds
+            if warmupIndex + movesPassed < Warmup.moves.count {
                 warmupIndex += movesPassed
-                let remainder = Int(overshoot) % Self.warmupMoveSeconds
-                warmupRemaining = Self.warmupMoveSeconds - remainder
+                let remainder = Int(overshoot) % Warmup.moveSeconds
+                warmupRemaining = Warmup.moveSeconds - remainder
                 warmupEndDate = Date.now.addingTimeInterval(TimeInterval(warmupRemaining))
             } else {
                 finishWarmup()
@@ -404,6 +395,26 @@ struct WorkoutFlowView: View {
             // Animated so contentTransition(.numericText) actually rolls the
             // digits — a bare mutation swaps them with no transaction.
             withAnimation(.linear(duration: 0.3)) { warmupRemaining = newRemaining }
+        }
+    }
+
+    /// Opens the mini-sheet and freezes the running position countdown
+    /// (issue #34): the end date comes off — the tick guards go quiet —
+    /// while the remaining seconds stay put and rebuild it on dismiss.
+    private func openPositionTechnique(_ technique: PositionTechnique) {
+        positionTechnique = technique
+        warmupEndDate = nil
+        cooldownEndDate = nil
+    }
+
+    private func resumePositionCountdown() {
+        switch phase {
+        case .warmup:
+            warmupEndDate = Date.now.addingTimeInterval(TimeInterval(warmupRemaining))
+        case .cooldown:
+            cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(cooldownRemaining))
+        default:
+            break
         }
     }
 
@@ -438,14 +449,8 @@ struct WorkoutFlowView: View {
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 300)
 
-            Button {
-                techniqueExercise = exercise
-            } label: {
-                Label(String(localized: "technique"), systemImage: "info.circle")
-                    .dredfitFont(14, weight: .medium)
-                    .foregroundStyle(Theme.ink2)
-            }
-            .padding(.top, 10)
+            TechniqueButton { techniqueExercise = exercise }
+                .padding(.top, 10)
 
             VStack(spacing: 4) {
                 Text("\(workNumber)")
@@ -616,27 +621,15 @@ struct WorkoutFlowView: View {
 
             // Review the technique of what's coming up while resting — the
             // same sheet the work screen offers, aimed at the next move.
-            Button {
-                techniqueExercise = restTargetExercise
-            } label: {
-                Label(String(localized: "technique"), systemImage: "info.circle")
-                    .dredfitFont(14, weight: .medium)
-                    .foregroundStyle(Theme.ink2)
-            }
-            .padding(.top, 16)
+            TechniqueButton { techniqueExercise = restTargetExercise }
+                .padding(.top, 16)
 
             Spacer()
 
-            Button {
+            BlockSkipButton(title: String(localized: "Skip rest")) {
                 restEndDate = nil
                 restRemaining = 0
                 advanceAfterRest()
-            } label: {
-                Text("Skip rest")
-                    .dredfitFont(17, weight: .medium)
-                    .foregroundStyle(Theme.ink2)
-                    .frame(maxWidth: .infinity, minHeight: 56)
-                    .overlay(RoundedRectangle(cornerRadius: 18).stroke(Theme.hairline, lineWidth: 1.5))
             }
             .padding(.bottom, 20)
         }
@@ -1075,17 +1068,15 @@ extension WorkoutFlowView {
                 .padding(.top, 6)
             }
 
-            VStack(spacing: 4) {
-                Text("\(cooldownRemaining)")
-                    .dredfitFont(112, weight: .heavy, cap: 150)
-                    .tracking(-4)
-                    .monospacedDigit()
-                    .contentTransition(.numericText(countsDown: true))
-                Text("sec")
-                    .dredfitFont(15)
-                    .foregroundStyle(Theme.ink2)
+            // Opens the mini-sheet and freezes the countdown (issue #34) —
+            // mid-pause too: the switch waits while you read.
+            TechniqueButton {
+                openPositionTechnique(PositionTechnique(cooldown: position))
             }
-            .padding(.top, 20)
+            .padding(.top, 10)
+
+            CountdownNumber(value: cooldownRemaining, identifier: "cooldown-countdown")
+                .padding(.top, 20)
 
             HStack(spacing: 10) {
                 ForEach(0..<cooldownPositions.count, id: \.self) { i in
@@ -1113,17 +1104,9 @@ extension WorkoutFlowView {
 
             Spacer()
 
-            Button {
-                finishCooldown()
-            } label: {
-                Text(String(localized: "cooldown.skip", defaultValue: "Skip cool-down"))
-                    .dredfitFont(17, weight: .medium)
-                    .foregroundStyle(Theme.ink2)
-                    .frame(maxWidth: .infinity, minHeight: 56)
-                    .overlay(RoundedRectangle(cornerRadius: 18).stroke(Theme.hairline, lineWidth: 1.5))
-            }
-            .accessibilityIdentifier("skip-cooldown")
-            .padding(.bottom, 20)
+            BlockSkipButton(title: String(localized: "cooldown.skip", defaultValue: "Skip cool-down"),
+                            identifier: "skip-cooldown") { finishCooldown() }
+                .padding(.bottom, 20)
         }
     }
 

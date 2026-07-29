@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### Technique mini-sheets for warm-up and cool-down positions (issue #34)
+
+- Every one of the 15 positions (6 warm-up moves, 9 cool-down pool) now
+  opens a reduced technique sheet from a "technique" affordance under its
+  name: the position name, a block capsule ("cool-down · 15 s per side"),
+  2–3 numbered steps and "Got it". For a beginner "Lat stretch with
+  support" was an empty label — and the context is harsher than for
+  exercises: a countdown is running, there is no time to look anything up.
+- The position countdown freezes while the sheet is open and resumes from
+  the same second on close — reading is not stretching. A deliberate
+  divergence from the rest-phase sheet, where the timer keeps ticking.
+- The steps carry the safety the names could not: no bouncing, no pushing
+  into pain, unroll the spine to come up. ~40 new keys in all four
+  languages; when position schematics arrive, the steps stay as captions.
+- Engine and golden fixtures untouched; the warm-up block moved out of the
+  flow view into its own model (Warmup.swift) on the way.
+
 ### Side-switch pause for timed unilateral work (issue #35)
 
 - Unilateral cool-down positions no longer ask you to count the side switch

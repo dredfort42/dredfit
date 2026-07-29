@@ -554,6 +554,39 @@ final class DredfitUITests: XCTestCase {
                       "skipping the warm-up must lead to the first exercise")
     }
 
+    /// The position mini-sheet (issue #34): opens from the warm-up move,
+    /// shows the block capsule, and freezes the countdown while open —
+    /// reading is not stretching. Closing resumes the count.
+    func testPositionTechniqueSheetFreezesTheCountdown() {
+        app.launch()
+        app.buttons["Start"].tap()
+        let countdown = app.staticTexts["warmup-countdown"]
+        XCTAssertTrue(countdown.waitForExistence(timeout: 3),
+                      "the warm-up countdown is missing")
+
+        app.buttons["technique"].tap()
+        let gotIt = app.buttons["Got it"]
+        XCTAssertTrue(gotIt.waitForExistence(timeout: 3), "the mini-sheet did not open")
+        XCTAssertTrue(app.staticTexts["warm-up · 30 s"].exists, "no block capsule on the sheet")
+
+        // Frozen: the number must not move while the sheet is up.
+        let frozen = Int(countdown.label) ?? -1
+        Thread.sleep(forTimeInterval: 3)
+        XCTAssertEqual(Int(countdown.label), frozen,
+                       "the countdown must freeze under the sheet")
+
+        gotIt.tap()
+        XCTAssertTrue(gotIt.waitForNonExistence(timeout: 3), "Got it did not close the sheet")
+        // Resumed: the number moves again within a few seconds.
+        let deadline = Date.now.addingTimeInterval(6)
+        var moved = false
+        while Date.now < deadline && !moved {
+            moved = (Int(countdown.label) ?? frozen) < frozen
+            if !moved { Thread.sleep(forTimeInterval: 0.5) }
+        }
+        XCTAssertTrue(moved, "the countdown must resume after the sheet closes")
+    }
+
     // MARK: - Settings
 
     func testSettingsTogglesRestDay() {
@@ -923,6 +956,15 @@ extension DredfitUITests {
         }
         XCTAssertTrue(cooldown.waitForExistence(timeout: 5),
                       "the cool-down must follow the last exercise")
+
+        // The position mini-sheet (issue #34) opens over the running block
+        // and closes back into it — opening freezes the countdown, so the
+        // sequence is stable even on --uitest-fast's 1 s stages.
+        coordinateTap(app.buttons["technique"])
+        let gotIt = app.buttons["Got it"]
+        XCTAssertTrue(gotIt.waitForExistence(timeout: 3), "the cool-down mini-sheet did not open")
+        gotIt.tap()
+        XCTAssertTrue(gotIt.waitForNonExistence(timeout: 3), "the mini-sheet did not close")
 
         app.buttons["skip-cooldown"].tap()
         XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 3),
