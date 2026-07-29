@@ -33,7 +33,7 @@ final class CountdownSoundsTests: XCTestCase {
     // MARK: - Format
 
     func testTonesAreValidMonoPCMWav() {
-        for tone in [SignalTone.tick, SignalTone.go] {
+        for tone in [SignalTone.tick, SignalTone.go, SignalTone.switchSides] {
             XCTAssertEqual(String(bytes: tone[0..<4], encoding: .ascii), "RIFF")
             XCTAssertEqual(String(bytes: tone[8..<12], encoding: .ascii), "WAVE")
             XCTAssertEqual(le16(tone, 20), 1, "linear PCM")
@@ -52,6 +52,8 @@ final class CountdownSoundsTests: XCTestCase {
         XCTAssertEqual(tick.duration, 0.07, accuracy: 0.01)
         let go = try AVAudioPlayer(data: SignalTone.go)
         XCTAssertEqual(go.duration, 0.09 + 0.22, accuracy: 0.01)
+        let switchSides = try AVAudioPlayer(data: SignalTone.switchSides)
+        XCTAssertEqual(switchSides.duration, 0.09 + 0.22, accuracy: 0.01)
     }
 
     // MARK: - Loudness and envelope
@@ -72,11 +74,28 @@ final class CountdownSoundsTests: XCTestCase {
         XCTAssertGreaterThan(goPeak, tickPeak)
     }
 
+    /// The switch tone (issue #35) must be the go's mirror — falling where
+    /// the go rises — or eyes-closed stretching cannot tell "switch sides"
+    /// from "new position". Zero-crossing counts stand in for frequency:
+    /// the high segment crosses zero more often than the low one.
+    func testSwitchToneFallsWhereGoRises() {
+        func crossings<S: Sequence>(_ s: S) -> Int where S.Element == Int16 {
+            zip(Array(s), Array(s).dropFirst()).filter { ($0 < 0) != ($1 < 0) }.count
+        }
+        let go = samples(SignalTone.go)
+        let sw = samples(SignalTone.switchSides)
+        XCTAssertEqual(go.count, sw.count, "same prominence: a boundary signal, not a tick")
+        XCTAssertGreaterThan(crossings(go.suffix(2000)), crossings(go.prefix(2000)),
+                             "the go must rise")
+        XCTAssertGreaterThan(crossings(sw.prefix(2000)), crossings(sw.suffix(2000)),
+                             "the switch tone must fall")
+    }
+
     /// Attack/release ramps: a tone starting or ending at full amplitude
     /// clicks audibly, which reads as distortion at exactly the moment the
     /// signal is supposed to sound clean.
     func testToneEdgesAreClickFree() {
-        for tone in [SignalTone.tick, SignalTone.go] {
+        for tone in [SignalTone.tick, SignalTone.go, SignalTone.switchSides] {
             let all = samples(tone)
             XCTAssertLessThan(abs(Int(all.first ?? .max)), 1_000)
             XCTAssertLessThan(abs(Int(all.last ?? .max)), 1_000)

@@ -71,9 +71,22 @@ final class CooldownTests: XCTestCase {
     }
 
     func testTheBlockFillsExactlyTheEnginesReservedMinutes() {
-        // 6 × 30 s = the 3 minutes `cooldownMin` has promised since 1.0.
+        // 6 × 30 s = the 3 minutes `cooldownMin` has promised since 1.0:
+        // sides and positions sum to the reserved minutes. The side-switch
+        // pauses (issue #35) ride on top, within the "≈" every estimate has
+        // always carried — they are deliberately not part of this equation.
         XCTAssertEqual(Cooldown.positionCount * Cooldown.positionSeconds,
                        EngineConfig.cooldownMin * 60)
+    }
+
+    func testAPerSidePositionSplitsIntoTwoWholeSidesPlusThePause() {
+        // 15 + 5 + 15 (issue #35): the slot splits into two equal whole
+        // sides, and the pause is the app-layer constant the acceptance
+        // pinned — shared with the workout's per-side holds.
+        XCTAssertEqual(Cooldown.sideSeconds * 2, Cooldown.positionSeconds,
+                       "the sides must consume the whole slot")
+        XCTAssertEqual(Cooldown.sideSeconds, 15)
+        XCTAssertEqual(Cooldown.sideSwitchPauseSec, 5)
     }
 
     func testPerSideHintsAreOnUnilateralPositionsOnly() {

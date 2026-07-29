@@ -494,6 +494,48 @@ final class DredfitUITests: XCTestCase {
                       "the hold did not auto-advance to rest at zero")
     }
 
+    /// The side-switch pause (issue #35): a per-side hold runs side one,
+    /// announces "Switch sides" for 5 s, then starts the second side by
+    /// itself — no tap in between. Session 2's per-side hold is the bird
+    /// dog, right after the plank.
+    func testPerSideHoldPausesBetweenSidesAndAutoStartsTheSecond() {
+        launchIntoSession2AndReachPlank()
+        // The same skip-until-the-goal loop the helper uses: a dropped tap
+        // is retried, and the loop stops the moment the bird dog shows.
+        // The goal is the "seconds per side" caption, not the exercise name —
+        // Today's plan list under the cover also holds the name, so the name
+        // "exists" long before the bird dog's work screen is up.
+        let perSideCaption = app.staticTexts["seconds per side"]
+        let skip = app.buttons["Skip exercise"]
+        var skips = 0
+        while !perSideCaption.exists && skips < 2 {
+            if skip.exists { coordinateTap(skip); skips += 1 }
+            _ = perSideCaption.waitForExistence(timeout: 1)
+        }
+        XCTAssertTrue(perSideCaption.waitForExistence(timeout: 3),
+                      "the per-side hold must follow the plank in session 2")
+
+        // shorten the hold to the 5 s minimum: 20 → 15 → 10 → 5
+        app.buttons["Went differently"].tap()
+        let minus = app.buttons["minus"]
+        XCTAssertTrue(minus.waitForExistence(timeout: 2), "the stepper did not open")
+        minus.tap(); minus.tap(); minus.tap()
+        app.buttons["OK"].tap()
+
+        coordinateTap(app.buttons["Start hold"])
+        // side one (5 s) runs out into the pause, which announces itself
+        XCTAssertTrue(app.staticTexts["Switch sides"].waitForExistence(timeout: 9),
+                      "the pause must open when the first side ends")
+        // the second side starts itself: Stop reappears with no tap anywhere
+        XCTAssertTrue(app.buttons["Stop"].waitForExistence(timeout: 9),
+                      "the second side must start without a tap")
+        XCTAssertTrue(app.staticTexts["second side"].exists,
+                      "the second side must be labelled")
+        // and runs out on its own into rest, like any completed set
+        XCTAssertTrue(app.buttons["Skip rest"].waitForExistence(timeout: 9),
+                      "the second side did not auto-advance to rest at zero")
+    }
+
     // MARK: - Warm-up
 
     func testWarmupShowsAndSkips() {

@@ -5026,6 +5026,28 @@
         }
       }
     },
+    "Switch sides" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambia de lado"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Troque de lado"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Смени сторону"
+          }
+        }
+      }
+    },
     "technique" : {
       "localizations" : {
         "es" : {

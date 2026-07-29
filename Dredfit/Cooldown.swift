@@ -23,8 +23,9 @@ import DredfitCore
 struct CooldownPosition: Equatable, Identifiable {
     let id: String
     let name: String
-    /// One 30 s slot with a "15 s per side" hint — a per-side position does
-    /// not get twice the time, it splits the slot.
+    /// One 30 s slot split into 15 s per side — a per-side position does
+    /// not get twice the time. The side-switch pause (issue #35) rides on
+    /// top of the slot: 15 + 5 + 15, counted by the app, not the user.
     let perSide: Bool
 }
 
@@ -32,6 +33,18 @@ enum Cooldown {
 
     static let positionSeconds = 30
     static let positionCount = 6
+
+    /// The re-set pause between sides of timed unilateral work (issue #35):
+    /// getting out of one side and into the other is not instant, and
+    /// without a pause the transition silently eats into the second side.
+    /// One app-layer constant shared by the cool-down and the workout's
+    /// per-side holds — deliberately not a user setting. The pause rides on
+    /// top of the reserved minutes, within the "≈" every estimate carries.
+    static let sideSwitchPauseSec = 5
+
+    /// One side of a per-side position: half the 30 s slot, per the
+    /// "15 s per side" hint the position has always shown.
+    static var sideSeconds: Int { positionSeconds / 2 }
 
     // MARK: - The pool of nine
 
