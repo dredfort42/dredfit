@@ -103,11 +103,14 @@ final class DredfitUITests: XCTestCase {
 
         let done = app.buttons["Done"]
         let startHold = app.buttons["Start hold"]
+        let skipCooldown = app.buttons["skip-cooldown"]
         let rating = app.staticTexts["How did it go?"]
         // Wall-clock bound, not an iteration count: the only real time sink
         // is the hold countdowns (~3 minutes in a deep session), which are
         // load-independent, so this bound holds even on a saturated runner.
-        let deadline = Date.now.addingTimeInterval(360)
+        // The seeded milestone session spends ~330 s in holds alone, so the
+        // bound carries a little headroom for taps and transitions.
+        let deadline = Date.now.addingTimeInterval(420)
         while !rating.exists && Date.now < deadline {
             if done.exists {
                 coordinateTap(done)
@@ -116,6 +119,11 @@ final class DredfitUITests: XCTestCase {
                 coordinateTap(startHold)
                 _ = startHold.waitForNonExistence(timeout: 3)  // countdown started
                 // the countdown runs itself down and auto-advances into rest
+            } else if skipCooldown.exists {
+                // This helper's job is the rating, not the stretching — the
+                // cool-down has its own dedicated test.
+                coordinateTap(skipCooldown)
+                _ = skipCooldown.waitForNonExistence(timeout: 3)
             } else {
                 // resting or mid-transition: the fast rest advances on its own
                 _ = rating.waitForExistence(timeout: 2)
@@ -185,69 +193,6 @@ final class DredfitUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["TECHNIQUE"].waitForExistence(timeout: 3))
         app.buttons["Got it"].tap()
         XCTAssertTrue(app.buttons["Done"].waitForExistence(timeout: 3))
-    }
-
-    // MARK: - Short workout (issue #27)
-
-    /// The whole short path: three exercises instead of six, the other three
-    /// recorded as skips, and the workout counted like any other.
-    func testShortWorkoutRunsThreeExercisesAndSkipsTheRest() {
-        app.launchArguments.append("--uitest-fast")
-        app.launch()
-        _ = app.staticTexts["Workout 1"].waitForExistence(timeout: 5)
-
-        let short = app.buttons["start-short"]
-        XCTAssertTrue(short.exists, "Today must offer the short version")
-        short.tap()
-
-        let skipWarmup = app.buttons["Skip warm-up"]
-        if skipWarmup.waitForExistence(timeout: 3) { skipWarmup.tap() }
-        // The flow counts in the short list, not in the session's six.
-        XCTAssertTrue(app.staticTexts["1 / 3"].waitForExistence(timeout: 3),
-                      "the short workout walks through three exercises")
-
-        let done = app.buttons["Done"]
-        let startHold = app.buttons["Start hold"]
-        let rating = app.staticTexts["How did it go?"]
-        let deadline = Date.now.addingTimeInterval(240)
-        while !rating.exists && Date.now < deadline {
-            if done.exists {
-                coordinateTap(done)
-                _ = done.waitForNonExistence(timeout: 3)
-            } else if startHold.exists {
-                coordinateTap(startHold)
-                _ = startHold.waitForNonExistence(timeout: 3)
-            } else {
-                _ = rating.waitForExistence(timeout: 2)
-            }
-        }
-        XCTAssertTrue(rating.waitForExistence(timeout: 5), "the short flow must reach the rating")
-        // Three of the session's six were never touched — the scope chip says
-        // so before anything is recorded, and the summary lists them.
-        XCTAssertTrue(app.staticTexts["Applies to 3 of 6 — skipped exercises stay put"].exists,
-                      "the rating must apply to the three that were trained")
-        // The state lives once in the header; the rows carry only dimmed
-        // names on screen — but every row still reads its state to VoiceOver.
-        XCTAssertTrue(app.staticTexts["SKIPPED"].exists,
-                      "the skips section carries its own kicker")
-        XCTAssertEqual(app.staticTexts.matching(
-            NSPredicate(format: "label ENDSWITH %@", ", skipped")).count, 3,
-            "each untouched exercise must still announce its state")
-        XCTAssertFalse(app.staticTexts["ADJUSTED"].exists,
-                       "nothing was adjusted — the Adjusted kicker has no rows")
-
-        app.staticTexts["On plan"].tap()
-        XCTAssertTrue(app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5),
-                      "a short workout still counts as the day's workout")
-    }
-
-    /// The default never drifts: the choice is not remembered, so the next
-    /// day opens on the full session with the short version as the option.
-    func testShortVersionIsNeverTheDefault() {
-        app.launch()
-        _ = app.staticTexts["Workout 1"].waitForExistence(timeout: 5)
-        XCTAssertTrue(app.buttons["Start"].exists, "Start stays the primary action")
-        XCTAssertTrue(app.buttons["start-short"].exists)
     }
 
     // MARK: - Exit and data integrity
@@ -838,5 +783,109 @@ final class DredfitUITests: XCTestCase {
         relaunch.tabBars.buttons["Today"].tap()
         XCTAssertTrue(relaunch.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5),
                       "state did not survive the relaunch")
+    }
+}
+
+// MARK: - Short workout (#27) and cool-down (#28)
+//
+// A same-file extension keeps the test class itself within the linter's
+// type-body bound; XCTest discovers test methods in extensions just fine.
+extension DredfitUITests {
+    // MARK: - Short workout (issue #27)
+
+    /// The whole short path: three exercises instead of six, the other three
+    /// recorded as skips, and the workout counted like any other.
+    func testShortWorkoutRunsThreeExercisesAndSkipsTheRest() {
+        app.launchArguments.append("--uitest-fast")
+        app.launch()
+        _ = app.staticTexts["Workout 1"].waitForExistence(timeout: 5)
+
+        let short = app.buttons["start-short"]
+        XCTAssertTrue(short.exists, "Today must offer the short version")
+        short.tap()
+
+        let skipWarmup = app.buttons["Skip warm-up"]
+        if skipWarmup.waitForExistence(timeout: 3) { skipWarmup.tap() }
+        // The flow counts in the short list, not in the session's six.
+        XCTAssertTrue(app.staticTexts["1 / 3"].waitForExistence(timeout: 3),
+                      "the short workout walks through three exercises")
+
+        let done = app.buttons["Done"]
+        let startHold = app.buttons["Start hold"]
+        let rating = app.staticTexts["How did it go?"]
+        let deadline = Date.now.addingTimeInterval(240)
+        while !rating.exists && Date.now < deadline {
+            if done.exists {
+                coordinateTap(done)
+                _ = done.waitForNonExistence(timeout: 3)
+            } else if startHold.exists {
+                coordinateTap(startHold)
+                _ = startHold.waitForNonExistence(timeout: 3)
+            } else {
+                _ = rating.waitForExistence(timeout: 2)
+            }
+        }
+        XCTAssertTrue(rating.waitForExistence(timeout: 5), "the short flow must reach the rating")
+        // Three of the session's six were never touched — the scope chip says
+        // so before anything is recorded, and the summary lists them.
+        XCTAssertTrue(app.staticTexts["Applies to 3 of 6 — skipped exercises stay put"].exists,
+                      "the rating must apply to the three that were trained")
+        // The state lives once in the header; the rows carry only dimmed
+        // names on screen — but every row still reads its state to VoiceOver.
+        XCTAssertTrue(app.staticTexts["SKIPPED"].exists,
+                      "the skips section carries its own kicker")
+        XCTAssertEqual(app.staticTexts.matching(
+            NSPredicate(format: "label ENDSWITH %@", ", skipped")).count, 3,
+            "each untouched exercise must still announce its state")
+        XCTAssertFalse(app.staticTexts["ADJUSTED"].exists,
+                       "nothing was adjusted — the Adjusted kicker has no rows")
+
+        app.staticTexts["On plan"].tap()
+        XCTAssertTrue(app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5),
+                      "a short workout still counts as the day's workout")
+    }
+
+    /// The default never drifts: the choice is not remembered, so the next
+    /// day opens on the full session with the short version as the option.
+    func testShortVersionIsNeverTheDefault() {
+        app.launch()
+        _ = app.staticTexts["Workout 1"].waitForExistence(timeout: 5)
+        XCTAssertTrue(app.buttons["Start"].exists, "Start stays the primary action")
+        XCTAssertTrue(app.buttons["start-short"].exists)
+    }
+
+    // MARK: - Cool-down (issue #28)
+
+    /// The natural end of the work runs through the cool-down; skipping the
+    /// block lands on the rating with the workout still recorded.
+    func testCooldownRunsBetweenLastExerciseAndRating() {
+        app.launchArguments.append("--uitest-fast")
+        app.launch()
+        startWorkout()
+
+        let done = app.buttons["Done"]
+        let startHold = app.buttons["Start hold"]
+        let cooldown = app.staticTexts["COOL-DOWN"]
+        let deadline = Date.now.addingTimeInterval(360)
+        while !cooldown.exists && Date.now < deadline {
+            if done.exists {
+                coordinateTap(done)
+                _ = done.waitForNonExistence(timeout: 3)
+            } else if startHold.exists {
+                coordinateTap(startHold)
+                _ = startHold.waitForNonExistence(timeout: 3)
+            } else {
+                _ = cooldown.waitForExistence(timeout: 2)
+            }
+        }
+        XCTAssertTrue(cooldown.waitForExistence(timeout: 5),
+                      "the cool-down must follow the last exercise")
+
+        app.buttons["skip-cooldown"].tap()
+        XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 3),
+                      "skipping the cool-down lands on the rating")
+        app.staticTexts["On plan"].tap()
+        XCTAssertTrue(app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5),
+                      "the workout is recorded exactly as before")
     }
 }

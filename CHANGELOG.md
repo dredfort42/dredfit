@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+### The cool-down the estimate always promised (issue #28)
+
+- Every "≈ N min" estimate since 1.0 has reserved three minutes for a
+  cool-down that did not exist. Now it does: six stretch positions × 30 s
+  between the last exercise and the rating — the block materialises exactly
+  the minutes already promised, so no estimate anywhere changes.
+- Composition is deterministic from what was actually performed: hip flexors
+  and chest-and-shoulders first, three positions mapped from the session's
+  movements (deduplicated, topped up from a pool of nine), the rest pose
+  always last. A short workout stretches its three performed movements.
+- Same manners as the warm-up: per-position skip, whole-block skip, wall-
+  clock countdown that absorbs backgrounding. Per-side positions take one
+  30 s slot with a "15 s per side" hint.
+- Honest edges: "Finish now" goes straight to the rating (whoever cut the
+  workout short is out of time by definition); a workout of pure skips gets
+  no cool-down; process death during the block restores to the rating. The
+  cool-down counts toward the duration written to Health — it is part of
+  the workout.
+- No levels, no journal entry, engine and golden fixtures untouched.
+
 ### A workout for the days there is no time (issue #27)
 
 - Today offers a short version under Start: three of the session's six
