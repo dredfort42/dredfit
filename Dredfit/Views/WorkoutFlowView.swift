@@ -32,6 +32,7 @@ struct WorkoutFlowView: View {
         case warmup
         case work
         case rest(seconds: Int)
+        case cooldown                 // between the last exercise and the rating
         case feedback
         case milestone([Milestone])   // only when the workout earned one
     }
@@ -42,6 +43,13 @@ struct WorkoutFlowView: View {
     @State private var warmupIndex = 0
     @State private var warmupRemaining = 0
     @State private var warmupEndDate: Date?
+    // The cool-down mirrors the warm-up: date-based countdown, per-position
+    // skip, whole-block skip. Positions are computed once on entry — the
+    // composition depends on what was actually performed.
+    @State private var cooldownPositions: [CooldownPosition] = []
+    @State private var cooldownIndex = 0
+    @State private var cooldownRemaining = 0
+    @State private var cooldownEndDate: Date?
     @State private var restRemaining = 0
     @State private var restEndDate: Date?
     // Captured at tap time (not a bool): the rest countdown keeps ticking while
@@ -124,6 +132,8 @@ struct WorkoutFlowView: View {
                 workView
             case .rest:
                 restView
+            case .cooldown:
+                cooldownView
             case .feedback:
                 FeedbackView(session: session, actuals: actuals,
                              // The rating screen counts the short version's
@@ -173,6 +183,8 @@ struct WorkoutFlowView: View {
                 tickWarmup()
             case .rest:
                 tickRest()
+            case .cooldown:
+                tickCooldown()
             case .work where holding:
                 tickHold()
             default:
@@ -249,6 +261,8 @@ struct WorkoutFlowView: View {
                             Text("\(exIndex + 1) / \(exercises.count)")
                         case .warmup:
                             Text("WARM-UP")
+                        case .cooldown:
+                            Text("COOL-DOWN")
                         default:
                             Text("REST")
                         }
@@ -389,6 +403,7 @@ struct WorkoutFlowView: View {
         liveActivity.update(activityWorkState())
         persistProgress()
     }
+
 
     // MARK: - Live Activity
 
@@ -672,11 +687,10 @@ struct WorkoutFlowView: View {
     private func completeSet() {
         adjusting = false
         if isLastSet && isLastExercise {
-            phase = .feedback
-            liveActivity.end()
-            // Snapshotted too: dying on the rating screen must come back to
-            // the rating screen, not to a set already done.
-            persistProgress()
+            // The natural end of the work runs through the cool-down (issue
+            // #28); "Finish now" deliberately does not — whoever cut the
+            // workout short is out of time by definition.
+            startCooldown()
         } else if isLastSet {
             startRest(exercise.restExerciseSec)
         } else {
@@ -691,9 +705,9 @@ struct WorkoutFlowView: View {
         actuals.removeValue(forKey: exercise.pattern)   // a skip wins over an actual
         skippedPatterns.insert(exercise.pattern)
         if isLastExercise {
-            phase = .feedback
-            liveActivity.end()
-            persistProgress()
+            // startCooldown itself degrades to the rating when nothing was
+            // performed — skipping every exercise never earns a stretch.
+            startCooldown()
         } else {
             exIndex += 1
             setIndex = 0
@@ -872,7 +886,10 @@ private extension WorkoutFlowView {
             actuals: actuals, skipped: skippedPatterns,
             workoutStart: workoutStart ?? .now, savedAt: .now,
             fingerprint: WorkoutSnapshot.fingerprint(of: session),
-            atFeedback: phase == .feedback ? true : nil,
+            // Process death during the cool-down restores to the rating (spec
+            // §4): the work is fully behind, and nobody returns hours later
+            // to finish a stretch.
+            atFeedback: phase == .feedback || phase == .cooldown ? true : nil,
             interrupted: interruptedPattern,
             // Additive: a snapshot taken during a short workout must resume
             // into the short workout. Without it the restore would hand the
@@ -938,6 +955,14 @@ private extension WorkoutFlowView {
     /// "Finish now": every exercise not fully completed keeps its level via
     /// the engine's skip path, and the flow proceeds to the honest rating.
     func finishNow() {
+        // Exit during the cool-down: every exercise is already behind, so
+        // there is nothing to mark — just move on to the rating. Without
+        // this the generic path below would call the completed last
+        // exercise "not finished".
+        if phase == .cooldown {
+            finishCooldown()
+            return
+        }
         adjusting = false
         holdEndDate = nil
         holdSecondSide = false
@@ -977,5 +1002,148 @@ private extension WorkoutFlowView {
     func discardWorkout() {
         store.clearWorkoutSnapshot()
         dismiss()
+    }
+}
+
+// MARK: - Cool-down (issue #28)
+//
+// A same-file extension: the cool-down mirrors the warm-up but is a
+// self-contained chapter, and the view struct itself stays within the
+// linter's honest size for a type body. @State storage stays in the
+// struct - only behaviour lives here.
+extension WorkoutFlowView {
+    /// The block the duration estimate has promised since 1.0: six stretch
+    /// positions × 30 s between the last exercise and the rating, composed
+    /// from what was actually performed. Mirrors the warm-up — the same
+    /// countdown, the same two escapes (this position / the whole block).
+    private var cooldownView: some View {
+        let position = cooldownPositions[cooldownIndex]
+        return VStack(spacing: 0) {
+            Spacer()
+            Text(position.name)
+                .dredfitFont(23, weight: .bold)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 300)
+            if position.perSide {
+                Text(String(localized: "cooldown.perSide", defaultValue: "15 s per side"))
+                    .dredfitFont(14)
+                    .foregroundStyle(Theme.ink2)
+                    .padding(.top, 6)
+            }
+
+            VStack(spacing: 4) {
+                Text("\(cooldownRemaining)")
+                    .dredfitFont(112, weight: .heavy, cap: 150)
+                    .tracking(-4)
+                    .monospacedDigit()
+                    .contentTransition(.numericText(countsDown: true))
+                Text("sec")
+                    .dredfitFont(15)
+                    .foregroundStyle(Theme.ink2)
+            }
+            .padding(.top, 20)
+
+            HStack(spacing: 10) {
+                ForEach(0..<cooldownPositions.count, id: \.self) { i in
+                    Circle()
+                        .fill(i < cooldownIndex ? Theme.ink
+                              : (i == cooldownIndex ? Theme.accent : Theme.hairline))
+                        .frame(width: 10, height: 10)
+                }
+            }
+            .padding(.top, 30)
+
+            Button {
+                if cooldownIndex + 1 < cooldownPositions.count {
+                    startCooldownPosition(cooldownIndex + 1)
+                } else {
+                    finishCooldown()
+                }
+            } label: {
+                Text("Skip this move")
+                    .dredfitFont(14, weight: .medium)
+                    .foregroundStyle(Theme.ink2)
+                    .frame(minHeight: 44)
+            }
+            .padding(.top, 8)
+
+            Spacer()
+
+            Button {
+                finishCooldown()
+            } label: {
+                Text(String(localized: "cooldown.skip", defaultValue: "Skip cool-down"))
+                    .dredfitFont(17, weight: .medium)
+                    .foregroundStyle(Theme.ink2)
+                    .frame(maxWidth: .infinity, minHeight: 56)
+                    .overlay(RoundedRectangle(cornerRadius: 18).stroke(Theme.hairline, lineWidth: 1.5))
+            }
+            .accessibilityIdentifier("skip-cooldown")
+            .padding(.bottom, 20)
+        }
+    }
+
+    /// Entered only when something was actually trained: a workout of pure
+    /// skips has nothing to stretch, and the flow goes straight to the
+    /// honest rating instead of pretending otherwise.
+    private func startCooldown() {
+        let performed = exercises.map(\.pattern).filter { !skippedPatterns.contains($0) }
+        cooldownPositions = Cooldown.positions(performed: performed)
+        guard !cooldownPositions.isEmpty else {
+            phase = .feedback
+            liveActivity.end()
+            persistProgress()
+            return
+        }
+        phase = .cooldown
+        liveActivity.update(.init(phase: .work, title: String(localized: "COOL-DOWN"),
+                                  detail: "", restEndDate: nil))
+        startCooldownPosition(0)
+        persistProgress()
+    }
+
+    private func startCooldownPosition(_ index: Int) {
+        var seconds = Cooldown.positionSeconds
+        #if DEBUG
+        // Same hook as the rest countdown: --uitest-fast collapses the wait
+        // so UI drivers do not spend three real minutes here.
+        if CommandLine.arguments.contains("--uitest-fast") { seconds = 1 }
+        #endif
+        cooldownIndex = index
+        cooldownRemaining = seconds
+        cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(seconds))
+    }
+
+    private func tickCooldown() {
+        guard let end = cooldownEndDate else { return }
+        let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
+        guard newRemaining != cooldownRemaining else { return }
+        if newRemaining == 0 {
+            playGo()
+            // Absorb backgrounded time exactly like the warm-up: jump over
+            // every position the elapsed time already covered.
+            let overshoot = max(0, -end.timeIntervalSinceNow)
+            let positionsPassed = 1 + Int(overshoot) / Cooldown.positionSeconds
+            if cooldownIndex + positionsPassed < cooldownPositions.count {
+                cooldownIndex += positionsPassed
+                let remainder = Int(overshoot) % Cooldown.positionSeconds
+                cooldownRemaining = Cooldown.positionSeconds - remainder
+                cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(cooldownRemaining))
+            } else {
+                finishCooldown()
+            }
+        } else {
+            if newRemaining <= Self.countdownSignalSeconds && newRemaining < cooldownRemaining {
+                playTick()
+            }
+            withAnimation(.linear(duration: 0.3)) { cooldownRemaining = newRemaining }
+        }
+    }
+
+    private func finishCooldown() {
+        cooldownEndDate = nil
+        phase = .feedback
+        liveActivity.end()
+        persistProgress()
     }
 }

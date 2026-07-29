@@ -422,6 +422,23 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 29.10 | Eight short workouts in a row | Every movement appears at least once across them (the anchor guarantees it) |
 | 29.11 | All four languages | The button fits on one line at default type; es/pt do not clip |
 
+### 30. Cool-down (1.9, issue #28)
+
+| # | Check | Expected |
+|---|---|---|
+| 30.1 | Complete the last exercise's last set | "COOL-DOWN" header, six dots, first position "Hip flexor stretch" with a 30 s countdown and "15 s per side" hint |
+| 30.2 | The six positions | Hip flexors → chest and shoulders → three from the session's movements (dedup'd, session order) → rest pose last; no duplicates |
+| 30.3 | The mapped three | Match what was performed: fold for squat/hinge, lats for pulls, wrists for pushes, twist for core, calf at the wall, seated glute for lunges |
+| 30.4 | Let it run | 6 × 30 s = 3:00 — the exact minutes the "≈ N min" estimate has always reserved; the rating follows |
+| 30.5 | "Skip this move" / "Skip cool-down" | One position or the whole block; either way the rating still comes and the workout records exactly as before |
+| 30.6 | "Finish now" from mid-workout | **No** cool-down — whoever cut the workout short is out of time by definition |
+| 30.7 | Skip all six exercises | No cool-down either — nothing was trained, nothing to stretch |
+| 30.8 | Short workout | Cool-down composed from the **three performed** movements only |
+| 30.9 | Kill the app during the cool-down, relaunch, Continue | Lands on the rating screen — the work is behind, nobody returns to finish a stretch |
+| 30.10 | Health duration | The workout's recorded duration includes the cool-down time |
+| 30.11 | Background mid-position, return after a while | The countdown reflects real elapsed time and jumps over positions it already covered |
+| 30.12 | All four languages | Position names and hints read naturally; nothing clips |
+
 ---
 
 ## Issue registry
