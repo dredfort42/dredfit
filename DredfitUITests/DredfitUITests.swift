@@ -557,6 +557,7 @@ final class DredfitUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["The level"].waitForExistence(timeout: 3),
                       "the explainer did not open")
         for section in ["What your answer does", "Deload", "Rotation",
+                        "Weekly rhythm",   // issue #36
                         "Skips", "Why there are no questionnaires"] {
             XCTAssertTrue(app.staticTexts[section].exists,
                           "section \"\(section)\" is missing")

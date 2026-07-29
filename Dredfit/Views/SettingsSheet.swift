@@ -116,6 +116,11 @@ struct SettingsSheet: View {
             Text("Highlighted days are rest days")
                 .dredfitFont(12.5)
                 .foregroundStyle(Theme.ink2)
+            // The one place the app says how much rest is enough (issue #36)
+            // — guidance, not a gate: the picker still allows any spread.
+            Text("2–3 rest days a week is the recommended rhythm")
+                .dredfitFont(12.5)
+                .foregroundStyle(Theme.ink2)
         }
     }
 

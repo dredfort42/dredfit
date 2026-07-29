@@ -929,6 +929,62 @@
         }
       }
     },
+    "3–4 workouts a week is the sweet spot: strength grows while joints and tendons keep up. Muscle adapts in weeks, tendons in months — rest days protect the slower half." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3–4 workouts a week is the sweet spot: strength grows while joints and tendons keep up. Muscle adapts in weeks, tendons in months — rest days protect the slower half."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3–4 entrenamientos por semana es el punto justo: la fuerza crece y las articulaciones y los tendones le siguen el ritmo. El músculo se adapta en semanas, los tendones en meses — los días de descanso cuidan a la mitad lenta."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3–4 treinos por semana é o ponto certo: a força cresce e as articulações e os tendões acompanham. O músculo se adapta em semanas, os tendões em meses — os dias de descanso protegem a metade lenta."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3–4 тренировки в неделю — золотая середина: сила растет, а суставы и сухожилия успевают за ней. Мышцы адаптируются за недели, сухожилия — за месяцы; дни отдыха берегут медленную половину."
+          }
+        }
+      }
+    },
+    "2–3 rest days a week is the recommended rhythm" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2–3 rest days a week is the recommended rhythm"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2–3 días de descanso por semana es el ritmo recomendado"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2–3 dias de descanso por semana é o ritmo recomendado"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2–3 дня отдыха в неделю — рекомендуемый ритм"
+          }
+        }
+      }
+    },
     "8–15 reps" : {
       "localizations" : {
         "es" : {
@@ -5547,6 +5603,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "РАЗМИНКА"
+          }
+        }
+      }
+    },
+    "Weekly rhythm" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weekly rhythm"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ritmo semanal"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ritmo da semana"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ритм недели"
           }
         }
       }

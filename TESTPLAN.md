@@ -99,7 +99,7 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 
 | # | Check | Expected |
 |---|---|---|
-| 6.1 | Settings → **REST DAYS**, default | Sunday only is highlighted; caption "Highlighted days are rest days" |
+| 6.1 | Settings → **REST DAYS**, fresh install | Sunday **and Wednesday** highlighted (issue #36); captions "Highlighted days are rest days" and "2–3 rest days a week is the recommended rhythm". An install upgrading from a file without the key keeps Sunday only |
 | 6.2 | Chip order | Starts at the locale's first weekday (Monday for ru, Sunday for en-US) |
 | 6.3 | Select a second rest day | Both highlighted; Calendar marks both |
 | 6.4 | Try to select a **7th** rest day | Refused — six is the maximum |

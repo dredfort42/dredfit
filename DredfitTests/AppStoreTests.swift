@@ -222,6 +222,35 @@ final class AppStoreTests: XCTestCase {
 
     // MARK: - Legacy settings files
 
+    /// A fresh install starts with two spread-out rest days (issue #36): the
+    /// old single-Sunday default quietly proposed six sessions a week —
+    /// overuse territory for slow-adapting connective tissue.
+    func testFreshInstallDefaultsToTwoRestDays() {
+        let store = AppStore(storageURL: tempURL)   // no file → fresh install
+        XCTAssertEqual(store.settings.restWeekdays, [1, 4],
+                       "fresh installs rest on Sunday and Wednesday")
+    }
+
+    /// A stored file WITHOUT the restWeekdays key belongs to an install that
+    /// lived with Sunday-only — an upgrade must not add a rest day the person
+    /// never chose.
+    func testSettingsWithoutRestDaysKeyKeepTheOldSundayDefault() throws {
+        let noKey = """
+        {"engineState":{"counter":0,
+          "levels":["squat",0,"push_h",0,"hinge",0,"pull",0,"push_v",0,"lunge",0,
+                    "core_anti_ext",0,"core_rot",0,"calf",0],
+          "failStreak":["squat",0,"push_h",0,"hinge",0,"pull",0,"push_v",0,"lunge",0,
+                        "core_anti_ext",0,"core_rot",0,"calf",0]},
+         "records":[],
+         "settings":{"soundsEnabled":true,
+                     "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
+        """
+        try Data(noKey.utf8).write(to: tempURL)
+        let store = AppStore(storageURL: tempURL)
+        XCTAssertEqual(store.settings.restWeekdays, [1],
+                       "an upgrade must not change an existing week")
+    }
+
     /// Files written by older versions must keep loading losslessly.
     func testV11SettingsFileLoadsWithHealthDefaults() throws {
         // a settings file from before Health support
@@ -610,12 +639,12 @@ final class AppStoreTests: XCTestCase {
 
     func testSettingsPersistAcrossReload() {
         let store = AppStore(storageURL: tempURL)
-        store.toggleRestDay(2)          // Monday joins Sunday
+        store.toggleRestDay(2)          // Monday joins the Sunday+Wednesday default
         store.setSounds(false)
         store.setReminderTime(hour: 7, minute: 30)
 
         let reloaded = AppStore(storageURL: tempURL)
-        XCTAssertEqual(reloaded.settings.restWeekdays, [1, 2])
+        XCTAssertEqual(reloaded.settings.restWeekdays, [1, 2, 4])
         XCTAssertFalse(reloaded.settings.soundsEnabled)
         XCTAssertEqual(reloaded.settings.reminderHour, 7)
         XCTAssertEqual(reloaded.settings.reminderMinute, 30)
