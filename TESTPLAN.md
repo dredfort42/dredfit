@@ -67,7 +67,7 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 | 3.2 | Let it finish | 3-2-1 signals, then the two-tone finale; rest begins automatically |
 | 3.3 | **Stop the hold early** | The recorded actual is rounded to the **nearest multiple of 5** and clamped to 5…90 s |
 | 3.4 | Verify 3.3 on the rating screen | The summary shows "actual N" where N is a multiple of 5 |
-| 3.5 | A per-side hold | Two countdowns run; the second is marked "second side"; the recorded actual is the **smaller** of the two sides |
+| 3.5 | A per-side hold | Side one runs, then a 5 s "Switch sides" pause opens with its own falling tone, then the second side **starts itself** on the usual go, marked "second side"; the recorded actual is the **smaller** of the two sides |
 | 3.6 | While a hold is counting down | **Went differently** and **Skip exercise** are hidden and unresponsive |
 
 ### 4. Adjusting and skipping
@@ -426,10 +426,10 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 
 | # | Check | Expected |
 |---|---|---|
-| 30.1 | Complete the last exercise's last set | "COOL-DOWN" header, six dots, first position "Hip flexor stretch" with a 30 s countdown and "15 s per side" hint |
+| 30.1 | Complete the last exercise's last set | "COOL-DOWN" header, six dots, first position "Hip flexor stretch" with a 15 s countdown and "15 s per side" hint |
 | 30.2 | The six positions | Hip flexors → chest and shoulders → three from the session's movements (dedup'd, session order) → rest pose last; no duplicates |
 | 30.3 | The mapped three | Match what was performed: fold for squat/hinge, lats for pulls, wrists for pushes, twist for core, calf at the wall, seated glute for lunges |
-| 30.4 | Let it run | 6 × 30 s = 3:00 — the exact minutes the "≈ N min" estimate has always reserved; the rating follows |
+| 30.4 | Let it run | 6 × 30 s of stretching = the reserved 3:00, plus a 5 s side-switch pause per unilateral position (≈3:15–3:20 in total, within the "≈"); the rating follows |
 | 30.5 | "Skip this move" / "Skip cool-down" | One position or the whole block; either way the rating still comes and the workout records exactly as before |
 | 30.6 | "Finish now" from mid-workout | **No** cool-down — whoever cut the workout short is out of time by definition |
 | 30.7 | Skip all six exercises | No cool-down either — nothing was trained, nothing to stretch |
@@ -438,6 +438,17 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 30.10 | Health duration | The workout's recorded duration includes the cool-down time |
 | 30.11 | Background mid-position, return after a while | The countdown reflects real elapsed time and jumps over positions it already covered |
 | 30.12 | All four languages | Position names and hints read naturally; nothing clips |
+
+### 31. Side-switch pause (issue #35)
+
+| # | Check | Expected |
+|---|---|---|
+| 31.1 | A unilateral cool-down position (hip flexors is first) | 15 s first side → "Switch sides" in accent with a 5→1 countdown → 15 s marked "second side"; bilateral positions still run one 30 s countdown |
+| 31.2 | Listen at each boundary | The pause opens with a **falling** two-tone (the go inverted) — audibly distinct from the rising go that starts the second side and the next position; 3-2-1 ticks precede the end of each side, none inside the pause |
+| 31.3 | A per-side hold (bird dog / side plank) | After side one the same pause runs and the second side starts itself — no tap; **Stop**, **Went differently** and **Skip exercise** are unavailable during the pause |
+| 31.4 | Stop the second side within the first ~3 s | Mis-tap grace: the countdown cancels and **Start hold** returns for the second side, first side's result intact |
+| 31.5 | Kill the app during a hold's pause, relaunch, Continue | The set starts over from side one — holds are never restored mid-count; during the cool-down's pause it restores to the rating as before |
+| 31.6 | All four languages | "Switch sides" reads naturally (Cambia de lado · Troque de lado · Смени сторону); nothing clips |
 
 ---
 

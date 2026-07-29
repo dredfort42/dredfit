@@ -18,12 +18,12 @@ struct WorkoutFlowView: View {
     let session: Session
     /// A mid-workout snapshot to pick up from (the "Continue" path on Today).
     /// nil starts the session from the warm-up as always.
-    var resume: WorkoutSnapshot? = nil
+    var resume: WorkoutSnapshot?
     /// The short version's three patterns (issue #27); nil is the full
     /// session. The session object itself is the same either way — only the
     /// exercises the flow walks through differ, and everything left out is
     /// recorded as an honest skip when the workout ends.
-    var shortPlan: Set<Pattern>? = nil
+    var shortPlan: Set<Pattern>?
     @Environment(\.dismiss) private var dismiss
     @Environment(AppStore.self) private var store
     @Environment(\.requestReview) private var requestReview
@@ -50,6 +50,8 @@ struct WorkoutFlowView: View {
     @State private var cooldownIndex = 0
     @State private var cooldownRemaining = 0
     @State private var cooldownEndDate: Date?
+    // The 15 + 5 + 15 stage machine itself lives in Cooldown (issue #35).
+    @State private var cooldownStage: Cooldown.Stage = .single
     @State private var restRemaining = 0
     @State private var restEndDate: Date?
     // Captured at tap time (not a bool): the rest countdown keeps ticking while
@@ -79,6 +81,11 @@ struct WorkoutFlowView: View {
     @State private var holdTotal = 0
     @State private var holdSecondSide = false
     @State private var firstSideHeld: Int?
+    // The re-set pause between the sides of a per-side hold (issue #35):
+    // the switch tone opens it, the screen counts 5→1, and the second side
+    // starts itself — no tap needed with hands busy in a side plank.
+    @State private var holdPauseEndDate: Date?
+    @State private var holdPauseRemaining = 0
 
     /// The rest ring scales with the countdown it frames.
     @ScaledMetric(relativeTo: .largeTitle) private var restRingSize: CGFloat = 240
@@ -102,6 +109,7 @@ struct WorkoutFlowView: View {
     private var isLastSet: Bool { setIndex == exercise.sets - 1 }
     private var isLastExercise: Bool { exIndex == exercises.count - 1 }
     private var holding: Bool { holdEndDate != nil }
+    private var holdSwitchPausing: Bool { holdPauseEndDate != nil }
     private var isMilestone: Bool { if case .milestone = phase { return true }; return false }
 
     /// The only place the app ever asks for a review: closing a milestone
@@ -185,6 +193,8 @@ struct WorkoutFlowView: View {
                 tickRest()
             case .cooldown:
                 tickCooldown()
+            case .work where holdSwitchPausing:
+                tickHoldSwitchPause()
             case .work where holding:
                 tickHold()
             default:
@@ -404,7 +414,6 @@ struct WorkoutFlowView: View {
         persistProgress()
     }
 
-
     // MARK: - Live Activity
 
     /// The lock-screen state for the current work phase. Strings leave the
@@ -439,7 +448,7 @@ struct WorkoutFlowView: View {
             .padding(.top, 10)
 
             VStack(spacing: 4) {
-                Text("\(holding ? holdRemaining : (actuals[exercise.pattern] ?? exercise.load))")
+                Text("\(workNumber)")
                     .dredfitFont(112, weight: .heavy, cap: 150)
                     .tracking(-4)
                     .monospacedDigit()
@@ -460,7 +469,11 @@ struct WorkoutFlowView: View {
             .padding(.top, 30)
 
             Group {
-                if holdSecondSide {
+                if holdSwitchPausing {
+                    Text("Switch sides")
+                        .dredfitFont(14, weight: .semibold)
+                        .foregroundStyle(Theme.accentText)
+                } else if holdSecondSide {
                     Text("second side")
                         .dredfitFont(14, weight: .semibold)
                         .foregroundStyle(Theme.accentText)
@@ -479,13 +492,25 @@ struct WorkoutFlowView: View {
             Spacer()
 
             if adjusting {
-                adjustPanel
-                    .padding(.bottom, 8)
+                AdjustPanel(value: $adjustValue, unit: exercise.unit) {
+                    actuals[exercise.pattern] = adjustValue
+                    if adjustValue == exercise.load {
+                        actuals.removeValue(forKey: exercise.pattern) // back to the plan
+                    }
+                    adjusting = false
+                    persistProgress()   // an entered actual is worth keeping
+                }
+                .padding(.bottom, 8)
             }
 
             if exercise.unit == .hold {
                 if holding {
                     PrimaryButton(title: String(localized: "Stop")) { stopHoldEarly() }
+                } else if holdSwitchPausing {
+                    // The pause paces itself; hidden (not opacity) so the
+                    // button leaves the accessibility tree too, while its
+                    // reserved space keeps the layout still.
+                    PrimaryButton(title: String(localized: "Start hold")) { }.hidden()
                 } else {
                     PrimaryButton(title: String(localized: "Start hold")) { startHold() }
                 }
@@ -500,8 +525,9 @@ struct WorkoutFlowView: View {
             .dredfitFont(14.5)
             .foregroundStyle(Theme.ink2)
             .padding(.vertical, 14)
-            .opacity(holding ? 0 : 1)      // no adjusting/skipping mid-hold
-            .disabled(holding)
+            // no adjusting/skipping mid-hold or mid-pause
+            .opacity(holding || holdSwitchPausing ? 0 : 1)
+            .disabled(holding || holdSwitchPausing)
 
             // Calibration hint: from a zero level an exact number sets the
             // level outright instead of moving it by two. It lives next to
@@ -517,72 +543,31 @@ struct WorkoutFlowView: View {
                     .lineSpacing(2)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.bottom, 10)
-                    .opacity(holding || adjusting
+                    .opacity(holding || holdSwitchPausing || adjusting
                              || actuals[exercise.pattern] != nil ? 0 : 1)
             }
         }
     }
 
-    // MARK: - Inline actual adjuster
-
-    private var adjustPanel: some View {
-        HStack(spacing: 18) {
-            stepButton("minus") { bumpAdjust(-1) }
-            Text(exercise.unit == .hold ? "\(adjustValue) s" : "\(adjustValue)")
-                .dredfitFont(26, weight: .heavy)
-                .monospacedDigit()
-                .frame(minWidth: 76)
-            stepButton("plus") { bumpAdjust(+1) }
-
-            Button {
-                actuals[exercise.pattern] = adjustValue
-                if adjustValue == exercise.load {
-                    actuals.removeValue(forKey: exercise.pattern) // back to the plan
-                }
-                adjusting = false
-                persistProgress()   // an entered actual is worth keeping
-            } label: {
-                Text("OK")
-                    .dredfitFont(15, weight: .semibold)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 22)
-                    .padding(.vertical, 10)
-                    .background(Theme.ink, in: Capsule())
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 18))
+    /// The big number: the switch-pause countdown, the running hold, or the
+    /// planned (or adjusted) load — in that order of precedence.
+    private var workNumber: Int {
+        if holdSwitchPausing { return holdPauseRemaining }
+        if holding { return holdRemaining }
+        return actuals[exercise.pattern] ?? exercise.load
     }
 
-    private func stepButton(_ icon: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Image(systemName: icon)
-                .dredfitFont(15, weight: .semibold)
-                .foregroundStyle(Theme.ink)
-                .frame(width: 40, height: 40)
-                .background(Circle().stroke(Theme.hairline, lineWidth: 1.5))
-        }
-        // "minus"/"plus" alone is what VoiceOver would otherwise announce.
-        .accessibilityLabel(Text(icon == "minus"
-                                 ? String(localized: "Fewer")
-                                 : String(localized: "More")))
-        // Pinned so the label change does not move the symbol-derived id.
-        .accessibilityIdentifier(icon)
-    }
+    // MARK: - Inline actual adjuster (the panel itself is AdjustPanel.swift)
 
     private func startAdjusting() {
         adjustValue = actuals[exercise.pattern] ?? exercise.load
         adjusting = true
     }
 
-    private func bumpAdjust(_ dir: Int) {
-        let step = exercise.unit == .hold ? 5 : 1
-        let range = exercise.unit == .hold ? 5...90 : 0...30
-        adjustValue = min(max(adjustValue + dir * step, range.lowerBound), range.upperBound)
-    }
-
     private var loadCaption: String {
+        // During the switch pause the big number is the pause countdown,
+        // not the load — "seconds per side" under a 5 would misread.
+        if holdSwitchPausing { return String(localized: "sec") }
         let base: String
         switch exercise.unit {
         case .reps: base = String(localized: "reps")
@@ -702,6 +687,7 @@ struct WorkoutFlowView: View {
         adjusting = false
         holdSecondSide = false
         firstSideHeld = nil
+        holdPauseEndDate = nil
         actuals.removeValue(forKey: exercise.pattern)   // a skip wins over an actual
         skippedPatterns.insert(exercise.pattern)
         if isLastExercise {
@@ -773,7 +759,10 @@ private extension WorkoutFlowView {
         let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
         guard newRemaining != holdRemaining else { return }
         if newRemaining == 0 {
-            playGo()
+            // The first side of a per-side hold ends into the switch pause,
+            // which announces itself with its own tone — a go here would
+            // say "done" a side too early.
+            if !(exercise.perSide && !holdSecondSide) { playGo() }
             finishHold(heldSeconds: holdTotal)
         } else {
             if newRemaining <= Self.countdownSignalSeconds && newRemaining < holdRemaining {
@@ -804,14 +793,15 @@ private extension WorkoutFlowView {
         finishHold(heldSeconds: Int(held.rounded()))
     }
 
-    /// One countdown finished. Per-side holds wait for the second side
-    /// (started by button, giving time to switch); the recorded actual is
+    /// One countdown finished. Per-side holds run the re-set pause and then
+    /// the second side by themselves (issue #35); the recorded actual is
     /// the smaller of the two sides.
     func finishHold(heldSeconds: Int) {
         holdEndDate = nil
         if exercise.perSide && !holdSecondSide {
             firstSideHeld = heldSeconds
             holdSecondSide = true
+            startHoldSwitchPause()
             return
         }
         let held = min(heldSeconds, firstSideHeld ?? heldSeconds)
@@ -819,6 +809,34 @@ private extension WorkoutFlowView {
         firstSideHeld = nil
         recordHoldActual(heldSeconds: held)
         completeSet()
+    }
+
+    // MARK: - The side-switch pause (issue #35)
+
+    /// Opens the pause with its own tone. The second side then starts
+    /// itself on the usual go — the transition no longer eats into it.
+    func startHoldSwitchPause() {
+        playSwitch()
+        holdPauseRemaining = Cooldown.stageSeconds(.switchPause)
+        holdPauseEndDate = Date.now.addingTimeInterval(TimeInterval(holdPauseRemaining))
+    }
+
+    /// No 3-2-1 inside the pause: it is five seconds framed by its own two
+    /// signals, and ticks would bury the switch tone it opened with.
+    func tickHoldSwitchPause() {
+        guard let end = holdPauseEndDate else { return }
+        let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
+        guard newRemaining != holdPauseRemaining else { return }
+        if newRemaining == 0 {
+            holdPauseEndDate = nil
+            playGo()
+            // The second side runs the same planned countdown as the first;
+            // the recorded actual stays the smaller of the two sides.
+            holdRemaining = holdTotal
+            holdEndDate = Date.now.addingTimeInterval(TimeInterval(holdTotal))
+        } else {
+            withAnimation(.linear(duration: 0.3)) { holdPauseRemaining = newRemaining }
+        }
     }
 
     /// Rounds to the 5-second step (same as the manual adjuster), within 5...90.
@@ -853,6 +871,15 @@ private extension WorkoutFlowView {
         guard store.settings.soundsEnabled else { return }
         CountdownSounds.shared.playGo()
         UINotificationFeedbackGenerator().notificationOccurred(.success)
+    }
+
+    /// The side-switch signal opening the re-set pause (issue #35) — the
+    /// go's mirror, a falling two-tone, with its own haptic weight so even
+    /// silent mode can tell it from a tick.
+    func playSwitch() {
+        guard store.settings.soundsEnabled else { return }
+        CountdownSounds.shared.playSwitch()
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
     }
 
     func advanceAfterRest() {
@@ -967,6 +994,7 @@ private extension WorkoutFlowView {
         holdEndDate = nil
         holdSecondSide = false
         firstSideHeld = nil
+        holdPauseEndDate = nil
         // During the between-exercise rest the current exercise IS complete —
         // only what comes after it is unfinished.
         var firstUnfinished = exIndex
@@ -1025,10 +1053,26 @@ extension WorkoutFlowView {
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 300)
             if position.perSide {
-                Text(String(localized: "cooldown.perSide", defaultValue: "15 s per side"))
-                    .dredfitFont(14)
-                    .foregroundStyle(Theme.ink2)
-                    .padding(.top, 6)
+                // The stage line: the structural hint on the first side,
+                // then the pause's own instruction, then the same "second
+                // side" marker the hold exercises use.
+                Group {
+                    switch cooldownStage {
+                    case .switchPause:
+                        Text("Switch sides")
+                            .dredfitFont(14, weight: .semibold)
+                            .foregroundStyle(Theme.accentText)
+                    case .secondSide:
+                        Text("second side")
+                            .dredfitFont(14, weight: .semibold)
+                            .foregroundStyle(Theme.accentText)
+                    case .single, .firstSide:
+                        Text(String(localized: "cooldown.perSide", defaultValue: "15 s per side"))
+                            .dredfitFont(14)
+                            .foregroundStyle(Theme.ink2)
+                    }
+                }
+                .padding(.top, 6)
             }
 
             VStack(spacing: 4) {
@@ -1103,41 +1147,40 @@ extension WorkoutFlowView {
     }
 
     private func startCooldownPosition(_ index: Int) {
-        var seconds = Cooldown.positionSeconds
-        #if DEBUG
-        // Same hook as the rest countdown: --uitest-fast collapses the wait
-        // so UI drivers do not spend three real minutes here.
-        if CommandLine.arguments.contains("--uitest-fast") { seconds = 1 }
-        #endif
         cooldownIndex = index
-        cooldownRemaining = seconds
-        cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(seconds))
+        cooldownStage = Cooldown.openingStage(of: cooldownPositions[index])
+        cooldownRemaining = Cooldown.stageSeconds(cooldownStage)
+        cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(cooldownRemaining))
     }
 
     private func tickCooldown() {
         guard let end = cooldownEndDate else { return }
         let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
         guard newRemaining != cooldownRemaining else { return }
-        if newRemaining == 0 {
-            playGo()
-            // Absorb backgrounded time exactly like the warm-up: jump over
-            // every position the elapsed time already covered.
-            let overshoot = max(0, -end.timeIntervalSinceNow)
-            let positionsPassed = 1 + Int(overshoot) / Cooldown.positionSeconds
-            if cooldownIndex + positionsPassed < cooldownPositions.count {
-                cooldownIndex += positionsPassed
-                let remainder = Int(overshoot) % Cooldown.positionSeconds
-                cooldownRemaining = Cooldown.positionSeconds - remainder
-                cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(cooldownRemaining))
-            } else {
-                finishCooldown()
-            }
-        } else {
-            if newRemaining <= Self.countdownSignalSeconds && newRemaining < cooldownRemaining {
+        if newRemaining > 0 {
+            // No 3-2-1 inside the switch pause — it is framed by its own
+            // two signals, and ticks would bury the tone it opened with.
+            if cooldownStage != .switchPause,
+               newRemaining <= Self.countdownSignalSeconds && newRemaining < cooldownRemaining {
                 playTick()
             }
             withAnimation(.linear(duration: 0.3)) { cooldownRemaining = newRemaining }
+            return
         }
+        // A stage boundary. Cooldown.advance absorbs whatever a long absence
+        // already covered; the boundary crossed right now is the audible one.
+        guard let next = Cooldown.advance(from: (cooldownIndex, cooldownStage),
+                                          overshoot: Int(max(0, -end.timeIntervalSinceNow)),
+                                          positions: cooldownPositions) else {
+            playGo()
+            finishCooldown()
+            return
+        }
+        if next.entered == .switchPause { playSwitch() } else { playGo() }
+        cooldownIndex = next.index
+        cooldownStage = next.stage
+        cooldownRemaining = next.remaining
+        cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(next.remaining))
     }
 
     private func finishCooldown() {

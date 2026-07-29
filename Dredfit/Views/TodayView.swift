@@ -16,10 +16,10 @@ import DredfitCore
 private struct ActiveWorkout: Identifiable {
     let session: Session
     // Set when the cover should pick up an interrupted workout.
-    var resume: WorkoutSnapshot? = nil
+    var resume: WorkoutSnapshot?
     /// The short version's three patterns (issue #27); nil is the full
     /// session. Resolved at tap time like the session itself.
-    var shortPlan: Set<Pattern>? = nil
+    var shortPlan: Set<Pattern>?
     var id: Int { session.sessionNumber }
 }
 

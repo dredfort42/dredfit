@@ -71,9 +71,79 @@ final class CooldownTests: XCTestCase {
     }
 
     func testTheBlockFillsExactlyTheEnginesReservedMinutes() {
-        // 6 × 30 s = the 3 minutes `cooldownMin` has promised since 1.0.
+        // 6 × 30 s = the 3 minutes `cooldownMin` has promised since 1.0:
+        // sides and positions sum to the reserved minutes. The side-switch
+        // pauses (issue #35) ride on top, within the "≈" every estimate has
+        // always carried — they are deliberately not part of this equation.
         XCTAssertEqual(Cooldown.positionCount * Cooldown.positionSeconds,
                        EngineConfig.cooldownMin * 60)
+    }
+
+    func testAPerSidePositionSplitsIntoTwoWholeSidesPlusThePause() {
+        // 15 + 5 + 15 (issue #35): the slot splits into two equal whole
+        // sides, and the pause is the app-layer constant the acceptance
+        // pinned — shared with the workout's per-side holds.
+        XCTAssertEqual(Cooldown.sideSeconds * 2, Cooldown.positionSeconds,
+                       "the sides must consume the whole slot")
+        XCTAssertEqual(Cooldown.sideSeconds, 15)
+        XCTAssertEqual(Cooldown.sideSwitchPauseSec, 5)
+    }
+
+    // MARK: - The stage machine (issue #35)
+
+    /// pull → [hip flexors (per side), chest wall, lats, fold, calf... ] —
+    /// enough to walk both a per-side and a bilateral position.
+    private var machinePositions: [CooldownPosition] {
+        Cooldown.positions(performed: [.pull])
+    }
+
+    func testAPerSidePositionWalksSidesAroundThePause() {
+        let positions = machinePositions
+        XCTAssertTrue(positions[0].perSide, "hip flexors open the block per side")
+        XCTAssertEqual(Cooldown.openingStage(of: positions[0]), .firstSide)
+        let pause = Cooldown.step(after: (0, .firstSide), positions: positions)
+        XCTAssertEqual(pause?.stage, .switchPause)
+        let second = Cooldown.step(after: (0, .switchPause), positions: positions)
+        XCTAssertEqual(second?.stage, .secondSide)
+        // ...and the second side leaves the position entirely.
+        let next = Cooldown.step(after: (0, .secondSide), positions: positions)
+        XCTAssertEqual(next?.index, 1)
+        XCTAssertEqual(next?.stage, .single, "chest wall is bilateral")
+    }
+
+    func testTheBlockEndsAfterTheLastPosition() {
+        let positions = machinePositions
+        XCTAssertNil(Cooldown.step(after: (positions.count - 1, .single),
+                                   positions: positions))
+    }
+
+    func testAdvanceNamesThePauseItEnters() {
+        // The boundary crossed right now decides the signal: the first
+        // side's end enters the pause (the falling switch tone), the
+        // pause's end enters the second side (the usual go).
+        let positions = machinePositions
+        let intoPause = Cooldown.advance(from: (0, .firstSide), overshoot: 0,
+                                         positions: positions)
+        XCTAssertEqual(intoPause?.entered, .switchPause)
+        XCTAssertEqual(intoPause?.remaining, Cooldown.sideSwitchPauseSec)
+        let intoSecond = Cooldown.advance(from: (0, .switchPause), overshoot: 0,
+                                          positions: positions)
+        XCTAssertEqual(intoSecond?.entered, .secondSide)
+        XCTAssertEqual(intoSecond?.remaining, Cooldown.sideSeconds)
+    }
+
+    func testAdvanceAbsorbsBackgroundedTimeAcrossStages() {
+        // 22 s past the first side's end: the pause (5) and the second side
+        // (15) are consumed whole, landing 2 s into the next position's 30.
+        let positions = machinePositions
+        let landing = Cooldown.advance(from: (0, .firstSide), overshoot: 22,
+                                       positions: positions)
+        XCTAssertEqual(landing?.index, 1)
+        XCTAssertEqual(landing?.stage, .single)
+        XCTAssertEqual(landing?.remaining, Cooldown.positionSeconds - 2)
+        // An overshoot past the whole block is simply over.
+        XCTAssertNil(Cooldown.advance(from: (0, .firstSide), overshoot: 10_000,
+                                      positions: positions))
     }
 
     func testPerSideHintsAreOnUnilateralPositionsOnly() {

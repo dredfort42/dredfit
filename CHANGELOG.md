@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+### Side-switch pause for timed unilateral work (issue #35)
+
+- Unilateral cool-down positions no longer ask you to count the side switch
+  yourself: 15 s for the first side, a 5-second "Switch sides" pause, then
+  15 s for the second — an app that gives audio cues even to the warm-up
+  now counts the switch too. The pause rides on top of the reserved three
+  minutes, within the "≈" every estimate has always carried; `cooldownMin`
+  and the golden fixtures are untouched.
+- Per-side holds run the same pause between sides, and the second side now
+  starts itself on the usual go-tone — no tap needed with hands busy in a
+  side plank. The recorded actual is still the smaller of the two sides,
+  and the mis-tap grace on a stopped side still returns the set.
+- The pause opens with its own signal — the go-tone inverted, a falling
+  two-tone — so eyes-closed stretching can tell "switch sides" from "new
+  position"; a medium haptic mirrors it under silent mode. The usual 3-2-1
+  ticks precede the end of each side; none play inside the pause.
+- One shared app-layer constant (`sideSwitchPauseSec = 5`), deliberately
+  not a user setting. Per-side rep exercises are untouched — they are
+  self-paced.
+
 ### How much rest is enough (issue #36)
 
 - Fresh installs now start with two spread-out rest days (Sunday and

@@ -23,14 +23,14 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     let totalLevelAfter: Int          // level sum after the session — a chart point
     // Fields below were added over time and are optional so older records
     // still decode (history shows a placeholder for nil snapshots).
-    var exercises: [SessionExercise]? = nil   // workout snapshot for history
-    var actuals: [Pattern: Int]? = nil
-    var skipped: Set<Pattern>? = nil          // exercises skipped during the workout
-    var levelsAfter: [Pattern: Int]? = nil    // per-pattern level snapshot
-    var durationSec: Int? = nil               // actual wall-clock duration (feeds Apple Health)
+    var exercises: [SessionExercise]?   // workout snapshot for history
+    var actuals: [Pattern: Int]?
+    var skipped: Set<Pattern>?          // exercises skipped during the workout
+    var levelsAfter: [Pattern: Int]?    // per-pattern level snapshot
+    var durationSec: Int?               // actual wall-clock duration (feeds Apple Health)
     // Per-record Health export state. Only `true` is ever written; nil means
     // "not exported yet" (or an old record, migrated on load).
-    var healthExported: Bool? = nil
+    var healthExported: Bool?
 }
 
 /// User preferences, stored in the same JSON file. Decoding is field-by-field
@@ -52,12 +52,12 @@ struct AppSettings: Codable, Equatable {
     var healthEnabled = false
     var healthExportedThrough = 0      // high-water sessionNumber already in Health
     var onboardingCompleted = false
-    var lastReviewRequestAt: Date? = nil
+    var lastReviewRequestAt: Date?
     // The last workout's date at the time the comeback question was answered.
     // A date rather than a bool so it expires by itself: after the next
     // workout it is stale and a future break asks again, while the current
     // break never asks twice.
-    var comebackDecidedFor: Date? = nil
+    var comebackDecidedFor: Date?
 
     init() {}
 
@@ -100,8 +100,8 @@ struct WorkoutSnapshot: Codable, Equatable {
     var setIndex: Int
     /// Set while resting. Still in the future → resume inside the countdown;
     /// already past → resume at the set the rest was leading into.
-    var restEndDate: Date? = nil
-    var restTotalSec: Int? = nil
+    var restEndDate: Date?
+    var restTotalSec: Int?
     var actuals: [Pattern: Int] = [:]
     var skipped: Set<Pattern> = []
     var workoutStart: Date
@@ -112,19 +112,19 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// snapshot must never resume into exercises it was not taken from.
     /// Optional (with the others below) so an older snapshot decodes — and
     /// then fails the fingerprint check instead of the whole-file decode.
-    var fingerprint: String? = nil
+    var fingerprint: String?
     /// True once the flow reached the rating screen: restore lands there,
     /// not back on the last set the position fields still describe.
-    var atFeedback: Bool? = nil
+    var atFeedback: Bool?
     /// The exercise "Finish now" cut mid-way — the rating screen labels it
     /// "not finished" instead of "skipped".
-    var interrupted: Pattern? = nil
+    var interrupted: Pattern?
     /// The short workout's three patterns (issue #27), when this snapshot was
     /// taken during one. Optional like everything above it: a snapshot
     /// written by an older build decodes and simply resumes the full session,
     /// which is what it was. Not part of the fingerprint — the session is the
     /// same session either way; this is which slice of it was under way.
-    var shortPlan: [Pattern]? = nil
+    var shortPlan: [Pattern]?
 
     static func fingerprint(of session: Session) -> String {
         session.exercises
@@ -136,8 +136,8 @@ struct WorkoutSnapshot: Codable, Equatable {
 private struct AppData: Codable {
     var engineState: EngineState
     var records: [WorkoutRecord]
-    var settings: AppSettings? = nil
-    var pendingWorkout: WorkoutSnapshot? = nil
+    var settings: AppSettings?
+    var pendingWorkout: WorkoutSnapshot?
     // How many journal entries failed to decode (not encoded) — the caller
     // keeps the original file aside when this is nonzero.
     var droppedRecordCount = 0

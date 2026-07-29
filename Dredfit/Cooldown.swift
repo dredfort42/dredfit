@@ -23,8 +23,9 @@ import DredfitCore
 struct CooldownPosition: Equatable, Identifiable {
     let id: String
     let name: String
-    /// One 30 s slot with a "15 s per side" hint — a per-side position does
-    /// not get twice the time, it splits the slot.
+    /// One 30 s slot split into 15 s per side — a per-side position does
+    /// not get twice the time. The side-switch pause (issue #35) rides on
+    /// top of the slot: 15 + 5 + 15, counted by the app, not the user.
     let perSide: Bool
 }
 
@@ -32,6 +33,18 @@ enum Cooldown {
 
     static let positionSeconds = 30
     static let positionCount = 6
+
+    /// The re-set pause between sides of timed unilateral work (issue #35):
+    /// getting out of one side and into the other is not instant, and
+    /// without a pause the transition silently eats into the second side.
+    /// One app-layer constant shared by the cool-down and the workout's
+    /// per-side holds — deliberately not a user setting. The pause rides on
+    /// top of the reserved minutes, within the "≈" every estimate carries.
+    static let sideSwitchPauseSec = 5
+
+    /// One side of a per-side position: half the 30 s slot, per the
+    /// "15 s per side" hint the position has always shown.
+    static var sideSeconds: Int { positionSeconds / 2 }
 
     // MARK: - The pool of nine
 
@@ -131,5 +144,74 @@ enum Cooldown {
         }
 
         return [hipFlexors, chestWall] + mapped + [restPose]
+    }
+
+    // MARK: - The stage machine (issue #35)
+
+    /// Where inside a position the countdown is: a bilateral position runs
+    /// one `.single` stage; a per-side one runs `.firstSide` → `.switchPause`
+    /// → `.secondSide` — 15 + 5 + 15.
+    enum Stage { case single, firstSide, switchPause, secondSide }
+
+    /// Stage length in seconds. --uitest-fast collapses every stage to 1 s,
+    /// same as the rest countdown, so UI drivers never wait real minutes.
+    static func stageSeconds(_ stage: Stage) -> Int {
+        #if DEBUG
+        if CommandLine.arguments.contains("--uitest-fast") { return 1 }
+        #endif
+        switch stage {
+        case .single:                 return positionSeconds
+        case .firstSide, .secondSide: return sideSeconds
+        case .switchPause:            return sideSwitchPauseSec
+        }
+    }
+
+    static func openingStage(of position: CooldownPosition) -> Stage {
+        position.perSide ? .firstSide : .single
+    }
+
+    /// The stage after the given one — into the pause and the second side
+    /// within a per-side position, otherwise on to the next position.
+    /// nil when the block is over.
+    static func step(after step: (index: Int, stage: Stage),
+                     positions: [CooldownPosition]) -> (index: Int, stage: Stage)? {
+        switch step.stage {
+        case .firstSide:   return (step.index, .switchPause)
+        case .switchPause: return (step.index, .secondSide)
+        case .single, .secondSide:
+            let next = step.index + 1
+            guard next < positions.count else { return nil }
+            return (next, openingStage(of: positions[next]))
+        }
+    }
+
+    /// Where a finished stage lands: `entered` names the stage the audible
+    /// boundary opened — entering the pause announces the side switch,
+    /// everything else is the usual go — while index/stage/remaining are
+    /// the countdown's new position.
+    struct Advance {
+        let entered: Stage
+        let index: Int
+        let stage: Stage
+        let remaining: Int
+    }
+
+    /// A stage ran out. Whole stages a long absence (`overshoot` seconds
+    /// past the boundary) already covered are absorbed silently, exactly
+    /// like the warm-up jumps whole moves. nil when the block is over —
+    /// immediately or inside the overshoot.
+    static func advance(from current: (index: Int, stage: Stage),
+                        overshoot: Int,
+                        positions: [CooldownPosition]) -> Advance? {
+        guard var landing = step(after: current, positions: positions) else { return nil }
+        let entered = landing.stage
+        var remainder = overshoot
+        while remainder >= stageSeconds(landing.stage) {
+            remainder -= stageSeconds(landing.stage)
+            guard let next = step(after: landing, positions: positions) else { return nil }
+            landing = next
+        }
+        return Advance(entered: entered, index: landing.index, stage: landing.stage,
+                       remaining: stageSeconds(landing.stage) - remainder)
     }
 }
