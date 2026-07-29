@@ -27,6 +27,10 @@ struct CooldownPosition: Equatable, Identifiable {
     /// not get twice the time. The side-switch pause (issue #35) rides on
     /// top of the slot: 15 + 5 + 15, counted by the app, not the user.
     let perSide: Bool
+    /// 2–3 numbered lines for the mini technique sheet (issue #34): how to
+    /// get into the position and what not to force. Stretching is done
+    /// wrong more often than it seems — bouncing, pushing into pain.
+    let steps: [String]
 }
 
 enum Cooldown {
@@ -52,55 +56,127 @@ enum Cooldown {
         CooldownPosition(id: "hip-flexors",
                          name: String(localized: "cooldown.hipFlexors",
                                       defaultValue: "Hip flexor stretch"),
-                         perSide: true)
+                         perSide: true,
+                         steps: [
+                             String(localized: "cooldown.hipFlexors.step1",
+                                    defaultValue: "Kneel on one knee, the other foot planted in front."),
+                             String(localized: "cooldown.hipFlexors.step2",
+                                    defaultValue: "Tuck the pelvis and shift it slightly forward until the front of the hip stretches."),
+                             String(localized: "cooldown.hipFlexors.step3",
+                                    defaultValue: "Hold steady and breathe — no bouncing."),
+                         ])
     }
     private static var chestWall: CooldownPosition {
         CooldownPosition(id: "chest-wall",
                          name: String(localized: "cooldown.chestWall",
                                       defaultValue: "Chest and shoulders at the wall"),
-                         perSide: false)
+                         perSide: false,
+                         steps: [
+                             String(localized: "cooldown.chestWall.step1",
+                                    defaultValue: "Forearm on the wall, elbow at shoulder height."),
+                             String(localized: "cooldown.chestWall.step2",
+                                    defaultValue: "Turn the chest away from the wall until the front of the shoulder stretches."),
+                             String(localized: "cooldown.chestWall.step3",
+                                    defaultValue: "Swap arms halfway through."),
+                         ])
     }
     private static var restPose: CooldownPosition {
         CooldownPosition(id: "rest-pose",
                          name: String(localized: "cooldown.restPose",
                                       defaultValue: "Rest pose"),
-                         perSide: false)
+                         perSide: false,
+                         steps: [
+                             String(localized: "cooldown.restPose.step1",
+                                    defaultValue: "Knees on the floor, sit back onto the heels."),
+                             String(localized: "cooldown.restPose.step2",
+                                    defaultValue: "Fold forward, arms stretched ahead, forehead down."),
+                             String(localized: "cooldown.restPose.step3",
+                                    defaultValue: "Breathe slowly, sending the breath into the back."),
+                         ])
     }
     private static var forwardFold: CooldownPosition {
         CooldownPosition(id: "forward-fold",
                          name: String(localized: "cooldown.forwardFold",
                                       defaultValue: "Forward fold"),
-                         perSide: false)
+                         perSide: false,
+                         steps: [
+                             String(localized: "cooldown.forwardFold.step1",
+                                    defaultValue: "Feet hip-width; fold forward from the hips, knees soft."),
+                             String(localized: "cooldown.forwardFold.step2",
+                                    defaultValue: "Let the head and arms hang heavy — no reaching for the floor."),
+                             String(localized: "cooldown.forwardFold.step3",
+                                    defaultValue: "To come up, unroll the spine slowly, one vertebra at a time."),
+                         ])
     }
     private static var latStretch: CooldownPosition {
         CooldownPosition(id: "lat-stretch",
                          name: String(localized: "cooldown.latStretch",
                                       defaultValue: "Lat stretch with support"),
-                         perSide: false)
+                         perSide: false,
+                         steps: [
+                             String(localized: "cooldown.latStretch.step1",
+                                    defaultValue: "Hold a support at hip height with both hands, feet under the hips."),
+                             String(localized: "cooldown.latStretch.step2",
+                                    defaultValue: "Sit the hips back on straight arms until the sides of the back stretch."),
+                             String(localized: "cooldown.latStretch.step3",
+                                    defaultValue: "Keep the head between the arms and breathe."),
+                         ])
     }
     private static var wrists: CooldownPosition {
         CooldownPosition(id: "wrists",
                          name: String(localized: "cooldown.wrists",
                                       defaultValue: "Wrists and forearms"),
-                         perSide: false)
+                         perSide: false,
+                         steps: [
+                             String(localized: "cooldown.wrists.step1",
+                                    defaultValue: "Arm straight, palm down; gently pull the fingers down and toward you."),
+                             String(localized: "cooldown.wrists.step2",
+                                    defaultValue: "Then turn the palm up and repeat the gentle pull."),
+                             String(localized: "cooldown.wrists.step3",
+                                    defaultValue: "Swap hands halfway through."),
+                         ])
     }
     private static var lyingTwist: CooldownPosition {
         CooldownPosition(id: "lying-twist",
                          name: String(localized: "cooldown.lyingTwist",
                                       defaultValue: "Lying twist"),
-                         perSide: true)
+                         perSide: true,
+                         steps: [
+                             String(localized: "cooldown.lyingTwist.step1",
+                                    defaultValue: "On your back, knees bent; drop both knees to one side."),
+                             String(localized: "cooldown.lyingTwist.step2",
+                                    defaultValue: "Shoulders stay on the floor, head turns the other way."),
+                             String(localized: "cooldown.lyingTwist.step3",
+                                    defaultValue: "Let the weight sink on its own — don't push the knees down."),
+                         ])
     }
     private static var calfWall: CooldownPosition {
         CooldownPosition(id: "calf-wall",
                          name: String(localized: "cooldown.calfWall",
                                       defaultValue: "Calf stretch at the wall"),
-                         perSide: true)
+                         perSide: true,
+                         steps: [
+                             String(localized: "cooldown.calfWall.step1",
+                                    defaultValue: "Hands on the wall, one leg stepped back, heel on the floor."),
+                             String(localized: "cooldown.calfWall.step2",
+                                    defaultValue: "Back knee straight; lean toward the wall until the calf stretches."),
+                             String(localized: "cooldown.calfWall.step3",
+                                    defaultValue: "Keep the heel down — no bouncing."),
+                         ])
     }
     private static var seatedGlute: CooldownPosition {
         CooldownPosition(id: "seated-glute",
                          name: String(localized: "cooldown.seatedGlute",
                                       defaultValue: "Seated glute stretch"),
-                         perSide: true)
+                         perSide: true,
+                         steps: [
+                             String(localized: "cooldown.seatedGlute.step1",
+                                    defaultValue: "Sit tall; place one ankle over the opposite knee."),
+                             String(localized: "cooldown.seatedGlute.step2",
+                                    defaultValue: "Lean forward from the hips with a straight back until the glute stretches."),
+                             String(localized: "cooldown.seatedGlute.step3",
+                                    defaultValue: "The knee falls open on its own — don't press it down."),
+                         ])
     }
 
     /// The movement → position mapping (spec §4). Two patterns can share a

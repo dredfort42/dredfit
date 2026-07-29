@@ -450,6 +450,17 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 31.5 | Kill the app during a hold's pause, relaunch, Continue | The set starts over from side one — holds are never restored mid-count; during the cool-down's pause it restores to the rating as before |
 | 31.6 | All four languages | "Switch sides" reads naturally (Cambia de lado · Troque de lado · Смени сторону); nothing clips |
 
+### 32. Position technique mini-sheets (issue #34)
+
+| # | Check | Expected |
+|---|---|---|
+| 32.1 | Every warm-up move and cool-down position | A **technique** affordance under the name; the mini-sheet opens with the name, a block capsule ("warm-up · 30 s" / "cool-down · 30 s" / "cool-down · 15 s per side"), 2–3 numbered steps and **Got it** — all 15 positions |
+| 32.2 | The countdown while the sheet is open | **Frozen** — the number does not move; closing the sheet resumes from the same second. A deliberate divergence from the rest-phase sheet, where the timer keeps ticking |
+| 32.3 | Open during a side-switch pause (issue #35) | The 5→1 pause countdown freezes too and resumes on close |
+| 32.4 | Signals under the sheet | No ticks or go while frozen — the countdown is simply not running |
+| 32.5 | es / pt-BR / large Dynamic Type | Long strings wrap inside the sheet (scrolls at the biggest accessibility sizes); nothing clips or overlaps |
+| 32.6 | The work and rest screens | Their technique button still opens the full exercise sheet — with the timer ticking on rest, as before |
+
 ---
 
 ## Issue registry
