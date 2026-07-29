@@ -37,7 +37,14 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
 /// tolerant — every key is optional with a default, so files written by any
 /// older version keep loading losslessly.
 struct AppSettings: Codable, Equatable {
-    var restWeekdays: Set<Int> = [1]   // Calendar weekday numbers: 1 = Sunday
+    // Calendar weekday numbers: 1 = Sunday, 4 = Wednesday. Two spread-out
+    // rest days by default (issue #36): the old single-Sunday default quietly
+    // proposed six strength sessions a week — ~3.7 hits per movement pattern,
+    // overuse territory for slow-adapting connective tissue. Five sessions
+    // (~3.1) sits at the top of the safe 2–3 corridor. Fresh installs only:
+    // the decode fallback below deliberately keeps the old value, so nobody's
+    // existing week changes underneath them.
+    var restWeekdays: Set<Int> = [1, 4]
     var soundsEnabled = true
     var reminderEnabled = false
     var reminderHour = 9
@@ -62,6 +69,9 @@ struct AppSettings: Codable, Equatable {
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
+        // [1], not the fresh-install default: a stored file without this key
+        // belongs to an install that lived with Sunday-only — an upgrade must
+        // not add a rest day the person never chose (issue #36).
         restWeekdays = try c.decodeIfPresent(Set<Int>.self, forKey: .restWeekdays) ?? [1]
         soundsEnabled = try c.decodeIfPresent(Bool.self, forKey: .soundsEnabled) ?? true
         reminderEnabled = try c.decodeIfPresent(Bool.self, forKey: .reminderEnabled) ?? false

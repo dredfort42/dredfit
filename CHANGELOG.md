@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### How much rest is enough (issue #36)
+
+- Fresh installs now start with two spread-out rest days (Sunday and
+  Wednesday) instead of Sunday alone. Six strength sessions a week is ~3.7
+  hits per movement pattern — overuse territory for slow-adapting connective
+  tissue; five sits at the top of the safe corridor. Existing installs are
+  untouched: a stored settings file keeps whatever week it has, including
+  one written before the key existed.
+- "How it works" gained a "Weekly rhythm" section: 3–4 workouts a week is
+  the sweet spot — muscle adapts in weeks, tendons in months, and rest days
+  protect the slower half.
+- The rest-day picker in Settings carries the one-line recommendation
+  ("2–3 rest days a week") — guidance, not a gate: any spread still works.
+  The six-day default also quietly contradicted the no-guilt philosophy;
+  this closes the cheapest known strike at the engine's uniform-feedback
+  weakness by lowering stress frequency itself.
+
 ### The cool-down the estimate always promised (issue #28)
 
 - Every "≈ N min" estimate since 1.0 has reserved three minutes for a
