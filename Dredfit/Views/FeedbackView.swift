@@ -21,10 +21,10 @@ struct FeedbackView: View {
     /// The exercise "Finish now" cut mid-way. To the engine it is a skip like
     /// the others; to the person who did 24 push-ups of 36 it is "not
     /// finished", and the summary label says so.
-    var interrupted: Pattern? = nil
+    var interrupted: Pattern?
     /// The rating chosen after the previous workout — a memory aid, not a
     /// default: no card is pre-selected, the scale still has to be answered.
-    var lastResult: FeedbackResult? = nil
+    var lastResult: FeedbackResult?
     let onComplete: (FeedbackResult, [Pattern: Int]) -> Void
 
     var body: some View {

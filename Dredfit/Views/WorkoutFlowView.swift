@@ -18,12 +18,12 @@ struct WorkoutFlowView: View {
     let session: Session
     /// A mid-workout snapshot to pick up from (the "Continue" path on Today).
     /// nil starts the session from the warm-up as always.
-    var resume: WorkoutSnapshot? = nil
+    var resume: WorkoutSnapshot?
     /// The short version's three patterns (issue #27); nil is the full
     /// session. The session object itself is the same either way — only the
     /// exercises the flow walks through differ, and everything left out is
     /// recorded as an honest skip when the workout ends.
-    var shortPlan: Set<Pattern>? = nil
+    var shortPlan: Set<Pattern>?
     @Environment(\.dismiss) private var dismiss
     @Environment(AppStore.self) private var store
     @Environment(\.requestReview) private var requestReview
@@ -413,7 +413,6 @@ struct WorkoutFlowView: View {
         liveActivity.update(activityWorkState())
         persistProgress()
     }
-
 
     // MARK: - Live Activity
 
