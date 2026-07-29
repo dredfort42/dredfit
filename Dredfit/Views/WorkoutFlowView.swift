@@ -50,11 +50,8 @@ struct WorkoutFlowView: View {
     @State private var cooldownIndex = 0
     @State private var cooldownRemaining = 0
     @State private var cooldownEndDate: Date?
-    /// Where inside the current position the countdown is (issue #35): a
-    /// bilateral position runs one `.single` stage; a per-side one runs
-    /// `.firstSide` → `.switchPause` → `.secondSide` — 15 + 5 + 15.
-    enum CooldownStage { case single, firstSide, switchPause, secondSide }
-    @State private var cooldownStage: CooldownStage = .single
+    // The 15 + 5 + 15 stage machine itself lives in Cooldown (issue #35).
+    @State private var cooldownStage: Cooldown.Stage = .single
     @State private var restRemaining = 0
     @State private var restEndDate: Date?
     // Captured at tap time (not a bool): the rest countdown keeps ticking while
@@ -496,8 +493,15 @@ struct WorkoutFlowView: View {
             Spacer()
 
             if adjusting {
-                adjustPanel
-                    .padding(.bottom, 8)
+                AdjustPanel(value: $adjustValue, unit: exercise.unit) {
+                    actuals[exercise.pattern] = adjustValue
+                    if adjustValue == exercise.load {
+                        actuals.removeValue(forKey: exercise.pattern) // back to the plan
+                    }
+                    adjusting = false
+                    persistProgress()   // an entered actual is worth keeping
+                }
+                .padding(.bottom, 8)
             }
 
             if exercise.unit == .hold {
@@ -554,63 +558,11 @@ struct WorkoutFlowView: View {
         return actuals[exercise.pattern] ?? exercise.load
     }
 
-    // MARK: - Inline actual adjuster
-
-    private var adjustPanel: some View {
-        HStack(spacing: 18) {
-            stepButton("minus") { bumpAdjust(-1) }
-            Text(exercise.unit == .hold ? "\(adjustValue) s" : "\(adjustValue)")
-                .dredfitFont(26, weight: .heavy)
-                .monospacedDigit()
-                .frame(minWidth: 76)
-            stepButton("plus") { bumpAdjust(+1) }
-
-            Button {
-                actuals[exercise.pattern] = adjustValue
-                if adjustValue == exercise.load {
-                    actuals.removeValue(forKey: exercise.pattern) // back to the plan
-                }
-                adjusting = false
-                persistProgress()   // an entered actual is worth keeping
-            } label: {
-                Text("OK")
-                    .dredfitFont(15, weight: .semibold)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 22)
-                    .padding(.vertical, 10)
-                    .background(Theme.ink, in: Capsule())
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 18))
-    }
-
-    private func stepButton(_ icon: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Image(systemName: icon)
-                .dredfitFont(15, weight: .semibold)
-                .foregroundStyle(Theme.ink)
-                .frame(width: 40, height: 40)
-                .background(Circle().stroke(Theme.hairline, lineWidth: 1.5))
-        }
-        // "minus"/"plus" alone is what VoiceOver would otherwise announce.
-        .accessibilityLabel(Text(icon == "minus"
-                                 ? String(localized: "Fewer")
-                                 : String(localized: "More")))
-        // Pinned so the label change does not move the symbol-derived id.
-        .accessibilityIdentifier(icon)
-    }
+    // MARK: - Inline actual adjuster (the panel itself is AdjustPanel.swift)
 
     private func startAdjusting() {
         adjustValue = actuals[exercise.pattern] ?? exercise.load
         adjusting = true
-    }
-
-    private func bumpAdjust(_ dir: Int) {
-        let step = exercise.unit == .hold ? 5 : 1
-        let range = exercise.unit == .hold ? 5...90 : 0...30
-        adjustValue = min(max(adjustValue + dir * step, range.lowerBound), range.upperBound)
     }
 
     private var loadCaption: String {
@@ -862,20 +814,11 @@ private extension WorkoutFlowView {
 
     // MARK: - The side-switch pause (issue #35)
 
-    /// Seconds for the re-set pause between sides — the shared app-layer
-    /// constant, collapsed under --uitest-fast like the rest countdown.
-    var sideSwitchPauseSeconds: Int {
-        #if DEBUG
-        if CommandLine.arguments.contains("--uitest-fast") { return 1 }
-        #endif
-        return Cooldown.sideSwitchPauseSec
-    }
-
     /// Opens the pause with its own tone. The second side then starts
     /// itself on the usual go — the transition no longer eats into it.
     func startHoldSwitchPause() {
         playSwitch()
-        holdPauseRemaining = sideSwitchPauseSeconds
+        holdPauseRemaining = Cooldown.stageSeconds(.switchPause)
         holdPauseEndDate = Date.now.addingTimeInterval(TimeInterval(holdPauseRemaining))
     }
 
@@ -1204,48 +1147,18 @@ extension WorkoutFlowView {
         persistProgress()
     }
 
-    /// Stage length in seconds. --uitest-fast collapses every stage to 1 s,
-    /// same as the rest countdown, so UI drivers never wait real minutes.
-    private func cooldownStageSeconds(_ stage: CooldownStage) -> Int {
-        #if DEBUG
-        if CommandLine.arguments.contains("--uitest-fast") { return 1 }
-        #endif
-        switch stage {
-        case .single:                 return Cooldown.positionSeconds
-        case .firstSide, .secondSide: return Cooldown.sideSeconds
-        case .switchPause:            return Cooldown.sideSwitchPauseSec
-        }
-    }
-
     private func startCooldownPosition(_ index: Int) {
         cooldownIndex = index
-        cooldownStage = cooldownPositions[index].perSide ? .firstSide : .single
-        cooldownRemaining = cooldownStageSeconds(cooldownStage)
+        cooldownStage = Cooldown.openingStage(of: cooldownPositions[index])
+        cooldownRemaining = Cooldown.stageSeconds(cooldownStage)
         cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(cooldownRemaining))
-    }
-
-    /// The stage after the given one — into the pause and the second side
-    /// within a per-side position, otherwise on to the next position.
-    /// nil when the block is over.
-    private func cooldownStep(after step: (index: Int, stage: CooldownStage))
-        -> (index: Int, stage: CooldownStage)? {
-        switch step.stage {
-        case .firstSide:   return (step.index, .switchPause)
-        case .switchPause: return (step.index, .secondSide)
-        case .single, .secondSide:
-            let next = step.index + 1
-            guard next < cooldownPositions.count else { return nil }
-            return (next, cooldownPositions[next].perSide ? .firstSide : .single)
-        }
     }
 
     private func tickCooldown() {
         guard let end = cooldownEndDate else { return }
         let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
         guard newRemaining != cooldownRemaining else { return }
-        if newRemaining == 0 {
-            advanceCooldown(overshoot: Int(max(0, -end.timeIntervalSinceNow)))
-        } else {
+        if newRemaining > 0 {
             // No 3-2-1 inside the switch pause — it is framed by its own
             // two signals, and ticks would bury the tone it opened with.
             if cooldownStage != .switchPause,
@@ -1253,33 +1166,22 @@ extension WorkoutFlowView {
                 playTick()
             }
             withAnimation(.linear(duration: 0.3)) { cooldownRemaining = newRemaining }
+            return
         }
-    }
-
-    /// A stage ran out. The boundary crossed right now is the audible one —
-    /// entering the pause announces the side switch, everything else is the
-    /// usual go — and any stages a long absence already covered are absorbed
-    /// silently, exactly like the warm-up jumps whole moves.
-    private func advanceCooldown(overshoot: Int) {
-        guard var step = cooldownStep(after: (cooldownIndex, cooldownStage)) else {
+        // A stage boundary. Cooldown.advance absorbs whatever a long absence
+        // already covered; the boundary crossed right now is the audible one.
+        guard let next = Cooldown.advance(from: (cooldownIndex, cooldownStage),
+                                          overshoot: Int(max(0, -end.timeIntervalSinceNow)),
+                                          positions: cooldownPositions) else {
             playGo()
             finishCooldown()
             return
         }
-        if step.stage == .switchPause { playSwitch() } else { playGo() }
-        var remainder = overshoot
-        while remainder >= cooldownStageSeconds(step.stage) {
-            remainder -= cooldownStageSeconds(step.stage)
-            guard let next = cooldownStep(after: step) else {
-                finishCooldown()
-                return
-            }
-            step = next
-        }
-        cooldownIndex = step.index
-        cooldownStage = step.stage
-        cooldownRemaining = cooldownStageSeconds(step.stage) - remainder
-        cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(cooldownRemaining))
+        if next.entered == .switchPause { playSwitch() } else { playGo() }
+        cooldownIndex = next.index
+        cooldownStage = next.stage
+        cooldownRemaining = next.remaining
+        cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(next.remaining))
     }
 
     private func finishCooldown() {
