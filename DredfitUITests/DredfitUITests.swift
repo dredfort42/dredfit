@@ -395,9 +395,14 @@ final class DredfitUITests: XCTestCase {
         for _ in 0..<6 { app.buttons["Skip exercise"].tap() }
         XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 3),
                       "skipping all exercises should lead to the rating")
-        XCTAssertTrue(app.staticTexts.matching(
-            NSPredicate(format: "label == 'skipped'")).firstMatch.exists,
-            "skipped exercises are not listed on the rating screen")
+        // The state lives once in the section header; each row's dimmed name
+        // still announces it through its accessibility label (issue #27's
+        // rating-summary change — this assertion predates it).
+        XCTAssertTrue(app.staticTexts["SKIPPED"].exists,
+                      "skipped exercises are not listed on the rating screen")
+        XCTAssertEqual(app.staticTexts.matching(
+            NSPredicate(format: "label ENDSWITH %@", ", skipped")).count, 6,
+            "all six skipped exercises must be listed")
 
         // Honest skips: even an "easy" rating must not level up untrained
         // patterns. Assert on the identified element — a bare "0" query can
