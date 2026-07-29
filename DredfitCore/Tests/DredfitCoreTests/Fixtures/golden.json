@@ -1,5 +1,5 @@
 {
- "generator": "adaptive_engine.js v2.3.0",
+ "generator": "adaptive_engine.js v2.4.0",
  "patternOrder": [
   "squat",
   "push_h",
@@ -12470,6 +12470,1116 @@
      0
     ],
     "barLevel": 12,
+    "barStreak": 0
+   }
+  },
+  {
+   "name": "silent_decay",
+   "steps": [
+    {
+     "sessionNumber": 6,
+     "estimatedTotalMin": 34.5,
+     "exercises": [
+      {
+       "pattern": "squat",
+       "tier": 4,
+       "unit": "reps",
+       "load": 4,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "push_h",
+       "tier": 3,
+       "unit": "reps",
+       "load": 5,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "hinge",
+       "tier": 2,
+       "unit": "reps",
+       "load": 9,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "pull_bar",
+       "tier": 2,
+       "unit": "reps",
+       "load": 7,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "push_v",
+       "tier": 1,
+       "unit": "reps",
+       "load": 14,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "calf",
+       "tier": 3,
+       "unit": "reps",
+       "load": 8,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      }
+     ],
+     "result": "plan",
+     "overrides": {},
+     "skipped": [],
+     "hasBar": true,
+     "levelsAfter": [
+      25,
+      17,
+      12,
+      8,
+      7,
+      1,
+      0,
+      13,
+      20
+     ],
+     "failStreakAfter": [
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "barLevelAfter": 10,
+     "barStreakAfter": 0
+    },
+    {
+     "sessionNumber": 7,
+     "estimatedTotalMin": 38.4,
+     "exercises": [
+      {
+       "pattern": "hinge",
+       "tier": 2,
+       "unit": "reps",
+       "load": 9,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "pull",
+       "tier": 1,
+       "unit": "reps",
+       "load": 15,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "push_v",
+       "tier": 1,
+       "unit": "reps",
+       "load": 14,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "lunge",
+       "tier": 1,
+       "unit": "reps",
+       "load": 8,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "core_anti_ext",
+       "tier": 1,
+       "unit": "hold",
+       "load": 20,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "core_rot",
+       "tier": 2,
+       "unit": "hold",
+       "load": 35,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      }
+     ],
+     "result": "less",
+     "overrides": {},
+     "skipped": [],
+     "silentDecay": {
+      "gapDays": 8,
+      "levelsAfter": [
+       24,
+       16,
+       11,
+       7,
+       6,
+       0,
+       0,
+       12,
+       19
+      ],
+      "failStreakAfter": [
+       0,
+       0,
+       0,
+       1,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "barLevelAfter": 9,
+      "barStreakAfter": 0
+     },
+     "hasBar": true,
+     "levelsAfter": [
+      24,
+      16,
+      10,
+      6,
+      5,
+      0,
+      0,
+      11,
+      19
+     ],
+     "failStreakAfter": [
+      0,
+      0,
+      1,
+      2,
+      1,
+      0,
+      0,
+      1,
+      0
+     ],
+     "barLevelAfter": 9,
+     "barStreakAfter": 0
+    },
+    {
+     "sessionNumber": 8,
+     "estimatedTotalMin": 34.5,
+     "exercises": [
+      {
+       "pattern": "squat",
+       "tier": 4,
+       "unit": "reps",
+       "load": 4,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "push_h",
+       "tier": 3,
+       "unit": "reps",
+       "load": 5,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "pull_bar",
+       "tier": 2,
+       "unit": "reps",
+       "load": 7,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "core_anti_ext",
+       "tier": 1,
+       "unit": "hold",
+       "load": 20,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "core_rot",
+       "tier": 2,
+       "unit": "hold",
+       "load": 30,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "calf",
+       "tier": 3,
+       "unit": "reps",
+       "load": 8,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      }
+     ],
+     "result": "plan",
+     "overrides": {},
+     "skipped": [],
+     "hasBar": true,
+     "levelsAfter": [
+      25,
+      17,
+      10,
+      6,
+      5,
+      0,
+      1,
+      12,
+      20
+     ],
+     "failStreakAfter": [
+      0,
+      0,
+      1,
+      2,
+      1,
+      0,
+      0,
+      0,
+      0
+     ],
+     "barLevelAfter": 10,
+     "barStreakAfter": 0
+    },
+    {
+     "sessionNumber": 9,
+     "estimatedTotalMin": 34.5,
+     "exercises": [
+      {
+       "pattern": "squat",
+       "tier": 4,
+       "unit": "reps",
+       "load": 4,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "push_h",
+       "tier": 3,
+       "unit": "reps",
+       "load": 5,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "hinge",
+       "tier": 2,
+       "unit": "reps",
+       "load": 7,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "pull",
+       "tier": 1,
+       "unit": "reps",
+       "load": 13,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "push_v",
+       "tier": 1,
+       "unit": "reps",
+       "load": 12,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "lunge",
+       "tier": 1,
+       "unit": "reps",
+       "load": 8,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      }
+     ],
+     "result": "plan",
+     "overrides": {},
+     "skipped": [],
+     "silentDecay": {
+      "gapDays": 13,
+      "levelsAfter": [
+       24,
+       16,
+       9,
+       5,
+       4,
+       0,
+       0,
+       11,
+       19
+      ],
+      "failStreakAfter": [
+       0,
+       0,
+       1,
+       2,
+       1,
+       0,
+       0,
+       0,
+       0
+      ],
+      "barLevelAfter": 9,
+      "barStreakAfter": 0
+     },
+     "hasBar": true,
+     "levelsAfter": [
+      25,
+      17,
+      10,
+      6,
+      5,
+      1,
+      0,
+      11,
+      19
+     ],
+     "failStreakAfter": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "barLevelAfter": 9,
+     "barStreakAfter": 0
+    },
+    {
+     "sessionNumber": 10,
+     "estimatedTotalMin": 36.8,
+     "exercises": [
+      {
+       "pattern": "pull_bar",
+       "tier": 2,
+       "unit": "reps",
+       "load": 7,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "push_v",
+       "tier": 1,
+       "unit": "reps",
+       "load": 13,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "lunge",
+       "tier": 1,
+       "unit": "reps",
+       "load": 9,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "core_anti_ext",
+       "tier": 1,
+       "unit": "hold",
+       "load": 20,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "core_rot",
+       "tier": 2,
+       "unit": "hold",
+       "load": 30,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "calf",
+       "tier": 3,
+       "unit": "reps",
+       "load": 8,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      }
+     ],
+     "result": "plan",
+     "overrides": {},
+     "skipped": [],
+     "hasBar": true,
+     "levelsAfter": [
+      25,
+      17,
+      10,
+      6,
+      6,
+      2,
+      1,
+      12,
+      20
+     ],
+     "failStreakAfter": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "barLevelAfter": 10,
+     "barStreakAfter": 0
+    },
+    {
+     "sessionNumber": 11,
+     "estimatedTotalMin": 37.5,
+     "exercises": [
+      {
+       "pattern": "squat",
+       "tier": 4,
+       "unit": "reps",
+       "load": 5,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "push_h",
+       "tier": 3,
+       "unit": "reps",
+       "load": 6,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "hinge",
+       "tier": 2,
+       "unit": "reps",
+       "load": 8,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "pull",
+       "tier": 1,
+       "unit": "reps",
+       "load": 14,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "core_rot",
+       "tier": 2,
+       "unit": "hold",
+       "load": 35,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "calf",
+       "tier": 3,
+       "unit": "reps",
+       "load": 9,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      }
+     ],
+     "result": "plan",
+     "overrides": {},
+     "skipped": [],
+     "silentDecay": {
+      "gapDays": 6,
+      "levelsAfter": [
+       25,
+       17,
+       10,
+       6,
+       6,
+       2,
+       1,
+       12,
+       20
+      ],
+      "failStreakAfter": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "barLevelAfter": 10,
+      "barStreakAfter": 0
+     },
+     "hasBar": true,
+     "levelsAfter": [
+      26,
+      18,
+      11,
+      7,
+      6,
+      2,
+      1,
+      13,
+      21
+     ],
+     "failStreakAfter": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "barLevelAfter": 10,
+     "barStreakAfter": 0
+    },
+    {
+     "sessionNumber": 12,
+     "estimatedTotalMin": 33.6,
+     "exercises": [
+      {
+       "pattern": "push_h",
+       "tier": 3,
+       "unit": "reps",
+       "load": 5,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "hinge",
+       "tier": 2,
+       "unit": "reps",
+       "load": 7,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "pull_bar",
+       "tier": 2,
+       "unit": "reps",
+       "load": 6,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "push_v",
+       "tier": 1,
+       "unit": "reps",
+       "load": 12,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "lunge",
+       "tier": 1,
+       "unit": "reps",
+       "load": 8,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "core_anti_ext",
+       "tier": 1,
+       "unit": "hold",
+       "load": 20,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      }
+     ],
+     "result": "plan",
+     "overrides": {},
+     "skipped": [],
+     "silentDecay": {
+      "gapDays": 10,
+      "levelsAfter": [
+       25,
+       17,
+       10,
+       6,
+       5,
+       1,
+       0,
+       12,
+       20
+      ],
+      "failStreakAfter": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "barLevelAfter": 9,
+      "barStreakAfter": 0
+     },
+     "comeback": {
+      "gapDays": 16,
+      "levelsAfter": [
+       24,
+       16,
+       9,
+       5,
+       4,
+       0,
+       0,
+       11,
+       19
+      ],
+      "failStreakAfter": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "counterAfter": 11,
+      "alreadyDecayed": true,
+      "barLevelAfter": 8,
+      "barStreakAfter": 0
+     },
+     "hasBar": true,
+     "levelsAfter": [
+      24,
+      17,
+      10,
+      5,
+      5,
+      1,
+      1,
+      11,
+      19
+     ],
+     "failStreakAfter": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "barLevelAfter": 9,
+     "barStreakAfter": 0
+    },
+    {
+     "sessionNumber": 13,
+     "estimatedTotalMin": 37.1,
+     "exercises": [
+      {
+       "pattern": "squat",
+       "tier": 4,
+       "unit": "reps",
+       "load": 4,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "pull",
+       "tier": 1,
+       "unit": "reps",
+       "load": 13,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "lunge",
+       "tier": 1,
+       "unit": "reps",
+       "load": 9,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "core_anti_ext",
+       "tier": 1,
+       "unit": "hold",
+       "load": 25,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "core_rot",
+       "tier": 2,
+       "unit": "hold",
+       "load": 30,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "calf",
+       "tier": 3,
+       "unit": "reps",
+       "load": 8,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      }
+     ],
+     "result": "less",
+     "overrides": {},
+     "skipped": [],
+     "hasBar": true,
+     "levelsAfter": [
+      23,
+      17,
+      10,
+      4,
+      5,
+      0,
+      0,
+      10,
+      18
+     ],
+     "failStreakAfter": [
+      1,
+      0,
+      0,
+      1,
+      0,
+      1,
+      1,
+      1,
+      1
+     ],
+     "barLevelAfter": 9,
+     "barStreakAfter": 0
+    },
+    {
+     "sessionNumber": 14,
+     "estimatedTotalMin": 36,
+     "exercises": [
+      {
+       "pattern": "squat",
+       "tier": 3,
+       "unit": "reps",
+       "load": 12,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "push_h",
+       "tier": 3,
+       "unit": "reps",
+       "load": 6,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "hinge",
+       "tier": 2,
+       "unit": "reps",
+       "load": 8,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "pull_bar",
+       "tier": 2,
+       "unit": "reps",
+       "load": 7,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "push_v",
+       "tier": 1,
+       "unit": "reps",
+       "load": 13,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "calf",
+       "tier": 3,
+       "unit": "reps",
+       "load": 7,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      }
+     ],
+     "result": "more",
+     "overrides": {},
+     "skipped": [],
+     "hasBar": true,
+     "levelsAfter": [
+      25,
+      19,
+      12,
+      4,
+      7,
+      0,
+      0,
+      10,
+      20
+     ],
+     "failStreakAfter": [
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      1,
+      1,
+      0
+     ],
+     "barLevelAfter": 11,
+     "barStreakAfter": 0
+    },
+    {
+     "sessionNumber": 15,
+     "estimatedTotalMin": 37.4,
+     "exercises": [
+      {
+       "pattern": "hinge",
+       "tier": 2,
+       "unit": "reps",
+       "load": 10,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "pull",
+       "tier": 1,
+       "unit": "reps",
+       "load": 12,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "push_v",
+       "tier": 1,
+       "unit": "reps",
+       "load": 15,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "lunge",
+       "tier": 1,
+       "unit": "reps",
+       "load": 8,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "core_anti_ext",
+       "tier": 1,
+       "unit": "hold",
+       "load": 20,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "core_rot",
+       "tier": 2,
+       "unit": "hold",
+       "load": 25,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      }
+     ],
+     "result": "plan",
+     "overrides": {},
+     "skipped": [],
+     "hasBar": true,
+     "levelsAfter": [
+      25,
+      19,
+      13,
+      5,
+      8,
+      1,
+      1,
+      11,
+      20
+     ],
+     "failStreakAfter": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "barLevelAfter": 11,
+     "barStreakAfter": 0
+    }
+   ],
+   "seed": {
+    "counter": 5,
+    "hasBar": true,
+    "levels": [
+     24,
+     16,
+     11,
+     8,
+     6,
+     1,
+     0,
+     13,
+     19
+    ],
+    "failStreak": [
+     1,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "barLevel": 9,
     "barStreak": 0
    }
   }

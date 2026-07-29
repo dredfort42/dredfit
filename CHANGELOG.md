@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+### Engine v2.4: silent level decay for 7–13 day gaps (issue #37)
+
+- The comeback only starts at 14 days, leaving the 7–13 day zone blind —
+  the most common real-life break length (vacation, work trip, a cold) met
+  an overestimated plan on the single most churn-prone session. Now a
+  quiet −1 lands on every pattern when the gap enters that zone: no card,
+  no UI, applied once per break on scene activation, clamped at 0.
+  `failStreak` and `counter` are deliberately untouched.
+- The two drops never stack (spec §14.2): if the silent −1 already hit the
+  break, a later comeback weakens by one — the break's total is exactly
+  the table value, and whoever peeked at the app mid-break is never
+  punished harder than whoever stayed away. The comeback card shows the
+  weakened remainder.
+- Full reference cycle: spec addendum §14, reference implementation,
+  verify 8 009 checks / 0 failures (was 4 150 — most of the growth is the
+  exhaustive non-stacking sweep over all 48 levels), golden scenario 10
+  `silent_decay` including the "decay → tough → no premature deload"
+  branch. The nine existing golden scenarios reproduce bit-exact.
+
 ### Technique mini-sheets for warm-up and cool-down positions (issue #34)
 
 - Every one of the 15 positions (6 warm-up moves, 9 cool-down pool) now

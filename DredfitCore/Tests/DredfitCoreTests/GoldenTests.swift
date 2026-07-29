@@ -41,9 +41,20 @@ private struct Golden: Decodable {
     /// applyComeback invoked before this step's session.
     struct Comeback: Decodable {
         let gapDays: Int
+        let alreadyDecayed: Bool?  // v2.4: silent decay hit this break first
         let levelsAfter: [Int]
         let failStreakAfter: [Int]
         let counterAfter: Int
+        let barLevelAfter: Int?
+        let barStreakAfter: Int?
+    }
+    /// applySilentDecay invoked before this step's session (v2.4) — and
+    /// before the step's comeback, when both are present: the user peeked
+    /// mid-break, then came back later.
+    struct SilentDecay: Decodable {
+        let gapDays: Int
+        let levelsAfter: [Int]
+        let failStreakAfter: [Int]
         let barLevelAfter: Int?
         let barStreakAfter: Int?
     }
@@ -60,6 +71,7 @@ private struct Golden: Decodable {
         let hasBar: Bool?          // effective toggle for this step's session
         let barLevelAfter: Int?
         let barStreakAfter: Int?
+        let silentDecay: SilentDecay?
         let comeback: Comeback?
     }
     struct Ex: Decodable {
@@ -88,7 +100,7 @@ final class GoldenTests: XCTestCase {
     /// re-baseline every number instead of catching a port bug.
     func testGeneratorIsThePinnedReferenceVersion() throws {
         let g = try loadGolden()
-        XCTAssertEqual(g.generator, "adaptive_engine.js v2.3.0",
+        XCTAssertEqual(g.generator, "adaptive_engine.js v2.4.0",
                        "golden.json regenerated from an unexpected reference version")
     }
 
@@ -117,10 +129,26 @@ final class GoldenTests: XCTestCase {
             for (i, step) in scenario.steps.enumerated() {
                 let ctx = "\(scenario.name)/step \(i + 1)"
                 if let hasBar = step.hasBar { state.hasBar = hasBar } // settings toggle
+                if let decay = step.silentDecay {
+                    // the app applies this when it opens inside the 7–13 day
+                    // blind zone — before any comeback and before the plan
+                    state = Engine.applySilentDecay(state: state, gapDays: decay.gapDays)
+                    XCTAssertEqual(g.patternOrder.map { state.levels[Pattern(rawValue: $0)!] ?? -1 },
+                                   decay.levelsAfter, "\(ctx) levels after silent decay")
+                    XCTAssertEqual(g.patternOrder.map { state.failStreak[Pattern(rawValue: $0)!] ?? -1 },
+                                   decay.failStreakAfter, "\(ctx) streaks untouched by silent decay")
+                    if let barLevel = decay.barLevelAfter {
+                        XCTAssertEqual(state.levels[.pullBar], barLevel, "\(ctx) bar level after silent decay")
+                    }
+                    if let barStreak = decay.barStreakAfter {
+                        XCTAssertEqual(state.failStreak[.pullBar], barStreak, "\(ctx) bar streak after silent decay")
+                    }
+                }
                 if let comeback = step.comeback {
                     // the app applies this on launch after a break,
                     // before the plan is generated — same order here
-                    state = Engine.applyComeback(state: state, gapDays: comeback.gapDays)
+                    state = Engine.applyComeback(state: state, gapDays: comeback.gapDays,
+                                                 alreadyDecayed: comeback.alreadyDecayed ?? false)
                     XCTAssertEqual(g.patternOrder.map { state.levels[Pattern(rawValue: $0)!] ?? -1 },
                                    comeback.levelsAfter, "\(ctx) levels after comeback")
                     XCTAssertEqual(g.patternOrder.map { state.failStreak[Pattern(rawValue: $0)!] ?? -1 },

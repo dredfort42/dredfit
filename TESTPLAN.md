@@ -461,6 +461,17 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 32.5 | es / pt-BR / large Dynamic Type | Long strings wrap inside the sheet (scrolls at the biggest accessibility sizes); nothing clips or overlaps |
 | 32.6 | The work and rest screens | Their technique button still opens the full exercise sheet — with the timer ticking on rest, as before |
 
+### 33. Silent decay for 7–13 day gaps (engine v2.4, issue #37)
+
+| # | Check | Expected |
+|---|---|---|
+| 33.1 | Last workout 8–13 days ago, open the app | Every level silently −1 (Progress bars, Today's plan) — no card, no message; levels at 0 stay at 0 |
+| 33.2 | Reopen the app during the same break | No further drop — one decay per break; the stamp survives relaunches |
+| 33.3 | Last workout 6 days ago / 14+ days ago | No silent decay: below the zone nothing happens; at 14+ the comeback card owns the break as before |
+| 33.4 | Break crosses both zones (opened at day 8–13, returned at 14+) | The comeback card shows the **weakened** drop (table − 1); accepting lands exactly where a plain comeback would — peeking mid-break never costs extra |
+| 33.5 | First workout after a decayed break rated "tough" | Regular −1 on top; **no** deload from the old streak alone — the streak grows as usual |
+| 33.6 | Complete a workout, then a new 8-day break | The new break decays independently — the old stamp went stale with the new workout |
+
 ---
 
 ## Issue registry
