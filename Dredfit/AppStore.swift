@@ -58,6 +58,10 @@ struct AppSettings: Codable, Equatable {
     // workout it is stale and a future break asks again, while the current
     // break never asks twice.
     var comebackDecidedFor: Date?
+    // Same mechanism for the silent decay (issue #37): the last workout's
+    // date at the time the quiet −1 was applied. Goes stale by itself after
+    // the next workout; the current break never decays twice.
+    var silentDecayAppliedFor: Date?
 
     init() {}
 
@@ -65,6 +69,7 @@ struct AppSettings: Codable, Equatable {
         case restWeekdays, soundsEnabled, reminderEnabled, reminderHour, reminderMinute
         case healthEnabled, healthExportedThrough
         case onboardingCompleted, lastReviewRequestAt, comebackDecidedFor
+        case silentDecayAppliedFor
     }
 
     init(from decoder: Decoder) throws {
@@ -82,6 +87,7 @@ struct AppSettings: Codable, Equatable {
         onboardingCompleted = try c.decodeIfPresent(Bool.self, forKey: .onboardingCompleted) ?? false
         lastReviewRequestAt = try c.decodeIfPresent(Date.self, forKey: .lastReviewRequestAt)
         comebackDecidedFor = try c.decodeIfPresent(Date.self, forKey: .comebackDecidedFor)
+        silentDecayAppliedFor = try c.decodeIfPresent(Date.self, forKey: .silentDecayAppliedFor)
     }
 }
 
@@ -317,6 +323,9 @@ final class AppStore {
     /// Mutating `today` on every activation would re-render for nothing.
     func refreshDay(now: Date = .now) {
         if !Calendar.current.isDate(today, inSameDayAs: now) { today = now }
+        // The blind-zone decay (issue #37) rides the same activation pulse:
+        // by the time Today renders, the plan is already corrected.
+        applySilentDecayIfNeeded(now: now)
     }
 
     /// Moves the state file to `<name>.corrupt.json` (or copies, when the
@@ -724,11 +733,42 @@ final class AppStore {
     }
 
     /// How far the levels would drop — used by the card to say it plainly.
+    /// After a silent decay for the same break the card shows the weakened
+    /// remainder: that is what accepting would actually subtract now.
     func comebackDrop(now: Date? = nil) -> Int {
         guard let gap = gapDays(now: now) else { return 0 }
         let before = engineState
-        let after = Engine.applyComeback(state: before, gapDays: gap)
+        let after = Engine.applyComeback(state: before, gapDays: gap,
+                                         alreadyDecayed: silentDecayAppliedForCurrentBreak)
         return (before.levels[.pull] ?? 0) - (after.levels[.pull] ?? 0)
+    }
+
+    // MARK: - Silent decay for the 7–13 day blind zone (issue #37)
+
+    /// Quiet −1 to every pattern when the gap sits where the comeback does
+    /// not reach yet: the most common real-life break length would otherwise
+    /// meet an overestimated plan on the single most churn-prone session.
+    /// No card, no UI; applied at most once per break — the stamp is keyed
+    /// to the last workout's date and goes stale by itself, exactly like
+    /// the comeback answer. Called on every scene activation (refreshDay),
+    /// so the plan is already corrected by the time Today renders.
+    func applySilentDecayIfNeeded(now: Date? = nil) {
+        guard let last = records.last, let gap = gapDays(now: now) else { return }
+        guard gap >= EngineConfig.silentDecayGapDays,
+              gap < EngineConfig.comebackMinGapDays else { return }
+        guard !silentDecayAppliedForCurrentBreak else { return }
+        engineState = Engine.applySilentDecay(state: engineState, gapDays: gap)
+        settings.silentDecayAppliedFor = last.date
+        persist()
+    }
+
+    /// Whether the silent −1 already hit the break in progress. Drives both
+    /// the once-per-break guard and the comeback's `alreadyDecayed` — the
+    /// two drops must not stack (engine v2.4, spec §14.2).
+    private var silentDecayAppliedForCurrentBreak: Bool {
+        guard let applied = settings.silentDecayAppliedFor,
+              let last = records.last?.date else { return false }
+        return Calendar.current.isDate(applied, inSameDayAs: last)
     }
 
     /// A gap this long makes the old levels meaningless rather than merely
@@ -742,7 +782,8 @@ final class AppStore {
     /// snapshot shows the step down on its own.
     func acceptComeback(now: Date? = nil) {
         guard let gap = gapDays(now: now) else { return }
-        engineState = Engine.applyComeback(state: engineState, gapDays: gap)
+        engineState = Engine.applyComeback(state: engineState, gapDays: gap,
+                                           alreadyDecayed: silentDecayAppliedForCurrentBreak)
         closeComebackQuestion()
     }
 

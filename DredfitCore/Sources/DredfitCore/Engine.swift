@@ -11,6 +11,7 @@
 //    Engine.generateSession(state)  — a workout from state (deterministic)
 //    Engine.applyFeedback(...)      — the main state mutation
 //    Engine.applyComeback(...)      — level drop after a long break
+//    Engine.applySilentDecay(...)   — quiet −1 for the 7–13 day blind zone
 //
 
 import Foundation
@@ -80,6 +81,10 @@ public enum EngineConfig {
     public static let comebackBase = 2
     public static let comebackStepDays = 21
     public static let comebackMax = 8
+    // Silent decay (v2.4): the lower edge of the 7–13 day blind zone — the
+    // comeback only starts at 14, yet ~10 days already cost the body a step
+    // or two.
+    public static let silentDecayGapDays = 7
     // Per-tier rep/hold floors: the harder the variation, the lower the
     // start, so the first step of a new tier lands softly instead of the
     // jump "tier1×15 → tier2×8".
@@ -445,16 +450,47 @@ public enum Engine {
     /// NOT idempotent: every call subtracts the drop again. The caller must
     /// apply it at most once per break — the app keys this decision on
     /// `comebackDecidedFor`, so the same gap is never applied twice.
-    public static func applyComeback(state: EngineState, gapDays: Int) -> EngineState {
+    ///
+    /// `alreadyDecayed` (v2.4): the silent −1 was already applied to this
+    /// same break (the user opened the app inside the 7–13 day blind zone).
+    /// The two drops must not stack — whoever peeked mid-break must not end
+    /// up punished harder than whoever stayed away — so the comeback weakens
+    /// by one and the break's total is exactly the table value. Per level
+    /// this is exact even at the clamp:
+    /// `max(max(L−1,0) − (drop−1), 0) == max(L − drop, 0)` for drop ≥ 2.
+    public static func applyComeback(state: EngineState, gapDays: Int,
+                                     alreadyDecayed: Bool = false) -> EngineState {
         guard gapDays >= EngineConfig.comebackMinGapDays else { return state }
         let raw = EngineConfig.comebackBase
             + (gapDays - EngineConfig.comebackMinGapDays) / EngineConfig.comebackStepDays
-        let drop = min(max(raw, 2), EngineConfig.comebackMax)
+        let drop = min(max(raw, 2), EngineConfig.comebackMax) - (alreadyDecayed ? 1 : 0)
 
         var next = state
         for p in Pattern.allCases {
             next.levels[p] = max(0, (state.levels[p] ?? 0) - drop)
             next.failStreak[p] = 0
+        }
+        return next
+    }
+
+    /// Silent decay for the 7–13 day blind zone (v2.4, issue #37): the
+    /// comeback starts at 14 days, yet the most common real-life gap length
+    /// (vacation, work trip, a cold) already costs the body a step or two.
+    /// A quiet −1 to every pattern — including `pullBar` when
+    /// `hasBar == false`, a break detrains the whole body — clamped at 0.
+    ///
+    /// `failStreak` is deliberately untouched, unlike the comeback: −1 is a
+    /// soft plan correction, not a level capitulation, and a one-week pause
+    /// is no reason to erase an accumulated streak. `counter` does not move.
+    ///
+    /// NOT idempotent, same as the comeback: the app layer applies it at
+    /// most once per break, keyed to the last workout's date.
+    public static func applySilentDecay(state: EngineState, gapDays: Int) -> EngineState {
+        guard gapDays >= EngineConfig.silentDecayGapDays,
+              gapDays < EngineConfig.comebackMinGapDays else { return state }
+        var next = state
+        for p in Pattern.allCases {
+            next.levels[p] = max(0, (state.levels[p] ?? 0) - 1)
         }
         return next
     }

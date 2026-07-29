@@ -504,6 +504,44 @@ final class EngineTests: XCTestCase {
         XCTAssertEqual(twice, once, "the same session must not apply twice")
     }
 
+    // MARK: Silent decay (v2.4, issue #37)
+
+    func testSilentDecayActsOnlyInsideTheBlindZone() {
+        var state = warmedUpState()
+        state.failStreak[.pull] = 2
+        for gap in [0, 1, 6, 14, 20, 140] {
+            XCTAssertEqual(Engine.applySilentDecay(state: state, gapDays: gap), state,
+                           "gap \(gap): outside [7, 14) the decay must be a no-op")
+        }
+        for gap in [7, 10, 13] {
+            let after = Engine.applySilentDecay(state: state, gapDays: gap)
+            for p in Pattern.allCases {
+                XCTAssertEqual(after.levels[p], max(0, (state.levels[p] ?? 0) - 1),
+                               "gap \(gap): −1 clamped at 0 (\(p))")
+            }
+            XCTAssertEqual(after.failStreak, state.failStreak,
+                           "gap \(gap): streaks are deliberately untouched")
+            XCTAssertEqual(after.counter, state.counter, "gap \(gap): counter still")
+        }
+    }
+
+    /// The non-stacking property (spec §14.2): a break that got the silent −1
+    /// and then a weakened comeback ends exactly where a plain comeback for
+    /// the same gap would — per pattern, clamp included.
+    func testDecayPlusWeakenedComebackEqualsPlainComeback() {
+        for level in [0, 1, 2, 12, 47] {
+            var state = EngineState.initial
+            for p in Pattern.allCases { state.levels[p] = level; state.failStreak[p] = 2 }
+            for gap in [14, 35, 140] {
+                let plain = Engine.applyComeback(state: state, gapDays: gap)
+                let decayed = Engine.applyComeback(
+                    state: Engine.applySilentDecay(state: state, gapDays: 10),
+                    gapDays: gap, alreadyDecayed: true)
+                XCTAssertEqual(decayed, plain, "L=\(level), gap=\(gap): totals must match the table")
+            }
+        }
+    }
+
     // MARK: Library
 
     func testLibraryComplete() {

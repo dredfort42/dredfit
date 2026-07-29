@@ -704,4 +704,80 @@ final class AppStoreTests: XCTestCase {
         XCTAssertTrue(store.records.isEmpty, "state must stay intact after a failed import")
     }
 
+    // MARK: - Silent decay for the 7–13 day blind zone (issue #37)
+
+    /// A store whose last workout happened `daysAgo` days ago. Several
+    /// sessions, so the levels sit clear of the zero clamp.
+    private func storeWithWorkout(daysAgo: Int, at url: URL, sessions: Int = 4) -> AppStore {
+        let store = AppStore(storageURL: url)
+        let date = Calendar.current.date(byAdding: .day, value: -daysAgo, to: .now)!
+        for _ in 0..<sessions {
+            _ = store.completeWorkout(session: store.nextSession, result: .plan, date: date)
+        }
+        return store
+    }
+
+    func testSilentDecayAppliesExactlyOncePerBreak() {
+        let store = storeWithWorkout(daysAgo: 10, at: tempURL)
+        let before = store.engineState.levels
+        store.applySilentDecayIfNeeded()
+        for p in Pattern.allCases {
+            XCTAssertEqual(store.engineState.levels[p], max(0, (before[p] ?? 0) - 1),
+                           "\(p): −1 clamped at 0")
+        }
+        let once = store.engineState.levels
+        store.applySilentDecayIfNeeded()
+        XCTAssertEqual(store.engineState.levels, once, "the same break must not decay twice")
+        // The stamp survives a relaunch — persisted, not in-memory.
+        let reloaded = AppStore(storageURL: tempURL)
+        reloaded.applySilentDecayIfNeeded()
+        XCTAssertEqual(reloaded.engineState.levels, once,
+                       "a relaunch inside the same break must not decay again")
+    }
+
+    func testSilentDecayIgnoresGapsOutsideTheBlindZone() {
+        for days in [0, 6, 14, 30] {
+            let url = tempURL.deletingPathExtension().appendingPathExtension("\(days).json")
+            defer { try? FileManager.default.removeItem(at: url) }
+            let store = storeWithWorkout(daysAgo: days, at: url)
+            let before = store.engineState
+            store.applySilentDecayIfNeeded()
+            XCTAssertEqual(store.engineState, before,
+                           "gap \(days): outside [7, 14) nothing may change")
+        }
+    }
+
+    func testDecayedBreakComebackTotalsExactlyTheTable() {
+        let cal = Calendar.current
+        let day16 = cal.date(byAdding: .day, value: 6, to: .now)!  // 10 + 6 = 16-day gap
+        // Break that got peeked at on day 10: decay, then a weakened comeback.
+        let peeked = storeWithWorkout(daysAgo: 10, at: tempURL)
+        peeked.applySilentDecayIfNeeded()
+        XCTAssertEqual(peeked.comebackDrop(now: day16), 1,
+                       "the card must show the weakened remainder, not the full table")
+        peeked.acceptComeback(now: day16)
+        // The same break with the app never opened: one plain comeback.
+        let otherURL = tempURL.deletingPathExtension().appendingPathExtension("control.json")
+        defer { try? FileManager.default.removeItem(at: otherURL) }
+        let control = storeWithWorkout(daysAgo: 10, at: otherURL)
+        control.acceptComeback(now: day16)
+        XCTAssertEqual(peeked.engineState.levels, control.engineState.levels,
+                       "peeking mid-break must not cost more than staying away")
+    }
+
+    func testDecayStampGoesStaleAfterTheNextWorkout() {
+        let store = storeWithWorkout(daysAgo: 10, at: tempURL)
+        store.applySilentDecayIfNeeded()
+        // The break ends: a workout today re-anchors the stamp's reference.
+        _ = store.completeWorkout(session: store.nextSession, result: .plan)
+        let after = store.engineState.levels
+        // A fresh 8-day break decays again — the old stamp must not block it.
+        let day8 = Calendar.current.date(byAdding: .day, value: 8, to: .now)!
+        store.applySilentDecayIfNeeded(now: day8)
+        for p in Pattern.allCases {
+            XCTAssertEqual(store.engineState.levels[p], max(0, (after[p] ?? 0) - 1),
+                           "\(p): a new break must decay independently")
+        }
+    }
+
 }
