@@ -1,6 +1,16 @@
 # Changelog
 
-## Unreleased
+## 1.8.0
+
+A feature release that makes the workout whole: the cool-down the estimates
+always promised, a short version for the days there is no time, technique
+help on every warm-up and cool-down position, a counted side switch, and
+honest guidance on weekly rest. Around the session, Progress learned to draw
+the journey, the widget grew into every size, and the milestone card shows
+where you started. The engine steps to v2.4 — a silent level decay for
+7–13-day breaks, verified against the reference and recorded as golden
+scenario 10; the state format and the journal format are untouched, so there
+are no migrations.
 
 ### Widget: every timeline day speaks from its own date
 
@@ -205,6 +215,72 @@
 - Copy discipline, enforced in review rather than code: every line is a fact
   of mechanics, never a health promise. 15 new keys × 4 languages; the
   engine, the state format and the golden fixtures are untouched.
+
+### The level curve on the share card (issue #24)
+
+- The milestone card now draws the level curve — the total level after every
+  workout, oldest first — above its footer, the same line the Progress chart
+  draws. The curve takes only the room the headline leaves behind, capped so
+  it never becomes the point of the card, and gives up its place entirely
+  when the words need it.
+- Fewer than two journal snapshots — no curve: a first-workout card stays
+  exactly what it was. Still no body metrics and no names on the card.
+- A workout that unlocks several variations now names every one of them in
+  the headline, not just the first row on screen; the render and the
+  share-sheet preview read the same line, so the two can never drift apart.
+
+### The widget widens to medium, large and the lock screen (issue #23)
+
+- One widget family became six. The medium spends its extra width on the week
+  strip — spanning the whole card instead of crowding into a corner — and
+  carries the total level in its header; the large lists the next workout's
+  plan and closes with the week's tally; the lock screen gets all three
+  accessories: a single glyph for the only at-a-glance question, a two-line
+  rectangle, and an inline line.
+
+### A design pass over Progress, Today, Rating and Calendar (issues #21, #22)
+
+- Progress fits one screen: the pattern rows became a single legible list,
+  and the chart projects the total level — or, when a row is picked, that
+  pattern's own line built from the journal's snapshots — over a sparse
+  first/middle/last date axis. The duplicate chips row is gone: it was the
+  same list of patterns twice.
+- A row's small print about where its level is heading shows only while that
+  pattern is the one on the chart — detail on demand instead of eight rows of
+  it at once. The chart title holds still when a pattern is picked, and the
+  total level keeps to one row.
+- Today marks a variation debut with an inline "new variation" pill at the
+  end of the exercise name — a tier crossing swaps the exercise itself, the
+  most meaningful event in the system — and quietly links the "how it works"
+  explainer for everyone who skipped onboarding.
+- The rating's consequence lines speak workout language — "on plan — the next
+  asks a little more", "easy — progressing twice as fast" — instead of
+  "+1 step / +2 steps", and "Finish now" says plainly that it keeps what is
+  done and marks the rest skipped. The calendar's planned days open the
+  next-workout preview.
+
+### Site
+
+- The landing dropped its "app is still in English" hedges: es and pt-BR
+  have shipped complete since 1.7.0, so the note is gone and the technique
+  card says "in your language" on all four locales.
+
+### Housekeeping
+
+- The RU catalog calls inverted rows «Тяга под опорой» again across all
+  surfaces — «под опорой» pinpoints the body position (lying under the
+  table) that the replacement name had blurred; the RU landing mockup
+  follows (issue #19).
+- The skip-all UI test asserts the rating summary's "Skipped" header plus
+  all six rows via their accessibility labels — what VoiceOver actually
+  reads — instead of the per-row word the rating redesign removed (issue #32).
+- 198 → 281 automated tests: the variation-debut badge, the share card's
+  headline and curve, the widget's timeline mapping and per-day words, the
+  short workout's picks and the rotation anchor, cool-down composition and
+  its honest edges, the side-switch pause, the position technique sheets,
+  the silent decay and its non-stacking sweep against the comeback, and the
+  rest-day defaults. The README table now counts what the runners actually
+  execute, layer by layer.
 
 ## 1.7.1
 

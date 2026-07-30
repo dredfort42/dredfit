@@ -32,12 +32,12 @@ final class StoreScreenshots: XCTestCase {
                               progressTab: "Progress", gotIt: "Got it")
     private static let ru = L(langArg: "(ru)", locale: "ru_RU", tag: "ru",
                               ratingTitle: "Как прошло?", skipWarmup: "Пропустить разминку",
-                              done: "Сделал", skipRest: "Пропустить отдых", start: "Начать",
+                              done: "Готово", skipRest: "Пропустить отдых", start: "Начать",
                               wentDifferently: "Получилось иначе", ok: "ОК",
                               progressTab: "Прогресс", gotIt: "Понятно")
     private static let es = L(langArg: "(es)", locale: "es_ES", tag: "es",
-                              ratingTitle: "¿Cómo fue?", skipWarmup: "Saltar el calentamiento",
-                              done: "Hecho", skipRest: "Saltar el descanso", start: "Empezar",
+                              ratingTitle: "¿Cómo fue?", skipWarmup: "Omitir calentamiento",
+                              done: "Hecho", skipRest: "Omitir descanso", start: "Empezar",
                               wentDifferently: "Fue distinto", ok: "OK",
                               progressTab: "Progreso", gotIt: "Entendido")
     private static let ptBR = L(langArg: "(pt-BR)", locale: "pt_BR", tag: "pt-br",
@@ -155,7 +155,8 @@ final class StoreScreenshots: XCTestCase {
     func testProgressSpanish() { progress(Self.es) }
     func testProgressPortuguese() { progress(Self.ptBR) }
 
-    // MARK: - Seed A again: a clean rating screen (no adjustments, holds run out)
+    // MARK: - Seed A again: the rating screen with one adjustment, so the
+    // summary card and the scope chip show (the 1.6.0 "s4 reads empty" note)
 
     private func cleanRating(_ l: L) {
         let app = launch([], l)
@@ -167,9 +168,20 @@ final class StoreScreenshots: XCTestCase {
         let done = app.buttons[l.done]
         let skipRest = app.buttons[l.skipRest]
         let startHold = app.buttons[l.startHoldLabel]
+        let skipCooldown = app.buttons[l.skipCooldownLabel]
         let rating = app.staticTexts[l.ratingTitle]
+
+        // One exact number below plan on the first exercise: the rating then
+        // shows the "Adjusted" card instead of reading empty.
+        XCTAssertTrue(done.waitForExistence(timeout: 8), "set screen did not appear")
+        app.buttons[l.wentDifferently].tap()
+        let minus = app.buttons["minus"]
+        XCTAssertTrue(minus.waitForExistence(timeout: 3))
+        minus.tap(); minus.tap()
+        app.buttons[l.ok].tap()
+
         var guardCounter = 0
-        while !rating.waitForExistence(timeout: 1) && guardCounter < 150 {
+        while !rating.waitForExistence(timeout: 1) && guardCounter < 200 {
             if done.exists {
                 coordinateTap(done)
             } else if startHold.exists {
@@ -179,6 +191,8 @@ final class StoreScreenshots: XCTestCase {
                 _ = skipRest.waitForExistence(timeout: 50)
             } else if skipRest.exists {
                 coordinateTap(skipRest)
+            } else if skipCooldown.exists {
+                coordinateTap(skipCooldown)   // 1.8.0: cool-down before the rating
             }
             guardCounter += 1
         }
@@ -214,6 +228,7 @@ final class StoreScreenshots: XCTestCase {
         let done = app.buttons[l.done]
         let skipRest = app.buttons[l.skipRest]
         let startHold = app.buttons[l.startHoldLabel]
+        let skipCooldown = app.buttons[l.skipCooldownLabel]
         let rating = app.staticTexts[l.ratingTitle]
         var guardCounter = 0
         while !rating.waitForExistence(timeout: 1) && guardCounter < 250 {
@@ -224,6 +239,8 @@ final class StoreScreenshots: XCTestCase {
                 _ = skipRest.waitForExistence(timeout: 55)   // let the hold run out
             } else if skipRest.exists {
                 coordinateTap(skipRest)
+            } else if skipCooldown.exists {
+                coordinateTap(skipCooldown)   // 1.8.0: cool-down before the rating
             }
             guardCounter += 1
         }
@@ -245,6 +262,8 @@ final class StoreScreenshots: XCTestCase {
     func testMilestoneRussian() { captureMilestone(Self.ru) }
     func testMilestoneSpanish() { captureMilestone(Self.es) }
     func testMilestonePortuguese() { captureMilestone(Self.ptBR) }
+    func testComebackEnglish() { captureComeback(Self.en) }
+    func testComebackRussian() { captureComeback(Self.ru) }
     func testComebackSpanish() { captureComeback(Self.es) }
     func testComebackPortuguese() { captureComeback(Self.ptBR) }
 }
@@ -254,8 +273,16 @@ private extension StoreScreenshots.L {
         switch tag {
         case "ru": return "Начать удержание"
         case "es": return "Empezar la isometría"
-        case "pt-br": return "Iniciar a isometria"
+        case "pt-br": return "Começar a isometria"
         default: return "Start hold"
+        }
+    }
+    var skipCooldownLabel: String {
+        switch tag {
+        case "ru": return "Пропустить заминку"
+        case "es": return "Omitir enfriamiento"
+        case "pt-br": return "Pular o desaquecimento"
+        default: return "Skip cool-down"
         }
     }
     var stopLabel: String {

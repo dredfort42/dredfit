@@ -1,6 +1,6 @@
 # Dredfit — manual QA checklist
 
-Automated coverage (215 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
+Automated coverage (281 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
 
 **How to use.** Run the *Release smoke* block before every release. Run *Full pass* when the engine, persistence or an integration changed. Device-only rows cannot pass on a simulator and are marked ⌚. Record anything that fails in the [Issue registry](#issue-registry) at the bottom rather than fixing it silently.
 
@@ -14,8 +14,8 @@ Legend: ✅ pass · ❌ fail (log it) · ➖ not applicable this run · ⌚ devi
 
 | # | Check | Expected |
 |---|---|---|
-| S1 | Cold start on a fresh install | Opens on **Today** with "Workout 1", ≈33 min, 6 exercises, a **Start** button |
-| S2 | Full workout: Start → warm-up → 6 exercises → rating | Rating screen appears; tapping an option returns to Today in the done state |
+| S1 | Cold start on a fresh install | Opens on **Today** with "Workout 1", ≈33 min, 6 exercises, a **Start** button with the short-version offer under it |
+| S2 | Full workout: Start → warm-up → 6 exercises → cool-down → rating | Rating screen appears; tapping an option returns to Today in the done state |
 | S3 | Today after completion | Checkmark, "Workout 1 completed", a rating caption, and a **Next** card (no Start button) |
 | S4 | Relaunch the app | Still in the done state — the record survived the restart |
 | S5 | Calendar tab | Today is filled and tappable; the history sheet lists what was done |
@@ -223,16 +223,16 @@ The snapshot contract is unit-tested on every run (the snapshot URL is injected,
 | # | Check | Expected |
 |---|---|---|
 | 15.1 | Progress header | Total level, beside it "level" / "N workouts", and "This week · N workouts · +D levels" |
-| 15.1a | Header at a four-digit total, in Russian (1.7.2) | The number stays on **one** line — never broken mid-digit ("1 27" / "0"); the caption stays on two lines |
+| 15.1a | Header at a four-digit total, in Russian (1.8.0) | The number stays on **one** line — never broken mid-digit ("1 27" / "0"); the caption stays on two lines |
 | 15.1b | Header share button | A round icon (the word does not fit beside the number in Russian), centred on the height of the number's line |
 | 15.1c | Header at an accessibility type size | The caption drops under the number instead of pushing the row off either edge; the share glyph stays inside its ring |
 | 15.2 | A week containing a deload | The weekly delta honestly shows a **minus** |
 | 15.3 | Chart projection | Tapping a pattern row tints it and plots that pattern only; the kicker over the chart names the projection ("PUSH — PUSH-UP"); "Show all" resets to the total — no chips row |
 | 15.3a | Chart x-axis | Two–three sparse date labels (first / middle / last workout); no label before the second workout |
 | 15.3b | Per-pattern bars | One line per pattern: name, bar with white ticks at band boundaries, level. No per-row detail in the all-patterns view |
-| 15.3d | Select a pattern (1.7.2) | Only the selected row grows a detail line under it — the current variation and its position ("Push-up · 2/4") on the left, "next in N" (or "+1 set in N" at tier 4, nothing at the ceiling) on the right; the tint covers both lines |
+| 15.3d | Select a pattern (1.8.0) | Only the selected row grows a detail line under it — the current variation and its position ("Push-up · 2/4") on the left, "next in N" (or "+1 set in N" at tier 4, nothing at the ceiling) on the right; the tint covers both lines |
 | 15.3e | Back to all patterns | The detail line disappears — from the view hierarchy, not merely off-screen |
-| 15.3c | Selecting a pattern, in Russian (1.7.2) | The kicker and the chart under it **do not move**: the title stays on one line (shrinking, then truncating) and "Show all" keeps its place even while hidden |
+| 15.3c | Selecting a pattern, in Russian (1.8.0) | The kicker and the chart under it **do not move**: the title stays on one line (shrinking, then truncating) and "Show all" keeps its place even while hidden |
 | 15.4 | History of an on-plan workout | Exercises with planned volumes and no "actual" annotations |
 | 15.5 | History of an adjusted workout | "actual N" in accent on the adjusted rows only |
 | 15.6 | History footer | "Total level after: N" |
@@ -283,7 +283,7 @@ The snapshot contract is unit-tested on every run (the snapshot URL is injected,
 | 19.4 | Progress tab on a fresh install | No share icon (nothing to show yet) |
 | 19.5 | Aeroplane mode | Card still renders — generation is entirely local |
 | 19.6 | Card in Russian | Correct plural forms ("10 тренировок", "4 подхода" vs "5 подходов") |
-| 19.7 | Share a milestone screen with several unlocks (1.7.2) | The card names **every** unlocked variation, comma-separated, not only the first row |
+| 19.7 | Share a milestone screen with several unlocks (1.8.0) | The card names **every** unlocked variation, comma-separated, not only the first row |
 | 19.8 | The same in Russian, with the longest names, on a calibration workout | The headline steps down in size; the date and `dredfit.com` stay on the card |
 | 19.9 | Inspect the ground | Flat ink, exactly as before — the app owns no gradients and the card must not either |
 | 19.10 | Share from Progress with a few workouts behind you | A plain accent line runs across the bottom: no fill under it, no shading |
@@ -378,7 +378,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 26.4 | Badge across languages | «новая вариация» / "nueva variación" / "nova variação" — no clipping next to long exercise names |
 | 26.5 | Badge on the longest name (pt-BR "Flexão em parada de mão de frente para a parede") | The pill trails the name inline and wraps with it as a unit; the name wraps — **no ellipsis**; the load stays on the first line |
 | 26.6 | Progress fits one screen | No chips row; header stats + chart + all 9 rows (10 with the bar branch) visible together on a 6.1" screen at default type, spaced apart rather than stacked flush |
-| 26.6a | Pattern names in every language (1.7.2) | Each name holds one line — the widest are "Горизонтальный жим" and "Empurrão horizontal"; a wrapped name would cost the row its air |
+| 26.6a | Pattern names in every language (1.8.0) | Each name holds one line — the widest are "Горизонтальный жим" and "Empurrão horizontal"; a wrapped name would cost the row its air |
 | 26.7 | Progress row selection | Tap a row → accentSoft tint + chart re-projects + kicker reads "PATTERN — VARIATION"; a second tap on the same row or "Show all" (accentText) resets to the total; VoiceOver reports the selected trait |
 | 26.8 | Selection tint at the edges | The tint reaches ≈8 pt into both gutters with **rounded** corners — no flat-cut edges |
 
@@ -394,7 +394,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 27.6 | All four languages (with §14) | Lines read naturally, informal register in es/pt-BR, no "ё" in RU; nothing clips on the sheet or the milestone at default type |
 | 27.7 | Largest accessibility type | Both surfaces wrap without truncation; the sheet scrolls to keep "Got it" reachable |
 
-### 28. Jubilee retrospective (1.9, issue #26)
+### 28. Jubilee retrospective (1.8.0, issue #26)
 
 | # | Check | Expected |
 |---|---|---|
@@ -406,7 +406,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 28.6 | Non-anniversary milestone share | Card unchanged — no retrospective lines |
 | 28.7 | All four languages | "Тогда/Сейчас", "Antes/Ahora", "Antes/Agora"; week/month plurals correct (RU: неделя/недели/недель) |
 
-### 29. Short workout (1.9, issue #27)
+### 29. Short workout (1.8.0, issue #27)
 
 | # | Check | Expected |
 |---|---|---|
@@ -422,7 +422,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 29.10 | Eight short workouts in a row | Every movement appears at least once across them (the anchor guarantees it) |
 | 29.11 | All four languages | The button fits on one line at default type; es/pt do not clip |
 
-### 30. Cool-down (1.9, issue #28)
+### 30. Cool-down (1.8.0, issue #28)
 
 | # | Check | Expected |
 |---|---|---|
@@ -486,5 +486,7 @@ Log every failure found while running this plan. Keep entries until they ship fi
 | I-4 | 2026-07-18 | Calendar | Rest days rendered identically to out-of-month days (dimmed number, no shape, no legend entry) | low | **fixed in 1.4.0** — soft fill plus a legend entry (§6.5) |
 | I-5 | 2026-07-18 | UI tests / CI | 6 of 16 UI tests fail on GitHub runners with `No matches found for … "Skip rest" IN identifiers`, while the same suite passes 16/16 locally. Timing flakiness under runner load, not a product defect — the rest phase advances before the tap lands. Survives the workflow's 3 retries | medium | open — UI tests no longer gate releases; fix before relying on the nightly |
 | I-6 | 2026-07-24 | Workout flow | `testMilestoneScreenListsEverythingEarned` intermittently hangs mid-workout: the app stops responding (neither **Done** nor **Start hold** is present, the rating never arrives) and XCTest kills it — "Test crashed with signal term". Failed twice on a busy machine at `99704ef` and on the 1.7.1 branch, passed on a quiet one, and did not reproduce at `dc67b20` — the commit before the audible countdown. Suspect: audio playback on the main actor stalling under simulator load | medium | open — watch the nightly; if it recurs, sample the app while it is stuck rather than re-running |
+| I-7 | 2026-07-30 | How it works | The subtitle still read "Seven things worth knowing about the regulator." after the "Weekly rhythm" section made it eight — caught by the 1.8.0 store-frame recapture of s8 | low | **fixed in the 1.8.0 wave** — key renamed to "Eight things…", all four languages updated |
+| I-8 | 2026-07-30 | Widget tests | `WidgetTimelineTests` word assertions compared SwiftUI `Text` values — equality of two Texts with identical words is nondeterministic (localized-storage identity, not content): green bare, 12 failures under `-testPlan` + `-test-iterations`, then pass-pass-fail across three identical bare runs | medium | **fixed in the 1.8.0 wave** — `headline`/`subline`/`nextPlanText` return resolved `String(localized:)`, tests compare strings; full plan then green 281/0 |
 
 **Severity.** *high* — data loss, crash, or a broken core flow · *medium* — a feature misbehaves but there is a way around it · *low* — cosmetic or a rare edge case.

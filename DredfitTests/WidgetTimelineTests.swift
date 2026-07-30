@@ -142,9 +142,9 @@ final class WidgetTimelineTests: XCTestCase {
     func testRestDayWordsUseTheEntrysOwnLabel() {
         let view = TodayStatusView(entry: entry(.rest, nextLabel: "tomorrow",
                                                 planSession: 12))
-        XCTAssertEqual(view.headline, Text("Rest day"))
-        XCTAssertEqual(view.subline, Text("Next workout \("tomorrow")"))
-        XCTAssertEqual(view.nextPlanText, Text("Next: Workout \(12) · \("tomorrow")"))
+        XCTAssertEqual(view.headline, String(localized: "Rest day"))
+        XCTAssertEqual(view.subline, String(localized: "Next workout \("tomorrow")"))
+        XCTAssertEqual(view.nextPlanText, String(localized: "Next: Workout \(12) · \("tomorrow")"))
     }
 
     func testWorkoutDayWordsCarryThePlanNotALabel() {
@@ -152,16 +152,16 @@ final class WidgetTimelineTests: XCTestCase {
         let view = TodayStatusView(entry: entry(.workout, nextLabel: nil,
                                                 planSession: 12, planMinutes: 34,
                                                 plan: rows))
-        XCTAssertEqual(view.subline, Text("≈ \(34) min · \(1) exercises"))
+        XCTAssertEqual(view.subline, String(localized: "≈ \(34) min · \(1) exercises"))
         XCTAssertNil(view.nextPlanText, "a planned day IS the workout — no next label")
     }
 
     func testDoneAndEmptyWords() {
         XCTAssertEqual(TodayStatusView(entry: entry(.done, nextLabel: "tomorrow")).headline,
-                       Text("Done ✓"))
+                       String(localized: "Done ✓"))
         XCTAssertEqual(TodayStatusView(entry: entry(.done, nextLabel: "tomorrow")).subline,
-                       Text("Next workout \("tomorrow")"))
-        XCTAssertEqual(TodayStatusView(entry: .empty).subline, Text("Dredfit"),
+                       String(localized: "Next workout \("tomorrow")"))
+        XCTAssertEqual(TodayStatusView(entry: .empty).subline, String(localized: "Dredfit"),
                        "no snapshot yet — the widget signs itself, it does not guess")
     }
 }
