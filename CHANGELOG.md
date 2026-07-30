@@ -2,6 +2,40 @@
 
 ## Unreleased
 
+### Localization audit: ru / es-419 / pt-BR pass over all four catalogs
+
+- Russian athlete-facing strings no longer assume a male user: the three
+  feedback buttons («Готово», «Легко, могу больше», «Тяжело, получилось
+  меньше»), the stop line and the onboarding copy now use gender-free
+  forms — the previous masculine past tense read as a male self-description
+  under a female user's finger.
+- es-419 is now actually Latin American: Apple-lexicon UI terms (Agregar,
+  Respaldo, Configuración, Restablecer, Calificar), gym terms (pantorrilla,
+  parada de manos, flexión pike, enfriamiento) and «Omitir» for the whole
+  skip family; peninsular forms (hacia delante, todo el rato, gemelos,
+  tumbado, sustituir) are gone. Status labels with a substituted exercise
+  name switched to invariable phrasings («%@, quedó fuera») because the
+  old participles broke on feminine names.
+- pt-BR: the same invariable status fix («Prancha, ficou de fora» instead
+  of the ungrammatical «Prancha, pulado»), «alguns passos» instead of the
+  «um par de passos» calque, Deload kept in English, the barra fixa family
+  completed (negativa/parcial), suspensão instead of the noun «pendurada».
+- Counts decline correctly now: the exercises number in "≈ %lld min ·
+  %lld exercises" got plural forms via a substitution bound to the second
+  argument (all four languages, app and widget catalogs), the rest
+  countdown got its missing English singular, and the big-number caption
+  agrees with the number above it («1 повтор / 3 повтора / 12 повторов»)
+  instead of a frozen genitive.
+- The "on %@" weekday phrase moved into code: Russian accusative
+  («в среду», «во вторник») replaces the old prefix heuristic that
+  produced «в среда», and pt-BR now picks no/na by weekday gender.
+- Four English source cues were reworded where the source itself was
+  flawed (hollow shape, active hang, the Y-T-W rep definition, the
+  2-second hold ambiguity) — catalog keys and Library.swift renamed
+  together, translations already matched the intended reading.
+- The ru Health privacy description no longer promises more than the
+  English source ("nothing else is shared", not "shared nowhere").
+
 ### Engine v2.4: silent level decay for 7–13 day gaps (issue #37)
 
 - The comeback only starts at 14 days, leaving the 7–13 day zone blind —

@@ -573,10 +573,11 @@ struct WorkoutFlowView: View {
         // During the switch pause the big number is the pause countdown,
         // not the load — "seconds per side" under a 5 would misread.
         if holdSwitchPausing { return String(localized: "sec") }
+        // The caption must agree with the number above it (ru: 1 повтор / 3 повтора / 12 повторов).
         let base: String
         switch exercise.unit {
-        case .reps: base = String(localized: "reps")
-        case .hold: base = String(localized: "seconds")
+        case .reps: base = String(localized: "\(workNumber) reps")
+        case .hold: base = String(localized: "\(workNumber) seconds")
         }
         return exercise.perSide ? String(localized: "\(base) per side") : base
     }

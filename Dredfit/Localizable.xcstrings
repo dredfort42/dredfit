@@ -24,7 +24,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : " /стор."
+            "value" : " на стор."
           }
         }
       }
@@ -68,7 +68,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rodilla trasera recta; acércate a la pared hasta sentir el estiramiento en el gemelo."
+            "value" : "Rodilla trasera recta; acércate a la pared hasta sentir el estiramiento en la pantorrilla."
           }
         },
         "pt-BR" : {
@@ -208,13 +208,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pies al ancho de cadera; inclínate desde la cadera con las rodillas suaves."
+            "value" : "Pies al ancho de cadera; inclínate desde la cadera con las rodillas ligeramente flexionadas."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pés na largura do quadril; dobre a partir do quadril, joelhos levemente flexionados."
+            "value" : "Pés na largura do quadril; dobre o tronco a partir do quadril, joelhos levemente flexionados."
           }
         },
         "ru" : {
@@ -320,7 +320,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bascula la pelvis y llévala un poco hacia delante hasta sentir el estiramiento delante de la cadera."
+            "value" : "Bascula la pelvis y llévala un poco hacia adelante hasta sentir el estiramiento delante de la cadera."
           }
         },
         "pt-BR" : {
@@ -432,13 +432,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cabeza entre los brazos; respira tranquilo."
+            "value" : "Cabeza entre los brazos; respira con calma."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cabeça entre os braços; respire tranquilo."
+            "value" : "Cabeça entre os braços; respire com calma."
           }
         },
         "ru" : {
@@ -516,7 +516,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Deja que el peso las hunda solo: no empujes las rodillas."
+            "value" : "Deja que las rodillas bajen por su propio peso: no las empujes."
           }
         },
         "pt-BR" : {
@@ -544,13 +544,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rodillas en el suelo, siéntate hacia los talones."
+            "value" : "Rodillas en el suelo, siéntate sobre los talones."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Joelhos no chão, sente sobre os calcanhares."
+            "value" : "Joelhos no chão, sente-se sobre os calcanhares."
           }
         },
         "ru" : {
@@ -572,7 +572,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Inclínate hacia delante, brazos estirados y frente al suelo."
+            "value" : "Inclínate hacia adelante, brazos estirados y la frente en el suelo."
           }
         },
         "pt-BR" : {
@@ -628,13 +628,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Siéntate erguido; apoya un tobillo sobre la rodilla contraria."
+            "value" : "Siéntate con la espalda recta; apoya un tobillo sobre la rodilla contraria."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sente-se ereto; apoie um tornozelo sobre o joelho oposto."
+            "value" : "Sente-se com as costas retas; apoie um tornozelo sobre o joelho oposto."
           }
         },
         "ru" : {
@@ -656,7 +656,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Inclínate hacia delante desde la cadera con la espalda recta hasta sentir el glúteo."
+            "value" : "Inclínate hacia adelante desde la cadera con la espalda recta hasta sentir el glúteo."
           }
         },
         "pt-BR" : {
@@ -740,19 +740,19 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Luego gira la palma hacia arriba y repite el tirón suave."
+            "value" : "Luego gira la palma hacia arriba y repite el estiramiento suave."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Depois vire a palma para cima e repita a puxada leve."
+            "value" : "Depois vire a palma para cima e repita, puxando de leve."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Затем разверни ладонь вверх и повтори мягкую тягу."
+            "value" : "Затем разверни ладонь вверх и так же мягко потяни пальцы."
           }
         }
       }
@@ -796,7 +796,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "vuelta a la calma · %lld s"
+            "value" : "enfriamiento · %lld s"
           }
         },
         "pt-BR" : {
@@ -824,7 +824,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "vuelta a la calma · %lld s por lado"
+            "value" : "enfriamiento · %lld s por lado"
           }
         },
         "pt-BR" : {
@@ -880,7 +880,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dibuja círculos grandes y lentos hacia delante con los brazos rectos."
+            "value" : "Dibuja círculos grandes y lentos hacia adelante con los brazos rectos."
           }
         },
         "pt-BR" : {
@@ -964,7 +964,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Inhala, arquea suave y mira un poco hacia arriba: una ola lenta por respiración."
+            "value" : "Inhala, arquea suave y mira un poco hacia arriba: una onda lenta por respiración."
           }
         },
         "pt-BR" : {
@@ -1076,7 +1076,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rodillas suaves; cambia de dirección a mitad de tiempo."
+            "value" : "Rodillas ligeramente flexionadas; cambia de dirección a mitad de tiempo."
           }
         },
         "pt-BR" : {
@@ -1210,7 +1210,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "«Terminar ahora» conserva lo que has hecho y pasa a la valoración; los ejercicios restantes se marcan como saltados."
+            "value" : "«Terminar ahora» conserva lo que hiciste y pasa a la evaluación; los ejercicios restantes se marcan como omitidos."
           }
         },
         "pt-BR" : {
@@ -1222,7 +1222,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "«Закончить сейчас» сохранит сделанное и откроет оценку — оставшиеся упражнения будут отмечены как пропущенные."
+            "value" : "«Завершить сейчас» сохранит сделанное и откроет оценку — оставшиеся упражнения будут отмечены как пропущенные."
           }
         }
       }
@@ -1255,7 +1255,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "«Según el plan» suma un paso, «más» suma dos y «menos» resta uno. Un número exacto en un ejercicio pesa más que la valoración general. Desde cero, un número exacto fija el nivel de inmediato: el primer entrenamiento calibra el sistema. A partir de ahí el nivel sube como mucho dos pasos por entrenamiento."
+            "value" : "«Según el plan» suma un paso, «más» suma dos y «menos» resta uno. Un número exacto en un ejercicio pesa más que la evaluación general. Desde cero, un número exacto fija el nivel de inmediato: el primer entrenamiento calibra el sistema. A partir de ahí el nivel sube como máximo dos pasos por entrenamiento."
           }
         },
         "pt-BR" : {
@@ -1267,7 +1267,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "«По плану» — плюс ступень, «больше» — две, «меньше» — минус одна. Точный факт по упражнению сильнее общей оценки. С нулевой отметки точный факт ставит уровень сразу — первая тренировка калибрует систему. Дальше уровень поднимается не больше чем на две ступени за тренировку."
+            "value" : "«По плану» — плюс ступень, «больше» — две, «меньше» — минус одна. Точное число по упражнению сильнее общей оценки. С нуля точное число ставит уровень сразу — первая тренировка калибрует систему. Дальше уровень поднимается не больше чем на две ступени за тренировку."
           }
         }
       }
@@ -1361,7 +1361,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ por lado"
+            "value" : "%@ de cada lado"
           }
         },
         "ru" : {
@@ -1389,7 +1389,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@, não concluído"
+            "value" : "%@, ficou pela metade"
           }
         },
         "ru" : {
@@ -1411,13 +1411,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@, saltado"
+            "value" : "%@, quedó fuera"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@, pulado"
+            "value" : "%@, ficou de fora"
           }
         },
         "ru" : {
@@ -1548,7 +1548,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld выполнено"
+            "value" : "Выполнено: %lld"
           }
         }
       }
@@ -1729,6 +1729,90 @@
         }
       }
     },
+    "%lld reps" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@unit@"
+          },
+          "substitutions" : {
+            "unit" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "rep"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "reps"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "reps"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "reps"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@unit@"
+          },
+          "substitutions" : {
+            "unit" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "повтор"
+                    }
+                  },
+                  "few" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "повтора"
+                    }
+                  },
+                  "many" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "повторов"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "повтора"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld s" : {
       "localizations" : {
         "es" : {
@@ -1751,8 +1835,154 @@
         }
       }
     },
+    "%lld seconds" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@unit@"
+          },
+          "substitutions" : {
+            "unit" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "second"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "seconds"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@unit@"
+          },
+          "substitutions" : {
+            "unit" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "segundo"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "segundos"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@unit@"
+          },
+          "substitutions" : {
+            "unit" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "segundo"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "segundos"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@unit@"
+          },
+          "substitutions" : {
+            "unit" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "секунда"
+                    }
+                  },
+                  "few" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "секунды"
+                    }
+                  },
+                  "many" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "секунд"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "секунды"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld seconds of rest left" : {
       "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld second of rest left"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld seconds of rest left"
+                }
+              }
+            }
+          }
+        },
         "es" : {
           "variations" : {
             "plural" : {
@@ -1999,13 +2229,13 @@
               "one" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld entrenamiento a tus espaldas"
+                  "value" : "Ya llevas %lld entrenamiento"
                 }
               },
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld entrenamientos a tus espaldas"
+                  "value" : "Ya llevas %lld entrenamientos"
                 }
               }
             }
@@ -2085,22 +2315,128 @@
     },
     "≈ %lld min · %lld exercises" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ %lld min · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg exercise"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg exercises"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "≈ %lld min · %lld ejercicios"
+            "value" : "≈ %lld min · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg ejercicio"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg ejercicios"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "≈ %lld min · %lld exercícios"
+            "value" : "≈ %lld min · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg exercício"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg exercícios"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "≈ %lld мин · %lld упражнений"
+            "value" : "≈ %lld мин · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg упражнение"
+                    }
+                  },
+                  "few" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg упражнения"
+                    }
+                  },
+                  "many" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg упражнений"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg упражнения"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -2216,7 +2552,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uma pausa é normal. Vamos começar um par de passos abaixo: assim é mais fácil voltar ao ritmo, e os níveis se recuperam rápido."
+            "value" : "Uma pausa é normal. Vamos começar alguns passos abaixo: assim é mais fácil voltar ao ritmo, e os níveis se recuperam rápido."
           }
         },
         "ru" : {
@@ -2232,7 +2568,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Un cuestionario puede equivocarse; lo que hiciste de verdad, no. Dredfit encuentra tu nivel a partir de entrenamientos reales y mantiene la carga justo en el límite de lo que puedes."
+            "value" : "Un cuestionario puede equivocarse; lo que hiciste de verdad, no. Dredfit encuentra tu nivel a partir de entrenamientos reales y mantiene la carga justo en el límite de lo que puedes manejar."
           }
         },
         "pt-BR" : {
@@ -2244,7 +2580,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Анкета ошибается, факт — нет. Система выходит на твой уровень по реальным тренировкам и держит нагрузку на границе посильного."
+            "value" : "Анкета может ошибаться, факт — нет. Dredfit выходит на твой уровень по реальным тренировкам и держит нагрузку на границе посильного."
           }
         }
       }
@@ -2254,7 +2590,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Un ejercicio saltado simplemente no cuenta: su nivel se queda donde estaba. Ni castigo ni retroceso."
+            "value" : "Un ejercicio omitido simplemente no cuenta: su nivel se queda donde estaba. Ni castigo ni retroceso."
           }
         },
         "pt-BR" : {
@@ -2343,13 +2679,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "¿Añadir a Salud los entrenamientos anteriores?"
+            "value" : "¿Agregar los entrenamientos anteriores a Salud?"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Adicionar ao Saúde os treinos anteriores?"
+            "value" : "Adicionar os treinos anteriores ao app Saúde?"
           }
         },
         "ru" : {
@@ -2416,7 +2752,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Depois de duas semanas de pausa o plano te espera um par de passos abaixo — quanto mais longa a pausa, mais abaixo. Nada se perde: os níveis voltam a subir rápido, e voltar é a única coisa que importa."
+            "value" : "Depois de duas semanas de pausa o plano te espera alguns passos abaixo — quanto mais longa a pausa, mais abaixo. Nada se perde: os níveis voltam a subir rápido, e voltar é a única coisa que importa."
           }
         },
         "ru" : {
@@ -2455,7 +2791,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cuenta para %lld de %lld — %@ quedó a medias y no cambia"
+            "value" : "Cuenta para %lld de %lld — %@ quedó sin terminar y no cambia"
           }
         },
         "pt-BR" : {
@@ -2467,7 +2803,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Оценка для %lld из %lld — %@: не закончено, уровень на месте"
+            "value" : "Оценка для %lld из %lld — %@: не завершено, уровень на месте"
           }
         }
       }
@@ -2499,7 +2835,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cuenta para %lld de %lld — los saltados se quedan igual"
+            "value" : "Cuenta para %lld de %lld — los ejercicios omitidos no cambian"
           }
         },
         "pt-BR" : {
@@ -2534,7 +2870,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Круги руками"
+            "value" : "Вращения руками"
           }
         }
       }
@@ -2544,7 +2880,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Copia de seguridad"
+            "value" : "Respaldo"
           }
         },
         "pt-BR" : {
@@ -2772,7 +3108,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "VUELTA A LA CALMA"
+            "value" : "ENFRIAMIENTO"
           }
         },
         "pt-BR" : {
@@ -2800,7 +3136,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gemelos en la pared"
+            "value" : "Pantorrilla en la pared"
           }
         },
         "pt-BR" : {
@@ -2856,7 +3192,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Flexión hacia delante"
+            "value" : "Flexión hacia adelante"
           }
         },
         "pt-BR" : {
@@ -2868,7 +3204,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Наклон к прямым ногам"
+            "value" : "Наклон вперед стоя"
           }
         }
       }
@@ -2940,13 +3276,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Torsión tumbado"
+            "value" : "Torsión en el suelo"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Torção deitado"
+            "value" : "Torção deitada"
           }
         },
         "ru" : {
@@ -3052,7 +3388,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saltar la vuelta a la calma"
+            "value" : "Omitir enfriamiento"
           }
         },
         "pt-BR" : {
@@ -3154,7 +3490,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Descarga"
+            "value" : "Deload"
           }
         },
         "ru" : {
@@ -3226,7 +3562,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Сделал"
+            "value" : "Готово"
           }
         }
       }
@@ -3271,7 +3607,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Легко, мог больше"
+            "value" : "Легко, могу больше"
           }
         }
       }
@@ -3463,7 +3799,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saltados"
+            "value" : "Omitidos"
           }
         },
         "pt-BR" : {
@@ -3519,7 +3855,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Закончить сейчас"
+            "value" : "Завершить сейчас"
           }
         }
       }
@@ -3631,7 +3967,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Круги тазом"
+            "value" : "Вращения тазом"
           }
         }
       }
@@ -3730,7 +4066,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "La importación sustituye tu historial y tus ajustes actuales."
+            "value" : "La importación reemplaza tu historial y tu configuración actuales."
           }
         },
         "pt-BR" : {
@@ -3787,7 +4123,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "В прошлый раз ты выбрал: %@"
+            "value" : "Твой прошлый выбор: %@"
           }
         }
       }
@@ -3906,7 +4242,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Уровни вернутся к началу. Журнал тренировок сохранится."
+            "value" : "Уровни вернутся к началу. История сохранится."
           }
         }
       }
@@ -3950,7 +4286,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Una zona lumbar que aguanta horas sentado, inclinarte y cargar una mochila pesada."
+            "value" : "Una zona lumbar que aguanta horas de estar sentado, agacharte y cargar una mochila pesada."
           }
         },
         "pt-BR" : {
@@ -4230,7 +4566,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sostener y levantar el peso de tu propio cuerpo — la medida más honesta de la fuerza."
+            "value" : "Sostener y traccionar el peso de tu propio cuerpo — la medida más honesta de la fuerza."
           }
         },
         "pt-BR" : {
@@ -4664,7 +5000,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Никаких вопросов про цель, уровень и свободное время. Открыл — и тренируешься: первая тренировка уже готова. Около 33 минут, без инвентаря."
+            "value" : "Никаких вопросов про цель, уровень и свободное время. Открывай и тренируйся: первая тренировка уже готова. Около 33 минут, без инвентаря."
           }
         }
       }
@@ -4836,18 +5172,6 @@
             "state" : "translated",
             "value" : "el %@"
           }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "в %@"
-          }
         }
       }
     },
@@ -4878,19 +5202,19 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Un número por movimiento: codifica a la vez la variación y las repeticiones. Llega al tope de repeticiones y la variación se vuelve más difícil mientras la cuenta empieza de nuevo; en las variaciones difíciles la cuenta arranca más abajo, así el cambio cae suave. La cuarta variación es la última: por encima de ella crecen las series, de tres a cinco."
+            "value" : "Un número por movimiento: codifica a la vez la variación y las repeticiones. Llega al tope de repeticiones y la variación se vuelve más difícil mientras la cuenta empieza de nuevo; en las variaciones más difíciles la cuenta arranca más abajo, así la transición se siente suave. La cuarta variación es la última: por encima de ella crecen las series, de tres a cinco."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Um número por movimento: ele codifica ao mesmo tempo a variação e as repetições. Chegue ao teto de repetições e a variação fica mais difícil enquanto a contagem recomeça; nas variações difíceis a contagem começa mais baixo, então a mudança cai suave. A quarta variação é a última: acima dela crescem as séries, de três para cinco."
+            "value" : "Um número por movimento: ele codifica ao mesmo tempo a variação e as repetições. Chegue ao teto de repetições e a variação fica mais difícil enquanto a contagem recomeça; nas variações mais difíceis a contagem começa mais baixo, então a transição fica suave. A quarta variação é a última: acima dela crescem as séries, de três para cinco."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "На каждое движение — одно число: оно кодирует вариацию и повторы. Дошел до потолка повторов — вариация становится сложнее, а счет начинается заново, причем на сложных вариациях счет стартует ниже, поэтому переход ощущается плавно. Четвертая вариация последняя: выше нее растут подходы, с трех до пяти."
+            "value" : "На каждое движение — одно число: оно кодирует и вариацию, и повторы. Дойдешь до потолка повторов — вариация станет сложнее, а счет начнется заново; на сложных вариациях счет стартует ниже, поэтому переход проходит плавно. Четвертая вариация — последняя: выше нее растут подходы, с трех до пяти."
           }
         }
       }
@@ -5003,7 +5327,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "План, затем твой факт, затем следующий план"
+            "value" : "План, затем твой результат, затем следующий план"
           }
         }
       }
@@ -5153,7 +5477,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "La tracción está en todos los entrenamientos: es lo que mantiene los hombros equilibrados. Los demás van rotando: en ocho entrenamientos cada uno aparece cinco veces. Con la barra activada, la tracción alterna entre horizontal y vertical."
+            "value" : "La tracción está en todos los entrenamientos: es lo que mantiene los hombros equilibrados. Los demás van rotando: en ocho entrenamientos cada uno aparece cinco veces. Con la barra de dominadas activada, la tracción alterna entre horizontal y vertical."
           }
         },
         "pt-BR" : {
@@ -5165,7 +5489,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Тяга есть в каждой тренировке — это баланс для плеч. Остальные движения идут по кругу: за восемь тренировок каждое встретится пять раз. Если включен турник, тяга чередуется: горизонтальная, вертикальная, снова горизонтальная."
+            "value" : "Тяга есть в каждой тренировке — это баланс для плеч. Остальные движения идут по кругу: за восемь тренировок каждое встретится пять раз. Если включен турник, тяга чередуется: то горизонтальная, то вертикальная."
           }
         }
       }
@@ -5197,7 +5521,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Valorar en el App Store"
+            "value" : "Calificar en el App Store"
           }
         },
         "pt-BR" : {
@@ -5351,7 +5675,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sustituir"
+            "value" : "Reemplazar"
           }
         },
         "pt-BR" : {
@@ -5373,7 +5697,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "¿Sustituir el historial?"
+            "value" : "¿Reemplazar el historial?"
           }
         },
         "pt-BR" : {
@@ -5390,34 +5714,12 @@
         }
       }
     },
-    "reps" : {
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "reps"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "reps"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "повторов"
-          }
-        }
-      }
-    },
     "Reset levels" : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Reiniciar los niveles"
+            "value" : "Restablecer niveles"
           }
         },
         "pt-BR" : {
@@ -5583,13 +5885,13 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Salvar os treinos no Saúde"
+            "value" : "Salvar treinos no app Saúde"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Записывать в «Здоровье»"
+            "value" : "Записывать тренировки в «Здоровье»"
           }
         }
       }
@@ -5638,28 +5940,6 @@
         }
       }
     },
-    "seconds" : {
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "segundos"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "segundos"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "секунд"
-          }
-        }
-      }
-    },
     "set %lld of %lld" : {
       "localizations" : {
         "es" : {
@@ -5687,7 +5967,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ajustes"
+            "value" : "Configuración"
           }
         },
         "pt-BR" : {
@@ -5854,7 +6134,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saltar"
+            "value" : "Omitir"
           }
         },
         "pt-BR" : {
@@ -5876,7 +6156,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saltar el ejercicio"
+            "value" : "Omitir ejercicio"
           }
         },
         "pt-BR" : {
@@ -5898,7 +6178,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saltar el descanso"
+            "value" : "Omitir descanso"
           }
         },
         "pt-BR" : {
@@ -5920,7 +6200,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saltar este movimiento"
+            "value" : "Omitir este movimiento"
           }
         },
         "pt-BR" : {
@@ -5942,7 +6222,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saltar el calentamiento"
+            "value" : "Omitir calentamiento"
           }
         },
         "pt-BR" : {
@@ -5964,7 +6244,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "saltado"
+            "value" : "omitido"
           }
         },
         "pt-BR" : {
@@ -5986,13 +6266,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saltarse ejercicios"
+            "value" : "Ejercicios omitidos"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pular exercícios"
+            "value" : "Exercícios pulados"
           }
         },
         "ru" : {
@@ -6001,7 +6281,8 @@
             "value" : "Пропуски"
           }
         }
-      }
+      },
+      "comment" : "Stat label: number of skipped exercises."
     },
     "Skips the introduction" : {
       "extractionState" : "manual",
@@ -6009,7 +6290,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Se salta la introducción"
+            "value" : "Omite la introducción"
           }
         },
         "pt-BR" : {
@@ -6075,7 +6356,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Empezar más fácil"
+            "value" : "Empezar más suave"
           }
         },
         "pt-BR" : {
@@ -6087,7 +6368,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Начать легче"
+            "value" : "Начать полегче"
           }
         }
       }
@@ -6147,7 +6428,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Iniciar a isometria"
+            "value" : "Começar a isometria"
           }
         },
         "ru" : {
@@ -6279,7 +6560,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "O gráfico aparece depois de um par de treinos"
+            "value" : "O gráfico aparece depois de alguns treinos"
           }
         },
         "ru" : {
@@ -6382,7 +6663,8 @@
             "value" : "Тогда: %@"
           }
         }
-      }
+      },
+      "comment" : "Past value in a then/now comparison (\"back then\")."
     },
     "This month" : {
       "localizations" : {
@@ -6401,7 +6683,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "За месяц"
+            "value" : "Этот месяц"
           }
         }
       }
@@ -6433,19 +6715,19 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tres veces seguidas por debajo y el nivel retrocede tres pasos. No es un castigo, es un respiro: así vuelves con margen."
+            "value" : "Tres entrenamientos seguidos por debajo del objetivo y el nivel retrocede tres pasos. No es un castigo, es un respiro: así vuelves con margen."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Três vezes seguidas abaixo e o nível volta três passos. Não é punição, é um respiro: você volta com folga."
+            "value" : "Três treinos seguidos abaixo da meta e o nível recua três passos. Não é punição, é um respiro: você volta com folga."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Три недовыполнения подряд — откат на три ступени. Не наказание, а передышка: вернешься с запасом."
+            "value" : "Три раза подряд ниже плана — откат на три ступени. Не наказание, а передышка: вернешься с запасом."
           }
         }
       }
@@ -6470,7 +6752,8 @@
             "value" : "Время"
           }
         }
-      }
+      },
+      "comment" : "Reminder time of day."
     },
     "today" : {
       "localizations" : {
@@ -6566,7 +6849,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rotaciones de torso"
+            "value" : "Rotaciones de tronco"
           }
         },
         "pt-BR" : {
@@ -6600,7 +6883,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "суммарный уровень"
+            "value" : "общий уровень"
           }
         }
       }
@@ -6623,7 +6906,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "суммарный уровень %lld"
+            "value" : "общий уровень %lld"
           }
         }
       }
@@ -6645,7 +6928,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Суммарный уровень после: %lld"
+            "value" : "Общий уровень после: %lld"
           }
         }
       }
@@ -6667,7 +6950,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Тяжело, сделал меньше"
+            "value" : "Тяжело, получилось меньше"
           }
         }
       }
@@ -6677,7 +6960,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Entrenar igualmente"
+            "value" : "Entrenar de todas formas"
           }
         },
         "pt-BR" : {
@@ -6894,7 +7177,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Реакция на ответ"
+            "value" : "Что меняет твой ответ"
           }
         }
       }
@@ -7092,7 +7375,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ты остановился на упражнении %lld из %lld — все сделанное на месте."
+            "value" : "Тренировка остановлена на упражнении %lld из %lld — все сделанное на месте."
           }
         }
       }
