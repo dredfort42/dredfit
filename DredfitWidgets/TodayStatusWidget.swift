@@ -114,11 +114,11 @@ struct TodayStatusView: View {
                 .kerning(0.6)
                 .textCase(.uppercase)
                 .widgetAccentable()
-            headline
+            Text(headline)
                 .font(.system(size: 15, weight: .bold))
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
-            subline
+            Text(subline)
                 .font(.system(size: 12))
                 .lineLimit(1)
         }
@@ -133,10 +133,10 @@ struct TodayStatusView: View {
                 if let n = entry.sessionNumber, let min = entry.planMinutes {
                     Text("Workout \(n)") + Text(verbatim: " · ") + Text("≈ \(min) min")
                 } else {
-                    headline
+                    Text(headline)
                 }
             default:
-                headline
+                Text(headline)
             }
         } icon: {
             Image(systemName: glyph)
@@ -163,7 +163,7 @@ struct TodayStatusView: View {
                     .fill(WidgetTheme.accent)
                     .frame(width: 10, height: 10)
             }
-            headline
+            Text(headline)
                 .font(.system(size: size, weight: .heavy))
                 .foregroundStyle(entry.status == .rest ? WidgetTheme.ink2 : WidgetTheme.ink)
                 .minimumScaleFactor(0.7)
@@ -237,7 +237,7 @@ struct TodayStatusView: View {
     @ViewBuilder
     private var nextPlanLabel: some View {
         if let text = nextPlanText {
-            text
+            Text(text)
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(WidgetTheme.ink2)
                 .lineLimit(1)
@@ -245,11 +245,13 @@ struct TodayStatusView: View {
     }
 
     /// Internal, like headline and subline below: the words are the part of
-    /// the view the unit tests pin, the chrome around them is not.
-    var nextPlanText: Text? {
+    /// the view the unit tests pin, the chrome around them is not. Resolved
+    /// Strings rather than Text: two Texts with identical words do not
+    /// reliably compare equal, and the tests pin words, not SwiftUI storage.
+    var nextPlanText: String? {
         guard entry.status != .workout, let n = entry.planSessionNumber,
               let when = entry.nextLabel else { return nil }
-        return Text("Next: Workout \(n) · \(when)")
+        return String(localized: "Next: Workout \(n) · \(when)")
     }
 
     private var planList: some View {
@@ -298,30 +300,30 @@ struct TodayStatusView: View {
     // Internal rather than private: the unit tests pin these Text choices
     // per status — see WidgetTimelineTests.
 
-    var headline: Text {
+    var headline: String {
         switch entry.status {
         case .workout:
-            if let n = entry.sessionNumber { return Text("Workout \(n)") }
-            return Text("Workout day")
+            if let n = entry.sessionNumber { return String(localized: "Workout \(n)") }
+            return String(localized: "Workout day")
         case .done:
-            return Text("Done ✓")
+            return String(localized: "Done ✓")
         case .rest:
-            return Text("Rest day")
+            return String(localized: "Rest day")
         case .unmarked, nil:
-            return Text("Dredfit")
+            return String(localized: "Dredfit")
         }
     }
 
-    var subline: Text {
+    var subline: String {
         switch entry.status {
         case .workout:
             if let min = entry.planMinutes, !entry.plan.isEmpty {
-                return Text("≈ \(min) min · \(entry.plan.count) exercises")
+                return String(localized: "≈ \(min) min · \(entry.plan.count) exercises")
             }
-            return Text("Dredfit")
+            return String(localized: "Dredfit")
         default:
-            if let when = entry.nextLabel { return Text("Next workout \(when)") }
-            return Text("Dredfit")
+            if let when = entry.nextLabel { return String(localized: "Next workout \(when)") }
+            return String(localized: "Dredfit")
         }
     }
 
