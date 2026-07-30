@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### Widget: every timeline day speaks from its own date
+
+- The "Next workout today / tomorrow" line was computed once when the app
+  wrote the snapshot and copied into all fourteen timeline entries, so a
+  rest-day entry rendered days after the app was last opened could claim
+  "Next workout today". The app now precomputes the label for every day —
+  localization, including the Russian accusative and the pt-BR weekday
+  gender, stays app-side — and each widget entry reads its own word.
+- "This week" on the large family is stamped with the Monday it tallies
+  and no longer shows on next-week entries, where last week's numbers
+  would read as the current week's.
+- The timeline mapping and the widget's word choices are under unit tests
+  now: the widget sources compile into DredfitTests, and the Live Activity
+  contract moved to ActivityShared.swift so app and test types never twin.
+
 ### Localization audit: ru / es-419 / pt-BR pass over all four catalogs
 
 - Russian athlete-facing strings no longer assume a male user: the three

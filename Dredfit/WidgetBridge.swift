@@ -41,7 +41,14 @@ extension AppStore {
             let status = widgetStatus(of: day, today: today)
             let isToday = cal.isDate(day, inSameDayAs: today)
             return .init(date: day, status: status,
-                         sessionNumber: isToday && status == .workout ? next.sessionNumber : nil)
+                         sessionNumber: isToday && status == .workout ? next.sessionNumber : nil,
+                         // Relative to the day the entry renders on, not to
+                         // the day of this write — a rest-day entry shown
+                         // days from now must not say a stale "today".
+                         // Computed here so the widget still never derives
+                         // dates or reaches into the catalogs itself.
+                         nextLabel: day >= today && status != .workout
+                             ? nextTrainingDateLabel(from: day) : nil)
         }
 
         let summary = weekSummary(for: today)
@@ -49,7 +56,7 @@ extension AppStore {
             days: days,
             totalLevel: totalLevel,
             week: .init(workouts: summary.workouts, levelsDelta: summary.levelsDelta),
-            nextDateLabel: nextTrainingDateLabel,
+            weekStart: thisWeek.start,
             planSessionNumber: next.sessionNumber,
             planMinutes: Int(next.estimatedTotalMin.rounded()),
             plan: next.exercises.map { .init(name: $0.name, detail: $0.display) }

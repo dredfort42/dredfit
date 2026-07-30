@@ -2,12 +2,16 @@
 //  WidgetShared.swift
 //  Dredfit (app + DredfitWidgets)
 //
-//  The contract between the app and the widget extension.
+//  The snapshot contract between the app and the widget extension.
 //  The app writes; the widget only reads. No logic lives here.
+//
+//  This file also compiles into DredfitTests (for WidgetTimelineTests);
+//  the Live Activity contract lives in ActivityShared.swift precisely so
+//  it does not — a type twin in the test module is a confusing compile
+//  error waiting for the first test that hands it to app code.
 //
 
 import Foundation
-import ActivityKit
 
 /// The App Group the app and the widget share.
 nonisolated enum SharedStorage {
@@ -38,6 +42,13 @@ nonisolated struct WidgetSnapshot: Codable {
         let date: Date            // start of day
         let status: Status
         let sessionNumber: Int?   // present for today's planned workout
+        /// "today" / "tomorrow" / "on Saturday" — the next training day as
+        /// seen FROM THIS DAY, pre-localized by the app. Per day rather than
+        /// once per snapshot: a relative word baked at write time reads wrong
+        /// on every later entry the widget renders without the app's help.
+        /// nil on planned days (they are the workout) and on past days
+        /// (never rendered as entries).
+        let nextLabel: String?
     }
 
     /// One row of the next session's plan, pre-localized by the app: the
@@ -61,21 +72,11 @@ nonisolated struct WidgetSnapshot: Codable {
     // the whole file and blanking the widget until the app is next opened.
     let totalLevel: Int?
     let week: Week?
-    let nextDateLabel: String?    // "today" / "tomorrow" / "on Saturday"
+    /// The Monday of the week `week` tallies. The widget shows the tally only
+    /// on entries inside this week — a next-week entry would otherwise label
+    /// last week's numbers "This week".
+    let weekStart: Date?
     let planSessionNumber: Int?
     let planMinutes: Int?
     let plan: [PlanRow]?
-}
-
-/// Live Activity contract: the workout is static, the phase is mutable.
-/// All user-facing strings arrive pre-localized from the app.
-nonisolated struct RestActivityAttributes: ActivityAttributes {
-    struct ContentState: Codable, Hashable {
-        var phase: Phase
-        var title: String         // current exercise (work) or the next one (rest)
-        var detail: String        // "set 2 of 3" / "Next up"
-        var restEndDate: Date?    // set during rest — the system ticks the timer
-    }
-    enum Phase: String, Codable, Hashable { case work, rest }
-    var sessionNumber: Int
 }

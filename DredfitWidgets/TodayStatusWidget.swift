@@ -15,83 +15,19 @@
 //    · medium        — plus the week and the total level
 //    · large         — plus the plan itself
 //
+//  The timeline itself (TodayEntry / TodayProvider) lives in
+//  TodayProvider.swift, where the unit tests can reach it.
+//
 
 import WidgetKit
 import SwiftUI
 
-struct TodayEntry: TimelineEntry {
-    let date: Date
-    let status: WidgetSnapshot.Day.Status?
-    let sessionNumber: Int?
-    /// The Monday–Sunday week containing `date`, for the strip.
-    let week: [WidgetSnapshot.Day]
-    let totalLevel: Int?
-    let summary: WidgetSnapshot.Week?
-    let nextDateLabel: String?
-    let planSessionNumber: Int?
-    let planMinutes: Int?
-    let plan: [WidgetSnapshot.PlanRow]
-
-    static let empty = TodayEntry(date: .now, status: nil, sessionNumber: nil, week: [],
-                                  totalLevel: nil, summary: nil, nextDateLabel: nil,
-                                  planSessionNumber: nil, planMinutes: nil, plan: [])
-}
-
-struct TodayProvider: TimelineProvider {
-    func placeholder(in context: Context) -> TodayEntry {
-        TodayEntry(date: .now, status: .workout, sessionNumber: 1, week: [],
-                   totalLevel: nil, summary: nil, nextDateLabel: nil,
-                   planSessionNumber: nil, planMinutes: nil, plan: [])
-    }
-
-    func getSnapshot(in context: Context, completion: @escaping (TodayEntry) -> Void) {
-        completion(entries(from: loadSnapshot()).first ?? .empty)
-    }
-
-    func getTimeline(in context: Context, completion: @escaping (Timeline<TodayEntry>) -> Void) {
-        var list = entries(from: loadSnapshot())
-        if list.isEmpty { list = [.empty] }
-        completion(Timeline(entries: list, policy: .atEnd))
-    }
-
-    private func loadSnapshot() -> WidgetSnapshot? {
-        guard let url = SharedStorage.snapshotURL,
-              let data = try? Data(contentsOf: url) else { return nil }
-        return try? JSONDecoder().decode(WidgetSnapshot.self, from: data)
-    }
-
-    /// One entry per snapshot day, starting today; past days are dropped from
-    /// the timeline but stay in each entry's week strip.
-    private func entries(from snapshot: WidgetSnapshot?) -> [TodayEntry] {
-        guard let snapshot else { return [] }
-        let today = Calendar.current.startOfDay(for: .now)
-        var iso = Calendar(identifier: .iso8601)   // Monday-first, as the app writes it
-        iso.timeZone = Calendar.current.timeZone
-        return snapshot.days
-            .filter { $0.date >= today }
-            .map { day in
-                let week = iso.dateInterval(of: .weekOfYear, for: day.date)
-                return TodayEntry(
-                    date: day.date,
-                    status: day.status,
-                    sessionNumber: day.sessionNumber,
-                    week: snapshot.days.filter { d in
-                        guard let week else { return false }
-                        return d.date >= week.start && d.date < week.end
-                    },
-                    totalLevel: snapshot.totalLevel,
-                    summary: snapshot.week,
-                    nextDateLabel: snapshot.nextDateLabel,
-                    planSessionNumber: snapshot.planSessionNumber,
-                    planMinutes: snapshot.planMinutes,
-                    plan: snapshot.plan ?? []
-                )
-            }
-    }
-}
-
 // MARK: - View
 
+// Explicit @MainActor for the same reason as in TodayProvider.swift: the
+// unit tests compile this file without the widget target's default
+// MainActor isolation.
+@MainActor
 struct TodayStatusView: View {
     @Environment(\.widgetFamily) private var family
     let entry: TodayEntry
@@ -300,12 +236,20 @@ struct TodayStatusView: View {
     /// session — say so, rather than letting it read as today's.
     @ViewBuilder
     private var nextPlanLabel: some View {
-        if entry.status != .workout, let n = entry.planSessionNumber, let when = entry.nextDateLabel {
-            Text("Next: Workout \(n) · \(when)")
+        if let text = nextPlanText {
+            text
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(WidgetTheme.ink2)
                 .lineLimit(1)
         }
+    }
+
+    /// Internal, like headline and subline below: the words are the part of
+    /// the view the unit tests pin, the chrome around them is not.
+    var nextPlanText: Text? {
+        guard entry.status != .workout, let n = entry.planSessionNumber,
+              let when = entry.nextLabel else { return nil }
+        return Text("Next: Workout \(n) · \(when)")
     }
 
     private var planList: some View {
@@ -350,8 +294,11 @@ struct TodayStatusView: View {
     }
 
     // MARK: Words and glyphs
+    //
+    // Internal rather than private: the unit tests pin these Text choices
+    // per status — see WidgetTimelineTests.
 
-    private var headline: Text {
+    var headline: Text {
         switch entry.status {
         case .workout:
             if let n = entry.sessionNumber { return Text("Workout \(n)") }
@@ -365,7 +312,7 @@ struct TodayStatusView: View {
         }
     }
 
-    private var subline: Text {
+    var subline: Text {
         switch entry.status {
         case .workout:
             if let min = entry.planMinutes, !entry.plan.isEmpty {
@@ -373,7 +320,7 @@ struct TodayStatusView: View {
             }
             return Text("Dredfit")
         default:
-            if let when = entry.nextDateLabel { return Text("Next workout \(when)") }
+            if let when = entry.nextLabel { return Text("Next workout \(when)") }
             return Text("Dredfit")
         }
     }
@@ -392,6 +339,7 @@ struct TodayStatusView: View {
     }
 }
 
+@MainActor
 struct TodayStatusWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "DredfitToday", provider: TodayProvider()) { entry in

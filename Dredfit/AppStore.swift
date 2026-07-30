@@ -525,30 +525,40 @@ final class AppStore {
     }
 
     /// "today" / "tomorrow" / "on Saturday" (Russian uses inflected weekday prepositions).
-    var nextTrainingDateLabel: String {
+    var nextTrainingDateLabel: String { nextTrainingDateLabel(from: today) }
+
+    /// The same label as seen from an arbitrary day. The widget snapshot
+    /// carries one per day: a timeline entry rendered days after the write
+    /// must still say the right relative word.
+    func nextTrainingDateLabel(from day: Date) -> String {
         let cal = Calendar.current
-        let d = nextTrainingDate
-        if cal.isDateInToday(d) { return String(localized: "today") }
-        if cal.isDateInTomorrow(d) { return String(localized: "tomorrow") }
+        let d = nextTrainingDate(from: day)
+        if cal.isDate(d, inSameDayAs: day) { return String(localized: "today") }
+        if let tomorrow = cal.date(byAdding: .day, value: 1, to: day),
+           cal.isDate(d, inSameDayAs: tomorrow) { return String(localized: "tomorrow") }
         let weekday = d.formatted(.dateTime.weekday(.wide))
         let index = cal.component(.weekday, from: d)   // 1 = Sunday … 7 = Saturday
         switch Locale.current.language.languageCode {
         case .russian:
-            // The formatter only gives the nominative; "on Wednesday" needs the accusative.
-            switch index {
-            case 1: return "в воскресенье"
-            case 2: return "в понедельник"
-            case 3: return "во вторник"
-            case 4: return "в среду"
-            case 5: return "в четверг"
-            case 6: return "в пятницу"
-            default: return "в субботу"
-            }
+            return russianOnWeekday(index)
         case .portuguese:
             // Weekday gender: o sábado / o domingo, a segunda…sexta-feira.
             return (index == 1 || index == 7 ? "no " : "na ") + weekday
         default:
             return String(localized: "on \(weekday)")
+        }
+    }
+
+    /// The formatter only gives the nominative; "on Wednesday" needs the accusative.
+    private func russianOnWeekday(_ index: Int) -> String {
+        switch index {
+        case 1: return "в воскресенье"
+        case 2: return "в понедельник"
+        case 3: return "во вторник"
+        case 4: return "в среду"
+        case 5: return "в четверг"
+        case 6: return "в пятницу"
+        default: return "в субботу"
         }
     }
 
