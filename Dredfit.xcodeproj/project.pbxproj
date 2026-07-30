@@ -66,6 +66,22 @@
 			);
 			target = AF7B100000000000000000B1 /* DredfitWidgets */;
 		};
+		AF7B100000000000000000C1 /* Exceptions for "DredfitWidgets" folder in "DredfitTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				TodayProvider.swift,
+				TodayStatusWidget.swift,
+				WidgetTheme.swift,
+			);
+			target = AF2F7BB13008FD9300249B07 /* DredfitTests */;
+		};
+		AF7B100000000000000000C2 /* Exceptions for "Shared" folder in "DredfitTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				WidgetShared.swift,
+			);
+			target = AF2F7BB13008FD9300249B07 /* DredfitTests */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -88,12 +104,16 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				AF7B100000000000000000BF /* Exceptions for "DredfitWidgets" folder in "DredfitWidgets" target */,
+				AF7B100000000000000000C1 /* Exceptions for "DredfitWidgets" folder in "DredfitTests" target */,
 			);
 			path = DredfitWidgets;
 			sourceTree = "<group>";
 		};
 		AF7B100000000000000000B7 /* Shared */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AF7B100000000000000000C2 /* Exceptions for "Shared" folder in "DredfitTests" target */,
+			);
 			path = Shared;
 			sourceTree = "<group>";
 		};
