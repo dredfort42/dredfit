@@ -6012,24 +6012,24 @@
         }
       }
     },
-    "Seven things worth knowing about the regulator." : {
+    "Eight things worth knowing about the regulator." : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Siete cosas que conviene saber sobre el regulador."
+            "value" : "Ocho cosas que conviene saber sobre el regulador."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sete coisas que vale saber sobre o regulador."
+            "value" : "Oito coisas que vale saber sobre o regulador."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Семь фактов о регуляторе."
+            "value" : "Восемь фактов о регуляторе."
           }
         }
       }
