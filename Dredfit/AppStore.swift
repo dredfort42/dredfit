@@ -531,12 +531,25 @@ final class AppStore {
         if cal.isDateInToday(d) { return String(localized: "today") }
         if cal.isDateInTomorrow(d) { return String(localized: "tomorrow") }
         let weekday = d.formatted(.dateTime.weekday(.wide))
-        if Locale.current.language.languageCode == .russian {
-            // Russian preposition: "во" before Tuesday, otherwise "в"
-            let w = weekday.lowercased()
-            return (w.hasPrefix("вт") ? "во " : "в ") + w
+        let index = cal.component(.weekday, from: d)   // 1 = Sunday … 7 = Saturday
+        switch Locale.current.language.languageCode {
+        case .russian:
+            // The formatter only gives the nominative; "on Wednesday" needs the accusative.
+            switch index {
+            case 1: return "в воскресенье"
+            case 2: return "в понедельник"
+            case 3: return "во вторник"
+            case 4: return "в среду"
+            case 5: return "в четверг"
+            case 6: return "в пятницу"
+            default: return "в субботу"
+            }
+        case .portuguese:
+            // Weekday gender: o sábado / o domingo, a segunda…sexta-feira.
+            return (index == 1 || index == 7 ? "no " : "na ") + weekday
+        default:
+            return String(localized: "on \(weekday)")
         }
-        return String(localized: "on \(weekday)")
     }
 
     // MARK: - The only mutation

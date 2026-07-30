@@ -253,7 +253,7 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Próximo treino: %@"
+            "value": "Próximo treino %@"
           }
         },
         "ru": {
@@ -288,7 +288,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Следующая: тренировка %lld · %@"
+            "value": "Далее: тренировка %lld · %@"
           }
         }
       }
@@ -466,19 +466,19 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Workout, done or a rest day at a glance."
+            "value": "Workout, done, or rest day — at a glance."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El entrenamiento, «hecho» o un día de descanso, de un vistazo."
+            "value": "Entrenamiento, «hecho» o día de descanso: todo de un vistazo."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O treino, “feito” ou um dia de descanso, de relance."
+            "value": "Treino, “feito” ou dia de descanso — tudo num relance."
           }
         },
         "ru": {
@@ -544,22 +544,128 @@
     },
     "≈ %lld min · %lld exercises": {
       "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "≈ %lld min · %#@exercises@"
+          },
+          "substitutions": {
+            "exercises": {
+              "argNum": 2,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg exercise"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg exercises"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "≈ %lld min · %lld ejercicios"
+            "value": "≈ %lld min · %#@exercises@"
+          },
+          "substitutions": {
+            "exercises": {
+              "argNum": 2,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg ejercicio"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg ejercicios"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "≈ %lld min · %lld exercícios"
+            "value": "≈ %lld min · %#@exercises@"
+          },
+          "substitutions": {
+            "exercises": {
+              "argNum": 2,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg exercício"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg exercícios"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "≈ %lld мин · %lld упражнений"
+            "value": "≈ %lld мин · %#@exercises@"
+          },
+          "substitutions": {
+            "exercises": {
+              "argNum": 2,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg упражнение"
+                    }
+                  },
+                  "few": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg упражнения"
+                    }
+                  },
+                  "many": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg упражнений"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg упражнения"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
