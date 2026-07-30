@@ -1,5 +1,287 @@
 # Changelog
 
+## 1.8.0
+
+A feature release that makes the workout whole: the cool-down the estimates
+always promised, a short version for the days there is no time, technique
+help on every warm-up and cool-down position, a counted side switch, and
+honest guidance on weekly rest. Around the session, Progress learned to draw
+the journey, the widget grew into every size, and the milestone card shows
+where you started. The engine steps to v2.4 — a silent level decay for
+7–13-day breaks, verified against the reference and recorded as golden
+scenario 10; the state format and the journal format are untouched, so there
+are no migrations.
+
+### Widget: every timeline day speaks from its own date
+
+- The "Next workout today / tomorrow" line was computed once when the app
+  wrote the snapshot and copied into all fourteen timeline entries, so a
+  rest-day entry rendered days after the app was last opened could claim
+  "Next workout today". The app now precomputes the label for every day —
+  localization, including the Russian accusative and the pt-BR weekday
+  gender, stays app-side — and each widget entry reads its own word.
+- "This week" on the large family is stamped with the Monday it tallies
+  and no longer shows on next-week entries, where last week's numbers
+  would read as the current week's.
+- The timeline mapping and the widget's word choices are under unit tests
+  now: the widget sources compile into DredfitTests, and the Live Activity
+  contract moved to ActivityShared.swift so app and test types never twin.
+
+### Localization audit: ru / es-419 / pt-BR pass over all four catalogs
+
+- Russian athlete-facing strings no longer assume a male user: the three
+  feedback buttons («Готово», «Легко, могу больше», «Тяжело, получилось
+  меньше»), the stop line and the onboarding copy now use gender-free
+  forms — the previous masculine past tense read as a male self-description
+  under a female user's finger.
+- es-419 is now actually Latin American: Apple-lexicon UI terms (Agregar,
+  Respaldo, Configuración, Restablecer, Calificar), gym terms (pantorrilla,
+  parada de manos, flexión pike, enfriamiento) and «Omitir» for the whole
+  skip family; peninsular forms (hacia delante, todo el rato, gemelos,
+  tumbado, sustituir) are gone. Status labels with a substituted exercise
+  name switched to invariable phrasings («%@, quedó fuera») because the
+  old participles broke on feminine names.
+- pt-BR: the same invariable status fix («Prancha, ficou de fora» instead
+  of the ungrammatical «Prancha, pulado»), «alguns passos» instead of the
+  «um par de passos» calque, Deload kept in English, the barra fixa family
+  completed (negativa/parcial), suspensão instead of the noun «pendurada».
+- Counts decline correctly now: the exercises number in "≈ %lld min ·
+  %lld exercises" got plural forms via a substitution bound to the second
+  argument (all four languages, app and widget catalogs), the rest
+  countdown got its missing English singular, and the big-number caption
+  agrees with the number above it («1 повтор / 3 повтора / 12 повторов»)
+  instead of a frozen genitive.
+- The "on %@" weekday phrase moved into code: Russian accusative
+  («в среду», «во вторник») replaces the old prefix heuristic that
+  produced «в среда», and pt-BR now picks no/na by weekday gender.
+- Four English source cues were reworded where the source itself was
+  flawed (hollow shape, active hang, the Y-T-W rep definition, the
+  2-second hold ambiguity) — catalog keys and Library.swift renamed
+  together, translations already matched the intended reading.
+- The ru Health privacy description no longer promises more than the
+  English source ("nothing else is shared", not "shared nowhere").
+
+### Engine v2.4: silent level decay for 7–13 day gaps (issue #37)
+
+- The comeback only starts at 14 days, leaving the 7–13 day zone blind —
+  the most common real-life break length (vacation, work trip, a cold) met
+  an overestimated plan on the single most churn-prone session. Now a
+  quiet −1 lands on every pattern when the gap enters that zone: no card,
+  no UI, applied once per break on scene activation, clamped at 0.
+  `failStreak` and `counter` are deliberately untouched.
+- The two drops never stack (spec §14.2): if the silent −1 already hit the
+  break, a later comeback weakens by one — the break's total is exactly
+  the table value, and whoever peeked at the app mid-break is never
+  punished harder than whoever stayed away. The comeback card shows the
+  weakened remainder.
+- Full reference cycle: spec addendum §14, reference implementation,
+  verify 8 009 checks / 0 failures (was 4 150 — most of the growth is the
+  exhaustive non-stacking sweep over all 48 levels), golden scenario 10
+  `silent_decay` including the "decay → tough → no premature deload"
+  branch. The nine existing golden scenarios reproduce bit-exact.
+
+### Technique mini-sheets for warm-up and cool-down positions (issue #34)
+
+- Every one of the 15 positions (6 warm-up moves, 9 cool-down pool) now
+  opens a reduced technique sheet from a "technique" affordance under its
+  name: the position name, a block capsule ("cool-down · 15 s per side"),
+  2–3 numbered steps and "Got it". For a beginner "Lat stretch with
+  support" was an empty label — and the context is harsher than for
+  exercises: a countdown is running, there is no time to look anything up.
+- The position countdown freezes while the sheet is open and resumes from
+  the same second on close — reading is not stretching. A deliberate
+  divergence from the rest-phase sheet, where the timer keeps ticking.
+- The steps carry the safety the names could not: no bouncing, no pushing
+  into pain, unroll the spine to come up. ~40 new keys in all four
+  languages; when position schematics arrive, the steps stay as captions.
+- Engine and golden fixtures untouched; the warm-up block moved out of the
+  flow view into its own model (Warmup.swift) on the way.
+
+### Side-switch pause for timed unilateral work (issue #35)
+
+- Unilateral cool-down positions no longer ask you to count the side switch
+  yourself: 15 s for the first side, a 5-second "Switch sides" pause, then
+  15 s for the second — an app that gives audio cues even to the warm-up
+  now counts the switch too. The pause rides on top of the reserved three
+  minutes, within the "≈" every estimate has always carried; `cooldownMin`
+  and the golden fixtures are untouched.
+- Per-side holds run the same pause between sides, and the second side now
+  starts itself on the usual go-tone — no tap needed with hands busy in a
+  side plank. The recorded actual is still the smaller of the two sides,
+  and the mis-tap grace on a stopped side still returns the set.
+- The pause opens with its own signal — the go-tone inverted, a falling
+  two-tone — so eyes-closed stretching can tell "switch sides" from "new
+  position"; a medium haptic mirrors it under silent mode. The usual 3-2-1
+  ticks precede the end of each side; none play inside the pause.
+- One shared app-layer constant (`sideSwitchPauseSec = 5`), deliberately
+  not a user setting. Per-side rep exercises are untouched — they are
+  self-paced.
+
+### How much rest is enough (issue #36)
+
+- Fresh installs now start with two spread-out rest days (Sunday and
+  Wednesday) instead of Sunday alone. Six strength sessions a week is ~3.7
+  hits per movement pattern — overuse territory for slow-adapting connective
+  tissue; five sits at the top of the safe corridor. Existing installs are
+  untouched: a stored settings file keeps whatever week it has, including
+  one written before the key existed.
+- "How it works" gained a "Weekly rhythm" section: 3–4 workouts a week is
+  the sweet spot — muscle adapts in weeks, tendons in months, and rest days
+  protect the slower half.
+- The rest-day picker in Settings carries the one-line recommendation
+  ("2–3 rest days a week") — guidance, not a gate: any spread still works.
+  The six-day default also quietly contradicted the no-guilt philosophy;
+  this closes the cheapest known strike at the engine's uniform-feedback
+  weakness by lowering stress frequency itself.
+
+### The cool-down the estimate always promised (issue #28)
+
+- Every "≈ N min" estimate since 1.0 has reserved three minutes for a
+  cool-down that did not exist. Now it does: six stretch positions × 30 s
+  between the last exercise and the rating — the block materialises exactly
+  the minutes already promised, so no estimate anywhere changes.
+- Composition is deterministic from what was actually performed: hip flexors
+  and chest-and-shoulders first, three positions mapped from the session's
+  movements (deduplicated, topped up from a pool of nine), the rest pose
+  always last. A short workout stretches its three performed movements.
+- Same manners as the warm-up: per-position skip, whole-block skip, wall-
+  clock countdown that absorbs backgrounding. Per-side positions take one
+  30 s slot with a "15 s per side" hint.
+- Honest edges: "Finish now" goes straight to the rating (whoever cut the
+  workout short is out of time by definition); a workout of pure skips gets
+  no cool-down; process death during the block restores to the rating. The
+  cool-down counts toward the duration written to Health — it is part of
+  the workout.
+- No levels, no journal entry, engine and golden fixtures untouched.
+
+### A workout for the days there is no time (issue #27)
+
+- Today offers a short version under Start: three of the session's six
+  exercises, warm-up and cool-down included, around a third of the clock.
+  The other three are recorded as honest skips — levels frozen, the counter
+  and the rotation advancing exactly as they would have.
+- Which three: the pull slot always (shoulder balance is not negotiable), the
+  first movement of the current rotation window, and the lowest-level
+  movement of what remains. Because the window shifts by three over eight
+  rotating patterns, that anchor visits all eight within any eight
+  consecutive sessions — nothing is starved even for someone who only ever
+  trains short.
+- The session is not regenerated: it is the same list Today shows, so an
+  interrupted short workout resumes short, and its resume card counts "of 3".
+- The choice is never remembered. Every day opens on the full workout, and
+  nothing anywhere says "again?".
+- The engine gained two read-only helpers (the rotation anchor and the
+  duration estimate for a list of exercises) so the app layer holds no copy
+  of either formula. Behaviour and the golden fixtures are unchanged.
+- Along the way: the rating screen's summary now labels its lists separately
+  — "Adjusted" only over adjusted rows, "Skipped" over skips — and says each
+  thing once: skipped rows are dimmed names with no per-row echo of the
+  header. The only per-row word left is "not finished" on a "Finish now"
+  interruption, precisely because it differs from the header. VoiceOver
+  still reads every row with its state.
+
+### The jubilee remembers where you started (issue #26)
+
+- Anniversary milestones ({10, 25, 50, 100, then every 50}) now carry a
+  "Then → now" comparison with the first workout, built from the levelsAfter
+  snapshots the journal has kept since 1.1: "Then: Knee push-up · 3×8 — Now:
+  Push-up · 3×14", plus how long ago that first workout was (weeks, months
+  from week nine).
+- The movement shown is the one with the largest level gain; ties resolve in
+  rotation order. Every number comes from the core's own encoding
+  (`Level.decode`), so the v2.3 per-tier floors are respected and no level
+  arithmetic lives in the app layer.
+- The milestone share card carries the same two lines — still no body
+  metrics, no names; the level curve gives up room rather than crowding the
+  footer.
+- Honest degradations: a journal without snapshots, a history without growth,
+  or a bar module younger than the first snapshot simply show the jubilee as
+  before. Standing still is never dressed up as progress.
+
+### The "why" behind every movement (issue #25)
+
+- Every technique sheet ends with an "In life" line translating the movement
+  into everyday ability — "lifting a bag, a child, a suitcase — with your
+  hips, not your lower back". The app explained *how* since 1.0; this is the
+  first time it says *why*.
+- The "New variation" milestone carries the same line under the variation
+  name: an unlock reads as an ability gained, not an index incremented. Set
+  bands and jubilees are deliberately left alone — volume and habit are not
+  abilities.
+- A closed list of four standout variations (pistol squat, push-up, pull-up,
+  chest-to-wall handstand push-up) overrides the movement line where the
+  variation says more than the movement. The override → base rule lives in
+  one place (`LifeBenefit`), shared by both surfaces.
+- Copy discipline, enforced in review rather than code: every line is a fact
+  of mechanics, never a health promise. 15 new keys × 4 languages; the
+  engine, the state format and the golden fixtures are untouched.
+
+### The level curve on the share card (issue #24)
+
+- The milestone card now draws the level curve — the total level after every
+  workout, oldest first — above its footer, the same line the Progress chart
+  draws. The curve takes only the room the headline leaves behind, capped so
+  it never becomes the point of the card, and gives up its place entirely
+  when the words need it.
+- Fewer than two journal snapshots — no curve: a first-workout card stays
+  exactly what it was. Still no body metrics and no names on the card.
+- A workout that unlocks several variations now names every one of them in
+  the headline, not just the first row on screen; the render and the
+  share-sheet preview read the same line, so the two can never drift apart.
+
+### The widget widens to medium, large and the lock screen (issue #23)
+
+- One widget family became six. The medium spends its extra width on the week
+  strip — spanning the whole card instead of crowding into a corner — and
+  carries the total level in its header; the large lists the next workout's
+  plan and closes with the week's tally; the lock screen gets all three
+  accessories: a single glyph for the only at-a-glance question, a two-line
+  rectangle, and an inline line.
+
+### A design pass over Progress, Today, Rating and Calendar (issues #21, #22)
+
+- Progress fits one screen: the pattern rows became a single legible list,
+  and the chart projects the total level — or, when a row is picked, that
+  pattern's own line built from the journal's snapshots — over a sparse
+  first/middle/last date axis. The duplicate chips row is gone: it was the
+  same list of patterns twice.
+- A row's small print about where its level is heading shows only while that
+  pattern is the one on the chart — detail on demand instead of eight rows of
+  it at once. The chart title holds still when a pattern is picked, and the
+  total level keeps to one row.
+- Today marks a variation debut with an inline "new variation" pill at the
+  end of the exercise name — a tier crossing swaps the exercise itself, the
+  most meaningful event in the system — and quietly links the "how it works"
+  explainer for everyone who skipped onboarding.
+- The rating's consequence lines speak workout language — "on plan — the next
+  asks a little more", "easy — progressing twice as fast" — instead of
+  "+1 step / +2 steps", and "Finish now" says plainly that it keeps what is
+  done and marks the rest skipped. The calendar's planned days open the
+  next-workout preview.
+
+### Site
+
+- The landing dropped its "app is still in English" hedges: es and pt-BR
+  have shipped complete since 1.7.0, so the note is gone and the technique
+  card says "in your language" on all four locales.
+
+### Housekeeping
+
+- The RU catalog calls inverted rows «Тяга под опорой» again across all
+  surfaces — «под опорой» pinpoints the body position (lying under the
+  table) that the replacement name had blurred; the RU landing mockup
+  follows (issue #19).
+- The skip-all UI test asserts the rating summary's "Skipped" header plus
+  all six rows via their accessibility labels — what VoiceOver actually
+  reads — instead of the per-row word the rating redesign removed (issue #32).
+- 198 → 281 automated tests: the variation-debut badge, the share card's
+  headline and curve, the widget's timeline mapping and per-day words, the
+  short workout's picks and the rotation anchor, cool-down composition and
+  its honest edges, the side-switch pause, the position technique sheets,
+  the silent decay and its non-stacking sweep against the comeback, and the
+  rest-day defaults. The README table now counts what the runners actually
+  execute, layer by layer.
+
 ## 1.7.1
 
 A fix release: signals you can actually hear, reminders that know the workout

@@ -199,8 +199,8 @@ public enum ExerciseLibrary {
                 unilateral: false,
                 steps: [
                     String(localized: "Lie face down, forehead near the floor, arms extended in a Y shape.", bundle: .module),
-                    String(localized: "Lift the straight arms for 2 seconds, squeezing the shoulder blades, then lower.", bundle: .module),
-                    String(localized: "Repeat in a T position and a W position — together that's one rep.", bundle: .module),
+                    String(localized: "Lift the straight arms, hold for 2 seconds squeezing the shoulder blades, then lower.", bundle: .module),
+                    String(localized: "Repeat in a T position and a W position — all three positions together count as one rep.", bundle: .module),
                 ],
                 mistakes: [
                     String(localized: "Jerking the torso up — only the arms and shoulder blades lift.", bundle: .module),
@@ -377,7 +377,7 @@ public enum ExerciseLibrary {
                 steps: [
                     String(localized: "Lie on your back, press the lower back into the floor, arms extended overhead.", bundle: .module),
                     String(localized: "Lift the shoulder blades and straight legs 15–20 cm off the floor.", bundle: .module),
-                    String(localized: "Hold the shape with the lower back pressed down the whole time.", bundle: .module),
+                    String(localized: "Hold the hollow shape with the lower back pressed down the whole time.", bundle: .module),
                 ],
                 mistakes: [
                     String(localized: "Lower back lifting off the floor — raise the legs higher or bend the knees.", bundle: .module),
@@ -505,7 +505,7 @@ public enum ExerciseLibrary {
                 unilateral: false,
                 steps: [
                     String(localized: "Grab the bar slightly wider than shoulder width, palms facing away.", bundle: .module),
-                    String(localized: "Hang on straight arms and pull the shoulders slightly down — an active hang, head not shrugged in.", bundle: .module),
+                    String(localized: "Hang on straight arms and pull the shoulders slightly down — an active hang, shoulders away from the ears.", bundle: .module),
                     String(localized: "Keep the body tight, legs together; breathe steadily for the whole hang.", bundle: .module),
                 ],
                 mistakes: [

@@ -23,21 +23,28 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     let totalLevelAfter: Int          // level sum after the session — a chart point
     // Fields below were added over time and are optional so older records
     // still decode (history shows a placeholder for nil snapshots).
-    var exercises: [SessionExercise]? = nil   // workout snapshot for history
-    var actuals: [Pattern: Int]? = nil
-    var skipped: Set<Pattern>? = nil          // exercises skipped during the workout
-    var levelsAfter: [Pattern: Int]? = nil    // per-pattern level snapshot
-    var durationSec: Int? = nil               // actual wall-clock duration (feeds Apple Health)
+    var exercises: [SessionExercise]?   // workout snapshot for history
+    var actuals: [Pattern: Int]?
+    var skipped: Set<Pattern>?          // exercises skipped during the workout
+    var levelsAfter: [Pattern: Int]?    // per-pattern level snapshot
+    var durationSec: Int?               // actual wall-clock duration (feeds Apple Health)
     // Per-record Health export state. Only `true` is ever written; nil means
     // "not exported yet" (or an old record, migrated on load).
-    var healthExported: Bool? = nil
+    var healthExported: Bool?
 }
 
 /// User preferences, stored in the same JSON file. Decoding is field-by-field
 /// tolerant — every key is optional with a default, so files written by any
 /// older version keep loading losslessly.
 struct AppSettings: Codable, Equatable {
-    var restWeekdays: Set<Int> = [1]   // Calendar weekday numbers: 1 = Sunday
+    // Calendar weekday numbers: 1 = Sunday, 4 = Wednesday. Two spread-out
+    // rest days by default (issue #36): the old single-Sunday default quietly
+    // proposed six strength sessions a week — ~3.7 hits per movement pattern,
+    // overuse territory for slow-adapting connective tissue. Five sessions
+    // (~3.1) sits at the top of the safe 2–3 corridor. Fresh installs only:
+    // the decode fallback below deliberately keeps the old value, so nobody's
+    // existing week changes underneath them.
+    var restWeekdays: Set<Int> = [1, 4]
     var soundsEnabled = true
     var reminderEnabled = false
     var reminderHour = 9
@@ -45,12 +52,16 @@ struct AppSettings: Codable, Equatable {
     var healthEnabled = false
     var healthExportedThrough = 0      // high-water sessionNumber already in Health
     var onboardingCompleted = false
-    var lastReviewRequestAt: Date? = nil
+    var lastReviewRequestAt: Date?
     // The last workout's date at the time the comeback question was answered.
     // A date rather than a bool so it expires by itself: after the next
     // workout it is stale and a future break asks again, while the current
     // break never asks twice.
-    var comebackDecidedFor: Date? = nil
+    var comebackDecidedFor: Date?
+    // Same mechanism for the silent decay (issue #37): the last workout's
+    // date at the time the quiet −1 was applied. Goes stale by itself after
+    // the next workout; the current break never decays twice.
+    var silentDecayAppliedFor: Date?
 
     init() {}
 
@@ -58,10 +69,14 @@ struct AppSettings: Codable, Equatable {
         case restWeekdays, soundsEnabled, reminderEnabled, reminderHour, reminderMinute
         case healthEnabled, healthExportedThrough
         case onboardingCompleted, lastReviewRequestAt, comebackDecidedFor
+        case silentDecayAppliedFor
     }
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
+        // [1], not the fresh-install default: a stored file without this key
+        // belongs to an install that lived with Sunday-only — an upgrade must
+        // not add a rest day the person never chose (issue #36).
         restWeekdays = try c.decodeIfPresent(Set<Int>.self, forKey: .restWeekdays) ?? [1]
         soundsEnabled = try c.decodeIfPresent(Bool.self, forKey: .soundsEnabled) ?? true
         reminderEnabled = try c.decodeIfPresent(Bool.self, forKey: .reminderEnabled) ?? false
@@ -72,6 +87,7 @@ struct AppSettings: Codable, Equatable {
         onboardingCompleted = try c.decodeIfPresent(Bool.self, forKey: .onboardingCompleted) ?? false
         lastReviewRequestAt = try c.decodeIfPresent(Date.self, forKey: .lastReviewRequestAt)
         comebackDecidedFor = try c.decodeIfPresent(Date.self, forKey: .comebackDecidedFor)
+        silentDecayAppliedFor = try c.decodeIfPresent(Date.self, forKey: .silentDecayAppliedFor)
     }
 }
 
@@ -90,8 +106,8 @@ struct WorkoutSnapshot: Codable, Equatable {
     var setIndex: Int
     /// Set while resting. Still in the future → resume inside the countdown;
     /// already past → resume at the set the rest was leading into.
-    var restEndDate: Date? = nil
-    var restTotalSec: Int? = nil
+    var restEndDate: Date?
+    var restTotalSec: Int?
     var actuals: [Pattern: Int] = [:]
     var skipped: Set<Pattern> = []
     var workoutStart: Date
@@ -102,13 +118,19 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// snapshot must never resume into exercises it was not taken from.
     /// Optional (with the others below) so an older snapshot decodes — and
     /// then fails the fingerprint check instead of the whole-file decode.
-    var fingerprint: String? = nil
+    var fingerprint: String?
     /// True once the flow reached the rating screen: restore lands there,
     /// not back on the last set the position fields still describe.
-    var atFeedback: Bool? = nil
+    var atFeedback: Bool?
     /// The exercise "Finish now" cut mid-way — the rating screen labels it
     /// "not finished" instead of "skipped".
-    var interrupted: Pattern? = nil
+    var interrupted: Pattern?
+    /// The short workout's three patterns (issue #27), when this snapshot was
+    /// taken during one. Optional like everything above it: a snapshot
+    /// written by an older build decodes and simply resumes the full session,
+    /// which is what it was. Not part of the fingerprint — the session is the
+    /// same session either way; this is which slice of it was under way.
+    var shortPlan: [Pattern]?
 
     static func fingerprint(of session: Session) -> String {
         session.exercises
@@ -120,8 +142,8 @@ struct WorkoutSnapshot: Codable, Equatable {
 private struct AppData: Codable {
     var engineState: EngineState
     var records: [WorkoutRecord]
-    var settings: AppSettings? = nil
-    var pendingWorkout: WorkoutSnapshot? = nil
+    var settings: AppSettings?
+    var pendingWorkout: WorkoutSnapshot?
     // How many journal entries failed to decode (not encoded) — the caller
     // keeps the original file aside when this is nonzero.
     var droppedRecordCount = 0
@@ -301,6 +323,9 @@ final class AppStore {
     /// Mutating `today` on every activation would re-render for nothing.
     func refreshDay(now: Date = .now) {
         if !Calendar.current.isDate(today, inSameDayAs: now) { today = now }
+        // The blind-zone decay (issue #37) rides the same activation pulse:
+        // by the time Today renders, the plan is already corrected.
+        applySilentDecayIfNeeded(now: now)
     }
 
     /// Moves the state file to `<name>.corrupt.json` (or copies, when the
@@ -356,14 +381,22 @@ final class AppStore {
         }
         // One workout away from several milestones at once. Seeds state only;
         // the milestones are still derived by the real path on completion.
+        // The single old record carries a levelsAfter snapshot nine weeks
+        // back, so the workout-10 jubilee also shows the "then → now"
+        // retrospective (issue #26) — through the real builder, not a stub.
         if CommandLine.arguments.contains("--uitest-milestone") {
-            records = []
             var seeded = EngineState.initial
             seeded.counter = 9
             for ex in Engine.generateSession(seeded).exercises.prefix(2) {
                 seeded.levels[ex.pattern] = 7
             }
             engineState = seeded
+            records = [WorkoutRecord(
+                sessionNumber: 1,
+                date: Calendar.current.date(byAdding: .day, value: -63, to: .now)!,
+                result: .plan,
+                totalLevelAfter: 0,
+                levelsAfter: EngineState.initial.levels)]
         }
         // A journal whose only workout was 20 days ago, so today opens on
         // the comeback card.
@@ -395,7 +428,40 @@ final class AppStore {
     /// only with nextTrainingDate (see NextWorkoutSheet).
     var nextSession: Session { Engine.generateSession(engineState) }
 
+    /// Patterns whose exercise in the next session is a variation the journal
+    /// has never seen performed — crossing into a new tier is the single most
+    /// meaningful event in the system, and the plan list badges its debut.
+    /// Conservative on missing data: records without an exercise snapshot
+    /// (older app versions) can't vouch for what was actually done, so a
+    /// pattern with no snapshotted history is never badged — better a missed
+    /// badge than "new variation" on an exercise the user has done for weeks.
+    var debutPatterns: Set<Pattern> {
+        var maxPerformed: [Pattern: Int] = [:]
+        for record in records {
+            guard let exercises = record.exercises else { continue }
+            let skipped = record.skipped ?? []
+            for ex in exercises where !skipped.contains(ex.pattern) {
+                maxPerformed[ex.pattern] = max(maxPerformed[ex.pattern] ?? 0, ex.tier)
+            }
+        }
+        var debuts: Set<Pattern> = []
+        for ex in nextSession.exercises {
+            if let seen = maxPerformed[ex.pattern], ex.tier > seen {
+                debuts.insert(ex.pattern)
+            }
+        }
+        return debuts
+    }
+
     var totalLevel: Int { engineState.levels.values.reduce(0, +) }
+
+    /// The total-level history for the share card, oldest first. `through`
+    /// cuts it at a date: a milestone card belongs to the workout that earned
+    /// it, so it must not draw a curve that runs past the event it celebrates.
+    func levelCurve(through date: Date? = nil) -> [Int] {
+        let history = date.map { cut in records.filter { $0.date <= cut } } ?? records
+        return history.map(\.totalLevelAfter)
+    }
 
     var lastRecord: WorkoutRecord? { records.last }
 
@@ -459,18 +525,41 @@ final class AppStore {
     }
 
     /// "today" / "tomorrow" / "on Saturday" (Russian uses inflected weekday prepositions).
-    var nextTrainingDateLabel: String {
+    var nextTrainingDateLabel: String { nextTrainingDateLabel(from: today) }
+
+    /// The same label as seen from an arbitrary day. The widget snapshot
+    /// carries one per day: a timeline entry rendered days after the write
+    /// must still say the right relative word.
+    func nextTrainingDateLabel(from day: Date) -> String {
         let cal = Calendar.current
-        let d = nextTrainingDate
-        if cal.isDateInToday(d) { return String(localized: "today") }
-        if cal.isDateInTomorrow(d) { return String(localized: "tomorrow") }
+        let d = nextTrainingDate(from: day)
+        if cal.isDate(d, inSameDayAs: day) { return String(localized: "today") }
+        if let tomorrow = cal.date(byAdding: .day, value: 1, to: day),
+           cal.isDate(d, inSameDayAs: tomorrow) { return String(localized: "tomorrow") }
         let weekday = d.formatted(.dateTime.weekday(.wide))
-        if Locale.current.language.languageCode == .russian {
-            // Russian preposition: "во" before Tuesday, otherwise "в"
-            let w = weekday.lowercased()
-            return (w.hasPrefix("вт") ? "во " : "в ") + w
+        let index = cal.component(.weekday, from: d)   // 1 = Sunday … 7 = Saturday
+        switch Locale.current.language.languageCode {
+        case .russian:
+            return russianOnWeekday(index)
+        case .portuguese:
+            // Weekday gender: o sábado / o domingo, a segunda…sexta-feira.
+            return (index == 1 || index == 7 ? "no " : "na ") + weekday
+        default:
+            return String(localized: "on \(weekday)")
         }
-        return String(localized: "on \(weekday)")
+    }
+
+    /// The formatter only gives the nominative; "on Wednesday" needs the accusative.
+    private func russianOnWeekday(_ index: Int) -> String {
+        switch index {
+        case 1: return "в воскресенье"
+        case 2: return "в понедельник"
+        case 3: return "во вторник"
+        case 4: return "в среду"
+        case 5: return "в четверг"
+        case 6: return "в пятницу"
+        default: return "в субботу"
+        }
     }
 
     // MARK: - The only mutation
@@ -667,11 +756,42 @@ final class AppStore {
     }
 
     /// How far the levels would drop — used by the card to say it plainly.
+    /// After a silent decay for the same break the card shows the weakened
+    /// remainder: that is what accepting would actually subtract now.
     func comebackDrop(now: Date? = nil) -> Int {
         guard let gap = gapDays(now: now) else { return 0 }
         let before = engineState
-        let after = Engine.applyComeback(state: before, gapDays: gap)
+        let after = Engine.applyComeback(state: before, gapDays: gap,
+                                         alreadyDecayed: silentDecayAppliedForCurrentBreak)
         return (before.levels[.pull] ?? 0) - (after.levels[.pull] ?? 0)
+    }
+
+    // MARK: - Silent decay for the 7–13 day blind zone (issue #37)
+
+    /// Quiet −1 to every pattern when the gap sits where the comeback does
+    /// not reach yet: the most common real-life break length would otherwise
+    /// meet an overestimated plan on the single most churn-prone session.
+    /// No card, no UI; applied at most once per break — the stamp is keyed
+    /// to the last workout's date and goes stale by itself, exactly like
+    /// the comeback answer. Called on every scene activation (refreshDay),
+    /// so the plan is already corrected by the time Today renders.
+    func applySilentDecayIfNeeded(now: Date? = nil) {
+        guard let last = records.last, let gap = gapDays(now: now) else { return }
+        guard gap >= EngineConfig.silentDecayGapDays,
+              gap < EngineConfig.comebackMinGapDays else { return }
+        guard !silentDecayAppliedForCurrentBreak else { return }
+        engineState = Engine.applySilentDecay(state: engineState, gapDays: gap)
+        settings.silentDecayAppliedFor = last.date
+        persist()
+    }
+
+    /// Whether the silent −1 already hit the break in progress. Drives both
+    /// the once-per-break guard and the comeback's `alreadyDecayed` — the
+    /// two drops must not stack (engine v2.4, spec §14.2).
+    private var silentDecayAppliedForCurrentBreak: Bool {
+        guard let applied = settings.silentDecayAppliedFor,
+              let last = records.last?.date else { return false }
+        return Calendar.current.isDate(applied, inSameDayAs: last)
     }
 
     /// A gap this long makes the old levels meaningless rather than merely
@@ -685,7 +805,8 @@ final class AppStore {
     /// snapshot shows the step down on its own.
     func acceptComeback(now: Date? = nil) {
         guard let gap = gapDays(now: now) else { return }
-        engineState = Engine.applyComeback(state: engineState, gapDays: gap)
+        engineState = Engine.applyComeback(state: engineState, gapDays: gap,
+                                           alreadyDecayed: silentDecayAppliedForCurrentBreak)
         closeComebackQuestion()
     }
 

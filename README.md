@@ -5,6 +5,8 @@
 [![Localization](https://github.com/dredfort42/dredfit/actions/workflows/localization.yml/badge.svg)](https://github.com/dredfort42/dredfit/actions/workflows/localization.yml)
 [![CodeQL](https://github.com/dredfort42/dredfit/actions/workflows/codeql.yml/badge.svg)](https://github.com/dredfort42/dredfit/actions/workflows/codeql.yml)
 
+[dredfit.com](https://dredfit.com/) · [App Store](https://apps.apple.com/app/id6791739610)
+
 **Adaptive bodyweight training for iOS. Zero setup — open the app, your workout is ready.**
 
 Dredfit works like a thermostat. There is no quiz, no goal picker, no timer settings. The app starts you at a conservative minimum and regulates itself: it proposes a plan, you do it, you answer one question — *how did it go?* — and the next workout adjusts. Tell it what you actually managed on the first workout and it lands on your real level right away; answer with a rating alone and it converges over a handful of sessions. Either way it then keeps the load right at the edge of what you can do, which is where progress happens.
@@ -17,7 +19,7 @@ The engine (`DredfitCore`) is built on three mechanisms:
 
 **One integer per movement pattern.** Progress in each movement pattern is a single level `L ∈ [0, 47]`. The level *encodes* the exercise variation, the rep target and the set count all at once:
 
-```
+```text
 band = L / 8                     # 0…5
 tier = min(4, 1 + band)          # which variation: 4 tiers from knee push-up to archer push-up
 sets = 3 + max(0, band - 3)      # 3 sets (L ≤ 31), 4 sets (32…39), 5 sets (40…47)
@@ -51,7 +53,7 @@ State is one JSON file in Application Support. Old records survive every update 
 
 ## Architecture
 
-```
+```text
 DredfitCore/            Swift package — the engine, pure functions, no UI imports
   Engine.swift          state → session; state × session × feedback → state
   Library.swift         40 exercises, hand-written to mirror the JS reference
@@ -73,19 +75,23 @@ Dredfit/                SwiftUI app target
 
 DredfitWidgets/         widget extension — TodayStatusWidget, RestLiveActivity
 Shared/                 the App Group snapshot contract
+
+docs/                   the dredfit.com site — GitHub Pages, static, no build
+  index.html            landing + privacy.html, mirrored under ru/ es/ pt-br/
+  CNAME, robots.txt, sitemap.xml, og.png
 ```
 
 The engine was first written and verified as a JavaScript reference (4,150 property checks and scenario simulations), then ported to Swift. `golden.json` is the reference's recorded trace — 133 steps across 9 scenarios — and the Swift port must reproduce it exactly. Changing engine behavior means changing the reference first, re-verifying, regenerating fixtures, then porting. Plausible-but-different is a failing test, not a judgment call. (The JS reference lives outside this repository; the recorded fixture is what ships.)
 
 ## Testing
 
-Three layers, 198 automated tests:
+Three layers, 281 automated tests:
 
 | Layer | Count | What it covers |
-|---|---|---|
-| Core invariants + golden | 61 | encoding bijectivity, rotation properties, pull:push balance, deload timing, override caps, skip semantics, bar-branch independence, lenient state decode, feedback replay safety, reference parity |
-| App unit tests | 104 | persistence round-trips, corrupted-file quarantine, a frozen journal and its reload, legacy-record migration, in-progress snapshot validity, rest-day calendar math, Health export ordering and idempotence, the one-shot reminder window, day-anchor rollover, widget snapshot |
-| UI tests | 33 | the full workout flow, in-workout adjustment, hold mis-tap grace, resume after a kill, the three exit paths, history, relaunch persistence |
+| --- | --- | --- |
+| Core invariants + golden | 63 | encoding bijectivity, rotation properties, pull:push balance, deload timing, override caps, skip semantics, bar-branch independence, lenient state decode, feedback replay safety, the silent decay and its non-stacking with the comeback, reference parity |
+| App unit tests | 180 | persistence round-trips, corrupted-file quarantine, a frozen journal and its reload, legacy-record migration, in-progress snapshot validity, rest-day calendar math, Health export ordering and idempotence, the one-shot reminder window, day-anchor rollover, the widget snapshot, its backward compatibility and the per-day timeline words, the variation-debut badge, share-card wording and its level curve, the short workout's picks, cool-down composition, the jubilee's then-and-now comparison, the life-benefit override |
+| UI tests | 38 | the full workout flow, in-workout adjustment, hold mis-tap grace, resume after a kill, the three exit paths, the short workout, the cool-down, the side-switch pause, position technique sheets, history, relaunch persistence |
 
 Plus [TESTPLAN.md](TESTPLAN.md): a manual QA checklist (locale passes, date rollover, backgrounding during rest, device-only integrations) and a registry of found issues with their status.
 
@@ -100,7 +106,7 @@ CI runs the unit suites on every push — that is the gate for merges and releas
 
 ## Localization
 
-English is the source language; Russian, Spanish and Brazilian Portuguese each ship complete — 440 strings across four String Catalogs, including all exercise technique. English base strings live inline at each call site; translations live in the catalogs. Every translation is idiomatic rather than literal: Russian avoids anglicisms and calques and uses `е` rather than `ё` throughout; Spanish and Brazilian Portuguese address the reader informally (`tú` / `você`) and take their exercise and pattern vocabulary from the same glossary as the marketing site.
+English is the source language; Russian, Spanish and Brazilian Portuguese each ship complete — 545 strings across four String Catalogs, including all exercise technique. English base strings live inline at each call site; translations live in the catalogs. Every translation is idiomatic rather than literal: Russian avoids anglicisms and calques and uses `е` rather than `ё` throughout; Spanish and Brazilian Portuguese address the reader informally (`tú` / `você`) and take their exercise and pattern vocabulary from the same glossary as the [marketing site](https://dredfit.com/), which ships in the same four languages.
 
 ## Design principles
 

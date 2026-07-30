@@ -222,6 +222,35 @@ final class AppStoreTests: XCTestCase {
 
     // MARK: - Legacy settings files
 
+    /// A fresh install starts with two spread-out rest days (issue #36): the
+    /// old single-Sunday default quietly proposed six sessions a week —
+    /// overuse territory for slow-adapting connective tissue.
+    func testFreshInstallDefaultsToTwoRestDays() {
+        let store = AppStore(storageURL: tempURL)   // no file → fresh install
+        XCTAssertEqual(store.settings.restWeekdays, [1, 4],
+                       "fresh installs rest on Sunday and Wednesday")
+    }
+
+    /// A stored file WITHOUT the restWeekdays key belongs to an install that
+    /// lived with Sunday-only — an upgrade must not add a rest day the person
+    /// never chose.
+    func testSettingsWithoutRestDaysKeyKeepTheOldSundayDefault() throws {
+        let noKey = """
+        {"engineState":{"counter":0,
+          "levels":["squat",0,"push_h",0,"hinge",0,"pull",0,"push_v",0,"lunge",0,
+                    "core_anti_ext",0,"core_rot",0,"calf",0],
+          "failStreak":["squat",0,"push_h",0,"hinge",0,"pull",0,"push_v",0,"lunge",0,
+                        "core_anti_ext",0,"core_rot",0,"calf",0]},
+         "records":[],
+         "settings":{"soundsEnabled":true,
+                     "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
+        """
+        try Data(noKey.utf8).write(to: tempURL)
+        let store = AppStore(storageURL: tempURL)
+        XCTAssertEqual(store.settings.restWeekdays, [1],
+                       "an upgrade must not change an existing week")
+    }
+
     /// Files written by older versions must keep loading losslessly.
     func testV11SettingsFileLoadsWithHealthDefaults() throws {
         // a settings file from before Health support
@@ -361,49 +390,19 @@ final class AppStoreTests: XCTestCase {
         XCTAssertEqual(reloaded.settings.lastReviewRequestAt, stamp)
     }
 
-    // MARK: - Widget snapshot
+    // MARK: - Level curve
 
-    /// The snapshot URL is injected so this runs on unsigned (CI) builds too.
-    func testWidgetSnapshotMirrorsWeekStatuses() throws {
-        let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("dredfit-widget-\(UUID().uuidString).json")
-        defer { try? FileManager.default.removeItem(at: url) }
-        let store = AppStore(storageURL: tempURL, widgetSnapshotURL: url)
-        store.completeWorkout(session: store.nextSession, result: .plan)   // today → done
+    /// The milestone card belongs to the workout that earned it, so its curve
+    /// must stop there rather than run on to whatever the journal holds now.
+    func testLevelCurveIsCutAtTheGivenDate() throws {
+        let store = AppStore(storageURL: tempURL, widgetSnapshotURL: nil)
+        store.completeWorkout(session: store.nextSession, result: .plan)
 
-        let snap = try JSONDecoder().decode(WidgetSnapshot.self,
-                                            from: Data(contentsOf: url))
-        XCTAssertEqual(snap.days.count, 7, "the snapshot must cover 7 days")
-        XCTAssertEqual(snap.days[0].date, Calendar.current.startOfDay(for: .now))
-        XCTAssertEqual(snap.days[0].status, .done)
-        for day in snap.days.dropFirst() {
-            XCTAssertEqual(day.status, store.isRestDay(day.date) ? .rest : .workout,
-                           "future days must mirror the rest-day settings")
-            XCTAssertNil(day.sessionNumber, "only today carries a session number")
-        }
-    }
-
-    /// The home screen must not be told "nothing done" over a history the
-    /// launch merely failed to read.
-    func testFrozenLaunchLeavesTheWidgetSnapshotAlone() throws {
-        try XCTSkipIf(getuid() == 0, "root reads through 0o000 permissions")
-        let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("dredfit-widget-\(UUID().uuidString).json")
-        defer { try? FileManager.default.removeItem(at: url) }
-        let seed = AppStore(storageURL: tempURL, widgetSnapshotURL: url)
-        seed.completeWorkout(session: seed.nextSession, result: .plan)
-        let published = try Data(contentsOf: url)
-
-        try FileManager.default.setAttributes([.posixPermissions: 0o000],
-                                              ofItemAtPath: tempURL.path)
-        defer {
-            try? FileManager.default.setAttributes([.posixPermissions: 0o644],
-                                                   ofItemAtPath: tempURL.path)
-        }
-        let frozen = AppStore(storageURL: tempURL, widgetSnapshotURL: url)
-        frozen.refreshWidgetSnapshot()   // what backgrounding does
-        XCTAssertEqual(try Data(contentsOf: url), published,
-                       "the widget must keep showing the last state that was real")
+        XCTAssertEqual(store.levelCurve(), store.records.map(\.totalLevelAfter))
+        XCTAssertEqual(store.levelCurve(through: .distantPast), [],
+                       "nothing was recorded before the cut, so there is no curve")
+        XCTAssertEqual(store.levelCurve(through: .distantFuture).count,
+                       store.records.count)
     }
 
     // MARK: - Week summary
@@ -539,12 +538,12 @@ final class AppStoreTests: XCTestCase {
 
     func testSettingsPersistAcrossReload() {
         let store = AppStore(storageURL: tempURL)
-        store.toggleRestDay(2)          // Monday joins Sunday
+        store.toggleRestDay(2)          // Monday joins the Sunday+Wednesday default
         store.setSounds(false)
         store.setReminderTime(hour: 7, minute: 30)
 
         let reloaded = AppStore(storageURL: tempURL)
-        XCTAssertEqual(reloaded.settings.restWeekdays, [1, 2])
+        XCTAssertEqual(reloaded.settings.restWeekdays, [1, 2, 4])
         XCTAssertFalse(reloaded.settings.soundsEnabled)
         XCTAssertEqual(reloaded.settings.reminderHour, 7)
         XCTAssertEqual(reloaded.settings.reminderMinute, 30)
@@ -604,4 +603,233 @@ final class AppStoreTests: XCTestCase {
         XCTAssertTrue(store.records.isEmpty, "state must stay intact after a failed import")
     }
 
+    // MARK: - Silent decay for the 7–13 day blind zone (issue #37)
+
+    /// A store whose last workout happened `daysAgo` days ago. Several
+    /// sessions, so the levels sit clear of the zero clamp.
+    private func storeWithWorkout(daysAgo: Int, at url: URL, sessions: Int = 4) -> AppStore {
+        let store = AppStore(storageURL: url)
+        let date = Calendar.current.date(byAdding: .day, value: -daysAgo, to: .now)!
+        for _ in 0..<sessions {
+            _ = store.completeWorkout(session: store.nextSession, result: .plan, date: date)
+        }
+        return store
+    }
+
+    func testSilentDecayAppliesExactlyOncePerBreak() {
+        let store = storeWithWorkout(daysAgo: 10, at: tempURL)
+        let before = store.engineState.levels
+        store.applySilentDecayIfNeeded()
+        for p in Pattern.allCases {
+            XCTAssertEqual(store.engineState.levels[p], max(0, (before[p] ?? 0) - 1),
+                           "\(p): −1 clamped at 0")
+        }
+        let once = store.engineState.levels
+        store.applySilentDecayIfNeeded()
+        XCTAssertEqual(store.engineState.levels, once, "the same break must not decay twice")
+        // The stamp survives a relaunch — persisted, not in-memory.
+        let reloaded = AppStore(storageURL: tempURL)
+        reloaded.applySilentDecayIfNeeded()
+        XCTAssertEqual(reloaded.engineState.levels, once,
+                       "a relaunch inside the same break must not decay again")
+    }
+
+    func testSilentDecayIgnoresGapsOutsideTheBlindZone() {
+        for days in [0, 6, 14, 30] {
+            let url = tempURL.deletingPathExtension().appendingPathExtension("\(days).json")
+            defer { try? FileManager.default.removeItem(at: url) }
+            let store = storeWithWorkout(daysAgo: days, at: url)
+            let before = store.engineState
+            store.applySilentDecayIfNeeded()
+            XCTAssertEqual(store.engineState, before,
+                           "gap \(days): outside [7, 14) nothing may change")
+        }
+    }
+
+    func testDecayedBreakComebackTotalsExactlyTheTable() {
+        let cal = Calendar.current
+        let day16 = cal.date(byAdding: .day, value: 6, to: .now)!  // 10 + 6 = 16-day gap
+        // Break that got peeked at on day 10: decay, then a weakened comeback.
+        let peeked = storeWithWorkout(daysAgo: 10, at: tempURL)
+        peeked.applySilentDecayIfNeeded()
+        XCTAssertEqual(peeked.comebackDrop(now: day16), 1,
+                       "the card must show the weakened remainder, not the full table")
+        peeked.acceptComeback(now: day16)
+        // The same break with the app never opened: one plain comeback.
+        let otherURL = tempURL.deletingPathExtension().appendingPathExtension("control.json")
+        defer { try? FileManager.default.removeItem(at: otherURL) }
+        let control = storeWithWorkout(daysAgo: 10, at: otherURL)
+        control.acceptComeback(now: day16)
+        XCTAssertEqual(peeked.engineState.levels, control.engineState.levels,
+                       "peeking mid-break must not cost more than staying away")
+    }
+
+    func testDecayStampGoesStaleAfterTheNextWorkout() {
+        let store = storeWithWorkout(daysAgo: 10, at: tempURL)
+        store.applySilentDecayIfNeeded()
+        // The break ends: a workout today re-anchors the stamp's reference.
+        _ = store.completeWorkout(session: store.nextSession, result: .plan)
+        let after = store.engineState.levels
+        // A fresh 8-day break decays again — the old stamp must not block it.
+        let day8 = Calendar.current.date(byAdding: .day, value: 8, to: .now)!
+        store.applySilentDecayIfNeeded(now: day8)
+        for p in Pattern.allCases {
+            XCTAssertEqual(store.engineState.levels[p], max(0, (after[p] ?? 0) - 1),
+                           "\(p): a new break must decay independently")
+        }
+    }
+
+}
+
+// MARK: - Widget snapshot
+//
+// A same-file extension keeps the test class itself within the linter's
+// type-body bound; XCTest discovers test methods in extensions just fine.
+extension AppStoreTests {
+    /// The snapshot URL is injected so this runs on unsigned (CI) builds too.
+    func testWidgetSnapshotMirrorsWeekStatuses() throws {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("dredfit-widget-\(UUID().uuidString).json")
+        defer { try? FileManager.default.removeItem(at: url) }
+        let store = AppStore(storageURL: tempURL, widgetSnapshotURL: url)
+        store.completeWorkout(session: store.nextSession, result: .plan)   // today → done
+
+        let snap = try JSONDecoder().decode(WidgetSnapshot.self,
+                                            from: Data(contentsOf: url))
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: .now)
+        var iso = Calendar(identifier: .iso8601)
+        iso.timeZone = cal.timeZone
+        let monday = try XCTUnwrap(iso.dateInterval(of: .weekOfYear, for: today)).start
+
+        XCTAssertEqual(snap.days.count, 14, "the snapshot must cover two weeks")
+        XCTAssertEqual(snap.days[0].date, monday,
+                       "it must start on Monday so any entry can draw its own week")
+        let todayEntry = try XCTUnwrap(snap.days.first { $0.date == today })
+        XCTAssertEqual(todayEntry.status, .done)
+
+        for day in snap.days where day.date > today {
+            XCTAssertEqual(day.status, store.isRestDay(day.date) ? .rest : .workout,
+                           "future days must mirror the rest-day settings")
+        }
+        for day in snap.days where day.date < today {
+            XCTAssertEqual(day.status, store.isRestDay(day.date) ? .rest : .unmarked,
+                           "a past training day with nothing recorded stays unmarked — "
+                           + "the Calendar does not accuse and neither does the widget")
+        }
+        for day in snap.days {
+            XCTAssertNil(day.sessionNumber, "a finished day carries no session number")
+        }
+    }
+
+    /// The medium and large families need more than day statuses, and the
+    /// numbers must be the ones the app itself is showing.
+    func testWidgetSnapshotCarriesTheLevelWeekAndPlan() throws {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("dredfit-widget-\(UUID().uuidString).json")
+        defer { try? FileManager.default.removeItem(at: url) }
+        let store = AppStore(storageURL: tempURL, widgetSnapshotURL: url)
+        store.completeWorkout(session: store.nextSession, result: .plan)
+
+        let snap = try JSONDecoder().decode(WidgetSnapshot.self,
+                                            from: Data(contentsOf: url))
+        XCTAssertEqual(snap.totalLevel, store.totalLevel)
+        XCTAssertEqual(snap.week?.workouts, store.weekSummary().workouts)
+        XCTAssertEqual(snap.week?.levelsDelta, store.weekSummary().levelsDelta)
+        XCTAssertEqual(snap.planSessionNumber, store.nextSession.sessionNumber)
+        // The write day's own label is the one the app shows right now; the
+        // week tally is stamped with its Monday so the widget can keep it
+        // inside the week it belongs to.
+        let today = Calendar.current.startOfDay(for: .now)
+        let todayEntry = try XCTUnwrap(snap.days.first { $0.date == today })
+        XCTAssertEqual(todayEntry.nextLabel, store.nextTrainingDateLabel)
+        var iso = Calendar(identifier: .iso8601)
+        iso.timeZone = Calendar.current.timeZone
+        XCTAssertEqual(snap.weekStart,
+                       try XCTUnwrap(iso.dateInterval(of: .weekOfYear, for: today)).start)
+
+        let plan = try XCTUnwrap(snap.plan)
+        XCTAssertEqual(plan.count, store.nextSession.exercises.count)
+        XCTAssertEqual(plan.first?.name, store.nextSession.exercises.first?.name)
+        XCTAssertFalse(plan.contains { $0.detail.isEmpty },
+                       "the widget cannot format loads itself — they arrive ready")
+    }
+
+    /// Relative words are per day, not per write: a rest-day entry rendered
+    /// days after the app was last opened must not repeat the write day's
+    /// label. The rest day is pinned to tomorrow, so the two labels are
+    /// guaranteed to differ: from today the next workout is "on X" (the rest
+    /// day is in the way), while the rest-day entry itself must say
+    /// "tomorrow" — one snapshot carrying both proves the per-day path.
+    func testWidgetSnapshotLabelsSpeakFromTheirOwnDay() throws {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("dredfit-widget-\(UUID().uuidString).json")
+        defer { try? FileManager.default.removeItem(at: url) }
+        let store = AppStore(storageURL: tempURL, widgetSnapshotURL: url)
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: .now)
+        let tomorrowWD = cal.component(.weekday,
+                                       from: try XCTUnwrap(cal.date(byAdding: .day, value: 1, to: today)))
+        for wd in [1, 4] where wd != tomorrowWD { store.toggleRestDay(wd) }
+        if ![1, 4].contains(tomorrowWD) { store.toggleRestDay(tomorrowWD) }
+        store.completeWorkout(session: store.nextSession, result: .plan)
+
+        let snap = try JSONDecoder().decode(WidgetSnapshot.self,
+                                            from: Data(contentsOf: url))
+        let todayEntry = try XCTUnwrap(snap.days.first { $0.date == today })
+        XCTAssertNotEqual(todayEntry.nextLabel, "tomorrow",
+                          "from the write day the rest day is in the way — its label is \"on X\"")
+        for day in snap.days {
+            switch day.status {
+            case .rest where day.date > today:
+                XCTAssertEqual(day.nextLabel, "tomorrow",
+                               "\(day.date): a rest-day entry must speak from its own day")
+            case .workout:
+                XCTAssertNil(day.nextLabel,
+                             "\(day.date): a planned day IS the workout — no label")
+            default:
+                break   // past days and today are covered elsewhere
+            }
+        }
+    }
+
+    /// Right after an update the file on disk is still the one the previous
+    /// build wrote. It has to decode, or the widget blanks out until the app
+    /// is next opened.
+    func testWidgetSnapshotFromAnOlderBuildStillDecodes() throws {
+        let legacy = #"{"days":[{"date":768614400,"status":"workout","sessionNumber":3}]}"#
+        let snap = try JSONDecoder().decode(WidgetSnapshot.self, from: Data(legacy.utf8))
+
+        XCTAssertEqual(snap.days.count, 1)
+        XCTAssertEqual(snap.days[0].status, .workout)
+        XCTAssertEqual(snap.days[0].sessionNumber, 3)
+        XCTAssertNil(snap.totalLevel)
+        XCTAssertNil(snap.week)
+        XCTAssertNil(snap.plan)
+        XCTAssertNil(snap.weekStart)
+        XCTAssertNil(snap.days[0].nextLabel)
+    }
+
+    /// The home screen must not be told "nothing done" over a history the
+    /// launch merely failed to read.
+    func testFrozenLaunchLeavesTheWidgetSnapshotAlone() throws {
+        try XCTSkipIf(getuid() == 0, "root reads through 0o000 permissions")
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("dredfit-widget-\(UUID().uuidString).json")
+        defer { try? FileManager.default.removeItem(at: url) }
+        let seed = AppStore(storageURL: tempURL, widgetSnapshotURL: url)
+        seed.completeWorkout(session: seed.nextSession, result: .plan)
+        let published = try Data(contentsOf: url)
+
+        try FileManager.default.setAttributes([.posixPermissions: 0o000],
+                                              ofItemAtPath: tempURL.path)
+        defer {
+            try? FileManager.default.setAttributes([.posixPermissions: 0o644],
+                                                   ofItemAtPath: tempURL.path)
+        }
+        let frozen = AppStore(storageURL: tempURL, widgetSnapshotURL: url)
+        frozen.refreshWidgetSnapshot()   // what backgrounding does
+        XCTAssertEqual(try Data(contentsOf: url), published,
+                       "the widget must keep showing the last state that was real")
+    }
 }

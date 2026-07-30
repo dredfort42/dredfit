@@ -17,6 +17,13 @@ import DredfitCore
 
 struct MilestoneView: View {
     let milestones: [Milestone]
+    /// The level history up to the workout that earned these milestones —
+    /// the card celebrates that moment, not whatever came after it.
+    let levels: [Int]
+    /// The "then → now" comparison for anniversary rows (issue #26). Nil when
+    /// the journal has nothing honest to compare against — the jubilee then
+    /// looks exactly the way it always did.
+    var retrospective: Retrospective?
     let onDone: () -> Void
 
     @State private var ruleDrawn = false
@@ -54,11 +61,10 @@ struct MilestoneView: View {
                 }
             }
 
-            // The card shows the first milestone — tier-ups sort above the
-            // jubilee, so that is the one worth sharing.
-            if let cardURL, let first = milestones.first {
-                ShareLink(item: cardURL,
-                          preview: SharePreview(ShareCardFactory.headline(for: first))) {
+            // The card names every variation this workout unlocked, not just
+            // the first row on screen.
+            if let cardURL {
+                ShareLink(item: cardURL, preview: SharePreview(cardHeadline)) {
                     Text("Share")
                         .dredfitFont(17, weight: .semibold)
                         .foregroundStyle(Theme.ink)
@@ -87,13 +93,27 @@ struct MilestoneView: View {
             withAnimation(.easeOut(duration: 0.55).delay(0.1)) { ruleDrawn = true }
             // Rendered once here rather than per tap: ShareLink wants the item
             // up front, and a card is cheap enough to make eagerly.
-            if let first = milestones.first {
-                cardURL = ShareCardFactory.fileURL(
-                    headline: ShareCardFactory.headline(for: first),
-                    slot: .milestone)
+            if !milestones.isEmpty {
+                // The card gets the comparison only when this workout IS an
+                // anniversary — the retrospective belongs to the jubilee, not
+                // to every card rendered while one is possible.
+                let isJubilee = milestones.contains {
+                    if case .jubilee = $0 { return true } else { return false }
+                }
+                let subline = (isJubilee ? retrospective : nil).map {
+                    "\($0.comparisonLine)\n\($0.sinceLine)"
+                }
+                cardURL = ShareCardFactory.fileURL(headline: cardHeadline,
+                                                   slot: .milestone,
+                                                   subline: subline,
+                                                   levels: levels)
             }
         }
     }
+
+    /// What the card says — shared by the render and the share-sheet preview,
+    /// so the two can never drift apart.
+    private var cardHeadline: String { ShareCardFactory.headline(for: milestones) }
 
     /// The one permitted animation: a short accent rule drawing left to right.
     private var accentRule: some View {
@@ -114,6 +134,29 @@ struct MilestoneView: View {
                 .fixedSize(horizontal: false, vertical: true)
             if let caption = caption(milestone) {
                 Text(caption)
+                    .dredfitFont(15)
+                    .foregroundStyle(Theme.ink2)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            // A new variation reads as an ability, not an index (issue #25):
+            // override → base, resolved by LifeBenefit in one place.
+            if let life = lifeLine(milestone) {
+                Text(life)
+                    .dredfitFont(15)
+                    .foregroundStyle(Theme.ink2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier("milestone-life")
+            }
+            // An anniversary earns the honest comparison (issue #26): the
+            // first snapshot in the journal against today, movement chosen by
+            // the largest gain. Two lines, no chart — the numbers carry it.
+            if case .jubilee = milestone, let retro = retrospective {
+                Text(retro.comparisonLine)
+                    .dredfitFont(15)
+                    .foregroundStyle(Theme.ink2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier("jubilee-retro")
+                Text(retro.sinceLine)
                     .dredfitFont(15)
                     .foregroundStyle(Theme.ink2)
                     .fixedSize(horizontal: false, vertical: true)
@@ -158,6 +201,17 @@ struct MilestoneView: View {
         case .setBand(let pattern, _, let exercise):
             return "\(pattern.displayName) · \(exercise)"
         case .jubilee:
+            return nil
+        }
+    }
+
+    /// Only the "New variation" milestone gets a life line: a set band is the
+    /// same ability grown, and a jubilee is about the habit, not a movement.
+    private func lifeLine(_ milestone: Milestone) -> String? {
+        switch milestone {
+        case .tierUp(let pattern, let tier, _):
+            return LifeBenefit.text(for: pattern, tier: tier)
+        case .setBand, .jubilee:
             return nil
         }
     }

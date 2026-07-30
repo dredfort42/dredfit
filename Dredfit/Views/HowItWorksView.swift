@@ -2,7 +2,7 @@
 //  HowItWorksView.swift
 //  Dredfit
 //
-//  The regulator explained in seven sections. Onboarding says the app
+//  The regulator explained in eight sections. Onboarding says the app
 //  adapts; this says how, for the user who wants to know why the plan moved.
 //
 //  Every number here is a fact from DredfitCore, not a marketing round-up:
@@ -61,6 +61,13 @@ struct HowItWorksView: View {
                     on, the pull alternates between horizontal and vertical.
                     """)),
             Section(id: 5,
+                    title: String(localized: "Weekly rhythm"),
+                    body: String(localized: """
+                    3–4 workouts a week is the sweet spot: strength grows \
+                    while joints and tendons keep up. Muscle adapts in weeks, \
+                    tendons in months — rest days protect the slower half.
+                    """)),
+            Section(id: 6,
                     title: String(localized: "Breaks"),
                     body: String(localized: """
                     After two weeks away the plan meets you a couple of steps \
@@ -68,13 +75,13 @@ struct HowItWorksView: View {
                     the levels climb back quickly, and coming back is the only \
                     thing that matters.
                     """)),
-            Section(id: 6,
+            Section(id: 7,
                     title: String(localized: "Skips"),
                     body: String(localized: """
                     A skipped exercise simply doesn't count: its level stays \
                     where it was. No penalty, no rollback.
                     """)),
-            Section(id: 7,
+            Section(id: 8,
                     title: String(localized: "Why there are no questionnaires"),
                     body: String(localized: """
                     A questionnaire can be wrong; what you actually did cannot. \
@@ -94,7 +101,7 @@ struct HowItWorksView: View {
                         .padding(.top, 30)
                         .fixedSize(horizontal: false, vertical: true)
 
-                    Text("Seven things worth knowing about the regulator.")
+                    Text("Eight things worth knowing about the regulator.")
                         .dredfitFont(15)
                         .foregroundStyle(Theme.ink2)
                         .padding(.top, 8)

@@ -90,12 +90,13 @@ final class HardeningTests: XCTestCase {
         await store.reminderAuthTask?.value
         store.rescheduleReminders(now: moment(hour: 6))   // before reminder time
 
-        // default rest day is Sunday (1) — any 28-day span holds exactly 4
-        XCTAssertEqual(spy.scheduled.count, 24)
+        // default rest days are Sunday (1) and Wednesday (4) since issue #36
+        // — any 28-day span holds exactly 4 of each
+        XCTAssertEqual(spy.scheduled.count, 20)
         XCTAssertLessThan(spy.scheduled.count, 64, "must stay under the iOS pending cap")
         let cal = Calendar.current
         XCTAssertFalse(spy.scheduled.contains {
-            cal.component(.weekday, from: cal.date(from: $0.fireDate)!) == 1
+            [1, 4].contains(cal.component(.weekday, from: cal.date(from: $0.fireDate)!))
         }, "no reminder on a rest day")
         XCTAssertTrue(spy.scheduled.allSatisfy {
             $0.fireDate.year != nil && $0.fireDate.month != nil && $0.fireDate.day != nil
@@ -111,6 +112,7 @@ final class HardeningTests: XCTestCase {
         let spy = NotificationSpy()
         let store = AppStore(storageURL: tempURL, notifications: spy)
         store.toggleRestDay(1)   // every day trains — no rest-day interference
+        store.toggleRestDay(4)
         store.setReminderTime(hour: 20, minute: 0)
         store.setReminderEnabled(true)
         await store.reminderAuthTask?.value
@@ -131,7 +133,8 @@ final class HardeningTests: XCTestCase {
     func testEveningWorkoutKeepsWindowIntact() async {
         let spy = NotificationSpy()
         let store = AppStore(storageURL: tempURL, notifications: spy)
-        store.toggleRestDay(1)
+        store.toggleRestDay(1)   // every day trains, as above
+        store.toggleRestDay(4)
         store.setReminderTime(hour: 9, minute: 0)
         store.setReminderEnabled(true)
         await store.reminderAuthTask?.value
@@ -151,9 +154,9 @@ final class HardeningTests: XCTestCase {
         store.setReminderEnabled(true)
         await store.reminderAuthTask?.value
 
-        store.toggleRestDay(2)   // Monday becomes rest, alongside default Sunday
+        store.toggleRestDay(2)   // Monday joins the default Sunday+Wednesday
         store.rescheduleReminders(now: moment(hour: 6))
-        XCTAssertEqual(spy.scheduled.count, 20)   // 28 minus 4 Sundays and 4 Mondays
+        XCTAssertEqual(spy.scheduled.count, 16)   // 28 minus 4 each of Sun, Mon, Wed
         let cal = Calendar.current
         XCTAssertFalse(spy.scheduled.contains {
             cal.component(.weekday, from: cal.date(from: $0.fireDate)!) == 2
@@ -182,7 +185,7 @@ final class HardeningTests: XCTestCase {
         let spy = NotificationSpy()
         let relaunched = AppStore(storageURL: tempURL, notifications: spy)
         relaunched.rescheduleReminders(now: moment(hour: 6))   // scenePhase .active path
-        XCTAssertEqual(spy.scheduled.count, 24, "a restart must rebuild the full window")
+        XCTAssertEqual(spy.scheduled.count, 20, "a restart must rebuild the full window")
 
         relaunched.setReminderTime(hour: 7, minute: 45)
         relaunched.rescheduleReminders(now: moment(hour: 6))

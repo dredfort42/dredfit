@@ -65,7 +65,9 @@ struct RestLiveActivity: Widget {
             countdown(state, size: 34)
         }
         .padding(16)
-        .activityBackgroundTint(.white)
+        // Follows the system appearance: a white card on a dark lock screen
+        // mid-workout is a flash in the eyes at the worst possible moment.
+        .activityBackgroundTint(WidgetTheme.background)
         .activitySystemActionForegroundColor(WidgetTheme.ink)
     }
 

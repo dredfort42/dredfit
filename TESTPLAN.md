@@ -1,6 +1,6 @@
 # Dredfit — manual QA checklist
 
-Automated coverage (198 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
+Automated coverage (281 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
 
 **How to use.** Run the *Release smoke* block before every release. Run *Full pass* when the engine, persistence or an integration changed. Device-only rows cannot pass on a simulator and are marked ⌚. Record anything that fails in the [Issue registry](#issue-registry) at the bottom rather than fixing it silently.
 
@@ -14,8 +14,8 @@ Legend: ✅ pass · ❌ fail (log it) · ➖ not applicable this run · ⌚ devi
 
 | # | Check | Expected |
 |---|---|---|
-| S1 | Cold start on a fresh install | Opens on **Today** with "Workout 1", ≈33 min, 6 exercises, a **Start** button |
-| S2 | Full workout: Start → warm-up → 6 exercises → rating | Rating screen appears; tapping an option returns to Today in the done state |
+| S1 | Cold start on a fresh install | Opens on **Today** with "Workout 1", ≈33 min, 6 exercises, a **Start** button with the short-version offer under it |
+| S2 | Full workout: Start → warm-up → 6 exercises → cool-down → rating | Rating screen appears; tapping an option returns to Today in the done state |
 | S3 | Today after completion | Checkmark, "Workout 1 completed", a rating caption, and a **Next** card (no Start button) |
 | S4 | Relaunch the app | Still in the done state — the record survived the restart |
 | S5 | Calendar tab | Today is filled and tappable; the history sheet lists what was done |
@@ -67,7 +67,7 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 | 3.2 | Let it finish | 3-2-1 signals, then the two-tone finale; rest begins automatically |
 | 3.3 | **Stop the hold early** | The recorded actual is rounded to the **nearest multiple of 5** and clamped to 5…90 s |
 | 3.4 | Verify 3.3 on the rating screen | The summary shows "actual N" where N is a multiple of 5 |
-| 3.5 | A per-side hold | Two countdowns run; the second is marked "second side"; the recorded actual is the **smaller** of the two sides |
+| 3.5 | A per-side hold | Side one runs, then a 5 s "Switch sides" pause opens with its own falling tone, then the second side **starts itself** on the usual go, marked "second side"; the recorded actual is the **smaller** of the two sides |
 | 3.6 | While a hold is counting down | **Went differently** and **Skip exercise** are hidden and unresponsive |
 
 ### 4. Adjusting and skipping
@@ -88,9 +88,10 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 | # | Check | Expected |
 |---|---|---|
 | 5.1 | Layout | "Workout N" kicker, "How did it go?", subtitle "One tap — the next workout adapts" |
-| 5.2 | Three options | "Tough, did less" / "On plan" / "Easy, could do more" — **equal visual weight** (no filled card), captions "the next one will be easier" / "next: +1 step" / "next: +2 steps" |
-| 5.3 | No adjustments made | No summary card is shown |
-| 5.4 | With adjustments/skips | "Adjusted" card lists them; footer "Your rating applies to the rest" |
+| 5.2 | Three options | "Tough, did less" / "On plan" / "Easy, could do more" — **equal visual weight** (no filled card), captions "next workout eases off" / "the next one asks a little more" / "progress comes twice as fast" |
+| 5.3 | No adjustments made | No summary card and no scope chip are shown |
+| 5.4 | With adjustments/skips | With skips a scope chip under the title: "Applies to N of M — … stays put" (N excludes skips **and** adjusted exercises). The summary card labels its lists separately: "ADJUSTED" only over adjusted rows, "SKIPPED" only over skipped rows. Skipped rows are dimmed names with **no** per-row word (the header says it once); the one exception is the "Finish now" exercise, whose row reads "not finished" — it differs from the header. VoiceOver still reads every row with its state. The "Your rating applies to the rest" footer appears only when nothing was skipped |
+| 5.4a | Second and later workouts | "Last time you chose: <previous rating>" in small print under the cards; absent on the very first workout |
 | 5.5 | Tap any option | Submits immediately — the card *is* the button; returns to Today |
 | 5.6 | Choose "On plan" and check Progress next session | Each non-skipped pattern rose by exactly 1 level |
 
@@ -98,7 +99,7 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 
 | # | Check | Expected |
 |---|---|---|
-| 6.1 | Settings → **REST DAYS**, default | Sunday only is highlighted; caption "Highlighted days are rest days" |
+| 6.1 | Settings → **REST DAYS**, fresh install | Sunday **and Wednesday** highlighted (issue #36); captions "Highlighted days are rest days" and "2–3 rest days a week is the recommended rhythm". An install upgrading from a file without the key keeps Sunday only |
 | 6.2 | Chip order | Starts at the locale's first weekday (Monday for ru, Sunday for en-US) |
 | 6.3 | Select a second rest day | Both highlighted; Calendar marks both |
 | 6.4 | Try to select a **7th** rest day | Refused — six is the maximum |
@@ -140,7 +141,7 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 | 9.2 | Look at the next workout, then the one after | The pull slot **alternates**: floor pull, then vertical pull, and so on |
 | 9.3 | Technique for a bar exercise | Opens correctly for Bar hang / Negative pull-up / Partial pull-up / Pull-up |
 | 9.4 | Train the bar branch a few sessions | Its level rises independently of the floor pull's level |
-| 9.5 | Progress tab | A "Vertical pull" chip and level bar appear |
+| 9.5 | Progress tab | A "Vertical pull" level row appears; tapping it projects the bar branch in the chart |
 | 9.6 | Turn the bar back **off** | Sessions return to floor pull only; the Vertical pull row **stays visible** because progress exists; its level is preserved |
 | 9.7 | Re-enable the bar | Resumes at the preserved level, not from zero |
 
@@ -170,9 +171,9 @@ Simulator HealthKit is unreliable; run this on a device.
 | 11.6 | Force-quit the app during a rest | The card dims once stale; the next cold launch of the app removes it entirely (no zombie card until the system cap) |
 | 11.7 | Start a second workout right after a first | Exactly one activity is present, not two |
 
-### 12. Home-screen widget
+### 12. Widgets and lock-screen accessories
 
-The snapshot-mirroring logic is unit-tested on every run (the snapshot URL is injected, so `testWidgetSnapshotMirrorsWeekStatuses` no longer skips on unsigned/CI runs). What these manual checks still own is the WidgetKit side: timeline rendering, reload timing, and the real App Group container.
+The snapshot contract is unit-tested on every run (the snapshot URL is injected, so these no longer skip on unsigned/CI runs): `testWidgetSnapshotMirrorsWeekStatuses`, `testWidgetSnapshotCarriesTheLevelWeekAndPlan` and `testWidgetSnapshotFromAnOlderBuildStillDecodes`. What these manual checks still own is the WidgetKit side: timeline rendering, reload timing, the real App Group container, and everything that only misbehaves on a real screen.
 
 | # | Check | Expected |
 |---|---|---|
@@ -182,6 +183,17 @@ The snapshot-mirroring logic is unit-tested on every run (the snapshot URL is in
 | 12.4 | On a rest day | "Rest day" in muted ink |
 | 12.5 | Change rest days in settings | The widget reflects the change |
 | 12.6 | Leave the device overnight past midnight | The widget flips to the new day's status **without** the app being launched |
+| 12.7 | Add the **medium** widget | Status on the left; on the right the total level and a Monday–Sunday strip |
+| 12.8 | Compare the strip with the Calendar tab | Same marks for the same days: filled = done, quiet fill = rest, outline = planned, accent ring = today |
+| 12.9 | A training day earlier this week that was missed | Blank in the strip — no ring, no fill, nothing that reads as a reproach |
+| 12.10 | Add the **large** widget on a training day | The plan of today's session: 6 rows, name and load; a weekly summary line at the bottom |
+| 12.11 | The large widget once today is done, or on a rest day | The plan is labelled "Next: Workout N · \<when\>" so it cannot be read as today's |
+| 12.12 | A deload week on the large widget | The summary shows a **negative** level delta, not a hidden or clamped one |
+| 12.13 | Add all three lock-screen accessories | Circular: a glyph only — figure / checkmark / moon. Rectangular: "Today", the headline, minutes and exercise count. Inline: the headline (plus ≈ minutes on a training day) |
+| 12.14 | Glance at the circular accessory on a rest day vs a training day | The two silhouettes are told apart without reading |
+| 12.15 | ⌚ Every family in **dark mode** | Background and ink follow the system; no white tile among dark widgets |
+| 12.16 | ⌚ Live Activity on the lock screen in dark mode | The card is dark, not a white flash; the countdown stays accent and readable |
+| 12.17 | Install over the previous version without opening the app | The widget keeps rendering from the old snapshot instead of blanking (new fields decode as absent) |
 
 ### 13. Date rollover and edge cases
 
@@ -210,9 +222,17 @@ The snapshot-mirroring logic is unit-tested on every run (the snapshot URL is in
 
 | # | Check | Expected |
 |---|---|---|
-| 15.1 | Progress header | Total level, "N workouts", and "This week · N workouts · +D levels" |
+| 15.1 | Progress header | Total level, beside it "level" / "N workouts", and "This week · N workouts · +D levels" |
+| 15.1a | Header at a four-digit total, in Russian (1.8.0) | The number stays on **one** line — never broken mid-digit ("1 27" / "0"); the caption stays on two lines |
+| 15.1b | Header share button | A round icon (the word does not fit beside the number in Russian), centred on the height of the number's line |
+| 15.1c | Header at an accessibility type size | The caption drops under the number instead of pushing the row off either edge; the share glyph stays inside its ring |
 | 15.2 | A week containing a deload | The weekly delta honestly shows a **minus** |
-| 15.3 | Chart pattern chips | Selecting one plots that pattern only; "All" plots the total |
+| 15.3 | Chart projection | Tapping a pattern row tints it and plots that pattern only; the kicker over the chart names the projection ("PUSH — PUSH-UP"); "Show all" resets to the total — no chips row |
+| 15.3a | Chart x-axis | Two–three sparse date labels (first / middle / last workout); no label before the second workout |
+| 15.3b | Per-pattern bars | One line per pattern: name, bar with white ticks at band boundaries, level. No per-row detail in the all-patterns view |
+| 15.3d | Select a pattern (1.8.0) | Only the selected row grows a detail line under it — the current variation and its position ("Push-up · 2/4") on the left, "next in N" (or "+1 set in N" at tier 4, nothing at the ceiling) on the right; the tint covers both lines |
+| 15.3e | Back to all patterns | The detail line disappears — from the view hierarchy, not merely off-screen |
+| 15.3c | Selecting a pattern, in Russian (1.8.0) | The kicker and the chart under it **do not move**: the title stays on one line (shrinking, then truncating) and "Show all" keeps its place even while hidden |
 | 15.4 | History of an on-plan workout | Exercises with planned volumes and no "actual" annotations |
 | 15.5 | History of an adjusted workout | "actual N" in accent on the adjusted rows only |
 | 15.6 | History footer | "Total level after: N" |
@@ -259,10 +279,19 @@ The snapshot-mirroring logic is unit-tested on every run (the snapshot URL is in
 |---|---|---|
 | 19.1 | **Share** on a milestone screen → save the image | PNG, exactly 1080×1350 |
 | 19.2 | Inspect the card | Wordmark, accent rule, milestone line, date without a time, `dredfit.com`. **No** body metrics, weight, photo or name |
-| 19.3 | Progress tab → share icon | Card reads "N workouts · total level M" |
+| 19.3 | Progress tab → share icon | Card reads "N workouts · level M" — the same one word the header uses |
 | 19.4 | Progress tab on a fresh install | No share icon (nothing to show yet) |
 | 19.5 | Aeroplane mode | Card still renders — generation is entirely local |
 | 19.6 | Card in Russian | Correct plural forms ("10 тренировок", "4 подхода" vs "5 подходов") |
+| 19.7 | Share a milestone screen with several unlocks (1.8.0) | The card names **every** unlocked variation, comma-separated, not only the first row |
+| 19.8 | The same in Russian, with the longest names, on a calibration workout | The headline steps down in size; the date and `dredfit.com` stay on the card |
+| 19.9 | Inspect the ground | Flat ink, exactly as before — the app owns no gradients and the card must not either |
+| 19.10 | Share from Progress with a few workouts behind you | A plain accent line runs across the bottom: no fill under it, no shading |
+| 19.11 | Compare the curve with the Progress chart | The same drawing: straight segments, a dot on the latest session, and a scale that starts at zero — the card must not steepen the line the app draws flat |
+| 19.12 | Share a milestone, then finish another workout and re-share the same milestone screen | The milestone card's curve stops at the workout that earned it |
+| 19.13 | Share after the very first workout | No curve at all — one session is a dot, not a history. The card falls back to the earlier layout |
+| 19.14 | A deload week where the total did not move | The curve renders as a flat line, not missing and not a division-by-zero artefact |
+| 19.15 | The longest Russian headline again | The curve steps aside entirely rather than pushing `dredfit.com` off the card |
 
 ### 20. Review request (1.4)
 
@@ -337,6 +366,111 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 25.2 | A **future** training day | The grey "planned" ring |
 | 25.3 | A rest day (any past or future) | The soft filled circle, visible both in the grid and as the 13 pt legend dot |
 | 25.4 | The legend | completed · planned · rest · today — every dot distinguishable on a real screen at normal brightness |
+| 25.5 | Tap the **next** training day (today's ring before the workout, or the next planned ring after it) | NextWorkoutSheet opens — same preview as the Today done-card; no Start button. Other planned days stay inert |
+
+### 26. Design-review wave
+
+| # | Check | Expected |
+|---|---|---|
+| 26.1 | Today header | "Why this plan?" link next to "≈ N min · N exercises"; tapping opens "How it works", "Got it" dismisses |
+| 26.2 | A workout whose plan first shows a harder variation | That row carries a small "new variation" pill; the pill is not separately tappable — the row still opens technique |
+| 26.3 | The badge after a deload and re-climb | Returning to a variation already performed does **not** re-badge it |
+| 26.4 | Badge across languages | «новая вариация» / "nueva variación" / "nova variação" — no clipping next to long exercise names |
+| 26.5 | Badge on the longest name (pt-BR "Flexão em parada de mão de frente para a parede") | The pill trails the name inline and wraps with it as a unit; the name wraps — **no ellipsis**; the load stays on the first line |
+| 26.6 | Progress fits one screen | No chips row; header stats + chart + all 9 rows (10 with the bar branch) visible together on a 6.1" screen at default type, spaced apart rather than stacked flush |
+| 26.6a | Pattern names in every language (1.8.0) | Each name holds one line — the widest are "Горизонтальный жим" and "Empurrão horizontal"; a wrapped name would cost the row its air |
+| 26.7 | Progress row selection | Tap a row → accentSoft tint + chart re-projects + kicker reads "PATTERN — VARIATION"; a second tap on the same row or "Show all" (accentText) resets to the total; VoiceOver reports the selected trait |
+| 26.8 | Selection tint at the edges | The tint reaches ≈8 pt into both gutters with **rounded** corners — no flat-cut edges |
+
+### 27. Life-benefit line (issue #25)
+
+| # | Check | Expected |
+|---|---|---|
+| 27.1 | Open any technique sheet | An "IN LIFE" section below the mistakes with one line in secondary ink; present for **every** exercise, including bar-module ones |
+| 27.2 | Technique sheet for Pistol squat, Push-up, Pull-up, Chest-to-wall handstand push-up | The **override** line, not the movement's base line |
+| 27.3 | Technique sheet for a non-override variation of the same movements (e.g. Knee push-up, Shrimp squat) | The movement's **base** line |
+| 27.4 | Milestone "New variation" | The life line under "<pattern> · variation N of 4"; override → base rule as above |
+| 27.5 | "Now N sets" and jubilee milestones | **No** life line — abilities belong to variations, not to volume or habit |
+| 27.6 | All four languages (with §14) | Lines read naturally, informal register in es/pt-BR, no "ё" in RU; nothing clips on the sheet or the milestone at default type |
+| 27.7 | Largest accessibility type | Both surfaces wrap without truncation; the sheet scrolls to keep "Got it" reachable |
+
+### 28. Jubilee retrospective (1.8.0, issue #26)
+
+| # | Check | Expected |
+|---|---|---|
+| 28.1 | Reach an anniversary (workout 10, 25, 50…) with an old snapshot in the journal | Under "WORKOUT #N": "Then: <variation> · S×R — Now: <variation> · S×R" plus "N weeks/months since your first workout" |
+| 28.2 | The movement named | The one with the **largest level gain** since the first snapshot; sets/reps match what the engine would prescribe at those levels (incl. hold movements as "S×R s") |
+| 28.3 | Fresh install reaching workout 10 with no growth (rate "less" throughout) | Jubilee shows **without** the retrospective — never a zero or negative comparison |
+| 28.4 | Journal imported from a pre-1.1 backup (no levelsAfter anywhere) | Jubilee as before, no crash, no empty "Then:" |
+| 28.5 | **Share** on an anniversary | The card carries the same two lines under the date; the curve yields space rather than pushing the footer off |
+| 28.6 | Non-anniversary milestone share | Card unchanged — no retrospective lines |
+| 28.7 | All four languages | "Тогда/Сейчас", "Antes/Ahora", "Antes/Agora"; week/month plurals correct (RU: неделя/недели/недель) |
+
+### 29. Short workout (1.8.0, issue #27)
+
+| # | Check | Expected |
+|---|---|---|
+| 29.1 | Today, a training day | Under **Start**, a secondary line: "Short on time? Short version · ≈ N min"; N is noticeably below the full estimate above |
+| 29.2 | Tap it | Warm-up as usual, then "1 / 3" and three capsules — the same exercises, same numbers, as the plan above showed |
+| 29.3 | The three chosen | The pull slot (or **Bar hang**/pull-up branch with the bar on), the rotation anchor, and the lowest-level of the rest |
+| 29.4 | Finish and rate | Rating screen lists the untouched three under their own **SKIPPED** header — dimmed names, no per-row word, no "ADJUSTED" when nothing was adjusted; scope chip reads "applies to 3 of 6" |
+| 29.5 | Progress after it | The three trained moved; the three skipped are **unchanged**; the workout counter advanced by one |
+| 29.6 | History for that day | Six exercises, three marked skipped |
+| 29.7 | Kill the app mid-short (swipe up) and relaunch | "Continue the workout?" says "exercise N of **3**"; Continue resumes the **short** flow, not the full six |
+| 29.8 | "Start over" from that card | The full session, warm-up included — starting over is not starting short |
+| 29.9 | Next training day | Today opens on the full session by default; the short version is again only an offer, with no mention of last time |
+| 29.10 | Eight short workouts in a row | Every movement appears at least once across them (the anchor guarantees it) |
+| 29.11 | All four languages | The button fits on one line at default type; es/pt do not clip |
+
+### 30. Cool-down (1.8.0, issue #28)
+
+| # | Check | Expected |
+|---|---|---|
+| 30.1 | Complete the last exercise's last set | "COOL-DOWN" header, six dots, first position "Hip flexor stretch" with a 15 s countdown and "15 s per side" hint |
+| 30.2 | The six positions | Hip flexors → chest and shoulders → three from the session's movements (dedup'd, session order) → rest pose last; no duplicates |
+| 30.3 | The mapped three | Match what was performed: fold for squat/hinge, lats for pulls, wrists for pushes, twist for core, calf at the wall, seated glute for lunges |
+| 30.4 | Let it run | 6 × 30 s of stretching = the reserved 3:00, plus a 5 s side-switch pause per unilateral position (≈3:15–3:20 in total, within the "≈"); the rating follows |
+| 30.5 | "Skip this move" / "Skip cool-down" | One position or the whole block; either way the rating still comes and the workout records exactly as before |
+| 30.6 | "Finish now" from mid-workout | **No** cool-down — whoever cut the workout short is out of time by definition |
+| 30.7 | Skip all six exercises | No cool-down either — nothing was trained, nothing to stretch |
+| 30.8 | Short workout | Cool-down composed from the **three performed** movements only |
+| 30.9 | Kill the app during the cool-down, relaunch, Continue | Lands on the rating screen — the work is behind, nobody returns to finish a stretch |
+| 30.10 | Health duration | The workout's recorded duration includes the cool-down time |
+| 30.11 | Background mid-position, return after a while | The countdown reflects real elapsed time and jumps over positions it already covered |
+| 30.12 | All four languages | Position names and hints read naturally; nothing clips |
+
+### 31. Side-switch pause (issue #35)
+
+| # | Check | Expected |
+|---|---|---|
+| 31.1 | A unilateral cool-down position (hip flexors is first) | 15 s first side → "Switch sides" in accent with a 5→1 countdown → 15 s marked "second side"; bilateral positions still run one 30 s countdown |
+| 31.2 | Listen at each boundary | The pause opens with a **falling** two-tone (the go inverted) — audibly distinct from the rising go that starts the second side and the next position; 3-2-1 ticks precede the end of each side, none inside the pause |
+| 31.3 | A per-side hold (bird dog / side plank) | After side one the same pause runs and the second side starts itself — no tap; **Stop**, **Went differently** and **Skip exercise** are unavailable during the pause |
+| 31.4 | Stop the second side within the first ~3 s | Mis-tap grace: the countdown cancels and **Start hold** returns for the second side, first side's result intact |
+| 31.5 | Kill the app during a hold's pause, relaunch, Continue | The set starts over from side one — holds are never restored mid-count; during the cool-down's pause it restores to the rating as before |
+| 31.6 | All four languages | "Switch sides" reads naturally (Cambia de lado · Troque de lado · Смени сторону); nothing clips |
+
+### 32. Position technique mini-sheets (issue #34)
+
+| # | Check | Expected |
+|---|---|---|
+| 32.1 | Every warm-up move and cool-down position | A **technique** affordance under the name; the mini-sheet opens with the name, a block capsule ("warm-up · 30 s" / "cool-down · 30 s" / "cool-down · 15 s per side"), 2–3 numbered steps and **Got it** — all 15 positions |
+| 32.2 | The countdown while the sheet is open | **Frozen** — the number does not move; closing the sheet resumes from the same second. A deliberate divergence from the rest-phase sheet, where the timer keeps ticking |
+| 32.3 | Open during a side-switch pause (issue #35) | The 5→1 pause countdown freezes too and resumes on close |
+| 32.4 | Signals under the sheet | No ticks or go while frozen — the countdown is simply not running |
+| 32.5 | es / pt-BR / large Dynamic Type | Long strings wrap inside the sheet (scrolls at the biggest accessibility sizes); nothing clips or overlaps |
+| 32.6 | The work and rest screens | Their technique button still opens the full exercise sheet — with the timer ticking on rest, as before |
+
+### 33. Silent decay for 7–13 day gaps (engine v2.4, issue #37)
+
+| # | Check | Expected |
+|---|---|---|
+| 33.1 | Last workout 8–13 days ago, open the app | Every level silently −1 (Progress bars, Today's plan) — no card, no message; levels at 0 stay at 0 |
+| 33.2 | Reopen the app during the same break | No further drop — one decay per break; the stamp survives relaunches |
+| 33.3 | Last workout 6 days ago / 14+ days ago | No silent decay: below the zone nothing happens; at 14+ the comeback card owns the break as before |
+| 33.4 | Break crosses both zones (opened at day 8–13, returned at 14+) | The comeback card shows the **weakened** drop (table − 1); accepting lands exactly where a plain comeback would — peeking mid-break never costs extra |
+| 33.5 | First workout after a decayed break rated "tough" | Regular −1 on top; **no** deload from the old streak alone — the streak grows as usual |
+| 33.6 | Complete a workout, then a new 8-day break | The new break decays independently — the old stamp went stale with the new workout |
 
 ---
 
@@ -352,5 +486,7 @@ Log every failure found while running this plan. Keep entries until they ship fi
 | I-4 | 2026-07-18 | Calendar | Rest days rendered identically to out-of-month days (dimmed number, no shape, no legend entry) | low | **fixed in 1.4.0** — soft fill plus a legend entry (§6.5) |
 | I-5 | 2026-07-18 | UI tests / CI | 6 of 16 UI tests fail on GitHub runners with `No matches found for … "Skip rest" IN identifiers`, while the same suite passes 16/16 locally. Timing flakiness under runner load, not a product defect — the rest phase advances before the tap lands. Survives the workflow's 3 retries | medium | open — UI tests no longer gate releases; fix before relying on the nightly |
 | I-6 | 2026-07-24 | Workout flow | `testMilestoneScreenListsEverythingEarned` intermittently hangs mid-workout: the app stops responding (neither **Done** nor **Start hold** is present, the rating never arrives) and XCTest kills it — "Test crashed with signal term". Failed twice on a busy machine at `99704ef` and on the 1.7.1 branch, passed on a quiet one, and did not reproduce at `dc67b20` — the commit before the audible countdown. Suspect: audio playback on the main actor stalling under simulator load | medium | open — watch the nightly; if it recurs, sample the app while it is stuck rather than re-running |
+| I-7 | 2026-07-30 | How it works | The subtitle still read "Seven things worth knowing about the regulator." after the "Weekly rhythm" section made it eight — caught by the 1.8.0 store-frame recapture of s8 | low | **fixed in the 1.8.0 wave** — key renamed to "Eight things…", all four languages updated |
+| I-8 | 2026-07-30 | Widget tests | `WidgetTimelineTests` word assertions compared SwiftUI `Text` values — equality of two Texts with identical words is nondeterministic (localized-storage identity, not content): green bare, 12 failures under `-testPlan` + `-test-iterations`, then pass-pass-fail across three identical bare runs | medium | **fixed in the 1.8.0 wave** — `headline`/`subline`/`nextPlanText` return resolved `String(localized:)`, tests compare strings; full plan then green 281/0 |
 
 **Severity.** *high* — data loss, crash, or a broken core flow · *medium* — a feature misbehaves but there is a way around it · *low* — cosmetic or a rare edge case.

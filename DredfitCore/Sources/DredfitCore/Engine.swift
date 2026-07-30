@@ -11,6 +11,7 @@
 //    Engine.generateSession(state)  — a workout from state (deterministic)
 //    Engine.applyFeedback(...)      — the main state mutation
 //    Engine.applyComeback(...)      — level drop after a long break
+//    Engine.applySilentDecay(...)   — quiet −1 for the 7–13 day blind zone
 //
 
 import Foundation
@@ -80,6 +81,10 @@ public enum EngineConfig {
     public static let comebackBase = 2
     public static let comebackStepDays = 21
     public static let comebackMax = 8
+    // Silent decay (v2.4): the lower edge of the 7–13 day blind zone — the
+    // comeback only starts at 14, yet ~10 days already cost the body a step
+    // or two.
+    public static let silentDecayGapDays = 7
     // Per-tier rep/hold floors: the harder the variation, the lower the
     // start, so the first step of a new tier lands softly instead of the
     // jump "tier1×15 → tier2×8".
@@ -279,6 +284,45 @@ public enum Engine {
     /// each appears exactly 5 times. With hasBar on, odd counters hand the
     /// pull slot to the vertical branch (pullBar), which inherits pull's
     /// position in the session order.
+    /// The first movement of the rotation window for a counter — the "anchor"
+    /// of the short workout (issue #27).
+    ///
+    /// Read-only and behaviour-free: it re-derives what `generateSession`
+    /// already computes internally, so the app layer never has to keep its
+    /// own copy of the rotation formula. Nothing in the engine calls it, and
+    /// no fixture can move because of it.
+    ///
+    /// The rotation property that makes it useful: the window shifts by 3
+    /// over 8 rotating patterns each session, so over any 8 consecutive
+    /// sessions the anchor visits all 8 — every movement is trained at least
+    /// once even if the user only ever does short workouts.
+    public static func rotationAnchor(counter: Int) -> Pattern {
+        let n = rotating.count
+        let start = (((counter * EngineConfig.rotationStep) % n) + n) % n
+        return rotating[start]
+    }
+
+    /// Estimated wall-clock minutes for a list of exercises, warm-up and
+    /// cool-down included — the same arithmetic `generateSession` uses for a
+    /// full session, exposed so the short workout can state its own length
+    /// without the app layer re-deriving tempo and rest constants.
+    public static func estimatedMin(exercises: [SessionExercise]) -> Double {
+        var workSec = 0.0
+        for ex in exercises {
+            let sides = ex.perSide ? 2 : 1
+            let workPerSet: Double = ex.unit == .reps
+                ? Double(ex.load * sides) * EngineConfig.tempoSecPerRep
+                : Double(ex.load * sides)
+            workSec += Double(ex.sets) * workPerSet
+                + Double((ex.sets - 1) * ex.restSetSec)
+                + Double(ex.restExerciseSec)
+        }
+        let totalSec = Double(EngineConfig.warmupMin * 60) + workSec
+            + Double(EngineConfig.cooldownMin * 60)
+        // Round to 0.1 min — as in the reference (toFixed(1))
+        return (totalSec / 60 * 10).rounded() / 10
+    }
+
     public static func generateSession(_ state: EngineState) -> Session {
         let n = rotating.count
         // Nonnegative modulo: Swift's % is a remainder and goes negative with
@@ -294,21 +338,12 @@ public enum Engine {
         let patterns = Pattern.ordered.filter { chosen.contains($0) } // ordering follows Pattern.ordered
             .map { $0 == .pull && useBar ? Pattern.pullBar : $0 }
 
-        var workSec = 0.0
         let exercises: [SessionExercise] = patterns.map { p in
             let lib = ExerciseLibrary.entry(for: p)
             let d = Level.decode(state.levels[p] ?? 0)
             let variation = lib.variations[d.tier - 1]
             let unit = lib.unit(forTier: d.tier)
-            let sides = variation.unilateral ? 2 : 1
             let load = unit == .reps ? d.reps : d.hold
-
-            let workPerSet: Double = unit == .reps
-                ? Double(d.reps * sides) * EngineConfig.tempoSecPerRep
-                : Double(d.hold * sides)
-            workSec += Double(d.sets) * workPerSet
-                + Double((d.sets - 1) * EngineConfig.restSetSec)
-                + Double(EngineConfig.restExerciseSec)
 
             return SessionExercise(
                 pattern: p, name: variation.name, tier: d.tier,
@@ -319,10 +354,7 @@ public enum Engine {
             )
         }
 
-        let totalSec = Double(EngineConfig.warmupMin * 60) + workSec
-            + Double(EngineConfig.cooldownMin * 60)
-        // Round to 0.1 min — as in the reference (toFixed(1))
-        let totalMin = (totalSec / 60 * 10).rounded() / 10
+        let totalMin = estimatedMin(exercises: exercises)
 
         return Session(
             sessionNumber: state.counter + 1,
@@ -418,16 +450,47 @@ public enum Engine {
     /// NOT idempotent: every call subtracts the drop again. The caller must
     /// apply it at most once per break — the app keys this decision on
     /// `comebackDecidedFor`, so the same gap is never applied twice.
-    public static func applyComeback(state: EngineState, gapDays: Int) -> EngineState {
+    ///
+    /// `alreadyDecayed` (v2.4): the silent −1 was already applied to this
+    /// same break (the user opened the app inside the 7–13 day blind zone).
+    /// The two drops must not stack — whoever peeked mid-break must not end
+    /// up punished harder than whoever stayed away — so the comeback weakens
+    /// by one and the break's total is exactly the table value. Per level
+    /// this is exact even at the clamp:
+    /// `max(max(L−1,0) − (drop−1), 0) == max(L − drop, 0)` for drop ≥ 2.
+    public static func applyComeback(state: EngineState, gapDays: Int,
+                                     alreadyDecayed: Bool = false) -> EngineState {
         guard gapDays >= EngineConfig.comebackMinGapDays else { return state }
         let raw = EngineConfig.comebackBase
             + (gapDays - EngineConfig.comebackMinGapDays) / EngineConfig.comebackStepDays
-        let drop = min(max(raw, 2), EngineConfig.comebackMax)
+        let drop = min(max(raw, 2), EngineConfig.comebackMax) - (alreadyDecayed ? 1 : 0)
 
         var next = state
         for p in Pattern.allCases {
             next.levels[p] = max(0, (state.levels[p] ?? 0) - drop)
             next.failStreak[p] = 0
+        }
+        return next
+    }
+
+    /// Silent decay for the 7–13 day blind zone (v2.4, issue #37): the
+    /// comeback starts at 14 days, yet the most common real-life gap length
+    /// (vacation, work trip, a cold) already costs the body a step or two.
+    /// A quiet −1 to every pattern — including `pullBar` when
+    /// `hasBar == false`, a break detrains the whole body — clamped at 0.
+    ///
+    /// `failStreak` is deliberately untouched, unlike the comeback: −1 is a
+    /// soft plan correction, not a level capitulation, and a one-week pause
+    /// is no reason to erase an accumulated streak. `counter` does not move.
+    ///
+    /// NOT idempotent, same as the comeback: the app layer applies it at
+    /// most once per break, keyed to the last workout's date.
+    public static func applySilentDecay(state: EngineState, gapDays: Int) -> EngineState {
+        guard gapDays >= EngineConfig.silentDecayGapDays,
+              gapDays < EngineConfig.comebackMinGapDays else { return state }
+        var next = state
+        for p in Pattern.allCases {
+            next.levels[p] = max(0, (state.levels[p] ?? 0) - 1)
         }
         return next
     }

@@ -2,101 +2,346 @@
 //  TodayStatusWidget.swift
 //  DredfitWidgets
 //
-//  A small home-screen widget: today's status — a planned workout,
-//  "done", or a rest day. The app writes a 7-day snapshot into the
-//  App Group; the widget only reads it, one timeline entry per day,
-//  so the status flips at midnight without the app's help.
+//  Today's status — a planned workout, "done", or a rest day — on the home
+//  screen and on the lock screen. The app writes a two-week snapshot into the
+//  App Group; the widget only reads it, one timeline entry per day, so the
+//  status flips at midnight without the app's help.
+//
+//  What each family answers is deliberately different, so two accessories on
+//  the same lock screen never say the same thing twice:
+//    · circular      — is there a workout today? one glyph, no reading
+//    · inline / rect — which workout, and how much of it
+//    · small         — the same question the widget has always answered
+//    · medium        — plus the week and the total level
+//    · large         — plus the plan itself
+//
+//  The timeline itself (TodayEntry / TodayProvider) lives in
+//  TodayProvider.swift, where the unit tests can reach it.
 //
 
 import WidgetKit
 import SwiftUI
 
-struct TodayEntry: TimelineEntry {
-    let date: Date
-    let status: WidgetSnapshot.Day.Status?
-    let sessionNumber: Int?
-}
+// MARK: - View
 
-struct TodayProvider: TimelineProvider {
-    func placeholder(in context: Context) -> TodayEntry {
-        TodayEntry(date: .now, status: .workout, sessionNumber: 1)
-    }
-
-    func getSnapshot(in context: Context, completion: @escaping (TodayEntry) -> Void) {
-        completion(entries(from: loadSnapshot()).first
-            ?? TodayEntry(date: .now, status: nil, sessionNumber: nil))
-    }
-
-    func getTimeline(in context: Context, completion: @escaping (Timeline<TodayEntry>) -> Void) {
-        var list = entries(from: loadSnapshot())
-        if list.isEmpty { list = [TodayEntry(date: .now, status: nil, sessionNumber: nil)] }
-        completion(Timeline(entries: list, policy: .atEnd))
-    }
-
-    private func loadSnapshot() -> WidgetSnapshot? {
-        guard let url = SharedStorage.snapshotURL,
-              let data = try? Data(contentsOf: url) else { return nil }
-        return try? JSONDecoder().decode(WidgetSnapshot.self, from: data)
-    }
-
-    /// One entry per snapshot day, starting today; past days are dropped.
-    private func entries(from snapshot: WidgetSnapshot?) -> [TodayEntry] {
-        guard let snapshot else { return [] }
-        let today = Calendar.current.startOfDay(for: .now)
-        return snapshot.days
-            .filter { $0.date >= today }
-            .map { TodayEntry(date: $0.date, status: $0.status, sessionNumber: $0.sessionNumber) }
-    }
-}
-
+// Explicit @MainActor for the same reason as in TodayProvider.swift: the
+// unit tests compile this file without the widget target's default
+// MainActor isolation.
+@MainActor
 struct TodayStatusView: View {
+    @Environment(\.widgetFamily) private var family
     let entry: TodayEntry
 
     var body: some View {
+        switch family {
+        case .systemMedium: medium
+        case .systemLarge: large
+        case .accessoryCircular: circular
+        case .accessoryRectangular: rectangular
+        case .accessoryInline: inline
+        default: small
+        }
+    }
+
+    // MARK: Home screen
+
+    private var small: some View {
         VStack(alignment: .leading, spacing: 6) {
+            kicker
+            Spacer(minLength: 0)
+            statusBlock(size: 20)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .containerBackground(WidgetTheme.background, for: .widget)
+    }
+
+    /// Three tiers rather than four corners: the extra width goes to the week
+    /// strip, which spans the whole card instead of crowding into a corner
+    /// and leaving the middle of the widget empty.
+    private var medium: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                kicker
+                Spacer(minLength: 0)
+                totalLevelLine
+            }
+            Spacer(minLength: 8)
+            statusBlock(size: 22)
+            Spacer(minLength: 8)
+            Rectangle()
+                .fill(WidgetTheme.hairline)
+                .frame(height: 0.5)
+                .padding(.bottom, 10)
+            weekStrip
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .containerBackground(WidgetTheme.background, for: .widget)
+    }
+
+    private var large: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            kicker
+                .padding(.bottom, 10)
+            statusBlock(size: 22)
+            nextPlanLabel
+                .padding(.top, 12)
+            planList
+                .padding(.top, 10)
+            Spacer(minLength: 10)
+            weekSummaryLine
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .containerBackground(WidgetTheme.background, for: .widget)
+    }
+
+    // MARK: Lock screen
+
+    /// One glyph, no reading: the only question worth answering at a glance.
+    private var circular: some View {
+        ZStack {
+            AccessoryWidgetBackground()
+            Image(systemName: glyph)
+                .font(.system(size: 24, weight: .medium))
+        }
+        .accessibilityLabel(headline)
+        .containerBackground(.clear, for: .widget)
+    }
+
+    private var rectangular: some View {
+        VStack(alignment: .leading, spacing: 1) {
             Text("Today")
                 .font(.system(size: 11, weight: .semibold))
-                .kerning(1.2)
+                .kerning(0.6)
                 .textCase(.uppercase)
-                .foregroundStyle(WidgetTheme.ink2)
+                .widgetAccentable()
+            Text(headline)
+                .font(.system(size: 15, weight: .bold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+            Text(subline)
+                .font(.system(size: 12))
+                .lineLimit(1)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .containerBackground(.clear, for: .widget)
+    }
 
-            Spacer(minLength: 0)
-
+    private var inline: some View {
+        Label {
             switch entry.status {
             case .workout:
+                if let n = entry.sessionNumber, let min = entry.planMinutes {
+                    Text("Workout \(n)") + Text(verbatim: " · ") + Text("≈ \(min) min")
+                } else {
+                    Text(headline)
+                }
+            default:
+                Text(headline)
+            }
+        } icon: {
+            Image(systemName: glyph)
+        }
+        .containerBackground(.clear, for: .widget)
+    }
+
+    // MARK: Pieces
+
+    private var kicker: some View {
+        Text("Today")
+            .font(.system(size: 11, weight: .semibold))
+            .kerning(1.2)
+            .textCase(.uppercase)
+            .foregroundStyle(WidgetTheme.ink2)
+    }
+
+    /// The accent dot plus the headline — the shape the small family has
+    /// always had, reused so every size reads as one family.
+    private func statusBlock(size: CGFloat) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            if entry.status == .workout {
                 Circle()
                     .fill(WidgetTheme.accent)
                     .frame(width: 10, height: 10)
-                if let n = entry.sessionNumber {
-                    Text("Workout \(n)")
-                        .font(.system(size: 20, weight: .heavy))
-                        .foregroundStyle(WidgetTheme.ink)
-                        .minimumScaleFactor(0.7)
-                } else {
-                    Text("Workout day")
-                        .font(.system(size: 20, weight: .heavy))
-                        .foregroundStyle(WidgetTheme.ink)
-                        .minimumScaleFactor(0.7)
-                }
-            case .done:
-                Text("Done ✓")
-                    .font(.system(size: 20, weight: .heavy))
+            }
+            Text(headline)
+                .font(.system(size: size, weight: .heavy))
+                .foregroundStyle(entry.status == .rest ? WidgetTheme.ink2 : WidgetTheme.ink)
+                .minimumScaleFactor(0.7)
+                .lineLimit(1)
+        }
+    }
+
+    @ViewBuilder
+    private var totalLevelLine: some View {
+        if let level = entry.totalLevel {
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text("\(level)")
+                    .font(.system(size: 22, weight: .heavy))
+                    .monospacedDigit()
                     .foregroundStyle(WidgetTheme.ink)
-            case .rest:
-                Text("Rest day")
-                    .font(.system(size: 20, weight: .heavy))
-                    .foregroundStyle(WidgetTheme.ink2)
-            case nil:
-                Text("Dredfit")
-                    .font(.system(size: 20, weight: .heavy))
+                Text("level")
+                    .font(.system(size: 10.5))
                     .foregroundStyle(WidgetTheme.ink2)
             }
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-        .containerBackground(.white, for: .widget)
+    }
+
+    /// The same marks the Calendar tab uses, so a filled dot cannot come to
+    /// mean one thing on the home screen and another inside the app.
+    private var weekStrip: some View {
+        HStack(spacing: 0) {
+            ForEach(entry.week, id: \.date) { day in
+                VStack(spacing: 5) {
+                    Text(day.date.formatted(.dateTime.weekday(.narrow)))
+                        .font(.system(size: 10, weight: .semibold))
+                        // A missed day carries no mark, so without dimming its
+                        // letter the column reads as a failed render rather
+                        // than as the silence it is meant to be.
+                        .foregroundStyle(day.status == .unmarked
+                                         ? WidgetTheme.ink3 : WidgetTheme.ink2)
+                    mark(for: day)
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func mark(for day: WidgetSnapshot.Day) -> some View {
+        let isToday = Calendar.current.isDate(day.date, inSameDayAs: entry.date)
+        ZStack {
+            switch day.status {
+            case .done:
+                Circle().fill(WidgetTheme.accent)
+            case .rest:
+                Circle().fill(WidgetTheme.restFill)
+            case .workout:
+                Circle().strokeBorder(WidgetTheme.planned, lineWidth: 1.5)
+            case .unmarked:
+                // A missed training day. Left blank on purpose.
+                Color.clear
+            }
+            // "Done" is already the loudest mark on the strip; ringing it too
+            // would only blur which day is today.
+            if isToday && day.status != .done {
+                Circle().strokeBorder(WidgetTheme.accent, lineWidth: 2)
+            }
+        }
+        .frame(width: 14, height: 14)
+    }
+
+    /// On a rest day or once today is done, the plan below is the *next*
+    /// session — say so, rather than letting it read as today's.
+    @ViewBuilder
+    private var nextPlanLabel: some View {
+        if let text = nextPlanText {
+            Text(text)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(WidgetTheme.ink2)
+                .lineLimit(1)
+        }
+    }
+
+    /// Internal, like headline and subline below: the words are the part of
+    /// the view the unit tests pin, the chrome around them is not. Resolved
+    /// Strings rather than Text: two Texts with identical words do not
+    /// reliably compare equal, and the tests pin words, not SwiftUI storage.
+    var nextPlanText: String? {
+        guard entry.status != .workout, let n = entry.planSessionNumber,
+              let when = entry.nextLabel else { return nil }
+        return String(localized: "Next: Workout \(n) · \(when)")
+    }
+
+    private var planList: some View {
+        VStack(spacing: 0) {
+            ForEach(Array(entry.plan.enumerated()), id: \.offset) { index, row in
+                if index > 0 {
+                    Rectangle()
+                        .fill(WidgetTheme.hairline)
+                        .frame(height: 0.5)
+                }
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text(row.name)
+                        .font(.system(size: 13.5))
+                        .foregroundStyle(WidgetTheme.ink)
+                        .lineLimit(1)
+                    Spacer(minLength: 0)
+                    Text(row.detail)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(WidgetTheme.ink2)
+                        .monospacedDigit()
+                }
+                .padding(.vertical, 6)
+            }
+        }
+    }
+
+    /// Worded exactly as the Progress screen words it, deload weeks and all.
+    @ViewBuilder
+    private var weekSummaryLine: some View {
+        if let week = entry.summary {
+            let sign = week.levelsDelta >= 0 ? "+" : ""
+            (Text("This week")
+                + Text(verbatim: " · ")
+                + Text("\(week.workouts) workouts")
+                + Text(" · \(sign)", comment: "A separator dot followed by the sign of the level change.")
+                + Text("\(week.levelsDelta) levels"))
+                .font(.system(size: 11.5))
+                .foregroundStyle(WidgetTheme.ink2)
+                .lineLimit(1)
+                .minimumScaleFactor(0.85)
+        }
+    }
+
+    // MARK: Words and glyphs
+    //
+    // Internal rather than private: the unit tests pin these Text choices
+    // per status — see WidgetTimelineTests.
+
+    var headline: String {
+        switch entry.status {
+        case .workout:
+            if let n = entry.sessionNumber { return String(localized: "Workout \(n)") }
+            return String(localized: "Workout day")
+        case .done:
+            return String(localized: "Done ✓")
+        case .rest:
+            return String(localized: "Rest day")
+        case .unmarked, nil:
+            return String(localized: "Dredfit")
+        }
+    }
+
+    var subline: String {
+        switch entry.status {
+        case .workout:
+            if let min = entry.planMinutes, !entry.plan.isEmpty {
+                return String(localized: "≈ \(min) min · \(entry.plan.count) exercises")
+            }
+            return String(localized: "Dredfit")
+        default:
+            if let when = entry.nextLabel { return String(localized: "Next workout \(when)") }
+            return String(localized: "Dredfit")
+        }
+    }
+
+    /// Two of the three already exist in the app's tiny symbol vocabulary:
+    /// `checkmark` is the done state on Today, `figure.strengthtraining
+    /// .functional` is how the Live Activity signs itself in the Dynamic
+    /// Island. A rest day never had a glyph — `moon.fill` is the one silhouette
+    /// that cannot be confused with the figure at accessory size.
+    private var glyph: String {
+        switch entry.status {
+        case .done: return "checkmark"
+        case .rest: return "moon.fill"
+        default: return "figure.strengthtraining.functional"
+        }
     }
 }
 
+@MainActor
 struct TodayStatusWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "DredfitToday", provider: TodayProvider()) { entry in
@@ -104,6 +349,7 @@ struct TodayStatusWidget: Widget {
         }
         .configurationDisplayName(String(localized: "Today's status"))
         .description(String(localized: "Workout, done or a rest day at a glance."))
-        .supportedFamilies([.systemSmall])
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge,
+                            .accessoryCircular, .accessoryRectangular, .accessoryInline])
     }
 }

@@ -24,7 +24,1205 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : " /стор."
+            "value" : " на стор."
+          }
+        }
+      }
+    },
+    "cooldown.calfWall.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hands on the wall, one leg stepped back, heel on the floor."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manos en la pared, una pierna atrás con el talón en el suelo."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mãos na parede, uma perna atrás com o calcanhar no chão."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ладони на стене, одна нога отставлена назад, пятка на полу."
+          }
+        }
+      }
+    },
+    "cooldown.calfWall.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back knee straight; lean toward the wall until the calf stretches."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rodilla trasera recta; acércate a la pared hasta sentir el estiramiento en la pantorrilla."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Joelho de trás reto; incline-se para a parede até alongar a panturrilha."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заднее колено прямое; подайся к стене — до растяжения икры."
+          }
+        }
+      }
+    },
+    "cooldown.calfWall.step3" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep the heel down — no bouncing."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El talón no se despega: sin rebotes."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O calcanhar não sai do chão: sem balançar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пятку не отрывай — без пружинящих движений."
+          }
+        }
+      }
+    },
+    "cooldown.chestWall.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forearm on the wall, elbow at shoulder height."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Antebrazo en la pared, codo a la altura del hombro."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Antebraço na parede, cotovelo na altura do ombro."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Предплечье на стене, локоть на уровне плеча."
+          }
+        }
+      }
+    },
+    "cooldown.chestWall.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn the chest away from the wall until the front of the shoulder stretches."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gira el pecho alejándolo de la pared hasta sentir el estiramiento delante del hombro."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gire o peito para longe da parede até alongar a frente do ombro."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Разверни грудь от стены — до растяжения передней части плеча."
+          }
+        }
+      }
+    },
+    "cooldown.chestWall.step3" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swap arms halfway through."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A mitad de tiempo, cambia de brazo."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na metade do tempo, troque de braço."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На середине поменяй руки."
+          }
+        }
+      }
+    },
+    "cooldown.forwardFold.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feet hip-width; fold forward from the hips, knees soft."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pies al ancho de cadera; inclínate desde la cadera con las rodillas ligeramente flexionadas."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pés na largura do quadril; dobre o tronco a partir do quadril, joelhos levemente flexionados."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стопы на ширине таза; наклонись вперед от таза, колени чуть согнуты."
+          }
+        }
+      }
+    },
+    "cooldown.forwardFold.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Let the head and arms hang heavy — no reaching for the floor."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deja colgar la cabeza y los brazos: no fuerces hasta el suelo."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deixe a cabeça e os braços pendurados: não force até o chão."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Голова и руки свободно висят — не тянись к полу."
+          }
+        }
+      }
+    },
+    "cooldown.forwardFold.step3" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To come up, unroll the spine slowly, one vertebra at a time."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para subir, desenrolla la espalda despacio, vértebra a vértebra."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para subir, desenrole as costas devagar, vértebra por vértebra."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поднимайся медленно, раскручивая спину позвонок за позвонком."
+          }
+        }
+      }
+    },
+    "cooldown.hipFlexors.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kneel on one knee, the other foot planted in front."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apoya una rodilla en el suelo, con el otro pie plantado delante."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apoie um joelho no chão, com o outro pé firme à frente."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Опустись на одно колено, другая стопа стоит впереди."
+          }
+        }
+      }
+    },
+    "cooldown.hipFlexors.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tuck the pelvis and shift it slightly forward until the front of the hip stretches."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bascula la pelvis y llévala un poco hacia adelante hasta sentir el estiramiento delante de la cadera."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Encaixe a pelve e leve-a um pouco à frente até sentir alongar a frente do quadril."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подкрути таз и подай его чуть вперед — до растяжения по передней поверхности бедра."
+          }
+        }
+      }
+    },
+    "cooldown.hipFlexors.step3" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hold steady and breathe — no bouncing."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantén la posición y respira: sin rebotes."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantenha a posição e respire: sem balançar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Держи положение и дыши — без пружинящих движений."
+          }
+        }
+      }
+    },
+    "cooldown.latStretch.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hold a support at hip height with both hands, feet under the hips."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sujeta un apoyo a la altura de la cadera con ambas manos, pies bajo la cadera."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Segure um apoio na altura do quadril com as duas mãos, pés sob o quadril."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Возьмись обеими руками за опору на уровне таза, стопы под тазом."
+          }
+        }
+      }
+    },
+    "cooldown.latStretch.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sit the hips back on straight arms until the sides of the back stretch."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lleva la cadera atrás con los brazos rectos hasta sentir el estiramiento a los lados de la espalda."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leve o quadril para trás com os braços retos até alongar as laterais das costas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отведи таз назад на прямых руках — до растяжения по бокам спины."
+          }
+        }
+      }
+    },
+    "cooldown.latStretch.step3" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep the head between the arms and breathe."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cabeza entre los brazos; respira con calma."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cabeça entre os braços; respire com calma."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Голова между рук; дыши спокойно."
+          }
+        }
+      }
+    },
+    "cooldown.lyingTwist.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On your back, knees bent; drop both knees to one side."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Boca arriba, rodillas dobladas; déjalas caer hacia un lado."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De costas, joelhos dobrados; deixe-os cair para um lado."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лежа на спине, согни колени и опусти их в сторону."
+          }
+        }
+      }
+    },
+    "cooldown.lyingTwist.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shoulders stay on the floor, head turns the other way."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los hombros siguen en el suelo; la cabeza gira hacia el lado contrario."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os ombros ficam no chão; a cabeça vira para o lado oposto."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Плечи на полу, голова повернута в другую сторону."
+          }
+        }
+      }
+    },
+    "cooldown.lyingTwist.step3" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Let the weight sink on its own — don't push the knees down."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deja que las rodillas bajen por su propio peso: no las empujes."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deixe o peso afundar sozinho: não empurre os joelhos."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дай коленям опускаться под своим весом — не дави на них."
+          }
+        }
+      }
+    },
+    "cooldown.restPose.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Knees on the floor, sit back onto the heels."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rodillas en el suelo, siéntate sobre los talones."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Joelhos no chão, sente-se sobre os calcanhares."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Колени на полу, опусти таз на пятки."
+          }
+        }
+      }
+    },
+    "cooldown.restPose.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fold forward, arms stretched ahead, forehead down."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inclínate hacia adelante, brazos estirados y la frente en el suelo."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incline-se à frente, braços esticados e testa no chão."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Наклонись вперед, вытяни руки, лоб на пол."
+          }
+        }
+      }
+    },
+    "cooldown.restPose.step3" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Breathe slowly, sending the breath into the back."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Respira lento, llevando el aire hacia la espalda."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Respire devagar, levando o ar para as costas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дыши медленно, направляя вдох в спину."
+          }
+        }
+      }
+    },
+    "cooldown.seatedGlute.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sit tall; place one ankle over the opposite knee."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Siéntate con la espalda recta; apoya un tobillo sobre la rodilla contraria."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sente-se com as costas retas; apoie um tornozelo sobre o joelho oposto."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сядь ровно; положи лодыжку на противоположное колено."
+          }
+        }
+      }
+    },
+    "cooldown.seatedGlute.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lean forward from the hips with a straight back until the glute stretches."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inclínate hacia adelante desde la cadera con la espalda recta hasta sentir el glúteo."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incline-se à frente a partir do quadril com as costas retas até sentir o glúteo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Наклонись вперед от таза с прямой спиной — до растяжения в ягодице."
+          }
+        }
+      }
+    },
+    "cooldown.seatedGlute.step3" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The knee falls open on its own — don't press it down."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La rodilla cae abierta sola: no la presiones."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O joelho abre naturalmente: não o pressione."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Колено свободно смотрит в сторону — не дави на него."
+          }
+        }
+      }
+    },
+    "cooldown.wrists.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arm straight, palm down; gently pull the fingers down and toward you."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brazo recto, palma hacia abajo; con la otra mano tira suave de los dedos hacia abajo y hacia ti."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Braço reto, palma para baixo; com a outra mão puxe de leve os dedos para baixo e na sua direção."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рука прямая, ладонь вниз; другой рукой мягко потяни пальцы вниз и на себя."
+          }
+        }
+      }
+    },
+    "cooldown.wrists.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Then turn the palm up and repeat the gentle pull."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Luego gira la palma hacia arriba y repite el estiramiento suave."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Depois vire a palma para cima e repita, puxando de leve."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Затем разверни ладонь вверх и так же мягко потяни пальцы."
+          }
+        }
+      }
+    },
+    "cooldown.wrists.step3" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swap hands halfway through."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A mitad de tiempo, cambia de mano."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na metade do tempo, troque de mão."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На середине поменяй руки."
+          }
+        }
+      }
+    },
+    "positionSheet.cooldown" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "cool-down · %lld s"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "enfriamiento · %lld s"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "desaquecimento · %lld s"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "заминка · %lld сек"
+          }
+        }
+      }
+    },
+    "positionSheet.cooldownPerSide" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "cool-down · %lld s per side"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "enfriamiento · %lld s por lado"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "desaquecimento · %lld s de cada lado"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "заминка · по %lld сек на сторону"
+          }
+        }
+      }
+    },
+    "positionSheet.warmup" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "warm-up · %lld s"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "calentamiento · %lld s"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "aquecimento · %lld s"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "разминка · %lld сек"
+          }
+        }
+      }
+    },
+    "warmup.armCircles.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Circle straight arms forward — big, slow circles."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dibuja círculos grandes y lentos hacia adelante con los brazos rectos."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Faça círculos grandes e lentos para a frente com os braços esticados."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Крути прямыми руками вперед — большие медленные круги."
+          }
+        }
+      }
+    },
+    "warmup.armCircles.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Halfway through, switch direction and circle backward."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A mitad de tiempo, cambia de dirección y gira hacia atrás."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na metade do tempo, inverta a direção e gire para trás."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На середине смени направление — крути назад."
+          }
+        }
+      }
+    },
+    "warmup.catCow.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On all fours: exhale, round the back and tuck the chin."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A cuatro patas: exhala, redondea la espalda y mete la barbilla."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De quatro: expire, arredonde as costas e recolha o queixo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На четвереньках: на выдохе округли спину и опусти подбородок."
+          }
+        }
+      }
+    },
+    "warmup.catCow.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inhale, arch gently and look slightly up — one slow wave per breath."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inhala, arquea suave y mira un poco hacia arriba: una onda lenta por respiración."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inspire, arqueie suave e olhe um pouco para cima: uma onda lenta por respiração."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На вдохе мягко прогнись и посмотри чуть вверх — одна медленная волна на цикл дыхания."
+          }
+        }
+      }
+    },
+    "warmup.halfSquats.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sit back to half depth, arms reaching forward for balance."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Baja hasta media sentadilla llevando la cadera atrás; brazos al frente para equilibrar."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desça até meio agachamento levando o quadril para trás; braços à frente para equilibrar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Присядь до половины, отводя таз назад; руки вперед для баланса."
+          }
+        }
+      }
+    },
+    "warmup.halfSquats.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heels stay down; rise smoothly without locking the knees."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Talones en el suelo; sube suave sin bloquear las rodillas."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calcanhares no chão; suba suave sem travar os joelhos."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пятки на полу; вставай плавно, не выпрямляя колени до замка."
+          }
+        }
+      }
+    },
+    "warmup.hipCircles.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hands on the hips, feet shoulder-width; draw slow circles with the hips."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manos en la cadera, pies al ancho de hombros; dibuja círculos lentos con la cadera."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mãos no quadril, pés na largura dos ombros; desenhe círculos lentos com o quadril."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Руки на пояс, стопы на ширине плеч; рисуй тазом медленные круги."
+          }
+        }
+      }
+    },
+    "warmup.hipCircles.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep the knees soft and switch direction halfway."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rodillas ligeramente flexionadas; cambia de dirección a mitad de tiempo."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Joelhos levemente flexionados; inverta a direção na metade."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Колени чуть согнуты; на середине смени направление."
+          }
+        }
+      }
+    },
+    "warmup.marching.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "March at an easy pace, lifting the knees to hip height."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marcha a ritmo suave, subiendo las rodillas a la altura de la cadera."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marche em ritmo tranquilo, subindo os joelhos à altura do quadril."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Шагай на месте в спокойном темпе, поднимая колени до уровня таза."
+          }
+        }
+      }
+    },
+    "warmup.marching.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swing the arms freely and keep the shoulders relaxed."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mueve los brazos con soltura y mantén los hombros relajados."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Balance os braços livremente e mantenha os ombros relaxados."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Свободно работай руками, плечи расслаблены."
+          }
+        }
+      }
+    },
+    "warmup.torsoRotations.step1" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feet planted, hips facing forward; turn the torso side to side."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pies firmes, cadera al frente; gira el torso de lado a lado."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pés firmes, quadril para a frente; gire o tronco de um lado para o outro."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стопы на месте, таз смотрит вперед; поворачивай корпус из стороны в сторону."
+          }
+        }
+      }
+    },
+    "warmup.torsoRotations.step2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Let the arms swing loose — momentum, not force."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deja que los brazos acompañen sueltos: impulso, no fuerza."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deixe os braços acompanharem soltos: embalo, não força."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Руки расслаблены и летят за корпусом — инерция, а не усилие."
+          }
+        }
+      }
+    },
+    "“Finish now” keeps what you've done and goes to the rating — the remaining exercises are marked as skipped." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Terminar ahora» conserva lo que hiciste y pasa a la evaluación; los ejercicios restantes se marcan como omitidos."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Terminar agora” mantém o que você fez e vai para a avaliação; os exercícios restantes ficam marcados como pulados."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Завершить сейчас» сохранит сделанное и откроет оценку — оставшиеся упражнения будут отмечены как пропущенные."
           }
         }
       }
@@ -57,7 +1255,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "«Según el plan» suma un paso, «más» suma dos y «menos» resta uno. Un número exacto en un ejercicio pesa más que la valoración general. Desde cero, un número exacto fija el nivel de inmediato: el primer entrenamiento calibra el sistema. A partir de ahí el nivel sube como mucho dos pasos por entrenamiento."
+            "value" : "«Según el plan» suma un paso, «más» suma dos y «menos» resta uno. Un número exacto en un ejercicio pesa más que la evaluación general. Desde cero, un número exacto fija el nivel de inmediato: el primer entrenamiento calibra el sistema. A partir de ahí el nivel sube como máximo dos pasos por entrenamiento."
           }
         },
         "pt-BR" : {
@@ -69,7 +1267,63 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "«По плану» — плюс ступень, «больше» — две, «меньше» — минус одна. Точный факт по упражнению сильнее общей оценки. С нулевой отметки точный факт ставит уровень сразу — первая тренировка калибрует систему. Дальше уровень поднимается не больше чем на две ступени за тренировку."
+            "value" : "«По плану» — плюс ступень, «больше» — две, «меньше» — минус одна. Точное число по упражнению сильнее общей оценки. С нуля точное число ставит уровень сразу — первая тренировка калибрует систему. Дальше уровень поднимается не больше чем на две ступени за тренировку."
+          }
+        }
+      }
+    },
+    "%@ · %lld×%lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %lld×%lld"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %lld×%lld"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %lld×%lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %lld×%lld"
+          }
+        }
+      }
+    },
+    "%@ · %lld×%lld s" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %lld×%lld s"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %lld×%lld s"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %lld×%lld s"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %lld×%lld с"
           }
         }
       }
@@ -107,13 +1361,69 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ por lado"
+            "value" : "%@ de cada lado"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ на сторону"
+          }
+        }
+      }
+    },
+    "%@, not finished" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, not finished"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, sin terminar"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, ficou pela metade"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, не завершено"
+          }
+        }
+      }
+    },
+    "%@, skipped" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, skipped"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, quedó fuera"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, ficou de fora"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, пропущено"
           }
         }
       }
@@ -238,7 +1548,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%lld выполнено"
+            "value" : "Выполнено: %lld"
           }
         }
       }
@@ -331,6 +1641,178 @@
         }
       }
     },
+    "%lld months since your first workout" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld month since your first workout"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld months since your first workout"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld месяц с первой тренировки"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld месяца с первой тренировки"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld месяцев с первой тренировки"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld месяца с первой тренировки"
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld mes desde tu primer entrenamiento"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld meses desde tu primer entrenamiento"
+                }
+              }
+            }
+          }
+        },
+        "pt-BR" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld mês desde seu primeiro treino"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld meses desde seu primeiro treino"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld reps" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@unit@"
+          },
+          "substitutions" : {
+            "unit" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "rep"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "reps"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "reps"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "reps"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@unit@"
+          },
+          "substitutions" : {
+            "unit" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "повтор"
+                    }
+                  },
+                  "few" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "повтора"
+                    }
+                  },
+                  "many" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "повторов"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "повтора"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld s" : {
       "localizations" : {
         "es" : {
@@ -353,8 +1835,154 @@
         }
       }
     },
+    "%lld seconds" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@unit@"
+          },
+          "substitutions" : {
+            "unit" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "second"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "seconds"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@unit@"
+          },
+          "substitutions" : {
+            "unit" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "segundo"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "segundos"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@unit@"
+          },
+          "substitutions" : {
+            "unit" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "segundo"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "segundos"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@unit@"
+          },
+          "substitutions" : {
+            "unit" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "секунда"
+                    }
+                  },
+                  "few" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "секунды"
+                    }
+                  },
+                  "many" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "секунд"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "секунды"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld seconds of rest left" : {
       "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld second of rest left"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld seconds of rest left"
+                }
+              }
+            }
+          }
+        },
         "es" : {
           "variations" : {
             "plural" : {
@@ -395,6 +2023,94 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Осталось отдыха: %lld сек"
+          }
+        }
+      }
+    },
+    "%lld weeks since your first workout" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld week since your first workout"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld weeks since your first workout"
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld неделя с первой тренировки"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld недели с первой тренировки"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld недель с первой тренировки"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld недели с первой тренировки"
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld semana desde tu primer entrenamiento"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld semanas desde tu primer entrenamiento"
+                }
+              }
+            }
+          }
+        },
+        "pt-BR" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld semana desde seu primeiro treino"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld semanas desde seu primeiro treino"
+                }
+              }
+            }
           }
         }
       }
@@ -513,13 +2229,13 @@
               "one" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld entrenamiento a tus espaldas"
+                  "value" : "Ya llevas %lld entrenamiento"
                 }
               },
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld entrenamientos a tus espaldas"
+                  "value" : "Ya llevas %lld entrenamientos"
                 }
               }
             }
@@ -575,24 +2291,208 @@
         }
       }
     },
-    "≈ %lld min · %lld exercises" : {
+    "+1 set in %lld" : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "≈ %lld min · %lld ejercicios"
+            "value" : "+1 serie en %lld"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "≈ %lld min · %lld exercícios"
+            "value" : "+1 série em %lld"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "≈ %lld мин · %lld упражнений"
+            "value" : "+1 подход через %lld"
+          }
+        }
+      }
+    },
+    "≈ %lld min · %lld exercises" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ %lld min · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg exercise"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg exercises"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ %lld min · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg ejercicio"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg ejercicios"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ %lld min · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg exercício"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg exercícios"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ %lld мин · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg упражнение"
+                    }
+                  },
+                  "few" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg упражнения"
+                    }
+                  },
+                  "many" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg упражнений"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg упражнения"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "3–4 workouts a week is the sweet spot: strength grows while joints and tendons keep up. Muscle adapts in weeks, tendons in months — rest days protect the slower half." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3–4 workouts a week is the sweet spot: strength grows while joints and tendons keep up. Muscle adapts in weeks, tendons in months — rest days protect the slower half."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3–4 entrenamientos por semana es el punto justo: la fuerza crece y las articulaciones y los tendones le siguen el ritmo. El músculo se adapta en semanas, los tendones en meses — los días de descanso cuidan a la mitad lenta."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3–4 treinos por semana é o ponto certo: a força cresce e as articulações e os tendões acompanham. O músculo se adapta em semanas, os tendões em meses — os dias de descanso protegem a metade lenta."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3–4 тренировки в неделю — золотая середина: сила растет, а суставы и сухожилия успевают за ней. Мышцы адаптируются за недели, сухожилия — за месяцы; дни отдыха берегут медленную половину."
+          }
+        }
+      }
+    },
+    "2–3 rest days a week is the recommended rhythm" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2–3 rest days a week is the recommended rhythm"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2–3 días de descanso por semana es el ritmo recomendado"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2–3 dias de descanso por semana é o ritmo recomendado"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2–3 дня отдыха в неделю — рекомендуемый ритм"
           }
         }
       }
@@ -652,7 +2552,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uma pausa é normal. Vamos começar um par de passos abaixo: assim é mais fácil voltar ao ritmo, e os níveis se recuperam rápido."
+            "value" : "Uma pausa é normal. Vamos começar alguns passos abaixo: assim é mais fácil voltar ao ritmo, e os níveis se recuperam rápido."
           }
         },
         "ru" : {
@@ -668,7 +2568,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Un cuestionario puede equivocarse; lo que hiciste de verdad, no. Dredfit encuentra tu nivel a partir de entrenamientos reales y mantiene la carga justo en el límite de lo que puedes."
+            "value" : "Un cuestionario puede equivocarse; lo que hiciste de verdad, no. Dredfit encuentra tu nivel a partir de entrenamientos reales y mantiene la carga justo en el límite de lo que puedes manejar."
           }
         },
         "pt-BR" : {
@@ -680,7 +2580,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Анкета ошибается, факт — нет. Система выходит на твой уровень по реальным тренировкам и держит нагрузку на границе посильного."
+            "value" : "Анкета может ошибаться, факт — нет. Dredfit выходит на твой уровень по реальным тренировкам и держит нагрузку на границе посильного."
           }
         }
       }
@@ -690,7 +2590,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Un ejercicio saltado simplemente no cuenta: su nivel se queda donde estaba. Ni castigo ni retroceso."
+            "value" : "Un ejercicio omitido simplemente no cuenta: su nivel se queda donde estaba. Ni castigo ni retroceso."
           }
         },
         "pt-BR" : {
@@ -779,13 +2679,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "¿Añadir a Salud los entrenamientos anteriores?"
+            "value" : "¿Agregar los entrenamientos anteriores a Salud?"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Adicionar ao Saúde os treinos anteriores?"
+            "value" : "Adicionar os treinos anteriores ao app Saúde?"
           }
         },
         "ru" : {
@@ -852,35 +2752,13 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Depois de duas semanas de pausa o plano te espera um par de passos abaixo — quanto mais longa a pausa, mais abaixo. Nada se perde: os níveis voltam a subir rápido, e voltar é a única coisa que importa."
+            "value" : "Depois de duas semanas de pausa o plano te espera alguns passos abaixo — quanto mais longa a pausa, mais abaixo. Nada se perde: os níveis voltam a subir rápido, e voltar é a única coisa que importa."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "После двух недель паузы план встретит тебя на пару ступеней ниже — чем дольше перерыв, тем ниже. Ничего не потеряно: уровни быстро вернутся, важно только само возвращение."
-          }
-        }
-      }
-    },
-    "All" : {
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Todos"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Todos"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Все"
           }
         }
       }
@@ -908,6 +2786,72 @@
         }
       }
     },
+    "Applies to %lld of %lld — %@ not finished, stays put" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuenta para %lld de %lld — %@ quedó sin terminar y no cambia"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vale para %lld de %lld — %@ ficou pela metade e não muda"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оценка для %lld из %lld — %@: не завершено, уровень на месте"
+          }
+        }
+      }
+    },
+    "Applies to %lld of %lld — %@ skipped, stays put" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuenta para %lld de %lld — %@ quedó fuera y no cambia"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vale para %lld de %lld — %@ ficou de fora e não muda"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оценка для %lld из %lld — %@: пропуск, уровень на месте"
+          }
+        }
+      }
+    },
+    "Applies to %lld of %lld — skipped exercises stay put" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuenta para %lld de %lld — los ejercicios omitidos no cambian"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vale para %lld de %lld — os pulados ficam como estão"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оценка для %lld из %lld — пропущенные на месте"
+          }
+        }
+      }
+    },
     "Arm circles" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -926,7 +2870,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Круги руками"
+            "value" : "Вращения руками"
           }
         }
       }
@@ -936,7 +2880,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Copia de seguridad"
+            "value" : "Respaldo"
           }
         },
         "pt-BR" : {
@@ -993,28 +2937,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Календарь"
-          }
-        }
-      }
-    },
-    "Did far more than planned? Tap “Went differently” and enter what you actually did — the system will land on your level right away." : {
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Te salió muy por encima del plan? Toca «Fue distinto» y pon lo que hiciste de verdad: el sistema se pondrá en tu nivel al momento."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Saiu bem acima do plano? Toque em “Foi diferente” e informe o que você realmente fez: o sistema se ajusta ao seu nível na hora."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вышло сильно больше плана? Нажми «Получилось иначе» и впиши факт — система сразу встанет на твой уровень."
           }
         }
       }
@@ -1175,6 +3097,342 @@
         }
       }
     },
+    "COOL-DOWN" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "COOL-DOWN"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ENFRIAMIENTO"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DESAQUECIMENTO"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ЗАМИНКА"
+          }
+        }
+      }
+    },
+    "cooldown.calfWall" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calf stretch at the wall"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pantorrilla en la pared"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Panturrilha na parede"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Икры у стены"
+          }
+        }
+      }
+    },
+    "cooldown.chestWall" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chest and shoulders at the wall"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pecho y hombros en la pared"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Peito e ombros na parede"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Грудь и плечи у стены"
+          }
+        }
+      }
+    },
+    "cooldown.forwardFold" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forward fold"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flexión hacia adelante"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flexão à frente"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Наклон вперед стоя"
+          }
+        }
+      }
+    },
+    "cooldown.hipFlexors" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hip flexor stretch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flexores de cadera"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flexores do quadril"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сгибатели бедра"
+          }
+        }
+      }
+    },
+    "cooldown.latStretch" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lat stretch with support"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dorsales con apoyo"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dorsais com apoio"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Широчайшие с опорой"
+          }
+        }
+      }
+    },
+    "cooldown.lyingTwist" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lying twist"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Torsión en el suelo"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Torção deitada"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скручивание лежа"
+          }
+        }
+      }
+    },
+    "cooldown.perSide" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "15 s per side"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "15 s por lado"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "15 s de cada lado"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "По 15 сек на сторону"
+          }
+        }
+      }
+    },
+    "cooldown.restPose" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rest pose"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Postura de descanso"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Postura de descanso"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поза отдыха"
+          }
+        }
+      }
+    },
+    "cooldown.seatedGlute" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seated glute stretch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glúteo sentado"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glúteo sentado"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ягодичная сидя"
+          }
+        }
+      }
+    },
+    "cooldown.skip" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip cool-down"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Omitir enfriamiento"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pular o desaquecimento"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пропустить заминку"
+          }
+        }
+      }
+    },
+    "cooldown.wrists" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wrists and forearms"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Muñecas y antebrazos"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Punhos e antebraços"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Запястья и предплечья"
+          }
+        }
+      }
+    },
     "Couldn't read this file." : {
       "localizations" : {
         "es" : {
@@ -1232,13 +3490,35 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Descarga"
+            "value" : "Deload"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Разгрузка"
+          }
+        }
+      }
+    },
+    "Did far more than planned? Tap “Went differently” and enter what you actually did — the system will land on your level right away." : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Te salió muy por encima del plan? Toca «Fue distinto» y pon lo que hiciste de verdad: el sistema se pondrá en tu nivel al momento."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saiu bem acima do plano? Toque em “Foi diferente” e informe o que você realmente fez: o sistema se ajusta ao seu nível na hora."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вышло сильно больше плана? Нажми «Получилось иначе» и впиши факт — система сразу встанет на твой уровень."
           }
         }
       }
@@ -1282,7 +3562,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Сделал"
+            "value" : "Готово"
           }
         }
       }
@@ -1327,7 +3607,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Легко, мог больше"
+            "value" : "Легко, могу больше"
           }
         }
       }
@@ -1508,6 +3788,34 @@
         }
       }
     },
+    "feedback.skipped" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skipped"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Omitidos"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pulados"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пропущено"
+          }
+        }
+      }
+    },
     "Fewer" : {
       "localizations" : {
         "es" : {
@@ -1547,7 +3855,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Закончить сейчас"
+            "value" : "Завершить сейчас"
           }
         }
       }
@@ -1659,7 +3967,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Круги тазом"
+            "value" : "Вращения тазом"
           }
         }
       }
@@ -1758,7 +4066,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "La importación sustituye tu historial y tus ajustes actuales."
+            "value" : "La importación reemplaza tu historial y tu configuración actuales."
           }
         },
         "pt-BR" : {
@@ -1794,6 +4102,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Подстраивается, как термостат."
+          }
+        }
+      }
+    },
+    "Last time you chose: %@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La última vez elegiste: %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Da última vez você escolheu: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Твой прошлый выбор: %@"
           }
         }
       }
@@ -1866,6 +4196,35 @@
         }
       }
     },
+    "level %lld" : {
+      "comment" : "Share card: the level after the workout count, e.g. \"42 workouts · level 137\".",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "level %lld"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nivel %lld"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nível %lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "уровень %lld"
+          }
+        }
+      }
+    },
     "Levels go back to the beginning. Your history stays." : {
       "localizations" : {
         "es" : {
@@ -1883,7 +4242,427 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Уровни вернутся к началу. Журнал тренировок сохранится."
+            "value" : "Уровни вернутся к началу. История сохранится."
+          }
+        }
+      }
+    },
+    "life.calf" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spring in every step: stairs and running feel lighter on knees and feet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resorte en cada paso: subir escaleras y correr se siente más liviano para las rodillas y los pies."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mola em cada passo: escada e corrida ficam mais leves para os joelhos e os pés."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пружина в каждом шаге: лестница и бег даются легче коленям и стопам."
+          }
+        }
+      }
+    },
+    "life.core_anti_ext" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A lower back that handles long hours of sitting, bending and a heavy backpack."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una zona lumbar que aguanta horas de estar sentado, agacharte y cargar una mochila pesada."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uma lombar que aguenta horas sentado, inclinações e uma mochila pesada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поясница, которая спокойно переносит долгое сидение, наклоны и тяжелый рюкзак."
+          }
+        }
+      }
+    },
+    "life.core_rot" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carrying weight in one hand, reaching sideways — a torso that holds."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cargar peso con una mano, estirarte hacia el costado — un torso que no cede."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carregar peso em uma mão, se esticar para o lado — um tronco que não cede."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нести тяжесть в одной руке, тянуться вбок — корпус не подводит."
+          }
+        }
+      }
+    },
+    "life.hinge" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lifting a bag, a child, a suitcase — with your hips, not your lower back."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Levantar del suelo una bolsa, a un niño, una maleta — con las caderas, no con la zona lumbar."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Levantar do chão uma bolsa, uma criança, uma mala — com o quadril, não com a lombar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поднять с пола сумку, ребенка, чемодан — ногами и тазом, а не поясницей."
+          }
+        }
+      }
+    },
+    "life.kicker" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In life"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En la vida"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na vida"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В жизни"
+          }
+        }
+      }
+    },
+    "life.lunge" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A confident step on stairs, uphill, off a curb — balance under load."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un paso seguro en las escaleras, cuesta arriba y al bajar de la acera — equilibrio bajo carga."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um passo firme na escada, na subida e ao descer da calçada — equilíbrio sob carga."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Уверенный шаг на лестнице, в горку и с бордюра — равновесие под нагрузкой."
+          }
+        }
+      }
+    },
+    "life.override.pull_bar-4" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lifting your own bodyweight — the base for any physical task."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Levantar el peso de tu propio cuerpo — la base para cualquier tarea física."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Levantar o peso do próprio corpo — a base para qualquer tarefa física."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поднять вес собственного тела — база для любой физической задачи."
+          }
+        }
+      }
+    },
+    "life.override.push_h-2" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your own bodyweight — under full control."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu propio peso — bajo control total."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seu próprio peso — sob controle total."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Собственный вес — под полным контролем."
+          }
+        }
+      }
+    },
+    "life.override.push_v-4" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your whole body above your hands — a rare level of control."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todo el cuerpo sobre las manos — un nivel de control poco común."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O corpo inteiro sobre as mãos — um nível raro de controle."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Все тело над руками — редкий уровень контроля."
+          }
+        }
+      }
+    },
+    "life.override.squat-3" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standing up from the floor on one leg — no hands, no support."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Levantarte del suelo con una sola pierna — sin manos y sin apoyo."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Levantar do chão com uma perna só — sem as mãos e sem apoio."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Встать с пола на одной ноге — без рук и без опоры."
+          }
+        }
+      }
+    },
+    "life.pull" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A straight back and open shoulders after a day at the desk."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Espalda recta y hombros abiertos después de un día frente al escritorio."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Costas retas e ombros abertos depois de um dia sentado à mesa."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ровная спина и развернутые плечи после дня за столом."
+          }
+        }
+      }
+    },
+    "life.pull_bar" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Holding and pulling your own bodyweight — the most honest measure of strength."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sostener y traccionar el peso de tu propio cuerpo — la medida más honesta de la fuerza."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Segurar e puxar o peso do próprio corpo — a medida mais honesta da força."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удержать и подтянуть собственный вес — самая честная мера силы."
+          }
+        }
+      }
+    },
+    "life.push_h" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pushing a heavy door, getting up from the ground, catching yourself when you fall."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empujar una puerta pesada, levantarte del suelo, amortiguar una caída."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empurrar uma porta pesada, levantar do chão, amortecer uma queda."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Толкнуть тяжелую дверь, подняться с земли, смягчить падение."
+          }
+        }
+      }
+    },
+    "life.push_v" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lifting a suitcase onto the top shelf, reaching the highest cupboard."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subir la maleta al estante más alto, alcanzar el armario de arriba."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Colocar a mala na prateleira de cima, alcançar o armário mais alto."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закинуть чемодан на антресоль, дотянуться до верхней полки шкафа."
+          }
+        }
+      }
+    },
+    "life.squat" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Getting up from the floor or a chair, taking stairs at a run — strength you use every day."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Levantarte del suelo o de la silla, subir las escaleras corriendo — fuerza que usas cada día."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Levantar do chão ou da cadeira, subir a escada correndo — força que você usa todo dia."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Встать с пола, со стула, взбежать по лестнице — сила, которой пользуешься каждый день."
           }
         }
       }
@@ -1961,6 +4740,28 @@
         }
       }
     },
+    "new variation" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nueva variación"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nova variação"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "новая вариация"
+          }
+        }
+      }
+    },
     "New variation" : {
       "localizations" : {
         "es" : {
@@ -2023,6 +4824,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Следующая · %@"
+          }
+        }
+      }
+    },
+    "next in %lld" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nueva en %lld"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nova em %lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "новая через %lld"
           }
         }
       }
@@ -2093,46 +4916,24 @@
         }
       }
     },
-    "next: +1 step" : {
+    "next workout eases off" : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "siguiente: +1 paso"
+            "value" : "el siguiente afloja un poco"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "próximo: +1 passo"
+            "value" : "o próximo alivia um pouco"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "следующая: +1 ступень"
-          }
-        }
-      }
-    },
-    "next: +2 steps" : {
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "siguiente: +2 pasos"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "próximo: +2 passos"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "следующая: +2 ступени"
+            "value" : "следующая будет полегче"
           }
         }
       }
@@ -2199,7 +5000,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Никаких вопросов про цель, уровень и свободное время. Открыл — и тренируешься: первая тренировка уже готова. Около 33 минут, без инвентаря."
+            "value" : "Никаких вопросов про цель, уровень и свободное время. Открывай и тренируйся: первая тренировка уже готова. Около 33 минут, без инвентаря."
           }
         }
       }
@@ -2314,6 +5115,34 @@
         }
       }
     },
+    "Now: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Now: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ahora: %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agora: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сейчас: %@"
+          }
+        }
+      }
+    },
     "OK" : {
       "localizations" : {
         "es" : {
@@ -2342,18 +5171,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "el %@"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "в %@"
           }
         }
       }
@@ -2385,19 +5202,19 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Un número por movimiento: codifica a la vez la variación y las repeticiones. Llega al tope de repeticiones y la variación se vuelve más difícil mientras la cuenta empieza de nuevo; en las variaciones difíciles la cuenta arranca más abajo, así el cambio cae suave. La cuarta variación es la última: por encima de ella crecen las series, de tres a cinco."
+            "value" : "Un número por movimiento: codifica a la vez la variación y las repeticiones. Llega al tope de repeticiones y la variación se vuelve más difícil mientras la cuenta empieza de nuevo; en las variaciones más difíciles la cuenta arranca más abajo, así la transición se siente suave. La cuarta variación es la última: por encima de ella crecen las series, de tres a cinco."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Um número por movimento: ele codifica ao mesmo tempo a variação e as repetições. Chegue ao teto de repetições e a variação fica mais difícil enquanto a contagem recomeça; nas variações difíceis a contagem começa mais baixo, então a mudança cai suave. A quarta variação é a última: acima dela crescem as séries, de três para cinco."
+            "value" : "Um número por movimento: ele codifica ao mesmo tempo a variação e as repetições. Chegue ao teto de repetições e a variação fica mais difícil enquanto a contagem recomeça; nas variações mais difíceis a contagem começa mais baixo, então a transição fica suave. A quarta variação é a última: acima dela crescem as séries, de três para cinco."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "На каждое движение — одно число: оно кодирует вариацию и повторы. Дошел до потолка повторов — вариация становится сложнее, а счет начинается заново, причем на сложных вариациях счет стартует ниже, поэтому переход ощущается плавно. Четвертая вариация последняя: выше нее растут подходы, с трех до пяти."
+            "value" : "На каждое движение — одно число: оно кодирует и вариацию, и повторы. Дойдешь до потолка повторов — вариация станет сложнее, а счет начнется заново; на сложных вариациях счет стартует ниже, поэтому переход проходит плавно. Четвертая вариация — последняя: выше нее растут подходы, с трех до пяти."
           }
         }
       }
@@ -2510,7 +5327,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "План, затем твой факт, затем следующий план"
+            "value" : "План, затем твой результат, затем следующий план"
           }
         }
       }
@@ -2604,12 +5421,63 @@
         }
       }
     },
+    "progress comes twice as fast" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "el progreso va el doble de rápido"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "o progresso vem duas vezes mais rápido"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "прогресс вдвое быстрее"
+          }
+        }
+      }
+    },
+    "progress.levelLabel" : {
+      "comment" : "Caption beside the big total-level number. One word: it shares one row with the number and the share button.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "level"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nivel"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nível"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "уровень"
+          }
+        }
+      }
+    },
     "Pull is in every workout — that is what keeps your shoulders balanced. The rest come round in a cycle: over eight workouts each one turns up five times. With the pull-up bar switched on, the pull alternates between horizontal and vertical." : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "La tracción está en todos los entrenamientos: es lo que mantiene los hombros equilibrados. Los demás van rotando: en ocho entrenamientos cada uno aparece cinco veces. Con la barra activada, la tracción alterna entre horizontal y vertical."
+            "value" : "La tracción está en todos los entrenamientos: es lo que mantiene los hombros equilibrados. Los demás van rotando: en ocho entrenamientos cada uno aparece cinco veces. Con la barra de dominadas activada, la tracción alterna entre horizontal y vertical."
           }
         },
         "pt-BR" : {
@@ -2621,7 +5489,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Тяга есть в каждой тренировке — это баланс для плеч. Остальные движения идут по кругу: за восемь тренировок каждое встретится пять раз. Если включен турник, тяга чередуется: горизонтальная, вертикальная, снова горизонтальная."
+            "value" : "Тяга есть в каждой тренировке — это баланс для плеч. Остальные движения идут по кругу: за восемь тренировок каждое встретится пять раз. Если включен турник, тяга чередуется: то горизонтальная, то вертикальная."
           }
         }
       }
@@ -2653,7 +5521,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Valorar en el App Store"
+            "value" : "Calificar en el App Store"
           }
         },
         "pt-BR" : {
@@ -2670,46 +5538,46 @@
         }
       }
     },
-    "Rating: easy — next: +2 steps" : {
+    "Rating: easy — progressing twice as fast" : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Valoración: fácil — siguiente: +2 pasos"
+            "value" : "Valoración: fácil — el progreso va el doble de rápido"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Avaliação: fácil — próximo: +2 passos"
+            "value" : "Avaliação: fácil — o progresso vem duas vezes mais rápido"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Оценка: легко — следующая: +2 ступени"
+            "value" : "Оценка: легко — прогресс вдвое быстрее"
           }
         }
       }
     },
-    "Rating: on plan — next: +1 step" : {
+    "Rating: on plan — the next asks a little more" : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Valoración: según el plan — siguiente: +1 paso"
+            "value" : "Valoración: según el plan — el siguiente pide un poco más"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Avaliação: como planejado — próximo: +1 passo"
+            "value" : "Avaliação: como planejado — o próximo pede um pouco mais"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Оценка: по плану — следующая: +1 ступень"
+            "value" : "Оценка: по плану — следующая попросит чуть больше"
           }
         }
       }
@@ -2807,7 +5675,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sustituir"
+            "value" : "Reemplazar"
           }
         },
         "pt-BR" : {
@@ -2829,7 +5697,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "¿Sustituir el historial?"
+            "value" : "¿Reemplazar el historial?"
           }
         },
         "pt-BR" : {
@@ -2846,34 +5714,12 @@
         }
       }
     },
-    "reps" : {
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "reps"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "reps"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "повторов"
-          }
-        }
-      }
-    },
     "Reset levels" : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Reiniciar los niveles"
+            "value" : "Restablecer niveles"
           }
         },
         "pt-BR" : {
@@ -3039,13 +5885,13 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Salvar os treinos no Saúde"
+            "value" : "Salvar treinos no app Saúde"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Записывать в «Здоровье»"
+            "value" : "Записывать тренировки в «Здоровье»"
           }
         }
       }
@@ -3094,28 +5940,6 @@
         }
       }
     },
-    "seconds" : {
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "segundos"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "segundos"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "секунд"
-          }
-        }
-      }
-    },
     "set %lld of %lld" : {
       "localizations" : {
         "es" : {
@@ -3143,7 +5967,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ajustes"
+            "value" : "Configuración"
           }
         },
         "pt-BR" : {
@@ -3188,24 +6012,24 @@
         }
       }
     },
-    "Seven things worth knowing about the regulator." : {
+    "Eight things worth knowing about the regulator." : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Siete cosas que conviene saber sobre el regulador."
+            "value" : "Ocho cosas que conviene saber sobre el regulador."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sete coisas que vale saber sobre o regulador."
+            "value" : "Oito coisas que vale saber sobre o regulador."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Семь фактов о регуляторе."
+            "value" : "Восемь фактов о регуляторе."
           }
         }
       }
@@ -3254,13 +6078,63 @@
         }
       }
     },
+    "Short on time? Short version · ≈ %lld min" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Short on time? Short version · ≈ %lld min"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Poco tiempo? Versión corta · ≈ %lld min"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Com pouco tempo? Versão curta · ≈ %lld min"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Мало времени? Короткая версия · ≈ %lld мин"
+          }
+        }
+      }
+    },
+    "Show all" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar todo"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar tudo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показать все"
+          }
+        }
+      }
+    },
     "Skip" : {
       "extractionState" : "manual",
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saltar"
+            "value" : "Omitir"
           }
         },
         "pt-BR" : {
@@ -3282,7 +6156,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saltar el ejercicio"
+            "value" : "Omitir ejercicio"
           }
         },
         "pt-BR" : {
@@ -3304,7 +6178,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saltar el descanso"
+            "value" : "Omitir descanso"
           }
         },
         "pt-BR" : {
@@ -3326,7 +6200,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saltar este movimiento"
+            "value" : "Omitir este movimiento"
           }
         },
         "pt-BR" : {
@@ -3348,7 +6222,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saltar el calentamiento"
+            "value" : "Omitir calentamiento"
           }
         },
         "pt-BR" : {
@@ -3370,7 +6244,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "saltado"
+            "value" : "omitido"
           }
         },
         "pt-BR" : {
@@ -3392,13 +6266,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Saltarse ejercicios"
+            "value" : "Ejercicios omitidos"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pular exercícios"
+            "value" : "Exercícios pulados"
           }
         },
         "ru" : {
@@ -3407,7 +6281,8 @@
             "value" : "Пропуски"
           }
         }
-      }
+      },
+      "comment" : "Stat label: number of skipped exercises."
     },
     "Skips the introduction" : {
       "extractionState" : "manual",
@@ -3415,7 +6290,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Se salta la introducción"
+            "value" : "Omite la introducción"
           }
         },
         "pt-BR" : {
@@ -3481,7 +6356,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Empezar más fácil"
+            "value" : "Empezar más suave"
           }
         },
         "pt-BR" : {
@@ -3493,7 +6368,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Начать легче"
+            "value" : "Начать полегче"
           }
         }
       }
@@ -3553,7 +6428,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Iniciar a isometria"
+            "value" : "Começar a isometria"
           }
         },
         "ru" : {
@@ -3586,28 +6461,6 @@
         }
       }
     },
-    "variation %lld of 4" : {
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "variación %lld de 4"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "variação %lld de 4"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "вариация %lld из 4"
-          }
-        }
-      }
-    },
     "Stop" : {
       "localizations" : {
         "es" : {
@@ -3626,6 +6479,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Стоп"
+          }
+        }
+      }
+    },
+    "Switch sides" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambia de lado"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Troque de lado"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Смени сторону"
           }
         }
       }
@@ -3685,7 +6560,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "O gráfico aparece depois de um par de treinos"
+            "value" : "O gráfico aparece depois de alguns treinos"
           }
         },
         "ru" : {
@@ -3718,24 +6593,24 @@
         }
       }
     },
-    "the next one will be easier" : {
+    "the next one asks a little more" : {
       "localizations" : {
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "el siguiente será más fácil"
+            "value" : "el siguiente pide un poco más"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "o próximo será mais leve"
+            "value" : "o próximo pede um pouco mais"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "следующая станет легче"
+            "value" : "следующая попросит чуть больше"
           }
         }
       }
@@ -3762,6 +6637,35 @@
         }
       }
     },
+    "Then: %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Then: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Antes: %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Antes: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тогда: %@"
+          }
+        }
+      },
+      "comment" : "Past value in a then/now comparison (\"back then\")."
+    },
     "This month" : {
       "localizations" : {
         "es" : {
@@ -3779,7 +6683,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "За месяц"
+            "value" : "Этот месяц"
           }
         }
       }
@@ -3811,41 +6715,19 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tres veces seguidas por debajo y el nivel retrocede tres pasos. No es un castigo, es un respiro: así vuelves con margen."
+            "value" : "Tres entrenamientos seguidos por debajo del objetivo y el nivel retrocede tres pasos. No es un castigo, es un respiro: así vuelves con margen."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Três vezes seguidas abaixo e o nível volta três passos. Não é punição, é um respiro: você volta com folga."
+            "value" : "Três treinos seguidos abaixo da meta e o nível recua três passos. Não é punição, é um respiro: você volta com folga."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Три недовыполнения подряд — откат на три ступени. Не наказание, а передышка: вернешься с запасом."
-          }
-        }
-      }
-    },
-    "variation %lld · %@ · %@" : {
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "variación %lld · %@ · %@"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "variação %lld · %@ · %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "вариация %lld · %@ · %@"
+            "value" : "Три раза подряд ниже плана — откат на три ступени. Не наказание, а передышка: вернешься с запасом."
           }
         }
       }
@@ -3870,7 +6752,8 @@
             "value" : "Время"
           }
         }
-      }
+      },
+      "comment" : "Reminder time of day."
     },
     "today" : {
       "localizations" : {
@@ -3966,7 +6849,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rotaciones de torso"
+            "value" : "Rotaciones de tronco"
           }
         },
         "pt-BR" : {
@@ -4000,12 +6883,13 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "суммарный уровень"
+            "value" : "общий уровень"
           }
         }
       }
     },
     "total level %lld" : {
+      "extractionState" : "stale",
       "localizations" : {
         "es" : {
           "stringUnit" : {
@@ -4022,7 +6906,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "суммарный уровень %lld"
+            "value" : "общий уровень %lld"
           }
         }
       }
@@ -4044,7 +6928,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Суммарный уровень после: %lld"
+            "value" : "Общий уровень после: %lld"
           }
         }
       }
@@ -4066,7 +6950,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Тяжело, сделал меньше"
+            "value" : "Тяжело, получилось меньше"
           }
         }
       }
@@ -4076,7 +6960,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Entrenar igualmente"
+            "value" : "Entrenar de todas formas"
           }
         },
         "pt-BR" : {
@@ -4138,6 +7022,50 @@
         }
       }
     },
+    "variation %lld · %@ · %@" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "variación %lld · %@ · %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "variação %lld · %@ · %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "вариация %lld · %@ · %@"
+          }
+        }
+      }
+    },
+    "variation %lld of 4" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "variación %lld de 4"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "variação %lld de 4"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "вариация %lld из 4"
+          }
+        }
+      }
+    },
     "WARM-UP" : {
       "localizations" : {
         "es" : {
@@ -4156,6 +7084,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "РАЗМИНКА"
+          }
+        }
+      }
+    },
+    "Weekly rhythm" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weekly rhythm"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ritmo semanal"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ritmo da semana"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ритм недели"
           }
         }
       }
@@ -4221,7 +7177,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Реакция на ответ"
+            "value" : "Что меняет твой ответ"
           }
         }
       }
@@ -4244,6 +7200,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Почему без анкет"
+          }
+        }
+      }
+    },
+    "Why this plan?" : {
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Por qué este plan?"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por que este plano?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Почему такой план?"
           }
         }
       }
@@ -4397,7 +7375,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ты остановился на упражнении %lld из %lld — все сделанное на месте."
+            "value" : "Тренировка остановлена на упражнении %lld из %lld — все сделанное на месте."
           }
         }
       }
@@ -4420,28 +7398,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Оценка применится к остальным"
-          }
-        }
-      }
-    },
-    "“Finish now” keeps what you've done and goes to the rating — the remaining exercises are marked as skipped." : {
-      "localizations" : {
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«Terminar ahora» conserva lo que has hecho y pasa a la valoración; los ejercicios restantes se marcan como saltados."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“Terminar agora” mantém o que você fez e vai para a avaliação; os exercícios restantes ficam marcados como pulados."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«Закончить сейчас» сохранит сделанное и откроет оценку — оставшиеся упражнения будут отмечены как пропущенные."
           }
         }
       }

@@ -21,13 +21,16 @@ final class CountdownSounds {
 
     private let tick: AVAudioPlayer?
     private let go: AVAudioPlayer?
+    private let switchSides: AVAudioPlayer?
 
     private init() {
         try? AVAudioSession.sharedInstance().setCategory(.ambient, options: .mixWithOthers)
         tick = try? AVAudioPlayer(data: SignalTone.tick)
         go = try? AVAudioPlayer(data: SignalTone.go)
+        switchSides = try? AVAudioPlayer(data: SignalTone.switchSides)
         tick?.prepareToPlay()
         go?.prepareToPlay()
+        switchSides?.prepareToPlay()
     }
 
     /// Construction is the actual work — the session category, the generated
@@ -37,6 +40,7 @@ final class CountdownSounds {
 
     func playTick() { play(tick) }
     func playGo() { play(go) }
+    func playSwitch() { play(switchSides) }
 
     /// Rewinds before playing: ticks arrive one second apart and a firing
     /// must never be swallowed because the previous one is still tailing off.
@@ -59,6 +63,12 @@ enum SignalTone {
     /// louder than the tick — this is the moment worth not missing.
     static let go = wav(segments: [(hz: 1046.5, seconds: 0.09), (hz: 1568.0, seconds: 0.22)],
                         amplitude: 1.0)
+
+    /// The side-switch pause opener (issue #35): the go inverted — a
+    /// two-tone fall (G6 → C6) — so eyes-closed stretching can tell "switch
+    /// sides" from "new position" without looking at the screen.
+    static let switchSides = wav(segments: [(hz: 1568.0, seconds: 0.09), (hz: 1046.5, seconds: 0.22)],
+                                 amplitude: 1.0)
 
     static let sampleRate = 44_100
 
