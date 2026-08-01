@@ -70,7 +70,7 @@ enum Cooldown {
         CooldownPosition(id: "chest-wall",
                          name: String(localized: "cooldown.chestWall",
                                       defaultValue: "Chest and shoulders at the wall"),
-                         perSide: false,
+                         perSide: true,
                          steps: [
                              String(localized: "cooldown.chestWall.step1",
                                     defaultValue: "Forearm on the wall, elbow at shoulder height."),
@@ -126,7 +126,7 @@ enum Cooldown {
         CooldownPosition(id: "wrists",
                          name: String(localized: "cooldown.wrists",
                                       defaultValue: "Wrists and forearms"),
-                         perSide: false,
+                         perSide: true,
                          steps: [
                              String(localized: "cooldown.wrists.step1",
                                     defaultValue: "Arm straight, palm down; gently pull the fingers down and toward you."),

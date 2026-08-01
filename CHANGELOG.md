@@ -1,5 +1,39 @@
 # Changelog
 
+## 1.8.2
+
+A fix release for the cool-down: the two stretches that told you to swap
+sides now have the app counting them, like the other four already did. No new
+features; the engine, the state format and the journal format are untouched,
+so there are no migrations.
+
+### Cool-down
+
+- "Chest and shoulders at the wall" and "Wrists and forearms" ran as a single
+  30-second countdown while their own technique steps said to swap arms —
+  or hands — halfway through. They were the two positions where the app knew
+  the stretch was two-sided and still handed the count back to the user: no
+  "15 s per side" line on screen, no five-second switch pause, no falling tone
+  to move on. Both are counted now: 15 seconds a side with the pause between
+  them, exactly like the hip flexors that open the block.
+- Why they were missed: the per-side flag was introduced with the cool-down
+  itself, when it only decided whether to print the "15 s per side" hint, and
+  the counted switch was later built on the same flag without re-reading which
+  positions are actually one-sided. A unit test then pinned the old
+  classification under the name "unilateral positions only", so the mismatch
+  looked deliberate.
+- The block is a little longer as a result: never under 3:10, up to 3:25 when
+  three of the session-mapped stretches are one-sided too. The reserved
+  cool-down minutes in the engine's estimate are unchanged — the pauses ride
+  on top, inside the "≈" every duration carries.
+
+### Housekeeping
+
+- 283 → 284 automated tests. The new one is a guard rather than a regression
+  test for this bug: it asserts that no position the app treats as bilateral
+  tells the user to swap sides, so a step text and its flag cannot drift apart
+  again the way these two did.
+
 ## 1.8.1
 
 A small fix release: a widget that keeps asking for fresh data instead of
