@@ -6,7 +6,7 @@ name: UI Tests
 # they deliberately do NOT gate anything: no PR checks, no release branches.
 # A red run here is a signal to investigate before the next release, not a
 # reason to hold one back. Release branches are gated by ci.yml (unit tests)
-# plus a local UI run — see instructions/GIT_FLOW.md.
+# plus a local UI run — see .github/WORKFLOWS.md, "Release procedure".
 #
 # Triggers:
 #   - nightly on the default branch (develop)
@@ -61,7 +61,7 @@ jobs:
           # required locally; without it the runner is denied launch with
           # "Application failed preflight checks". (Locally that same error
           # also appears when the simulator already has the app installed by
-          # hand — see instructions/GIT_FLOW.md step 0.)
+          # hand: erase the simulator before a local run.)
           #
           # Retry is requested explicitly (xcodebuild ignores the test plan's
           # own repetition settings): a genuinely flaky test re-runs up to 3
