@@ -20,17 +20,18 @@ The engine (`DredfitCore`) is built on three mechanisms:
 **One integer per movement pattern.** Progress in each movement pattern is a single level `L ∈ [0, 47]`. The level *encodes* the exercise variation, the rep target and the set count all at once:
 
 ```text
-band = L / 8                     # 0…5
-tier = min(4, 1 + band)          # which variation: 4 tiers from knee push-up to archer push-up
-sets = 3 + max(0, band - 3)      # 3 sets (L ≤ 31), 4 sets (32…39), 5 sets (40…47)
-reps = 8 + L % 8                 # 8…15 reps (or 20…55 s for holds)
+band = L / 8                       # 0…5
+tier = min(4, 1 + band)            # which variation: 4 tiers from knee push-up to archer push-up
+sets = 3 + max(0, band - 3)        # 3 sets (L ≤ 31), 4 sets (32…39), 5 sets (40…47)
+reps = repStart[tier] + L % 8      # floors 8/6/5/4 → 8…15 on tier 1, 4…11 on tier 4
+hold = holdStart[tier] + L % 8 * 5 # floors 20/15/15/10 s → 20…55 s on tier 1, 10…45 s on tier 4
 ```
 
-Double progression falls out of the encoding for free: reach 15 reps and the next level up automatically switches you to a harder variation at 8 reps. Above tier 4 the same mechanism keeps working by adding a set instead of a variation, so the ceiling is 5 × 15 rather than a dead end. The level history *is* the progress chart.
+Double progression falls out of the encoding for free: top out a tier's rep range and the next level up switches you to a harder variation, restarting low. The floor drops as the variation gets harder, so a new tier lands softly instead of jumping from an easy fifteen straight into a hard eight. Above tier 4 the same mechanism keeps working by adding a set instead of a variation, so the ceiling is 5 × 11 rather than a dead end. The level history *is* the progress chart.
 
 **Deterministic rotation.** Every session has 6 exercises. One slot is always a pull, for shoulder health — the tested invariant is that weekly pull volume stays at least 70% of combined pushing volume. The other 8 patterns rotate through the remaining 5 slots so that over any 8 consecutive sessions each appears exactly 5 times. No randomness anywhere: the same state always generates the same workout.
 
-**A feedback regulator.** After the workout, one tap: *tough / on plan / easy* → −1 / +1 / +2 levels for the session's patterns. During the workout you can record a per-exercise actual ("went differently") that overrides the rating for that pattern — upward moves are capped at +2 per session, downward moves are not. Three consecutive shortfalls on a pattern trigger an automatic deload (−3). A skipped exercise is neutral: its level and streak are left untouched rather than judged. Levels never go below 0. That's the whole model.
+**A feedback regulator.** After the workout, one tap: *tough / on plan / easy* → −1 / +1 / +2 levels for the session's patterns. During the workout you can record a per-exercise actual ("went differently") that overrides the rating for that pattern — upward moves are capped at +2 per session, downward moves are not. Three consecutive shortfalls on a pattern trigger an automatic deload (−3). A skipped exercise is neutral: its level and streak are left untouched rather than judged. Levels never go below 0. Time is the one input that isn't a tap: a week away eases every pattern down a step without saying anything about it, and past two weeks the app offers to meet you lower still — the longer the break, the further down. That's the whole model.
 
 **The pull-up bar module.** Vertical pulling is the one honest gap of a no-equipment format. Turn the bar on in settings and every other session swaps the floor pull for a vertical one — bar hang, negative pull-up, partial, full pull-up — tracked as its own independent level. Turn it off and the branch freezes without losing progress.
 
@@ -40,14 +41,14 @@ The 40-exercise library is 10 patterns × 4 tiers: 8 rotating patterns (32), the
 
 SwiftUI, iOS 17+, iPhone, portrait. Three tabs, a settings sheet reachable from all of them, and one flow:
 
-- **Today** — the generated plan and one Start button; a completed state once you're done, with a card for the next workout. If a session was cut short by iOS reclaiming memory or a swipe-kill, this is where it is offered back.
-- **Workout** — warm-up, then one exercise at a time: a big number, set dots, a date-based rest ring with a 3-2-1 audio countdown, a hold timer for static exercises, in-the-moment actual adjustment, per-exercise skip. Every countdown is wall-clock based, so locking the phone mid-rest loses nothing — and the position is snapshotted on every transition, so neither does losing the process. Leaving asks first, and offers to finish early rather than discard.
+- **Today** — the generated plan and one Start button, with a short version under it for the days there is no time: three of the six exercises, the rest recorded as honest skips. A completed state once you're done, with a card for the next workout. If a session was cut short by iOS reclaiming memory or a swipe-kill, this is where it is offered back.
+- **Workout** — warm-up, then one exercise at a time: a big number, set dots, a date-based rest ring with a 3-2-1 audio countdown, a hold timer for static exercises, in-the-moment actual adjustment, per-exercise skip. Unilateral holds get a counted pause to switch sides. A cool-down closes the session before the rating — six stretches, half of them chosen from what you just trained. Every countdown is wall-clock based, so locking the phone mid-rest loses nothing — and the position is snapshotted on every transition, so neither does losing the process. Leaving asks first, and offers to finish early rather than discard.
 - **Rating** — the one question on three equal cards, with an honest summary of anything you adjusted, skipped or left unfinished.
 - **Calendar** — filled days are tappable history (what you did, with actuals and skips); *upcoming* planned days are outlines; today gets an accent ring; rest days a quiet fill; missed days are left as plain dimmed numbers, deliberately unmarked and unshamed.
 - **Progress** — total level, a line chart across sessions with per-pattern projections, a weekly summary, per-pattern level bars.
 - **Settings** — rest days, the pull-up bar, sounds and haptics, a reminder on training days, Apple Health export, backup export/import.
 
-Beyond the app itself: a **home-screen widget** (workout / done / rest day, flipping at midnight without the app running), a **Live Activity** that puts the rest countdown on the lock screen and in the Dynamic Island, **Apple Health** export (write-only — completed workouts become strength-training samples, nothing is ever read), and **local reminders** on training days.
+Beyond the app itself: **widgets** in every size — small, medium and large on the home screen, all three lock-screen accessories — showing workout / done / rest day and flipping at midnight without the app running; a **Live Activity** that puts the rest countdown on the lock screen and in the Dynamic Island, **Apple Health** export (write-only — completed workouts become strength-training samples, nothing is ever read), and **local reminders** on training days.
 
 State is one JSON file in Application Support. Old records survive every update — new fields are optional, migrations are decode-level. Backup export/import round-trips the whole thing as plain JSON.
 
@@ -57,11 +58,12 @@ State is one JSON file in Application Support. Old records survive every update 
 DredfitCore/            Swift package — the engine, pure functions, no UI imports
   Engine.swift          state → session; state × session × feedback → state
   Library.swift         40 exercises, hand-written to mirror the JS reference
-  Resources/            String Catalog (en source, ru translation)
+  Resources/            String Catalog (en source; ru, es, pt-BR translations)
   Tests/
-    EngineTests.swift   invariants: encoding, rotation, balance, deload, caps
-    EdgeCaseTests.swift boundary behavior
-    GoldenTests.swift   bit-for-bit match against the reference implementation
+    EngineTests.swift    invariants: encoding, rotation, balance, deload, caps
+    EngineV23Tests.swift zero-level calibration, comeback, per-tier rep/hold floors
+    EdgeCaseTests.swift  boundary behavior
+    GoldenTests.swift    bit-for-bit match against the reference implementation
     Fixtures/golden.json
 
 Dredfit/                SwiftUI app target
@@ -70,7 +72,8 @@ Dredfit/                SwiftUI app target
   HealthStore.swift     write-only HealthKit bridge, stateless
   LiveActivityController.swift, WidgetBridge.swift
   Views/                Today, WorkoutFlow, Feedback, Progress, Calendar,
-                        History, Technique, NextWorkout, Settings
+                        History, Technique, NextWorkout, Settings,
+                        Onboarding, HowItWorks, Milestone, ShareCard
   Design/Theme.swift    ink scale + one accent (and its soft tint)
 
 DredfitWidgets/         widget extension — TodayStatusWidget, RestLiveActivity
@@ -81,7 +84,7 @@ docs/                   the dredfit.com site — GitHub Pages, static, no build
   CNAME, robots.txt, sitemap.xml, og.png
 ```
 
-The engine was first written and verified as a JavaScript reference (4,150 property checks and scenario simulations), then ported to Swift. `golden.json` is the reference's recorded trace — 133 steps across 9 scenarios — and the Swift port must reproduce it exactly. Changing engine behavior means changing the reference first, re-verifying, regenerating fixtures, then porting. Plausible-but-different is a failing test, not a judgment call. (The JS reference lives outside this repository; the recorded fixture is what ships.)
+The engine was first written and verified as a JavaScript reference (8,009 property checks and scenario simulations), then ported to Swift. `golden.json` is the reference's recorded trace — 143 steps across 10 scenarios — and the Swift port must reproduce it exactly. Changing engine behavior means changing the reference first, re-verifying, regenerating fixtures, then porting. Plausible-but-different is a failing test, not a judgment call. (The JS reference lives outside this repository; the recorded fixture is what ships.)
 
 ## Testing
 
@@ -102,11 +105,11 @@ CI runs the unit suites on every push — that is the gate for merges and releas
 1. Open the Xcode project (iOS 17+, Xcode 15+).
 2. The `DredfitCore` package is local — add it via *File → Add Package Dependencies → Add Local* if not already linked.
 3. `⌘U` on the package first: golden tests are the gate.
-4. Run on any iPhone simulator. UI tests expect an English locale and use `--uitest-reset`.
+4. Run on any iPhone simulator. UI tests expect an English locale and drive the app through DEBUG-only launch flags — `--uitest-reset` for a clean slate, `--uitest-fast` to collapse rest countdowns, and a few that seed a specific state (`--uitest-session2`, `--uitest-milestone`, `--uitest-comeback`, `--uitest-restday`, `--uitest-onboarding`).
 
 ## Localization
 
-English is the source language; Russian, Spanish and Brazilian Portuguese each ship complete — 545 strings across four String Catalogs, including all exercise technique. English base strings live inline at each call site; translations live in the catalogs. Every translation is idiomatic rather than literal: Russian avoids anglicisms and calques and uses `е` rather than `ё` throughout; Spanish and Brazilian Portuguese address the reader informally (`tú` / `você`) and take their exercise and pattern vocabulary from the same glossary as the [marketing site](https://dredfit.com/), which ships in the same four languages.
+English is the source language; Russian, Spanish and Brazilian Portuguese each ship complete — 544 translated keys across four String Catalogs, including all exercise technique. English base strings live inline at each call site; translations live in the catalogs. Every translation is idiomatic rather than literal: Russian avoids anglicisms and calques and uses `е` rather than `ё` throughout; Spanish and Brazilian Portuguese address the reader informally (`tú` / `você`) and take their exercise and pattern vocabulary from the same glossary as the [marketing site](https://dredfit.com/), which ships in the same four languages.
 
 ## Design principles
 
