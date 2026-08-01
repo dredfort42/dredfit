@@ -32,9 +32,14 @@ struct TodayEntry: TimelineEntry {
     let planMinutes: Int?
     let plan: [WidgetSnapshot.PlanRow]
 
-    static let empty = TodayEntry(date: .now, status: nil, sessionNumber: nil, week: [],
-                                  totalLevel: nil, summary: nil, nextLabel: nil,
-                                  planSessionNumber: nil, planMinutes: nil, plan: [])
+    /// Computed, not a `static let`: a stored static would freeze `.now` at
+    /// its first access and hand every later timeline request in the same
+    /// extension process an entry already dated in the past.
+    static var empty: TodayEntry {
+        TodayEntry(date: .now, status: nil, sessionNumber: nil, week: [],
+                   totalLevel: nil, summary: nil, nextLabel: nil,
+                   planSessionNumber: nil, planMinutes: nil, plan: [])
+    }
 }
 
 @MainActor
