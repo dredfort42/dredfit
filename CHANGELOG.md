@@ -38,11 +38,17 @@ no migrations.
   where there are eight. Four files pointed at `instructions/GIT_FLOW.md`,
   which does not exist; `.github/WORKFLOWS.md` now carries the local UI-run
   procedure itself and the workflow comments point there.
-- 281 automated tests, unchanged. Neither fix earns a test: the widget one is
-  a static-initialisation timing issue whose regression test would pass or
-  fail depending on the order tests run in, and the clamp is a no-op for every
-  amplitude the app ships, so there is nothing to assert that the existing
-  tone tests do not already cover.
+- 281 → 283 automated tests. Neither code fix earns one — the widget one is a
+  static-initialisation timing issue whose regression test would pass or fail
+  depending on the order tests run in, and the clamp is a no-op for every
+  amplitude the app ships. The two new tests are the release smoke instead:
+  the S1–S7 block of TESTPLAN, which was walked by hand before every release
+  and never changed between them, is now a suite that walks it in English and
+  in Russian. Running the full test plan before cutting a release covers that
+  block by itself. The walk that drives a workout to the rating moved into one
+  shared driver at the same time: it existed in a single copy, and the release
+  smoke needed the same steps — two copies of it would drift, and the last
+  time this walk drifted it cost the nightly six red runs.
 
 ## 1.8.0
 

@@ -1,6 +1,6 @@
 # Dredfit — manual QA checklist
 
-Automated coverage (281 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
+Automated coverage (283 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
 
 **How to use.** Run the *Release smoke* block before every release. Run *Full pass* when the engine, persistence or an integration changed. Device-only rows cannot pass on a simulator and are marked ⌚. Record anything that fails in the [Issue registry](#issue-registry) at the bottom rather than fixing it silently.
 
@@ -11,6 +11,23 @@ Legend: ✅ pass · ❌ fail (log it) · ➖ not applicable this run · ⌚ devi
 ---
 
 ## Release smoke (run every release)
+
+**Automated since 1.8.1** — `DredfitUITests/ReleaseSmokeTests.swift` walks
+these rows, and it is in the test plan, so the full local run at stage Э6 of
+the release regulation already covers this block. To run it alone:
+
+```sh
+xcodebuild test -project Dredfit.xcodeproj -scheme Dredfit \
+  -destination "platform=iOS Simulator,name=iPhone 17 Pro" \
+  -only-testing:DredfitUITests/ReleaseSmokeTests \
+  -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO
+```
+
+Each row is an XCTest activity carrying its own id, so a failure names the row
+("S3: the next-workout card is missing") without needing translation back to
+this table. Two things in the table stay human: the ⌚ device-only rows
+elsewhere in this plan, and the "no clipped labels" half of S7 — a judgement
+about pixels, not about strings. Walk those on a device before submitting.
 
 | # | Check | Expected |
 |---|---|---|
