@@ -1,6 +1,6 @@
 # Dredfit — manual QA checklist
 
-Automated coverage (281 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
+Automated coverage (283 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
 
 **How to use.** Run the *Release smoke* block before every release. Run *Full pass* when the engine, persistence or an integration changed. Device-only rows cannot pass on a simulator and are marked ⌚. Record anything that fails in the [Issue registry](#issue-registry) at the bottom rather than fixing it silently.
 
@@ -11,6 +11,23 @@ Legend: ✅ pass · ❌ fail (log it) · ➖ not applicable this run · ⌚ devi
 ---
 
 ## Release smoke (run every release)
+
+**Automated since 1.8.1** — `DredfitUITests/ReleaseSmokeTests.swift` walks
+these rows, and it is in the test plan, so the full local run at stage Э6 of
+the release regulation already covers this block. To run it alone:
+
+```sh
+xcodebuild test -project Dredfit.xcodeproj -scheme Dredfit \
+  -destination "platform=iOS Simulator,name=iPhone 17 Pro" \
+  -only-testing:DredfitUITests/ReleaseSmokeTests \
+  -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO
+```
+
+Each row is an XCTest activity carrying its own id, so a failure names the row
+("S3: the next-workout card is missing") without needing translation back to
+this table. Two things in the table stay human: the ⌚ device-only rows
+elsewhere in this plan, and the "no clipped labels" half of S7 — a judgement
+about pixels, not about strings. Walk those on a device before submitting.
 
 | # | Check | Expected |
 |---|---|---|
@@ -488,5 +505,6 @@ Log every failure found while running this plan. Keep entries until they ship fi
 | I-6 | 2026-07-24 | Workout flow | `testMilestoneScreenListsEverythingEarned` intermittently hangs mid-workout: the app stops responding (neither **Done** nor **Start hold** is present, the rating never arrives) and XCTest kills it — "Test crashed with signal term". Failed twice on a busy machine at `99704ef` and on the 1.7.1 branch, passed on a quiet one, and did not reproduce at `dc67b20` — the commit before the audible countdown. Suspect: audio playback on the main actor stalling under simulator load | medium | **not reproducing since 2026-07-23** — watched, not declared fixed. The nightly never showed the hang signature (`signal term`) at all; what CI did show for this test was `did not reach the rating screen`, which is the I-5 root cause and went away with PR #14. Nine nightlies since, the last three clean 38/38. Kept on the register because a load-dependent heisenbug cannot be proven gone: if it recurs, sample the app while it is stuck rather than re-running |
 | I-7 | 2026-07-30 | How it works | The subtitle still read "Seven things worth knowing about the regulator." after the "Weekly rhythm" section made it eight — caught by the 1.8.0 store-frame recapture of s8 | low | **fixed in the 1.8.0 wave** — key renamed to "Eight things…", all four languages updated |
 | I-8 | 2026-07-30 | Widget tests | `WidgetTimelineTests` word assertions compared SwiftUI `Text` values — equality of two Texts with identical words is nondeterministic (localized-storage identity, not content): green bare, 12 failures under `-testPlan` + `-test-iterations`, then pass-pass-fail across three identical bare runs | medium | **fixed in the 1.8.0 wave** — `headline`/`subline`/`nextPlanText` return resolved `String(localized:)`, tests compare strings; full plan then green 281/0 |
+| I-9 | 2026-08-01 | Widgets | `TodayEntry.empty` — the timeline's fallback when the App Group snapshot is missing or undecodable — was a stored `static let` built with `.now`. A stored static initialises once per process, so the date froze at first access and every later timeline request in the same extension process got an entry already dated in the past, handing WidgetKit a timeline expired on arrival under `policy: .atEnd`. Found by code review, not by this plan | low | **fixed in the 1.8.1 wave** — the entry is computed, so it carries the time it was built. Not covered by a new test: an assertion on freshness passes or fails depending on when the static was first touched in the test process, so it would not reliably fail on the old code. The device-side check is §12.1–12.6 |
 
 **Severity.** *high* — data loss, crash, or a broken core flow · *medium* — a feature misbehaves but there is a way around it · *low* — cosmetic or a rare edge case.

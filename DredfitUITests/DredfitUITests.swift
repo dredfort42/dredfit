@@ -64,31 +64,27 @@ final class DredfitUITests: XCTestCase {
                        "a skipped onboarding must not come back")
     }
 
+    /// The shared walk (WorkoutDriver.swift). Kept behind the same three
+    /// private names this file has always used, so every call site below
+    /// stays as it was — only the implementation moved, into the one place
+    /// the release smoke reads it from too.
+    private var driver: WorkoutDriver { WorkoutDriver(app: app) }
+
     /// Taps Start and skips the warm-up block.
     private func startWorkout() {
-        app.buttons["Start"].tap()
-        let skipWarmup = app.buttons["Skip warm-up"]
-        if skipWarmup.waitForExistence(timeout: 3) { skipWarmup.tap() }
+        driver.startWorkout()
     }
 
     /// Taps an element at the centre of its own frame, bypassing hittability
-    /// resolution. Inside the workout's fullScreenCover the CI simulator can
-    /// report degenerate ancestor frames, so anything that resolves
-    /// hittability (`.tap()`, `.isHittable`, predicate waits) fails with
-    /// "activation point invalid" even though the control is on screen.
-    /// The element's own leaf frame is valid, so a coordinate tap lands.
+    /// resolution — see WorkoutDriver for why this is not `.tap()`.
     private func coordinateTap(_ element: XCUIElement) {
-        element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        driver.coordinateTap(element)
     }
 
-    /// Runs the whole workout to the "How did it go?" screen: Done on every
-    /// set, Start hold on every hold. Requires --uitest-fast on the launch.
-    ///
-    /// Load-independent by design: only stable controls are tapped (Done and
-    /// Start hold leave the screen only once acted on), each tap is confirmed
-    /// by waiting for its control to disappear, and a tap a busy runner drops
-    /// is simply retried on the next pass. Rests are never tapped — under
-    /// --uitest-fast they collapse to ~1 s and auto-advance on their own.
+    /// Runs the whole workout to the "How did it go?" screen, optionally
+    /// entering an actual on the first exercise first. The walk itself lives
+    /// in WorkoutDriver; this wrapper only adds the adjustment step, which is
+    /// specific to the tests in this file.
     private func completeWorkout(adjustFirstExercise: Bool = false) {
         startWorkout()
 
@@ -101,35 +97,9 @@ final class DredfitUITests: XCTestCase {
             XCTAssertTrue(app.staticTexts["actual 5"].exists, "the actual marker did not appear")
         }
 
-        let done = app.buttons["Done"]
-        let startHold = app.buttons["Start hold"]
-        let skipCooldown = app.buttons["skip-cooldown"]
-        let rating = app.staticTexts["How did it go?"]
-        // Wall-clock bound, not an iteration count: the only real time sink
-        // is the hold countdowns (~3 minutes in a deep session), which are
-        // load-independent, so this bound holds even on a saturated runner.
-        // The seeded milestone session spends ~330 s in holds alone, so the
-        // bound carries a little headroom for taps and transitions.
-        let deadline = Date.now.addingTimeInterval(420)
-        while !rating.exists && Date.now < deadline {
-            if done.exists {
-                coordinateTap(done)
-                _ = done.waitForNonExistence(timeout: 3)      // set logged → rest/next
-            } else if startHold.exists {
-                coordinateTap(startHold)
-                _ = startHold.waitForNonExistence(timeout: 3)  // countdown started
-                // the countdown runs itself down and auto-advances into rest
-            } else if skipCooldown.exists {
-                // This helper's job is the rating, not the stretching — the
-                // cool-down has its own dedicated test.
-                coordinateTap(skipCooldown)
-                _ = skipCooldown.waitForNonExistence(timeout: 3)
-            } else {
-                // resting or mid-transition: the fast rest advances on its own
-                _ = rating.waitForExistence(timeout: 2)
-            }
-        }
-        XCTAssertTrue(rating.waitForExistence(timeout: 5), "did not reach the rating screen")
+        // This helper's job is the rating, not the stretching — the cool-down
+        // has its own dedicated test, and the release smoke walks it in full.
+        driver.completeWorkout(skipCooldown: true)
     }
 
     // MARK: - Full pass
