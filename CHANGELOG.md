@@ -1,5 +1,49 @@
 # Changelog
 
+## 1.8.1
+
+A small fix release: a widget that keeps asking for fresh data instead of
+sitting on a timeline dated in the past, and a documentation pass that makes
+the repository describe the app it actually ships. No new features; the
+engine, the state format and the journal format are untouched, so there are
+no migrations.
+
+### Widgets
+
+- The fallback timeline entry — the one used when the App Group snapshot is
+  missing or cannot be decoded, which is the state a widget added before the
+  app's first launch is in — was a stored `static let` built with `.now`.
+  A stored static is initialised once per process, so its date froze at the
+  first access and every later timeline request in the same extension process
+  received an entry already dated in the past, asking WidgetKit to refresh a
+  timeline that had expired before it was handed over. The entry is computed
+  now and carries the time it was actually built.
+
+### Housekeeping
+
+- The countdown tones clamp their sample conversion into `Int16` range.
+  Nothing changes for the three tones that ship — every sample was already in
+  range — but the tones are generated inside a `static let`, so raising an
+  amplitude past 1.0 would have trapped at the first countdown of a workout
+  rather than at the edit that caused it.
+- Documentation caught up with the code. README still described the v2.2 level
+  encoding (`reps = 8 + L % 8`, a ceiling of 5 × 15) although per-tier floors
+  landed in v2.3 — it is `repStart[tier] + L % 8` with floors 8/6/5/4, so the
+  ceiling is 5 × 11 — and still counted the reference cycle at 4,150 checks
+  and 133 steps across 9 scenarios instead of 8,009 / 143 / 10. The app
+  section predated 1.8.0: no short version, no cool-down, no side-switch
+  pause, and widgets described as home-screen only. TESTPLAN promised 24
+  reminders "with the default rest day" after the default became two days
+  (a 28-day window holds 20) and still expected six "How it works" sections
+  where there are eight. Four files pointed at `instructions/GIT_FLOW.md`,
+  which does not exist; `.github/WORKFLOWS.md` now carries the local UI-run
+  procedure itself and the workflow comments point there.
+- 281 automated tests, unchanged. Neither fix earns a test: the widget one is
+  a static-initialisation timing issue whose regression test would pass or
+  fail depending on the order tests run in, and the clamp is a no-op for every
+  amplitude the app ships, so there is nothing to assert that the existing
+  tone tests do not already cover.
+
 ## 1.8.0
 
 A feature release that makes the workout whole: the cool-down the estimates
