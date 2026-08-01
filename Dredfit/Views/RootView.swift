@@ -79,9 +79,9 @@ struct RootView: View {
                 // never runs dry while the app is being used at all.
                 store.rescheduleReminders()
             case .background:
-                // The widget snapshot covers 7 days from its last write; each
-                // backgrounding restarts that window so the widget survives a
-                // week without a cold launch.
+                // The widget snapshot covers 14 days from the Monday of the
+                // week it is written in, so a backgrounding late in the week
+                // still leaves the widget a full week of entries ahead.
                 store.refreshWidgetSnapshot()
             default:
                 break

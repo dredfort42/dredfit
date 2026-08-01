@@ -85,7 +85,10 @@ enum SignalTone {
                 var value = sin(2 * .pi * segment.hz * Double(i) / rate) * amplitude
                 if i < attack { value *= Double(i) / Double(attack) }
                 if count - i < release { value *= Double(count - i) / Double(release) }
-                samples.append(Int16(value * 32_767))
+                // Clamped: Int16(Double) traps out of range, and these tones
+                // are built in a `static let` — an amplitude raised past 1.0
+                // would crash at the first countdown, not at the edit.
+                samples.append(Int16(min(max(value * 32_767, -32_767), 32_767)))
             }
         }
         return wavFile(samples: samples)

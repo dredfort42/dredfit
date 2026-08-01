@@ -1,6 +1,6 @@
 # Dredfit — manual QA checklist
 
-Automated coverage (281 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
+Automated coverage (283 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
 
 **How to use.** Run the *Release smoke* block before every release. Run *Full pass* when the engine, persistence or an integration changed. Device-only rows cannot pass on a simulator and are marked ⌚. Record anything that fails in the [Issue registry](#issue-registry) at the bottom rather than fixing it silently.
 
@@ -11,6 +11,23 @@ Legend: ✅ pass · ❌ fail (log it) · ➖ not applicable this run · ⌚ devi
 ---
 
 ## Release smoke (run every release)
+
+**Automated since 1.8.1** — `DredfitUITests/ReleaseSmokeTests.swift` walks
+these rows, and it is in the test plan, so the full local run at stage Э6 of
+the release regulation already covers this block. To run it alone:
+
+```sh
+xcodebuild test -project Dredfit.xcodeproj -scheme Dredfit \
+  -destination "platform=iOS Simulator,name=iPhone 17 Pro" \
+  -only-testing:DredfitUITests/ReleaseSmokeTests \
+  -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO
+```
+
+Each row is an XCTest activity carrying its own id, so a failure names the row
+("S3: the next-workout card is missing") without needing translation back to
+this table. Two things in the table stay human: the ⌚ device-only rows
+elsewhere in this plan, and the "no clipped labels" half of S7 — a judgement
+about pixels, not about strings. Walk those on a device before submitting.
 
 | # | Check | Expected |
 |---|---|---|
@@ -113,7 +130,7 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 |---|---|---|
 | 7.1 | Enable **Reminder** | iOS permission prompt appears (alert + sound, no badge) |
 | 7.2 | Deny the permission | The toggle flips back **off** — it reflects the system's answer |
-| 7.3 | Allow, then keep the default rest day | A 28-day window of **one-shot** notifications, one per training date (**24** with the default rest day); none on rest days. The window refills every time the app becomes active |
+| 7.3 | Allow, then keep the default rest days | A 28-day window of **one-shot** notifications, one per training date (**20** with the two default rest days — 28 days less four Sundays and four Wednesdays); none on rest days. The window refills every time the app becomes active |
 | 7.4 | Change **Time** | Every pending slot moves to the new time |
 | 7.5 | Add a rest day while the reminder is on | That weekday's dates disappear from the window |
 | 7.6 | Disable the reminder | All pending reminders are removed |
@@ -257,7 +274,7 @@ The snapshot contract is unit-tested on every run (the snapshot URL is injected,
 | 17.3 | Relaunch | The onboarding does **not** come back |
 | 17.4 | Reinstall, tap **Skip** on card 1 | Lands on Today; a relaunch does not show it again |
 | 17.5 | Install over existing history (upgrade from 1.3) | No onboarding — it is for a genuinely fresh install only |
-| 17.6 | Settings → first row → **How it works** | Six numbered sections; the numbers agree with the engine (±1/+2, three shortfalls → −3, five of eight rotations) |
+| 17.6 | Settings → first row → **How it works** | **Eight** numbered sections under "Eight things worth knowing about the regulator."; the numbers agree with the engine (±1/+2, three shortfalls → −3, five of eight rotations) |
 | 17.7 | Same screen in Russian | Fully translated, no English left, no `ё` |
 
 ### 18. Milestones (1.4)
@@ -465,7 +482,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 
 | # | Check | Expected |
 |---|---|---|
-| 33.1 | Last workout 8–13 days ago, open the app | Every level silently −1 (Progress bars, Today's plan) — no card, no message; levels at 0 stay at 0 |
+| 33.1 | Last workout **7**–13 days ago, open the app | Every level silently −1 (Progress bars, Today's plan) — no card, no message; levels at 0 stay at 0. Day 7 is the boundary the engine actually uses (`gapDays >= 7`), so run it there, not only in the middle of the zone |
 | 33.2 | Reopen the app during the same break | No further drop — one decay per break; the stamp survives relaunches |
 | 33.3 | Last workout 6 days ago / 14+ days ago | No silent decay: below the zone nothing happens; at 14+ the comeback card owns the break as before |
 | 33.4 | Break crosses both zones (opened at day 8–13, returned at 14+) | The comeback card shows the **weakened** drop (table − 1); accepting lands exactly where a plain comeback would — peeking mid-break never costs extra |
@@ -484,9 +501,10 @@ Log every failure found while running this plan. Keep entries until they ship fi
 | I-2 | 2026-07-18 | Today | Today did not render a rest-day state; only the Calendar and widget marked rest days | low | **fixed in 1.4.0** — Today shows a rest state with a "Train anyway" escape hatch (§6.6) |
 | I-3 | 2026-07-18 | Accessibility | Text sizing was hardcoded via `.font(.system(size:))` throughout, so it did not scale with Dynamic Type at all | medium | **fixed in 1.4.0** — 88 call sites moved to `dredfitFont`; display numbers scale to a cap (§16) |
 | I-4 | 2026-07-18 | Calendar | Rest days rendered identically to out-of-month days (dimmed number, no shape, no legend entry) | low | **fixed in 1.4.0** — soft fill plus a legend entry (§6.5) |
-| I-5 | 2026-07-18 | UI tests / CI | 6 of 16 UI tests fail on GitHub runners with `No matches found for … "Skip rest" IN identifiers`, while the same suite passes 16/16 locally. Timing flakiness under runner load, not a product defect — the rest phase advances before the tap lands. Survives the workflow's 3 retries | medium | open — UI tests no longer gate releases; fix before relying on the nightly |
-| I-6 | 2026-07-24 | Workout flow | `testMilestoneScreenListsEverythingEarned` intermittently hangs mid-workout: the app stops responding (neither **Done** nor **Start hold** is present, the rating never arrives) and XCTest kills it — "Test crashed with signal term". Failed twice on a busy machine at `99704ef` and on the 1.7.1 branch, passed on a quiet one, and did not reproduce at `dc67b20` — the commit before the audible countdown. Suspect: audio playback on the main actor stalling under simulator load | medium | open — watch the nightly; if it recurs, sample the app while it is stuck rather than re-running |
+| I-5 | 2026-07-18 | UI tests / CI | 6 of 16 UI tests fail on GitHub runners with `No matches found for … "Skip rest" IN identifiers`, while the same suite passes 16/16 locally. Timing flakiness under runner load, not a product defect — the rest phase advances before the tap lands. Survives the workflow's 3 retries | medium | **fixed by PR #14 (2026-07-23)** — a DEBUG-only `--uitest-fast` hook collapses rest to ~1 s, and `completeWorkout` drives only the stable **Done** / **Start hold** controls, never the auto-vanishing **Skip rest**, confirming each tap with `waitForNonExistence`. Verified 2026-08-01 against the nightly history: the last run carrying this signature was 2026-07-23 03:40, hours before the fix landed. Of the eight nightlies since, the two reds have unrelated causes — a runner-side `XC_kAXXCAttributeFocusedApplications` timeout (07-26) and one stale assertion fixed the same morning by PR #32 (07-29) — and the last three are clean 38/38 with zero individual failures, so no retry is masking anything |
+| I-6 | 2026-07-24 | Workout flow | `testMilestoneScreenListsEverythingEarned` intermittently hangs mid-workout: the app stops responding (neither **Done** nor **Start hold** is present, the rating never arrives) and XCTest kills it — "Test crashed with signal term". Failed twice on a busy machine at `99704ef` and on the 1.7.1 branch, passed on a quiet one, and did not reproduce at `dc67b20` — the commit before the audible countdown. Suspect: audio playback on the main actor stalling under simulator load | medium | **not reproducing since 2026-07-23** — watched, not declared fixed. The nightly never showed the hang signature (`signal term`) at all; what CI did show for this test was `did not reach the rating screen`, which is the I-5 root cause and went away with PR #14. Nine nightlies since, the last three clean 38/38. Kept on the register because a load-dependent heisenbug cannot be proven gone: if it recurs, sample the app while it is stuck rather than re-running |
 | I-7 | 2026-07-30 | How it works | The subtitle still read "Seven things worth knowing about the regulator." after the "Weekly rhythm" section made it eight — caught by the 1.8.0 store-frame recapture of s8 | low | **fixed in the 1.8.0 wave** — key renamed to "Eight things…", all four languages updated |
 | I-8 | 2026-07-30 | Widget tests | `WidgetTimelineTests` word assertions compared SwiftUI `Text` values — equality of two Texts with identical words is nondeterministic (localized-storage identity, not content): green bare, 12 failures under `-testPlan` + `-test-iterations`, then pass-pass-fail across three identical bare runs | medium | **fixed in the 1.8.0 wave** — `headline`/`subline`/`nextPlanText` return resolved `String(localized:)`, tests compare strings; full plan then green 281/0 |
+| I-9 | 2026-08-01 | Widgets | `TodayEntry.empty` — the timeline's fallback when the App Group snapshot is missing or undecodable — was a stored `static let` built with `.now`. A stored static initialises once per process, so the date froze at first access and every later timeline request in the same extension process got an entry already dated in the past, handing WidgetKit a timeline expired on arrival under `policy: .atEnd`. Found by code review, not by this plan | low | **fixed in the 1.8.1 wave** — the entry is computed, so it carries the time it was built. Not covered by a new test: an assertion on freshness passes or fails depending on when the static was first touched in the test process, so it would not reliably fail on the old code. The device-side check is §12.1–12.6 |
 
 **Severity.** *high* — data loss, crash, or a broken core flow · *medium* — a feature misbehaves but there is a way around it · *low* — cosmetic or a rare edge case.

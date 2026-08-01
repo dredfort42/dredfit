@@ -64,7 +64,23 @@ The App Store build itself is produced and uploaded manually from Xcode (Archive
 3. **Rebuild the marketing site** if content changed:
    `python3 sitegen/build.py` (writes `docs/`), commit the result. *`sitegen/`
    is a local-only tool — it is not in CI, so this step is manual.*
-4. **Run UI tests locally** — they don't gate CI. See `instructions/GIT_FLOW.md`.
+4. **Run UI tests locally** — they don't gate CI, so this is the only place the
+   full flow is actually checked. Erase the simulator first (an app installed by
+   hand makes the runner fail preflight), then:
+
+   ```sh
+   xcrun simctl shutdown all && xcrun simctl erase "iPhone 17 Pro"
+   set -o pipefail
+   xcodebuild test -project Dredfit.xcodeproj -scheme Dredfit -testPlan Dredfit \
+     -destination "platform=iOS Simulator,name=iPhone 17 Pro" \
+     -parallel-testing-enabled NO -retry-tests-on-failure -test-iterations 3 \
+     CODE_SIGNING_ALLOWED=NO
+   ```
+
+   `-parallel-testing-enabled NO` is required: simulator clones exhaust the host
+   and fail to connect, which looks like a test failure but isn't. Judge the run
+   by `** TEST SUCCEEDED **` and `Executed N tests, with 0 failures`, not by the
+   pipe's exit code.
 5. **Create the `release/x.y.z` branch and push.** Confirm **Release Checks**,
    **CI**, **Lint**, and **Localization** are green.
 6. **Merge to `main`** (and back-merge `main` → `develop`).
@@ -75,7 +91,7 @@ The App Store build itself is produced and uploaded manually from Xcode (Archive
 Sanity-check the version/changelog before you push:
 
 ```sh
-python3 scripts/check_version.py release/1.7.0
+python3 scripts/check_version.py release/1.8.0
 ```
 
 ## Branch protection
