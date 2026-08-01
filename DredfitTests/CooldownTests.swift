@@ -108,7 +108,8 @@ final class CooldownTests: XCTestCase {
         // ...and the second side leaves the position entirely.
         let next = Cooldown.step(after: (0, .secondSide), positions: positions)
         XCTAssertEqual(next?.index, 1)
-        XCTAssertEqual(next?.stage, .single, "chest wall is bilateral")
+        XCTAssertEqual(next?.stage, .firstSide,
+                       "chest wall is per side too — it tells the user to swap arms")
     }
 
     func testTheBlockEndsAfterTheLastPosition() {
@@ -134,27 +135,48 @@ final class CooldownTests: XCTestCase {
 
     func testAdvanceAbsorbsBackgroundedTimeAcrossStages() {
         // 22 s past the first side's end: the pause (5) and the second side
-        // (15) are consumed whole, landing 2 s into the next position's 30.
+        // (15) are consumed whole, landing 2 s into the next position — which
+        // is chest wall, itself per side, so 2 s into its FIRST side of 15.
         let positions = machinePositions
         let landing = Cooldown.advance(from: (0, .firstSide), overshoot: 22,
                                        positions: positions)
         XCTAssertEqual(landing?.index, 1)
-        XCTAssertEqual(landing?.stage, .single)
-        XCTAssertEqual(landing?.remaining, Cooldown.positionSeconds - 2)
+        XCTAssertEqual(landing?.stage, .firstSide)
+        XCTAssertEqual(landing?.remaining, Cooldown.sideSeconds - 2)
         // An overshoot past the whole block is simply over.
         XCTAssertNil(Cooldown.advance(from: (0, .firstSide), overshoot: 10_000,
                                       positions: positions))
     }
 
-    func testPerSideHintsAreOnUnilateralPositionsOnly() {
+    /// The flag decides whether the app counts the sides (15 + 5 + 15) or
+    /// hands the count to the user, so it has to agree with the position's
+    /// own instructions. Chest and wrists told the user to "swap halfway
+    /// through" while being flagged bilateral — they were the two positions
+    /// the app knew were two-sided and still did not count (I-10).
+    func testPerSideFlagsAgreeWithTheInstructions() {
         let all = Cooldown.positions(
             performed: [.squat, .pull, .pushH, .coreRot, .calf, .lunge])
             + Cooldown.positions(performed: [.calf, .lunge, .coreAntiExt])
+        let unilateral = ["hip-flexors", "chest-wall", "wrists",
+                          "calf-wall", "seated-glute", "lying-twist"]
         for position in all {
-            let expected = ["hip-flexors", "calf-wall", "seated-glute",
-                            "lying-twist"].contains(position.id)
-            XCTAssertEqual(position.perSide, expected,
+            XCTAssertEqual(position.perSide, unilateral.contains(position.id),
                            "\(position.id): unexpected per-side flag")
+        }
+    }
+
+    /// The guard that keeps the two from drifting apart again: a position
+    /// whose steps say to swap sides must be one the app splits.
+    func testNoPositionTellsTheUserToSwapSidesItself() {
+        let all = Cooldown.positions(
+            performed: [.squat, .pull, .pushH, .coreRot, .calf, .lunge])
+            + Cooldown.positions(performed: [.calf, .lunge, .coreAntiExt])
+        for position in all where !position.perSide {
+            for step in position.steps {
+                XCTAssertFalse(step.range(of: "swap", options: .caseInsensitive) != nil,
+                               "\(position.id): a bilateral position must not ask "
+                                 + "the user to swap sides — flag it perSide instead")
+            }
         }
     }
 }
