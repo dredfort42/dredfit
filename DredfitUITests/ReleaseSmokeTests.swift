@@ -173,6 +173,19 @@ final class ReleaseSmokeTests: XCTestCase {
                           "S7/S2: разминка не открылась или её нельзя пропустить")
             skipWarmup.tap()
 
+            // The technique affordance answers to its identifier, not to the
+            // English word: the mini-sheet has to open on a Russian build too.
+            let technique = app.buttons["technique"]
+            XCTAssertTrue(technique.waitForExistence(timeout: 5),
+                          "S7/S2: кнопка техники не найдена по идентификатору")
+            technique.tap()
+            let gotIt = app.buttons["Понятно"]
+            XCTAssertTrue(gotIt.waitForExistence(timeout: 5),
+                          "S7/S2: шит техники не открылся на русской сборке")
+            gotIt.tap()
+            XCTAssertTrue(gotIt.waitForNonExistence(timeout: 5),
+                          "S7/S2: «Понятно» не закрыло шит техники")
+
             let walk = driver.completeWorkout(skipCooldown: false, doneLabel: "Готово",
                                               startHoldLabel: "Начать удержание",
                                               ratingLabel: "Как прошло?")
