@@ -60,5 +60,9 @@ struct TechniqueButton: View {
                 .dredfitFont(14, weight: .medium)
                 .foregroundStyle(Theme.ink2)
         }
+        // Addressed by identifier, like every other control a test drives:
+        // without one the button answers only to its English label, so a
+        // localized run cannot open the technique sheet at all.
+        .accessibilityIdentifier("technique")
     }
 }
