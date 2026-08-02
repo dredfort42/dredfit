@@ -165,17 +165,20 @@ final class CooldownTests: XCTestCase {
         }
     }
 
-    /// The guard that keeps the two from drifting apart again: a position
-    /// whose steps say to swap sides must be one the app splits.
+    /// The guard that keeps the two from drifting apart again. Since every
+    /// two-sided position is counted by the app — 15 + 5 + 15 with a spoken
+    /// pause between the sides — no step has any business asking for the
+    /// swap: a bilateral position would be mis-flagged, a per-side one would
+    /// be repeating what the timer already says.
     func testNoPositionTellsTheUserToSwapSidesItself() {
         let all = Cooldown.positions(
             performed: [.squat, .pull, .pushH, .coreRot, .calf, .lunge])
             + Cooldown.positions(performed: [.calf, .lunge, .coreAntiExt])
-        for position in all where !position.perSide {
+        for position in all {
             for step in position.steps {
                 XCTAssertFalse(step.range(of: "swap", options: .caseInsensitive) != nil,
-                               "\(position.id): a bilateral position must not ask "
-                                 + "the user to swap sides — flag it perSide instead")
+                               "\(position.id): the app counts the sides itself — "
+                                 + "a step must not ask the user to swap them")
             }
         }
     }

@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Cool-down: the "swap sides" steps say something useful now
+
+- "Chest and shoulders at the wall" and "Wrists and forearms" still had
+  "Swap arms — or hands — halfway through" as their third technique step,
+  left over from when the user did the counting. Since 1.8.2 the app counts
+  both sides itself, so the line only repeated the timer. Both now carry a
+  technique line like the other four one-sided stretches: keep the shoulder
+  down and away from the ear, and pull the wrist only to a stretch. English,
+  Russian, Spanish and Brazilian Portuguese.
+
 ## 1.8.2
 
 A fix release for the cool-down: the two stretches that told you to swap

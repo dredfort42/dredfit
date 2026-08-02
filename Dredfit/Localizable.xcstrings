@@ -174,25 +174,25 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Swap arms halfway through."
+            "value" : "Keep the shoulder down, away from the ear — turn to a stretch, not into pain."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A mitad de tiempo, cambia de brazo."
+            "value" : "Hombro abajo, lejos de la oreja: gira hasta estirar, no hasta que duela."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Na metade do tempo, troque de braço."
+            "value" : "Ombro baixo, longe da orelha: gire até alongar, não até doer."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "На середине поменяй руки."
+            "value" : "Плечо вниз, подальше от уха — разворачивайся до натяжения, не до боли."
           }
         }
       }
@@ -762,25 +762,25 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Swap hands halfway through."
+            "value" : "Pull only to a stretch — ease off at anything sharp or tingling."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A mitad de tiempo, cambia de mano."
+            "value" : "Tira solo hasta estirar: si sientes punzadas u hormigueo, afloja."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Na metade do tempo, troque de mão."
+            "value" : "Puxe só até alongar: se sentir pontada ou formigamento, alivie."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "На середине поменяй руки."
+            "value" : "Тяни только до натяжения — при резкой боли или покалывании ослабь."
           }
         }
       }

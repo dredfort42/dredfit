@@ -77,7 +77,7 @@ enum Cooldown {
                              String(localized: "cooldown.chestWall.step2",
                                     defaultValue: "Turn the chest away from the wall until the front of the shoulder stretches."),
                              String(localized: "cooldown.chestWall.step3",
-                                    defaultValue: "Swap arms halfway through."),
+                                    defaultValue: "Keep the shoulder down, away from the ear — turn to a stretch, not into pain."),
                          ])
     }
     private static var restPose: CooldownPosition {
@@ -133,7 +133,7 @@ enum Cooldown {
                              String(localized: "cooldown.wrists.step2",
                                     defaultValue: "Then turn the palm up and repeat the gentle pull."),
                              String(localized: "cooldown.wrists.step3",
-                                    defaultValue: "Swap hands halfway through."),
+                                    defaultValue: "Pull only to a stretch — ease off at anything sharp or tingling."),
                          ])
     }
     private static var lyingTwist: CooldownPosition {
