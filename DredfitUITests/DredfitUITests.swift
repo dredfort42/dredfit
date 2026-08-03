@@ -513,16 +513,21 @@ final class DredfitUITests: XCTestCase {
         app.buttons["Start"].tap()
         XCTAssertTrue(app.staticTexts["WARM-UP"].waitForExistence(timeout: 3),
                       "the workout must open with the warm-up")
-        XCTAssertTrue(app.staticTexts["Marching in place"].exists,
+        // Since #52 the block opens on the transition announcing the first
+        // move; the label is the one VoiceOver reads.
+        XCTAssertTrue(app.staticTexts["Get ready: Marching in place"].exists,
                       "the first warm-up move is missing")
         // one impossible move must not cost the other five
         app.buttons["Skip this move"].tap()
-        XCTAssertTrue(app.staticTexts["Arm circles"].waitForExistence(timeout: 3),
+        XCTAssertTrue(app.staticTexts["Get ready: Arm circles"].waitForExistence(timeout: 3),
                       "skipping one move must advance to the next, not exit")
         app.buttons["Skip warm-up"].tap()
         XCTAssertTrue(app.buttons["Done"].waitForExistence(timeout: 3),
                       "skipping the warm-up must lead to the first exercise")
     }
+
+    // The "Get ready" transition itself has its own suite —
+    // GetReadyUITests.swift (issue #52).
 
     /// The position mini-sheet (issue #34): opens from the warm-up move,
     /// shows the block capsule, and freezes the countdown while open —
@@ -530,6 +535,11 @@ final class DredfitUITests: XCTestCase {
     func testPositionTechniqueSheetFreezesTheCountdown() {
         app.launch()
         app.buttons["Start"].tap()
+        // Past the transition (#52) and into the move it announced — the
+        // sheet's freeze is what this test is about.
+        XCTAssertTrue(app.buttons["get-ready-start"].waitForExistence(timeout: 5),
+                      "the warm-up must open on the transition")
+        app.buttons["get-ready-start"].tap()
         let countdown = app.staticTexts["warmup-countdown"]
         XCTAssertTrue(countdown.waitForExistence(timeout: 3),
                       "the warm-up countdown is missing")

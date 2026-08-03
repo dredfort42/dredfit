@@ -30,6 +30,40 @@ struct CountdownNumber: View {
     }
 }
 
+/// The row of dots under a block's countdown: done, current, still ahead.
+/// One definition for the warm-up, the cool-down and the transition between
+/// their positions (issue #52) — three copies of it would drift.
+struct BlockDots: View {
+    let count: Int
+    let current: Int
+
+    var body: some View {
+        HStack(spacing: 10) {
+            ForEach(0..<count, id: \.self) { i in
+                Circle()
+                    .fill(i < current ? Theme.ink : (i == current ? Theme.accent : Theme.hairline))
+                    .frame(width: 10, height: 10)
+            }
+        }
+    }
+}
+
+/// "Skip this move" — the per-position escape both guided blocks carry. A
+/// single move can be impossible today (no floor space, a sore wrist), and
+/// skipping it must not cost the other five.
+struct PositionSkipButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text("Skip this move")
+                .dredfitFont(14, weight: .medium)
+                .foregroundStyle(Theme.ink2)
+                .frame(minHeight: 44)
+        }
+    }
+}
+
 /// The full-width outline escape at the bottom of a block — "Skip warm-up",
 /// "Skip rest", "Skip cool-down".
 struct BlockSkipButton: View {

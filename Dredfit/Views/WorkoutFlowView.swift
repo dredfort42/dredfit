@@ -43,6 +43,10 @@ struct WorkoutFlowView: View {
     @State private var warmupIndex = 0
     @State private var warmupRemaining = 0
     @State private var warmupEndDate: Date?
+    // Every position of both blocks opens with a "Get ready" transition
+    // (issue #52). It shares the block's countdown state — one timer, two
+    // stages — so nothing new has to survive backgrounding.
+    @State private var warmupStage: Warmup.Stage = .getReady
     // The cool-down mirrors the warm-up: date-based countdown, per-position
     // skip, whole-block skip. Positions are computed once on entry — the
     // composition depends on what was actually performed.
@@ -50,8 +54,9 @@ struct WorkoutFlowView: View {
     @State private var cooldownIndex = 0
     @State private var cooldownRemaining = 0
     @State private var cooldownEndDate: Date?
-    // The 15 + 5 + 15 stage machine itself lives in Cooldown (issue #35).
-    @State private var cooldownStage: Cooldown.Stage = .single
+    // The 15 + 5 + 15 stage machine itself lives in Cooldown (issue #35),
+    // which also owns the get-ready transition opening every position (#52).
+    @State private var cooldownStage: Cooldown.Stage = Cooldown.openingStage
     @State private var restRemaining = 0
     @State private var restEndDate: Date?
     // Captured at tap time (not a bool): the rest countdown keeps ticking while
@@ -221,7 +226,7 @@ struct WorkoutFlowView: View {
                 liveActivity.start(sessionNumber: session.sessionNumber,
                                    state: currentActivityState())
             }
-            if phase == .warmup { startWarmupMove(0) }
+            if phase == .warmup { startWarmupPosition(0) }
         }
         .onDisappear {
             UIApplication.shared.isIdleTimerDisabled = false
@@ -311,91 +316,94 @@ struct WorkoutFlowView: View {
 
     // Six universal mobility moves, 30 s each (Warmup.swift) — ~3 minutes
     // before the first exercise. No levels; the whole block can be skipped.
+    // Each move opens with the "Get ready" transition (issue #52).
 
+    @ViewBuilder
     private var warmupView: some View {
-        VStack(spacing: 0) {
-            Spacer()
-            Text(Warmup.moves[warmupIndex].name)
-                .dredfitFont(23, weight: .bold)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: 300)
-
-            // Opens the mini-sheet and freezes the countdown (issue #34).
-            TechniqueButton {
-                openPositionTechnique(PositionTechnique(warmup: Warmup.moves[warmupIndex]))
-            }
-            .padding(.top, 10)
-
-            CountdownNumber(value: warmupRemaining, identifier: "warmup-countdown")
-                .padding(.top, 20)
-
-            HStack(spacing: 10) {
-                ForEach(0..<Warmup.moves.count, id: \.self) { i in
-                    Circle()
-                        .fill(i < warmupIndex ? Theme.ink
-                              : (i == warmupIndex ? Theme.accent : Theme.hairline))
-                        .frame(width: 10, height: 10)
-                }
-            }
-            .padding(.top, 30)
-
-            // A single move can be impossible today (no floor space, a sore
-            // wrist) — skipping it must not cost the other five.
-            Button {
-                if warmupIndex + 1 < Warmup.moves.count {
-                    startWarmupMove(warmupIndex + 1)
-                } else {
-                    finishWarmup()
-                }
-            } label: {
-                Text("Skip this move")
-                    .dredfitFont(14, weight: .medium)
-                    .foregroundStyle(Theme.ink2)
-                    .frame(minHeight: 44)
-            }
-            .padding(.top, 8)
-
-            Spacer()
-
-            BlockSkipButton(title: String(localized: "Skip warm-up")) { finishWarmup() }
-                .padding(.bottom, 20)
+        if warmupStage == .getReady {
+            GetReadyScreen(name: Warmup.moves[warmupIndex].name,
+                           remaining: warmupRemaining,
+                           index: warmupIndex, count: Warmup.moves.count,
+                           blockSkipTitle: String(localized: "Skip warm-up"),
+                           onTechnique: { openWarmupTechnique() },
+                           onStart: { startWarmupMoveNow() },
+                           onSkipPosition: { skipWarmupPosition() },
+                           onSkipBlock: { finishWarmup() })
+        } else {
+            warmupMoveView
         }
     }
 
-    private func startWarmupMove(_ index: Int) {
+    private var warmupMoveView: some View {
+        WarmupMoveScreen(name: Warmup.moves[warmupIndex].name,
+                         remaining: warmupRemaining,
+                         index: warmupIndex, count: Warmup.moves.count,
+                         onTechnique: { openWarmupTechnique() },
+                         onSkipPosition: { skipWarmupPosition() },
+                         onSkipBlock: { finishWarmup() })
+    }
+
+    private func openWarmupTechnique() {
+        openPositionTechnique(PositionTechnique(warmup: Warmup.moves[warmupIndex]))
+    }
+
+    /// A single move can be impossible today (no floor space, a sore wrist) —
+    /// skipping it must not cost the other five. Skipping from the transition
+    /// skips the move it was announcing.
+    private func skipWarmupPosition() {
+        if warmupIndex + 1 < Warmup.moves.count {
+            startWarmupPosition(warmupIndex + 1)
+        } else {
+            finishWarmup()
+        }
+    }
+
+    private func startWarmupPosition(_ index: Int) {
+        enterWarmupStage(index: index, stage: .getReady,
+                         remaining: Warmup.stageSeconds(.getReady))
+    }
+
+    /// "I'm ready": already on the floor, in position — the transition is a
+    /// floor on the pause between positions, never a wait.
+    private func startWarmupMoveNow() {
+        enterWarmupStage(index: warmupIndex, stage: .move,
+                         remaining: Warmup.stageSeconds(.move))
+    }
+
+    private func enterWarmupStage(index: Int, stage: Warmup.Stage, remaining: Int) {
         warmupIndex = index
-        warmupRemaining = Warmup.moveSeconds
-        warmupEndDate = Date.now.addingTimeInterval(TimeInterval(Warmup.moveSeconds))
+        warmupStage = stage
+        warmupRemaining = remaining
+        warmupEndDate = Date.now.addingTimeInterval(TimeInterval(remaining))
     }
 
     private func tickWarmup() {
         guard let end = warmupEndDate else { return }
         let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
         guard newRemaining != warmupRemaining else { return }
-        if newRemaining == 0 {
-            playGo()
-            // Absorb backgrounded time: each move has its own end date, so a
-            // long absence would otherwise advance a single move and silently
-            // stretch the warm-up. Jump over every move the elapsed time
-            // already covered.
-            let overshoot = max(0, -end.timeIntervalSinceNow)
-            let movesPassed = 1 + Int(overshoot) / Warmup.moveSeconds
-            if warmupIndex + movesPassed < Warmup.moves.count {
-                warmupIndex += movesPassed
-                let remainder = Int(overshoot) % Warmup.moveSeconds
-                warmupRemaining = Warmup.moveSeconds - remainder
-                warmupEndDate = Date.now.addingTimeInterval(TimeInterval(warmupRemaining))
-            } else {
-                finishWarmup()
-            }
-        } else {
+        if newRemaining > 0 {
             if newRemaining <= Self.countdownSignalSeconds && newRemaining < warmupRemaining {
                 playTick()
             }
             // Animated so contentTransition(.numericText) actually rolls the
             // digits — a bare mutation swaps them with no transaction.
             withAnimation(.linear(duration: 0.3)) { warmupRemaining = newRemaining }
+            return
         }
+        // A stage boundary. Warmup.advance absorbs whatever a long absence
+        // already covered — a backgrounded warm-up must not stretch itself.
+        guard let next = Warmup.advance(from: (warmupIndex, warmupStage),
+                                        overshoot: Int(max(0, -end.timeIntervalSinceNow))) else {
+            playGo()            // the block is over: the first exercise is up
+            finishWarmup()
+            return
+        }
+        // The go marks the moment a movement starts, which since #52 is the
+        // end of the transition — not the end of the move before it. A
+        // transition opens silently and speaks with its own 3-2-1 instead;
+        // two gos five seconds apart would say nothing twice.
+        if next.entered != .getReady { playGo() }
+        enterWarmupStage(index: next.index, stage: next.stage, remaining: next.remaining)
     }
 
     /// Opens the mini-sheet and freezes the running position countdown
@@ -1038,77 +1046,32 @@ extension WorkoutFlowView {
     /// positions × 30 s between the last exercise and the rating, composed
     /// from what was actually performed. Mirrors the warm-up — the same
     /// countdown, the same two escapes (this position / the whole block).
+    @ViewBuilder
     private var cooldownView: some View {
-        let position = cooldownPositions[cooldownIndex]
-        return VStack(spacing: 0) {
-            Spacer()
-            Text(position.name)
-                .dredfitFont(23, weight: .bold)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: 300)
-            if position.perSide {
-                // The stage line: the structural hint on the first side,
-                // then the pause's own instruction, then the same "second
-                // side" marker the hold exercises use.
-                Group {
-                    switch cooldownStage {
-                    case .switchPause:
-                        Text("Switch sides")
-                            .dredfitFont(14, weight: .semibold)
-                            .foregroundStyle(Theme.accentText)
-                    case .secondSide:
-                        Text("second side")
-                            .dredfitFont(14, weight: .semibold)
-                            .foregroundStyle(Theme.accentText)
-                    case .single, .firstSide:
-                        Text(String(localized: "cooldown.perSide", defaultValue: "15 s per side"))
-                            .dredfitFont(14)
-                            .foregroundStyle(Theme.ink2)
-                    }
-                }
-                .padding(.top, 6)
-            }
-
-            // Opens the mini-sheet and freezes the countdown (issue #34) —
-            // mid-pause too: the switch waits while you read.
-            TechniqueButton {
-                openPositionTechnique(PositionTechnique(cooldown: position))
-            }
-            .padding(.top, 10)
-
-            CountdownNumber(value: cooldownRemaining, identifier: "cooldown-countdown")
-                .padding(.top, 20)
-
-            HStack(spacing: 10) {
-                ForEach(0..<cooldownPositions.count, id: \.self) { i in
-                    Circle()
-                        .fill(i < cooldownIndex ? Theme.ink
-                              : (i == cooldownIndex ? Theme.accent : Theme.hairline))
-                        .frame(width: 10, height: 10)
-                }
-            }
-            .padding(.top, 30)
-
-            Button {
-                if cooldownIndex + 1 < cooldownPositions.count {
-                    startCooldownPosition(cooldownIndex + 1)
-                } else {
-                    finishCooldown()
-                }
-            } label: {
-                Text("Skip this move")
-                    .dredfitFont(14, weight: .medium)
-                    .foregroundStyle(Theme.ink2)
-                    .frame(minHeight: 44)
-            }
-            .padding(.top, 8)
-
-            Spacer()
-
-            BlockSkipButton(title: String(localized: "cooldown.skip", defaultValue: "Skip cool-down"),
-                            identifier: "skip-cooldown") { finishCooldown() }
-                .padding(.bottom, 20)
+        if cooldownStage == .getReady {
+            GetReadyScreen(name: cooldownPositions[cooldownIndex].name,
+                           remaining: cooldownRemaining,
+                           index: cooldownIndex, count: cooldownPositions.count,
+                           blockSkipTitle: String(localized: "cooldown.skip",
+                                                  defaultValue: "Skip cool-down"),
+                           blockSkipIdentifier: "skip-cooldown",
+                           onTechnique: { openCooldownTechnique() },
+                           onStart: { startCooldownPositionNow() },
+                           onSkipPosition: { skipCooldownPosition() },
+                           onSkipBlock: { finishCooldown() })
+        } else {
+            cooldownPositionView
         }
+    }
+
+    private var cooldownPositionView: some View {
+        CooldownPositionScreen(position: cooldownPositions[cooldownIndex],
+                               stage: cooldownStage,
+                               remaining: cooldownRemaining,
+                               index: cooldownIndex, count: cooldownPositions.count,
+                               onTechnique: { openCooldownTechnique() },
+                               onSkipPosition: { skipCooldownPosition() },
+                               onSkipBlock: { finishCooldown() })
     }
 
     /// Entered only when something was actually trained: a workout of pure
@@ -1130,10 +1093,35 @@ extension WorkoutFlowView {
         persistProgress()
     }
 
+    private func openCooldownTechnique() {
+        openPositionTechnique(PositionTechnique(cooldown: cooldownPositions[cooldownIndex]))
+    }
+
+    /// The per-position escape, from the transition as well as from the
+    /// position itself — skipping a stretch you can't do today costs nothing.
+    private func skipCooldownPosition() {
+        if cooldownIndex + 1 < cooldownPositions.count {
+            startCooldownPosition(cooldownIndex + 1)
+        } else {
+            finishCooldown()
+        }
+    }
+
     private func startCooldownPosition(_ index: Int) {
+        enterCooldownStage(index: index, stage: Cooldown.openingStage)
+    }
+
+    /// "I'm ready" during the transition: into the position at once.
+    private func startCooldownPositionNow() {
+        guard let next = Cooldown.step(after: (cooldownIndex, .getReady),
+                                       positions: cooldownPositions) else { return }
+        enterCooldownStage(index: next.index, stage: next.stage)
+    }
+
+    private func enterCooldownStage(index: Int, stage: Cooldown.Stage) {
         cooldownIndex = index
-        cooldownStage = Cooldown.openingStage(of: cooldownPositions[index])
-        cooldownRemaining = Cooldown.stageSeconds(cooldownStage)
+        cooldownStage = stage
+        cooldownRemaining = Cooldown.stageSeconds(stage)
         cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(cooldownRemaining))
     }
 
@@ -1143,7 +1131,9 @@ extension WorkoutFlowView {
         guard newRemaining != cooldownRemaining else { return }
         if newRemaining > 0 {
             // No 3-2-1 inside the switch pause — it is framed by its own
-            // two signals, and ticks would bury the tone it opened with.
+            // two signals, and ticks would bury the tone it opened with. The
+            // get-ready transition is the opposite case: the 3-2-1 IS its
+            // signal, and it ends on the go that starts the position.
             if cooldownStage != .switchPause,
                newRemaining <= Self.countdownSignalSeconds && newRemaining < cooldownRemaining {
                 playTick()
@@ -1160,11 +1150,19 @@ extension WorkoutFlowView {
             finishCooldown()
             return
         }
-        if next.entered == .switchPause { playSwitch() } else { playGo() }
+        switch next.entered {
+        case .switchPause: playSwitch()
+        case .getReady:    break   // the transition speaks with its own 3-2-1
+        default:           playGo()
+        }
         cooldownIndex = next.index
         cooldownStage = next.stage
         cooldownRemaining = next.remaining
         cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(next.remaining))
+        // A new position is the block's phase transition: re-stamp the
+        // snapshot so a long cool-down keeps the session resumable (it
+        // restores onto the rating — spec §4 — never into a stretch).
+        if next.entered == .getReady { persistProgress() }
     }
 
     private func finishCooldown() {

@@ -83,3 +83,64 @@ enum Warmup {
         ]
     }
 }
+
+// MARK: - The stage machine (issue #52)
+
+extension Warmup {
+
+    /// Where inside a move the countdown is: the "Get ready" transition, then
+    /// the move itself. The same shape as the cool-down's stage machine — the
+    /// block that opens a workout and the block that closes it now walk their
+    /// positions the same way.
+    enum Stage { case getReady, move }
+
+    static func stageSeconds(_ stage: Stage) -> Int {
+        switch stage {
+        case .getReady: return GetReady.stageSeconds
+        case .move:     return moveSeconds
+        }
+    }
+
+    /// The stage after the given one — into the move within a position,
+    /// otherwise on to the next position's transition. nil when the block
+    /// is over.
+    static func step(after step: (index: Int, stage: Stage)) -> (index: Int, stage: Stage)? {
+        switch step.stage {
+        case .getReady:
+            return (step.index, .move)
+        case .move:
+            let next = step.index + 1
+            guard next < moves.count else { return nil }
+            return (next, .getReady)
+        }
+    }
+
+    /// Where a finished stage lands: `entered` names the stage the audible
+    /// boundary opened — a transition opens silently, everything else is the
+    /// usual go — while index/stage/remaining are the countdown's new
+    /// position, after any backgrounded time has been absorbed.
+    struct Advance {
+        let entered: Stage
+        let index: Int
+        let stage: Stage
+        let remaining: Int
+    }
+
+    /// A stage ran out. Whole stages a long absence (`overshoot` seconds past
+    /// the boundary) already covered are absorbed silently — a backgrounded
+    /// warm-up must not stretch itself one move at a time. nil when the block
+    /// is over, immediately or inside the overshoot.
+    static func advance(from current: (index: Int, stage: Stage),
+                        overshoot: Int) -> Advance? {
+        guard var landing = step(after: current) else { return nil }
+        let entered = landing.stage
+        var remainder = overshoot
+        while remainder >= stageSeconds(landing.stage) {
+            remainder -= stageSeconds(landing.stage)
+            guard let next = step(after: landing) else { return nil }
+            landing = next
+        }
+        return Advance(entered: entered, index: landing.index, stage: landing.stage,
+                       remaining: stageSeconds(landing.stage) - remainder)
+    }
+}
