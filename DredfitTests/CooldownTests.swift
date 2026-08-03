@@ -73,8 +73,10 @@ final class CooldownTests: XCTestCase {
     func testTheBlockFillsExactlyTheEnginesReservedMinutes() {
         // 6 × 30 s = the 3 minutes `cooldownMin` has promised since 1.0:
         // sides and positions sum to the reserved minutes. The side-switch
-        // pauses (issue #35) ride on top, within the "≈" every estimate has
-        // always carried — they are deliberately not part of this equation.
+        // pauses (issue #35) and the get-ready transitions (issue #52) ride
+        // on top, within the "≈" every estimate has always carried — they are
+        // deliberately not part of this equation. GetReadyTests holds the
+        // whole of both blocks to the reserved warm-up + cool-down minutes.
         XCTAssertEqual(Cooldown.positionCount * Cooldown.positionSeconds,
                        EngineConfig.cooldownMin * 60)
     }
@@ -100,15 +102,22 @@ final class CooldownTests: XCTestCase {
     func testAPerSidePositionWalksSidesAroundThePause() {
         let positions = machinePositions
         XCTAssertTrue(positions[0].perSide, "hip flexors open the block per side")
-        XCTAssertEqual(Cooldown.openingStage(of: positions[0]), .firstSide)
+        // Every position opens with the transition (issue #52); the sides
+        // start once it runs out.
+        XCTAssertEqual(Cooldown.openingStage, .getReady)
+        XCTAssertEqual(Cooldown.step(after: (0, .getReady), positions: positions)?.stage,
+                       .firstSide)
         let pause = Cooldown.step(after: (0, .firstSide), positions: positions)
         XCTAssertEqual(pause?.stage, .switchPause)
         let second = Cooldown.step(after: (0, .switchPause), positions: positions)
         XCTAssertEqual(second?.stage, .secondSide)
-        // ...and the second side leaves the position entirely.
+        // ...and the second side leaves the position entirely, into the next
+        // position's transition.
         let next = Cooldown.step(after: (0, .secondSide), positions: positions)
         XCTAssertEqual(next?.index, 1)
-        XCTAssertEqual(next?.stage, .firstSide,
+        XCTAssertEqual(next?.stage, .getReady)
+        XCTAssertEqual(Cooldown.step(after: (1, .getReady), positions: positions)?.stage,
+                       .firstSide,
                        "chest wall is per side too — it tells the user to swap arms")
     }
 
@@ -136,13 +145,13 @@ final class CooldownTests: XCTestCase {
     func testAdvanceAbsorbsBackgroundedTimeAcrossStages() {
         // 22 s past the first side's end: the pause (5) and the second side
         // (15) are consumed whole, landing 2 s into the next position — which
-        // is chest wall, itself per side, so 2 s into its FIRST side of 15.
+        // since #52 opens with its 5 s transition, so 2 s into that.
         let positions = machinePositions
         let landing = Cooldown.advance(from: (0, .firstSide), overshoot: 22,
                                        positions: positions)
         XCTAssertEqual(landing?.index, 1)
-        XCTAssertEqual(landing?.stage, .firstSide)
-        XCTAssertEqual(landing?.remaining, Cooldown.sideSeconds - 2)
+        XCTAssertEqual(landing?.stage, .getReady)
+        XCTAssertEqual(landing?.remaining, GetReady.seconds - 2)
         // An overshoot past the whole block is simply over.
         XCTAssertNil(Cooldown.advance(from: (0, .firstSide), overshoot: 10_000,
                                       positions: positions))

@@ -32,7 +32,7 @@ about pixels, not about strings. Walk those on a device before submitting.
 | # | Check | Expected |
 |---|---|---|
 | S1 | Cold start on a fresh install | Opens on **Today** with "Workout 1", ≈33 min, 6 exercises, a **Start** button with the short-version offer under it |
-| S2 | Full workout: Start → warm-up → 6 exercises → cool-down → rating | Rating screen appears; tapping an option returns to Today in the done state |
+| S2 | Full workout: Start → warm-up (opens on its "Get ready" transition) → 6 exercises → cool-down → rating | Rating screen appears; tapping an option returns to Today in the done state |
 | S3 | Today after completion | Checkmark, "Workout 1 completed", a rating caption, and a **Next** card (no Start button) |
 | S4 | Relaunch the app | Still in the done state — the record survived the restart |
 | S5 | Calendar tab | Today is filled and tappable; the history sheet lists what was done |
@@ -48,12 +48,12 @@ about pixels, not about strings. Walk those on a device before submitting.
 | # | Check | Expected |
 |---|---|---|
 | 1.1 | Tap an exercise row on Today before starting | Technique sheet opens; the workout does **not** start |
-| 1.2 | Tap **Start** | Full-screen flow opens on **WARM-UP**; the screen does not auto-lock for the whole workout |
-| 1.3 | Let the warm-up run | 6 moves × 30 s. At 3-2-1 a tick sound + light haptic; at 0 a two-tone rise + success haptic; dots advance; total 3 min |
+| 1.2 | Tap **Start** | Full-screen flow opens on **WARM-UP**, on the first move's "Get ready" transition (§34); the screen does not auto-lock for the whole workout |
+| 1.3 | Let the warm-up run | 6 × (5 s transition + 30 s move) = 3:30. At 3-2-1 a tick sound + light haptic; at 0 a two-tone rise + success haptic starting the move; dots advance |
 | 1.3a | ⌚ Play music, run a countdown to 0 | The 3-2-1 ticks and the finale are clearly audible over the music at typical media volume; the music keeps playing (mixed, not paused) |
 | 1.3b | ⌚ Silent switch on | Signals are silent — haptics only. Same with **Sounds** off in settings |
 | 1.4 | Tap **Skip warm-up** | The *entire* warm-up block ends (not just the current move) and exercise 1 appears |
-| 1.4a | Tap **Skip this move** during the warm-up | Only the current move is skipped — the next one starts its own 30 s; on the last move it ends the warm-up |
+| 1.4a | Tap **Skip this move** during the warm-up | Only the current move is skipped — the next one starts with its own transition; on the last move it ends the warm-up |
 | 1.5 | Work screen layout | Header "1 / 6" and 6 capsules; exercise name; **technique** button; big planned number; "reps" (or "reps per side"); set dots; "set 1 of 3" |
 | 1.6 | Tap **technique** during work | Sheet opens for the current exercise; it does not swap if the phase changes underneath |
 | 1.7 | Tap **Done** on a non-final set | Rest starts at 60 s |
@@ -451,10 +451,10 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 
 | # | Check | Expected |
 |---|---|---|
-| 30.1 | Complete the last exercise's last set | "COOL-DOWN" header, six dots, first position "Hip flexor stretch" with a 15 s countdown and "15 s per side" hint |
+| 30.1 | Complete the last exercise's last set | "COOL-DOWN" header, six dots, a 5 s "Get ready" transition (§34) and then "Hip flexor stretch" with a 15 s countdown and "15 s per side" hint |
 | 30.2 | The six positions | Hip flexors → chest and shoulders → three from the session's movements (dedup'd, session order) → rest pose last; no duplicates |
 | 30.3 | The mapped three | Match what was performed: fold for squat/hinge, lats for pulls, wrists for pushes, twist for core, calf at the wall, seated glute for lunges |
-| 30.4 | Let it run | 6 × 30 s of stretching = the reserved 3:00, plus a 5 s side-switch pause per unilateral position. Hip flexors and chest-and-shoulders are always among the six and both run per side, so the block is never shorter than 3:10; with three per-side positions among the mapped three it reaches 3:25. All of it sits inside the "≈" every estimate carries; the rating follows |
+| 30.4 | Let it run | 6 × 30 s of stretching = the reserved 3:00, plus a 5 s side-switch pause per unilateral position and a 5 s transition per position (§34). Hip flexors and chest-and-shoulders are always among the six and both run per side, so the block is never shorter than 3:40; with three per-side positions among the mapped three it reaches 3:55. All of it sits inside the "≈" every estimate carries; the rating follows |
 | 30.5 | "Skip this move" / "Skip cool-down" | One position or the whole block; either way the rating still comes and the workout records exactly as before |
 | 30.6 | "Finish now" from mid-workout | **No** cool-down — whoever cut the workout short is out of time by definition |
 | 30.7 | Skip all six exercises | No cool-down either — nothing was trained, nothing to stretch |
@@ -496,6 +496,23 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 33.4 | Break crosses both zones (opened at day 8–13, returned at 14+) | The comeback card shows the **weakened** drop (table − 1); accepting lands exactly where a plain comeback would — peeking mid-break never costs extra |
 | 33.5 | First workout after a decayed break rated "tough" | Regular −1 on top; **no** deload from the old streak alone — the streak grows as usual |
 | 33.6 | Complete a workout, then a new 8-day break | The new break decays independently — the old stamp went stale with the new workout |
+
+### 34. "Get ready" transition (issue #52)
+
+| # | Check | Expected |
+|---|---|---|
+| 34.1 | Tap **Start** | The warm-up opens on **GET READY** + "Marching in place", a 5 s countdown, the block dots, **technique**, **Skip this move**, **I'm ready** and **Skip warm-up** — never mid-move |
+| 34.2 | Let it run out | 3-2-1 ticks, then the rising go, and the move starts at 30 s. The position itself now ends **silently** — the go belongs to the moment a movement starts, not to the moment one finishes |
+| 34.3 | Tap **I'm ready** | The move starts at once; the transition is a floor on the pause between positions, never a wait |
+| 34.4 | **Skip this move** during a transition | Skips the position it was announcing and lands on the next position's transition; on the last one it ends the block |
+| 34.5 | Complete the last exercise's last set | The cool-down opens the same way — a transition before "Hip flexor stretch", then the 15 s first side |
+| 34.6 | Every cool-down position | Preceded by its own transition, the per-side ones included: transition → 15 s → "Switch sides" 5 s → 15 s → next transition |
+| 34.7 | Total block length | Warm-up 6 × (5 + 30) = 3:30; cool-down 6 × 5 on top of its 3:10–3:25 = 3:40–3:55. Both inside the 8 minutes the estimate reserves (`warmupMin` 5 + `cooldownMin` 3) — the number on Today is unchanged, and must stay unchanged |
+| 34.8 | Lock the phone mid-transition, return after a while | The countdown reflects real elapsed time and jumps whole stages — a long absence lands on a transition or a position boundary, never mid-glyph |
+| 34.9 | **technique** during a transition | The mini-sheet opens for the upcoming position and freezes its countdown, exactly as it does while a position runs |
+| 34.10 | VoiceOver on a transition | Reads one phrase — "Get ready: Cat-cow" — not the kicker and the name separately |
+| 34.11 | All four languages | «Приготовься» / "Prepárate" / "Prepare-se" over the name; the button reads «Начать» / "Empezar" / "Começar" (translated by sense — "ready" is a gendered adjective in all three) |
+| 34.12 | es / pt-BR at the largest accessibility sizes | The longest names ("Chest and shoulders at the wall", "Pecho y hombros en la pared") wrap to three lines and the block's content **scrolls**; **I'm ready** and the block skip stay pinned and fully tappable. Applies to the running move and stretch screens too |
 
 ---
 

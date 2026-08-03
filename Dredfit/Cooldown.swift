@@ -224,10 +224,11 @@ enum Cooldown {
 
     // MARK: - The stage machine (issue #35)
 
-    /// Where inside a position the countdown is: a bilateral position runs
-    /// one `.single` stage; a per-side one runs `.firstSide` → `.switchPause`
-    /// → `.secondSide` — 15 + 5 + 15.
-    enum Stage { case single, firstSide, switchPause, secondSide }
+    /// Where inside a position the countdown is. Every position opens with
+    /// the `.getReady` transition (issue #52); a bilateral one then runs a
+    /// single `.single` stage, a per-side one runs `.firstSide` →
+    /// `.switchPause` → `.secondSide` — 15 + 5 + 15.
+    enum Stage { case getReady, single, firstSide, switchPause, secondSide }
 
     /// Stage length in seconds. --uitest-fast collapses every stage to 1 s,
     /// same as the rest countdown, so UI drivers never wait real minutes.
@@ -236,28 +237,32 @@ enum Cooldown {
         if CommandLine.arguments.contains("--uitest-fast") { return 1 }
         #endif
         switch stage {
+        case .getReady:               return GetReady.seconds
         case .single:                 return positionSeconds
         case .firstSide, .secondSide: return sideSeconds
         case .switchPause:            return sideSwitchPauseSec
         }
     }
 
-    static func openingStage(of position: CooldownPosition) -> Stage {
-        position.perSide ? .firstSide : .single
-    }
+    /// Every position opens with the transition — the first one included:
+    /// the user has just pressed Start (or finished the last exercise) and is
+    /// still standing by the phone.
+    static let openingStage = Stage.getReady
 
-    /// The stage after the given one — into the pause and the second side
-    /// within a per-side position, otherwise on to the next position.
-    /// nil when the block is over.
+    /// The stage after the given one — into the position itself, then the
+    /// pause and the second side within a per-side one, otherwise on to the
+    /// next position's transition. nil when the block is over.
     static func step(after step: (index: Int, stage: Stage),
                      positions: [CooldownPosition]) -> (index: Int, stage: Stage)? {
+        guard step.index < positions.count else { return nil }
         switch step.stage {
+        case .getReady:    return (step.index, positions[step.index].perSide ? .firstSide : .single)
         case .firstSide:   return (step.index, .switchPause)
         case .switchPause: return (step.index, .secondSide)
         case .single, .secondSide:
             let next = step.index + 1
             guard next < positions.count else { return nil }
-            return (next, openingStage(of: positions[next]))
+            return (next, openingStage)
         }
     }
 

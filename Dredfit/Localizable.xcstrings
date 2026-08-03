@@ -3860,6 +3860,52 @@
         }
       }
     },
+    "Get ready" : {
+      "comment" : "Kicker over the name of the position about to start.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prepárate"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prepare-se"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приготовься"
+          }
+        }
+      }
+    },
+    "Get ready: %@" : {
+      "comment" : "VoiceOver label of the transition screen: the whole message in one phrase.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prepárate: %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prepare-se: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приготовься: %@"
+          }
+        }
+      }
+    },
     "Got it" : {
       "localizations" : {
         "es" : {
@@ -4035,6 +4081,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Как это работает"
+          }
+        }
+      }
+    },
+    "I'm ready" : {
+      "comment" : "Starts the position at once, skipping the rest of the transition. Translated by sense: the neutral verb every language already uses for Start, since “ready” takes a gendered adjective in ru/es/pt-BR.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empezar"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Começar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Начать"
           }
         }
       }

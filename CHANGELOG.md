@@ -2,6 +2,42 @@
 
 ## Unreleased
 
+### Warm-up and cool-down: a "Get ready" transition before each position (issue #52)
+
+- Both guided blocks used to start every position cold: the 30 seconds of a
+  warm-up move and the timer of a cool-down stretch began the instant the
+  previous one ended, while you were still getting off the floor, reading the
+  next name or looking for the wall. The first seconds of the interval went
+  into moving house, not into moving — and for a beginner that reads as "I
+  can't keep up" rather than "the timer starts too early".
+- Every position is now preceded by a five-second "Get ready: <move>" — the
+  first one included, because you have just pressed Start and are still
+  standing by the phone. It names what is coming, opens its technique sheet
+  like the position itself does, runs the usual 3-2-1 into the go that starts
+  the movement, and carries the same two escapes (this position, the whole
+  block). "I'm ready" starts the position at once: the transition is a floor
+  on the pause between positions, never a wait.
+- The go-tone moved to where the movement actually starts. A position now
+  ends silently and the transition speaks with its own 3-2-1 — two gos five
+  seconds apart would have said nothing twice. The falling "switch sides"
+  tone keeps its one meaning.
+- The pattern already half-existed: the side-switch pause of 1.8.2 counts a
+  transition inside a position, this one counts the transition between them.
+  Same five seconds, same wall clock, same survival of a locked screen; a
+  backgrounded block still jumps whole stages instead of stretching itself.
+- No estimate moves. The engine reserves 8 minutes for the two blocks
+  (`warmupMin` 5 + `cooldownMin` 3); with the transitions they spend 210 s on
+  the warm-up and 220–235 s on the cool-down — 430–445 s of the reserved 480.
+  The number on "Today" keeps promising at least what the flow delivers, and
+  the engine, `estimatedTotalMin` and the golden fixtures are untouched.
+- VoiceOver reads the transition as one phrase, "Get ready: Cat-cow". At the
+  accessibility text sizes a three-line position name plus the countdown no
+  longer fits the screen, so the block's content scrolls and its escapes stay
+  pinned — the running move and stretch screens gained the same treatment.
+- Strings in all four languages. "I'm ready" is translated by sense —
+  «Начать» / "Empezar" / "Começar" — because "ready" takes a gendered
+  adjective in Russian, Spanish and Portuguese.
+
 ### Widget: the longest exercise names fit the large size again
 
 - On the large home-screen widget in Russian the longest name in the catalog
