@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Widget: the longest exercise names fit the large size again
+
+- On the large home-screen widget in Russian the longest name in the catalog
+  — «Птица-собака» (удержание) — ended in an ellipsis. The plan row carries
+  the load in the long form the snapshot writes ("3×20 сек на сторону"),
+  which left the name short of the width it needs. The name now shrinks a
+  little instead of truncating, the way every other line of the widget
+  already does — and an ellipsis is the worst of the two, because sibling
+  variations differ at the end of the name. Brazilian Portuguese already fit;
+  English is nowhere near the edge.
+
 ### Cool-down: the "swap sides" steps say something useful now
 
 - "Chest and shoulders at the wall" and "Wrists and forearms" still had
