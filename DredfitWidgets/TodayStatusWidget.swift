@@ -267,6 +267,14 @@ struct TodayStatusView: View {
                         .font(.system(size: 13.5))
                         .foregroundStyle(WidgetTheme.ink)
                         .lineLimit(1)
+                        // The row carries the load in the long form the
+                        // snapshot writes ("3×20 sec per side"), which in
+                        // Russian leaves the longest catalog name short of
+                        // the width it needs. Shrink the name the way every
+                        // other line of the widget already shrinks: an
+                        // ellipsis would eat the end of the name, and sibling
+                        // variations differ exactly there.
+                        .minimumScaleFactor(0.8)
                     Spacer(minLength: 0)
                     Text(row.detail)
                         .font(.system(size: 13, weight: .semibold))
