@@ -57,7 +57,26 @@ struct TodayProvider: TimelineProvider {
     func getTimeline(in context: Context, completion: @escaping (Timeline<TodayEntry>) -> Void) {
         var list = entries(from: loadSnapshot())
         if list.isEmpty { list = [.empty] }
-        completion(Timeline(entries: list, policy: .atEnd))
+        if let next = nextReload(after: list) {
+            completion(Timeline(entries: list, policy: .after(next)))
+        } else {
+            completion(Timeline(entries: list, policy: .atEnd))
+        }
+    }
+
+    /// nil means `.atEnd`. Entries are stamped at the start of their day, so
+    /// once today's is the last one the timeline has already expired: `.atEnd`
+    /// would be re-requested immediately, answered with the same expired
+    /// timeline, and spend the day's whole reload budget. `now` is a
+    /// parameter only so tests can pin the clock.
+    func nextReload(after entries: [TodayEntry], now: Date = .now) -> Date? {
+        if let last = entries.last, last.date > now { return nil }
+        let cal = Calendar.current
+        // The fallback must stay strictly ahead of `now` — a date in the past
+        // here reinstates the loop above.
+        let tomorrow = cal.date(byAdding: .day, value: 1, to: now)
+            ?? now.addingTimeInterval(24 * 60 * 60)
+        return cal.startOfDay(for: tomorrow)
     }
 
     private func loadSnapshot() -> WidgetSnapshot? {

@@ -402,7 +402,11 @@ struct WorkoutFlowView: View {
         // end of the transition — not the end of the move before it. A
         // transition opens silently and speaks with its own 3-2-1 instead;
         // two gos five seconds apart would say nothing twice.
-        if next.entered != .getReady { playGo() }
+        //
+        // `entered` names the first boundary crossed and `stage` where the
+        // overshoot landed; a long absence crosses several, so a landing on a
+        // transition stays silent whichever boundary opened the run.
+        if next.entered != .getReady, next.stage != .getReady { playGo() }
         enterWarmupStage(index: next.index, stage: next.stage, remaining: next.remaining)
     }
 
@@ -1150,10 +1154,15 @@ extension WorkoutFlowView {
             finishCooldown()
             return
         }
-        switch next.entered {
-        case .switchPause: playSwitch()
-        case .getReady:    break   // the transition speaks with its own 3-2-1
-        default:           playGo()
+        // The signal belongs to what is on screen now: a landing on a
+        // transition is silent whichever boundary opened the run (see
+        // tickWarmup).
+        if next.stage != .getReady {
+            switch next.entered {
+            case .switchPause: playSwitch()
+            case .getReady:    break
+            default:           playGo()
+            }
         }
         cooldownIndex = next.index
         cooldownStage = next.stage

@@ -237,7 +237,7 @@ enum Cooldown {
         if CommandLine.arguments.contains("--uitest-fast") { return 1 }
         #endif
         switch stage {
-        case .getReady:               return GetReady.seconds
+        case .getReady:               return GetReady.stageSeconds
         case .single:                 return positionSeconds
         case .firstSide, .secondSide: return sideSeconds
         case .switchPause:            return sideSwitchPauseSec

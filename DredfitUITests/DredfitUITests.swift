@@ -536,6 +536,10 @@ final class DredfitUITests: XCTestCase {
     // MARK: - Warm-up
 
     func testWarmupShowsAndSkips() {
+        // Both transition labels below are asserted while the transition is
+        // on screen, which at its real length is a five-second window shared
+        // with the element lookups — held open instead.
+        app.launchArguments.append("--uitest-long-transition")
         app.launch()
         app.buttons["Start"].tap()
         XCTAssertTrue(app.staticTexts["WARM-UP"].waitForExistence(timeout: 3),
@@ -560,10 +564,12 @@ final class DredfitUITests: XCTestCase {
     /// shows the block capsule, and freezes the countdown while open —
     /// reading is not stretching. Closing resumes the count.
     func testPositionTechniqueSheetFreezesTheCountdown() {
+        // Past the transition and into the move it announced — the sheet's
+        // freeze is what this test is about, so the transition is held open
+        // rather than raced.
+        app.launchArguments.append("--uitest-long-transition")
         app.launch()
         app.buttons["Start"].tap()
-        // Past the transition (#52) and into the move it announced — the
-        // sheet's freeze is what this test is about.
         XCTAssertTrue(app.buttons["get-ready-start"].waitForExistence(timeout: 5),
                       "the warm-up must open on the transition")
         app.buttons["get-ready-start"].tap()

@@ -6,12 +6,14 @@
 //  is preceded by it — the very first one included, because the user has just
 //  pressed Start and is still standing by the phone.
 //
-//  Deliberately NOT run under --uitest-fast: the transition is what these
-//  tests are about, and collapsing it to a second would turn every assertion
-//  into a race. Five real seconds is what the warm-up costs them, and the
-//  warm-up is the block where the transition is reachable without walking a
-//  whole workout first. The cool-down runs the same stage machine, held by
-//  GetReadyTests and CooldownTests on the unit side.
+//  Deliberately NOT run under --uitest-fast: collapsing the transition to a
+//  second would turn every assertion here into a race.
+//
+//  Anything that TAPS the transition runs under --uitest-long-transition
+//  instead — "I'm ready" is on screen only while the transition runs, and at
+//  its real length resolve-element-then-tap must fit inside five seconds on a
+//  saturated runner (I-5). Only the hand-over test keeps the real length,
+//  because expiring on its own is what it asserts.
 //
 
 import XCTest
@@ -31,6 +33,8 @@ final class GetReadyUITests: XCTestCase {
     /// The block opens on the transition, and anyone already in place taps
     /// straight through it.
     func testGetReadyPrecedesEveryWarmupMoveAndIsSkippable() {
+        // Taps "I'm ready" — the transition must outlive the element lookup.
+        app.launchArguments.append("--uitest-long-transition")
         app.launch()
         app.buttons["Start"].tap()
         let transition = app.staticTexts["getready-countdown"]
@@ -69,6 +73,8 @@ final class GetReadyUITests: XCTestCase {
     /// Skipping the whole block from the transition is the same escape it
     /// always was — the transition never traps anyone in front of it.
     func testTheBlockCanStillBeSkippedFromTheTransition() {
+        // The escape has to be tapped while the transition is still up.
+        app.launchArguments.append("--uitest-long-transition")
         app.launch()
         app.buttons["Start"].tap()
         XCTAssertTrue(app.buttons["get-ready-start"].waitForExistence(timeout: 5))

@@ -127,6 +127,42 @@ final class WidgetTimelineTests: XCTestCase {
         XCTAssertTrue(TodayProvider().entries(from: nil).isEmpty)
     }
 
+    // MARK: - When to come back for the next timeline
+
+    /// Entries are stamped at the start of their day, so a timeline whose
+    /// last one is today has already expired by the time WidgetKit holds it.
+    /// `.atEnd` on that means "reload now", answered with the same expired
+    /// timeline — the day's whole reload budget spent on nothing.
+    func testAnExpiredTimelineIsNotAskedForAgainImmediately() {
+        let provider = TodayProvider()
+        let (snapshot, today) = fixture()
+        let now = today.addingTimeInterval(11 * 60 * 60)   // 11:00 on the fixture's today
+        let entries = provider.entries(from: snapshot, today: today)
+
+        // Healthy: the last entry is eleven days out, so .atEnd is right.
+        XCTAssertNil(provider.nextReload(after: entries, now: now))
+
+        // Spent: today's entry is the last one, stamped at this morning's
+        // midnight. Come back after midnight, not inside this same second.
+        let spent = entries.filter { $0.date <= today }
+        XCTAssertEqual(spent.count, 1, "the fixture's today must be the only one left")
+        XCTAssertEqual(provider.nextReload(after: spent, now: now), date(3))
+
+        // Run out entirely: nothing to end on at all.
+        XCTAssertEqual(provider.nextReload(after: [], now: now), date(3))
+
+        // ...and the fallback entry the provider substitutes is dated at
+        // render time, which is not a future either. Built before the clock
+        // is read, and read against the real one: `.empty` stamps itself with
+        // `.now`, so the fixture's Wednesday says nothing about it.
+        let fallback = TodayEntry.empty
+        let realNow = Date.now
+        XCTAssertEqual(provider.nextReload(after: [fallback], now: realNow),
+                       Calendar.current.startOfDay(
+                           for: Calendar.current.date(byAdding: .day, value: 1, to: realNow)!),
+                       "the substituted entry has already expired when it is handed over")
+    }
+
     // MARK: - The views' words
 
     private func entry(_ status: WidgetSnapshot.Day.Status?,

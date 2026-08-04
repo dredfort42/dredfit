@@ -88,12 +88,12 @@ The engine was first written and verified as a JavaScript reference (8,009 prope
 
 ## Testing
 
-Three layers, 299 automated tests:
+Three layers, 301 automated tests:
 
 | Layer | Count | What it covers |
 | --- | --- | --- |
 | Core invariants + golden | 63 | encoding bijectivity, rotation properties, pull:push balance, deload timing, override caps, skip semantics, bar-branch independence, lenient state decode, feedback replay safety, the silent decay and its non-stacking with the comeback, reference parity |
-| App unit tests | 193 | persistence round-trips, corrupted-file quarantine, a frozen journal and its reload, legacy-record migration, in-progress snapshot validity, rest-day calendar math, Health export ordering and idempotence, the one-shot reminder window, day-anchor rollover, the widget snapshot, its backward compatibility and the per-day timeline words, the variation-debut badge, share-card wording and its level curve, the short workout's picks, cool-down composition, the get-ready transition and the minutes both blocks fit into, the jubilee's then-and-now comparison, the life-benefit override |
+| App unit tests | 195 | persistence round-trips, corrupted-file quarantine, a frozen journal and its reload, legacy-record migration, in-progress snapshot validity, rest-day calendar math, Health export ordering and idempotence, the one-shot reminder window, day-anchor rollover, the widget snapshot, its backward compatibility and the per-day timeline words, the variation-debut badge, share-card wording and its level curve, the short workout's picks, cool-down composition, the get-ready transition and the minutes both blocks fit into, the jubilee's then-and-now comparison, the life-benefit override |
 | UI tests | 43 | the full workout flow, in-workout adjustment, hold mis-tap grace, resume after a kill, the three exit paths, the short workout, the cool-down, the side-switch pause, the get-ready transition, position technique sheets, history, relaunch persistence, and the release smoke walked end to end in English and Russian |
 
 Plus [TESTPLAN.md](TESTPLAN.md): a manual QA checklist (locale passes, date rollover, backgrounding during rest, device-only integrations) and a registry of found issues with their status.
@@ -105,7 +105,7 @@ CI runs the unit suites on every push — that is the gate for merges and releas
 1. Open the Xcode project (iOS 17+, Xcode 15+).
 2. The `DredfitCore` package is local — add it via *File → Add Package Dependencies → Add Local* if not already linked.
 3. `⌘U` on the package first: golden tests are the gate.
-4. Run on any iPhone simulator. UI tests expect an English locale and drive the app through DEBUG-only launch flags — `--uitest-reset` for a clean slate, `--uitest-fast` to collapse rest countdowns, and a few that seed a specific state (`--uitest-session2`, `--uitest-milestone`, `--uitest-comeback`, `--uitest-restday`, `--uitest-onboarding`).
+4. Run on any iPhone simulator. UI tests expect an English locale and drive the app through DEBUG-only launch flags — `--uitest-reset` for a clean slate, `--uitest-fast` to collapse rest countdowns, `--uitest-long-transition` to hold a "Get ready" transition open so the tests that tap it are not racing its five seconds, and a few that seed a specific state (`--uitest-session2`, `--uitest-milestone`, `--uitest-comeback`, `--uitest-restday`, `--uitest-onboarding`).
 
 ## Localization
 

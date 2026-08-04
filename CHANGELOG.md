@@ -59,6 +59,26 @@
   down and away from the ear, and pull the wrist only to a stretch. English,
   Russian, Spanish and Brazilian Portuguese.
 
+### Widget: it stops asking to be refreshed once its snapshot runs out
+
+- The app writes the widget two weeks of days; the widget asked for its next
+  timeline "after the last one". Once only today was left, that moment had
+  already passed by the time the timeline arrived, so the widget re-asked
+  immediately, got the same expired answer, and spent the day's whole refresh
+  budget on it — which is exactly the budget a real change needs the moment
+  the app is opened again. It now asks again after midnight instead. Reachable
+  after two weeks without opening the app, which is a break the app already
+  models rather than an accident.
+- The same budget went on the one-off Apple Health backfill: exporting a year
+  of history poked the widget once per workout, for content none of those
+  exports can change.
+
+### Calendar: the footer names the month you are looking at
+
+- Paged back to June, the card under the grid still read "This month" over
+  June's count — a sentence about August stating June's number. It now names
+  the month on screen whenever that is not the current one.
+
 ## 1.8.2
 
 A fix release for the cool-down: the two stretches that told you to swap

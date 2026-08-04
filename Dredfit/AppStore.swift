@@ -829,9 +829,10 @@ final class AppStore {
     }
 
     private func closeComebackQuestion() {
+        // persist() already mirrors to the widget; a second call here is a
+        // second reloadAllTimelines() for the same content.
         settings.comebackDecidedFor = records.last?.date
         persist()
-        refreshWidgetSnapshot()
     }
 
     static let comebackFreshStartDays = 180
@@ -912,7 +913,11 @@ final class AppStore {
             records[i].healthExported = true
             settings.healthExportedThrough = max(settings.healthExportedThrough,
                                                  record.sessionNumber)
-            persist()
+            // Durability per record, yes. Poking WidgetKit per record, no:
+            // the export flags reach nothing the widget shows, so a full
+            // backfill would spend the day's reload budget on identical
+            // content (same reason as saveWorkoutSnapshot).
+            persist(refreshWidget: false)
         }
     }
 

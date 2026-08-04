@@ -309,7 +309,10 @@ struct CalendarScreen: View {
         }.count
 
         return HStack {
-            Text("This month")
+            // The count follows the month on screen, so the label must too.
+            Text(calendar.isDate(shownMonth, equalTo: store.today, toGranularity: .month)
+                 ? String(localized: "This month")
+                 : monthTitle)
                 .dredfitFont(13.5)
                 .foregroundStyle(Theme.ink2)
             Spacer()

@@ -28,9 +28,11 @@ final class ReleaseSmokeTests: XCTestCase {
         super.setUp()
         continueAfterFailure = false
         app = XCUIApplication()
-        // --uitest-fast collapses rests and cool-down stages; the warm-up is
-        // deliberately NOT collapsed anywhere in the app, so S2 checks that
-        // the block opens and then skips it rather than paying three minutes.
+        // --uitest-fast collapses rests, cool-down stages and the get-ready
+        // transition; a warm-up MOVE is deliberately not collapsed anywhere
+        // in the app. That asymmetry is what S2 waits on below: the move's
+        // countdown is up for 30 real seconds, the transition's for one, so
+        // only the former is safe to assert.
         app.launchArguments = ["--uitest-reset", "--uitest-fast",
                                "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
     }
@@ -68,7 +70,8 @@ final class ReleaseSmokeTests: XCTestCase {
         XCTContext.runActivity(named: "S2 — full workout to the rating") { _ in
             app.buttons["Start"].tap()
             XCTAssertTrue(app.staticTexts["warmup-countdown"].waitForExistence(timeout: 5),
-                          "S2: the workout must open on the warm-up")
+                          "S2: the workout must open on the warm-up and reach "
+                            + "its first move through the get-ready transition")
             let skipWarmup = app.buttons["Skip warm-up"]
             XCTAssertTrue(skipWarmup.exists, "S2: the warm-up must be skippable")
             skipWarmup.tap()
