@@ -2,10 +2,6 @@
 //  PositionTechniqueTests.swift
 //  DredfitTests
 //
-//  The warm-up and cool-down mini-sheets (issue #34) are data-driven:
-//  every one of the 15 positions carries 2–3 non-empty steps, and the
-//  sheet model builds a capsule that tells the block and the sides apart.
-//
 
 import XCTest
 import DredfitCore

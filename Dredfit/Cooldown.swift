@@ -2,19 +2,11 @@
 //  Cooldown.swift
 //  Dredfit
 //
-//  The cool-down (issue #28): the engine's duration estimate has reserved
-//  3 minutes for it since 1.0 (`cooldownMin`) — the block was promised but
-//  never existed. Six positions × 30 s materialise exactly those minutes,
-//  so no estimate anywhere changes.
+//  Six positions × 30 s, materialising the 3 minutes `cooldownMin` has
+//  reserved since 1.0 — so no estimate anywhere changes. Composition is
+//  deterministic from what was actually performed.
 //
-//  Composition is deterministic from what was actually performed: three
-//  fixed positions (hip flexors, chest and shoulders, and the rest pose —
-//  always last) plus three chosen by the session's movements from a pool of
-//  nine. Same input, same cool-down — reproducible from the screen alone,
-//  like everything else in the app.
-//
-//  No levels, no journal entry, no engine involvement: skipping a position
-//  or the whole block costs nothing and is recorded nowhere.
+//  No levels, no journal entry, no engine involvement.
 //
 
 import Foundation
@@ -23,13 +15,9 @@ import DredfitCore
 struct CooldownPosition: Equatable, Identifiable {
     let id: String
     let name: String
-    /// One 30 s slot split into 15 s per side — a per-side position does
-    /// not get twice the time. The side-switch pause (issue #35) rides on
-    /// top of the slot: 15 + 5 + 15, counted by the app, not the user.
+    /// One 30 s slot split into 15 s per side — a per-side position does not
+    /// get twice the time. The side-switch pause rides on top of the slot.
     let perSide: Bool
-    /// 2–3 numbered lines for the mini technique sheet (issue #34): how to
-    /// get into the position and what not to force. Stretching is done
-    /// wrong more often than it seems — bouncing, pushing into pain.
     let steps: [String]
 }
 
@@ -38,16 +26,11 @@ enum Cooldown {
     static let positionSeconds = 30
     static let positionCount = 6
 
-    /// The re-set pause between sides of timed unilateral work (issue #35):
-    /// getting out of one side and into the other is not instant, and
-    /// without a pause the transition silently eats into the second side.
+    /// The re-set pause between sides of timed unilateral work (issue #35).
     /// One app-layer constant shared by the cool-down and the workout's
-    /// per-side holds — deliberately not a user setting. The pause rides on
-    /// top of the reserved minutes, within the "≈" every estimate carries.
+    /// per-side holds — changing it moves both.
     static let sideSwitchPauseSec = 5
 
-    /// One side of a per-side position: half the 30 s slot, per the
-    /// "15 s per side" hint the position has always shown.
     static var sideSeconds: Int { positionSeconds / 2 }
 
     // MARK: - The pool of nine
@@ -179,8 +162,7 @@ enum Cooldown {
                          ])
     }
 
-    /// The movement → position mapping (spec §4). Two patterns can share a
-    /// position — the composition deduplicates, it never repeats a stretch.
+    /// The movement → position mapping (spec §4).
     private static func position(for pattern: Pattern) -> CooldownPosition {
         switch pattern {
         case .squat, .hinge:            return forwardFold
@@ -192,20 +174,18 @@ enum Cooldown {
         }
     }
 
-    /// The order used to top up when the session's own movements map to
-    /// fewer than three distinct positions (a short workout can).
+    /// Top-up order when the session's movements map to fewer than three
+    /// distinct positions (a short workout can).
     private static var mappedPool: [CooldownPosition] {
         [forwardFold, latStretch, wrists, lyingTwist, calfWall, seatedGlute]
     }
 
     // MARK: - Composition
 
-    /// Six positions for what was actually performed, in the order they run:
-    /// two fixed, three from the session's movements (session order,
-    /// deduplicated, topped up from the pool), and the rest pose last.
+    /// Two fixed positions, three from the session's movements (session
+    /// order, deduplicated, topped up from the pool), rest pose last.
     ///
-    /// Empty input returns an empty cool-down: a workout where nothing was
-    /// performed has nothing to stretch, and the flow skips the block.
+    /// Empty input returns an empty cool-down — the flow skips the block.
     static func positions(performed: [Pattern]) -> [CooldownPosition] {
         guard !performed.isEmpty else { return [] }
 
@@ -224,34 +204,26 @@ enum Cooldown {
 
     // MARK: - The stage machine (issue #35)
 
-    /// Where inside a position the countdown is. Every position opens with
-    /// the `.getReady` transition (issue #52); a bilateral one then runs a
-    /// single `.single` stage, a per-side one runs `.firstSide` →
-    /// `.switchPause` → `.secondSide` — 15 + 5 + 15.
+    /// A bilateral position runs `.single`; a per-side one runs `.firstSide`
+    /// → `.switchPause` → `.secondSide` — 15 + 5 + 15. Both open with
+    /// `.getReady` (issue #52).
     enum Stage { case getReady, single, firstSide, switchPause, secondSide }
 
-    /// Stage length in seconds. --uitest-fast collapses every stage to 1 s,
-    /// same as the rest countdown, so UI drivers never wait real minutes.
     static func stageSeconds(_ stage: Stage) -> Int {
         #if DEBUG
         if CommandLine.arguments.contains("--uitest-fast") { return 1 }
         #endif
         switch stage {
-        case .getReady:               return GetReady.seconds
+        case .getReady:               return GetReady.stageSeconds
         case .single:                 return positionSeconds
         case .firstSide, .secondSide: return sideSeconds
         case .switchPause:            return sideSwitchPauseSec
         }
     }
 
-    /// Every position opens with the transition — the first one included:
-    /// the user has just pressed Start (or finished the last exercise) and is
-    /// still standing by the phone.
     static let openingStage = Stage.getReady
 
-    /// The stage after the given one — into the position itself, then the
-    /// pause and the second side within a per-side one, otherwise on to the
-    /// next position's transition. nil when the block is over.
+    /// nil when the block is over.
     static func step(after step: (index: Int, stage: Stage),
                      positions: [CooldownPosition]) -> (index: Int, stage: Stage)? {
         guard step.index < positions.count else { return nil }
@@ -266,10 +238,10 @@ enum Cooldown {
         }
     }
 
-    /// Where a finished stage lands: `entered` names the stage the audible
-    /// boundary opened — entering the pause announces the side switch,
-    /// everything else is the usual go — while index/stage/remaining are
-    /// the countdown's new position.
+    /// `entered` names the stage the audible boundary opened; index/stage/
+    /// remaining are where the countdown landed. A long absence crosses
+    /// several boundaries, so the two can disagree — callers choosing a
+    /// signal must read both.
     struct Advance {
         let entered: Stage
         let index: Int
@@ -277,10 +249,9 @@ enum Cooldown {
         let remaining: Int
     }
 
-    /// A stage ran out. Whole stages a long absence (`overshoot` seconds
-    /// past the boundary) already covered are absorbed silently, exactly
-    /// like the warm-up jumps whole moves. nil when the block is over —
-    /// immediately or inside the overshoot.
+    /// Whole stages a long absence (`overshoot` seconds past the boundary)
+    /// already covered are absorbed. nil when the block is over — immediately
+    /// or inside the overshoot.
     static func advance(from current: (index: Int, stage: Stage),
                         overshoot: Int,
                         positions: [CooldownPosition]) -> Advance? {

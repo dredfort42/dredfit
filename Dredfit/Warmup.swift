@@ -2,12 +2,8 @@
 //  Warmup.swift
 //  Dredfit
 //
-//  The warm-up block as data: six universal mobility moves, 30 s each —
-//  ~3 minutes before the first exercise. Extracted from WorkoutFlowView
-//  when the moves gained technique steps (issue #34): the flow file walks
-//  the block, this file knows what the block is.
-//
-//  No levels, no journal entry, no engine involvement — same as ever.
+//  The warm-up block as data: six universal mobility moves, 30 s each.
+//  No levels, no journal entry, no engine involvement.
 //
 
 import Foundation
@@ -15,8 +11,6 @@ import Foundation
 struct WarmupMove: Equatable, Identifiable {
     let id: String
     let name: String
-    /// 2–3 numbered lines for the mini technique sheet (issue #34) — how
-    /// to do the move, in the same voice as the exercise library.
     let steps: [String]
 }
 
@@ -88,10 +82,6 @@ enum Warmup {
 
 extension Warmup {
 
-    /// Where inside a move the countdown is: the "Get ready" transition, then
-    /// the move itself. The same shape as the cool-down's stage machine — the
-    /// block that opens a workout and the block that closes it now walk their
-    /// positions the same way.
     enum Stage { case getReady, move }
 
     static func stageSeconds(_ stage: Stage) -> Int {
@@ -101,9 +91,7 @@ extension Warmup {
         }
     }
 
-    /// The stage after the given one — into the move within a position,
-    /// otherwise on to the next position's transition. nil when the block
-    /// is over.
+    /// nil when the block is over.
     static func step(after step: (index: Int, stage: Stage)) -> (index: Int, stage: Stage)? {
         switch step.stage {
         case .getReady:
@@ -115,10 +103,10 @@ extension Warmup {
         }
     }
 
-    /// Where a finished stage lands: `entered` names the stage the audible
-    /// boundary opened — a transition opens silently, everything else is the
-    /// usual go — while index/stage/remaining are the countdown's new
-    /// position, after any backgrounded time has been absorbed.
+    /// `entered` names the stage the audible boundary opened; index/stage/
+    /// remaining are where the countdown landed. A long absence crosses
+    /// several boundaries, so the two can disagree — callers choosing a
+    /// signal must read both.
     struct Advance {
         let entered: Stage
         let index: Int
@@ -126,10 +114,10 @@ extension Warmup {
         let remaining: Int
     }
 
-    /// A stage ran out. Whole stages a long absence (`overshoot` seconds past
-    /// the boundary) already covered are absorbed silently — a backgrounded
-    /// warm-up must not stretch itself one move at a time. nil when the block
-    /// is over, immediately or inside the overshoot.
+    /// Whole stages a long absence (`overshoot` seconds past the boundary)
+    /// already covered are absorbed — a backgrounded warm-up must not stretch
+    /// itself one move at a time. nil when the block is over, immediately or
+    /// inside the overshoot.
     static func advance(from current: (index: Int, stage: Stage),
                         overshoot: Int) -> Advance? {
         guard var landing = step(after: current) else { return nil }

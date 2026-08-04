@@ -2,9 +2,6 @@
 //  HowItWorksView.swift
 //  Dredfit
 //
-//  The regulator explained in eight sections. Onboarding says the app
-//  adapts; this says how, for the user who wants to know why the plan moved.
-//
 //  Every number here is a fact from DredfitCore, not a marketing round-up:
 //  ±1/+2 are EngineConfig.delta*, three shortfalls and −3 are failsToDeload
 //  and deloadDrop, "five times in eight workouts" falls out of 8 rotating
@@ -116,8 +113,8 @@ struct HowItWorksView: View {
             }
 
             PrimaryButton(title: String(localized: "Got it")) { dismiss() }
-                // Settings sits underneath with its own "Got it" — both are in
-                // the accessibility tree while this sheet is up.
+                // Settings sits underneath with its own "Got it" — both are
+                // in the accessibility tree while this sheet is up.
                 .accessibilityIdentifier("how-it-works-done")
                 .padding(.horizontal, 24)
                 .padding(.bottom, 16)
@@ -139,9 +136,8 @@ struct HowItWorksView: View {
                 Text(section.title)
                     .dredfitFont(17, weight: .semibold)
                     .fixedSize(horizontal: false, vertical: true)
-                    // Header trait rather than combining title+body: it keeps
-                    // the titles skimmable by rotor instead of forcing a
-                    // full paragraph read per section.
+                    // Header trait rather than combining title+body: keeps
+                    // the titles skimmable by rotor.
                     .accessibilityAddTraits(.isHeader)
                 Text(section.body)
                     .dredfitFont(15.5)

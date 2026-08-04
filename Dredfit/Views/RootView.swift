@@ -2,12 +2,8 @@
 //  RootView.swift
 //  Dredfit
 //
-//  The app always opens on Today: a home that moves with the day is a home
-//  nobody's muscle memory can settle into. Today's own "completed" state is
-//  the right answer to "why did I open the app after training".
-//
-//  The settings icon overlays the TabView at a fixed position so it is
-//  reachable from any tab, not owned by one screen.
+//  The settings icon overlays the TabView so it is reachable from any tab,
+//  not owned by one screen.
 //
 
 import SwiftUI
@@ -61,27 +57,23 @@ struct RootView: View {
             store.reloadIfNeeded()
             onboardingShown = store.shouldShowOnboarding
         }
-        // A cold start never has a live workout — resuming a session starts a
-        // fresh Live Activity. Any activity still alive belongs to the killed
-        // process and must leave the lock screen now, not at its multi-hour cap.
+        // A cold start never has a live workout: anything still alive belongs
+        // to a killed process and must leave the lock screen now, not at the
+        // system's hours-long cap.
         .task { WorkoutActivityController.endOrphans() }
         .onChange(of: scenePhase) { _, phase in
             switch phase {
             case .active:
-                // A launch that could not read its journal gets a second
-                // chance now — an active scene proves the device is unlocked.
+                // An active scene proves the device is unlocked, so a launch
+                // that could not read its journal gets a second chance.
                 store.reloadIfNeeded()
-                // Re-anchor "today": an overnight suspension must not keep
-                // showing yesterday's "completed" state without a Start button.
+                // An overnight suspension must not keep showing yesterday's
+                // "completed" state without a Start button.
                 store.refreshDay()
-                // Slide the one-shot reminder window forward. Every activation
-                // rebuilds it, so the window also heals after restarts and
-                // never runs dry while the app is being used at all.
+                // Rebuilt every activation, so the window heals after
+                // restarts and never runs dry while the app is in use.
                 store.rescheduleReminders()
             case .background:
-                // The widget snapshot covers 14 days from the Monday of the
-                // week it is written in, so a backgrounding late in the week
-                // still leaves the widget a full week of entries ahead.
                 store.refreshWidgetSnapshot()
             default:
                 break

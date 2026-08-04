@@ -2,12 +2,6 @@
 //  RetrospectiveTests.swift
 //  DredfitTests
 //
-//  The retrospective (issue #26) is a pure function of the journal and the
-//  current levels, so the tests are synthetic records against expected
-//  strings. Every expected number is derived through Level.decode here too —
-//  the point is that the app layer picked the right movement and the right
-//  level, not that it re-implements the encoding.
-//
 
 import XCTest
 import DredfitCore

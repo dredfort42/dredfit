@@ -2,9 +2,6 @@
 //  ComebackTests.swift
 //  DredfitTests
 //
-//  The app-layer half of the comeback flow: when the card is offered, what
-//  each answer does, and that the question is asked once per break.
-//
 
 import XCTest
 import DredfitCore
@@ -106,8 +103,6 @@ final class ComebackTests: XCTestCase {
                        "the answer is persisted, not just held in memory")
     }
 
-    /// The stamp is keyed on the last workout's date, so it expires by itself:
-    /// train once, take another break, and the card is offered again.
     func testTheQuestionIsAskedAgainAfterTheNextWorkout() throws {
         let store = try storeWithLastWorkout(daysAgo: 40)
         store.declineComeback()
@@ -142,7 +137,6 @@ final class ComebackTests: XCTestCase {
 
     // MARK: - Migration
 
-    /// A file predating the comeback feature must load unchanged.
     func testV14FileLoadsWithComebackDefaults() throws {
         let v14 = """
         {"engineState":{"counter":6,

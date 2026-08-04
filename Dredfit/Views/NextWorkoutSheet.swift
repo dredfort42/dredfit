@@ -2,9 +2,7 @@
 //  NextWorkoutSheet.swift
 //  Dredfit
 //
-//  Preview of the next workout, shown with its honest date
-//  ("tomorrow", "on Monday") and deliberately WITHOUT a Start button —
-//  one workout per day.
+//  Deliberately WITHOUT a Start button — one workout per day.
 //
 
 import SwiftUI

@@ -2,16 +2,14 @@
 //  GetReadyUITests.swift
 //  DredfitUITests
 //
-//  The "Get ready" transition (issue #52): every position of a guided block
-//  is preceded by it — the very first one included, because the user has just
-//  pressed Start and is still standing by the phone.
+//  Deliberately NOT run under --uitest-fast: collapsing the transition to a
+//  second would turn every assertion here into a race.
 //
-//  Deliberately NOT run under --uitest-fast: the transition is what these
-//  tests are about, and collapsing it to a second would turn every assertion
-//  into a race. Five real seconds is what the warm-up costs them, and the
-//  warm-up is the block where the transition is reachable without walking a
-//  whole workout first. The cool-down runs the same stage machine, held by
-//  GetReadyTests and CooldownTests on the unit side.
+//  Anything that TAPS the transition runs under --uitest-long-transition
+//  instead — "I'm ready" is on screen only while the transition runs, and at
+//  its real length resolve-element-then-tap must fit inside five seconds on a
+//  saturated runner (I-5). Only the hand-over test keeps the real length,
+//  because expiring on its own is what it asserts.
 //
 
 import XCTest
@@ -28,9 +26,9 @@ final class GetReadyUITests: XCTestCase {
         app.launchArguments = ["--uitest-reset", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
     }
 
-    /// The block opens on the transition, and anyone already in place taps
-    /// straight through it.
     func testGetReadyPrecedesEveryWarmupMoveAndIsSkippable() {
+        // Taps "I'm ready" — the transition must outlive the element lookup.
+        app.launchArguments.append("--uitest-long-transition")
         app.launch()
         app.buttons["Start"].tap()
         let transition = app.staticTexts["getready-countdown"]
@@ -44,18 +42,15 @@ final class GetReadyUITests: XCTestCase {
                       "“I'm ready” must start the move at once")
         XCTAssertFalse(transition.exists, "the transition is over once the move runs")
 
-        // ...and the next position is announced the same way.
         app.buttons["Skip this move"].tap()
         XCTAssertTrue(transition.waitForExistence(timeout: 3),
                       "every position gets its own transition")
-        // The label is the one VoiceOver reads: the kicker and the name are
-        // one phrase, not two swipes.
+        // The label VoiceOver reads: kicker and name are one phrase.
         XCTAssertTrue(app.staticTexts["Get ready: Arm circles"].exists,
                       "the transition must name what is coming")
     }
 
-    /// It runs itself down and hands over without a tap: five seconds, wall
-    /// clock, exactly like every other countdown in the app.
+    /// Runs itself down and hands over without a tap — hence no flag.
     func testGetReadyHandsOverToTheMoveOnItsOwn() {
         app.launch()
         app.buttons["Start"].tap()
@@ -66,9 +61,9 @@ final class GetReadyUITests: XCTestCase {
                       "the move that runs must be the one the transition announced")
     }
 
-    /// Skipping the whole block from the transition is the same escape it
-    /// always was — the transition never traps anyone in front of it.
     func testTheBlockCanStillBeSkippedFromTheTransition() {
+        // The escape has to be tapped while the transition is still up.
+        app.launchArguments.append("--uitest-long-transition")
         app.launch()
         app.buttons["Start"].tap()
         XCTAssertTrue(app.buttons["get-ready-start"].waitForExistence(timeout: 5))

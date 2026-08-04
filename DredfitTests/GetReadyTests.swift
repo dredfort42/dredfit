@@ -2,11 +2,6 @@
 //  GetReadyTests.swift
 //  DredfitTests
 //
-//  The "Get ready" transition (issue #52): both guided blocks now open every
-//  position with it, and both absorb backgrounded time across it. The
-//  arithmetic that let the estimate stay untouched is pinned here — if a
-//  transition or a stage ever grows, this file says so before a user does.
-//
 
 import XCTest
 import DredfitCore
@@ -38,8 +33,6 @@ final class GetReadyTests: XCTestCase {
     /// The decision this feature rests on: the transitions ride on top of the
     /// minutes the engine already reserves for the two blocks, so no estimate
     /// moves and `golden.json` stays untouched. Worst case — every cool-down
-    /// position per side, which no composition actually reaches — the blocks
-    /// spend 450 s of the reserved 480.
     func testBothBlocksFitInsideTheReservedWarmupAndCooldownMinutes() {
         let warmup = Warmup.moves.count * (GetReady.seconds + Warmup.moveSeconds)
         let worstPosition = GetReady.seconds
@@ -113,6 +106,30 @@ final class GetReadyTests: XCTestCase {
         XCTAssertEqual(landing?.index, 2)
         XCTAssertEqual(landing?.stage, .getReady)
         XCTAssertEqual(landing?.remaining, GetReady.seconds)
+    }
+
+    // MARK: - What the signal has to be chosen from
+
+    func testAdvanceCanLandOnATransitionItDidNotEnter() {
+        // Warm-up: one second past a move's own end, so the run opens on the
+        // move and rests inside the next position's transition.
+        let warmup = Warmup.advance(from: (0, .getReady),
+                                    overshoot: Warmup.moveSeconds + 1)
+        XCTAssertEqual(warmup?.entered, .move, "the run opened on the move")
+        XCTAssertEqual(warmup?.stage, .getReady, "...but came to rest on a transition")
+        XCTAssertEqual(warmup?.index, 1)
+
+        // Cool-down: the same shape across a whole per-side position.
+        let positions = Cooldown.positions(performed: [.pull])
+        XCTAssertTrue(positions[0].perSide, "hip flexors open the block per side")
+        let cooldown = Cooldown.advance(
+            from: (0, .getReady),
+            overshoot: Cooldown.sideSeconds * 2 + Cooldown.sideSwitchPauseSec + 2,
+            positions: positions)
+        XCTAssertEqual(cooldown?.entered, .firstSide, "the run opened on the first side")
+        XCTAssertEqual(cooldown?.stage, .getReady, "...but came to rest on a transition")
+        XCTAssertEqual(cooldown?.index, 1)
+        XCTAssertEqual(cooldown?.remaining, GetReady.seconds - 2)
     }
 
     // MARK: - The cool-down stage machine

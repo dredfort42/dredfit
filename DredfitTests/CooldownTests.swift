@@ -2,10 +2,6 @@
 //  CooldownTests.swift
 //  DredfitTests
 //
-//  The cool-down composition (issue #28) is a pure function of the performed
-//  patterns: deterministic, deduplicated, always six positions with the rest
-//  pose last — or empty when nothing was performed.
-//
 
 import XCTest
 import DredfitCore
@@ -174,11 +170,6 @@ final class CooldownTests: XCTestCase {
         }
     }
 
-    /// The guard that keeps the two from drifting apart again. Since every
-    /// two-sided position is counted by the app — 15 + 5 + 15 with a spoken
-    /// pause between the sides — no step has any business asking for the
-    /// swap: a bilateral position would be mis-flagged, a per-side one would
-    /// be repeating what the timer already says.
     func testNoPositionTellsTheUserToSwapSidesItself() {
         let all = Cooldown.positions(
             performed: [.squat, .pull, .pushH, .coreRot, .calf, .lunge])

@@ -2,18 +2,14 @@
 //  PositionTechniqueSheet.swift
 //  Dredfit
 //
-//  The reduced technique sheet for warm-up and cool-down positions
-//  (issue #34): name, a block capsule, 2–3 numbered steps, "Got it".
-//  For a beginner "Lat stretch with support" is an empty label, and the
-//  context is harsher than for exercises — a countdown is running, there
-//  is no time to look anything up. The flow freezes that countdown while
-//  the sheet is open: reading is not stretching.
+//  The reduced technique sheet for warm-up and cool-down positions: name,
+//  block capsule, 2–3 steps. The flow freezes the countdown while it is open.
 //
 
 import SwiftUI
 
-/// What the sheet shows — built from a warm-up move or a cool-down
-/// position, so the sheet itself needs to know about neither.
+/// Built from a warm-up move or a cool-down position, so the sheet itself
+/// needs to know about neither.
 struct PositionTechnique: Identifiable, Equatable {
     let id: String
     let name: String
@@ -40,9 +36,6 @@ extension PositionTechnique {
     }
 }
 
-/// TechniqueSheet's little sibling: the same name, capsule and numbered
-/// rows, without mistakes and the "In life" line — two or three steps are
-/// read mid-block, not studied between sets.
 struct PositionTechniqueSheet: View {
     let technique: PositionTechnique
     @Environment(\.dismiss) private var dismiss
@@ -86,8 +79,8 @@ struct PositionTechniqueSheet: View {
                 .padding(.horizontal, 24)
                 .padding(.bottom, 16)
         }
-        // Medium fits two or three steps; large is there for the biggest
-        // Dynamic Type sizes, with the ScrollView carrying the overflow.
+        // large is for the biggest Dynamic Type sizes; the ScrollView
+        // carries the overflow.
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
     }
