@@ -65,9 +65,6 @@ struct TechniqueSheet: View {
                         .padding(.vertical, 11)
                     }
 
-                    // The "why" behind the "how" (issue #25): always visible —
-                    // it answers the question that brings people to this sheet
-                    // in the first place. No icon: it is a thought, not a list.
                     Kicker(text: String(localized: "life.kicker", defaultValue: "In life"))
                         .padding(.top, 18)
                     Text(LifeBenefit.text(for: exercise.pattern, tier: exercise.tier))

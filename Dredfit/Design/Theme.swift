@@ -11,30 +11,24 @@ enum Theme {
     static let ink3 = Color(red: 0xA7/255, green: 0xA9/255, blue: 0xAD/255)
     static let hairline = Color(red: 0xEC/255, green: 0xED/255, blue: 0xEF/255)
     static let accent = Color(red: 0xE8/255, green: 0x59/255, blue: 0x0C/255)
-    /// Accent for TEXT, not graphics: #E8590C reads at 3.58:1 on white —
-    /// fine for rings and chart lines (3:1), short of the 4.5:1 small text
-    /// needs. This darker cut passes it; rings and lines keep `accent`.
+    /// Accent for TEXT, not graphics: #E8590C is 3.58:1 on white — fine for
+    /// rings and chart lines (3:1), short of the 4.5:1 small text needs.
     static let accentText = Color(red: 0xB4/255, green: 0x45/255, blue: 0x04/255)
     static let accentSoft = Color(red: 0xFB/255, green: 0xE3/255, blue: 0xD6/255)
     static let cardBG = Color(red: 0xF7/255, green: 0xF7/255, blue: 0xF5/255)
-    /// The planned-day ring in the calendar — named so the grid and its
-    /// legend cannot drift apart. ink3, not a lighter grey: a ring that means
-    /// "a workout is planned here" is meaningful graphics, and anything near
-    /// 1.4:1 is invisible on most real screens.
+    /// Named so the calendar grid and its legend cannot drift apart. ink3,
+    /// not lighter: meaningful graphics near 1.4:1 are invisible on real
+    /// screens.
     static let planned = ink3
-    /// The rest-day fill in the calendar (grid AND legend). Deliberately the
-    /// quietest mark on the screen, but hairline (1.17:1) is too faint for a
-    /// 13pt legend dot — this half-step (≈1.35:1) stays readable at dot size
-    /// without shouting at cell size.
+    /// Grid AND legend. hairline (1.17:1) is too faint for a 13pt legend dot;
+    /// this half-step (≈1.35:1) reads at dot size without shouting at cell size.
     static let restFill = Color(red: 0xE2/255, green: 0xE3/255, blue: 0xE6/255)
 }
 
 // MARK: - Type that scales
 
-/// The design is specified in absolute point sizes, but `.system(size:)` is
-/// frozen — it ignores Dynamic Type entirely. This scales a design size
-/// against the text style it belongs to, so the layout keeps its proportions
-/// while still honouring the reader's setting.
+/// `.system(size:)` is frozen — it ignores Dynamic Type entirely. This
+/// scales a design size against the text style it belongs to.
 private struct ScaledFont: ViewModifier {
     @ScaledMetric private var size: CGFloat
     private let weight: Font.Weight
@@ -54,16 +48,9 @@ private struct ScaledFont: ViewModifier {
 }
 
 extension View {
-    /// Design size in points, scaled with Dynamic Type.
-    ///
-    /// `relativeTo` is inferred from the size so call sites stay terse; pass it
-    /// explicitly when a size sits at a bucket boundary and reads wrong.
-    ///
-    /// `cap` bounds the scaled result. Body text should never use it — clipping
-    /// the reader's setting is the thing Dynamic Type exists to prevent. It is
-    /// for the few display numbers (the rep counter, the total level) that are
-    /// already enormous by design: past a point they stop gaining legibility
-    /// and start pushing the rest of the screen off it.
+    /// `cap` bounds the scaled result. Body text must never use it —
+    /// clipping the reader's setting is what Dynamic Type exists to prevent.
+    /// It is for the few display numbers that are already enormous by design.
     func dredfitFont(_ size: CGFloat,
                      weight: Font.Weight = .regular,
                      relativeTo style: Font.TextStyle? = nil,
@@ -76,8 +63,7 @@ extension View {
 }
 
 extension Font.TextStyle {
-    /// Buckets a design point size into the closest system text style, so
-    /// scaling curves match what iOS does to text of that size natively.
+    /// So scaling curves match what iOS does to text of that size natively.
     static func forDesignSize(_ size: CGFloat) -> Font.TextStyle {
         switch size {
         case ..<11.5: return .caption2

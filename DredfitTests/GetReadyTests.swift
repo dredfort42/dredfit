@@ -2,11 +2,6 @@
 //  GetReadyTests.swift
 //  DredfitTests
 //
-//  The "Get ready" transition (issue #52): both guided blocks now open every
-//  position with it, and both absorb backgrounded time across it. The
-//  arithmetic that let the estimate stay untouched is pinned here — if a
-//  transition or a stage ever grows, this file says so before a user does.
-//
 
 import XCTest
 import DredfitCore
@@ -38,8 +33,6 @@ final class GetReadyTests: XCTestCase {
     /// The decision this feature rests on: the transitions ride on top of the
     /// minutes the engine already reserves for the two blocks, so no estimate
     /// moves and `golden.json` stays untouched. Worst case — every cool-down
-    /// position per side, which no composition actually reaches — the blocks
-    /// spend 450 s of the reserved 480.
     func testBothBlocksFitInsideTheReservedWarmupAndCooldownMinutes() {
         let warmup = Warmup.moves.count * (GetReady.seconds + Warmup.moveSeconds)
         let worstPosition = GetReady.seconds
@@ -117,11 +110,6 @@ final class GetReadyTests: XCTestCase {
 
     // MARK: - What the signal has to be chosen from
 
-    /// `entered` and `stage` describe two different things, and a long
-    /// absence pulls them apart. The flow reads BOTH before it plays
-    /// anything — a landing on a transition is silent however the run
-    /// started, or the go would announce a movement over the name of one
-    /// that has not begun yet.
     func testAdvanceCanLandOnATransitionItDidNotEnter() {
         // Warm-up: one second past a move's own end, so the run opens on the
         // move and rests inside the next position's transition.

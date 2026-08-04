@@ -2,10 +2,6 @@
 //  CountdownSoundsTests.swift
 //  DredfitTests
 //
-//  The countdown signal tones are generated, not shipped — so the tests
-//  can pin the audio itself: valid playable WAV, near-full-scale loudness,
-//  a finale that stands out from the ticks, and click-free edges.
-//
 
 import XCTest
 import AVFoundation
@@ -45,8 +41,6 @@ final class CountdownSoundsTests: XCTestCase {
         }
     }
 
-    /// AVAudioPlayer is the component that will actually play these — it
-    /// accepting the data and agreeing on the duration is the real proof.
     func testTonesArePlayableAtTheExpectedDuration() throws {
         let tick = try AVAudioPlayer(data: SignalTone.tick)
         XCTAssertEqual(tick.duration, 0.07, accuracy: 0.01)
@@ -58,7 +52,6 @@ final class CountdownSoundsTests: XCTestCase {
 
     // MARK: - Loudness and envelope
 
-    /// The tones must sit near full scale so they are audible at media volume.
     func testTonesAreNearFullScale() {
         let tickPeak = samples(SignalTone.tick).map { abs(Int($0)) }.max() ?? 0
         XCTAssertGreaterThan(tickPeak, Int(0.8 * 32_767), "the tick must not whisper")
@@ -66,7 +59,6 @@ final class CountdownSoundsTests: XCTestCase {
         XCTAssertGreaterThan(goPeak, Int(0.95 * 32_767), "the finale plays at full scale")
     }
 
-    /// "Ready" must stand out from the ticks it concludes — longer and louder.
     func testGoStandsOutFromTick() {
         XCTAssertGreaterThan(SignalTone.go.count, SignalTone.tick.count * 3)
         let tickPeak = samples(SignalTone.tick).map { abs(Int($0)) }.max() ?? 0
@@ -76,8 +68,6 @@ final class CountdownSoundsTests: XCTestCase {
 
     /// The switch tone (issue #35) must be the go's mirror — falling where
     /// the go rises — or eyes-closed stretching cannot tell "switch sides"
-    /// from "new position". Zero-crossing counts stand in for frequency:
-    /// the high segment crosses zero more often than the low one.
     func testSwitchToneFallsWhereGoRises() {
         func crossings<S: Sequence>(_ s: S) -> Int where S.Element == Int16 {
             zip(Array(s), Array(s).dropFirst()).filter { ($0 < 0) != ($1 < 0) }.count
@@ -91,9 +81,6 @@ final class CountdownSoundsTests: XCTestCase {
                              "the switch tone must fall")
     }
 
-    /// Attack/release ramps: a tone starting or ending at full amplitude
-    /// clicks audibly, which reads as distortion at exactly the moment the
-    /// signal is supposed to sound clean.
     func testToneEdgesAreClickFree() {
         for tone in [SignalTone.tick, SignalTone.go, SignalTone.switchSides] {
             let all = samples(tone)

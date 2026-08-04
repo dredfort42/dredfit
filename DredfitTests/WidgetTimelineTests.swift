@@ -110,8 +110,6 @@ final class WidgetTimelineTests: XCTestCase {
         }
     }
 
-    /// A snapshot from the previous build carries no weekStart: the tally has
-    /// no week to belong to, so it is shown nowhere rather than guessed.
     func testTallyWithoutWeekStartIsShownNowhere() {
         let (snapshot, today) = fixture()
         let legacy = WidgetSnapshot(days: snapshot.days, totalLevel: snapshot.totalLevel,
@@ -129,10 +127,6 @@ final class WidgetTimelineTests: XCTestCase {
 
     // MARK: - When to come back for the next timeline
 
-    /// Entries are stamped at the start of their day, so a timeline whose
-    /// last one is today has already expired by the time WidgetKit holds it.
-    /// `.atEnd` on that means "reload now", answered with the same expired
-    /// timeline — the day's whole reload budget spent on nothing.
     func testAnExpiredTimelineIsNotAskedForAgainImmediately() {
         let provider = TodayProvider()
         let (snapshot, today) = fixture()

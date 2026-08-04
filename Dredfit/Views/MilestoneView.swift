@@ -2,14 +2,9 @@
 //  MilestoneView.swift
 //  Dredfit
 //
-//  One screen for everything a workout earned — never a carousel.
-//  Calm by design: no confetti, no badges, no score. The single motion is
-//  an accent rule drawing itself once.
-//
-//  Row count is not fixed at one: calibration can hand a first workout
-//  several tier-ups at once, so the layout has to hold 2–4 rows without
-//  breaking. The headline size steps down as rows are added and the whole
-//  thing scrolls.
+//  One screen for everything a workout earned. Calibration can hand a first
+//  workout several tier-ups at once, so the layout holds 2–4 rows: the
+//  headline steps down as rows are added and the whole thing scrolls.
 //
 
 import SwiftUI
@@ -17,20 +12,15 @@ import DredfitCore
 
 struct MilestoneView: View {
     let milestones: [Milestone]
-    /// The level history up to the workout that earned these milestones —
-    /// the card celebrates that moment, not whatever came after it.
+    /// Up to the workout that earned these — the card celebrates that
+    /// moment, not whatever came after it.
     let levels: [Int]
-    /// The "then → now" comparison for anniversary rows (issue #26). Nil when
-    /// the journal has nothing honest to compare against — the jubilee then
-    /// looks exactly the way it always did.
     var retrospective: Retrospective?
     let onDone: () -> Void
 
     @State private var ruleDrawn = false
     @State private var cardURL: URL?
 
-    /// Headline size by row count — four unlocks on one screen must still
-    /// read as a list, not as four competing headlines.
     private var headlineSize: CGFloat {
         switch milestones.count {
         case 1:  return 34
@@ -41,10 +31,8 @@ struct MilestoneView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Centred while it fits, scrollable once it doesn't: one unlock
-            // should not sit alone at the top of an empty screen, and four
-            // unlocks at large type must still be reachable. The spacers
-            // collapse to nothing as soon as the content outgrows the viewport.
+            // Centred while it fits, scrollable once it doesn't: the spacers
+            // collapse as soon as the content outgrows the viewport.
             GeometryReader { proxy in
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
@@ -61,8 +49,6 @@ struct MilestoneView: View {
                 }
             }
 
-            // The card names every variation this workout unlocked, not just
-            // the first row on screen.
             if let cardURL {
                 ShareLink(item: cardURL, preview: SharePreview(cardHeadline)) {
                     Text("Share")
@@ -77,26 +63,19 @@ struct MilestoneView: View {
                 .padding(.bottom, 10)
             }
 
-            // Keyed, not literal: "Done" is already taken by the workout's set
-            // button, where it means "I did this set". Here it means "finished
-            // reading" — the same English word takes different translations,
-            // so the two need separate keys.
+            // Keyed, not literal: "Done" is taken by the workout's set
+            // button. The same English word takes different translations.
             PrimaryButton(title: String(localized: "milestone.done",
                                         defaultValue: "Done"),
                           action: onDone)
                 .accessibilityIdentifier("milestone-done")
                 .padding(.bottom, 16)
         }
-        // Horizontal padding and background come from WorkoutFlowView, as with
-        // the other phases of the flow.
         .onAppear {
             withAnimation(.easeOut(duration: 0.55).delay(0.1)) { ruleDrawn = true }
-            // Rendered once here rather than per tap: ShareLink wants the item
-            // up front, and a card is cheap enough to make eagerly.
+            // ShareLink wants the item up front.
             if !milestones.isEmpty {
-                // The card gets the comparison only when this workout IS an
-                // anniversary — the retrospective belongs to the jubilee, not
-                // to every card rendered while one is possible.
+                // Only when this workout IS an anniversary.
                 let isJubilee = milestones.contains {
                     if case .jubilee = $0 { return true } else { return false }
                 }
@@ -111,11 +90,9 @@ struct MilestoneView: View {
         }
     }
 
-    /// What the card says — shared by the render and the share-sheet preview,
-    /// so the two can never drift apart.
+    /// Shared by the render and the share-sheet preview so they cannot drift.
     private var cardHeadline: String { ShareCardFactory.headline(for: milestones) }
 
-    /// The one permitted animation: a short accent rule drawing left to right.
     private var accentRule: some View {
         Rectangle()
             .fill(Theme.accent)
@@ -138,8 +115,6 @@ struct MilestoneView: View {
                     .foregroundStyle(Theme.ink2)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            // A new variation reads as an ability, not an index (issue #25):
-            // override → base, resolved by LifeBenefit in one place.
             if let life = lifeLine(milestone) {
                 Text(life)
                     .dredfitFont(15)
@@ -147,9 +122,6 @@ struct MilestoneView: View {
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityIdentifier("milestone-life")
             }
-            // An anniversary earns the honest comparison (issue #26): the
-            // first snapshot in the journal against today, movement chosen by
-            // the largest gain. Two lines, no chart — the numbers carry it.
             if case .jubilee = milestone, let retro = retrospective {
                 Text(retro.comparisonLine)
                     .dredfitFont(15)
@@ -163,16 +135,15 @@ struct MilestoneView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        // The kicker is a label for the headline, not a separate thought.
+        // The kicker labels the headline, it is not a separate thought.
         .accessibilityElement(children: .combine)
     }
 
     // MARK: - Copy
 
     private func kicker(_ milestone: Milestone) -> String {
-        // Natural case here — Kicker does the uppercasing, so the catalog
-        // holds text rather than styling (and the share card can reuse the
-        // jubilee key as-is).
+        // Natural case: Kicker uppercases, so the catalog holds text rather
+        // than styling and the share card reuses the jubilee key as-is.
         switch milestone {
         case .tierUp, .setBand:
             return String(localized: "New variation")
@@ -189,7 +160,7 @@ struct MilestoneView: View {
             return String(localized: "Now \(sets) sets")
         case .jubilee(let workouts):
             // Every jubilee value ends in 0 or 5, so the genitive plural is
-            // the only Russian form this can ever take.
+            // the only Russian form this can take.
             return String(localized: "\(workouts) workouts behind you")
         }
     }
@@ -205,8 +176,8 @@ struct MilestoneView: View {
         }
     }
 
-    /// Only the "New variation" milestone gets a life line: a set band is the
-    /// same ability grown, and a jubilee is about the habit, not a movement.
+    /// Only tier-ups: a set band is the same ability grown, and a jubilee is
+    /// about the habit, not a movement.
     private func lifeLine(_ milestone: Milestone) -> String? {
         switch milestone {
         case .tierUp(let pattern, let tier, _):

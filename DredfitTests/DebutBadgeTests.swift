@@ -2,10 +2,6 @@
 //  DebutBadgeTests.swift
 //  DredfitTests
 //
-//  The "new variation" badge on Today: a pattern is flagged only when the
-//  next session asks for a tier the journal has never seen performed — and
-//  the flag goes away once the new variation has been done.
-//
 
 import XCTest
 import DredfitCore
@@ -34,9 +30,6 @@ final class DebutBadgeTests: XCTestCase {
         XCTAssertTrue(store.debutPatterns.isEmpty)
     }
 
-    /// Rating "easy" repeatedly pushes levels up two per workout; the first
-    /// session that asks for a tier above everything in the journal gets the
-    /// badge, and the badge tells the truth: planned tier > max performed.
     func testDebutAppearsWhenAPatternCrossesIntoANewTier() {
         let store = AppStore(storageURL: tempURL)
         var sawDebut = false
@@ -68,7 +61,6 @@ final class DebutBadgeTests: XCTestCase {
 
     /// Performing the new variation retires its badge: the tier is in the
     /// journal now, so the same variation must not announce itself twice —
-    /// including after a deload takes the level down and it climbs back.
     func testDebutClearsAfterTheVariationIsPerformed() {
         let store = AppStore(storageURL: tempURL)
         for _ in 0..<8 where store.debutPatterns.isEmpty {
@@ -85,8 +77,6 @@ final class DebutBadgeTests: XCTestCase {
                        "a performed variation is no longer a debut")
     }
 
-    /// A skipped exercise is not "performed": the badge must survive the
-    /// workout it was skipped in and come back on the next plan.
     func testSkippingTheDebutKeepsTheBadge() {
         let store = AppStore(storageURL: tempURL)
         for _ in 0..<8 where store.debutPatterns.isEmpty {

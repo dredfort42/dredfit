@@ -2,9 +2,7 @@
 //  HistorySheet.swift
 //  Dredfit
 //
-//  A completed workout viewed from the calendar. Shows the plan that was
-//  performed; exercises adjusted via "Adjust by exercise" additionally
-//  show the actual value.
+//  A completed workout viewed from the calendar.
 //
 
 import SwiftUI
@@ -86,10 +84,9 @@ struct HistorySheet: View {
         .presentationDragIndicator(.visible)
     }
 
-    /// The persisted snapshot froze `name` in the language active when the
-    /// session was generated; resolve it again so history follows the UI
-    /// language after a switch. The stored name stays the fallback for any
-    /// tier the current library no longer has.
+    /// The snapshot froze `name` in the language active when the session was
+    /// generated; resolve it again so history follows a language switch. The
+    /// stored name stays the fallback for a tier the library no longer has.
     private func currentName(_ ex: SessionExercise) -> String {
         let variations = ExerciseLibrary.entry(for: ex.pattern).variations
         guard (1...variations.count).contains(ex.tier) else { return ex.name }

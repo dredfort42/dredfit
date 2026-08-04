@@ -2,8 +2,6 @@
 //  AppStoreTests.swift
 //  DredfitTests
 //
-//  Persistence, calendar logic, migration of legacy records.
-//
 
 import XCTest
 import DredfitCore
@@ -75,8 +73,6 @@ final class AppStoreTests: XCTestCase {
         XCTAssertEqual(store.totalLevel, 0)
     }
 
-    /// An unreadable state file is moved aside, not silently replaced —
-    /// the journal must stay recoverable after the next persist().
     func testCorruptedStorageIsQuarantinedNotOverwritten() throws {
         try Data("{not a json".utf8).write(to: tempURL)
         let corruptURL = tempURL.deletingLastPathComponent()
@@ -94,7 +90,6 @@ final class AppStoreTests: XCTestCase {
     /// Regression: a state file that exists but cannot be read (data
     /// protection before the first unlock, a transient I/O failure) must
     /// never be overwritten by the empty state that replaced it — and must
-    /// load for real once it becomes readable again.
     func testUnreadableStateFileFreezesPersistenceUntilReloaded() throws {
         try XCTSkipIf(getuid() == 0, "root reads through 0o000 permissions")
         let seed = AppStore(storageURL: tempURL)
@@ -135,9 +130,6 @@ final class AppStoreTests: XCTestCase {
                        "persistence must resume after a successful reload")
     }
 
-    /// A frozen launch the user has already used stays frozen: reloading over
-    /// their work would erase it without a word, and mid-workout it would move
-    /// the engine counter out from under the running session.
     func testUsedFrozenLaunchIsNotReplacedByTheFileItCouldNotRead() throws {
         try XCTSkipIf(getuid() == 0, "root reads through 0o000 permissions")
         let seed = AppStore(storageURL: tempURL)
@@ -223,8 +215,6 @@ final class AppStoreTests: XCTestCase {
     // MARK: - Legacy settings files
 
     /// A fresh install starts with two spread-out rest days (issue #36): the
-    /// old single-Sunday default quietly proposed six sessions a week —
-    /// overuse territory for slow-adapting connective tissue.
     func testFreshInstallDefaultsToTwoRestDays() {
         let store = AppStore(storageURL: tempURL)   // no file → fresh install
         XCTAssertEqual(store.settings.restWeekdays, [1, 4],
@@ -251,7 +241,6 @@ final class AppStoreTests: XCTestCase {
                        "an upgrade must not change an existing week")
     }
 
-    /// Files written by older versions must keep loading losslessly.
     func testV11SettingsFileLoadsWithHealthDefaults() throws {
         // a settings file from before Health support
         let v11 = """
@@ -274,8 +263,6 @@ final class AppStoreTests: XCTestCase {
         XCTAssertNil(store.settings.lastReviewRequestAt, "v1.4 review stamp defaults to never")
     }
 
-    /// A file with the Health fields but no onboarding/review fields must
-    /// keep every existing value and gain the new ones at their defaults.
     func testV13SettingsFileLoadsWithWaveFourDefaults() throws {
         let v13 = """
         {"engineState":{"counter":4,
@@ -327,7 +314,6 @@ final class AppStoreTests: XCTestCase {
 
     // MARK: - App Store review gate
 
-    /// Every condition satisfied — and only then — produces a request.
     func testReviewGateAsksWhenEveryConditionHolds() {
         let store = AppStore(storageURL: tempURL)
         for _ in 0..<AppStore.reviewMinWorkouts {
@@ -348,7 +334,6 @@ final class AppStoreTests: XCTestCase {
                        "four workouts is too early to ask")
     }
 
-    /// A workout the user found too hard is the wrong moment to ask.
     func testReviewGateStaysSilentAfterAToughSession() {
         let store = AppStore(storageURL: tempURL)
         for _ in 0..<AppStore.reviewMinWorkouts {
@@ -392,8 +377,6 @@ final class AppStoreTests: XCTestCase {
 
     // MARK: - Level curve
 
-    /// The milestone card belongs to the workout that earned it, so its curve
-    /// must stop there rather than run on to whatever the journal holds now.
     func testLevelCurveIsCutAtTheGivenDate() throws {
         let store = AppStore(storageURL: tempURL, widgetSnapshotURL: nil)
         store.completeWorkout(session: store.nextSession, result: .plan)
@@ -686,7 +669,6 @@ final class AppStoreTests: XCTestCase {
 // A same-file extension keeps the test class itself within the linter's
 // type-body bound; XCTest discovers test methods in extensions just fine.
 extension AppStoreTests {
-    /// The snapshot URL is injected so this runs on unsigned (CI) builds too.
     func testWidgetSnapshotMirrorsWeekStatuses() throws {
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-widget-\(UUID().uuidString).json")
@@ -722,8 +704,6 @@ extension AppStoreTests {
         }
     }
 
-    /// The medium and large families need more than day statuses, and the
-    /// numbers must be the ones the app itself is showing.
     func testWidgetSnapshotCarriesTheLevelWeekAndPlan() throws {
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-widget-\(UUID().uuidString).json")
@@ -757,10 +737,6 @@ extension AppStoreTests {
 
     /// Relative words are per day, not per write: a rest-day entry rendered
     /// days after the app was last opened must not repeat the write day's
-    /// label. The rest day is pinned to tomorrow, so the two labels are
-    /// guaranteed to differ: from today the next workout is "on X" (the rest
-    /// day is in the way), while the rest-day entry itself must say
-    /// "tomorrow" — one snapshot carrying both proves the per-day path.
     func testWidgetSnapshotLabelsSpeakFromTheirOwnDay() throws {
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-widget-\(UUID().uuidString).json")
@@ -793,9 +769,6 @@ extension AppStoreTests {
         }
     }
 
-    /// Right after an update the file on disk is still the one the previous
-    /// build wrote. It has to decode, or the widget blanks out until the app
-    /// is next opened.
     func testWidgetSnapshotFromAnOlderBuildStillDecodes() throws {
         let legacy = #"{"days":[{"date":768614400,"status":"workout","sessionNumber":3}]}"#
         let snap = try JSONDecoder().decode(WidgetSnapshot.self, from: Data(legacy.utf8))
@@ -811,7 +784,6 @@ extension AppStoreTests {
     }
 
     /// The home screen must not be told "nothing done" over a history the
-    /// launch merely failed to read.
     func testFrozenLaunchLeavesTheWidgetSnapshotAlone() throws {
         try XCTSkipIf(getuid() == 0, "root reads through 0o000 permissions")
         let url = FileManager.default.temporaryDirectory

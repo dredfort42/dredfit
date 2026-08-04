@@ -2,17 +2,14 @@
 //  WorkoutDriver.swift
 //  DredfitUITests
 //
-//  The one way the UI tests drive a workout to the rating screen. Extracted
-//  when the release smoke became a suite of its own (1.8.1): two copies of
-//  this walk would drift, and the last time it drifted it cost the nightly
-//  six red runs (I-5) — the fix that made it load-independent has to live in
-//  exactly one place.
+//  The one way the UI tests drive a workout to the rating screen. Two copies
+//  of this walk would drift, and the last time it drifted it cost the nightly
+//  six red runs (I-5).
 //
-//  Load-independent by design: only stable controls are tapped (Done and
-//  Start hold leave the screen only once acted on), each tap is confirmed by
-//  waiting for its control to disappear, and a tap a busy runner drops is
-//  simply retried on the next pass. Rests are never tapped — under
-//  --uitest-fast they collapse to ~1 s and advance on their own.
+//  Load-independent BY DESIGN — keep it that way: only stable controls are
+//  tapped (Done and Start hold leave the screen only once acted on), each tap
+//  is confirmed by waiting for its control to disappear, and a dropped tap is
+//  retried on the next pass. Auto-vanishing controls are never tapped.
 //
 
 import XCTest
@@ -22,26 +19,21 @@ struct WorkoutDriver {
 
     let app: XCUIApplication
 
-    /// Taps an element at the centre of its own frame, bypassing hittability
-    /// resolution. Inside the workout's fullScreenCover the CI simulator can
-    /// report degenerate ancestor frames, so anything that resolves
-    /// hittability (`.tap()`, `.isHittable`, predicate waits) fails with
-    /// "activation point invalid" even though the control is on screen.
-    /// The element's own leaf frame is valid, so a coordinate tap lands.
+    /// Bypasses hittability resolution: inside the workout's fullScreenCover
+    /// the CI simulator reports degenerate ancestor frames, so `.tap()`,
+    /// `.isHittable` and predicate waits fail with "activation point invalid"
+    /// even though the control is on screen. The leaf frame is valid.
     ///
-    /// Refuses to tap an element that is already gone, and says so by
-    /// returning false. A coordinate tap is not a miss when its target has
-    /// left: the flow stacks its one primary control in the same bottom slot
-    /// on every screen — the work screen's button sits where the rest
-    /// screen's "Skip rest" sits — so a tap aimed at a vanished control hits
-    /// the *next* screen's control instead, and quietly consumes it. The
-    /// callers below all loop on a goal, so a skipped tap is simply retried;
-    /// a destructive one would not be recoverable.
+    /// Returns false rather than tapping an element that is already gone. The
+    /// flow stacks its one primary control in the same bottom slot on every
+    /// screen, so a tap aimed at a vanished control hits the NEXT screen's
+    /// control and quietly consumes it. Callers loop on a goal, so a skipped
+    /// tap is retried; a consumed one would not be recoverable.
     ///
-    /// This narrows the window rather than closing it. XCUITest delivers the
-    /// tap some time after this check, and on a degraded runner that gap has
+    /// This narrows the window rather than closing it: XCUITest delivers the
+    /// tap some time after the check, and on a degraded runner that gap has
     /// been ten seconds (nightly 2026-08-04, run 30875292377). A test whose
-    /// target can expire on the app's own timer has to widen its margin too —
+    /// target can expire on the app's own timer must widen its margin too —
     /// see `maximiseHold()`.
     @discardableResult
     func coordinateTap(_ element: XCUIElement) -> Bool {
@@ -50,32 +42,21 @@ struct WorkoutDriver {
         return true
     }
 
-    /// Taps Start and skips the warm-up block.
     func startWorkout() {
         app.buttons["Start"].tap()
         let skipWarmup = app.buttons["Skip warm-up"]
         if skipWarmup.waitForExistence(timeout: 3) { skipWarmup.tap() }
     }
 
-    /// What the walk observed on its way to the rating. Returned rather than
-    /// asserted here: whether the cool-down had to run is the caller's rule,
-    /// not the driver's.
+    /// Returned rather than asserted: whether the cool-down had to run is
+    /// the caller's rule, not the driver's.
     struct Walk {
         let sawCooldown: Bool
     }
 
-    /// Runs the whole workout to the rating screen: Done on every set, Start
-    /// hold on every hold. Requires --uitest-fast on the launch.
-    ///
-    /// - Parameters:
-    ///   - skipCooldown: tap "Skip cool-down" when it appears. The default
-    ///     gets to the rating fastest; the release smoke passes `false` so the
-    ///     cool-down actually runs, because S2 names it.
-    ///   - doneLabel, startHoldLabel, ratingLabel: the localized labels to
-    ///     drive. Defaulted to English because every suite but the release
-    ///     smoke's S7 row runs pinned to en/US; S7 passes the Russian ones.
-    ///     The cool-down's skip is addressed by accessibility identifier, so
-    ///     it needs no localized twin.
+    /// Requires --uitest-fast on the launch. Labels default to English
+    /// because every suite but the release smoke's S7 row runs pinned to
+    /// en/US; the cool-down's skip goes by identifier and needs no twin.
     @discardableResult
     func completeWorkout(skipCooldown skipsCooldown: Bool = true,
                          doneLabel: String = "Done",
@@ -88,11 +69,8 @@ struct WorkoutDriver {
         let cooldownCountdown = app.staticTexts["cooldown-countdown"]
         let rating = app.staticTexts[ratingLabel]
         var sawCooldown = false
-        // Wall-clock bound, not an iteration count: the only real time sink
-        // is the hold countdowns (~3 minutes in a deep session), which are
-        // load-independent, so this bound holds even on a saturated runner.
-        // The seeded milestone session spends ~330 s in holds alone, so the
-        // bound carries a little headroom for taps and transitions.
+        // Wall-clock bound, not an iteration count. The seeded milestone
+        // session spends ~330 s in holds alone, so this carries headroom.
         let deadline = Date.now.addingTimeInterval(420)
         while !rating.exists && Date.now < deadline {
             if done.exists {
@@ -101,14 +79,13 @@ struct WorkoutDriver {
             } else if startHold.exists {
                 coordinateTap(startHold)
                 _ = startHold.waitForNonExistence(timeout: 3)  // countdown started
-                // the countdown runs itself down and auto-advances into rest
             } else if skipsCooldown, skipCooldownButton.exists {
                 sawCooldown = true
                 coordinateTap(skipCooldownButton)
                 _ = skipCooldownButton.waitForNonExistence(timeout: 3)
             } else {
-                // resting, stretching or mid-transition: under --uitest-fast
-                // every one of those advances on its own
+                // resting, stretching or mid-transition — under
+                // --uitest-fast every one of those advances on its own
                 if cooldownCountdown.exists { sawCooldown = true }
                 _ = rating.waitForExistence(timeout: 2)
             }

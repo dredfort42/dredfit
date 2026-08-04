@@ -69,9 +69,6 @@ final class LifeBenefitTests: XCTestCase {
         }
     }
 
-    /// The override tiers are pinned to variation names, not guessed: if the
-    /// library ever renames or moves "Pistol squat", the closed list must be
-    /// revisited consciously rather than drift silently.
     func testClosedListStillMatchesTheLibrary() {
         for pin in closedList {
             let name = ExerciseLibrary.entry(for: pin.pattern).variations[pin.tier - 1].name
@@ -107,7 +104,6 @@ final class LifeBenefitTests: XCTestCase {
         }
     }
 
-    /// RU strings follow the project rule: no "ё" anywhere in UI copy.
     func testRussianLinesAvoidYo() throws {
         let catalogURL = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()

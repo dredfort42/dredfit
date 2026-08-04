@@ -2,54 +2,39 @@
 //  Retrospective.swift
 //  Dredfit
 //
-//  The "then → now" block for anniversary milestones (issue #26): the most
-//  honest answer to "is this working?" is a comparison with the very first
-//  workout, and the journal has carried the data for it (levelsAfter
-//  snapshots) since 1.1. Lives in the app layer; the engine knows nothing.
+//  The "then → now" block for anniversary milestones (issue #26), built from
+//  the journal's levelsAfter snapshots.
 //
-//  Every number is produced by core helpers (Level.decode + the library), so
-//  the app never re-implements level arithmetic — repStart/holdStart of
-//  engine v2.3 are respected for free, and a future recoding cannot leave
-//  this block silently wrong.
-//
-//  Degradations are silent by design: no snapshot in the journal, no growth,
-//  or a pattern missing from the base (pull_bar joined later, old installs
-//  predate snapshots) — the jubilee simply looks the way it always did.
+//  Every number goes through core helpers (Level.decode + the library) so a
+//  future recoding of levels cannot leave this block silently wrong.
+//  Degradations are silent: missing snapshot, no growth, or a pattern absent
+//  from the base — the jubilee just looks the way it always did.
 //
 
 import Foundation
 import DredfitCore
 
 struct Retrospective: Equatable {
-    /// "Then: Knee push-up · 3×8"
     let thenLine: String
-    /// "Now: Push-up · 3×14"
     let nowLine: String
-    /// "12 weeks since your first workout" (months once weeks reach 9).
     let sinceLine: String
 
-    /// One line for surfaces that want the comparison as a single sentence
-    /// (the share card): "Then: … — Now: …".
+    /// For surfaces that want the comparison as one sentence (the share card).
     var comparisonLine: String { "\(thenLine) — \(nowLine)" }
 
     // MARK: - Builder
 
-    /// The comparison for an anniversary, or nil when there is nothing honest
-    /// to say.
-    ///
-    /// Base: the first journal record that carries a levelsAfter snapshot.
-    /// Movement: the largest level gain between the base snapshot and the
-    /// current levels; ties resolve in rotation order (pull_bar last, it is
-    /// outside the rotation). A gain of zero or less is not a story — return
-    /// nil rather than celebrate standing still.
+    /// nil when there is nothing honest to say. Base is the first record
+    /// carrying a levelsAfter snapshot; the movement is the largest gain
+    /// since, ties in rotation order. A gain of zero or less returns nil
+    /// rather than celebrating standing still.
     static func make(records: [WorkoutRecord],
                      currentLevels: [Pattern: Int],
                      now: Date = .now) -> Retrospective? {
         guard let base = records.first(where: { $0.levelsAfter != nil }),
               let baseLevels = base.levelsAfter else { return nil }
 
-        // Rotation order first, the bar module last: the tie-break must be
-        // deterministic and read as "the order the app always uses".
+        // pull_bar last — it is outside the rotation.
         let order = Pattern.ordered + [.pullBar]
         var best: (pattern: Pattern, delta: Int)?
         for pattern in order {
@@ -70,8 +55,7 @@ struct Retrospective: Equatable {
 
     // MARK: - Formatting (core helpers only)
 
-    /// "Push-up · 3×14" / "Plank · 3×30 s" — variation, sets and load exactly
-    /// as the engine encodes them for this level.
+    /// Variation, sets and load exactly as the engine encodes them.
     private static func line(_ pattern: Pattern, _ level: Int) -> String {
         let decoded = Level.decode(level)
         let entry = ExerciseLibrary.entry(for: pattern)
@@ -84,8 +68,7 @@ struct Retrospective: Equatable {
         }
     }
 
-    /// Whole weeks up to 8, whole months from week 9 on — a jubilee after two
-    /// months reads better in months, and the spec pins the boundary.
+    /// Whole weeks up to 8, months from week 9 — the spec pins the boundary.
     private static func since(from start: Date, to now: Date) -> String {
         let days = max(0, Calendar.current.dateComponents([.day], from: start, to: now).day ?? 0)
         let weeks = days / 7

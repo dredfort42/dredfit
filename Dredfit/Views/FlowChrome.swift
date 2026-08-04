@@ -30,9 +30,8 @@ struct CountdownNumber: View {
     }
 }
 
-/// The row of dots under a block's countdown: done, current, still ahead.
-/// One definition for the warm-up, the cool-down and the transition between
-/// their positions (issue #52) — three copies of it would drift.
+/// One definition for the warm-up, the cool-down and the transition — three
+/// copies would drift.
 struct BlockDots: View {
     let count: Int
     let current: Int
@@ -48,9 +47,7 @@ struct BlockDots: View {
     }
 }
 
-/// "Skip this move" — the per-position escape both guided blocks carry. A
-/// single move can be impossible today (no floor space, a sore wrist), and
-/// skipping it must not cost the other five.
+/// The per-position escape both guided blocks carry.
 struct PositionSkipButton: View {
     let action: () -> Void
 
@@ -94,9 +91,8 @@ struct TechniqueButton: View {
                 .dredfitFont(14, weight: .medium)
                 .foregroundStyle(Theme.ink2)
         }
-        // Addressed by identifier, like every other control a test drives:
-        // without one the button answers only to its English label, so a
-        // localized run cannot open the technique sheet at all.
+        // Without an identifier the button answers only to its English
+        // label, and a localized run cannot open the sheet at all.
         .accessibilityIdentifier("technique")
     }
 }

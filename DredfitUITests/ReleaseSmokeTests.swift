@@ -2,18 +2,12 @@
 //  ReleaseSmokeTests.swift
 //  DredfitUITests
 //
-//  The Release smoke block of TESTPLAN.md (S1–S7), automated. It used to be
-//  a hand-walk before every release; the walk never changed between releases,
-//  so it is a test now — and running the full test plan at stage Э6 of the
-//  release regulation covers the smoke by itself.
+//  The Release smoke block of TESTPLAN.md (S1–S7), automated. Row names are
+//  carried into activity names and failure messages, so a red run says "S3"
+//  and the checklist row is found without translation.
 //
-//  Row names are carried into the activity names and the failure messages, so
-//  a red run says "S3" and the checklist row is found without translation.
-//
-//  What stays manual and cannot be automated here: everything marked ⌚ in
-//  TESTPLAN (device-only — Health, Live Activity on a real lock screen, the
-//  widget families on a home screen), and the "nothing is clipped" half of S7,
-//  which is a judgement about pixels, not about strings.
+//  Still manual: everything marked ⌚ in TESTPLAN (device-only), and the
+//  "nothing is clipped" half of S7 — a judgement about pixels, not strings.
 //
 
 import XCTest
@@ -29,19 +23,19 @@ final class ReleaseSmokeTests: XCTestCase {
         continueAfterFailure = false
         app = XCUIApplication()
         // --uitest-fast collapses rests, cool-down stages and the get-ready
-        // transition; a warm-up MOVE is deliberately not collapsed anywhere
-        // in the app. That asymmetry is what S2 waits on below: the move's
-        // countdown is up for 30 real seconds, the transition's for one, so
-        // only the former is safe to assert.
+        // transition (#52); a warm-up MOVE is deliberately not collapsed
+        // anywhere in the app, so S2 checks that the block opens and then
+        // skips it rather than paying three minutes. That asymmetry is what
+        // S2 waits on below: the move's countdown is up for 30 real seconds,
+        // the transition's for one, so only the former is safe to assert.
         app.launchArguments = ["--uitest-reset", "--uitest-fast",
                                "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
     }
 
     // MARK: - S1–S6 in English
 
-    /// The walk itself is one test: S3 has no meaning without S2 having just
-    /// happened, and S4 is "the same state, after a relaunch". Each row lives
-    /// in its own method below so a row can be read, and changed, on its own.
+    /// One test: S3 has no meaning without S2 having just happened, and S4 is
+    /// "the same state, after a relaunch".
     func testReleaseSmokeEnglish() {
         app.launch()
         s1ColdStart()
@@ -56,8 +50,8 @@ final class ReleaseSmokeTests: XCTestCase {
         XCTContext.runActivity(named: "S1 — cold start on a fresh install") { _ in
             XCTAssertTrue(app.staticTexts["Workout 1"].waitForExistence(timeout: 10),
                           "S1: a fresh install must open Today on Workout 1")
-            // The estimate is the engine's own arithmetic surfaced to the
-            // user: if this line drifts, a release-blocking number drifted.
+            // The engine's own arithmetic surfaced: if this line drifts, a
+            // release-blocking number drifted.
             XCTAssertTrue(app.staticTexts["≈ 33 min · 6 exercises"].exists,
                           "S1: the plan line must read ≈ 33 min · 6 exercises")
             XCTAssertTrue(app.buttons["Start"].exists, "S1: Start is missing")
@@ -93,11 +87,11 @@ final class ReleaseSmokeTests: XCTestCase {
                           "S3: the done state is missing")
             XCTAssertFalse(app.buttons["Start"].exists,
                            "S3: Start must not show once the day is done")
-            // Kicker uppercases its text (Theme.swift), so the label is "NEXT".
+            // Kicker uppercases, so the label is "NEXT".
             XCTAssertTrue(app.staticTexts["NEXT"].exists,
                           "S3: the next-workout card is missing")
-            // --uitest-reset clears rest days, so the next training day is
-            // always tomorrow — the card's date word is deterministic here.
+            // --uitest-reset clears rest days, so the date word is
+            // deterministic here.
             XCTAssertTrue(app.staticTexts["Workout 2 · tomorrow"].exists,
                           "S3: the next card must name workout 2 and when it lands")
         }
@@ -134,7 +128,7 @@ final class ReleaseSmokeTests: XCTestCase {
 
     private func s6Progress() {
         XCTContext.runActivity(named: "S6 — Progress") { _ in
-            // Dismiss the history sheet by its own button, not a swipe.
+            // By its own button, not a swipe.
             app.buttons["Got it"].tap()
             app.tabBars.buttons["Progress"].tap()
             XCTAssertTrue(app.staticTexts["level"].waitForExistence(timeout: 5),
@@ -161,8 +155,7 @@ final class ReleaseSmokeTests: XCTestCase {
             XCTAssertTrue(app.buttons["Начать"].exists, "S7/S1: кнопка «Начать» не найдена")
             XCTAssertTrue(app.buttons["start-short"].exists,
                           "S7/S1: предложение короткой версии не найдено")
-            // The English leak this row exists to catch: an untranslated Start
-            // or plan line would show up as the en string still being present.
+            // The English leak this row exists to catch.
             XCTAssertFalse(app.buttons["Start"].exists,
                            "S7: English «Start» leaked into the Russian build")
             XCTAssertFalse(app.staticTexts["Workout 1"].exists,
@@ -176,8 +169,8 @@ final class ReleaseSmokeTests: XCTestCase {
                           "S7/S2: разминка не открылась или её нельзя пропустить")
             skipWarmup.tap()
 
-            // The technique affordance answers to its identifier, not to the
-            // English word: the mini-sheet has to open on a Russian build too.
+            // By identifier, not the English word: the sheet has to open on
+            // a Russian build too.
             let technique = app.buttons["technique"]
             XCTAssertTrue(technique.waitForExistence(timeout: 5),
                           "S7/S2: кнопка техники не найдена по идентификатору")

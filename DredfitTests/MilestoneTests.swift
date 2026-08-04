@@ -2,10 +2,6 @@
 //  MilestoneTests.swift
 //  DredfitTests
 //
-//  Tests seed a level, complete one workout, and read the milestones back.
-//  Seed levels sit at band boundaries: 7 → 8 crosses a tier, 31 → 32
-//  crosses a set band, and 8 → 7 crosses a tier downwards.
-//
 
 import XCTest
 import DredfitCore
@@ -141,8 +137,6 @@ final class MilestoneTests: XCTestCase {
     }
 
     /// A jubilee fires on one exact counter value and never again, so it is
-    /// deliberately not gated on how the session went — unlike the review
-    /// request, which can wait for a better day.
     func testJubileeSurvivesAHardSession() throws {
         let store = try seededStore(counter: 9)
         let session = store.nextSession
@@ -177,8 +171,6 @@ final class MilestoneTests: XCTestCase {
         XCTAssertEqual(earned[1], .jubilee(workouts: 10))
     }
 
-    /// Zero-level calibration can hand a first workout several unlocks at
-    /// once; the detector must return them all rather than collapsing to one.
     func testSeveralTierUpsInOneWorkout() throws {
         let patterns = session(atCounter: 0).exercises.prefix(3).map(\.pattern)
         let store = try seededStore(levels: Dictionary(uniqueKeysWithValues:

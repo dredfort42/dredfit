@@ -2,9 +2,6 @@
 //  HardeningTests.swift
 //  DredfitTests
 //
-//  The day anchor that keeps date-derived UI honest across midnight, the
-//  injectable reminder scheduler, and the Live Activity staleDate arithmetic.
-//
 
 import XCTest
 import DredfitCore
@@ -30,7 +27,6 @@ final class HardeningTests: XCTestCase {
 
     /// Regression: crossing midnight while the process stays alive must
     /// re-anchor the UI's "today" — the tab must not stay stuck on
-    /// yesterday's "completed" state until a cold launch.
     func testRefreshDayReanchorsAcrossMidnight() {
         let store = AppStore(storageURL: tempURL)
         store.completeWorkout(session: store.nextSession, result: .plan)
@@ -106,8 +102,6 @@ final class HardeningTests: XCTestCase {
         })
     }
 
-    /// The whole point of the one-shot window: trained in the morning →
-    /// tonight's reminder is gone, tomorrow's still stands.
     func testMorningWorkoutRemovesTodaysReminder() async {
         let spy = NotificationSpy()
         let store = AppStore(storageURL: tempURL, notifications: spy)
@@ -163,8 +157,6 @@ final class HardeningTests: XCTestCase {
         }, "a stale Monday reminder must not survive the toggle")
     }
 
-    /// An update from the weekly-series era must clear the old repeating
-    /// requests even while reminders stay disabled.
     func testLegacyWeeklySeriesIsClearedOnReschedule() {
         let spy = NotificationSpy()
         let store = AppStore(storageURL: tempURL, notifications: spy)
@@ -205,9 +197,6 @@ final class HardeningTests: XCTestCase {
         XCTAssertTrue(spy.scheduled.isEmpty, "disabling must remove every pending reminder")
     }
 
-    /// A launch that could not read its journal knows nothing about the user's
-    /// settings — it must leave the pending window alone instead of clearing
-    /// it from an empty in-memory state.
     func testFrozenLaunchKeepsThePendingReminderWindow() async throws {
         try XCTSkipIf(getuid() == 0, "root reads through 0o000 permissions")
         let spy = NotificationSpy()
@@ -247,7 +236,6 @@ final class HardeningTests: XCTestCase {
     }
 
     /// A backup restored onto a device that never granted notifications must
-    /// not promise reminders: the import re-runs the authorization flow.
     func testImportWithRemindersRerunsAuthorization() async throws {
         let sourceSpy = NotificationSpy()
         let source = AppStore(storageURL: tempURL, notifications: sourceSpy)

@@ -2,24 +2,19 @@
 //  HealthStore.swift
 //  Dredfit
 //
-//  Write-only bridge to Apple Health. Completed workouts become
-//  HKWorkout samples (functional strength training, actual duration).
-//  Nothing is ever read from Health and nothing leaves the device —
-//  App Privacy stays an honest "Data Not Collected".
+//  Write-only. Nothing is ever read from Health and nothing leaves the
+//  device — App Privacy stays an honest "Data Not Collected".
 //
 
 import Foundation
 import HealthKit
 
-/// Injectable seam: AppStore talks to Health through this protocol,
-/// unit tests substitute a spy.
+/// Injectable seam: unit tests substitute a spy.
 protocol WorkoutHealthWriting {
     var isAvailable: Bool { get }
-    /// Asks for write-only workout authorization. Returns true only when
-    /// the user actually granted sharing.
+    /// True only when the user actually granted sharing.
     func requestWriteAuthorization() async -> Bool
-    /// Saves one workout interval. Returns false on any failure — the app
-    /// treats Health as best-effort and never nags about it.
+    /// False on any failure — Health is best-effort.
     func saveWorkout(start: Date, end: Date) async -> Bool
 }
 
