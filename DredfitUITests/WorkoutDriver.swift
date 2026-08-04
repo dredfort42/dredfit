@@ -28,8 +28,26 @@ struct WorkoutDriver {
     /// hittability (`.tap()`, `.isHittable`, predicate waits) fails with
     /// "activation point invalid" even though the control is on screen.
     /// The element's own leaf frame is valid, so a coordinate tap lands.
-    func coordinateTap(_ element: XCUIElement) {
+    ///
+    /// Refuses to tap an element that is already gone, and says so by
+    /// returning false. A coordinate tap is not a miss when its target has
+    /// left: the flow stacks its one primary control in the same bottom slot
+    /// on every screen — the work screen's button sits where the rest
+    /// screen's "Skip rest" sits — so a tap aimed at a vanished control hits
+    /// the *next* screen's control instead, and quietly consumes it. The
+    /// callers below all loop on a goal, so a skipped tap is simply retried;
+    /// a destructive one would not be recoverable.
+    ///
+    /// This narrows the window rather than closing it. XCUITest delivers the
+    /// tap some time after this check, and on a degraded runner that gap has
+    /// been ten seconds (nightly 2026-08-04, run 30875292377). A test whose
+    /// target can expire on the app's own timer has to widen its margin too —
+    /// see `maximiseHold()`.
+    @discardableResult
+    func coordinateTap(_ element: XCUIElement) -> Bool {
+        guard element.exists else { return false }
         element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        return true
     }
 
     /// Taps Start and skips the warm-up block.
