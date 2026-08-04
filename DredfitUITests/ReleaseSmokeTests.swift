@@ -24,8 +24,8 @@ final class ReleaseSmokeTests: XCTestCase {
     private var app: XCUIApplication!
     private var driver: WorkoutDriver { WorkoutDriver(app: app) }
 
-    override func setUp() async throws {
-        try await super.setUp()
+    override func setUp() {
+        super.setUp()
         continueAfterFailure = false
         app = XCUIApplication()
         // --uitest-fast collapses rests and cool-down stages; the warm-up is

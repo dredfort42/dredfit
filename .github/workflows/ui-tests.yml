@@ -65,8 +65,22 @@ jobs:
           #
           # Retry is requested explicitly (xcodebuild ignores the test plan's
           # own repetition settings): a genuinely flaky test re-runs up to 3
-          # attempts. System-level aborts aren't retried, which is why the
-          # single simulator matters most.
+          # attempts.
+          #
+          # These flags did nothing at all until 2026-08-04. Xcode 26 has a
+          # known XCTest defect (Apple issue #108565878): with
+          # `continueAfterFailure = false` in a Swift class whose test method
+          # or setUp/tearDown is async, a failed assertion tears down the
+          # whole runner process instead of the test method. xcodebuild then
+          # relaunches and resumes at the NEXT test, so the failed one is
+          # never re-run — 43 executions for 43 tests, no iteration ever
+          # reached 2. The suite's setUp is synchronous now, which is Apple's
+          # own workaround and restores the retries without giving up
+          # fail-fast. Two symptoms to recognise if it ever regresses: a root
+          # suite named "Selected tests", and a closing "Executed N tests,
+          # with 0 failures" that omits the failure the job went red for —
+          # that tally belongs to the resumed session alone. The authoritative
+          # verdict is "** TEST FAILED **" and the "Failing tests:" list.
           xcodebuild test \
             -project Dredfit.xcodeproj \
             -scheme Dredfit \
