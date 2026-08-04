@@ -76,9 +76,32 @@ final class DredfitUITests: XCTestCase {
     }
 
     /// Taps an element at the centre of its own frame, bypassing hittability
-    /// resolution — see WorkoutDriver for why this is not `.tap()`.
-    private func coordinateTap(_ element: XCUIElement) {
+    /// resolution — see WorkoutDriver for why this is not `.tap()`, and why
+    /// it declines to tap an element that has already left.
+    @discardableResult
+    private func coordinateTap(_ element: XCUIElement) -> Bool {
         driver.coordinateTap(element)
+    }
+
+    /// Raises a hold to the adjuster's 90 s ceiling before it is started, so
+    /// that a test which stops it early has a margin no runner can eat.
+    ///
+    /// The nightly of 2026-08-04 (run 30875292377) failed here: XCUITest took
+    /// 9.5 s to answer `waitForExistence` and another 10.7 s to synthesize the
+    /// tap, so the planned 20 s hang ran out on its own and the Stop tap
+    /// landed on the rest screen that had replaced it, skipping the rest. The
+    /// budget was ~16 s of automation latency against 24 s of it. At 90 s the
+    /// budget is 86 s, five times the worst yet observed — and the seconds
+    /// actually held, which is what these tests assert on, do not change.
+    private func maximiseHold() {
+        app.buttons["Went differently"].tap()
+        let plus = app.buttons["plus"]
+        XCTAssertTrue(plus.waitForExistence(timeout: 3), "the stepper did not open")
+        // Holds step by 5 within 5...90 (AdjustPanel), and the panel clamps —
+        // saturating from the floor takes 17 taps, so 18 is enough from any
+        // plan and the extra one costs nothing.
+        for _ in 0..<18 { plus.tap() }
+        app.buttons["OK"].tap()
     }
 
     /// Runs the whole workout to the "How did it go?" screen, optionally
@@ -426,6 +449,9 @@ final class DredfitUITests: XCTestCase {
 
     func testHoldTimerEarlyStopCapturesActual() {
         launchIntoSession2AndReachPlank()
+        // 90 s of hold to stop early inside — the countdown must not be able
+        // to run out from under the taps below on a slow runner.
+        maximiseHold()
         // Every tap here is inside the workout cover, so it goes through
         // coordinateTap to sidestep the intermittent hittability quirk.
         coordinateTap(app.buttons["Start hold"])
@@ -442,7 +468,8 @@ final class DredfitUITests: XCTestCase {
         coordinateTap(app.buttons["Start hold"])
         XCTAssertTrue(stop.waitForExistence(timeout: 3))
         Thread.sleep(forTimeInterval: 3.5)
-        coordinateTap(stop)
+        XCTAssertTrue(coordinateTap(stop),
+                      "the countdown ended before the stop could be delivered")
         let skipRest = app.buttons["Skip rest"]
         XCTAssertTrue(skipRest.waitForExistence(timeout: 3),
                       "an early stop should flow into rest")
@@ -653,11 +680,16 @@ final class DredfitUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["TECHNIQUE"].waitForExistence(timeout: 3),
                       "the technique sheet must open for a bar exercise")
         app.buttons["Got it"].tap()
+        // 90 s of hang, for the same reason as the plank above: the stop below
+        // is timed against the app's own countdown, and this test is the one
+        // that lost that race on the nightly of 2026-08-04.
+        maximiseHold()
         coordinateTap(app.buttons["Start hold"])
         let stop = app.buttons["Stop"]
         XCTAssertTrue(stop.waitForExistence(timeout: 3), "no Stop during the hang countdown")
         Thread.sleep(forTimeInterval: 3.5)   // past the mis-tap grace
-        coordinateTap(stop)
+        XCTAssertTrue(coordinateTap(stop),
+                      "the hang ended before the stop could be delivered")
         XCTAssertTrue(app.buttons["Skip rest"].waitForExistence(timeout: 3),
                       "the stopped hang must flow into rest")
         coordinateTap(app.buttons["Skip rest"])
