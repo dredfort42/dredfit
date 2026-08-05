@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+### Localization: German (issue #63)
+
+- German joins English, Russian, Spanish and Brazilian Portuguese, complete —
+  all 547 translated keys across the four String Catalogs: the 40-exercise
+  library with its technique steps and common mistakes, the 15 warm-up and
+  cool-down position sheets, the "In real life" lines, onboarding, "How it
+  works", milestones, the anniversary retrospective, the widgets and the
+  Health permission strings.
+- The register is du — lowercase, calm, and gender-free: the athlete is never
+  named by a gendered noun. The terminology keeps the app's three concepts as
+  disjoint in German as everywhere else — Variante (which exercise, 1 of 4),
+  Stufe (one unit of level change), Level (the number itself) — and prefers
+  the words German home training actually uses: Kniebeuge, Liegestütze,
+  Klimmzüge, Ausfallschritte, with Plank kept English because that is what
+  German says. A bare "Pause" only ever means the seconds between sets; a
+  longer absence is a Trainingspause, and a deload an Entlastung.
+- No code changed for the language: the one locale-sensitive label ("on
+  Monday") already had a default path that German's uniform "am + weekday"
+  fits, so the catalog carries "am %@" and the switch in
+  `nextTrainingDateLabel` stays three cases long. The engine and the golden
+  fixtures are untouched.
+- The marketing site ships the same five languages: dredfit.com/de (landing
+  and privacy policy), with hreflang alternates and sitemap entries on every
+  page. Nine German store screenshots join the set, captured through the
+  standard pipeline.
+
 ### Warm-up and cool-down: a pause for the guided blocks (issue #61)
 
 - The guided blocks are the only part of a workout that runs strictly on
