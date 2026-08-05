@@ -77,9 +77,9 @@ final class LifeBenefitTests: XCTestCase {
         }
     }
 
-    // MARK: - Catalog completeness (all four languages)
+    // MARK: - Catalog completeness (all shipping languages)
 
-    func testCatalogCarriesAllFourLanguagesForEveryLifeKey() throws {
+    func testCatalogCarriesAllShippingLanguagesForEveryLifeKey() throws {
         let catalogURL = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()   // DredfitTests/
             .deletingLastPathComponent()   // repo root
@@ -96,7 +96,7 @@ final class LifeBenefitTests: XCTestCase {
             let entry = try XCTUnwrap(strings[key] as? [String: Any])
             let localizations = try XCTUnwrap(entry["localizations"] as? [String: Any],
                                               "\(key) has no localizations")
-            for lang in ["en", "ru", "es", "pt-BR"] {
+            for lang in ["en", "ru", "es", "pt-BR", "de"] {
                 let unit = (localizations[lang] as? [String: Any])?["stringUnit"] as? [String: Any]
                 let value = unit?["value"] as? String
                 XCTAssertFalse(value?.isEmpty ?? true, "\(key) is missing \(lang)")

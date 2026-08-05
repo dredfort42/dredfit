@@ -4,6 +4,12 @@
     "Squat": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kniebeuge"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -33,6 +39,12 @@
     "Feet shoulder-width apart, toes slightly out, weight over the whole foot.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Füße schulterbreit, Zehen leicht nach außen, das Gewicht auf dem ganzen Fuß."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -62,6 +74,12 @@
     "Sit back and down for ~2 seconds; knees track over the toes, back straight.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setz dich ~2 Sekunden nach hinten und unten; die Knie zeigen in Richtung der Zehen, der Rücken bleibt gerade."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -91,6 +109,12 @@
     "Thighs parallel to the floor at the bottom; drive up on an exhale.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unten sind die Oberschenkel parallel zum Boden; drück dich mit dem Ausatmen wieder hoch."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -120,6 +144,12 @@
     "Knees caving inward — keep them tracking over your feet.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Knie fallen nach innen – halte sie über den Füßen."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -149,6 +179,12 @@
     "Heels lifting off the floor — depth matters more than speed.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Fersen heben vom Boden ab – Tiefe zählt mehr als Tempo."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -178,6 +214,12 @@
     "Bulgarian split squat": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bulgarian Split Squat"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -207,6 +249,12 @@
     "Rear foot on a chair or couch behind you, front foot a stride ahead.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der hintere Fuß liegt auf einem Stuhl oder Sofa hinter dir, der vordere steht einen Schritt weiter vorn."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -236,6 +284,12 @@
     "Lower straight down until the rear knee almost touches the floor.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senk dich senkrecht ab, bis das hintere Knie den Boden fast berührt."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -265,6 +319,12 @@
     "Drive up through the front heel; torso leaning slightly forward.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drück dich über die vordere Ferse hoch; der Oberkörper bleibt leicht nach vorn geneigt."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -294,6 +354,12 @@
     "Stance too short — the front knee travels far past the toes.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zu kurze Schrittstellung – das vordere Knie wandert weit über die Zehen hinaus."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -323,6 +389,12 @@
     "Loading the rear leg — it is only there for balance.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das hintere Bein trägt Gewicht – es ist nur fürs Gleichgewicht da."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -352,6 +424,12 @@
     "Pistol squat": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pistol Squat"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -381,6 +459,12 @@
     "Stand on one leg, the other extended forward, arms out for balance.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steh auf einem Bein, das andere nach vorn gestreckt, die Arme fürs Gleichgewicht vor dir."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -410,6 +494,12 @@
     "Lower slowly until the hamstring rests on the calf, heel on the floor.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senk dich langsam ab, bis der Oberschenkel auf der Wade aufliegt, die Ferse bleibt am Boden."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -439,6 +529,12 @@
     "Stand up without your hands; start with a doorframe assist if needed.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steh ohne Hände auf; anfangs kannst du dich am Türrahmen festhalten."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -468,6 +564,12 @@
     "Dropping down without control — the descent must be slow.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sich unkontrolliert fallen lassen – der Weg nach unten muss langsam sein."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -497,6 +599,12 @@
     "Knee drifting sideways — keep it tracking over the foot.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Knie wandert zur Seite – führ es immer über dem Fuß."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -526,6 +634,12 @@
     "Shrimp squat": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shrimp Squat"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -555,6 +669,12 @@
     "Stand on one leg; bend the other back and hold its foot with one hand.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steh auf einem Bein; beug das andere nach hinten und halte den Fuß mit einer Hand."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -584,6 +704,12 @@
     "Lower slowly until the back knee gently touches the floor.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senk dich langsam ab, bis das hintere Knie den Boden sanft berührt."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -613,6 +739,12 @@
     "Stand up through the heel of the working leg, chest up.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drück dich über die Ferse des Standbeins hoch, der Oberkörper bleibt aufrecht."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -642,6 +774,12 @@
     "Knee crashing into the floor — the descent stays slow and controlled.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Knie knallt auf den Boden – der Weg nach unten bleibt langsam und kontrolliert."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -671,6 +809,12 @@
     "Leaning far forward — keep the chest up and the core braced.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zu weit nach vorn gelehnt – halte den Oberkörper aufrecht und den Rumpf angespannt."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -700,6 +844,12 @@
     "Knee push-up": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Knieliegestütze"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -729,6 +879,12 @@
     "Hands under the shoulders, knees on the floor; head to knees form a straight line.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hände unter den Schultern, Knie am Boden; von Kopf bis Knie eine gerade Linie."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -758,6 +914,12 @@
     "Lower for ~2 seconds until the chest nearly touches the floor, elbows about 45° from the torso.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senk dich ~2 Sekunden ab, bis die Brust den Boden fast berührt, die Ellenbogen etwa im 45°-Winkel zum Oberkörper."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -787,6 +949,12 @@
     "Press up on an exhale, keeping the belly tight.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drück dich mit dem Ausatmen hoch, der Bauch bleibt fest."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -816,6 +984,12 @@
     "Sagging hips — squeeze your glutes and abs.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Hüfte hängt durch – spann Po und Bauch an."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -845,6 +1019,12 @@
     "Cutting the range short — the chest should almost touch the floor.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht tief genug – die Brust sollte den Boden fast berühren."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -874,6 +1054,12 @@
     "Push-up": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liegestütze"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -903,6 +1089,12 @@
     "Hands under the shoulders; the body is one straight line from head to heels.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hände unter den Schultern; der Körper ist eine gerade Linie vom Kopf bis zu den Fersen."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -932,6 +1124,12 @@
     "Press up on an exhale; don't fully lock the elbows at the top.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drück dich mit dem Ausatmen hoch; streck die Ellenbogen oben nicht ganz durch."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -961,6 +1159,12 @@
     "Sagging hips or a raised butt — the core stops working.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Hüfte hängt durch oder der Po ist zu hoch – der Rumpf arbeitet nicht mehr."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -990,6 +1194,12 @@
     "Elbows flared out to 90° — this overloads the shoulders.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Ellenbogen stehen 90° nach außen ab – das überlastet die Schultern."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1019,6 +1229,12 @@
     "Feet-elevated push-up": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liegestütze mit erhöhten Füßen"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1048,6 +1264,12 @@
     "Feet on a chair or couch, hands under the shoulders on the floor.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Füße auf einem Stuhl oder Sofa, Hände am Boden unter den Schultern."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1077,6 +1299,12 @@
     "Keep the body rigid and lower until the chest nearly touches the floor.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Halte den Körper unter Spannung und senk dich ab, bis die Brust den Boden fast berührt."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1106,6 +1334,12 @@
     "The higher the support, the harder it gets — start low.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je höher die Füße, desto schwerer wird es – fang niedrig an."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1135,6 +1369,12 @@
     "Lower back arching — don't let the hips sag.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hohlkreuz – lass die Hüfte nicht durchhängen."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1164,6 +1404,12 @@
     "Leading with the head — keep the neck in line with the torso.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Kopf geht zuerst nach unten – der Nacken bleibt in einer Linie mit dem Oberkörper."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1193,6 +1439,12 @@
     "Archer push-up": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archer-Liegestütze"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1222,6 +1474,12 @@
     "Take a wide hand position; the body stays one straight line.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setz die Hände breit auf; der Körper bleibt eine gerade Linie."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1251,6 +1509,12 @@
     "Lower toward one hand, bending that elbow; the other arm stays straight.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senk dich zu einer Hand ab und beug dabei diesen Ellenbogen; der andere Arm bleibt gestreckt."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1280,6 +1544,12 @@
     "Press up and repeat to the same side for the whole set, then switch.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drück dich hoch; mach den ganzen Satz auf derselben Seite, dann wechsle die Seite."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1309,6 +1579,12 @@
     "Hips rotating — shoulders and hips stay square to the floor.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Hüfte dreht sich mit – Schultern und Hüfte bleiben parallel zum Boden."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1338,6 +1614,12 @@
     "Half range — the chest goes down to the working hand.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur halb runter – die Brust senkt sich bis zur arbeitenden Hand."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1367,6 +1649,12 @@
     "Glute bridge": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beckenheben"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1396,6 +1684,12 @@
     "Lie on your back, feet close to the glutes hip-width apart, arms at your sides.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leg dich auf den Rücken, die Füße hüftbreit nah am Gesäß, die Arme neben dem Körper."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1425,6 +1719,12 @@
     "Lift the hips until knees, hips and shoulders form one straight line.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heb die Hüfte, bis Knie, Hüfte und Schultern eine gerade Linie bilden."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1454,6 +1754,12 @@
     "Squeeze the glutes for a second at the top, then lower slowly without touching the floor.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spann das Gesäß oben eine Sekunde an, dann senk die Hüfte langsam ab, ohne den Boden zu berühren."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1483,6 +1789,12 @@
     "Arching the lower back — don't push past the straight line.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hohlkreuz – schieb die Hüfte nicht über die gerade Linie hinaus."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1512,6 +1824,12 @@
     "Pushing through the toes — keep the weight on the heels.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Über die Zehen drücken – das Gewicht bleibt auf den Fersen."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1541,6 +1859,12 @@
     "Single-leg glute bridge": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einbeiniges Beckenheben"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1570,6 +1894,12 @@
     "Lie on your back, one foot near the glutes, the other leg extended.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leg dich auf den Rücken, ein Fuß nah am Gesäß, das andere Bein gestreckt."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1599,6 +1929,12 @@
     "Lift the hips with one leg to a straight line, keeping the pelvis level.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heb die Hüfte mit einem Bein bis zur geraden Linie; das Becken bleibt waagerecht."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1628,6 +1964,12 @@
     "Pause a second at the top, lower slowly.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Halt oben eine Sekunde, dann senk die Hüfte langsam ab."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1657,6 +1999,12 @@
     "Pelvis tilting sideways — keep both hip bones pointing at the ceiling.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Becken kippt zur Seite – beide Hüftknochen zeigen zur Decke."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1686,6 +2034,12 @@
     "Helping with the free leg — it stays out of the movement.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit dem freien Bein nachhelfen – es macht bei der Bewegung nicht mit."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1715,6 +2069,12 @@
     "Single-leg Romanian deadlift": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einbeiniges rumänisches Kreuzheben"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1744,6 +2104,12 @@
     "Stand on one leg with a soft knee; hinge forward from the hips with a flat back.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stell dich auf ein Bein, das Knie leicht gebeugt; kipp den Oberkörper mit geradem Rücken aus der Hüfte nach vorn."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1773,6 +2139,12 @@
     "The free leg extends back; torso and leg form one line, hands reaching toward the floor.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das freie Bein streckt sich nach hinten; Oberkörper und Bein bilden eine Linie, die Hände gehen Richtung Boden."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1802,6 +2174,12 @@
     "Stand back up by squeezing the glute of the standing leg.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Richte dich wieder auf und spann dabei das Gesäß des Standbeins an."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1831,6 +2209,12 @@
     "Rounding the back — keep the shoulder blades set, hinge from the hips.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Runder Rücken – halt die Schulterblätter zusammen und beug dich aus der Hüfte."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1860,6 +2244,12 @@
     "Pelvis rotating open — keep the hips square to the floor.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Becken dreht sich auf – halt die Hüfte parallel zum Boden."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1889,6 +2279,12 @@
     "Sliding leg curl": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sliding Leg Curl"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1918,6 +2314,12 @@
     "Lie on your back, heels on a towel on a smooth floor, hips lifted.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leg dich auf den Rücken, die Fersen auf einem Handtuch auf glattem Boden, und heb die Hüfte an."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1947,6 +2349,12 @@
     "Slide the heels away until the legs are almost straight, hips stay up.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schieb die Fersen von dir weg, bis die Beine fast gestreckt sind; die Hüfte bleibt oben."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -1976,6 +2384,12 @@
     "Pull the heels back toward the glutes — that's one rep.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zieh die Fersen zurück zum Gesäß – das ist eine Wiederholung."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2005,6 +2419,12 @@
     "Hips dropping as the legs extend — keep the bridge the whole time.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Hüfte sackt ab, während die Beine sich strecken – bleib die ganze Zeit in der Brücke."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2034,6 +2454,12 @@
     "Jerky pulls — slide out and back slowly, with control.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ruckartiges Ziehen – gleite langsam und kontrolliert vor und zurück."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2063,6 +2489,12 @@
     "Y-T-W raises": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Y-T-W-Heben"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2092,6 +2524,12 @@
     "Lie face down, forehead near the floor, arms extended in a Y shape.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leg dich auf den Bauch, die Stirn knapp über dem Boden, die Arme in Y-Form gestreckt."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2121,6 +2559,12 @@
     "Lift the straight arms, hold for 2 seconds squeezing the shoulder blades, then lower.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heb die gestreckten Arme an, halt sie 2 Sekunden und zieh dabei die Schulterblätter zusammen, dann senk sie ab."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2150,6 +2594,12 @@
     "Repeat in a T position and a W position — all three positions together count as one rep.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wiederhole das in T- und in W-Position – alle drei zusammen sind eine Wiederholung."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2179,6 +2629,12 @@
     "Jerking the torso up — only the arms and shoulder blades lift.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den Oberkörper hochreißen – nur Arme und Schulterblätter heben sich."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2208,6 +2664,12 @@
     "Shoulders creeping toward the ears — pull the blades down and back.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Schultern wandern zu den Ohren – zieh die Schulterblätter nach unten und hinten."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2237,6 +2699,12 @@
     "Inverted row (table)": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rudern am Tisch"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2266,6 +2734,12 @@
     "Lie under a sturdy table and grab the edge with a shoulder-width grip.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leg dich unter einen stabilen Tisch und greif die Kante schulterbreit."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2295,6 +2769,12 @@
     "Body straight from shoulders to heels; pull the chest to the edge, squeezing the shoulder blades.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Körper gerade von den Schultern bis zu den Fersen; zieh die Brust zur Kante und führ die Schulterblätter zusammen."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2324,6 +2804,12 @@
     "Lower slowly until the arms are straight.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senk dich langsam ab, bis die Arme gestreckt sind."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2353,6 +2839,12 @@
     "Sagging hips — hold the body like a plank.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Hüfte hängt durch – halte den Körper wie in einer Plank."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2382,6 +2874,12 @@
     "Pulling only with the arms — start by squeezing the shoulder blades.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zug nur aus den Armen – die Bewegung beginnt in den Schulterblättern."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2411,6 +2909,12 @@
     "Feet-elevated inverted row": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rudern am Tisch, Füße erhöht"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2440,6 +2944,12 @@
     "Same setup, but feet up on a chair — the body is parallel to the floor.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gleiche Ausgangsposition, aber die Füße liegen auf einem Stuhl – der Körper ist parallel zum Boden."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2469,6 +2979,12 @@
     "Pull the chest to the table edge with a rigid torso.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zieh die Brust zur Tischkante, der Rumpf bleibt fest."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2498,6 +3014,12 @@
     "Pause a second at the top; lower under control.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Halte oben eine Sekunde, dann senk dich kontrolliert ab."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2527,6 +3049,12 @@
     "Reaching with the chin instead of the chest — lead with the chest.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Kinn schiebt sich vor statt der Brust – führ die Bewegung mit der Brust."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2556,6 +3084,12 @@
     "Rushing the reps — control both directions.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zu schnelles Tempo – kontrolliere die Bewegung in beide Richtungen."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2585,6 +3119,12 @@
     "Archer inverted row": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archer-Rudern am Tisch"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2614,6 +3154,12 @@
     "Set up under the table with a wide grip, body straight.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leg dich mit breitem Griff unter den Tisch, Körper gerade."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2643,6 +3189,12 @@
     "Pull the chest toward one hand; the other arm stays nearly straight.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zieh die Brust zu einer Hand; der andere Arm bleibt fast gestreckt."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2672,6 +3224,12 @@
     "Lower under control; whole set to one side, then switch.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senk dich kontrolliert ab; den ganzen Satz auf einer Seite, dann wechseln."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2701,6 +3259,12 @@
     "Hips sagging — hold the plank line through the set.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Hüfte hängt durch – halte die Plank-Linie den ganzen Satz über."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2730,6 +3294,12 @@
     "Both arms pulling equally — the working arm does the job.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beide Arme ziehen gleich stark – die Arbeit macht der aktive Arm."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2759,6 +3329,12 @@
     "Wall push-up": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liegestütze an der Wand"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2788,6 +3364,12 @@
     "Stand a step away from a wall, palms on it slightly wider than shoulders, at chest height.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stell dich einen Schritt vor die Wand und leg die Handflächen auf Brusthöhe an, etwas breiter als die Schultern."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2817,6 +3399,12 @@
     "Bend the elbows, bringing the face toward the wall, body in one line.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beug die Ellenbogen und bring das Gesicht Richtung Wand, der Körper bleibt eine Linie."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2846,6 +3434,12 @@
     "Push back to straight arms; the farther the feet, the harder.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drück dich zurück, bis die Arme gestreckt sind; je weiter weg die Füße, desto schwerer."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2875,6 +3469,12 @@
     "Hips dropping back — the whole body moves as one line.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Hüfte weicht nach hinten aus – der ganze Körper bewegt sich als eine Linie."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2904,6 +3504,12 @@
     "Elbows flared to 90° — keep them closer to the torso.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Ellenbogen sind auf 90° abgespreizt – halte sie näher am Körper."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2933,6 +3539,12 @@
     "Pike push-up": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pike-Liegestütze"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2962,6 +3574,12 @@
     "From a push-up position, lift the hips high — the body forms an inverted V.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heb aus der Liegestützposition die Hüfte weit nach oben – der Körper bildet ein umgekehrtes V."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -2991,6 +3609,12 @@
     "Bend the elbows, lowering the top of the head toward the floor between the hands.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beug die Ellenbogen und senk den Scheitel zwischen den Händen Richtung Boden."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3020,6 +3644,12 @@
     "Press back up without dropping the hips.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drück dich wieder hoch, ohne die Hüfte sinken zu lassen."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3049,6 +3679,12 @@
     "Hips dropping as the arms bend — keep the V shape.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Hüfte sinkt beim Beugen der Arme – halte die V-Form."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3078,6 +3714,12 @@
     "Bumping the head on the floor — lower slowly, with control.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Kopf schlägt auf dem Boden auf – senk dich langsam und kontrolliert ab."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3107,6 +3749,12 @@
     "Wall handstand push-up": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Handstand-Liegestütze an der Wand"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3136,6 +3784,12 @@
     "Kick up into a handstand with your back to the wall, heels resting on it.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schwing dich mit dem Rücken zur Wand in den Handstand, die Fersen lehnen an der Wand."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3165,6 +3819,12 @@
     "Bend the elbows slowly, lowering the top of the head toward the floor.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beug die Ellenbogen langsam und senk den Scheitel Richtung Boden."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3194,6 +3854,12 @@
     "Press back up; know how to exit safely — step down one leg at a time.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drück dich wieder hoch; überleg dir vorher, wie du sicher wieder runterkommst – setz ein Bein nach dem anderen ab."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3223,6 +3889,12 @@
     "Arching the lower back — keep the core and glutes tight.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hohlkreuz – halte Rumpf und Po angespannt."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3252,6 +3924,12 @@
     "Elbows drifting outward — track them forward and down.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Ellenbogen wandern nach außen – führ sie nach vorn und unten."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3281,6 +3959,12 @@
     "Chest-to-wall handstand push-up": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Handstand-Liegestütze mit Brust zur Wand"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3310,6 +3994,12 @@
     "Walk your feet up the wall, chest facing it, body close to vertical.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geh mit den Füßen die Wand hoch, Brust zur Wand, der Körper fast senkrecht."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3339,6 +4029,12 @@
     "Bend the elbows slowly, lowering the head to the floor.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beug die Ellenbogen langsam und senk den Kopf zum Boden."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3368,6 +4064,12 @@
     "Press back up; keep the body in one tight line.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drück dich wieder hoch; halte den Körper in einer festen Linie."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3397,6 +4099,12 @@
     "Arching away from the wall — stay close, ribs tucked in.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Körper wölbt sich von der Wand weg – bleib nah dran, Rippen eingezogen."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3426,6 +4134,12 @@
     "Uncontrolled descent — the head must land softly.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unkontrolliertes Absenken – der Kopf muss weich aufsetzen."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3455,6 +4169,12 @@
     "Static lunge": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Statische Ausfallschritte"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3484,6 +4204,12 @@
     "Step into a lunge stance and stay in it for the whole set.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mach einen Ausfallschritt und bleib den ganzen Satz in dieser Position."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3513,6 +4239,12 @@
     "Drive up through the front heel, torso upright.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drück dich über die vordere Ferse hoch, der Oberkörper bleibt aufrecht."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3542,6 +4274,12 @@
     "Front knee traveling far past the toes — take a longer stance.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das vordere Knie wandert weit über die Zehen – mach den Schritt länger."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3571,6 +4309,12 @@
     "Torso tipping forward — keep the chest up.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Oberkörper kippt nach vorn – die Brust bleibt oben."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3600,6 +4344,12 @@
     "Reverse lunge": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausfallschritte nach hinten"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3629,6 +4379,12 @@
     "From standing, step back and lower the rear knee almost to the floor.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mach aus dem Stand einen Schritt nach hinten und senke das hintere Knie fast bis zum Boden."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3658,6 +4414,12 @@
     "The front shin stays near vertical; weight on the front heel.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das vordere Schienbein bleibt fast senkrecht; das Gewicht liegt auf der vorderen Ferse."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3687,6 +4449,12 @@
     "Push off and return to standing — that's one rep.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drück dich ab und komm zurück in den Stand – das ist eine Wiederholung."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3716,6 +4484,12 @@
     "Too short a step back — the front knee gets overloaded.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zu kurzer Schritt nach hinten – das vordere Knie wird überlastet."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3745,6 +4519,12 @@
     "Losing balance — fix your eyes on a point ahead.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du verlierst das Gleichgewicht – fixiere einen Punkt vor dir."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3774,6 +4554,12 @@
     "Jump lunge": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausfallschritte mit Sprung"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3803,6 +4589,12 @@
     "From a lunge, jump up and switch legs in the air.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spring aus dem Ausfallschritt hoch und wechsle in der Luft die Beine."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3832,6 +4624,12 @@
     "Land softly in a lunge on the other side, knee almost to the floor.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lande weich im Ausfallschritt auf der anderen Seite, das Knie fast am Boden."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3861,6 +4659,12 @@
     "Keep a steady rhythm; use the arms for balance.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Halte einen gleichmäßigen Rhythmus; die Arme helfen beim Gleichgewicht."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3890,6 +4694,12 @@
     "Landing stiff on a straight leg — absorb by bending.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steife Landung auf gestrecktem Bein – federe in den Knien ab."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3919,6 +4729,12 @@
     "Knee slamming into the floor — control the depth.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Knie knallt auf den Boden – kontrolliere die Tiefe."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3948,6 +4764,12 @@
     "Paused jump lunge": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausfallschritte mit Sprung und Stopp"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -3977,6 +4799,12 @@
     "Jump and switch legs in the air, landing softly in a lunge.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spring hoch, wechsle in der Luft die Beine und lande weich im Ausfallschritt."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4006,6 +4834,12 @@
     "Hold the bottom position for a full 2 seconds, knee near the floor.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Halte die untere Position volle 2 Sekunden, das Knie nah am Boden."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4035,6 +4869,12 @@
     "Explode up into the next switch — pause every landing.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spring explosiv in den nächsten Beinwechsel – stoppe bei jeder Landung."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4064,6 +4904,12 @@
     "Skipping the pause — hold an honest 2 seconds at the bottom.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du lässt den Stopp aus – halte unten ehrliche 2 Sekunden."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4093,6 +4939,12 @@
     "Shallow landings — the knee comes close to the floor each rep.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zu flache Landungen – das Knie kommt in jeder Wiederholung nah an den Boden."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4122,6 +4974,12 @@
     "Knee plank": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plank auf den Knien"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4151,6 +5009,12 @@
     "Forearms on the floor, elbows under the shoulders, knees down.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unterarme auf dem Boden, Ellenbogen unter den Schultern, Knie abgesetzt."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4180,6 +5044,12 @@
     "Head to knees — one straight line; belly pulled in.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vom Kopf bis zu den Knien eine gerade Linie; Bauch eingezogen."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4209,6 +5079,12 @@
     "Breathe steadily and hold for the planned time.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atme gleichmäßig und halte die geplante Zeit."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4238,6 +5114,12 @@
     "Hips sagging — tuck the pelvis slightly.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Hüfte hängt durch – richte das Becken leicht auf."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4267,6 +5149,12 @@
     "Shoulders at the ears — push the floor away, keep the neck long.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Schultern wandern zu den Ohren – drück den Boden weg, halte den Nacken lang."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4296,6 +5184,12 @@
     "Plank": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plank"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4325,6 +5219,12 @@
     "Forearms on the floor, elbows under the shoulders, feet hip-width.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unterarme auf dem Boden, Ellenbogen unter den Schultern, Füße hüftbreit."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4354,6 +5254,12 @@
     "One straight line from head to heels; glutes and abs braced.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine gerade Linie vom Kopf bis zu den Fersen; Po und Bauch angespannt."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4383,6 +5289,12 @@
     "Breathe steadily; shaking is fine, a sagging line is not.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atme gleichmäßig; Zittern ist okay, Durchhängen nicht."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4412,6 +5324,12 @@
     "Hips hiked up — easier, but pointless.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Hüfte wandert nach oben – so ist es leichter, bringt aber nichts."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4441,6 +5359,12 @@
     "Lower back sagging — that strains the spine; better to stop early.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der untere Rücken hängt durch – das belastet die Wirbelsäule; hör lieber früher auf."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4470,6 +5394,12 @@
     "Hollow hold": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hollow Hold"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4499,6 +5429,12 @@
     "Lie on your back, press the lower back into the floor, arms extended overhead.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leg dich auf den Rücken, drück den unteren Rücken in den Boden und streck die Arme über den Kopf."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4528,6 +5464,12 @@
     "Lift the shoulder blades and straight legs 15–20 cm off the floor.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heb die Schulterblätter und die gestreckten Beine 15–20 cm vom Boden ab."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4557,6 +5499,12 @@
     "Hold the hollow shape with the lower back pressed down the whole time.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Halte die Hollow-Position, der untere Rücken bleibt die ganze Zeit fest am Boden."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4586,6 +5534,12 @@
     "Lower back lifting off the floor — raise the legs higher or bend the knees.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der untere Rücken löst sich vom Boden – heb die Beine höher oder beug die Knie."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4615,6 +5569,12 @@
     "Holding your breath — keep breathing shallow and steady.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du hältst die Luft an – atme flach und gleichmäßig weiter."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4644,6 +5604,12 @@
     "Long-lever plank": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plank mit langem Hebel"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4673,6 +5639,12 @@
     "Take a plank on the forearms, elbows well ahead of the shoulders.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geh in die Plank auf den Unterarmen, die Ellenbogen deutlich vor den Schultern."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4702,6 +5674,12 @@
     "Keep one straight line from head to heels, glutes tight.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Halte eine gerade Linie vom Kopf bis zu den Fersen, der Po bleibt angespannt."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4731,6 +5709,12 @@
     "The farther the elbows, the harder — breathe steadily and hold.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je weiter vorn die Ellenbogen, desto schwerer – atme gleichmäßig und halte die Position."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4760,6 +5744,12 @@
     "Hips sagging — tuck the pelvis and brace the abs.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Hüfte hängt durch – richte das Becken auf und spann den Bauch an."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4789,6 +5779,12 @@
     "Elbows too far too soon — increase the lever gradually.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ellenbogen zu früh zu weit vorn – verlängere den Hebel nach und nach."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4818,6 +5814,12 @@
     "Bird dog (hold)": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bird Dog (Halten)"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4847,6 +5849,12 @@
     "On all fours: hands under the shoulders, knees under the hips.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Im Vierfüßlerstand: Hände unter den Schultern, Knie unter der Hüfte."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4876,6 +5884,12 @@
     "Extend the opposite arm and leg into one line with the torso.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Streck einen Arm und das gegenüberliegende Bein in eine Linie mit dem Rumpf."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4905,6 +5919,12 @@
     "Hold without wobbling; pelvis and shoulders stay level.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Halte die Position, ohne zu wackeln; Becken und Schultern bleiben waagerecht."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4934,6 +5954,12 @@
     "Lower back arching as the leg lifts — the leg goes no higher than the torso.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hohlkreuz beim Beinheben – das Bein geht nicht höher als der Rumpf."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4963,6 +5989,12 @@
     "Torso rotating — imagine a glass of water on your lower back.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Rumpf dreht sich mit – stell dir ein Glas Wasser auf deinem unteren Rücken vor."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -4992,6 +6024,12 @@
     "Side plank": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seitliche Plank"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5021,6 +6059,12 @@
     "Lie on your side, elbow under the shoulder, feet stacked.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leg dich auf die Seite, der Ellenbogen unter der Schulter, die Füße übereinander."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5050,6 +6094,12 @@
     "Lift the hips until feet–hips–shoulders form a straight line.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heb die Hüfte an, bis Füße, Hüfte und Schultern eine gerade Linie bilden."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5079,6 +6129,12 @@
     "Hold without letting the hips drop; free hand on the waist or up.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Halte die Position, ohne dass die Hüfte absinkt; die freie Hand an der Taille oder nach oben."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5108,6 +6164,12 @@
     "Hips sagging — keep the body line straight.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Hüfte sinkt ab – halte die Körperlinie gerade."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5137,6 +6199,12 @@
     "Torso tipping forward — shoulders and hips in one plane.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Rumpf kippt nach vorn – Schultern und Hüfte in einer Ebene."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5166,6 +6234,12 @@
     "Side plank with leg raise": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seitliche Plank mit Beinheben"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5195,6 +6269,12 @@
     "Get into a side plank on the elbow.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geh in die seitliche Plank auf dem Ellenbogen."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5224,6 +6304,12 @@
     "Raise the top leg 20–30 cm and hold it straight.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heb das obere Bein 20–30 cm an und halte es gestreckt."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5253,6 +6339,12 @@
     "Hips high, the body in one plane.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Hüfte hoch, der Körper in einer Ebene."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5282,6 +6374,12 @@
     "Hips dropping when the leg lifts — stabilize the plank first.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Hüfte sinkt ab, sobald du das Bein hebst – sorg erst für eine stabile Plank."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5311,6 +6409,12 @@
     "Leg drifting forward — keep it in line with the torso.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Bein wandert nach vorn – halte es in einer Linie mit dem Rumpf."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5340,6 +6444,12 @@
     "Star side plank": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seitliche Plank „Stern“"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5369,6 +6479,12 @@
     "From a side plank, raise the top leg and the top arm at once.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heb aus der seitlichen Plank gleichzeitig das obere Bein und den oberen Arm an."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5398,6 +6514,12 @@
     "The body forms a star: straight line plus raised limbs.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Körper bildet einen Stern: gerade Linie plus angehobener Arm und angehobenes Bein."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5427,6 +6549,12 @@
     "Hips high the whole hold; look straight ahead.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Hüfte bleibt die ganze Haltezeit über hoch; Blick geradeaus."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5456,6 +6584,12 @@
     "Hips dropping — the base line comes first, the star second.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Hüfte sinkt ab – erst die Grundlinie, dann der Stern."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5485,6 +6619,12 @@
     "Body folding forward — shoulders, hips and legs in one plane.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Körper klappt nach vorn – Schultern, Hüfte und Beine in einer Ebene."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5514,6 +6654,12 @@
     "Calf raises": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wadenheben"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5543,6 +6689,12 @@
     "Stand with feet hip-width; hand on a wall for balance.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stell dich hüftbreit hin; eine Hand an der Wand fürs Gleichgewicht."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5572,6 +6724,12 @@
     "Rise as high as you can onto the balls of the feet, pause a second at the top.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drück dich so hoch wie möglich auf die Fußballen, halte oben eine Sekunde."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5601,6 +6759,12 @@
     "Lower slowly; for more range, stand with the toes on a step edge.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senk dich langsam ab; für mehr Bewegungsumfang stell dich mit den Zehen auf eine Stufenkante."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5630,6 +6794,12 @@
     "Fast bouncing — move slowly with a pause at the top.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schnelles Wippen – arbeite langsam, halte oben kurz inne."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5659,6 +6829,12 @@
     "Cutting the range — rise all the way up.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verkürzter Bewegungsumfang – drück dich ganz nach oben."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5688,6 +6864,12 @@
     "Single-leg calf raise": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einbeiniges Wadenheben"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5717,6 +6899,12 @@
     "Stand on one leg, hand on a wall for balance.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stell dich auf ein Bein, eine Hand an der Wand fürs Gleichgewicht."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5746,6 +6934,12 @@
     "Rise onto the ball of the foot as high as possible, pause for a second.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drück dich so hoch wie möglich auf den Fußballen und halte eine Sekunde."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5775,6 +6969,12 @@
     "Lower slowly, heel to the floor (or below step level).": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senk dich langsam ab, die Ferse bis zum Boden (oder unter die Stufenkante)."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5804,6 +7004,12 @@
     "Helping with the other leg — it stays off the floor.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das andere Bein hilft mit – es bleibt komplett in der Luft."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5833,6 +7039,12 @@
     "Ankle rolling outward — press through the big toe.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Knöchel kippt nach außen – drück dich über den großen Zeh hoch."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5862,6 +7074,12 @@
     "Single-leg calf raise with pause": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einbeiniges Wadenheben mit Halten"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5891,6 +7109,12 @@
     "Same as the single-leg raise, but with a 3-second pause at the top.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wie das einbeinige Wadenheben, nur mit 3 Sekunden Halten oben."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5920,6 +7144,12 @@
     "Up in 1 second, hold for 3, down for 3.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 Sekunde hoch, 3 halten, 3 runter."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5949,6 +7179,12 @@
     "Full range beats rep count.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voller Bewegungsumfang zählt mehr als die Wiederholungszahl."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -5978,6 +7214,12 @@
     "Skipping the pause — hold an honest 3 seconds at the top.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Halten wird übersprungen – halte oben ehrliche 3 Sekunden."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6007,6 +7249,12 @@
     "Knee bending — the leg stays straight; only the ankle works.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Knie beugt sich – das Bein bleibt gestreckt; nur das Sprunggelenk arbeitet."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6036,6 +7284,12 @@
     "Single-leg calf raise on a step": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einbeiniges Wadenheben auf der Treppenstufe"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6065,6 +7319,12 @@
     "Stand on one leg with the ball of the foot on a step edge.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stell dich auf ein Bein, mit dem Fußballen auf der Stufenkante."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6094,6 +7354,12 @@
     "Lower the heel below the step level, feel the stretch.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senk die Ferse unter die Stufenkante, spür die Dehnung."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6123,6 +7389,12 @@
     "Rise as high as possible, pause a second, lower for 3 seconds.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drück dich so hoch wie möglich, halte eine Sekunde, senk dich in 3 Sekunden ab."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6152,6 +7424,12 @@
     "Short bottom range — the heel must drop below the step.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zu wenig Weg nach unten – die Ferse muss unter die Stufenkante."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6181,6 +7459,12 @@
     "Bouncing out of the stretch — pause briefly at the bottom too.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wippen aus der Dehnung – halte auch unten kurz inne."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6210,6 +7494,12 @@
     "Horizontal push": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Horizontales Drücken"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6239,6 +7529,12 @@
     "Hinge": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hüftbeuge"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6268,6 +7564,12 @@
     "Pull": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ziehen"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6297,6 +7599,12 @@
     "Vertical push": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vertikales Drücken"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6326,6 +7634,12 @@
     "Lunges": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausfallschritte"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6355,6 +7669,12 @@
     "Core · plank": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rumpf · Plank"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6384,6 +7704,12 @@
     "Core · rotation": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rumpf · Rotation"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6413,6 +7739,12 @@
     "Calves": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waden"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6442,6 +7774,12 @@
     "per side": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "pro Seite"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6471,6 +7809,12 @@
     "sec": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "s"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6500,6 +7844,12 @@
     "Vertical pull": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vertikales Ziehen"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6529,6 +7879,12 @@
     "Bar hang": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hängen an der Stange"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6558,6 +7914,12 @@
     "Negative pull-up": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Negative Klimmzüge"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6587,6 +7949,12 @@
     "Partial pull-up": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Halbe Klimmzüge"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6616,6 +7984,12 @@
     "Pull-up": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klimmzüge"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6645,6 +8019,12 @@
     "Grab the bar slightly wider than shoulder width, palms facing away.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Greif die Stange etwas breiter als schulterbreit, Handflächen von dir weg."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6674,6 +8054,12 @@
     "Hang on straight arms and pull the shoulders slightly down — an active hang, shoulders away from the ears.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Häng dich mit gestreckten Armen an die Stange und zieh die Schultern leicht nach unten – aktiv hängen, Schultern weg von den Ohren."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6703,6 +8089,12 @@
     "Keep the body tight, legs together; breathe steadily for the whole hang.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Halte den Körper unter Spannung, die Beine zusammen; atme gleichmäßig, solange du hängst."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6732,6 +8124,12 @@
     "Shoulders at the ears — pull the shoulder blades down; the hang must be active.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schultern an den Ohren – zieh die Schulterblätter nach unten; das Hängen muss aktiv sein."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6761,6 +8159,12 @@
     "Swinging — keep the body braced, no pendulum.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schwingen – halte den Körper unter Spannung, kein Pendeln."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6790,6 +8194,12 @@
     "Step on a support or jump so the chin ends up above the bar.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stell dich auf eine Erhöhung oder spring hoch, sodass das Kinn über der Stange landet."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6819,6 +8229,12 @@
     "Lower yourself slowly to straight arms over 3–5 seconds, controlling every inch.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lass dich in 3–5 Sekunden langsam ab, bis die Arme gestreckt sind, und kontrolliere jeden Zentimeter."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6848,6 +8264,12 @@
     "Get back on the support and repeat — no pulling up needed.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steig wieder auf die Erhöhung und wiederhole – hochziehen musst du dich nicht."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6877,6 +8299,12 @@
     "Dropping instead of lowering — the negative takes at least 3 seconds.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fallenlassen statt Ablassen – die Negative dauert mindestens 3 Sekunden."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6906,6 +8334,12 @@
     "Relaxed shoulders at the bottom — keep the shoulder blades engaged to the end.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lockere Schultern unten – halte die Schulterblätter bis zum Schluss aktiv."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6935,6 +8369,12 @@
     "Hang on straight arms, grip slightly wider than shoulders, palms facing away.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Häng dich mit gestreckten Armen an die Stange, Griff etwas breiter als schulterbreit, Handflächen von dir weg."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6964,6 +8404,12 @@
     "Start by squeezing the shoulder blades and pull up to a right angle at the elbows.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Führ zuerst die Schulterblätter zusammen und zieh dich hoch, bis die Ellenbogen einen rechten Winkel bilden."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -6993,6 +8439,12 @@
     "Lower slowly to straight arms — that's one rep.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lass dich langsam ab, bis die Arme gestreckt sind – das ist eine Wiederholung."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -7022,6 +8474,12 @@
     "Jerking and kicking with the legs — only the back and arms work.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ruckartiges Ziehen und Schwung aus den Beinen – nur Rücken und Arme arbeiten."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -7051,6 +8509,12 @@
     "Cutting the bottom range — every rep starts from fully straight arms.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verkürzter Weg unten – jede Wiederholung beginnt mit komplett gestreckten Armen."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -7080,6 +8544,12 @@
     "Pull up, starting by squeezing the shoulder blades, until the chin rises above the bar.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Führ zuerst die Schulterblätter zusammen und zieh dich hoch, bis das Kinn über der Stange ist."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -7109,6 +8579,12 @@
     "Lower under control to fully straight arms, no swinging.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lass dich kontrolliert ab, bis die Arme komplett gestreckt sind, ohne zu schwingen."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -7138,6 +8614,12 @@
     "Swinging and jerking the body — kipping doesn't count.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schwingen und Rucken mit dem Körper – Klimmzüge mit Schwung zählen nicht."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
@@ -7167,6 +8649,12 @@
     "Half range at the bottom — each rep starts from straight arms.": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Halber Weg unten – jede Wiederholung beginnt mit gestreckten Armen."
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
