@@ -5355,6 +5355,52 @@
         }
       }
     },
+    "Pause" : {
+      "comment" : "Freezes a warm-up move or cool-down stretch where it stands. A control, so it takes the same verb form as “Stop”.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pausar"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pausar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пауза"
+          }
+        }
+      }
+    },
+    "Paused" : {
+      "comment" : "The state under a frozen countdown, and what VoiceOver announces. Not the control — that one says “Resume”.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En pausa"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Em pausa"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На паузе"
+          }
+        }
+      }
+    },
     "plan" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5893,6 +5939,29 @@
         }
       }
     },
+    "Resume" : {
+      "comment" : "Back into the frozen position: the countdown continues from the seconds it stopped on, never from the top. Same word the interrupted-workout card uses.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuar"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Продолжить"
+          }
+        }
+      }
+    },
     "resume.continue" : {
       "localizations" : {
         "en" : {
@@ -5917,6 +5986,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Продолжить"
+          }
+        }
+      }
+    },
+    "Resumed" : {
+      "comment" : "Announced to VoiceOver when a paused block starts moving again. A state, not a control.",
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuamos"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuando"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Продолжаем"
           }
         }
       }

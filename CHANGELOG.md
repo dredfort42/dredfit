@@ -2,6 +2,41 @@
 
 ## Unreleased
 
+### Warm-up and cool-down: a pause for the guided blocks (issue #61)
+
+- The guided blocks are the only part of a workout that runs strictly on
+  timers. Working sets are self-paced, and a rest timer that kept counting
+  while you answered the door merely granted extra rest — but in the warm-up
+  and the cool-down the block kept marching through positions without you.
+  The only two options were to let it run past, so the flow pretended you did
+  positions you didn't, or to throw the whole block away. The honest move —
+  pausing — did not exist, and this app is built for people training at home,
+  where the doorbell, the kettle and a child are normal.
+- Every timed screen of both blocks now carries a **Pause**: the position
+  countdowns, the "Get ready" transitions, the "Switch sides" pause. Paused,
+  the countdown stops on the second it showed, the number dims, the unit under
+  it says so, and every tone ahead of it goes quiet. Like every other timer in
+  the app the pause is wall-clock based — with no deadline left to run out, a
+  locked screen or a backgrounded app changes nothing.
+- **Resume** counts you back in rather than dropping you mid-position: five
+  seconds naming the position, the same 3-2-1 into the go a "Get ready" plays,
+  and then the interval continues from the seconds it froze on — never from
+  the top, never a position later. A paused transition is the one exception:
+  it already is a way back in, so it simply carries on.
+- The pattern already half-existed, twice. Opening a position's technique
+  sheet freezes the countdown (reading is not stretching), and the "Get ready"
+  beat is a screen where the flow already knows how to stand still. This
+  promotes that hidden freeze to a control you can find. Where the two meet,
+  the user's pause wins: closing the mini-sheet never restarts a block that
+  was stopped on purpose.
+- Nothing about the numbers moves. The pause is user-initiated, so
+  `estimatedTotalMin` keeps promising what an uninterrupted flow delivers, and
+  the duration written to Health stays the wall-clock truth of the session.
+  Working sets and their rest timers are untouched — they are self-paced by
+  design. The engine and the golden fixtures are untouched.
+- VoiceOver announces "Paused" and "Resumed", and the state is readable under
+  the countdown. Strings in all four languages.
+
 ### Warm-up and cool-down: a "Get ready" transition before each position (issue #52)
 
 - Both guided blocks used to start every position cold: the 30 seconds of a
