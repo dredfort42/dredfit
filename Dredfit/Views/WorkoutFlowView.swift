@@ -205,6 +205,12 @@ struct WorkoutFlowView: View {
             UIApplication.shared.isIdleTimerDisabled = false
             liveActivity.end()
         }
+        // A held block is the one state where the app knows nobody is
+        // training, so it stops holding the screen open. One place rather
+        // than one per path: every way in and out of a pause runs through it.
+        .onChange(of: blockPause.isHeld) { _, held in
+            UIApplication.shared.isIdleTimerDisabled = !held
+        }
         .sheet(item: $techniqueExercise) { ex in
             TechniqueSheet(exercise: ex)
         }

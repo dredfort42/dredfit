@@ -88,12 +88,12 @@ The engine was first written and verified as a JavaScript reference (8,009 prope
 
 ## Testing
 
-Three layers, 314 automated tests:
+Three layers, 315 automated tests:
 
 | Layer | Count | What it covers |
 | --- | --- | --- |
 | Core invariants + golden | 63 | encoding bijectivity, rotation properties, pull:push balance, deload timing, override caps, skip semantics, bar-branch independence, lenient state decode, feedback replay safety, the silent decay and its non-stacking with the comeback, reference parity |
-| App unit tests | 205 | persistence round-trips, corrupted-file quarantine, a frozen journal and its reload, legacy-record migration, in-progress snapshot validity, rest-day calendar math, Health export ordering and idempotence, the one-shot reminder window, day-anchor rollover, the widget snapshot, its backward compatibility and the per-day timeline words, the variation-debut badge, share-card wording and its level curve, the short workout's picks, cool-down composition, the get-ready transition and the minutes both blocks fit into, the way back in from a pause, the jubilee's then-and-now comparison, the life-benefit override |
+| App unit tests | 206 | persistence round-trips, corrupted-file quarantine, a frozen journal and its reload, legacy-record migration, in-progress snapshot validity, rest-day calendar math, Health export ordering and idempotence, the one-shot reminder window, day-anchor rollover, the widget snapshot, its backward compatibility and the per-day timeline words, the variation-debut badge, share-card wording and its level curve, the short workout's picks, cool-down composition, the get-ready transition and the minutes both blocks fit into, the way back in from a pause, the jubilee's then-and-now comparison, the life-benefit override |
 | UI tests | 46 | the full workout flow, in-workout adjustment, hold mis-tap grace, resume after a kill, the three exit paths, the short workout, the cool-down, the side-switch pause, the get-ready transition, pausing and resuming a guided block, position technique sheets, history, relaunch persistence, and the release smoke walked end to end in English and Russian |
 
 Plus [TESTPLAN.md](TESTPLAN.md): a manual QA checklist (locale passes, date rollover, backgrounding during rest, device-only integrations) and a registry of found issues with their status.

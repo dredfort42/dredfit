@@ -535,6 +535,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 35.15 | VoiceOver | The control reads "Pause" / "Resume"; toggling announces "Paused" / "Resumed", and the state is also readable under the countdown |
 | 35.16 | All four languages | «Пауза» / "Pausar" / "Pausar" and «Продолжить» / "Continuar" / "Continuar"; the state reads «На паузе» / "En pausa" / "Em pausa" |
 | 35.17 | es / pt-BR at the largest accessibility sizes | The control keeps its own line under the countdown, the content scrolls as in §34.12, and both footer escapes stay pinned |
+| 35.18 | Pause and leave the phone alone (device only) | The screen dims and locks on the system Auto-Lock as usual — the workout stops holding it open, because a held block is the one state where the app knows nobody is training. Resuming, skipping or leaving the block puts the hold back |
 
 ---
 
