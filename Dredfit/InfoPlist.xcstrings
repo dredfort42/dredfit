@@ -16,6 +16,12 @@
     "NSHealthShareUsageDescription" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dredfit liest deine Health-Daten nie. Diese Berechtigung gehört einfach zur API, über die Trainings gespeichert werden."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -45,6 +51,12 @@
     "NSHealthUpdateUsageDescription" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dredfit speichert abgeschlossene Trainings in Health. Sonst wird nichts geteilt."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",

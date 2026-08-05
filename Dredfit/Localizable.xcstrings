@@ -9,6 +9,12 @@
     },
     " /side" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " /Seite"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -31,6 +37,12 @@
     },
     "cooldown.calfWall.step1" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hände an der Wand, ein Bein nach hinten gestellt, Ferse am Boden."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -59,6 +71,12 @@
     },
     "cooldown.calfWall.step2" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hinteres Knie gestreckt; lehn dich zur Wand, bis es in der Wade zieht."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -87,6 +105,12 @@
     },
     "cooldown.calfWall.step3" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Ferse bleibt unten – nicht wippen."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -115,6 +139,12 @@
     },
     "cooldown.chestWall.step1" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unterarm an der Wand, Ellenbogen auf Schulterhöhe."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -143,6 +173,12 @@
     },
     "cooldown.chestWall.step2" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dreh die Brust von der Wand weg, bis es vorn in der Schulter zieht."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -171,6 +207,12 @@
     },
     "cooldown.chestWall.step3" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schulter tief, weg vom Ohr – dreh dich bis zur Dehnung, nicht bis zum Schmerz."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -199,6 +241,12 @@
     },
     "cooldown.forwardFold.step1" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Füße hüftbreit; beug dich aus der Hüfte nach vorn, Knie locker."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -227,6 +275,12 @@
     },
     "cooldown.forwardFold.step2" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lass Kopf und Arme schwer hängen – streck dich nicht zum Boden."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -255,6 +309,12 @@
     },
     "cooldown.forwardFold.step3" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Roll dich langsam wieder auf, Wirbel für Wirbel."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -283,6 +343,12 @@
     },
     "cooldown.hipFlexors.step1" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geh auf ein Knie, der andere Fuß steht vorn."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -311,6 +377,12 @@
     },
     "cooldown.hipFlexors.step2" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Richte das Becken auf und schieb es leicht nach vorn, bis es vorn in der Hüfte zieht."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -339,6 +411,12 @@
     },
     "cooldown.hipFlexors.step3" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Halte die Position und atme – nicht wippen."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -367,6 +445,12 @@
     },
     "cooldown.latStretch.step1" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Halte dich mit beiden Händen an einer Stütze auf Hüfthöhe fest, Füße unter der Hüfte."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -395,6 +479,12 @@
     },
     "cooldown.latStretch.step2" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schieb die Hüfte mit gestreckten Armen nach hinten, bis es seitlich im Rücken zieht."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -423,6 +513,12 @@
     },
     "cooldown.latStretch.step3" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopf zwischen den Armen; atme ruhig."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -451,6 +547,12 @@
     },
     "cooldown.lyingTwist.step1" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auf dem Rücken, Knie angewinkelt; lass beide Knie zu einer Seite sinken."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -479,6 +581,12 @@
     },
     "cooldown.lyingTwist.step2" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Schultern bleiben am Boden, der Kopf dreht sich zur anderen Seite."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -507,6 +615,12 @@
     },
     "cooldown.lyingTwist.step3" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lass das Gewicht von allein sinken – drück die Knie nicht nach unten."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -535,6 +649,12 @@
     },
     "cooldown.restPose.step1" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Knie am Boden, setz dich zurück auf die Fersen."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -563,6 +683,12 @@
     },
     "cooldown.restPose.step2" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beug dich nach vorn, Arme ausgestreckt, Stirn zum Boden."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -591,6 +717,12 @@
     },
     "cooldown.restPose.step3" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atme langsam und lenk den Atem in den Rücken."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -619,6 +751,12 @@
     },
     "cooldown.seatedGlute.step1" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Setz dich aufrecht hin; leg einen Knöchel auf das andere Knie."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -647,6 +785,12 @@
     },
     "cooldown.seatedGlute.step2" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beug dich mit geradem Rücken aus der Hüfte nach vorn, bis es im Gesäß zieht."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -675,6 +819,12 @@
     },
     "cooldown.seatedGlute.step3" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Knie sinkt von allein zur Seite – drück es nicht nach unten."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -703,6 +853,12 @@
     },
     "cooldown.wrists.step1" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arm gestreckt, Handfläche nach unten; zieh die Finger sanft nach unten und zu dir."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -731,6 +887,12 @@
     },
     "cooldown.wrists.step2" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dann dreh die Handfläche nach oben und zieh wieder sanft."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -759,6 +921,12 @@
     },
     "cooldown.wrists.step3" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zieh nur bis zur Dehnung – wenn es sticht oder kribbelt, lass locker."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -787,6 +955,12 @@
     },
     "positionSheet.cooldown" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abwärmen · %lld s"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -815,6 +989,12 @@
     },
     "positionSheet.cooldownPerSide" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abwärmen · %lld s pro Seite"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -843,6 +1023,12 @@
     },
     "positionSheet.warmup" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aufwärmen · %lld s"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -871,6 +1057,12 @@
     },
     "warmup.armCircles.step1" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kreise mit gestreckten Armen nach vorn – große, langsame Kreise."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -899,6 +1091,12 @@
     },
     "warmup.armCircles.step2" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wechsle nach der Hälfte die Richtung und kreise rückwärts."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -927,6 +1125,12 @@
     },
     "warmup.catCow.step1" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Im Vierfüßlerstand: Atme aus, mach den Rücken rund und zieh das Kinn zur Brust."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -955,6 +1159,12 @@
     },
     "warmup.catCow.step2" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atme ein, geh sanft ins Hohlkreuz und schau leicht nach oben – eine langsame Welle pro Atemzug."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -983,6 +1193,12 @@
     },
     "warmup.halfSquats.step1" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Setz dich nach hinten in die halbe Kniebeuge, die Arme nach vorn für die Balance."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1011,6 +1227,12 @@
     },
     "warmup.halfSquats.step2" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Fersen bleiben am Boden; komm gleichmäßig hoch, ohne die Knie durchzustrecken."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1039,6 +1261,12 @@
     },
     "warmup.hipCircles.step1" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hände in die Hüften, Füße schulterbreit; kreise langsam mit der Hüfte."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1067,6 +1295,12 @@
     },
     "warmup.hipCircles.step2" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lass die Knie locker und wechsle nach der Hälfte die Richtung."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1095,6 +1329,12 @@
     },
     "warmup.marching.step1" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marschiere in ruhigem Tempo auf der Stelle und heb die Knie auf Hüfthöhe."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1123,6 +1363,12 @@
     },
     "warmup.marching.step2" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lass die Arme frei mitschwingen, die Schultern bleiben locker."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1151,6 +1397,12 @@
     },
     "warmup.torsoRotations.step1" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Füße fest am Boden, die Hüfte zeigt nach vorn; dreh den Oberkörper von Seite zu Seite."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1179,6 +1431,12 @@
     },
     "warmup.torsoRotations.step2" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lass die Arme locker mitschwingen – Schwung, nicht Kraft."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1207,6 +1465,12 @@
     },
     "“Finish now” keeps what you've done and goes to the rating — the remaining exercises are marked as skipped." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Jetzt beenden“ behält, was du schon gemacht hast, und öffnet die Einschätzung – die restlichen Übungen werden als übersprungen markiert."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1230,6 +1494,12 @@
     "“Less · On plan · More” — that is enough. If you want to be exact, tap “Went differently” right on the exercise and put in your number." : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Weniger · Nach Plan · Mehr“ – das reicht. Wenn du es genau haben willst, tippe direkt in der Übung auf „Lief anders“ und trag deine Zahl ein."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1252,6 +1522,12 @@
     },
     "“On plan” adds a step, “more” adds two, “less” takes one away. An exact number for a single exercise outweighs the overall rating. From a standing start an exact number sets the level immediately — the first workout calibrates the system. After that the level climbs at most two steps per workout." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Nach Plan“ bringt eine Stufe, „mehr“ zwei, „weniger“ nimmt eine weg. Eine genaue Zahl bei einer einzelnen Übung zählt mehr als die Gesamteinschätzung. Ganz am Anfang setzt eine genaue Zahl das Level sofort – das erste Training kalibriert das System. Danach steigt das Level um höchstens zwei Stufen pro Training."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1274,6 +1550,12 @@
     },
     "%@ · %lld×%lld" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %lld×%lld"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1302,6 +1584,12 @@
     },
     "%@ · %lld×%lld s" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %lld×%lld s"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1330,6 +1618,12 @@
     },
     "%@ · set %lld of %lld" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · Satz %lld von %lld"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1352,6 +1646,12 @@
     },
     "%@ per side" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ pro Seite"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1374,6 +1674,12 @@
     },
     "%@, not finished" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, nicht beendet"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1402,6 +1708,12 @@
     },
     "%@, skipped" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, übersprungen"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1437,6 +1749,12 @@
       "comment" : "A label displaying the current exercise index and the total number of exercises.",
       "isCommentAutoGenerated" : true,
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld / %2$lld"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1465,6 +1783,12 @@
     },
     "%lld × %lld s%@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld × %lld s%@"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1487,6 +1811,12 @@
     },
     "%lld × %lld%@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld × %lld%@"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1509,6 +1839,24 @@
     },
     "%lld completed" : {
       "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld abgeschlossen"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld abgeschlossen"
+                }
+              }
+            }
+          }
+        },
         "es" : {
           "variations" : {
             "plural" : {
@@ -1555,6 +1903,24 @@
     },
     "%lld levels" : {
       "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Level"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Level"
+                }
+              }
+            }
+          }
+        },
         "en" : {
           "variations" : {
             "plural" : {
@@ -1643,6 +2009,24 @@
     },
     "%lld months since your first workout" : {
       "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Monat seit deinem ersten Training"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Monate seit deinem ersten Training"
+                }
+              }
+            }
+          }
+        },
         "en" : {
           "variations" : {
             "plural" : {
@@ -1731,6 +2115,12 @@
     },
     "%lld reps" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wdh."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1815,6 +2205,12 @@
     },
     "%lld s" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld s"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1837,6 +2233,34 @@
     },
     "%lld seconds" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@unit@"
+          },
+          "substitutions" : {
+            "unit" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "Sekunde"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "Sekunden"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1965,6 +2389,24 @@
     },
     "%lld seconds of rest left" : {
       "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Noch %lld Sekunde Pause"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Noch %lld Sekunden Pause"
+                }
+              }
+            }
+          }
+        },
         "en" : {
           "variations" : {
             "plural" : {
@@ -2029,6 +2471,24 @@
     },
     "%lld weeks since your first workout" : {
       "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Woche seit deinem ersten Training"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Wochen seit deinem ersten Training"
+                }
+              }
+            }
+          }
+        },
         "en" : {
           "variations" : {
             "plural" : {
@@ -2117,6 +2577,24 @@
     },
     "%lld workouts" : {
       "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Training"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Trainings"
+                }
+              }
+            }
+          }
+        },
         "en" : {
           "variations" : {
             "plural" : {
@@ -2205,6 +2683,24 @@
     },
     "%lld workouts behind you" : {
       "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Training hinter dir"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Trainings hinter dir"
+                }
+              }
+            }
+          }
+        },
         "en" : {
           "variations" : {
             "plural" : {
@@ -2293,6 +2789,12 @@
     },
     "+1 set in %lld" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+1 Satz in %lld"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2315,6 +2817,34 @@
     },
     "≈ %lld min · %lld exercises" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ %lld min · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg Übung"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg Übungen"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2443,6 +2973,12 @@
     },
     "3–4 workouts a week is the sweet spot: strength grows while joints and tendons keep up. Muscle adapts in weeks, tendons in months — rest days protect the slower half." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3–4 Trainings pro Woche sind die goldene Mitte: Die Kraft wächst, und Gelenke und Sehnen kommen mit. Muskeln passen sich in Wochen an, Sehnen in Monaten – Ruhetage schützen die langsamere Hälfte."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2471,6 +3007,12 @@
     },
     "2–3 rest days a week is the recommended rhythm" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2–3 Ruhetage pro Woche sind der empfohlene Rhythmus"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2499,6 +3041,12 @@
     },
     "8–15 reps" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "8–15 Wdh."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2521,6 +3069,12 @@
     },
     "20–55 sec" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "20–55 s"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2543,6 +3097,12 @@
     },
     "A break is normal. Let's start a couple of steps easier — a gentler way back into the rhythm, and the levels catch up quickly." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Trainingspause ist normal. Fangen wir ein paar Stufen leichter an – so findest du sanfter in den Rhythmus zurück, und die Level holen schnell auf."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2565,6 +3125,12 @@
     },
     "A questionnaire can be wrong; what you actually did cannot. Dredfit finds your level from real workouts and keeps the load right at the edge of what you can manage." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Fragebogen kann sich irren; was du tatsächlich gemacht hast, nicht. Dredfit findet dein Level anhand echter Trainings und hält die Belastung genau an der Grenze dessen, was du schaffst."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2587,6 +3153,12 @@
     },
     "A skipped exercise simply doesn't count: its level stays where it was. No penalty, no rollback." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine übersprungene Übung zählt einfach nicht: Das Level bleibt, wo es war. Keine Strafe, kein Zurückstufen."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2609,6 +3181,12 @@
     },
     "About" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Über die App"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2632,6 +3210,12 @@
     "actual" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tatsächlich"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2654,6 +3238,12 @@
     },
     "actual %lld" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tatsächlich %lld"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2676,6 +3266,12 @@
     },
     "Add past workouts to Health?" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Frühere Trainings zu Health hinzufügen?"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2699,6 +3295,12 @@
     "Adjust by exercise" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pro Übung anpassen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2721,6 +3323,12 @@
     },
     "Adjusted" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Angepasst"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2743,6 +3351,12 @@
     },
     "After two weeks away the plan meets you a couple of steps lower — further down the longer the break. Nothing is lost: the levels climb back quickly, and coming back is the only thing that matters." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach zwei Wochen Trainingspause holt dich der Plan ein paar Stufen tiefer ab – je länger du weg warst, desto tiefer. Nichts ist verloren: Die Level klettern schnell wieder hoch, und allein das Zurückkommen zählt."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2766,6 +3380,12 @@
     "All your data stays on your device. If you have problems with your joints, heart or blood pressure, talk to a doctor first. Sharp pain during an exercise always means stop." : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle deine Daten bleiben auf deinem Gerät. Bei Problemen mit Gelenken, Herz oder Blutdruck hol dir zuerst ärztlichen Rat. Stechender Schmerz während einer Übung heißt immer: aufhören."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2788,6 +3408,12 @@
     },
     "Applies to %lld of %lld — %@ not finished, stays put" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gilt für %lld von %lld – %@ nicht beendet, Level bleibt"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2810,6 +3436,12 @@
     },
     "Applies to %lld of %lld — %@ skipped, stays put" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gilt für %lld von %lld – %@ übersprungen, Level bleibt"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2832,6 +3464,12 @@
     },
     "Applies to %lld of %lld — skipped exercises stay put" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gilt für %lld von %lld – Übersprungenes bleibt, wo es ist"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2855,6 +3493,12 @@
     "Arm circles" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Armkreisen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2877,6 +3521,12 @@
     },
     "Backup" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2899,6 +3549,12 @@
     },
     "Breaks" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trainingspausen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2921,6 +3577,12 @@
     },
     "Calendar" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kalender"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2943,6 +3605,12 @@
     },
     "Cancel" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abbrechen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2966,6 +3634,12 @@
     "Cat-cow" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Katze-Kuh"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2988,6 +3662,12 @@
     },
     "Common mistakes" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Häufige Fehler"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3010,6 +3690,12 @@
     },
     "completed" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "abgeschlossen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3032,6 +3718,12 @@
     },
     "Completed today ✓" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heute geschafft ✓"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3055,6 +3747,12 @@
     "Continue" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weiter"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3077,6 +3775,12 @@
     },
     "Continue the workout?" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Training fortsetzen?"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3099,6 +3803,12 @@
     },
     "COOL-DOWN" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ABWÄRMEN"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3127,6 +3837,12 @@
     },
     "cooldown.calfWall" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wadendehnung an der Wand"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3155,6 +3871,12 @@
     },
     "cooldown.chestWall" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brust und Schultern an der Wand"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3183,6 +3905,12 @@
     },
     "cooldown.forwardFold" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorbeuge"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3211,6 +3939,12 @@
     },
     "cooldown.hipFlexors" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hüftbeuger dehnen"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3239,6 +3973,12 @@
     },
     "cooldown.latStretch" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Latissimus mit Stütze"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3267,6 +4007,12 @@
     },
     "cooldown.lyingTwist" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drehung im Liegen"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3295,6 +4041,12 @@
     },
     "cooldown.perSide" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "15 s pro Seite"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3323,6 +4075,12 @@
     },
     "cooldown.restPose" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ruhehaltung"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3351,6 +4109,12 @@
     },
     "cooldown.seatedGlute" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesäßdehnung im Sitzen"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3379,6 +4143,12 @@
     },
     "cooldown.skip" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abwärmen überspringen"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3407,6 +4177,12 @@
     },
     "cooldown.wrists" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Handgelenke und Unterarme"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3435,6 +4211,12 @@
     },
     "Couldn't read this file." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Datei konnte nicht gelesen werden."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3459,6 +4241,12 @@
       "comment" : "A line on a level chart.",
       "isCommentAutoGenerated" : true,
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datum"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3481,6 +4269,12 @@
     },
     "Deload" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entlastung"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3503,6 +4297,12 @@
     },
     "Did far more than planned? Tap “Went differently” and enter what you actually did — the system will land on your level right away." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deutlich mehr geschafft als geplant? Tippe auf „Lief anders“ und trage ein, was du tatsächlich gemacht hast – das System stellt sich sofort auf dein Level ein."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3525,6 +4325,12 @@
     },
     "Discard workout" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Training verwerfen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3547,6 +4353,12 @@
     },
     "Done" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fertig"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3570,6 +4382,12 @@
     "Dredfit gives you a plan, you say how it went, and the next plan shifts. The first workout is deliberately easy — it is the starting point. Answer honestly afterwards and the load becomes yours, step by step." : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dredfit gibt dir einen Plan, du sagst, wie es lief, und der nächste Plan zieht nach. Das erste Training ist bewusst leicht – es ist der Ausgangspunkt. Antworte danach ehrlich, und die Belastung passt sich dir Stufe für Stufe an."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3592,6 +4410,12 @@
     },
     "Easy, could do more" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leicht, da war noch mehr drin"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3614,6 +4438,12 @@
     },
     "Equipment" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Equipment"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3636,6 +4466,12 @@
     },
     "Every other workout swaps the row for a vertical pull" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jedes zweite Training ersetzt das Rudern durch vertikales Ziehen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3658,6 +4494,12 @@
     },
     "Exit" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verlassen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3680,6 +4522,24 @@
     },
     "Export %lld workouts" : {
       "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Training exportieren"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Trainings exportieren"
+                }
+              }
+            }
+          }
+        },
         "en" : {
           "variations" : {
             "plural" : {
@@ -3768,6 +4628,12 @@
     },
     "Export history" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verlauf exportieren"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3790,6 +4656,12 @@
     },
     "feedback.skipped" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Übersprungen"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3818,6 +4690,12 @@
     },
     "Fewer" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weniger"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3840,6 +4718,12 @@
     },
     "Finish now" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jetzt beenden"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3863,6 +4747,12 @@
     "Get ready" : {
       "comment" : "Kicker over the name of the position about to start.",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mach dich bereit"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3886,6 +4776,12 @@
     "Get ready: %@" : {
       "comment" : "VoiceOver label of the transition screen: the whole message in one phrase.",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mach dich bereit: %@"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3908,6 +4804,12 @@
     },
     "Got it" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verstanden"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3931,6 +4833,12 @@
     "Half squats" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Halbe Kniebeugen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3953,6 +4861,12 @@
     },
     "Health" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Health"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3975,6 +4889,12 @@
     },
     "Highlighted days are rest days" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markierte Tage sind Ruhetage"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3998,6 +4918,12 @@
     "Hip circles" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hüftkreisen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4021,6 +4947,12 @@
     "History" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verlauf"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4043,6 +4975,12 @@
     },
     "How did it go?" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wie lief es?"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4065,6 +5003,12 @@
     },
     "How it works" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "So funktioniert es"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4088,6 +5032,12 @@
     "I'm ready" : {
       "comment" : "Starts the position at once, skipping the rest of the transition. Translated by sense: the neutral verb every language already uses for Start, since “ready” takes a gendered adjective in ru/es/pt-BR.",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bereit"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4110,6 +5060,12 @@
     },
     "Import history" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verlauf importieren"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4132,6 +5088,12 @@
     },
     "Import replaces your current history and settings." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Import ersetzt deinen aktuellen Verlauf und deine Einstellungen."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4155,6 +5117,12 @@
     "It adjusts like a thermostat." : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es passt sich an wie ein Thermostat."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4177,6 +5145,12 @@
     },
     "Last time you chose: %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine letzte Wahl: %@"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4199,6 +5173,12 @@
     },
     "Leave as it was" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "So lassen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4221,6 +5201,12 @@
     },
     "Leave the workout?" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Training verlassen?"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4245,6 +5231,12 @@
       "comment" : "A line on a level chart.",
       "isCommentAutoGenerated" : true,
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Level"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4268,6 +5260,12 @@
     "level %lld" : {
       "comment" : "Share card: the level after the workout count, e.g. \"42 workouts · level 137\".",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Level %lld"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4296,6 +5294,12 @@
     },
     "Levels go back to the beginning. Your history stays." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Level fangen wieder von vorn an. Dein Verlauf bleibt."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4318,6 +5322,12 @@
     },
     "life.calf" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Federkraft in jedem Schritt: Treppensteigen und Laufen fühlen sich für Knie und Füße leichter an."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4346,6 +5356,12 @@
     },
     "life.core_anti_ext" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein unterer Rücken, der langes Sitzen, Bücken und einen schweren Rucksack wegsteckt."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4374,6 +5390,12 @@
     },
     "life.core_rot" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gewicht in einer Hand tragen, sich zur Seite strecken – ein Rumpf, der hält."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4402,6 +5424,12 @@
     },
     "life.hinge" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Tasche, ein Kind, einen Koffer heben – aus der Hüfte, nicht aus dem unteren Rücken."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4430,6 +5458,12 @@
     },
     "life.kicker" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Im Alltag"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4458,6 +5492,12 @@
     },
     "life.lunge" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein sicherer Schritt auf der Treppe, bergauf, vom Bordstein – Gleichgewicht unter Last."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4486,6 +5526,12 @@
     },
     "life.override.pull_bar-4" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das eigene Körpergewicht heben – die Grundlage für jede körperliche Aufgabe."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4514,6 +5560,12 @@
     },
     "life.override.push_h-2" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das eigene Körpergewicht – voll unter Kontrolle."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4542,6 +5594,12 @@
     },
     "life.override.push_v-4" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der ganze Körper über den Händen – ein seltenes Maß an Kontrolle."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4570,6 +5628,12 @@
     },
     "life.override.squat-3" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auf einem Bein vom Boden aufstehen – ohne Hände, ohne Stütze."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4598,6 +5662,12 @@
     },
     "life.pull" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein gerader Rücken und offene Schultern nach einem Tag am Schreibtisch."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4626,6 +5696,12 @@
     },
     "life.pull_bar" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das eigene Körpergewicht halten und hochziehen – das ehrlichste Maß für Kraft."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4654,6 +5730,12 @@
     },
     "life.push_h" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine schwere Tür aufdrücken, vom Boden aufstehen, einen Sturz abfangen."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4682,6 +5764,12 @@
     },
     "life.push_v" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einen Koffer aufs oberste Regal heben, bis ins höchste Schrankfach greifen."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4710,6 +5798,12 @@
     },
     "life.squat" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vom Boden oder vom Stuhl aufstehen, die Treppe hochlaufen – Kraft, die du jeden Tag brauchst."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4739,6 +5833,12 @@
     "Marching in place" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marschieren auf der Stelle"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4761,6 +5861,12 @@
     },
     "milestone.done" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fertig"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4789,6 +5895,12 @@
     },
     "More" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mehr"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4811,6 +5923,12 @@
     },
     "new variation" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "neue Variante"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4833,6 +5951,12 @@
     },
     "New variation" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neue Variante"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4855,6 +5979,12 @@
     },
     "Next" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nächstes"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4877,6 +6007,12 @@
     },
     "Next · %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nächstes · %@"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4899,6 +6035,12 @@
     },
     "next in %lld" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "neue in %lld"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4921,6 +6063,12 @@
     },
     "Next month" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nächster Monat"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4943,6 +6091,12 @@
     },
     "Next up" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als Nächstes"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4965,6 +6119,12 @@
     },
     "Next workout %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nächstes Training %@"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4987,6 +6147,12 @@
     },
     "next workout eases off" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "das nächste Training wird leichter"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5009,6 +6175,12 @@
     },
     "Next: workout %lld · %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als Nächstes: Training %lld · %@"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5031,6 +6203,12 @@
     },
     "No details saved for this workout." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zu diesem Training sind keine Details gespeichert."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5054,6 +6232,12 @@
     "No questions about your goal, your level or how much time you have. Open the app and train — the first workout is already waiting. About 33 minutes, no equipment." : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Fragen nach deinem Ziel, deinem Level oder deiner Zeit. Öffne die App und trainiere – das erste Training wartet schon. Rund 33 Minuten, ohne Geräte."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5076,6 +6260,12 @@
     },
     "not finished" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nicht beendet"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5098,6 +6288,24 @@
     },
     "Now %lld sets" : {
       "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Jetzt %lld Satz"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Jetzt %lld Sätze"
+                }
+              }
+            }
+          }
+        },
         "en" : {
           "variations" : {
             "plural" : {
@@ -5186,6 +6394,12 @@
     },
     "Now: %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jetzt: %@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5214,6 +6428,12 @@
     },
     "OK" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5236,6 +6456,12 @@
     },
     "on %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "am %@"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5246,6 +6472,12 @@
     },
     "On plan" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach Plan"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5268,6 +6500,12 @@
     },
     "One number per movement: it encodes both the variation and the reps. Top out the reps and the variation gets harder while the count starts over — and on the harder variations the count starts lower, so the change lands softly. The fourth variation is the last one — above it the sets grow instead, from three to five." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Zahl pro Bewegung: Sie kodiert Variante und Wiederholungen zugleich. Erreichst du die Obergrenze der Wiederholungen, wird die Variante schwerer und die Zählung beginnt von vorn – bei den schwereren Varianten startet sie niedriger, sodass der Übergang sanft ausfällt. Die vierte Variante ist die letzte: Darüber wachsen stattdessen die Sätze, von drei auf fünf."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5290,6 +6528,12 @@
     },
     "One tap — the next workout adapts" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Fingertipp – das nächste Training passt sich an"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5313,6 +6557,12 @@
     "One tap after the workout." : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Fingertipp nach dem Training."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5335,6 +6585,12 @@
     },
     "Only new ones" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nur neue"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5358,6 +6614,12 @@
     "Pause" : {
       "comment" : "Freezes a warm-up move or cool-down stretch where it stands. A control, so it takes the same verb form as “Stop”.",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pausieren"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5381,6 +6643,12 @@
     "Paused" : {
       "comment" : "The state under a frozen countdown, and what VoiceOver announces. Not the control — that one says “Resume”.",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pausiert"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5404,6 +6672,12 @@
     "plan" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5427,6 +6701,12 @@
     "Plan, then your actual result, then the next plan" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan, dann dein tatsächliches Ergebnis, dann der nächste Plan"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5450,6 +6730,12 @@
     "plan: %@" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plan: %@"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5472,6 +6758,12 @@
     },
     "planned" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "geplant"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5494,6 +6786,12 @@
     },
     "Previous month" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorheriger Monat"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5516,6 +6814,12 @@
     },
     "Progress" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fortschritt"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5538,6 +6842,12 @@
     },
     "progress comes twice as fast" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "es geht doppelt so schnell voran"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5561,6 +6871,12 @@
     "progress.levelLabel" : {
       "comment" : "Caption beside the big total-level number. One word: it shares one row with the number and the share button.",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Level"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5589,6 +6905,12 @@
     },
     "Pull is in every workout — that is what keeps your shoulders balanced. The rest come round in a cycle: over eight workouts each one turns up five times. With the pull-up bar switched on, the pull alternates between horizontal and vertical." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Ziehen ist in jedem Training dabei – das hält deine Schultern im Gleichgewicht. Die übrigen Bewegungen wechseln sich ab: Über acht Trainings kommt jede fünfmal dran. Ist die Klimmzugstange aktiviert, wechselt das Ziehen zwischen horizontal und vertikal."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5611,6 +6933,12 @@
     },
     "Pull-up bar" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klimmzugstange"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5633,6 +6961,12 @@
     },
     "Rate on the App Store" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Im App Store bewerten"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5655,6 +6989,12 @@
     },
     "Rating: easy — progressing twice as fast" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einschätzung: leicht – es geht doppelt so schnell voran"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5677,6 +7017,12 @@
     },
     "Rating: on plan — the next asks a little more" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einschätzung: nach Plan – das nächste Training verlangt etwas mehr"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5699,6 +7045,12 @@
     },
     "Rating: tough — the next one will be easier" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einschätzung: schwer – das nächste Training wird leichter"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5721,6 +7073,12 @@
     },
     "Recommend Dredfit" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dredfit weiterempfehlen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5743,6 +7101,12 @@
     },
     "Recovery is part of the plan — the load only sticks if you let it settle." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erholung ist Teil des Plans – die Belastung wirkt erst, wenn du sie sacken lässt."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5765,6 +7129,12 @@
     },
     "Reminder" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erinnerung"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5787,6 +7157,12 @@
     },
     "Replace" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ersetzen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5809,6 +7185,12 @@
     },
     "Replace history?" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verlauf ersetzen?"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5831,6 +7213,12 @@
     },
     "Reset levels" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Level zurücksetzen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5853,6 +7241,12 @@
     },
     "rest" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pause"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5875,6 +7269,12 @@
     },
     "REST" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PAUSE"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5897,6 +7297,12 @@
     },
     "Rest day" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ruhetag"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5919,6 +7325,12 @@
     },
     "Rest days" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ruhetage"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5942,6 +7354,12 @@
     "Resume" : {
       "comment" : "Back into the frozen position: the countdown continues from the seconds it stopped on, never from the top. Same word the interrupted-workout card uses.",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fortsetzen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5964,6 +7382,12 @@
     },
     "resume.continue" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fortsetzen"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5993,6 +7417,12 @@
     "Resumed" : {
       "comment" : "Announced to VoiceOver when a paused block starts moving again. A state, not a control.",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fortgesetzt"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6015,6 +7445,12 @@
     },
     "Rotation" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wechsel"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6037,6 +7473,12 @@
     },
     "Save workouts to Health" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trainings in Health speichern"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6059,6 +7501,12 @@
     },
     "sec" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "s"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6081,6 +7529,12 @@
     },
     "second side" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "zweite Seite"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6103,6 +7557,12 @@
     },
     "set %lld of %lld" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Satz %lld von %lld"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6125,6 +7585,12 @@
     },
     "Settings" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellungen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6147,6 +7613,12 @@
     },
     "settings.done" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fertig"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6175,6 +7647,12 @@
     },
     "Eight things worth knowing about the regulator." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acht Dinge, die du über den Regler wissen solltest."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6197,6 +7675,12 @@
     },
     "Share" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Teilen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6219,6 +7703,12 @@
     },
     "Share progress" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fortschritt teilen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6241,6 +7731,12 @@
     },
     "Short on time? Short version · ≈ %lld min" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenig Zeit? Kurzversion · ≈ %lld min"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6269,6 +7765,12 @@
     },
     "Show all" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle anzeigen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6292,6 +7794,12 @@
     "Skip" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Überspringen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6314,6 +7822,12 @@
     },
     "Skip exercise" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Übung überspringen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6336,6 +7850,12 @@
     },
     "Skip rest" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pause überspringen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6358,6 +7878,12 @@
     },
     "Skip this move" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Bewegung überspringen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6380,6 +7906,12 @@
     },
     "Skip warm-up" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aufwärmen überspringen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6402,6 +7934,12 @@
     },
     "skipped" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "übersprungen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6424,6 +7962,12 @@
     },
     "Skips" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Übersprungen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6448,6 +7992,12 @@
     "Skips the introduction" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Überspringt die Einführung"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6470,6 +8020,12 @@
     },
     "Sounds and haptics" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Töne und Haptik"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6492,6 +8048,12 @@
     },
     "Start" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Starten"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6514,6 +8076,12 @@
     },
     "Start easier" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leichter starten"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6536,6 +8104,12 @@
     },
     "Start from scratch" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bei null anfangen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6558,6 +8132,12 @@
     },
     "Start from scratch?" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bei null anfangen?"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6580,6 +8160,12 @@
     },
     "Start hold" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haltezeit starten"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6602,6 +8188,12 @@
     },
     "Start over" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Von vorn beginnen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6624,6 +8216,12 @@
     },
     "Stop" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stoppen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6646,6 +8244,12 @@
     },
     "Switch sides" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seitenwechsel"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6668,6 +8272,12 @@
     },
     "technique" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Technik"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6690,6 +8300,12 @@
     },
     "Technique" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Technik"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6712,6 +8328,12 @@
     },
     "The chart will appear after a couple of workouts" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Diagramm erscheint nach ein paar Trainings"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6734,6 +8356,12 @@
     },
     "The level" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Level"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6756,6 +8384,12 @@
     },
     "the next one asks a little more" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "das nächste verlangt ein wenig mehr"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6778,6 +8412,12 @@
     },
     "The workout is done — only the rating is left." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Training ist geschafft – es fehlt nur noch die Einschätzung."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6800,6 +8440,12 @@
     },
     "Then: %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Damals: %@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6829,6 +8475,12 @@
     },
     "This month" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Monat"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6851,6 +8503,12 @@
     },
     "This week" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Woche"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6873,6 +8531,12 @@
     },
     "Three shortfalls in a row and the level rolls back three steps. Not a punishment — a breather, so you come back with something in reserve." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dreimal in Folge unter Plan, und das Level geht drei Stufen zurück. Keine Strafe, sondern eine Verschnaufpause – damit du mit etwas Reserve zurückkommst."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6895,6 +8559,12 @@
     },
     "Time" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uhrzeit"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6918,6 +8588,12 @@
     },
     "today" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "heute"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6940,6 +8616,12 @@
     },
     "Today" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heute"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6962,6 +8644,12 @@
     },
     "Today's workout is ready" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dein Training für heute ist bereit"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6984,6 +8672,12 @@
     },
     "tomorrow" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "morgen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7007,6 +8701,12 @@
     "Torso rotations" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rumpfdrehen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7029,6 +8729,12 @@
     },
     "total level" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesamtlevel"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7052,6 +8758,12 @@
     "total level %lld" : {
       "extractionState" : "stale",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesamtlevel %lld"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7074,6 +8786,12 @@
     },
     "Total level after: %lld" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesamtlevel danach: %lld"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7096,6 +8814,12 @@
     },
     "Tough, did less" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schwer, weniger geschafft"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7118,6 +8842,12 @@
     },
     "Train anyway" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trotzdem trainieren"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7141,6 +8871,12 @@
     "Training at home. No questionnaires." : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Training zu Hause. Keine Fragebögen."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7163,6 +8899,12 @@
     },
     "Unlocked: %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Freigeschaltet: %@"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7185,6 +8927,12 @@
     },
     "variation %lld · %@ · %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Variante %lld · %@ · %@"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7207,6 +8955,12 @@
     },
     "variation %lld of 4" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Variante %lld von 4"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7229,6 +8983,12 @@
     },
     "WARM-UP" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AUFWÄRMEN"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7251,6 +9011,12 @@
     },
     "Weekly rhythm" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wochenrhythmus"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7279,6 +9045,12 @@
     },
     "Welcome back" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Willkommen zurück"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7301,6 +9073,12 @@
     },
     "Went differently" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lief anders"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7323,6 +9101,12 @@
     },
     "What your answer does" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Was deine Antwort bewirkt"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7345,6 +9129,12 @@
     },
     "Why there are no questionnaires" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Warum keine Fragebögen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7367,6 +9157,12 @@
     },
     "Why this plan?" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Warum dieser Plan?"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7389,6 +9185,12 @@
     },
     "Workout #%lld" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Training Nr. %lld"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7411,6 +9213,12 @@
     },
     "Workout %lld" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Training %lld"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7433,6 +9241,12 @@
     },
     "Workout %lld · %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Training %lld · %@"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7455,6 +9269,12 @@
     },
     "Workout %lld completed" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Training %lld abgeschlossen"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7477,6 +9297,12 @@
     },
     "Workout rating" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einschätzung des Trainings"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7499,6 +9325,12 @@
     },
     "Workouts appear in the Health app. Nothing is read or shared." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trainings erscheinen in der Health-App. Es wird nichts gelesen oder weitergegeben."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7521,6 +9353,12 @@
     },
     "You stopped at exercise %lld of %lld — everything done so far is still in place." : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du hast bei Übung %lld von %lld aufgehört – alles bisher Gemachte ist noch da."
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7543,6 +9381,12 @@
     },
     "Your rating applies to the rest" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Einschätzung gilt für den Rest"
+          }
+        },
         "es" : {
           "stringUnit" : {
             "state" : "translated",

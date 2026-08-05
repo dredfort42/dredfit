@@ -122,7 +122,7 @@ required, so a third-party action outage can never wedge your merges. Promote an
 
 | Script | What it does |
 |---|---|
-| `check_localization.py` | Fails if any shipping language (es, pt-BR, ru) is missing a translation. Run with no args to check all tracked `*.xcstrings`. |
+| `check_localization.py` | Fails if any shipping language (de, es, pt-BR, ru) is missing a translation. Run with no args to check all tracked `*.xcstrings`. |
 | `check_version.py <release/x.y.z \| x.y.z>` | Verifies marketing version, build-number agreement, and a changelog section. |
 | `changelog_section.py <version>` | Prints the `CHANGELOG.md` section for a version (used for release notes). |
 | `setup_branch_protection.sh` | Applies branch protection (above). |

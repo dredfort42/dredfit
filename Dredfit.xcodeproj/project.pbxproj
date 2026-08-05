@@ -309,6 +309,7 @@
 				ru,
 				es,
 				"pt-BR",
+				de,
 				Base,
 			);
 			mainGroup = AF2F7B9C3008FD9200249B07;
