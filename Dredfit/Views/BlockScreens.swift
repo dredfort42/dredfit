@@ -16,10 +16,15 @@ struct GetReadyScreen: View {
     let remaining: Int
     let index: Int
     let count: Int
+    /// The way back in after a pause borrows this screen (issue #61) and
+    /// names its countdown differently, so the two can be told apart.
+    var countdownIdentifier: String = "getready-countdown"
     let blockSkipTitle: String
     var blockSkipIdentifier: String?
+    let paused: Bool
     let onTechnique: () -> Void
     let onStart: () -> Void
+    let onPauseToggle: () -> Void
     let onSkipPosition: () -> Void
     let onSkipBlock: () -> Void
 
@@ -37,18 +42,31 @@ struct GetReadyScreen: View {
             TechniqueButton(action: onTechnique)
                 .padding(.top, 10)
 
-            CountdownNumber(value: remaining, identifier: "getready-countdown")
+            CountdownNumber(value: remaining, identifier: countdownIdentifier, paused: paused)
                 .padding(.top, 20)
 
+            BlockPauseButton(paused: paused, action: onPauseToggle)
+                .padding(.top, 12)
+
             BlockDots(count: count, current: index)
-                .padding(.top, 30)
+                .padding(.top, 22)
 
             PositionSkipButton(action: onSkipPosition)
                 .padding(.top, 8)
         } footer: {
-            PrimaryButton(title: String(localized: "I'm ready"), action: onStart)
-                .accessibilityIdentifier("get-ready-start")
-                .padding(.bottom, 12)
+            // Frozen, the transition has nothing to start early — "I'm ready"
+            // would run a position the user has just stopped. hidden(), not
+            // removed: the escapes must not jump up under the thumb.
+            // (Precedent: "Start hold" during the side-switch pause.)
+            Group {
+                if paused {
+                    PrimaryButton(title: String(localized: "I'm ready"), action: { }).hidden()
+                } else {
+                    PrimaryButton(title: String(localized: "I'm ready"), action: onStart)
+                        .accessibilityIdentifier("get-ready-start")
+                }
+            }
+            .padding(.bottom, 12)
 
             BlockSkipButton(title: blockSkipTitle,
                             identifier: blockSkipIdentifier,
@@ -63,7 +81,9 @@ struct WarmupMoveScreen: View {
     let remaining: Int
     let index: Int
     let count: Int
+    let paused: Bool
     let onTechnique: () -> Void
+    let onPauseToggle: () -> Void
     let onSkipPosition: () -> Void
     let onSkipBlock: () -> Void
 
@@ -74,11 +94,14 @@ struct WarmupMoveScreen: View {
             TechniqueButton(action: onTechnique)
                 .padding(.top, 10)
 
-            CountdownNumber(value: remaining, identifier: "warmup-countdown")
+            CountdownNumber(value: remaining, identifier: "warmup-countdown", paused: paused)
                 .padding(.top, 20)
 
+            BlockPauseButton(paused: paused, action: onPauseToggle)
+                .padding(.top, 12)
+
             BlockDots(count: count, current: index)
-                .padding(.top, 30)
+                .padding(.top, 22)
 
             PositionSkipButton(action: onSkipPosition)
                 .padding(.top, 8)
@@ -96,7 +119,9 @@ struct CooldownPositionScreen: View {
     let remaining: Int
     let index: Int
     let count: Int
+    let paused: Bool
     let onTechnique: () -> Void
+    let onPauseToggle: () -> Void
     let onSkipPosition: () -> Void
     let onSkipBlock: () -> Void
 
@@ -111,11 +136,14 @@ struct CooldownPositionScreen: View {
             TechniqueButton(action: onTechnique)
                 .padding(.top, 10)
 
-            CountdownNumber(value: remaining, identifier: "cooldown-countdown")
+            CountdownNumber(value: remaining, identifier: "cooldown-countdown", paused: paused)
                 .padding(.top, 20)
 
+            BlockPauseButton(paused: paused, action: onPauseToggle)
+                .padding(.top, 12)
+
             BlockDots(count: count, current: index)
-                .padding(.top, 30)
+                .padding(.top, 22)
 
             PositionSkipButton(action: onSkipPosition)
                 .padding(.top, 8)

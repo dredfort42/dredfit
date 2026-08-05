@@ -14,6 +14,9 @@ import SwiftUI
 struct CountdownNumber: View {
     let value: Int
     let identifier: String
+    /// Paused (issue #61) the number dims and the unit gives way to the
+    /// state, so a glance says why nothing is moving.
+    var paused = false
 
     var body: some View {
         VStack(spacing: 4) {
@@ -22,11 +25,42 @@ struct CountdownNumber: View {
                 .tracking(-4)
                 .monospacedDigit()
                 .contentTransition(.numericText(countsDown: true))
+                .foregroundStyle(paused ? Theme.ink2 : Theme.ink)
                 .accessibilityIdentifier(identifier)
-            Text("sec")
-                .dredfitFont(15)
-                .foregroundStyle(Theme.ink2)
+            if paused {
+                Text("Paused")
+                    .dredfitFont(15, weight: .semibold)
+                    .foregroundStyle(Theme.accentText)
+            } else {
+                Text("sec")
+                    .dredfitFont(15)
+                    .foregroundStyle(Theme.ink2)
+            }
         }
+    }
+}
+
+/// The pause both guided blocks carry on every timed screen (issue #61) —
+/// compact, one slot under the countdown, the same weight as the technique
+/// affordance above it. The outline says "control" where a bare label would
+/// read as one more caption.
+struct BlockPauseButton: View {
+    let paused: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Label(paused ? String(localized: "Resume") : String(localized: "Pause"),
+                  systemImage: paused ? "play.fill" : "pause.fill")
+                .dredfitFont(14, weight: .medium)
+                .foregroundStyle(paused ? Theme.accentText : Theme.ink2)
+                .padding(.horizontal, 18)
+                .frame(minHeight: 44)
+                .overlay(Capsule().stroke(Theme.hairline, lineWidth: 1.5))
+        }
+        // The identifier carries the state, not just the control: a localized
+        // run must still be able to tell a paused block from a running one.
+        .accessibilityIdentifier(paused ? "block-resume" : "block-pause")
     }
 }
 

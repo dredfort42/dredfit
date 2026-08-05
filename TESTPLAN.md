@@ -514,6 +514,29 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 34.11 | All four languages | «Приготовься» / "Prepárate" / "Prepare-se" over the name; the button reads «Начать» / "Empezar" / "Começar" (translated by sense — "ready" is a gendered adjective in all three) |
 | 34.12 | es / pt-BR at the largest accessibility sizes | The longest names ("Chest and shoulders at the wall", "Pecho y hombros en la pared") wrap to three lines and the block's content **scrolls**; **I'm ready** and the block skip stay pinned and fully tappable. Applies to the running move and stretch screens too |
 
+### 35. Pause of the guided blocks (issue #61)
+
+| # | Check | Expected |
+|---|---|---|
+| 35.1 | **Pause** on a running warm-up move | The countdown stops on the second it showed, the number dims, the unit under it becomes "Paused", and the control reads **Resume** |
+| 35.2 | Wait a minute, watching | Nothing moves and nothing sounds — no ticks, no go, no advance to the next position |
+| 35.3 | **Resume** | A 5 s "Get ready" naming the same move, with the usual 3-2-1 and go, then the move **continues from the seconds it stopped on** — never from 30, never a position later |
+| 35.4 | Pause a "Get ready" transition | It freezes the same way, and **I'm ready** steps aside — there is nothing to start early. **Resume** gives the transition straight back with no second lead-in: a transition already is one |
+| 35.5 | Pause the "Switch sides" 5 s of a per-side stretch | Freezes; resuming carries the pause on from where it stopped and hands over to the second side on its own single go. No lead-in here either — two gos seconds apart is what §34.2 exists to prevent |
+| 35.6 | Pause a cool-down stretch, then **Skip this move** / **Skip cool-down** | Both escapes work from a paused screen and leave the pause behind — the next position runs normally |
+| 35.7 | Lock the phone while paused, return after several minutes | Still paused on the same second. A pause has no deadline to run out, so time away costs nothing |
+| 35.8 | Background the app while paused, return | Same — and the block does **not** jump stages the way an unpaused absence does |
+| 35.9 | **technique** while paused | The mini-sheet opens; closing it leaves the block **paused**. The user's pause outranks the sheet's own freeze — the two never fight |
+| 35.10 | Pause, then **technique**, then **Resume** while the sheet is closed | The way back in runs once, from the seconds that were frozen |
+| 35.11 | Kill the app while paused mid-warm-up | Nothing to resume: the warm-up writes no snapshot by design, and Today offers no "Continue" card for a workout with nothing done |
+| 35.12 | Kill the app while paused mid-cool-down | Restores onto the rating screen, exactly as an unpaused cool-down does (§4 of the spec) |
+| 35.13 | Working sets and rest | Unchanged — no pause control on the work screen or the rest ring. They are self-paced by design, and an over-run rest only grants extra rest |
+| 35.14 | Estimate on Today, and the duration written to Health | Unchanged by pausing: "≈ N min" promises an uninterrupted flow, and Health still gets the wall-clock truth of the session |
+| 35.15 | VoiceOver | The control reads "Pause" / "Resume"; toggling announces "Paused" / "Resumed", and the state is also readable under the countdown |
+| 35.16 | All four languages | «Пауза» / "Pausar" / "Pausar" and «Продолжить» / "Continuar" / "Continuar"; the state reads «На паузе» / "En pausa" / "Em pausa" |
+| 35.17 | es / pt-BR at the largest accessibility sizes | The control keeps its own line under the countdown, the content scrolls as in §34.12, and both footer escapes stay pinned |
+| 35.18 | Pause and leave the phone alone (device only) | The screen dims and locks on the system Auto-Lock as usual — the workout stops holding it open, because a held block is the one state where the app knows nobody is training. Resuming, skipping or leaving the block puts the hold back |
+
 ---
 
 ## Issue registry

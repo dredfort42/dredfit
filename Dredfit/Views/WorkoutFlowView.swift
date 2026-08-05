@@ -48,6 +48,11 @@ struct WorkoutFlowView: View {
     @State private var cooldownRemaining = 0
     @State private var cooldownEndDate: Date?
     @State private var cooldownStage: Cooldown.Stage = Cooldown.openingStage
+    // The pause of the guided blocks (issue #61). One for both, like the
+    // stage/remaining pairs above: the two blocks never run at once. Held, the
+    // frozen seconds sit in warmupRemaining / cooldownRemaining and no end
+    // date exists anywhere; re-entering, only this moves.
+    @State private var blockPause = BlockPause.State()
     @State private var restRemaining = 0
     @State private var restEndDate: Date?
     // Captured at tap time (not a bool): the rest countdown keeps ticking
@@ -168,11 +173,11 @@ struct WorkoutFlowView: View {
         .onReceive(timer) { _ in
             switch phase {
             case .warmup:
-                tickWarmup()
+                if blockPause.isPaused { tickBlockPause() } else { tickWarmup() }
             case .rest:
                 tickRest()
             case .cooldown:
-                tickCooldown()
+                if blockPause.isPaused { tickBlockPause() } else { tickCooldown() }
             case .work where holdSwitchPausing:
                 tickHoldSwitchPause()
             case .work where holding:
@@ -199,6 +204,12 @@ struct WorkoutFlowView: View {
         .onDisappear {
             UIApplication.shared.isIdleTimerDisabled = false
             liveActivity.end()
+        }
+        // A held block is the one state where the app knows nobody is
+        // training, so it stops holding the screen open. One place rather
+        // than one per path: every way in and out of a pause runs through it.
+        .onChange(of: blockPause.isHeld) { _, held in
+            UIApplication.shared.isIdleTimerDisabled = !held
         }
         .sheet(item: $techniqueExercise) { ex in
             TechniqueSheet(exercise: ex)
@@ -275,15 +286,22 @@ struct WorkoutFlowView: View {
     // MARK: - Warm-up
 
 
+    /// The way back in from a pause wears the transition's screen, because it
+    /// is the same beat: the name of the position, the 3-2-1, then the
+    /// position. Only the seconds it counts and what "I'm ready" cuts short
+    /// differ.
     @ViewBuilder
     private var warmupView: some View {
-        if warmupStage == .getReady {
+        if reentering || warmupStage == .getReady {
             GetReadyScreen(name: Warmup.moves[warmupIndex].name,
-                           remaining: warmupRemaining,
+                           remaining: reentering ? blockPause.reentryRemaining : warmupRemaining,
                            index: warmupIndex, count: Warmup.moves.count,
+                           countdownIdentifier: countdownIdentifier(reentering: reentering),
                            blockSkipTitle: String(localized: "Skip warm-up"),
+                           paused: blockPause.isHeld,
                            onTechnique: { openWarmupTechnique() },
-                           onStart: { startWarmupMoveNow() },
+                           onStart: { reentering ? endBlockReentry() : startWarmupMoveNow() },
+                           onPauseToggle: { toggleBlockPause() },
                            onSkipPosition: { skipWarmupPosition() },
                            onSkipBlock: { finishWarmup() })
         } else {
@@ -295,7 +313,9 @@ struct WorkoutFlowView: View {
         WarmupMoveScreen(name: Warmup.moves[warmupIndex].name,
                          remaining: warmupRemaining,
                          index: warmupIndex, count: Warmup.moves.count,
+                         paused: blockPause.isHeld,
                          onTechnique: { openWarmupTechnique() },
+                         onPauseToggle: { toggleBlockPause() },
                          onSkipPosition: { skipWarmupPosition() },
                          onSkipBlock: { finishWarmup() })
     }
@@ -325,6 +345,7 @@ struct WorkoutFlowView: View {
     }
 
     private func enterWarmupStage(index: Int, stage: Warmup.Stage, remaining: Int) {
+        clearBlockPause()   // a new stage is never entered still frozen
         warmupIndex = index
         warmupStage = stage
         warmupRemaining = remaining
@@ -362,13 +383,21 @@ struct WorkoutFlowView: View {
 
     /// Freezes the running countdown: the end date comes off (the tick
     /// guards go quiet) while the remaining seconds stay put and rebuild it.
+    /// The way back in from a pause freezes with it — reading is not getting
+    /// back into position either.
     private func openPositionTechnique(_ technique: PositionTechnique) {
         positionTechnique = technique
         warmupEndDate = nil
         cooldownEndDate = nil
+        blockPause.freezeForSheet()
     }
 
     private func resumePositionCountdown() {
+        // Whatever the sheet froze is what it hands back. A way back in
+        // outlives it; a pause outranks it — closing the sheet must never
+        // restart a block the user stopped (issue #34 vs #61).
+        blockPause.thawAfterSheet(now: .now)
+        guard !blockPause.isPaused else { return }
         switch phase {
         case .warmup:
             warmupEndDate = Date.now.addingTimeInterval(TimeInterval(warmupRemaining))
@@ -380,6 +409,7 @@ struct WorkoutFlowView: View {
     }
 
     private func finishWarmup() {
+        clearBlockPause()
         warmupEndDate = nil
         phase = .work
         liveActivity.update(activityWorkState())
@@ -897,6 +927,7 @@ private extension WorkoutFlowView {
             return
         }
         adjusting = false
+        clearBlockPause()
         holdEndDate = nil
         holdSecondSide = false
         firstSideHeld = nil
@@ -938,17 +969,22 @@ private extension WorkoutFlowView {
 // A same-file extension so the view struct stays within the linter's size
 // for a type body. @State storage stays in the struct; only behaviour here.
 extension WorkoutFlowView {
+    /// The way back in borrows the transition's screen here too — see
+    /// `warmupView`.
     @ViewBuilder
     private var cooldownView: some View {
-        if cooldownStage == .getReady {
+        if reentering || cooldownStage == .getReady {
             GetReadyScreen(name: cooldownPositions[cooldownIndex].name,
-                           remaining: cooldownRemaining,
+                           remaining: reentering ? blockPause.reentryRemaining : cooldownRemaining,
                            index: cooldownIndex, count: cooldownPositions.count,
+                           countdownIdentifier: countdownIdentifier(reentering: reentering),
                            blockSkipTitle: String(localized: "cooldown.skip",
                                                   defaultValue: "Skip cool-down"),
                            blockSkipIdentifier: "skip-cooldown",
+                           paused: blockPause.isHeld,
                            onTechnique: { openCooldownTechnique() },
-                           onStart: { startCooldownPositionNow() },
+                           onStart: { reentering ? endBlockReentry() : startCooldownPositionNow() },
+                           onPauseToggle: { toggleBlockPause() },
                            onSkipPosition: { skipCooldownPosition() },
                            onSkipBlock: { finishCooldown() })
         } else {
@@ -961,7 +997,9 @@ extension WorkoutFlowView {
                                stage: cooldownStage,
                                remaining: cooldownRemaining,
                                index: cooldownIndex, count: cooldownPositions.count,
+                               paused: blockPause.isHeld,
                                onTechnique: { openCooldownTechnique() },
+                               onPauseToggle: { toggleBlockPause() },
                                onSkipPosition: { skipCooldownPosition() },
                                onSkipBlock: { finishCooldown() })
     }
@@ -1007,6 +1045,7 @@ extension WorkoutFlowView {
     }
 
     private func enterCooldownStage(index: Int, stage: Cooldown.Stage) {
+        clearBlockPause()   // a new stage is never entered still frozen
         cooldownIndex = index
         cooldownStage = stage
         cooldownRemaining = Cooldown.stageSeconds(stage)
@@ -1055,9 +1094,106 @@ extension WorkoutFlowView {
     }
 
     private func finishCooldown() {
+        clearBlockPause()
         cooldownEndDate = nil
         phase = .feedback
         liveActivity.end()
         persistProgress()
+    }
+}
+
+// MARK: - The pause of the guided blocks (issue #61)
+//
+// The state machine is BlockPause.State; this is the flow's half — the block's
+// own end dates, the tones, and the screen. The snapshot is untouched: the
+// warm-up writes none by design, the cool-down keeps writing at position
+// boundaries, and process death while paused restores by the rules it had.
+extension WorkoutFlowView {
+
+    private var reentering: Bool { blockPause.isReentering }
+
+    private func countdownIdentifier(reentering: Bool) -> String {
+        reentering ? "reentry-countdown" : "getready-countdown"
+    }
+
+    /// Held, the only way on is Resume; counting back in, the tap holds again.
+    private func toggleBlockPause() {
+        if blockPause.isHeld { resumeBlock() } else { pauseBlock() }
+    }
+
+    /// Freezes the stage where it stands: the end date comes off, so every
+    /// tick guard goes quiet and no tone can be reached, while the seconds on
+    /// screen stay put and rebuild it later.
+    private func pauseBlock() {
+        blockPause.hold()
+        warmupEndDate = nil
+        cooldownEndDate = nil
+        announce(String(localized: "Paused"))
+    }
+
+    private func resumeBlock() {
+        announce(String(localized: "Resumed"))
+        guard needsReentry else {
+            // A frozen transition is its own way back in: its 3-2-1 and its
+            // go are still ahead of it, and a lead-in here would count one
+            // position down twice.
+            blockPause.clear()
+            restartFrozenStage()
+            return
+        }
+        blockPause.beginReentry(seconds: BlockPause.reentrySeconds, now: .now)
+    }
+
+    private var needsReentry: Bool {
+        switch phase {
+        case .warmup:   return BlockPause.needsReentry(warmupStage)
+        case .cooldown: return BlockPause.needsReentry(cooldownStage)
+        default:        return false
+        }
+    }
+
+    /// Held there is no end date at all, so nothing moves — the whole point.
+    private func tickBlockPause() {
+        var result = BlockPause.Tick.nothing
+        withAnimation(.linear(duration: 0.3)) {
+            result = blockPause.tick(now: .now, signalSeconds: Self.countdownSignalSeconds)
+        }
+        switch result {
+        case .signal:            playTick()
+        case .over:              endBlockReentry()
+        case .nothing, .redraw:  break
+        }
+    }
+
+    /// The go marks the moment the position starts again — the signal a "Get
+    /// ready" ends on, for the same reason.
+    private func endBlockReentry() {
+        playGo()
+        blockPause.clear()
+        restartFrozenStage()
+    }
+
+    /// The stage picks up the seconds it froze with, never its whole length:
+    /// a pause must not quietly make the user hold a position twice.
+    private func restartFrozenStage() {
+        switch phase {
+        case .warmup:
+            warmupEndDate = Date.now.addingTimeInterval(TimeInterval(warmupRemaining))
+        case .cooldown:
+            cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(cooldownRemaining))
+        default:
+            break
+        }
+    }
+
+    /// Entering a stage, skipping a position and leaving a block all end the
+    /// pause with it: one state serves both blocks and must never outlive the
+    /// screen that froze.
+    private func clearBlockPause() { blockPause.clear() }
+
+    /// VoiceOver stays on the control it has just used, so the state change
+    /// has to be spoken; everyone else reads it under the countdown.
+    private func announce(_ message: String) {
+        AccessibilityNotification.Announcement(message).post()
     }
 }
