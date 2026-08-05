@@ -29,18 +29,29 @@ final class BlockPauseTests: XCTestCase {
     // MARK: - Which stages need one
 
     func testAFrozenTransitionIsItsOwnWayBackIn() {
-        // It still has its own 3-2-1 and its own go ahead of it; a lead-in
-        // here would count one position down twice.
+        // Each still has its own signal ahead of it — the 3-2-1 into the go
+        // that starts a position, the go into the second side. A lead-in
+        // ending on a go of its own would sound the same thing twice.
         XCTAssertFalse(BlockPause.needsReentry(Warmup.Stage.getReady))
         XCTAssertFalse(BlockPause.needsReentry(Cooldown.Stage.getReady))
+        XCTAssertFalse(BlockPause.needsReentry(Cooldown.Stage.switchPause),
+                       "the side-switch beat is a transition like any other")
     }
 
     func testEveryStageThatIsAPositionGetsTheWayBackIn() {
         XCTAssertTrue(BlockPause.needsReentry(Warmup.Stage.move))
-        for stage in [Cooldown.Stage.single, .firstSide, .switchPause, .secondSide] {
+        for stage in [Cooldown.Stage.single, .firstSide, .secondSide] {
             XCTAssertTrue(BlockPause.needsReentry(stage),
                           "\(stage) drops the user into a position, so it has to count them in")
         }
+    }
+
+    func testAZeroLengthWayBackInJustHolds() {
+        // It would otherwise leave an end date no tick can ever retire.
+        var state = BlockPause.State()
+        state.beginReentry(seconds: 0, now: .now)
+        XCTAssertTrue(state.isHeld)
+        XCTAssertNil(state.reentryEndDate)
     }
 
     // MARK: - The state itself

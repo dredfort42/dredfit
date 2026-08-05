@@ -55,7 +55,7 @@ struct BlockPauseButton: View {
                 .dredfitFont(14, weight: .medium)
                 .foregroundStyle(paused ? Theme.accentText : Theme.ink2)
                 .padding(.horizontal, 18)
-                .frame(minHeight: 40)
+                .frame(minHeight: 44)
                 .overlay(Capsule().stroke(Theme.hairline, lineWidth: 1.5))
         }
         // The identifier carries the state, not just the control: a localized

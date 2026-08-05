@@ -28,6 +28,10 @@ enum GetReady {
     /// outlast the driver's own deadline. Pass --uitest-fast instead; it is
     /// checked first and wins when both are given.
     ///
+    /// It stretches the way back in from a pause too (issue #61) — that asks
+    /// GetReady for the same length. A test that pauses a running position
+    /// under this flag waits ten minutes to be counted back in.
+    ///
     /// Production is untouched by both; DEBUG builds only.
     static var stageSeconds: Int {
         #if DEBUG

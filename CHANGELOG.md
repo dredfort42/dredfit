@@ -21,8 +21,9 @@
 - **Resume** counts you back in rather than dropping you mid-position: five
   seconds naming the position, the same 3-2-1 into the go a "Get ready" plays,
   and then the interval continues from the seconds it froze on — never from
-  the top, never a position later. A paused transition is the one exception:
-  it already is a way back in, so it simply carries on.
+  the top, never a position later. The two transitions are the exception —
+  "Get ready" and "Switch sides" already are ways back in, each with its own
+  signal still ahead of it, so they simply carry on.
 - The pattern already half-existed, twice. Opening a position's technique
   sheet freezes the countdown (reading is not stretching), and the "Get ready"
   beat is a screen where the flow already knows how to stand still. This

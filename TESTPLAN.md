@@ -522,7 +522,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 35.2 | Wait a minute, watching | Nothing moves and nothing sounds — no ticks, no go, no advance to the next position |
 | 35.3 | **Resume** | A 5 s "Get ready" naming the same move, with the usual 3-2-1 and go, then the move **continues from the seconds it stopped on** — never from 30, never a position later |
 | 35.4 | Pause a "Get ready" transition | It freezes the same way, and **I'm ready** steps aside — there is nothing to start early. **Resume** gives the transition straight back with no second lead-in: a transition already is one |
-| 35.5 | Pause the "Switch sides" 5 s of a per-side stretch | Freezes; resuming counts back in and then finishes the pause into the second side, which still gets its own go |
+| 35.5 | Pause the "Switch sides" 5 s of a per-side stretch | Freezes; resuming carries the pause on from where it stopped and hands over to the second side on its own single go. No lead-in here either — two gos seconds apart is what §34.2 exists to prevent |
 | 35.6 | Pause a cool-down stretch, then **Skip this move** / **Skip cool-down** | Both escapes work from a paused screen and leave the pause behind — the next position runs normally |
 | 35.7 | Lock the phone while paused, return after several minutes | Still paused on the same second. A pause has no deadline to run out, so time away costs nothing |
 | 35.8 | Background the app while paused, return | Same — and the block does **not** jump stages the way an unpaused absence does |

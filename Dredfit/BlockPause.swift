@@ -25,11 +25,17 @@ enum BlockPause {
 
     /// A frozen transition resumes straight into itself: it already IS the way
     /// back in, and a lead-in before a lead-in would count the user down
-    /// twice. Every other stage — a move, a stretch, either side, the
-    /// side-switch pause — hands its frozen seconds to a re-entry first.
+    /// twice. Only what drops the user into a position — a move, a stretch,
+    /// either side — hands its frozen seconds to a re-entry first.
     static func needsReentry(_ stage: Warmup.Stage) -> Bool { stage != .getReady }
 
-    static func needsReentry(_ stage: Cooldown.Stage) -> Bool { stage != .getReady }
+    /// The cool-down has two transitions, and the side-switch is one of them:
+    /// its go into the second side is still ahead of it, and a re-entry ending
+    /// on a go of its own would sound the same signal twice seconds apart —
+    /// exactly what issue #52 moved the go to stop doing.
+    static func needsReentry(_ stage: Cooldown.Stage) -> Bool {
+        stage != .getReady && stage != .switchPause
+    }
 
     /// What a tick asks of the flow. The flow owns the tones and the block's
     /// own countdown; this owns the state.
@@ -63,7 +69,10 @@ enum BlockPause {
             reentryEndDate = nil
         }
 
+        /// A zero-length way back in would leave an end date the tick can
+        /// never retire — held, with a deadline nobody reads. Hold plainly.
         mutating func beginReentry(seconds: Int, now: Date) {
+            guard seconds > 0 else { return hold() }
             isPaused = true
             reentryRemaining = seconds
             reentryEndDate = now.addingTimeInterval(TimeInterval(seconds))

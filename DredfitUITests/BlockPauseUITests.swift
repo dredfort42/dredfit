@@ -105,10 +105,14 @@ final class BlockPauseUITests: XCTestCase {
 
         // Every screen of the block carries the control, so a tap that lands
         // one stage late still lands on a pause — retried until one takes,
-        // because --uitest-fast gives each stage a single second.
+        // because --uitest-fast gives each stage a single second. The loop
+        // hangs on the block's header, not on the control: between two stages
+        // an accessibility snapshot can catch the moment the old screen's
+        // button is gone and the new one's has not arrived (I-5's class of
+        // flake), and a condition reading `pause.exists` would give up there.
         deadline = Date.now.addingTimeInterval(30)
-        while !resume.exists && pause.exists && Date.now < deadline {
-            driver.coordinateTap(pause)
+        while !resume.exists && cooldown.exists && Date.now < deadline {
+            if pause.exists { driver.coordinateTap(pause) }
             _ = resume.waitForExistence(timeout: 1)
         }
         XCTAssertTrue(resume.exists, "a cool-down stage must be pausable")
