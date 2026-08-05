@@ -7,11 +7,11 @@
 //
 //  Seeded tests expect dredfit-state.json planted in the app container from
 //  the host (tools/seed.py) BEFORE the run, and launch WITHOUT --uitest-reset:
-//    seed.py <udid> A  → testSeeded* — en/ru/es/pt-BR (today, how-it-works,
+//    seed.py <udid> A  → testSeeded* — en/ru/es/pt-BR/de (today, how-it-works,
 //                        set, dial, rest) and testRating*
 //    seed.py <udid> B  → testProgress*
 //  milestone/comeback screens use the app's own --uitest hooks instead
-//  (see the previous revision of this file in git history).
+//  (captureMilestone/captureComeback below — no seeding).
 //
 
 import XCTest
@@ -45,6 +45,11 @@ final class StoreScreenshots: XCTestCase {
                               done: "Feito", skipRest: "Pular o descanso", start: "Começar",
                               wentDifferently: "Foi diferente", ok: "OK",
                               progressTab: "Progresso", gotIt: "Entendi")
+    private static let de = L(langArg: "(de)", locale: "de_DE", tag: "de",
+                              ratingTitle: "Wie lief es?", skipWarmup: "Aufwärmen überspringen",
+                              done: "Fertig", skipRest: "Pause überspringen", start: "Starten",
+                              wentDifferently: "Lief anders", ok: "OK",
+                              progressTab: "Fortschritt", gotIt: "Verstanden")
 
     override func setUpWithError() throws {
         continueAfterFailure = false
@@ -138,6 +143,7 @@ final class StoreScreenshots: XCTestCase {
     func testSeededRussian() { seededFlow(Self.ru) }
     func testSeededSpanish() { seededFlow(Self.es) }
     func testSeededPortuguese() { seededFlow(Self.ptBR) }
+    func testSeededGerman() { seededFlow(Self.de) }
 
     // MARK: - Seed B: Progress
 
@@ -154,6 +160,7 @@ final class StoreScreenshots: XCTestCase {
     func testProgressRussian() { progress(Self.ru) }
     func testProgressSpanish() { progress(Self.es) }
     func testProgressPortuguese() { progress(Self.ptBR) }
+    func testProgressGerman() { progress(Self.de) }
 
     // MARK: - Seed A again: the rating screen with one adjustment, so the
     // summary card and the scope chip show (the 1.6.0 "s4 reads empty" note)
@@ -206,6 +213,7 @@ final class StoreScreenshots: XCTestCase {
     func testRatingRussian() { cleanRating(Self.ru) }
     func testRatingSpanish() { cleanRating(Self.es) }
     func testRatingPortuguese() { cleanRating(Self.ptBR) }
+    func testRatingGerman() { cleanRating(Self.de) }
 
     // MARK: - Milestone & comeback (own --uitest hooks, no seeding)
 
@@ -262,10 +270,12 @@ final class StoreScreenshots: XCTestCase {
     func testMilestoneRussian() { captureMilestone(Self.ru) }
     func testMilestoneSpanish() { captureMilestone(Self.es) }
     func testMilestonePortuguese() { captureMilestone(Self.ptBR) }
+    func testMilestoneGerman() { captureMilestone(Self.de) }
     func testComebackEnglish() { captureComeback(Self.en) }
     func testComebackRussian() { captureComeback(Self.ru) }
     func testComebackSpanish() { captureComeback(Self.es) }
     func testComebackPortuguese() { captureComeback(Self.ptBR) }
+    func testComebackGerman() { captureComeback(Self.de) }
 }
 
 private extension StoreScreenshots.L {
@@ -274,6 +284,7 @@ private extension StoreScreenshots.L {
         case "ru": return "Начать удержание"
         case "es": return "Empezar la isometría"
         case "pt-br": return "Começar a isometria"
+        case "de": return "Haltezeit starten"
         default: return "Start hold"
         }
     }
@@ -282,6 +293,7 @@ private extension StoreScreenshots.L {
         case "ru": return "Пропустить заминку"
         case "es": return "Omitir enfriamiento"
         case "pt-br": return "Pular o desaquecimento"
+        case "de": return "Abwärmen überspringen"
         default: return "Skip cool-down"
         }
     }
@@ -289,6 +301,7 @@ private extension StoreScreenshots.L {
         switch tag {
         case "ru": return "Стоп"
         case "es", "pt-br": return "Parar"
+        case "de": return "Stoppen"
         default: return "Stop"
         }
     }
@@ -297,6 +310,7 @@ private extension StoreScreenshots.L {
         case "ru": return "По плану"
         case "es": return "Según el plan"
         case "pt-br": return "Como planejado"
+        case "de": return "Nach Plan"
         default: return "On plan"
         }
     }
