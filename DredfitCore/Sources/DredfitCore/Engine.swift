@@ -60,6 +60,7 @@ public enum EngineConfig {
     public static let deltaLess = -1
     public static let deltaPlan = 1
     public static let deltaMore = 2
+    /// Default cell of the growth ceiling below — the scalar this used to be.
     public static let maxUpPerSession = 2
     public static let failsToDeload = 3
     public static let deloadDrop = 3
@@ -73,6 +74,20 @@ public enum EngineConfig {
     public static let repStart = [1: 8, 2: 6, 3: 5, 4: 4]
     public static let holdStart = [1: 20, 2: 15, 3: 15, 4: 10]
     public static var levelMax: Int { (tiers + setsMax - setsBase) * stepsPerTier - 1 } // 47
+
+    /// How many levels a pattern may climb in one session, by (pattern, tier).
+    /// Tendon and fascia remodel on a slower clock than muscle, and the
+    /// ceiling is the one dial that acts *before* an overload rather than
+    /// after it. A missing cell is `maxUpPerSession`, so an empty table is
+    /// bit-identical to the scalar this replaced. Spec §15.1/§15.3.
+    public static let maxUpByPatternTier: [Pattern: [Int: Int]] = [:]
+
+    /// `tier` comes from the level BEFORE the update: the ceiling governs
+    /// leaving a level, not arriving at one. Levels 32...47 are tier 4 by
+    /// encoding, so the set bands need no special case.
+    public static func maxUp(pattern: Pattern, tier: Int) -> Int {
+        maxUpByPatternTier[pattern]?[tier] ?? maxUpPerSession
+    }
 }
 
 // MARK: - State
@@ -348,17 +363,22 @@ public enum Engine {
             let p = ex.pattern
             if skipped.contains(p) { continue }
             let oldL = state.levels[p] ?? 0
+            // The tier is read from the level before the update, not from the
+            // session — same thing today, and the rule stays true if a session
+            // ever outlives the state it was generated from.
+            let cap = EngineConfig.maxUp(pattern: p, tier: Level.decode(oldL).tier)
             var newL: Int
 
             if let actual = overrides[p] {
                 let factL = Level.fromActual(pattern: p, tier: ex.tier,
                                              sets: ex.sets, actual: actual)
-                // Calibration: from a zero level the +2 cap does not apply.
+                // Calibration: from a zero level the cap does not apply.
                 newL = oldL == 0
                     ? min(max(factL, 0), EngineConfig.levelMax)
-                    : min(max(factL, 0), oldL + EngineConfig.maxUpPerSession)
+                    : min(max(factL, 0), oldL + cap)
             } else {
-                newL = oldL + result.delta
+                // "More" runs through the same ceiling; downward moves never do.
+                newL = min(oldL + result.delta, oldL + cap)
             }
             newL = min(max(newL, 0), EngineConfig.levelMax)
 
