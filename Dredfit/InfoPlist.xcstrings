@@ -34,6 +34,18 @@
             "value" : "Dredfit nunca lee tus datos de Salud. Este permiso es solo parte de la API que guarda los entrenamientos."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dredfit ne lit jamais tes données Santé. Cette autorisation fait simplement partie de l’API qui enregistre les séances."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dredfit non legge mai i tuoi dati di Salute – questo permesso fa semplicemente parte dell’API che salva gli allenamenti."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -67,6 +79,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dredfit guarda en Salud los entrenamientos completados. No se comparte nada más."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dredfit enregistre les séances terminées dans Santé. Rien d’autre n’est partagé."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dredfit salva in Salute gli allenamenti completati. Nient’altro viene condiviso."
           }
         },
         "pt-BR" : {

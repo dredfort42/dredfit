@@ -1,6 +1,6 @@
 name: Localization
 
-# Fails if any shipping language (de, es, pt-BR, ru) is missing a translation in a
+# Fails if any shipping language (de, es, fr, it, pt-BR, ru) is missing a translation in a
 # String Catalog. English is the source language. Fast (~10s, ubuntu) and runs
 # on every push/PR, so it is a required check — see .github/WORKFLOWS.md.
 #

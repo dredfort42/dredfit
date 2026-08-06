@@ -22,6 +22,18 @@
             "value": "Sentadilla"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Squat"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Squat"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -55,6 +67,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pies al ancho de los hombros, puntas ligeramente hacia fuera, el peso en todo el pie."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pieds à la largeur des épaules, pointes de pieds légèrement vers l’extérieur, le poids sur tout le pied."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Piedi alla larghezza delle spalle, punte leggermente in fuori, il peso su tutto il piede."
           }
         },
         "pt-BR": {
@@ -92,6 +116,18 @@
             "value": "Siéntate atrás y abajo durante ~2 segundos; las rodillas siguen la línea de los pies, la espalda recta."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descends comme pour t’asseoir en arrière pendant ~2 secondes ; les genoux restent dans l’axe des pieds, le dos droit."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Siediti all’indietro e in basso per ~2 secondi; le ginocchia seguono la linea delle punte, la schiena resta dritta."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -125,6 +161,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Abajo, los muslos quedan paralelos al suelo; sube soltando el aire."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En bas, les cuisses sont parallèles au sol ; remonte en soufflant."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In basso le cosce sono parallele al pavimento; risali espirando."
           }
         },
         "pt-BR": {
@@ -162,6 +210,18 @@
             "value": "Las rodillas se meten hacia dentro: mantenlas alineadas con los pies."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les genoux rentrent vers l’intérieur : garde-les dans l’axe des pieds."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le ginocchia cedono verso l’interno – tienile in linea con i piedi."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -195,6 +255,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Los talones se levantan del suelo: la profundidad importa más que la velocidad."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les talons décollent du sol : la profondeur compte plus que la vitesse."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I talloni si staccano da terra – la profondità conta più della velocità."
           }
         },
         "pt-BR": {
@@ -232,6 +304,18 @@
             "value": "Sentadilla búlgara"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Squat bulgare"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Squat bulgaro"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -265,6 +349,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "El pie de atrás sobre una silla o un sofá; el de adelante, un paso al frente."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le pied arrière sur une chaise ou un canapé derrière toi ; le pied avant, un grand pas devant."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il piede dietro su una sedia o sul divano, quello davanti a una falcata di distanza."
           }
         },
         "pt-BR": {
@@ -302,6 +398,18 @@
             "value": "Baja en vertical hasta que la rodilla de atrás casi toque el suelo."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descends à la verticale jusqu’à ce que le genou arrière touche presque le sol."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scendi in verticale finché il ginocchio dietro non sfiora il pavimento."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -335,6 +443,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sube empujando con el talón de delante; el torso, ligeramente inclinado al frente."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remonte en poussant sur le talon avant ; le buste légèrement incliné vers l’avant."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Risali spingendo con il tallone davanti; il busto resta leggermente inclinato in avanti."
           }
         },
         "pt-BR": {
@@ -372,6 +492,18 @@
             "value": "Paso demasiado corto: la rodilla de delante se va muy por delante de la punta del pie."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un pas trop court : le genou avant dépasse largement la pointe du pied."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Piedi troppo vicini – il ginocchio davanti supera di molto la punta del piede."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -405,6 +537,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cargar la pierna de atrás: solo está ahí para el equilibrio."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prendre appui sur la jambe arrière : elle n’est là que pour l’équilibre."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caricare il peso sulla gamba dietro – serve solo per l’equilibrio."
           }
         },
         "pt-BR": {
@@ -442,6 +586,18 @@
             "value": "Sentadilla pistol"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pistol Squat"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pistol squat"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -475,6 +631,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "De pie sobre una pierna, la otra extendida al frente y los brazos delante para equilibrarte."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Debout sur une jambe, l’autre tendue devant, les bras en avant pour l’équilibre."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In piedi su una gamba, l’altra tesa in avanti, le braccia distese per l’equilibrio."
           }
         },
         "pt-BR": {
@@ -512,6 +680,18 @@
             "value": "Baja despacio hasta apoyar el muslo sobre la pantorrilla, con el talón en el suelo."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descends lentement jusqu’à ce que l’arrière de la cuisse repose sur le mollet, le talon au sol."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scendi lentamente finché la coscia non si appoggia sul polpaccio, il tallone resta a terra."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -545,6 +725,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sube sin ayudarte con las manos; al principio puedes sujetarte al marco de una puerta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Relève-toi sans les mains ; au début, tu peux t’aider d’un encadrement de porte."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alzati senza aiutarti con le mani; all’inizio puoi tenerti allo stipite di una porta."
           }
         },
         "pt-BR": {
@@ -582,6 +774,18 @@
             "value": "Dejarte caer sin control: el descenso tiene que ser lento."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Te laisser tomber sans contrôle : la descente doit être lente."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lasciarsi cadere senza controllo – la discesa deve essere lenta."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -615,6 +819,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "La rodilla se va hacia un lado: llévala siempre sobre el pie."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le genou part sur le côté : garde-le dans l’axe du pied."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il ginocchio si sposta di lato – tienilo sempre sopra il piede."
           }
         },
         "pt-BR": {
@@ -652,6 +868,18 @@
             "value": "Sentadilla shrimp"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shrimp Squat"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shrimp squat"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -685,6 +913,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "De pie sobre una pierna, dobla la otra hacia atrás y sujétate el pie con una mano."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Debout sur une jambe ; plie l’autre vers l’arrière et attrape ton pied d’une main."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In piedi su una gamba; piega l’altra all’indietro e tieni il piede con una mano."
           }
         },
         "pt-BR": {
@@ -722,6 +962,18 @@
             "value": "Baja despacio hasta que la rodilla de atrás toque el suelo con suavidad."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descends lentement jusqu’à ce que le genou arrière touche doucement le sol."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scendi lentamente finché il ginocchio dietro non tocca terra con delicatezza."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -755,6 +1007,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sube empujando con el talón de la pierna que trabaja, el pecho arriba."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remonte en poussant sur le talon de la jambe qui travaille, le buste redressé."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Risali spingendo sul tallone della gamba che lavora, con il petto alto."
           }
         },
         "pt-BR": {
@@ -792,6 +1056,18 @@
             "value": "La rodilla golpea el suelo: el descenso se mantiene lento y controlado."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le genou cogne le sol : la descente reste lente et contrôlée."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il ginocchio sbatte a terra – la discesa resta lenta e controllata."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -825,6 +1101,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Inclinarte demasiado al frente: pecho arriba y abdomen firme."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Te pencher trop vers l’avant : garde le buste redressé et le tronc gainé."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inclinarsi troppo in avanti – petto alto e core contratto."
           }
         },
         "pt-BR": {
@@ -862,6 +1150,18 @@
             "value": "Flexión con rodillas apoyadas"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pompes sur les genoux"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flessioni sulle ginocchia"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -895,6 +1195,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Manos bajo los hombros, rodillas en el suelo; de la cabeza a las rodillas, una línea recta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mains sous les épaules, genoux au sol ; de la tête aux genoux, une ligne droite."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mani sotto le spalle, ginocchia a terra; dalla testa alle ginocchia una linea retta."
           }
         },
         "pt-BR": {
@@ -932,6 +1244,18 @@
             "value": "Baja durante ~2 segundos hasta casi tocar el suelo con el pecho, los codos a unos 45° del torso."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descends pendant ~2 secondes jusqu’à ce que la poitrine touche presque le sol, les coudes à environ 45° du buste."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scendi per ~2 secondi finché il petto non sfiora il pavimento, i gomiti a circa 45° dal busto."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -965,6 +1289,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Empuja hacia arriba soltando el aire, con el abdomen apretado."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pousse vers le haut en soufflant, le ventre serré."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spingiti verso l’alto espirando, con l’addome contratto."
           }
         },
         "pt-BR": {
@@ -1002,6 +1338,18 @@
             "value": "La cadera se hunde: aprieta glúteos y abdomen."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bassin s’affaisse : serre les fessiers et les abdos."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il bacino cede – stringi glutei e addome."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -1035,6 +1383,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Recorrido corto: el pecho debe casi tocar el suelo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Amplitude trop courte : la poitrine doit presque toucher le sol."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Movimento troppo corto – il petto deve quasi toccare il pavimento."
           }
         },
         "pt-BR": {
@@ -1072,6 +1432,18 @@
             "value": "Flexión"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pompes"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flessioni"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -1105,6 +1477,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Manos bajo los hombros; el cuerpo, una línea recta de la cabeza a los talones."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mains sous les épaules ; le corps forme une ligne droite de la tête aux talons."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mani sotto le spalle; il corpo è una linea retta dalla testa ai talloni."
           }
         },
         "pt-BR": {
@@ -1142,6 +1526,18 @@
             "value": "Empuja hacia arriba soltando el aire; arriba no bloquees del todo los codos."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pousse vers le haut en soufflant ; en haut, ne verrouille pas complètement les coudes."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spingiti verso l’alto espirando; in alto non bloccare del tutto i gomiti."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -1175,6 +1571,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cadera hundida o glúteos elevados: el abdomen deja de trabajar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bassin affaissé ou fesses relevées : le tronc ne travaille plus."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bacino che cede o sedere troppo in alto – il core smette di lavorare."
           }
         },
         "pt-BR": {
@@ -1212,6 +1620,18 @@
             "value": "Codos abiertos a 90°: eso sobrecarga los hombros."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coudes écartés à 90° : ça surcharge les épaules."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gomiti aperti a 90° – così si sovraccaricano le spalle."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -1245,6 +1665,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Flexión con pies elevados"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pompes pieds surélevés"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flessioni con i piedi rialzati"
           }
         },
         "pt-BR": {
@@ -1282,6 +1714,18 @@
             "value": "Pies sobre una silla o un sofá, manos en el suelo bajo los hombros."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pieds sur une chaise ou un canapé, mains au sol sous les épaules."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Piedi su una sedia o sul divano, mani a terra sotto le spalle."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -1315,6 +1759,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mantén el cuerpo rígido y baja hasta que el pecho casi toque el suelo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garde le corps bien gainé et descends jusqu’à ce que la poitrine touche presque le sol."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tieni il corpo rigido e scendi finché il petto non sfiora il pavimento."
           }
         },
         "pt-BR": {
@@ -1352,6 +1808,18 @@
             "value": "Cuanto más alto el apoyo, más difícil: empieza con poca altura."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plus l’appui est haut, plus c’est difficile : commence bas."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Più in alto sono i piedi, più è difficile – comincia da un appoggio basso."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -1385,6 +1853,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Arqueo en la zona lumbar: no dejes que la cadera se hunda."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bas du dos se creuse : ne laisse pas le bassin s’affaisser."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La zona lombare si inarca – non lasciar cedere il bacino."
           }
         },
         "pt-BR": {
@@ -1422,6 +1902,18 @@
             "value": "Bajar la cabeza primero: el cuello sigue la línea del torso."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La tête descend en premier : garde la nuque dans l’alignement du buste."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La testa scende per prima – il collo resta in linea con il busto."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -1455,6 +1947,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Flexión de arquero"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pompes archer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flessioni arciere"
           }
         },
         "pt-BR": {
@@ -1492,6 +1996,18 @@
             "value": "Coloca las manos bien abiertas; el cuerpo sigue siendo una línea recta."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pose les mains bien écartées ; le corps reste une seule ligne droite."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appoggia le mani ben larghe; il corpo resta una linea retta."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -1525,6 +2041,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Baja hacia una mano doblando ese codo; el otro brazo se queda estirado."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descends vers une main en pliant ce coude ; l’autre bras reste tendu."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scendi verso una mano piegando quel gomito; l’altro braccio resta teso."
           }
         },
         "pt-BR": {
@@ -1562,6 +2090,18 @@
             "value": "Empuja hacia arriba y haz toda la serie del mismo lado; después cambia."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remonte en poussant ; fais toute la série du même côté, puis change."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spingi verso l’alto e fai tutta la serie dallo stesso lato, poi passa all’altro."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -1595,6 +2135,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "La cadera rota: hombros y cadera se mantienen paralelos al suelo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bassin tourne : épaules et bassin restent parallèles au sol."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il bacino ruota – spalle e bacino restano paralleli al pavimento."
           }
         },
         "pt-BR": {
@@ -1632,6 +2184,18 @@
             "value": "Medio recorrido: el pecho baja hasta la mano que trabaja."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demi-amplitude : la poitrine descend jusqu’à la main qui travaille."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mezza ampiezza – il petto scende fino alla mano che lavora."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -1665,6 +2229,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Puente de glúteos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pont fessier"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponte glutei"
           }
         },
         "pt-BR": {
@@ -1702,6 +2278,18 @@
             "value": "Acostado boca arriba, pies cerca de los glúteos al ancho de las caderas, brazos a los lados."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allonge-toi sur le dos, les pieds près des fessiers, à la largeur du bassin, les bras le long du corps."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sdraiati sulla schiena, i piedi vicini ai glutei alla larghezza del bacino, le braccia lungo i fianchi."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -1735,6 +2323,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sube la cadera hasta que rodillas, cadera y hombros formen una línea recta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Soulève le bassin jusqu’à ce que genoux, bassin et épaules forment une ligne droite."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solleva il bacino finché ginocchia, bacino e spalle non formano una linea retta."
           }
         },
         "pt-BR": {
@@ -1772,6 +2372,18 @@
             "value": "Aprieta los glúteos un segundo arriba y baja despacio sin tocar el suelo."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Serre les fessiers une seconde en haut, puis redescends lentement sans toucher le sol."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contrai i glutei per un secondo in alto, poi scendi lentamente senza toccare il pavimento."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -1805,6 +2417,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Arqueo en la zona lumbar: no empujes más allá de la línea recta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambrure lombaire : ne pousse pas le bassin au-delà de la ligne droite."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inarcare la zona lombare – non spingere oltre la linea retta."
           }
         },
         "pt-BR": {
@@ -1842,6 +2466,18 @@
             "value": "Empujar con las puntas de los pies: el peso va en los talones."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pousser avec la pointe des pieds : le poids reste sur les talons."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spingere con le punte dei piedi – il peso resta sui talloni."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -1875,6 +2511,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Puente de glúteos a una pierna"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pont fessier à une jambe"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponte glutei a una gamba"
           }
         },
         "pt-BR": {
@@ -1912,6 +2560,18 @@
             "value": "Acostado boca arriba, un pie cerca de los glúteos y la otra pierna extendida."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allonge-toi sur le dos, un pied près des fessiers, l’autre jambe tendue."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sdraiati sulla schiena, un piede vicino ai glutei, l’altra gamba distesa."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -1945,6 +2605,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sube la cadera con una sola pierna hasta formar una línea recta, manteniendo la pelvis nivelada."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Soulève le bassin sur une jambe jusqu’à la ligne droite, en le gardant bien horizontal."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solleva il bacino con una gamba sola fino a formare una linea retta, senza inclinarlo."
           }
         },
         "pt-BR": {
@@ -1982,6 +2654,18 @@
             "value": "Un segundo de pausa arriba y baja despacio."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reste une seconde en haut, puis redescends lentement."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fermati un secondo in alto, poi scendi lentamente."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -2015,6 +2699,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "La pelvis se inclina hacia un lado: los dos huesos de la cadera miran al techo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bassin penche d’un côté : les deux hanches pointent vers le plafond."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il bacino si inclina di lato – tieni le due ossa dell’anca rivolte al soffitto."
           }
         },
         "pt-BR": {
@@ -2052,6 +2748,18 @@
             "value": "Ayudarte con la pierna libre: no participa en el movimiento."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "S’aider de la jambe libre : elle ne participe pas au mouvement."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aiutarsi con la gamba libera – non partecipa al movimento."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -2085,6 +2793,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Peso muerto rumano a una pierna"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Soulevé de terre roumain à une jambe"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stacco rumeno a una gamba"
           }
         },
         "pt-BR": {
@@ -2122,6 +2842,18 @@
             "value": "De pie sobre una pierna con la rodilla algo flexionada, inclínate al frente desde la cadera con la espalda recta."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Debout sur une jambe, le genou souple ; bascule le buste vers l’avant depuis les hanches, le dos bien plat."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In piedi su una gamba, ginocchio morbido; piegati in avanti dall’anca con la schiena dritta."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -2155,6 +2887,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "La pierna libre se va hacia atrás; torso y pierna forman una línea, las manos bajan hacia el suelo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La jambe libre part vers l’arrière ; buste et jambe forment une ligne, les mains descendent vers le sol."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La gamba libera si allunga indietro; busto e gamba formano una linea, le mani scendono verso il pavimento."
           }
         },
         "pt-BR": {
@@ -2192,6 +2936,18 @@
             "value": "Vuelve a subir apretando el glúteo de la pierna de apoyo."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redresse-toi en serrant le fessier de la jambe d’appui."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Risali contraendo il gluteo della gamba d’appoggio."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -2225,6 +2981,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Espalda redondeada: mantén las escápulas firmes y bascula desde la cadera."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dos arrondi : garde les omoplates serrées et bascule depuis les hanches."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incurvare la schiena – tieni le scapole ferme e piegati dall’anca."
           }
         },
         "pt-BR": {
@@ -2262,6 +3030,18 @@
             "value": "La pelvis se abre: mantén las caderas paralelas al suelo."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bassin s’ouvre : garde les hanches parallèles au sol."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il bacino si apre di lato – tienilo parallelo al pavimento."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -2295,6 +3075,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Curl femoral deslizante"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leg curl glissé"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sliding leg curl"
           }
         },
         "pt-BR": {
@@ -2332,6 +3124,18 @@
             "value": "Acostado boca arriba, talones sobre una toalla en suelo liso y la cadera elevada."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allonge-toi sur le dos, les talons sur une serviette posée sur un sol lisse, le bassin décollé."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sdraiati sulla schiena su un pavimento liscio, i talloni su un asciugamano, il bacino sollevato."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -2365,6 +3169,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Desliza los talones hacia fuera hasta casi estirar las piernas; la cadera no baja."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fais glisser les talons vers l’avant jusqu’à ce que les jambes soient presque tendues ; le bassin ne descend pas."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fai scivolare i talloni in avanti finché le gambe non sono quasi tese; il bacino resta alto."
           }
         },
         "pt-BR": {
@@ -2402,6 +3218,18 @@
             "value": "Trae los talones de vuelta hacia los glúteos: eso es una repetición."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ramène les talons vers les fessiers : ça fait une répétition."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riporta i talloni verso i glutei – questa è una ripetizione."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -2435,6 +3263,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "La cadera cae al estirar las piernas: mantén el puente todo el tiempo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bassin s’affaisse quand les jambes se tendent : reste en pont du début à la fin."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il bacino scende mentre le gambe si distendono – mantieni il ponte per tutto il tempo."
           }
         },
         "pt-BR": {
@@ -2472,6 +3312,18 @@
             "value": "Tirones bruscos: desliza hacia fuera y hacia dentro despacio, con control."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À-coups : glisse lentement dans les deux sens, en contrôlant le mouvement."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Movimenti a strappo – scivola avanti e indietro lentamente, con controllo."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -2505,6 +3357,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Elevaciones Y-T-W"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Élévations Y-T-W"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alzate Y-T-W"
           }
         },
         "pt-BR": {
@@ -2542,6 +3406,18 @@
             "value": "Acostado boca abajo, la frente cerca del suelo y los brazos extendidos formando una Y."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allonge-toi sur le ventre, le front près du sol, les bras tendus en Y."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sdraiati a pancia in giù, la fronte vicino al pavimento, le braccia distese a formare una Y."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -2575,6 +3451,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sube los brazos estirados, mantenlos 2 segundos juntando las escápulas y baja."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Soulève les bras tendus, maintiens-les 2 secondes en serrant les omoplates, puis redescends-les."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solleva le braccia tese, tienile per 2 secondi avvicinando le scapole, poi abbassale."
           }
         },
         "pt-BR": {
@@ -2612,6 +3500,18 @@
             "value": "Repite en posición de T y de W: las tres juntas son una repetición."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Répète en position T, puis en W : les trois ensemble comptent pour une répétition."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ripeti in posizione T e in posizione W – le tre posizioni insieme contano come una ripetizione."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -2645,6 +3545,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Subir el torso de un tirón: solo se levantan los brazos y las escápulas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Relever le buste d’un coup sec : seuls les bras et les omoplates se soulèvent."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sollevare il busto di slancio – si alzano solo braccia e scapole."
           }
         },
         "pt-BR": {
@@ -2682,6 +3594,18 @@
             "value": "Los hombros se van hacia las orejas: lleva las escápulas abajo y atrás."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les épaules remontent vers les oreilles : tire les omoplates vers le bas et vers l’arrière."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le spalle salgono verso le orecchie – porta le scapole in basso e indietro."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -2715,6 +3639,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Remo invertido (mesa)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rowing inversé (table)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rematore al tavolo"
           }
         },
         "pt-BR": {
@@ -2752,6 +3688,18 @@
             "value": "Acuéstate bajo una mesa firme y agarra el borde con las manos al ancho de los hombros."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allonge-toi sous une table solide et attrape le bord, les mains à la largeur des épaules."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sdraiati sotto un tavolo robusto e afferra il bordo con le mani alla larghezza delle spalle."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -2785,6 +3733,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cuerpo recto de los hombros a los talones; lleva el pecho al borde juntando las escápulas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corps droit des épaules aux talons ; tire la poitrine vers le bord en serrant les omoplates."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corpo dritto dalle spalle ai talloni; porta il petto al bordo avvicinando le scapole."
           }
         },
         "pt-BR": {
@@ -2822,6 +3782,18 @@
             "value": "Baja despacio hasta estirar del todo los brazos."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redescends lentement jusqu’à tendre complètement les bras."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scendi lentamente fino a braccia distese."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -2855,6 +3827,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "La cadera se hunde: sostén el cuerpo como en una plancha."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bassin s’affaisse : tiens le corps droit comme une planche."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il bacino cede – tieni il corpo come in un plank."
           }
         },
         "pt-BR": {
@@ -2892,6 +3876,18 @@
             "value": "Tirar solo con los brazos: el movimiento empieza juntando las escápulas."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tirer seulement avec les bras : commence par serrer les omoplates."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tirare solo con le braccia – il movimento parte dalle scapole."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -2925,6 +3921,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Remo invertido con pies elevados"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rowing inversé pieds surélevés"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rematore con i piedi rialzati"
           }
         },
         "pt-BR": {
@@ -2962,6 +3970,18 @@
             "value": "La misma posición, pero con los pies sobre una silla: el cuerpo queda paralelo al suelo."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Même position de départ, mais les pieds sur une chaise : le corps est parallèle au sol."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stessa posizione, ma con i piedi su una sedia – il corpo è parallelo al pavimento."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -2995,6 +4015,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lleva el pecho al borde de la mesa con el torso rígido."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tire la poitrine vers le bord de la table, le tronc bien gainé."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Porta il petto al bordo del tavolo con il busto rigido."
           }
         },
         "pt-BR": {
@@ -3032,6 +4064,18 @@
             "value": "Un segundo de pausa arriba; baja con control."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reste une seconde en haut ; contrôle la descente."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fermati un secondo in alto; scendi in modo controllato."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -3065,6 +4109,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Llegar con la barbilla en lugar del pecho: guía el movimiento con el pecho."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le menton avance au lieu de la poitrine : guide le mouvement avec la poitrine."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrivare con il mento invece che con il petto – guida il movimento con il petto."
           }
         },
         "pt-BR": {
@@ -3102,6 +4158,18 @@
             "value": "Ir demasiado rápido: controla el movimiento en los dos sentidos."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aller trop vite : contrôle le mouvement dans les deux sens."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ritmo troppo veloce – controlla il movimento in entrambe le direzioni."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -3135,6 +4203,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Remo invertido de arquero"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rowing inversé archer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rematore arciere"
           }
         },
         "pt-BR": {
@@ -3172,6 +4252,18 @@
             "value": "Colócate bajo la mesa con un agarre ancho y el cuerpo recto."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installe-toi sous la table en prise large, le corps droit."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mettiti sotto il tavolo con una presa larga, corpo dritto."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -3205,6 +4297,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lleva el pecho hacia una mano; el otro brazo se queda casi estirado."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tire la poitrine vers une main ; l’autre bras reste presque tendu."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Porta il petto verso una mano; l’altro braccio resta quasi disteso."
           }
         },
         "pt-BR": {
@@ -3242,6 +4346,18 @@
             "value": "Baja con control; toda la serie a un lado y después cambia."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contrôle la descente ; fais toute la série d’un côté, puis change."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scendi in modo controllato; tutta la serie da un lato, poi cambia."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -3275,6 +4391,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "La cadera se hunde: sostén la línea de plancha durante toda la serie."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bassin s’affaisse : garde l’alignement de la planche pendant toute la série."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il bacino cede – mantieni la linea del plank per tutta la serie."
           }
         },
         "pt-BR": {
@@ -3312,6 +4440,18 @@
             "value": "Los dos brazos tiran por igual: el trabajo lo hace el brazo activo."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les deux bras tirent autant l’un que l’autre : c’est le bras actif qui fait le travail."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entrambe le braccia tirano allo stesso modo – il lavoro lo fa il braccio attivo."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -3345,6 +4485,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Flexión contra la pared"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pompes au mur"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flessioni al muro"
           }
         },
         "pt-BR": {
@@ -3382,6 +4534,18 @@
             "value": "Ponte a un paso de la pared, con las palmas en ella algo más abiertas que los hombros, a la altura del pecho."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Place-toi à un pas du mur, les paumes posées dessus à hauteur de poitrine, un peu plus écartées que les épaules."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mettiti a un braccio di distanza dal muro, con i palmi appoggiati poco più larghi delle spalle, all’altezza del petto."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -3415,6 +4579,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dobla los codos acercando la cara a la pared, con el cuerpo en una línea."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plie les coudes en approchant le visage du mur, le corps bien aligné."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Piega i gomiti avvicinando il viso al muro, corpo in un’unica linea."
           }
         },
         "pt-BR": {
@@ -3452,6 +4628,18 @@
             "value": "Empuja hasta estirar los brazos; cuanto más lejos los pies, más difícil."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repousse-toi jusqu’à tendre les bras ; plus les pieds sont loin, plus c’est difficile."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spingiti indietro fino a braccia distese; più i piedi sono lontani, più è difficile."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -3485,6 +4673,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "La cadera se va hacia atrás: todo el cuerpo se mueve como una sola línea."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bassin recule : tout le corps bouge d’un seul bloc."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il bacino arretra – tutto il corpo si muove come un’unica linea."
           }
         },
         "pt-BR": {
@@ -3522,6 +4722,18 @@
             "value": "Codos abiertos a 90°: mantenlos más cerca del torso."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les coudes s’ouvrent à 90° : garde-les plus près du buste."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gomiti aperti a 90° – tienili più vicini al busto."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -3555,6 +4767,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Flexión pike"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pompes pike"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flessioni pike"
           }
         },
         "pt-BR": {
@@ -3592,6 +4816,18 @@
             "value": "Desde la posición de flexión, sube mucho la cadera: el cuerpo forma una V invertida."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Depuis la position de pompes, monte le bassin bien haut : le corps forme un V inversé."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dalla posizione delle flessioni, porta il bacino ben in alto – il corpo forma una V rovesciata."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -3625,6 +4861,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dobla los codos bajando la coronilla hacia el suelo, entre las manos."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plie les coudes en descendant le sommet du crâne vers le sol, entre les mains."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Piega i gomiti, abbassando la sommità della testa verso il pavimento tra le mani."
           }
         },
         "pt-BR": {
@@ -3662,6 +4910,18 @@
             "value": "Empuja hacia arriba sin dejar caer la cadera."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repousse-toi vers le haut sans laisser retomber le bassin."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spingi verso l’alto senza far scendere il bacino."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -3695,6 +4955,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "La cadera baja al doblar los brazos: mantén la forma de V."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bassin descend quand les bras se plient : garde la forme en V."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il bacino scende mentre le braccia si piegano – mantieni la forma a V."
           }
         },
         "pt-BR": {
@@ -3732,6 +5004,18 @@
             "value": "Golpear la cabeza contra el suelo: baja despacio, con control."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La tête cogne le sol : descends lentement, en douceur."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La testa sbatte sul pavimento – scendi lentamente e con controllo."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -3765,6 +5049,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Flexión en parada de manos contra la pared"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pompes en poirier au mur"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flessioni in verticale al muro"
           }
         },
         "pt-BR": {
@@ -3802,6 +5098,18 @@
             "value": "Sube a la parada de manos de espaldas a la pared, con los talones apoyados en ella."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Élance-toi en poirier dos au mur, les talons appuyés dessus."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sali in verticale con uno slancio, dando le spalle al muro, talloni appoggiati."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -3835,6 +5143,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dobla los codos despacio, bajando la coronilla hacia el suelo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plie lentement les coudes en descendant le sommet du crâne vers le sol."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Piega i gomiti lentamente, abbassando la sommità della testa verso il pavimento."
           }
         },
         "pt-BR": {
@@ -3872,6 +5192,18 @@
             "value": "Empuja hacia arriba; ten claro cómo salir con seguridad: baja una pierna y después la otra."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repousse-toi vers le haut ; prévois comment redescendre en toute sécurité : repose une jambe, puis l’autre."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spingi verso l’alto; pensa prima a come uscire in sicurezza – abbassa una gamba alla volta."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -3905,6 +5237,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Arqueo en la zona lumbar: mantén el abdomen y los glúteos apretados."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bas du dos se cambre : garde les abdos et les fesses serrés."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La zona lombare si inarca – tieni core e glutei contratti."
           }
         },
         "pt-BR": {
@@ -3942,6 +5286,18 @@
             "value": "Los codos se abren hacia fuera: llévalos hacia adelante y abajo."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les coudes s’écartent vers l’extérieur : guide-les vers l’avant et vers le bas."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I gomiti si aprono verso l’esterno – guidali in avanti e verso il basso."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -3975,6 +5331,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Flexión en parada de manos de frente a la pared"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pompes en poirier face au mur"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flessioni in verticale petto al muro"
           }
         },
         "pt-BR": {
@@ -4012,6 +5380,18 @@
             "value": "Sube caminando con los pies por la pared, el pecho hacia ella y el cuerpo casi vertical."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monte les pieds pas à pas le long du mur, poitrine face au mur, le corps presque à la verticale."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sali camminando con i piedi sul muro, petto rivolto al muro, corpo quasi verticale."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -4045,6 +5425,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dobla los codos despacio, bajando la cabeza hacia el suelo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plie lentement les coudes en descendant la tête vers le sol."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Piega i gomiti lentamente, portando la testa verso terra."
           }
         },
         "pt-BR": {
@@ -4082,6 +5474,18 @@
             "value": "Empuja hacia arriba; mantén el cuerpo en una línea firme."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pousse pour remonter ; garde le corps gainé, en une seule ligne."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spingi e risali; tieni il corpo in un’unica linea compatta."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -4115,6 +5519,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Arquearte separándote de la pared: quédate cerca, con las costillas metidas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu te cambres en t’éloignant du mur : reste tout près, les côtes rentrées."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il corpo si inarca allontanandosi dal muro – restaci vicino, costole chiuse."
           }
         },
         "pt-BR": {
@@ -4152,6 +5568,18 @@
             "value": "Descenso sin control: la cabeza tiene que apoyarse suave en el suelo."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descente non contrôlée : la tête doit se poser en douceur."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discesa senza controllo – la testa deve appoggiarsi dolcemente a terra."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -4185,6 +5613,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Zancada estática"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fentes statiques"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Affondi statici"
           }
         },
         "pt-BR": {
@@ -4222,6 +5662,18 @@
             "value": "Colócate en posición de zancada y quédate en ella toda la serie."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Place-toi en position de fente et restes-y pendant toute la série."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mettiti in posizione di affondo e restaci per tutta la serie."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -4255,6 +5707,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sube empujando con el talón de delante, el torso erguido."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remonte en poussant dans le talon avant, le buste bien droit."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Risali spingendo sul tallone davanti, busto eretto."
           }
         },
         "pt-BR": {
@@ -4292,6 +5756,18 @@
             "value": "La rodilla de delante se va muy por delante de la punta: alarga el paso."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le genou avant dépasse largement la pointe du pied : allonge le pas."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il ginocchio davanti va molto oltre la punta del piede – allunga la falcata."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -4325,6 +5801,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "El torso se va hacia adelante: mantén el pecho arriba."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le buste bascule vers l’avant : garde la poitrine haute."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il busto si inclina in avanti – tieni il petto alto."
           }
         },
         "pt-BR": {
@@ -4362,6 +5850,18 @@
             "value": "Zancada inversa"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fentes arrière"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Affondi indietro"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -4395,6 +5895,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "De pie, da un paso atrás y baja la rodilla trasera casi hasta el suelo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Debout, recule d’un pas et descends le genou arrière presque jusqu’au sol."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Da in piedi, porta un piede indietro e scendi con il ginocchio di dietro quasi a terra."
           }
         },
         "pt-BR": {
@@ -4432,6 +5944,18 @@
             "value": "La espinilla de delante se mantiene casi vertical; el peso, en el talón de delante."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le tibia avant reste presque vertical ; le poids sur le talon avant."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La tibia davanti resta quasi verticale; il peso sul tallone davanti."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -4465,6 +5989,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Empuja y vuelve a la posición de pie: eso es una repetición."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pousse pour revenir debout : ça fait une répétition."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spingi e torna in piedi – è una ripetizione."
           }
         },
         "pt-BR": {
@@ -4502,6 +6038,18 @@
             "value": "Paso atrás demasiado corto: se sobrecarga la rodilla de delante."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un pas arrière trop court : le genou avant se retrouve surchargé."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Falcata all’indietro troppo corta – si sovraccarica il ginocchio davanti."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -4535,6 +6083,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pérdida de equilibrio: fija la mirada en un punto al frente."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu perds l’équilibre : fixe un point devant toi."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perdi l’equilibrio – fissa un punto davanti a te."
           }
         },
         "pt-BR": {
@@ -4572,6 +6132,18 @@
             "value": "Zancada con salto"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fentes sautées"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Affondi con salto"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -4605,6 +6177,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Desde la zancada, salta y cambia de pierna en el aire."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Depuis la fente, saute et change de jambe en l’air."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dall’affondo salta verso l’alto e cambia gamba in aria."
           }
         },
         "pt-BR": {
@@ -4642,6 +6226,18 @@
             "value": "Cae suave en zancada con la otra pierna, la rodilla casi en el suelo."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atterris en douceur en fente de l’autre côté, le genou presque au sol."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atterra dolcemente in affondo sull’altra gamba, ginocchio quasi a terra."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -4675,6 +6271,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mantén un ritmo constante; ayúdate con los brazos para equilibrarte."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garde un rythme régulier ; aide-toi des bras pour l’équilibre."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tieni un ritmo costante; aiutati con le braccia per l’equilibrio."
           }
         },
         "pt-BR": {
@@ -4712,6 +6320,18 @@
             "value": "Caer rígido con la pierna estirada: amortigua flexionando."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réception raide sur jambe tendue : amortis en fléchissant."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atterraggio rigido sulla gamba tesa – ammortizza piegandola."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -4745,6 +6365,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "La rodilla golpea el suelo: controla la profundidad."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le genou cogne le sol : contrôle la profondeur."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il ginocchio sbatte a terra – controlla la profondità."
           }
         },
         "pt-BR": {
@@ -4782,6 +6414,18 @@
             "value": "Zancada con salto y pausa"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fentes sautées avec temps d’arrêt"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Affondi con salto e fermo"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -4815,6 +6459,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Salta cambiando de pierna en el aire y cae suave en zancada."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saute en changeant de jambe en l’air et atterris en douceur en fente."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salta cambiando gamba in aria e atterra dolcemente in affondo."
           }
         },
         "pt-BR": {
@@ -4852,6 +6508,18 @@
             "value": "Aguanta abajo 2 segundos completos, con la rodilla cerca del suelo."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiens la position basse pendant 2 bonnes secondes, le genou près du sol."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tieni la posizione bassa per 2 secondi pieni, con il ginocchio vicino a terra."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -4885,6 +6553,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Salta de forma explosiva cambiando de pierna: pausa en cada aterrizaje."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saute de façon explosive vers le changement suivant : marque un temps d’arrêt à chaque réception."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esplodi verso l’alto nel cambio successivo – fermati a ogni atterraggio."
           }
         },
         "pt-BR": {
@@ -4922,6 +6602,18 @@
             "value": "Saltarte la pausa: aguanta 2 segundos completos abajo."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu zappes le temps d’arrêt : tiens 2 vraies secondes en bas."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salti il fermo – tieni 2 secondi veri nella posizione bassa."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -4955,6 +6647,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aterrizajes cortos: la rodilla baja cerca del suelo en cada repetición."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réceptions trop hautes : le genou descend près du sol à chaque répétition."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atterraggi poco profondi – il ginocchio arriva vicino a terra a ogni ripetizione."
           }
         },
         "pt-BR": {
@@ -4992,6 +6696,18 @@
             "value": "Plancha de rodillas"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Planche sur les genoux"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plank sulle ginocchia"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -5025,6 +6741,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Antebrazos en el suelo, codos bajo los hombros, rodillas apoyadas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avant-bras au sol, coudes sous les épaules, genoux posés."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avambracci a terra, gomiti sotto le spalle, ginocchia appoggiate."
           }
         },
         "pt-BR": {
@@ -5062,6 +6790,18 @@
             "value": "De la cabeza a las rodillas, una línea recta; el abdomen metido."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De la tête aux genoux, une seule ligne droite ; le ventre rentré."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dalla testa alle ginocchia una linea retta; pancia in dentro."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -5095,6 +6835,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Respira de forma regular y aguanta el tiempo previsto."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Respire régulièrement et tiens le temps prévu."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Respira in modo regolare e tieni la posizione per il tempo previsto."
           }
         },
         "pt-BR": {
@@ -5132,6 +6884,18 @@
             "value": "La cadera se hunde: bascula un poco la pelvis."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les hanches s’affaissent : bascule légèrement le bassin."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il bacino scende – portalo leggermente in retroversione."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -5165,6 +6929,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hombros pegados a las orejas: empuja el suelo y alarga el cuello."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les épaules montent vers les oreilles : repousse le sol, allonge la nuque."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le spalle salgono verso le orecchie – spingi via il pavimento e tieni il collo lungo."
           }
         },
         "pt-BR": {
@@ -5202,6 +6978,18 @@
             "value": "Plancha"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Planche"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plank"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -5235,6 +7023,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Antebrazos en el suelo, codos bajo los hombros, pies al ancho de la cadera."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avant-bras au sol, coudes sous les épaules, pieds à la largeur du bassin."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avambracci a terra, gomiti sotto le spalle, piedi alla larghezza dei fianchi."
           }
         },
         "pt-BR": {
@@ -5272,6 +7072,18 @@
             "value": "Una línea recta de la cabeza a los talones; glúteos y abdomen firmes."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une ligne droite de la tête aux talons ; fessiers et abdos contractés."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un’unica linea retta dalla testa ai talloni; glutei e addome contratti."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -5305,6 +7117,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Respira de forma regular; temblar es normal, hundirse no."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Respire régulièrement ; trembler, c’est normal, s’affaisser, non."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Respira in modo regolare; tremare è normale, cedere no."
           }
         },
         "pt-BR": {
@@ -5342,6 +7166,18 @@
             "value": "Cadera levantada: es más fácil, pero no sirve de nada."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bassin monte trop haut : c’est plus facile, mais ça ne sert à rien."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il bacino se ne va verso l’alto – così è più facile, ma non serve a niente."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -5377,6 +7213,18 @@
             "value": "La zona lumbar se hunde: eso sobrecarga la columna; mejor parar antes."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bas du dos s’affaisse : ça surcharge la colonne ; mieux vaut arrêter plus tôt."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La zona lombare cede – questo sovraccarica la colonna; meglio fermarsi prima."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -5407,6 +7255,18 @@
           }
         },
         "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hollow hold"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hollow Hold"
+          }
+        },
+        "it": {
           "stringUnit": {
             "state": "translated",
             "value": "Hollow hold"
@@ -5447,6 +7307,18 @@
             "value": "Acostado boca arriba, pega la zona lumbar al suelo y estira los brazos por encima de la cabeza."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allonge-toi sur le dos, plaque le bas du dos au sol et tends les bras derrière la tête."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sdraiati sulla schiena, premi la zona lombare a terra e distendi le braccia sopra la testa."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -5480,6 +7352,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Despega del suelo las escápulas y las piernas estiradas 15–20 cm."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Soulève les omoplates et les jambes tendues à 15–20 cm du sol."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solleva le scapole e le gambe tese di 15–20 cm da terra."
           }
         },
         "pt-BR": {
@@ -5517,6 +7401,18 @@
             "value": "Mantén la posición hollow con la zona lumbar pegada al suelo todo el tiempo."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiens la position hollow, le bas du dos plaqué au sol en permanence."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tieni la posizione hollow con la zona lombare sempre premuta a terra."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -5550,6 +7446,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "La zona lumbar se despega del suelo: sube más las piernas o dobla las rodillas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bas du dos se décolle : monte les jambes plus haut ou plie les genoux."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La zona lombare si stacca da terra – alza di più le gambe o piega le ginocchia."
           }
         },
         "pt-BR": {
@@ -5587,6 +7495,18 @@
             "value": "Aguantar la respiración: respira suave y de forma regular."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu retiens ton souffle : continue de respirer doucement et régulièrement."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stai trattenendo il respiro – continua a respirare in modo leggero e regolare."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -5620,6 +7540,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Plancha con palanca larga"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Planche à long levier"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plank a leva lunga"
           }
         },
         "pt-BR": {
@@ -5657,6 +7589,18 @@
             "value": "Ponte en plancha sobre los antebrazos, con los codos bastante por delante de los hombros."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mets-toi en planche sur les avant-bras, les coudes bien en avant des épaules."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mettiti in plank sugli avambracci, con i gomiti ben avanti rispetto alle spalle."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -5690,6 +7634,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mantén una línea recta de la cabeza a los talones, con los glúteos apretados."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garde une ligne droite de la tête aux talons, les fesses serrées."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantieni una linea retta dalla testa ai talloni, con i glutei contratti."
           }
         },
         "pt-BR": {
@@ -5727,6 +7683,18 @@
             "value": "Cuanto más lejos los codos, más difícil: respira de forma regular y aguanta."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plus les coudes sont loin, plus c’est dur : respire régulièrement et tiens la position."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Più i gomiti sono avanti, più è difficile – respira con regolarità e tieni la posizione."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -5760,6 +7728,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "La cadera se hunde: bascula la pelvis y aprieta el abdomen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bassin s’affaisse : rentre-le et serre les abdos."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il bacino cede – portalo in retroversione e contrai gli addominali."
           }
         },
         "pt-BR": {
@@ -5797,6 +7777,18 @@
             "value": "Codos demasiado lejos demasiado pronto: alarga la palanca poco a poco."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coudes trop loin, trop tôt : allonge le levier petit à petit."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gomiti subito troppo avanti – allunga la leva poco alla volta."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -5830,6 +7822,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bird dog (isometría)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bird Dog (maintien)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bird dog (isometria)"
           }
         },
         "pt-BR": {
@@ -5867,6 +7871,18 @@
             "value": "A cuatro patas: manos bajo los hombros, rodillas bajo la cadera."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À quatre pattes : mains sous les épaules, genoux sous les hanches."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A quattro zampe: mani sotto le spalle, ginocchia sotto le anche."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -5900,6 +7916,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Extiende el brazo y la pierna contrarios hasta alinearlos con el torso."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tends le bras et la jambe opposés dans le prolongement du tronc."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Distendi il braccio e la gamba opposti in linea con il busto."
           }
         },
         "pt-BR": {
@@ -5937,6 +7965,18 @@
             "value": "Aguanta sin balancearte; pelvis y hombros se mantienen nivelados."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiens la position sans vaciller ; bassin et épaules restent à l’horizontale."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tieni la posizione senza oscillare; bacino e spalle restano paralleli al pavimento."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -5970,6 +8010,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Arqueo lumbar al subir la pierna: la pierna no pasa la línea del torso."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bas du dos se creuse quand la jambe monte : la jambe ne dépasse pas la ligne du tronc."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La zona lombare si inarca quando alzi la gamba – la gamba non va più in alto del busto."
           }
         },
         "pt-BR": {
@@ -6007,6 +8059,18 @@
             "value": "El torso rota: imagina un vaso de agua apoyado en tu zona lumbar."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le tronc pivote : imagine un verre d’eau posé sur le bas du dos."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il busto ruota – immagina un bicchiere d’acqua appoggiato sulla zona lombare."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -6040,6 +8104,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Plancha lateral"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Planche latérale"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plank laterale"
           }
         },
         "pt-BR": {
@@ -6077,6 +8153,18 @@
             "value": "Acostado de lado, con el codo bajo el hombro y un pie sobre el otro."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allonge-toi sur le côté, le coude sous l’épaule, les pieds l’un sur l’autre."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sdraiati su un fianco, con il gomito sotto la spalla e i piedi uno sull’altro."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -6110,6 +8198,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sube la cadera hasta que pies, cadera y hombros formen una línea recta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Soulève le bassin jusqu’à ce que pieds, bassin et épaules forment une ligne droite."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solleva il bacino finché piedi, bacino e spalle non formano una linea retta."
           }
         },
         "pt-BR": {
@@ -6147,6 +8247,18 @@
             "value": "Aguanta sin dejar caer la cadera; la mano libre en la cintura o hacia arriba."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiens la position sans laisser le bassin descendre ; la main libre sur la taille ou vers le haut."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tieni la posizione senza far scendere il bacino; mano libera sul fianco o verso l’alto."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -6180,6 +8292,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "La cadera se hunde: la línea del cuerpo tiene que estar recta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bassin s’affaisse : garde la ligne du corps bien droite."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il bacino cede – mantieni dritta la linea del corpo."
           }
         },
         "pt-BR": {
@@ -6217,6 +8341,18 @@
             "value": "El torso se va hacia adelante: hombros y cadera en un mismo plano."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le tronc bascule vers l’avant : épaules et bassin dans le même plan."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il busto si inclina in avanti – spalle e bacino sullo stesso piano."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -6250,6 +8386,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Plancha lateral con elevación de pierna"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Planche latérale jambe levée"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plank laterale con sollevamento della gamba"
           }
         },
         "pt-BR": {
@@ -6287,6 +8435,18 @@
             "value": "Colócate en plancha lateral sobre el codo."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mets-toi en planche latérale sur le coude."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mettiti in plank laterale sul gomito."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -6320,6 +8480,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sube la pierna de arriba 20–30 cm y mantenla estirada."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lève la jambe du dessus de 20–30 cm et garde-la tendue."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solleva la gamba superiore di 20–30 cm e mantienila tesa."
           }
         },
         "pt-BR": {
@@ -6357,6 +8529,18 @@
             "value": "La cadera alta y el cuerpo en un mismo plano."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bassin haut, le corps dans un seul plan."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bacino alto, il corpo su un unico piano."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -6390,6 +8574,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "La cadera cae al subir la pierna: primero consigue una plancha estable."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bassin tombe quand la jambe monte : stabilise d’abord la planche."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il bacino scende quando alzi la gamba – prima stabilizza il plank."
           }
         },
         "pt-BR": {
@@ -6427,6 +8623,18 @@
             "value": "La pierna se va hacia adelante: mantenla alineada con el torso."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La jambe part vers l’avant : garde-la dans l’alignement du tronc."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La gamba si sposta in avanti – tienila in linea con il busto."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -6460,6 +8668,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Plancha lateral en estrella"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Planche latérale en étoile"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plank laterale a stella"
           }
         },
         "pt-BR": {
@@ -6497,6 +8717,18 @@
             "value": "Desde la plancha lateral, sube a la vez la pierna y el brazo de arriba."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Depuis la planche latérale, lève en même temps la jambe et le bras du dessus."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dal plank laterale, solleva insieme la gamba e il braccio superiori."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -6530,6 +8762,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "El cuerpo forma una estrella: la línea recta más las extremidades levantadas."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le corps forme une étoile : la ligne droite plus le bras et la jambe levés."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il corpo forma una stella: la linea retta più gli arti sollevati."
           }
         },
         "pt-BR": {
@@ -6567,6 +8811,18 @@
             "value": "La cadera alta durante todo el ejercicio; la mirada al frente."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bassin reste haut pendant tout le maintien ; le regard droit devant."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bacino alto per tutta l’isometria; sguardo in avanti."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -6600,6 +8856,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "La cadera cae: primero la línea base, después la estrella."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bassin tombe : d’abord la ligne de base, ensuite l’étoile."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il bacino scende – prima la linea di base, poi la stella."
           }
         },
         "pt-BR": {
@@ -6637,6 +8905,18 @@
             "value": "El cuerpo se pliega hacia adelante: hombros, cadera y piernas en un mismo plano."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le corps se plie vers l’avant : épaules, bassin et jambes dans le même plan."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il corpo si piega in avanti – spalle, bacino e gambe sullo stesso piano."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -6670,6 +8950,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Elevaciones de talones"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Élévations de mollets"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sollevamenti sulle punte"
           }
         },
         "pt-BR": {
@@ -6707,6 +8999,18 @@
             "value": "De pie con los pies al ancho de la cadera; una mano en la pared para equilibrarte."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Debout, pieds à la largeur du bassin ; une main sur le mur pour l’équilibre."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mettiti con i piedi alla larghezza dei fianchi; una mano al muro per l’equilibrio."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -6740,6 +9044,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sube todo lo que puedas sobre las puntas de los pies y haz una pausa de un segundo arriba."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monte le plus haut possible sur la pointe des pieds, une seconde de pause en haut."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sollevati sulle punte il più in alto possibile, un secondo di pausa in alto."
           }
         },
         "pt-BR": {
@@ -6777,6 +9093,18 @@
             "value": "Baja despacio; para más recorrido, apoya las puntas en el borde de un escalón."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redescends lentement ; pour plus d’amplitude, pose la pointe des pieds sur le bord d’une marche."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scendi lentamente; per maggiore ampiezza, appoggia le punte sul bordo di uno scalino."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -6810,6 +9138,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Rebotes rápidos: muévete despacio y con pausa arriba."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rebonds rapides : travaille lentement, avec une pause en haut."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Molleggi veloci – muoviti lentamente, con una pausa in alto."
           }
         },
         "pt-BR": {
@@ -6847,6 +9187,18 @@
             "value": "Recorrido corto: sube del todo."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Amplitude incomplète : monte jusqu’en haut."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ampiezza ridotta – sollevati fino in alto."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -6880,6 +9232,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Elevación de talón a una pierna"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Élévation de mollet à une jambe"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sollevamenti sulle punte a una gamba"
           }
         },
         "pt-BR": {
@@ -6917,6 +9281,18 @@
             "value": "De pie sobre una pierna, con una mano en la pared para equilibrarte."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Debout sur une jambe, une main sur le mur pour l’équilibre."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In piedi su una gamba, una mano al muro per l’equilibrio."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -6950,6 +9326,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sube sobre la punta del pie todo lo que puedas y haz una pausa de un segundo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monte le plus haut possible sur la pointe du pied, une seconde de pause."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sollevati sulla punta il più in alto possibile, un secondo di pausa."
           }
         },
         "pt-BR": {
@@ -6987,6 +9375,18 @@
             "value": "Baja despacio, con el talón hasta el suelo (o por debajo del escalón)."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redescends lentement, le talon jusqu’au sol (ou plus bas que la marche)."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scendi lentamente, con il tallone fino a terra (o sotto il livello dello scalino)."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -7020,6 +9420,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ayudarte con la otra pierna: se queda en el aire."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "S’aider de l’autre jambe : elle reste en l’air."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aiutarsi con l’altra gamba – deve restare staccata da terra."
           }
         },
         "pt-BR": {
@@ -7057,6 +9469,18 @@
             "value": "El tobillo se va hacia fuera: empuja con el dedo gordo."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La cheville bascule vers l’extérieur : pousse avec le gros orteil."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La caviglia cede verso l’esterno – spingi con l’alluce."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -7090,6 +9514,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Elevación de talón a una pierna con pausa"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Élévation de mollet à une jambe avec pause"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sollevamenti sulle punte a una gamba con pausa"
           }
         },
         "pt-BR": {
@@ -7127,6 +9563,18 @@
             "value": "Igual que a una pierna, pero con una pausa de 3 segundos arriba."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comme la version à une jambe, mais avec 3 secondes de pause en haut."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Come la versione a una gamba, ma con una pausa di 3 secondi in alto."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -7160,6 +9608,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sube en 1 segundo, aguanta 3 y baja en 3."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monte en 1 seconde, tiens 3, redescends en 3."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Su in 1 secondo, tieni per 3, giù in 3."
           }
         },
         "pt-BR": {
@@ -7197,6 +9657,18 @@
             "value": "El recorrido completo vale más que el número de repeticiones."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’amplitude complète compte plus que le nombre de répétitions."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’ampiezza completa conta più del numero di ripetizioni."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -7230,6 +9702,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Saltarte la pausa: aguanta 3 segundos completos arriba."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu zappes la pause : tiens 3 vraies secondes en haut."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saltare la pausa – tieni 3 secondi pieni in alto."
           }
         },
         "pt-BR": {
@@ -7267,6 +9751,18 @@
             "value": "La rodilla se dobla: la pierna se queda estirada; solo trabaja el tobillo."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le genou se plie : la jambe reste tendue ; seule la cheville travaille."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il ginocchio si piega – la gamba resta tesa; lavora solo la caviglia."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -7300,6 +9796,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Elevación de talón a una pierna en un escalón"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Élévation de mollet à une jambe sur une marche"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sollevamenti sulle punte a una gamba sullo scalino"
           }
         },
         "pt-BR": {
@@ -7337,6 +9845,18 @@
             "value": "De pie sobre una pierna, con la punta del pie en el borde de un escalón."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Debout sur une jambe, la pointe du pied sur le bord d’une marche."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In piedi su una gamba, con la punta del piede sul bordo dello scalino."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -7370,6 +9890,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Baja el talón por debajo del escalón y nota el estiramiento."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descends le talon plus bas que la marche, sens l’étirement."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abbassa il tallone sotto il livello dello scalino, senti l’allungamento."
           }
         },
         "pt-BR": {
@@ -7407,6 +9939,18 @@
             "value": "Sube todo lo que puedas, pausa de un segundo y baja en 3 segundos."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monte le plus haut possible, une seconde de pause, redescends en 3 secondes."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sollevati il più in alto possibile, un secondo di pausa, scendi in 3 secondi."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -7440,6 +9984,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Poco recorrido abajo: el talón tiene que bajar por debajo del escalón."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas assez d’amplitude en bas : le talon doit descendre plus bas que la marche."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poca ampiezza in basso – il tallone deve scendere sotto lo scalino."
           }
         },
         "pt-BR": {
@@ -7477,6 +10033,18 @@
             "value": "Rebotar desde el estiramiento: haz también una pausa corta abajo."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rebondir dans l’étirement : marque aussi une courte pause en bas."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Molleggiare nell’allungamento – fai una breve pausa anche in basso."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -7510,6 +10078,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Empuje horizontal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poussée horizontale"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spinta orizzontale"
           }
         },
         "pt-BR": {
@@ -7547,6 +10127,18 @@
             "value": "Bisagra de cadera"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Charnière"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerniera"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -7580,6 +10172,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tracción"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tirage"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tirata"
           }
         },
         "pt-BR": {
@@ -7617,6 +10221,18 @@
             "value": "Empuje vertical"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poussée verticale"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spinta verticale"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -7650,6 +10266,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Zancadas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fentes"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Affondi"
           }
         },
         "pt-BR": {
@@ -7687,6 +10315,18 @@
             "value": "Core · plancha"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gainage · planche"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Core · plank"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -7720,6 +10360,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Core · rotación"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gainage · rotation"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Core · rotazione"
           }
         },
         "pt-BR": {
@@ -7757,6 +10409,18 @@
             "value": "Pantorrillas"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mollets"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polpacci"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -7792,6 +10456,18 @@
             "value": "por lado"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "par côté"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "per lato"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -7822,6 +10498,18 @@
           }
         },
         "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "s"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "s"
+          }
+        },
+        "it": {
           "stringUnit": {
             "state": "translated",
             "value": "s"
@@ -7862,6 +10550,18 @@
             "value": "Tracción vertical"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tirage vertical"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tirata verticale"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -7895,6 +10595,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Suspensión en barra"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suspension à la barre"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sospensione alla sbarra"
           }
         },
         "pt-BR": {
@@ -7932,6 +10644,18 @@
             "value": "Dominada negativa"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tractions négatives"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trazioni negative"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -7965,6 +10689,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dominada parcial"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tractions partielles"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trazioni parziali"
           }
         },
         "pt-BR": {
@@ -8002,6 +10738,18 @@
             "value": "Dominada"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tractions"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trazioni"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -8035,6 +10783,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Agarra la barra algo más abierto que la anchura de los hombros, con las palmas hacia fuera."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attrape la barre un peu plus large que les épaules, paumes vers l’avant."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afferra la sbarra con una presa appena più larga delle spalle, palmi rivolti in avanti."
           }
         },
         "pt-BR": {
@@ -8072,6 +10832,18 @@
             "value": "Cuélgate con los brazos estirados y baja un poco los hombros: es una suspensión activa, sin meter la cabeza entre ellos."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suspends-toi bras tendus et tire légèrement les épaules vers le bas — suspension active, épaules loin des oreilles."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appenditi a braccia distese e tira leggermente le spalle verso il basso – sospensione attiva, spalle lontane dalle orecchie."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -8105,6 +10877,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mantén el cuerpo firme y las piernas juntas; respira de forma regular durante toda la suspensión."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garde le corps gainé, jambes serrées ; respire régulièrement pendant toute la suspension."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tieni il corpo compatto, gambe unite; respira in modo regolare per tutta la sospensione."
           }
         },
         "pt-BR": {
@@ -8142,6 +10926,18 @@
             "value": "Hombros pegados a las orejas: lleva las escápulas hacia abajo; la suspensión tiene que ser activa."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les épaules montent vers les oreilles : tire les omoplates vers le bas ; la suspension doit rester active."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spalle alle orecchie – porta le scapole verso il basso; la sospensione deve essere attiva."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -8175,6 +10971,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Balanceo: mantén el cuerpo firme, sin hacer de péndulo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balancement : garde le corps gainé, pas d’effet pendule."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oscillazioni – tieni il corpo in tensione, niente pendolo."
           }
         },
         "pt-BR": {
@@ -8212,6 +11020,18 @@
             "value": "Súbete a un apoyo o salta para dejar la barbilla por encima de la barra."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monte sur un support ou saute pour amener le menton au-dessus de la barre."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sali su un rialzo o salta in modo che il mento arrivi sopra la sbarra."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -8245,6 +11065,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Baja despacio hasta estirar los brazos, durante 3–5 segundos, controlando cada centímetro."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descends lentement en 3–5 secondes jusqu’aux bras tendus, en contrôlant chaque centimètre."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scendi lentamente fino a braccia distese in 3–5 secondi, controllando ogni centimetro."
           }
         },
         "pt-BR": {
@@ -8282,6 +11114,18 @@
             "value": "Vuelve al apoyo y repite: no hace falta subir a pulso."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remonte sur le support et recommence — inutile de te hisser à la force des bras."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Torna sul rialzo e ripeti – non serve tirarsi su."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -8315,6 +11159,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dejarte caer en vez de bajar: la negativa dura al menos 3 segundos."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Te laisser tomber au lieu de descendre : la négative dure au moins 3 secondes."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lasciarti cadere invece di scendere – la fase negativa dura almeno 3 secondi."
           }
         },
         "pt-BR": {
@@ -8352,6 +11208,18 @@
             "value": "Hombros relajados abajo: mantén las escápulas activas hasta el final."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Épaules relâchées en bas : garde les omoplates actives jusqu’au bout."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spalle rilassate in basso – tieni le scapole attive fino alla fine."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -8385,6 +11253,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cuélgate con los brazos estirados, con el agarre algo más abierto que los hombros y las palmas hacia fuera."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suspends-toi bras tendus, prise un peu plus large que les épaules, paumes vers l’avant."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appenditi a braccia distese, presa appena più larga delle spalle, palmi rivolti in avanti."
           }
         },
         "pt-BR": {
@@ -8422,6 +11302,18 @@
             "value": "Empieza juntando las escápulas y sube hasta formar un ángulo recto con los codos."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commence par resserrer les omoplates et hisse-toi jusqu’à former un angle droit aux coudes."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avvicina prima le scapole e tirati su finché i gomiti non formano un angolo retto."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -8455,6 +11347,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Baja despacio hasta estirar los brazos: eso es una repetición."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redescends lentement jusqu’aux bras tendus — c’est une répétition."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scendi lentamente fino a braccia distese – questa è una ripetizione."
           }
         },
         "pt-BR": {
@@ -8492,6 +11396,18 @@
             "value": "Tirones y patadas con las piernas: solo trabajan la espalda y los brazos."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À-coups et élan des jambes : seuls le dos et les bras travaillent."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strattoni e slanci con le gambe – lavorano solo schiena e braccia."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -8525,6 +11441,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Recortar el recorrido abajo: cada repetición empieza con los brazos del todo estirados."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Amplitude écourtée en bas : chaque répétition part des bras complètement tendus."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ampiezza accorciata in basso – ogni ripetizione parte da braccia completamente distese."
           }
         },
         "pt-BR": {
@@ -8562,6 +11490,18 @@
             "value": "Sube empezando por juntar las escápulas, hasta que la barbilla pase por encima de la barra."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hisse-toi en commençant par resserrer les omoplates, jusqu’à ce que le menton passe au-dessus de la barre."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avvicina prima le scapole e tirati su finché il mento non supera la sbarra."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -8595,6 +11535,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Baja con control hasta estirar del todo los brazos, sin balanceo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redescends de manière contrôlée jusqu’aux bras complètement tendus, sans te balancer."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scendi in modo controllato fino a braccia completamente distese, senza oscillare."
           }
         },
         "pt-BR": {
@@ -8632,6 +11584,18 @@
             "value": "Balancear el cuerpo y hacer tirones: el kipping no cuenta."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balancement et à-coups du corps : les tractions avec élan ne comptent pas."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oscillazioni e strattoni con il corpo – tirarsi su di slancio non conta."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -8665,6 +11629,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Medio recorrido abajo: cada repetición empieza con los brazos estirados."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demi-amplitude en bas : chaque répétition part des bras tendus."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mezza ampiezza in basso – ogni ripetizione parte da braccia distese."
           }
         },
         "pt-BR": {
