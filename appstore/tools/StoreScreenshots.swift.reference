@@ -7,7 +7,7 @@
 //
 //  Seeded tests expect dredfit-state.json planted in the app container from
 //  the host (tools/seed.py) BEFORE the run, and launch WITHOUT --uitest-reset:
-//    seed.py <udid> A  → testSeeded* — en/ru/es/pt-BR/de (today, how-it-works,
+//    seed.py <udid> A  → testSeeded* — en/ru/es/pt-BR/de/fr/it (today, how-it-works,
 //                        set, dial, rest) and testRating*
 //    seed.py <udid> B  → testProgress*
 //  milestone/comeback screens use the app's own --uitest hooks instead
@@ -50,6 +50,16 @@ final class StoreScreenshots: XCTestCase {
                               done: "Fertig", skipRest: "Pause überspringen", start: "Starten",
                               wentDifferently: "Lief anders", ok: "OK",
                               progressTab: "Fortschritt", gotIt: "Verstanden")
+    private static let fr = L(langArg: "(fr)", locale: "fr_FR", tag: "fr",
+                              ratingTitle: "Comment ça s’est passé ?", skipWarmup: "Passer l’échauffement",
+                              done: "Terminé", skipRest: "Passer le repos", start: "Commencer",
+                              wentDifferently: "Ça s’est passé autrement", ok: "OK",
+                              progressTab: "Progression", gotIt: "Compris")
+    private static let it = L(langArg: "(it)", locale: "it_IT", tag: "it",
+                              ratingTitle: "Com’è andata?", skipWarmup: "Salta il riscaldamento",
+                              done: "Fatto", skipRest: "Salta il recupero", start: "Inizia",
+                              wentDifferently: "È andata diversamente", ok: "OK",
+                              progressTab: "Progressi", gotIt: "Capito")
 
     override func setUpWithError() throws {
         continueAfterFailure = false
@@ -144,6 +154,8 @@ final class StoreScreenshots: XCTestCase {
     func testSeededSpanish() { seededFlow(Self.es) }
     func testSeededPortuguese() { seededFlow(Self.ptBR) }
     func testSeededGerman() { seededFlow(Self.de) }
+    func testSeededFrench() { seededFlow(Self.fr) }
+    func testSeededItalian() { seededFlow(Self.it) }
 
     // MARK: - Seed B: Progress
 
@@ -161,6 +173,8 @@ final class StoreScreenshots: XCTestCase {
     func testProgressSpanish() { progress(Self.es) }
     func testProgressPortuguese() { progress(Self.ptBR) }
     func testProgressGerman() { progress(Self.de) }
+    func testProgressFrench() { progress(Self.fr) }
+    func testProgressItalian() { progress(Self.it) }
 
     // MARK: - Seed A again: the rating screen with one adjustment, so the
     // summary card and the scope chip show (the 1.6.0 "s4 reads empty" note)
@@ -214,6 +228,8 @@ final class StoreScreenshots: XCTestCase {
     func testRatingSpanish() { cleanRating(Self.es) }
     func testRatingPortuguese() { cleanRating(Self.ptBR) }
     func testRatingGerman() { cleanRating(Self.de) }
+    func testRatingFrench() { cleanRating(Self.fr) }
+    func testRatingItalian() { cleanRating(Self.it) }
 
     // MARK: - Milestone & comeback (own --uitest hooks, no seeding)
 
@@ -271,11 +287,15 @@ final class StoreScreenshots: XCTestCase {
     func testMilestoneSpanish() { captureMilestone(Self.es) }
     func testMilestonePortuguese() { captureMilestone(Self.ptBR) }
     func testMilestoneGerman() { captureMilestone(Self.de) }
+    func testMilestoneFrench() { captureMilestone(Self.fr) }
+    func testMilestoneItalian() { captureMilestone(Self.it) }
     func testComebackEnglish() { captureComeback(Self.en) }
     func testComebackRussian() { captureComeback(Self.ru) }
     func testComebackSpanish() { captureComeback(Self.es) }
     func testComebackPortuguese() { captureComeback(Self.ptBR) }
     func testComebackGerman() { captureComeback(Self.de) }
+    func testComebackFrench() { captureComeback(Self.fr) }
+    func testComebackItalian() { captureComeback(Self.it) }
 }
 
 private extension StoreScreenshots.L {
@@ -285,6 +305,8 @@ private extension StoreScreenshots.L {
         case "es": return "Empezar la isometría"
         case "pt-br": return "Começar a isometria"
         case "de": return "Haltezeit starten"
+        case "fr": return "Commencer le maintien"
+        case "it": return "Inizia l’isometria"
         default: return "Start hold"
         }
     }
@@ -294,6 +316,8 @@ private extension StoreScreenshots.L {
         case "es": return "Omitir enfriamiento"
         case "pt-br": return "Pular o desaquecimento"
         case "de": return "Abwärmen überspringen"
+        case "fr": return "Passer le retour au calme"
+        case "it": return "Salta il defaticamento"
         default: return "Skip cool-down"
         }
     }
@@ -302,6 +326,8 @@ private extension StoreScreenshots.L {
         case "ru": return "Стоп"
         case "es", "pt-br": return "Parar"
         case "de": return "Stoppen"
+        case "fr": return "Arrêter"
+        case "it": return "Stop"
         default: return "Stop"
         }
     }
@@ -311,6 +337,8 @@ private extension StoreScreenshots.L {
         case "es": return "Según el plan"
         case "pt-br": return "Como planejado"
         case "de": return "Nach Plan"
+        case "fr": return "Comme prévu"
+        case "it": return "Come previsto"
         default: return "On plan"
         }
     }
