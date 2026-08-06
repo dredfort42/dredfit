@@ -66,6 +66,7 @@ final class DiscomfortUITests: XCTestCase {
         app.launch()
         let line = app.staticTexts["resting-line"]
         XCTAssertTrue(line.waitForExistence(timeout: 5), "no resting line on Today")
-        XCTAssertEqual(line.label, "Resting for now: Pull")
+        // Named as the list above names it, not by movement.
+        XCTAssertEqual(line.label, "Resting for now: Y-T-W raises")
     }
 }

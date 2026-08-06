@@ -17,7 +17,7 @@
   movement: it keeps its place in the plan at the same level and stops
   climbing for its next three appearances. A level can still go *down* while
   it rests, and no deload can fire on top of the rest.
-- Today carries a quiet line while a movement rests ("Resting for now: Pull"),
+- Today carries a quiet line while a movement rests ("Resting for now: …"),
   the rating screen lists it under **Discomfort** rather than **Skipped**, and
   the calendar's history row says "hurt". A ninth "How it works" section
   explains what the report does and repeats the stop rule.

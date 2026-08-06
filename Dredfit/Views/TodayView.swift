@@ -166,10 +166,14 @@ struct TodayView: View {
         }
     }
 
-    /// Movement names rather than exercise names: the rest belongs to the
-    /// pattern, and it outlives the variation on screen today.
+    /// Named the way the list above names them: the rest belongs to the
+    /// movement, but the row the reader is looking at says "Y-T-W raises".
+    /// A frozen movement cannot change variation, so the name holds for as
+    /// long as the line is up.
     private var restingNames: String {
-        ListFormatter.localizedString(byJoining: store.restingPatterns.map(\.displayName))
+        let resting = Set(store.restingPatterns)
+        return ListFormatter.localizedString(byJoining:
+            store.nextSession.exercises.filter { resting.contains($0.pattern) }.map(\.name))
     }
 
     // MARK: - Interrupted workout

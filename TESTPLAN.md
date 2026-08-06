@@ -551,7 +551,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 36.1 | **Something hurt** on the exercise screen | Its own line under **Went differently** / **Skip exercise**, visually distinct from both. One tap, no confirmation dialog — the exercise ends and the flow moves to the next one, exactly as a skip does |
 | 36.2 | The rating screen afterwards | The exercise is listed under **DISCOMFORT** with "resting" — not under **SKIPPED**. The scope line counts it out of the rating ("Applies to 5 of 6 — Pull hurt, resting for now") |
 | 36.3 | Level and streak of the reported pattern | Unchanged by that workout, whichever rating is given — the report behaves as a skip for the session |
-| 36.4 | Today, while the pattern rests | A quiet line under the plan: "Resting for now: Pull". A fact, not a warning — no icon, no colour alarm. It names the **movement**, not the exercise variation |
+| 36.4 | Today, while the pattern rests | A quiet line under the plan: "Resting for now: Y-T-W raises". A fact, not a warning — no icon, no colour alarm. It names the exercise the way the list above it does, and only while the movement is actually in today's plan |
 | 36.5 | The next three workouts containing that movement | It is still in the plan at the same level and does not climb, whatever the rating; the line disappears by itself once the third one is done |
 | 36.6 | "Tough" on a resting movement | The level still steps **down** — honesty is never overridden — and no deload fires while it rests, even from a streak of two |
 | 36.7 | An exact number ("Went differently") on a resting movement | Below the plan it lands as usual; above it the level does not move |
