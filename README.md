@@ -84,7 +84,7 @@ docs/                   the dredfit.com site — GitHub Pages, static, no build
   CNAME, robots.txt, sitemap.xml, og.png
 ```
 
-The engine was first written and verified as a JavaScript reference (8,988 property checks and scenario simulations), then ported to Swift. `golden.json` is the reference's recorded trace — 143 steps across 10 scenarios — and the Swift port must reproduce it exactly. Changing engine behavior means changing the reference first, re-verifying, regenerating fixtures, then porting. Plausible-but-different is a failing test, not a judgment call. (The JS reference lives outside this repository; the recorded fixture is what ships.)
+The engine was first written and verified as a JavaScript reference (9,273 property checks and scenario simulations), then ported to Swift. `golden.json` is the reference's recorded trace — 155 steps across 11 scenarios — and the Swift port must reproduce it exactly. Changing engine behavior means changing the reference first, re-verifying, regenerating fixtures, then porting. Plausible-but-different is a failing test, not a judgment call. (The JS reference lives outside this repository; the recorded fixture is what ships.)
 
 ## Testing
 
