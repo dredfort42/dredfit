@@ -2275,7 +2275,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Acostado boca arriba, pies cerca de los glúteos al ancho de las caderas, brazos a los lados."
+            "value": "Acuéstate boca arriba, con los pies cerca de los glúteos al ancho de las caderas y los brazos a los lados."
           }
         },
         "fr": {
@@ -2293,7 +2293,7 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deitado de costas, pés perto dos glúteos na largura do quadril, braços ao lado do corpo."
+            "value": "Deite-se de costas, com os pés perto dos glúteos na largura do quadril e os braços ao lado do corpo."
           }
         },
         "ru": {
@@ -2557,7 +2557,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Acostado boca arriba, un pie cerca de los glúteos y la otra pierna extendida."
+            "value": "Acuéstate boca arriba, con un pie cerca de los glúteos y la otra pierna extendida."
           }
         },
         "fr": {
@@ -2575,7 +2575,7 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deitado de costas, um pé perto dos glúteos e a outra perna estendida."
+            "value": "Deite-se de costas, com um pé perto dos glúteos e a outra perna estendida."
           }
         },
         "ru": {
@@ -3121,7 +3121,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Acostado boca arriba, talones sobre una toalla en suelo liso y la cadera elevada."
+            "value": "Acuéstate boca arriba, con los talones sobre una toalla en suelo liso y la cadera elevada."
           }
         },
         "fr": {
@@ -3139,7 +3139,7 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deitado de costas, calcanhares sobre uma toalha em piso liso e o quadril elevado."
+            "value": "Deite-se de costas, com os calcanhares sobre uma toalha em piso liso e o quadril elevado."
           }
         },
         "ru": {
@@ -3403,7 +3403,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Acostado boca abajo, la frente cerca del suelo y los brazos extendidos formando una Y."
+            "value": "Acuéstate boca abajo, con la frente cerca del suelo y los brazos extendidos formando una Y."
           }
         },
         "fr": {
@@ -3421,7 +3421,7 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deitado de barriga para baixo, a testa perto do chão e os braços estendidos formando um Y."
+            "value": "Deite-se de barriga para baixo, com a testa perto do chão e os braços estendidos formando um Y."
           }
         },
         "ru": {
@@ -7304,7 +7304,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Acostado boca arriba, pega la zona lumbar al suelo y estira los brazos por encima de la cabeza."
+            "value": "Acuéstate boca arriba, pega la zona lumbar al suelo y estira los brazos por encima de la cabeza."
           }
         },
         "fr": {
@@ -7322,7 +7322,7 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deitado de costas, cole a lombar no chão e estenda os braços acima da cabeça."
+            "value": "Deite-se de costas, cole a lombar no chão e estenda os braços acima da cabeça."
           }
         },
         "ru": {
@@ -8074,7 +8074,7 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O tronco gira: imagine um copo d'água apoiado na sua lombar."
+            "value": "O tronco gira: imagine um copo d’água apoiado na sua lombar."
           }
         },
         "ru": {
@@ -8150,7 +8150,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Acostado de lado, con el codo bajo el hombro y un pie sobre el otro."
+            "value": "Acuéstate de lado, con el codo bajo el hombro y un pie sobre el otro."
           }
         },
         "fr": {
@@ -8168,7 +8168,7 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deitado de lado, com o cotovelo sob o ombro e um pé sobre o outro."
+            "value": "Deite-se de lado, com o cotovelo sob o ombro e um pé sobre o outro."
           }
         },
         "ru": {
@@ -11563,7 +11563,7 @@
         }
       }
     },
-    "Swinging and jerking the body — kipping doesn't count.": {
+    "Swinging and jerking the body — using momentum doesn't count.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
@@ -11575,13 +11575,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Swinging and jerking the body — kipping doesn't count."
+            "value": "Swinging and jerking the body — using momentum doesn't count."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Balancear el cuerpo y hacer tirones: el kipping no cuenta."
+            "value": "Balancear el cuerpo y hacer tirones: subir con impulso no cuenta."
           }
         },
         "fr": {
@@ -11599,13 +11599,13 @@
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Balançar e dar impulso com o corpo: kipping não conta."
+            "value": "Balançar e dar impulso com o corpo: subir no embalo não conta."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Раскачивание и рывки корпусом — киппинг не считается."
+            "value": "Раскачивание и рывки корпусом — подъемы махом не считаются."
           }
         }
       }

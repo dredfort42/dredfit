@@ -2,6 +2,35 @@
 
 ## Unreleased
 
+### Localization audit across the seven languages
+
+- French and Italian stop bending the grammar of the exercise they name. A
+  participle after the placeholder cannot agree with "Pompes" or "Flessioni",
+  so the skipped and unfinished labels now carry their own noun — "Pompes,
+  exercice ignoré", "Flessioni, esercizio saltato" — instead of a masculine
+  ending glued to a feminine name.
+- Nothing addresses the reader by gender any more. The Russian privacy page
+  drops the formal "вы" that it alone still used, the "you export it yourself"
+  lines lose their masculine "сам" / "tú mismo" / "você mesmo", and six Spanish
+  and Portuguese starting positions turn from "Acostado boca arriba" into the
+  imperative the rest of the library already used.
+- Terminology reconnects to the glossary: Brazilian "Deload" becomes
+  "Descarga", the wall handstand goes back to the name the exercise library
+  gives it in each language — the Spanish copy had picked up "el pino", a
+  Spain-only word — and German "Equipment" becomes the "Zubehör" the site was
+  already using.
+- The English source loses its one piece of gym jargon: "kipping doesn't count"
+  is now "using momentum doesn't count", and the Russian, Spanish and
+  Portuguese calques go with it.
+- The site says what to tap. "Tap it during the workout" had no antecedent on a
+  page that shows no button, so every language now names the control, and the
+  German "Ein Tipp" (a hint) becomes "Ein Fingertipp" (a tap). Typographic
+  quotes replace the straight ones left in English, Spanish and Portuguese, and
+  the landing page gains the card for the discomfort feature.
+- The glossary records the decisions that let the drift happen: a row for the
+  wall handstand, the French and Italian placeholder rule, "ты" for Russian
+  legal copy, and gym jargon banned in the English source too.
+
 ### Engine safety wave: growth ceiling and discomfort (issue #38, closes #64–#67)
 
 - The regulator gains a dimension it never had: how fast a movement is allowed

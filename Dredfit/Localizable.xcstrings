@@ -2255,13 +2255,13 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@, inachevé"
+            "value" : "%@, exercice inachevé"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@, non completato"
+            "value" : "%@, esercizio non completato"
           }
         },
         "pt-BR" : {
@@ -2301,13 +2301,13 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@, ignoré"
+            "value" : "%@, exercice ignoré"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@, saltato"
+            "value" : "%@, esercizio saltato"
           }
         },
         "pt-BR" : {
@@ -4703,13 +4703,13 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Compte pour %lld sur %lld — %@ inachevé, niveau inchangé"
+            "value" : "Compte pour %lld sur %lld — %@ : exercice inachevé, niveau inchangé"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vale per %lld su %lld – %@ non completato, livello fermo"
+            "value" : "Vale per %lld su %lld – %@: esercizio non completato, livello fermo"
           }
         },
         "pt-BR" : {
@@ -4743,13 +4743,13 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Compte pour %lld sur %lld — %@ ignoré, niveau inchangé"
+            "value" : "Compte pour %lld sur %lld — %@ : exercice ignoré, niveau inchangé"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vale per %lld su %lld – %@ saltato, livello fermo"
+            "value" : "Vale per %lld su %lld – %@: esercizio saltato, livello fermo"
           }
         },
         "pt-BR" : {
@@ -5952,7 +5952,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Deload"
+            "value" : "Descarga"
           }
         },
         "ru" : {
@@ -6209,7 +6209,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Equipment"
+            "value" : "Zubehör"
           }
         },
         "es" : {
@@ -7551,7 +7551,7 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Una zona lumbar que aguanta horas de estar sentado, agacharte y cargar una mochila pesada."
+            "value" : "Una zona lumbar que aguanta horas en la silla, agacharte y cargar una mochila pesada."
           }
         },
         "fr" : {
@@ -7569,7 +7569,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uma lombar que aguenta horas sentado, inclinações e uma mochila pesada."
+            "value" : "Uma lombar que aguenta horas na cadeira, inclinações e uma mochila pesada."
           }
         },
         "ru" : {
@@ -7983,7 +7983,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Costas retas e ombros abertos depois de um dia sentado à mesa."
+            "value" : "Costas retas e ombros abertos depois de um dia à mesa de trabalho."
           }
         },
         "ru" : {
@@ -13466,13 +13466,13 @@
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "«Según el plan» suma un paso, «más» suma dos y «menos» resta uno. Un número exacto en un ejercicio pesa más que la evaluación general. Desde cero, un número exacto fija el nivel de inmediato: el primer entrenamiento calibra el sistema. A partir de ahí el nivel sube como máximo dos pasos por entrenamiento, y solo uno en las pantorrillas, en el pino contra la pared y en cada cuarta variación, donde el ritmo lo marcan los tendones."
+            "value" : "«Según el plan» suma un paso, «más» suma dos y «menos» resta uno. Un número exacto en un ejercicio pesa más que la evaluación general. Desde cero, un número exacto fija el nivel de inmediato: el primer entrenamiento calibra el sistema. A partir de ahí el nivel sube como máximo dos pasos por entrenamiento, y solo uno en las pantorrillas, en la parada de manos contra la pared y en cada cuarta variación, donde el ritmo lo marcan los tendones."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "« Comme prévu » ajoute un cran, « plus » en ajoute deux, « moins » en retire un. Un chiffre exact sur un seul exercice l’emporte sur le ressenti global. En partant de zéro, un chiffre exact fixe le niveau tout de suite — la première séance calibre le système. Ensuite, le niveau monte d’au plus deux crans par séance — et d’un seul pour les mollets, pour l’équilibre contre le mur et pour toute quatrième variante, là où ce sont les tendons qui donnent le rythme."
+            "value" : "« Comme prévu » ajoute un cran, « plus » en ajoute deux, « moins » en retire un. Un chiffre exact sur un seul exercice l’emporte sur le ressenti global. En partant de zéro, un chiffre exact fixe le niveau tout de suite — la première séance calibre le système. Ensuite, le niveau monte d’au plus deux crans par séance — et d’un seul pour les mollets, pour le poirier au mur et pour toute quatrième variante, là où ce sont les tendons qui donnent le rythme."
           }
         },
         "it" : {
@@ -13484,7 +13484,7 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“Como planejado” soma um passo, “mais” soma dois e “menos” tira um. Um número exato num exercício pesa mais que a avaliação geral. Do zero, um número exato define o nível na hora: o primeiro treino calibra o sistema. Depois disso o nível sobe no máximo dois passos por treino — e só um nas panturrilhas, na parada de mãos na parede e em toda quarta variação, onde quem dita o ritmo são os tendões."
+            "value" : "“Como planejado” soma um passo, “mais” soma dois e “menos” tira um. Um número exato num exercício pesa mais que a avaliação geral. Do zero, um número exato define o nível na hora: o primeiro treino calibra o sistema. Depois disso o nível sobe no máximo dois passos por treino — e só um nas panturrilhas, na parada de mão na parede e em toda quarta variação, onde quem dita o ritmo são os tendões."
           }
         },
         "ru" : {

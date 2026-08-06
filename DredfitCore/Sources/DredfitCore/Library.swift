@@ -545,7 +545,7 @@ public enum ExerciseLibrary {
                     String(localized: "Lower under control to fully straight arms, no swinging.", bundle: .module),
                 ],
                 mistakes: [
-                    String(localized: "Swinging and jerking the body — kipping doesn't count.", bundle: .module),
+                    String(localized: "Swinging and jerking the body — using momentum doesn't count.", bundle: .module),
                     String(localized: "Half range at the bottom — each rep starts from straight arms.", bundle: .module),
                 ]),
         ], units: [.hold, .reps, .reps, .reps]),
