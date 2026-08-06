@@ -2,6 +2,35 @@
 
 ## Unreleased
 
+### Localization: French and Italian (issue #69)
+
+- French and Italian join the shipping languages, each complete across the four
+  String Catalogs: the 40-exercise library with its technique steps and common
+  mistakes, the 15 warm-up and cool-down position sheets, the "In real life"
+  lines, onboarding, "How it works", milestones, the anniversary retrospective,
+  the widgets and the Health permission strings. Seven languages now.
+- Both address the reader as *tu*, and neither ever genders them: French leans
+  on impersonal turns ("C'est fait") rather than a masculine "Prêt", and
+  Italian on `avere` participles ("hai fatto") rather than an *essere* one.
+  Buttons follow each platform convention — French infinitives ("Commencer"),
+  Italian second-person imperatives ("Inizia").
+- The app's three-way distinction survives translation intact in both: French
+  *variante · cran · niveau*, Italian *variante · gradino · livello*, with the
+  words for a technique step kept clear of them (*étape*, *passaggio*). The
+  rest cluster is likewise disjoint — French *repos · jour de repos · coupure ·
+  allègement*, Italian *recupero · giorno di riposo · pausa · scarico* — so a
+  sixty-second rest never reads like a fortnight away from training.
+- French typography is honoured rather than approximated: narrow no-break
+  spaces before `? ! ;`, a no-break space before `:`, typographic apostrophes,
+  and never an elision against a placeholder.
+- No code changed for either language: both take the same default branch of
+  `nextTrainingDateLabel` that German uses, with the weekday label carried in
+  the catalogs ("le %@" in French; the bare day in Italian, whose article is
+  gendered). The engine and the golden fixtures are untouched.
+- dredfit.com ships /fr and /it — landing and privacy policy — with hreflang
+  alternates and sitemap entries across all seven locales, and nine store
+  screenshots per language through the standard pipeline.
+
 ### Localization: German (issue #63)
 
 - German joins English, Russian, Spanish and Brazilian Portuguese, complete —

@@ -64,6 +64,42 @@
             }
           }
         },
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld niveau"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld niveaux"
+                }
+              }
+            }
+          }
+        },
+        "it": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld livello"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld livelli"
+                }
+              }
+            }
+          }
+        },
         "pt-BR": {
           "variations": {
             "plural": {
@@ -170,6 +206,42 @@
             }
           }
         },
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld séance"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld séances"
+                }
+              }
+            }
+          }
+        },
+        "it": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld allenamento"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld allenamenti"
+                }
+              }
+            }
+          }
+        },
         "pt-BR": {
           "variations": {
             "plural": {
@@ -241,6 +313,18 @@
             "value": "Hecho ✓"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C’est fait ✓"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fatto ✓"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -276,6 +360,18 @@
             "value": "Dredfit"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dredfit"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dredfit"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -302,6 +398,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Siguiente entrenamiento %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prochaine séance %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prossimo allenamento %@"
           }
         },
         "pt-BR": {
@@ -339,6 +447,18 @@
             "value": "Siguiente: entrenamiento %lld · %@"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ensuite : séance %lld · %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prossimo: allenamento %lld · %@"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -374,6 +494,18 @@
             "value": "Día de descanso"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jour de repos"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giorno di riposo"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -400,6 +532,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Esta semana"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette semaine"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questa settimana"
           }
         },
         "pt-BR": {
@@ -437,6 +581,18 @@
             "value": "Hoy"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aujourd’hui"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oggi"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -470,6 +626,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Estado de hoy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Statut du jour"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stato di oggi"
           }
         },
         "pt-BR": {
@@ -507,6 +675,18 @@
             "value": "Entrenamiento %lld"
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Séance %lld"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allenamento %lld"
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -540,6 +720,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "Día de entrenamiento"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jour d’entraînement"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giorno di allenamento"
           }
         },
         "pt-BR": {
@@ -577,6 +769,18 @@
             "value": "Entrenamiento, «hecho» o día de descanso: todo de un vistazo."
           }
         },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Séance, « C’est fait » ou jour de repos — en un coup d’œil."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allenamento, “fatto” o giorno di riposo – a colpo d’occhio."
+          }
+        },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
@@ -605,6 +809,18 @@
           "stringUnit": {
             "state": "translated",
             "value": "nivel"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "niveau"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "livello"
           }
         },
         "pt-BR": {
@@ -637,6 +853,18 @@
           }
         },
         "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "≈ %lld min"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "≈ %lld min"
+          }
+        },
+        "it": {
           "stringUnit": {
             "state": "translated",
             "value": "≈ %lld min"
@@ -735,6 +963,62 @@
                     "stringUnit": {
                       "state": "translated",
                       "value": "%arg ejercicios"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "≈ %lld min · %#@exercises@"
+          },
+          "substitutions": {
+            "exercises": {
+              "argNum": 2,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg exercice"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg exercices"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "≈ %lld min · %#@exercises@"
+          },
+          "substitutions": {
+            "exercises": {
+              "argNum": 2,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg esercizio"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg esercizi"
                     }
                   }
                 }

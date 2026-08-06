@@ -21,6 +21,18 @@
             "value" : " /lado"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " /côté"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : " /lato"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -53,6 +65,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Manos en la pared, una pierna atrás con el talón en el suelo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mains contre le mur, une jambe en arrière, talon au sol."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mani al muro, una gamba indietro, tallone a terra."
           }
         },
         "pt-BR" : {
@@ -89,6 +113,18 @@
             "value" : "Rodilla trasera recta; acércate a la pared hasta sentir el estiramiento en la pantorrilla."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Genou arrière tendu ; penche-toi vers le mur jusqu’à sentir l’étirement dans le mollet."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ginocchio dietro teso; avvicinati al muro fino a sentire tirare il polpaccio."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -121,6 +157,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "El talón no se despega: sin rebotes."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Garde le talon au sol — sans à-coups."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il tallone resta a terra – senza molleggiare."
           }
         },
         "pt-BR" : {
@@ -157,6 +205,18 @@
             "value" : "Antebrazo en la pared, codo a la altura del hombro."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avant-bras contre le mur, coude à hauteur d’épaule."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avambraccio al muro, gomito all’altezza della spalla."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -189,6 +249,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gira el pecho alejándolo de la pared hasta sentir el estiramiento delante del hombro."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tourne le buste à l’opposé du mur jusqu’à sentir l’étirement à l’avant de l’épaule."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ruota il petto allontanandolo dal muro fino a sentire tirare davanti alla spalla."
           }
         },
         "pt-BR" : {
@@ -225,6 +297,18 @@
             "value" : "Hombro abajo, lejos de la oreja: gira hasta estirar, no hasta que duela."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Épaule basse, loin de l’oreille — tourne jusqu’à l’étirement, pas jusqu’à la douleur."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spalla bassa, lontana dall’orecchio – ruota fino a sentire tirare, non fino al dolore."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -257,6 +341,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pies al ancho de cadera; inclínate desde la cadera con las rodillas ligeramente flexionadas."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pieds largeur du bassin ; penche-toi en avant depuis les hanches, genoux souples."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Piedi alla larghezza dei fianchi; piegati in avanti a partire dalle anche, ginocchia morbide."
           }
         },
         "pt-BR" : {
@@ -293,6 +389,18 @@
             "value" : "Deja colgar la cabeza y los brazos: no fuerces hasta el suelo."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laisse pendre la tête et les bras — ne cherche pas à toucher le sol."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lascia che testa e braccia pendano pesanti – non cercare di toccare terra."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -325,6 +433,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Para subir, desenrolla la espalda despacio, vértebra a vértebra."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pour remonter, déroule lentement la colonne, vertèbre par vertèbre."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per risalire, srotola lentamente la schiena, una vertebra alla volta."
           }
         },
         "pt-BR" : {
@@ -361,6 +481,18 @@
             "value" : "Apoya una rodilla en el suelo, con el otro pie plantado delante."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pose un genou au sol, l’autre pied à plat devant."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metti un ginocchio a terra, l’altro piede ben piantato davanti."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -393,6 +525,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bascula la pelvis y llévala un poco hacia adelante hasta sentir el estiramiento delante de la cadera."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bascule le bassin et avance-le légèrement jusqu’à sentir l’étirement à l’avant de la hanche."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bascula il bacino e spostalo leggermente in avanti, fino a sentire tirare davanti all’anca."
           }
         },
         "pt-BR" : {
@@ -429,6 +573,18 @@
             "value" : "Mantén la posición y respira: sin rebotes."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiens la position et respire — sans à-coups."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tieni la posizione e respira – senza molleggiare."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -461,6 +617,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sujeta un apoyo a la altura de la cadera con ambas manos, pies bajo la cadera."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attrape à deux mains un support à hauteur des hanches, pieds sous les hanches."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afferra con entrambe le mani un appoggio all’altezza dei fianchi, piedi sotto le anche."
           }
         },
         "pt-BR" : {
@@ -497,6 +665,18 @@
             "value" : "Lleva la cadera atrás con los brazos rectos hasta sentir el estiramiento a los lados de la espalda."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pousse les hanches vers l’arrière, bras tendus, jusqu’à sentir l’étirement sur les côtés du dos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Porta il bacino indietro con le braccia tese, fino a sentire tirare ai lati della schiena."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -529,6 +709,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cabeza entre los brazos; respira con calma."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Garde la tête entre les bras et respire tranquillement."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tieni la testa tra le braccia e respira."
           }
         },
         "pt-BR" : {
@@ -565,6 +757,18 @@
             "value" : "Boca arriba, rodillas dobladas; déjalas caer hacia un lado."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sur le dos, genoux fléchis ; laisse-les tomber d’un côté."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A pancia in su, ginocchia piegate; lasciale cadere entrambe da un lato."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -597,6 +801,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Los hombros siguen en el suelo; la cabeza gira hacia el lado contrario."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les épaules restent au sol, la tête tourne de l’autre côté."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le spalle restano a terra, la testa gira dall’altra parte."
           }
         },
         "pt-BR" : {
@@ -633,6 +849,18 @@
             "value" : "Deja que las rodillas bajen por su propio peso: no las empujes."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laisse le poids descendre tout seul — n’appuie pas sur les genoux."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lascia che il peso scenda da solo – non spingere le ginocchia verso il basso."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -665,6 +893,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rodillas en el suelo, siéntate sobre los talones."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Genoux au sol, assieds-toi sur les talons."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ginocchia a terra, siediti sui talloni."
           }
         },
         "pt-BR" : {
@@ -701,6 +941,18 @@
             "value" : "Inclínate hacia adelante, brazos estirados y la frente en el suelo."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Penche-toi en avant, bras tendus devant, front au sol."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Piegati in avanti, braccia distese davanti, fronte a terra."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -733,6 +985,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Respira lento, llevando el aire hacia la espalda."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Respire lentement, en envoyant le souffle dans le dos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Respira lentamente, portando il respiro nella schiena."
           }
         },
         "pt-BR" : {
@@ -769,6 +1033,18 @@
             "value" : "Siéntate con la espalda recta; apoya un tobillo sobre la rodilla contraria."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Assieds-toi le dos droit ; pose une cheville sur le genou opposé."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Siediti con la schiena dritta; appoggia una caviglia sul ginocchio opposto."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -801,6 +1077,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Inclínate hacia adelante desde la cadera con la espalda recta hasta sentir el glúteo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Penche-toi en avant depuis les hanches, dos droit, jusqu’à sentir l’étirement dans le fessier."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Piegati in avanti a partire dalle anche, schiena dritta, fino a sentire tirare il gluteo."
           }
         },
         "pt-BR" : {
@@ -837,6 +1125,18 @@
             "value" : "La rodilla cae abierta sola: no la presiones."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le genou s’ouvre tout seul — n’appuie pas dessus."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il ginocchio si apre da solo – non spingerlo verso il basso."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -869,6 +1169,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Brazo recto, palma hacia abajo; con la otra mano tira suave de los dedos hacia abajo y hacia ti."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bras tendu, paume vers le sol ; tire doucement les doigts vers le bas et vers toi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Braccio teso, palmo in giù; con l’altra mano tira piano le dita verso il basso e verso di te."
           }
         },
         "pt-BR" : {
@@ -905,6 +1217,18 @@
             "value" : "Luego gira la palma hacia arriba y repite el estiramiento suave."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tourne ensuite la paume vers le haut et tire à nouveau doucement."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poi gira il palmo verso l’alto e tira di nuovo, piano."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -937,6 +1261,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tira solo hasta estirar: si sientes punzadas u hormigueo, afloja."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tire seulement jusqu’à l’étirement — si ça pique ou fourmille, relâche."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tira solo fino a sentire l’allungamento – se qualcosa punge o formicola, allenta."
           }
         },
         "pt-BR" : {
@@ -973,6 +1309,18 @@
             "value" : "enfriamiento · %lld s"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "retour au calme · %lld s"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "defaticamento · %lld s"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1005,6 +1353,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "enfriamiento · %lld s por lado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "retour au calme · %lld s par côté"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "defaticamento · %lld s per lato"
           }
         },
         "pt-BR" : {
@@ -1041,6 +1401,18 @@
             "value" : "calentamiento · %lld s"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "échauffement · %lld s"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "riscaldamento · %lld s"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1073,6 +1445,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dibuja círculos grandes y lentos hacia adelante con los brazos rectos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bras tendus, dessine de grands cercles lents vers l’avant."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ruota le braccia tese in avanti – cerchi ampi e lenti."
           }
         },
         "pt-BR" : {
@@ -1109,6 +1493,18 @@
             "value" : "A mitad de tiempo, cambia de dirección y gira hacia atrás."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "À mi-parcours, change de sens et fais des cercles vers l’arrière."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A metà del tempo, cambia direzione e ruota all’indietro."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1141,6 +1537,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "A cuatro patas: exhala, redondea la espalda y mete la barbilla."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "À quatre pattes : expire, arrondis le dos et rentre le menton."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A quattro zampe: espira, incurva la schiena e porta il mento al petto."
           }
         },
         "pt-BR" : {
@@ -1177,6 +1585,18 @@
             "value" : "Inhala, arquea suave y mira un poco hacia arriba: una onda lenta por respiración."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inspire, creuse doucement le dos et regarde un peu vers le haut — une vague lente à chaque respiration."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inspira, inarca dolcemente e guarda un po’ in alto – un’onda lenta a ogni respiro."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1209,6 +1629,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Baja hasta media sentadilla llevando la cadera atrás; brazos al frente para equilibrar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descends en demi-squat comme pour t’asseoir, bras tendus devant pour l’équilibre."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Porta il bacino indietro e scendi in un mezzo squat; braccia in avanti per l’equilibrio."
           }
         },
         "pt-BR" : {
@@ -1245,6 +1677,18 @@
             "value" : "Talones en el suelo; sube suave sin bloquear las rodillas."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les talons restent au sol ; remonte en douceur sans verrouiller les genoux."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Talloni a terra; risali in modo fluido senza bloccare le ginocchia."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1277,6 +1721,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Manos en la cadera, pies al ancho de hombros; dibuja círculos lentos con la cadera."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mains sur les hanches, pieds à la largeur des épaules ; dessine des cercles lents avec le bassin."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mani sui fianchi, piedi alla larghezza delle spalle; disegna cerchi lenti con il bacino."
           }
         },
         "pt-BR" : {
@@ -1313,6 +1769,18 @@
             "value" : "Rodillas ligeramente flexionadas; cambia de dirección a mitad de tiempo."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Garde les genoux souples et change de sens à mi-parcours."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tieni le ginocchia morbide e cambia direzione a metà del tempo."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1345,6 +1813,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Marcha a ritmo suave, subiendo las rodillas a la altura de la cadera."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marche sur place à un rythme tranquille, en montant les genoux à hauteur des hanches."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marcia sul posto a ritmo tranquillo, portando le ginocchia all’altezza dei fianchi."
           }
         },
         "pt-BR" : {
@@ -1381,6 +1861,18 @@
             "value" : "Mueve los brazos con soltura y mantén los hombros relajados."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Balance librement les bras et garde les épaules relâchées."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lascia oscillare le braccia liberamente e tieni le spalle rilassate."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1413,6 +1905,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pies firmes, cadera al frente; gira el torso de lado a lado."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pieds ancrés au sol, hanches vers l’avant ; tourne le buste d’un côté à l’autre."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Piedi ben piantati, bacino rivolto in avanti; ruota il busto da un lato all’altro."
           }
         },
         "pt-BR" : {
@@ -1449,6 +1953,18 @@
             "value" : "Deja que los brazos acompañen sueltos: impulso, no fuerza."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laisse les bras se balancer librement — l’élan, pas la force."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lascia le braccia sciolte, che girino da sole – slancio, non forza."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1475,6 +1991,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "«Terminar ahora» conserva lo que hiciste y pasa a la evaluación; los ejercicios restantes se marcan como omitidos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« Terminer maintenant » garde ce que tu as fait et passe au ressenti — les exercices restants sont marqués comme ignorés."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Termina ora” conserva quello che hai fatto e passa alla valutazione – gli esercizi rimanenti vengono segnati come saltati."
           }
         },
         "pt-BR" : {
@@ -1506,6 +2034,18 @@
             "value" : "«Menos · Según el plan · Más»: con eso basta. Si quieres precisión, toca «Fue distinto» en el propio ejercicio y escribe tu número."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« Moins · Comme prévu · Plus » — c’est suffisant. Si tu veux plus de précision, touche « Ça s’est passé autrement » directement sur l’exercice et saisis ton chiffre."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Meno · Come previsto · Più”: non serve altro. Se vuoi più precisione, tocca “È andata diversamente” direttamente sull’esercizio e scrivi quanto hai fatto davvero."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1532,6 +2072,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "«Según el plan» suma un paso, «más» suma dos y «menos» resta uno. Un número exacto en un ejercicio pesa más que la evaluación general. Desde cero, un número exacto fija el nivel de inmediato: el primer entrenamiento calibra el sistema. A partir de ahí el nivel sube como máximo dos pasos por entrenamiento."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« Comme prévu » ajoute un cran, « plus » en ajoute deux, « moins » en retire un. Un chiffre exact sur un seul exercice l’emporte sur le ressenti global. En partant de zéro, un chiffre exact fixe le niveau tout de suite — la première séance calibre le système. Ensuite, le niveau monte d’au plus deux crans par séance."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Come previsto” aggiunge un gradino, “più” ne aggiunge due, “meno” ne toglie uno. Il numero esatto di un singolo esercizio pesa più della valutazione complessiva. Partendo da zero, un numero esatto fissa subito il livello – il primo allenamento calibra il sistema. Da lì in poi il livello sale al massimo di due gradini per allenamento."
           }
         },
         "pt-BR" : {
@@ -1563,6 +2115,18 @@
           }
         },
         "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %lld×%lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %lld×%lld"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ · %lld×%lld"
@@ -1602,6 +2166,18 @@
             "value" : "%@ · %lld×%lld s"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %lld×%lld s"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · %lld×%lld s"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1630,6 +2206,18 @@
             "value" : "%@ · serie %lld de %lld"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · série %lld sur %lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · serie %lld di %lld"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1656,6 +2244,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ por lado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ par côté"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ per lato"
           }
         },
         "pt-BR" : {
@@ -1692,6 +2292,18 @@
             "value" : "%@, sin terminar"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, inachevé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, non completato"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1724,6 +2336,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@, quedó fuera"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, ignoré"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, saltato"
           }
         },
         "pt-BR" : {
@@ -1767,6 +2391,18 @@
             "value" : "%1$lld / %2$lld"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld / %2$lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld / %2$lld"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1795,6 +2431,18 @@
             "value" : "%lld × %lld s%@"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld × %lld s%@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld × %lld s%@"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1818,6 +2466,18 @@
           }
         },
         "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld × %lld%@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld × %lld%@"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld × %lld%@"
@@ -1870,6 +2530,42 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "%lld completados"
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld terminé"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld terminés"
+                }
+              }
+            }
+          }
+        },
+        "it" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld completato"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld completati"
                 }
               }
             }
@@ -1952,6 +2648,42 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "%lld niveles"
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld niveau"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld niveaux"
+                }
+              }
+            }
+          }
+        },
+        "it" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld livello"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld livelli"
                 }
               }
             }
@@ -2040,6 +2772,42 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "%lld months since your first workout"
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld mois depuis ta première séance"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld mois depuis ta première séance"
+                }
+              }
+            }
+          }
+        },
+        "it" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld mese dal tuo primo allenamento"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld mesi dal tuo primo allenamento"
                 }
               }
             }
@@ -2155,6 +2923,18 @@
             "value" : "reps"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "reps"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "reps"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2212,6 +2992,18 @@
           }
         },
         "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld s"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld s"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld s"
@@ -2310,6 +3102,62 @@
                     "stringUnit" : {
                       "state" : "translated",
                       "value" : "segundos"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@unit@"
+          },
+          "substitutions" : {
+            "unit" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "seconde"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "secondes"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@unit@"
+          },
+          "substitutions" : {
+            "unit" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "secondo"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "secondi"
                     }
                   }
                 }
@@ -2443,6 +3291,42 @@
             }
           }
         },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Encore %lld seconde de repos"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Encore %lld secondes de repos"
+                }
+              }
+            }
+          }
+        },
+        "it" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Manca %lld secondo di recupero"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Mancano %lld secondi di recupero"
+                }
+              }
+            }
+          }
+        },
         "pt-BR" : {
           "variations" : {
             "plural" : {
@@ -2502,6 +3386,42 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "%lld weeks since your first workout"
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld semaine depuis ta première séance"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld semaines depuis ta première séance"
+                }
+              }
+            }
+          }
+        },
+        "it" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld settimana dal tuo primo allenamento"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld settimane dal tuo primo allenamento"
                 }
               }
             }
@@ -2631,6 +3551,42 @@
             }
           }
         },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld séance"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld séances"
+                }
+              }
+            }
+          }
+        },
+        "it" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld allenamento"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld allenamenti"
+                }
+              }
+            }
+          }
+        },
         "pt-BR" : {
           "variations" : {
             "plural" : {
@@ -2737,6 +3693,42 @@
             }
           }
         },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld séance derrière toi"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld séances derrière toi"
+                }
+              }
+            }
+          }
+        },
+        "it" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld allenamento alle spalle"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld allenamenti alle spalle"
+                }
+              }
+            }
+          }
+        },
         "pt-BR" : {
           "variations" : {
             "plural" : {
@@ -2799,6 +3791,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "+1 serie en %lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+1 série dans %lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+1 serie tra %lld"
           }
         },
         "pt-BR" : {
@@ -2901,6 +3905,62 @@
             }
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ %lld min · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg exercice"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg exercices"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ %lld min · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg esercizio"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg esercizi"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2991,6 +4051,18 @@
             "value" : "3–4 entrenamientos por semana es el punto justo: la fuerza crece y las articulaciones y los tendones le siguen el ritmo. El músculo se adapta en semanas, los tendones en meses — los días de descanso cuidan a la mitad lenta."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3–4 séances par semaine, c’est le juste milieu : la force progresse, et articulations et tendons suivent le rythme. Le muscle s’adapte en quelques semaines, les tendons en quelques mois — les jours de repos protègent la moitié la plus lente."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3–4 allenamenti a settimana sono il punto giusto: la forza cresce mentre articolazioni e tendini reggono il ritmo. I muscoli si adattano in settimane, i tendini in mesi – i giorni di riposo proteggono la metà più lenta."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3025,6 +4097,18 @@
             "value" : "2–3 días de descanso por semana es el ritmo recomendado"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2–3 jours de repos par semaine, c’est le rythme recommandé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2–3 giorni di riposo a settimana sono il ritmo consigliato"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3048,6 +4132,18 @@
           }
         },
         "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "8–15 reps"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "8–15 reps"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "8–15 reps"
@@ -3081,6 +4177,18 @@
             "value" : "20–55 s"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "20–55 s"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "20–55 s"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3107,6 +4215,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Una pausa es normal. Empecemos un par de pasos más abajo: así es más fácil volver al ritmo, y los niveles se recuperan rápido."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une coupure, c’est normal. On repart un ou deux crans plus bas — plus doux pour retrouver le rythme, et les niveaux remontent vite."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una pausa è normale. Ripartiamo un paio di gradini più in basso: un rientro più morbido nel ritmo, e i livelli risalgono in fretta."
           }
         },
         "pt-BR" : {
@@ -3137,6 +4257,18 @@
             "value" : "Un cuestionario puede equivocarse; lo que hiciste de verdad, no. Dredfit encuentra tu nivel a partir de entrenamientos reales y mantiene la carga justo en el límite de lo que puedes manejar."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un questionnaire peut se tromper ; ce que tu as vraiment fait, non. Dredfit trouve ton niveau à partir de vraies séances et garde la charge juste à la limite de ce que tu peux tenir."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un questionario può sbagliare; quello che hai fatto davvero, no. Dredfit ricava il tuo livello dagli allenamenti reali e tiene il carico proprio al limite di quello che puoi gestire."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3165,6 +4297,18 @@
             "value" : "Un ejercicio omitido simplemente no cuenta: su nivel se queda donde estaba. Ni castigo ni retroceso."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un exercice ignoré ne compte tout simplement pas : son niveau reste où il était. Pas de pénalité, pas de retour en arrière."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un esercizio saltato semplicemente non conta: il suo livello resta dov’era. Niente penalità, nessuna retrocessione."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3191,6 +4335,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Acerca de"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "À propos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informazioni"
           }
         },
         "pt-BR" : {
@@ -3222,6 +4378,18 @@
             "value" : "real"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "réel"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "effettivo"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3250,6 +4418,18 @@
             "value" : "real %lld"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "réel %lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "effettivo %lld"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3276,6 +4456,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "¿Agregar los entrenamientos anteriores a Salud?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter les séances précédentes dans Santé ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungere gli allenamenti passati a Salute?"
           }
         },
         "pt-BR" : {
@@ -3307,6 +4499,18 @@
             "value" : "Ajustar por ejercicio"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajuster par exercice"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifica per esercizio"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3335,6 +4539,18 @@
             "value" : "Ajustado"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajusté"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modificato"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3361,6 +4577,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tras dos semanas de pausa el plan te espera un par de pasos más abajo, y más abajo cuanto más larga sea la pausa. No se pierde nada: los niveles vuelven a subir rápido y lo único que importa es volver."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Après deux semaines de coupure, le plan te retrouve un ou deux crans plus bas — d’autant plus bas que la coupure est longue. Rien n’est perdu : les niveaux remontent vite, et seul le retour compte."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dopo due settimane di pausa il piano ti viene incontro un paio di gradini più in basso – più lunga la pausa, più in basso. Non si perde nulla: i livelli risalgono in fretta, e l’unica cosa che conta è tornare."
           }
         },
         "pt-BR" : {
@@ -3392,6 +4620,18 @@
             "value" : "Todos tus datos se quedan en tu dispositivo. Si tienes problemas de articulaciones, corazón o presión arterial, consulta antes con un médico. Un dolor agudo durante un ejercicio significa siempre parar."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toutes tes données restent sur ton appareil. En cas de problème d’articulations, de cœur ou de tension, parle d’abord à un médecin. Une douleur vive pendant un exercice, c’est toujours stop."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutti i tuoi dati restano sul tuo dispositivo. Se hai problemi di articolazioni, cuore o pressione, parla prima con un medico. Un dolore acuto durante un esercizio significa sempre fermarsi."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3418,6 +4658,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cuenta para %lld de %lld — %@ quedó sin terminar y no cambia"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compte pour %lld sur %lld — %@ inachevé, niveau inchangé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vale per %lld su %lld – %@ non completato, livello fermo"
           }
         },
         "pt-BR" : {
@@ -3448,6 +4700,18 @@
             "value" : "Cuenta para %lld de %lld — %@ quedó fuera y no cambia"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compte pour %lld sur %lld — %@ ignoré, niveau inchangé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vale per %lld su %lld – %@ saltato, livello fermo"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3474,6 +4738,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cuenta para %lld de %lld — los ejercicios omitidos no cambian"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compte pour %lld sur %lld — les exercices ignorés ne bougent pas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vale per %lld su %lld – gli esercizi saltati restano fermi"
           }
         },
         "pt-BR" : {
@@ -3505,6 +4781,18 @@
             "value" : "Círculos con los brazos"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotations des bras"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerchi con le braccia"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3531,6 +4819,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Respaldo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sauvegarde"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup"
           }
         },
         "pt-BR" : {
@@ -3561,6 +4861,18 @@
             "value" : "Pausas"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coupures"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pause dagli allenamenti"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3584,6 +4896,18 @@
           }
         },
         "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calendario"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calendrier"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Calendario"
@@ -3617,6 +4941,18 @@
             "value" : "Cancelar"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annuler"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annulla"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3644,6 +4980,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gato-vaca"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chat-vache"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gatto-mucca"
           }
         },
         "pt-BR" : {
@@ -3674,6 +5022,18 @@
             "value" : "Errores frecuentes"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erreurs fréquentes"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Errori comuni"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3702,6 +5062,18 @@
             "value" : "completado"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "terminé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "completato"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3728,6 +5100,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hecho hoy ✓"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fait pour aujourd’hui ✓"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fatto per oggi ✓"
           }
         },
         "pt-BR" : {
@@ -3759,6 +5143,18 @@
             "value" : "Continuar"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continua"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3785,6 +5181,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "¿Continuar el entrenamiento?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuer la séance ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuare l’allenamento?"
           }
         },
         "pt-BR" : {
@@ -3821,6 +5229,18 @@
             "value" : "ENFRIAMIENTO"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RETOUR AU CALME"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DEFATICAMENTO"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3853,6 +5273,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pantorrilla en la pared"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mollets au mur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Polpacci al muro"
           }
         },
         "pt-BR" : {
@@ -3889,6 +5321,18 @@
             "value" : "Pecho y hombros en la pared"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poitrine et épaules au mur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Petto e spalle al muro"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3921,6 +5365,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Flexión hacia adelante"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flexion avant"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Piegamento in avanti"
           }
         },
         "pt-BR" : {
@@ -3957,6 +5413,18 @@
             "value" : "Flexores de cadera"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fléchisseurs de hanche"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flessori dell’anca"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3989,6 +5457,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dorsales con apoyo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dorsaux avec support"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dorsali con appoggio"
           }
         },
         "pt-BR" : {
@@ -4025,6 +5505,18 @@
             "value" : "Torsión en el suelo"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Torsion allongée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Torsione a terra"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4057,6 +5549,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "15 s por lado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "15 s par côté"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "15 s per lato"
           }
         },
         "pt-BR" : {
@@ -4093,6 +5597,18 @@
             "value" : "Postura de descanso"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Posture de repos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Posizione di riposo"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4125,6 +5641,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Glúteo sentado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fessiers assis"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gluteo da seduti"
           }
         },
         "pt-BR" : {
@@ -4161,6 +5689,18 @@
             "value" : "Omitir enfriamiento"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passer le retour au calme"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salta il defaticamento"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4195,6 +5735,18 @@
             "value" : "Muñecas y antebrazos"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poignets et avant-bras"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Polsi e avambracci"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4221,6 +5773,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No se pudo leer el archivo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de lire ce fichier."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile leggere il file."
           }
         },
         "pt-BR" : {
@@ -4253,6 +5817,18 @@
             "value" : "fecha"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "date"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "data"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4279,6 +5855,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Descarga"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allègement"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scarico"
           }
         },
         "pt-BR" : {
@@ -4309,6 +5897,18 @@
             "value" : "¿Te salió muy por encima del plan? Toca «Fue distinto» y pon lo que hiciste de verdad: el sistema se pondrá en tu nivel al momento."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu as fait bien plus que prévu ? Touche « Ça s’est passé autrement » et saisis ce que tu as vraiment fait : le système se calera aussitôt sur ton niveau."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hai fatto molto più del previsto? Tocca “È andata diversamente” e inserisci quello che hai fatto davvero – il sistema si allinea subito al tuo livello."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4337,6 +5937,18 @@
             "value" : "Salir sin guardar"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quitter sans enregistrer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esci senza salvare"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4363,6 +5975,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hecho"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terminé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fatto"
           }
         },
         "pt-BR" : {
@@ -4394,6 +6018,18 @@
             "value" : "Dredfit te da un plan, tú dices cómo fue y el siguiente plan se mueve. El primer entrenamiento es fácil a propósito: es el punto de partida. Responde con sinceridad al terminar y la carga se hará tuya, paso a paso."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dredfit te donne un plan, tu dis comment ça s’est passé, et le plan suivant s’ajuste. La première séance est volontairement facile : c’est le point de départ. Réponds ensuite honnêtement, et la charge deviendra la tienne, cran après cran."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dredfit ti dà un piano, tu dici com’è andata e il piano successivo si sposta. Il primo allenamento è facile apposta: è il punto di partenza. Alla fine rispondi con sincerità e il carico diventa tuo, un gradino alla volta."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4420,6 +6056,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fácil, podía hacer más"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Facile, j’aurais pu faire plus"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Facile, potevo fare di più"
           }
         },
         "pt-BR" : {
@@ -4450,6 +6098,18 @@
             "value" : "Equipamiento"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Matériel"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attrezzatura"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4478,6 +6138,18 @@
             "value" : "Un entrenamiento de cada dos cambia el remo por una tracción vertical"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une séance sur deux, le tirage devient vertical"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un allenamento su due sostituisce il rematore con una tirata verticale"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4504,6 +6176,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Salir"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quitter"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esci"
           }
         },
         "pt-BR" : {
@@ -4576,6 +6260,42 @@
             }
           }
         },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Exporter %lld séance"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Exporter %lld séances"
+                }
+              }
+            }
+          }
+        },
+        "it" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Esporta %lld allenamento"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Esporta %lld allenamenti"
+                }
+              }
+            }
+          }
+        },
         "pt-BR" : {
           "variations" : {
             "plural" : {
@@ -4640,6 +6360,18 @@
             "value" : "Exportar historial"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exporter l’historique"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esporta storico"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4674,6 +6406,18 @@
             "value" : "Omitidos"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ignorés"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saltati"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4702,6 +6446,18 @@
             "value" : "Menos"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moins"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meno"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4728,6 +6484,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Terminar ahora"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terminer maintenant"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Termina ora"
           }
         },
         "pt-BR" : {
@@ -4759,6 +6527,18 @@
             "value" : "Prepárate"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prépare-toi"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preparati"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4788,6 +6568,18 @@
             "value" : "Prepárate: %@"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prépare-toi : %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preparati: %@"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4814,6 +6606,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Entendido"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compris"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Capito"
           }
         },
         "pt-BR" : {
@@ -4845,6 +6649,18 @@
             "value" : "Medias sentadillas"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demi-squats"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mezzi squat"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4873,6 +6689,18 @@
             "value" : "Salud"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Santé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salute"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4899,6 +6727,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Los días marcados son de descanso"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les jours marqués sont des jours de repos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I giorni evidenziati sono di riposo"
           }
         },
         "pt-BR" : {
@@ -4930,6 +6770,18 @@
             "value" : "Círculos con la cadera"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotations du bassin"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerchi con il bacino"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4957,6 +6809,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Historial"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historique"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Storico"
           }
         },
         "pt-BR" : {
@@ -4987,6 +6851,18 @@
             "value" : "¿Cómo fue?"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comment ça s’est passé ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Com’è andata?"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5013,6 +6889,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cómo funciona"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comment ça marche"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Come funziona"
           }
         },
         "pt-BR" : {
@@ -5044,6 +6932,18 @@
             "value" : "Empezar"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Commencer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inizia"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5072,6 +6972,18 @@
             "value" : "Importar historial"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importer l’historique"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importa storico"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5098,6 +7010,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "La importación reemplaza tu historial y tu configuración actuales."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’importation remplace ton historique et tes réglages actuels."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’importazione sostituisce lo storico e le impostazioni attuali."
           }
         },
         "pt-BR" : {
@@ -5129,6 +7053,18 @@
             "value" : "Se ajusta como un termostato."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ça s’ajuste comme un thermostat."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si regola come un termostato."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5155,6 +7091,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "La última vez elegiste: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La dernière fois, tu as choisi : %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’ultima volta hai scelto: %@"
           }
         },
         "pt-BR" : {
@@ -5185,6 +7133,18 @@
             "value" : "Dejarlo como estaba"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laisser tel quel"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lascia com’era"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5211,6 +7171,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "¿Salir del entrenamiento?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quitter la séance ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uscire dall’allenamento?"
           }
         },
         "pt-BR" : {
@@ -5241,6 +7213,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "nivel"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "niveau"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "livello"
           }
         },
         "pt-BR" : {
@@ -5278,6 +7262,18 @@
             "value" : "nivel %lld"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "niveau %lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "livello %lld"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5304,6 +7300,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Los niveles vuelven al principio. Tu historial se mantiene."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les niveaux repartent de zéro. Ton historique reste."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I livelli ripartono dall’inizio. Lo storico resta."
           }
         },
         "pt-BR" : {
@@ -5340,6 +7348,18 @@
             "value" : "Resorte en cada paso: subir escaleras y correr se siente más liviano para las rodillas y los pies."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du ressort à chaque pas : les escaliers et la course pèsent moins sur les genoux et les pieds."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gambe a molla: scale e corsa pesano meno su ginocchia e piedi."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5372,6 +7392,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Una zona lumbar que aguanta horas de estar sentado, agacharte y cargar una mochila pesada."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rester des heures en position assise, se pencher, porter un sac à dos lourd — un bas du dos qui encaisse."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una zona lombare che regge ore da seduti, le volte che ti chini e uno zaino pesante."
           }
         },
         "pt-BR" : {
@@ -5408,6 +7440,18 @@
             "value" : "Cargar peso con una mano, estirarte hacia el costado — un torso que no cede."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Porter une charge d’une seule main, tendre le bras sur le côté — un buste qui tient."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Portare un peso con una mano, allungarsi di lato – un busto che tiene."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5440,6 +7484,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Levantar del suelo una bolsa, a un niño, una maleta — con las caderas, no con la zona lumbar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soulever un sac, un enfant, une valise — avec les hanches, pas avec le bas du dos."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sollevare una borsa, un bambino, una valigia – con le anche, non con la zona lombare."
           }
         },
         "pt-BR" : {
@@ -5476,6 +7532,18 @@
             "value" : "En la vida"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Au quotidien"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nel quotidiano"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5508,6 +7576,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Un paso seguro en las escaleras, cuesta arriba y al bajar de la acera — equilibrio bajo carga."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un pas assuré dans l’escalier, en montée, en descendant du trottoir — l’équilibre sous charge."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Piede sicuro sulle scale, in salita, giù dal marciapiede – equilibrio sotto carico."
           }
         },
         "pt-BR" : {
@@ -5544,6 +7624,18 @@
             "value" : "Levantar el peso de tu propio cuerpo — la base para cualquier tarea física."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soulever le poids de ton corps — la base de tout effort physique."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sollevare il peso del tuo corpo – la base per qualsiasi sforzo fisico."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5576,6 +7668,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tu propio peso — bajo control total."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le poids de ton corps — sous contrôle total."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il peso del tuo corpo – sotto controllo totale."
           }
         },
         "pt-BR" : {
@@ -5612,6 +7716,18 @@
             "value" : "Todo el cuerpo sobre las manos — un nivel de control poco común."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tout ton corps au-dessus des mains — une maîtrise rare."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutto il corpo sopra le mani – una padronanza rara."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5644,6 +7760,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Levantarte del suelo con una sola pierna — sin manos y sin apoyo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se relever du sol sur une jambe — sans les mains, sans appui."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alzarsi da terra su una gamba sola – senza mani e senza appoggio."
           }
         },
         "pt-BR" : {
@@ -5680,6 +7808,18 @@
             "value" : "Espalda recta y hombros abiertos después de un día frente al escritorio."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un dos droit et des épaules ouvertes après une journée au bureau."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schiena dritta e spalle aperte dopo una giornata alla scrivania."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5712,6 +7852,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sostener y traccionar el peso de tu propio cuerpo — la medida más honesta de la fuerza."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tenir et tirer le poids de ton corps — la mesure la plus honnête de la force."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reggere il peso del tuo corpo e tirarti su – la misura più onesta della forza."
           }
         },
         "pt-BR" : {
@@ -5748,6 +7900,18 @@
             "value" : "Empujar una puerta pesada, levantarte del suelo, amortiguar una caída."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pousser une porte lourde, se relever du sol, amortir une chute."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spingere una porta pesante, rialzarsi da terra, attutire una caduta."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5780,6 +7944,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Subir la maleta al estante más alto, alcanzar el armario de arriba."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hisser une valise en haut de l’armoire, atteindre le haut du placard."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sollevare la valigia fin sopra l’armadio, raggiungere il ripiano più alto."
           }
         },
         "pt-BR" : {
@@ -5816,6 +7992,18 @@
             "value" : "Levantarte del suelo o de la silla, subir las escaleras corriendo — fuerza que usas cada día."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se lever du sol ou d’une chaise, monter l’escalier en courant — une force que tu utilises tous les jours."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alzarsi da terra o dalla sedia, fare le scale di corsa – la forza che usi ogni giorno."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5843,6 +8031,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Marcha en el lugar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marche sur place"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marcia sul posto"
           }
         },
         "pt-BR" : {
@@ -5879,6 +8079,18 @@
             "value" : "Listo"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fatto"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5905,6 +8117,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Más"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plus"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Più"
           }
         },
         "pt-BR" : {
@@ -5935,6 +8159,18 @@
             "value" : "nueva variación"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nouvelle variante"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nuova variante"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5961,6 +8197,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nueva variación"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nouvelle variante"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuova variante"
           }
         },
         "pt-BR" : {
@@ -5991,6 +8239,18 @@
             "value" : "Siguiente"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prochaine"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prossimo"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6017,6 +8277,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Siguiente · %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prochaine · %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prossimo · %@"
           }
         },
         "pt-BR" : {
@@ -6047,6 +8319,18 @@
             "value" : "nueva en %lld"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nouvelle dans %lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nuova tra %lld"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6073,6 +8357,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mes siguiente"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mois suivant"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mese successivo"
           }
         },
         "pt-BR" : {
@@ -6103,6 +8399,18 @@
             "value" : "A continuación"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ensuite"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A seguire"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6129,6 +8437,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Siguiente entrenamiento %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prochaine séance %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prossimo allenamento %@"
           }
         },
         "pt-BR" : {
@@ -6159,6 +8479,18 @@
             "value" : "el siguiente afloja un poco"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "la prochaine séance lève le pied"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "il prossimo sarà più leggero"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6187,6 +8519,18 @@
             "value" : "Siguiente: entrenamiento %lld · %@"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ensuite : séance %lld · %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prossimo: allenamento %lld · %@"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6213,6 +8557,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No se guardaron los detalles de este entrenamiento."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun détail enregistré pour cette séance."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun dettaglio salvato per questo allenamento."
           }
         },
         "pt-BR" : {
@@ -6244,6 +8600,18 @@
             "value" : "Sin preguntas sobre tu objetivo, tu nivel o el tiempo que tienes. Abre la app y entrena: el primer entrenamiento ya te espera. Unos 33 minutos, sin equipamiento."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune question sur ton objectif, ton niveau ou le temps que tu as. Ouvre l’app et entraîne-toi : la première séance t’attend déjà. Environ 33 minutes, sans matériel."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niente domande su obiettivo, livello o quanto tempo hai. Apri l’app e allenati: il primo allenamento ti aspetta già. Circa 33 minuti, senza attrezzi."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6270,6 +8638,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "sin terminar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "inachevé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "non completato"
           }
         },
         "pt-BR" : {
@@ -6337,6 +8717,42 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "Ahora %lld series"
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Désormais %lld série"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Désormais %lld séries"
+                }
+              }
+            }
+          }
+        },
+        "it" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Ora %lld serie"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Ora %lld serie"
                 }
               }
             }
@@ -6412,6 +8828,18 @@
             "value" : "Ahora: %@"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maintenant : %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ora: %@"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6435,6 +8863,18 @@
           }
         },
         "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "OK"
@@ -6467,6 +8907,18 @@
             "state" : "translated",
             "value" : "el %@"
           }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "le %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
+          }
         }
       }
     },
@@ -6482,6 +8934,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Según el plan"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comme prévu"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Come previsto"
           }
         },
         "pt-BR" : {
@@ -6512,6 +8976,18 @@
             "value" : "Un número por movimiento: codifica a la vez la variación y las repeticiones. Llega al tope de repeticiones y la variación se vuelve más difícil mientras la cuenta empieza de nuevo; en las variaciones más difíciles la cuenta arranca más abajo, así la transición se siente suave. La cuarta variación es la última: por encima de ella crecen las series, de tres a cinco."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un nombre par mouvement : il code à la fois la variante et les répétitions. Quand tu atteins le plafond de répétitions, la variante devient plus difficile et le compte repart du début ; sur les variantes plus difficiles, il repart de plus bas, donc le changement passe en douceur. La quatrième variante est la dernière : au-delà, ce sont les séries qui augmentent, de trois à cinq."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un numero per ogni movimento: racchiude sia la variante sia le ripetizioni. Arrivi al tetto delle ripetizioni e la variante si fa più difficile, mentre il conteggio riparte da capo; sulle varianti più difficili il conteggio parte più in basso, così il cambio è morbido. La quarta variante è l’ultima: da lì in su crescono invece le serie, da tre a cinque."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6538,6 +9014,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Un toque y el siguiente entrenamiento se adapta"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un geste et la prochaine séance s’adapte"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un tocco e il prossimo allenamento si adatta"
           }
         },
         "pt-BR" : {
@@ -6569,6 +9057,18 @@
             "value" : "Un toque después del entrenamiento."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un geste après la séance."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un tocco dopo l’allenamento."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6595,6 +9095,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Solo los nuevos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seulement les nouveaux"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo i nuovi"
           }
         },
         "pt-BR" : {
@@ -6626,6 +9138,18 @@
             "value" : "Pausar"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pause"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pausa"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6653,6 +9177,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "En pausa"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En pause"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In pausa"
           }
         },
         "pt-BR" : {
@@ -6684,6 +9220,18 @@
             "value" : "plan"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "plan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "piano"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6711,6 +9259,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "El plan, después tu resultado real, después el plan siguiente"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le plan, puis ton résultat réel, puis le plan suivant"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il piano, poi il tuo risultato effettivo, poi il piano successivo"
           }
         },
         "pt-BR" : {
@@ -6742,6 +9302,18 @@
             "value" : "plan: %@"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "plan : %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "piano: %@"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6765,6 +9337,18 @@
           }
         },
         "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "previsto"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "prévu"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "previsto"
@@ -6798,6 +9382,18 @@
             "value" : "Mes anterior"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mois précédent"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mese precedente"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6826,6 +9422,18 @@
             "value" : "Progreso"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progression"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progressi"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6852,6 +9460,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "el progreso va el doble de rápido"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tu progresses deux fois plus vite"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "avanzi due volte più in fretta"
           }
         },
         "pt-BR" : {
@@ -6889,6 +9509,18 @@
             "value" : "nivel"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "niveau"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "livello"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6915,6 +9547,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "La tracción está en todos los entrenamientos: es lo que mantiene los hombros equilibrados. Los demás van rotando: en ocho entrenamientos cada uno aparece cinco veces. Con la barra de dominadas activada, la tracción alterna entre horizontal y vertical."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le tirage est dans chaque séance : c’est lui qui maintient l’équilibre de tes épaules. Les autres mouvements se relaient : sur huit séances, chacun revient cinq fois. Avec la barre de traction activée, le tirage alterne entre horizontal et vertical."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La tirata c’è in ogni allenamento: è lei a tenere le spalle in equilibrio. Gli altri movimenti seguono un ciclo: in otto allenamenti ognuno compare cinque volte. Con la sbarra per trazioni attivata, la tirata alterna orizzontale e verticale."
           }
         },
         "pt-BR" : {
@@ -6945,6 +9589,18 @@
             "value" : "Barra de dominadas"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Barre de traction"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sbarra per trazioni"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6971,6 +9627,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Calificar en el App Store"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noter sur l’App Store"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valuta su App Store"
           }
         },
         "pt-BR" : {
@@ -7001,6 +9669,18 @@
             "value" : "Valoración: fácil — el progreso va el doble de rápido"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ressenti : facile — tu progresses deux fois plus vite"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valutazione: facile – avanzi due volte più in fretta"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7027,6 +9707,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Valoración: según el plan — el siguiente pide un poco más"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ressenti : comme prévu — la prochaine en demande un peu plus"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valutazione: come previsto – il prossimo chiede un po’ di più"
           }
         },
         "pt-BR" : {
@@ -7057,6 +9749,18 @@
             "value" : "Valoración: difícil — el siguiente será más fácil"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ressenti : difficile — la prochaine séance sera plus facile"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valutazione: faticoso – il prossimo sarà più facile"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7083,6 +9787,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Recomendar Dredfit"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recommander Dredfit"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consiglia Dredfit"
           }
         },
         "pt-BR" : {
@@ -7113,6 +9829,18 @@
             "value" : "La recuperación es parte del plan: la carga solo se asienta si la dejas reposar."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La récupération fait partie du plan : la charge ne s’installe que si tu la laisses reposer."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il riposo fa parte del piano – il carico si consolida solo se lo lasci assestare."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7139,6 +9867,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Recordatorio"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rappel"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Promemoria"
           }
         },
         "pt-BR" : {
@@ -7169,6 +9909,18 @@
             "value" : "Reemplazar"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remplacer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sostituisci"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7195,6 +9947,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "¿Reemplazar el historial?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remplacer l’historique ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sostituire lo storico?"
           }
         },
         "pt-BR" : {
@@ -7225,6 +9989,18 @@
             "value" : "Restablecer niveles"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réinitialiser les niveaux"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Azzera i livelli"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7251,6 +10027,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "descanso"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "repos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "recupero"
           }
         },
         "pt-BR" : {
@@ -7281,6 +10069,18 @@
             "value" : "DESCANSO"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "REPOS"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RECUPERO"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7307,6 +10107,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Día de descanso"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jour de repos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giorno di riposo"
           }
         },
         "pt-BR" : {
@@ -7337,6 +10149,18 @@
             "value" : "Días de descanso"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jours de repos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giorni di riposo"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7364,6 +10188,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Continuar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reprendre"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riprendi"
           }
         },
         "pt-BR" : {
@@ -7400,6 +10236,18 @@
             "value" : "Continuar"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reprendre"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continua"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7427,6 +10275,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Continuamos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "C’est reparti"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripreso"
           }
         },
         "pt-BR" : {
@@ -7457,6 +10317,18 @@
             "value" : "Rotación"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alternance"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alternanza"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7485,6 +10357,18 @@
             "value" : "Guardar los entrenamientos en Salud"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrer les séances dans Santé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salva gli allenamenti su Salute"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7508,6 +10392,18 @@
           }
         },
         "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "s"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "s"
+          }
+        },
+        "it" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "s"
@@ -7541,6 +10437,18 @@
             "value" : "segundo lado"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "deuxième côté"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "secondo lato"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7569,6 +10477,18 @@
             "value" : "serie %lld de %lld"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "série %lld sur %lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "serie %lld di %lld"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7595,6 +10515,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Configuración"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réglages"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impostazioni"
           }
         },
         "pt-BR" : {
@@ -7631,6 +10563,18 @@
             "value" : "Listo"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fine"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7657,6 +10601,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ocho cosas que conviene saber sobre el regulador."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Huit choses à savoir sur le régulateur."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otto cose da sapere sul regolatore."
           }
         },
         "pt-BR" : {
@@ -7687,6 +10643,18 @@
             "value" : "Compartir"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Partager"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Condividi"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7713,6 +10681,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Compartir el progreso"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Partager tes progrès"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Condividi i progressi"
           }
         },
         "pt-BR" : {
@@ -7749,6 +10729,18 @@
             "value" : "¿Poco tiempo? Versión corta · ≈ %lld min"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Peu de temps ? Version courte · ≈ %lld min"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poco tempo? Versione breve · ≈ %lld min"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7775,6 +10767,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mostrar todo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tout afficher"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra tutto"
           }
         },
         "pt-BR" : {
@@ -7806,6 +10810,18 @@
             "value" : "Omitir"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salta"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7832,6 +10848,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Omitir ejercicio"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passer l’exercice"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salta l’esercizio"
           }
         },
         "pt-BR" : {
@@ -7862,6 +10890,18 @@
             "value" : "Omitir descanso"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passer le repos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salta il recupero"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7888,6 +10928,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Omitir este movimiento"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passer ce mouvement"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salta questo movimento"
           }
         },
         "pt-BR" : {
@@ -7918,6 +10970,18 @@
             "value" : "Omitir calentamiento"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passer l’échauffement"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salta il riscaldamento"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7946,6 +11010,18 @@
             "value" : "omitido"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ignoré"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "saltato"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7972,6 +11048,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ejercicios omitidos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exercices ignorés"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esercizi saltati"
           }
         },
         "pt-BR" : {
@@ -8004,6 +11092,18 @@
             "value" : "Omite la introducción"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passe l’introduction"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salta l’introduzione"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8030,6 +11130,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sonidos y vibración"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sons et vibrations"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suoni e feedback aptico"
           }
         },
         "pt-BR" : {
@@ -8060,6 +11172,18 @@
             "value" : "Empezar"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Commencer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inizia"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8086,6 +11210,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Empezar más suave"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Commencer plus doucement"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inizia più facile"
           }
         },
         "pt-BR" : {
@@ -8116,6 +11252,18 @@
             "value" : "Empezar de cero"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repartir de zéro"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ricomincia da zero"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8142,6 +11290,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "¿Empezar de cero?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repartir de zéro ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ricominciare da zero?"
           }
         },
         "pt-BR" : {
@@ -8172,6 +11332,18 @@
             "value" : "Empezar la isometría"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Commencer le maintien"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inizia l’isometria"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8198,6 +11370,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Empezar de nuevo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recommencer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ricomincia da capo"
           }
         },
         "pt-BR" : {
@@ -8228,6 +11412,18 @@
             "value" : "Parar"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arrêter"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8254,6 +11450,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cambia de lado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Change de côté"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambia lato"
           }
         },
         "pt-BR" : {
@@ -8284,6 +11492,18 @@
             "value" : "técnica"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "technique"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tecnica"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8310,6 +11530,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Técnica"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Technique"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tecnica"
           }
         },
         "pt-BR" : {
@@ -8340,6 +11572,18 @@
             "value" : "El gráfico aparecerá tras un par de entrenamientos"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le graphique apparaîtra après quelques séances"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il grafico apparirà dopo un paio di allenamenti"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8366,6 +11610,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "El nivel"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le niveau"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il livello"
           }
         },
         "pt-BR" : {
@@ -8396,6 +11652,18 @@
             "value" : "el siguiente pide un poco más"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "la prochaine en demande un peu plus"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "il prossimo chiede un po’ di più"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8422,6 +11690,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "El entrenamiento está hecho; solo queda la valoración."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La séance est terminée — il ne reste plus que le ressenti."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’allenamento è fatto – manca solo la valutazione."
           }
         },
         "pt-BR" : {
@@ -8458,6 +11738,18 @@
             "value" : "Antes: %@"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avant : %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prima: %@"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8485,6 +11777,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Este mes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce mois-ci"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo mese"
           }
         },
         "pt-BR" : {
@@ -8515,6 +11819,18 @@
             "value" : "Esta semana"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette semaine"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questa settimana"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8543,6 +11859,18 @@
             "value" : "Tres entrenamientos seguidos por debajo del objetivo y el nivel retrocede tres pasos. No es un castigo, es un respiro: así vuelves con margen."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trois séances de suite en dessous du plan, et le niveau redescend de trois crans. Pas une punition — juste de quoi souffler : tu reviens avec de la marge."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tre volte di fila meno del previsto e il livello torna indietro di tre gradini. Non è una punizione, ma un momento per rifiatare: così torni con un po’ di margine."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8569,6 +11897,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hora"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heure"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ora"
           }
         },
         "pt-BR" : {
@@ -8600,6 +11940,18 @@
             "value" : "hoy"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "aujourd’hui"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "oggi"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8626,6 +11978,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hoy"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aujourd’hui"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oggi"
           }
         },
         "pt-BR" : {
@@ -8656,6 +12020,18 @@
             "value" : "Tu entrenamiento de hoy está listo"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ta séance du jour est prête"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’allenamento di oggi è pronto"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8682,6 +12058,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "mañana"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "demain"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "domani"
           }
         },
         "pt-BR" : {
@@ -8713,6 +12101,18 @@
             "value" : "Rotaciones de tronco"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotations du buste"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotazioni del busto"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8739,6 +12139,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "nivel total"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "niveau total"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "livello totale"
           }
         },
         "pt-BR" : {
@@ -8770,6 +12182,18 @@
             "value" : "nivel total %lld"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "niveau total %lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "livello totale %lld"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8796,6 +12220,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nivel total después: %lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niveau total après : %lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Livello totale dopo: %lld"
           }
         },
         "pt-BR" : {
@@ -8826,6 +12262,18 @@
             "value" : "Difícil, hice menos"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Difficile, j’ai fait moins"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Faticoso, ho fatto meno"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8852,6 +12300,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Entrenar de todas formas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "S’entraîner quand même"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allenati comunque"
           }
         },
         "pt-BR" : {
@@ -8883,6 +12343,18 @@
             "value" : "Entrenar en casa. Sin cuestionarios."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "S’entraîner chez soi. Sans questionnaire."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allenarsi a casa. Niente questionari."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8909,6 +12381,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Desbloqueado: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Débloqué : %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hai sbloccato: %@"
           }
         },
         "pt-BR" : {
@@ -8939,6 +12423,18 @@
             "value" : "variación %lld · %@ · %@"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "variante %lld · %@ · %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "variante %lld · %@ · %@"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8967,6 +12463,18 @@
             "value" : "variación %lld de 4"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "variante %lld sur 4"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "variante %lld di 4"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -8993,6 +12501,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "CALENTAMIENTO"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ÉCHAUFFEMENT"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RISCALDAMENTO"
           }
         },
         "pt-BR" : {
@@ -9029,6 +12549,18 @@
             "value" : "Ritmo semanal"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rythme de la semaine"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ritmo settimanale"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -9055,6 +12587,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "¡Qué bueno tenerte de vuelta!"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Te revoilà !"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Che bello rivederti"
           }
         },
         "pt-BR" : {
@@ -9085,6 +12629,18 @@
             "value" : "Fue distinto"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ça s’est passé autrement"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "È andata diversamente"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -9111,6 +12667,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Qué hace tu respuesta"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce que change ta réponse"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cosa cambia la tua risposta"
           }
         },
         "pt-BR" : {
@@ -9141,6 +12709,18 @@
             "value" : "Por qué no hay cuestionarios"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pourquoi il n’y a pas de questionnaire"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perché non ci sono questionari"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -9167,6 +12747,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "¿Por qué este plan?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pourquoi ce plan ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perché questo piano?"
           }
         },
         "pt-BR" : {
@@ -9197,6 +12789,18 @@
             "value" : "Entrenamiento n.º %lld"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Séance n° %lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allenamento n. %lld"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -9223,6 +12827,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Entrenamiento %lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Séance %lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allenamento %lld"
           }
         },
         "pt-BR" : {
@@ -9253,6 +12869,18 @@
             "value" : "Entrenamiento %lld · %@"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Séance %lld · %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allenamento %lld · %@"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -9279,6 +12907,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Entrenamiento %lld completado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Séance %lld terminée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allenamento %lld completato"
           }
         },
         "pt-BR" : {
@@ -9309,6 +12949,18 @@
             "value" : "Valoración del entrenamiento"
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ressenti de la séance"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valutazione dell’allenamento"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -9335,6 +12987,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Los entrenamientos aparecen en la app Salud. No se lee ni se comparte nada."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les séances apparaissent dans l’app Santé. Rien n’est lu ni partagé."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli allenamenti appaiono nell’app Salute. Niente viene letto né condiviso."
           }
         },
         "pt-BR" : {
@@ -9365,6 +13029,18 @@
             "value" : "Te quedaste en el ejercicio %lld de %lld; todo lo hecho hasta ahora sigue ahí."
           }
         },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Séance arrêtée à l’exercice %lld sur %lld — tout ce que tu as déjà fait est toujours là."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allenamento interrotto all’esercizio %lld di %lld – tutto quello che hai fatto finora è ancora lì."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -9391,6 +13067,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tu valoración se aplica al resto"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ton ressenti vaut pour le reste"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La tua valutazione vale per il resto"
           }
         },
         "pt-BR" : {
