@@ -35,7 +35,7 @@ Double progression falls out of the encoding for free: top out a tier's rep rang
 
 **The pull-up bar module.** Vertical pulling is the one honest gap of a no-equipment format. Turn the bar on in settings and every other session swaps the floor pull for a vertical one — bar hang, negative pull-up, partial, full pull-up — tracked as its own independent level. Turn it off and the branch freezes without losing progress.
 
-The 40-exercise library is 10 patterns × 4 tiers: 8 rotating patterns (32), the fixed pull slot (4), and the bar branch (4). Classic calisthenics — squat to shrimp squat, knee push-up to archer push-up — each with reviewed, plain-language technique steps and common mistakes, in English, Russian, Spanish, Brazilian Portuguese and German.
+The 40-exercise library is 10 patterns × 4 tiers: 8 rotating patterns (32), the fixed pull slot (4), and the bar branch (4). Classic calisthenics — squat to shrimp squat, knee push-up to archer push-up — each with reviewed, plain-language technique steps and common mistakes, in English, Russian, Spanish, Brazilian Portuguese, German, French and Italian.
 
 ## The app
 
@@ -58,7 +58,7 @@ State is one JSON file in Application Support. Old records survive every update 
 DredfitCore/            Swift package — the engine, pure functions, no UI imports
   Engine.swift          state → session; state × session × feedback → state
   Library.swift         40 exercises, hand-written to mirror the JS reference
-  Resources/            String Catalog (en source; ru, es, pt-BR, de translations)
+  Resources/            String Catalog (en source; ru, es, pt-BR, de, fr, it translations)
   Tests/
     EngineTests.swift    invariants: encoding, rotation, balance, deload, caps
     EngineV23Tests.swift zero-level calibration, comeback, per-tier rep/hold floors
@@ -80,7 +80,7 @@ DredfitWidgets/         widget extension — TodayStatusWidget, RestLiveActivity
 Shared/                 the App Group snapshot contract
 
 docs/                   the dredfit.com site — GitHub Pages, static, no build
-  index.html            landing + privacy.html, mirrored under ru/ es/ pt-br/ de/
+  index.html            landing + privacy.html, mirrored under ru/ es/ pt-br/ de/ fr/ it/
   CNAME, robots.txt, sitemap.xml, og.png
 ```
 
@@ -109,7 +109,7 @@ CI runs the unit suites on every push — that is the gate for merges and releas
 
 ## Localization
 
-English is the source language; Russian, Spanish, Brazilian Portuguese and German each ship complete — 547 translated keys across four String Catalogs, including all exercise technique. English base strings live inline at each call site; translations live in the catalogs. Every translation is idiomatic rather than literal: Russian avoids anglicisms and calques and uses `е` rather than `ё` throughout; Spanish, Brazilian Portuguese and German address the reader informally (`tú` / `você` / lowercase `du`) and take their exercise and pattern vocabulary from the same glossary as the [marketing site](https://dredfit.com/), which ships in the same five languages.
+English is the source language; Russian, Spanish, Brazilian Portuguese, German, French and Italian each ship complete — 547 translated keys across four String Catalogs, including all exercise technique. English base strings live inline at each call site; translations live in the catalogs. Every translation is idiomatic rather than literal: Russian avoids anglicisms and calques and uses `е` rather than `ё` throughout; Spanish, Brazilian Portuguese, German, French and Italian address the reader informally (`tú` / `você` / lowercase `du` / `tu`) and take their exercise and pattern vocabulary from the same glossary as the [marketing site](https://dredfit.com/), which ships in the same seven languages.
 
 ## Design principles
 
@@ -128,7 +128,7 @@ procedure, and how to enable branch protection are in
 
 ## Status
 
-Shipping. Working on device, tested across all five locales.
+Shipping. Working on device, tested across all seven locales.
 
 Planned work and deliberately-rejected ideas are tracked in the project backlog (`instructions/BACKLOG.md`, kept alongside the engine specification outside this repository).
 

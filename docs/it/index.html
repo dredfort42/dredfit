@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dredfit – Allenamenti adattivi a casa. Niente da configurare.</title>
+<meta name="description" content="Apri l’app – il tuo allenamento è pronto. Un trainer adattivo a corpo libero per iPhone: niente da configurare, nessun account, nessuna raccolta di dati. Si adatta a com’è andata davvero.">
+<link rel="canonical" href="https://dredfit.com/it/">
+<link rel="alternate" hreflang="en" href="https://dredfit.com/">
+<link rel="alternate" hreflang="ru" href="https://dredfit.com/ru/">
+<link rel="alternate" hreflang="es" href="https://dredfit.com/es/">
+<link rel="alternate" hreflang="pt-br" href="https://dredfit.com/pt-br/">
+<link rel="alternate" hreflang="de" href="https://dredfit.com/de/">
+<link rel="alternate" hreflang="fr" href="https://dredfit.com/fr/">
+<link rel="alternate" hreflang="it" href="https://dredfit.com/it/">
+<link rel="alternate" hreflang="x-default" href="https://dredfit.com/">
+<meta name="apple-itunes-app" content="app-id=6791739610">
+<meta property="og:title" content="Dredfit – Allenamenti adattivi a casa">
+<meta property="og:description" content="Apri l’app – il tuo allenamento è pronto. Niente da configurare, nessun account, nessuna raccolta di dati. Si adatta a com’è andata davvero.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://dredfit.com/it/">
+<meta property="og:image" content="https://dredfit.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FFFFFF'/%3E%3Ccircle cx='15' cy='32' r='7' fill='%23111214'/%3E%3Ccircle cx='32' cy='32' r='7' fill='%23E8590C'/%3E%3Ccircle cx='49' cy='32' r='7' fill='none' stroke='%23D8D9DB' stroke-width='3'/%3E%3C/svg%3E">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication",
+"name":"Dredfit","operatingSystem":"iOS","applicationCategory":"HealthApplication",
+"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+"url":"https://dredfit.com/it/","image":"https://dredfit.com/og.png",
+"installUrl":"https://apps.apple.com/app/id6791739610"}
+</script>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Dredfit è davvero gratis?", "acceptedAnswer": {"@type": "Answer", "text": "Sì: nessun abbonamento, nessun acquisto in-app, nessuna pubblicità, nessuna funzione bloccata. L’app che scarichi è l’app intera, ed è open source, quindi puoi verificarlo."}}, {"@type": "Question", "name": "Funziona offline?", "acceptedAnswer": {"@type": "Answer", "text": "Sempre. Dredfit non fa richieste di rete: non esistono server. Il piano, i timer e tutto il tuo storico vivono sul tuo iPhone."}}, {"@type": "Question", "name": "Servono attrezzi o una palestra?", "acceptedAnswer": {"@type": "Answer", "text": "No. Una sedia, un tavolo, una parete, un asciugamano e uno scalino coprono 36 dei 40 esercizi. Solo le quattro varianti di trazioni hanno bisogno della sbarra, e restano disattivate finché non le attivi tu."}}, {"@type": "Question", "name": "Serve un account? Quali dati vengono raccolti?", "acceptedAnswer": {"@type": "Answer", "text": "Non c’è nulla a cui registrarsi e non viene raccolto nulla: nessun account, nessun servizio di analisi, nessun SDK di terze parti. Il tuo storico di allenamento non lascia mai il tuo iPhone, a meno che non sia tu a esportarlo."}}, {"@type": "Question", "name": "E se salto una settimana o due?", "acceptedAnswer": {"@type": "Answer", "text": "Niente da farsi perdonare. Dopo una settimana di pausa ogni movimento cala piano di un gradino; dopo due settimane il piano propone di venirti incontro qualche gradino più in basso – più lunga la pausa, più in basso – e i livelli risalgono in fretta."}}, {"@type": "Question", "name": "Parto da zero – fa per me?", "acceptedAnswer": {"@type": "Answer", "text": "È il caso previsto. Il primo allenamento è facile di proposito – circa 33 minuti, senza attrezzi: calibra il sistema, e ogni allenamento successivo si adatta a com’è andato davvero l’ultimo."}}]}
+</script>
+<style>
+  :root{
+    --ink:#111214; --ink2:#6E7075; --ink3:#A7A9AD;
+    --hair:#ECEDEF; --acc:#E8590C; --accText:#B44504; --soft:#FBE3D6; --card:#F7F7F5;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Inter,sans-serif;
+    color:var(--ink); background:#fff; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+  /* ---------- header ---------- */
+  .nav{display:flex;align-items:center;justify-content:space-between}
+  .logo{display:flex;align-items:center;gap:12px;font-weight:800;font-size:19px;
+    letter-spacing:-.02em;color:var(--ink);text-decoration:none}
+  .logo svg{display:block}
+  .navr{display:flex;align-items:center;gap:22px}
+  .langs{display:flex;gap:12px;font-size:13px}
+  .langs a{color:var(--ink2);text-decoration:none;letter-spacing:.02em}
+  .langs a:hover{color:var(--ink)}
+  .langs a.cur{color:var(--ink);font-weight:650}
+  .nav a.gh{font-size:14px;color:var(--ink2);text-decoration:none}
+  .nav a.gh:hover{color:var(--ink)}
+
+  /* ---------- hero ---------- */
+  .hero{display:flex;align-items:center;gap:56px;padding:56px 0 88px}
+  .hero-text{flex:1;min-width:0}
+  h1{font-size:clamp(38px,5.5vw,58px);font-weight:800;letter-spacing:-.035em;line-height:1.05}
+  h1 em{font-style:normal;color:var(--acc)}
+  .lede{font-size:19px;color:var(--ink2);margin-top:20px;max-width:440px}
+  .cta{display:flex;align-items:center;gap:18px;margin-top:36px;flex-wrap:wrap}
+  .appstore{
+    display:inline-flex;align-items:center;gap:12px;background:var(--ink);color:#fff;
+    border-radius:16px;padding:14px 26px;text-decoration:none;font-weight:650;font-size:16px;
+    transition:transform .15s ease;
+  }
+  .appstore:hover{transform:translateY(-1px)}
+  .appstore svg{display:block}
+  .soon{font-size:13px;color:var(--ink2)}
+  .soon a{color:var(--ink2);text-decoration:underline;text-underline-offset:3px}
+  .soon a:hover{color:var(--ink)}
+  .appnote{font-size:13px;color:var(--ink2);margin-top:12px}
+  .privacy-chip{
+    display:inline-flex;align-items:center;gap:8px;margin-top:26px;
+    font-size:13.5px;color:var(--ink2);background:var(--card);
+    border-radius:100px;padding:8px 16px;
+  }
+  .privacy-chip i{width:8px;height:8px;border-radius:50%;background:var(--acc);display:inline-block}
+
+  /* ---------- phone mockup ---------- */
+  .phone{
+    width:320px;height:660px;background:#fff;border-radius:52px;position:relative;overflow:hidden;
+    box-shadow:0 0 0 10px #1a1a1c,0 0 0 12px #3a3a3d,0 40px 80px rgba(0,0,0,.22);
+    flex-shrink:0;
+  }
+  .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:100px;height:30px;border-radius:16px;background:#000}
+  .scr{position:absolute;inset:0;padding:64px 22px 0}
+  .kick{font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--ink3);text-transform:uppercase}
+  .scr h3{font-size:26px;font-weight:800;letter-spacing:-.03em;margin-top:4px}
+  .scr .meta{font-size:12.5px;color:var(--ink2);margin-top:3px}
+  .exrow{display:flex;justify-content:space-between;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--hair)}
+  .exrow .n{font-size:13.5px;font-weight:550}
+  .exrow .l{font-size:12.5px;color:var(--ink2);white-space:nowrap;padding-left:10px}
+  .startbtn{position:absolute;left:22px;right:22px;bottom:70px;height:46px;border-radius:15px;
+    background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;
+    font-size:14px;font-weight:650}
+  .starthint{position:absolute;left:22px;right:22px;bottom:57px;text-align:center;
+    font-size:10.5px;color:var(--ink3)}
+  .tabbar{position:absolute;left:0;right:0;bottom:0;height:54px;border-top:1px solid var(--hair);
+    display:flex;font-size:9px;color:var(--ink3);background:#fff}
+  .tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+  .tab.on{color:var(--ink)}
+
+  /* ---------- sections ---------- */
+  section{padding:72px 0}
+  section.alt{background:var(--card)}
+  .sec-kick{font-size:13px;font-weight:650;letter-spacing:.1em;color:var(--accText);text-transform:uppercase}
+  h2{font-size:clamp(28px,3.6vw,38px);font-weight:800;letter-spacing:-.03em;margin-top:10px}
+  .sec-sub{font-size:17px;color:var(--ink2);margin-top:12px;max-width:560px}
+
+  .how{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:44px}
+  .step-card{background:#fff;border:1.5px solid var(--hair);border-radius:22px;padding:28px}
+  section.alt .step-card{border-color:transparent}
+  .num{width:32px;height:32px;border-radius:50%;background:var(--ink);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:650}
+  .step-card h4{font-size:18px;font-weight:700;letter-spacing:-.01em;margin-top:16px}
+  .step-card p{font-size:14.5px;color:var(--ink2);margin-top:8px}
+  .step-card .code{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:12.5px;
+    background:var(--card);border-radius:10px;padding:10px 14px;margin-top:14px;color:var(--ink);display:inline-block}
+  section.alt .step-card .code{background:var(--hair)}
+
+  .features{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 22px;margin-top:44px}
+  .feat{display:flex;gap:14px;align-items:flex-start;padding:16px 0}
+  .feat .dot{width:10px;height:10px;border-radius:50%;background:var(--acc);margin-top:7px;flex-shrink:0}
+  .feat b{font-size:15.5px;font-weight:650;display:block;letter-spacing:-.01em}
+  .feat span{font-size:13.5px;color:var(--ink2)}
+
+  .faq{max-width:760px;margin-top:24px}
+  .qa{padding:22px 0;border-bottom:1px solid var(--hair)}
+  .qa:last-child{border-bottom:none}
+  .qa h3{font-size:17px;font-weight:700;letter-spacing:-.01em}
+  .qa p{font-size:15px;color:var(--ink2);margin-top:8px;max-width:640px}
+
+  .private{background:var(--ink);border-radius:28px;padding:52px;margin-top:0;color:#fff;
+    display:flex;align-items:center;gap:40px;flex-wrap:wrap}
+  .private h2{color:#fff}
+  .private p{color:rgba(255,255,255,.65);font-size:16px;margin-top:12px;max-width:520px}
+  .private .zero{font-size:96px;font-weight:800;letter-spacing:-.05em;color:var(--acc);line-height:1;flex-shrink:0}
+
+  .closing{text-align:center;padding:8px 0 24px}
+  .closing .sec-sub{margin:14px auto 0}
+  .closing .appstore{margin-top:30px}
+
+  footer{padding:48px 0 64px;border-top:1px solid var(--hair)}
+  .foot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+  .foot .links{display:flex;gap:26px;flex-wrap:wrap}
+  .foot a{font-size:14px;color:var(--ink2);text-decoration:none}
+  .foot a:hover{color:var(--ink)}
+  .foot .copy{font-size:13px;color:var(--ink3)}
+
+  @media (max-width:880px){
+    /* Text first: the value proposition and the App Store button own the
+       first viewport; the mockup follows, slightly scaled down. */
+    .hero{flex-direction:column;gap:44px;padding:24px 0 64px;text-align:center}
+    .phone{zoom:.82}
+    .lede{margin-left:auto;margin-right:auto}
+    .cta{justify-content:center}
+    .how,.features{grid-template-columns:1fr}
+    .private{padding:36px 28px;justify-content:center;text-align:center}
+    .private .zero{font-size:72px}
+  }
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <nav class="nav">
+    <a class="logo" href="./">
+      <svg width="34" height="34" viewBox="0 0 64 64"><circle cx="16" cy="32" r="6.5" fill="#111214"/><circle cx="32" cy="32" r="6.5" fill="#E8590C"/><circle cx="48" cy="32" r="6.5" fill="none" stroke="#D8D9DB" stroke-width="3"/></svg>
+      Dredfit
+    </a>
+    <div class="navr">
+      <div class="langs"><a href="https://dredfit.com/">EN</a><a href="https://dredfit.com/ru/">RU</a><a href="https://dredfit.com/es/">ES</a><a href="https://dredfit.com/pt-br/">PT</a><a href="https://dredfit.com/de/">DE</a><a href="https://dredfit.com/fr/">FR</a><a class="cur" href="https://dredfit.com/it/">IT</a></div>
+      <a class="gh" href="https://github.com/dredfort42/dredfit">GitHub →</a>
+    </div>
+  </nav>
+</header>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-text">
+      <h1>Apri l’app.<br>Il tuo allenamento <em>è pronto.</em></h1>
+      <p class="lede">Dredfit è un trainer adattivo a corpo libero per iPhone. Niente questionario all’inizio, niente attrezzi, nessun account: parte facile e adatta ogni allenamento successivo a com’è andato davvero l’ultimo.</p>
+      <div class="cta">
+        <a class="appstore" href="https://apps.apple.com/app/id6791739610">
+          <svg width="20" height="24" viewBox="0 0 20 24" fill="#fff"><path d="M16.4 12.7c0-3 2.5-4.5 2.6-4.6-1.4-2-3.6-2.3-4.3-2.3-1.8-.2-3.6 1.1-4.5 1.1-.9 0-2.4-1.1-3.9-1-2 0-3.9 1.2-4.9 3-2.1 3.6-.5 9 1.5 11.9 1 1.4 2.2 3 3.7 3 1.5-.1 2.1-1 3.9-1s2.3 1 3.9.9c1.6 0 2.6-1.4 3.6-2.9 1.1-1.7 1.6-3.3 1.6-3.4-.1 0-3.1-1.2-3.2-4.7zM13.4 3.9c.8-1 1.4-2.4 1.2-3.9-1.2.1-2.7.8-3.5 1.9-.8.9-1.5 2.4-1.3 3.8 1.4.1 2.8-.7 3.6-1.8z"/></svg>
+          Scarica su App Store
+        </a>
+        <span class="soon">Gratis · iPhone · iOS 17+ · <a href="https://testflight.apple.com/join/bBdUppkf">beta su TestFlight</a></span>
+      </div>
+      <div class="privacy-chip"><i></i>Nessun account · Nessuna pubblicità · Nessuna richiesta di rete · I tuoi dati non ci raggiungono mai</div>
+    </div>
+
+    <div class="phone" aria-hidden="true">
+      <div class="island"></div>
+      <div class="scr">
+        <div class="kick">Giovedì 16 luglio</div>
+        <h3>Allenamento 12</h3>
+        <div class="meta">≈ 36 min · 6 esercizi</div>
+        <div style="margin-top:14px">
+          <div class="exrow"><span class="n">Flessioni</span><span class="l">3 × 10</span></div>
+          <div class="exrow"><span class="n">Ponte glutei a una gamba</span><span class="l">3 × 10 /lato</span></div>
+          <div class="exrow"><span class="n">Rematore al tavolo</span><span class="l">3 × 10</span></div>
+          <div class="exrow"><span class="n">Flessioni pike</span><span class="l">3 × 10</span></div>
+          <div class="exrow"><span class="n">Affondi indietro</span><span class="l">3 × 10 /lato</span></div>
+          <div class="exrow"><span class="n">Plank</span><span class="l">3 × 30 s</span></div>
+        </div>
+        <div class="startbtn">Inizia</div>
+        <div class="starthint">Poco tempo? Versione breve · ≈ 21 min</div>
+        <div class="tabbar">
+          <div class="tab on">●<span>Oggi</span></div>
+          <div class="tab">▦<span>Calendario</span></div>
+          <div class="tab">↗<span>Progressi</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="alt">
+  <div class="wrap">
+    <div class="sec-kick">Come funziona</div>
+    <h2>Un termostato, non un questionario</h2>
+    <p class="sec-sub">Le altre app ti fanno venti domande e sperano. Dredfit ne fa una sola – dopo l’allenamento – e sa.</p>
+    <div class="how">
+      <div class="step-card">
+        <div class="num">1</div>
+        <h4>Parti facile – o calibra</h4>
+        <p>Il primo giorno è facile di proposito: ogni movimento parte dal fondo del suo intervallo, e il regolatore alza il carico dopo ogni sessione finché non si assesta al limite di quello che riesci davvero a fare. Ti alleni già? Inserisci il numero che hai fatto davvero e il primo allenamento calibra il sistema: il tuo livello è fissato subito, niente salita lenta.</p>
+      </div>
+      <div class="step-card">
+        <div class="num">2</div>
+        <h4>Un numero intero per movimento</h4>
+        <p>Il tuo progresso è un piccolo numero per movimento – dieci in tutto. Ogni livello codifica insieme la variante, l’obiettivo di ripetizioni e il numero di serie: le varianti più difficili si sbloccano da sole – partono con un conteggio più basso, così il cambio arriva morbido – e sopra la variante più alta crescono invece le serie.</p>
+        <div class="code">tier = min(4, 1 + L / 8) · reps = start(tier) + L % 8</div>
+      </div>
+      <div class="step-card">
+        <div class="num">3</div>
+        <h4>Rispondi a una domanda</h4>
+        <p>Difficile, come previsto o facile – un tocco, e l’allenamento successivo si adatta. Vuoi più precisione? Inserisci il numero che hai fatto davvero: per quel movimento il fatto pesa più della valutazione. Se un singolo movimento resta indietro tre volte di fila, solo quello arretra di qualche gradino e riparte. Progresso, senza esaurirsi.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-kick">Cosa c’è dentro</div>
+    <h2>Tutto quello che serve. Niente di più.</h2>
+    <div class="features">
+      <div class="feat"><div class="dot"></div><div><b>40 esercizi, oggetti di casa</b><span>Progressioni classiche di calisthenics – dalle flessioni sulle ginocchia alle flessioni archer, dagli squat agli shrimp squat. Una sedia, un tavolo, una parete, un asciugamano e uno scalino ne coprono 36; solo le quattro varianti di trazioni hanno bisogno della sbarra, e restano disattivate finché non le attivi tu.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Gratis. Gratis davvero</b><span>Nessun abbonamento, nessun acquisto in-app, nessuna pubblicità, nessuna versione “pro” bloccata. L’app che scarichi è l’app intera.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Equilibrata per costruzione</b><span>Una tirata in ogni sessione, per la salute delle spalle; gli altri movimenti si alternano in modo che ognuno torni cinque volte in otto allenamenti.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Hai una sbarra per trazioni?</b><span>Attivala, e una sessione su due sostituisce la tirata orizzontale con una verticale – dalla sospensione alla sbarra fino alle trazioni complete, contate a parte.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Correggi sul momento</b><span>Hai fatto meno ripetizioni? Inserisci il numero reale direttamente sull’esercizio, senza uscirne. Saltare non costa nulla: un esercizio saltato semplicemente non conta.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Riscaldamento, defaticamento, isometrie e recupero, tutto a tempo</b><span>Un riscaldamento e un defaticamento guidati, un timer per le isometrie dei plank e un anello di recupero con conto alla rovescia 3-2-1. Per le posizioni su un lato, il cambio ha la sua pausa contata. Ogni timer segue l’ora reale: bloccare l’iPhone non fa perdere nulla.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Un allenamento interrotto ti aspetta</b><span>Se l’iPhone chiude l’app a metà allenamento, alla riapertura l’app propone di continuare da dove l’allenamento si era interrotto. Il tempo è finito? Concludi in anticipo: l’allenamento conta lo stesso – quello che hai fatto è registrato, il resto rimane semplicemente non fatto.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Poco tempo?</b><span>Sotto “Inizia” c’è una versione breve: tre esercizi su sei, riscaldamento e defaticamento compresi – circa il 40% di tempo in meno. Gli altri tre risultano onestamente saltati, e il giorno dopo la proposta torna a essere l’allenamento completo.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Progressi che si vedono</b><span>Un grafico del livello sessione dopo sessione, un riepilogo della settimana, barre per ogni movimento e un calendario di tutto quello che hai fatto.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Sulla schermata di blocco</b><span>Un’attività in tempo reale conta alla rovescia il recupero sulla schermata di blocco e nella Dynamic Island; i widget – dal piccolo al grande, per la schermata Home e per quella di blocco – mostrano la giornata a colpo d’occhio.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Si adatta alla tua settimana</b><span>Scegli i tuoi giorni di riposo, ricevi un promemoria nei giorni di allenamento ed esporta o importa tutto il tuo storico come semplice JSON.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Tecnica in parole semplici</b><span>Tre passaggi e due errori comuni per ogni esercizio, più la riga “Nella vita”: cosa ti dà il movimento fuori dall’app. Ogni posizione del riscaldamento e del defaticamento ha la sua breve scheda con i passaggi. Niente gergo.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Traguardi, non medaglie</b><span>Un allenamento che sblocca una variante più difficile, aggiunge una serie o arriva a un numero tondo si chiude su un’unica schermata tranquilla, che puoi condividere. Gli anniversari ricordano il punto di partenza: allora → oggi. Niente coriandoli, niente badge, niente streak da difendere.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Le pause sono normali</b><span>Una settimana di pausa, e ogni movimento cala piano di un gradino. Due settimane o più, e il piano propone di venirti incontro qualche gradino più in basso – più lunga la pausa, più in basso. I livelli risalgono in fretta.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Numeri che puoi verificare</b><span>“Come funziona”, nelle Impostazioni: otto fatti semplici sul regolatore – ogni numero di quella schermata è esattamente quello con cui calcola il motore.</span></div></div>
+      <div class="feat"><div class="dot"></div><div><b>Open source</b><span>L’app intera – motore, test e questo sito – è pubblica su GitHub. Controlla i calcoli, apri una issue o costruiscila tu.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <div class="sec-kick">FAQ</div>
+    <h2>Domande frequenti</h2>
+    <div class="faq">
+      <div class="qa"><h3>Dredfit è davvero gratis?</h3><p>Sì: nessun abbonamento, nessun acquisto in-app, nessuna pubblicità, nessuna funzione bloccata. L’app che scarichi è l’app intera, ed è open source, quindi puoi verificarlo.</p></div>
+      <div class="qa"><h3>Funziona offline?</h3><p>Sempre. Dredfit non fa richieste di rete: non esistono server. Il piano, i timer e tutto il tuo storico vivono sul tuo iPhone.</p></div>
+      <div class="qa"><h3>Servono attrezzi o una palestra?</h3><p>No. Una sedia, un tavolo, una parete, un asciugamano e uno scalino coprono 36 dei 40 esercizi. Solo le quattro varianti di trazioni hanno bisogno della sbarra, e restano disattivate finché non le attivi tu.</p></div>
+      <div class="qa"><h3>Serve un account? Quali dati vengono raccolti?</h3><p>Non c’è nulla a cui registrarsi e non viene raccolto nulla: nessun account, nessun servizio di analisi, nessun SDK di terze parti. Il tuo storico di allenamento non lascia mai il tuo iPhone, a meno che non sia tu a esportarlo.</p></div>
+      <div class="qa"><h3>E se salto una settimana o due?</h3><p>Niente da farsi perdonare. Dopo una settimana di pausa ogni movimento cala piano di un gradino; dopo due settimane il piano propone di venirti incontro qualche gradino più in basso – più lunga la pausa, più in basso – e i livelli risalgono in fretta.</p></div>
+      <div class="qa"><h3>Parto da zero – fa per me?</h3><p>È il caso previsto. Il primo allenamento è facile di proposito – circa 33 minuti, senza attrezzi: calibra il sistema, e ogni allenamento successivo si adatta a com’è andato davvero l’ultimo.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="private">
+      <div class="zero">0</div>
+      <div>
+        <h2>Zero dati raccolti</h2>
+        <p>Nessun servizio di analisi, nessuna pubblicità, nessun SDK di terze parti, nessuna richiesta di rete di alcun tipo. Dredfit non ha server e non trasmette mai il tuo storico di allenamento: resta sul tuo dispositivo e non ci raggiunge mai. Non è una promessa, è l’architettura.</p>
+        <p>I tuoi dati lasciano l’iPhone solo quando lo decidi tu: un backup JSON che esporti e condividi tu, una card del traguardo che scegli di condividere, gli allenamenti che decidi di scrivere nell’app Salute, o un normale backup iOS del dispositivo. L’<a href="privacy.html" style="color:#fff">informativa sulla privacy</a> descrive tutti e quattro i casi.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap closing">
+    <div class="sec-kick">Si parte</div>
+    <h2>Il tuo primo allenamento ti sta già aspettando.</h2>
+    <p class="sec-sub">Circa 33 minuti, senza attrezzi, senza domande.</p>
+    <a class="appstore" href="https://apps.apple.com/app/id6791739610">
+      <svg width="20" height="24" viewBox="0 0 20 24" fill="#fff"><path d="M16.4 12.7c0-3 2.5-4.5 2.6-4.6-1.4-2-3.6-2.3-4.3-2.3-1.8-.2-3.6 1.1-4.5 1.1-.9 0-2.4-1.1-3.9-1-2 0-3.9 1.2-4.9 3-2.1 3.6-.5 9 1.5 11.9 1 1.4 2.2 3 3.7 3 1.5-.1 2.1-1 3.9-1s2.3 1 3.9.9c1.6 0 2.6-1.4 3.6-2.9 1.1-1.7 1.6-3.3 1.6-3.4-.1 0-3.1-1.2-3.2-4.7zM13.4 3.9c.8-1 1.4-2.4 1.2-3.9-1.2.1-2.7.8-3.5 1.9-.8.9-1.5 2.4-1.3 3.8 1.4.1 2.8-.7 3.6-1.8z"/></svg>
+      Scarica su App Store
+    </a>
+    <div class="soon" style="margin-top:16px">Gratis · iPhone · iOS 17+</div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <a class="logo" style="font-size:16px" href="index.html">
+      <svg width="26" height="26" viewBox="0 0 64 64"><circle cx="16" cy="32" r="6.5" fill="#111214"/><circle cx="32" cy="32" r="6.5" fill="#E8590C"/><circle cx="48" cy="32" r="6.5" fill="none" stroke="#D8D9DB" stroke-width="3"/></svg>
+      Dredfit
+    </a>
+    <div class="links">
+      <a href="https://apps.apple.com/app/id6791739610">App Store</a>
+      <a href="privacy.html">Informativa sulla privacy</a>
+      <a href="https://testflight.apple.com/join/bBdUppkf">Beta su TestFlight</a>
+      <a href="https://github.com/dredfort42/dredfit">GitHub</a>
+      <a href="mailto:dredfort.42@gmail.com">Contatti</a>
+    </div>
+    <div class="copy">© 2026 Dmitry Novikov</div>
+  </div>
+</footer>
+
+</body>
+</html>
