@@ -83,9 +83,26 @@ public enum EngineConfig {
     /// How many levels a pattern may climb in one session, by (pattern, tier).
     /// Tendon and fascia remodel on a slower clock than muscle, and the
     /// ceiling is the one dial that acts *before* an overload rather than
-    /// after it. A missing cell is `maxUpPerSession`, so an empty table is
-    /// bit-identical to the scalar this replaced. Spec §15.1/§15.3.
-    public static let maxUpByPatternTier: [Pattern: [Int: Int]] = [:]
+    /// after it. A missing cell is `maxUpPerSession`.
+    ///
+    /// The rule in three lines: calves are held to a step at every tier
+    /// (everything loads the Achilles), the vertical push from tier 3 (wall
+    /// work bears the shoulder girdle), and tier 4 everywhere — the archer
+    /// variants, the heaviest unilaterals, and the set bands 32...47, which
+    /// are tier 4 by encoding. Spec §15.3 carries the table cell by cell with
+    /// a rationale each, and the reference verifier compares the two.
+    public static let maxUpByPatternTier: [Pattern: [Int: Int]] = [
+        .squat: [4: 1],
+        .pushH: [4: 1],
+        .hinge: [4: 1],
+        .pull: [4: 1],
+        .pushV: [3: 1, 4: 1],
+        .lunge: [4: 1],
+        .coreAntiExt: [4: 1],
+        .coreRot: [4: 1],
+        .calf: [1: 1, 2: 1, 3: 1, 4: 1],
+        .pullBar: [4: 1]
+    ]
 
     /// `tier` comes from the level BEFORE the update: the ceiling governs
     /// leaving a level, not arriving at one. Levels 32...47 are tier 4 by

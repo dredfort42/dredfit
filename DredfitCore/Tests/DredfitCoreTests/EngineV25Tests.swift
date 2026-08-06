@@ -46,6 +46,21 @@ final class EngineV25Tests: XCTestCase {
         }
     }
 
+    /// The shipped values, cell by cell: calves at every tier, the vertical
+    /// push from tier 3, tier 4 for everyone, two everywhere else. The
+    /// reference verifier checks the same table against the spec.
+    func testTheShippedCeilingMatchesTheDeclaredRule() {
+        for p in Pattern.allCases {
+            for tier in 1...EngineConfig.tiers {
+                let slow = p == .calf
+                    || (p == .pushV && tier >= 3)
+                    || tier == EngineConfig.tiers
+                XCTAssertEqual(EngineConfig.maxUp(pattern: p, tier: tier), slow ? 1 : 2,
+                               "\(p.rawValue) tier \(tier)")
+            }
+        }
+    }
+
     /// The set bands are covered by the tier-4 cell rather than a special case.
     func testSetBandsAreTierFour() {
         for level in [24, 31, 32, 39, 40, 47] {

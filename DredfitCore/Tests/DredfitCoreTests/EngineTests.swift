@@ -130,22 +130,23 @@ final class EngineTests: XCTestCase {
 
     /// The regulator works across set-band boundaries with no special cases.
     func testRegulatorCrossesBandBoundaries() {
-        // "more" at 31 crosses into the 4-set band: 31 → 33
+        // "more" at 31 crosses into the 4-set band. Tier 4 is capped at a
+        // single step per session (v2.5), so the crossing is 31 → 32.
         var state = EngineState.initial
         state.levels[.pull] = 31
         var s = Engine.generateSession(state)
         XCTAssertEqual(s.exercises.first { $0.pattern == .pull }?.sets, 3)
         state = Engine.applyFeedback(state: state, session: s, result: .more)
-        XCTAssertEqual(state.levels[.pull], 33, "«more» must cross the band boundary 31 → 33")
+        XCTAssertEqual(state.levels[.pull], 32, "«more» must cross the band boundary 31 → 32")
         s = Engine.generateSession(state)
         let ex = s.exercises.first { $0.pattern == .pull }!
         XCTAssertEqual(ex.sets, 4)
-        XCTAssertEqual(ex.load, 5, "33 = 4×5 (v2.3: tier 4 starts at 4 reps)")
+        XCTAssertEqual(ex.load, 4, "32 = 4×4 (v2.3: tier 4 starts at 4 reps)")
 
-        // a third consecutive fail at 33 deloads back across the boundary: 33 → 32−3 = 29
+        // a third consecutive fail at 32 deloads back across the boundary: 32 → 31−3 = 28
         state.failStreak[.pull] = 2
         state = Engine.applyFeedback(state: state, session: s, result: .less)
-        XCTAssertEqual(state.levels[.pull], 29, "deload must cross back into the 3-set band")
+        XCTAssertEqual(state.levels[.pull], 28, "deload must cross back into the 3-set band")
         XCTAssertEqual(state.failStreak[.pull], 0)
     }
 
