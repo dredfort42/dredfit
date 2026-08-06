@@ -60,6 +60,7 @@ public enum EngineConfig {
     public static let deltaLess = -1
     public static let deltaPlan = 1
     public static let deltaMore = 2
+    /// Default cell of the growth ceiling below — the scalar this used to be.
     public static let maxUpPerSession = 2
     public static let failsToDeload = 3
     public static let deloadDrop = 3
@@ -70,9 +71,45 @@ public enum EngineConfig {
     public static let comebackStepDays = 21
     public static let comebackMax = 8
     public static let silentDecayGapDays = 7
+    /// How many of a pattern's next APPEARANCES stay frozen after discomfort
+    /// is reported. Counted in appearances, not sessions: a rotating pattern
+    /// shows up in about five sessions out of eight, so "three sessions"
+    /// would make the actual rest unpredictable. Three ≈ a calendar week.
+    public static let freezeAppearances = 3
     public static let repStart = [1: 8, 2: 6, 3: 5, 4: 4]
     public static let holdStart = [1: 20, 2: 15, 3: 15, 4: 10]
     public static var levelMax: Int { (tiers + setsMax - setsBase) * stepsPerTier - 1 } // 47
+
+    /// How many levels a pattern may climb in one session, by (pattern, tier).
+    /// Tendon and fascia remodel on a slower clock than muscle, and the
+    /// ceiling is the one dial that acts *before* an overload rather than
+    /// after it. A missing cell is `maxUpPerSession`.
+    ///
+    /// The rule in three lines: calves are held to a step at every tier
+    /// (everything loads the Achilles), the vertical push from tier 3 (wall
+    /// work bears the shoulder girdle), and tier 4 everywhere — the archer
+    /// variants, the heaviest unilaterals, and the set bands 32...47, which
+    /// are tier 4 by encoding. Spec §15.3 carries the table cell by cell with
+    /// a rationale each, and the reference verifier compares the two.
+    public static let maxUpByPatternTier: [Pattern: [Int: Int]] = [
+        .squat: [4: 1],
+        .pushH: [4: 1],
+        .hinge: [4: 1],
+        .pull: [4: 1],
+        .pushV: [3: 1, 4: 1],
+        .lunge: [4: 1],
+        .coreAntiExt: [4: 1],
+        .coreRot: [4: 1],
+        .calf: [1: 1, 2: 1, 3: 1, 4: 1],
+        .pullBar: [4: 1]
+    ]
+
+    /// `tier` comes from the level BEFORE the update: the ceiling governs
+    /// leaving a level, not arriving at one. Levels 32...47 are tier 4 by
+    /// encoding, so the set bands need no special case.
+    public static func maxUp(pattern: Pattern, tier: Int) -> Int {
+        maxUpByPatternTier[pattern]?[tier] ?? maxUpPerSession
+    }
 }
 
 // MARK: - State
@@ -82,20 +119,27 @@ public struct EngineState: Codable, Equatable, Sendable {
     public var levels: [Pattern: Int]
     public var failStreak: [Pattern: Int]
     public var hasBar: Bool
+    /// Appearances a pattern still has to sit out after discomfort was
+    /// reported on it. Only positive counters are kept, so an empty map is
+    /// "nothing is frozen" — and a state file written before this existed
+    /// decodes to exactly that.
+    public var frozen: [Pattern: Int]
 
     // Spelled out (same names the compiler would synthesize) so that
     // decodeLenient can reference the type — synthesized CodingKeys are only
     // visible inside init(from:)/encode(to:). The wire format is unchanged.
     private enum CodingKeys: String, CodingKey {
-        case counter, levels, failStreak, hasBar
+        case counter, levels, failStreak, hasBar, frozen
     }
 
     public init(counter: Int, levels: [Pattern: Int],
-                failStreak: [Pattern: Int], hasBar: Bool = false) {
+                failStreak: [Pattern: Int], hasBar: Bool = false,
+                frozen: [Pattern: Int] = [:]) {
         self.counter = counter
         self.levels = levels
         self.failStreak = failStreak
         self.hasBar = hasBar
+        self.frozen = frozen
     }
 
     /// Lenient in both directions: files written before hasBar/pull_bar
@@ -116,6 +160,12 @@ public struct EngineState: Codable, Equatable, Sendable {
         levels = lv
         failStreak = fs
         hasBar = try c.decodeIfPresent(Bool.self, forKey: .hasBar) ?? false
+        // Additive: absent in every file written before the discomfort input,
+        // and zero counters are never written, so this stays empty until a
+        // pattern is actually frozen.
+        frozen = c.contains(.frozen)
+            ? try Self.decodeLenient(c, forKey: .frozen).filter { $0.value > 0 }
+            : [:]
     }
 
     /// Manual decode of the exact wire format Swift synthesizes for a
@@ -143,6 +193,11 @@ public struct EngineState: Codable, Equatable, Sendable {
             failStreak: Dictionary(uniqueKeysWithValues: Pattern.allCases.map { ($0, 0) })
         )
     }
+
+    /// Appearances left before this pattern may grow again; 0 = not frozen.
+    public func freezeRemaining(_ pattern: Pattern) -> Int { frozen[pattern] ?? 0 }
+
+    public var frozenPatterns: Set<Pattern> { Set(frozen.filter { $0.value > 0 }.keys) }
 }
 
 // MARK: - Level encoding
@@ -330,15 +385,20 @@ public enum Engine {
     /// session generated *before* a comeback still passes this check and its
     /// feedback lands on the post-comeback levels.
     ///
-    /// A skipped pattern was not trained: its level and failStreak stay
-    /// untouched (the streak is frozen, not reset), overrides for it are
-    /// ignored. The counter still advances.
+    /// A skipped pattern was not trained: its level, failStreak and freeze
+    /// counter stay untouched (the streak is frozen, not reset), overrides for
+    /// it are ignored. The counter still advances.
+    ///
+    /// `discomfort` is the joint-pain input: the pattern behaves as skipped
+    /// for this session and is then frozen — it keeps appearing at its current
+    /// level but cannot grow for its next `freezeAppearances` appearances.
     public static func applyFeedback(
         state: EngineState,
         session: Session,
         result: FeedbackResult,
         overrides: [Pattern: Int] = [:],
-        skipped: Set<Pattern> = []
+        skipped: Set<Pattern> = [],
+        discomfort: Set<Pattern> = []
     ) -> EngineState {
         guard session.sessionNumber == state.counter + 1 else { return state }
         var next = state
@@ -346,21 +406,47 @@ public enum Engine {
 
         for ex in session.exercises {
             let p = ex.pattern
+            // Discomfort outranks a skip: both leave the level and the streak
+            // alone, but only one of them carries information.
+            if discomfort.contains(p) {
+                next.frozen[p] = EngineConfig.freezeAppearances   // a repeat report refreshes it
+                continue
+            }
             if skipped.contains(p) { continue }
+            let frozenLeft = state.freezeRemaining(p)
             let oldL = state.levels[p] ?? 0
+            // The tier is read from the level before the update, not from the
+            // session — same thing today, and the rule stays true if a session
+            // ever outlives the state it was generated from.
+            let cap = EngineConfig.maxUp(pattern: p, tier: Level.decode(oldL).tier)
             var newL: Int
 
             if let actual = overrides[p] {
                 let factL = Level.fromActual(pattern: p, tier: ex.tier,
                                              sets: ex.sets, actual: actual)
-                // Calibration: from a zero level the +2 cap does not apply.
+                // Calibration: from a zero level the cap does not apply.
                 newL = oldL == 0
                     ? min(max(factL, 0), EngineConfig.levelMax)
-                    : min(max(factL, 0), oldL + EngineConfig.maxUpPerSession)
+                    : min(max(factL, 0), oldL + cap)
             } else {
-                newL = oldL + result.delta
+                // "More" runs through the same ceiling; downward moves never do.
+                newL = min(oldL + result.delta, oldL + cap)
             }
             newL = min(max(newL, 0), EngineConfig.levelMax)
+
+            // A frozen pattern keeps its place in the plan at its current
+            // level but cannot grow; a fact may still take it DOWN — the
+            // athlete's honesty is never overridden. The streak neither grows
+            // nor resets, so a deload cannot fire on top of a freeze.
+            if frozenLeft > 0 {
+                next.levels[p] = min(newL, oldL)
+                if frozenLeft > 1 {
+                    next.frozen[p] = frozenLeft - 1
+                } else {
+                    next.frozen.removeValue(forKey: p)
+                }
+                continue
+            }
 
             if newL < oldL {
                 let streak = (state.failStreak[p] ?? 0) + 1
@@ -379,7 +465,9 @@ public enum Engine {
     }
 
     /// All patterns drop, `pullBar` included even with `hasBar == false`: a
-    /// break detrains the whole body. `failStreak` must reset — otherwise the
+    /// break detrains the whole body. A freeze survives it untouched — the
+    /// error is asymmetric, and a couple of sessions without growth cost less
+    /// than a tendon. `failStreak` must reset — otherwise the
     /// first underperformance after the return would ride the old streak into
     /// a deload and drop the level twice. `counter` does not move.
     ///

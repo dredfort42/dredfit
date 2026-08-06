@@ -2060,46 +2060,6 @@
         }
       }
     },
-    "“On plan” adds a step, “more” adds two, “less” takes one away. An exact number for a single exercise outweighs the overall rating. From a standing start an exact number sets the level immediately — the first workout calibrates the system. After that the level climbs at most two steps per workout." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "„Nach Plan“ bringt eine Stufe, „mehr“ zwei, „weniger“ nimmt eine weg. Eine genaue Zahl bei einer einzelnen Übung zählt mehr als die Gesamteinschätzung. Ganz am Anfang setzt eine genaue Zahl das Level sofort – das erste Training kalibriert das System. Danach steigt das Level um höchstens zwei Stufen pro Training."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«Según el plan» suma un paso, «más» suma dos y «menos» resta uno. Un número exacto en un ejercicio pesa más que la evaluación general. Desde cero, un número exacto fija el nivel de inmediato: el primer entrenamiento calibra el sistema. A partir de ahí el nivel sube como máximo dos pasos por entrenamiento."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "« Comme prévu » ajoute un cran, « plus » en ajoute deux, « moins » en retire un. Un chiffre exact sur un seul exercice l’emporte sur le ressenti global. En partant de zéro, un chiffre exact fixe le niveau tout de suite — la première séance calibre le système. Ensuite, le niveau monte d’au plus deux crans par séance."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“Come previsto” aggiunge un gradino, “più” ne aggiunge due, “meno” ne toglie uno. Il numero esatto di un singolo esercizio pesa più della valutazione complessiva. Partendo da zero, un numero esatto fissa subito il livello – il primo allenamento calibra il sistema. Da lì in poi il livello sale al massimo di due gradini per allenamento."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“Como planejado” soma um passo, “mais” soma dois e “menos” tira um. Um número exato num exercício pesa mais que a avaliação geral. Do zero, um número exato define o nível na hora: o primeiro treino calibra o sistema. Depois disso o nível sobe no máximo dois passos por treino."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«По плану» — плюс ступень, «больше» — две, «меньше» — минус одна. Точное число по упражнению сильнее общей оценки. С нуля точное число ставит уровень сразу — первая тренировка калибрует систему. Дальше уровень поднимается не больше чем на две ступени за тренировку."
-          }
-        }
-      }
-    },
     "%@ · %lld×%lld" : {
       "localizations" : {
         "de" : {
@@ -4363,6 +4323,46 @@
         }
       }
     },
+    "%@, hurt — resting" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, tat weh – Erholung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, dolió — en reposo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, a fait mal — au repos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, ha fatto male – a riposo"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, doeu — em repouso"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, болело — на отдыхе"
+          }
+        }
+      }
+    },
     "actual" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4646,6 +4646,46 @@
         }
       }
     },
+    "Applies to %lld of %lld — %@ hurt, resting for now" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gilt für %lld von %lld – %@ tat weh, ruht vorerst"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuenta para %lld de %lld — %@ dolió y descansa por ahora"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compte pour %lld sur %lld — %@ a fait mal, au repos pour l’instant"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vale per %lld su %lld – %@ ha fatto male, a riposo per ora"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vale para %lld de %lld — %@ doeu e descansa por ora"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оценка для %lld из %lld — %@: болело, пока на отдыхе"
+          }
+        }
+      }
+    },
     "Applies to %lld of %lld — %@ not finished, stays put" : {
       "localizations" : {
         "de" : {
@@ -4722,6 +4762,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Оценка для %lld из %lld — %@: пропуск, уровень на месте"
+          }
+        }
+      }
+    },
+    "Applies to %lld of %lld — anything skipped or painful stays put" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gilt für %lld von %lld – Übersprungenes und Schmerzhaftes bleibt, wo es ist"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuenta para %lld de %lld — lo omitido y lo que dolió no cambia"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compte pour %lld sur %lld — ce qui a été ignoré ou a fait mal ne bouge pas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vale per %lld su %lld – ciò che è stato saltato o ha fatto male resta fermo"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vale para %lld de %lld — o que foi pulado ou doeu fica como está"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оценка для %lld из %lld — пропущенные и болевшие на месте"
           }
         }
       }
@@ -5963,6 +6043,46 @@
         }
       }
     },
+    "Discomfort" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beschwerden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Molestia"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Douleur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dolore"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desconforto"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Болело"
+          }
+        }
+      }
+    },
     "Done" : {
       "localizations" : {
         "de" : {
@@ -6913,6 +7033,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Как это работает"
+          }
+        }
+      }
+    },
+    "hurt" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tat weh"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "dolió"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "a fait mal"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ha fatto male"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "doeu"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "болело"
           }
         }
       }
@@ -8145,6 +8305,46 @@
         }
       }
     },
+    "Muscles giving out and a joint hurting are different things, so they get different answers. Tap “Something hurt” during a workout and that movement rests: it keeps its place in the plan at the same level and stops getting harder for the next three times it comes round. Sharp pain is always a reason to stop." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn die Muskeln aufgeben, ist das etwas anderes, als wenn ein Gelenk wehtut – also fällt die Antwort anders aus. Tippe im Training auf „Etwas tat weh“, und diese Bewegung ruht: Sie bleibt im Plan auf demselben Level und wird die nächsten drei Male, die sie an der Reihe ist, nicht schwerer. Scharfer Schmerz heißt immer aufhören."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Que los músculos se agoten y que duela una articulación son cosas distintas, y por eso la respuesta es distinta. Toca «Algo me dolió» durante el entrenamiento y ese movimiento descansa: sigue en el plan en el mismo nivel y deja de ponerse más difícil las tres próximas veces que le toque. Un dolor agudo siempre significa parar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Des muscles qui lâchent et une articulation qui fait mal, ce n’est pas la même chose : la réponse non plus. Touche « Ça a fait mal » pendant la séance et ce mouvement se repose : il garde sa place au programme, au même niveau, et cesse de devenir plus difficile les trois prochaines fois où il revient. Une douleur vive, c’est toujours un arrêt."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Muscoli che cedono e un’articolazione che fa male sono cose diverse, e la risposta è diversa. Tocca “Ha fatto male” durante l’allenamento e quel movimento riposa: resta nel piano allo stesso livello e nelle tre volte successive in cui torna non diventa più difficile. Un dolore acuto è sempre un motivo per fermarsi."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Músculo que falha e articulação que dói são coisas diferentes, então a resposta é diferente. Toque em “Algo doeu” durante o treino e esse movimento descansa: continua no plano no mesmo nível e para de ficar mais difícil nas três próximas vezes em que aparecer. Dor aguda sempre significa parar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Мышцы кончились и болит сустав — разные вещи, и ответ на них разный. Нажми «Здесь болело» во время тренировки, и это движение отдыхает: остается в плане на том же уровне и не становится тяжелее ближайшие три раза, когда выпадет. Острая боль — всегда повод остановиться."
+          }
+        }
+      }
+    },
     "new variation" : {
       "localizations" : {
         "de" : {
@@ -8541,6 +8741,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Следующая: тренировка %lld · %@"
+          }
+        }
+      }
+    },
+    "Nine things worth knowing about the regulator." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neun Dinge, die du über den Regler wissen solltest."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nueve cosas que conviene saber sobre el regulador."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neuf choses à savoir sur le régulateur."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nove cose da sapere sul regolatore."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nove coisas que vale saber sobre o regulador."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Девять фактов о регуляторе."
           }
         }
       }
@@ -10175,6 +10415,86 @@
         }
       }
     },
+    "resting" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erholung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "en reposo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "au repos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "a riposo"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "em repouso"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "на отдыхе"
+          }
+        }
+      }
+    },
+    "Resting for now: %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorerst in Erholung: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En reposo por ahora: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Au repos pour l’instant : %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A riposo per ora: %@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Em repouso por ora: %@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пока на отдыхе: %@"
+          }
+        }
+      }
+    },
     "Resume" : {
       "comment" : "Back into the frozen position: the countdown continues from the seconds it stopped on, never from the top. Same word the interrupted-workout card uses.",
       "localizations" : {
@@ -10585,46 +10905,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Готово"
-          }
-        }
-      }
-    },
-    "Eight things worth knowing about the regulator." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Acht Dinge, die du über den Regler wissen solltest."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ocho cosas que conviene saber sobre el regulador."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Huit choses à savoir sur le régulateur."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Otto cose da sapere sul regolatore."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Oito coisas que vale saber sobre o regulador."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Восемь фактов о регуляторе."
           }
         }
       }
@@ -11114,6 +11394,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Пропускает вступление"
+          }
+        }
+      }
+    },
+    "Something hurt" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Etwas tat weh"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Algo me dolió"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ça a fait mal"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ha fatto male"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Algo doeu"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Здесь болело"
           }
         }
       }
@@ -11634,6 +11954,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Уровень"
+          }
+        }
+      }
+    },
+    "The movement stays in the plan at this level and stops getting harder for a while." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Bewegung bleibt im Plan auf diesem Level und wird eine Weile nicht schwerer."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El movimiento sigue en el plan en este nivel y deja de ponerse más difícil por un tiempo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le mouvement reste au programme à ce niveau et cesse de devenir plus difficile pendant un moment."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il movimento resta nel piano a questo livello e per un po’ non diventa più difficile."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O movimento continua no plano neste nível e para de ficar mais difícil por um tempo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Движение остается в плане на этом уровне и какое-то время не становится тяжелее."
           }
         }
       }
@@ -13091,6 +13451,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Оценка применится к остальным"
+          }
+        }
+      }
+    },
+    "“On plan” adds a step, “more” adds two, “less” takes one away. An exact number for a single exercise outweighs the overall rating. From a standing start an exact number sets the level immediately — the first workout calibrates the system. After that the level climbs at most two steps per workout — and only one for calves, for the wall handstand and for every fourth variation, where tendons set the pace." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Nach Plan“ bringt eine Stufe, „mehr“ zwei, „weniger“ nimmt eine weg. Eine genaue Zahl bei einer einzelnen Übung zählt mehr als die Gesamteinschätzung. Ganz am Anfang setzt eine genaue Zahl das Level sofort – das erste Training kalibriert das System. Danach steigt das Level um höchstens zwei Stufen pro Training – bei den Waden, beim Handstand an der Wand und bei jeder vierten Variante nur um eine, denn dort geben die Sehnen das Tempo vor."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Según el plan» suma un paso, «más» suma dos y «menos» resta uno. Un número exacto en un ejercicio pesa más que la evaluación general. Desde cero, un número exacto fija el nivel de inmediato: el primer entrenamiento calibra el sistema. A partir de ahí el nivel sube como máximo dos pasos por entrenamiento, y solo uno en las pantorrillas, en el pino contra la pared y en cada cuarta variación, donde el ritmo lo marcan los tendones."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« Comme prévu » ajoute un cran, « plus » en ajoute deux, « moins » en retire un. Un chiffre exact sur un seul exercice l’emporte sur le ressenti global. En partant de zéro, un chiffre exact fixe le niveau tout de suite — la première séance calibre le système. Ensuite, le niveau monte d’au plus deux crans par séance — et d’un seul pour les mollets, pour l’équilibre contre le mur et pour toute quatrième variante, là où ce sont les tendons qui donnent le rythme."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Come previsto” aggiunge un gradino, “più” ne aggiunge due, “meno” ne toglie uno. Il numero esatto di un singolo esercizio pesa più della valutazione complessiva. Partendo da zero, un numero esatto fissa subito il livello – il primo allenamento calibra il sistema. Da lì in poi il livello sale al massimo di due gradini per allenamento – e di uno solo per i polpacci, per la verticale al muro e per ogni quarta variante, dove il ritmo lo danno i tendini."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Como planejado” soma um passo, “mais” soma dois e “menos” tira um. Um número exato num exercício pesa mais que a avaliação geral. Do zero, um número exato define o nível na hora: o primeiro treino calibra o sistema. Depois disso o nível sobe no máximo dois passos por treino — e só um nas panturrilhas, na parada de mãos na parede e em toda quarta variação, onde quem dita o ritmo são os tendões."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«По плану» — плюс ступень, «больше» — две, «меньше» — минус одна. Точное число по упражнению сильнее общей оценки. С нуля точное число ставит уровень сразу — первая тренировка калибрует систему. Дальше уровень поднимается не больше чем на две ступени за тренировку, а у икр, стойки у стены и любой четвертой вариации — только на одну: там темп задают сухожилия."
           }
         }
       }

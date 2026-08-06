@@ -38,6 +38,7 @@ about pixels, not about strings. Walk those on a device before submitting.
 | S5 | Calendar tab | Today is filled and tappable; the history sheet lists what was done |
 | S6 | Progress tab | Total level > 0, one chart point, per-pattern bars drawn |
 | S7 | Switch to Russian and repeat S1–S3 | No English leaks, no clipped labels |
+| S8 | **Something hurt** on an exercise, then finish the workout | The exercise ends like a skip; the rating lists it under **DISCOMFORT**; the calendar's history row reads "hurt", not "skipped" |
 
 ---
 
@@ -542,6 +543,31 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 35.16 | All seven languages | «Пауза» / "Pausar" / "Pausar" / "Pausieren" / "Pause" / "Pausa" and «Продолжить» / "Continuar" / "Continuar" / "Fortsetzen" / "Reprendre" / "Riprendi"; the state reads «На паузе» / "En pausa" / "Em pausa" / "Pausiert" / "En pause" / "In pausa" |
 | 35.17 | es / pt-BR / de / fr / it at the largest accessibility sizes | The control keeps its own line under the countdown, the content scrolls as in §34.12, and both footer escapes stay pinned |
 | 35.18 | Pause and leave the phone alone (device only) | The screen dims and locks on the system Auto-Lock as usual — the workout stops holding it open, because a held block is the one state where the app knows nobody is training. Resuming, skipping or leaving the block puts the hold back |
+
+### 36. Discomfort and the growth ceiling (engine v2.5, issues #38 / #64–#67)
+
+| # | Check | Expected |
+|---|---|---|
+| 36.1 | **Something hurt** on the exercise screen | Its own line under **Went differently** / **Skip exercise**, visually distinct from both. One tap, no confirmation dialog — the exercise ends and the flow moves to the next one, exactly as a skip does |
+| 36.2 | The rating screen afterwards | The exercise is listed under **DISCOMFORT** with "resting" — not under **SKIPPED**. The scope line counts it out of the rating ("Applies to 5 of 6 — Pull hurt, resting for now") |
+| 36.3 | Level and streak of the reported pattern | Unchanged by that workout, whichever rating is given — the report behaves as a skip for the session |
+| 36.4 | Today, while the pattern rests | A quiet line under the plan: "Resting for now: Y-T-W raises". A fact, not a warning — no icon, no colour alarm. It names the exercise the way the list above it does, and only while the movement is actually in today's plan |
+| 36.5 | The next three workouts containing that movement | It is still in the plan at the same level and does not climb, whatever the rating; the line disappears by itself once the third one is done |
+| 36.6 | "Tough" on a resting movement | The level still steps **down** — honesty is never overridden — and no deload fires while it rests, even from a streak of two |
+| 36.7 | An exact number ("Went differently") on a resting movement | Below the plan it lands as usual; above it the level does not move |
+| 36.8 | Report the same movement again while it rests | The rest starts over from three appearances |
+| 36.9 | Skip a resting movement | The skip costs it nothing: the rest does not tick down on a workout where the movement was not trained |
+| 36.10 | A break (7–13 days, or 14+ with the comeback card) during a rest | Levels drop as they always did; the rest is **not** cleared by the break |
+| 36.11 | Calendar history of a workout with a report | The row reads "hurt" (accent), never "skipped" |
+| 36.12 | Kill the app after reporting, reopen | "Continue the workout?" comes back with the report still in place — it is progress like a skip or an actual |
+| 36.13 | "How it works" | Nine sections now; §8 is "Something hurt" and explains the rest and the stop rule. §2 says the level climbs at most two steps — one for calves, the wall handstand and every fourth variation |
+| 36.14 | Growth speed after the ceiling (calves) | "Easy, could do more" on calves moves the level **one** step, not two — at every variation. Same for the vertical push from its third variation up, and for every movement on its fourth |
+| 36.15 | Growth speed elsewhere | Unchanged: two steps for "easy", one for "on plan", and an exact number still calibrates from zero without any cap |
+| 36.16 | Sets bands (levels 32–47) | One step per workout there too — they are the fourth variation by encoding |
+| 36.17 | VoiceOver | The action reads "Something hurt" with a hint about what it does; the rating row announces "Pull, hurt — resting"; Today's line is read as one sentence |
+| 36.18 | All seven languages | «Здесь болело» / "Algo me dolió" / "Algo doeu" / „Etwas tat weh" / « Ça a fait mal » / "Ha fatto male"; the rest line reads «Пока на отдыхе: …» / "En reposo por ahora: …" / "Em repouso por ora: …" / „Vorerst in Erholung: …" / « Au repos pour l’instant : … » / "A riposo per ora: …" |
+| 36.19 | es / pt-BR / de / fr / it at the largest accessibility sizes | The three action labels keep their two lines without overlapping the primary button; Today's rest line wraps rather than truncating |
+| 36.20 | An old state file (no rest recorded) | Opens with nothing resting — the field is additive and its absence means "nothing frozen" |
 
 ---
 

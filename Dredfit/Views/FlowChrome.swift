@@ -114,6 +114,71 @@ struct BlockSkipButton: View {
     }
 }
 
+/// The one line under the set dots: what the screen is doing right now, in
+/// order of precedence — a side switch, the second side, an entered actual,
+/// or plainly which set is up.
+struct WorkStatusCaption: View {
+    let switchingSides: Bool
+    let secondSide: Bool
+    /// nil when the exercise is running to plan.
+    let actual: Int?
+    let setIndex: Int
+    let sets: Int
+
+    var body: some View {
+        if switchingSides {
+            accented(Text("Switch sides"))
+        } else if secondSide {
+            accented(Text("second side"))
+        } else if let actual {
+            accented(Text("actual \(actual)"))
+        } else {
+            Text("set \(setIndex + 1) of \(sets)")
+                .dredfitFont(14)
+                .foregroundStyle(Theme.ink2)
+        }
+    }
+
+    private func accented(_ text: Text) -> some View {
+        text.dredfitFont(14, weight: .semibold).foregroundStyle(Theme.accentText)
+    }
+}
+
+/// The three things you can say about an exercise instead of doing it as
+/// planned. "Something hurt" keeps its own line and its own weight (issue
+/// #66): the first two are about today, the third is about the joint, and
+/// crowding all three into one row overflows the longest labels at
+/// accessibility sizes.
+struct ExerciseActionsRow: View {
+    let onAdjust: () -> Void
+    let onSkip: () -> Void
+    let onDiscomfort: () -> Void
+
+    var body: some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 26) {
+                Button(String(localized: "Went differently"), action: onAdjust)
+                Button(String(localized: "Skip exercise"), action: onSkip)
+            }
+            .dredfitFont(14.5)
+            .foregroundStyle(Theme.ink2)
+
+            // One tap, no confirmation: nothing here is worth making someone
+            // in pain read a dialog.
+            Button(String(localized: "Something hurt"), action: onDiscomfort)
+                .dredfitFont(14.5, weight: .semibold)
+                .foregroundStyle(Theme.accentText)
+                .accessibilityIdentifier("report-discomfort")
+                // One literal, split for width: a concatenation would resolve
+                // to the verbatim initializer and never reach the catalog.
+                .accessibilityHint(Text(String(localized: """
+                    The movement stays in the plan at this level and stops \
+                    getting harder for a while.
+                    """)))
+        }
+    }
+}
+
 /// The "ⓘ technique" affordance — one look shared by the work screen, the
 /// rest screen and the warm-up/cool-down positions (issue #34).
 struct TechniqueButton: View {

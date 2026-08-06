@@ -13,6 +13,9 @@ struct FeedbackView: View {
     let session: Session
     let actuals: [Pattern: Int]
     var skipped: Set<Pattern> = []
+    /// Reported as painful: to the engine a skip, to the reader a different
+    /// fact — the movement is resting, not merely missed.
+    var discomfort: Set<Pattern> = []
     /// To the engine a skip like the others; the label says "not finished".
     var interrupted: Pattern?
     /// A memory aid, not a default: no card is pre-selected.
@@ -33,7 +36,7 @@ struct FeedbackView: View {
                         Text("One tap — the next workout adapts")
                             .dredfitFont(15)
                             .foregroundStyle(Theme.ink2)
-                        if !skipped.isEmpty {
+                        if !setAside.isEmpty {
                             Text(scopeLine)
                                 .dredfitFont(13)
                                 .foregroundStyle(Theme.ink2)
@@ -75,7 +78,7 @@ struct FeedbackView: View {
 
                     Spacer(minLength: 20)
 
-                    if !actuals.isEmpty || !skipped.isEmpty {
+                    if !actuals.isEmpty || !setAside.isEmpty {
                         adjustedSummary
                             .padding(.bottom, 24)
                     }
@@ -103,9 +106,27 @@ struct FeedbackView: View {
                         .foregroundStyle(Theme.accentText)
                 }
             }
+            if !discomfort.isEmpty {
+                Kicker(text: String(localized: "Discomfort"))
+                    .padding(.top, actuals.isEmpty ? 0 : 8)
+            }
+            ForEach(session.exercises.filter { discomfort.contains($0.pattern) }) { ex in
+                HStack {
+                    Text(ex.name)
+                        .dredfitFont(14, weight: .medium)
+                        // The name carries the state for VoiceOver, so nothing
+                        // is left to the trailing word alone.
+                        .accessibilityLabel(Text("\(ex.name), hurt — resting"))
+                    Spacer()
+                    Text("resting")
+                        .dredfitFont(14, weight: .semibold)
+                        .foregroundStyle(Theme.accentText)
+                        .accessibilityHidden(true)
+                }
+            }
             if !skipped.isEmpty {
                 Kicker(text: String(localized: "feedback.skipped", defaultValue: "Skipped"))
-                    .padding(.top, actuals.isEmpty ? 0 : 8)
+                    .padding(.top, actuals.isEmpty && discomfort.isEmpty ? 0 : 8)
             }
             ForEach(session.exercises.filter { skipped.contains($0.pattern) }) { ex in
                 HStack {
@@ -127,7 +148,7 @@ struct FeedbackView: View {
                     }
                 }
             }
-            if skipped.isEmpty {
+            if setAside.isEmpty {
                 Text("Your rating applies to the rest")
                     .dredfitFont(12.5)
                     .foregroundStyle(Theme.ink2)
@@ -138,20 +159,30 @@ struct FeedbackView: View {
         .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 16))
     }
 
+    /// Everything the rating does not reach: skipped, painful, or left
+    /// unfinished. All three keep their level.
+    private var setAside: Set<Pattern> { skipped.union(discomfort) }
+
     /// Adjusted exercises follow their actual number, not the rating (see
     /// Engine.applyFeedback), so they are outside the scope too.
     private var scopeLine: String {
         let adjusted = session.exercises.filter {
-            actuals[$0.pattern] != nil && !skipped.contains($0.pattern)
+            actuals[$0.pattern] != nil && !setAside.contains($0.pattern)
         }.count
-        let applies = session.exercises.count - skipped.count - adjusted
+        let applies = session.exercises.count - setAside.count - adjusted
         let total = session.exercises.count
-        if skipped.count == 1,
-           let ex = session.exercises.first(where: { skipped.contains($0.pattern) }) {
+        if setAside.count == 1,
+           let ex = session.exercises.first(where: { setAside.contains($0.pattern) }) {
             // Must not contradict the summary card on the same screen.
+            if discomfort.contains(ex.pattern) {
+                return String(localized: "Applies to \(applies) of \(total) — \(ex.name) hurt, resting for now")
+            }
             return ex.pattern == interrupted
                 ? String(localized: "Applies to \(applies) of \(total) — \(ex.name) not finished, stays put")
                 : String(localized: "Applies to \(applies) of \(total) — \(ex.name) skipped, stays put")
+        }
+        if !discomfort.isEmpty {
+            return String(localized: "Applies to \(applies) of \(total) — anything skipped or painful stays put")
         }
         return String(localized: "Applies to \(applies) of \(total) — skipped exercises stay put")
     }

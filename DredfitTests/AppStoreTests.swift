@@ -66,6 +66,52 @@ final class AppStoreTests: XCTestCase {
         XCTAssertEqual(store.records.last?.skipped, [skippedPattern])
     }
 
+    // MARK: - Discomfort
+
+    func testDiscomfortFreezesThePatternAndIsRecorded() {
+        let store = AppStore(storageURL: tempURL)
+        let session = store.nextSession
+        let sore = session.exercises[2].pattern
+        store.completeWorkout(session: session, result: .more, discomfort: [sore])
+
+        XCTAssertEqual(store.engineState.levels[sore], 0, "a painful pattern must not level up")
+        XCTAssertEqual(store.engineState.freezeRemaining(sore),
+                       EngineConfig.freezeAppearances, "and it is resting afterwards")
+        XCTAssertEqual(store.engineState.levels[session.exercises[0].pattern], 2,
+                       "its neighbours still move by the rating")
+
+        let reloaded = AppStore(storageURL: tempURL)
+        XCTAssertEqual(reloaded.records.last?.discomfort, [sore],
+                       "the journal keeps the report apart from a plain skip")
+        XCTAssertEqual(reloaded.engineState.freezeRemaining(sore),
+                       EngineConfig.freezeAppearances, "the freeze survives a reload")
+    }
+
+    /// Today only mentions a resting movement while it is actually in the plan.
+    func testRestingPatternsFollowTheUpcomingPlan() {
+        let store = AppStore(storageURL: tempURL)
+        let session = store.nextSession
+        let sore = session.exercises[2].pattern
+        store.completeWorkout(session: session, result: .plan, discomfort: [sore])
+
+        let inNextPlan = store.nextSession.exercises.map(\.pattern).contains(sore)
+        XCTAssertEqual(store.restingPatterns.contains(sore), inNextPlan)
+        XCTAssertTrue(store.restingPatterns.allSatisfy {
+            store.engineState.freezeRemaining($0) > 0
+        })
+    }
+
+    /// A painful exercise was not performed, so it cannot earn a "new
+    /// variation" badge either.
+    func testAPainfulExerciseIsNotCountedAsPerformed() {
+        let store = AppStore(storageURL: tempURL)
+        let session = store.nextSession
+        let sore = session.exercises[2].pattern
+        store.completeWorkout(session: session, result: .plan, discomfort: [sore])
+        XCTAssertFalse(store.records.last?.exercises == nil)
+        XCTAssertEqual(store.records.last?.skipped, nil, "a report is not a skip")
+    }
+
     func testCorruptedStorageFallsBackToInitial() throws {
         try Data("{not a json".utf8).write(to: tempURL)
         let store = AppStore(storageURL: tempURL)

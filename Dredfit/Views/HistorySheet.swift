@@ -39,7 +39,11 @@ struct HistorySheet: View {
                                 .dredfitFont(15)
                                 .monospacedDigit()
                                 .foregroundStyle(Theme.ink2)
-                            if record.skipped?.contains(ex.pattern) == true {
+                            if record.discomfort?.contains(ex.pattern) == true {
+                                Text("hurt")
+                                    .dredfitFont(12.5)
+                                    .foregroundStyle(Theme.accentText)
+                            } else if record.skipped?.contains(ex.pattern) == true {
                                 Text("skipped")
                                     .dredfitFont(12.5)
                                     .foregroundStyle(Theme.ink2)

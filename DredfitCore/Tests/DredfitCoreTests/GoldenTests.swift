@@ -47,6 +47,7 @@ private struct Golden: Decodable {
         let counterAfter: Int
         let barLevelAfter: Int?
         let barStreakAfter: Int?
+        let frozenAfter: [Int]?    // v2.5: a break must not thaw a freeze
     }
     /// applySilentDecay invoked before this step's session (v2.4) — and
     /// before the step's comeback, when both are present: the user peeked
@@ -57,6 +58,7 @@ private struct Golden: Decodable {
         let failStreakAfter: [Int]
         let barLevelAfter: Int?
         let barStreakAfter: Int?
+        let frozenAfter: [Int]?
     }
     struct Step: Decodable {
         let sessionNumber: Int
@@ -65,12 +67,15 @@ private struct Golden: Decodable {
         let result: String
         let overrides: [String: Int]
         let skipped: [String]?     // absent in older fixtures
+        let discomfort: [String]?  // v2.5: present only in the discomfort scenario
         let levelsAfter: [Int]
         let failStreakAfter: [Int]
         // present only in scenarios that exercise the bar module
         let hasBar: Bool?          // effective toggle for this step's session
         let barLevelAfter: Int?
         let barStreakAfter: Int?
+        let frozenAfter: [Int]?    // appearances left, by patternOrder
+        let barFrozenAfter: Int?
         let silentDecay: SilentDecay?
         let comeback: Comeback?
     }
@@ -100,7 +105,7 @@ final class GoldenTests: XCTestCase {
     /// re-baseline every number instead of catching a port bug.
     func testGeneratorIsThePinnedReferenceVersion() throws {
         let g = try loadGolden()
-        XCTAssertEqual(g.generator, "adaptive_engine.js v2.4.0",
+        XCTAssertEqual(g.generator, "adaptive_engine.js v2.5.0",
                        "golden.json regenerated from an unexpected reference version")
     }
 
@@ -143,6 +148,10 @@ final class GoldenTests: XCTestCase {
                     if let barStreak = decay.barStreakAfter {
                         XCTAssertEqual(state.failStreak[.pullBar], barStreak, "\(ctx) bar streak after silent decay")
                     }
+                    if let frozen = decay.frozenAfter {
+                        XCTAssertEqual(g.patternOrder.map { state.freezeRemaining(Pattern(rawValue: $0)!) },
+                                       frozen, "\(ctx) freezes untouched by silent decay")
+                    }
                 }
                 if let comeback = step.comeback {
                     // the app applies this on launch after a break,
@@ -160,6 +169,10 @@ final class GoldenTests: XCTestCase {
                     }
                     if let barStreak = comeback.barStreakAfter {
                         XCTAssertEqual(state.failStreak[.pullBar], barStreak, "\(ctx) bar streak after comeback")
+                    }
+                    if let frozen = comeback.frozenAfter {
+                        XCTAssertEqual(g.patternOrder.map { state.freezeRemaining(Pattern(rawValue: $0)!) },
+                                       frozen, "\(ctx) freezes untouched by the comeback")
                     }
                 }
                 let session = Engine.generateSession(state)
@@ -186,9 +199,10 @@ final class GoldenTests: XCTestCase {
                 let overrides = Dictionary(uniqueKeysWithValues:
                     step.overrides.map { (Pattern(rawValue: $0.key)!, $0.value) })
                 let skipped = Set((step.skipped ?? []).map { Pattern(rawValue: $0)! })
+                let discomfort = Set((step.discomfort ?? []).map { Pattern(rawValue: $0)! })
                 state = Engine.applyFeedback(state: state, session: session,
                                              result: result, overrides: overrides,
-                                             skipped: skipped)
+                                             skipped: skipped, discomfort: discomfort)
 
                 let levels = Pattern.ordered.map { state.levels[$0]! }
                 let streaks = Pattern.ordered.map { state.failStreak[$0]! }
@@ -201,6 +215,15 @@ final class GoldenTests: XCTestCase {
                 }
                 if let barStreak = step.barStreakAfter {
                     XCTAssertEqual(state.failStreak[.pullBar], barStreak, ctx + " (bar streak)")
+                }
+
+                // freeze counters after discomfort
+                if let frozen = step.frozenAfter {
+                    XCTAssertEqual(Pattern.ordered.map { state.freezeRemaining($0) },
+                                   frozen, ctx + " (frozen)")
+                }
+                if let barFrozen = step.barFrozenAfter {
+                    XCTAssertEqual(state.freezeRemaining(.pullBar), barFrozen, ctx + " (bar frozen)")
                 }
             }
         }

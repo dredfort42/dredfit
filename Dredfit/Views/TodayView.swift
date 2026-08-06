@@ -113,6 +113,17 @@ struct TodayView: View {
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
 
+            // A fact about rest, not a warning: the movement is in today's
+            // plan at the level it was, and it stays there for a while.
+            if !store.restingPatterns.isEmpty {
+                Text("Resting for now: \(restingNames)")
+                    .dredfitFont(13.5)
+                    .foregroundStyle(Theme.ink2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, 6)
+                    .accessibilityIdentifier("resting-line")
+            }
+
             if store.shouldOfferComeback() {
                 ComebackCard(offersFreshStart: store.offersFreshStart(),
                              onAccept: { store.acceptComeback() },
@@ -153,6 +164,16 @@ struct TodayView: View {
             }
             Spacer(minLength: 0).frame(height: 14)   // breathing room above the tab bar
         }
+    }
+
+    /// Named the way the list above names them: the rest belongs to the
+    /// movement, but the row the reader is looking at says "Y-T-W raises".
+    /// A frozen movement cannot change variation, so the name holds for as
+    /// long as the line is up.
+    private var restingNames: String {
+        let resting = Set(store.restingPatterns)
+        return ListFormatter.localizedString(byJoining:
+            store.nextSession.exercises.filter { resting.contains($0.pattern) }.map(\.name))
     }
 
     // MARK: - Interrupted workout
