@@ -244,6 +244,10 @@ on a page that does — see I-11.
 | 14.7 | Long Russian labels | Nothing clipped or truncated mid-word |
 | 14.8 | Key screens in **German** (Today, workout, rating, Progress, settings) | Complete translation; du always lowercase mid-sentence, no gendered noun for the athlete; next-training label reads "am Montag" |
 | 14.9 | Long German compounds ("Einbeiniges rumänisches Kreuzheben", "Handstand-Liegestütze mit Brust zur Wand") | Nothing clipped or truncated mid-word on plan rows, sheets and the widget |
+| 14.10 | Key screens in **French** | Complete translation, tu throughout, nothing describing the reader with a gendered participle; next-training label reads "le mardi" |
+| 14.11 | French punctuation on screen | A no-break space before `:` and a narrow one before `? ! ;` — the mark never starts a line on its own, and never sits flush against the word |
+| 14.12 | Key screens in **Italian** | Complete translation, tu throughout, buttons in the imperative ("Inizia", "Salta"); next-training label is the bare weekday, with no gendered article |
+| 14.13 | The longest names in both ("Élévation de mollet à une jambe sur une marche", "Sollevamenti sulle punte a una gamba sullo scalino") | Nothing clipped or truncated mid-word on plan rows, sheets and the widget — these two are the longest in the library |
 
 ### 15. Progress, calendar, history
 
@@ -402,8 +406,8 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 26.1 | Today header | "Why this plan?" link next to "≈ N min · N exercises"; tapping opens "How it works", "Got it" dismisses |
 | 26.2 | A workout whose plan first shows a harder variation | That row carries a small "new variation" pill; the pill is not separately tappable — the row still opens technique |
 | 26.3 | The badge after a deload and re-climb | Returning to a variation already performed does **not** re-badge it |
-| 26.4 | Badge across languages | «новая вариация» / "nueva variación" / "nova variação" / "neue Variante" — no clipping next to long exercise names |
-| 26.5 | Badge on the longest names (pt-BR "Flexão em parada de mão de frente para a parede", de "Handstand-Liegestütze mit Brust zur Wand") | The pill trails the name inline and wraps with it as a unit; the name wraps — **no ellipsis**; the load stays on the first line |
+| 26.4 | Badge across languages | «новая вариация» / "nueva variación" / "nova variação" / "neue Variante" / "nouvelle variante" / "nuova variante" — no clipping next to long exercise names |
+| 26.5 | Badge on the longest names (pt-BR "Flexão em parada de mão de frente para a parede", it "Sollevamenti sulle punte a una gamba sullo scalino", fr "Élévation de mollet à une jambe sur une marche") | The pill trails the name inline and wraps with it as a unit; the name wraps — **no ellipsis**; the load stays on the first line |
 | 26.6 | Progress fits one screen | No chips row; header stats + chart + all 9 rows (10 with the bar branch) visible together on a 6.1" screen at default type, spaced apart rather than stacked flush |
 | 26.6a | Pattern names in every language (1.8.0) | Each name holds one line — the widest are "Горизонтальный жим" and "Empurrão horizontal"; a wrapped name would cost the row its air |
 | 26.7 | Progress row selection | Tap a row → accentSoft tint + chart re-projects + kicker reads "PATTERN — VARIATION"; a second tap on the same row or "Show all" (accentText) resets to the total; VoiceOver reports the selected trait |
@@ -418,7 +422,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 27.3 | Technique sheet for a non-override variation of the same movements (e.g. Knee push-up, Shrimp squat) | The movement's **base** line |
 | 27.4 | Milestone "New variation" | The life line under "<pattern> · variation N of 4"; override → base rule as above |
 | 27.5 | "Now N sets" and jubilee milestones | **No** life line — abilities belong to variations, not to volume or habit |
-| 27.6 | All five languages (with §14) | Lines read naturally, informal register in es/pt-BR/de, no "ё" in RU; nothing clips on the sheet or the milestone at default type |
+| 27.6 | All seven languages (with §14) | Lines read naturally, informal register in es/pt-BR/de/fr/it, no "ё" in RU; nothing clips on the sheet or the milestone at default type |
 | 27.7 | Largest accessibility type | Both surfaces wrap without truncation; the sheet scrolls to keep "Got it" reachable |
 
 ### 28. Jubilee retrospective (1.8.0, issue #26)
@@ -431,7 +435,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 28.4 | Journal imported from a pre-1.1 backup (no levelsAfter anywhere) | Jubilee as before, no crash, no empty "Then:" |
 | 28.5 | **Share** on an anniversary | The card carries the same two lines under the date; the curve yields space rather than pushing the footer off |
 | 28.6 | Non-anniversary milestone share | Card unchanged — no retrospective lines |
-| 28.7 | All five languages | "Тогда/Сейчас", "Antes/Ahora", "Antes/Agora", "Damals/Jetzt"; week/month plurals correct (RU: неделя/недели/недель) |
+| 28.7 | All seven languages | "Тогда/Сейчас", "Antes/Ahora", "Antes/Agora", "Damals/Jetzt", "Avant/Maintenant", "Prima/Ora"; week/month plurals correct (RU: неделя/недели/недель) |
 
 ### 29. Short workout (1.8.0, issue #27)
 
@@ -447,7 +451,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 29.8 | "Start over" from that card | The full session, warm-up included — starting over is not starting short |
 | 29.9 | Next training day | Today opens on the full session by default; the short version is again only an offer, with no mention of last time |
 | 29.10 | Eight short workouts in a row | Every movement appears at least once across them (the anchor guarantees it) |
-| 29.11 | All five languages | The button fits on one line at default type; es/pt/de do not clip ("Wenig Zeit? Kurzversion · ≈ N min") |
+| 29.11 | All seven languages | The button fits on one line at default type; es/pt/de/fr/it do not clip ("Peu de temps ? Version courte · ≈ N min") |
 
 ### 30. Cool-down (1.8.0, issue #28)
 
@@ -464,7 +468,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 30.9 | Kill the app during the cool-down, relaunch, Continue | Lands on the rating screen — the work is behind, nobody returns to finish a stretch |
 | 30.10 | Health duration | The workout's recorded duration includes the cool-down time |
 | 30.11 | Background mid-position, return after a while | The countdown reflects real elapsed time and jumps over positions it already covered |
-| 30.12 | All five languages | Position names and hints read naturally; nothing clips |
+| 30.12 | All seven languages | Position names and hints read naturally; nothing clips |
 
 ### 31. Side-switch pause (issue #35)
 
@@ -475,7 +479,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 31.3 | A per-side hold (bird dog / side plank) | After side one the same pause runs and the second side starts itself — no tap; **Stop**, **Went differently** and **Skip exercise** are unavailable during the pause |
 | 31.4 | Stop the second side within the first ~3 s | Mis-tap grace: the countdown cancels and **Start hold** returns for the second side, first side's result intact |
 | 31.5 | Kill the app during a hold's pause, relaunch, Continue | The set starts over from side one — holds are never restored mid-count; during the cool-down's pause it restores to the rating as before |
-| 31.6 | All five languages | "Switch sides" reads naturally (Cambia de lado · Troque de lado · Смени сторону · Seitenwechsel); nothing clips |
+| 31.6 | All seven languages | "Switch sides" reads naturally (Cambia de lado · Troque de lado · Смени сторону · Seitenwechsel · Change de côté · Cambia lato); nothing clips |
 
 ### 32. Position technique mini-sheets (issue #34)
 
@@ -513,8 +517,8 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 34.8 | Lock the phone mid-transition, return after a while | The countdown reflects real elapsed time and jumps whole stages — a long absence lands on a transition or a position boundary, never mid-glyph |
 | 34.9 | **technique** during a transition | The mini-sheet opens for the upcoming position and freezes its countdown, exactly as it does while a position runs |
 | 34.10 | VoiceOver on a transition | Reads one phrase — "Get ready: Cat-cow" — not the kicker and the name separately |
-| 34.11 | All five languages | «Приготовься» / "Prepárate" / "Prepare-se" / "Mach dich bereit" over the name; the button reads «Начать» / "Empezar" / "Começar" / "Starten" (translated by sense — "ready" is a gendered adjective in ru/es/pt) |
-| 34.12 | es / pt-BR / de at the largest accessibility sizes | The longest names ("Chest and shoulders at the wall", "Pecho y hombros en la pared", "Brust und Schultern an der Wand") wrap to three lines and the block's content **scrolls**; **I'm ready** and the block skip stay pinned and fully tappable. Applies to the running move and stretch screens too |
+| 34.11 | All seven languages | «Приготовься» / "Prepárate" / "Prepare-se" / "Mach dich bereit" / "Prépare-toi" / "Preparati" over the name; the button reads «Начать» / "Empezar" / "Começar" / "Starten" / "Commencer" / "Inizia" (translated by sense — "ready" is a gendered adjective in most of them) |
+| 34.12 | es / pt-BR / de / fr / it at the largest accessibility sizes | The longest names ("Chest and shoulders at the wall", "Pecho y hombros en la pared", "Brust und Schultern an der Wand", "Poitrine et épaules au mur", "Petto e spalle al muro") wrap to three lines and the block's content **scrolls**; **I'm ready** and the block skip stay pinned and fully tappable. Applies to the running move and stretch screens too |
 
 ### 35. Pause of the guided blocks (issue #61)
 
@@ -535,8 +539,8 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 35.13 | Working sets and rest | Unchanged — no pause control on the work screen or the rest ring. They are self-paced by design, and an over-run rest only grants extra rest |
 | 35.14 | Estimate on Today, and the duration written to Health | Unchanged by pausing: "≈ N min" promises an uninterrupted flow, and Health still gets the wall-clock truth of the session |
 | 35.15 | VoiceOver | The control reads "Pause" / "Resume"; toggling announces "Paused" / "Resumed", and the state is also readable under the countdown |
-| 35.16 | All five languages | «Пауза» / "Pausar" / "Pausar" / "Pausieren" and «Продолжить» / "Continuar" / "Continuar" / "Fortsetzen"; the state reads «На паузе» / "En pausa" / "Em pausa" / "Pausiert" |
-| 35.17 | es / pt-BR / de at the largest accessibility sizes | The control keeps its own line under the countdown, the content scrolls as in §34.12, and both footer escapes stay pinned |
+| 35.16 | All seven languages | «Пауза» / "Pausar" / "Pausar" / "Pausieren" / "Pause" / "Pausa" and «Продолжить» / "Continuar" / "Continuar" / "Fortsetzen" / "Reprendre" / "Riprendi"; the state reads «На паузе» / "En pausa" / "Em pausa" / "Pausiert" / "En pause" / "In pausa" |
+| 35.17 | es / pt-BR / de / fr / it at the largest accessibility sizes | The control keeps its own line under the countdown, the content scrolls as in §34.12, and both footer escapes stay pinned |
 | 35.18 | Pause and leave the phone alone (device only) | The screen dims and locks on the system Auto-Lock as usual — the workout stops holding it open, because a held block is the one state where the app knows nobody is training. Resuming, skipping or leaving the block puts the hold back |
 
 ---
