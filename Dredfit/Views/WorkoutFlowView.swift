@@ -62,6 +62,9 @@ struct WorkoutFlowView: View {
     @State private var positionTechnique: PositionTechnique?
     @State private var actuals: [Pattern: Int] = [:]
     @State private var skippedPatterns: Set<Pattern> = []
+    /// Kept apart from `skippedPatterns`: the engine treats both as skips for
+    /// the session, but the rating and the history say different things.
+    @State private var discomfortPatterns: Set<Pattern> = []
     @State private var adjusting = false
     @State private var adjustValue = 0
     @State private var workoutStart: Date?   // actual duration for Health
@@ -137,6 +140,7 @@ struct WorkoutFlowView: View {
             case .feedback:
                 FeedbackView(session: session, actuals: actuals,
                              skipped: skippedPatterns.union(omitted),
+                             discomfort: discomfortPatterns,
                              interrupted: interruptedPattern,
                              lastResult: store.lastRecord?.result) { result, overrides in
                     let earned = store.completeWorkout(
@@ -146,6 +150,7 @@ struct WorkoutFlowView: View {
                         // rotation still advance. The engine has no idea the
                         // workout was short, and that is the point.
                         skipped: skippedPatterns.union(omitted),
+                        discomfort: discomfortPatterns,
                         durationSec: workoutStart.map {
                             // max: the wall clock can move backwards mid-workout
                             max(0, Int(Date.now.timeIntervalSince($0)))
@@ -463,26 +468,12 @@ struct WorkoutFlowView: View {
             }
             .padding(.top, 30)
 
-            Group {
-                if holdSwitchPausing {
-                    Text("Switch sides")
-                        .dredfitFont(14, weight: .semibold)
-                        .foregroundStyle(Theme.accentText)
-                } else if holdSecondSide {
-                    Text("second side")
-                        .dredfitFont(14, weight: .semibold)
-                        .foregroundStyle(Theme.accentText)
-                } else if let actual = actuals[exercise.pattern], actual != exercise.load {
-                    Text("actual \(actual)")
-                        .dredfitFont(14, weight: .semibold)
-                        .foregroundStyle(Theme.accentText)
-                } else {
-                    Text("set \(setIndex + 1) of \(exercise.sets)")
-                        .dredfitFont(14)
-                        .foregroundStyle(Theme.ink2)
-                }
-            }
-            .padding(.top, 10)
+            WorkStatusCaption(switchingSides: holdSwitchPausing,
+                              secondSide: holdSecondSide,
+                              actual: actuals[exercise.pattern] == exercise.load
+                                  ? nil : actuals[exercise.pattern],
+                              setIndex: setIndex, sets: exercise.sets)
+                .padding(.top, 10)
 
             Spacer()
 
@@ -512,12 +503,9 @@ struct WorkoutFlowView: View {
                 PrimaryButton(title: String(localized: "Done")) { completeSet() }
             }
 
-            HStack(spacing: 26) {
-                Button(String(localized: "Went differently")) { startAdjusting() }
-                Button(String(localized: "Skip exercise")) { skipExercise() }
-            }
-            .dredfitFont(14.5)
-            .foregroundStyle(Theme.ink2)
+            ExerciseActionsRow(onAdjust: { startAdjusting() },
+                               onSkip: { leaveExercise() },
+                               onDiscomfort: { leaveExercise(hurt: true) })
             .padding(.vertical, 14)
             // no adjusting/skipping mid-hold or mid-pause
             .opacity(holding || holdSwitchPausing ? 0 : 1)
@@ -652,13 +640,20 @@ struct WorkoutFlowView: View {
         }
     }
 
-    private func skipExercise() {
+    /// One exit for both ways of ending an exercise early: a skip says "not
+    /// today", a report says the joint complained (issue #66). The engine
+    /// leaves the level alone either way — only the rest afterwards differs.
+    private func leaveExercise(hurt: Bool = false) {
         adjusting = false
         holdSecondSide = false
         firstSideHeld = nil
         holdPauseEndDate = nil
-        actuals.removeValue(forKey: exercise.pattern)   // a skip wins over an actual
-        skippedPatterns.insert(exercise.pattern)
+        actuals.removeValue(forKey: exercise.pattern)   // either wins over an actual
+        if hurt {
+            discomfortPatterns.insert(exercise.pattern)
+        } else {
+            skippedPatterns.insert(exercise.pattern)
+        }
         if isLastExercise {
             // startCooldown degrades to the rating when nothing was performed.
             startCooldown()
@@ -857,6 +852,7 @@ private extension WorkoutFlowView {
             exIndex: exIndex, setIndex: setIndex,
             restEndDate: restEnd, restTotalSec: restTotal,
             actuals: actuals, skipped: skippedPatterns,
+            discomfort: discomfortPatterns.isEmpty ? nil : discomfortPatterns,
             workoutStart: workoutStart ?? .now, savedAt: .now,
             fingerprint: WorkoutSnapshot.fingerprint(of: session),
             // Process death during the cool-down restores to the rating
@@ -877,6 +873,7 @@ private extension WorkoutFlowView {
         setIndex = min(max(snap.setIndex, 0), exercises[exIndex].sets - 1)
         actuals = snap.actuals
         skippedPatterns = snap.skipped
+        discomfortPatterns = snap.discomfort ?? []
         workoutStart = snap.workoutStart
         interruptedPattern = snap.interrupted
         if snap.atFeedback == true {
@@ -915,6 +912,7 @@ private extension WorkoutFlowView {
         if case .rest = phase { return true }
         return exIndex > 0 || setIndex > 0
             || !actuals.isEmpty || !skippedPatterns.isEmpty
+            || !discomfortPatterns.isEmpty
     }
 
     /// Every exercise not fully completed keeps its level via the engine's
@@ -946,7 +944,8 @@ private extension WorkoutFlowView {
             if midway { interruptedPattern = exercise.pattern }
         }
         if firstUnfinished < exercises.count {
-            for ex in exercises[firstUnfinished...] {
+            for ex in exercises[firstUnfinished...]
+            where !discomfortPatterns.contains(ex.pattern) {
                 actuals.removeValue(forKey: ex.pattern)   // a skip wins over an actual
                 skippedPatterns.insert(ex.pattern)
             }
@@ -1007,7 +1006,8 @@ extension WorkoutFlowView {
     /// A workout of pure skips has nothing to stretch — straight to the
     /// rating instead.
     private func startCooldown() {
-        let performed = exercises.map(\.pattern).filter { !skippedPatterns.contains($0) }
+        let notPerformed = skippedPatterns.union(discomfortPatterns)
+        let performed = exercises.map(\.pattern).filter { !notPerformed.contains($0) }
         cooldownPositions = Cooldown.positions(performed: performed)
         guard !cooldownPositions.isEmpty else {
             phase = .feedback

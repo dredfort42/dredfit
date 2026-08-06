@@ -155,6 +155,32 @@ final class WorkoutSnapshotTests: XCTestCase {
                        "the restore path needs the flag to land on the rating, not the last set")
     }
 
+    /// A report of pain is progress worth offering back on its own — the
+    /// workout must not come back with the report lost.
+    func testDiscomfortAloneMakesASnapshotResumable() {
+        let store = AppStore(storageURL: tempURL)
+        store.saveWorkoutSnapshot(WorkoutSnapshot(
+            sessionNumber: 1, exIndex: 0, setIndex: 0,
+            discomfort: [.calf],
+            workoutStart: .now.addingTimeInterval(-5 * 60), savedAt: .now,
+            fingerprint: WorkoutSnapshot.fingerprint(of: store.nextSession)))
+        let resumed = store.resumableWorkout()
+        XCTAssertNotNil(resumed, "something was reported — the card must show")
+        XCTAssertEqual(resumed?.discomfort, [.calf])
+    }
+
+    /// A snapshot written before the field existed still decodes.
+    func testSnapshotWithoutTheDiscomfortFieldStillResumes() throws {
+        let store = AppStore(storageURL: tempURL)
+        store.saveWorkoutSnapshot(makeSnapshot(for: store))
+        let raw = try XCTUnwrap(String(data: try Data(contentsOf: tempURL), encoding: .utf8))
+        XCTAssertFalse(raw.contains("\"discomfort\""),
+                       "an empty report must not be written at all")
+        let reloaded = AppStore(storageURL: tempURL)
+        XCTAssertNotNil(reloaded.resumableWorkout())
+        XCTAssertNil(reloaded.resumableWorkout()?.discomfort)
+    }
+
     func testSnapshotWithoutFingerprintIsNotOffered() {
         let store = AppStore(storageURL: tempURL)
         store.saveWorkoutSnapshot(WorkoutSnapshot(

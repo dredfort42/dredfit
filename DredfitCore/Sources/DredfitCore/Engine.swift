@@ -440,8 +440,11 @@ public enum Engine {
             // nor resets, so a deload cannot fire on top of a freeze.
             if frozenLeft > 0 {
                 next.levels[p] = min(newL, oldL)
-                if frozenLeft > 1 { next.frozen[p] = frozenLeft - 1 }
-                else { next.frozen.removeValue(forKey: p) }
+                if frozenLeft > 1 {
+                    next.frozen[p] = frozenLeft - 1
+                } else {
+                    next.frozen.removeValue(forKey: p)
+                }
                 continue
             }
 

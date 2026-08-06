@@ -113,6 +113,17 @@ struct TodayView: View {
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
 
+            // A fact about rest, not a warning: the movement is in today's
+            // plan at the level it was, and it stays there for a while.
+            if !store.restingPatterns.isEmpty {
+                Text("Resting for now: \(restingNames)")
+                    .dredfitFont(13.5)
+                    .foregroundStyle(Theme.ink2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, 6)
+                    .accessibilityIdentifier("resting-line")
+            }
+
             if store.shouldOfferComeback() {
                 ComebackCard(offersFreshStart: store.offersFreshStart(),
                              onAccept: { store.acceptComeback() },
@@ -153,6 +164,12 @@ struct TodayView: View {
             }
             Spacer(minLength: 0).frame(height: 14)   // breathing room above the tab bar
         }
+    }
+
+    /// Movement names rather than exercise names: the rest belongs to the
+    /// pattern, and it outlives the variation on screen today.
+    private var restingNames: String {
+        ListFormatter.localizedString(byJoining: store.restingPatterns.map(\.displayName))
     }
 
     // MARK: - Interrupted workout

@@ -142,6 +142,45 @@ final class ReleaseSmokeTests: XCTestCase {
         }
     }
 
+    // MARK: - S8: the discomfort report
+
+    /// Its own launch: S1–S6 owns a clean journal, and this row needs one too.
+    /// The safety half of the engine is dead code if this button ever stops
+    /// reaching the journal, and nothing else in the smoke would notice.
+    func testReleaseSmokeDiscomfort() {
+        app.launch()
+        XCTContext.runActivity(named: "S8 — a painful exercise is reported and rests") { _ in
+            app.buttons["Start"].tap()
+            let skipWarmup = app.buttons["Skip warm-up"]
+            XCTAssertTrue(skipWarmup.waitForExistence(timeout: 5), "S8: no warm-up to skip")
+            skipWarmup.tap()
+
+            // The pull slot: in every session, so the rest it earns is real
+            // rather than three workouts away.
+            for _ in 0..<3 { app.buttons["Skip exercise"].tap() }
+            let report = app.buttons["report-discomfort"]
+            XCTAssertTrue(report.waitForExistence(timeout: 5),
+                          "S8: the report action is missing from the exercise screen")
+            report.tap()
+            for _ in 0..<2 { app.buttons["Skip exercise"].tap() }
+
+            XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 10),
+                          "S8: reporting must end the exercise and reach the rating")
+            XCTAssertTrue(app.staticTexts["DISCOMFORT"].exists,
+                          "S8: the rating screen must call the report out")
+
+            app.staticTexts["On plan"].tap()
+            XCTAssertTrue(app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 10),
+                          "S8: the rating must return to Today")
+
+            app.tabBars.buttons["Calendar"].tap()
+            let dayNumber = Calendar.current.component(.day, from: .now)
+            app.buttons["day-\(dayNumber)"].tap()
+            XCTAssertTrue(app.staticTexts["hurt"].waitForExistence(timeout: 5),
+                          "S8: the history row must say hurt, not skipped")
+        }
+    }
+
     // MARK: - S7: the same first three rows in Russian
 
     func testReleaseSmokeRussian() {

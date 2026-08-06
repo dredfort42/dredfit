@@ -24,6 +24,9 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     var exercises: [SessionExercise]?
     var actuals: [Pattern: Int]?
     var skipped: Set<Pattern>?
+    /// Reported as painful mid-workout: to the engine a skip, to the journal
+    /// a different fact — and the reason the pattern is resting afterwards.
+    var discomfort: Set<Pattern>?
     var levelsAfter: [Pattern: Int]?
     var durationSec: Int?
     /// Only `true` is ever written; nil means "not exported yet".
@@ -89,6 +92,9 @@ struct WorkoutSnapshot: Codable, Equatable {
     var restTotalSec: Int?
     var actuals: [Pattern: Int] = [:]
     var skipped: Set<Pattern> = []
+    /// Optional, like the fields below: a snapshot written by an older build
+    /// must still decode rather than take the whole file down with it.
+    var discomfort: Set<Pattern>?
     var workoutStart: Date
     var savedAt: Date
     /// The session number alone is not identity: the bar toggle and an
@@ -318,8 +324,25 @@ final class AppStore {
         // --uitest-restday is applied last so it wins.
         if CommandLine.arguments.contains("--uitest-reset")
             || CommandLine.arguments.contains("--uitest-session2")
-            || CommandLine.arguments.contains("--uitest-milestone") {
+            || CommandLine.arguments.contains("--uitest-milestone")
+            || CommandLine.arguments.contains("--uitest-discomfort") {
             settings.restWeekdays = []
+        }
+        // A pull reported as painful yesterday: today's plan still has it,
+        // and Today carries the resting line.
+        if CommandLine.arguments.contains("--uitest-discomfort") {
+            var seeded = EngineState.initial
+            seeded.counter = 4
+            for p in Pattern.allCases { seeded.levels[p] = 6 }
+            seeded.frozen[.pull] = EngineConfig.freezeAppearances
+            engineState = seeded
+            records = [WorkoutRecord(
+                sessionNumber: 4,
+                date: Calendar.current.date(byAdding: .day, value: -1, to: .now)!,
+                result: .plan,
+                totalLevelAfter: 60,
+                discomfort: [.pull],
+                levelsAfter: seeded.levels)]
         }
         // Session 1 completed yesterday → today offers session 2, the only
         // deterministic way to reach hold exercises.
@@ -382,7 +405,8 @@ final class AppStore {
         var maxPerformed: [Pattern: Int] = [:]
         for record in records {
             guard let exercises = record.exercises else { continue }
-            let skipped = record.skipped ?? []
+            // A painful exercise was not performed either.
+            let skipped = (record.skipped ?? []).union(record.discomfort ?? [])
             for ex in exercises where !skipped.contains(ex.pattern) {
                 maxPerformed[ex.pattern] = max(maxPerformed[ex.pattern] ?? 0, ex.tier)
             }
@@ -394,6 +418,15 @@ final class AppStore {
             }
         }
         return debuts
+    }
+
+    /// Patterns in the upcoming plan that are resting after a discomfort
+    /// report: still there, still at their level, not climbing. Scoped to the
+    /// plan on purpose — a line about a movement today's workout does not
+    /// contain would explain nothing.
+    var restingPatterns: [Pattern] {
+        nextSession.exercises.map(\.pattern)
+            .filter { engineState.freezeRemaining($0) > 0 }
     }
 
     var totalLevel: Int { engineState.levels.values.reduce(0, +) }
@@ -507,6 +540,7 @@ final class AppStore {
                          result: FeedbackResult,
                          overrides: [Pattern: Int] = [:],
                          skipped: Set<Pattern> = [],
+                         discomfort: Set<Pattern> = [],
                          durationSec: Int? = nil,
                          date: Date = .now) -> [Milestone] {
         // Mirror of the engine's replay guard: a session that does not belong
@@ -516,7 +550,7 @@ final class AppStore {
         let before = engineState
         engineState = Engine.applyFeedback(state: engineState, session: session,
                                            result: result, overrides: overrides,
-                                           skipped: skipped)
+                                           skipped: skipped, discomfort: discomfort)
         records.append(WorkoutRecord(
             sessionNumber: session.sessionNumber,
             date: date,
@@ -525,6 +559,7 @@ final class AppStore {
             exercises: session.exercises,
             actuals: overrides.isEmpty ? nil : overrides,
             skipped: skipped.isEmpty ? nil : skipped,
+            discomfort: discomfort.isEmpty ? nil : discomfort,
             levelsAfter: engineState.levels,
             durationSec: durationSec))
         persist()
@@ -536,7 +571,8 @@ final class AppStore {
             healthExportTask = Task { await self.backfillHealth() }
         }
         return MilestoneDetector.detect(before: before, after: engineState,
-                                        session: session, skipped: skipped)
+                                        session: session,
+                                        skipped: skipped.union(discomfort))
     }
 
     // MARK: - Workout in progress
@@ -562,6 +598,7 @@ final class AppStore {
               snap.atFeedback == true || snap.restEndDate != nil
                   || snap.exIndex > 0 || snap.setIndex > 0
                   || !snap.actuals.isEmpty || !snap.skipped.isEmpty
+                  || !(snap.discomfort ?? []).isEmpty
         else { return nil }
         return snap
     }
@@ -836,7 +873,7 @@ final class AppStore {
     /// formula; records without a snapshot get a flat 35 min.
     private func estimatedDurationSec(for record: WorkoutRecord) -> Int {
         guard let exercises = record.exercises, !exercises.isEmpty else { return 35 * 60 }
-        let skipped = record.skipped ?? []
+        let skipped = (record.skipped ?? []).union(record.discomfort ?? [])
         var workSec = 0.0
         for ex in exercises where !skipped.contains(ex.pattern) {
             let sides = ex.perSide ? 2 : 1

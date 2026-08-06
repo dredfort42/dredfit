@@ -2,6 +2,33 @@
 
 ## Unreleased
 
+### Engine safety wave: growth ceiling and discomfort (issue #38, closes #64–#67)
+
+- The regulator gains a dimension it never had: how fast a movement is allowed
+  to climb. The single `+2` ceiling becomes a table by movement and variation,
+  because tissue is not uniform — calves climb one step per workout at every
+  variation (everything loads the Achilles), the vertical push from the wall
+  handstand up, and every movement on its fourth variation, where the archer
+  variants and the set bands live. Everything else keeps two. The cap is the
+  only dial that acts before an overload rather than after it.
+- "Tough" no longer has to stand for both "my muscles gave out" and "my joint
+  hurts". A new **Something hurt** action on the exercise screen — one tap, no
+  dialog, its own line next to the skip — ends that exercise and rests the
+  movement: it keeps its place in the plan at the same level and stops
+  climbing for its next three appearances. A level can still go *down* while
+  it rests, and no deload can fire on top of the rest.
+- Today carries a quiet line while a movement rests ("Resting for now: Pull"),
+  the rating screen lists it under **Discomfort** rather than **Skipped**, and
+  the calendar's history row says "hurt". A ninth "How it works" section
+  explains what the report does and repeats the stop rule.
+- Reporting survives everything a skip survives: process death mid-workout,
+  the resume card, and a break — neither the silent decay nor the comeback
+  clears a rest, on purpose. State files written before this decode unchanged.
+- Engine v2.5.0: reference spec §15, 9,367 property checks, and a new golden
+  scenario for the freeze. The ceiling table lives in the spec and the
+  verifier compares it against the shipped one cell by cell, so the two cannot
+  drift apart silently. Strings complete in all seven languages.
+
 ### Localization: French and Italian (issue #69)
 
 - French and Italian join the shipping languages, each complete across the four

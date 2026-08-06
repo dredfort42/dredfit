@@ -40,7 +40,8 @@ struct HowItWorksView: View {
                     overall rating. From a standing start an exact number sets \
                     the level immediately — the first workout calibrates the \
                     system. After that the level climbs at most two steps per \
-                    workout.
+                    workout — and only one for calves, for the wall handstand \
+                    and for every fourth variation, where tendons set the pace.
                     """)),
             Section(id: 3,
                     title: String(localized: "Deload"),
@@ -79,6 +80,16 @@ struct HowItWorksView: View {
                     where it was. No penalty, no rollback.
                     """)),
             Section(id: 8,
+                    title: String(localized: "Something hurt"),
+                    body: String(localized: """
+                    Muscles giving out and a joint hurting are different \
+                    things, so they get different answers. Tap “Something \
+                    hurt” during a workout and that movement rests: it keeps \
+                    its place in the plan at the same level and stops getting \
+                    harder for the next three times it comes round. Sharp \
+                    pain is always a reason to stop.
+                    """)),
+            Section(id: 9,
                     title: String(localized: "Why there are no questionnaires"),
                     body: String(localized: """
                     A questionnaire can be wrong; what you actually did cannot. \
@@ -98,7 +109,7 @@ struct HowItWorksView: View {
                         .padding(.top, 30)
                         .fixedSize(horizontal: false, vertical: true)
 
-                    Text("Eight things worth knowing about the regulator.")
+                    Text("Nine things worth knowing about the regulator.")
                         .dredfitFont(15)
                         .foregroundStyle(Theme.ink2)
                         .padding(.top, 8)
