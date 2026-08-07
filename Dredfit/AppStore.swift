@@ -90,6 +90,11 @@ struct WorkoutSnapshot: Codable, Equatable {
     var setIndex: Int
     var restEndDate: Date?
     var restTotalSec: Int?
+    /// What this transition PLANNED, which `restTotalSec` stops being as soon
+    /// as the rest is extended — and the extension cap is twice the planned
+    /// one. Optional like the fields below: a snapshot from an older build
+    /// decodes and falls back to the total it does carry.
+    var restPlannedSec: Int?
     var actuals: [Pattern: Int] = [:]
     var skipped: Set<Pattern> = []
     /// Optional, like the fields below: a snapshot written by an older build
@@ -424,10 +429,16 @@ final class AppStore {
     /// report: still there, still at their level, not climbing. Scoped to the
     /// plan on purpose — a line about a movement today's workout does not
     /// contain would explain nothing.
-    var restingPatterns: [Pattern] {
-        nextSession.exercises.map(\.pattern)
+    ///
+    /// Takes the session so a caller that already holds one does not make the
+    /// engine generate another: nextSession builds a fresh session on every
+    /// access.
+    func restingPatterns(in session: Session) -> [Pattern] {
+        session.exercises.map(\.pattern)
             .filter { engineState.freezeRemaining($0) > 0 }
     }
+
+    var restingPatterns: [Pattern] { restingPatterns(in: nextSession) }
 
     var totalLevel: Int { engineState.levels.values.reduce(0, +) }
 

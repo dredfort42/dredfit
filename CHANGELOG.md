@@ -2,6 +2,42 @@
 
 ## Unreleased
 
+### Screen honesty pass (issue #73)
+
+- The rating screen stops promising a multiple. "Easy, could do more" said
+  progress comes twice as fast and the completed state repeated it, which the
+  growth ceiling made untrue in v2.5: a session built from fourth variations
+  climbs exactly like "on plan". Both captions now promise a direction and no
+  size, because the size is knowable only after the answer is applied.
+- The freeze says how long it lasts. A resting movement carries its own
+  counter on Today — "3 more times" — read from the engine's own
+  `freezeRemaining`, which the screen had never asked. It counts appearances
+  of that movement rather than workouts, and the wording drops the claim of
+  rest so it stays true for the second, milder entrance being added in #75.
+- The rating states its scope once. The banner under the heading and the
+  summary card said the same thing, under a comment demanding the two never
+  contradict each other; the count moves into the card header, where the
+  itemisation right below already answers "which ones".
+- Rest can be extended, not only cut short. "+15 s" sits beside "Skip rest",
+  both outlined and of equal weight, repeatable to twice the planned rest and
+  greying out in place at the cap. Someone who is not recovered used to have
+  the choice of standing at an expired timer or starting a set they would not
+  finish — and the engine reads the second as "tough", so this protects the
+  regulator's input rather than comfort.
+- A break owns its cost. The silent decay lands between two journal entries
+  while the chart draws one point per entry, so the drop appeared inside a
+  completed workout — deliberate quiet reading as an accusation. Gaps of a
+  week or more now carry a band behind the line with their length inside it,
+  and one line under the chart. That line names a cost only where the levels
+  fell across the gap *and* the first workout back cannot account for the drop
+  itself — neither by its rating nor by a number entered in it. Anything less
+  strict would put the mistake this wave removes from the rating screen back
+  on the chart.
+- Two lines earn their removal: "Last time you chose" re-weighted three cards
+  that are meant to be equal, and the weekly summary gave its space to the
+  chart. The load caption under the big number stops printing the number
+  again.
+
 ### Localization audit across the seven languages
 
 - French and Italian stop bending the grammar of the exercise they name. A

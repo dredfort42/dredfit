@@ -55,6 +55,9 @@ struct WorkoutFlowView: View {
     @State private var blockPause = BlockPause.State()
     @State private var restRemaining = 0
     @State private var restEndDate: Date?
+    /// What this transition planned, kept because the phase carries the
+    /// current total and the extension cap is twice the PLANNED one.
+    @State private var restPlanned = 0
     // Captured at tap time (not a bool): the rest countdown keeps ticking
     // while the sheet is open and may flip the phase underneath.
     @State private var techniqueExercise: SessionExercise?
@@ -141,8 +144,7 @@ struct WorkoutFlowView: View {
                 FeedbackView(session: session, actuals: actuals,
                              skipped: skippedPatterns.union(omitted),
                              discomfort: discomfortPatterns,
-                             interrupted: interruptedPattern,
-                             lastResult: store.lastRecord?.result) { result, overrides in
+                             interrupted: interruptedPattern) { result, overrides in
                     let earned = store.completeWorkout(
                         session: session, result: result,
                         overrides: overrides,
@@ -240,51 +242,24 @@ struct WorkoutFlowView: View {
     @ViewBuilder
     private var header: some View {
         if phase != .feedback, !isMilestone {
-            VStack(spacing: 10) {
-                HStack {
-                    // ink2, not ink3: ink3 (~2.4:1) fails contrast for
-                    // interactive text.
-                    Button(String(localized: "Exit")) {
-                        if hasProgress {
-                            exitConfirmShown = true
-                        } else {
-                            discardWorkout()
-                        }
-                    }
-                        .dredfitFont(14)
-                        .foregroundStyle(Theme.ink2)
-                    Spacer()
-                    Group {
-                        switch phase {
-                        case .work:
-                            Text("\(exIndex + 1) / \(exercises.count)")
-                        case .warmup:
-                            Text("WARM-UP")
-                        case .cooldown:
-                            Text("COOL-DOWN")
-                        default:
-                            Text("REST")
-                        }
-                    }
-                    .dredfitFont(13, weight: .semibold)
-                    .kerning(0.5)
-                    // ink2, not ink3: this is information, not decoration.
-                    .foregroundStyle(Theme.ink2)
-                    Spacer()
-                    Button(String(localized: "Exit")) { }.dredfitFont(14).hidden() // symmetry
-                }
-                if phase != .warmup {
-                    HStack(spacing: 5) {
-                        ForEach(0..<exercises.count, id: \.self) { i in
-                            Capsule()
-                                .fill(i <= exIndex ? Theme.ink : Theme.hairline)
-                                .frame(height: 4)
-                        }
-                    }
-                    .frame(width: 200)
+            FlowHeader(title: headerTitle,
+                       steps: phase == .warmup ? 0 : exercises.count,
+                       doneIndex: exIndex) {
+                if hasProgress {
+                    exitConfirmShown = true
+                } else {
+                    discardWorkout()
                 }
             }
-            .padding(.top, 12)
+        }
+    }
+
+    private var headerTitle: String {
+        switch phase {
+        case .work:     return String(localized: "\(exIndex + 1) / \(exercises.count)")
+        case .warmup:   return String(localized: "WARM-UP")
+        case .cooldown: return String(localized: "COOL-DOWN")
+        default:        return String(localized: "REST")
         }
     }
 
@@ -544,63 +519,61 @@ struct WorkoutFlowView: View {
     private var loadCaption: String {
         // During the switch pause the big number is the pause countdown.
         if holdSwitchPausing { return String(localized: "sec") }
-        // Must agree with the number above it (ru: 1 повтор / 3 повтора).
-        let base: String
-        switch exercise.unit {
-        case .reps: base = String(localized: "\(workNumber) reps")
-        case .hold: base = String(localized: "\(workNumber) seconds")
+        // The unit only: the 112 pt number above already says how many, and
+        // printing it twice is the kind of noise that makes a screen feel
+        // busy. Because the caption no longer agrees with a number, these
+        // keys need no ICU plurals — one form per language.
+        switch (exercise.unit, exercise.perSide) {
+        case (.reps, false): return String(localized: "reps")
+        case (.reps, true):  return String(localized: "reps per side")
+        case (.hold, false): return String(localized: "seconds")
+        case (.hold, true):  return String(localized: "seconds per side")
         }
-        return exercise.perSide ? String(localized: "\(base) per side") : base
     }
 
     // MARK: - Rest
 
     private var restView: some View {
-        VStack(spacing: 0) {
-            Spacer()
-            ZStack {
-                Circle()
-                    .stroke(Theme.hairline, lineWidth: 7)
-                Circle()
-                    .trim(from: 0, to: progressFraction)
-                    .stroke(Theme.accent, style: StrokeStyle(lineWidth: 7, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
-                    .animation(.linear(duration: 1), value: restRemaining)
-                VStack(spacing: 2) {
-                    Text("\(restRemaining)")
-                        .dredfitFont(72, weight: .heavy, cap: 104)
-                        .tracking(-2)
-                        .monospacedDigit()
-                        .contentTransition(.numericText(countsDown: true))
-                    Text("sec")
-                        .dredfitFont(15)
-                        .foregroundStyle(Theme.ink2)
-                }
-            }
-            // Capped to still fit the narrowest screen with its 24pt margins.
-            .frame(width: min(restRingSize, 330), height: min(restRingSize, 330))
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Text("\(restRemaining) seconds of rest left"))
+        RestRing(remaining: restRemaining,
+                 fraction: progressFraction,
+                 ringSize: restRingSize,
+                 nextLabel: nextLabel,
+                 extensionSeconds: Self.restExtensionSeconds,
+                 canExtend: canExtendRest,
+                 onTechnique: { techniqueExercise = restTargetExercise },
+                 onExtend: extendRest,
+                 onSkip: {
+                     restEndDate = nil
+                     restRemaining = 0
+                     advanceAfterRest()
+                 })
+    }
 
-            VStack(spacing: 6) {
-                Kicker(text: String(localized: "Next up"))
-                Text(nextLabel)
-                    .dredfitFont(17, weight: .semibold)
-            }
-            .padding(.top, 44)
+    /// The cap is twice the rest this transition planned, so the dial cannot
+    /// turn a workout into an evening.
+    private var canExtendRest: Bool {
+        guard case .rest(let total) = phase, restPlanned > 0 else { return false }
+        return total + Self.restExtensionSeconds <= restPlanned * 2
+    }
 
-            TechniqueButton { techniqueExercise = restTargetExercise }
-                .padding(.top, 16)
-
-            Spacer()
-
-            BlockSkipButton(title: String(localized: "Skip rest")) {
-                restEndDate = nil
-                restRemaining = 0
-                advanceAfterRest()
-            }
-            .padding(.bottom, 20)
-        }
+    /// Moves the end date, not a counter: restRemaining keeps deriving from
+    /// the date, so a backgrounded phone comes back to the right number. The
+    /// new total goes into the phase because the ring divides by it —
+    /// otherwise the arc would run past 100%.
+    ///
+    /// The last-seconds signal needs no "already played" flag to reset: it
+    /// fires on `newRemaining < restRemaining`, and an extension raises
+    /// restRemaining, so the new countdown signals again on its own way down.
+    private func extendRest() {
+        guard case .rest(let total) = phase, let end = restEndDate, canExtendRest else { return }
+        let newEnd = end.addingTimeInterval(TimeInterval(Self.restExtensionSeconds))
+        restEndDate = newEnd
+        restRemaining = max(0, Int(newEnd.timeIntervalSinceNow.rounded()))
+        phase = .rest(seconds: total + Self.restExtensionSeconds)
+        liveActivity.update(.init(phase: .rest, title: nextLabel,
+                                  detail: String(localized: "Next up"),
+                                  restEndDate: newEnd))
+        persistProgress()
     }
 
     private var progressFraction: CGFloat {
@@ -674,6 +647,7 @@ struct WorkoutFlowView: View {
         #endif
         restRemaining = seconds
         restEndDate = Date.now.addingTimeInterval(TimeInterval(seconds))
+        restPlanned = seconds
         phase = .rest(seconds: seconds)
         liveActivity.update(.init(phase: .rest, title: nextLabel,
                                   detail: String(localized: "Next up"),
@@ -803,6 +777,8 @@ private extension WorkoutFlowView {
     // MARK: - Audible countdown of the last rest seconds
 
     static let countdownSignalSeconds = 3
+    /// One tap of extra rest. The cap on repeats is twice the planned rest.
+    static let restExtensionSeconds = 15
 
     /// The tone respects silent mode; the haptic is the signal's silent-mode
     /// channel.
@@ -843,14 +819,16 @@ private extension WorkoutFlowView {
     func persistProgress() {
         var restEnd: Date?
         var restTotal: Int?
+        var restPlan: Int?
         if case .rest(let total) = phase {
             restEnd = restEndDate
             restTotal = total
+            restPlan = restPlanned
         }
         store.saveWorkoutSnapshot(WorkoutSnapshot(
             sessionNumber: session.sessionNumber,
             exIndex: exIndex, setIndex: setIndex,
-            restEndDate: restEnd, restTotalSec: restTotal,
+            restEndDate: restEnd, restTotalSec: restTotal, restPlannedSec: restPlan,
             actuals: actuals, skipped: skippedPatterns,
             discomfort: discomfortPatterns.isEmpty ? nil : discomfortPatterns,
             workoutStart: workoutStart ?? .now, savedAt: .now,
@@ -883,6 +861,9 @@ private extension WorkoutFlowView {
         if let end = snap.restEndDate, let total = snap.restTotalSec, end > .now {
             restEndDate = end
             restRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
+            // An older snapshot has no planned value; the total it carries is
+            // the closest honest stand-in, and it keeps the button live.
+            restPlanned = snap.restPlannedSec ?? total
             phase = .rest(seconds: total)
         } else {
             if snap.restEndDate != nil, !(isLastSet && isLastExercise) {

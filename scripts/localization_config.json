@@ -10,8 +10,6 @@
   ],
   "allow_untranslated": {
     "Dredfit/Localizable.xcstrings": [
-      " · ",
-      " · %@",
       "on %@"
     ],
     "Dredfit/InfoPlist.xcstrings": [
