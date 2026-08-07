@@ -88,13 +88,13 @@ The engine was first written and verified as a JavaScript reference (9,367 prope
 
 ## Testing
 
-Three layers, 315 automated tests:
+Three layers, 343 automated tests:
 
 | Layer | Count | What it covers |
 | --- | --- | --- |
-| Core invariants + golden | 63 | encoding bijectivity, rotation properties, pull:push balance, deload timing, override caps, skip semantics, bar-branch independence, lenient state decode, feedback replay safety, the silent decay and its non-stacking with the comeback, reference parity |
-| App unit tests | 206 | persistence round-trips, corrupted-file quarantine, a frozen journal and its reload, legacy-record migration, in-progress snapshot validity, rest-day calendar math, Health export ordering and idempotence, the one-shot reminder window, day-anchor rollover, the widget snapshot, its backward compatibility and the per-day timeline words, the variation-debut badge, share-card wording and its level curve, the short workout's picks, cool-down composition, the get-ready transition and the minutes both blocks fit into, the way back in from a pause, the jubilee's then-and-now comparison, the life-benefit override |
-| UI tests | 46 | the full workout flow, in-workout adjustment, hold mis-tap grace, resume after a kill, the three exit paths, the short workout, the cool-down, the side-switch pause, the get-ready transition, pausing and resuming a guided block, position technique sheets, history, relaunch persistence, and the release smoke walked end to end in English and Russian |
+| Core invariants + golden | 82 | encoding bijectivity, rotation properties, pull:push balance, deload timing, override caps, skip semantics, bar-branch independence, lenient state decode, feedback replay safety, the silent decay and its non-stacking with the comeback, the per-movement growth ceiling checked cell by cell against the reference table, the discomfort freeze and its immunity to deload, reference parity |
+| App unit tests | 211 | persistence round-trips, corrupted-file quarantine, a frozen journal and its reload, legacy-record migration, in-progress snapshot validity, rest-day calendar math, Health export ordering and idempotence, the one-shot reminder window, day-anchor rollover, the widget snapshot, its backward compatibility and the per-day timeline words, the variation-debut badge, share-card wording and its level curve, the short workout's picks, cool-down composition, the get-ready transition and the minutes both blocks fit into, the way back in from a pause, rest extension up to its cap, the freeze horizon shown on Today, the progress chart's gap band and the line that may accompany it, the jubilee's then-and-now comparison, the life-benefit override |
+| UI tests | 50 | the full workout flow, in-workout adjustment, hold mis-tap grace, resume after a kill, the three exit paths, the short workout, the cool-down, the side-switch pause, the get-ready transition, pausing and resuming a guided block, reporting discomfort and extending a rest, position technique sheets, history, relaunch persistence, and the release smoke walked end to end in English and Russian |
 
 Plus [TESTPLAN.md](TESTPLAN.md): a manual QA checklist (locale passes, date rollover, backgrounding during rest, device-only integrations) and a registry of found issues with their status.
 
@@ -109,7 +109,7 @@ CI runs the unit suites on every push — that is the gate for merges and releas
 
 ## Localization
 
-English is the source language; Russian, Spanish, Brazilian Portuguese, German, French and Italian each ship complete — 547 translated keys across four String Catalogs, including all exercise technique. English base strings live inline at each call site; translations live in the catalogs. Every translation is idiomatic rather than literal: Russian avoids anglicisms and calques and uses `е` rather than `ё` throughout; Spanish, Brazilian Portuguese, German, French and Italian address the reader informally (`tú` / `você` / lowercase `du` / `tu`) and take their exercise and pattern vocabulary from the same glossary as the [marketing site](https://dredfit.com/), which ships in the same seven languages.
+English is the source language; Russian, Spanish, Brazilian Portuguese, German, French and Italian each ship complete — 563 translated keys across four String Catalogs, including all exercise technique. English base strings live inline at each call site; translations live in the catalogs. Every translation is idiomatic rather than literal: Russian avoids anglicisms and calques and uses `е` rather than `ё` throughout; Spanish, Brazilian Portuguese, German, French and Italian address the reader informally (`tú` / `você` / lowercase `du` / `tu`) and take their exercise and pattern vocabulary from the same glossary as the [marketing site](https://dredfit.com/), which ships in the same seven languages.
 
 ## Design principles
 

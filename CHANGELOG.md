@@ -1,6 +1,43 @@
 # Changelog
 
-## Unreleased
+## 1.9.0
+
+The largest release the project has shipped, and the first to reach the App
+Store since 1.8.0: three versions' worth of waves in one submission. The
+regulator gains the dimension it never had — how fast a movement is allowed to
+climb — and an answer for "my joint hurt" that is not "tough". Both guided
+blocks gain a pause and a run-in before every position. German, French and
+Italian join, so the app speaks seven languages. And the screens stop
+promising more than the engine can deliver. The engine steps to v2.5, verified
+against the reference at 9,367 property checks; the state format and the
+journal format are untouched, so there are no migrations.
+
+### Engine safety wave: growth ceiling and discomfort (issue #38, closes #64–#67)
+
+- The regulator gains a dimension it never had: how fast a movement is allowed
+  to climb. The single `+2` ceiling becomes a table by movement and variation,
+  because tissue is not uniform — calves climb one step per workout at every
+  variation (everything loads the Achilles), the vertical push from the wall
+  handstand up, and every movement on its fourth variation, where the archer
+  variants and the set bands live. Everything else keeps two. The cap is the
+  only dial that acts before an overload rather than after it.
+- "Tough" no longer has to stand for both "my muscles gave out" and "my joint
+  hurts". A new **Something hurt** action on the exercise screen — one tap, no
+  dialog, its own line next to the skip — ends that exercise and rests the
+  movement: it keeps its place in the plan at the same level and stops
+  climbing for its next three appearances. A level can still go *down* while
+  it rests, and no deload can fire on top of the rest.
+- Today carries a quiet line while a movement rests ("Resting for now: …"),
+  the rating screen lists it under **Discomfort** rather than **Skipped**, and
+  the calendar's history row says "hurt". A ninth "How it works" section
+  explains what the report does and repeats the stop rule.
+- Reporting survives everything a skip survives: process death mid-workout,
+  the resume card, and a break — neither the silent decay nor the comeback
+  clears a rest, on purpose. State files written before this decode unchanged.
+- Engine v2.5.0: reference spec §15, 9,367 property checks, and a new golden
+  scenario for the freeze. The ceiling table lives in the spec and the
+  verifier compares it against the shipped one cell by cell, so the two cannot
+  drift apart silently. Strings complete in all seven languages.
 
 ### Screen honesty pass (issue #73)
 
@@ -38,116 +75,42 @@
   chart. The load caption under the big number stops printing the number
   again.
 
-### Localization audit across the seven languages
+### Warm-up and cool-down: a "Get ready" transition before each position (issue #52)
 
-- French and Italian stop bending the grammar of the exercise they name. A
-  participle after the placeholder cannot agree with "Pompes" or "Flessioni",
-  so the skipped and unfinished labels now carry their own noun — "Pompes,
-  exercice ignoré", "Flessioni, esercizio saltato" — instead of a masculine
-  ending glued to a feminine name.
-- Nothing addresses the reader by gender any more. The Russian privacy page
-  drops the formal "вы" that it alone still used, the "you export it yourself"
-  lines lose their masculine "сам" / "tú mismo" / "você mesmo", and six Spanish
-  and Portuguese starting positions turn from "Acostado boca arriba" into the
-  imperative the rest of the library already used.
-- Terminology reconnects to the glossary: Brazilian "Deload" becomes
-  "Descarga", the wall handstand goes back to the name the exercise library
-  gives it in each language — the Spanish copy had picked up "el pino", a
-  Spain-only word — and German "Equipment" becomes the "Zubehör" the site was
-  already using.
-- The English source loses its one piece of gym jargon: "kipping doesn't count"
-  is now "using momentum doesn't count", and the Russian, Spanish and
-  Portuguese calques go with it.
-- The site says what to tap. "Tap it during the workout" had no antecedent on a
-  page that shows no button, so every language now names the control, and the
-  German "Ein Tipp" (a hint) becomes "Ein Fingertipp" (a tap). Typographic
-  quotes replace the straight ones left in English, Spanish and Portuguese, and
-  the landing page gains the card for the discomfort feature.
-- The glossary records the decisions that let the drift happen: a row for the
-  wall handstand, the French and Italian placeholder rule, "ты" for Russian
-  legal copy, and gym jargon banned in the English source too.
-
-### Engine safety wave: growth ceiling and discomfort (issue #38, closes #64–#67)
-
-- The regulator gains a dimension it never had: how fast a movement is allowed
-  to climb. The single `+2` ceiling becomes a table by movement and variation,
-  because tissue is not uniform — calves climb one step per workout at every
-  variation (everything loads the Achilles), the vertical push from the wall
-  handstand up, and every movement on its fourth variation, where the archer
-  variants and the set bands live. Everything else keeps two. The cap is the
-  only dial that acts before an overload rather than after it.
-- "Tough" no longer has to stand for both "my muscles gave out" and "my joint
-  hurts". A new **Something hurt** action on the exercise screen — one tap, no
-  dialog, its own line next to the skip — ends that exercise and rests the
-  movement: it keeps its place in the plan at the same level and stops
-  climbing for its next three appearances. A level can still go *down* while
-  it rests, and no deload can fire on top of the rest.
-- Today carries a quiet line while a movement rests ("Resting for now: …"),
-  the rating screen lists it under **Discomfort** rather than **Skipped**, and
-  the calendar's history row says "hurt". A ninth "How it works" section
-  explains what the report does and repeats the stop rule.
-- Reporting survives everything a skip survives: process death mid-workout,
-  the resume card, and a break — neither the silent decay nor the comeback
-  clears a rest, on purpose. State files written before this decode unchanged.
-- Engine v2.5.0: reference spec §15, 9,367 property checks, and a new golden
-  scenario for the freeze. The ceiling table lives in the spec and the
-  verifier compares it against the shipped one cell by cell, so the two cannot
-  drift apart silently. Strings complete in all seven languages.
-
-### Localization: French and Italian (issue #69)
-
-- French and Italian join the shipping languages, each complete across the four
-  String Catalogs: the 40-exercise library with its technique steps and common
-  mistakes, the 15 warm-up and cool-down position sheets, the "In real life"
-  lines, onboarding, "How it works", milestones, the anniversary retrospective,
-  the widgets and the Health permission strings. Seven languages now.
-- Both address the reader as *tu*, and neither ever genders them: French leans
-  on impersonal turns ("C'est fait") rather than a masculine "Prêt", and
-  Italian on `avere` participles ("hai fatto") rather than an *essere* one.
-  Buttons follow each platform convention — French infinitives ("Commencer"),
-  Italian second-person imperatives ("Inizia").
-- The app's three-way distinction survives translation intact in both: French
-  *variante · cran · niveau*, Italian *variante · gradino · livello*, with the
-  words for a technique step kept clear of them (*étape*, *passaggio*). The
-  rest cluster is likewise disjoint — French *repos · jour de repos · coupure ·
-  allègement*, Italian *recupero · giorno di riposo · pausa · scarico* — so a
-  sixty-second rest never reads like a fortnight away from training.
-- French typography is honoured rather than approximated: narrow no-break
-  spaces before `? ! ;`, a no-break space before `:`, typographic apostrophes,
-  and never an elision against a placeholder.
-- No code changed for either language: both take the same default branch of
-  `nextTrainingDateLabel` that German uses, with the weekday label carried in
-  the catalogs ("le %@" in French; the bare day in Italian, whose article is
-  gendered). The engine and the golden fixtures are untouched.
-- dredfit.com ships /fr and /it — landing and privacy policy — with hreflang
-  alternates and sitemap entries across all seven locales, and nine store
-  screenshots per language through the standard pipeline.
-
-### Localization: German (issue #63)
-
-- German joins English, Russian, Spanish and Brazilian Portuguese, complete —
-  all 547 translated keys across the four String Catalogs: the 40-exercise
-  library with its technique steps and common mistakes, the 15 warm-up and
-  cool-down position sheets, the "In real life" lines, onboarding, "How it
-  works", milestones, the anniversary retrospective, the widgets and the
-  Health permission strings.
-- The register is du — lowercase, calm, and gender-free: the athlete is never
-  named by a gendered noun. The terminology keeps the app's three concepts as
-  disjoint in German as everywhere else — Variante (which exercise, 1 of 4),
-  Stufe (one unit of level change), Level (the number itself) — and prefers
-  the words German home training actually uses: Kniebeuge, Liegestütze,
-  Klimmzüge, Ausfallschritte, with Plank kept English because that is what
-  German says. A bare "Pause" only ever means the seconds between sets; a
-  longer absence is a Trainingspause, and a deload an Entlastung.
-- No code changed for the language: the one locale-sensitive label ("on
-  Monday") already had a default path that German's uniform "am + weekday"
-  fits, so the catalog carries "am %@" and the switch in
-  `nextTrainingDateLabel` stays three cases long. The engine and the golden
-  fixtures are untouched.
-- The marketing site ships the same five languages: dredfit.com/de (landing
-  and privacy policy), with hreflang alternates and sitemap entries on every
-  page. Nine German store screenshots join the set, captured through the
-  standard pipeline.
+- Both guided blocks used to start every position cold: the 30 seconds of a
+  warm-up move and the timer of a cool-down stretch began the instant the
+  previous one ended, while you were still getting off the floor, reading the
+  next name or looking for the wall. The first seconds of the interval went
+  into moving house, not into moving — and for a beginner that reads as "I
+  can't keep up" rather than "the timer starts too early".
+- Every position is now preceded by a five-second "Get ready: <move>" — the
+  first one included, because you have just pressed Start and are still
+  standing by the phone. It names what is coming, opens its technique sheet
+  like the position itself does, runs the usual 3-2-1 into the go that starts
+  the movement, and carries the same two escapes (this position, the whole
+  block). "I'm ready" starts the position at once: the transition is a floor
+  on the pause between positions, never a wait.
+- The go-tone moved to where the movement actually starts. A position now
+  ends silently and the transition speaks with its own 3-2-1 — two gos five
+  seconds apart would have said nothing twice. The falling "switch sides"
+  tone keeps its one meaning.
+- The pattern already half-existed: the side-switch pause of 1.8.2 counts a
+  transition inside a position, this one counts the transition between them.
+  Same five seconds, same wall clock, same survival of a locked screen; a
+  backgrounded block still jumps whole stages instead of stretching itself.
+- No estimate moves. The engine reserves 8 minutes for the two blocks
+  (`warmupMin` 5 + `cooldownMin` 3); with the transitions they spend 210 s on
+  the warm-up and 220–235 s on the cool-down — 430–445 s of the reserved 480.
+  The number on "Today" keeps promising at least what the flow delivers, and
+  the engine, `estimatedTotalMin` and the golden fixtures are untouched.
+- VoiceOver reads the transition as one phrase, "Get ready: Cat-cow". At the
+  accessibility text sizes a three-line position name plus the countdown no
+  longer fits the screen, so the block's content scrolls and its escapes stay
+  pinned — the running move and stretch screens gained the same treatment.
+- Strings in every shipping language. "I'm ready" is translated by sense —
+  «Начать» / "Empezar" / "Começar" / "Commencer" / "Inizia" — because "ready"
+  takes a gendered adjective in Russian, Spanish, Portuguese and French; only
+  German keeps the adjective, where "Bereit" has no gender to take.
 
 ### Warm-up and cool-down: a pause for the guided blocks (issue #61)
 
@@ -183,43 +146,91 @@
   Working sets and their rest timers are untouched — they are self-paced by
   design. The engine and the golden fixtures are untouched.
 - VoiceOver announces "Paused" and "Resumed", and the state is readable under
-  the countdown. Strings in all four languages.
+  the countdown. Strings in every shipping language.
 
-### Warm-up and cool-down: a "Get ready" transition before each position (issue #52)
+### Localization: German (issue #63)
 
-- Both guided blocks used to start every position cold: the 30 seconds of a
-  warm-up move and the timer of a cool-down stretch began the instant the
-  previous one ended, while you were still getting off the floor, reading the
-  next name or looking for the wall. The first seconds of the interval went
-  into moving house, not into moving — and for a beginner that reads as "I
-  can't keep up" rather than "the timer starts too early".
-- Every position is now preceded by a five-second "Get ready: <move>" — the
-  first one included, because you have just pressed Start and are still
-  standing by the phone. It names what is coming, opens its technique sheet
-  like the position itself does, runs the usual 3-2-1 into the go that starts
-  the movement, and carries the same two escapes (this position, the whole
-  block). "I'm ready" starts the position at once: the transition is a floor
-  on the pause between positions, never a wait.
-- The go-tone moved to where the movement actually starts. A position now
-  ends silently and the transition speaks with its own 3-2-1 — two gos five
-  seconds apart would have said nothing twice. The falling "switch sides"
-  tone keeps its one meaning.
-- The pattern already half-existed: the side-switch pause of 1.8.2 counts a
-  transition inside a position, this one counts the transition between them.
-  Same five seconds, same wall clock, same survival of a locked screen; a
-  backgrounded block still jumps whole stages instead of stretching itself.
-- No estimate moves. The engine reserves 8 minutes for the two blocks
-  (`warmupMin` 5 + `cooldownMin` 3); with the transitions they spend 210 s on
-  the warm-up and 220–235 s on the cool-down — 430–445 s of the reserved 480.
-  The number on "Today" keeps promising at least what the flow delivers, and
-  the engine, `estimatedTotalMin` and the golden fixtures are untouched.
-- VoiceOver reads the transition as one phrase, "Get ready: Cat-cow". At the
-  accessibility text sizes a three-line position name plus the countdown no
-  longer fits the screen, so the block's content scrolls and its escapes stay
-  pinned — the running move and stretch screens gained the same treatment.
-- Strings in all four languages. "I'm ready" is translated by sense —
-  «Начать» / "Empezar" / "Começar" — because "ready" takes a gendered
-  adjective in Russian, Spanish and Portuguese.
+- German joins English, Russian, Spanish and Brazilian Portuguese, complete —
+  every key across the four String Catalogs: the 40-exercise
+  library with its technique steps and common mistakes, the 15 warm-up and
+  cool-down position sheets, the "In real life" lines, onboarding, "How it
+  works", milestones, the anniversary retrospective, the widgets and the
+  Health permission strings.
+- The register is du — lowercase, calm, and gender-free: the athlete is never
+  named by a gendered noun. The terminology keeps the app's three concepts as
+  disjoint in German as everywhere else — Variante (which exercise, 1 of 4),
+  Stufe (one unit of level change), Level (the number itself) — and prefers
+  the words German home training actually uses: Kniebeuge, Liegestütze,
+  Klimmzüge, Ausfallschritte, with Plank kept English because that is what
+  German says. A bare "Pause" only ever means the seconds between sets; a
+  longer absence is a Trainingspause, and a deload an Entlastung.
+- No code changed for the language: the one locale-sensitive label ("on
+  Monday") already had a default path that German's uniform "am + weekday"
+  fits, so the catalog carries "am %@" and the switch in
+  `nextTrainingDateLabel` stays three cases long. The engine and the golden
+  fixtures are untouched.
+- The marketing site ships the same five languages: dredfit.com/de (landing
+  and privacy policy), with hreflang alternates and sitemap entries on every
+  page. Nine German store screenshots join the set, captured through the
+  standard pipeline.
+
+### Localization: French and Italian (issue #69)
+
+- French and Italian join the shipping languages, each complete across the four
+  String Catalogs: the 40-exercise library with its technique steps and common
+  mistakes, the 15 warm-up and cool-down position sheets, the "In real life"
+  lines, onboarding, "How it works", milestones, the anniversary retrospective,
+  the widgets and the Health permission strings. Seven languages now.
+- Both address the reader as *tu*, and neither ever genders them: French leans
+  on impersonal turns ("C'est fait") rather than a masculine "Prêt", and
+  Italian on `avere` participles ("hai fatto") rather than an *essere* one.
+  Buttons follow each platform convention — French infinitives ("Commencer"),
+  Italian second-person imperatives ("Inizia").
+- The app's three-way distinction survives translation intact in both: French
+  *variante · cran · niveau*, Italian *variante · gradino · livello*, with the
+  words for a technique step kept clear of them (*étape*, *passaggio*). The
+  rest cluster is likewise disjoint — French *repos · jour de repos · coupure ·
+  allègement*, Italian *recupero · giorno di riposo · pausa · scarico* — so a
+  sixty-second rest never reads like a fortnight away from training.
+- French typography is honoured rather than approximated: narrow no-break
+  spaces before `? ! ;`, a no-break space before `:`, typographic apostrophes,
+  and never an elision against a placeholder.
+- No code changed for either language: both take the same default branch of
+  `nextTrainingDateLabel` that German uses, with the weekday label carried in
+  the catalogs ("le %@" in French; the bare day in Italian, whose article is
+  gendered). The engine and the golden fixtures are untouched.
+- dredfit.com ships /fr and /it — landing and privacy policy — with hreflang
+  alternates and sitemap entries across all seven locales, and nine store
+  screenshots per language through the standard pipeline.
+
+### Localization audit across the seven languages
+
+- French and Italian stop bending the grammar of the exercise they name. A
+  participle after the placeholder cannot agree with "Pompes" or "Flessioni",
+  so the skipped and unfinished labels now carry their own noun — "Pompes,
+  exercice ignoré", "Flessioni, esercizio saltato" — instead of a masculine
+  ending glued to a feminine name.
+- Nothing addresses the reader by gender any more. The Russian privacy page
+  drops the formal "вы" that it alone still used, the "you export it yourself"
+  lines lose their masculine "сам" / "tú mismo" / "você mesmo", and six Spanish
+  and Portuguese starting positions turn from "Acostado boca arriba" into the
+  imperative the rest of the library already used.
+- Terminology reconnects to the glossary: Brazilian "Deload" becomes
+  "Descarga", the wall handstand goes back to the name the exercise library
+  gives it in each language — the Spanish copy had picked up "el pino", a
+  Spain-only word — and German "Equipment" becomes the "Zubehör" the site was
+  already using.
+- The English source loses its one piece of gym jargon: "kipping doesn't count"
+  is now "using momentum doesn't count", and the Russian, Spanish and
+  Portuguese calques go with it.
+- The site says what to tap. "Tap it during the workout" had no antecedent on a
+  page that shows no button, so every language now names the control, and the
+  German "Ein Tipp" (a hint) becomes "Ein Fingertipp" (a tap). Typographic
+  quotes replace the straight ones left in English, Spanish and Portuguese, and
+  the landing page gains the card for the discomfort feature.
+- The glossary records the decisions that let the drift happen: a row for the
+  wall handstand, the French and Italian placeholder rule, "ты" for Russian
+  legal copy, and gym jargon banned in the English source too.
 
 ### Widget: the longest exercise names fit the large size again
 
@@ -231,16 +242,6 @@
   already does — and an ellipsis is the worst of the two, because sibling
   variations differ at the end of the name. Brazilian Portuguese already fit;
   English is nowhere near the edge.
-
-### Cool-down: the "swap sides" steps say something useful now
-
-- "Chest and shoulders at the wall" and "Wrists and forearms" still had
-  "Swap arms — or hands — halfway through" as their third technique step,
-  left over from when the user did the counting. Since 1.8.2 the app counts
-  both sides itself, so the line only repeated the timer. Both now carry a
-  technique line like the other four one-sided stretches: keep the shoulder
-  down and away from the ear, and pull the wrist only to a stretch. English,
-  Russian, Spanish and Brazilian Portuguese.
 
 ### Widget: it stops asking to be refreshed once its snapshot runs out
 
@@ -256,11 +257,65 @@
   of history poked the widget once per workout, for content none of those
   exports can change.
 
+### Cool-down: the "swap sides" steps say something useful now
+
+- "Chest and shoulders at the wall" and "Wrists and forearms" still had
+  "Swap arms — or hands — halfway through" as their third technique step,
+  left over from when the user did the counting. Since 1.8.2 the app counts
+  both sides itself, so the line only repeated the timer. Both now carry a
+  technique line like the other four one-sided stretches: keep the shoulder
+  down and away from the ear, and pull the wrist only to a stretch. In every
+  shipping language.
+
 ### Calendar: the footer names the month you are looking at
 
 - Paged back to June, the card under the grid still read "This month" over
   June's count — a sentence about August stating June's number. It now names
   the month on screen whenever that is not the current one.
+
+### Site
+
+- dredfit.com stops advertising the public TestFlight link (issue #72). It sat
+  in the hero line under the download button and again in the footer, on the
+  landing and the privacy page alike, in all seven languages — an advertised
+  entry point that has to stay correct, with a build expiring every 90 days
+  and a beta review to keep passing, next to an App Store button that keeps
+  the same promise better and has been the real call to action since 1.8.0.
+  Internal TestFlight distribution is untouched, and testers already invited
+  keep their builds.
+
+### Housekeeping
+
+- One more finding from the review that produced the widget and calendar fixes
+  above: the go-tone could sound over a "Get ready" screen. A long absence —
+  a locked phone, a backgrounded app — crosses several stage boundaries at
+  once, so the boundary that opened the run and the stage the countdown
+  actually landed on are two different things. Choosing the signal from the
+  first alone announced a movement over the name of one that had not started;
+  both blocks read the landing too now.
+- The technique button on a position screen carries an accessibility
+  identifier. It was the one control the tests drive that had none, so it was
+  addressed by its English label, and a localized run could not open the
+  technique sheet at all.
+- 284 → 343 automated tests. The engine's new ceiling table is compared
+  against the reference cell by cell, so the shipped one and the spec cannot
+  drift apart in silence; the rest covers the discomfort report surviving
+  process death and a break, the freeze horizon counting appearances rather
+  than workouts, rest extended to its cap, the gap band under the progress
+  chart and the single line that may accompany it, both guided blocks pausing
+  and resuming, and the get-ready transition as a floor on the pause between
+  positions rather than a wait.
+- The nightly UI job's retry flags fire for the first time since it was split
+  out of the release gate: `-retry-tests-on-failure` had never once produced a
+  second iteration, so a flake cost a red run rather than a retry. Two races
+  in the suite itself went with it — a hold countdown that expired under its
+  own Stop tap, and a transition the tests had five real seconds to find and
+  tap.
+- Every comment in the app, the engine, the widget and the tests was read and
+  reduced to what an edit would break without, and the repository's counters
+  match the code again: README's three test layers, TESTPLAN's header, and the
+  pull-request checklist, which still asked for three translations when six
+  ship.
 
 ## 1.8.2
 
