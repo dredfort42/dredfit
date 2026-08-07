@@ -58,7 +58,7 @@ about pixels, not about strings. Walk those on a device before submitting.
 | 1.5 | Work screen layout | Header "1 / 6" and 6 capsules; exercise name; **technique** button; big planned number; "reps" (or "reps per side"); set dots; "set 1 of 3" |
 | 1.6 | Tap **technique** during work | Sheet opens for the current exercise; it does not swap if the phase changes underneath |
 | 1.7 | Tap **Done** on a non-final set | Rest starts at 60 s |
-| 1.8 | Rest screen | "REST", a ring counting down from 60, "Next up" + next label, a **technique** button for the *next* exercise, **Skip rest** |
+| 1.8 | Rest screen | "REST", a ring counting down from 60, "Next up" + next label, a **technique** button for the *next* exercise, and two outlined controls of equal weight: **+15 s** and **Skip rest** |
 | 1.9 | Complete all sets of all 6 exercises | Flow reaches the rating screen |
 | 1.10 | Tap **Exit** with progress on the clock (a set done, an actual entered, or mid-rest) | Confirmation dialog: **Finish now** / **Discard workout** (destructive) / **Cancel** |
 | 1.10a | Choose **Finish now** | Remaining exercises are marked skipped, the rating screen opens; after rating, the workout is recorded. The exercise cut mid-way reads "not finished", fully untouched ones read "skipped" |
@@ -74,6 +74,12 @@ about pixels, not about strings. Walk those on a device before submitting.
 | 2.2 | Start a rest, background the app ~20 s, return | Same: wall-clock accurate |
 | 2.3 | Let a rest run to 0 in the foreground | Advances to the next set/exercise with the 3-2-1 signals |
 | 2.4 | Background the app across a rest's end, then return | The flow has advanced correctly, not stalled at 0 |
+| 2.5 | Tap **+15 s** during a rest | The number jumps by 15 and keeps counting down; the ring's arc shrinks to match the new total rather than running past full |
+| 2.6 | Tap **+15 s** repeatedly | Allowed up to twice the rest this transition planned (60 s → four taps). At the cap the button greys out **in place** — the row does not jump |
+| 2.7 | Extend, then lock the phone ~20 s | Wall-clock accurate against the *extended* end; the Live Activity on the lock screen counts to the new end, not the old one |
+| 2.8 | Extend inside the last 3 seconds | The 3-2-1 signals play again on the new way down — they are not spent for the rest of the phase |
+| 2.9 | Extend, then kill the app and reopen | Resuming returns to the rest with the extended time, not the planned one |
+| 2.10 | **+15 s** with VoiceOver | Reads as a phrase ("Add 15 seconds of rest"), not as "plus fifteen ess" |
 
 ### 3. Hold timer (static exercises)
 
@@ -106,10 +112,9 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 | # | Check | Expected |
 |---|---|---|
 | 5.1 | Layout | "Workout N" kicker, "How did it go?", subtitle "One tap — the next workout adapts" |
-| 5.2 | Three options | "Tough, did less" / "On plan" / "Easy, could do more" — **equal visual weight** (no filled card), captions "next workout eases off" / "the next one asks a little more" / "progress comes twice as fast" |
-| 5.3 | No adjustments made | No summary card and no scope chip are shown |
-| 5.4 | With adjustments/skips | With skips a scope chip under the title: "Applies to N of M — … stays put" (N excludes skips **and** adjusted exercises). The summary card labels its lists separately: "ADJUSTED" only over adjusted rows, "SKIPPED" only over skipped rows. Skipped rows are dimmed names with **no** per-row word (the header says it once); the one exception is the "Finish now" exercise, whose row reads "not finished" — it differs from the header. VoiceOver still reads every row with its state. The "Your rating applies to the rest" footer appears only when nothing was skipped |
-| 5.4a | Second and later workouts | "Last time you chose: <previous rating>" in small print under the cards; absent on the very first workout |
+| 5.2 | Three options | "Tough, did less" / "On plan" / "Easy, could do more" — **equal visual weight** (no filled card), captions "next workout eases off" / "the next one asks a little more" / "the next one asks as much more as each movement allows" — **no caption promises a multiple**: since v2.5 the growth ceiling makes "twice" false on fourth-variation work |
+| 5.3 | No adjustments made | No summary card is shown — and no scope chip anywhere on the screen: the count lives in the card header now, so with nothing to show there is nothing to say |
+| 5.4 | With adjustments/skips | The scope is stated **once**, in the card header: "Your rating applies to N of M" (N excludes skips **and** adjusted exercises). No chip under the title. Below it the lists label themselves: "DISCOMFORT" and "SKIPPED" over their rows, adjusted rows sitting directly under the header. Skipped rows are dimmed names with **no** per-row word; the one exception is the "Finish now" exercise, whose row reads "not finished". VoiceOver still reads every row with its state. The footer "These keep their level either way." appears only when something **was** set aside |
 | 5.5 | Tap any option | Submits immediately — the card *is* the button; returns to Today |
 | 5.6 | Choose "On plan" and check Progress next session | Each non-skipped pattern rose by exactly 1 level |
 
@@ -254,17 +259,19 @@ on a page that does — see I-11.
 
 | # | Check | Expected |
 |---|---|---|
-| 15.1 | Progress header | Total level, beside it "level" / "N workouts", and "This week · N workouts · +D levels" |
+| 15.1 | Progress header | Total level, beside it "level" / "N workouts". No weekly summary line — the space belongs to the chart |
 | 15.1a | Header at a four-digit total, in Russian (1.8.0) | The number stays on **one** line — never broken mid-digit ("1 27" / "0"); the caption stays on two lines |
 | 15.1b | Header share button | A round icon (the word does not fit beside the number in Russian), centred on the height of the number's line |
 | 15.1c | Header at an accessibility type size | The caption drops under the number instead of pushing the row off either edge; the share glyph stays inside its ring |
-| 15.2 | A week containing a deload | The weekly delta honestly shows a **minus** |
 | 15.3 | Chart projection | Tapping a pattern row tints it and plots that pattern only; the kicker over the chart names the projection ("PUSH — PUSH-UP"); "Show all" resets to the total — no chips row |
 | 15.3a | Chart x-axis | Two–three sparse date labels (first / middle / last workout); no label before the second workout |
 | 15.3b | Per-pattern bars | One line per pattern: name, bar with white ticks at band boundaries, level. No per-row detail in the all-patterns view |
 | 15.3d | Select a pattern (1.8.0) | Only the selected row grows a detail line under it — the current variation and its position ("Push-up · 2/4") on the left, "next in N" (or "+1 set in N" at tier 4, nothing at the ceiling) on the right; the tint covers both lines |
 | 15.3e | Back to all patterns | The detail line disappears — from the view hierarchy, not merely off-screen |
 | 15.3c | Selecting a pattern, in Russian (1.8.0) | The kicker and the chart under it **do not move**: the title stays on one line (shrinking, then truncating) and "Show all" keeps its place even while hidden |
+| 15.3f | A history with a gap of 7 days or more | A grey band spans the gap behind the line, with the duration inside it ("9 days"); a narrow band keeps the band and drops the label. No gaps means no band and no reserved space |
+| 15.3g | The line under the chart | States the longest break and its length. It adds "The plan met you lower." **only** where the level actually fell across that gap — after a declined "start easier" it says the break and stops. Several gaps add "Others are marked too." |
+| 15.3h | The same history in a per-pattern projection | The bands sit in the same places — gaps are calendar facts — while the causal half is computed for that pattern |
 | 15.4 | History of an on-plan workout | Exercises with planned volumes and no "actual" annotations |
 | 15.5 | History of an adjusted workout | "actual N" in accent on the adjusted rows only |
 | 15.6 | History footer | "Total level after: N" |
@@ -549,9 +556,9 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | # | Check | Expected |
 |---|---|---|
 | 36.1 | **Something hurt** on the exercise screen | Its own line under **Went differently** / **Skip exercise**, visually distinct from both. One tap, no confirmation dialog — the exercise ends and the flow moves to the next one, exactly as a skip does |
-| 36.2 | The rating screen afterwards | The exercise is listed under **DISCOMFORT** with "resting" — not under **SKIPPED**. The scope line counts it out of the rating ("Applies to 5 of 6 — Pull hurt, resting for now") |
+| 36.2 | The rating screen afterwards | The exercise is listed under **DISCOMFORT** with "resting" — not under **SKIPPED**. The card header counts it out of the rating ("Your rating applies to 5 of 6") |
 | 36.3 | Level and streak of the reported pattern | Unchanged by that workout, whichever rating is given — the report behaves as a skip for the session |
-| 36.4 | Today, while the pattern rests | A quiet line under the plan: "Resting for now: Y-T-W raises". A fact, not a warning — no icon, no colour alarm. It names the exercise the way the list above it does, and only while the movement is actually in today's plan |
+| 36.4 | Today, while the pattern rests | A quiet block under the plan: "Not getting harder", then one row per movement — its name and an accent pill with the horizon ("Y-T-W raises ⟦3 more times⟧"). A fact, not a warning — no icon, no colour alarm. It names the exercise the way the list above it does, only while the movement is in today's plan, and counts **appearances of the movement**, never weeks. A second report refreshes that one counter while the others keep counting down |
 | 36.5 | The next three workouts containing that movement | It is still in the plan at the same level and does not climb, whatever the rating; the line disappears by itself once the third one is done |
 | 36.6 | "Tough" on a resting movement | The level still steps **down** — honesty is never overridden — and no deload fires while it rests, even from a streak of two |
 | 36.7 | An exact number ("Went differently") on a resting movement | Below the plan it lands as usual; above it the level does not move |
