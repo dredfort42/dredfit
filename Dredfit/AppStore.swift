@@ -429,10 +429,16 @@ final class AppStore {
     /// report: still there, still at their level, not climbing. Scoped to the
     /// plan on purpose — a line about a movement today's workout does not
     /// contain would explain nothing.
-    var restingPatterns: [Pattern] {
-        nextSession.exercises.map(\.pattern)
+    ///
+    /// Takes the session so a caller that already holds one does not make the
+    /// engine generate another: nextSession builds a fresh session on every
+    /// access.
+    func restingPatterns(in session: Session) -> [Pattern] {
+        session.exercises.map(\.pattern)
             .filter { engineState.freezeRemaining($0) > 0 }
     }
+
+    var restingPatterns: [Pattern] { restingPatterns(in: nextSession) }
 
     var totalLevel: Int { engineState.levels.values.reduce(0, +) }
 

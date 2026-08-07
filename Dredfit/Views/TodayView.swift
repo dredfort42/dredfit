@@ -190,11 +190,11 @@ struct TodayView: View {
     /// a fresh report refreshes that one counter while the others keep
     /// counting down.
     private func restingRows(in session: Session) -> [RestingRow] {
-        session.exercises.compactMap { ex in
-            let left = store.engineState.freezeRemaining(ex.pattern)
-            guard left > 0 else { return nil }
-            return RestingRow(id: ex.pattern, name: ex.name, remaining: left)
-        }
+        let resting = Set(store.restingPatterns(in: session))
+        return session.exercises
+            .filter { resting.contains($0.pattern) }
+            .map { RestingRow(id: $0.pattern, name: $0.name,
+                              remaining: store.engineState.freezeRemaining($0.pattern)) }
     }
 
     /// The pill rides inline after the name and wraps with it, the same way

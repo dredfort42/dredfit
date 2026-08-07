@@ -270,8 +270,10 @@ on a page that does — see I-11.
 | 15.3e | Back to all patterns | The detail line disappears — from the view hierarchy, not merely off-screen |
 | 15.3c | Selecting a pattern, in Russian (1.8.0) | The kicker and the chart under it **do not move**: the title stays on one line (shrinking, then truncating) and "Show all" keeps its place even while hidden |
 | 15.3f | A history with a gap of 7 days or more | A grey band spans the gap behind the line, with the duration inside it ("9 days"); a narrow band keeps the band and drops the label. No gaps means no band and no reserved space |
-| 15.3g | The line under the chart | States the longest break and its length. It adds "The plan met you lower." **only** where the level actually fell across that gap — after a declined "start easier" it says the break and stops. Several gaps add "Others are marked too." |
-| 15.3h | The same history in a per-pattern projection | The bands sit in the same places — gaps are calendar facts — while the causal half is computed for that pattern |
+| 15.3g | The line under the chart | States the longest break and its length. It adds "The plan met you lower." **only** where the level fell across that gap *and* the first workout back cannot explain the drop itself — neither rated "Tough, did less" nor carrying an entered number. Otherwise it says the break and stops. Several gaps add "Others are marked too." |
+| 15.3h | Come back after 2+ weeks, decline "Start easier", then rate the session **tough** | The band is drawn, the line names the break — and does **not** say the plan met you lower: nothing decayed, the rating took that step |
+| 15.3i | Same, but rate **on plan** and enter a smaller number on one exercise | Same again in that movement's projection: the drop is the entered number, not the break |
+| 15.3j | The same history in a per-pattern projection | The bands sit in the same places — gaps are calendar facts — while the causal half is computed for that pattern |
 | 15.4 | History of an on-plan workout | Exercises with planned volumes and no "actual" annotations |
 | 15.5 | History of an adjusted workout | "actual N" in accent on the adjusted rows only |
 | 15.6 | History footer | "Total level after: N" |

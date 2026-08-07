@@ -233,7 +233,11 @@ struct ProgressScreen: View {
             let days = cal.dateComponents([.day], from: cal.startOfDay(for: before.date),
                                           to: cal.startOfDay(for: after.date)).day ?? 0
             guard days >= EngineConfig.silentDecayGapDays else { return nil }
-            let fell = after.value < before.value && after.result != .less
+            // Two ways the returning session can lower the level by itself —
+            // "tough" and an exact number. Under either, the break gets no
+            // credit for the drop.
+            let ownDoing = after.result == .less || after.ownNumber
+            let fell = after.value < before.value && !ownDoing
             return BreakBand(id: index, from: before.date, to: after.date,
                              days: days, costLevels: fell)
         }
@@ -280,6 +284,11 @@ struct ProgressScreen: View {
         /// The answer that produced this point, carried because a break may
         /// not claim a drop that the returning session explains by itself.
         let result: FeedbackResult
+        /// That session carried a number of its own for what this point
+        /// plots. An actual is uncapped downwards and outranks the rating for
+        /// its movement, so it is the second way a session can lower a level
+        /// without the break having anything to do with it.
+        let ownNumber: Bool
     }
 
     /// Dates can coincide (several workouts in one span), so duplicates
@@ -298,14 +307,18 @@ struct ProgressScreen: View {
     private var chartPoints: [LevelPoint] {
         if let p = effectivePattern {
             return store.records
-                .compactMap { r in r.levelsAfter?[p].map { (r.date, $0, r.result) } }
+                .compactMap { r in
+                    r.levelsAfter?[p].map { (r.date, $0, r.result, r.actuals?[p] != nil) }
+                }
                 .enumerated()
                 .map { LevelPoint(id: $0.offset, date: $0.element.0,
-                                  value: $0.element.1, result: $0.element.2) }
+                                  value: $0.element.1, result: $0.element.2,
+                                  ownNumber: $0.element.3) }
         }
         return store.records.enumerated()
             .map { LevelPoint(id: $0.offset, date: $0.element.date,
-                              value: $0.element.totalLevelAfter, result: $0.element.result) }
+                              value: $0.element.totalLevelAfter, result: $0.element.result,
+                              ownNumber: !($0.element.actuals?.isEmpty ?? true)) }
     }
 
     private var chartTitle: String {
