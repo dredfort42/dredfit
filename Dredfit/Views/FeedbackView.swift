@@ -18,8 +18,6 @@ struct FeedbackView: View {
     var discomfort: Set<Pattern> = []
     /// To the engine a skip like the others; the label says "not finished".
     var interrupted: Pattern?
-    /// A memory aid, not a default: no card is pre-selected.
-    var lastResult: FeedbackResult?
     let onComplete: (FeedbackResult, [Pattern: Int]) -> Void
 
     var body: some View {
@@ -53,8 +51,15 @@ struct FeedbackView: View {
                     // Three EQUAL cards: a highlighted "On plan" would read
                     // as "the correct answer is the middle one" and an
                     // agreeable user would pick it over the honest one.
-                    // Captions promise a direction, never an amount — one
-                    // caption cannot be exact for six exercises at once.
+                    //
+                    // Captions promise a DIRECTION, never an amount. "Easy"
+                    // used to promise double speed; since v2.5 that is not
+                    // true — EngineConfig.maxUpByPatternTier caps growth per
+                    // movement and per variation, so a session made of fourth
+                    // variations climbs exactly like "on plan". The size is
+                    // knowable only after the feedback is applied, because it
+                    // depends on what the session was made of, which is why no
+                    // caption here can be exact for six exercises at once.
                     VStack(spacing: 14) {
                         optionCard(title: String(localized: "Tough, did less"),
                                    caption: String(localized: "next workout eases off"),
@@ -63,17 +68,8 @@ struct FeedbackView: View {
                                    caption: String(localized: "the next one asks a little more"),
                                    result: .plan)
                         optionCard(title: String(localized: "Easy, could do more"),
-                                   caption: String(localized: "progress comes twice as fast"),
+                                   caption: String(localized: "the next one asks as much more as each movement allows"),
                                    result: .more)
-                    }
-
-                    if let lastResult {
-                        Text("Last time you chose: \(lastChoiceTitle(lastResult))")
-                            .dredfitFont(11.5)
-                            .foregroundStyle(Theme.ink3)
-                            .frame(maxWidth: .infinity)
-                            .multilineTextAlignment(.center)
-                            .padding(.top, 24)
                     }
 
                     Spacer(minLength: 20)
@@ -185,14 +181,6 @@ struct FeedbackView: View {
             return String(localized: "Applies to \(applies) of \(total) — anything skipped or painful stays put")
         }
         return String(localized: "Applies to \(applies) of \(total) — skipped exercises stay put")
-    }
-
-    private func lastChoiceTitle(_ result: FeedbackResult) -> String {
-        switch result {
-        case .less: return String(localized: "Tough, did less")
-        case .plan: return String(localized: "On plan")
-        case .more: return String(localized: "Easy, could do more")
-        }
     }
 
     private func optionCard(title: String, caption: String,

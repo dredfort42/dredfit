@@ -120,9 +120,6 @@ struct ProgressScreen: View {
 
                 statRow
                     .padding(.top, 12)
-
-                weekSummaryLine
-                    .padding(.top, 8)
             }
             .padding(.horizontal, 24)
 
@@ -197,22 +194,6 @@ struct ProgressScreen: View {
     private var effectivePattern: Pattern? {
         if chartPattern == .pullBar && !barBranchExists { return nil }
         return chartPattern
-    }
-
-    // MARK: - Week summary
-
-    /// A deload week honestly shows a minus.
-    private var weekSummaryLine: some View {
-        let week = store.weekSummary()
-        let sign = week.levelsDelta >= 0 ? "+" : ""
-        return (Text("This week")
-            + Text(" · ")
-            + Text("\(week.workouts) workouts")
-            + Text(" · \(sign)", comment: "A separator dot followed by the sign of the level change.")
-            + Text("\(week.levelsDelta) levels"))
-            .dredfitFont(13.5)
-            .monospacedDigit()
-            .foregroundStyle(Theme.ink2)
     }
 
     // MARK: - Level chart

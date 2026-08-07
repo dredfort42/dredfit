@@ -141,8 +141,7 @@ struct WorkoutFlowView: View {
                 FeedbackView(session: session, actuals: actuals,
                              skipped: skippedPatterns.union(omitted),
                              discomfort: discomfortPatterns,
-                             interrupted: interruptedPattern,
-                             lastResult: store.lastRecord?.result) { result, overrides in
+                             interrupted: interruptedPattern) { result, overrides in
                     let earned = store.completeWorkout(
                         session: session, result: result,
                         overrides: overrides,
@@ -544,13 +543,16 @@ struct WorkoutFlowView: View {
     private var loadCaption: String {
         // During the switch pause the big number is the pause countdown.
         if holdSwitchPausing { return String(localized: "sec") }
-        // Must agree with the number above it (ru: 1 повтор / 3 повтора).
-        let base: String
-        switch exercise.unit {
-        case .reps: base = String(localized: "\(workNumber) reps")
-        case .hold: base = String(localized: "\(workNumber) seconds")
+        // The unit only: the 112 pt number above already says how many, and
+        // printing it twice is the kind of noise that makes a screen feel
+        // busy. Because the caption no longer agrees with a number, these
+        // keys need no ICU plurals — one form per language.
+        switch (exercise.unit, exercise.perSide) {
+        case (.reps, false): return String(localized: "reps")
+        case (.reps, true):  return String(localized: "reps per side")
+        case (.hold, false): return String(localized: "seconds")
+        case (.hold, true):  return String(localized: "seconds per side")
         }
-        return exercise.perSide ? String(localized: "\(base) per side") : base
     }
 
     // MARK: - Rest

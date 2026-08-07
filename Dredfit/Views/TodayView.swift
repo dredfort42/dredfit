@@ -346,7 +346,7 @@ struct TodayView: View {
         switch store.lastRecord?.result {
         case .less: return String(localized: "Rating: tough — the next one will be easier")
         case .plan: return String(localized: "Rating: on plan — the next asks a little more")
-        case .more: return String(localized: "Rating: easy — progressing twice as fast")
+        case .more: return String(localized: "Rating: easy — progressing as fast as each movement allows")
         case nil:   return ""
         }
     }
