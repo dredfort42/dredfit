@@ -153,6 +153,8 @@ struct ProgressScreen: View {
                         .frame(height: 134)   // 120 of chart + room for the date axis
                         .padding(.top, 8)
 
+                    breakFactLine
+
                     VStack(spacing: 6) {
                         ForEach(Pattern.ordered, id: \.self) { p in
                             levelRow(p)
@@ -194,6 +196,65 @@ struct ProgressScreen: View {
     private var effectivePattern: Pattern? {
         if chartPattern == .pullBar && !barBranchExists { return nil }
         return chartPattern
+    }
+
+    // MARK: - Breaks
+
+    /// A gap between two adjacent points wide enough for the silent decay to
+    /// have run. Gaps are calendar facts, so the bands are identical in every
+    /// projection; only `costLevels` is read per projection.
+    private struct BreakBand: Identifiable {
+        let id: Int
+        let from: Date
+        let to: Date
+        let days: Int
+        /// The level on the far side is lower than on the near side. This is
+        /// the only evidence the app has that the break cost anything, and it
+        /// is enough: declining "start easier" leaves the level where it was,
+        /// so a declined comeback simply never sets this.
+        let costLevels: Bool
+    }
+
+    private func breakBands(_ points: [LevelPoint]) -> [BreakBand] {
+        let cal = Calendar.current
+        return zip(points, points.dropFirst()).enumerated().compactMap { index, pair in
+            let (before, after) = pair
+            let days = cal.dateComponents([.day], from: cal.startOfDay(for: before.date),
+                                          to: cal.startOfDay(for: after.date)).day ?? 0
+            guard days >= EngineConfig.silentDecayGapDays else { return nil }
+            return BreakBand(id: index, from: before.date, to: after.date,
+                             days: days, costLevels: after.value < before.value)
+        }
+    }
+
+    /// The band is drawn whatever its width; its label is not. A label wider
+    /// than its band would spill over the line it is explaining.
+    private func labelFits(_ band: BreakBand, in points: [LevelPoint]) -> Bool {
+        guard let first = points.first?.date, let last = points.last?.date,
+              last > first else { return false }
+        return band.to.timeIntervalSince(band.from) / last.timeIntervalSince(first) >= 0.14
+    }
+
+    /// One line, and it must not repeat the mistake the rating caption made:
+    /// the causal half is claimed only where the levels actually fell.
+    @ViewBuilder
+    private var breakFactLine: some View {
+        let bands = breakBands(chartPoints)
+        if let longest = bands.max(by: { $0.days < $1.days }) {
+            Text(breakFact(longest, of: bands.count))
+                .dredfitFont(12.5)
+                .foregroundStyle(Theme.ink2)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 6)
+                .accessibilityIdentifier("break-fact")
+        }
+    }
+
+    private func breakFact(_ band: BreakBand, of count: Int) -> String {
+        var line = String(localized: "A break of \(band.days) days.")
+        if band.costLevels { line += " " + String(localized: "The plan met you lower.") }
+        if count > 1 { line += " " + String(localized: "Others are marked too.") }
+        return line
     }
 
     // MARK: - Level chart
@@ -240,6 +301,21 @@ struct ProgressScreen: View {
         let points = chartPoints
         if points.count >= 2 {
             Chart {
+                // Behind the line and carrying no meaning of its own: the
+                // silent decay lands between two entries, so without a band
+                // the drop appears inside a workout the athlete completed.
+                ForEach(breakBands(points)) { band in
+                    RectangleMark(xStart: .value("from", band.from),
+                                  xEnd: .value("to", band.to))
+                        .foregroundStyle(Theme.hairline.opacity(0.55))
+                        .annotation(position: .overlay, alignment: .center) {
+                            if labelFits(band, in: points) {
+                                Text("\(band.days) days")
+                                    .dredfitFont(10)
+                                    .foregroundStyle(Theme.ink3)
+                            }
+                        }
+                }
                 ForEach(points) { pt in
                     LineMark(x: .value("date", pt.date), y: .value("level", pt.value))
                         .foregroundStyle(Theme.accent)
