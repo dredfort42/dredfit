@@ -129,7 +129,10 @@ final class DredfitUITests: XCTestCase {
 
         completeWorkout(adjustFirstExercise: true)
 
-        XCTAssertTrue(app.staticTexts["ADJUSTED"].exists, "no actuals summary on the rating screen")
+        // The card header states the scope once — the adjusted exercise is
+        // outside it, because it carries its own number.
+        XCTAssertTrue(app.staticTexts["Your rating applies to 5 of 6"].exists,
+                      "no actuals summary on the rating screen")
         XCTAssertTrue(app.staticTexts["actual 5"].exists)
 
         app.staticTexts["Easy, could do more"].tap()

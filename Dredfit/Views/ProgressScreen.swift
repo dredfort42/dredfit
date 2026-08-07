@@ -305,8 +305,12 @@ struct ProgressScreen: View {
                 // silent decay lands between two entries, so without a band
                 // the drop appears inside a workout the athlete completed.
                 ForEach(breakBands(points)) { band in
-                    RectangleMark(xStart: .value("from", band.from),
-                                  xEnd: .value("to", band.to))
+                    // Both ends are dates, and Swift Charts extracts these
+                    // labels into the catalog — so they reuse the key the
+                    // line marks already use instead of adding two of their
+                    // own that no reader will ever see.
+                    RectangleMark(xStart: .value("date", band.from),
+                                  xEnd: .value("date", band.to))
                         .foregroundStyle(Theme.hairline.opacity(0.55))
                         .annotation(position: .overlay, alignment: .center) {
                             if labelFits(band, in: points) {
