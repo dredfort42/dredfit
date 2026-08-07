@@ -159,6 +159,13 @@ jobs = [
     (f"{RAW}/comeback_de.png",   ["Pausen sind normal"], "Der Plan holt dich ein paar Stufen tiefer ab.", f"{OUT}/de/s9.png"),
     (f"{RAW}/comeback_fr.png", ["Les coupures,", "c’est normal"], "Le plan te retrouve quelques crans plus bas.", f"{OUT}/fr/s9.png"),
     (f"{RAW}/comeback_it.png", ["Le pause sono normali"], "Il piano ti riprende un paio di gradini più in basso.", f"{OUT}/it/s9.png"),
+    (f"{RAW}/resting_en.png", ["Hurt isn’t the same", "as hard"], "Say so, and that movement rests for a while.", f"{OUT}/en/s10.png"),
+    (f"{RAW}/resting_ru.png", ["Больно — это не", "тяжело"], "Скажи об этом, и движение уйдет на отдых.", f"{OUT}/ru/s10.png"),
+    (f"{RAW}/resting_es.png", ["Doler no es", "lo mismo que costar"], "Dilo y ese movimiento pasa a reposo un tiempo.", f"{OUT}/es/s10.png"),
+    (f"{RAW}/resting_pt-br.png", ["Doer não é", "o mesmo que custar"], "Diga, e aquele movimento entra em repouso.", f"{OUT}/pt-br/s10.png"),
+    (f"{RAW}/resting_de.png", ["Schmerz ist nicht", "Anstrengung"], "Sag es, und die Bewegung erholt sich erst mal.", f"{OUT}/de/s10.png"),
+    (f"{RAW}/resting_fr.png", ["Avoir mal, ce n’est", "pas forcer"], "Dis-le, et ce mouvement passe au repos.", f"{OUT}/fr/s10.png"),
+    (f"{RAW}/resting_it.png", ["Dolore non è", "fatica"], "Dillo, e quel movimento va a riposo per un po’.", f"{OUT}/it/s10.png"),
 ]
 # Partial recaptures are normal — frames without a fresh raw keep their last
 # set. All nine raws come from the current StoreScreenshots.swift.reference.
