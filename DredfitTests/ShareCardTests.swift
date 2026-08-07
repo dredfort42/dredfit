@@ -2,9 +2,6 @@
 //  ShareCardTests.swift
 //  DredfitTests
 //
-//  The card is the only artefact that leaves the device, so its size and
-//  its wording are both worth pinning down.
-//
 
 import XCTest
 import DredfitCore
@@ -59,8 +56,6 @@ final class ShareCardTests: XCTestCase {
         XCTAssertNotEqual(none, two, "two sessions are a curve and must show up")
     }
 
-    /// A deload week can leave every session on the same total, and a very
-    /// first workout can leave it at zero. Neither may divide by the peak.
     func testAFlatHistoryStillRenders() throws {
         let zeros = try XCTUnwrap(ShareCardFactory.png(headline: "Workout #2",
                                                        levels: [0, 0, 0]))
@@ -73,8 +68,6 @@ final class ShareCardTests: XCTestCase {
     }
 
     /// The curve is whatever the words did not need — never the other way
-    /// round, or a calibration workout's seven unlocks would push the footer
-    /// off the card.
     func testTheCurveOnlyTakesWhatTheHeadlineLeaves() {
         XCTAssertGreaterThan(ShareCard.curveHeight(for: "Unlocked: Pistol squat"), 0)
         // 89 characters still take the full 92 pt, and at that size they fill

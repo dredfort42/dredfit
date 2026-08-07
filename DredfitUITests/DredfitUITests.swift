@@ -1,7 +1,9 @@
 //
 //  DredfitUITests.swift
-//  UI tests of the full feature set. Run on the English locale
-//  with clean state (--uitest-reset), except the persistence test.
+//  DredfitUITests
+//
+//  Run on the English locale with clean state (--uitest-reset), except the
+//  persistence test.
 //
 
 import XCTest
@@ -11,8 +13,8 @@ final class DredfitUITests: XCTestCase {
 
     private var app: XCUIApplication!
 
-    override func setUp() async throws {
-        try await super.setUp()
+    override func setUp() {
+        super.setUp()
         continueAfterFailure = false
         app = XCUIApplication()
         app.launchArguments = ["--uitest-reset", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
@@ -22,8 +24,6 @@ final class DredfitUITests: XCTestCase {
 
     // MARK: - Onboarding
 
-    /// The explainer must appear on a genuinely fresh install, and finishing it
-    /// must land on Today — not leave the cover stuck over the app.
     func testOnboardingAppearsOnFirstRunAndFinishes() {
         app.launchArguments.append("--uitest-onboarding")
         app.launch()
@@ -46,7 +46,6 @@ final class DredfitUITests: XCTestCase {
                        "the onboarding must be gone")
     }
 
-    /// Skipping counts as seen: the flag is written and survives a relaunch.
     func testOnboardingSkipIsRememberedAcrossRelaunch() {
         app.launchArguments.append("--uitest-onboarding")
         app.launch()
@@ -64,27 +63,44 @@ final class DredfitUITests: XCTestCase {
                        "a skipped onboarding must not come back")
     }
 
-    /// The shared walk (WorkoutDriver.swift). Kept behind the same three
-    /// private names this file has always used, so every call site below
-    /// stays as it was — only the implementation moved, into the one place
-    /// the release smoke reads it from too.
+    // Thin wrappers over WorkoutDriver, kept behind the names this file has
+    // always used so every call site below stays as it was.
     private var driver: WorkoutDriver { WorkoutDriver(app: app) }
 
-    /// Taps Start and skips the warm-up block.
     private func startWorkout() {
         driver.startWorkout()
     }
 
     /// Taps an element at the centre of its own frame, bypassing hittability
-    /// resolution — see WorkoutDriver for why this is not `.tap()`.
-    private func coordinateTap(_ element: XCUIElement) {
+    /// resolution — see WorkoutDriver for why this is not `.tap()`, and why
+    /// it declines to tap an element that has already left.
+    @discardableResult
+    private func coordinateTap(_ element: XCUIElement) -> Bool {
         driver.coordinateTap(element)
     }
 
-    /// Runs the whole workout to the "How did it go?" screen, optionally
-    /// entering an actual on the first exercise first. The walk itself lives
-    /// in WorkoutDriver; this wrapper only adds the adjustment step, which is
-    /// specific to the tests in this file.
+    /// Raises a hold to the adjuster's 90 s ceiling before it is started, so
+    /// that a test which stops it early has a margin no runner can eat.
+    ///
+    /// The nightly of 2026-08-04 (run 30875292377) failed here: XCUITest took
+    /// 9.5 s to answer `waitForExistence` and another 10.7 s to synthesize the
+    /// tap, so the planned 20 s hang ran out on its own and the Stop tap
+    /// landed on the rest screen that had replaced it, skipping the rest. The
+    /// budget was ~16 s of automation latency against 24 s of it. At 90 s the
+    /// budget is 86 s, five times the worst yet observed — and the seconds
+    /// actually held, which is what these tests assert on, do not change.
+    private func maximiseHold() {
+        app.buttons["Went differently"].tap()
+        let plus = app.buttons["plus"]
+        XCTAssertTrue(plus.waitForExistence(timeout: 3), "the stepper did not open")
+        // Holds step by 5 within 5...90 (AdjustPanel), and the panel clamps —
+        // saturating from the floor takes 17 taps, so 18 is enough from any
+        // plan and the extra one costs nothing.
+        for _ in 0..<18 { plus.tap() }
+        app.buttons["OK"].tap()
+    }
+
+    /// This wrapper only adds the adjustment step; the walk is the driver's.
     private func completeWorkout(adjustFirstExercise: Bool = false) {
         startWorkout()
 
@@ -97,8 +113,7 @@ final class DredfitUITests: XCTestCase {
             XCTAssertTrue(app.staticTexts["actual 5"].exists, "the actual marker did not appear")
         }
 
-        // This helper's job is the rating, not the stretching — the cool-down
-        // has its own dedicated test, and the release smoke walks it in full.
+        // The cool-down has its own test and the release smoke walks it.
         driver.completeWorkout(skipCooldown: true)
     }
 
@@ -114,7 +129,10 @@ final class DredfitUITests: XCTestCase {
 
         completeWorkout(adjustFirstExercise: true)
 
-        XCTAssertTrue(app.staticTexts["ADJUSTED"].exists, "no actuals summary on the rating screen")
+        // The card header states the scope once — the adjusted exercise is
+        // outside it, because it carries its own number.
+        XCTAssertTrue(app.staticTexts["Your rating applies to 5 of 6"].exists,
+                      "no actuals summary on the rating screen")
         XCTAssertTrue(app.staticTexts["actual 5"].exists)
 
         app.staticTexts["Easy, could do more"].tap()
@@ -149,7 +167,7 @@ final class DredfitUITests: XCTestCase {
         app.buttons.matching(NSPredicate(format: "label CONTAINS '3 ×'")).firstMatch.tap()
         XCTAssertTrue(app.staticTexts["TECHNIQUE"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.staticTexts["COMMON MISTAKES"].exists)
-        // The "why" section (issue #25) is always present, below the mistakes.
+        // The "why" section is always present, below the mistakes.
         XCTAssertTrue(app.staticTexts["IN LIFE"].exists)
         XCTAssertTrue(app.staticTexts["technique-life"].exists)
         app.buttons["Got it"].tap()
@@ -180,8 +198,6 @@ final class DredfitUITests: XCTestCase {
                       "after a discard the workout must not count as completed")
     }
 
-    /// With nothing done yet (warm-up, first set untouched), Exit leaves
-    /// quietly — there is no progress to protect with a dialog.
     func testExitWithNoProgressNeedsNoConfirmation() {
         app.launch()
         startWorkout()
@@ -190,9 +206,6 @@ final class DredfitUITests: XCTestCase {
                       "an empty workout should exit without a dialog")
     }
 
-    /// "Finish now" marks the remaining exercises as skipped and leads to
-    /// the rating, so running out of time ends in a recorded workout instead
-    /// of a discarded one.
     func testExitCanFinishNowThroughTheRating() {
         app.launch()
         startWorkout()
@@ -204,10 +217,8 @@ final class DredfitUITests: XCTestCase {
 
         XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 3),
                       "Finish now must lead to the rating screen")
-        // The exercise cut mid-way (one set done) is "not finished" — the one
-        // per-row word that differs from the section header and therefore
-        // stays visible. The untouched ones live under the SKIPPED header
-        // with no per-row echo.
+        // "not finished" is the one per-row word that differs from the
+        // section header and therefore stays visible.
         XCTAssertTrue(app.staticTexts.matching(
             NSPredicate(format: "label CONTAINS 'not finished'")).firstMatch.exists,
             "the interrupted exercise must read 'not finished', not 'skipped'")
@@ -221,8 +232,6 @@ final class DredfitUITests: XCTestCase {
 
     // MARK: - Resuming an interrupted workout
 
-    /// The process dies mid-workout (a terminate during rest); the relaunch
-    /// must offer to continue instead of silently presenting a fresh plan.
     func testInterruptedWorkoutCanBeResumedAfterRelaunch() {
         app.launch()
         startWorkout()
@@ -243,8 +252,6 @@ final class DredfitUITests: XCTestCase {
                       "continuing must land back inside the workout")
     }
 
-    /// A kill on the rating screen comes back to the rating screen — the
-    /// workout itself is behind, only the answer is missing.
     func testResumeLandsOnRatingWhenKilledThere() {
         app.launch()
         startWorkout()
@@ -268,8 +275,6 @@ final class DredfitUITests: XCTestCase {
                       "the resumed rating must record the workout")
     }
 
-    /// A snapshot with nothing done (warm-up just ended, first set untouched)
-    /// is not offered — the honest launch is the plain Start.
     func testNoResumeCardWithoutProgress() {
         app.launch()
         startWorkout()
@@ -285,8 +290,6 @@ final class DredfitUITests: XCTestCase {
                        "there is nothing to continue — the card must not show")
     }
 
-    /// "Start over" is a real answer: the snapshot is dropped and a fresh
-    /// session starts from the warm-up.
     func testResumeCardCanStartOver() {
         app.launch()
         startWorkout()
@@ -311,17 +314,15 @@ final class DredfitUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 3),
                       "skipping all exercises should lead to the rating")
         // The state lives once in the section header; each row's dimmed name
-        // still announces it through its accessibility label (issue #27's
-        // rating-summary change — this assertion predates it).
+        // still announces it through its accessibility label.
         XCTAssertTrue(app.staticTexts["SKIPPED"].exists,
                       "skipped exercises are not listed on the rating screen")
         XCTAssertEqual(app.staticTexts.matching(
             NSPredicate(format: "label ENDSWITH %@", ", skipped")).count, 6,
             "all six skipped exercises must be listed")
 
-        // Honest skips: even an "easy" rating must not level up untrained
-        // patterns. Assert on the identified element — a bare "0" query can
-        // match a chart axis label instead.
+        // Even an "easy" rating must not level up untrained patterns. Assert
+        // on the identified element — a bare "0" can match a chart axis label.
         app.staticTexts["Easy, could do more"].tap()
         _ = app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5)
         app.tabBars.buttons["Progress"].tap()
@@ -343,8 +344,7 @@ final class DredfitUITests: XCTestCase {
         app.tabBars.buttons["Calendar"].tap()
         XCTAssertTrue(app.staticTexts["Completed today ✓"].waitForExistence(timeout: 3))
 
-        // Open the day by identifier — the accessibility label carries the
-        // full spoken date and state.
+        // By identifier: the label carries the full spoken date and state.
         let day = Calendar.current.component(.day, from: .now)
         app.buttons["day-\(day)"].tap()
         XCTAssertTrue(app.staticTexts["Workout 1"].waitForExistence(timeout: 3),
@@ -353,8 +353,6 @@ final class DredfitUITests: XCTestCase {
         app.buttons["Got it"].tap()
     }
 
-    /// The app always opens on Today — a stable home instead of a tab that
-    /// moves with the day; the calendar keeps its card one tap away.
     func testColdStartOpensTodayEvenWhenDone() {
         app.launchArguments.append("--uitest-fast")
         app.launch()
@@ -384,10 +382,8 @@ final class DredfitUITests: XCTestCase {
         _ = app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5)
 
         app.tabBars.buttons["Progress"].tap()
-        // The caption beside the number is one word; "total level" survives
-        // only as the chart's title, which the Kicker uppercases.
         XCTAssertTrue(app.staticTexts["level"].waitForExistence(timeout: 3))
-        // 6 patterns × (+2) = 12, asserted on the identified element.
+        // 6 patterns × (+2) = 12, on the identified element.
         let totalLevel = app.staticTexts["total-level"]
         XCTAssertEqual(totalLevel.label, "12", "the total level after \"easy\" should be 12")
         XCTAssertTrue(app.staticTexts["1 workout"].exists,
@@ -426,6 +422,9 @@ final class DredfitUITests: XCTestCase {
 
     func testHoldTimerEarlyStopCapturesActual() {
         launchIntoSession2AndReachPlank()
+        // 90 s of hold to stop early inside — the countdown must not be able
+        // to run out from under the taps below on a slow runner.
+        maximiseHold()
         // Every tap here is inside the workout cover, so it goes through
         // coordinateTap to sidestep the intermittent hittability quirk.
         coordinateTap(app.buttons["Start hold"])
@@ -442,7 +441,8 @@ final class DredfitUITests: XCTestCase {
         coordinateTap(app.buttons["Start hold"])
         XCTAssertTrue(stop.waitForExistence(timeout: 3))
         Thread.sleep(forTimeInterval: 3.5)
-        coordinateTap(stop)
+        XCTAssertTrue(coordinateTap(stop),
+                      "the countdown ended before the stop could be delivered")
         let skipRest = app.buttons["Skip rest"]
         XCTAssertTrue(skipRest.waitForExistence(timeout: 3),
                       "an early stop should flow into rest")
@@ -465,9 +465,6 @@ final class DredfitUITests: XCTestCase {
     }
 
     /// The side-switch pause (issue #35): a per-side hold runs side one,
-    /// announces "Switch sides" for 5 s, then starts the second side by
-    /// itself — no tap in between. Session 2's per-side hold is the bird
-    /// dog, right after the plank.
     func testPerSideHoldPausesBetweenSidesAndAutoStartsTheSecond() {
         launchIntoSession2AndReachPlank()
         // The same skip-until-the-goal loop the helper uses: a dropped tap
@@ -509,27 +506,41 @@ final class DredfitUITests: XCTestCase {
     // MARK: - Warm-up
 
     func testWarmupShowsAndSkips() {
+        // Both transition labels below are asserted while the transition is
+        // on screen, which at its real length is a five-second window shared
+        // with the element lookups — held open instead.
+        app.launchArguments.append("--uitest-long-transition")
         app.launch()
         app.buttons["Start"].tap()
         XCTAssertTrue(app.staticTexts["WARM-UP"].waitForExistence(timeout: 3),
                       "the workout must open with the warm-up")
-        XCTAssertTrue(app.staticTexts["Marching in place"].exists,
+        // Since #52 the block opens on the transition announcing the first
+        // move; the label is the one VoiceOver reads.
+        XCTAssertTrue(app.staticTexts["Get ready: Marching in place"].exists,
                       "the first warm-up move is missing")
         // one impossible move must not cost the other five
         app.buttons["Skip this move"].tap()
-        XCTAssertTrue(app.staticTexts["Arm circles"].waitForExistence(timeout: 3),
+        XCTAssertTrue(app.staticTexts["Get ready: Arm circles"].waitForExistence(timeout: 3),
                       "skipping one move must advance to the next, not exit")
         app.buttons["Skip warm-up"].tap()
         XCTAssertTrue(app.buttons["Done"].waitForExistence(timeout: 3),
                       "skipping the warm-up must lead to the first exercise")
     }
 
+    // The "Get ready" transition itself has its own suite —
+    // GetReadyUITests.swift (issue #52).
+
     /// The position mini-sheet (issue #34): opens from the warm-up move,
-    /// shows the block capsule, and freezes the countdown while open —
-    /// reading is not stretching. Closing resumes the count.
     func testPositionTechniqueSheetFreezesTheCountdown() {
+        // Past the transition and into the move it announced — the sheet's
+        // freeze is what this test is about, so the transition is held open
+        // rather than raced.
+        app.launchArguments.append("--uitest-long-transition")
         app.launch()
         app.buttons["Start"].tap()
+        XCTAssertTrue(app.buttons["get-ready-start"].waitForExistence(timeout: 5),
+                      "the warm-up must open on the transition")
+        app.buttons["get-ready-start"].tap()
         let countdown = app.staticTexts["warmup-countdown"]
         XCTAssertTrue(countdown.waitForExistence(timeout: 3),
                       "the warm-up countdown is missing")
@@ -590,8 +601,6 @@ final class DredfitUITests: XCTestCase {
         app.buttons["settings-done"].tap()
     }
 
-    /// The explainer opens from the first settings row, carries all six
-    /// sections, and hands the user back to settings on dismissal.
     func testHowItWorksOpensFromSettings() {
         app.launch()
         app.buttons["settings"].tap()
@@ -615,10 +624,6 @@ final class DredfitUITests: XCTestCase {
 
     // MARK: - Pull-up bar
 
-    /// Smoke of the bar module end-to-end: the settings toggle flips the
-    /// derived session 2 (odd counter) to the vertical pull, the hang runs
-    /// as a hold with a working technique sheet, and the flow reaches the
-    /// rating screen.
     func testBarWorkoutFlowsToRating() {
         // No --uitest-fast: this test waits for and taps "Skip rest" itself, so
         // the rest must stay on screen long enough to see. Its skip-through
@@ -643,11 +648,16 @@ final class DredfitUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["TECHNIQUE"].waitForExistence(timeout: 3),
                       "the technique sheet must open for a bar exercise")
         app.buttons["Got it"].tap()
+        // 90 s of hang, for the same reason as the plank above: the stop below
+        // is timed against the app's own countdown, and this test is the one
+        // that lost that race on the nightly of 2026-08-04.
+        maximiseHold()
         coordinateTap(app.buttons["Start hold"])
         let stop = app.buttons["Stop"]
         XCTAssertTrue(stop.waitForExistence(timeout: 3), "no Stop during the hang countdown")
         Thread.sleep(forTimeInterval: 3.5)   // past the mis-tap grace
-        coordinateTap(stop)
+        XCTAssertTrue(coordinateTap(stop),
+                      "the hang ended before the stop could be delivered")
         XCTAssertTrue(app.buttons["Skip rest"].waitForExistence(timeout: 3),
                       "the stopped hang must flow into rest")
         coordinateTap(app.buttons["Skip rest"])
@@ -680,8 +690,6 @@ final class DredfitUITests: XCTestCase {
 
     // MARK: - Rest days
 
-    /// On a rest day, Today must agree with the widget and the next-training
-    /// date: a rest state, not a live plan — without locking anyone out.
     func testRestDayShowsRestStateInsteadOfALivePlan() {
         app.launchArguments = ["--uitest-reset", "--uitest-restday",
                                "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
@@ -695,7 +703,6 @@ final class DredfitUITests: XCTestCase {
                       "rest is a plan, not a lockout — training anyway stays available")
     }
 
-    /// Training anyway still works: the escape hatch is real, not decorative.
     func testTrainAnywayStartsTheWorkoutOnARestDay() {
         app.launchArguments = ["--uitest-reset", "--uitest-restday",
                                "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
@@ -708,8 +715,6 @@ final class DredfitUITests: XCTestCase {
 
     // MARK: - Comeback after a break
 
-    /// The whole point of the card: after a break the plan meets you lower.
-    /// "Start easier" must actually move the plan, not just dismiss.
     func testComebackCardStartsEasier() {
         app.launchArguments = ["--uitest-reset", "--uitest-comeback",
                                "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
@@ -728,8 +733,6 @@ final class DredfitUITests: XCTestCase {
                        "the card is answered and gone")
     }
 
-    /// "Leave as it was" is a real answer, not a snooze: the plan is untouched
-    /// and the card does not come back on relaunch.
     func testComebackCardCanBeDeclinedForGood() {
         app.launchArguments = ["--uitest-reset", "--uitest-comeback",
                                "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
@@ -749,7 +752,6 @@ final class DredfitUITests: XCTestCase {
                        "an answered break does not ask again")
     }
 
-    /// A 20-day break is not long enough to offer starting over.
     func testFreshStartIsNotOfferedForAShortBreak() {
         app.launchArguments = ["--uitest-reset", "--uitest-comeback",
                                "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
@@ -761,9 +763,6 @@ final class DredfitUITests: XCTestCase {
 
     // MARK: - Milestones
 
-    /// The whole path: a workout that earns milestones ends on one screen
-    /// listing all of them, tier-ups above the jubilee, and "Done" returns to
-    /// Today with the workout recorded.
     func testMilestoneScreenListsEverythingEarned() {
         app.launchArguments = ["--uitest-reset", "--uitest-milestone", "--uitest-fast",
                                "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
@@ -801,8 +800,6 @@ final class DredfitUITests: XCTestCase {
                       "Done should return to Today with the workout recorded")
     }
 
-    /// The screen is a coda, not a fixture: an ordinary workout goes straight
-    /// back to Today.
     func testNoMilestoneScreenForAnOrdinaryWorkout() {
         app.launchArguments.append("--uitest-fast")
         app.launch()
@@ -839,8 +836,6 @@ final class DredfitUITests: XCTestCase {
 extension DredfitUITests {
     // MARK: - Short workout (issue #27)
 
-    /// The whole short path: three exercises instead of six, the other three
-    /// recorded as skips, and the workout counted like any other.
     func testShortWorkoutRunsThreeExercisesAndSkipsTheRest() {
         app.launchArguments.append("--uitest-fast")
         app.launch()
@@ -872,9 +867,9 @@ extension DredfitUITests {
             }
         }
         XCTAssertTrue(rating.waitForExistence(timeout: 5), "the short flow must reach the rating")
-        // Three of the session's six were never touched — the scope chip says
-        // so before anything is recorded, and the summary lists them.
-        XCTAssertTrue(app.staticTexts["Applies to 3 of 6 — skipped exercises stay put"].exists,
+        // Three of the session's six were never touched — the card header
+        // says the scope once, and the summary lists them below it.
+        XCTAssertTrue(app.staticTexts["Your rating applies to 3 of 6"].exists,
                       "the rating must apply to the three that were trained")
         // The state lives once in the header; the rows carry only dimmed
         // names on screen — but every row still reads its state to VoiceOver.
@@ -883,8 +878,8 @@ extension DredfitUITests {
         XCTAssertEqual(app.staticTexts.matching(
             NSPredicate(format: "label ENDSWITH %@", ", skipped")).count, 3,
             "each untouched exercise must still announce its state")
-        XCTAssertFalse(app.staticTexts["ADJUSTED"].exists,
-                       "nothing was adjusted — the Adjusted kicker has no rows")
+        XCTAssertTrue(app.staticTexts["These keep their level either way."].exists,
+                      "the card must say what happens to the set-aside three")
 
         app.staticTexts["On plan"].tap()
         XCTAssertTrue(app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5),
@@ -892,7 +887,6 @@ extension DredfitUITests {
     }
 
     /// The default never drifts: the choice is not remembered, so the next
-    /// day opens on the full session with the short version as the option.
     func testShortVersionIsNeverTheDefault() {
         app.launch()
         _ = app.staticTexts["Workout 1"].waitForExistence(timeout: 5)
@@ -902,8 +896,6 @@ extension DredfitUITests {
 
     // MARK: - Cool-down (issue #28)
 
-    /// The natural end of the work runs through the cool-down; skipping the
-    /// block lands on the rating with the workout still recorded.
     func testCooldownRunsBetweenLastExerciseAndRating() {
         app.launchArguments.append("--uitest-fast")
         app.launch()

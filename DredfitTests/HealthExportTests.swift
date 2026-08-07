@@ -2,9 +2,6 @@
 //  HealthExportTests.swift
 //  DredfitTests
 //
-//  Apple Health export: the contiguous backfill, its failure and retry
-//  behaviour, and what happens when the journal moves under an in-flight run.
-//
 
 import XCTest
 import DredfitCore
@@ -87,7 +84,6 @@ final class HealthExportTests: XCTestCase {
     }
 
     /// A failed save must not flag the workout exported — it stays retriable
-    /// via a later backfill (no silent data loss).
     func testHealthFailedSaveKeepsWorkoutRetriable() async {
         let spy = HealthSpy()
         let store = AppStore(storageURL: tempURL, health: spy)
@@ -107,7 +103,6 @@ final class HealthExportTests: XCTestCase {
 
     /// Regression: a failed live export of workout N followed by a successful
     /// workout N+1 must not advance the high-water mark past N, which would
-    /// exclude N from every future backfill.
     func testHealthLaterSuccessDoesNotLoseEarlierFailedExport() async {
         let spy = HealthSpy()
         let store = AppStore(storageURL: tempURL, health: spy)
@@ -131,8 +126,6 @@ final class HealthExportTests: XCTestCase {
         XCTAssertEqual(spy.saved[2].end, date(2026, 7, 16))
     }
 
-    /// After "Start from scratch" session numbers repeat — record identity
-    /// must stay unique and the export state of old workouts must survive.
     func testResetProgressKeepsRecordIdentityAndHealthStateSound() async {
         let spy = HealthSpy()
         let store = AppStore(storageURL: tempURL, health: spy)
@@ -158,8 +151,6 @@ final class HealthExportTests: XCTestCase {
         XCTAssertEqual(spy.saved.count, 3, "skip must never re-export handled workouts")
     }
 
-    /// A backfill stops at the first failure and keeps the mark at the last
-    /// confirmed export, so the unexported tail can resume later.
     func testHealthBackfillStopsAtFirstFailure() async {
         let spy = HealthSpy()
         let store = AppStore(storageURL: tempURL, health: spy)
@@ -181,7 +172,6 @@ final class HealthExportTests: XCTestCase {
     /// Regression: replacing the journal (importBackup) while a backfill is
     /// suspended inside a save must not flag, by stale index, a record that
     /// was never exported — the flag must land by record identity or not at
-    /// all.
     func testImportDuringInFlightBackfillDoesNotMisflagByStaleIndex() async throws {
         let spy = HealthSpy()
         let store = AppStore(storageURL: tempURL, health: spy)
@@ -223,8 +213,6 @@ final class HealthExportTests: XCTestCase {
                        "the imported session 3 stays pending for a real export")
     }
 
-    /// Switching Health off must stop an in-flight backfill at the record
-    /// boundary instead of exporting the whole remaining tail.
     func testDisablingHealthStopsAnInFlightBackfill() async {
         let spy = HealthSpy()
         let store = AppStore(storageURL: tempURL, health: spy)
@@ -249,8 +237,6 @@ final class HealthExportTests: XCTestCase {
     }
 
     /// A record with a corrupt (negative) duration must not poison the
-    /// pipeline: the export interval is clamped to a positive length, so the
-    /// save succeeds and the records behind it keep exporting.
     func testNegativeDurationDoesNotPoisonHealthBackfill() async {
         let spy = HealthSpy()
         let store = AppStore(storageURL: tempURL, health: spy)

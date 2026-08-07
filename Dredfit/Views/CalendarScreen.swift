@@ -2,10 +2,7 @@
 //  CalendarScreen.swift
 //  Dredfit
 //
-//  Day states: completed (fill), planned (outline, future only), today
-//  (accent ring), rest (quiet fill). Missed days are deliberately unmarked
-//  and unshamed — plain dimmed numbers. Tapping a completed day opens that
-//  workout's history.
+//  Missed days are deliberately unmarked — plain dimmed numbers.
 //
 
 import SwiftUI
@@ -28,8 +25,7 @@ struct CalendarScreen: View {
                 Text(monthTitle)
                     .dredfitFont(19, weight: .bold)
                 Spacer()
-                // 44pt frames: the bare chevron glyphs were ~20pt tap targets
-                // sitting 26pt apart — easy to mis-tap.
+                // 44pt frames: the bare glyphs were ~20pt targets 26pt apart.
                 HStack(spacing: 4) {
                     Button { monthOffset -= 1 } label: {
                         Image(systemName: "chevron.left")
@@ -50,7 +46,6 @@ struct CalendarScreen: View {
             }
             .padding(.top, 20)
 
-            // Weekday header, Monday-first, localized by the system calendar
             HStack(spacing: 0) {
                 ForEach(weekdayHeaders, id: \.self) { d in
                     Text(d)
@@ -122,9 +117,8 @@ struct CalendarScreen: View {
 
     // MARK: - Day cell
 
-    // `missed` (a past training day that did not happen) is distinct from
-    // `planned` so past days never carry the planned ring — missed days stay
-    // deliberately unmarked.
+    // `missed` is distinct from `planned` so past days never carry the
+    // planned ring.
     private enum DayState { case done, planned, missed, today, rest, out }
 
     private struct Day {
@@ -133,13 +127,9 @@ struct CalendarScreen: View {
         let state: DayState
     }
 
-    /// Is this cell the next training day? Only that one is tappable among
-    /// the non-completed days — completed days open history, so a day that
-    /// opens the next-workout preview keeps the affordance consistent. Other
-    /// future days have nothing truthful to show: the sheet always describes
-    /// the one computed next workout. Today's own ring qualifies while the
-    /// workout is still ahead (nextTrainingDate == today) — the most common
-    /// state must not be the one dead cell.
+    /// The only tappable cell among the non-completed days: the sheet always
+    /// describes the one computed next workout, so no other future day has
+    /// anything truthful to show.
     private func isNextTrainingDay(_ day: Day) -> Bool {
         (day.state == .planned || day.state == .today)
             && Calendar.current.isDate(day.date, inSameDayAs: store.nextTrainingDate)
@@ -181,23 +171,20 @@ struct CalendarScreen: View {
                 case .today:
                     Circle().stroke(Theme.accent, lineWidth: 2)
                 case .rest:
-                    // A soft fill says "a day, deliberately quiet" — without it
-                    // a rest day reads like a day outside the month. restFill,
-                    // not cardBG: cardBG on white is 1.07:1, effectively
-                    // invisible on most real screens.
+                    // restFill, not cardBG: cardBG on white is 1.07:1,
+                    // effectively invisible on most real screens.
                     Circle().fill(Theme.restFill)
                 case .missed, .out:
                     EmptyView()
                 }
             }
             .frame(height: 44)
-            // VoiceOver: a bare number reads as noise — say the date and the
-            // state the ring conveys visually. Out-of-month padding is noise
-            // either way and disappears from the accessibility tree.
+            // A bare number reads as noise — say the date and the state the
+            // ring conveys visually.
             .accessibilityHidden(day.state == .out)
             .accessibilityLabel(Text(accessibilityText(day)))
-            // UI tests address cells by number: the label carries the full
-            // spoken date, so it is not a stable query key.
+            // The label carries the full spoken date, so it is not a stable
+            // query key for UI tests.
             .accessibilityIdentifier("day-\(day.number)")
     }
 
@@ -208,8 +195,7 @@ struct CalendarScreen: View {
         case .planned: return date + ", " + String(localized: "planned")
         case .today:   return date + ", " + String(localized: "today")
         case .rest:    return date + ", " + String(localized: "rest")
-        // Deliberately just the date: VoiceOver gets the same unshamed
-        // silence about a missed day that sighted users do.
+        // Just the date: VoiceOver gets the same silence about a missed day.
         case .missed, .out: return date
         }
     }
@@ -264,8 +250,6 @@ struct CalendarScreen: View {
             } else if store.isRestDay(d) {
                 state = .rest
             } else if d < calendar.startOfDay(for: store.today) {
-                // A "planned" ring on a day already in the past would be a
-                // shaming mark wearing a neutral name.
                 state = .missed
             } else {
                 state = .planned
@@ -309,7 +293,10 @@ struct CalendarScreen: View {
         }.count
 
         return HStack {
-            Text("This month")
+            // The count follows the month on screen, so the label must too.
+            Text(calendar.isDate(shownMonth, equalTo: store.today, toGranularity: .month)
+                 ? String(localized: "This month")
+                 : monthTitle)
                 .dredfitFont(13.5)
                 .foregroundStyle(Theme.ink2)
             Spacer()

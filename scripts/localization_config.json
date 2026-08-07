@@ -1,14 +1,15 @@
 {
-  "_comment": "Config for scripts/check_localization.py. 'required_locales' are the shipping languages every user-facing String Catalog key must be translated into (English is the source language and is implicit). 'allow_untranslated' lists keys that are intentionally identical to the source in every language (pure punctuation, format separators, the brand name) or whose missing locales are composed in code ('on %@': ru needs the accusative weekday, pt-BR the no/na preposition — both built in AppStore.nextTrainingDateLabel). Xcode shows them as untranslated, but they need no catalog translation. Prefer setting \"shouldTranslate\": false on such a key in Xcode; use this list when that is impractical. Key each entry by the repo-relative path of the .xcstrings file.",
+  "_comment": "Config for scripts/check_localization.py. 'required_locales' are the shipping languages every user-facing String Catalog key must be translated into (English is the source language and is implicit). 'allow_untranslated' lists keys that are intentionally identical to the source in every language (pure punctuation, format separators, the brand name) or whose missing locales are composed in code ('on %@': ru needs the accusative weekday, pt-BR the no/na preposition — both built in AppStore.nextTrainingDateLabel; de, es, fr and it go through the default branch and so DO need a catalog value, which this exemption hides from the checker — mind it when adding a language). Xcode shows them as untranslated, but they need no catalog translation. Prefer setting \"shouldTranslate\": false on such a key in Xcode; use this list when that is impractical. Key each entry by the repo-relative path of the .xcstrings file.",
   "required_locales": [
+    "de",
     "es",
+    "fr",
+    "it",
     "pt-BR",
     "ru"
   ],
   "allow_untranslated": {
     "Dredfit/Localizable.xcstrings": [
-      " · ",
-      " · %@",
       "on %@"
     ],
     "Dredfit/InfoPlist.xcstrings": [

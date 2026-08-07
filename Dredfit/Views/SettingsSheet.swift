@@ -2,8 +2,7 @@
 //  SettingsSheet.swift
 //  Dredfit
 //
-//  The few settings the thermostat allows itself — rest days, equipment,
-//  sounds, a reminder, Apple Health, and a manual backup. No questionnaires.
+//  Rest days, equipment, sounds, a reminder, Apple Health, backup.
 //
 
 import SwiftUI
@@ -21,9 +20,8 @@ struct SettingsSheet: View {
     @State private var importFailed = false
     @State private var backfillPromptShown = false   // Apple Health
     @State private var howItWorksShown = false
-    /// Optimistic Health-toggle value while authorization is in flight —
-    /// without it the switch visibly bounces off before the system sheet
-    /// appears (settings.healthEnabled only flips after the async grant).
+    /// Optimistic value while authorization is in flight: without it the
+    /// switch visibly bounces off before the system sheet appears.
     @State private var healthSwitch: Bool?
 
     var body: some View {
@@ -48,9 +46,8 @@ struct SettingsSheet: View {
                 .padding(.bottom, 12)
             }
 
-            // "Done", not "Got it": settings are a place you act in, not a
-            // message you acknowledge. Keyed like milestone.done — the same
-            // English word as the workout's set button, different meaning.
+            // Keyed like milestone.done — the same English word as the
+            // workout's set button, different meaning.
             PrimaryButton(title: String(localized: "settings.done",
                                         defaultValue: "Done")) { dismiss() }
                 .accessibilityIdentifier("settings-done")
@@ -84,8 +81,6 @@ struct SettingsSheet: View {
 
     // MARK: - How it works
 
-    /// First section deliberately: the one thing a user cannot infer from the
-    /// rest of the UI is why the plan keeps moving.
     private var howItWorksSection: some View {
         Button {
             howItWorksShown = true
@@ -98,7 +93,7 @@ struct SettingsSheet: View {
 
     // MARK: - Rest days
 
-    /// Weekdays in the user's calendar order (respects the locale's first day).
+    /// Respects the locale's first day.
     private var weekdaysInDisplayOrder: [Int] {
         let first = Calendar.current.firstWeekday
         return (0..<7).map { ((first - 1 + $0) % 7) + 1 }
@@ -112,12 +107,9 @@ struct SettingsSheet: View {
                     dayChip(wd)
                 }
             }
-            // ink2, not ink3: the one line explaining what the chips mean.
             Text("Highlighted days are rest days")
                 .dredfitFont(12.5)
                 .foregroundStyle(Theme.ink2)
-            // The one place the app says how much rest is enough (issue #36)
-            // — guidance, not a gate: the picker still allows any spread.
             Text("2–3 rest days a week is the recommended rhythm")
                 .dredfitFont(12.5)
                 .foregroundStyle(Theme.ink2)
@@ -141,14 +133,12 @@ struct SettingsSheet: View {
                         .overlay(RoundedRectangle(cornerRadius: 12)
                             .stroke(isRest ? Theme.accent : Theme.hairline, lineWidth: 1.5))
                 )
-                // ink, not accent: accent text on accentSoft is 2.91:1. The
-                // fill and stroke already carry "selected"; the label's only
-                // job is to be readable.
+                // ink, not accent: accent text on accentSoft is 2.91:1.
                 .foregroundStyle(isRest ? Theme.ink : Theme.ink2)
         }
         .accessibilityIdentifier("weekday-\(weekday)")
-        // Colour alone doesn't reach VoiceOver — without the trait a chip
-        // announces only "Mon" and the rest-day state is invisible.
+        // Colour alone doesn't reach VoiceOver: without the trait a chip
+        // announces only "Mon".
         .accessibilityAddTraits(isRest ? [.isSelected] : [])
     }
 
@@ -250,8 +240,8 @@ struct SettingsSheet: View {
         }
     }
 
-    /// Enabling asks for write-only authorization first; a denial simply
-    /// leaves the toggle off. On success, past history is offered once.
+    /// A denial leaves the toggle off. On success, past history is offered
+    /// once.
     private var healthBinding: Binding<Bool> {
         Binding(
             get: { healthSwitch ?? store.settings.healthEnabled },
@@ -276,17 +266,13 @@ struct SettingsSheet: View {
     private var backupSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Kicker(text: String(localized: "Backup"))
-            // Lazy item: the backup JSON is written when the user commits to
-            // sharing — always current, and toggles flipped in this very
-            // sheet land in it without rebuilding a file on every change.
             ShareLink(item: BackupFile { [store] in try store.exportURL() },
                       preview: SharePreview(String(localized: "Export history"))) {
                 backupRow(icon: "square.and.arrow.up",
                           title: String(localized: "Export history"))
             }
-            // A launch that could not read the journal has nothing to export
-            // and nowhere safe to import into — both would work off the empty
-            // state that stood in for the real one.
+            // A frozen launch would export, and import into, the empty state
+            // that stood in for the real journal.
             .disabled(store.journalFrozen)
             Button {
                 importPickerShown = true
@@ -315,9 +301,6 @@ struct SettingsSheet: View {
 
     // MARK: - About
 
-    /// The two places a review can be asked for on purpose. The automatic ask
-    /// happens once, after a milestone; these are here so someone who wants to
-    /// leave one never has to wait for it.
     private var aboutSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Kicker(text: String(localized: "About"))
@@ -359,9 +342,8 @@ struct SettingsSheet: View {
 
 // MARK: - Lazy backup file
 
-/// The backup as a lazily-written file: ShareLink wants its item up front,
-/// but the JSON itself is produced only when the user actually commits to
-/// sharing — not on every settings change while the sheet sits open.
+/// ShareLink wants its item up front, but the JSON is produced only when the
+/// user commits to sharing — not on every settings change.
 private nonisolated struct BackupFile: Transferable {
     let makeURL: @MainActor @Sendable () throws -> URL
 

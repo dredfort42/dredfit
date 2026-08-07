@@ -153,8 +153,6 @@ final class ShortWorkoutTests: XCTestCase {
                              "warm-up and cool-down are part of the promise")
     }
 
-    /// The engine's own arithmetic, not a copy: a full list must reproduce
-    /// the session's own estimate exactly.
     func testEstimateMatchesTheEngineForTheWholeSession() {
         let session = Engine.generateSession(state(counter: 0))
         XCTAssertEqual(Engine.estimatedMin(exercises: session.exercises),

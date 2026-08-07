@@ -2,8 +2,7 @@
 //  ProgressScreen.swift
 //  Dredfit
 //
-//  Total level, the week summary, a level chart over time and per-pattern
-//  level bars. One data color (accent) — one metric in several projections.
+//  One data color (accent) — one metric in several projections.
 //
 
 import Charts
@@ -12,35 +11,28 @@ import DredfitCore
 
 struct ProgressScreen: View {
     @Environment(AppStore.self) private var store
-    /// The stat row holds the number and its caption side by side only while
-    /// they fit. At accessibility sizes they cannot, and the row would push
-    /// itself off both edges of the screen.
+    /// At accessibility sizes the stat row cannot hold number and caption
+    /// side by side without pushing itself off both edges.
     @Environment(\.dynamicTypeSize) private var typeSize
     @State private var chartPattern: Pattern?   // nil = the total-level view
     @State private var cardURL: URL?            // the share card
-    /// What the current card was rendered from. Rendering is a main-thread
-    /// 1080×1350 pass plus a PNG write — worth skipping when nothing moved
-    /// (every tab switch, and the double onChange after each workout).
+    /// Rendering is a main-thread 1080×1350 pass plus a PNG write — worth
+    /// skipping when nothing moved.
     @State private var renderedCardKey: [Int]?
 
-    /// Nothing to show off before the first workout — the card would read
-    /// "0 workouts · level 0".
     private var canShare: Bool { !store.records.isEmpty }
 
-    // Next to the stat it shares, not floating in the top corner beside the
-    // global settings gear — but an icon rather than a labelled pill. The word
-    // does not fit: in Russian the pill is ~9 pt wider than the room left
-    // beside the number and its label, and a narrow phone (375 pt) takes
-    // another 27 pt away. What used to give was the number, which broke
-    // mid-digit; the button gives instead.
+    // An icon, not a labelled pill: in Russian the word does not fit beside
+    // the number and its caption, and what used to give was the number —
+    // which broke mid-digit.
     @ViewBuilder
     private var shareButton: some View {
         if canShare, let cardURL {
             ShareLink(item: cardURL,
                       preview: SharePreview(summaryHeadline)) {
                 Image(systemName: "square.and.arrow.up")
-                    // Capped: the glyph grows with type size, its ring does
-                    // not, and past ~22 pt the arrow spills out of the circle.
+                    // Capped: the ring does not grow with type size, and past
+                    // ~22 pt the arrow spills out of it.
                     .dredfitFont(15, weight: .semibold, cap: 22)
                     .foregroundStyle(Theme.ink2)
                     .frame(width: 38, height: 38)
@@ -60,18 +52,10 @@ struct ProgressScreen: View {
                                          totalLevel: store.totalLevel)
     }
 
-    /// The total level and, beside it, what it is and how many workouts are
-    /// behind it.
-    ///
-    /// Both halves keep their intrinsic width: this row is where a four-digit
-    /// total meets a Russian caption, and neither may be squeezed into
-    /// wrapping — a number broken mid-digit ("1 27" / "0") was exactly the
-    /// bug. The share button is the part that yields, which is why it is an
-    /// icon. At accessibility sizes nothing fits side by side, so the caption
-    /// moves under the number instead of forcing the row off both edges.
-    ///
-    /// The button centres on the height of the number's line — not on its
-    /// baseline, where a round icon reads as having slipped down.
+    /// Both halves keep their intrinsic width: a four-digit total meeting a
+    /// Russian caption must not be squeezed into wrapping — a number broken
+    /// mid-digit ("1 27" / "0") was exactly the bug. The share button yields
+    /// instead. At accessibility sizes the caption moves under the number.
     @ViewBuilder
     private var statRow: some View {
         if typeSize.isAccessibilitySize {
@@ -85,8 +69,8 @@ struct ProgressScreen: View {
             }
         } else {
             HStack(alignment: .center, spacing: 10) {
-                // The caption keeps sitting on the number's baseline; only the
-                // button is centred, so this pair is measured as one block.
+                // Only the button is centred, so this pair measures as one
+                // block and the caption keeps the number's baseline.
                 HStack(alignment: .lastTextBaseline, spacing: 10) {
                     totalNumber
                     levelCaption.fixedSize()
@@ -98,8 +82,7 @@ struct ProgressScreen: View {
     }
 
     private var totalNumber: some View {
-        // The identifier lets UI tests assert on THIS value — a bare
-        // staticTexts["0"] query can match a chart axis label.
+        // A bare staticTexts["0"] query can match a chart axis label.
         Text("\(store.totalLevel)")
             .dredfitFont(56, weight: .heavy, cap: 84)
             .tracking(-2)
@@ -119,10 +102,8 @@ struct ProgressScreen: View {
         .lineLimit(typeSize.isAccessibilitySize ? nil : 1)
     }
 
-    /// One word, in every language. The chart's title below still carries the
-    /// full "total level" — there is room for it there and it is the more
-    /// precise phrase — but beside the number one word says it, and that is
-    /// what keeps a four-digit total and a Russian caption on the same row.
+    /// One word, in every language: that is what keeps a four-digit total
+    /// and a Russian caption on the same row.
     private var levelLabel: String {
         String(localized: "progress.levelLabel",
                defaultValue: "level",
@@ -131,34 +112,23 @@ struct ProgressScreen: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // The header carries its own gutters; the ScrollView below spans
-            // the full width so the selected row's tint can reach 8 pt into
-            // the gutters (as designed) without the scroll bounds slicing
-            // its rounded corners flat.
+            // The ScrollView spans the full width so the selected row's tint
+            // can reach into the gutters without the bounds slicing it.
             VStack(alignment: .leading, spacing: 0) {
                 Kicker(text: String(localized: "Progress"))
                     .padding(.top, 18)
 
                 statRow
                     .padding(.top, 12)
-
-                weekSummaryLine
-                    .padding(.top, 8)
             }
             .padding(.horizontal, 24)
 
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 0) {
-                    // The chips row is gone: it was the same list of patterns
-                    // twice. The rows below drive the chart; this line names
-                    // the current projection and offers the way back.
-                    //
                     // The row must not move when a pattern is picked — the
-                    // chart under it would slide out from under the finger
-                    // that picked it. So the title stays on one line however
-                    // long the variation's name is, and "Show all" keeps its
-                    // space when it has nothing to do rather than collapsing
-                    // the row to a shorter height.
+                    // chart would slide out from under the finger. So the
+                    // title stays on one line and "Show all" keeps its space
+                    // when it has nothing to do.
                     HStack(alignment: .firstTextBaseline) {
                         Kicker(text: chartTitle)
                             .lineLimit(1)
@@ -179,19 +149,22 @@ struct ProgressScreen: View {
                     }
                     .padding(.top, 16)
 
-                    levelChart
+                    // Both the chart and the line under it read the same two
+                    // derivations; computing them once keeps a long history
+                    // from being walked twice on every invalidation.
+                    let points = chartPoints
+                    let bands = breakBands(points)
+
+                    levelChart(points, bands)
                         .frame(height: 134)   // 120 of chart + room for the date axis
                         .padding(.top, 8)
 
-                    // Rows sit apart, not stacked flush: without the per-row
-                    // detail line there is room to spare, and space between
-                    // them is what keeps ten bars from reading as one block.
+                    breakFactLine(bands)
+
                     VStack(spacing: 6) {
                         ForEach(Pattern.ordered, id: \.self) { p in
                             levelRow(p)
                         }
-                        // The vertical branch appears once it exists — with the
-                        // bar enabled or with progress already earned on it.
                         if barBranchExists {
                             levelRow(.pullBar)
                         }
@@ -203,8 +176,6 @@ struct ProgressScreen: View {
             }
         }
         .onAppear { refreshCard() }
-        // The totals move with every workout; a stale card would share numbers
-        // the user is no longer looking at.
         .onChange(of: store.records.count) { refreshCard() }
         .onChange(of: store.totalLevel) { refreshCard() }
     }
@@ -226,29 +197,82 @@ struct ProgressScreen: View {
         store.engineState.hasBar || (store.engineState.levels[.pullBar] ?? 0) > 0
     }
 
-    /// The projection actually shown. If the bar was turned off while its
-    /// chip was selected, the chip is gone — fall back to the total view so
-    /// the chart never renders an empty, unselectable state.
+    /// If the bar was turned off while its row was selected, fall back to the
+    /// total view rather than render an empty, unselectable chart.
     private var effectivePattern: Pattern? {
         if chartPattern == .pullBar && !barBranchExists { return nil }
         return chartPattern
     }
 
-    // MARK: - Week summary
+    // MARK: - Breaks
 
-    /// "This week · 2 workouts · +6 levels". Calm: no streaks, no guilt —
-    /// a deload week honestly shows a minus.
-    private var weekSummaryLine: some View {
-        let week = store.weekSummary()
-        let sign = week.levelsDelta >= 0 ? "+" : ""
-        return (Text("This week")
-            + Text(" · ")
-            + Text("\(week.workouts) workouts")
-            + Text(" · \(sign)", comment: "A separator dot followed by the sign of the level change.")
-            + Text("\(week.levelsDelta) levels"))
-            .dredfitFont(13.5)
-            .monospacedDigit()
-            .foregroundStyle(Theme.ink2)
+    /// A gap between two adjacent points wide enough for the silent decay to
+    /// have run. Gaps are calendar facts, so the bands are identical in every
+    /// projection; only `costLevels` is read per projection.
+    private struct BreakBand: Identifiable {
+        let id: Int
+        let from: Date
+        let to: Date
+        let days: Int
+        /// The level on the far side is lower than on the near side AND the
+        /// session that produced that point cannot be the thing that lowered
+        /// it. "Tough" takes its own step down, so under it a drop is not the
+        /// break's to claim — someone who declined "start easier" and then
+        /// had a hard session back would otherwise be told the plan met them
+        /// lower when it met them exactly where they left it. "On plan" and
+        /// "easy" only ever raise a level, so under those a drop across the
+        /// gap is the silent decay or an accepted comeback, and saying so is
+        /// safe.
+        let costLevels: Bool
+    }
+
+    private func breakBands(_ points: [LevelPoint]) -> [BreakBand] {
+        let cal = Calendar.current
+        return zip(points, points.dropFirst()).enumerated().compactMap { index, pair in
+            let (before, after) = pair
+            let days = cal.dateComponents([.day], from: cal.startOfDay(for: before.date),
+                                          to: cal.startOfDay(for: after.date)).day ?? 0
+            guard days >= EngineConfig.silentDecayGapDays else { return nil }
+            // Two ways the returning session can lower the level by itself —
+            // "tough" and an exact number. Under either, the break gets no
+            // credit for the drop.
+            let ownDoing = after.result == .less || after.ownNumber
+            let fell = after.value < before.value && !ownDoing
+            return BreakBand(id: index, from: before.date, to: after.date,
+                             days: days, costLevels: fell)
+        }
+    }
+
+    /// The band is drawn whatever its width; its label is not. A label wider
+    /// than its band would spill over the line it is explaining.
+    private func labelFits(_ band: BreakBand, in points: [LevelPoint]) -> Bool {
+        guard let first = points.first?.date, let last = points.last?.date,
+              last > first else { return false }
+        // The band is a fraction of the axis; the label is not — it grows
+        // with Dynamic Type, so the width it needs has to grow with it.
+        let needed = typeSize.isAccessibilitySize ? 0.30 : 0.14
+        return band.to.timeIntervalSince(band.from) / last.timeIntervalSince(first) >= needed
+    }
+
+    /// One line, and it must not repeat the mistake the rating caption made:
+    /// the causal half is claimed only where the levels actually fell.
+    @ViewBuilder
+    private func breakFactLine(_ bands: [BreakBand]) -> some View {
+        if let longest = bands.max(by: { $0.days < $1.days }) {
+            Text(breakFact(longest, of: bands.count))
+                .dredfitFont(12.5)
+                .foregroundStyle(Theme.ink2)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 6)
+                .accessibilityIdentifier("break-fact")
+        }
+    }
+
+    private func breakFact(_ band: BreakBand, of count: Int) -> String {
+        var line = String(localized: "A break of \(band.days) days.")
+        if band.costLevels { line += " " + String(localized: "The plan met you lower.") }
+        if count > 1 { line += " " + String(localized: "Others are marked too.") }
+        return line
     }
 
     // MARK: - Level chart
@@ -257,10 +281,18 @@ struct ProgressScreen: View {
         let id: Int
         let date: Date
         let value: Int
+        /// The answer that produced this point, carried because a break may
+        /// not claim a drop that the returning session explains by itself.
+        let result: FeedbackResult
+        /// That session carried a number of its own for what this point
+        /// plots. An actual is uncapped downwards and outranks the rating for
+        /// its movement, so it is the second way a session can lower a level
+        /// without the break having anything to do with it.
+        let ownNumber: Bool
     }
 
-    /// First, middle and last workout dates — the sparse x-axis. Dates can
-    /// coincide (several workouts in one span), so duplicates collapse.
+    /// Dates can coincide (several workouts in one span), so duplicates
+    /// collapse.
     private func xAxisDates(_ points: [LevelPoint]) -> [Date] {
         guard let first = points.first?.date, let last = points.last?.date else { return [] }
         let mid = points[points.count / 2].date
@@ -270,22 +302,25 @@ struct ProgressScreen: View {
         return dates
     }
 
-    /// The selected projection: the total level when no row is picked, or a
-    /// pattern's level from the journal snapshots. Older records without
-    /// snapshots are simply skipped — the line starts where history does.
+    /// Older records without snapshots are skipped — the line starts where
+    /// history does.
     private var chartPoints: [LevelPoint] {
         if let p = effectivePattern {
             return store.records
-                .compactMap { r in r.levelsAfter?[p].map { (r.date, $0) } }
+                .compactMap { r in
+                    r.levelsAfter?[p].map { (r.date, $0, r.result, r.actuals?[p] != nil) }
+                }
                 .enumerated()
-                .map { LevelPoint(id: $0.offset, date: $0.element.0, value: $0.element.1) }
+                .map { LevelPoint(id: $0.offset, date: $0.element.0,
+                                  value: $0.element.1, result: $0.element.2,
+                                  ownNumber: $0.element.3) }
         }
         return store.records.enumerated()
-            .map { LevelPoint(id: $0.offset, date: $0.element.date, value: $0.element.totalLevelAfter) }
+            .map { LevelPoint(id: $0.offset, date: $0.element.date,
+                              value: $0.element.totalLevelAfter, result: $0.element.result,
+                              ownNumber: !($0.element.actuals?.isEmpty ?? true)) }
     }
 
-    /// "TOTAL LEVEL", or the projected pattern with its current variation
-    /// ("PUSH — PUSH-UP") — the Kicker uppercases it.
     private var chartTitle: String {
         guard let p = effectivePattern else { return String(localized: "total level") }
         let decoded = Level.decode(store.engineState.levels[p] ?? 0)
@@ -293,11 +328,31 @@ struct ProgressScreen: View {
         return "\(p.displayName) — \(variation)"
     }
 
+    /// Both ends are dates, and Swift Charts extracts a mark's labels into
+    /// the catalog — so they reuse the key the line marks already use instead
+    /// of adding two of their own that no reader will ever see.
+    @ChartContentBuilder
+    private func breakBandMark(_ band: BreakBand, in points: [LevelPoint]) -> some ChartContent {
+        RectangleMark(xStart: .value("date", band.from),
+                      xEnd: .value("date", band.to))
+            .foregroundStyle(Theme.hairline.opacity(0.55))
+            .annotation(position: .overlay, alignment: .center) {
+                if labelFits(band, in: points) {
+                    Text("\(band.days) days")
+                        .dredfitFont(10)
+                        .foregroundStyle(Theme.ink3)
+                }
+            }
+    }
+
     @ViewBuilder
-    private var levelChart: some View {
-        let points = chartPoints
+    private func levelChart(_ points: [LevelPoint], _ bands: [BreakBand]) -> some View {
         if points.count >= 2 {
             Chart {
+                // Behind the line and carrying no meaning of its own: the
+                // silent decay lands between two entries, so without a band
+                // the drop appears inside a workout the athlete completed.
+                ForEach(bands) { breakBandMark($0, in: points) }
                 ForEach(points) { pt in
                     LineMark(x: .value("date", pt.date), y: .value("level", pt.value))
                         .foregroundStyle(Theme.accent)
@@ -310,8 +365,6 @@ struct ProgressScreen: View {
                 }
             }
             .chartYScale(domain: 0...max(points.map(\.value).max() ?? 1, 8))
-            // A rising line with no time axis can't answer "how fast" — three
-            // sparse dates are enough without turning the chart into a grid.
             .chartXAxis {
                 AxisMarks(values: xAxisDates(points)) { _ in
                     AxisValueLabel(format: .dateTime.month(.abbreviated).day())
@@ -323,7 +376,7 @@ struct ProgressScreen: View {
                 AxisMarks(position: .trailing, values: .automatic(desiredCount: 3)) {
                     AxisGridLine().foregroundStyle(Theme.hairline)
                     AxisValueLabel()
-                        // Chart axis marks are not Views — no dredfitFont here.
+                        // Chart axis marks are not Views — no dredfitFont.
                         .font(.system(size: 10))
                         .foregroundStyle(Theme.ink3)
                 }
@@ -343,9 +396,8 @@ struct ProgressScreen: View {
 
     // MARK: - Pattern level bar
 
-    /// What the row's small print says about where the level is heading.
     /// Below tier 4 the next band boundary unlocks a variation; at tier 4 it
-    /// adds a set (32, 40); at the ceiling there is nothing left to promise.
+    /// adds a set; at the ceiling there is nothing left to promise.
     private enum NextMilestone {
         case variation(in: Int)
         case set(in: Int)
@@ -364,23 +416,18 @@ struct ProgressScreen: View {
         let decoded = Level.decode(level)
         let variation = ExerciseLibrary.entry(for: p).variations[decoded.tier - 1].name
         let selected = effectivePattern == p
-        // The row IS the chart selector — the chips row it replaced was the
-        // same list of patterns a second time. A second tap on the selected
-        // row deselects it, back to the total view; "Show all" stays as the
-        // visible way out for anyone who won't guess the toggle.
+        // The row IS the chart selector. A second tap deselects, back to the
+        // total view; "Show all" is the visible way out for anyone who won't
+        // guess the toggle.
         return Button {
             chartPattern = selected ? nil : p
         } label: {
-            // Across nine rows the per-row detail was nine exercise names and
-            // nine countdowns nobody asked for: the all-patterns view answers
-            // "where am I", not "what exactly is next on each". So the row is
-            // name, bar, number — and the detail belongs to the one pattern
-            // the chart is currently projecting.
+            // The all-patterns view answers "where am I", not "what is next
+            // on each" — the detail belongs to the projected pattern only.
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 12) {
-                    // Wide enough for "Горизонтальный жим" on one line: at 116
-                    // the long names wrapped, and a two-storey row eats the
-                    // space between rows that the list needs to breathe.
+                    // Wide enough for "Горизонтальный жим" on one line: at
+                    // 116 the long names wrapped.
                     Text(p.displayName)
                         .dredfitFont(13.5, weight: .medium)
                         .foregroundStyle(Theme.ink)
@@ -395,10 +442,8 @@ struct ProgressScreen: View {
                         .frame(width: 44, alignment: .trailing)
                 }
                 if selected {
-                    // "Push-up · 2/4" — which exercise this level buys and
-                    // where it sits in the four-variation progression. The
-                    // pieces are either core-localized (the name) or
-                    // language-neutral (the count), so the line is verbatim.
+                    // Verbatim: the pieces are either core-localized (the
+                    // name) or language-neutral (the count).
                     HStack(alignment: .firstTextBaseline, spacing: 8) {
                         Text(verbatim: "\(variation) · \(decoded.tier)/\(EngineConfig.tiers)")
                             .accessibilityLabel(Text(verbatim: variation + ", ")
@@ -415,8 +460,6 @@ struct ProgressScreen: View {
             }
             .padding(.vertical, 8)
             .padding(.horizontal, 8)
-            // The tint says "this is what the chart shows"; it reaches 8 pt
-            // into the gutters so the highlight breathes past the text.
             .background(selected ? Theme.accentSoft : .clear,
                         in: RoundedRectangle(cornerRadius: 10))
         }
@@ -433,9 +476,8 @@ struct ProgressScreen: View {
                 Capsule().fill(Theme.accent)
                     .frame(width: max(geo.size.width
                         * CGFloat(level) / CGFloat(EngineConfig.levelMax), level > 0 ? 6 : 0))
-                // Band boundaries — where a variation (or, past tier 4, a
-                // set) unlocks. The geometry uses the same 0...levelMax scale
-                // as the fill so the ticks agree with the number.
+                // Same 0...levelMax scale as the fill, so the ticks agree
+                // with the number.
                 ForEach(1..<(EngineConfig.levelMax / EngineConfig.stepsPerTier + 1), id: \.self) { band in
                     Rectangle()
                         .fill(Color.white)

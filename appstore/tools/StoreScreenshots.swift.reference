@@ -7,11 +7,11 @@
 //
 //  Seeded tests expect dredfit-state.json planted in the app container from
 //  the host (tools/seed.py) BEFORE the run, and launch WITHOUT --uitest-reset:
-//    seed.py <udid> A  → testSeeded* — en/ru/es/pt-BR (today, how-it-works,
+//    seed.py <udid> A  → testSeeded* — en/ru/es/pt-BR/de/fr/it (today, how-it-works,
 //                        set, dial, rest) and testRating*
 //    seed.py <udid> B  → testProgress*
 //  milestone/comeback screens use the app's own --uitest hooks instead
-//  (see the previous revision of this file in git history).
+//  (captureMilestone/captureComeback below — no seeding).
 //
 
 import XCTest
@@ -45,6 +45,21 @@ final class StoreScreenshots: XCTestCase {
                               done: "Feito", skipRest: "Pular o descanso", start: "Começar",
                               wentDifferently: "Foi diferente", ok: "OK",
                               progressTab: "Progresso", gotIt: "Entendi")
+    private static let de = L(langArg: "(de)", locale: "de_DE", tag: "de",
+                              ratingTitle: "Wie lief es?", skipWarmup: "Aufwärmen überspringen",
+                              done: "Fertig", skipRest: "Pause überspringen", start: "Starten",
+                              wentDifferently: "Lief anders", ok: "OK",
+                              progressTab: "Fortschritt", gotIt: "Verstanden")
+    private static let fr = L(langArg: "(fr)", locale: "fr_FR", tag: "fr",
+                              ratingTitle: "Comment ça s’est passé ?", skipWarmup: "Passer l’échauffement",
+                              done: "Terminé", skipRest: "Passer le repos", start: "Commencer",
+                              wentDifferently: "Ça s’est passé autrement", ok: "OK",
+                              progressTab: "Progression", gotIt: "Compris")
+    private static let it = L(langArg: "(it)", locale: "it_IT", tag: "it",
+                              ratingTitle: "Com’è andata?", skipWarmup: "Salta il riscaldamento",
+                              done: "Fatto", skipRest: "Salta il recupero", start: "Inizia",
+                              wentDifferently: "È andata diversamente", ok: "OK",
+                              progressTab: "Progressi", gotIt: "Capito")
 
     override func setUpWithError() throws {
         continueAfterFailure = false
@@ -138,6 +153,9 @@ final class StoreScreenshots: XCTestCase {
     func testSeededRussian() { seededFlow(Self.ru) }
     func testSeededSpanish() { seededFlow(Self.es) }
     func testSeededPortuguese() { seededFlow(Self.ptBR) }
+    func testSeededGerman() { seededFlow(Self.de) }
+    func testSeededFrench() { seededFlow(Self.fr) }
+    func testSeededItalian() { seededFlow(Self.it) }
 
     // MARK: - Seed B: Progress
 
@@ -150,10 +168,32 @@ final class StoreScreenshots: XCTestCase {
         app.terminate()
     }
 
+    // MARK: - Discomfort: Today while a movement rests (own --uitest hook)
+
+    private func restingToday(_ l: L) {
+        let app = launch(["--uitest-reset", "--uitest-discomfort"], l)
+        XCTAssertTrue(app.staticTexts["resting-line"].waitForExistence(timeout: 8),
+                      "no freeze block on Today")
+        Thread.sleep(forTimeInterval: 1)
+        snap("resting_\(l.tag)")
+        app.terminate()
+    }
+
+    func testRestingEnglish() { restingToday(Self.en) }
+    func testRestingRussian() { restingToday(Self.ru) }
+    func testRestingSpanish() { restingToday(Self.es) }
+    func testRestingPortuguese() { restingToday(Self.ptBR) }
+    func testRestingGerman() { restingToday(Self.de) }
+    func testRestingFrench() { restingToday(Self.fr) }
+    func testRestingItalian() { restingToday(Self.it) }
+
     func testProgressEnglish() { progress(Self.en) }
     func testProgressRussian() { progress(Self.ru) }
     func testProgressSpanish() { progress(Self.es) }
     func testProgressPortuguese() { progress(Self.ptBR) }
+    func testProgressGerman() { progress(Self.de) }
+    func testProgressFrench() { progress(Self.fr) }
+    func testProgressItalian() { progress(Self.it) }
 
     // MARK: - Seed A again: the rating screen with one adjustment, so the
     // summary card and the scope chip show (the 1.6.0 "s4 reads empty" note)
@@ -206,6 +246,9 @@ final class StoreScreenshots: XCTestCase {
     func testRatingRussian() { cleanRating(Self.ru) }
     func testRatingSpanish() { cleanRating(Self.es) }
     func testRatingPortuguese() { cleanRating(Self.ptBR) }
+    func testRatingGerman() { cleanRating(Self.de) }
+    func testRatingFrench() { cleanRating(Self.fr) }
+    func testRatingItalian() { cleanRating(Self.it) }
 
     // MARK: - Milestone & comeback (own --uitest hooks, no seeding)
 
@@ -262,10 +305,16 @@ final class StoreScreenshots: XCTestCase {
     func testMilestoneRussian() { captureMilestone(Self.ru) }
     func testMilestoneSpanish() { captureMilestone(Self.es) }
     func testMilestonePortuguese() { captureMilestone(Self.ptBR) }
+    func testMilestoneGerman() { captureMilestone(Self.de) }
+    func testMilestoneFrench() { captureMilestone(Self.fr) }
+    func testMilestoneItalian() { captureMilestone(Self.it) }
     func testComebackEnglish() { captureComeback(Self.en) }
     func testComebackRussian() { captureComeback(Self.ru) }
     func testComebackSpanish() { captureComeback(Self.es) }
     func testComebackPortuguese() { captureComeback(Self.ptBR) }
+    func testComebackGerman() { captureComeback(Self.de) }
+    func testComebackFrench() { captureComeback(Self.fr) }
+    func testComebackItalian() { captureComeback(Self.it) }
 }
 
 private extension StoreScreenshots.L {
@@ -274,6 +323,9 @@ private extension StoreScreenshots.L {
         case "ru": return "Начать удержание"
         case "es": return "Empezar la isometría"
         case "pt-br": return "Começar a isometria"
+        case "de": return "Haltezeit starten"
+        case "fr": return "Commencer le maintien"
+        case "it": return "Inizia l’isometria"
         default: return "Start hold"
         }
     }
@@ -282,6 +334,9 @@ private extension StoreScreenshots.L {
         case "ru": return "Пропустить заминку"
         case "es": return "Omitir enfriamiento"
         case "pt-br": return "Pular o desaquecimento"
+        case "de": return "Abwärmen überspringen"
+        case "fr": return "Passer le retour au calme"
+        case "it": return "Salta il defaticamento"
         default: return "Skip cool-down"
         }
     }
@@ -289,6 +344,9 @@ private extension StoreScreenshots.L {
         switch tag {
         case "ru": return "Стоп"
         case "es", "pt-br": return "Parar"
+        case "de": return "Stoppen"
+        case "fr": return "Arrêter"
+        case "it": return "Stop"
         default: return "Stop"
         }
     }
@@ -297,6 +355,9 @@ private extension StoreScreenshots.L {
         case "ru": return "По плану"
         case "es": return "Según el plan"
         case "pt-br": return "Como planejado"
+        case "de": return "Nach Plan"
+        case "fr": return "Comme prévu"
+        case "it": return "Come previsto"
         default: return "On plan"
         }
     }

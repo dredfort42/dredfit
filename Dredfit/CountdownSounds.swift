@@ -2,18 +2,15 @@
 //  CountdownSounds.swift
 //  Dredfit
 //
-//  The audible 3-2-1 countdown, played at *media* volume: a system sound
-//  would follow the ringer volume, which routinely sits near zero while
-//  music plays at full media volume.
+//  Played at *media* volume: a system sound would follow the ringer volume,
+//  which routinely sits near zero while music plays.
 //
 
 import AVFoundation
 
-/// Plays the countdown signals: a short tick on 3-2-1 and a longer two-tone
-/// rise at zero. The `.ambient` session mixes with whatever is already
-/// playing instead of pausing it, and the silent switch still mutes it
-/// (haptics remain the silent-mode channel) — while the signals themselves
-/// play at media volume, not ringer volume.
+/// `.ambient` + `.mixWithOthers` mixes with whatever is already playing
+/// instead of pausing it; the silent switch still mutes it (haptics remain
+/// the silent-mode channel).
 @MainActor
 final class CountdownSounds {
 
@@ -33,17 +30,16 @@ final class CountdownSounds {
         switchSides?.prepareToPlay()
     }
 
-    /// Construction is the actual work — the session category, the generated
-    /// tones and prepareToPlay all happen in init. Calling this when the
-    /// workout flow appears means the first countdown tick pays none of it.
+    /// Construction is the actual work (category, tone generation,
+    /// prepareToPlay); calling this early means the first tick pays none of it.
     func prime() {}
 
     func playTick() { play(tick) }
     func playGo() { play(go) }
     func playSwitch() { play(switchSides) }
 
-    /// Rewinds before playing: ticks arrive one second apart and a firing
-    /// must never be swallowed because the previous one is still tailing off.
+    /// Rewinds first: ticks arrive one second apart and a firing must not be
+    /// swallowed because the previous one is still tailing off.
     private func play(_ player: AVAudioPlayer?) {
         guard let player else { return }
         player.currentTime = 0
@@ -51,29 +47,25 @@ final class CountdownSounds {
     }
 }
 
-/// The signal tones as generated WAV data — built once at first use instead
-/// of shipped as opaque asset files, so the exact frequencies and envelope
-/// live here in reviewable form and the unit tests can hold them to it.
+/// Generated WAV data rather than shipped asset files, so the frequencies
+/// and envelope stay reviewable and unit-testable.
 enum SignalTone {
 
-    /// The 3-2-1 tick: one short high beep (G6).
     static let tick = wav(segments: [(hz: 1568.0, seconds: 0.07)], amplitude: 0.85)
 
-    /// The "go" at zero: a two-tone rise (C6 → G6), noticeably longer and
-    /// louder than the tick — this is the moment worth not missing.
+    /// A two-tone rise (C6 → G6), longer and louder than the tick.
     static let go = wav(segments: [(hz: 1046.5, seconds: 0.09), (hz: 1568.0, seconds: 0.22)],
                         amplitude: 1.0)
 
-    /// The side-switch pause opener (issue #35): the go inverted — a
-    /// two-tone fall (G6 → C6) — so eyes-closed stretching can tell "switch
-    /// sides" from "new position" without looking at the screen.
+    /// The go inverted (G6 → C6), so eyes-closed stretching can tell "switch
+    /// sides" from "new position" without looking.
     static let switchSides = wav(segments: [(hz: 1568.0, seconds: 0.09), (hz: 1046.5, seconds: 0.22)],
                                  amplitude: 1.0)
 
     static let sampleRate = 44_100
 
-    /// Mono 16-bit PCM WAV: consecutive sine segments with short linear
-    /// attack/release ramps so segment edges never click.
+    /// Mono 16-bit PCM WAV. The attack/release ramps keep segment edges from
+    /// clicking.
     static func wav(segments: [(hz: Double, seconds: Double)], amplitude: Double) -> Data {
         let rate = Double(sampleRate)
         var samples: [Int16] = []
@@ -86,8 +78,8 @@ enum SignalTone {
                 if i < attack { value *= Double(i) / Double(attack) }
                 if count - i < release { value *= Double(count - i) / Double(release) }
                 // Clamped: Int16(Double) traps out of range, and these tones
-                // are built in a `static let` — an amplitude raised past 1.0
-                // would crash at the first countdown, not at the edit.
+                // are built in a `static let` — an amplitude past 1.0 would
+                // crash at the first countdown, not at the edit.
                 samples.append(Int16(min(max(value * 32_767, -32_767), 32_767)))
             }
         }

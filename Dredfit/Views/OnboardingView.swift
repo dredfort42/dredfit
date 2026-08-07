@@ -2,17 +2,14 @@
 //  OnboardingView.swift
 //  Dredfit
 //
-//  First-run explainer: three cards, typography instead of illustrations.
-//  The thermostat idea is the one thing a new user cannot infer from the
-//  UI — without it a trained person sees 3×8 knee push-ups and leaves
-//  before the regulator has had a chance to converge.
+//  First-run explainer: three cards. The thermostat idea is the one thing a
+//  new user cannot infer from the UI.
 //
 
 import SwiftUI
 
 struct OnboardingView: View {
-    /// Called on both "Start" and "Skip" — reaching the end and opting out
-    /// are equally "seen".
+    /// Both "Start" and "Skip" count as "seen".
     let onFinish: () -> Void
 
     @State private var page = 0
@@ -28,9 +25,8 @@ struct OnboardingView: View {
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             dots
-            // "Continue", not "Next": TodayView already owns the key "Next"
-            // for the *next workout* card, and one key cannot carry two
-            // meanings across languages.
+            // TodayView owns the key "Next" for its next-workout card, and
+            // one key cannot carry two meanings across languages.
             PrimaryButton(title: page == pageCount - 1
                           ? String(localized: "Start")
                           : String(localized: "Continue")) {
@@ -40,8 +36,7 @@ struct OnboardingView: View {
                     withAnimation(.easeInOut(duration: 0.25)) { page += 1 }
                 }
             }
-            // Today sits behind the cover with its own "Start" button, so the
-            // pager's primary control needs an identifier of its own.
+            // Today sits behind the cover with its own "Start".
             .accessibilityIdentifier("onboarding-primary")
             .padding(.horizontal, 24)
             .padding(.bottom, 20)
@@ -86,8 +81,7 @@ struct OnboardingView: View {
         // non-escaping builder parameter cannot be captured inside it.
         let extraContent = extra()
         // Centred while it fits, scrollable once it doesn't: at accessibility
-        // text sizes a card's title and body outgrow the pager's height, and
-        // a fixed VStack would clip them instead of scrolling.
+        // sizes a fixed VStack would clip the card instead of scrolling it.
         return GeometryReader { proxy in
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 0) {
@@ -153,7 +147,7 @@ struct OnboardingView: View {
             arrow
             chip(String(localized: "plan"), filled: false)
         }
-        // One element for VoiceOver — three chips and two arrows read as noise.
+        // One element for VoiceOver — chips and arrows read as noise.
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text("Plan, then your actual result, then the next plan"))
     }

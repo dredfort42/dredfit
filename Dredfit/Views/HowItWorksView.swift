@@ -2,9 +2,6 @@
 //  HowItWorksView.swift
 //  Dredfit
 //
-//  The regulator explained in eight sections. Onboarding says the app
-//  adapts; this says how, for the user who wants to know why the plan moved.
-//
 //  Every number here is a fact from DredfitCore, not a marketing round-up:
 //  ±1/+2 are EngineConfig.delta*, three shortfalls and −3 are failsToDeload
 //  and deloadDrop, "five times in eight workouts" falls out of 8 rotating
@@ -43,7 +40,8 @@ struct HowItWorksView: View {
                     overall rating. From a standing start an exact number sets \
                     the level immediately — the first workout calibrates the \
                     system. After that the level climbs at most two steps per \
-                    workout.
+                    workout — and only one for calves, for the wall handstand \
+                    and for every fourth variation, where tendons set the pace.
                     """)),
             Section(id: 3,
                     title: String(localized: "Deload"),
@@ -82,6 +80,16 @@ struct HowItWorksView: View {
                     where it was. No penalty, no rollback.
                     """)),
             Section(id: 8,
+                    title: String(localized: "Something hurt"),
+                    body: String(localized: """
+                    Muscles giving out and a joint hurting are different \
+                    things, so they get different answers. Tap “Something \
+                    hurt” during a workout and that movement rests: it keeps \
+                    its place in the plan at the same level and stops getting \
+                    harder for the next three times it comes round. Sharp \
+                    pain is always a reason to stop.
+                    """)),
+            Section(id: 9,
                     title: String(localized: "Why there are no questionnaires"),
                     body: String(localized: """
                     A questionnaire can be wrong; what you actually did cannot. \
@@ -101,7 +109,7 @@ struct HowItWorksView: View {
                         .padding(.top, 30)
                         .fixedSize(horizontal: false, vertical: true)
 
-                    Text("Eight things worth knowing about the regulator.")
+                    Text("Nine things worth knowing about the regulator.")
                         .dredfitFont(15)
                         .foregroundStyle(Theme.ink2)
                         .padding(.top, 8)
@@ -116,8 +124,8 @@ struct HowItWorksView: View {
             }
 
             PrimaryButton(title: String(localized: "Got it")) { dismiss() }
-                // Settings sits underneath with its own "Got it" — both are in
-                // the accessibility tree while this sheet is up.
+                // Settings sits underneath with its own "Got it" — both are
+                // in the accessibility tree while this sheet is up.
                 .accessibilityIdentifier("how-it-works-done")
                 .padding(.horizontal, 24)
                 .padding(.bottom, 16)
@@ -139,9 +147,8 @@ struct HowItWorksView: View {
                 Text(section.title)
                     .dredfitFont(17, weight: .semibold)
                     .fixedSize(horizontal: false, vertical: true)
-                    // Header trait rather than combining title+body: it keeps
-                    // the titles skimmable by rotor instead of forcing a
-                    // full paragraph read per section.
+                    // Header trait rather than combining title+body: keeps
+                    // the titles skimmable by rotor.
                     .accessibilityAddTraits(.isHeader)
                 Text(section.body)
                     .dredfitFont(15.5)

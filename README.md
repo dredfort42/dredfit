@@ -31,18 +31,18 @@ Double progression falls out of the encoding for free: top out a tier's rep rang
 
 **Deterministic rotation.** Every session has 6 exercises. One slot is always a pull, for shoulder health — the tested invariant is that weekly pull volume stays at least 70% of combined pushing volume. The other 8 patterns rotate through the remaining 5 slots so that over any 8 consecutive sessions each appears exactly 5 times. No randomness anywhere: the same state always generates the same workout.
 
-**A feedback regulator.** After the workout, one tap: *tough / on plan / easy* → −1 / +1 / +2 levels for the session's patterns. During the workout you can record a per-exercise actual ("went differently") that overrides the rating for that pattern — upward moves are capped at +2 per session, downward moves are not. Three consecutive shortfalls on a pattern trigger an automatic deload (−3). A skipped exercise is neutral: its level and streak are left untouched rather than judged. Levels never go below 0. Time is the one input that isn't a tap: a week away eases every pattern down a step without saying anything about it, and past two weeks the app offers to meet you lower still — the longer the break, the further down. That's the whole model.
+**A feedback regulator.** After the workout, one tap: *tough / on plan / easy* → −1 / +1 / +2 levels for the session's patterns. During the workout you can record a per-exercise actual ("went differently") that overrides the rating for that pattern — upward moves are capped, downward moves are not. The cap is per movement and per variation, because tissue is: calves climb a single step per workout at every variation, the vertical push from the wall handstand up, and every pattern on its fourth variation, where the archer variants and the set bands live. Everything else keeps two. Three consecutive shortfalls on a pattern trigger an automatic deload (−3). A skipped exercise is neutral: its level and streak are left untouched rather than judged. Report that something *hurt* and that pattern goes further than neutral: it keeps appearing at its current level but stops climbing for its next three appearances — joints signal earlier than rep counts do. Levels never go below 0. Time is the one input that isn't a tap: a week away eases every pattern down a step without saying anything about it, and past two weeks the app offers to meet you lower still — the longer the break, the further down. That's the whole model.
 
 **The pull-up bar module.** Vertical pulling is the one honest gap of a no-equipment format. Turn the bar on in settings and every other session swaps the floor pull for a vertical one — bar hang, negative pull-up, partial, full pull-up — tracked as its own independent level. Turn it off and the branch freezes without losing progress.
 
-The 40-exercise library is 10 patterns × 4 tiers: 8 rotating patterns (32), the fixed pull slot (4), and the bar branch (4). Classic calisthenics — squat to shrimp squat, knee push-up to archer push-up — each with reviewed, plain-language technique steps and common mistakes, in English, Russian, Spanish and Brazilian Portuguese.
+The 40-exercise library is 10 patterns × 4 tiers: 8 rotating patterns (32), the fixed pull slot (4), and the bar branch (4). Classic calisthenics — squat to shrimp squat, knee push-up to archer push-up — each with reviewed, plain-language technique steps and common mistakes, in English, Russian, Spanish, Brazilian Portuguese, German, French and Italian.
 
 ## The app
 
 SwiftUI, iOS 17+, iPhone, portrait. Three tabs, a settings sheet reachable from all of them, and one flow:
 
 - **Today** — the generated plan and one Start button, with a short version under it for the days there is no time: three of the six exercises, the rest recorded as honest skips. A completed state once you're done, with a card for the next workout. If a session was cut short by iOS reclaiming memory or a swipe-kill, this is where it is offered back.
-- **Workout** — warm-up, then one exercise at a time: a big number, set dots, a date-based rest ring with a 3-2-1 audio countdown, a hold timer for static exercises, in-the-moment actual adjustment, per-exercise skip. Unilateral holds get a counted pause to switch sides. A cool-down closes the session before the rating — six stretches, half of them chosen from what you just trained. Every countdown is wall-clock based, so locking the phone mid-rest loses nothing — and the position is snapshotted on every transition, so neither does losing the process. Leaving asks first, and offers to finish early rather than discard.
+- **Workout** — warm-up, then one exercise at a time: a big number, set dots, a date-based rest ring with a 3-2-1 audio countdown, a hold timer for static exercises, in-the-moment actual adjustment, per-exercise skip. Unilateral holds get a counted pause to switch sides. A cool-down closes the session before the rating — six stretches, half of them chosen from what you just trained. Every position of both guided blocks opens with a five-second "Get ready" naming what is coming, skippable by a tap for anyone already in place, and every timed screen of those blocks can be paused — the doorbell is not a reason to pretend a stretch happened, and resuming counts you back in before continuing from the second it stopped on. Every countdown is wall-clock based, so locking the phone mid-rest loses nothing — and the position is snapshotted on every transition, so neither does losing the process. Leaving asks first, and offers to finish early rather than discard.
 - **Rating** — the one question on three equal cards, with an honest summary of anything you adjusted, skipped or left unfinished.
 - **Calendar** — filled days are tappable history (what you did, with actuals and skips); *upcoming* planned days are outlines; today gets an accent ring; rest days a quiet fill; missed days are left as plain dimmed numbers, deliberately unmarked and unshamed.
 - **Progress** — total level, a line chart across sessions with per-pattern projections, a weekly summary, per-pattern level bars.
@@ -58,7 +58,7 @@ State is one JSON file in Application Support. Old records survive every update 
 DredfitCore/            Swift package — the engine, pure functions, no UI imports
   Engine.swift          state → session; state × session × feedback → state
   Library.swift         40 exercises, hand-written to mirror the JS reference
-  Resources/            String Catalog (en source; ru, es, pt-BR translations)
+  Resources/            String Catalog (en source; ru, es, pt-BR, de, fr, it translations)
   Tests/
     EngineTests.swift    invariants: encoding, rotation, balance, deload, caps
     EngineV23Tests.swift zero-level calibration, comeback, per-tier rep/hold floors
@@ -80,21 +80,21 @@ DredfitWidgets/         widget extension — TodayStatusWidget, RestLiveActivity
 Shared/                 the App Group snapshot contract
 
 docs/                   the dredfit.com site — GitHub Pages, static, no build
-  index.html            landing + privacy.html, mirrored under ru/ es/ pt-br/
+  index.html            landing + privacy.html, mirrored under ru/ es/ pt-br/ de/ fr/ it/
   CNAME, robots.txt, sitemap.xml, og.png
 ```
 
-The engine was first written and verified as a JavaScript reference (8,009 property checks and scenario simulations), then ported to Swift. `golden.json` is the reference's recorded trace — 143 steps across 10 scenarios — and the Swift port must reproduce it exactly. Changing engine behavior means changing the reference first, re-verifying, regenerating fixtures, then porting. Plausible-but-different is a failing test, not a judgment call. (The JS reference lives outside this repository; the recorded fixture is what ships.)
+The engine was first written and verified as a JavaScript reference (9,367 property checks and scenario simulations), then ported to Swift. `golden.json` is the reference's recorded trace — 155 steps across 11 scenarios — and the Swift port must reproduce it exactly. Changing engine behavior means changing the reference first, re-verifying, regenerating fixtures, then porting. Plausible-but-different is a failing test, not a judgment call. (The JS reference lives outside this repository; the recorded fixture is what ships.)
 
 ## Testing
 
-Three layers, 284 automated tests:
+Three layers, 343 automated tests:
 
 | Layer | Count | What it covers |
 | --- | --- | --- |
-| Core invariants + golden | 63 | encoding bijectivity, rotation properties, pull:push balance, deload timing, override caps, skip semantics, bar-branch independence, lenient state decode, feedback replay safety, the silent decay and its non-stacking with the comeback, reference parity |
-| App unit tests | 181 | persistence round-trips, corrupted-file quarantine, a frozen journal and its reload, legacy-record migration, in-progress snapshot validity, rest-day calendar math, Health export ordering and idempotence, the one-shot reminder window, day-anchor rollover, the widget snapshot, its backward compatibility and the per-day timeline words, the variation-debut badge, share-card wording and its level curve, the short workout's picks, cool-down composition, the jubilee's then-and-now comparison, the life-benefit override |
-| UI tests | 40 | the full workout flow, in-workout adjustment, hold mis-tap grace, resume after a kill, the three exit paths, the short workout, the cool-down, the side-switch pause, position technique sheets, history, relaunch persistence, and the release smoke walked end to end in English and Russian |
+| Core invariants + golden | 82 | encoding bijectivity, rotation properties, pull:push balance, deload timing, override caps, skip semantics, bar-branch independence, lenient state decode, feedback replay safety, the silent decay and its non-stacking with the comeback, the per-movement growth ceiling checked cell by cell against the reference table, the discomfort freeze and its immunity to deload, reference parity |
+| App unit tests | 211 | persistence round-trips, corrupted-file quarantine, a frozen journal and its reload, legacy-record migration, in-progress snapshot validity, rest-day calendar math, Health export ordering and idempotence, the one-shot reminder window, day-anchor rollover, the widget snapshot, its backward compatibility and the per-day timeline words, the variation-debut badge, share-card wording and its level curve, the short workout's picks, cool-down composition, the get-ready transition and the minutes both blocks fit into, the way back in from a pause, rest extension up to its cap, the freeze horizon shown on Today, the progress chart's gap band and the line that may accompany it, the jubilee's then-and-now comparison, the life-benefit override |
+| UI tests | 50 | the full workout flow, in-workout adjustment, hold mis-tap grace, resume after a kill, the three exit paths, the short workout, the cool-down, the side-switch pause, the get-ready transition, pausing and resuming a guided block, reporting discomfort and extending a rest, position technique sheets, history, relaunch persistence, and the release smoke walked end to end in English and Russian |
 
 Plus [TESTPLAN.md](TESTPLAN.md): a manual QA checklist (locale passes, date rollover, backgrounding during rest, device-only integrations) and a registry of found issues with their status.
 
@@ -105,11 +105,11 @@ CI runs the unit suites on every push — that is the gate for merges and releas
 1. Open the Xcode project (iOS 17+, Xcode 15+).
 2. The `DredfitCore` package is local — add it via *File → Add Package Dependencies → Add Local* if not already linked.
 3. `⌘U` on the package first: golden tests are the gate.
-4. Run on any iPhone simulator. UI tests expect an English locale and drive the app through DEBUG-only launch flags — `--uitest-reset` for a clean slate, `--uitest-fast` to collapse rest countdowns, and a few that seed a specific state (`--uitest-session2`, `--uitest-milestone`, `--uitest-comeback`, `--uitest-restday`, `--uitest-onboarding`).
+4. Run on any iPhone simulator. UI tests expect an English locale and drive the app through DEBUG-only launch flags — `--uitest-reset` for a clean slate, `--uitest-fast` to collapse rest countdowns, `--uitest-long-transition` to hold a "Get ready" transition open so the tests that tap it are not racing its five seconds, and a few that seed a specific state (`--uitest-session2`, `--uitest-milestone`, `--uitest-comeback`, `--uitest-restday`, `--uitest-onboarding`).
 
 ## Localization
 
-English is the source language; Russian, Spanish and Brazilian Portuguese each ship complete — 544 translated keys across four String Catalogs, including all exercise technique. English base strings live inline at each call site; translations live in the catalogs. Every translation is idiomatic rather than literal: Russian avoids anglicisms and calques and uses `е` rather than `ё` throughout; Spanish and Brazilian Portuguese address the reader informally (`tú` / `você`) and take their exercise and pattern vocabulary from the same glossary as the [marketing site](https://dredfit.com/), which ships in the same four languages.
+English is the source language; Russian, Spanish, Brazilian Portuguese, German, French and Italian each ship complete — 563 translated keys across four String Catalogs, including all exercise technique. English base strings live inline at each call site; translations live in the catalogs. Every translation is idiomatic rather than literal: Russian avoids anglicisms and calques and uses `е` rather than `ё` throughout; Spanish, Brazilian Portuguese, German, French and Italian address the reader informally (`tú` / `você` / lowercase `du` / `tu`) and take their exercise and pattern vocabulary from the same glossary as the [marketing site](https://dredfit.com/), which ships in the same seven languages.
 
 ## Design principles
 
@@ -128,7 +128,7 @@ procedure, and how to enable branch protection are in
 
 ## Status
 
-Shipping. Working on device, tested across all four locales.
+Shipping. Working on device, tested across all seven locales.
 
 Planned work and deliberately-rejected ideas are tracked in the project backlog (`instructions/BACKLOG.md`, kept alongside the engine specification outside this repository).
 

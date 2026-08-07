@@ -2,10 +2,9 @@
 //  RestLiveActivity.swift
 //  DredfitWidgets
 //
-//  The workout on the lock screen and in the Dynamic Island.
 //  During rest the system ticks the countdown itself via
-//  Text(timerInterval:) — no updates needed from the app.
-//  All strings arrive pre-localized in the content state.
+//  Text(timerInterval:) — no updates needed from the app. All strings
+//  arrive pre-localized in the content state.
 //
 
 import ActivityKit
@@ -15,8 +14,7 @@ import SwiftUI
 struct RestLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: RestActivityAttributes.self) { context in
-            // Stale content (the app stopped updating — backgrounded past the
-            // staleDate or killed) dims instead of impersonating a live state.
+            // Stale content dims instead of impersonating a live state.
             lockScreen(context.state)
                 .opacity(context.isStale ? 0.45 : 1)
         } dynamicIsland: { context in
@@ -65,13 +63,10 @@ struct RestLiveActivity: Widget {
             countdown(state, size: 34)
         }
         .padding(16)
-        // Follows the system appearance: a white card on a dark lock screen
-        // mid-workout is a flash in the eyes at the worst possible moment.
         .activityBackgroundTint(WidgetTheme.background)
         .activitySystemActionForegroundColor(WidgetTheme.ink)
     }
 
-    /// The rest countdown; during work — a quiet accent dot instead.
     @ViewBuilder
     private func countdown(_ state: RestActivityAttributes.ContentState, size: CGFloat) -> some View {
         if state.phase == .rest, let end = state.restEndDate, end > .now {

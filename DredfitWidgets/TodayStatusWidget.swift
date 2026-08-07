@@ -2,20 +2,8 @@
 //  TodayStatusWidget.swift
 //  DredfitWidgets
 //
-//  Today's status — a planned workout, "done", or a rest day — on the home
-//  screen and on the lock screen. The app writes a two-week snapshot into the
-//  App Group; the widget only reads it, one timeline entry per day, so the
-//  status flips at midnight without the app's help.
-//
-//  What each family answers is deliberately different, so two accessories on
-//  the same lock screen never say the same thing twice:
-//    · circular      — is there a workout today? one glyph, no reading
-//    · inline / rect — which workout, and how much of it
-//    · small         — the same question the widget has always answered
-//    · medium        — plus the week and the total level
-//    · large         — plus the plan itself
-//
-//  The timeline itself (TodayEntry / TodayProvider) lives in
+//  The app writes a two-week snapshot into the App Group; the widget only
+//  reads it, one timeline entry per day. The timeline itself lives in
 //  TodayProvider.swift, where the unit tests can reach it.
 //
 
@@ -24,9 +12,8 @@ import SwiftUI
 
 // MARK: - View
 
-// Explicit @MainActor for the same reason as in TodayProvider.swift: the
-// unit tests compile this file without the widget target's default
-// MainActor isolation.
+/// Explicit @MainActor, like TodayProvider: the unit tests compile this file
+/// without the widget target's default MainActor isolation.
 @MainActor
 struct TodayStatusView: View {
     @Environment(\.widgetFamily) private var family
@@ -55,9 +42,6 @@ struct TodayStatusView: View {
         .containerBackground(WidgetTheme.background, for: .widget)
     }
 
-    /// Three tiers rather than four corners: the extra width goes to the week
-    /// strip, which spans the whole card instead of crowding into a corner
-    /// and leaving the middle of the widget empty.
     private var medium: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
@@ -96,7 +80,6 @@ struct TodayStatusView: View {
 
     // MARK: Lock screen
 
-    /// One glyph, no reading: the only question worth answering at a glance.
     private var circular: some View {
         ZStack {
             AccessoryWidgetBackground()
@@ -154,8 +137,6 @@ struct TodayStatusView: View {
             .foregroundStyle(WidgetTheme.ink2)
     }
 
-    /// The accent dot plus the headline — the shape the small family has
-    /// always had, reused so every size reads as one family.
     private func statusBlock(size: CGFloat) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             if entry.status == .workout {
@@ -188,8 +169,6 @@ struct TodayStatusView: View {
         }
     }
 
-    /// The same marks the Calendar tab uses, so a filled dot cannot come to
-    /// mean one thing on the home screen and another inside the app.
     private var weekStrip: some View {
         HStack(spacing: 0) {
             ForEach(entry.week, id: \.date) { day in
@@ -197,8 +176,7 @@ struct TodayStatusView: View {
                     Text(day.date.formatted(.dateTime.weekday(.narrow)))
                         .font(.system(size: 10, weight: .semibold))
                         // A missed day carries no mark, so without dimming its
-                        // letter the column reads as a failed render rather
-                        // than as the silence it is meant to be.
+                        // letter the column reads as a failed render.
                         .foregroundStyle(day.status == .unmarked
                                          ? WidgetTheme.ink3 : WidgetTheme.ink2)
                     mark(for: day)
@@ -220,11 +198,8 @@ struct TodayStatusView: View {
             case .workout:
                 Circle().strokeBorder(WidgetTheme.planned, lineWidth: 1.5)
             case .unmarked:
-                // A missed training day. Left blank on purpose.
                 Color.clear
             }
-            // "Done" is already the loudest mark on the strip; ringing it too
-            // would only blur which day is today.
             if isToday && day.status != .done {
                 Circle().strokeBorder(WidgetTheme.accent, lineWidth: 2)
             }
@@ -232,8 +207,6 @@ struct TodayStatusView: View {
         .frame(width: 14, height: 14)
     }
 
-    /// On a rest day or once today is done, the plan below is the *next*
-    /// session — say so, rather than letting it read as today's.
     @ViewBuilder
     private var nextPlanLabel: some View {
         if let text = nextPlanText {
@@ -244,10 +217,6 @@ struct TodayStatusView: View {
         }
     }
 
-    /// Internal, like headline and subline below: the words are the part of
-    /// the view the unit tests pin, the chrome around them is not. Resolved
-    /// Strings rather than Text: two Texts with identical words do not
-    /// reliably compare equal, and the tests pin words, not SwiftUI storage.
     var nextPlanText: String? {
         guard entry.status != .workout, let n = entry.planSessionNumber,
               let when = entry.nextLabel else { return nil }
@@ -267,6 +236,10 @@ struct TodayStatusView: View {
                         .font(.system(size: 13.5))
                         .foregroundStyle(WidgetTheme.ink)
                         .lineLimit(1)
+                        // Shrink rather than truncate (I-12): sibling
+                        // variations differ at the END of the name, which is
+                        // exactly what an ellipsis would hide.
+                        .minimumScaleFactor(0.8)
                     Spacer(minLength: 0)
                     Text(row.detail)
                         .font(.system(size: 13, weight: .semibold))
@@ -278,7 +251,6 @@ struct TodayStatusView: View {
         }
     }
 
-    /// Worded exactly as the Progress screen words it, deload weeks and all.
     @ViewBuilder
     private var weekSummaryLine: some View {
         if let week = entry.summary {
@@ -297,8 +269,9 @@ struct TodayStatusView: View {
 
     // MARK: Words and glyphs
     //
-    // Internal rather than private: the unit tests pin these Text choices
-    // per status — see WidgetTimelineTests.
+    // Internal rather than private: the unit tests pin these per status.
+    // Resolved Strings rather than Text — two Texts with identical words do
+    // not reliably compare equal (I-8).
 
     var headline: String {
         switch entry.status {
@@ -327,11 +300,6 @@ struct TodayStatusView: View {
         }
     }
 
-    /// Two of the three already exist in the app's tiny symbol vocabulary:
-    /// `checkmark` is the done state on Today, `figure.strengthtraining
-    /// .functional` is how the Live Activity signs itself in the Dynamic
-    /// Island. A rest day never had a glyph — `moon.fill` is the one silhouette
-    /// that cannot be confused with the figure at accessory size.
     private var glyph: String {
         switch entry.status {
         case .done: return "checkmark"

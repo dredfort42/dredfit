@@ -1,6 +1,6 @@
 # Dredfit — manual QA checklist
 
-Automated coverage (284 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
+Automated coverage (343 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
 
 **How to use.** Run the *Release smoke* block before every release. Run *Full pass* when the engine, persistence or an integration changed. Device-only rows cannot pass on a simulator and are marked ⌚. Record anything that fails in the [Issue registry](#issue-registry) at the bottom rather than fixing it silently.
 
@@ -32,12 +32,13 @@ about pixels, not about strings. Walk those on a device before submitting.
 | # | Check | Expected |
 |---|---|---|
 | S1 | Cold start on a fresh install | Opens on **Today** with "Workout 1", ≈33 min, 6 exercises, a **Start** button with the short-version offer under it |
-| S2 | Full workout: Start → warm-up → 6 exercises → cool-down → rating | Rating screen appears; tapping an option returns to Today in the done state |
+| S2 | Full workout: Start → warm-up (opens on its "Get ready" transition) → 6 exercises → cool-down → rating | Rating screen appears; tapping an option returns to Today in the done state |
 | S3 | Today after completion | Checkmark, "Workout 1 completed", a rating caption, and a **Next** card (no Start button) |
 | S4 | Relaunch the app | Still in the done state — the record survived the restart |
 | S5 | Calendar tab | Today is filled and tappable; the history sheet lists what was done |
 | S6 | Progress tab | Total level > 0, one chart point, per-pattern bars drawn |
 | S7 | Switch to Russian and repeat S1–S3 | No English leaks, no clipped labels |
+| S8 | **Something hurt** on an exercise, then finish the workout | The exercise ends like a skip; the rating lists it under **DISCOMFORT**; the calendar's history row reads "hurt", not "skipped" |
 
 ---
 
@@ -48,16 +49,16 @@ about pixels, not about strings. Walk those on a device before submitting.
 | # | Check | Expected |
 |---|---|---|
 | 1.1 | Tap an exercise row on Today before starting | Technique sheet opens; the workout does **not** start |
-| 1.2 | Tap **Start** | Full-screen flow opens on **WARM-UP**; the screen does not auto-lock for the whole workout |
-| 1.3 | Let the warm-up run | 6 moves × 30 s. At 3-2-1 a tick sound + light haptic; at 0 a two-tone rise + success haptic; dots advance; total 3 min |
+| 1.2 | Tap **Start** | Full-screen flow opens on **WARM-UP**, on the first move's "Get ready" transition (§34); the screen does not auto-lock for the whole workout |
+| 1.3 | Let the warm-up run | 6 × (5 s transition + 30 s move) = 3:30. At 3-2-1 a tick sound + light haptic; at 0 a two-tone rise + success haptic starting the move; dots advance |
 | 1.3a | ⌚ Play music, run a countdown to 0 | The 3-2-1 ticks and the finale are clearly audible over the music at typical media volume; the music keeps playing (mixed, not paused) |
 | 1.3b | ⌚ Silent switch on | Signals are silent — haptics only. Same with **Sounds** off in settings |
 | 1.4 | Tap **Skip warm-up** | The *entire* warm-up block ends (not just the current move) and exercise 1 appears |
-| 1.4a | Tap **Skip this move** during the warm-up | Only the current move is skipped — the next one starts its own 30 s; on the last move it ends the warm-up |
+| 1.4a | Tap **Skip this move** during the warm-up | Only the current move is skipped — the next one starts with its own transition; on the last move it ends the warm-up |
 | 1.5 | Work screen layout | Header "1 / 6" and 6 capsules; exercise name; **technique** button; big planned number; "reps" (or "reps per side"); set dots; "set 1 of 3" |
 | 1.6 | Tap **technique** during work | Sheet opens for the current exercise; it does not swap if the phase changes underneath |
 | 1.7 | Tap **Done** on a non-final set | Rest starts at 60 s |
-| 1.8 | Rest screen | "REST", a ring counting down from 60, "Next up" + next label, a **technique** button for the *next* exercise, **Skip rest** |
+| 1.8 | Rest screen | "REST", a ring counting down from 60, "Next up" + next label, a **technique** button for the *next* exercise, and two outlined controls of equal weight: **+15 s** and **Skip rest** |
 | 1.9 | Complete all sets of all 6 exercises | Flow reaches the rating screen |
 | 1.10 | Tap **Exit** with progress on the clock (a set done, an actual entered, or mid-rest) | Confirmation dialog: **Finish now** / **Discard workout** (destructive) / **Cancel** |
 | 1.10a | Choose **Finish now** | Remaining exercises are marked skipped, the rating screen opens; after rating, the workout is recorded. The exercise cut mid-way reads "not finished", fully untouched ones read "skipped" |
@@ -73,6 +74,12 @@ about pixels, not about strings. Walk those on a device before submitting.
 | 2.2 | Start a rest, background the app ~20 s, return | Same: wall-clock accurate |
 | 2.3 | Let a rest run to 0 in the foreground | Advances to the next set/exercise with the 3-2-1 signals |
 | 2.4 | Background the app across a rest's end, then return | The flow has advanced correctly, not stalled at 0 |
+| 2.5 | Tap **+15 s** during a rest | The number jumps by 15 and keeps counting down; the ring's arc shrinks to match the new total rather than running past full |
+| 2.6 | Tap **+15 s** repeatedly | Allowed up to twice the rest this transition planned (60 s → four taps). At the cap the button greys out **in place** — the row does not jump |
+| 2.7 | Extend, then lock the phone ~20 s | Wall-clock accurate against the *extended* end; the Live Activity on the lock screen counts to the new end, not the old one |
+| 2.8 | Extend inside the last 3 seconds | The 3-2-1 signals play again on the new way down — they are not spent for the rest of the phase |
+| 2.9 | Extend, then kill the app and reopen | Resuming returns to the rest with the extended time, not the planned one |
+| 2.10 | **+15 s** with VoiceOver | Reads as a phrase ("Add 15 seconds of rest"), not as "plus fifteen ess" |
 
 ### 3. Hold timer (static exercises)
 
@@ -105,10 +112,9 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 | # | Check | Expected |
 |---|---|---|
 | 5.1 | Layout | "Workout N" kicker, "How did it go?", subtitle "One tap — the next workout adapts" |
-| 5.2 | Three options | "Tough, did less" / "On plan" / "Easy, could do more" — **equal visual weight** (no filled card), captions "next workout eases off" / "the next one asks a little more" / "progress comes twice as fast" |
-| 5.3 | No adjustments made | No summary card and no scope chip are shown |
-| 5.4 | With adjustments/skips | With skips a scope chip under the title: "Applies to N of M — … stays put" (N excludes skips **and** adjusted exercises). The summary card labels its lists separately: "ADJUSTED" only over adjusted rows, "SKIPPED" only over skipped rows. Skipped rows are dimmed names with **no** per-row word (the header says it once); the one exception is the "Finish now" exercise, whose row reads "not finished" — it differs from the header. VoiceOver still reads every row with its state. The "Your rating applies to the rest" footer appears only when nothing was skipped |
-| 5.4a | Second and later workouts | "Last time you chose: <previous rating>" in small print under the cards; absent on the very first workout |
+| 5.2 | Three options | "Tough, did less" / "On plan" / "Easy, could do more" — **equal visual weight** (no filled card), captions "next workout eases off" / "the next one asks a little more" / "the next one asks as much more as each movement allows" — **no caption promises a multiple**: since v2.5 the growth ceiling makes "twice" false on fourth-variation work |
+| 5.3 | No adjustments made | No summary card is shown — and no scope chip anywhere on the screen: the count lives in the card header now, so with nothing to show there is nothing to say |
+| 5.4 | With adjustments/skips | The scope is stated **once**, in the card header: "Your rating applies to N of M" (N excludes skips **and** adjusted exercises). No chip under the title. Below it the lists label themselves: "DISCOMFORT" and "SKIPPED" over their rows, adjusted rows sitting directly under the header. Skipped rows are dimmed names with **no** per-row word; the one exception is the "Finish now" exercise, whose row reads "not finished". VoiceOver still reads every row with its state. The footer "These keep their level either way." appears only when something **was** set aside |
 | 5.5 | Tap any option | Submits immediately — the card *is* the button; returns to Today |
 | 5.6 | Choose "On plan" and check Progress next session | Each non-skipped pattern rose by exactly 1 level |
 
@@ -117,7 +123,7 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 | # | Check | Expected |
 |---|---|---|
 | 6.1 | Settings → **REST DAYS**, fresh install | Sunday **and Wednesday** highlighted (issue #36); captions "Highlighted days are rest days" and "2–3 rest days a week is the recommended rhythm". An install upgrading from a file without the key keeps Sunday only |
-| 6.2 | Chip order | Starts at the locale's first weekday (Monday for ru, Sunday for en-US) |
+| 6.2 | Chip order | Starts at the locale's first weekday (Monday for ru and de, Sunday for en-US) |
 | 6.3 | Select a second rest day | Both highlighted; Calendar marks both |
 | 6.4 | Try to select a **7th** rest day | Refused — six is the maximum |
 | 6.5 | Calendar rendering on a rest day | A soft filled circle, clearly distinct from an out-of-month day; the legend lists **rest** |
@@ -211,6 +217,14 @@ The snapshot contract is unit-tested on every run (the snapshot URL is injected,
 | 12.15 | ⌚ Every family in **dark mode** | Background and ink follow the system; no white tile among dark widgets |
 | 12.16 | ⌚ Live Activity on the lock screen in dark mode | The card is dark, not a white flash; the countdown stays accent and readable |
 | 12.17 | Install over the previous version without opening the app | The widget keeps rendering from the old snapshot instead of blanking (new fields decode as absent) |
+| 12.18 | Long-press the widget on the home screen and tap each entry of the size row | App icon, small, medium and large are all offered; tapping small, medium or large converts the widget in place and it redraws in that layout — not a silent no-op |
+| 12.19 | The same three conversions by dragging the corner handle in edit mode | The same result as the menu: no size is reachable one way and not the other |
+| 12.20 | Add **Today's status** straight from the gallery at each of the three home sizes | Three size pages under the widget; each one adds at the size on screen |
+| 12.21 | The large widget in Russian, Brazilian Portuguese and German, on a session carrying the longest names — "Bird dog (hold)", whose load prints per side; German compounds ("Einbeiniges rumänisches Kreuzheben") are the new length crown | Every plan row keeps its whole name: it shrinks a little rather than ending in an ellipsis. The weekly summary line stays on one line |
+
+A conversion that seems to do nothing is a page question before it is a widget
+question: check the page has room for the larger footprint, and re-run §12.18
+on a page that does — see I-11.
 
 ### 13. Date rollover and edge cases
 
@@ -223,7 +237,7 @@ The snapshot contract is unit-tested on every run (the snapshot URL is injected,
 | 13.5 | Change the device timezone, reopen | No duplicated or missing calendar days |
 | 13.6 | Kill the app mid-workout and relaunch | No partial record is written; Today offers **Continue the workout?** (see §24) |
 
-### 14. Localization (run the whole Full pass in both locales)
+### 14. Localization (run the whole Full pass in en and ru; spot-pass the other locales)
 
 | # | Check | Expected |
 |---|---|---|
@@ -231,25 +245,35 @@ The snapshot contract is unit-tested on every run (the snapshot URL is injected,
 | 14.2 | Every screen in **Russian** | Complete translation; exercise names and all technique text translated |
 | 14.3 | Russian typography | Uses `е`, never `ё` (a deliberate project convention) |
 | 14.4 | Next-training-day label in Russian | Correct preposition: "во вторник", "в среду" |
-| 14.5 | Calendar weekday order per locale | Russian starts Monday |
+| 14.5 | Calendar weekday order per locale | Russian and German start Monday |
 | 14.6 | Notification, widget and Live Activity text | Localized too — not just the main app |
 | 14.7 | Long Russian labels | Nothing clipped or truncated mid-word |
+| 14.8 | Key screens in **German** (Today, workout, rating, Progress, settings) | Complete translation; du always lowercase mid-sentence, no gendered noun for the athlete; next-training label reads "am Montag" |
+| 14.9 | Long German compounds ("Einbeiniges rumänisches Kreuzheben", "Handstand-Liegestütze mit Brust zur Wand") | Nothing clipped or truncated mid-word on plan rows, sheets and the widget |
+| 14.10 | Key screens in **French** | Complete translation, tu throughout, nothing describing the reader with a gendered participle; next-training label reads "le mardi" |
+| 14.11 | French punctuation on screen | A no-break space before `:` and a narrow one before `? ! ;` — the mark never starts a line on its own, and never sits flush against the word |
+| 14.12 | Key screens in **Italian** | Complete translation, tu throughout, buttons in the imperative ("Inizia", "Salta"); next-training label is the bare weekday, with no gendered article |
+| 14.13 | The longest names in both ("Élévation de mollet à une jambe sur une marche", "Sollevamenti sulle punte a una gamba sullo scalino") | Nothing clipped or truncated mid-word on plan rows, sheets and the widget — these two are the longest in the library |
 
 ### 15. Progress, calendar, history
 
 | # | Check | Expected |
 |---|---|---|
-| 15.1 | Progress header | Total level, beside it "level" / "N workouts", and "This week · N workouts · +D levels" |
+| 15.1 | Progress header | Total level, beside it "level" / "N workouts". No weekly summary line — the space belongs to the chart |
 | 15.1a | Header at a four-digit total, in Russian (1.8.0) | The number stays on **one** line — never broken mid-digit ("1 27" / "0"); the caption stays on two lines |
 | 15.1b | Header share button | A round icon (the word does not fit beside the number in Russian), centred on the height of the number's line |
 | 15.1c | Header at an accessibility type size | The caption drops under the number instead of pushing the row off either edge; the share glyph stays inside its ring |
-| 15.2 | A week containing a deload | The weekly delta honestly shows a **minus** |
 | 15.3 | Chart projection | Tapping a pattern row tints it and plots that pattern only; the kicker over the chart names the projection ("PUSH — PUSH-UP"); "Show all" resets to the total — no chips row |
 | 15.3a | Chart x-axis | Two–three sparse date labels (first / middle / last workout); no label before the second workout |
 | 15.3b | Per-pattern bars | One line per pattern: name, bar with white ticks at band boundaries, level. No per-row detail in the all-patterns view |
 | 15.3d | Select a pattern (1.8.0) | Only the selected row grows a detail line under it — the current variation and its position ("Push-up · 2/4") on the left, "next in N" (or "+1 set in N" at tier 4, nothing at the ceiling) on the right; the tint covers both lines |
 | 15.3e | Back to all patterns | The detail line disappears — from the view hierarchy, not merely off-screen |
 | 15.3c | Selecting a pattern, in Russian (1.8.0) | The kicker and the chart under it **do not move**: the title stays on one line (shrinking, then truncating) and "Show all" keeps its place even while hidden |
+| 15.3f | A history with a gap of 7 days or more | A grey band spans the gap behind the line, with the duration inside it ("9 days"); a narrow band keeps the band and drops the label. No gaps means no band and no reserved space |
+| 15.3g | The line under the chart | States the longest break and its length. It adds "The plan met you lower." **only** where the level fell across that gap *and* the first workout back cannot explain the drop itself — neither rated "Tough, did less" nor carrying an entered number. Otherwise it says the break and stops. Several gaps add "Others are marked too." |
+| 15.3h | Come back after 2+ weeks, decline "Start easier", then rate the session **tough** | The band is drawn, the line names the break — and does **not** say the plan met you lower: nothing decayed, the rating took that step |
+| 15.3i | Same, but rate **on plan** and enter a smaller number on one exercise | Same again in that movement's projection: the drop is the entered number, not the break |
+| 15.3j | The same history in a per-pattern projection | The bands sit in the same places — gaps are calendar facts — while the causal half is computed for that pattern |
 | 15.4 | History of an on-plan workout | Exercises with planned volumes and no "actual" annotations |
 | 15.5 | History of an adjusted workout | "actual N" in accent on the adjusted rows only |
 | 15.6 | History footer | "Total level after: N" |
@@ -392,8 +416,8 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 26.1 | Today header | "Why this plan?" link next to "≈ N min · N exercises"; tapping opens "How it works", "Got it" dismisses |
 | 26.2 | A workout whose plan first shows a harder variation | That row carries a small "new variation" pill; the pill is not separately tappable — the row still opens technique |
 | 26.3 | The badge after a deload and re-climb | Returning to a variation already performed does **not** re-badge it |
-| 26.4 | Badge across languages | «новая вариация» / "nueva variación" / "nova variação" — no clipping next to long exercise names |
-| 26.5 | Badge on the longest name (pt-BR "Flexão em parada de mão de frente para a parede") | The pill trails the name inline and wraps with it as a unit; the name wraps — **no ellipsis**; the load stays on the first line |
+| 26.4 | Badge across languages | «новая вариация» / "nueva variación" / "nova variação" / "neue Variante" / "nouvelle variante" / "nuova variante" — no clipping next to long exercise names |
+| 26.5 | Badge on the longest names (pt-BR "Flexão em parada de mão de frente para a parede", it "Sollevamenti sulle punte a una gamba sullo scalino", fr "Élévation de mollet à une jambe sur une marche") | The pill trails the name inline and wraps with it as a unit; the name wraps — **no ellipsis**; the load stays on the first line |
 | 26.6 | Progress fits one screen | No chips row; header stats + chart + all 9 rows (10 with the bar branch) visible together on a 6.1" screen at default type, spaced apart rather than stacked flush |
 | 26.6a | Pattern names in every language (1.8.0) | Each name holds one line — the widest are "Горизонтальный жим" and "Empurrão horizontal"; a wrapped name would cost the row its air |
 | 26.7 | Progress row selection | Tap a row → accentSoft tint + chart re-projects + kicker reads "PATTERN — VARIATION"; a second tap on the same row or "Show all" (accentText) resets to the total; VoiceOver reports the selected trait |
@@ -408,7 +432,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 27.3 | Technique sheet for a non-override variation of the same movements (e.g. Knee push-up, Shrimp squat) | The movement's **base** line |
 | 27.4 | Milestone "New variation" | The life line under "<pattern> · variation N of 4"; override → base rule as above |
 | 27.5 | "Now N sets" and jubilee milestones | **No** life line — abilities belong to variations, not to volume or habit |
-| 27.6 | All four languages (with §14) | Lines read naturally, informal register in es/pt-BR, no "ё" in RU; nothing clips on the sheet or the milestone at default type |
+| 27.6 | All seven languages (with §14) | Lines read naturally, informal register in es/pt-BR/de/fr/it, no "ё" in RU; nothing clips on the sheet or the milestone at default type |
 | 27.7 | Largest accessibility type | Both surfaces wrap without truncation; the sheet scrolls to keep "Got it" reachable |
 
 ### 28. Jubilee retrospective (1.8.0, issue #26)
@@ -421,7 +445,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 28.4 | Journal imported from a pre-1.1 backup (no levelsAfter anywhere) | Jubilee as before, no crash, no empty "Then:" |
 | 28.5 | **Share** on an anniversary | The card carries the same two lines under the date; the curve yields space rather than pushing the footer off |
 | 28.6 | Non-anniversary milestone share | Card unchanged — no retrospective lines |
-| 28.7 | All four languages | "Тогда/Сейчас", "Antes/Ahora", "Antes/Agora"; week/month plurals correct (RU: неделя/недели/недель) |
+| 28.7 | All seven languages | "Тогда/Сейчас", "Antes/Ahora", "Antes/Agora", "Damals/Jetzt", "Avant/Maintenant", "Prima/Ora"; week/month plurals correct (RU: неделя/недели/недель) |
 
 ### 29. Short workout (1.8.0, issue #27)
 
@@ -437,16 +461,16 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 29.8 | "Start over" from that card | The full session, warm-up included — starting over is not starting short |
 | 29.9 | Next training day | Today opens on the full session by default; the short version is again only an offer, with no mention of last time |
 | 29.10 | Eight short workouts in a row | Every movement appears at least once across them (the anchor guarantees it) |
-| 29.11 | All four languages | The button fits on one line at default type; es/pt do not clip |
+| 29.11 | All seven languages | The button fits on one line at default type; es/pt/de/fr/it do not clip ("Peu de temps ? Version courte · ≈ N min") |
 
 ### 30. Cool-down (1.8.0, issue #28)
 
 | # | Check | Expected |
 |---|---|---|
-| 30.1 | Complete the last exercise's last set | "COOL-DOWN" header, six dots, first position "Hip flexor stretch" with a 15 s countdown and "15 s per side" hint |
+| 30.1 | Complete the last exercise's last set | "COOL-DOWN" header, six dots, a 5 s "Get ready" transition (§34) and then "Hip flexor stretch" with a 15 s countdown and "15 s per side" hint |
 | 30.2 | The six positions | Hip flexors → chest and shoulders → three from the session's movements (dedup'd, session order) → rest pose last; no duplicates |
 | 30.3 | The mapped three | Match what was performed: fold for squat/hinge, lats for pulls, wrists for pushes, twist for core, calf at the wall, seated glute for lunges |
-| 30.4 | Let it run | 6 × 30 s of stretching = the reserved 3:00, plus a 5 s side-switch pause per unilateral position. Hip flexors and chest-and-shoulders are always among the six and both run per side, so the block is never shorter than 3:10; with three per-side positions among the mapped three it reaches 3:25. All of it sits inside the "≈" every estimate carries; the rating follows |
+| 30.4 | Let it run | 6 × 30 s of stretching = the reserved 3:00, plus a 5 s side-switch pause per unilateral position and a 5 s transition per position (§34). Hip flexors and chest-and-shoulders are always among the six and both run per side, so the block is never shorter than 3:40; with three per-side positions among the mapped three it reaches 3:55. All of it sits inside the "≈" every estimate carries; the rating follows |
 | 30.5 | "Skip this move" / "Skip cool-down" | One position or the whole block; either way the rating still comes and the workout records exactly as before |
 | 30.6 | "Finish now" from mid-workout | **No** cool-down — whoever cut the workout short is out of time by definition |
 | 30.7 | Skip all six exercises | No cool-down either — nothing was trained, nothing to stretch |
@@ -454,7 +478,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 30.9 | Kill the app during the cool-down, relaunch, Continue | Lands on the rating screen — the work is behind, nobody returns to finish a stretch |
 | 30.10 | Health duration | The workout's recorded duration includes the cool-down time |
 | 30.11 | Background mid-position, return after a while | The countdown reflects real elapsed time and jumps over positions it already covered |
-| 30.12 | All four languages | Position names and hints read naturally; nothing clips |
+| 30.12 | All seven languages | Position names and hints read naturally; nothing clips |
 
 ### 31. Side-switch pause (issue #35)
 
@@ -465,7 +489,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 31.3 | A per-side hold (bird dog / side plank) | After side one the same pause runs and the second side starts itself — no tap; **Stop**, **Went differently** and **Skip exercise** are unavailable during the pause |
 | 31.4 | Stop the second side within the first ~3 s | Mis-tap grace: the countdown cancels and **Start hold** returns for the second side, first side's result intact |
 | 31.5 | Kill the app during a hold's pause, relaunch, Continue | The set starts over from side one — holds are never restored mid-count; during the cool-down's pause it restores to the rating as before |
-| 31.6 | All four languages | "Switch sides" reads naturally (Cambia de lado · Troque de lado · Смени сторону); nothing clips |
+| 31.6 | All seven languages | "Switch sides" reads naturally (Cambia de lado · Troque de lado · Смени сторону · Seitenwechsel · Change de côté · Cambia lato); nothing clips |
 
 ### 32. Position technique mini-sheets (issue #34)
 
@@ -475,7 +499,7 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 32.2 | The countdown while the sheet is open | **Frozen** — the number does not move; closing the sheet resumes from the same second. A deliberate divergence from the rest-phase sheet, where the timer keeps ticking |
 | 32.3 | Open during a side-switch pause (issue #35) | The 5→1 pause countdown freezes too and resumes on close |
 | 32.4 | Signals under the sheet | No ticks or go while frozen — the countdown is simply not running |
-| 32.5 | es / pt-BR / large Dynamic Type | Long strings wrap inside the sheet (scrolls at the biggest accessibility sizes); nothing clips or overlaps |
+| 32.5 | es / pt-BR / de / large Dynamic Type | Long strings wrap inside the sheet (scrolls at the biggest accessibility sizes); nothing clips or overlaps |
 | 32.6 | The work and rest screens | Their technique button still opens the full exercise sheet — with the timer ticking on rest, as before |
 
 ### 33. Silent decay for 7–13 day gaps (engine v2.4, issue #37)
@@ -488,6 +512,71 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 33.4 | Break crosses both zones (opened at day 8–13, returned at 14+) | The comeback card shows the **weakened** drop (table − 1); accepting lands exactly where a plain comeback would — peeking mid-break never costs extra |
 | 33.5 | First workout after a decayed break rated "tough" | Regular −1 on top; **no** deload from the old streak alone — the streak grows as usual |
 | 33.6 | Complete a workout, then a new 8-day break | The new break decays independently — the old stamp went stale with the new workout |
+
+### 34. "Get ready" transition (issue #52)
+
+| # | Check | Expected |
+|---|---|---|
+| 34.1 | Tap **Start** | The warm-up opens on **GET READY** + "Marching in place", a 5 s countdown, the block dots, **technique**, **Skip this move**, **I'm ready** and **Skip warm-up** — never mid-move |
+| 34.2 | Let it run out | 3-2-1 ticks, then the rising go, and the move starts at 30 s. The position itself now ends **silently** — the go belongs to the moment a movement starts, not to the moment one finishes |
+| 34.3 | Tap **I'm ready** | The move starts at once; the transition is a floor on the pause between positions, never a wait |
+| 34.4 | **Skip this move** during a transition | Skips the position it was announcing and lands on the next position's transition; on the last one it ends the block |
+| 34.5 | Complete the last exercise's last set | The cool-down opens the same way — a transition before "Hip flexor stretch", then the 15 s first side |
+| 34.6 | Every cool-down position | Preceded by its own transition, the per-side ones included: transition → 15 s → "Switch sides" 5 s → 15 s → next transition |
+| 34.7 | Total block length | Warm-up 6 × (5 + 30) = 3:30; cool-down 6 × 5 on top of its 3:10–3:25 = 3:40–3:55. Both inside the 8 minutes the estimate reserves (`warmupMin` 5 + `cooldownMin` 3) — the number on Today is unchanged, and must stay unchanged |
+| 34.8 | Lock the phone mid-transition, return after a while | The countdown reflects real elapsed time and jumps whole stages — a long absence lands on a transition or a position boundary, never mid-glyph |
+| 34.9 | **technique** during a transition | The mini-sheet opens for the upcoming position and freezes its countdown, exactly as it does while a position runs |
+| 34.10 | VoiceOver on a transition | Reads one phrase — "Get ready: Cat-cow" — not the kicker and the name separately |
+| 34.11 | All seven languages | «Приготовься» / "Prepárate" / "Prepare-se" / "Mach dich bereit" / "Prépare-toi" / "Preparati" over the name; the button reads «Начать» / "Empezar" / "Começar" / "Starten" / "Commencer" / "Inizia" (translated by sense — "ready" is a gendered adjective in most of them) |
+| 34.12 | es / pt-BR / de / fr / it at the largest accessibility sizes | The longest names ("Chest and shoulders at the wall", "Pecho y hombros en la pared", "Brust und Schultern an der Wand", "Poitrine et épaules au mur", "Petto e spalle al muro") wrap to three lines and the block's content **scrolls**; **I'm ready** and the block skip stay pinned and fully tappable. Applies to the running move and stretch screens too |
+
+### 35. Pause of the guided blocks (issue #61)
+
+| # | Check | Expected |
+|---|---|---|
+| 35.1 | **Pause** on a running warm-up move | The countdown stops on the second it showed, the number dims, the unit under it becomes "Paused", and the control reads **Resume** |
+| 35.2 | Wait a minute, watching | Nothing moves and nothing sounds — no ticks, no go, no advance to the next position |
+| 35.3 | **Resume** | A 5 s "Get ready" naming the same move, with the usual 3-2-1 and go, then the move **continues from the seconds it stopped on** — never from 30, never a position later |
+| 35.4 | Pause a "Get ready" transition | It freezes the same way, and **I'm ready** steps aside — there is nothing to start early. **Resume** gives the transition straight back with no second lead-in: a transition already is one |
+| 35.5 | Pause the "Switch sides" 5 s of a per-side stretch | Freezes; resuming carries the pause on from where it stopped and hands over to the second side on its own single go. No lead-in here either — two gos seconds apart is what §34.2 exists to prevent |
+| 35.6 | Pause a cool-down stretch, then **Skip this move** / **Skip cool-down** | Both escapes work from a paused screen and leave the pause behind — the next position runs normally |
+| 35.7 | Lock the phone while paused, return after several minutes | Still paused on the same second. A pause has no deadline to run out, so time away costs nothing |
+| 35.8 | Background the app while paused, return | Same — and the block does **not** jump stages the way an unpaused absence does |
+| 35.9 | **technique** while paused | The mini-sheet opens; closing it leaves the block **paused**. The user's pause outranks the sheet's own freeze — the two never fight |
+| 35.10 | Pause, then **technique**, then **Resume** while the sheet is closed | The way back in runs once, from the seconds that were frozen |
+| 35.11 | Kill the app while paused mid-warm-up | Nothing to resume: the warm-up writes no snapshot by design, and Today offers no "Continue" card for a workout with nothing done |
+| 35.12 | Kill the app while paused mid-cool-down | Restores onto the rating screen, exactly as an unpaused cool-down does (§4 of the spec) |
+| 35.13 | Working sets and rest | Unchanged — no pause control on the work screen or the rest ring. They are self-paced by design, and an over-run rest only grants extra rest |
+| 35.14 | Estimate on Today, and the duration written to Health | Unchanged by pausing: "≈ N min" promises an uninterrupted flow, and Health still gets the wall-clock truth of the session |
+| 35.15 | VoiceOver | The control reads "Pause" / "Resume"; toggling announces "Paused" / "Resumed", and the state is also readable under the countdown |
+| 35.16 | All seven languages | «Пауза» / "Pausar" / "Pausar" / "Pausieren" / "Pause" / "Pausa" and «Продолжить» / "Continuar" / "Continuar" / "Fortsetzen" / "Reprendre" / "Riprendi"; the state reads «На паузе» / "En pausa" / "Em pausa" / "Pausiert" / "En pause" / "In pausa" |
+| 35.17 | es / pt-BR / de / fr / it at the largest accessibility sizes | The control keeps its own line under the countdown, the content scrolls as in §34.12, and both footer escapes stay pinned |
+| 35.18 | Pause and leave the phone alone (device only) | The screen dims and locks on the system Auto-Lock as usual — the workout stops holding it open, because a held block is the one state where the app knows nobody is training. Resuming, skipping or leaving the block puts the hold back |
+
+### 36. Discomfort and the growth ceiling (engine v2.5, issues #38 / #64–#67)
+
+| # | Check | Expected |
+|---|---|---|
+| 36.1 | **Something hurt** on the exercise screen | Its own line under **Went differently** / **Skip exercise**, visually distinct from both. One tap, no confirmation dialog — the exercise ends and the flow moves to the next one, exactly as a skip does |
+| 36.2 | The rating screen afterwards | The exercise is listed under **DISCOMFORT** with "resting" — not under **SKIPPED**. The card header counts it out of the rating ("Your rating applies to 5 of 6") |
+| 36.3 | Level and streak of the reported pattern | Unchanged by that workout, whichever rating is given — the report behaves as a skip for the session |
+| 36.4 | Today, while the pattern rests | A quiet block under the plan: "Not getting harder", then one row per movement — its name and an accent pill with the horizon ("Y-T-W raises ⟦3 more times⟧"). A fact, not a warning — no icon, no colour alarm. It names the exercise the way the list above it does, only while the movement is in today's plan, and counts **appearances of the movement**, never weeks. A second report refreshes that one counter while the others keep counting down |
+| 36.5 | The next three workouts containing that movement | It is still in the plan at the same level and does not climb, whatever the rating; the line disappears by itself once the third one is done |
+| 36.6 | "Tough" on a resting movement | The level still steps **down** — honesty is never overridden — and no deload fires while it rests, even from a streak of two |
+| 36.7 | An exact number ("Went differently") on a resting movement | Below the plan it lands as usual; above it the level does not move |
+| 36.8 | Report the same movement again while it rests | The rest starts over from three appearances |
+| 36.9 | Skip a resting movement | The skip costs it nothing: the rest does not tick down on a workout where the movement was not trained |
+| 36.10 | A break (7–13 days, or 14+ with the comeback card) during a rest | Levels drop as they always did; the rest is **not** cleared by the break |
+| 36.11 | Calendar history of a workout with a report | The row reads "hurt" (accent), never "skipped" |
+| 36.12 | Kill the app after reporting, reopen | "Continue the workout?" comes back with the report still in place — it is progress like a skip or an actual |
+| 36.13 | "How it works" | Nine sections now; §8 is "Something hurt" and explains the rest and the stop rule. §2 says the level climbs at most two steps — one for calves, the wall handstand and every fourth variation |
+| 36.14 | Growth speed after the ceiling (calves) | "Easy, could do more" on calves moves the level **one** step, not two — at every variation. Same for the vertical push from its third variation up, and for every movement on its fourth |
+| 36.15 | Growth speed elsewhere | Unchanged: two steps for "easy", one for "on plan", and an exact number still calibrates from zero without any cap |
+| 36.16 | Sets bands (levels 32–47) | One step per workout there too — they are the fourth variation by encoding |
+| 36.17 | VoiceOver | The action reads "Something hurt" with a hint about what it does; the rating row announces "Pull, hurt — resting"; Today's line is read as one sentence |
+| 36.18 | All seven languages | «Здесь болело» / "Algo me dolió" / "Algo doeu" / „Etwas tat weh" / « Ça a fait mal » / "Ha fatto male"; the rest line reads «Пока на отдыхе: …» / "En reposo por ahora: …" / "Em repouso por ora: …" / „Vorerst in Erholung: …" / « Au repos pour l’instant : … » / "A riposo per ora: …" |
+| 36.19 | es / pt-BR / de / fr / it at the largest accessibility sizes | The three action labels keep their two lines without overlapping the primary button; Today's rest line wraps rather than truncating |
+| 36.20 | An old state file (no rest recorded) | Opens with nothing resting — the field is additive and its absence means "nothing frozen" |
 
 ---
 
@@ -507,5 +596,8 @@ Log every failure found while running this plan. Keep entries until they ship fi
 | I-8 | 2026-07-30 | Widget tests | `WidgetTimelineTests` word assertions compared SwiftUI `Text` values — equality of two Texts with identical words is nondeterministic (localized-storage identity, not content): green bare, 12 failures under `-testPlan` + `-test-iterations`, then pass-pass-fail across three identical bare runs | medium | **fixed in the 1.8.0 wave** — `headline`/`subline`/`nextPlanText` return resolved `String(localized:)`, tests compare strings; full plan then green 281/0 |
 | I-9 | 2026-08-01 | Widgets | `TodayEntry.empty` — the timeline's fallback when the App Group snapshot is missing or undecodable — was a stored `static let` built with `.now`. A stored static initialises once per process, so the date froze at first access and every later timeline request in the same extension process got an entry already dated in the past, handing WidgetKit a timeline expired on arrival under `policy: .atEnd`. Found by code review, not by this plan | low | **fixed in the 1.8.1 wave** — the entry is computed, so it carries the time it was built. Not covered by a new test: an assertion on freshness passes or fails depending on when the static was first touched in the test process, so it would not reliably fail on the old code. The device-side check is §12.1–12.6 |
 | I-10 | 2026-08-01 | Cool-down | "Chest and shoulders at the wall" and "Wrists and forearms" ran as one 30 s countdown with no side switch, while their own technique steps said "Swap arms / hands halfway through" — the two positions the app knew were two-sided and still left the user to count. The `perSide` flag was set in the cool-down wave (#33), when it only chose whether to show the "15 s per side" hint; the counted 15 + 5 + 15 switch (#35) was later built on the same flag without re-auditing which positions are unilateral, and a unit test pinned the old classification under the name "unilateral positions only" | medium | **fixed in the 1.8.2 wave** — both flagged `perSide`, so they get the hint, the pause, the switch tone and the "second side" marker like the other four. A new test asserts no bilateral position asks the user to swap sides, so the two cannot drift apart again |
+| I-11 | 2026-08-03 | Widgets | Reported (#55, iPhone, iOS 26.5.2, App Store 1.8.0 (11)): the medium and large entries of the home-screen size row do nothing — the widget stays small, nothing redraws, no placeholder, no error. The page it was reported from was close to full | low | **not reproducible on iOS 26.5** — on an iPhone 17 simulator with room on the page, the size row converts the widget through all three home sizes (168×191 → 353×191 → 353×391) and each layout renders; the gallery offers the same three sizes and adds at any of them; the extension neither crashes nor is jetsammed while doing it. Nothing to fix in `supportedFamilies` — all six families have shipped since #23, tag `v1.8.0` included. The plan gains §12.18–12.21 so the resize path is covered from here on, and the page-space check is the first thing to rule out. What the acceptance check did find is the ru truncation fixed alongside it (below) |
+| I-12 | 2026-08-03 | Widgets | Found running §12.21 for I-11: on the large widget in Russian the longest catalog name ended in an ellipsis — «Птица-собака» (удер… — because the plan row carries the load in the long form the snapshot writes ("3×20 сек на сторону"), leaving the name short of the width it needs. Brazilian Portuguese fits; English is nowhere near the edge | low | **fixed in the #55 wave** — the name shrinks like every other line of the widget (`minimumScaleFactor(0.8)`) instead of truncating, which also matters because sibling variations differ at the *end* of the name. Verified on the simulator in all three locales |
+| I-13 | 2026-08-07 | Store screenshots | Frame s8 was captioned "Eight plain facts about how the plan moves" in all seven languages, while the screen inside the frame has read "Nine things worth knowing about the regulator" since the discomfort section was added in the #38 wave. The caption lives in `appstore/tools/compose.py`, not in a String Catalog, so no localization gate could see it — the frame contradicted itself in every locale | low | **fixed in the 1.9.0 wave** — all seven captions now say nine, and the full recapture reissued the frames. Exactly the I-7 failure mode (a count in prose going stale when a section is added) and caught the same way: by recapturing rather than by a test. The standing mitigation is unchanged — any release that adds a "How it works" section must re-read the s8 caption |
 
 **Severity.** *high* — data loss, crash, or a broken core flow · *medium* — a feature misbehaves but there is a way around it · *low* — cosmetic or a rare edge case.

@@ -2,9 +2,7 @@
 //  HistorySheet.swift
 //  Dredfit
 //
-//  A completed workout viewed from the calendar. Shows the plan that was
-//  performed; exercises adjusted via "Adjust by exercise" additionally
-//  show the actual value.
+//  A completed workout viewed from the calendar.
 //
 
 import SwiftUI
@@ -41,7 +39,11 @@ struct HistorySheet: View {
                                 .dredfitFont(15)
                                 .monospacedDigit()
                                 .foregroundStyle(Theme.ink2)
-                            if record.skipped?.contains(ex.pattern) == true {
+                            if record.discomfort?.contains(ex.pattern) == true {
+                                Text("hurt")
+                                    .dredfitFont(12.5)
+                                    .foregroundStyle(Theme.accentText)
+                            } else if record.skipped?.contains(ex.pattern) == true {
                                 Text("skipped")
                                     .dredfitFont(12.5)
                                     .foregroundStyle(Theme.ink2)
@@ -86,10 +88,9 @@ struct HistorySheet: View {
         .presentationDragIndicator(.visible)
     }
 
-    /// The persisted snapshot froze `name` in the language active when the
-    /// session was generated; resolve it again so history follows the UI
-    /// language after a switch. The stored name stays the fallback for any
-    /// tier the current library no longer has.
+    /// The snapshot froze `name` in the language active when the session was
+    /// generated; resolve it again so history follows a language switch. The
+    /// stored name stays the fallback for a tier the library no longer has.
     private func currentName(_ ex: SessionExercise) -> String {
         let variations = ExerciseLibrary.entry(for: ex.pattern).variations
         guard (1...variations.count).contains(ex.tier) else { return ex.name }
@@ -100,7 +101,7 @@ struct HistorySheet: View {
         switch record.result {
         case .less: return String(localized: "Rating: tough — the next one will be easier")
         case .plan: return String(localized: "Rating: on plan — the next asks a little more")
-        case .more: return String(localized: "Rating: easy — progressing twice as fast")
+        case .more: return String(localized: "Rating: easy — progressing as fast as each movement allows")
         }
     }
 }

@@ -2,21 +2,10 @@
 //  LifeBenefit.swift
 //  Dredfit
 //
-//  The "why" layer (issue #25): one line per movement translating abstract
-//  levels into everyday ability — the language people actually use when they
-//  tell a friend what changed. Lives entirely in the app layer: the engine
-//  knows nothing about it, the golden fixtures cannot move.
-//
-//  Two-level dictionary by design. Every movement has a base line; a closed
-//  list of standout variations overrides it where the variation is brighter
-//  than the movement itself ("Pistol squat" says more than "Squat"). The
-//  override → base rule is resolved here, in one place, so TechniqueSheet
-//  and MilestoneView can never disagree.
-//
 //  Copy discipline: every line is a fact of mechanics ("lifting with your
 //  hips, not your lower back"), never a health promise ("your back will stop
-//  hurting") — promises would betray the app's honest tone and invite
-//  App Review questions. Keep that boundary when adding or translating.
+//  hurting") — promises invite App Review questions. Keep that boundary when
+//  adding or translating.
 //
 
 import Foundation
@@ -24,18 +13,17 @@ import DredfitCore
 
 enum LifeBenefit {
 
-    /// The line for a given exercise: variation override if the pair is in
-    /// the closed list, otherwise the movement's base line.
+    /// Variation override if the pair is in the closed list, otherwise the
+    /// movement's base line. Resolved here so TechniqueSheet and
+    /// MilestoneView cannot disagree.
     static func text(for pattern: Pattern, tier: Int) -> String {
         overrideText(for: pattern, tier: tier) ?? baseText(for: pattern)
     }
 
     // MARK: - Base lines (one per movement)
 
-    /// Keyed, not literal: these strings are full sentences and safe from
-    /// collisions, but keys keep them greppable and stop a future short
-    /// literal from silently reusing a translation (see the "Done"/"Next"
-    /// collision found in wave 4).
+    /// Keyed, not literal: a key stops a future short literal from silently
+    /// reusing this translation (the "Done"/"Next" collision of wave 4).
     static func baseText(for pattern: Pattern) -> String {
         switch pattern {
         case .squat:
@@ -73,8 +61,7 @@ enum LifeBenefit {
 
     // MARK: - Variation overrides (closed list)
 
-    /// The closed list from the spec — grows only by owner decision. Tiers
-    /// are pinned to the library: a future reshuffle of variations must
+    /// Tiers are pinned to the library: a reshuffle of variations must
     /// revisit these pairs (the unit test cross-checks names).
     static func overrideText(for pattern: Pattern, tier: Int) -> String? {
         switch (pattern, tier) {

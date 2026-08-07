@@ -3,11 +3,7 @@
 //  Dredfit
 //
 //  Shown on Today after a break of two weeks or more. The engine is
-//  event-driven: without this, an old plan waits at the old level and the
-//  first workout back is punishing.
-//
-//  The tone is the point: no missed-workout counts, no broken streaks —
-//  the card's only job is to make coming back easy.
+//  event-driven: without this an old plan waits at the old level.
 //
 
 import SwiftUI
@@ -54,12 +50,9 @@ struct ComebackCard: View {
             }
             .padding(.top, 16)
 
-            // Only after a very long break: at that point the old levels are
-            // not optimistic, they are meaningless.
             if offersFreshStart {
                 Button(action: onFreshStart) {
-                    // ink2, not ink3: quiet by design, but still an
-                    // interactive control that has to pass 3:1 contrast.
+                    // ink2, not ink3: an interactive control has to pass 3:1.
                     Text("Start from scratch")
                         .dredfitFont(13)
                         .foregroundStyle(Theme.ink2)

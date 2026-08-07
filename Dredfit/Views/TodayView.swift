@@ -2,29 +2,28 @@
 //  TodayView.swift
 //  Dredfit
 //
-//  Three states: the plan for today + Start, a rest day, or the "completed"
-//  state with a preview of the next workout under its honest date.
+//  Three states: plan + Start, rest day, or completed with a preview of the
+//  next workout under its honest date.
 //
 
 import SwiftUI
 import DredfitCore
 
-/// The item behind the workout cover: the session is snapshotted at tap time,
-/// not read live from the store inside the cover closure — completeWorkout
-/// advances the engine before the cover dismisses, and a live read would flip
-/// the feedback screen to the *next* session's data mid-transition.
+/// The session is snapshotted at tap time, not read live inside the cover
+/// closure: completeWorkout advances the engine before the cover dismisses,
+/// and a live read would flip the rating screen to the NEXT session's data.
 private struct ActiveWorkout: Identifiable {
     let session: Session
-    // Set when the cover should pick up an interrupted workout.
     var resume: WorkoutSnapshot?
-    /// The short version's three patterns (issue #27); nil is the full
-    /// session. Resolved at tap time like the session itself.
+    /// nil is the full session. Resolved at tap time like the session itself.
     var shortPlan: Set<Pattern>?
     var id: Int { session.sessionNumber }
 }
 
 struct TodayView: View {
     @Environment(AppStore.self) private var store
+    @Environment(\.displayScale) private var displayScale
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var activeWorkout: ActiveWorkout?
     @State private var techniqueFor: SessionExercise?
     @State private var nextPreviewShown = false
@@ -36,8 +35,7 @@ struct TodayView: View {
             if store.doneToday {
                 doneView
             } else if store.isRestDay(store.today) {
-                // Must agree with the widget and nextTrainingDate — one answer
-                // to "is today a training day".
+                // Must agree with the widget and nextTrainingDate.
                 restView
             } else {
                 planView
@@ -74,6 +72,10 @@ struct TodayView: View {
     private var planView: some View {
         let session = store.nextSession
         let debuts = store.debutPatterns
+        // Derived from the session this view already holds: store.nextSession
+        // generates a fresh one on every access, and store.restingPatterns
+        // generates another inside itself.
+        let resting = restingRows(in: session)
         return VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 6) {
                 Kicker(text: store.today.formatted(.dateTime.weekday(.wide).day().month(.wide))
@@ -108,9 +110,6 @@ struct TodayView: View {
                 Button {
                     techniqueFor = ex
                 } label: {
-                    // A tier crossing swaps the exercise itself — the most
-                    // meaningful event in the system deserves more than a row
-                    // that looks like any other.
                     ExerciseRow(exercise: ex,
                                 badge: debuts.contains(ex.pattern)
                                     ? String(localized: "new variation") : nil)
@@ -120,8 +119,22 @@ struct TodayView: View {
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
 
-            // After a break, the offer to come back easier sits directly
-            // above Start — it is about the workout that is about to happen.
+            // A fact about the plan, not a warning: the movement is in today's
+            // workout at the level it was, and it stays at that level for a
+            // known number of its own appearances.
+            if !resting.isEmpty {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Not getting harder")
+                        .dredfitFont(13.5)
+                        .foregroundStyle(Theme.ink2)
+                        .accessibilityIdentifier("resting-line")
+                    ForEach(resting) { row in
+                        restingRow(row)
+                    }
+                }
+                .padding(.top, 6)
+            }
+
             if store.shouldOfferComeback() {
                 ComebackCard(offersFreshStart: store.offersFreshStart(),
                              onAccept: { store.acceptComeback() },
@@ -130,9 +143,7 @@ struct TodayView: View {
                     .padding(.top, 10)
             }
 
-            // An interrupted workout (iOS evicted the process, a swipe kill)
-            // is offered back instead of silently costing its 30 minutes. The
-            // card replaces Start — its own two actions already are
+            // The card replaces Start — its own two actions already are
             // "continue" and "start over".
             if let snap = store.resumableWorkout() {
                 resumeCard(snap)
@@ -144,10 +155,8 @@ struct TodayView: View {
                 }
                     .padding(.top, 10)
 
-                // The way out of "all or nothing" (issue #27). Secondary by
-                // design: the full workout stays the default every single
-                // day — the choice is never remembered, and nothing here
-                // says "again?".
+                // Secondary by design: the full workout stays the default
+                // every day, and the choice is never remembered.
                 if let plan = ShortWorkout.plan(session: session,
                                                 counter: store.engineState.counter,
                                                 levels: store.engineState.levels) {
@@ -168,11 +177,50 @@ struct TodayView: View {
         }
     }
 
+    private struct RestingRow: Identifiable {
+        let id: Pattern
+        let name: String
+        let remaining: Int
+    }
+
+    /// Named the way the list above names them: the freeze belongs to the
+    /// movement, but the row the reader is looking at says "Y-T-W raises".
+    /// A frozen movement cannot change variation, so the name holds for as
+    /// long as the block is up. The horizon is per movement, not a constant:
+    /// a fresh report refreshes that one counter while the others keep
+    /// counting down.
+    private func restingRows(in session: Session) -> [RestingRow] {
+        let resting = Set(store.restingPatterns(in: session))
+        return session.exercises
+            .filter { resting.contains($0.pattern) }
+            .map { RestingRow(id: $0.pattern, name: $0.name,
+                              remaining: store.engineState.freezeRemaining($0.pattern)) }
+    }
+
+    /// The pill rides inline after the name and wraps with it, the same way
+    /// the debut badge does in ExerciseRow — a sibling HStack would push it
+    /// off screen on the longest catalog names.
+    private func restingRow(_ row: RestingRow) -> some View {
+        let horizon = String(localized: "\(row.remaining) more times")
+        var text = Text(row.name)
+        if let pill = BadgePill.image(text: horizon, scale: displayScale,
+                                      typeSize: dynamicTypeSize) {
+            text = text + Text(verbatim: " ")
+                + Text(Image(uiImage: pill)).baselineOffset(-3)
+        }
+        return text
+            .dredfitFont(13.5)
+            .foregroundStyle(Theme.ink2)
+            .fixedSize(horizontal: false, vertical: true)
+            // One phrase for VoiceOver: name, state, horizon — the pill is an
+            // image and would otherwise be read as nothing at all.
+            .accessibilityLabel(Text("\(row.name), not getting harder — \(horizon)"))
+    }
+
     // MARK: - Interrupted workout
 
     private func resumeCard(_ snap: WorkoutSnapshot) -> some View {
-        // "Exercise 2 of 3" for a short workout: the card must count in the
-        // list the person was actually walking through.
+        // The card must count in the list the person was walking through.
         let total = snap.shortPlan?.count ?? store.nextSession.exercises.count
         let position = min(snap.exIndex + 1, total)
         return VStack(alignment: .leading, spacing: 0) {
@@ -183,8 +231,7 @@ struct TodayView: View {
 
             Group {
                 if snap.atFeedback == true {
-                    // The flow got all the way to the rating — say that,
-                    // not a misleading exercise position.
+                    // Say that, not a misleading exercise position.
                     Text("The workout is done — only the rating is left.")
                 } else {
                     Text("You stopped at exercise \(position) of \(total) — everything done so far is still in place.")
@@ -198,8 +245,6 @@ struct TodayView: View {
 
             HStack(spacing: 10) {
                 Button {
-                    // A workout interrupted mid-short resumes short: the
-                    // snapshot carries which three were under way.
                     activeWorkout = ActiveWorkout(session: store.nextSession,
                                                   resume: snap,
                                                   shortPlan: snap.shortPlan.map(Set.init))
@@ -233,10 +278,7 @@ struct TodayView: View {
 
     // MARK: - Rest day
 
-    /// Rest is a plan, not a lockout. The day states its own case and points
-    /// at the next workout; training anyway stays available as a quiet
-    /// secondary action, because a rest day is the user's own setting and
-    /// they are allowed to change their mind about it.
+    /// Rest is a plan, not a lockout: training anyway stays available.
     private var restView: some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 6) {
@@ -261,8 +303,8 @@ struct TodayView: View {
 
             Spacer()
 
-            // A "train anyway" session interrupted mid-way comes back
-            // here too — the rest day must not eat it.
+            // A "train anyway" session interrupted mid-way comes back here
+            // too — the rest day must not eat it.
             if let snap = store.resumableWorkout() {
                 resumeCard(snap)
                     .padding(.bottom, 14)
@@ -303,7 +345,6 @@ struct TodayView: View {
                 Image(systemName: "checkmark")
                     .dredfitFont(44, weight: .bold, cap: 66)
                     .foregroundStyle(Theme.ink)
-                    // The line below already says the workout is done.
                     .accessibilityHidden(true)
             }
 
@@ -319,7 +360,6 @@ struct TodayView: View {
 
             Spacer()
 
-            // The next workout — a preview with an honest date, not "for today"
             Button {
                 nextPreviewShown = true
             } label: {
@@ -347,7 +387,7 @@ struct TodayView: View {
         switch store.lastRecord?.result {
         case .less: return String(localized: "Rating: tough — the next one will be easier")
         case .plan: return String(localized: "Rating: on plan — the next asks a little more")
-        case .more: return String(localized: "Rating: easy — progressing twice as fast")
+        case .more: return String(localized: "Rating: easy — progressing as fast as each movement allows")
         case nil:   return ""
         }
     }
@@ -357,16 +397,10 @@ struct TodayView: View {
 
 struct ExerciseRow: View {
     let exercise: SessionExercise
-    /// A short pill trailing the name ("new variation" on a debut). Non-nil
-    /// only on Today; the row stays a plain name/load line everywhere else.
-    /// The pill is not interactive — the whole row is already a button.
-    ///
     /// The pill rides INLINE at the end of the name and wraps with it as a
-    /// unit: the longest catalog name (pt-BR "Flexão em parada de mão de
-    /// frente para a parede", ≈360 pt) is wider than the content column by
+    /// unit: the longest catalog name is wider than the content column by
     /// itself, so a sibling HStack pill would push the load off screen. Not
-    /// ellipsis either — sibling variations differ at the *end* of the name,
-    /// which is exactly what truncation would hide.
+    /// an ellipsis either — sibling variations differ at the END of the name.
     var badge: String?
     @Environment(\.displayScale) private var displayScale
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -387,8 +421,7 @@ struct ExerciseRow: View {
     }
 
     /// Text concatenation is the only SwiftUI flow that lets the pill follow
-    /// the last word and wrap as one piece, so the pill travels as an inline
-    /// image. Rendered once per (text, scale, type size) — see BadgePill.
+    /// the last word and wrap with it, so it travels as an inline image.
     private var nameWithBadge: some View {
         var name = Text(exercise.name)
         if let badge,
@@ -413,9 +446,8 @@ struct ExerciseRow: View {
     }
 }
 
-/// The "new variation" pill as an image, cached per text, display scale and
-/// Dynamic Type size. accentText on accentSoft — accent itself reads 2.91:1
-/// on that fill, short of small-text contrast.
+/// Cached per text, display scale and Dynamic Type size. accentText on
+/// accentSoft — accent itself is 2.91:1 on that fill.
 @MainActor
 private enum BadgePill {
     private static var cache: [String: UIImage] = [:]

@@ -2,10 +2,7 @@
 //  AdjustPanel.swift
 //  Dredfit
 //
-//  The inline actual adjuster: −/value/+ and OK. Moved out of
-//  WorkoutFlowView wholesale — the flow file sits at the linter's honest
-//  file-length ceiling, and the panel is its one self-contained piece of
-//  chrome. Behaviour is unchanged.
+//  The inline actual adjuster: −/value/+ and OK.
 //
 
 import SwiftUI
@@ -13,8 +10,8 @@ import DredfitCore
 
 struct AdjustPanel: View {
     @Binding var value: Int
-    /// Holds step by 5 within 5…90 and show a trailing "s"; reps by 1
-    /// within 0…30 — the same corridors the engine prescribes in.
+    /// The corridors the engine prescribes in: holds step by 5 within 5…90,
+    /// reps by 1 within 0…30.
     let unit: LoadUnit
     let onConfirm: () -> Void
 
@@ -55,11 +52,10 @@ struct AdjustPanel: View {
                 .frame(width: 40, height: 40)
                 .background(Circle().stroke(Theme.hairline, lineWidth: 1.5))
         }
-        // "minus"/"plus" alone is what VoiceOver would otherwise announce.
         .accessibilityLabel(Text(icon == "minus"
                                  ? String(localized: "Fewer")
                                  : String(localized: "More")))
-        // Pinned so the label change does not move the symbol-derived id.
+        // Pinned so the label above does not move the symbol-derived id.
         .accessibilityIdentifier(icon)
     }
 }

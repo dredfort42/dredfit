@@ -2,18 +2,12 @@
 //  ReleaseSmokeTests.swift
 //  DredfitUITests
 //
-//  The Release smoke block of TESTPLAN.md (S1–S7), automated. It used to be
-//  a hand-walk before every release; the walk never changed between releases,
-//  so it is a test now — and running the full test plan at stage Э6 of the
-//  release regulation covers the smoke by itself.
+//  The Release smoke block of TESTPLAN.md (S1–S7), automated. Row names are
+//  carried into activity names and failure messages, so a red run says "S3"
+//  and the checklist row is found without translation.
 //
-//  Row names are carried into the activity names and the failure messages, so
-//  a red run says "S3" and the checklist row is found without translation.
-//
-//  What stays manual and cannot be automated here: everything marked ⌚ in
-//  TESTPLAN (device-only — Health, Live Activity on a real lock screen, the
-//  widget families on a home screen), and the "nothing is clipped" half of S7,
-//  which is a judgement about pixels, not about strings.
+//  Still manual: everything marked ⌚ in TESTPLAN (device-only), and the
+//  "nothing is clipped" half of S7 — a judgement about pixels, not strings.
 //
 
 import XCTest
@@ -24,22 +18,24 @@ final class ReleaseSmokeTests: XCTestCase {
     private var app: XCUIApplication!
     private var driver: WorkoutDriver { WorkoutDriver(app: app) }
 
-    override func setUp() async throws {
-        try await super.setUp()
+    override func setUp() {
+        super.setUp()
         continueAfterFailure = false
         app = XCUIApplication()
-        // --uitest-fast collapses rests and cool-down stages; the warm-up is
-        // deliberately NOT collapsed anywhere in the app, so S2 checks that
-        // the block opens and then skips it rather than paying three minutes.
+        // --uitest-fast collapses rests, cool-down stages and the get-ready
+        // transition (#52); a warm-up MOVE is deliberately not collapsed
+        // anywhere in the app, so S2 checks that the block opens and then
+        // skips it rather than paying three minutes. That asymmetry is what
+        // S2 waits on below: the move's countdown is up for 30 real seconds,
+        // the transition's for one, so only the former is safe to assert.
         app.launchArguments = ["--uitest-reset", "--uitest-fast",
                                "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
     }
 
     // MARK: - S1–S6 in English
 
-    /// The walk itself is one test: S3 has no meaning without S2 having just
-    /// happened, and S4 is "the same state, after a relaunch". Each row lives
-    /// in its own method below so a row can be read, and changed, on its own.
+    /// One test: S3 has no meaning without S2 having just happened, and S4 is
+    /// "the same state, after a relaunch".
     func testReleaseSmokeEnglish() {
         app.launch()
         s1ColdStart()
@@ -54,8 +50,8 @@ final class ReleaseSmokeTests: XCTestCase {
         XCTContext.runActivity(named: "S1 — cold start on a fresh install") { _ in
             XCTAssertTrue(app.staticTexts["Workout 1"].waitForExistence(timeout: 10),
                           "S1: a fresh install must open Today on Workout 1")
-            // The estimate is the engine's own arithmetic surfaced to the
-            // user: if this line drifts, a release-blocking number drifted.
+            // The engine's own arithmetic surfaced: if this line drifts, a
+            // release-blocking number drifted.
             XCTAssertTrue(app.staticTexts["≈ 33 min · 6 exercises"].exists,
                           "S1: the plan line must read ≈ 33 min · 6 exercises")
             XCTAssertTrue(app.buttons["Start"].exists, "S1: Start is missing")
@@ -68,7 +64,8 @@ final class ReleaseSmokeTests: XCTestCase {
         XCTContext.runActivity(named: "S2 — full workout to the rating") { _ in
             app.buttons["Start"].tap()
             XCTAssertTrue(app.staticTexts["warmup-countdown"].waitForExistence(timeout: 5),
-                          "S2: the workout must open on the warm-up")
+                          "S2: the workout must open on the warm-up and reach "
+                            + "its first move through the get-ready transition")
             let skipWarmup = app.buttons["Skip warm-up"]
             XCTAssertTrue(skipWarmup.exists, "S2: the warm-up must be skippable")
             skipWarmup.tap()
@@ -90,11 +87,11 @@ final class ReleaseSmokeTests: XCTestCase {
                           "S3: the done state is missing")
             XCTAssertFalse(app.buttons["Start"].exists,
                            "S3: Start must not show once the day is done")
-            // Kicker uppercases its text (Theme.swift), so the label is "NEXT".
+            // Kicker uppercases, so the label is "NEXT".
             XCTAssertTrue(app.staticTexts["NEXT"].exists,
                           "S3: the next-workout card is missing")
-            // --uitest-reset clears rest days, so the next training day is
-            // always tomorrow — the card's date word is deterministic here.
+            // --uitest-reset clears rest days, so the date word is
+            // deterministic here.
             XCTAssertTrue(app.staticTexts["Workout 2 · tomorrow"].exists,
                           "S3: the next card must name workout 2 and when it lands")
         }
@@ -131,7 +128,7 @@ final class ReleaseSmokeTests: XCTestCase {
 
     private func s6Progress() {
         XCTContext.runActivity(named: "S6 — Progress") { _ in
-            // Dismiss the history sheet by its own button, not a swipe.
+            // By its own button, not a swipe.
             app.buttons["Got it"].tap()
             app.tabBars.buttons["Progress"].tap()
             XCTAssertTrue(app.staticTexts["level"].waitForExistence(timeout: 5),
@@ -142,6 +139,45 @@ final class ReleaseSmokeTests: XCTestCase {
                            "S6: six patterns rated \"on plan\" must total 6")
             XCTAssertTrue(app.staticTexts["1 workout"].exists,
                           "S6: the workout count must read \"1 workout\"")
+        }
+    }
+
+    // MARK: - S8: the discomfort report
+
+    /// Its own launch: S1–S6 owns a clean journal, and this row needs one too.
+    /// The safety half of the engine is dead code if this button ever stops
+    /// reaching the journal, and nothing else in the smoke would notice.
+    func testReleaseSmokeDiscomfort() {
+        app.launch()
+        XCTContext.runActivity(named: "S8 — a painful exercise is reported and rests") { _ in
+            app.buttons["Start"].tap()
+            let skipWarmup = app.buttons["Skip warm-up"]
+            XCTAssertTrue(skipWarmup.waitForExistence(timeout: 5), "S8: no warm-up to skip")
+            skipWarmup.tap()
+
+            // The pull slot: in every session, so the rest it earns is real
+            // rather than three workouts away.
+            for _ in 0..<3 { app.buttons["Skip exercise"].tap() }
+            let report = app.buttons["report-discomfort"]
+            XCTAssertTrue(report.waitForExistence(timeout: 5),
+                          "S8: the report action is missing from the exercise screen")
+            report.tap()
+            for _ in 0..<2 { app.buttons["Skip exercise"].tap() }
+
+            XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 10),
+                          "S8: reporting must end the exercise and reach the rating")
+            XCTAssertTrue(app.staticTexts["DISCOMFORT"].exists,
+                          "S8: the rating screen must call the report out")
+
+            app.staticTexts["On plan"].tap()
+            XCTAssertTrue(app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 10),
+                          "S8: the rating must return to Today")
+
+            app.tabBars.buttons["Calendar"].tap()
+            let dayNumber = Calendar.current.component(.day, from: .now)
+            app.buttons["day-\(dayNumber)"].tap()
+            XCTAssertTrue(app.staticTexts["hurt"].waitForExistence(timeout: 5),
+                          "S8: the history row must say hurt, not skipped")
         }
     }
 
@@ -158,8 +194,7 @@ final class ReleaseSmokeTests: XCTestCase {
             XCTAssertTrue(app.buttons["Начать"].exists, "S7/S1: кнопка «Начать» не найдена")
             XCTAssertTrue(app.buttons["start-short"].exists,
                           "S7/S1: предложение короткой версии не найдено")
-            // The English leak this row exists to catch: an untranslated Start
-            // or plan line would show up as the en string still being present.
+            // The English leak this row exists to catch.
             XCTAssertFalse(app.buttons["Start"].exists,
                            "S7: English «Start» leaked into the Russian build")
             XCTAssertFalse(app.staticTexts["Workout 1"].exists,
@@ -172,6 +207,19 @@ final class ReleaseSmokeTests: XCTestCase {
             XCTAssertTrue(skipWarmup.waitForExistence(timeout: 5),
                           "S7/S2: разминка не открылась или её нельзя пропустить")
             skipWarmup.tap()
+
+            // By identifier, not the English word: the sheet has to open on
+            // a Russian build too.
+            let technique = app.buttons["technique"]
+            XCTAssertTrue(technique.waitForExistence(timeout: 5),
+                          "S7/S2: кнопка техники не найдена по идентификатору")
+            technique.tap()
+            let gotIt = app.buttons["Понятно"]
+            XCTAssertTrue(gotIt.waitForExistence(timeout: 5),
+                          "S7/S2: шит техники не открылся на русской сборке")
+            gotIt.tap()
+            XCTAssertTrue(gotIt.waitForNonExistence(timeout: 5),
+                          "S7/S2: «Понятно» не закрыло шит техники")
 
             let walk = driver.completeWorkout(skipCooldown: false, doneLabel: "Готово",
                                               startHoldLabel: "Начать удержание",

@@ -2,9 +2,8 @@
 //  WidgetBridge.swift
 //  Dredfit
 //
-//  The app side of the widget contract. After every persisted change the
-//  app rewrites a two-week status snapshot in the App Group and pokes
-//  WidgetKit; the widget itself never computes rest days. Without the
+//  After every persisted change the app rewrites the two-week snapshot and
+//  pokes WidgetKit; the widget never computes rest days itself. Without the
 //  entitlement (or in unit tests) everything degrades silently.
 //
 
@@ -15,24 +14,20 @@ import DredfitCore
 extension AppStore {
 
     func refreshWidgetSnapshot(now: Date = .now) {
-        // A launch that could not read the journal knows nothing about the
-        // user: publishing that emptiness would put "nothing done" on the
-        // home screen for a week over a history that is perfectly fine.
+        // A frozen launch knows nothing about the user: publishing that
+        // emptiness would put "nothing done" over a perfectly fine history.
         guard !journalFrozen else { return }
-        // The URL is injected (App Group by default) so unit tests can
-        // point it at a temp directory and actually exercise the mirroring.
+        // Injected so unit tests can point it at a temp directory.
         guard let url = widgetSnapshotURL else { return }
         let cal = Calendar.current
         let today = cal.startOfDay(for: now)
-        // Monday-first, like the Calendar tab and the weekly summary. Starting
-        // on Monday rather than today is what lets a timeline entry days ahead
-        // still draw its own full week.
+        // Monday-first, like the Calendar tab: starting on Monday rather than
+        // today is what lets a timeline entry days ahead draw its own week.
         var iso = Calendar(identifier: .iso8601)
         iso.timeZone = cal.timeZone
         guard let thisWeek = iso.dateInterval(of: .weekOfYear, for: today) else { return }
 
-        // A pure function of state, and not a cheap one — resolve it once
-        // rather than per day.
+        // Not cheap — resolve once rather than per day.
         let next = nextSession
         let days: [WidgetSnapshot.Day] = (0..<14).compactMap { offset in
             guard let day = cal.date(byAdding: .day, value: offset, to: thisWeek.start) else {
@@ -43,10 +38,8 @@ extension AppStore {
             return .init(date: day, status: status,
                          sessionNumber: isToday && status == .workout ? next.sessionNumber : nil,
                          // Relative to the day the entry renders on, not to
-                         // the day of this write — a rest-day entry shown
-                         // days from now must not say a stale "today".
-                         // Computed here so the widget still never derives
-                         // dates or reaches into the catalogs itself.
+                         // this write: a rest-day entry shown days from now
+                         // must not say a stale "today".
                          nextLabel: day >= today && status != .workout
                              ? nextTrainingDateLabel(from: day) : nil)
         }
@@ -67,10 +60,9 @@ extension AppStore {
         WidgetCenter.shared.reloadAllTimelines()
     }
 
-    /// A day's status for the strip. Past days are read from the journal —
-    /// `isDone(on:)` only ever knows about the latest record — and a past
-    /// training day that was not done stays *unmarked*: the Calendar leaves
-    /// missed days unshamed, and the widget is not the place to start.
+    /// Past days come from the journal, not `isDone(on:)`, which only ever
+    /// knows about the latest record. A missed training day stays *unmarked*
+    /// — the Calendar leaves those unshamed and the widget follows.
     private func widgetStatus(of day: Date, today: Date) -> WidgetSnapshot.Day.Status {
         if record(on: day) != nil { return .done }
         if isRestDay(day) { return .rest }
