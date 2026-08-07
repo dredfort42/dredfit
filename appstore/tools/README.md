@@ -39,10 +39,25 @@ TEST_RUNNER_SCREENSHOT_DIR=/path/to/raw xcodebuild test \
 ```
 
 `TEST_RUNNER_` env vars must be in xcodebuild's environment, not build
-settings. The same run covers all four languages — testSeeded/testProgress/
-testRating × English/Russian/Spanish/Portuguese; raws get `_es` and
-`_pt-br` suffixes, and compose.py writes those frames to `es/` and `pt-br/`. iPhone 17 Pro Max gives the store's 6.9" size (1320×2868). Delete
-the .swift file afterwards — it is not part of the suite.
+settings. One run covers every language — testSeeded / testRating /
+testProgress / testResting / testMilestone / testComeback × the seven
+shipping languages; raws are suffixed by locale tag, and compose.py writes
+each to its own folder. iPhone 17 Pro Max gives the store's 6.9" size
+(1320×2868). Delete the .swift file afterwards — it is not part of the suite.
+
+**Run one test method per `xcodebuild` invocation** on a pre-booted simulator,
+and between them terminate the app and pause before re-seeding:
+
+```bash
+xcrun simctl terminate <udid> com.dredfit.Dredfit; sleep 3
+python3 seed.py <udid> A
+```
+
+Seeding immediately after `xcodebuild` returns is a race the 1.9.0 recapture
+lost four times out of seven: the app is still flushing its own state as the
+seed is written, so the next launch opens on a workout in progress and the
+capture fails at "no Start on Today". Terminating first makes it
+deterministic.
 
 ## 3. Compose framed images
 

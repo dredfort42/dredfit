@@ -168,6 +168,25 @@ final class StoreScreenshots: XCTestCase {
         app.terminate()
     }
 
+    // MARK: - Discomfort: Today while a movement rests (own --uitest hook)
+
+    private func restingToday(_ l: L) {
+        let app = launch(["--uitest-reset", "--uitest-discomfort"], l)
+        XCTAssertTrue(app.staticTexts["resting-line"].waitForExistence(timeout: 8),
+                      "no freeze block on Today")
+        Thread.sleep(forTimeInterval: 1)
+        snap("resting_\(l.tag)")
+        app.terminate()
+    }
+
+    func testRestingEnglish() { restingToday(Self.en) }
+    func testRestingRussian() { restingToday(Self.ru) }
+    func testRestingSpanish() { restingToday(Self.es) }
+    func testRestingPortuguese() { restingToday(Self.ptBR) }
+    func testRestingGerman() { restingToday(Self.de) }
+    func testRestingFrench() { restingToday(Self.fr) }
+    func testRestingItalian() { restingToday(Self.it) }
+
     func testProgressEnglish() { progress(Self.en) }
     func testProgressRussian() { progress(Self.ru) }
     func testProgressSpanish() { progress(Self.es) }
