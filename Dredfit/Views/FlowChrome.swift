@@ -297,6 +297,9 @@ struct RestRing: View {
                                      identifier: "extend-rest",
                                      action: onExtend)
             .disabled(!canExtend)
+            // .disabled alone changes nothing on a custom label — at the cap
+            // the button has to LOOK spent, while keeping its place in the row.
+            .opacity(canExtend ? 1 : 0.35)
             // "+15 s" is read as punctuation; the horizon has to be a phrase.
             .accessibilityLabel(Text("Add \(extensionSeconds) seconds of rest"))
         let skip = BlockSkipButton(title: String(localized: "Skip rest"), action: onSkip)

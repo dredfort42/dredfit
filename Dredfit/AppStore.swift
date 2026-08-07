@@ -90,6 +90,11 @@ struct WorkoutSnapshot: Codable, Equatable {
     var setIndex: Int
     var restEndDate: Date?
     var restTotalSec: Int?
+    /// What this transition PLANNED, which `restTotalSec` stops being as soon
+    /// as the rest is extended — and the extension cap is twice the planned
+    /// one. Optional like the fields below: a snapshot from an older build
+    /// decodes and falls back to the total it does carry.
+    var restPlannedSec: Int?
     var actuals: [Pattern: Int] = [:]
     var skipped: Set<Pattern> = []
     /// Optional, like the fields below: a snapshot written by an older build

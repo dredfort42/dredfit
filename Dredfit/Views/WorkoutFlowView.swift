@@ -819,14 +819,16 @@ private extension WorkoutFlowView {
     func persistProgress() {
         var restEnd: Date?
         var restTotal: Int?
+        var restPlan: Int?
         if case .rest(let total) = phase {
             restEnd = restEndDate
             restTotal = total
+            restPlan = restPlanned
         }
         store.saveWorkoutSnapshot(WorkoutSnapshot(
             sessionNumber: session.sessionNumber,
             exIndex: exIndex, setIndex: setIndex,
-            restEndDate: restEnd, restTotalSec: restTotal,
+            restEndDate: restEnd, restTotalSec: restTotal, restPlannedSec: restPlan,
             actuals: actuals, skipped: skippedPatterns,
             discomfort: discomfortPatterns.isEmpty ? nil : discomfortPatterns,
             workoutStart: workoutStart ?? .now, savedAt: .now,
@@ -859,6 +861,9 @@ private extension WorkoutFlowView {
         if let end = snap.restEndDate, let total = snap.restTotalSec, end > .now {
             restEndDate = end
             restRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
+            // An older snapshot has no planned value; the total it carries is
+            // the closest honest stand-in, and it keeps the button live.
+            restPlanned = snap.restPlannedSec ?? total
             phase = .rest(seconds: total)
         } else {
             if snap.restEndDate != nil, !(isLastSet && isLastExercise) {
