@@ -14,6 +14,6 @@
 
 ## Checklist
 
-- [ ] Localization: new user-facing strings are translated for es, pt-BR, ru (Localization check is green)
+- [ ] Localization: new user-facing strings are translated for de, es, fr, it, pt-BR, ru (Localization check is green)
 - [ ] CHANGELOG.md updated (for user-facing changes)
 - [ ] No secrets, keys, or tokens committed
