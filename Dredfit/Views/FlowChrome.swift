@@ -10,6 +10,49 @@
 
 import SwiftUI
 
+/// The bar every timed phase wears: the way out on the left, what the screen
+/// is in the middle, and the per-exercise capsules underneath. The rating and
+/// milestone screens carry no header at all, so this view never knows about
+/// them.
+struct FlowHeader: View {
+    let title: String
+    /// 0 hides the capsule row — the warm-up is not an exercise yet.
+    let steps: Int
+    let doneIndex: Int
+    var onExit: () -> Void
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack {
+                // ink2, not ink3: ink3 (~2.4:1) fails contrast for
+                // interactive text.
+                Button(String(localized: "Exit"), action: onExit)
+                    .dredfitFont(14)
+                    .foregroundStyle(Theme.ink2)
+                Spacer()
+                Text(title)
+                    .dredfitFont(13, weight: .semibold)
+                    .kerning(0.5)
+                    // ink2, not ink3: this is information, not decoration.
+                    .foregroundStyle(Theme.ink2)
+                Spacer()
+                Button(String(localized: "Exit")) { }.dredfitFont(14).hidden() // symmetry
+            }
+            if steps > 0 {
+                HStack(spacing: 5) {
+                    ForEach(0..<steps, id: \.self) { i in
+                        Capsule()
+                            .fill(i <= doneIndex ? Theme.ink : Theme.hairline)
+                            .frame(height: 4)
+                    }
+                }
+                .frame(width: 200)
+            }
+        }
+        .padding(.top, 12)
+    }
+}
+
 /// The big rolling number with its "sec" caption.
 struct CountdownNumber: View {
     let value: Int
@@ -181,6 +224,90 @@ struct ExerciseActionsRow: View {
 
 /// The "ⓘ technique" affordance — one look shared by the work screen, the
 /// rest screen and the warm-up/cool-down positions (issue #34).
+/// The rest phase. The ring is the primary element here, which is why the two
+/// controls under it carry equal weight and neither is a filled button:
+/// someone who is not recovered has to be able to ask for more time as easily
+/// as to cut the rest short. The asymmetry it replaces was not a comfort
+/// problem — standing at an expired timer or starting a set you cannot finish
+/// both reach the engine as "tough".
+struct RestRing: View {
+    let remaining: Int
+    let fraction: CGFloat
+    let ringSize: CGFloat
+    let nextLabel: String
+    let extensionSeconds: Int
+    /// False at the cap. The button greys out instead of disappearing, so the
+    /// row never jumps out from under the finger.
+    let canExtend: Bool
+    var onTechnique: () -> Void
+    var onExtend: () -> Void
+    var onSkip: () -> Void
+
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Spacer()
+            ZStack {
+                Circle()
+                    .stroke(Theme.hairline, lineWidth: 7)
+                Circle()
+                    .trim(from: 0, to: fraction)
+                    .stroke(Theme.accent, style: StrokeStyle(lineWidth: 7, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                    .animation(.linear(duration: 1), value: remaining)
+                VStack(spacing: 2) {
+                    Text("\(remaining)")
+                        .dredfitFont(72, weight: .heavy, cap: 104)
+                        .tracking(-2)
+                        .monospacedDigit()
+                        .contentTransition(.numericText(countsDown: true))
+                    Text("sec")
+                        .dredfitFont(15)
+                        .foregroundStyle(Theme.ink2)
+                }
+            }
+            // Capped to still fit the narrowest screen with its 24pt margins.
+            .frame(width: min(ringSize, 330), height: min(ringSize, 330))
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text("\(remaining) seconds of rest left"))
+
+            VStack(spacing: 6) {
+                Kicker(text: String(localized: "Next up"))
+                Text(nextLabel)
+                    .dredfitFont(17, weight: .semibold)
+            }
+            .padding(.top, 44)
+
+            TechniqueButton(action: onTechnique)
+                .padding(.top, 16)
+
+            Spacer()
+
+            controls
+                .padding(.bottom, 20)
+        }
+    }
+
+    /// Side by side while they fit; stacked once the labels grow, because two
+    /// 56pt buttons and an accessibility-size label do not share a row.
+    @ViewBuilder
+    private var controls: some View {
+        let extend = BlockSkipButton(title: String(localized: "+\(extensionSeconds) s"),
+                                     identifier: "extend-rest",
+                                     action: onExtend)
+            .disabled(!canExtend)
+            // "+15 s" is read as punctuation; the horizon has to be a phrase.
+            .accessibilityLabel(Text("Add \(extensionSeconds) seconds of rest"))
+        let skip = BlockSkipButton(title: String(localized: "Skip rest"), action: onSkip)
+        if dynamicTypeSize.isAccessibilitySize {
+            VStack(spacing: 10) { extend; skip }
+        } else {
+            HStack(spacing: 12) { extend; skip }
+        }
+    }
+}
+
 struct TechniqueButton: View {
     let action: () -> Void
 
