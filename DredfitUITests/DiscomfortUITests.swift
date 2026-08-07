@@ -59,14 +59,18 @@ final class DiscomfortUITests: XCTestCase {
         app.buttons["Got it"].tap()
     }
 
-    /// While a movement rests, Today says so quietly — by movement name, and
-    /// as a fact rather than a warning.
+    /// While a movement is frozen, Today says so quietly — by movement name,
+    /// as a fact rather than a warning, and with the horizon the engine
+    /// already knows.
     func testTodayCarriesTheRestingLine() {
         app.launchArguments.append("--uitest-discomfort")
         app.launch()
-        let line = app.staticTexts["resting-line"]
-        XCTAssertTrue(line.waitForExistence(timeout: 5), "no resting line on Today")
-        // Named as the list above names it, not by movement.
-        XCTAssertEqual(line.label, "Resting for now: Y-T-W raises")
+        let heading = app.staticTexts["resting-line"]
+        XCTAssertTrue(heading.waitForExistence(timeout: 5), "no freeze block on Today")
+        XCTAssertEqual(heading.label, "Not getting harder")
+        // Named as the list above names it, not by movement, and carrying the
+        // per-movement counter as one VoiceOver phrase.
+        XCTAssertTrue(app.staticTexts["Y-T-W raises, not getting harder — 3 more times"].exists,
+                      "the row carries neither the name nor the horizon")
     }
 }

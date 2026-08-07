@@ -22,6 +22,8 @@ private struct ActiveWorkout: Identifiable {
 
 struct TodayView: View {
     @Environment(AppStore.self) private var store
+    @Environment(\.displayScale) private var displayScale
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var activeWorkout: ActiveWorkout?
     @State private var techniqueFor: SessionExercise?
     @State private var nextPreviewShown = false
@@ -113,15 +115,20 @@ struct TodayView: View {
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
 
-            // A fact about rest, not a warning: the movement is in today's
-            // plan at the level it was, and it stays there for a while.
-            if !store.restingPatterns.isEmpty {
-                Text("Resting for now: \(restingNames)")
-                    .dredfitFont(13.5)
-                    .foregroundStyle(Theme.ink2)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.top, 6)
-                    .accessibilityIdentifier("resting-line")
+            // A fact about the plan, not a warning: the movement is in today's
+            // workout at the level it was, and it stays at that level for a
+            // known number of its own appearances.
+            if !restingRows.isEmpty {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Not getting harder")
+                        .dredfitFont(13.5)
+                        .foregroundStyle(Theme.ink2)
+                        .accessibilityIdentifier("resting-line")
+                    ForEach(restingRows) { row in
+                        restingRow(row)
+                    }
+                }
+                .padding(.top, 6)
             }
 
             if store.shouldOfferComeback() {
@@ -166,14 +173,44 @@ struct TodayView: View {
         }
     }
 
-    /// Named the way the list above names them: the rest belongs to the
+    private struct RestingRow: Identifiable {
+        let id: Pattern
+        let name: String
+        let remaining: Int
+    }
+
+    /// Named the way the list above names them: the freeze belongs to the
     /// movement, but the row the reader is looking at says "Y-T-W raises".
     /// A frozen movement cannot change variation, so the name holds for as
-    /// long as the line is up.
-    private var restingNames: String {
+    /// long as the block is up. The horizon is per movement, not a constant:
+    /// a fresh report refreshes that one counter while the others keep
+    /// counting down.
+    private var restingRows: [RestingRow] {
         let resting = Set(store.restingPatterns)
-        return ListFormatter.localizedString(byJoining:
-            store.nextSession.exercises.filter { resting.contains($0.pattern) }.map(\.name))
+        return store.nextSession.exercises
+            .filter { resting.contains($0.pattern) }
+            .map { RestingRow(id: $0.pattern, name: $0.name,
+                              remaining: store.engineState.freezeRemaining($0.pattern)) }
+    }
+
+    /// The pill rides inline after the name and wraps with it, the same way
+    /// the debut badge does in ExerciseRow — a sibling HStack would push it
+    /// off screen on the longest catalog names.
+    private func restingRow(_ row: RestingRow) -> some View {
+        let horizon = String(localized: "\(row.remaining) more times")
+        var text = Text(row.name)
+        if let pill = BadgePill.image(text: horizon, scale: displayScale,
+                                      typeSize: dynamicTypeSize) {
+            text = text + Text(verbatim: " ")
+                + Text(Image(uiImage: pill)).baselineOffset(-3)
+        }
+        return text
+            .dredfitFont(13.5)
+            .foregroundStyle(Theme.ink2)
+            .fixedSize(horizontal: false, vertical: true)
+            // One phrase for VoiceOver: name, state, horizon — the pill is an
+            // image and would otherwise be read as nothing at all.
+            .accessibilityLabel(Text("\(row.name), not getting harder — \(horizon)"))
     }
 
     // MARK: - Interrupted workout
