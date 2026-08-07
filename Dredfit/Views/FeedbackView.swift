@@ -34,15 +34,6 @@ struct FeedbackView: View {
                         Text("One tap — the next workout adapts")
                             .dredfitFont(15)
                             .foregroundStyle(Theme.ink2)
-                        if !setAside.isEmpty {
-                            Text(scopeLine)
-                                .dredfitFont(13)
-                                .foregroundStyle(Theme.ink2)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 5)
-                                .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 14))
-                                .padding(.top, 2)
-                        }
                     }
                     .padding(.top, 18)
 
@@ -88,9 +79,13 @@ struct FeedbackView: View {
 
     private var adjustedSummary: some View {
         VStack(alignment: .leading, spacing: 8) {
-            if !actuals.isEmpty {
-                Kicker(text: String(localized: "Adjusted"))
-            }
+            // The card is the only place that states the rating's scope. A
+            // banner above the cards used to say the same thing, and two
+            // elements under a standing order never to contradict each other
+            // are one element that got split.
+            Text("Your rating applies to \(applies) of \(total)")
+                .dredfitFont(13, weight: .semibold)
+                .foregroundStyle(Theme.ink2)
             ForEach(session.exercises.filter { actuals[$0.pattern] != nil }) { ex in
                 HStack {
                     Text(ex.name)
@@ -104,7 +99,7 @@ struct FeedbackView: View {
             }
             if !discomfort.isEmpty {
                 Kicker(text: String(localized: "Discomfort"))
-                    .padding(.top, actuals.isEmpty ? 0 : 8)
+                    .padding(.top, 8)
             }
             ForEach(session.exercises.filter { discomfort.contains($0.pattern) }) { ex in
                 HStack {
@@ -122,7 +117,7 @@ struct FeedbackView: View {
             }
             if !skipped.isEmpty {
                 Kicker(text: String(localized: "feedback.skipped", defaultValue: "Skipped"))
-                    .padding(.top, actuals.isEmpty && discomfort.isEmpty ? 0 : 8)
+                    .padding(.top, 8)
             }
             ForEach(session.exercises.filter { skipped.contains($0.pattern) }) { ex in
                 HStack {
@@ -144,8 +139,8 @@ struct FeedbackView: View {
                     }
                 }
             }
-            if setAside.isEmpty {
-                Text("Your rating applies to the rest")
+            if !setAside.isEmpty {
+                Text("These keep their level either way.")
                     .dredfitFont(12.5)
                     .foregroundStyle(Theme.ink2)
             }
@@ -160,28 +155,18 @@ struct FeedbackView: View {
     private var setAside: Set<Pattern> { skipped.union(discomfort) }
 
     /// Adjusted exercises follow their actual number, not the rating (see
-    /// Engine.applyFeedback), so they are outside the scope too.
-    private var scopeLine: String {
-        let adjusted = session.exercises.filter {
+    /// Engine.applyFeedback), so they are outside the scope too. The
+    /// arithmetic is the banner's, unchanged: the session minus what was set
+    /// aside minus what carries its own number.
+    private var adjusted: Int {
+        session.exercises.filter {
             actuals[$0.pattern] != nil && !setAside.contains($0.pattern)
         }.count
-        let applies = session.exercises.count - setAside.count - adjusted
-        let total = session.exercises.count
-        if setAside.count == 1,
-           let ex = session.exercises.first(where: { setAside.contains($0.pattern) }) {
-            // Must not contradict the summary card on the same screen.
-            if discomfort.contains(ex.pattern) {
-                return String(localized: "Applies to \(applies) of \(total) — \(ex.name) hurt, resting for now")
-            }
-            return ex.pattern == interrupted
-                ? String(localized: "Applies to \(applies) of \(total) — \(ex.name) not finished, stays put")
-                : String(localized: "Applies to \(applies) of \(total) — \(ex.name) skipped, stays put")
-        }
-        if !discomfort.isEmpty {
-            return String(localized: "Applies to \(applies) of \(total) — anything skipped or painful stays put")
-        }
-        return String(localized: "Applies to \(applies) of \(total) — skipped exercises stay put")
     }
+
+    private var applies: Int { session.exercises.count - setAside.count - adjusted }
+
+    private var total: Int { session.exercises.count }
 
     private func optionCard(title: String, caption: String,
                             result: FeedbackResult) -> some View {

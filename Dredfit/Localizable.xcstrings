@@ -4189,46 +4189,6 @@
         }
       }
     },
-    "Adjusted" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Angepasst"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajustado"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajusté"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modificato"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajustado"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Скорректировано"
-          }
-        }
-      }
-    },
     "After two weeks away the plan meets you a couple of steps lower — further down the longer the break. Nothing is lost: the levels climb back quickly, and coming back is the only thing that matters." : {
       "localizations" : {
         "de" : {
@@ -4306,206 +4266,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Все данные остаются на устройстве. Если есть проблемы с суставами, сердцем или давлением — сначала посоветуйся с врачом. Острая боль во время упражнения — всегда стоп."
-          }
-        }
-      }
-    },
-    "Applies to %lld of %lld — %@ hurt, resting for now" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gilt für %lld von %lld – %@ tat weh, ruht vorerst"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cuenta para %lld de %lld — %@ dolió y descansa por ahora"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Compte pour %lld sur %lld — %@ a fait mal, au repos pour l’instant"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vale per %lld su %lld – %@ ha fatto male, a riposo per ora"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vale para %lld de %lld — %@ doeu e descansa por ora"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Оценка для %lld из %lld — %@: болело, пока на отдыхе"
-          }
-        }
-      }
-    },
-    "Applies to %lld of %lld — %@ not finished, stays put" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gilt für %lld von %lld – %@ nicht beendet, Level bleibt"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cuenta para %lld de %lld — %@ quedó sin terminar y no cambia"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Compte pour %lld sur %lld — %@ : exercice inachevé, niveau inchangé"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vale per %lld su %lld – %@: esercizio non completato, livello fermo"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vale para %lld de %lld — %@ ficou pela metade e não muda"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Оценка для %lld из %lld — %@: не завершено, уровень на месте"
-          }
-        }
-      }
-    },
-    "Applies to %lld of %lld — %@ skipped, stays put" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gilt für %lld von %lld – %@ übersprungen, Level bleibt"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cuenta para %lld de %lld — %@ quedó fuera y no cambia"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Compte pour %lld sur %lld — %@ : exercice ignoré, niveau inchangé"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vale per %lld su %lld – %@: esercizio saltato, livello fermo"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vale para %lld de %lld — %@ ficou de fora e não muda"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Оценка для %lld из %lld — %@: пропуск, уровень на месте"
-          }
-        }
-      }
-    },
-    "Applies to %lld of %lld — anything skipped or painful stays put" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gilt für %lld von %lld – Übersprungenes und Schmerzhaftes bleibt, wo es ist"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cuenta para %lld de %lld — lo omitido y lo que dolió no cambia"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Compte pour %lld sur %lld — ce qui a été ignoré ou a fait mal ne bouge pas"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vale per %lld su %lld – ciò che è stato saltato o ha fatto male resta fermo"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vale para %lld de %lld — o que foi pulado ou doeu fica como está"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Оценка для %lld из %lld — пропущенные и болевшие на месте"
-          }
-        }
-      }
-    },
-    "Applies to %lld of %lld — skipped exercises stay put" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gilt für %lld von %lld – Übersprungenes bleibt, wo es ist"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cuenta para %lld de %lld — los ejercicios omitidos no cambian"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Compte pour %lld sur %lld — les exercices ignorés ne bougent pas"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vale per %lld su %lld – gli esercizi saltati restano fermi"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vale para %lld de %lld — os pulados ficam como estão"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Оценка для %lld из %lld — пропущенные на месте"
           }
         }
       }
@@ -12959,42 +12719,42 @@
         }
       }
     },
-    "Your rating applies to the rest" : {
+    "These keep their level either way." : {
       "localizations" : {
-        "de" : {
+        "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Deine Einschätzung gilt für den Rest"
+            "value" : "Эти в любом случае останутся на своем уровне."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tu valoración se aplica al resto"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ton ressenti vaut pour le reste"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La tua valutazione vale per il resto"
+            "value" : "Estos mantienen su nivel en cualquier caso."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sua avaliação vale para o restante"
+            "value" : "Estes mantêm o nível de qualquer forma."
           }
         },
-        "ru" : {
+        "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Оценка применится к остальным"
+            "value" : "Diese behalten ihr Level so oder so."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ceux-ci gardent leur niveau dans tous les cas."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questi mantengono il loro livello in ogni caso."
           }
         }
       }
@@ -13263,6 +13023,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@, non diventa più difficile – %@"
+          }
+        }
+      }
+    },
+    "Your rating applies to %lld of %lld" : {
+      "localizations" : {
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оценка для %lld из %lld"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu valoración cuenta para %lld de %lld"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sua avaliação vale para %lld de %lld"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Einschätzung gilt für %lld von %lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ton ressenti compte pour %lld sur %lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La tua valutazione vale per %lld su %lld"
           }
         }
       }

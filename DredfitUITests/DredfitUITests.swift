@@ -864,9 +864,9 @@ extension DredfitUITests {
             }
         }
         XCTAssertTrue(rating.waitForExistence(timeout: 5), "the short flow must reach the rating")
-        // Three of the session's six were never touched — the scope chip says
-        // so before anything is recorded, and the summary lists them.
-        XCTAssertTrue(app.staticTexts["Applies to 3 of 6 — skipped exercises stay put"].exists,
+        // Three of the session's six were never touched — the card header
+        // says the scope once, and the summary lists them below it.
+        XCTAssertTrue(app.staticTexts["Your rating applies to 3 of 6"].exists,
                       "the rating must apply to the three that were trained")
         // The state lives once in the header; the rows carry only dimmed
         // names on screen — but every row still reads its state to VoiceOver.
@@ -875,8 +875,8 @@ extension DredfitUITests {
         XCTAssertEqual(app.staticTexts.matching(
             NSPredicate(format: "label ENDSWITH %@", ", skipped")).count, 3,
             "each untouched exercise must still announce its state")
-        XCTAssertFalse(app.staticTexts["ADJUSTED"].exists,
-                       "nothing was adjusted — the Adjusted kicker has no rows")
+        XCTAssertTrue(app.staticTexts["These keep their level either way."].exists,
+                      "the card must say what happens to the set-aside three")
 
         app.staticTexts["On plan"].tap()
         XCTAssertTrue(app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5),
