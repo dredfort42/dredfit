@@ -149,11 +149,17 @@ struct ProgressScreen: View {
                     }
                     .padding(.top, 16)
 
-                    levelChart
+                    // Both the chart and the line under it read the same two
+                    // derivations; computing them once keeps a long history
+                    // from being walked twice on every invalidation.
+                    let points = chartPoints
+                    let bands = breakBands(points)
+
+                    levelChart(points, bands)
                         .frame(height: 134)   // 120 of chart + room for the date axis
                         .padding(.top, 8)
 
-                    breakFactLine
+                    breakFactLine(bands)
 
                     VStack(spacing: 6) {
                         ForEach(Pattern.ordered, id: \.self) { p in
@@ -208,10 +214,15 @@ struct ProgressScreen: View {
         let from: Date
         let to: Date
         let days: Int
-        /// The level on the far side is lower than on the near side. This is
-        /// the only evidence the app has that the break cost anything, and it
-        /// is enough: declining "start easier" leaves the level where it was,
-        /// so a declined comeback simply never sets this.
+        /// The level on the far side is lower than on the near side AND the
+        /// session that produced that point cannot be the thing that lowered
+        /// it. "Tough" takes its own step down, so under it a drop is not the
+        /// break's to claim — someone who declined "start easier" and then
+        /// had a hard session back would otherwise be told the plan met them
+        /// lower when it met them exactly where they left it. "On plan" and
+        /// "easy" only ever raise a level, so under those a drop across the
+        /// gap is the silent decay or an accepted comeback, and saying so is
+        /// safe.
         let costLevels: Bool
     }
 
@@ -222,8 +233,9 @@ struct ProgressScreen: View {
             let days = cal.dateComponents([.day], from: cal.startOfDay(for: before.date),
                                           to: cal.startOfDay(for: after.date)).day ?? 0
             guard days >= EngineConfig.silentDecayGapDays else { return nil }
+            let fell = after.value < before.value && after.result != .less
             return BreakBand(id: index, from: before.date, to: after.date,
-                             days: days, costLevels: after.value < before.value)
+                             days: days, costLevels: fell)
         }
     }
 
@@ -232,14 +244,16 @@ struct ProgressScreen: View {
     private func labelFits(_ band: BreakBand, in points: [LevelPoint]) -> Bool {
         guard let first = points.first?.date, let last = points.last?.date,
               last > first else { return false }
-        return band.to.timeIntervalSince(band.from) / last.timeIntervalSince(first) >= 0.14
+        // The band is a fraction of the axis; the label is not — it grows
+        // with Dynamic Type, so the width it needs has to grow with it.
+        let needed = typeSize.isAccessibilitySize ? 0.30 : 0.14
+        return band.to.timeIntervalSince(band.from) / last.timeIntervalSince(first) >= needed
     }
 
     /// One line, and it must not repeat the mistake the rating caption made:
     /// the causal half is claimed only where the levels actually fell.
     @ViewBuilder
-    private var breakFactLine: some View {
-        let bands = breakBands(chartPoints)
+    private func breakFactLine(_ bands: [BreakBand]) -> some View {
         if let longest = bands.max(by: { $0.days < $1.days }) {
             Text(breakFact(longest, of: bands.count))
                 .dredfitFont(12.5)
@@ -263,6 +277,9 @@ struct ProgressScreen: View {
         let id: Int
         let date: Date
         let value: Int
+        /// The answer that produced this point, carried because a break may
+        /// not claim a drop that the returning session explains by itself.
+        let result: FeedbackResult
     }
 
     /// Dates can coincide (several workouts in one span), so duplicates
@@ -281,12 +298,14 @@ struct ProgressScreen: View {
     private var chartPoints: [LevelPoint] {
         if let p = effectivePattern {
             return store.records
-                .compactMap { r in r.levelsAfter?[p].map { (r.date, $0) } }
+                .compactMap { r in r.levelsAfter?[p].map { (r.date, $0, r.result) } }
                 .enumerated()
-                .map { LevelPoint(id: $0.offset, date: $0.element.0, value: $0.element.1) }
+                .map { LevelPoint(id: $0.offset, date: $0.element.0,
+                                  value: $0.element.1, result: $0.element.2) }
         }
         return store.records.enumerated()
-            .map { LevelPoint(id: $0.offset, date: $0.element.date, value: $0.element.totalLevelAfter) }
+            .map { LevelPoint(id: $0.offset, date: $0.element.date,
+                              value: $0.element.totalLevelAfter, result: $0.element.result) }
     }
 
     private var chartTitle: String {
@@ -296,30 +315,31 @@ struct ProgressScreen: View {
         return "\(p.displayName) — \(variation)"
     }
 
+    /// Both ends are dates, and Swift Charts extracts a mark's labels into
+    /// the catalog — so they reuse the key the line marks already use instead
+    /// of adding two of their own that no reader will ever see.
+    @ChartContentBuilder
+    private func breakBandMark(_ band: BreakBand, in points: [LevelPoint]) -> some ChartContent {
+        RectangleMark(xStart: .value("date", band.from),
+                      xEnd: .value("date", band.to))
+            .foregroundStyle(Theme.hairline.opacity(0.55))
+            .annotation(position: .overlay, alignment: .center) {
+                if labelFits(band, in: points) {
+                    Text("\(band.days) days")
+                        .dredfitFont(10)
+                        .foregroundStyle(Theme.ink3)
+                }
+            }
+    }
+
     @ViewBuilder
-    private var levelChart: some View {
-        let points = chartPoints
+    private func levelChart(_ points: [LevelPoint], _ bands: [BreakBand]) -> some View {
         if points.count >= 2 {
             Chart {
                 // Behind the line and carrying no meaning of its own: the
                 // silent decay lands between two entries, so without a band
                 // the drop appears inside a workout the athlete completed.
-                ForEach(breakBands(points)) { band in
-                    // Both ends are dates, and Swift Charts extracts these
-                    // labels into the catalog — so they reuse the key the
-                    // line marks already use instead of adding two of their
-                    // own that no reader will ever see.
-                    RectangleMark(xStart: .value("date", band.from),
-                                  xEnd: .value("date", band.to))
-                        .foregroundStyle(Theme.hairline.opacity(0.55))
-                        .annotation(position: .overlay, alignment: .center) {
-                            if labelFits(band, in: points) {
-                                Text("\(band.days) days")
-                                    .dredfitFont(10)
-                                    .foregroundStyle(Theme.ink3)
-                            }
-                        }
-                }
+                ForEach(bands) { breakBandMark($0, in: points) }
                 ForEach(points) { pt in
                     LineMark(x: .value("date", pt.date), y: .value("level", pt.value))
                         .foregroundStyle(Theme.accent)

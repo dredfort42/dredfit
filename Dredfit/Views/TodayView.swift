@@ -72,6 +72,10 @@ struct TodayView: View {
     private var planView: some View {
         let session = store.nextSession
         let debuts = store.debutPatterns
+        // Derived from the session this view already holds: store.nextSession
+        // generates a fresh one on every access, and store.restingPatterns
+        // generates another inside itself.
+        let resting = restingRows(in: session)
         return VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 6) {
                 Kicker(text: store.today.formatted(.dateTime.weekday(.wide).day().month(.wide))
@@ -118,13 +122,13 @@ struct TodayView: View {
             // A fact about the plan, not a warning: the movement is in today's
             // workout at the level it was, and it stays at that level for a
             // known number of its own appearances.
-            if !restingRows.isEmpty {
+            if !resting.isEmpty {
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Not getting harder")
                         .dredfitFont(13.5)
                         .foregroundStyle(Theme.ink2)
                         .accessibilityIdentifier("resting-line")
-                    ForEach(restingRows) { row in
+                    ForEach(resting) { row in
                         restingRow(row)
                     }
                 }
@@ -185,12 +189,12 @@ struct TodayView: View {
     /// long as the block is up. The horizon is per movement, not a constant:
     /// a fresh report refreshes that one counter while the others keep
     /// counting down.
-    private var restingRows: [RestingRow] {
-        let resting = Set(store.restingPatterns)
-        return store.nextSession.exercises
-            .filter { resting.contains($0.pattern) }
-            .map { RestingRow(id: $0.pattern, name: $0.name,
-                              remaining: store.engineState.freezeRemaining($0.pattern)) }
+    private func restingRows(in session: Session) -> [RestingRow] {
+        session.exercises.compactMap { ex in
+            let left = store.engineState.freezeRemaining(ex.pattern)
+            guard left > 0 else { return nil }
+            return RestingRow(id: ex.pattern, name: ex.name, remaining: left)
+        }
     }
 
     /// The pill rides inline after the name and wraps with it, the same way
