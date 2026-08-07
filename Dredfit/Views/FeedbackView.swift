@@ -178,10 +178,16 @@ struct FeedbackView: View {
                     Text(title)
                         .dredfitFont(18, weight: .semibold)
                         .foregroundStyle(Theme.ink)
+                    // A button's label centres its own multiline text, so a
+                    // caption that wraps stops agreeing with the title above
+                    // it. Stated rather than inherited.
                     Text(caption)
                         .dredfitFont(13)
                         .foregroundStyle(Theme.ink2)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
                 Spacer()
                 Image(systemName: "chevron.right")
                     .foregroundStyle(Theme.ink3)
