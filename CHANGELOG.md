@@ -28,8 +28,11 @@
   while the chart draws one point per entry, so the drop appeared inside a
   completed workout — deliberate quiet reading as an accusation. Gaps of a
   week or more now carry a band behind the line with their length inside it,
-  and one line under the chart that names the cost only where the levels
-  actually fell.
+  and one line under the chart. That line names a cost only where the levels
+  fell across the gap *and* the first workout back cannot account for the drop
+  itself — neither by its rating nor by a number entered in it. Anything less
+  strict would put the mistake this wave removes from the rating screen back
+  on the chart.
 - Two lines earn their removal: "Last time you chose" re-weighted three cards
   that are meant to be equal, and the weekly summary gave its space to the
   chart. The load caption under the big number stops printing the number
