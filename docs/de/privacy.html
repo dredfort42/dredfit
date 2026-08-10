@@ -25,36 +25,66 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FFFFFF'/%3E%3Ccircle cx='15' cy='32' r='7' fill='%23111214'/%3E%3Ccircle cx='32' cy='32' r='7' fill='%23E8590C'/%3E%3Ccircle cx='49' cy='32' r='7' fill='none' stroke='%23D8D9DB' stroke-width='3'/%3E%3C/svg%3E">
+<meta name="color-scheme" content="light">
 <style>
   :root{
     --ink:#111214; --ink2:#6E7075; --ink3:#A7A9AD;
     --hair:#ECEDEF; --acc:#E8590C; --accText:#B44504; --soft:#FBE3D6; --card:#F7F7F5;
   }
   *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:auto}
+  @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
   body{
     font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Inter,sans-serif;
     color:var(--ink); background:#fff; line-height:1.65;
     -webkit-font-smoothing:antialiased;
   }
+  :focus-visible{outline:2px solid var(--acc);outline-offset:3px;border-radius:6px}
+  summary::-webkit-details-marker{display:none}
   .wrap{max-width:720px;margin:0 auto;padding:0 24px}
   header.wrap,.wrap.foot{max-width:1080px}
 
-  .nav{display:flex;align-items:center;justify-content:space-between}
+  .nav{display:flex;align-items:center;justify-content:space-between;min-height:60px}
   .logo{display:flex;align-items:center;gap:12px;font-weight:800;font-size:19px;
     letter-spacing:-.02em;color:var(--ink);text-decoration:none}
   .logo svg{display:block}
-  .navr{display:flex;align-items:center;gap:22px}
-  .langs{display:flex;gap:12px;font-size:13px}
-  .langs a{color:var(--ink2);text-decoration:none;letter-spacing:.02em}
-  .langs a:hover{color:var(--ink)}
-  .langs a.cur{color:var(--ink);font-weight:650}
-  .nav a.gh{font-size:14px;color:var(--ink2);text-decoration:none}
+  .navr{display:flex;align-items:center;gap:10px}
+  .nav a.gh{font-size:14px;color:var(--ink2);text-decoration:none;
+    min-height:44px;display:inline-flex;align-items:center;padding:0 6px}
   .nav a.gh:hover{color:var(--ink)}
 
+  .langnav{position:relative}
+  details.lang summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:6px;
+    min-height:44px;padding:0 10px;font-size:13.5px;font-weight:650;color:var(--ink);border-radius:12px}
+  details.lang summary:hover,details.lang[open] summary{background:var(--card)}
+  details.lang summary .code{letter-spacing:.02em}
+  details.lang summary svg{color:var(--ink2)}
+  .lang-menu{position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1px solid var(--hair);
+    border-radius:16px;box-shadow:0 16px 44px rgba(0,0,0,.14);padding:6px;min-width:190px;z-index:50}
+  .lang-menu a{display:flex;align-items:center;justify-content:space-between;min-height:44px;
+    padding:0 14px;border-radius:11px;font-size:14.5px;color:var(--ink);text-decoration:none;
+    letter-spacing:0;font-weight:400}
+  .lang-menu a:hover{background:var(--card)}
+  .lang-menu a[aria-current]{font-weight:650;background:var(--card)}
+  .lang-menu a[aria-current] i{width:7px;height:7px;border-radius:50%;background:var(--acc)}
+
   .hero{padding:40px 0 8px}
+  .back{display:inline-flex;align-items:center;min-height:44px;font-size:14px;
+    color:var(--ink2);text-decoration:none}
+  .back:hover{color:var(--ink)}
   .sec-kick{font-size:13px;font-weight:650;letter-spacing:.1em;color:var(--accText);text-transform:uppercase}
-  h1{font-size:clamp(30px,4.5vw,42px);font-weight:800;letter-spacing:-.03em;margin-top:10px}
-  .date{font-size:14px;color:var(--ink3);margin-top:10px}
+  h1{font-size:clamp(30px,4.5vw,42px);font-weight:800;letter-spacing:-.03em;margin-top:10px;
+    line-height:1.12}
+  /* See the index sheet: a break on desktop, a real space when it stacks. */
+  h1 .nl{display:block;height:0}
+  @media (max-width:880px){h1 .nl{display:inline;height:auto}}
+  .date{font-size:14px;color:var(--ink2);margin-top:10px}
+
+  .toc{display:flex;flex-wrap:wrap;gap:0 24px;margin-top:26px;padding:10px 22px;
+    background:var(--card);border-radius:16px}
+  .toc a{font-size:14px;color:var(--ink2);text-decoration:none;min-height:44px;
+    display:inline-flex;align-items:center}
+  .toc a:hover{color:var(--ink)}
 
   .zero-card{background:var(--ink);border-radius:24px;padding:32px 36px;margin:36px 0;
     display:flex;align-items:center;gap:28px}
@@ -62,20 +92,22 @@
   .zero-card p{color:rgba(255,255,255,.75);font-size:16px}
   .zero-card b{color:#fff}
 
-  h2{font-size:22px;font-weight:750;letter-spacing:-.02em;margin-top:44px}
-  p{font-size:16px;color:var(--ink2);margin-top:12px}
+  h2{font-size:22px;font-weight:750;letter-spacing:-.02em;margin-top:44px;
+    text-wrap:balance;scroll-margin-top:24px}
+  p{font-size:16px;color:var(--ink2);margin-top:12px;text-wrap:pretty}
   p b{color:var(--ink)}
   a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--acc);text-underline-offset:3px}
 
   footer{padding:48px 0 64px;border-top:1px solid var(--hair);margin-top:72px}
   .foot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
   .foot .links{display:flex;gap:26px;flex-wrap:wrap}
-  .foot .links a{font-size:14px;color:var(--ink2);text-decoration:none}
+  .foot .links a{font-size:14px;color:var(--ink2);text-decoration:none;
+    min-height:44px;display:inline-flex;align-items:center}
   .foot .links a:hover{color:var(--ink)}
   .foot a{text-decoration:none}
-  .foot .copy{font-size:13px;color:var(--ink3)}
+  .foot .copy{font-size:13px;color:var(--ink2)}
 
-  @media (max-width:600px){
+  @media (max-width:639px){
     .zero-card{flex-direction:column;text-align:center;gap:14px;padding:28px 22px}
   }
 </style>
@@ -89,7 +121,7 @@
       Dredfit
     </a>
     <div class="navr">
-      <div class="langs"><a href="https://dredfit.com/privacy.html">EN</a><a href="https://dredfit.com/ru/privacy.html">RU</a><a href="https://dredfit.com/es/privacy.html">ES</a><a href="https://dredfit.com/pt-br/privacy.html">PT</a><a class="cur" href="https://dredfit.com/de/privacy.html">DE</a><a href="https://dredfit.com/fr/privacy.html">FR</a><a href="https://dredfit.com/it/privacy.html">IT</a></div>
+      <nav class="langnav" aria-label="Sprache"><details class="lang"><summary aria-label="Sprache: Deutsch"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.7 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.7-3.8-9s1.3-6.4 3.8-9z"/></svg><span class="code">DE</span><svg class="chev" width="10" height="7" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M1 1l4 4 4-4"/></svg></summary><div class="lang-menu"><a href="https://dredfit.com/privacy.html" lang="en" hreflang="en">English</a><a href="https://dredfit.com/ru/privacy.html" lang="ru" hreflang="ru">Русский</a><a href="https://dredfit.com/es/privacy.html" lang="es" hreflang="es">Español</a><a href="https://dredfit.com/pt-br/privacy.html" lang="pt-BR" hreflang="pt-BR">Português</a><a href="https://dredfit.com/de/privacy.html" lang="de" hreflang="de" aria-current="page">Deutsch <i></i></a><a href="https://dredfit.com/fr/privacy.html" lang="fr" hreflang="fr">Français</a><a href="https://dredfit.com/it/privacy.html" lang="it" hreflang="it">Italiano</a></div></details></nav>
       <a class="gh" href="https://github.com/dredfort42/dredfit">GitHub →</a>
     </div>
   </nav>
@@ -98,8 +130,9 @@
 <div class="wrap">
 
   <div class="hero">
+    <a class="back" href="index.html">← Dredfit</a>
     <div class="sec-kick">Datenschutzerklärung</div>
-    <h1>Nichts zu sammeln.<br>Nichts zu verbergen.</h1>
+    <h1>Nichts zu sammeln.<span class="nl"> </span>Nichts zu verbergen.</h1>
     <div class="date">Gültig ab: 19. Juli 2026</div>
   </div>
 
@@ -108,38 +141,40 @@
     <p><b>Dredfit erhebt keine Daten. Gar keine.</b> Kein Kontosystem, keine Analyse-Dienste, keine Werbung, keine Drittanbieter-SDKs und keinerlei Netzwerkanfragen.</p>
   </div>
 
-  <h2>Wo deine Daten liegen</h2>
+  <nav class="toc" aria-label="Auf dieser Seite"><a href="#data">Wo deine Daten liegen</a><a href="#health">Apple Health</a><a href="#notifications">Mitteilungen</a><a href="#third-parties">Dritte</a><a href="#retention">Aufbewahrung und deine Rechte</a><a href="#children">Kinder</a><a href="#changes">Änderungen an dieser Erklärung</a><a href="#responsible">Wer verantwortlich ist</a><a href="#contact">Kontakt</a></nav>
+
+  <h2 id="data">Wo deine Daten liegen</h2>
   <p>Dein gesamter Trainingsverlauf – Trainingsaufzeichnungen, Level und Anpassungen – wird <b>lokal auf deinem Gerät</b> gespeichert. Dredfit hat keine Server und überträgt ihn nie. Löschst du die App, werden diese Daten mit ihr gelöscht – mit einer Ausnahme: Trainings, die bereits nach Apple Health geschrieben wurden, bleiben in der Health-App, bis du sie dort entfernst.</p>
   <p>Normale iOS-Backups (iCloud oder lokal) können die Daten der App als Teil deines Geräte-Backups enthalten – unter den <a href="https://www.apple.com/legal/privacy/">Datenschutzbestimmungen von Apple</a>.</p>
   <p>Aus den Einstellungen kannst du jederzeit eine vollständige Sicherung als einfache JSON-Datei exportieren. Die Sicherung ist der gesamte Zustand der App – dein Trainingsverlauf zusammen mit deinen Einstellungen (darunter Ruhetage, Erinnerungszeit, Töne, der Klimmzugstangen-Schalter und die internen Vermerke zum Health-Export). Diese Datei geht dorthin, wohin <b>du</b> sie über das Teilen-Menü von iOS schickst – wir sehen sie nie. Du kannst eine solche Sicherung auch wieder in die App importieren: Der Import liest nur die Datei, die du ausgewählt hast, und überträgt nichts.</p>
   <p>Nach einem Meilenstein – und im Tab „Fortschritt“ – bietet Dredfit eine <b>Karte zum Teilen</b> an: ein kleines Bild mit der Zahl deiner Trainings und deinem Gesamtlevel (oder dem Meilenstein selbst) und dem Datum, vollständig auf deinem Gerät erzeugt. Wie die Sicherung geht sie nur dorthin, wohin <b>du</b> sie über das Teilen-Menü schickst – und sonst nirgendwohin.</p>
 
-  <h2>Apple Health</h2>
+  <h2 id="health">Apple Health</h2>
   <p>Dredfit kann abgeschlossene Trainings nach Apple Health schreiben. Das ist <b>standardmäßig aus</b> und beginnt erst, nachdem du es in den Einstellungen aktiviert und die Berechtigung erteilt hast.</p>
   <p>Ist es an, wird jedes abgeschlossene Training als ein einzelner Eintrag <b>Funktionelles Krafttraining</b> geschrieben, mit <b>Startzeit, Endzeit und Dauer</b> – plus dem standardmäßigen Gerätevermerk, den iOS an jeden Health-Eintrag anhängt (Gerätemodell und OS-Version). Keine Herzfrequenz, keine Kalorien, keine Körpermaße, keine Übungsdetails.</p>
   <p>Die Berechtigung gilt <b>nur zum Schreiben</b>: Dredfit fordert keinerlei Lesezugriff an und kann nichts sehen, was bereits in deinen Health-Daten liegt. Health-Daten bleiben auf deinem Gerät unter dem Schutz von Apple, und wir erhalten sie nie.</p>
   <p>Du kannst den Zugriff jederzeit widerrufen unter <b>Einstellungen → Health → Datenzugriff &amp; Geräte → Dredfit</b> – oder den Schalter in der App ausschalten. Bereits geschriebene Trainings bleiben in Health, bis du sie dort löschst.</p>
 
-  <h2>Mitteilungen</h2>
+  <h2 id="notifications">Mitteilungen</h2>
   <p>Wenn du die Erinnerung aktivierst, plant Dredfit eine lokale Mitteilung an deinen Trainingstagen. Sie wird <b>auf deinem Gerät</b> erzeugt und zugestellt – es gibt keinen Push-Server, und nichts wird übertragen.</p>
 
-  <h2>Dritte</h2>
+  <h2 id="third-parties">Dritte</h2>
   <p>Wir erhalten deine Daten nie – es gibt also nichts, was wir teilen, verkaufen oder verarbeiten könnten, und nichts wird auf irgendeinem Server verarbeitet. Dredfit enthält keine Drittanbieter-SDKs, keine Analyse-Dienste und keine Werbung – und stellt keinerlei Netzwerkanfragen.</p>
   <p>Deine Daten können außer dir nur eine einzige weitere Stelle erreichen: <b>Apple</b> – und auch das nur über Systemfunktionen, die du steuerst: Trainings, deren Export nach Apple Health du erlaubst, und App-Daten in einem normalen iCloud- oder lokalen Geräte-Backup. In beiden Fällen liegen sie unter den <a href="https://www.apple.com/legal/privacy/">Datenschutzbestimmungen von Apple</a>, und wir sehen sie nie.</p>
 
-  <h2>Aufbewahrung und deine Rechte</h2>
+  <h2 id="retention">Aufbewahrung und deine Rechte</h2>
   <p>Wir bewahren nichts auf, also gibt es auf unserer Seite keine Aufbewahrungsfrist: Deine Daten liegen auf deinem Gerät, bis du die App löschst, und wir haben nie eine Kopie. Datenschutzgesetze wie die DSGVO und der CCPA geben dir Rechte auf Auskunft, Löschung und Datenübertragbarkeit – bei Dredfit übst du sie alle direkt auf dem Gerät aus: Der JSON-Export ist deine vollständige, übertragbare Kopie von allem, was die App speichert, und das Löschen der App ist die Löschung – mit der einen oben genannten Ausnahme: Trainings, die bereits nach Apple Health geschrieben wurden, bleiben dort, bis du sie in der Health-App entfernst. Es gibt nichts, was du bei uns anfragen müsstest, denn es gibt nichts, was wir herausgeben könnten; Fragen sind trotzdem willkommen – an die Adresse unten.</p>
 
-  <h2>Kinder</h2>
+  <h2 id="children">Kinder</h2>
   <p>Dredfit ist ein Werkzeug für allgemeine Fitness und ein breites Publikum und erhebt wissentlich von niemandem Daten, auch nicht von Kindern – weil es überhaupt keine Daten erhebt.</p>
 
-  <h2>Änderungen an dieser Erklärung</h2>
+  <h2 id="changes">Änderungen an dieser Erklärung</h2>
   <p>Sollte sich diese Erklärung jemals ändern, ändert sich das Gültigkeitsdatum oben mit, und die aktualisierte Fassung wird auf dieser Seite veröffentlicht.</p>
 
-  <h2>Wer verantwortlich ist</h2>
+  <h2 id="responsible">Wer verantwortlich ist</h2>
   <p>Dredfit wird von <b>Dmitry Novikov</b>, einem unabhängigen Entwickler, entwickelt und veröffentlicht; er ist die verantwortliche Stelle für diese Erklärung.</p>
 
-  <h2>Kontakt</h2>
+  <h2 id="contact">Kontakt</h2>
   <p>Fragen zu dieser Erklärung: <a href="mailto:dredfort.42@gmail.com">dredfort.42@gmail.com</a></p>
 
 </div>

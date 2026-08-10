@@ -25,36 +25,66 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23FFFFFF'/%3E%3Ccircle cx='15' cy='32' r='7' fill='%23111214'/%3E%3Ccircle cx='32' cy='32' r='7' fill='%23E8590C'/%3E%3Ccircle cx='49' cy='32' r='7' fill='none' stroke='%23D8D9DB' stroke-width='3'/%3E%3C/svg%3E">
+<meta name="color-scheme" content="light">
 <style>
   :root{
     --ink:#111214; --ink2:#6E7075; --ink3:#A7A9AD;
     --hair:#ECEDEF; --acc:#E8590C; --accText:#B44504; --soft:#FBE3D6; --card:#F7F7F5;
   }
   *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:auto}
+  @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
   body{
     font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Inter,sans-serif;
     color:var(--ink); background:#fff; line-height:1.65;
     -webkit-font-smoothing:antialiased;
   }
+  :focus-visible{outline:2px solid var(--acc);outline-offset:3px;border-radius:6px}
+  summary::-webkit-details-marker{display:none}
   .wrap{max-width:720px;margin:0 auto;padding:0 24px}
   header.wrap,.wrap.foot{max-width:1080px}
 
-  .nav{display:flex;align-items:center;justify-content:space-between}
+  .nav{display:flex;align-items:center;justify-content:space-between;min-height:60px}
   .logo{display:flex;align-items:center;gap:12px;font-weight:800;font-size:19px;
     letter-spacing:-.02em;color:var(--ink);text-decoration:none}
   .logo svg{display:block}
-  .navr{display:flex;align-items:center;gap:22px}
-  .langs{display:flex;gap:12px;font-size:13px}
-  .langs a{color:var(--ink2);text-decoration:none;letter-spacing:.02em}
-  .langs a:hover{color:var(--ink)}
-  .langs a.cur{color:var(--ink);font-weight:650}
-  .nav a.gh{font-size:14px;color:var(--ink2);text-decoration:none}
+  .navr{display:flex;align-items:center;gap:10px}
+  .nav a.gh{font-size:14px;color:var(--ink2);text-decoration:none;
+    min-height:44px;display:inline-flex;align-items:center;padding:0 6px}
   .nav a.gh:hover{color:var(--ink)}
 
+  .langnav{position:relative}
+  details.lang summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:6px;
+    min-height:44px;padding:0 10px;font-size:13.5px;font-weight:650;color:var(--ink);border-radius:12px}
+  details.lang summary:hover,details.lang[open] summary{background:var(--card)}
+  details.lang summary .code{letter-spacing:.02em}
+  details.lang summary svg{color:var(--ink2)}
+  .lang-menu{position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1px solid var(--hair);
+    border-radius:16px;box-shadow:0 16px 44px rgba(0,0,0,.14);padding:6px;min-width:190px;z-index:50}
+  .lang-menu a{display:flex;align-items:center;justify-content:space-between;min-height:44px;
+    padding:0 14px;border-radius:11px;font-size:14.5px;color:var(--ink);text-decoration:none;
+    letter-spacing:0;font-weight:400}
+  .lang-menu a:hover{background:var(--card)}
+  .lang-menu a[aria-current]{font-weight:650;background:var(--card)}
+  .lang-menu a[aria-current] i{width:7px;height:7px;border-radius:50%;background:var(--acc)}
+
   .hero{padding:40px 0 8px}
+  .back{display:inline-flex;align-items:center;min-height:44px;font-size:14px;
+    color:var(--ink2);text-decoration:none}
+  .back:hover{color:var(--ink)}
   .sec-kick{font-size:13px;font-weight:650;letter-spacing:.1em;color:var(--accText);text-transform:uppercase}
-  h1{font-size:clamp(30px,4.5vw,42px);font-weight:800;letter-spacing:-.03em;margin-top:10px}
-  .date{font-size:14px;color:var(--ink3);margin-top:10px}
+  h1{font-size:clamp(30px,4.5vw,42px);font-weight:800;letter-spacing:-.03em;margin-top:10px;
+    line-height:1.12}
+  /* See the index sheet: a break on desktop, a real space when it stacks. */
+  h1 .nl{display:block;height:0}
+  @media (max-width:880px){h1 .nl{display:inline;height:auto}}
+  .date{font-size:14px;color:var(--ink2);margin-top:10px}
+
+  .toc{display:flex;flex-wrap:wrap;gap:0 24px;margin-top:26px;padding:10px 22px;
+    background:var(--card);border-radius:16px}
+  .toc a{font-size:14px;color:var(--ink2);text-decoration:none;min-height:44px;
+    display:inline-flex;align-items:center}
+  .toc a:hover{color:var(--ink)}
 
   .zero-card{background:var(--ink);border-radius:24px;padding:32px 36px;margin:36px 0;
     display:flex;align-items:center;gap:28px}
@@ -62,20 +92,22 @@
   .zero-card p{color:rgba(255,255,255,.75);font-size:16px}
   .zero-card b{color:#fff}
 
-  h2{font-size:22px;font-weight:750;letter-spacing:-.02em;margin-top:44px}
-  p{font-size:16px;color:var(--ink2);margin-top:12px}
+  h2{font-size:22px;font-weight:750;letter-spacing:-.02em;margin-top:44px;
+    text-wrap:balance;scroll-margin-top:24px}
+  p{font-size:16px;color:var(--ink2);margin-top:12px;text-wrap:pretty}
   p b{color:var(--ink)}
   a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--acc);text-underline-offset:3px}
 
   footer{padding:48px 0 64px;border-top:1px solid var(--hair);margin-top:72px}
   .foot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
   .foot .links{display:flex;gap:26px;flex-wrap:wrap}
-  .foot .links a{font-size:14px;color:var(--ink2);text-decoration:none}
+  .foot .links a{font-size:14px;color:var(--ink2);text-decoration:none;
+    min-height:44px;display:inline-flex;align-items:center}
   .foot .links a:hover{color:var(--ink)}
   .foot a{text-decoration:none}
-  .foot .copy{font-size:13px;color:var(--ink3)}
+  .foot .copy{font-size:13px;color:var(--ink2)}
 
-  @media (max-width:600px){
+  @media (max-width:639px){
     .zero-card{flex-direction:column;text-align:center;gap:14px;padding:28px 22px}
   }
 </style>
@@ -89,7 +121,7 @@
       Dredfit
     </a>
     <div class="navr">
-      <div class="langs"><a href="https://dredfit.com/privacy.html">EN</a><a class="cur" href="https://dredfit.com/ru/privacy.html">RU</a><a href="https://dredfit.com/es/privacy.html">ES</a><a href="https://dredfit.com/pt-br/privacy.html">PT</a><a href="https://dredfit.com/de/privacy.html">DE</a><a href="https://dredfit.com/fr/privacy.html">FR</a><a href="https://dredfit.com/it/privacy.html">IT</a></div>
+      <nav class="langnav" aria-label="Язык"><details class="lang"><summary aria-label="Язык: Русский"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.7 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.7-3.8-9s1.3-6.4 3.8-9z"/></svg><span class="code">RU</span><svg class="chev" width="10" height="7" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M1 1l4 4 4-4"/></svg></summary><div class="lang-menu"><a href="https://dredfit.com/privacy.html" lang="en" hreflang="en">English</a><a href="https://dredfit.com/ru/privacy.html" lang="ru" hreflang="ru" aria-current="page">Русский <i></i></a><a href="https://dredfit.com/es/privacy.html" lang="es" hreflang="es">Español</a><a href="https://dredfit.com/pt-br/privacy.html" lang="pt-BR" hreflang="pt-BR">Português</a><a href="https://dredfit.com/de/privacy.html" lang="de" hreflang="de">Deutsch</a><a href="https://dredfit.com/fr/privacy.html" lang="fr" hreflang="fr">Français</a><a href="https://dredfit.com/it/privacy.html" lang="it" hreflang="it">Italiano</a></div></details></nav>
       <a class="gh" href="https://github.com/dredfort42/dredfit">GitHub →</a>
     </div>
   </nav>
@@ -98,8 +130,9 @@
 <div class="wrap">
 
   <div class="hero">
+    <a class="back" href="index.html">← Dredfit</a>
     <div class="sec-kick">Политика конфиденциальности</div>
-    <h1>Нечего собирать.<br>Нечего скрывать.</h1>
+    <h1>Нечего собирать.<span class="nl"> </span>Нечего скрывать.</h1>
     <div class="date">Дата вступления в силу: 19 июля 2026</div>
   </div>
 
@@ -108,38 +141,40 @@
     <p><b>Dredfit не собирает никаких данных. Вообще.</b> Ни аккаунтов, ни аналитики, ни рекламы, ни сторонних SDK, ни каких-либо сетевых запросов.</p>
   </div>
 
-  <h2>Где живут твои данные</h2>
+  <nav class="toc" aria-label="На этой странице"><a href="#data">Где живут твои данные</a><a href="#health">Apple Health</a><a href="#notifications">Уведомления</a><a href="#third-parties">Третьи стороны</a><a href="#retention">Хранение и твои права</a><a href="#children">Дети</a><a href="#changes">Изменения политики</a><a href="#responsible">Кто отвечает за приложение</a><a href="#contact">Контакт</a></nav>
+
+  <h2 id="data">Где живут твои данные</h2>
   <p>Вся история тренировок — записи, уровни, корректировки — хранится <b>локально на твоем устройстве</b>. У Dredfit нет серверов, и он никуда ее не передает. При удалении приложения эти данные удаляются вместе с ним — за единственным исключением: тренировки, уже записанные в «Здоровье», останутся там, пока ты их не удалишь.</p>
   <p>Стандартные резервные копии iOS (iCloud или локальные) могут включать данные приложения как часть копии устройства — на <a href="https://www.apple.com/legal/privacy/">условиях конфиденциальности Apple</a>.</p>
   <p>В любой момент можно выгрузить из настроек полную резервную копию в обычный JSON-файл. Копия — это все состояние приложения: история тренировок вместе с настройками (в том числе дни отдыха, время напоминания, звуки, переключатель турника и служебные отметки экспорта в «Здоровье»). Этот файл уходит туда, куда <b>ты</b> его отправишь через системное меню «Поделиться», — мы его не видим. Такую копию можно и импортировать обратно: импорт лишь читает выбранный тобой файл и ничего никуда не передает.</p>
   <p>После вехи — и на вкладке «Прогресс» — Dredfit предлагает поделиться <b>карточкой</b>: небольшим изображением с числом тренировок и суммарным уровнем (или самой вехой) и датой, которое целиком создается на твоем устройстве. Как и резервная копия, карточка уходит только туда, куда <b>ты</b> отправишь ее через меню «Поделиться», — и больше никуда.</p>
 
-  <h2>Apple Health</h2>
+  <h2 id="health">Apple Health</h2>
   <p>Dredfit может записывать завершенные тренировки в «Здоровье». По умолчанию это <b>выключено</b> и начинает работать только после того, как ты включишь переключатель в настройках и дашь разрешение.</p>
   <p>Когда запись включена, каждая завершенная тренировка попадает в «Здоровье» одной записью типа <b>«Функциональный силовой тренинг»</b>, содержащей <b>время начала, время окончания и длительность</b>, плюс стандартную отметку об устройстве, которую iOS добавляет к любой записи (модель устройства и версия ОС). Ни пульса, ни калорий, ни параметров тела, ни состава упражнений.</p>
   <p>Разрешение — <b>только на запись</b>: Dredfit не запрашивает доступ на чтение и не видит ничего из того, что уже есть в твоих данных «Здоровья». Данные остаются на устройстве под защитой Apple, и мы их не получаем.</p>
   <p>Отозвать доступ можно в любой момент: <b>Настройки → Здоровье → Доступ к данным и устройства → Dredfit</b>, либо выключив переключатель в приложении. Уже записанные тренировки останутся в «Здоровье», пока ты не удалишь их там.</p>
 
-  <h2>Уведомления</h2>
+  <h2 id="notifications">Уведомления</h2>
   <p>Если ты включишь напоминание, Dredfit запланирует локальное уведомление на тренировочные дни. Оно создается и доставляется <b>на твоем устройстве</b> — сервера пуш-уведомлений нет, ничего никуда не передается.</p>
 
-  <h2>Третьи стороны</h2>
+  <h2 id="third-parties">Третьи стороны</h2>
   <p>Мы не получаем твои данные — значит, нам нечего передавать, продавать или обрабатывать, и никакой обработки на серверах не происходит. В Dredfit нет сторонних SDK, аналитики и рекламы, и он не делает никаких сетевых запросов.</p>
   <p>Единственная сторона, кроме тебя, до которой твои данные вообще могут дойти, — <b>Apple</b>, и только через системные механизмы, которыми управляешь ты: тренировки, которые ты разрешаешь записывать в «Здоровье», и данные приложения в стандартной резервной копии iCloud или локальной копии устройства. В обоих случаях они хранятся на <a href="https://www.apple.com/legal/privacy/">условиях конфиденциальности Apple</a>, и мы их не видим.</p>
 
-  <h2>Хранение и твои права</h2>
+  <h2 id="retention">Хранение и твои права</h2>
   <p>Мы ничего не храним, поэтому срока хранения с нашей стороны нет: данные живут на твоем устройстве, пока ты не удалишь приложение, а их копии у нас никогда не бывает. Законы о персональных данных, такие как GDPR и CCPA, дают тебе права на доступ, удаление и переносимость — в Dredfit все они реализуются прямо на устройстве: JSON-экспорт — твоя полная переносимая копия всего, что хранит приложение, а удаление приложения — и есть стирание, с единственным исключением, описанным выше: тренировки, уже записанные в «Здоровье», остаются там, пока ты их не удалишь. Запрашивать у нас нечего — нам нечего было бы выдать; вопросы тем не менее всегда можно задать по адресу ниже.</p>
 
-  <h2>Дети</h2>
+  <h2 id="children">Дети</h2>
   <p>Dredfit — инструмент общей физической подготовки для широкой аудитории. Он не собирает данные ни о ком, включая детей, — потому что не собирает данные вообще.</p>
 
-  <h2>Изменения политики</h2>
+  <h2 id="changes">Изменения политики</h2>
   <p>Если политика когда-нибудь изменится, вместе с ней изменится дата вступления в силу выше, а обновленная версия будет опубликована на этой странице.</p>
 
-  <h2>Кто отвечает за приложение</h2>
+  <h2 id="responsible">Кто отвечает за приложение</h2>
   <p>Dredfit разрабатывает и публикует <b>Дмитрий Новиков</b>, независимый разработчик, — он и отвечает за эту политику.</p>
 
-  <h2>Контакт</h2>
+  <h2 id="contact">Контакт</h2>
   <p>Вопросы по политике: <a href="mailto:dredfort.42@gmail.com">dredfort.42@gmail.com</a></p>
 
 </div>
