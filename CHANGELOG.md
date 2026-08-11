@@ -1,14 +1,93 @@
 # Changelog
 
-## 1.11.0
+## 1.10.0
 
-The post-audit wave: a multi-agent audit of the engine and its golden
-contour (2026-08-11) confirmed 51 findings; this release works through
-them wave by wave.
+"Tough" used to hide three different facts. The v2.5 safety wave separated
+two of them — muscles giving out, a joint complaining — and this release
+gives the third its own channel: *this movement is at my ceiling and I need
+longer here*. Not an injury, not a bad session, and until now it had no way
+to be said. Then a multi-agent audit of the engine and its golden contour
+(2026-08-11) confirmed 51 findings, and the remediation waves shipped in
+the same release — so the engine steps from v2.5 to v2.8 here, verified
+against the reference at 14,029 property checks (was 9,367), the app
+learns to speak up quietly where the audit found it silent, and the whole
+set of workout tones grows into a voice of its own. Every new field
+decodes tolerantly: the state and journal formats need no migrations.
+
+### Hold this level (issue #75, closes #77, #78)
+
+- A new **Hold this level** action on the exercise screen, beside "Something
+  hurt": the movement keeps today's plan and is trained as usual, but stops
+  getting harder for its next three appearances. Unlike a pain report the
+  workout still counts — the rating applies one-directionally, an exact
+  number can still take the level *down*, and no deload can fire on top of a
+  hold. A second tap in the same workout changes your mind.
+- Nothing visible changes in the plan when you ask, so the confirmation
+  carries the meaning: the caption under the big number reads "level held"
+  and the action flips to a **Holding** pill. The rating screen lists held
+  movements under **HELD** with their horizon, history marks them "held",
+  and Today's quiet line — "Not getting harder", with the per-movement
+  counter — now covers both ways into the rest without claiming anyone is
+  resting.
+- Engine v2.6: a `pinned` input as the second, milder entrance to the same
+  freeze — spec §16, 9,887 property checks (was 9,367), a twelfth golden
+  scenario, and the identity that ties the three inputs together:
+  discomfort ≡ pinned + skipped. A repeat request refreshes the rest;
+  breaks still never clear it; old state files decode unchanged.
+- A held movement counts as performed everywhere a skipped one does not:
+  the debut badge, the estimated duration, the cool-down and milestones.
+  "How it works" gains a tenth section, and the site's card about the
+  resting mechanic now names the second way in — in all seven languages.
+
+### The pull climbs one step at a time from the second variation (issue #76)
+
+A behaviour change, not a fix. The pull's fixed slot puts it in every
+workout — eight appearances for every rotating pattern's five — so at
+identical feedback it climbed 1.6× faster than any other movement in the
+model. New growth-ceiling cells hold it to one step per session at
+variations 2 and 3, the inverted rows, where the elbow and the shoulder
+first carry a real fraction of bodyweight.
+
+- What goes away is only the collateral double step — the session-wide
+  "easy" that handed the highest-frequency pattern +2 on a signal that was
+  not about it. "On plan" is never capped, so the pull still moves every
+  session; athletes mid-progression will see it climb the middle
+  variations more slowly. Pull-ups are untouched: with the bar on the
+  slot alternates and the horizontal row drops below the rotating
+  average, so the frequency argument does not apply there.
+- Spec §15.3 now records the frequency argument alongside the tissue one,
+  and a new invariant pins the progression-rate spread across patterns —
+  9,908 property checks (was 9,887). Golden fixtures move by design; the
+  diff is classified with zero unexplained shifts.
+- "How it works" stops enumerating who is capped and names the principle
+  instead — the tissue doing the work sets the pace — in all seven
+  languages.
+
+### Warm-up and cool-down: positions you walk to get a longer transition (issue #83)
+
+Five seconds is enough to start marching where you already stand; it is
+not enough to get up off a lying twist and walk to a wall. The "Get
+ready" transition of issue #52 splits in two: the base five seconds, and
+ten for a position that changes the starting position or needs a support
+— cat-cow in the warm-up; every floor and wall position in the cool-down,
+while forward fold, the lat stretch and the wrists stay standing at the
+base length.
+
+- The flag travels with the position, not its slot, because the cool-down
+  set is composed per session. The side-switch pause and the way back in
+  from a pause keep the base length: nobody changes support mid-position,
+  and Resume is tapped by someone already back in place.
+- The supplement is five seconds and not six because the budget is hard:
+  the engine reserves 8:00 for both blocks, and the worst composition —
+  every supplemented position drawn, every side-switch played — now fills
+  those minutes to the second. No estimate moves; the engine and
+  `golden.json` are untouched. The site's card names the two lengths in
+  all seven languages.
 
 ### Engine v2.7.0 — the do-no-harm gate (issues #88, #89, #92, #97)
 
-The two findings on the P0 boundary and the two mechanisms behind them.
+The first remediation wave: the audit's two findings on the P0 boundary
+and the two mechanisms behind them.
 Spec §17; 13,390 property checks (was 9,908); a thirteenth golden scenario
 `long_break`; scenarios 1–12 move only in the fail-streak snapshots of
 their decay steps — levels and exercises are untouched everywhere.
@@ -161,6 +240,38 @@ the harness that guards the other waves. 14,029 property checks (was
   that was never true — replaced with the real 8:10 appearance ratio and
   the ≥ 0.7 set balance the verifier actually holds.
 
+### The tones grow a voice of their own (issue #84)
+
+The three workout tones were bare sines at full scale: harsh on a phone
+speaker, easy to lose under music, and overloaded — "go" meant a start,
+the end of a hold and the end of the whole workout alike, while the
+milestone screen said nothing. The "Minimal+" set keeps the language —
+C major, a fifth up to start, its mirror to switch — and gives it a body
+and three new words.
+
+- Every note is now an additive pair (fundamental plus a soft octave
+  harmonic) under an exponential decay: warmth instead of a beep, and
+  enough overtone to survive over music. Peaks sit below full scale on a
+  strict loudness hierarchy — the frequent is quiet, the rare is bright:
+  tick, then switch, then go, then the finale, then the milestone.
+- Endings get their own voice. A hold ends on **done** — top-down
+  C7 → G6, "release", with its own `.rigid` haptic — instead of a go that
+  said "start" a beat too early. The cool-down closes the workout with a
+  **finale** that completes the go's motif by the octave, and an earned
+  milestone opens with a major arpeggio crowned by its own echo — the
+  first sound that screen has ever had. Everything that started with a go
+  still starts with a go, silent taps stay silent, and skipping the
+  cool-down stays a tap, not a fanfare.
+- The reminder notification rings in the app's own voice: the same motif
+  slowed and softened, generated on demand into `Library/Sounds` (no
+  audio asset ships in the app), falling back to the system sound if the
+  file cannot be written. It follows the system's notification-sound
+  setting, as notifications do; the in-app toggle keeps governing the
+  workout tones.
+- All seven sounds remain code — reviewable, deterministic, and pinned by
+  tests: exact durations and peak targets, the loudness hierarchy, the
+  direction of every motif, and byte-for-byte reproducibility.
+
 ### Fixes
 
 - Silent decay now fires on a cold launch too (issue #93). The 7–13-day
@@ -180,86 +291,6 @@ the harness that guards the other waves. 14,029 property checks (was
   which also stops a reload from stamping a post-reset session 1 under
   the old mark. Restoring an older backup of your own journal keeps
   today's guarantee: nothing re-exports.
-
-## 1.10.0
-
-"Tough" used to hide three different facts. The v2.5 safety wave separated
-two of them — muscles giving out, a joint complaining — and this release
-gives the third its own channel: *this movement is at my ceiling and I need
-longer here*. Not an injury, not a bad session, and until now it had no way
-to be said. The engine steps to v2.6, verified against the reference at 9,908
-property checks; no new state field, so the state and journal formats are
-untouched and there are no migrations.
-
-### Hold this level (issue #75, closes #77, #78)
-
-- A new **Hold this level** action on the exercise screen, beside "Something
-  hurt": the movement keeps today's plan and is trained as usual, but stops
-  getting harder for its next three appearances. Unlike a pain report the
-  workout still counts — the rating applies one-directionally, an exact
-  number can still take the level *down*, and no deload can fire on top of a
-  hold. A second tap in the same workout changes your mind.
-- Nothing visible changes in the plan when you ask, so the confirmation
-  carries the meaning: the caption under the big number reads "level held"
-  and the action flips to a **Holding** pill. The rating screen lists held
-  movements under **HELD** with their horizon, history marks them "held",
-  and Today's quiet line — "Not getting harder", with the per-movement
-  counter — now covers both ways into the rest without claiming anyone is
-  resting.
-- Engine v2.6: a `pinned` input as the second, milder entrance to the same
-  freeze — spec §16, 9,887 property checks (was 9,367), a twelfth golden
-  scenario, and the identity that ties the three inputs together:
-  discomfort ≡ pinned + skipped. A repeat request refreshes the rest;
-  breaks still never clear it; old state files decode unchanged.
-- A held movement counts as performed everywhere a skipped one does not:
-  the debut badge, the estimated duration, the cool-down and milestones.
-  "How it works" gains a tenth section, and the site's card about the
-  resting mechanic now names the second way in — in all seven languages.
-
-### The pull climbs one step at a time from the second variation (issue #76)
-
-A behaviour change, not a fix. The pull's fixed slot puts it in every
-workout — eight appearances for every rotating pattern's five — so at
-identical feedback it climbed 1.6× faster than any other movement in the
-model. New growth-ceiling cells hold it to one step per session at
-variations 2 and 3, the inverted rows, where the elbow and the shoulder
-first carry a real fraction of bodyweight.
-
-- What goes away is only the collateral double step — the session-wide
-  "easy" that handed the highest-frequency pattern +2 on a signal that was
-  not about it. "On plan" is never capped, so the pull still moves every
-  session; athletes mid-progression will see it climb the middle
-  variations more slowly. Pull-ups are untouched: with the bar on the
-  slot alternates and the horizontal row drops below the rotating
-  average, so the frequency argument does not apply there.
-- Spec §15.3 now records the frequency argument alongside the tissue one,
-  and a new invariant pins the progression-rate spread across patterns —
-  9,908 property checks (was 9,887). Golden fixtures move by design; the
-  diff is classified with zero unexplained shifts.
-- "How it works" stops enumerating who is capped and names the principle
-  instead — the tissue doing the work sets the pace — in all seven
-  languages.
-
-### Warm-up and cool-down: positions you walk to get a longer transition (issue #83)
-
-Five seconds is enough to start marching where you already stand; it is
-not enough to get up off a lying twist and walk to a wall. The "Get
-ready" transition of issue #52 splits in two: the base five seconds, and
-ten for a position that changes the starting position or needs a support
-— cat-cow in the warm-up; every floor and wall position in the cool-down,
-while forward fold, the lat stretch and the wrists stay standing at the
-base length.
-
-- The flag travels with the position, not its slot, because the cool-down
-  set is composed per session. The side-switch pause and the way back in
-  from a pause keep the base length: nobody changes support mid-position,
-  and Resume is tapped by someone already back in place.
-- The supplement is five seconds and not six because the budget is hard:
-  the engine reserves 8:00 for both blocks, and the worst composition —
-  every supplemented position drawn, every side-switch played — now fills
-  those minutes to the second. No estimate moves; the engine and
-  `golden.json` are untouched. The site's card names the two lengths in
-  all seven languages.
 
 ## 1.9.0
 
