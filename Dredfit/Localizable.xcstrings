@@ -294,6 +294,86 @@
         }
       }
     },
+    "%@ has hurt both of its recent appearances — a smaller number or a held level takes the load down." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ hat bei den letzten beiden Malen wehgetan — eine kleinere Zahl oder ein gehaltenes Level nimmt Last raus."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ha dolido en sus dos últimas apariciones: un número menor o un nivel mantenido baja la carga."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ a fait mal lors de ses deux dernières apparitions — un nombre plus petit ou un niveau gardé allège la charge."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ha fatto male nelle ultime due apparizioni — un numero più piccolo o un livello tenuto riduce il carico."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ doeu nas duas últimas aparições — um número menor ou um nível mantido reduz a carga."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ болело оба последних появления — меньшее число или удержанный уровень снизит нагрузку."
+          }
+        }
+      }
+    },
+    "%@ keeps hurting, appearance after appearance. Pain that stays is a reason to see a specialist." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ tut Mal für Mal weh. Schmerz, der bleibt, ist ein Grund, sich einem Spezialisten zu zeigen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ sigue doliendo aparición tras aparición. Un dolor que persiste es motivo para consultar a un especialista."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ fait mal apparition après apparition. Une douleur qui persiste est une raison de consulter un spécialiste."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ fa male apparizione dopo apparizione. Un dolore che persiste è un motivo per consultare uno specialista."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ continua doendo aparição após aparição. Dor que persiste é motivo para procurar um especialista."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ болит появление за появлением. Сохраняющаяся боль — повод показаться специалисту."
+          }
+        }
+      }
+    },
     "%@, hurt — resting" : {
       "localizations" : {
         "de" : {
@@ -2511,6 +2591,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Пропущенное упражнение просто не считается: его уровень не меняется. Ни штрафа, ни отката."
+          }
+        }
+      }
+    },
+    "A workout today would be training day %lld in a row — a rest day lets the load settle." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Workout heute wäre Trainingstag %lld in Folge — ein Ruhetag lässt die Last sich setzen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entrenar hoy sería el día %lld seguido: un día de descanso deja asentarse la carga."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "S'entraîner aujourd'hui ferait le jour %lld d'affilée — un jour de repos laisse la charge se déposer."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allenarsi oggi sarebbe il giorno %lld di fila — un giorno di riposo lascia assestare il carico."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Treinar hoje seria o dia %lld seguido — um dia de descanso deixa a carga assentar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сегодня будет %lld-й тренировочный день подряд — день отдыха дал бы нагрузке улечься."
           }
         }
       }
