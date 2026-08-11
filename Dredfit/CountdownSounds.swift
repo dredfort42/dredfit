@@ -19,15 +19,26 @@ final class CountdownSounds {
     private let tick: AVAudioPlayer?
     private let go: AVAudioPlayer?
     private let switchSides: AVAudioPlayer?
+    private let done: AVAudioPlayer?
+    private let workoutDone: AVAudioPlayer?
+    private let milestone: AVAudioPlayer?
+    // No player for SignalTone.reminder: it never plays in-app — it exists
+    // for the notification channel.
 
     private init() {
         try? AVAudioSession.sharedInstance().setCategory(.ambient, options: .mixWithOthers)
         tick = try? AVAudioPlayer(data: SignalTone.tick)
         go = try? AVAudioPlayer(data: SignalTone.go)
         switchSides = try? AVAudioPlayer(data: SignalTone.switchSides)
+        done = try? AVAudioPlayer(data: SignalTone.done)
+        workoutDone = try? AVAudioPlayer(data: SignalTone.workoutDone)
+        milestone = try? AVAudioPlayer(data: SignalTone.milestone)
         tick?.prepareToPlay()
         go?.prepareToPlay()
         switchSides?.prepareToPlay()
+        done?.prepareToPlay()
+        workoutDone?.prepareToPlay()
+        milestone?.prepareToPlay()
     }
 
     /// Construction is the actual work (category, tone generation,
@@ -37,6 +48,9 @@ final class CountdownSounds {
     func playTick() { play(tick) }
     func playGo() { play(go) }
     func playSwitch() { play(switchSides) }
+    func playDone() { play(done) }
+    func playWorkoutDone() { play(workoutDone) }
+    func playMilestone() { play(milestone) }
 
     /// Rewinds first: ticks arrive one second apart and a firing must not be
     /// swallowed because the previous one is still tailing off.
