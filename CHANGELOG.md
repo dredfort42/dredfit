@@ -15,6 +15,16 @@ them wave by wave.
   The activation sequence now lives in one store seam, `activate()`,
   called from both `onAppear` and the `.active` transition, with a
   cold-start regression test.
+- Importing an unrelated backup no longer hides its workouts from Apple
+  Health (issue #103). The import used to keep this device's high-water
+  export mark and stamp every foreign record beneath it "already
+  exported" — those workouts silently never reached Health, with no way
+  back. Journals now count as the same lineage only when they share a
+  record identity (session number + date); an unrelated journal keeps its
+  own mark. The legacy mark→flags migration runs only on flag-free files,
+  which also stops a reload from stamping a post-reset session 1 under
+  the old mark. Restoring an older backup of your own journal keeps
+  today's guarantee: nothing re-exports.
 
 ## 1.10.0
 
