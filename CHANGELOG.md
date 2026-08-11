@@ -84,6 +84,22 @@ questions to answer.
 - Existing users see nothing — the stop rule already lives in "How it
   works". Strings in all seven languages; engine and fixtures untouched.
 
+### The golden fixture names the reference that generated it (issue #104)
+
+The reference contour deliberately lives outside this repository — which
+made "commit ↔ reference" an unprovable claim: on audit day the shipped
+fixture was already unreproducible by the reference at hand, and nothing
+could prove why. The link is now a committed fact.
+
+- A provenance manifest ships next to the fixture: the generator string
+  plus sha256 hashes of the four contour files and of `golden.json`
+  itself. `ManifestTests` recomputes the bundled fixture's hash — a
+  fixture changed without provenance fails CI, not a reviewer's memory.
+- `scripts/update_reference_manifest.py` rewrites the manifest as step
+  4bis of the reference protocol, right after regeneration; `--check`
+  verifies the working tree before an engine PR. Like the fixture, the
+  manifest is never edited by hand.
+
 ### Fixes
 
 - Silent decay now fires on a cold launch too (issue #93). The 7–13-day
