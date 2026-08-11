@@ -71,8 +71,10 @@ final class EdgeCaseTests: XCTestCase {
     /// The deload also fires when the third consecutive fail came through an actual
     /// (not through a "less" rating). We use pull — it is in every session.
     func testDeloadTriggersViaOverrideDrop() {
+        // pull: 4 × (+2) through tier 1, then one step per session — the
+        // tier-2 and -3 cells hold it to +1 from level 8 on (#76).
         var state = EngineState.initial
-        for _ in 0..<12 {  // pull: 12 × (+2) = 24
+        for _ in 0..<20 {
             let s = Engine.generateSession(state)
             state = Engine.applyFeedback(state: state, session: s, result: .more)
         }

@@ -47,18 +47,44 @@ final class EngineV25Tests: XCTestCase {
     }
 
     /// The shipped values, cell by cell: calves at every tier, the vertical
-    /// push from tier 3, tier 4 for everyone, two everywhere else. The
-    /// reference verifier checks the same table against the spec.
+    /// push from tier 3, the pull from tier 2 (the fixed slot makes it the
+    /// most frequent pattern — issue #76), tier 4 for everyone, two
+    /// everywhere else. The reference verifier checks the same table against
+    /// the spec.
     func testTheShippedCeilingMatchesTheDeclaredRule() {
         for p in Pattern.allCases {
             for tier in 1...EngineConfig.tiers {
                 let slow = p == .calf
                     || (p == .pushV && tier >= 3)
+                    || (p == .pull && tier >= 2)
                     || tier == EngineConfig.tiers
                 XCTAssertEqual(EngineConfig.maxUp(pattern: p, tier: tier), slow ? 1 : 2,
                                "\(p.rawValue) tier \(tier)")
             }
         }
+    }
+
+    /// The pull's cells are the one frequency argument in the table: the
+    /// fixed slot gives it eight appearances where a rotating pattern gets
+    /// five, so from the first real row on it is held to a step. Tier 1 is
+    /// scapular activation, not a row, and deliberately keeps the default;
+    /// the bar branch sits at four appearances in eight and is not capped
+    /// by frequency at all.
+    func testThePullIsHeldToAStepFromTierTwo() {
+        XCTAssertEqual(EngineConfig.maxUp(pattern: .pull, tier: 1), 2, "tier 1 keeps the default")
+        XCTAssertEqual(EngineConfig.maxUp(pattern: .pull, tier: 2), 1, "the inverted row")
+        XCTAssertEqual(EngineConfig.maxUp(pattern: .pull, tier: 3), 1, "the feet-elevated row")
+        XCTAssertEqual(EngineConfig.maxUp(pattern: .pullBar, tier: 2), 2, "the bar branch is not frequency-capped")
+        XCTAssertEqual(EngineConfig.maxUp(pattern: .pullBar, tier: 3), 2, "the bar branch is not frequency-capped")
+
+        // "More" at a tier-2 level takes one step, not two; "on plan" is
+        // never capped, so the pull still moves every session.
+        let atTierTwo = after(seeded(level: 10), .more)
+        XCTAssertEqual(atTierTwo.levels[.pull], 11, "the collateral +2 is gone")
+        let onPlan = after(seeded(level: 10), .plan)
+        XCTAssertEqual(onPlan.levels[.pull], 11, "one step per session survives the cap")
+        let atTierOne = after(seeded(level: 4), .more)
+        XCTAssertEqual(atTierOne.levels[.pull], 6, "tier 1 still climbs by two")
     }
 
     /// The set bands are covered by the tier-4 cell rather than a special case.
@@ -159,7 +185,7 @@ final class EngineV25Tests: XCTestCase {
         }
         XCTAssertEqual(state.freezeRemaining(.pull), 0, "the freeze has run out")
         state = report(state, .more)
-        XCTAssertEqual(state.levels[.pull], 14, "growth returns")
+        XCTAssertEqual(state.levels[.pull], 13, "growth returns — by the tier-2 cell (#76)")
     }
 
     /// Honesty is never overridden: a fact still takes the level down, while

@@ -49,8 +49,8 @@ final class EngineV23Tests: XCTestCase {
         let second = Engine.applyFeedback(state: first,
                                           session: Engine.generateSession(first),
                                           result: .plan, overrides: [.pull: 99])
-        XCTAssertEqual(second.levels[.pull], 12 + EngineConfig.maxUpPerSession,
-                       "above zero an enormous fact still only moves +2")
+        XCTAssertEqual(second.levels[.pull], 12 + EngineConfig.maxUp(pattern: .pull, tier: 2),
+                       "above zero an enormous fact still only moves by the cell")
     }
 
     /// A fact below the plan at zero leaves the level at zero and does not

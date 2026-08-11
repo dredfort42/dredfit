@@ -87,9 +87,12 @@ public enum EngineConfig {
     /// ceiling is the one dial that acts *before* an overload rather than
     /// after it. A missing cell is `maxUpPerSession`.
     ///
-    /// The rule in three lines: calves are held to a step at every tier
+    /// The rule in four lines: calves are held to a step at every tier
     /// (everything loads the Achilles), the vertical push from tier 3 (wall
-    /// work bears the shoulder girdle), and tier 4 everywhere — the archer
+    /// work bears the shoulder girdle), the pull from tier 2 — its fixed slot
+    /// puts it in every session, eight appearances against the rotating
+    /// five, so at equal feedback it out-climbs everything else unless held
+    /// to a step (frequency, not tissue) — and tier 4 everywhere: the archer
     /// variants, the heaviest unilaterals, and the set bands 32...47, which
     /// are tier 4 by encoding. Spec §15.3 carries the table cell by cell with
     /// a rationale each, and the reference verifier compares the two.
@@ -97,7 +100,7 @@ public enum EngineConfig {
         .squat: [4: 1],
         .pushH: [4: 1],
         .hinge: [4: 1],
-        .pull: [4: 1],
+        .pull: [2: 1, 3: 1, 4: 1],
         .pushV: [3: 1, 4: 1],
         .lunge: [4: 1],
         .coreAntiExt: [4: 1],
