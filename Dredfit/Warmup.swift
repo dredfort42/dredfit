@@ -11,6 +11,10 @@ import Foundation
 struct WarmupMove: Equatable, Identifiable {
     let id: String
     let name: String
+    /// The move changes the starting position or needs a prop, so its
+    /// transition carries the supplement of issue #83. Here that is cat-cow
+    /// alone — the one move that drops to all fours after five standing ones.
+    let needsSetup: Bool
     let steps: [String]
 }
 
@@ -23,6 +27,7 @@ enum Warmup {
             WarmupMove(
                 id: "marching",
                 name: String(localized: "Marching in place"),
+                needsSetup: false,
                 steps: [
                     String(localized: "warmup.marching.step1",
                            defaultValue: "March at an easy pace, lifting the knees to hip height."),
@@ -32,6 +37,7 @@ enum Warmup {
             WarmupMove(
                 id: "arm-circles",
                 name: String(localized: "Arm circles"),
+                needsSetup: false,
                 steps: [
                     String(localized: "warmup.armCircles.step1",
                            defaultValue: "Circle straight arms forward — big, slow circles."),
@@ -41,6 +47,7 @@ enum Warmup {
             WarmupMove(
                 id: "torso-rotations",
                 name: String(localized: "Torso rotations"),
+                needsSetup: false,
                 steps: [
                     String(localized: "warmup.torsoRotations.step1",
                            defaultValue: "Feet planted, hips facing forward; turn the torso side to side."),
@@ -50,6 +57,7 @@ enum Warmup {
             WarmupMove(
                 id: "hip-circles",
                 name: String(localized: "Hip circles"),
+                needsSetup: false,
                 steps: [
                     String(localized: "warmup.hipCircles.step1",
                            defaultValue: "Hands on the hips, feet shoulder-width; draw slow circles with the hips."),
@@ -59,6 +67,7 @@ enum Warmup {
             WarmupMove(
                 id: "half-squats",
                 name: String(localized: "Half squats"),
+                needsSetup: false,
                 steps: [
                     String(localized: "warmup.halfSquats.step1",
                            defaultValue: "Sit back to half depth, arms reaching forward for balance."),
@@ -68,6 +77,7 @@ enum Warmup {
             WarmupMove(
                 id: "cat-cow",
                 name: String(localized: "Cat-cow"),
+                needsSetup: true,
                 steps: [
                     String(localized: "warmup.catCow.step1",
                            defaultValue: "On all fours: exhale, round the back and tuck the chin."),
@@ -84,9 +94,11 @@ extension Warmup {
 
     enum Stage { case getReady, move }
 
-    static func stageSeconds(_ stage: Stage) -> Int {
+    /// The transition's length depends on the move it announces (issue #83),
+    /// so a stage alone no longer has one — the index picks the move.
+    static func stageSeconds(_ stage: Stage, index: Int) -> Int {
         switch stage {
-        case .getReady: return GetReady.stageSeconds
+        case .getReady: return GetReady.stageSeconds(needsSetup: moves[index].needsSetup)
         case .move:     return moveSeconds
         }
     }
@@ -123,12 +135,12 @@ extension Warmup {
         guard var landing = step(after: current) else { return nil }
         let entered = landing.stage
         var remainder = overshoot
-        while remainder >= stageSeconds(landing.stage) {
-            remainder -= stageSeconds(landing.stage)
+        while remainder >= stageSeconds(landing.stage, index: landing.index) {
+            remainder -= stageSeconds(landing.stage, index: landing.index)
             guard let next = step(after: landing) else { return nil }
             landing = next
         }
         return Advance(entered: entered, index: landing.index, stage: landing.stage,
-                       remaining: stageSeconds(landing.stage) - remainder)
+                       remaining: stageSeconds(landing.stage, index: landing.index) - remainder)
     }
 }

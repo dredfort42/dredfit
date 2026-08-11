@@ -147,7 +147,9 @@ final class CooldownTests: XCTestCase {
                                        positions: positions)
         XCTAssertEqual(landing?.index, 1)
         XCTAssertEqual(landing?.stage, .getReady)
-        XCTAssertEqual(landing?.remaining, GetReady.seconds - 2)
+        XCTAssertEqual(landing?.remaining,
+                       GetReady.seconds + GetReady.setupSupplementSec - 2,
+                       "chest wall carries the supplement of issue #83")
         // An overshoot past the whole block is simply over.
         XCTAssertNil(Cooldown.advance(from: (0, .firstSide), overshoot: 10_000,
                                       positions: positions))

@@ -4,6 +4,7 @@
 //
 
 import XCTest
+import DredfitCore
 @testable import Dredfit
 
 @MainActor
@@ -11,10 +12,12 @@ final class BlockPauseTests: XCTestCase {
 
     // MARK: - The way back in
 
-    func testTheWayBackInIsTheAppsOneTransitionLength() {
+    func testTheWayBackInIsTheBaseTransitionLength() {
         // A third length would be a third thing to learn: the app already
         // counts you in over five seconds before a position (#52) and between
-        // the sides of one (#35).
+        // the sides of one (#35). Deliberately not the supplemented length of
+        // #83 even for a flagged position — Resume is tapped by someone
+        // already back in place.
         XCTAssertEqual(BlockPause.reentrySeconds, GetReady.seconds)
         XCTAssertEqual(BlockPause.reentrySeconds, Cooldown.sideSwitchPauseSec)
     }
@@ -127,10 +130,14 @@ final class BlockPauseTests: XCTestCase {
         // precedent of #52). What the blocks cost uninterrupted is unchanged
         // by this feature — the stage lengths are the same ones GetReadyTests
         // measures against the reserved minutes.
-        XCTAssertEqual(Warmup.stageSeconds(.move), Warmup.moveSeconds)
-        XCTAssertEqual(Warmup.stageSeconds(.getReady), GetReady.seconds)
-        XCTAssertEqual(Cooldown.stageSeconds(.single), Cooldown.positionSeconds)
-        XCTAssertEqual(Cooldown.stageSeconds(.firstSide), Cooldown.sideSeconds)
-        XCTAssertEqual(Cooldown.stageSeconds(.switchPause), Cooldown.sideSwitchPauseSec)
+        let positions = Cooldown.positions(performed: [.pull])
+        XCTAssertEqual(Warmup.stageSeconds(.move, index: 0), Warmup.moveSeconds)
+        XCTAssertEqual(Warmup.stageSeconds(.getReady, index: 0), GetReady.seconds)
+        XCTAssertEqual(Cooldown.stageSeconds(.single, of: positions[0]),
+                       Cooldown.positionSeconds)
+        XCTAssertEqual(Cooldown.stageSeconds(.firstSide, of: positions[0]),
+                       Cooldown.sideSeconds)
+        XCTAssertEqual(Cooldown.stageSeconds(.switchPause, of: positions[0]),
+                       Cooldown.sideSwitchPauseSec)
     }
 }
