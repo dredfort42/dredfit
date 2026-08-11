@@ -84,15 +84,15 @@ docs/                   the dredfit.com site — GitHub Pages, static, no build
   CNAME, robots.txt, sitemap.xml, og.png
 ```
 
-The engine was first written and verified as a JavaScript reference (9,887 property checks and scenario simulations), then ported to Swift. `golden.json` is the reference's recorded trace — 167 steps across 12 scenarios — and the Swift port must reproduce it exactly. Changing engine behavior means changing the reference first, re-verifying, regenerating fixtures, then porting. Plausible-but-different is a failing test, not a judgment call. (The JS reference lives outside this repository; the recorded fixture is what ships.)
+The engine was first written and verified as a JavaScript reference (9,908 property checks and scenario simulations), then ported to Swift. `golden.json` is the reference's recorded trace — 167 steps across 12 scenarios — and the Swift port must reproduce it exactly. Changing engine behavior means changing the reference first, re-verifying, regenerating fixtures, then porting. Plausible-but-different is a failing test, not a judgment call. (The JS reference lives outside this repository; the recorded fixture is what ships.)
 
 ## Testing
 
-Three layers, 365 automated tests:
+Three layers, 366 automated tests:
 
 | Layer | Count | What it covers |
 | --- | --- | --- |
-| Core invariants + golden | 95 | encoding bijectivity, rotation properties, pull:push balance, deload timing, override caps, skip semantics, bar-branch independence, lenient state decode, feedback replay safety, the silent decay and its non-stacking with the comeback, the per-movement growth ceiling checked cell by cell against the reference table, the discomfort freeze and its immunity to deload, the pinned input and the identity that ties the three per-exercise inputs together, reference parity |
+| Core invariants + golden | 96 | encoding bijectivity, rotation properties, pull:push balance, deload timing, override caps, skip semantics, bar-branch independence, lenient state decode, feedback replay safety, the silent decay and its non-stacking with the comeback, the per-movement growth ceiling checked cell by cell against the reference table — including the pull's frequency cells, the discomfort freeze and its immunity to deload, the pinned input and the identity that ties the three per-exercise inputs together, reference parity |
 | App unit tests | 217 | persistence round-trips, corrupted-file quarantine, a frozen journal and its reload, legacy-record migration, in-progress snapshot validity, rest-day calendar math, Health export ordering and idempotence, the one-shot reminder window, day-anchor rollover, the widget snapshot, its backward compatibility and the per-day timeline words, the variation-debut badge and the held movement that still feeds it, share-card wording and its level curve, the short workout's picks, cool-down composition, the get-ready transition and the minutes both blocks fit into, the way back in from a pause, rest extension up to its cap, the freeze horizon shown on Today, the progress chart's gap band and the line that may accompany it, the jubilee's then-and-now comparison, the life-benefit override |
 | UI tests | 53 | the full workout flow, in-workout adjustment, hold mis-tap grace, resume after a kill, the three exit paths, the short workout, the cool-down, the side-switch pause, the get-ready transition, pausing and resuming a guided block, reporting discomfort, holding a level and extending a rest, position technique sheets, history, relaunch persistence, and the release smoke walked end to end in English and Russian |
 
