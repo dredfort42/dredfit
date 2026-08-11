@@ -17,10 +17,11 @@ import Foundation
 
 enum BlockPause {
 
-    /// The way back into a frozen position: the app's one transition length,
-    /// so the 3-2-1 fits with a beat left to read the name. Same seconds and
-    /// same argument as the "Get ready" of issue #52 — one transition in the
-    /// app lasts the same everywhere.
+    /// The way back into a frozen position: the base transition length, so
+    /// the 3-2-1 fits with a beat left to read the name. Deliberately NOT the
+    /// supplemented length of issue #83 even for a position that carries the
+    /// flag — Resume is tapped by someone already back in place, so this is
+    /// a count-in, not travel time.
     static var reentrySeconds: Int { GetReady.stageSeconds }
 
     /// A frozen transition resumes straight into itself: it already IS the way

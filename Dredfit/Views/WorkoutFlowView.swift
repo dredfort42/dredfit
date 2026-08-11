@@ -319,13 +319,13 @@ struct WorkoutFlowView: View {
 
     private func startWarmupPosition(_ index: Int) {
         enterWarmupStage(index: index, stage: .getReady,
-                         remaining: Warmup.stageSeconds(.getReady))
+                         remaining: Warmup.stageSeconds(.getReady, index: index))
     }
 
     /// The transition is a floor on the pause between positions, never a wait.
     private func startWarmupMoveNow() {
         enterWarmupStage(index: warmupIndex, stage: .move,
-                         remaining: Warmup.stageSeconds(.move))
+                         remaining: Warmup.stageSeconds(.move, index: warmupIndex))
     }
 
     private func enterWarmupStage(index: Int, stage: Warmup.Stage, remaining: Int) {
@@ -754,7 +754,7 @@ private extension WorkoutFlowView {
 
     func startHoldSwitchPause() {
         playSwitch()
-        holdPauseRemaining = Cooldown.stageSeconds(.switchPause)
+        holdPauseRemaining = Cooldown.switchPauseSeconds
         holdPauseEndDate = Date.now.addingTimeInterval(TimeInterval(holdPauseRemaining))
     }
 
@@ -1048,7 +1048,7 @@ extension WorkoutFlowView {
         clearBlockPause()   // a new stage is never entered still frozen
         cooldownIndex = index
         cooldownStage = stage
-        cooldownRemaining = Cooldown.stageSeconds(stage)
+        cooldownRemaining = Cooldown.stageSeconds(stage, of: cooldownPositions[index])
         cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(cooldownRemaining))
     }
 
