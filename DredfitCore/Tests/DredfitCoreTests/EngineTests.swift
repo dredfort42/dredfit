@@ -519,9 +519,11 @@ final class EngineTests: XCTestCase {
             for p in Pattern.allCases {
                 XCTAssertEqual(after.levels[p], max(0, (state.levels[p] ?? 0) - 1),
                                "gap \(gap): −1 clamped at 0 (\(p))")
+                // v2.7 (spec §17.3): the decay resets the streak like the
+                // comeback — the old carry-over inverted the 13/14 boundary.
+                XCTAssertEqual(after.failStreak[p], 0,
+                               "gap \(gap): streaks reset (\(p))")
             }
-            XCTAssertEqual(after.failStreak, state.failStreak,
-                           "gap \(gap): streaks are deliberately untouched")
             XCTAssertEqual(after.counter, state.counter, "gap \(gap): counter still")
         }
     }

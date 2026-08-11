@@ -126,13 +126,23 @@ final class EngineV23Tests: XCTestCase {
     func testComebackDropTable() {
         let table: [(gap: Int, drop: Int)] = [
             (14, 2), (34, 2), (35, 3), (55, 3), (56, 4), (76, 4),
-            (77, 5), (98, 6), (119, 7), (140, 8), (200, 8), (3650, 8),
+            (77, 5), (98, 6), (119, 7), (140, 8),
         ]
         for (gap, drop) in table {
             let after = Engine.applyComeback(state: seeded(level: 30, streak: 1), gapDays: gap)
             XCTAssertEqual(after.levels[.squat], 30 - drop, "\(gap) days should drop \(drop)")
             XCTAssertEqual(after.levels[.pullBar], 30 - drop,
                            "\(gap) days: the bar branch drops with everything else")
+        }
+        // v2.7 (spec §17.2): past the table's edge the landing ceilings take
+        // over — half a year lands no higher than 15, a year no higher than 7.
+        for (gap, ceil) in [(180, 15), (200, 15), (364, 15), (365, 7), (3650, 7)] {
+            let after = Engine.applyComeback(state: seeded(level: 30, streak: 1), gapDays: gap)
+            let expected = min(30 - EngineConfig.comebackMax, ceil)
+            XCTAssertEqual(after.levels[.squat], expected,
+                           "\(gap) days: landing ceiling \(ceil)")
+            XCTAssertEqual(after.levels[.pullBar], expected,
+                           "\(gap) days: the bar branch lands with everything else")
         }
     }
 

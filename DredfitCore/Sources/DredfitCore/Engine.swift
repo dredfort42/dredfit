@@ -115,6 +115,19 @@ public enum EngineConfig {
     public static func maxUp(pattern: Pattern, tier: Int) -> Int {
         maxUpByPatternTier[pattern]?[tier] ?? maxUpPerSession
     }
+
+    /// Landing ceilings past the comeback table's edge (v2.7, spec §17.2):
+    /// the calendar cap of −8 knows nothing about the level, and a year away
+    /// used to land a former ceiling user in tier 4. Rows are (minimum gap,
+    /// level ceiling) in descending gap order; the first match wins.
+    public static let comebackLandingCeil: [(minGap: Int, ceil: Int)] = [(365, 7), (180, 15)]
+
+    /// A "slow tissue" pattern is one the §15.3 table holds to a step at
+    /// EVERY tier — today only the calf. Derived from the table rather than
+    /// kept as a second list: one source of truth (v2.7, spec §17.1).
+    public static func isSlowTissue(_ pattern: Pattern) -> Bool {
+        (1...tiers).allSatisfy { maxUp(pattern: pattern, tier: $0) == 1 }
+    }
 }
 
 // MARK: - State
@@ -447,9 +460,15 @@ public enum Engine {
             if let actual = overrides[p] {
                 let factL = Level.fromActual(pattern: p, tier: ex.tier,
                                              sets: ex.sets, actual: actual)
-                // Calibration: from a zero level the cap does not apply.
+                // Calibration: from a zero level the per-session cap does not
+                // apply — but the reps→level inversion is only valid one tier
+                // out (v2.7, spec §17.1): the result is bounded by the
+                // neighboring tier's ceiling, slow tissues by tier 1's.
+                let zeroCeil = EngineConfig.isSlowTissue(p)
+                    ? EngineConfig.stepsPerTier - 1
+                    : 2 * EngineConfig.stepsPerTier - 1
                 newL = oldL == 0
-                    ? min(max(factL, 0), EngineConfig.levelMax)
+                    ? min(max(factL, 0), zeroCeil)
                     : min(max(factL, 0), oldL + cap)
             } else {
                 // "More" runs through the same ceiling; downward moves never do.
@@ -507,23 +526,45 @@ public enum Engine {
     /// comeback weakens by one and the two drops do not stack. Exact even at
     /// the clamp: `max(max(L−1,0) − (drop−1), 0) == max(L − drop, 0)` for
     /// drop ≥ 2.
+    ///
+    /// v2.7 (spec §17.2): past the table's edge an absolute landing ceiling
+    /// (`comebackLandingCeil`) — `min` composes with the alreadyDecayed
+    /// weakening untouched, so the no-stacking identity holds by
+    /// construction. And crossing a SET BAND snaps the rung to the band
+    /// floor: preserving `L mod 8` across 40/32 made the first dose
+    /// non-monotonic in the gap (90 days → 5×6, 140 days → 4×11).
     public static func applyComeback(state: EngineState, gapDays: Int,
                                      alreadyDecayed: Bool = false) -> EngineState {
         guard gapDays >= EngineConfig.comebackMinGapDays else { return state }
         let raw = EngineConfig.comebackBase
             + (gapDays - EngineConfig.comebackMinGapDays) / EngineConfig.comebackStepDays
         let drop = min(max(raw, 2), EngineConfig.comebackMax) - (alreadyDecayed ? 1 : 0)
+        let landingCeil = EngineConfig.comebackLandingCeil
+            .first { gapDays >= $0.minGap }?.ceil ?? Int.max
 
         var next = state
         for p in Pattern.allCases {
-            next.levels[p] = max(0, (state.levels[p] ?? 0) - drop)
+            let stored = state.levels[p] ?? 0
+            // The level BEFORE the break: with alreadyDecayed the input
+            // already carries the silent −1, and reading the band from it
+            // would break the identity exactly at the band floors 40 and 32.
+            let preL = alreadyDecayed ? min(stored + 1, EngineConfig.levelMax) : stored
+            var landed = max(0, stored - drop)
+            // The snap applies to the DROP's result only — the landing
+            // ceiling below is a deliberate absolute whose rung is chosen.
+            if Level.decode(preL).sets != Level.decode(landed).sets {
+                landed = (landed / EngineConfig.stepsPerTier) * EngineConfig.stepsPerTier
+            }
+            next.levels[p] = min(landed, landingCeil)
             next.failStreak[p] = 0
         }
         return next
     }
 
-    /// `failStreak` is deliberately untouched, unlike the comeback: −1 is a
-    /// soft plan correction, not a level capitulation. `counter` does not
+    /// v2.7 (spec §17.3): `failStreak` resets, same as the comeback. The old
+    /// "deliberately untouched" reading inverted the 13/14-day boundary at a
+    /// streak of 2: a 13-day pause plus the first honest "less" rode into a
+    /// deload (−5 total) while a 14-day break cost −3. `counter` does not
     /// move.
     ///
     /// NOT idempotent, same as the comeback: the app layer applies it at most
@@ -534,6 +575,7 @@ public enum Engine {
         var next = state
         for p in Pattern.allCases {
             next.levels[p] = max(0, (state.levels[p] ?? 0) - 1)
+            next.failStreak[p] = 0
         }
         return next
     }
