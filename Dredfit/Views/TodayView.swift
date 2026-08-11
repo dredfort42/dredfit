@@ -131,8 +131,32 @@ struct TodayView: View {
                     ForEach(resting) { row in
                         restingRow(row)
                     }
+                    // The trend the freeze alone cannot say (#100): the same
+                    // movement hurting appearance after appearance. Derived
+                    // from the journal on every render — the first clean
+                    // appearance takes the line down with it.
+                    if let trend = painTrendLine(rows: resting) {
+                        Text(trend)
+                            .dredfitFont(12.5)
+                            .foregroundStyle(Theme.ink2)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .padding(.top, 2)
+                            .accessibilityIdentifier("pain-trend-line")
+                    }
                 }
                 .padding(.top, 6)
+            }
+
+            // An offer of rest, not a warning (#98) — and never a number to
+            // beat: the count appears only here, in the suggestion to break
+            // the run. "Train anyway" and the Start button stay untouched.
+            if store.todayWouldExtendALongRun {
+                Text("A workout today would be training day \(store.wouldBeConsecutiveDay) in a row — a rest day lets the load settle.")
+                    .dredfitFont(13.5)
+                    .foregroundStyle(Theme.ink2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, 6)
+                    .accessibilityIdentifier("long-run-line")
             }
 
             if store.shouldOfferComeback() {
@@ -195,6 +219,20 @@ struct TodayView: View {
             .filter { resting.contains($0.pattern) }
             .map { RestingRow(id: $0.pattern, name: $0.name,
                               remaining: store.engineState.freezeRemaining($0.pattern)) }
+    }
+
+    /// One sentence, not one per row: the first resting movement whose last
+    /// appearances all ended in a pain report. The wording escalates at
+    /// three — a repeat report means it hurt, rested, and hurt again.
+    private func painTrendLine(rows: [RestingRow]) -> String? {
+        for row in rows {
+            let streak = store.discomfortStreak(row.id)
+            guard streak >= AppStore.painTrendThreshold else { continue }
+            return streak >= AppStore.painSpecialistThreshold
+                ? String(localized: "\(row.name) keeps hurting, appearance after appearance. Pain that stays is a reason to see a specialist.")
+                : String(localized: "\(row.name) has hurt both of its recent appearances — a smaller number or a held level takes the load down.")
+        }
+        return nil
     }
 
     /// The pill rides inline after the name and wraps with it, the same way

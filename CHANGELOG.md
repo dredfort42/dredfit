@@ -40,6 +40,30 @@ their decay steps — levels and exercises are untouched everywhere.
   violations in the audit reduced to this one cause. The Swift port is
   type-immune already — the reference now matches it.
 
+### Quiet lines for a pain trend and a run of training days (issues #100, #98)
+
+Two sentences, both derived from the journal on every render — nothing is
+persisted, nothing blocks, nothing turns red, and no count is ever
+presented as an achievement.
+
+- **A pain trend finally gets an answer** (#100). A repeat "Something
+  hurt" used to refresh the rest and say nothing more — six painful
+  appearances in a row produced the same plan. Today's "Not getting
+  harder" block now adds one sentence when a movement has hurt its last
+  two appearances in a row, pointing at the existing ways down ("Went
+  differently" numbers, "Hold this level"); from the third the sentence
+  says instead that pain that stays is a reason to see a specialist. The
+  streak counts appearances, like the freeze does; one clean appearance
+  takes the line down the same day.
+- **A rest offer before the fourth day in a row** (#98). Nothing observed
+  actual frequency: seven days straight was invisible. When starting
+  today's workout would make it at least the fourth consecutive training
+  day, Today carries one quiet line offering a rest day. The Start button
+  and "Train anyway" are untouched, and the line never appears once today
+  is trained.
+- Three new strings in all seven languages; engine and `golden.json`
+  byte-identical.
+
 ### Fixes
 
 - Silent decay now fires on a cold launch too (issue #93). The 7–13-day
