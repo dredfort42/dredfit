@@ -15,15 +15,22 @@ import AVFoundation
 @MainActor
 final class CountdownSoundsTests: XCTestCase {
 
+    private struct Sound {
+        let name: String
+        let tone: Data
+        let seconds: Double
+        let peak: Double
+    }
+
     /// Every sound of the set with its spec'd duration and peak target.
-    private let set: [(name: String, tone: Data, seconds: Double, peak: Double)] = [
-        ("tick", SignalTone.tick, 0.20, 0.32),
-        ("go", SignalTone.go, 0.55, 0.80),
-        ("switchSides", SignalTone.switchSides, 0.55, 0.66),
-        ("done", SignalTone.done, 0.62, 0.66),
-        ("workoutDone", SignalTone.workoutDone, 1.00, 0.85),
-        ("milestone", SignalTone.milestone, 1.35, 0.88),
-        ("reminder", SignalTone.reminder, 1.05, 0.50)
+    private let set: [Sound] = [
+        Sound(name: "tick", tone: SignalTone.tick, seconds: 0.20, peak: 0.32),
+        Sound(name: "go", tone: SignalTone.go, seconds: 0.55, peak: 0.80),
+        Sound(name: "switchSides", tone: SignalTone.switchSides, seconds: 0.55, peak: 0.66),
+        Sound(name: "done", tone: SignalTone.done, seconds: 0.62, peak: 0.66),
+        Sound(name: "workoutDone", tone: SignalTone.workoutDone, seconds: 1.00, peak: 0.85),
+        Sound(name: "milestone", tone: SignalTone.milestone, seconds: 1.35, peak: 0.88),
+        Sound(name: "reminder", tone: SignalTone.reminder, seconds: 1.05, peak: 0.50)
     ]
 
     // MARK: - WAV plumbing
