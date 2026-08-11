@@ -54,7 +54,10 @@ struct RootView: View {
             }
         }
         .onAppear {
-            store.reloadIfNeeded()
+            // A cold launch renders already `.active`, so the phase change
+            // below never fires for it — without this call a comeback after
+            // 7–13 days away would train on pre-break levels.
+            store.activate()
             onboardingShown = store.shouldShowOnboarding
         }
         // A cold start never has a live workout: anything still alive belongs
@@ -64,15 +67,11 @@ struct RootView: View {
         .onChange(of: scenePhase) { _, phase in
             switch phase {
             case .active:
-                // An active scene proves the device is unlocked, so a launch
-                // that could not read its journal gets a second chance.
-                store.reloadIfNeeded()
-                // An overnight suspension must not keep showing yesterday's
-                // "completed" state without a Start button.
-                store.refreshDay()
-                // Rebuilt every activation, so the window heals after
-                // restarts and never runs dry while the app is in use.
-                store.rescheduleReminders()
+                // An active scene proves the device is unlocked: the journal
+                // gets its second read, the day re-anchors with the
+                // blind-zone decay, and the reminder window is rebuilt so it
+                // never runs dry while the app is in use.
+                store.activate()
             case .background:
                 store.refreshWidgetSnapshot()
             default:

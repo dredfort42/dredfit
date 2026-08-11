@@ -42,6 +42,77 @@ final class HardeningTests: XCTestCase {
         XCTAssertEqual(store.today, anchor, "a same-day refresh must be a no-op")
     }
 
+    // MARK: - Cold-launch activation (issue #93)
+
+    /// Seeds a journal whose last workout happened `daysAgo` days ago —
+    /// several sessions, so the levels sit clear of the zero clamp. Returns
+    /// the levels as seeded.
+    @discardableResult
+    private func seedWorkout(daysAgo: Int, at url: URL) -> [Pattern: Int] {
+        let store = AppStore(storageURL: url, notifications: NotificationSpy())
+        let date = Calendar.current.date(byAdding: .day, value: -daysAgo, to: .now)!
+        for _ in 0..<4 {
+            store.completeWorkout(session: store.nextSession, result: .plan, date: date)
+        }
+        return store.engineState.levels
+    }
+
+    /// Regression: a cold launch renders already `.active`, so the phase
+    /// transition never fires — `activate()` from `onAppear` must run the
+    /// blind-zone decay, or a 7–13-day comeback trains on pre-break levels.
+    func testColdLaunchActivationAppliesSilentDecay() {
+        let seeded = seedWorkout(daysAgo: 10, at: tempURL)
+
+        let cold = AppStore(storageURL: tempURL, notifications: NotificationSpy())
+        cold.activate()
+        for p in Pattern.allCases {
+            XCTAssertEqual(cold.engineState.levels[p], max(0, (seeded[p] ?? 0) - 1),
+                           "\(p): the cold launch must see the −1 decay")
+        }
+
+        let once = cold.engineState.levels
+        cold.activate()
+        XCTAssertEqual(cold.engineState.levels, once,
+                       "a second activation in the same break must not decay again")
+
+        let relaunched = AppStore(storageURL: tempURL, notifications: NotificationSpy())
+        relaunched.activate()
+        XCTAssertEqual(relaunched.engineState.levels, once,
+                       "the stamp persists — a relaunch inside the break must not decay again")
+    }
+
+    func testColdLaunchActivationLeavesGapsOutsideTheBlindZoneAlone() {
+        for days in [6, 14] {
+            let url = tempURL.deletingPathExtension().appendingPathExtension("gap\(days).json")
+            defer { try? FileManager.default.removeItem(at: url) }
+            seedWorkout(daysAgo: days, at: url)
+            let cold = AppStore(storageURL: url, notifications: NotificationSpy())
+            let before = cold.engineState
+            cold.activate()
+            XCTAssertEqual(cold.engineState, before,
+                           "gap \(days): outside [7, 14) activation must not touch the engine")
+        }
+    }
+
+    /// The seam's order matters: a launch that could not read its journal
+    /// must reload first and decay after — the other way round the decay
+    /// finds no journal and silently skips the break.
+    func testActivationReloadsBeforeDecaying() throws {
+        try XCTSkipIf(getuid() == 0, "root reads through 0o000 permissions")
+        let seeded = seedWorkout(daysAgo: 10, at: tempURL)
+        try FileManager.default.setAttributes([.posixPermissions: 0o000],
+                                              ofItemAtPath: tempURL.path)
+        let frozen = AppStore(storageURL: tempURL, notifications: NotificationSpy())
+        try FileManager.default.setAttributes([.posixPermissions: 0o644],
+                                              ofItemAtPath: tempURL.path)
+
+        frozen.activate()
+        for p in Pattern.allCases {
+            XCTAssertEqual(frozen.engineState.levels[p], max(0, (seeded[p] ?? 0) - 1),
+                           "\(p): one activate() must both reload the journal and decay it")
+        }
+    }
+
     // MARK: - Reminders (injectable scheduler)
 
     private struct ScheduledReminder {

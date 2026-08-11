@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.11.0
+
+The post-audit wave: a multi-agent audit of the engine and its golden
+contour (2026-08-11) confirmed 51 findings; this release works through
+them wave by wave.
+
+### Fixes
+
+- Silent decay now fires on a cold launch too (issue #93). The 7–13-day
+  blind-zone decay used to run only on a scene-phase transition, which a
+  cold launch never produces — the most ordinary comeback ("return after
+  8 days, open the app, train") ran the whole session on pre-break levels.
+  The activation sequence now lives in one store seam, `activate()`,
+  called from both `onAppear` and the `.active` transition, with a
+  cold-start regression test.
+
 ## 1.10.0
 
 "Tough" used to hide three different facts. The v2.5 safety wave separated
