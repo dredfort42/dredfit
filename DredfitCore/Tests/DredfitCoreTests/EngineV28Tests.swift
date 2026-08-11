@@ -27,10 +27,10 @@ final class EngineV28Tests: XCTestCase {
     /// The diligent logger's bug: exact numbers every session used to mean
     /// no progress ever, while a tap moved. Zero included — doing the first
     /// plan exactly is progress too.
-    func testFactEqualToThePlanStepsLikeOnPlan() {
+    func testFactEqualToThePlanStepsLikeOnPlan() throws {
         let zero = EngineState.initial
         let session = Engine.generateSession(zero)
-        let first = try! XCTUnwrap(session.exercises.first)
+        let first = try XCTUnwrap(session.exercises.first)
         let done = Engine.applyFeedback(state: zero, session: session, result: .plan,
                                         overrides: [first.pattern: first.load])
         XCTAssertEqual(done.levels[first.pattern], 1,
@@ -50,10 +50,10 @@ final class EngineV28Tests: XCTestCase {
     /// A fact below the plan at zero still calibrates to zero — the §18.1
     /// comparison is against the plan's load, so the fromActual clamp can
     /// no longer disguise "below plan" as "equal to plan".
-    func testFactBelowThePlanAtZeroStillStays() {
+    func testFactBelowThePlanAtZeroStillStays() throws {
         let zero = EngineState.initial
         let session = Engine.generateSession(zero)
-        let ex = try! XCTUnwrap(session.exercises.first { $0.unit == .reps })
+        let ex = try XCTUnwrap(session.exercises.first { $0.unit == .reps })
         let after = Engine.applyFeedback(state: zero, session: session, result: .plan,
                                          overrides: [ex.pattern: 5])
         XCTAssertEqual(after.levels[ex.pattern], 0)
@@ -73,11 +73,11 @@ final class EngineV28Tests: XCTestCase {
     }
 
     /// Under a freeze or a hold the growth still clamps to the old level.
-    func testExactPlanFactStillHoldsUnderAFreeze() {
+    func testExactPlanFactStillHoldsUnderAFreeze() throws {
         var frozen = seeded(level: 10)
         frozen.frozen[.pull] = 2
         let session = Engine.generateSession(frozen)
-        let pull = try! XCTUnwrap(session.exercises.first { $0.pattern == .pull })
+        let pull = try XCTUnwrap(session.exercises.first { $0.pattern == .pull })
         let after = Engine.applyFeedback(state: frozen, session: session, result: .plan,
                                          overrides: [.pull: pull.load])
         XCTAssertEqual(after.levels[.pull], 10, "frozen: the +1 clamps to the old level")
