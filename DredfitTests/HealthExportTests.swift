@@ -181,9 +181,11 @@ final class HealthExportTests: XCTestCase {
         }
         _ = await store.enableHealth()
 
-        // A donor backup: three records, Health never enabled there. After
-        // the import the high-water mark (2 confirmed saves below) flags the
-        // donor's sessions 1–2; session 3 must stay unexported.
+        // A donor backup: three records, Health never enabled there. An
+        // unrelated journal inherits neither the mark nor any flags
+        // (issue #103), so all three donor records must stay pending — and
+        // in particular the save in flight must not flag any of them by its
+        // stale index.
         let donorURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-donor-\(UUID().uuidString).json")
         defer { try? FileManager.default.removeItem(at: donorURL) }
@@ -209,8 +211,8 @@ final class HealthExportTests: XCTestCase {
         XCTAssertEqual(spy.saved.count, 3, "no further exports against the replaced journal")
         XCTAssertNotEqual(store.records.last?.healthExported, true,
                           "a record that was never saved must not be flagged exported")
-        XCTAssertEqual(store.healthBackfillCount, 1,
-                       "the imported session 3 stays pending for a real export")
+        XCTAssertEqual(store.healthBackfillCount, 3,
+                       "every imported workout stays pending for a real export")
     }
 
     func testDisablingHealthStopsAnInFlightBackfill() async {
@@ -252,9 +254,11 @@ final class HealthExportTests: XCTestCase {
                       "every exported interval must move forward")
     }
 
-    /// Importing an older backup (no Health mark) must not move the mark
-    /// backwards — otherwise re-enabling would re-export samples already in
-    /// Health, which the write-only design cannot detect.
+    /// Importing an older backup of the SAME journal (no Health mark) must
+    /// not move the mark backwards — otherwise re-enabling would re-export
+    /// samples already in Health, which the write-only design cannot detect.
+    /// Same lineage means shared record ids, so the fixture's dates are the
+    /// journal's real dates — a real old backup keeps them.
     func testImportKeepsHealthMarkMonotonic() async throws {
         let spy = HealthSpy()
         let store = AppStore(storageURL: tempURL, health: spy)
@@ -264,7 +268,10 @@ final class HealthExportTests: XCTestCase {
         await store.backfillHealth()
         XCTAssertEqual(store.healthBackfillCount, 0, "both workouts start out exported")
 
-        // a backup of the same two workouts predating Health support — no healthExportedThrough
+        // a backup of the same two workouts predating Health support — no
+        // healthExportedThrough, no per-record flags, same dates
+        let t1 = date(2026, 7, 14).timeIntervalSinceReferenceDate
+        let t2 = date(2026, 7, 16).timeIntervalSinceReferenceDate
         let old = """
         {"engineState":{"counter":2,
           "levels":["squat",2,"push_h",2,"hinge",2,"pull",4,"push_v",2,"lunge",2,
@@ -272,8 +279,8 @@ final class HealthExportTests: XCTestCase {
           "failStreak":["squat",0,"push_h",0,"hinge",0,"pull",0,"push_v",0,"lunge",0,
                         "core_anti_ext",0,"core_rot",0,"calf",0]},
          "records":[
-           {"sessionNumber":1,"date":700000000,"result":"plan","totalLevelAfter":12},
-           {"sessionNumber":2,"date":700100000,"result":"more","totalLevelAfter":18}],
+           {"sessionNumber":1,"date":\(t1),"result":"plan","totalLevelAfter":12},
+           {"sessionNumber":2,"date":\(t2),"result":"more","totalLevelAfter":18}],
          "settings":{"restWeekdays":[1],"soundsEnabled":true,
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
         """
@@ -285,6 +292,91 @@ final class HealthExportTests: XCTestCase {
 
         XCTAssertEqual(store.healthBackfillCount, 0,
                        "an old backup must not reset the mark and re-export handled workouts")
+    }
+
+    /// An unrelated journal (no shared record ids) must not inherit this
+    /// device's Health mark — inheriting it stamped the foreign workouts
+    /// "already exported" and hid them from the backfill forever (issue #103).
+    func testUnrelatedImportDoesNotInheritTheHealthMark() async throws {
+        let spy = HealthSpy()
+        let store = AppStore(storageURL: tempURL, health: spy)
+        store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 14))
+        store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 16))
+        _ = await store.enableHealth()
+        await store.backfillHealth()
+        XCTAssertEqual(store.healthBackfillCount, 0, "this journal starts fully exported")
+
+        // A donor journal from another life: same session numbers, different
+        // dates, Health never enabled there.
+        let donorURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("dredfit-foreign-\(UUID().uuidString).json")
+        defer { try? FileManager.default.removeItem(at: donorURL) }
+        let donor = AppStore(storageURL: donorURL)
+        donor.completeWorkout(session: donor.nextSession, result: .plan, date: date(2026, 6, 1))
+        donor.completeWorkout(session: donor.nextSession, result: .plan, date: date(2026, 6, 3))
+        let backup = try donor.exportURL()
+        defer { try? FileManager.default.removeItem(at: backup) }
+
+        try store.importBackup(from: backup)
+        XCTAssertEqual(store.healthBackfillCount, 2,
+                       "no foreign workout may be silently excluded from Health")
+        // The Health toggle travelled with the donor's settings (off there) —
+        // enabling on this device must find both workouts waiting.
+        _ = await store.enableHealth()
+        await store.backfillHealth()
+        XCTAssertEqual(store.healthBackfillCount, 0)
+        XCTAssertEqual(spy.saved.count, 4, "both foreign workouts really export")
+    }
+
+    /// An unrelated journal that carries its own flags keeps them as they
+    /// are — the flags are that journal's truth, not this device's.
+    func testUnrelatedImportRespectsItsOwnFlags() async throws {
+        let donorURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("dredfit-flagged-\(UUID().uuidString).json")
+        defer { try? FileManager.default.removeItem(at: donorURL) }
+        let donorSpy = HealthSpy()
+        let donor = AppStore(storageURL: donorURL, health: donorSpy)
+        donor.completeWorkout(session: donor.nextSession, result: .plan, date: date(2026, 6, 1))
+        _ = await donor.enableHealth()
+        await donor.backfillHealth()
+        donor.completeWorkout(session: donor.nextSession, result: .plan, date: date(2026, 6, 3))
+        await donor.healthExportTask?.value
+        XCTAssertEqual(donor.healthBackfillCount, 0, "the donor is fully exported")
+        let backup = try donor.exportURL()
+        defer { try? FileManager.default.removeItem(at: backup) }
+
+        let spy = HealthSpy()
+        let store = AppStore(storageURL: tempURL, health: spy)
+        store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 14))
+        try store.importBackup(from: backup)
+        XCTAssertEqual(store.healthBackfillCount, 0,
+                       "the donor's own flags say everything is exported — believe them")
+        await store.backfillHealth()
+        XCTAssertTrue(spy.saved.isEmpty, "nothing may re-export on this device")
+    }
+
+    /// After a reset the journal restarts its session numbers under the old
+    /// high mark — a reload must not stamp the new session 1 "exported"
+    /// (issue #103: the legacy migration now runs only on flag-free files).
+    func testResetThenReloadDoesNotStampTheNewJournal() async {
+        let spy = HealthSpy()
+        let store = AppStore(storageURL: tempURL, health: spy)
+        store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 10))
+        store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 12))
+        _ = await store.enableHealth()
+        await store.backfillHealth()
+        store.disableHealth()
+
+        store.resetProgress()
+        store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 16))
+        XCTAssertEqual(store.records.last?.sessionNumber, 1)
+        XCTAssertNil(store.records.last?.healthExported, "not exported: Health is off")
+
+        let reloaded = AppStore(storageURL: tempURL, health: HealthSpy())
+        XCTAssertNil(reloaded.records.last?.healthExported,
+                     "a reload must not stamp the post-reset session 1 by the old mark")
+        XCTAssertEqual(reloaded.healthBackfillCount, 1,
+                       "the new workout stays visible to a future backfill")
     }
 
     func testHealthDenialLeavesToggleOff() async {

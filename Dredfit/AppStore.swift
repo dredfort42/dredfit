@@ -323,12 +323,17 @@ final class AppStore {
     }
 
     /// Legacy high-water mark → per-record flags. The mark keeps being
-    /// written so a downgraded build still sees a sane value.
+    /// written so a downgraded build still sees a sane value. Runs only on a
+    /// journal that carries no flags at all — a pre-flag legacy file. Once
+    /// any record is flagged, the flags are the source of truth, and
+    /// re-applying the mark could stamp workouts it was never about: a
+    /// foreign import's records, or a post-reset session 1 sitting under an
+    /// old high mark (issue #103).
     private func migrateHealthMarkToFlags() {
-        guard settings.healthExportedThrough > 0 else { return }
+        guard settings.healthExportedThrough > 0,
+              !records.contains(where: { $0.healthExported != nil }) else { return }
         for i in records.indices
-        where records[i].healthExported == nil
-            && records[i].sessionNumber <= settings.healthExportedThrough {
+        where records[i].sessionNumber <= settings.healthExportedThrough {
             records[i].healthExported = true
         }
     }
@@ -999,14 +1004,24 @@ final class AppStore {
         let decoded = try JSONDecoder().decode(AppData.self, from: data)
         // The Health mark tracks an external side effect (HKWorkouts already
         // written) and must never move backwards on import: an older backup
-        // would re-export samples the write-only design cannot detect.
+        // would re-export samples the write-only design cannot detect. That
+        // holds for THIS journal only — an unrelated one (another device, a
+        // post-reset history) knows nothing about this device's Health store,
+        // and inheriting the local mark would stamp its workouts "already
+        // exported" and hide them from the backfill forever (issue #103).
+        // Same lineage always shares record ids: the journal is append-only
+        // and a backup is its snapshot.
         let priorHealthMark = settings.healthExportedThrough
+        let currentIDs = Set(records.map(\.id))
+        let sameLineage = decoded.records.contains { currentIDs.contains($0.id) }
         engineState = decoded.engineState
         records = decoded.records
         settings = decoded.settings ?? AppSettings()
         // A half-finished workout does not travel with a restored history.
         pendingWorkout = nil
-        settings.healthExportedThrough = max(priorHealthMark, settings.healthExportedThrough)
+        if sameLineage {
+            settings.healthExportedThrough = max(priorHealthMark, settings.healthExportedThrough)
+        }
         // Old backups carry only the mark — turn whichever won into flags.
         migrateHealthMarkToFlags()
         persist()
