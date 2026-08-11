@@ -79,9 +79,9 @@ final class SafetySignalsTests: XCTestCase {
                               discomfort: [.pull], date: day(-2))
 
         // Prepend a legacy record — no exercises, the pre-1.4 shape.
-        var json = try JSONSerialization.jsonObject(
-            with: Data(contentsOf: tempURL)) as! [String: Any]
-        var records = json["records"] as! [[String: Any]]
+        var json = try XCTUnwrap(JSONSerialization.jsonObject(
+            with: Data(contentsOf: tempURL)) as? [String: Any])
+        var records = try XCTUnwrap(json["records"] as? [[String: Any]])
         records.insert(["sessionNumber": 0, "date": -86400.0,
                         "result": "plan", "totalLevelAfter": 5], at: 0)
         json["records"] = records
