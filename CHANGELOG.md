@@ -6,6 +6,40 @@ The post-audit wave: a multi-agent audit of the engine and its golden
 contour (2026-08-11) confirmed 51 findings; this release works through
 them wave by wave.
 
+### Engine v2.7.0 — the do-no-harm gate (issues #88, #89, #92, #97)
+
+The two findings on the P0 boundary and the two mechanisms behind them.
+Spec §17; 13,390 property checks (was 9,908); a thirteenth golden scenario
+`long_break`; scenarios 1–12 move only in the fail-streak snapshots of
+their decay steps — levels and exercises are untouched everywhere.
+
+- **Calibration stops at the neighboring tier** (#88). An honest fact
+  entered from zero used to teleport the plan across the scale:
+  `{squat: 30}` straight to a tier-3 pistol squat, `{calf: 40}` to level
+  32 past the very ceiling that exists because the Achilles remodels over
+  months. Calibration is still stronger than the per-session cap, but its
+  result is now bounded by the neighboring tier's ceiling (level 15 from
+  zero); slow-tissue patterns — the calf — land no higher than tier 1.
+- **Long breaks land where the body actually is** (#89). The comeback
+  drop was capped at −8 regardless of level: a year away still landed a
+  former ceiling user in tier 4, and 140+ days of rest produced MORE
+  first-session volume than 90 (the rung survived the set-band change).
+  Past the table's edge there are now landing ceilings — half a year
+  lands no higher than tier 2, a year no higher than tier 1 — and
+  crossing a set band snaps the rung to the band floor. The landing level
+  is monotonic in the gap, verified across the whole scale, and peeking
+  mid-break still costs exactly nothing.
+- **A pause no longer counts against you** (#97). The silent decay
+  (7–13 days) now resets the underperformance streak like the comeback
+  does: a streak of 2, a 13-day pause and one honest "less" used to ride
+  into a deload (−5 total) while a 14-day break cost −3.
+- **Garbage cannot poison the state** (#92). A non-numeric fact is
+  ignored (the pattern falls back to the session rating); NaN, fractions
+  and negatives in a state file heal on the next engine call; the
+  generated plan is well-formed even from a dirty state. All 75,122 fuzz
+  violations in the audit reduced to this one cause. The Swift port is
+  type-immune already — the reference now matches it.
+
 ### Fixes
 
 - Silent decay now fires on a cold launch too (issue #93). The 7–13-day
