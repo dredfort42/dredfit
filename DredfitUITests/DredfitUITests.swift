@@ -46,13 +46,23 @@ final class DredfitUITests: XCTestCase {
                        "the onboarding must be gone")
     }
 
-    func testOnboardingSkipIsRememberedAcrossRelaunch() {
+    /// Skip jumps TO the care card, never past it (#101): the checklist is
+    /// the one screen that cannot be skipped, and only its explicit button
+    /// completes the onboarding.
+    func testOnboardingSkipLandsOnTheCareCardAndIsRemembered() {
         app.launchArguments.append("--uitest-onboarding")
         app.launch()
         XCTAssertTrue(app.buttons["onboarding-skip"].waitForExistence(timeout: 5))
         app.buttons["onboarding-skip"].tap()
-        XCTAssertTrue(app.buttons["Start"].waitForExistence(timeout: 3),
-                      "skipping must land on Today")
+        XCTAssertTrue(app.staticTexts["One tap after the workout."]
+                        .waitForExistence(timeout: 3),
+                      "skipping must land on the care card, not on Today")
+        // Today's own elements stay .exists behind the cover, so the cover's
+        // dismissal is what proves completion — the card text going away.
+        app.buttons["onboarding-primary"].tap()
+        XCTAssertTrue(app.buttons["Start"].waitForExistence(timeout: 3))
+        XCTAssertFalse(app.staticTexts["One tap after the workout."].exists,
+                       "the explicit acknowledgement completes the onboarding")
 
         // Relaunch WITHOUT the reset flag so the stored flag is what decides.
         let relaunch = XCUIApplication()
@@ -60,7 +70,7 @@ final class DredfitUITests: XCTestCase {
         relaunch.launch()
         XCTAssertTrue(relaunch.buttons["Start"].waitForExistence(timeout: 5))
         XCTAssertFalse(relaunch.staticTexts["Training at home. No questionnaires."].exists,
-                       "a skipped onboarding must not come back")
+                       "an acknowledged onboarding must not come back")
     }
 
     // Thin wrappers over WorkoutDriver, kept behind the names this file has

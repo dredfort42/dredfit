@@ -9,7 +9,9 @@
 import SwiftUI
 
 struct OnboardingView: View {
-    /// Both "Start" and "Skip" count as "seen".
+    /// Reached only through the care card's explicit button (#101): Skip
+    /// jumps TO that card, never past it, so finishing always means the
+    /// checklist was on screen and acknowledged.
     let onFinish: () -> Void
 
     @State private var page = 0
@@ -28,7 +30,7 @@ struct OnboardingView: View {
             // TodayView owns the key "Next" for its next-workout card, and
             // one key cannot carry two meanings across languages.
             PrimaryButton(title: page == pageCount - 1
-                          ? String(localized: "Start")
+                          ? String(localized: "I understand — start")
                           : String(localized: "Continue")) {
                 if page == pageCount - 1 {
                     onFinish()
@@ -50,11 +52,19 @@ struct OnboardingView: View {
         HStack {
             Spacer()
             // ink2, not ink3: an interactive control needs ≥3:1 contrast.
-            Button(String(localized: "Skip"), action: onFinish)
+            // The care card cannot be skipped past — the jump IS the whole
+            // shortcut (#101): one extra tap for a skipper, zero questions
+            // asked. Faded rather than removed so the cards do not jump.
+            Button(String(localized: "Skip")) {
+                withAnimation(.easeInOut(duration: 0.25)) { page = pageCount - 1 }
+            }
                 .dredfitFont(15)
                 .foregroundStyle(Theme.ink2)
                 .accessibilityIdentifier("onboarding-skip")
-                .accessibilityHint(Text("Skips the introduction"))
+                .accessibilityHint(Text("Skips ahead to the care note"))
+                .opacity(page < pageCount - 1 ? 1 : 0)
+                .disabled(page >= pageCount - 1)
+                .accessibilityHidden(page >= pageCount - 1)
         }
         .padding(.horizontal, 24)
         .padding(.top, 12)
@@ -168,13 +178,21 @@ struct OnboardingView: View {
             .foregroundStyle(Theme.ink3)
     }
 
-    // MARK: - Card 3: the quiet duty-of-care note
+    // MARK: - Card 3: the quiet duty-of-care note (#101)
 
+    /// Statements, not questions: the checklist is read, not filled in, and
+    /// nothing is stored beyond the acknowledgement timestamp — the zero-
+    /// questionnaires principle holds.
     private var careBlock: some View {
         Text(String(localized: """
-        All your data stays on your device. If you have problems with your joints, \
-        heart or blood pressure, talk to a doctor first. Sharp pain during an \
-        exercise always means stop.
+        All your data stays on your device.
+
+        Talk to a doctor before you start if any of this is you: a heart \
+        condition or chest pain under load; blood pressure that is treated or \
+        runs high; dizziness or fainting; a joint injury that flares under \
+        load; pregnancy or recent childbirth.
+
+        Sharp pain during an exercise always means stop.
         """))
         // ink2, not ink3: the safety note is quiet, not unreadable.
         .dredfitFont(12.5)
