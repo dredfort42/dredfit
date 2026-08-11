@@ -1104,7 +1104,9 @@ struct UserNotificationScheduler: NotificationScheduling {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
-        content.sound = .default
+        // The branded reminder tone (#84) — provisioned on demand, falls
+        // back to .default if the file cannot be written.
+        content.sound = ReminderSoundFile.notificationSound()
         let trigger = UNCalendarNotificationTrigger(dateMatching: fireDate, repeats: false)
         UNUserNotificationCenter.current()
             .add(UNNotificationRequest(identifier: id, content: content, trigger: trigger))

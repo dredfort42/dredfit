@@ -166,6 +166,10 @@ struct WorkoutFlowView: View {
                         dismiss()
                     } else {
                         lastResult = result
+                        // At the transition, not in MilestoneView.onAppear:
+                        // onAppear can refire behind sheets, and a restore
+                        // lands on the rating — so this cannot double-play.
+                        playMilestone()
                         phase = .milestone(earned)
                     }
                 }
@@ -703,9 +707,10 @@ private extension WorkoutFlowView {
         let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
         guard newRemaining != holdRemaining else { return }
         if newRemaining == 0 {
-            // The switch pause announces itself; a go here would say "done"
-            // a side too early.
-            if !(exercise.perSide && !holdSecondSide) { playGo() }
+            // The end of a hold says "release", not "start" (#84). The
+            // switch pause still announces itself — a done here would end
+            // the exercise a side too early.
+            if !(exercise.perSide && !holdSecondSide) { playDone() }
             finishHold(heldSeconds: holdTotal)
         } else {
             if newRemaining <= Self.countdownSignalSeconds && newRemaining < holdRemaining {
@@ -790,26 +795,14 @@ private extension WorkoutFlowView {
     /// One tap of extra rest. The cap on repeats is twice the planned rest.
     static let restExtensionSeconds = 15
 
-    /// The tone respects silent mode; the haptic is the signal's silent-mode
-    /// channel.
-    func playTick() {
-        guard store.settings.soundsEnabled else { return }
-        CountdownSounds.shared.playTick()
-        UIImpactFeedbackGenerator(style: .light).impactOccurred()
-    }
-
-    func playGo() {
-        guard store.settings.soundsEnabled else { return }
-        CountdownSounds.shared.playGo()
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
-    }
-
-    /// Its own haptic weight, so silent mode can tell it from a tick.
-    func playSwitch() {
-        guard store.settings.soundsEnabled else { return }
-        CountdownSounds.shared.playSwitch()
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-    }
+    /// Thin wrappers: each signal's tone + haptic pair lives in
+    /// WorkoutSignals, gated here by the one sounds toggle.
+    func playTick() { WorkoutSignals.tick(store.settings.soundsEnabled) }
+    func playGo() { WorkoutSignals.go(store.settings.soundsEnabled) }
+    func playSwitch() { WorkoutSignals.switchSides(store.settings.soundsEnabled) }
+    func playDone() { WorkoutSignals.done(store.settings.soundsEnabled) }
+    func playWorkoutDone() { WorkoutSignals.workoutDone(store.settings.soundsEnabled) }
+    func playMilestone() { WorkoutSignals.milestone(store.settings.soundsEnabled) }
 
     /// A toggle, not an exit: the exercise is still being done, so this must
     /// not run through leaveExercise. Flow state only — the undo is free.
@@ -1070,7 +1063,9 @@ extension WorkoutFlowView {
         guard let next = Cooldown.advance(from: (cooldownIndex, cooldownStage),
                                           overshoot: Int(max(0, -end.timeIntervalSinceNow)),
                                           positions: cooldownPositions) else {
-            playGo()
+            // The whole workout is assembled — the finale, not another start
+            // (#84). Skipping the cool-down stays silent: a tap is a tap.
+            playWorkoutDone()
             finishCooldown()
             return
         }
