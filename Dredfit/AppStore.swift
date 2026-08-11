@@ -27,6 +27,9 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     /// Reported as painful mid-workout: to the engine a skip, to the journal
     /// a different fact — and the reason the pattern is resting afterwards.
     var discomfort: Set<Pattern>?
+    /// Asked to hold its level (#78): performed, rated one-directionally,
+    /// and not climbing afterwards. Never written when empty, like the rest.
+    var pinned: Set<Pattern>?
     var levelsAfter: [Pattern: Int]?
     var durationSec: Int?
     /// Only `true` is ever written; nil means "not exported yet".
@@ -100,6 +103,8 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// Optional, like the fields below: a snapshot written by an older build
     /// must still decode rather than take the whole file down with it.
     var discomfort: Set<Pattern>?
+    /// Hold-this-level marks (#78) — a lone pin is progress worth resuming.
+    var pinned: Set<Pattern>?
     var workoutStart: Date
     var savedAt: Date
     /// The session number alone is not identity: the bar toggle and an
@@ -327,27 +332,18 @@ final class AppStore {
         }
         // The suite must not depend on the weekday it runs on;
         // --uitest-restday is applied last so it wins.
-        if CommandLine.arguments.contains("--uitest-reset")
-            || CommandLine.arguments.contains("--uitest-session2")
-            || CommandLine.arguments.contains("--uitest-milestone")
-            || CommandLine.arguments.contains("--uitest-discomfort") {
+        let seedFlags = ["--uitest-reset", "--uitest-session2", "--uitest-milestone",
+                         "--uitest-discomfort", "--uitest-pinned"]
+        if seedFlags.contains(where: CommandLine.arguments.contains) {
             settings.restWeekdays = []
         }
-        // A pull reported as painful yesterday: today's plan still has it,
-        // and Today carries the resting line.
+        // A pull reported as painful — or held — yesterday: today's plan
+        // still has it, and Today carries the same horizon line either way.
         if CommandLine.arguments.contains("--uitest-discomfort") {
-            var seeded = EngineState.initial
-            seeded.counter = 4
-            for p in Pattern.allCases { seeded.levels[p] = 6 }
-            seeded.frozen[.pull] = EngineConfig.freezeAppearances
-            engineState = seeded
-            records = [WorkoutRecord(
-                sessionNumber: 4,
-                date: Calendar.current.date(byAdding: .day, value: -1, to: .now)!,
-                result: .plan,
-                totalLevelAfter: 60,
-                discomfort: [.pull],
-                levelsAfter: seeded.levels)]
+            seedFrozenPull(pinned: false)
+        }
+        if CommandLine.arguments.contains("--uitest-pinned") {
+            seedFrozenPull(pinned: true)
         }
         // Session 1 completed yesterday → today offers session 2, the only
         // deterministic way to reach hold exercises.
@@ -393,6 +389,25 @@ final class AppStore {
             settings.restWeekdays = [Calendar.current.component(.weekday, from: .now)]
         }
     }
+
+    /// Yesterday's workout with one frozen pull — the seed the two freeze
+    /// hooks share; the app cannot tell the entrances apart, so only the
+    /// journal mark differs.
+    private func seedFrozenPull(pinned: Bool) {
+        var seeded = EngineState.initial
+        seeded.counter = 4
+        for p in Pattern.allCases { seeded.levels[p] = 6 }
+        seeded.frozen[.pull] = EngineConfig.freezeAppearances
+        engineState = seeded
+        records = [WorkoutRecord(
+            sessionNumber: 4,
+            date: Calendar.current.date(byAdding: .day, value: -1, to: .now)!,
+            result: .plan,
+            totalLevelAfter: 60,
+            discomfort: pinned ? nil : [.pull],
+            pinned: pinned ? [.pull] : nil,
+            levelsAfter: seeded.levels)]
+    }
     #endif
 
     // MARK: - Derived
@@ -425,10 +440,11 @@ final class AppStore {
         return debuts
     }
 
-    /// Patterns in the upcoming plan that are resting after a discomfort
-    /// report: still there, still at their level, not climbing. Scoped to the
-    /// plan on purpose — a line about a movement today's workout does not
-    /// contain would explain nothing.
+    /// Patterns in the upcoming plan whose growth is frozen — after a
+    /// discomfort report or a hold-this-level request; the state cannot tell
+    /// the two apart, and must not (#75). Still there, still at their level,
+    /// not climbing. Scoped to the plan on purpose — a line about a movement
+    /// today's workout does not contain would explain nothing.
     ///
     /// Takes the session so a caller that already holds one does not make the
     /// engine generate another: nextSession builds a fresh session on every
@@ -552,6 +568,7 @@ final class AppStore {
                          overrides: [Pattern: Int] = [:],
                          skipped: Set<Pattern> = [],
                          discomfort: Set<Pattern> = [],
+                         pinned: Set<Pattern> = [],
                          durationSec: Int? = nil,
                          date: Date = .now) -> [Milestone] {
         // Mirror of the engine's replay guard: a session that does not belong
@@ -561,7 +578,8 @@ final class AppStore {
         let before = engineState
         engineState = Engine.applyFeedback(state: engineState, session: session,
                                            result: result, overrides: overrides,
-                                           skipped: skipped, discomfort: discomfort)
+                                           skipped: skipped, discomfort: discomfort,
+                                           pinned: pinned)
         records.append(WorkoutRecord(
             sessionNumber: session.sessionNumber,
             date: date,
@@ -571,6 +589,7 @@ final class AppStore {
             actuals: overrides.isEmpty ? nil : overrides,
             skipped: skipped.isEmpty ? nil : skipped,
             discomfort: discomfort.isEmpty ? nil : discomfort,
+            pinned: pinned.isEmpty ? nil : pinned,
             levelsAfter: engineState.levels,
             durationSec: durationSec))
         persist()
@@ -610,6 +629,7 @@ final class AppStore {
                   || snap.exIndex > 0 || snap.setIndex > 0
                   || !snap.actuals.isEmpty || !snap.skipped.isEmpty
                   || !(snap.discomfort ?? []).isEmpty
+                  || !(snap.pinned ?? []).isEmpty
         else { return nil }
         return snap
     }

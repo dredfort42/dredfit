@@ -41,7 +41,9 @@ struct HowItWorksView: View {
                     the level immediately — the first workout calibrates the \
                     system. After that the level climbs at most two steps per \
                     workout — and only one for calves, for the wall handstand \
-                    and for every fourth variation, where tendons set the pace.
+                    and for every fourth variation, where tendons set the \
+                    pace. Where you asked to hold a level, it doesn't climb \
+                    at all.
                     """)),
             Section(id: 3,
                     title: String(localized: "Deload"),
@@ -90,6 +92,16 @@ struct HowItWorksView: View {
                     pain is always a reason to stop.
                     """)),
             Section(id: 9,
+                    title: String(localized: "Hold this level"),
+                    body: String(localized: """
+                    Sometimes a movement is simply at your limit and needs \
+                    longer there. Tap “Hold this level” and it stays where it \
+                    is: today's sets don't change, and the movement stops \
+                    getting harder for the next three times it comes round. \
+                    It can still go down if you do less, and a second tap in \
+                    the same workout changes your mind.
+                    """)),
+            Section(id: 10,
                     title: String(localized: "Why there are no questionnaires"),
                     body: String(localized: """
                     A questionnaire can be wrong; what you actually did cannot. \
@@ -109,7 +121,7 @@ struct HowItWorksView: View {
                         .padding(.top, 30)
                         .fixedSize(horizontal: false, vertical: true)
 
-                    Text("Nine things worth knowing about the regulator.")
+                    Text("Ten things worth knowing about the regulator.")
                         .dredfitFont(15)
                         .foregroundStyle(Theme.ink2)
                         .padding(.top, 8)

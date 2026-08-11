@@ -1,5 +1,40 @@
 # Changelog
 
+## 1.10.0
+
+"Tough" used to hide three different facts. The v2.5 safety wave separated
+two of them — muscles giving out, a joint complaining — and this release
+gives the third its own channel: *this movement is at my ceiling and I need
+longer here*. Not an injury, not a bad session, and until now it had no way
+to be said. The engine steps to v2.6, verified against the reference at 9,887
+property checks; no new state field, so the state and journal formats are
+untouched and there are no migrations.
+
+### Hold this level (issue #75, closes #77, #78)
+
+- A new **Hold this level** action on the exercise screen, beside "Something
+  hurt": the movement keeps today's plan and is trained as usual, but stops
+  getting harder for its next three appearances. Unlike a pain report the
+  workout still counts — the rating applies one-directionally, an exact
+  number can still take the level *down*, and no deload can fire on top of a
+  hold. A second tap in the same workout changes your mind.
+- Nothing visible changes in the plan when you ask, so the confirmation
+  carries the meaning: the caption under the big number reads "level held"
+  and the action flips to a **Holding** pill. The rating screen lists held
+  movements under **HELD** with their horizon, history marks them "held",
+  and Today's quiet line — "Not getting harder", with the per-movement
+  counter — now covers both ways into the rest without claiming anyone is
+  resting.
+- Engine v2.6: a `pinned` input as the second, milder entrance to the same
+  freeze — spec §16, 9,887 property checks (was 9,367), a twelfth golden
+  scenario, and the identity that ties the three inputs together:
+  discomfort ≡ pinned + skipped. A repeat request refreshes the rest;
+  breaks still never clear it; old state files decode unchanged.
+- A held movement counts as performed everywhere a skipped one does not:
+  the debut badge, the estimated duration, the cool-down and milestones.
+  "How it works" gains a tenth section, and the site's card about the
+  resting mechanic now names the second way in — in all seven languages.
+
 ## 1.9.0
 
 The largest release the project has shipped, and the first to reach the App

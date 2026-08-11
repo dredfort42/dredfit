@@ -114,6 +114,28 @@ final class MilestoneTests: XCTestCase {
         XCTAssertTrue(earned.isEmpty)
     }
 
+    /// A pin on one movement must not swallow another movement's milestone —
+    /// pinned patterns stay eligible in the detector, unlike skips. (A pinned
+    /// pattern itself cannot tier up: its growth is clamped.)
+    func testAPinDoesNotSwallowAMilestone() throws {
+        let probe = session(atCounter: 9).exercises[0].pattern
+        let heldOther = session(atCounter: 9).exercises[1].pattern
+        let store = try seededStore(counter: 9, levels: [probe: 7])
+        let session = store.nextSession
+
+        let earned = store.completeWorkout(session: session, result: .plan,
+                                           pinned: [heldOther])
+
+        XCTAssertEqual(earned.count, 2, "the tier-up and the jubilee both land")
+        guard case .tierUp(let pattern, _, _) = earned[0] else {
+            return XCTFail("expected the tier-up on top, got \(earned[0])")
+        }
+        XCTAssertEqual(pattern, probe)
+        XCTAssertEqual(earned[1], .jubilee(workouts: 10))
+        XCTAssertEqual(store.engineState.levels[heldOther], 0,
+                       "the pinned movement itself stayed put")
+    }
+
     // MARK: - The acceptance case: a hard session earns nothing
 
     func testSessionRatedLessEarnsNoMilestones() throws {

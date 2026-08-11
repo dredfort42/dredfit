@@ -181,6 +181,33 @@ final class WorkoutSnapshotTests: XCTestCase {
         XCTAssertNil(reloaded.resumableWorkout()?.discomfort)
     }
 
+    /// A hold request is progress worth offering back on its own — the
+    /// workout must not come back with the request lost.
+    func testAPinAloneMakesASnapshotResumable() {
+        let store = AppStore(storageURL: tempURL)
+        store.saveWorkoutSnapshot(WorkoutSnapshot(
+            sessionNumber: 1, exIndex: 0, setIndex: 0,
+            pinned: [.squat],
+            workoutStart: .now.addingTimeInterval(-5 * 60), savedAt: .now,
+            fingerprint: WorkoutSnapshot.fingerprint(of: store.nextSession)))
+        let resumed = store.resumableWorkout()
+        XCTAssertNotNil(resumed, "something was asked for — the card must show")
+        XCTAssertEqual(resumed?.pinned, [.squat])
+    }
+
+    /// A snapshot written before the pinned field existed still decodes —
+    /// and an empty set is never written at all.
+    func testSnapshotWithoutThePinnedFieldStillResumes() throws {
+        let store = AppStore(storageURL: tempURL)
+        store.saveWorkoutSnapshot(makeSnapshot(for: store))
+        let raw = try XCTUnwrap(String(data: try Data(contentsOf: tempURL), encoding: .utf8))
+        XCTAssertFalse(raw.contains("\"pinned\""),
+                       "an empty request must not be written at all")
+        let reloaded = AppStore(storageURL: tempURL)
+        XCTAssertNotNil(reloaded.resumableWorkout())
+        XCTAssertNil(reloaded.resumableWorkout()?.pinned)
+    }
+
     func testSnapshotWithoutFingerprintIsNotOffered() {
         let store = AppStore(storageURL: tempURL)
         store.saveWorkoutSnapshot(WorkoutSnapshot(

@@ -68,6 +68,7 @@ private struct Golden: Decodable {
         let overrides: [String: Int]
         let skipped: [String]?     // absent in older fixtures
         let discomfort: [String]?  // v2.5: present only in the discomfort scenario
+        let pinned: [String]?      // v2.6: present only in the pinned scenario
         let levelsAfter: [Int]
         let failStreakAfter: [Int]
         // present only in scenarios that exercise the bar module
@@ -105,7 +106,7 @@ final class GoldenTests: XCTestCase {
     /// re-baseline every number instead of catching a port bug.
     func testGeneratorIsThePinnedReferenceVersion() throws {
         let g = try loadGolden()
-        XCTAssertEqual(g.generator, "adaptive_engine.js v2.5.0",
+        XCTAssertEqual(g.generator, "adaptive_engine.js v2.6.0",
                        "golden.json regenerated from an unexpected reference version")
     }
 
@@ -200,9 +201,11 @@ final class GoldenTests: XCTestCase {
                     step.overrides.map { (Pattern(rawValue: $0.key)!, $0.value) })
                 let skipped = Set((step.skipped ?? []).map { Pattern(rawValue: $0)! })
                 let discomfort = Set((step.discomfort ?? []).map { Pattern(rawValue: $0)! })
+                let pinned = Set((step.pinned ?? []).map { Pattern(rawValue: $0)! })
                 state = Engine.applyFeedback(state: state, session: session,
                                              result: result, overrides: overrides,
-                                             skipped: skipped, discomfort: discomfort)
+                                             skipped: skipped, discomfort: discomfort,
+                                             pinned: pinned)
 
                 let levels = Pattern.ordered.map { state.levels[$0]! }
                 let streaks = Pattern.ordered.map { state.failStreak[$0]! }

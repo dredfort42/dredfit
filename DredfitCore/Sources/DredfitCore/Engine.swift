@@ -71,10 +71,12 @@ public enum EngineConfig {
     public static let comebackStepDays = 21
     public static let comebackMax = 8
     public static let silentDecayGapDays = 7
-    /// How many of a pattern's next APPEARANCES stay frozen after discomfort
-    /// is reported. Counted in appearances, not sessions: a rotating pattern
-    /// shows up in about five sessions out of eight, so "three sessions"
-    /// would make the actual rest unpredictable. Three ≈ a calendar week.
+    /// How many of a pattern's next APPEARANCES stay frozen after either of
+    /// the inputs that arm the rest: a discomfort report (v2.5) or a
+    /// hold-this-level request, `pinned` (v2.6). Counted in appearances, not
+    /// sessions: a rotating pattern shows up in about five sessions out of
+    /// eight, so "three sessions" would make the actual rest unpredictable.
+    /// Three ≈ a calendar week.
     public static let freezeAppearances = 3
     public static let repStart = [1: 8, 2: 6, 3: 5, 4: 4]
     public static let holdStart = [1: 20, 2: 15, 3: 15, 4: 10]
@@ -392,13 +394,21 @@ public enum Engine {
     /// `discomfort` is the joint-pain input: the pattern behaves as skipped
     /// for this session and is then frozen — it keeps appearing at its current
     /// level but cannot grow for its next `freezeAppearances` appearances.
+    ///
+    /// `pinned` is the hold-this-level request (v2.6), the second and milder
+    /// way into the same freeze. The session is processed, not voided: the
+    /// rating applies, a fact applies and may still take the level DOWN — but
+    /// growth clamps to the old level, the streak neither grows nor resets,
+    /// and the pattern is then frozen exactly as after discomfort. The
+    /// identity tying the three inputs together: discomfort ≡ pinned + skipped.
     public static func applyFeedback(
         state: EngineState,
         session: Session,
         result: FeedbackResult,
         overrides: [Pattern: Int] = [:],
         skipped: Set<Pattern> = [],
-        discomfort: Set<Pattern> = []
+        discomfort: Set<Pattern> = [],
+        pinned: Set<Pattern> = []
     ) -> EngineState {
         guard session.sessionNumber == state.counter + 1 else { return state }
         var next = state
@@ -412,7 +422,17 @@ public enum Engine {
                 next.frozen[p] = EngineConfig.freezeAppearances   // a repeat report refreshes it
                 continue
             }
-            if skipped.contains(p) { continue }
+            if skipped.contains(p) {
+                // A pin still arms the rest through a skip — the two effects
+                // are orthogonal, which is why pinned + skipped behaves
+                // exactly as discomfort does.
+                if pinned.contains(p) { next.frozen[p] = EngineConfig.freezeAppearances }
+                continue
+            }
+            // "Frozen when this session started" — read from `state`, never
+            // from `next`: a pin writes `next.frozen` for this very pattern
+            // below, and reading the fresh value would consume the reporting
+            // appearance. The reference reads from its `state` the same way.
             let frozenLeft = state.freezeRemaining(p)
             let oldL = state.levels[p] ?? 0
             // The tier is read from the level before the update, not from the
@@ -437,10 +457,15 @@ public enum Engine {
             // A frozen pattern keeps its place in the plan at its current
             // level but cannot grow; a fact may still take it DOWN — the
             // athlete's honesty is never overridden. The streak neither grows
-            // nor resets, so a deload cannot fire on top of a freeze.
-            if frozenLeft > 0 {
+            // nor resets, so a deload cannot fire on top of a freeze. A pin
+            // runs through the same arithmetic, then arms the rest AFTER the
+            // level update: the reporting appearance is never spent, and a
+            // pin on an already-frozen pattern refreshes the counter to N.
+            if frozenLeft > 0 || pinned.contains(p) {
                 next.levels[p] = min(newL, oldL)
-                if frozenLeft > 1 {
+                if pinned.contains(p) {
+                    next.frozen[p] = EngineConfig.freezeAppearances
+                } else if frozenLeft > 1 {
                     next.frozen[p] = frozenLeft - 1
                 } else {
                     next.frozen.removeValue(forKey: p)

@@ -165,6 +165,10 @@ struct WorkStatusCaption: View {
     let secondSide: Bool
     /// nil when the exercise is running to plan.
     let actual: Int?
+    /// The hold-this-level mark (issue #78). A pin changes nothing visible in
+    /// the plan, so the caption is where the tap confirms itself; an entered
+    /// actual still outranks it — that is today's number, this is trajectory.
+    let held: Bool
     let setIndex: Int
     let sets: Int
 
@@ -175,6 +179,8 @@ struct WorkStatusCaption: View {
             accented(Text("second side"))
         } else if let actual {
             accented(Text("actual \(actual)"))
+        } else if held {
+            accented(Text("level held"))
         } else {
             Text("set \(setIndex + 1) of \(sets)")
                 .dredfitFont(14)
@@ -187,38 +193,97 @@ struct WorkStatusCaption: View {
     }
 }
 
-/// The three things you can say about an exercise instead of doing it as
-/// planned. "Something hurt" keeps its own line and its own weight (issue
-/// #66): the first two are about today, the third is about the joint, and
-/// crowding all three into one row overflows the longest labels at
-/// accessibility sizes.
+/// The four things you can say about an exercise instead of doing it as
+/// planned — two rows of two (issues #66, #78): the first row is about today,
+/// the second about the body and the trajectory. Two per row is the ceiling —
+/// three overflow the longest labels at accessibility sizes — and at those
+/// sizes even two truncate, so the rows stack into a single column there,
+/// the same rule the rest ring's controls follow.
 struct ExerciseActionsRow: View {
+    /// The hold request is a toggle on an exercise still being done, and the
+    /// row is where its state shows.
+    let pinned: Bool
     let onAdjust: () -> Void
     let onSkip: () -> Void
+    let onPin: () -> Void
     let onDiscomfort: () -> Void
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     var body: some View {
-        VStack(spacing: 12) {
-            HStack(spacing: 26) {
-                Button(String(localized: "Went differently"), action: onAdjust)
-                Button(String(localized: "Skip exercise"), action: onSkip)
+        if dynamicTypeSize.isAccessibilitySize {
+            VStack(spacing: 12) {
+                adjustButton
+                skipButton
+                pinButton
+                discomfortButton
             }
+        } else {
+            VStack(spacing: 12) {
+                HStack(spacing: 26) {
+                    adjustButton
+                    skipButton
+                }
+                HStack(spacing: 26) {
+                    pinButton
+                    discomfortButton
+                }
+            }
+        }
+    }
+
+    private var adjustButton: some View {
+        Button(String(localized: "Went differently"), action: onAdjust)
             .dredfitFont(14.5)
             .foregroundStyle(Theme.ink2)
+    }
 
-            // One tap, no confirmation: nothing here is worth making someone
-            // in pain read a dialog.
-            Button(String(localized: "Something hurt"), action: onDiscomfort)
-                .dredfitFont(14.5, weight: .semibold)
-                .foregroundStyle(Theme.accentText)
-                .accessibilityIdentifier("report-discomfort")
-                // One literal, split for width: a concatenation would resolve
-                // to the verbatim initializer and never reach the catalog.
-                .accessibilityHint(Text(String(localized: """
-                    The movement stays in the plan at this level and stops \
-                    getting harder for a while.
-                    """)))
+    private var skipButton: some View {
+        Button(String(localized: "Skip exercise"), action: onSkip)
+            .dredfitFont(14.5)
+            .foregroundStyle(Theme.ink2)
+    }
+
+    /// One tap, no confirmation: nothing here is worth making someone in
+    /// pain read a dialog.
+    private var discomfortButton: some View {
+        Button(String(localized: "Something hurt"), action: onDiscomfort)
+            .dredfitFont(14.5, weight: .semibold)
+            .foregroundStyle(Theme.accentText)
+            .accessibilityIdentifier("report-discomfort")
+            // One literal, split for width: a concatenation would resolve to
+            // the verbatim initializer and never reach the catalog.
+            .accessibilityHint(Text(String(localized: """
+                The movement stays in the plan at this level and stops \
+                getting harder for a while.
+                """)))
+    }
+
+    /// A pin changes nothing visible in today's plan, so the confirmation is
+    /// carried here: the label flips to a filled pill. accentText on
+    /// accentSoft — the pairing the Today badge pill already vouches for.
+    /// The label carries the state, so VoiceOver never depends on the fill.
+    private var pinButton: some View {
+        Button(action: onPin) {
+            Group {
+                if pinned {
+                    Text("Holding")
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 3)
+                        .background(Theme.accentSoft, in: Capsule())
+                } else {
+                    Text("Hold this level")
+                }
+            }
+            .dredfitFont(14.5, weight: .semibold)
+            .foregroundStyle(Theme.accentText)
         }
+        .accessibilityIdentifier("hold-level")
+        .accessibilityAddTraits(pinned ? [.isSelected] : [])
+        .accessibilityHint(Text(String(localized: """
+            Today's sets stay as planned; the movement stops getting harder \
+            for a while. Tap again to change your mind.
+            """)))
     }
 }
 

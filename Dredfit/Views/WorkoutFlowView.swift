@@ -68,6 +68,9 @@ struct WorkoutFlowView: View {
     /// Kept apart from `skippedPatterns`: the engine treats both as skips for
     /// the session, but the rating and the history say different things.
     @State private var discomfortPatterns: Set<Pattern> = []
+    /// Hold-this-level requests (#78): not a skip set — the movement is
+    /// performed. A toggle until the workout ends; then it is engine state.
+    @State private var pinnedPatterns: Set<Pattern> = []
     @State private var adjusting = false
     @State private var adjustValue = 0
     @State private var workoutStart: Date?   // actual duration for Health
@@ -144,6 +147,7 @@ struct WorkoutFlowView: View {
                 FeedbackView(session: session, actuals: actuals,
                              skipped: skippedPatterns.union(omitted),
                              discomfort: discomfortPatterns,
+                             pinned: pinnedPatterns,
                              interrupted: interruptedPattern) { result, overrides in
                     let earned = store.completeWorkout(
                         session: session, result: result,
@@ -153,6 +157,7 @@ struct WorkoutFlowView: View {
                         // workout was short, and that is the point.
                         skipped: skippedPatterns.union(omitted),
                         discomfort: discomfortPatterns,
+                        pinned: pinnedPatterns,
                         durationSec: workoutStart.map {
                             // max: the wall clock can move backwards mid-workout
                             max(0, Int(Date.now.timeIntervalSince($0)))
@@ -264,7 +269,6 @@ struct WorkoutFlowView: View {
     }
 
     // MARK: - Warm-up
-
 
     /// The way back in from a pause wears the transition's screen, because it
     /// is the same beat: the name of the position, the 3-2-1, then the
@@ -418,6 +422,9 @@ struct WorkoutFlowView: View {
                 .dredfitFont(23, weight: .bold)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 300)
+                // The held state travels with the name, never colour alone
+                .accessibilityLabel(pinnedPatterns.contains(exercise.pattern)
+                    ? Text("\(exercise.name), level held") : Text(verbatim: exercise.name))
 
             TechniqueButton { techniqueExercise = exercise }
                 .padding(.top, 10)
@@ -447,6 +454,7 @@ struct WorkoutFlowView: View {
                               secondSide: holdSecondSide,
                               actual: actuals[exercise.pattern] == exercise.load
                                   ? nil : actuals[exercise.pattern],
+                              held: pinnedPatterns.contains(exercise.pattern),
                               setIndex: setIndex, sets: exercise.sets)
                 .padding(.top, 10)
 
@@ -478,8 +486,10 @@ struct WorkoutFlowView: View {
                 PrimaryButton(title: String(localized: "Done")) { completeSet() }
             }
 
-            ExerciseActionsRow(onAdjust: { startAdjusting() },
+            ExerciseActionsRow(pinned: pinnedPatterns.contains(exercise.pattern),
+                               onAdjust: { startAdjusting() },
                                onSkip: { leaveExercise() },
+                               onPin: { togglePin() },
                                onDiscomfort: { leaveExercise(hurt: true) })
             .padding(.vertical, 14)
             // no adjusting/skipping mid-hold or mid-pause
@@ -801,6 +811,13 @@ private extension WorkoutFlowView {
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
     }
 
+    /// A toggle, not an exit: the exercise is still being done, so this must
+    /// not run through leaveExercise. Flow state only — the undo is free.
+    func togglePin() {
+        pinnedPatterns.formSymmetricDifference([exercise.pattern])
+        persistProgress()   // a lone pin is progress worth resuming
+    }
+
     func advanceAfterRest() {
         if isLastSet {
             exIndex += 1
@@ -831,6 +848,7 @@ private extension WorkoutFlowView {
             restEndDate: restEnd, restTotalSec: restTotal, restPlannedSec: restPlan,
             actuals: actuals, skipped: skippedPatterns,
             discomfort: discomfortPatterns.isEmpty ? nil : discomfortPatterns,
+            pinned: pinnedPatterns.isEmpty ? nil : pinnedPatterns,
             workoutStart: workoutStart ?? .now, savedAt: .now,
             fingerprint: WorkoutSnapshot.fingerprint(of: session),
             // Process death during the cool-down restores to the rating
@@ -852,6 +870,7 @@ private extension WorkoutFlowView {
         actuals = snap.actuals
         skippedPatterns = snap.skipped
         discomfortPatterns = snap.discomfort ?? []
+        pinnedPatterns = snap.pinned ?? []
         workoutStart = snap.workoutStart
         interruptedPattern = snap.interrupted
         if snap.atFeedback == true {
@@ -893,7 +912,7 @@ private extension WorkoutFlowView {
         if case .rest = phase { return true }
         return exIndex > 0 || setIndex > 0
             || !actuals.isEmpty || !skippedPatterns.isEmpty
-            || !discomfortPatterns.isEmpty
+            || !discomfortPatterns.isEmpty || !pinnedPatterns.isEmpty
     }
 
     /// Every exercise not fully completed keeps its level via the engine's

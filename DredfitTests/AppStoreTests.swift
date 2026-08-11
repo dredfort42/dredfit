@@ -112,6 +112,63 @@ final class AppStoreTests: XCTestCase {
         XCTAssertEqual(store.records.last?.skipped, nil, "a report is not a skip")
     }
 
+    // MARK: - Hold this level (#78)
+
+    /// Mirror of the discomfort case with the one difference that defines the
+    /// input: the session is processed — growth clamps instead of the session
+    /// being voided — and the journal keeps the request apart from both.
+    func testAPinFreezesThePatternAndIsRecorded() {
+        let store = AppStore(storageURL: tempURL)
+        let session = store.nextSession
+        let heldPattern = session.exercises[2].pattern
+        store.completeWorkout(session: session, result: .more, pinned: [heldPattern])
+
+        XCTAssertEqual(store.engineState.levels[heldPattern], 0, "a pinned pattern must not level up")
+        XCTAssertEqual(store.engineState.freezeRemaining(heldPattern),
+                       EngineConfig.freezeAppearances, "and it is not climbing afterwards")
+        XCTAssertEqual(store.engineState.levels[session.exercises[0].pattern], 2,
+                       "its neighbours still move by the rating")
+
+        let reloaded = AppStore(storageURL: tempURL)
+        XCTAssertEqual(reloaded.records.last?.pinned, [heldPattern],
+                       "the journal keeps the request apart from a skip and a report")
+        XCTAssertEqual(reloaded.records.last?.skipped, nil, "a pin is not a skip")
+        XCTAssertEqual(reloaded.engineState.freezeRemaining(heldPattern),
+                       EngineConfig.freezeAppearances, "the rest survives a reload")
+    }
+
+    /// Today's horizon line covers both entrances — a pin arms the same rest.
+    func testRestingPatternsCoverAPinnedMovement() {
+        let store = AppStore(storageURL: tempURL)
+        let session = store.nextSession
+        let heldPattern = session.exercises[2].pattern
+        store.completeWorkout(session: session, result: .plan, pinned: [heldPattern])
+        let inNextPlan = store.nextSession.exercises.map(\.pattern).contains(heldPattern)
+        XCTAssertEqual(store.restingPatterns.contains(heldPattern), inNextPlan)
+    }
+
+    /// The sign that flips against discomfort: a pinned exercise WAS
+    /// performed, so its tier counts toward the debut history — while the
+    /// same workout reported as painful was not, and the tier stays a debut.
+    func testAPinnedExerciseCountsAsPerformedWhereAPainfulOneDoesNot() {
+        let hurtURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("dredfit-test-\(UUID().uuidString).json")
+        defer { try? FileManager.default.removeItem(at: hurtURL) }
+        for (url, pin) in [(tempURL!, true), (hurtURL, false)] {
+            let store = AppStore(storageURL: url)
+            // Walk pull to tier 2: it is in every session, and its cells
+            // allow +2 below tier 4, so four easy workouts reach level 8.
+            for _ in 0..<4 { store.completeWorkout(session: store.nextSession, result: .more) }
+            let session = store.nextSession
+            XCTAssertEqual(session.exercises.first { $0.pattern == .pull }?.tier, 2, "seeding")
+            store.completeWorkout(session: session, result: .plan,
+                                  discomfort: pin ? [] : [.pull], pinned: pin ? [.pull] : [])
+            XCTAssertEqual(store.debutPatterns.contains(.pull), !pin,
+                           pin ? "performed under a pin — tier 2 is no debut"
+                               : "reported painful — tier 2 was never performed")
+        }
+    }
+
     func testCorruptedStorageFallsBackToInitial() throws {
         try Data("{not a json".utf8).write(to: tempURL)
         let store = AppStore(storageURL: tempURL)

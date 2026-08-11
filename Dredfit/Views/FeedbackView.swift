@@ -16,6 +16,9 @@ struct FeedbackView: View {
     /// Reported as painful: to the engine a skip, to the reader a different
     /// fact — the movement is resting, not merely missed.
     var discomfort: Set<Pattern> = []
+    /// Asked to hold (#78): performed, and inside the rating's reach — just
+    /// one-directionally. Deliberately NOT part of `setAside`.
+    var pinned: Set<Pattern> = []
     /// To the engine a skip like the others; the label says "not finished".
     var interrupted: Pattern?
     let onComplete: (FeedbackResult, [Pattern: Int]) -> Void
@@ -65,7 +68,7 @@ struct FeedbackView: View {
 
                     Spacer(minLength: 20)
 
-                    if !actuals.isEmpty || !setAside.isEmpty {
+                    if !actuals.isEmpty || !setAside.isEmpty || !held.isEmpty {
                         adjustedSummary
                             .padding(.bottom, 24)
                     }
@@ -96,6 +99,29 @@ struct FeedbackView: View {
                         .monospacedDigit()
                         .foregroundStyle(Theme.accentText)
                 }
+            }
+            if !held.isEmpty {
+                Kicker(text: String(localized: "Held"))
+                    .padding(.top, 8)
+            }
+            ForEach(session.exercises.filter { held.contains($0.pattern) }) { ex in
+                HStack {
+                    Text(ex.name)
+                        .dredfitFont(14, weight: .medium)
+                        // The name carries the state and the horizon for
+                        // VoiceOver, so nothing rides on the trailing word.
+                        .accessibilityLabel(Text("\(ex.name), level held — \(horizon)"))
+                    Spacer()
+                    Text(horizon)
+                        .dredfitFont(14, weight: .semibold)
+                        .foregroundStyle(Theme.accentText)
+                        .accessibilityHidden(true)
+                }
+            }
+            if !held.isEmpty {
+                Text("Your rating can move these down, but not up.")
+                    .dredfitFont(12.5)
+                    .foregroundStyle(Theme.ink2)
             }
             if !discomfort.isEmpty {
                 Kicker(text: String(localized: "Discomfort"))
@@ -153,6 +179,22 @@ struct FeedbackView: View {
     /// Everything the rating does not reach: skipped, painful, or left
     /// unfinished. All three keep their level.
     private var setAside: Set<Pattern> { skipped.union(discomfort) }
+
+    /// Pinned, performed, and following the rating — the movements the
+    /// closing line is true of. One movement is never listed twice: a pin
+    /// that ended as a skip (the finish-now sweep) reads as the skip it
+    /// became, and one that carries its own number reads as the adjustment —
+    /// its actual, not the rating, is what moves it.
+    private var held: Set<Pattern> {
+        pinned.subtracting(setAside).filter { actuals[$0] == nil }
+    }
+
+    /// What every held movement shows: the appearances the rest will cover
+    /// once the workout completes. Always the full count — a repeat pin
+    /// refreshes an older freeze to the same number.
+    private var horizon: String {
+        String(localized: "\(EngineConfig.freezeAppearances) more times")
+    }
 
     /// Adjusted exercises follow their actual number, not the rating (see
     /// Engine.applyFeedback), so they are outside the scope too. The

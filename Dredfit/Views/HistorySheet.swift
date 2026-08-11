@@ -47,6 +47,12 @@ struct HistorySheet: View {
                                 Text("skipped")
                                     .dredfitFont(12.5)
                                     .foregroundStyle(Theme.ink2)
+                            } else if record.pinned?.contains(ex.pattern) == true {
+                                // Above the actual, mirroring the engine: the
+                                // pin gates what the number could do upward.
+                                Text("held")
+                                    .dredfitFont(12.5)
+                                    .foregroundStyle(Theme.accentText)
                             } else if let actual = record.actuals?[ex.pattern], actual != ex.load {
                                 Text("actual \(actual)")
                                     .dredfitFont(12.5)
