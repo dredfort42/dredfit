@@ -66,6 +66,11 @@ public enum EngineConfig {
     public static let deloadDrop = 3
     public static let warmupMin = 5
     public static let cooldownMin = 3
+    /// Rest between sets by set band (v2.8, spec §18.2): 60 s was a constant
+    /// across the whole scale, including the 4–5-set bands of tier 4 where
+    /// the literature gives trained users 2–3 minutes. `restSetSec` stays as
+    /// the base and the fallback.
+    public static let restSetByBand = [3: 60, 4: 90, 5: 120]
     public static let comebackMinGapDays = 14
     public static let comebackBase = 2
     public static let comebackStepDays = 21
@@ -378,7 +383,10 @@ public enum Engine {
                 pattern: p, name: variation.name, tier: d.tier,
                 unit: unit, load: load, perSide: variation.unilateral,
                 sets: d.sets,
-                restSetSec: EngineConfig.restSetSec,
+                // v2.8 (spec §18.2): the rest between sets follows the set
+                // band — the field is per-exercise, so the timer needs no
+                // change.
+                restSetSec: EngineConfig.restSetByBand[d.sets] ?? EngineConfig.restSetSec,
                 restExerciseSec: EngineConfig.restExerciseSec
             )
         }
@@ -467,9 +475,18 @@ public enum Engine {
                 let zeroCeil = EngineConfig.isSlowTissue(p)
                     ? EngineConfig.stepsPerTier - 1
                     : 2 * EngineConfig.stepsPerTier - 1
-                newL = oldL == 0
-                    ? min(max(factL, 0), zeroCeil)
-                    : min(max(factL, 0), oldL + cap)
+                // v2.8 (spec §18.1): a fact EXACTLY equal to the plan steps
+                // like "on plan" — the diligent logger must not stand still
+                // where a tap moves. Compared against the plan's load, not
+                // the inverted level: fromActual clamps at zero and would
+                // read "below plan" as "equal to plan".
+                if actual == ex.load {
+                    newL = min(oldL + EngineConfig.deltaPlan, oldL + cap)
+                } else {
+                    newL = oldL == 0
+                        ? min(max(factL, 0), zeroCeil)
+                        : min(max(factL, 0), oldL + cap)
+                }
             } else {
                 // "More" runs through the same ceiling; downward moves never do.
                 newL = min(oldL + result.delta, oldL + cap)

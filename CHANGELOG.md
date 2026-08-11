@@ -100,6 +100,35 @@ could prove why. The link is now a committed fact.
   verifies the working tree before an engine PR. Like the fixture, the
   manifest is never edited by hand.
 
+### Engine v2.8.0 — the polish wave (issues #96, #102, #94)
+
+Spec §18; 13,987 property checks (was 13,390); a fourteenth golden
+scenario `discomfort_pinned`; of the old scenarios only `ceiling` and
+`long_break` move, and only in their per-set rest and duration fields —
+levels, streaks and counters are untouched everywhere.
+
+- **An exact fact equal to the plan now steps like "on plan"** (#96).
+  `levelFromActual` is the encoding's exact inverse, so the diligent
+  logger — exact numbers every session — never progressed, while a tap
+  moved. A fact equal to the plan's load now gives the same +1 the tap
+  gives, zero included: doing the first plan exactly is progress too. The
+  comparison is against the plan's load, not the inverted level, so
+  "below plan at zero" still calibrates to zero. A fact still outranks
+  the rating, and a freeze or a hold still clamps growth.
+- **The rest between sets follows the set band** (#102). Sixty seconds
+  was a constant across the whole scale — including the 4–5-set bands of
+  tier 4, where a ceiling session is ~110 shrimp squats with one-minute
+  pauses against literature that gives trained users two to three
+  minutes. Now 60/90/120 s by band; the per-exercise `restSetSec` field
+  already feeds the timer, so no app change. The ceiling session grows
+  deliberately to ~85 min; the ≤80-minute checks are re-pinned to ≤90,
+  not loosened.
+- **discomfort ∧ pinned on one pattern is now specified** (#94): the
+  discomfort absorbs the pin — the session is annulled, the rest is
+  armed, the pin adds nothing. Behavior is unchanged; the rule, the
+  verifier asserts and the golden scenario now exist, so the port can no
+  longer legally diverge. `discomfort ≡ pinned + skipped` keeps holding.
+
 ### Fixes
 
 - Silent decay now fires on a cold launch too (issue #93). The 7–13-day

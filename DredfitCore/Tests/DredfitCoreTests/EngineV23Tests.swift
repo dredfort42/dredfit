@@ -18,13 +18,15 @@ final class EngineV23Tests: XCTestCase {
 
     /// From zero a pointed fact sets the level exactly, across the whole of
     /// tier 1 and in both units. This is what lets a trained beginner reach
-    /// their real load in one workout instead of ten.
+    /// their real load in one workout instead of ten. The bottom row moved
+    /// in v2.8 (spec §18.1): a fact EQUAL to the plan now steps like "on
+    /// plan" — EngineV28Tests pins it — so the exact inversion starts at 1.
     func testFactFromZeroSetsTheLevelExactly() {
         let state = EngineState.initial
         let session = Engine.generateSession(state)
 
         for ex in session.exercises {
-            for level in 0...7 {
+            for level in 1...7 {
                 let actual = ex.unit == .reps
                     ? EngineConfig.repStart[1]! + level
                     : EngineConfig.holdStart[1]! + level * EngineConfig.holdStepSec
