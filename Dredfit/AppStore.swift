@@ -299,6 +299,16 @@ final class AppStore {
         applySilentDecayIfNeeded(now: now)
     }
 
+    /// Everything a scene becoming `.active` must run, in one seam — a cold
+    /// launch renders already active without a phase transition, so `onAppear`
+    /// has to run the same sequence or the blind-zone decay never fires.
+    /// Order matters: the decay can only correct a journal that has loaded.
+    func activate(now: Date = .now) {
+        reloadIfNeeded()
+        refreshDay(now: now)
+        rescheduleReminders(now: now)
+    }
+
     /// Moves (or copies, when the readable part is kept) the state file to
     /// `<name>.corrupt.json` so decode failures never cost the journal.
     private static func quarantineStateFile(at url: URL, keepOriginal: Bool) {
