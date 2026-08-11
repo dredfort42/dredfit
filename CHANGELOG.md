@@ -59,6 +59,27 @@ first carry a real fraction of bodyweight.
   instead — the tissue doing the work sets the pace — in all seven
   languages.
 
+### Warm-up and cool-down: positions you walk to get a longer transition (issue #83)
+
+Five seconds is enough to start marching where you already stand; it is
+not enough to get up off a lying twist and walk to a wall. The "Get
+ready" transition of issue #52 splits in two: the base five seconds, and
+ten for a position that changes the starting position or needs a support
+— cat-cow in the warm-up; every floor and wall position in the cool-down,
+while forward fold, the lat stretch and the wrists stay standing at the
+base length.
+
+- The flag travels with the position, not its slot, because the cool-down
+  set is composed per session. The side-switch pause and the way back in
+  from a pause keep the base length: nobody changes support mid-position,
+  and Resume is tapped by someone already back in place.
+- The supplement is five seconds and not six because the budget is hard:
+  the engine reserves 8:00 for both blocks, and the worst composition —
+  every supplemented position drawn, every side-switch played — now fills
+  those minutes to the second. No estimate moves; the engine and
+  `golden.json` are untouched. The site's card names the two lengths in
+  all seven languages.
+
 ## 1.9.0
 
 The largest release the project has shipped, and the first to reach the App
