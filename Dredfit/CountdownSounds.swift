@@ -49,39 +49,112 @@ final class CountdownSounds {
 
 /// Generated WAV data rather than shipped asset files, so the frequencies
 /// and envelope stay reviewable and unit-testable.
+///
+/// The "Minimal+" set (issue #84): the same C-major language — a fifth up
+/// means start, its mirror means switch — but every note is an additive
+/// pair (fundamental + a 15% octave harmonic) with an exponential decay,
+/// so the tones carry warmth and survive over music instead of piercing
+/// through it. Peaks sit below full scale on a strict loudness hierarchy:
+/// the frequent is quiet, the rare is bright —
+/// tick < switchSides = done < go < workoutDone < milestone.
 enum SignalTone {
-
-    static let tick = wav(segments: [(hz: 1568.0, seconds: 0.07)], amplitude: 0.85)
-
-    /// A two-tone rise (C6 → G6), longer and louder than the tick.
-    static let go = wav(segments: [(hz: 1046.5, seconds: 0.09), (hz: 1568.0, seconds: 0.22)],
-                        amplitude: 1.0)
-
-    /// The go inverted (G6 → C6), so eyes-closed stretching can tell "switch
-    /// sides" from "new position" without looking.
-    static let switchSides = wav(segments: [(hz: 1568.0, seconds: 0.09), (hz: 1046.5, seconds: 0.22)],
-                                 amplitude: 1.0)
 
     static let sampleRate = 44_100
 
-    /// Mono 16-bit PCM WAV. The attack/release ramps keep segment edges from
-    /// clicking.
-    static func wav(segments: [(hz: Double, seconds: Double)], amplitude: Double) -> Data {
+    // The vocabulary's four pitches.
+    private static let c6 = 1046.50
+    private static let e6 = 1318.51
+    private static let g6 = 1567.98
+    private static let c7 = 2093.00
+
+    /// One second of the 3-2-1 countdown: a short G6, the quietest voice.
+    static let tick = mix([(start: 0, samples: note(hz: g6, seconds: 0.18, tau: 0.040))],
+                          total: 0.20, peak: 0.32)
+
+    /// Something starts: the fifth up, C6 → G6.
+    static let go = mix([(start: 0, samples: note(hz: c6, seconds: 0.30, tau: 0.080)),
+                         (start: 0.095, samples: note(hz: g6, seconds: 0.45, tau: 0.128))],
+                        total: 0.55, peak: 0.80)
+
+    /// Switch sides: the go mirrored, G6 → C6, a step quieter.
+    static let switchSides = mix([(start: 0, samples: note(hz: g6, seconds: 0.30, tau: 0.080)),
+                                  (start: 0.095, samples: note(hz: c6, seconds: 0.45, tau: 0.128))],
+                                 total: 0.55, peak: 0.66)
+
+    /// The effort is over: top-down C7 → G6 — light, not another direction
+    /// of the two already in use.
+    static let done = mix([(start: 0, samples: note(hz: c7, seconds: 0.30, tau: 0.072)),
+                           (start: 0.110, samples: note(hz: g6, seconds: 0.50, tau: 0.136))],
+                          total: 0.62, peak: 0.66)
+
+    /// The workout is assembled: the go's motif completed by the octave,
+    /// C6 → G6 → C7.
+    static let workoutDone = mix([(start: 0, samples: note(hz: c6, seconds: 0.40, tau: 0.112)),
+                                  (start: 0.130, samples: note(hz: g6, seconds: 0.45, tau: 0.128)),
+                                  (start: 0.260, samples: note(hz: c7, seconds: 0.70, tau: 0.176))],
+                                 total: 1.00, peak: 0.85)
+
+    /// A milestone: the major arpeggio C6–E6–G6–C7 with a −6 dB echo of the
+    /// top note — the brightest and rarest voice of the set.
+    static let milestone = mix([(start: 0, samples: note(hz: c6, seconds: 0.45, tau: 0.112)),
+                                (start: 0.120, samples: note(hz: e6, seconds: 0.45, tau: 0.120)),
+                                (start: 0.240, samples: note(hz: g6, seconds: 0.50, tau: 0.136)),
+                                (start: 0.360, samples: note(hz: c7, seconds: 0.85, tau: 0.224)),
+                                (start: 0.520, samples: note(hz: c7, seconds: 0.80, tau: 0.240,
+                                                            amp: 0.5))],
+                               total: 1.35, peak: 0.88)
+
+    /// The reminder: the go's motif slowed down and softened. Not played
+    /// in-app — it exists for the notification channel (stage C of #84).
+    static let reminder = mix([(start: 0, samples: note(hz: c6, seconds: 0.50, tau: 0.144)),
+                               (start: 0.140, samples: note(hz: g6, seconds: 0.90, tau: 0.240))],
+                              total: 1.05, peak: 0.50)
+
+    /// One additive note: fundamental + 15% octave harmonic under an
+    /// exponential decay. A 4 ms half-cosine ramp opens it and a 5 ms one
+    /// closes it — the tail has decayed to 2–3% of the peak by the cut, but
+    /// the last note of a sound has no successor to mask even that.
+    static func note(hz: Double, seconds: Double, tau: Double,
+                     amp: Double = 1.0) -> [Double] {
         let rate = Double(sampleRate)
-        var samples: [Int16] = []
-        for segment in segments {
-            let count = Int(segment.seconds * rate)
-            let attack = min(Int(0.005 * rate), count / 4)
-            let release = min(Int(0.015 * rate), count / 3)
-            for i in 0..<count {
-                var value = sin(2 * .pi * segment.hz * Double(i) / rate) * amplitude
-                if i < attack { value *= Double(i) / Double(attack) }
-                if count - i < release { value *= Double(count - i) / Double(release) }
-                // Clamped: Int16(Double) traps out of range, and these tones
-                // are built in a `static let` — an amplitude past 1.0 would
-                // crash at the first countdown, not at the edit.
-                samples.append(Int16(min(max(value * 32_767, -32_767), 32_767)))
+        let count = Int(seconds * rate)
+        let attack = 176                        // 4 ms
+        let release = min(220, count / 3)       // 5 ms
+        var out = [Double](repeating: 0, count: count)
+        for i in 0..<count {
+            let t = Double(i) / rate
+            var value = (sin(2 * .pi * hz * t) + 0.15 * sin(4 * .pi * hz * t))
+                * exp(-t / tau) * amp
+            if i < attack {
+                value *= 0.5 - 0.5 * cos(.pi * Double(i) / Double(attack - 1))
             }
+            if count - i <= release {
+                value *= 0.5 - 0.5 * cos(.pi * Double(count - i) / Double(release))
+            }
+            out[i] = value
+        }
+        return out
+    }
+
+    /// Overlap-add of notes into one buffer, then one normalization of the
+    /// MIXED signal to the sound's target peak — per note would break the
+    /// loudness hierarchy the set is built on. Clamped before Int16: a peak
+    /// past 1.0 must distort at the edit, not trap at the first countdown.
+    static func mix(_ events: [(start: Double, samples: [Double])],
+                    total: Double, peak: Double) -> Data {
+        let rate = Double(sampleRate)
+        var buffer = [Double](repeating: 0, count: Int(total * rate))
+        for event in events {
+            let offset = Int(event.start * rate)
+            for (i, value) in event.samples.enumerated() where offset + i < buffer.count {
+                buffer[offset + i] += value
+            }
+        }
+        let maxAbs = buffer.map(abs).max() ?? 0
+        let scale = maxAbs > 0 ? peak / maxAbs : 0
+        let samples = buffer.map { value -> Int16 in
+            let clamped = min(max(value * scale, -1.0), 1.0)
+            return Int16((clamped * 32_767).rounded())
         }
         return wavFile(samples: samples)
     }
