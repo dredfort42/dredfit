@@ -49,6 +49,10 @@ struct AppSettings: Codable, Equatable {
     var healthEnabled = false
     var healthExportedThrough = 0      // high-water sessionNumber already in Health
     var onboardingCompleted = false
+    /// When the care card's checklist was acknowledged (#101). A fact, not a
+    /// gate: nothing else reads it — it records that the one screen naming
+    /// the contraindications was actually confirmed, not skipped past.
+    var careAcknowledgedAt: Date?
     var lastReviewRequestAt: Date?
     // A date rather than a bool so it expires by itself: after the next
     // workout it is stale and a future break asks again, while the current
@@ -61,7 +65,8 @@ struct AppSettings: Codable, Equatable {
     private enum CodingKeys: String, CodingKey {
         case restWeekdays, soundsEnabled, reminderEnabled, reminderHour, reminderMinute
         case healthEnabled, healthExportedThrough
-        case onboardingCompleted, lastReviewRequestAt, comebackDecidedFor
+        case onboardingCompleted, careAcknowledgedAt, lastReviewRequestAt
+        case comebackDecidedFor
         case silentDecayAppliedFor
     }
 
@@ -77,6 +82,7 @@ struct AppSettings: Codable, Equatable {
         healthEnabled = try c.decodeIfPresent(Bool.self, forKey: .healthEnabled) ?? false
         healthExportedThrough = try c.decodeIfPresent(Int.self, forKey: .healthExportedThrough) ?? 0
         onboardingCompleted = try c.decodeIfPresent(Bool.self, forKey: .onboardingCompleted) ?? false
+        careAcknowledgedAt = try c.decodeIfPresent(Date.self, forKey: .careAcknowledgedAt)
         lastReviewRequestAt = try c.decodeIfPresent(Date.self, forKey: .lastReviewRequestAt)
         comebackDecidedFor = try c.decodeIfPresent(Date.self, forKey: .comebackDecidedFor)
         silentDecayAppliedFor = try c.decodeIfPresent(Date.self, forKey: .silentDecayAppliedFor)
@@ -727,10 +733,13 @@ final class AppStore {
             && !settings.onboardingCompleted
     }
 
-    /// Finished **or** skipped. Deliberately not called when it merely
-    /// appears: an app killed mid-pager shows it again.
+    /// Deliberately not called when the pager merely appears: an app killed
+    /// mid-pager shows it again. Since #101 the only path here is the care
+    /// card's explicit button — Skip jumps to that card instead of past it —
+    /// so completing also records the acknowledgement.
     func completeOnboarding() {
         settings.onboardingCompleted = true
+        settings.careAcknowledgedAt = .now
         persist()
     }
 

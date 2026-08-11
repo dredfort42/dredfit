@@ -3019,43 +3019,43 @@
         }
       }
     },
-    "All your data stays on your device. If you have problems with your joints, heart or blood pressure, talk to a doctor first. Sharp pain during an exercise always means stop." : {
+    "All your data stays on your device.\n\nTalk to a doctor before you start if any of this is you: a heart condition or chest pain under load; blood pressure that is treated or runs high; dizziness or fainting; a joint injury that flares under load; pregnancy or recent childbirth.\n\nSharp pain during an exercise always means stop." : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alle deine Daten bleiben auf deinem Gerät. Bei Problemen mit Gelenken, Herz oder Blutdruck hol dir zuerst ärztlichen Rat. Stechender Schmerz während einer Übung heißt immer: aufhören."
+            "value" : "Alle deine Daten bleiben auf deinem Gerät.\n\nHol dir zuerst ärztlichen Rat, wenn etwas davon auf dich zutrifft: eine Herzerkrankung oder Brustschmerz unter Belastung; Blutdruck, der behandelt wird oder erhöht ist; Schwindel oder Ohnmachten; eine Gelenkverletzung, die unter Last aufflammt; Schwangerschaft oder die Zeit kurz nach der Geburt.\n\nStechender Schmerz während einer Übung heißt immer: aufhören."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Todos tus datos se quedan en tu dispositivo. Si tienes problemas de articulaciones, corazón o presión arterial, consulta antes con un médico. Un dolor agudo durante un ejercicio significa siempre parar."
+            "value" : "Todos tus datos se quedan en tu dispositivo.\n\nConsulta antes con un médico si algo de esto va contigo: una enfermedad del corazón o dolor en el pecho bajo esfuerzo; presión arterial en tratamiento o elevada; mareos o desmayos; una lesión articular que se resiente bajo carga; embarazo o parto reciente.\n\nUn dolor agudo durante un ejercicio significa siempre parar."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Toutes tes données restent sur ton appareil. En cas de problème d’articulations, de cœur ou de tension, parle d’abord à un médecin. Une douleur vive pendant un exercice, c’est toujours stop."
+            "value" : "Toutes tes données restent sur ton appareil.\n\nParle d’abord à un médecin si l’un de ces points te concerne : une maladie du cœur ou une douleur dans la poitrine à l’effort ; une tension traitée ou élevée ; des vertiges ou des évanouissements ; une blessure articulaire qui se réveille sous charge ; une grossesse ou un accouchement récent.\n\nUne douleur vive pendant un exercice, c’est toujours stop."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tutti i tuoi dati restano sul tuo dispositivo. Se hai problemi di articolazioni, cuore o pressione, parla prima con un medico. Un dolore acuto durante un esercizio significa sempre fermarsi."
+            "value" : "Tutti i tuoi dati restano sul tuo dispositivo.\n\nParla prima con un medico se qualcosa di questo ti riguarda: una malattia del cuore o dolore al petto sotto sforzo; pressione in trattamento o alta; vertigini o svenimenti; un infortunio articolare che si riacutizza sotto carico; una gravidanza o un parto recente.\n\nUn dolore acuto durante un esercizio significa sempre fermarsi."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Todos os seus dados ficam no seu dispositivo. Se você tem problemas de articulações, coração ou pressão, converse antes com um médico. Dor aguda durante um exercício significa sempre parar."
+            "value" : "Todos os seus dados ficam no seu dispositivo.\n\nConverse antes com um médico se algo disto é você: uma doença do coração ou dor no peito sob esforço; pressão em tratamento ou alta; tonturas ou desmaios; uma lesão articular que piora sob carga; gravidez ou parto recente.\n\nDor aguda durante um exercício significa sempre parar."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Все данные остаются на устройстве. Если есть проблемы с суставами, сердцем или давлением — сначала посоветуйся с врачом. Острая боль во время упражнения — всегда стоп."
+            "value" : "Все данные остаются на устройстве.\n\nПеред стартом посоветуйся с врачом, если что-то из этого про тебя: болезнь сердца или боль в груди под нагрузкой; давление, которое лечат или которое повышено; головокружения или обмороки; травма сустава, обостряющаяся под нагрузкой; беременность или недавние роды.\n\nОстрая боль во время упражнения — всегда стоп."
           }
         }
       }
@@ -6689,6 +6689,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "болело"
+          }
+        }
+      }
+    },
+    "I understand — start" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verstanden — starten"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lo entiendo — empezar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compris — commencer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Capito — inizia"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entendi — começar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Понимаю — начать"
           }
         }
       }
@@ -11237,43 +11277,43 @@
         }
       }
     },
-    "Skips the introduction" : {
+    "Skips ahead to the care note" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Überspringt die Einführung"
+            "value" : "Springt vor zur Gesundheitsnotiz"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Omite la introducción"
+            "value" : "Salta a la nota de salud"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Passe l’introduction"
+            "value" : "Passe à la note de santé"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Salta l’introduzione"
+            "value" : "Salta alla nota sulla salute"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pula a introdução"
+            "value" : "Pula para a nota de saúde"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Пропускает вступление"
+            "value" : "Сразу к заметке о здоровье"
           }
         }
       }

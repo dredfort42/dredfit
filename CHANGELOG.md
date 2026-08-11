@@ -64,6 +64,26 @@ presented as an achievement.
 - Three new strings in all seven languages; engine and `golden.json`
   byte-identical.
 
+### The care note grows a checklist and an explicit acknowledgement (issue #101)
+
+The audit called the population boundary thin: three lines on the last
+onboarding card, skippable. A screening questionnaire is out by a standing
+product decision — so the note grows instead, as statements to read, not
+questions to answer.
+
+- The care card now names the contraindications — a heart condition or
+  chest pain under load, treated or high blood pressure, dizziness or
+  fainting, a joint injury that flares under load, pregnancy or recent
+  childbirth → talk to a doctor first — and keeps "sharp pain always means
+  stop". Same quiet typography; more content, same register.
+- Its button reads **I understand — start**, and Skip on the earlier
+  cards now jumps *to* the care card instead of past it: one extra tap
+  for a skipper, zero questions asked, and no way to complete the
+  onboarding without the checklist on screen. One tolerant timestamp
+  records the acknowledgement; nothing else is stored or gated on it.
+- Existing users see nothing — the stop rule already lives in "How it
+  works". Strings in all seven languages; engine and fixtures untouched.
+
 ### Fixes
 
 - Silent decay now fires on a cold launch too (issue #93). The 7–13-day
