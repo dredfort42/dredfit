@@ -6,7 +6,7 @@
 two of them — muscles giving out, a joint complaining — and this release
 gives the third its own channel: *this movement is at my ceiling and I need
 longer here*. Not an injury, not a bad session, and until now it had no way
-to be said. The engine steps to v2.6, verified against the reference at 9,887
+to be said. The engine steps to v2.6, verified against the reference at 9,908
 property checks; no new state field, so the state and journal formats are
 untouched and there are no migrations.
 
@@ -34,6 +34,30 @@ untouched and there are no migrations.
   the debut badge, the estimated duration, the cool-down and milestones.
   "How it works" gains a tenth section, and the site's card about the
   resting mechanic now names the second way in — in all seven languages.
+
+### The pull climbs one step at a time from the second variation (issue #76)
+
+A behaviour change, not a fix. The pull's fixed slot puts it in every
+workout — eight appearances for every rotating pattern's five — so at
+identical feedback it climbed 1.6× faster than any other movement in the
+model. New growth-ceiling cells hold it to one step per session at
+variations 2 and 3, the inverted rows, where the elbow and the shoulder
+first carry a real fraction of bodyweight.
+
+- What goes away is only the collateral double step — the session-wide
+  "easy" that handed the highest-frequency pattern +2 on a signal that was
+  not about it. "On plan" is never capped, so the pull still moves every
+  session; athletes mid-progression will see it climb the middle
+  variations more slowly. Pull-ups are untouched: with the bar on the
+  slot alternates and the horizontal row drops below the rotating
+  average, so the frequency argument does not apply there.
+- Spec §15.3 now records the frequency argument alongside the tissue one,
+  and a new invariant pins the progression-rate spread across patterns —
+  9,908 property checks (was 9,887). Golden fixtures move by design; the
+  diff is classified with zero unexplained shifts.
+- "How it works" stops enumerating who is capped and names the principle
+  instead — the tissue doing the work sets the pace — in all seven
+  languages.
 
 ## 1.9.0
 

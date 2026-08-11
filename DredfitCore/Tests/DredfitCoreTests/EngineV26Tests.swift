@@ -65,7 +65,7 @@ final class EngineV26Tests: XCTestCase {
         }
         XCTAssertEqual(state.freezeRemaining(.pull), 0, "the rest has run out")
         state = report(state, .more)
-        XCTAssertEqual(state.levels[.pull], 14, "growth returns")
+        XCTAssertEqual(state.levels[.pull], 13, "growth returns — by the tier-2 cell (#76)")
     }
 
     /// Honesty is never overridden — and unlike discomfort, the fact lands in

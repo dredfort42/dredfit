@@ -40,10 +40,10 @@ struct HowItWorksView: View {
                     overall rating. From a standing start an exact number sets \
                     the level immediately — the first workout calibrates the \
                     system. After that the level climbs at most two steps per \
-                    workout — and only one for calves, for the wall handstand \
-                    and for every fourth variation, where tendons set the \
-                    pace. Where you asked to hold a level, it doesn't climb \
-                    at all.
+                    workout — and only one wherever the tissue doing the work \
+                    needs the slower pace: tendons remodel on a longer clock \
+                    than muscle. Where you asked to hold a level, it doesn't \
+                    climb at all.
                     """)),
             Section(id: 3,
                     title: String(localized: "Deload"),
