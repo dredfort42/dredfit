@@ -129,6 +129,38 @@ levels, streaks and counters are untouched everywhere.
   verifier asserts and the golden scenario now exist, so the port can no
   longer legally diverge. `discomfort ≡ pinned + skipped` keeps holding.
 
+### The verifier closes its own audit holes, and the spec stops lying (issues #95, #105, #106)
+
+No engine behavior changes and a byte-identical fixture — this wave hardens
+the harness that guards the other waves. 14,029 property checks (was
+13,987).
+
+- **The surviving mutants are dead** (#95). The freeze is now asserted on
+  a rotating movement — a pattern absent from a session spends nothing,
+  and the rest expires on its third *appearance*, not its third session
+  (the mutant that survived the audit's whole run). The four duration
+  constants are pinned by value, with two exact session durations — 33.0
+  minutes at the start, 84.9 at the ceiling — that move if any of them
+  drifts. A pre-bar legacy state now runs through the full API in one
+  block: same session, same feedback, same comeback as explicit defaults.
+  And the 40 variation identities are pinned by name in a locale-proof
+  Swift test — golden deliberately carries no names, so a reorder inside
+  a tier used to pass every test while silently rewriting journal
+  history.
+- **Edge-input contracts are written down and aligned** (#106). Spec §7
+  is rewritten from the stale "3 functions, 11 numbers" to the real five
+  functions and their contracts: what throws (an invalid rating — nothing
+  else), what clamps, and what a repeated submission does. The reference
+  adopts the port's replay guard — feeding the same feedback twice used
+  to double the growth in JS while Swift ignored it; now both are a
+  silent no-op, asserted on both sides.
+- **The spec text catches up with the shipped engine** (#105): the
+  pre-v2.3 encoding in the engine's own header, the unreachable
+  "tier 3 × 15" example, the dead `repMin`/`holdMin` knobs, the stale
+  duration claim of §12.1, and the "≈1.25:1 in favor of pulls" arithmetic
+  that was never true — replaced with the real 8:10 appearance ratio and
+  the ≥ 0.7 set balance the verifier actually holds.
+
 ### Fixes
 
 - Silent decay now fires on a cold launch too (issue #93). The 7–13-day

@@ -38,6 +38,11 @@ public enum ExerciseLibrary {
         entries[pattern]!
     }
 
+    /// The module's resource bundle, exposed for tests: the generated
+    /// `Bundle.module` is internal per target, and LibraryPinTests must
+    /// resolve its expected keys through THIS bundle to stay locale-proof.
+    static var localizationBundle: Bundle { .module }
+
     public static let entries: [Pattern: ExerciseEntry] = [
 
         .squat: ExerciseEntry(pattern: .squat, unit: .reps, variations: [
