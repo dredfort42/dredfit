@@ -15,6 +15,24 @@
     {
       "appearances" : [
         {
+          "appearance" : "contrast",
+          "value" : "high"
+        }
+      ],
+      "color" : {
+        "color-space" : "srgb",
+        "components" : {
+          "alpha" : "1.000",
+          "blue" : "0xD5",
+          "green" : "0xD2",
+          "red" : "0xD0"
+        }
+      },
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
           "appearance" : "luminosity",
           "value" : "dark"
         }
@@ -26,6 +44,28 @@
           "blue" : "0x30",
           "green" : "0x2C",
           "red" : "0x2A"
+        }
+      },
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        },
+        {
+          "appearance" : "contrast",
+          "value" : "high"
+        }
+      ],
+      "color" : {
+        "color-space" : "srgb",
+        "components" : {
+          "alpha" : "1.000",
+          "blue" : "0x36",
+          "green" : "0x31",
+          "red" : "0x2F"
         }
       },
       "idiom" : "universal"
