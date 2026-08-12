@@ -144,13 +144,14 @@ struct HowItWorksView: View {
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
+        .presentationBackground(Theme.bg)
     }
 
     private func row(_ section: Section) -> some View {
         HStack(alignment: .top, spacing: 14) {
             Text("\(section.id)")
                 .dredfitFont(13, weight: .semibold)
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.bg)
                 .frame(width: 26, height: 26)
                 .background(Theme.ink, in: Circle())
                 // Decorative ordering — the sections read fine without it.

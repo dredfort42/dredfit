@@ -14,7 +14,6 @@ struct DredfitApp: App {
         WindowGroup {
             RootView()
                 .environment(store)
-                .preferredColorScheme(.light)
         }
     }
 }

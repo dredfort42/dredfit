@@ -32,7 +32,7 @@ struct ComebackCard: View {
                 Button(action: onAccept) {
                     Text("Start easier")
                         .dredfitFont(15.5, weight: .semibold)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Theme.bg)
                         .frame(maxWidth: .infinity, minHeight: 46)
                         .background(Theme.ink, in: RoundedRectangle(cornerRadius: 14))
                 }

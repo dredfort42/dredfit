@@ -62,7 +62,7 @@ struct PositionTechniqueSheet: View {
                         HStack(alignment: .top, spacing: 14) {
                             Text("\(i + 1)")
                                 .dredfitFont(13, weight: .semibold)
-                                .foregroundStyle(.white)
+                                .foregroundStyle(Theme.bg)
                                 .frame(width: 26, height: 26)
                                 .background(Theme.ink, in: Circle())
                             Text(step)
@@ -83,5 +83,6 @@ struct PositionTechniqueSheet: View {
         // carries the overflow.
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
+        .presentationBackground(Theme.bg)
     }
 }

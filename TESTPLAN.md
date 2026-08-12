@@ -222,7 +222,7 @@ The snapshot contract is unit-tested on every run (the snapshot URL is injected,
 | 12.19 | The same three conversions by dragging the corner handle in edit mode | The same result as the menu: no size is reachable one way and not the other |
 | 12.20 | Add **Today's status** straight from the gallery at each of the three home sizes | Three size pages under the widget; each one adds at the size on screen |
 | 12.21 | The large widget in Russian, Brazilian Portuguese and German, on a session carrying the longest names — "Bird dog (hold)", whose load prints per side; German compounds ("Einbeiniges rumänisches Kreuzheben") are the new length crown | Every plan row keeps its whole name: it shrinks a little rather than ending in an ellipsis. The weekly summary line stays on one line |
-| 12.22 | ⌚ Flip the system appearance mid-workout — widget on the home screen, a rest counting down on the lock screen | Both redraw in the new scheme without relaunching anything; the countdown stays accent; the app itself stays light — by design, not by omission |
+| 12.22 | ⌚ Flip the system appearance mid-workout — widget on the home screen, a rest counting down on the lock screen | The app, the widget and the Live Activity all redraw in the new scheme without relaunching anything; the countdown stays accent; the workout state is untouched |
 
 A conversion that seems to do nothing is a page question before it is a widget
 question: check the page has room for the larger footprint, and re-run §12.18
@@ -287,7 +287,8 @@ on a page that does — see I-11.
 |---|---|---|
 | 16.1 | Dynamic Type at the largest accessibility size | Every screen usable, nothing clipped. The rep counter, rest countdown, total level and completion tick grow to a cap; the rest ring grows with its countdown |
 | 16.2 | VoiceOver through the workout flow | Every control is reachable and announced meaningfully |
-| 16.3 | Dark mode / light mode | Both render correctly |
+| 16.3 | Dark mode / light mode, every screen of the full pass | The app follows the system: every surface sits on the token ground (`bg`), no white flash survives in dark, ink-filled buttons flip their label with the scheme, sheets carry the token background |
+| 16.3a | Increased Contrast on, in **both** schemes | The palette steps up: labels and hairlines strengthen visibly (the high-contrast token variants), nothing disappears or clips |
 | 16.4 | Smallest supported device (iPhone SE) | Nothing clipped |
 | 16.5 | Reduce Motion enabled | No motion sickness triggers |
 

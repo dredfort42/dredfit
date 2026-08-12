@@ -27,7 +27,7 @@ struct AdjustPanel: View {
             Button(action: onConfirm) {
                 Text("OK")
                     .dredfitFont(15, weight: .semibold)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Theme.bg)
                     .padding(.horizontal, 22)
                     .padding(.vertical, 10)
                     .background(Theme.ink, in: Capsule())

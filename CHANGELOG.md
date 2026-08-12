@@ -330,6 +330,33 @@ ten colours, drifting apart one hotfix at a time.
   owner's call; after this wave its price is translating the views and
   removing one `preferredColorScheme(.light)`.
 
+### The app follows the system appearance (issues #118, #119)
+
+The owner's call arrived the same day: the pin comes out. The app now
+renders in whichever scheme the system is in — no theme picker, no new
+strings, the system setting is the setting.
+
+- `preferredColorScheme(.light)` is gone. The tab screens sit on one
+  explicit `bg` ground under the TabView; the workout cover, onboarding
+  and every sheet paint the same token instead of the implicit system
+  white; plain-list rows go clear so the ground shows through.
+- Labels over ink-filled shapes — the primary buttons, the technique step
+  numbers, the calendar's done cell and its "Completed today" card, the
+  OK capsule — switch from `.white` to the `bg` token: on the ink fill
+  the label must flip with the scheme, or dark mode paints white on
+  near-white. White survives only over the scheme-stable accent and
+  inside the share card, which stays a light export by design (pinned,
+  pixel-tested).
+- The `AccentColor` global tint gains its dark counterpart, so system
+  surfaces tinted by it — alerts, the share sheet — follow the ink.
+- Increased Contrast gets real values (issue #119): every token carries
+  high-contrast variants for both schemes, floors one tier up (`ink2`
+  ≥ 7:1 on `bg`, decorative ≥ 4.5:1, quiet graphics ≥ 1.5:1, cards
+  ≥ 1.3:1; the one documented exception is ink2-on-cardBG at ≥ 5.5:1,
+  keeping the ink hierarchy and the card separation both alive). The
+  palette test now resolves all four appearances and pins every value
+  and every floor.
+
 ### Fixes
 
 - Silent decay now fires on a cold launch too (issue #93). The 7–13-day

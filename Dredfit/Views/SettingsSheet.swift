@@ -56,6 +56,7 @@ struct SettingsSheet: View {
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
+        .presentationBackground(Theme.bg)
         .sheet(isPresented: $howItWorksShown) {
             HowItWorksView()
         }
@@ -129,7 +130,7 @@ struct SettingsSheet: View {
                 .frame(maxWidth: .infinity, minHeight: 38)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(isRest ? Theme.accentSoft : Color.white)
+                        .fill(isRest ? Theme.accentSoft : Theme.bg)
                         .overlay(RoundedRectangle(cornerRadius: 12)
                             .stroke(isRest ? Theme.accent : Theme.hairline, lineWidth: 1.5))
                 )
