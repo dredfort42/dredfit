@@ -272,6 +272,31 @@ and three new words.
   tests: exact durations and peak targets, the loudness hierarchy, the
   direction of every motif, and byte-for-byte reproducibility.
 
+### The mark's third ring rejoins the palette (brand-colour audit, 2026-08-12)
+
+The 1.6.0 contrast pass retired `#D9D9DB` from `Theme`: a ring that means
+"a workout is planned here" is meaningful graphics, and 1.41:1 is not a ring
+anyone sees. The icon, the favicon and the site's own logo kept the retired
+grey — at favicon size the mark read as two dots, not three.
+
+- The third circle is `ink3 #A7A9AD` (2.35:1) everywhere it is drawn:
+  `final_light.svg` and the 1024 app icon, `apple-touch-icon.png`, the
+  favicon and the header/footer marks `sitegen` emits, and `og.png`. The
+  dark variant's ring moves off an invented `#8E8F94` to `#98999E` — the
+  dark counterpart of `ink2` that `WidgetTheme` already defines. The tinted
+  variant is unchanged: iOS builds a luminance map from it.
+- `AccentColor` was an empty colorset while the build asked for it by name,
+  so every surface outside `RootView`'s `.tint(Theme.ink)` — the share
+  sheet, system alerts, the widget gallery — fell back to the system blue.
+  It now carries `ink #111214`, the tint the app had already chosen.
+- `og.png` shipped tagged Generic RGB instead of sRGB: right in a
+  colour-managed browser, `#E0430E` anywhere a preview renderer drops the
+  profile, which is most of them. Re-encoded in sRGB — the accent is
+  `#E8590C` in the pixels now, not only in intent.
+- The pages gain `<meta name="theme-color">`. App Store screenshots, the
+  landing's CSS tokens and every colour in the Swift sources were checked
+  against `Theme` in the same pass and needed no change.
+
 ### Fixes
 
 - Silent decay now fires on a cold launch too (issue #93). The 7–13-day
