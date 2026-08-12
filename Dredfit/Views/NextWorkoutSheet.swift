@@ -36,6 +36,7 @@ struct NextWorkoutSheet: View {
                     ExerciseRow(exercise: ex)
                 }
                 .listRowSeparatorTint(Theme.hairline)
+                .listRowBackground(Color.clear)
             }
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
@@ -46,6 +47,7 @@ struct NextWorkoutSheet: View {
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
+        .presentationBackground(Theme.bg)
         .sheet(item: $techniqueFor) { ex in
             TechniqueSheet(exercise: ex)
         }

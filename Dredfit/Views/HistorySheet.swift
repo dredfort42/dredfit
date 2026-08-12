@@ -63,6 +63,7 @@ struct HistorySheet: View {
                     }
                     .padding(.vertical, 3)
                     .listRowSeparatorTint(Theme.hairline)
+                .listRowBackground(Color.clear)
                 }
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
@@ -92,6 +93,7 @@ struct HistorySheet: View {
         }
         .presentationDetents([.large, .medium])
         .presentationDragIndicator(.visible)
+        .presentationBackground(Theme.bg)
     }
 
     /// The snapshot froze `name` in the language active when the session was

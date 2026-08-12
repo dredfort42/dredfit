@@ -30,6 +30,9 @@ struct RootView: View {
                 .tag(Tab.progress)
         }
         .tint(Theme.ink)
+        // The tab screens are transparent stacks: this is the one ground
+        // they all sit on, in place of the implicit system white.
+        .background(Theme.bg.ignoresSafeArea())
         .overlay(alignment: .topTrailing) {
             Button {
                 settingsShown = true

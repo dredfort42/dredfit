@@ -238,7 +238,7 @@ struct FeedbackView: View {
             .padding(.vertical, 20)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.white)
+                    .fill(Theme.bg)
                     .overlay(RoundedRectangle(cornerRadius: 20)
                         .stroke(Theme.hairline, lineWidth: 1.5))
             )

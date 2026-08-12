@@ -185,7 +185,7 @@ struct WorkoutFlowView: View {
             }
         }
         .padding(.horizontal, 24)
-        .background(Color.white)
+        .background(Theme.bg.ignoresSafeArea())
         .onReceive(timer) { _ in
             switch phase {
             case .warmup:

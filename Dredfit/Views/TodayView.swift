@@ -115,6 +115,7 @@ struct TodayView: View {
                                     ? String(localized: "new variation") : nil)
                 }
                 .listRowSeparatorTint(Theme.hairline)
+                .listRowBackground(Color.clear)
             }
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
@@ -289,7 +290,7 @@ struct TodayView: View {
                 } label: {
                     Text(String(localized: "resume.continue", defaultValue: "Continue"))
                         .dredfitFont(15.5, weight: .semibold)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Theme.bg)
                         .frame(maxWidth: .infinity, minHeight: 46)
                         .background(Theme.ink, in: RoundedRectangle(cornerRadius: 14))
                 }

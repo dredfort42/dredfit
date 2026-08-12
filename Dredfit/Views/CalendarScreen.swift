@@ -99,15 +99,15 @@ struct CalendarScreen: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Completed today ✓")
                         .dredfitFont(16, weight: .semibold)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Theme.bg)
                     Text("Next: workout \(store.nextSession.sessionNumber) · \(store.nextTrainingDateLabel)")
                         .dredfitFont(13)
-                        .foregroundStyle(.white.opacity(0.6))
+                        .foregroundStyle(Theme.bg.opacity(0.6))
                 }
                 Spacer()
                 Image(systemName: "chevron.right")
                     .dredfitFont(14, weight: .semibold)
-                    .foregroundStyle(.white.opacity(0.6))
+                    .foregroundStyle(Theme.bg.opacity(0.6))
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 18)
@@ -202,7 +202,9 @@ struct CalendarScreen: View {
 
     private func foreground(_ s: DayState) -> Color {
         switch s {
-        case .done:    return .white
+        // bg, not .white: the digit sits on the ink fill and must flip with
+        // the scheme.
+        case .done:    return Theme.bg
         case .planned, .today: return Theme.ink
         // ink2, not ink3: the digit has to be readable on the rest fill.
         case .rest:    return Theme.ink2

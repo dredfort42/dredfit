@@ -38,7 +38,7 @@ struct ProgressScreen: View {
                     .frame(width: 38, height: 38)
                     .background(
                         Circle()
-                            .fill(Color.white)
+                            .fill(Theme.bg)
                             .overlay(Circle().strokeBorder(Theme.hairline, lineWidth: 1.5))
                     )
             }
@@ -480,7 +480,7 @@ struct ProgressScreen: View {
                 // with the number.
                 ForEach(1..<(EngineConfig.levelMax / EngineConfig.stepsPerTier + 1), id: \.self) { band in
                     Rectangle()
-                        .fill(Color.white)
+                        .fill(Theme.bg)
                         .frame(width: 2, height: 8)
                         .offset(x: geo.size.width
                             * CGFloat(band * EngineConfig.stepsPerTier) / CGFloat(EngineConfig.levelMax))

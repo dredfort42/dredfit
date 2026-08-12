@@ -43,7 +43,7 @@ struct OnboardingView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 20)
         }
-        .background(Color.white)
+        .background(Theme.bg.ignoresSafeArea())
     }
 
     // MARK: - Chrome
