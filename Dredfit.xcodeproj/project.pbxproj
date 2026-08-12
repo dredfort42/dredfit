@@ -71,7 +71,6 @@
 			membershipExceptions = (
 				TodayProvider.swift,
 				TodayStatusWidget.swift,
-				WidgetTheme.swift,
 			);
 			target = AF2F7BB13008FD9300249B07 /* DredfitTests */;
 		};
@@ -82,11 +81,30 @@
 			);
 			target = AF2F7BB13008FD9300249B07 /* DredfitTests */;
 		};
+		AF7B100000000000000000C3 /* Exceptions for "Dredfit" folder in "DredfitWidgets" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Design/Brand.xcassets,
+				Design/Theme.swift,
+			);
+			target = AF7B100000000000000000B1 /* DredfitWidgets */;
+		};
+		AF7B100000000000000000C4 /* Exceptions for "Dredfit" folder in "DredfitTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Design/Theme.swift,
+			);
+			target = AF2F7BB13008FD9300249B07 /* DredfitTests */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		AF2F7BA73008FD9200249B07 /* Dredfit */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AF7B100000000000000000C3 /* Exceptions for "Dredfit" folder in "DredfitWidgets" target */,
+				AF7B100000000000000000C4 /* Exceptions for "Dredfit" folder in "DredfitTests" target */,
+			);
 			path = Dredfit;
 			sourceTree = "<group>";
 		};
@@ -417,7 +435,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOLS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -479,7 +497,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOLS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";

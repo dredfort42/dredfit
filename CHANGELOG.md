@@ -297,6 +297,39 @@ grey — at favicon size the mark read as two dots, not three.
   landing's CSS tokens and every colour in the Swift sources were checked
   against `Theme` in the same pass and needed no change.
 
+### One palette, one source: the tokens move into the asset catalog (issue #116)
+
+The design audit called the forced-light theme a debt and the widget's
+hand-kept copy of the palette its cheapest symptom: two lists of the same
+ten colours, drifting apart one hotfix at a time.
+
+- The brand colours live in `Design/Brand.xcassets` now — one colorset per
+  token, a light and a dark value each, compiled into the app and the
+  widget extension alike. `Theme` stays the façade code reads; no app view
+  changed a line. `WidgetTheme` is gone — the widget speaks `Theme` too.
+- A `bg` token joins the palette: the light scheme kept the background
+  implicit (system white), and in dark it is the ground every other token
+  is measured against.
+- The widget's dark ground moves from its private `#1C1C1E` onto the
+  shared `bg`, and the Live Activity stops painting its own background:
+  the lock screen supplies the material, so the card follows the system
+  look instead of flashing white on a dark lock screen. The countdown
+  stays accent, `.secondary` in the expanded island stays deliberate.
+- Four dark values are new — `bg #090A0C`, `cardBG #1E1F23`, `accentSoft
+  #3A2013`, and `accentText`, which equals the accent in the dark scheme
+  on purpose: `#E8590C` reads 5.5:1 on the dark ground where the light
+  scheme's `#B44504` drops unreadable. `bg` and `cardBG` sit one step off
+  the first candidates: the floors ink3-on-bg ≥ 3:1 and cardBG-on-bg
+  ≥ 1.2:1 only clear at these values.
+- A palette test resolves every token in both appearances, pins the values
+  against the table in `Theme.swift` and re-derives the WCAG floors. The
+  share card pins its own light environment — an exported image must not
+  follow the viewer's scheme, and a dark-scheme render is proven
+  pixel-identical by test.
+- The app itself stays light by design. The full dark theme remains the
+  owner's call; after this wave its price is translating the views and
+  removing one `preferredColorScheme(.light)`.
+
 ### Fixes
 
 - Silent decay now fires on a cold launch too (issue #93). The 7–13-day

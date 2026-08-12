@@ -5,24 +5,55 @@
 
 import SwiftUI
 
+/// The palette lives in `Design/Brand.xcassets`, one colorset per token with
+/// a light and a dark value, shared by the app and the widget extension.
+/// This façade is the only place in code allowed to name the assets — views
+/// keep saying `Theme.ink`, and `BrandPaletteTests` pins every value.
+///
+/// The table is the source of truth for the tools that cannot read an asset
+/// catalog — the landing CSS (`sitegen/build.py`) and the store frame
+/// composer (`appstore/tools/compose.py`). Without it the palette audit has
+/// nothing to compare against.
+///
+///     token       light     dark
+///     bg          #FFFFFF   #090A0C
+///     cardBG      #F7F7F5   #1E1F23
+///     ink         #111214   #F2F2F4
+///     ink2        #6E7075   #98999E
+///     ink3        #A7A9AD   #5C5D62
+///     hairline    #ECEDEF   #2A2C30
+///     restFill    #E2E3E6   #35363A
+///     accent      #E8590C   #E8590C
+///     accentText  #B44504   #E8590C
+///     accentSoft  #FBE3D6   #3A2013
+///
+/// Dark `bg` and `cardBG` sit one step off the first candidates
+/// (#0E0F11 / #1A1B1E): the wave's floors ink3-on-bg ≥ 3:1 and
+/// cardBG-on-bg ≥ 1.2:1 only clear at #090A0C / #1E1F23 (3.02 and 1.20).
 enum Theme {
-    static let ink = Color(red: 0x11/255, green: 0x12/255, blue: 0x14/255)
-    static let ink2 = Color(red: 0x6E/255, green: 0x70/255, blue: 0x75/255)
-    static let ink3 = Color(red: 0xA7/255, green: 0xA9/255, blue: 0xAD/255)
-    static let hairline = Color(red: 0xEC/255, green: 0xED/255, blue: 0xEF/255)
-    static let accent = Color(red: 0xE8/255, green: 0x59/255, blue: 0x0C/255)
+    /// The ground everything sits on. The light scheme kept it implicit
+    /// (system white); dark needs it named, because every other token is
+    /// measured against it.
+    static let bg = Color("bg", bundle: .main)
+    static let ink = Color("ink", bundle: .main)
+    static let ink2 = Color("ink2", bundle: .main)
+    static let ink3 = Color("ink3", bundle: .main)
+    static let hairline = Color("hairline", bundle: .main)
+    static let accent = Color("accent", bundle: .main)
     /// Accent for TEXT, not graphics: #E8590C is 3.58:1 on white — fine for
     /// rings and chart lines (3:1), short of the 4.5:1 small text needs.
-    static let accentText = Color(red: 0xB4/255, green: 0x45/255, blue: 0x04/255)
-    static let accentSoft = Color(red: 0xFB/255, green: 0xE3/255, blue: 0xD6/255)
-    static let cardBG = Color(red: 0xF7/255, green: 0xF7/255, blue: 0xF5/255)
+    /// Its dark value equals `accent` on purpose, not by a copy-paste slip:
+    /// #E8590C reads 5.5:1 on the dark ground, where #B44504 drops under it.
+    static let accentText = Color("accentText", bundle: .main)
+    static let accentSoft = Color("accentSoft", bundle: .main)
+    static let cardBG = Color("cardBG", bundle: .main)
     /// Named so the calendar grid and its legend cannot drift apart. ink3,
     /// not lighter: meaningful graphics near 1.4:1 are invisible on real
     /// screens.
     static let planned = ink3
     /// Grid AND legend. hairline (1.17:1) is too faint for a 13pt legend dot;
     /// this half-step (≈1.35:1) reads at dot size without shouting at cell size.
-    static let restFill = Color(red: 0xE2/255, green: 0xE3/255, blue: 0xE6/255)
+    static let restFill = Color("restFill", bundle: .main)
 }
 
 // MARK: - Type that scales

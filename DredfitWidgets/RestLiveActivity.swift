@@ -35,12 +35,12 @@ struct RestLiveActivity: Widget {
                 }
             } compactLeading: {
                 Image(systemName: "figure.strengthtraining.functional")
-                    .foregroundStyle(WidgetTheme.accent)
+                    .foregroundStyle(Theme.accent)
             } compactTrailing: {
                 countdown(context.state, size: 14)
             } minimal: {
                 Image(systemName: "timer")
-                    .foregroundStyle(WidgetTheme.accent)
+                    .foregroundStyle(Theme.accent)
             }
         }
     }
@@ -51,11 +51,11 @@ struct RestLiveActivity: Widget {
             VStack(alignment: .leading, spacing: 3) {
                 Text(state.detail)
                     .font(.system(size: 12.5))
-                    .foregroundStyle(WidgetTheme.ink2)
+                    .foregroundStyle(Theme.ink2)
                     .lineLimit(1)
                 Text(state.title)
                     .font(.system(size: 17, weight: .bold))
-                    .foregroundStyle(WidgetTheme.ink)
+                    .foregroundStyle(Theme.ink)
                     .lineLimit(2)
                     .minimumScaleFactor(0.8)
             }
@@ -63,8 +63,10 @@ struct RestLiveActivity: Widget {
             countdown(state, size: 34)
         }
         .padding(16)
-        .activityBackgroundTint(WidgetTheme.background)
-        .activitySystemActionForegroundColor(WidgetTheme.ink)
+        // No manual tint: the lock screen supplies its own material and keeps
+        // it in step with the system appearance. Painting the card was what
+        // made it a white flash on a dark lock screen.
+        .activitySystemActionForegroundColor(Theme.ink)
     }
 
     @ViewBuilder
@@ -73,12 +75,12 @@ struct RestLiveActivity: Widget {
             Text(timerInterval: Date.now...end, countsDown: true)
                 .font(.system(size: size, weight: .heavy))
                 .monospacedDigit()
-                .foregroundStyle(WidgetTheme.accent)
+                .foregroundStyle(Theme.accent)
                 .frame(maxWidth: size * 2.4)
                 .multilineTextAlignment(.trailing)
         } else {
             Circle()
-                .fill(WidgetTheme.accent)
+                .fill(Theme.accent)
                 .frame(width: size / 2.4, height: size / 2.4)
         }
     }
