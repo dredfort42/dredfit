@@ -134,6 +134,10 @@ struct ShareCard: View {
         .padding(88)
         .frame(width: Self.size.width, height: Self.size.height, alignment: .leading)
         .background(Theme.ink)
+        // An exported image, not a screen: the palette is adaptive now, but
+        // what leaves the device is light for everyone. The innermost
+        // environment wins, so a render wrapped in dark stays identical.
+        .environment(\.colorScheme, .light)
     }
 }
 
