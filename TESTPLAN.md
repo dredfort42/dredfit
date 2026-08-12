@@ -222,6 +222,7 @@ The snapshot contract is unit-tested on every run (the snapshot URL is injected,
 | 12.19 | The same three conversions by dragging the corner handle in edit mode | The same result as the menu: no size is reachable one way and not the other |
 | 12.20 | Add **Today's status** straight from the gallery at each of the three home sizes | Three size pages under the widget; each one adds at the size on screen |
 | 12.21 | The large widget in Russian, Brazilian Portuguese and German, on a session carrying the longest names — "Bird dog (hold)", whose load prints per side; German compounds ("Einbeiniges rumänisches Kreuzheben") are the new length crown | Every plan row keeps its whole name: it shrinks a little rather than ending in an ellipsis. The weekly summary line stays on one line |
+| 12.22 | ⌚ Flip the system appearance mid-workout — widget on the home screen, a rest counting down on the lock screen | Both redraw in the new scheme without relaunching anything; the countdown stays accent; the app itself stays light — by design, not by omission |
 
 A conversion that seems to do nothing is a page question before it is a widget
 question: check the page has room for the larger footprint, and re-run §12.18
