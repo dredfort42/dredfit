@@ -23,9 +23,12 @@ final class EngineV25Tests: XCTestCase {
         return state
     }
 
+    /// v2.9: this file is about the growth-cap table and the freeze, so an
+    /// unnamed "less" is taken under a run — session-wide delta (spec §19.2).
     private func after(_ state: EngineState, _ result: FeedbackResult,
                        overrides: [Pattern: Int] = [:]) -> EngineState {
-        Engine.applyFeedback(state: state, session: Engine.generateSession(state),
+        Engine.applyFeedback(state: result == .less ? state.underLessRun : state,
+                             session: Engine.generateSession(state),
                              result: result, overrides: overrides)
     }
 
@@ -154,9 +157,10 @@ final class EngineV25Tests: XCTestCase {
     private func report(_ state: EngineState, _ result: FeedbackResult,
                         discomfort: Set<Pattern> = [], skipped: Set<Pattern> = [],
                         overrides: [Pattern: Int] = [:]) -> EngineState {
-        Engine.applyFeedback(state: state, session: Engine.generateSession(state),
-                             result: result, overrides: overrides,
-                             skipped: skipped, discomfort: discomfort)
+        let base = result == .less && discomfort.isEmpty ? state.underLessRun : state
+        return Engine.applyFeedback(state: base, session: Engine.generateSession(state),
+                                    result: result, overrides: overrides,
+                                    skipped: skipped, discomfort: discomfort)
     }
 
     /// The reported session behaves as a skip — nothing moves — and the

@@ -175,7 +175,9 @@ final class EngineTests: XCTestCase {
             let s = Engine.generateSession(state)
             let inSession = s.exercises.contains { $0.pattern == probe }
             let before = state.levels[probe]!
-            state = Engine.applyFeedback(state: state, session: s, result: .less)
+            // v2.9: the subject is the deload, so the run is already going and
+            // the delta is session-wide (spec §19.2).
+            state = Engine.applyFeedback(state: state.underLessRun, session: s, result: .less)
             guard inSession else { continue }
             drops += 1
             let diff = before - state.levels[probe]!
@@ -245,7 +247,10 @@ final class EngineTests: XCTestCase {
         for result in [FeedbackResult.less, .plan, .more] {
             for ex in s.exercises {
                 let p = ex.pattern
-                let after = Engine.applyFeedback(state: state, session: s,
+                // v2.9: the subject is the skip, so an unnamed "less" is taken
+                // under a run — session-wide delta (spec §19.2).
+                let base = result == .less ? state.underLessRun : state
+                let after = Engine.applyFeedback(state: base, session: s,
                                                  result: result, skipped: [p])
                 XCTAssertEqual(after.levels[p], state.levels[p],
                                "\(result)/\(p): a skipped pattern must not change level")
@@ -302,20 +307,22 @@ final class EngineTests: XCTestCase {
         }
         for _ in 0..<2 {
             let s = Engine.generateSession(state)
-            state = Engine.applyFeedback(state: state, session: s, result: .less)
+            // v2.9: the streak is built under a run, where the delta is
+            // session-wide (spec §19.2) — the skip is what this test is about.
+            state = Engine.applyFeedback(state: state.underLessRun, session: s, result: .less)
         }
         XCTAssertEqual(state.failStreak[.pull], 2, "setup: pull must be at streak 2")
         let level = state.levels[.pull]!
 
         // a skipped "less" session: the streak is frozen, not reset
-        let frozen = Engine.applyFeedback(state: state,
+        let frozen = Engine.applyFeedback(state: state.underLessRun,
                                           session: Engine.generateSession(state),
                                           result: .less, skipped: [.pull])
         XCTAssertEqual(frozen.failStreak[.pull], 2, "skip must freeze the streak")
         XCTAssertEqual(frozen.levels[.pull], level, "skip must keep the level")
 
         // the next real underperformance is the 3rd → deload −1−3
-        let deloaded = Engine.applyFeedback(state: frozen,
+        let deloaded = Engine.applyFeedback(state: frozen.underLessRun,
                                             session: Engine.generateSession(frozen),
                                             result: .less)
         XCTAssertEqual(deloaded.levels[.pull], level - 1 - EngineConfig.deloadDrop,
@@ -385,14 +392,15 @@ final class EngineTests: XCTestCase {
         let barStreak = state.failStreak[.pullBar]!
 
         let pullSession = Engine.generateSession(state)
-        let afterPull = Engine.applyFeedback(state: state, session: pullSession, result: .less)
+        // v2.9: branch independence, not targeting — take the session-wide delta.
+        let afterPull = Engine.applyFeedback(state: state.underLessRun, session: pullSession, result: .less)
         XCTAssertEqual(afterPull.levels[.pullBar], barLevel, "a pull session moved pullBar")
         XCTAssertEqual(afterPull.failStreak[.pullBar], barStreak)
         XCTAssertEqual(afterPull.levels[.pull], state.levels[.pull]! - 1)
 
         let barSession = Engine.generateSession(afterPull)
         XCTAssertTrue(barSession.exercises.contains { $0.pattern == .pullBar })
-        let afterBar = Engine.applyFeedback(state: afterPull, session: barSession, result: .less)
+        let afterBar = Engine.applyFeedback(state: afterPull.underLessRun, session: barSession, result: .less)
         XCTAssertEqual(afterBar.levels[.pull], afterPull.levels[.pull], "a bar session moved pull")
         XCTAssertEqual(afterBar.failStreak[.pull], afterPull.failStreak[.pull])
         XCTAssertEqual(afterBar.levels[.pullBar], barLevel - 1)

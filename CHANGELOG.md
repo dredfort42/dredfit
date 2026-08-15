@@ -14,6 +14,37 @@ learns to speak up quietly where the audit found it silent, and the whole
 set of workout tones grows into a voice of its own. Every new field
 decodes tolerantly: the state and journal formats need no migrations.
 
+### Engine v2.9.0 — "harder than usual" stops punishing the movements that were fine (issue #91)
+
+One tap used to hand one delta to all six movements of the workout, and
+pattern membership repeats on a cycle of eight — so any rhythm in the taps
+landed on that cycle unevenly. Over 48 workouts of identical behaviour the
+model spread the movements 24 levels apart, starting the same rhythm one
+session later flipped which ones won by 25, and on the cells that only grow
+one step at a time (calves everywhere, the pull from its second variation)
++1 and −1 cancelled into a standstill: calves never left zero, the pull
+parked at the tier-2 boundary for good.
+
+- **"Harder than usual" now goes where you pointed.** If the workout carried
+  a per-movement signal — an exact number below the plan, "Hold this level",
+  "Something hurt" — that movement takes the step down and the other five
+  simply hold. Nothing about the tap changed, and no new question is asked:
+  the app already sends all three.
+- **When nothing was named, one movement comes down** — the hardest-looking
+  one, at the top of its scale — and the rest hold their level. Holding is
+  not a shortfall, so a deload no longer accumulates on movements that were
+  never the problem.
+- **Say it twice in a row and it is heard as being about the plan.** The
+  third "harder than usual" in a row with nothing named goes back to moving
+  the whole workout, so a plan that is too hard everywhere still comes down
+  as fast as before. Naming a movement never counts toward that run.
+- Measured against the reference on a 96-workout horizon: seven movements
+  that can hold the same load now end within 19–21 of each other instead of
+  1–21, the calves climb, the pull keeps moving, and honest progression is
+  unchanged (the same 18, 23 and 32 workouts to an average level of 20).
+  Spec §19, 14,733 property checks (was 14,029), a fifteenth golden scenario;
+  state files written before this decode unchanged.
+
 ### Hold this level (issue #75, closes #77, #78)
 
 - A new **Hold this level** action on the exercise screen, beside "Something

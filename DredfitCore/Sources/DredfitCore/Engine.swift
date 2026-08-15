@@ -63,6 +63,11 @@ public enum EngineConfig {
     /// Default cell of the growth ceiling below — the scalar this used to be.
     public static let maxUpPerSession = 2
     public static let failsToDeload = 3
+    /// v2.9 (spec §19.2): how many "less" ratings in a row that named nothing
+    /// before the delta goes back to the whole session. Measured, not chosen:
+    /// at 1 the weak link suffers, at 3 the descent from an impossible plan
+    /// costs another session.
+    public static let lessRunToGlobal = 2
     public static let deloadDrop = 3
     public static let warmupMin = 5
     public static let cooldownMin = 3
@@ -147,22 +152,27 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// "nothing is frozen" — and a state file written before this existed
     /// decodes to exactly that.
     public var frozen: [Pattern: Int]
+    /// How many "less" ratings in a row named no movement (spec §19.1). The
+    /// third such rating hands the delta back to the whole session — a run of
+    /// unnamed "less" is a statement about the plan, not about one exercise.
+    public var lessRun: Int
 
     // Spelled out (same names the compiler would synthesize) so that
     // decodeLenient can reference the type — synthesized CodingKeys are only
     // visible inside init(from:)/encode(to:). The wire format is unchanged.
     private enum CodingKeys: String, CodingKey {
-        case counter, levels, failStreak, hasBar, frozen
+        case counter, levels, failStreak, hasBar, frozen, lessRun
     }
 
     public init(counter: Int, levels: [Pattern: Int],
                 failStreak: [Pattern: Int], hasBar: Bool = false,
-                frozen: [Pattern: Int] = [:]) {
+                frozen: [Pattern: Int] = [:], lessRun: Int = 0) {
         self.counter = counter
         self.levels = levels
         self.failStreak = failStreak
         self.hasBar = hasBar
         self.frozen = frozen
+        self.lessRun = lessRun
     }
 
     /// Lenient in both directions: files written before hasBar/pull_bar
@@ -189,6 +199,9 @@ public struct EngineState: Codable, Equatable, Sendable {
         frozen = c.contains(.frozen)
             ? try Self.decodeLenient(c, forKey: .frozen).filter { $0.value > 0 }
             : [:]
+        // Additive, same shape as `frozen`: absent in every file written
+        // before v2.9, and a hand-edited negative can only mean garbage.
+        lessRun = max(0, try c.decodeIfPresent(Int.self, forKey: .lessRun) ?? 0)
     }
 
     /// Manual decode of the exact wire format Swift synthesizes for a
@@ -402,6 +415,50 @@ public enum Engine {
         )
     }
 
+    /// v2.9 (spec §19.1): movements the user pointed at during the workout —
+    /// an exact number below the plan, a discomfort report, a hold request.
+    private static func namedMovements(
+        session: Session, overrides: [Pattern: Int],
+        discomfort: Set<Pattern>, pinned: Set<Pattern>
+    ) -> Set<Pattern> {
+        var named: Set<Pattern> = []
+        for ex in session.exercises {
+            let p = ex.pattern
+            if discomfort.contains(p) || pinned.contains(p) { named.insert(p) }
+            else if let actual = overrides[p], actual < ex.load { named.insert(p) }
+        }
+        return named
+    }
+
+    /// Who a session-wide "less" reaches, or nil when it reaches everyone as
+    /// it did in v2.8. A named movement takes it alone and the other five have
+    /// nothing to lose a level for; with nothing named it falls on a single
+    /// movement, the highest-level one — the aim is a guess (hard ≠ highest),
+    /// and what does the work is the asymmetry: on a hard session nobody grows
+    /// and only one falls. A run of unnamed "less" hands the delta back to
+    /// everyone (§19.2) — without that, someone for whom the whole plan is too
+    /// hard stops descending altogether.
+    private static func lessTargets(
+        state: EngineState, session: Session, result: FeedbackResult,
+        named: Set<Pattern>, overrides: [Pattern: Int],
+        skipped: Set<Pattern>, discomfort: Set<Pattern>
+    ) -> Set<Pattern>? {
+        guard result == .less, state.lessRun < EngineConfig.lessRunToGlobal else { return nil }
+        guard named.isEmpty else { return named }
+        // Only movements that would take the delta at all can be the aim: a
+        // skipped one was not trained, and one carrying an exact number goes
+        // its own way.
+        var best: Pattern?
+        var bestL = -1
+        for ex in session.exercises {
+            let p = ex.pattern
+            if skipped.contains(p) || discomfort.contains(p) || overrides[p] != nil { continue }
+            let level = state.levels[p] ?? 0
+            if level > bestL { bestL = level; best = p }
+        }
+        return best.map { [$0] } ?? []
+    }
+
     /// Invariant: feedback is only valid for the session generated from this
     /// exact state (`session.sessionNumber == state.counter + 1`). Anything
     /// else returns the state untouched, so applying the same (state,
@@ -437,6 +494,16 @@ public enum Engine {
         guard session.sessionNumber == state.counter + 1 else { return state }
         var next = state
         next.counter = state.counter + 1
+
+        // v2.9 (spec §19.1): who receives the SESSION-WIDE "less".
+        let named = Self.namedMovements(session: session, overrides: overrides,
+                                        discomfort: discomfort, pinned: pinned)
+        let lessTargets = Self.lessTargets(state: state, session: session, result: result,
+                                           named: named, overrides: overrides,
+                                           skipped: skipped, discomfort: discomfort)
+        // A named "less" does not feed the run: "it was hard, and it was this
+        // one" is a statement about one movement, however often it repeats.
+        next.lessRun = result == .less && named.isEmpty ? state.lessRun + 1 : 0
 
         for ex in session.exercises {
             let p = ex.pattern
@@ -489,7 +556,15 @@ public enum Engine {
                 }
             } else {
                 // "More" runs through the same ceiling; downward moves never do.
-                newL = min(oldL + result.delta, oldL + cap)
+                // v2.9 (§19.1): a targeted "less" reaches its aim only; every
+                // other movement holds — holding is not underperforming.
+                let sessionDelta: Int
+                if let targets = lessTargets {
+                    sessionDelta = targets.contains(p) ? EngineConfig.deltaLess : 0
+                } else {
+                    sessionDelta = result.delta
+                }
+                newL = min(oldL + sessionDelta, oldL + cap)
             }
             newL = min(max(newL, 0), EngineConfig.levelMax)
 
@@ -560,6 +635,7 @@ public enum Engine {
             .first { gapDays >= $0.minGap }?.ceil ?? Int.max
 
         var next = state
+        next.lessRun = 0            // v2.9: a break is not a continued run of "less"
         for p in Pattern.allCases {
             let stored = state.levels[p] ?? 0
             // The level BEFORE the break: with alreadyDecayed the input
@@ -590,6 +666,7 @@ public enum Engine {
         guard gapDays >= EngineConfig.silentDecayGapDays,
               gapDays < EngineConfig.comebackMinGapDays else { return state }
         var next = state
+        next.lessRun = 0            // v2.9: same as the comeback (spec §19.1)
         for p in Pattern.allCases {
             next.levels[p] = max(0, (state.levels[p] ?? 0) - 1)
             next.failStreak[p] = 0

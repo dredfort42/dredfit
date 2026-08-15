@@ -199,7 +199,9 @@ final class EngineV23Tests: XCTestCase {
                                          session: Engine.generateSession(state), result: .more)
         }
         for _ in 0..<2 {
-            state = Engine.applyFeedback(state: state,
+            // v2.9: the subject is the comeback clearing the streak, so the
+            // "less" is taken under a run — session-wide delta (spec §19.2).
+            state = Engine.applyFeedback(state: state.underLessRun,
                                          session: Engine.generateSession(state), result: .less)
         }
         XCTAssertEqual(state.failStreak[.pull], 2, "two shortfalls banked")
@@ -208,7 +210,7 @@ final class EngineV23Tests: XCTestCase {
         XCTAssertEqual(back.failStreak[.pull], 0)
 
         let level = back.levels[.pull] ?? 0
-        let after = Engine.applyFeedback(state: back,
+        let after = Engine.applyFeedback(state: back.underLessRun,
                                          session: Engine.generateSession(back), result: .less)
         XCTAssertEqual(after.levels[.pull], level - 1,
                        "a plain −1, not −1−3: the old streak is gone")
