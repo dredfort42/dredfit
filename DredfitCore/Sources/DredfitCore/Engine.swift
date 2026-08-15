@@ -528,6 +528,15 @@ public enum Engine {
         return next
     }
 
+    // Time enters the engine here, and only here (issue #98, spec §7). The two
+    // functions below are the whole of the model's date awareness, and both
+    // read a single number — the gap since the last workout, from seven days
+    // up. Below that the engine is blind by contract: `generateSession` and
+    // `applyFeedback` never see a date, which is what makes them pure and the
+    // golden fixture reproducible. Training frequency is therefore an
+    // app-layer concern — seven workouts in seven days are legal here, and the
+    // quiet rest offer that answers them lives in `AppStore+Signals`.
+
     /// All patterns drop, `pullBar` included even with `hasBar == false`: a
     /// break detrains the whole body. A freeze survives it untouched — the
     /// error is asymmetric, and a couple of sessions without growth cost less

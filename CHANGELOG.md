@@ -139,7 +139,10 @@ presented as an achievement.
   today's workout would make it at least the fourth consecutive training
   day, Today carries one quiet line offering a rest day. The Start button
   and "Train anyway" are untouched, and the line never appears once today
-  is trained.
+  is trained. The engine half of the same question is settled with it: time
+  reaches the model only as the gap since the last workout, from seven days
+  up, so frequency stays an app-layer matter and nothing about the plan
+  changes when you train two days running.
 - Three new strings in all seven languages; engine and `golden.json`
   byte-identical.
 
