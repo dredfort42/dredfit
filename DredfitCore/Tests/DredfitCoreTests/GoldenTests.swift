@@ -48,6 +48,7 @@ private struct Golden: Decodable {
         let barLevelAfter: Int?
         let barStreakAfter: Int?
         let frozenAfter: [Int]?    // v2.5: a break must not thaw a freeze
+        let lessRunAfter: Int?     // v2.9: a break does not continue a run of "less"
     }
     /// applySilentDecay invoked before this step's session (v2.4) — and
     /// before the step's comeback, when both are present: the user peeked
@@ -59,6 +60,7 @@ private struct Golden: Decodable {
         let barLevelAfter: Int?
         let barStreakAfter: Int?
         let frozenAfter: [Int]?
+        let lessRunAfter: Int?
     }
     struct Step: Decodable {
         let sessionNumber: Int
@@ -77,6 +79,7 @@ private struct Golden: Decodable {
         let barStreakAfter: Int?
         let frozenAfter: [Int]?    // appearances left, by patternOrder
         let barFrozenAfter: Int?
+        let lessRunAfter: Int?     // v2.9: run of "less" ratings naming nothing
         let silentDecay: SilentDecay?
         let comeback: Comeback?
     }
@@ -106,7 +109,7 @@ final class GoldenTests: XCTestCase {
     /// re-baseline every number instead of catching a port bug.
     func testGeneratorIsThePinnedReferenceVersion() throws {
         let g = try loadGolden()
-        XCTAssertEqual(g.generator, "adaptive_engine.js v2.8.0",
+        XCTAssertEqual(g.generator, "adaptive_engine.js v2.9.0",
                        "golden.json regenerated from an unexpected reference version")
     }
 
@@ -114,6 +117,32 @@ final class GoldenTests: XCTestCase {
         let g = try loadGolden()
         XCTAssertEqual(g.patternOrder, Pattern.ordered.map(\.rawValue),
                        "pattern order diverged from the reference")
+    }
+
+    /// The snapshot a break writes: the silent decay and the comeback record
+    /// the same fields, so one assertion covers both.
+    private struct BreakSnapshot {
+        let levels: [Int]
+        let streaks: [Int]
+        let barLevel: Int?
+        let barStreak: Int?
+        let frozen: [Int]?
+        let lessRun: Int?
+    }
+
+    private func assertBreak(_ state: EngineState, _ snap: BreakSnapshot,
+                             order: [String], ctx: String) {
+        XCTAssertEqual(order.map { state.levels[Pattern(rawValue: $0)!] ?? -1 },
+                       snap.levels, "\(ctx): levels")
+        XCTAssertEqual(order.map { state.failStreak[Pattern(rawValue: $0)!] ?? -1 },
+                       snap.streaks, "\(ctx): streaks")
+        if let v = snap.barLevel { XCTAssertEqual(state.levels[.pullBar], v, "\(ctx): bar level") }
+        if let v = snap.barStreak { XCTAssertEqual(state.failStreak[.pullBar], v, "\(ctx): bar streak") }
+        if let v = snap.frozen {
+            XCTAssertEqual(order.map { state.freezeRemaining(Pattern(rawValue: $0)!) },
+                           v, "\(ctx): freezes survive")
+        }
+        if let v = snap.lessRun { XCTAssertEqual(state.lessRun, v, "\(ctx): less run") }
     }
 
     func testAllScenariosMatchReferenceEngine() throws {
@@ -136,45 +165,25 @@ final class GoldenTests: XCTestCase {
                 let ctx = "\(scenario.name)/step \(i + 1)"
                 if let hasBar = step.hasBar { state.hasBar = hasBar } // settings toggle
                 if let decay = step.silentDecay {
-                    // the app applies this when it opens inside the 7–13 day
-                    // blind zone — before any comeback and before the plan
                     state = Engine.applySilentDecay(state: state, gapDays: decay.gapDays)
-                    XCTAssertEqual(g.patternOrder.map { state.levels[Pattern(rawValue: $0)!] ?? -1 },
-                                   decay.levelsAfter, "\(ctx) levels after silent decay")
-                    XCTAssertEqual(g.patternOrder.map { state.failStreak[Pattern(rawValue: $0)!] ?? -1 },
-                                   decay.failStreakAfter, "\(ctx) streaks untouched by silent decay")
-                    if let barLevel = decay.barLevelAfter {
-                        XCTAssertEqual(state.levels[.pullBar], barLevel, "\(ctx) bar level after silent decay")
-                    }
-                    if let barStreak = decay.barStreakAfter {
-                        XCTAssertEqual(state.failStreak[.pullBar], barStreak, "\(ctx) bar streak after silent decay")
-                    }
-                    if let frozen = decay.frozenAfter {
-                        XCTAssertEqual(g.patternOrder.map { state.freezeRemaining(Pattern(rawValue: $0)!) },
-                                       frozen, "\(ctx) freezes untouched by silent decay")
-                    }
+                    assertBreak(state, BreakSnapshot(
+                        levels: decay.levelsAfter, streaks: decay.failStreakAfter,
+                        barLevel: decay.barLevelAfter, barStreak: decay.barStreakAfter,
+                        frozen: decay.frozenAfter, lessRun: decay.lessRunAfter),
+                        order: g.patternOrder, ctx: "\(ctx) silent decay")
                 }
                 if let comeback = step.comeback {
                     // the app applies this on launch after a break,
                     // before the plan is generated — same order here
                     state = Engine.applyComeback(state: state, gapDays: comeback.gapDays,
                                                  alreadyDecayed: comeback.alreadyDecayed ?? false)
-                    XCTAssertEqual(g.patternOrder.map { state.levels[Pattern(rawValue: $0)!] ?? -1 },
-                                   comeback.levelsAfter, "\(ctx) levels after comeback")
-                    XCTAssertEqual(g.patternOrder.map { state.failStreak[Pattern(rawValue: $0)!] ?? -1 },
-                                   comeback.failStreakAfter, "\(ctx) streaks after comeback")
+                    assertBreak(state, BreakSnapshot(
+                        levels: comeback.levelsAfter, streaks: comeback.failStreakAfter,
+                        barLevel: comeback.barLevelAfter, barStreak: comeback.barStreakAfter,
+                        frozen: comeback.frozenAfter, lessRun: comeback.lessRunAfter),
+                        order: g.patternOrder, ctx: "\(ctx) comeback")
                     XCTAssertEqual(state.counter, comeback.counterAfter,
                                    "\(ctx) comeback must not move the counter")
-                    if let barLevel = comeback.barLevelAfter {
-                        XCTAssertEqual(state.levels[.pullBar], barLevel, "\(ctx) bar level after comeback")
-                    }
-                    if let barStreak = comeback.barStreakAfter {
-                        XCTAssertEqual(state.failStreak[.pullBar], barStreak, "\(ctx) bar streak after comeback")
-                    }
-                    if let frozen = comeback.frozenAfter {
-                        XCTAssertEqual(g.patternOrder.map { state.freezeRemaining(Pattern(rawValue: $0)!) },
-                                       frozen, "\(ctx) freezes untouched by the comeback")
-                    }
                 }
                 let session = Engine.generateSession(state)
 
@@ -227,6 +236,10 @@ final class GoldenTests: XCTestCase {
                 }
                 if let barFrozen = step.barFrozenAfter {
                     XCTAssertEqual(state.freezeRemaining(.pullBar), barFrozen, ctx + " (bar frozen)")
+                }
+                // v2.9: the run of unnamed "less" ratings (spec §19.1)
+                if let lessRun = step.lessRunAfter {
+                    XCTAssertEqual(state.lessRun, lessRun, ctx + " (less run)")
                 }
             }
         }

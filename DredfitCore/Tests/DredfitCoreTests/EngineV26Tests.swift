@@ -26,14 +26,18 @@ final class EngineV26Tests: XCTestCase {
         return state
     }
 
+    /// v2.9: the subject is the hold and its freeze; an unnamed "less" is
+    /// taken under a run, where the delta is session-wide (spec §19.2).
     private func report(_ state: EngineState, _ result: FeedbackResult,
                         pinned: Set<Pattern> = [], discomfort: Set<Pattern> = [],
                         skipped: Set<Pattern> = [],
                         overrides: [Pattern: Int] = [:]) -> EngineState {
-        Engine.applyFeedback(state: state, session: Engine.generateSession(state),
-                             result: result, overrides: overrides,
-                             skipped: skipped, discomfort: discomfort,
-                             pinned: pinned)
+        let named = !pinned.isEmpty || !discomfort.isEmpty
+        let base = result == .less && !named ? state.underLessRun : state
+        return Engine.applyFeedback(state: base, session: Engine.generateSession(state),
+                                    result: result, overrides: overrides,
+                                    skipped: skipped, discomfort: discomfort,
+                                    pinned: pinned)
     }
 
     // MARK: - The pin and the freeze

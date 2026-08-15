@@ -171,7 +171,9 @@ final class EngineV27Tests: XCTestCase {
         var paused = Engine.applySilentDecay(state: seeded(level: 12, streak: 2),
                                              gapDays: 13)
         let session = Engine.generateSession(paused)
-        paused = Engine.applyFeedback(state: paused, session: session, result: .less)
+        // v2.9: the subject is the 13/14-day boundary, so the delta is taken
+        // session-wide (spec §19.2).
+        paused = Engine.applyFeedback(state: paused.underLessRun, session: session, result: .less)
         for ex in session.exercises {
             XCTAssertEqual(paused.levels[ex.pattern], 10,
                            "\(ex.pattern.rawValue): −1 decay and −1 rating, no −3")
