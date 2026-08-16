@@ -44,8 +44,11 @@ extension AppStore {
     /// The quiet offer on Today, shown exactly in the window the engine
     /// cannot see (gap 2–13 days: below the comeback, at or past a missed
     /// beat) — a longer break carries the same tap on the comeback card.
+    /// Unless the break is the trainee's own rhythm (v2.13, spec §23.3):
+    /// rhythm breaks have no card, so the quiet offer stays for them.
     func shouldOfferIllnessTap(now: Date? = nil) -> Bool {
         guard engineState.illness == 0, let gap = gapDays(now: now) else { return false }
-        return gap >= 2 && gap < EngineConfig.comebackMinGapDays
+        if gap >= EngineConfig.comebackMinGapDays { return isRhythmBreak(gap) }
+        return gap >= 2
     }
 }

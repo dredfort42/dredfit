@@ -24,9 +24,12 @@ final class ComebackTests: XCTestCase {
     }
 
     /// A store whose single journal entry is `daysAgo` old, with every pattern
-    /// parked at `level`.
+    /// parked at `level`. Seeded in elapsed seconds, not calendar days: gapDays
+    /// counts whole 24h periods (v2.13, spec §7), and a calendar-day seed
+    /// across a spring-forward transition would land an hour short of every
+    /// exact boundary (14 days − 1h reads as 13).
     private func storeWithLastWorkout(daysAgo: Int, level: Int = 20) throws -> AppStore {
-        let date = Calendar.current.date(byAdding: .day, value: -daysAgo, to: .now)!
+        let date = Date(timeIntervalSinceNow: -Double(daysAgo) * 86_400)
         let levels = Pattern.allCases
             .map { "\"\($0.rawValue)\",\(level)" }.joined(separator: ",")
         let zeros = Pattern.allCases
@@ -66,7 +69,7 @@ final class ComebackTests: XCTestCase {
         XCTAssertNil(store.gapDays())
     }
 
-    func testGapIsCountedInWholeCalendarDays() throws {
+    func testGapIsCountedInWholeElapsedDays() throws {
         let store = try storeWithLastWorkout(daysAgo: 20)
         XCTAssertEqual(store.gapDays(), 20)
     }
@@ -108,11 +111,13 @@ final class ComebackTests: XCTestCase {
         store.declineComeback()
         XCTAssertFalse(store.shouldOfferComeback())
 
-        // A workout happens, then another long break.
+        // A workout happens, then another long break of a different length.
+        // Re-marked for v2.13 (spec §23.3): a repeat of the same gap is the
+        // trainee's rhythm and stays quiet — CadenceTests cover that side.
         store.completeWorkout(session: store.nextSession, result: .plan,
-                              date: Calendar.current.date(byAdding: .day, value: -20, to: .now)!)
+                              date: Calendar.current.date(byAdding: .day, value: -30, to: .now)!)
         XCTAssertTrue(store.shouldOfferComeback(),
-                      "a new break is a new question")
+                      "a break off the rhythm is a new question")
     }
 
     // MARK: - Fresh start

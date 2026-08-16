@@ -677,8 +677,13 @@ final class AppStoreTests: XCTestCase {
     /// A store whose last workout happened `daysAgo` days ago. Several
     /// sessions, so the levels sit clear of the zero clamp.
     private func storeWithWorkout(daysAgo: Int, at url: URL, sessions: Int = 4) -> AppStore {
+        // The date comes first and is seeded in elapsed seconds: gapDays
+        // counts whole 24h periods (v2.13, spec §7), so a store created
+        // before its record — or a calendar-day seed across a spring-forward
+        // transition — would sit a hair short of every exact boundary
+        // (14 days − ε reads as 13).
+        let date = Date(timeIntervalSinceNow: -Double(daysAgo) * 86_400)
         let store = AppStore(storageURL: url)
-        let date = Calendar.current.date(byAdding: .day, value: -daysAgo, to: .now)!
         for _ in 0..<sessions {
             _ = store.completeWorkout(session: store.nextSession, result: .plan, date: date)
         }

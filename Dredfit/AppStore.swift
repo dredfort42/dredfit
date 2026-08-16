@@ -761,21 +761,15 @@ final class AppStore {
 
     // MARK: - Comeback after a break
 
-    /// Measured at local midnights, so a late-evening workout and an
-    /// early-morning launch are one day apart, not zero.
-    func gapDays(now: Date? = nil) -> Int? {
-        guard let last = records.last else { return nil }
-        let cal = Calendar.current
-        return cal.dateComponents([.day],
-                                  from: cal.startOfDay(for: last.date),
-                                  to: cal.startOfDay(for: now ?? today)).day
-    }
+    // gapDays and the training-day anchor live in AppStore+Cadence (v2.13).
 
     /// Asked once per break: the answer is stamped against the last workout's
     /// date, so it goes stale by itself instead of needing to be cleared.
+    /// A break inside the trainee's own rhythm is not a break at all
+    /// (spec §23.3, #134) — no card, and so no comeback either.
     func shouldOfferComeback(now: Date? = nil) -> Bool {
         guard let last = records.last, let gap = gapDays(now: now) else { return false }
-        guard gap >= EngineConfig.comebackMinGapDays else { return false }
+        guard gap >= EngineConfig.comebackMinGapDays, !isRhythmBreak(gap) else { return false }
         guard let decided = settings.comebackDecidedFor else { return true }
         return !Calendar.current.isDate(decided, inSameDayAs: last.date)
     }
@@ -785,10 +779,13 @@ final class AppStore {
     /// Quiet −1 to every pattern in the 7–13 day gap the comeback does not
     /// reach. Applied at most once per break — the stamp is keyed to the last
     /// workout's date and goes stale by itself, like the comeback answer.
+    /// A rhythm break leaves no stamp on purpose (spec §23.3): the decision is
+    /// re-evaluated on every open, so the same break can still decay later if
+    /// its gap outgrows the rhythm — and §14.2 non-stacking stays exact.
     func applySilentDecayIfNeeded(now: Date? = nil) {
         guard let last = records.last, let gap = gapDays(now: now) else { return }
         guard gap >= EngineConfig.silentDecayGapDays,
-              gap < EngineConfig.comebackMinGapDays else { return }
+              gap < EngineConfig.comebackMinGapDays, !isRhythmBreak(gap) else { return }
         guard !silentDecayAppliedForCurrentBreak else { return }
         engineState = Engine.applySilentDecay(state: engineState, gapDays: gap)
         settings.silentDecayAppliedFor = last.date

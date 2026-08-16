@@ -41,8 +41,9 @@ extension AppStore {
     }
 
     /// Consecutive calendar days with a completed workout, counting back
-    /// from (and including) the given day. Local-midnight day math, like
-    /// `gapDays`; two workouts on one day count once.
+    /// from (and including) the given day. Local-midnight day math — a
+    /// display place, deliberately unlike `gapDays`, which counts whole
+    /// elapsed 24h periods (v2.13, spec §7); two workouts on one day count once.
     func consecutiveTrainingDays(endingOn day: Date) -> Int {
         let cal = Calendar.current
         let trained = Set(records.map { cal.startOfDay(for: $0.date) })

@@ -14,6 +14,46 @@ learns to speak up quietly where the audit found it silent, and the whole
 set of workout tones grows into a voice of its own. Every new field
 decodes tolerantly: the state and journal formats need no migrations.
 
+### A steady rhythm is not a break (issues #134, #147)
+
+The model was written for one-off breaks, but the product itself promotes a
+weekly cadence — and then treated every one of those weeks as a lapse. An
+honest once-a-Sunday trainee lost a level to the silent decay every single
+week: over two years of never missing a workout the average level drained
+to 0.7 while a six-day twin climbed to 47. At a fortnight's cadence the
+comeback card reappeared on every session forever, and its primary button
+was the harmful answer. The 2026-08-16 audit called this the worst finding
+of the keep-the-habit rung: the app punished exactly the person who kept
+the habit.
+
+- **Your own rhythm is recognized and respected.** A break that lands
+  within ±1 day of any of the last three gaps between workouts is the
+  trainee's cadence, not a lapse: the silent decay stands down and the
+  comeback card stays away — the plan simply waits as it was. There is no
+  upper cap: a consistent every-three-weeks ritual is a rhythm too. Real
+  one-off breaks still land outside the window and are treated exactly as
+  before, and a skipped decay leaves no stamp — if the same break outgrows
+  the rhythm, it decays honestly after all. Opening the app mid-cycle — a
+  reminder tapped on day 7 of a 10-day cadence — is not a break either: a
+  silence that has not yet outgrown the rhythm neither decays nor summons
+  the card, and that window comes only from gaps that actually repeat, so
+  one long vacation does not shield the next absence. Since a rhythm break
+  has no card, the quiet "I was sick" offer stays on Today for it. Two
+  years of honest weekly training now ends at the same ceiling as daily
+  twins instead of at zero, and the card shows at most once per genuinely
+  new break. The engine is untouched: the contract governs when the app
+  layer calls its two time functions (spec §23).
+- **A day is now twenty-four hours of your life, not a wall-clock label.**
+  The gap between workouts counts whole elapsed days — so a shift worker
+  whose 6.0-day ritual drifts across midnight (23:00 one week, 01:00 the
+  next) no longer collects phantom decays (13 per 26 sessions before, zero
+  now), rounding can only ever understate a break, and DST or a timezone
+  trip stop being edge cases entirely (spec §7).
+
+Nothing changes for anyone whose training simply happens on daytime hours
+at irregular intervals: decay zones, comeback maths and every stamp behave
+exactly as they did.
+
 ### Engine v2.12.0 — a comeback lands no heavier than your last workout (issues #126, #133)
 
 The comeback level was monotone in the break — the dose was not. Dropping

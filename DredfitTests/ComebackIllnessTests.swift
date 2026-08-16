@@ -29,13 +29,16 @@ final class ComebackIllnessTests: XCTestCase {
 
     /// A store whose only workout was `days` ago, at a uniform level — seeded
     /// through the storage file, the same door the real app loads through.
+    /// Elapsed seconds, not calendar days: gapDays counts whole 24h periods
+    /// (v2.13, spec §7), and a calendar seed across a spring-forward
+    /// transition would land an hour short of the exact 90/2-day boundaries.
     private func returned(after days: Int, level: Int = 20) -> AppStore {
         var state = EngineState.initial
         state.counter = 11
         for p in Pattern.allCases { state.levels[p] = level }
         let record = WorkoutRecord(
             sessionNumber: 11,
-            date: Calendar.current.date(byAdding: .day, value: -days, to: .now)!,
+            date: Date(timeIntervalSinceNow: -Double(days) * 86_400),
             result: .plan,
             totalLevelAfter: level * Pattern.allCases.count)
         struct Seed: Encodable {
