@@ -409,6 +409,35 @@ final class AppStore {
         if CommandLine.arguments.contains("--uitest-restday") {
             settings.restWeekdays = [Calendar.current.component(.weekday, from: .now)]
         }
+        // Only workout 95 days ago → the comeback card with all three paths:
+        // the numbered offers, the sick row and "Start from scratch" (#127).
+        if CommandLine.arguments.contains("--uitest-comeback-long") {
+            var seeded = EngineState.initial
+            seeded.counter = 11
+            for p in Pattern.allCases { seeded.levels[p] = 20 }
+            engineState = seeded
+            records = [WorkoutRecord(
+                sessionNumber: 11,
+                date: Calendar.current.date(byAdding: .day, value: -95, to: .now)!,
+                result: .plan,
+                totalLevelAfter: 180)]
+            settings.comebackDecidedFor = nil
+            settings.restWeekdays = []
+        }
+        // Only workout 5 days ago → Today carries the quiet "I was sick"
+        // offer (v2.12, #133): the gap the engine cannot see.
+        if CommandLine.arguments.contains("--uitest-illness") {
+            var seeded = EngineState.initial
+            seeded.counter = 11
+            for p in Pattern.allCases { seeded.levels[p] = 20 }
+            engineState = seeded
+            records = [WorkoutRecord(
+                sessionNumber: 11,
+                date: Calendar.current.date(byAdding: .day, value: -5, to: .now)!,
+                result: .plan,
+                totalLevelAfter: 180)]
+            settings.restWeekdays = []
+        }
     }
 
     /// Yesterday's workout with one frozen pull — the seed the two freeze
@@ -803,7 +832,14 @@ final class AppStore {
 
     /// Nothing is written to the journal — the next record's levelsAfter
     /// snapshot shows the step down on its own.
+    ///
+    /// Guarded (#128): `Engine.applyComeback` is documented "at most once per
+    /// break", and v2.12 deepens repeated returns via `returnRun` — so card
+    /// visibility must not be the only gate. A double tap re-enters with the
+    /// question already closed and leaves silently, mirroring the
+    /// silent-decay guard.
     func acceptComeback(now: Date? = nil) {
+        guard shouldOfferComeback(now: now) else { return }
         guard let gap = gapDays(now: now) else { return }
         engineState = Engine.applyComeback(state: engineState, gapDays: gap,
                                            alreadyDecayed: silentDecayAppliedForCurrentBreak)
@@ -812,6 +848,41 @@ final class AppStore {
 
     func declineComeback() {
         closeComebackQuestion()
+    }
+
+    /// Both offers of the comeback card as the same movement, in numbers
+    /// (#127): the pull slot is in every session, so it is the honest
+    /// exemplar of what "easier" — or "as it was" — actually means.
+    func comebackPreview(now: Date? = nil) -> (was: String, easier: String)? {
+        guard let gap = gapDays(now: now) else { return nil }
+        let after = Engine.applyComeback(state: engineState, gapDays: gap,
+                                         alreadyDecayed: silentDecayAppliedForCurrentBreak)
+        let slot: (EngineState) -> SessionExercise? = { state in
+            Engine.generateSession(state).exercises.first { Pattern.pullSide.contains($0.pattern) }
+        }
+        guard let was = slot(engineState), let easier = slot(after) else { return nil }
+        return ("\(was.name) · \(was.display)", "\(easier.name) · \(easier.display)")
+    }
+
+    // MARK: - The illness lens (v2.12, spec §22.4 / #133)
+
+    /// The "I was sick" one-tap: the next `EngineConfig.illnessSessions`
+    /// workouts come one tier easier while the stored levels stand. A repeat
+    /// tap tops the lens back up.
+    func markIllness() {
+        engineState = Engine.applyIllness(state: engineState)
+        persist()
+    }
+
+    /// Gentler workouts left under the lens; 0 = the lens is off.
+    var illnessSessionsLeft: Int { engineState.illness }
+
+    /// The quiet offer on Today, shown exactly in the window the engine
+    /// cannot see (gap 2–13 days: below the comeback, at or past a missed
+    /// beat) — a longer break carries the same tap on the comeback card.
+    func shouldOfferIllnessTap(now: Date? = nil) -> Bool {
+        guard engineState.illness == 0, let gap = gapDays(now: now) else { return false }
+        return gap >= 2 && gap < EngineConfig.comebackMinGapDays
     }
 
     /// Only the engine resets; the journal and settings survive. `hasBar` is
@@ -835,7 +906,9 @@ final class AppStore {
         persist()
     }
 
-    static let comebackFreshStartDays = 180
+    /// v2.12 (#127): from 90 days — a quarter away is long enough that "as it
+    /// was" can be blind and "from scratch" must be reachable. Was 180.
+    static let comebackFreshStartDays = 90
 
     // MARK: - App Store review
 
