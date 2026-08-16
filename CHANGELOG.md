@@ -37,11 +37,19 @@ never happened.
   "harder/easier" rhythm the vertical branch used to land in the same rating
   forever and never left zero, and with a four-workout rhythm the row lagged
   the same way. Both branches now keep pace.
+- **And it stops when you say the movement is hard.** The credit lands on the
+  workouts a branch is not in — the ones you have no way to answer — so a
+  branch whose last appearance you reported as harder than usual earns no
+  credit until an appearance goes by without that. Without it the plan climbed
+  away from what you could actually do and never came back; with it it parks
+  one step above your current ceiling, exactly where every other movement
+  parks. Reporting pain, holding the level, or logging a number below the plan
+  all count as the same signal.
 - Pull-ups join the row's growth ceiling at variations 2 and 3 — one step per
   workout. The #76 wave had left the bar branch alone precisely because it
   appeared half as often; the credit removes that premise, so the frequency
   argument now applies to it too.
-- Spec §20, 17,835 property checks (was 14,733) — the balance envelope is now
+- Spec §20, 17,848 property checks (was 14,733) — the balance envelope is now
   swept across seven rating rhythms and both bar settings instead of one, and
   the volume side of it counts time under load, so an isometric hang stops
   reading as zero. A sixteenth golden scenario; no migration, state files

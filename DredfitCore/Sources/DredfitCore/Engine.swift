@@ -164,23 +164,30 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// third such rating hands the delta back to the whole session — a run of
     /// unnamed "less" is a statement about the plan, not about one exercise.
     public var lessRun: Int
+    /// Branches of the pull slot the cross-credit is paused for, because the
+    /// last session they appeared in was reported as hard (spec §20.1). The
+    /// credit lands on sessions the branch is not in — the ones you cannot
+    /// answer — so without this the level runs away from what you can do.
+    public var creditPaused: Set<Pattern>
 
     // Spelled out (same names the compiler would synthesize) so that
     // decodeLenient can reference the type — synthesized CodingKeys are only
     // visible inside init(from:)/encode(to:). The wire format is unchanged.
     private enum CodingKeys: String, CodingKey {
-        case counter, levels, failStreak, hasBar, frozen, lessRun
+        case counter, levels, failStreak, hasBar, frozen, lessRun, creditPaused
     }
 
     public init(counter: Int, levels: [Pattern: Int],
                 failStreak: [Pattern: Int], hasBar: Bool = false,
-                frozen: [Pattern: Int] = [:], lessRun: Int = 0) {
+                frozen: [Pattern: Int] = [:], lessRun: Int = 0,
+                creditPaused: Set<Pattern> = []) {
         self.counter = counter
         self.levels = levels
         self.failStreak = failStreak
         self.hasBar = hasBar
         self.frozen = frozen
         self.lessRun = lessRun
+        self.creditPaused = creditPaused
     }
 
     /// Lenient in both directions: files written before hasBar/pull_bar
@@ -210,6 +217,10 @@ public struct EngineState: Codable, Equatable, Sendable {
         // Additive, same shape as `frozen`: absent in every file written
         // before v2.9, and a hand-edited negative can only mean garbage.
         lessRun = max(0, try c.decodeIfPresent(Int.self, forKey: .lessRun) ?? 0)
+        // Additive: absent before v2.10, and unknown patterns are dropped the
+        // same way the level maps drop them.
+        creditPaused = Set((try c.decodeIfPresent([String].self, forKey: .creditPaused) ?? [])
+            .compactMap(Pattern.init(rawValue:)))
     }
 
     /// Manual decode of the exact wire format Swift synthesizes for a
@@ -630,8 +641,23 @@ public enum Engine {
         if next.hasBar,
            let trained = session.exercises.first(where: { Pattern.pullSide.contains($0.pattern) })?.pattern {
             let other: Pattern = trained == .pull ? .pullBar : .pull
+            // The pause (spec §20.1): a branch whose last appearance you called
+            // hard earns no credit until an appearance goes by without such a
+            // signal. Measured without it, the level climbed to 29 whether what
+            // you could hold was 6, 12 or 20 — the credit lands on days the
+            // branch is not in the plan, and a targeted "less" (§19.1) aims at
+            // the highest-level movement of the session, usually not this one.
+            let factBelowPlan = session.exercises.first { $0.pattern == trained }
+                .map { ex in (overrides[trained].map { $0 < ex.load }) ?? false } ?? false
+            if result == .less || discomfort.contains(trained) || pinned.contains(trained)
+                || factBelowPlan {
+                next.creditPaused.insert(trained)
+            } else {
+                next.creditPaused.remove(trained)
+            }
+
             let gained = (next.levels[trained] ?? 0) - (state.levels[trained] ?? 0)
-            if gained > 0 {
+            if gained > 0, !next.creditPaused.contains(other) {
                 let oldOther = next.levels[other] ?? 0
                 let cap = EngineConfig.maxUp(pattern: other, tier: Level.decode(oldOther).tier)
                 next.levels[other] = min(max(oldOther + min(gained, cap), 0), EngineConfig.levelMax)
@@ -682,6 +708,7 @@ public enum Engine {
 
         var next = state
         next.lessRun = 0            // v2.9: a break is not a continued run of "less"
+        next.creditPaused = []      // v2.10: a break clears the strain evidence too
         for p in Pattern.allCases {
             let stored = state.levels[p] ?? 0
             // The level BEFORE the break: with alreadyDecayed the input
@@ -713,6 +740,7 @@ public enum Engine {
               gapDays < EngineConfig.comebackMinGapDays else { return state }
         var next = state
         next.lessRun = 0            // v2.9: same as the comeback (spec §19.1)
+        next.creditPaused = []      // v2.10: and so does the pause
         for p in Pattern.allCases {
             next.levels[p] = max(0, (state.levels[p] ?? 0) - 1)
             next.failStreak[p] = 0

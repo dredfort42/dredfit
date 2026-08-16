@@ -194,4 +194,82 @@ final class EngineV210Tests: XCTestCase {
             }
         }
     }
+
+    // MARK: - §20.1 the pause
+
+    /// The credit lands on sessions the branch is not in — the ones you cannot
+    /// answer. Without the pause the level ran away from what the athlete could
+    /// actually do: 29 whether their ceiling was 6, 12 or 20.
+    func testAHardAppearancePausesTheCreditUntilAGoodOne() {
+        let state = seeded(counter: 1)          // counter 1 puts the bar branch in the plan
+        let strained = Engine.applyFeedback(state: state, session: Engine.generateSession(state),
+                                            result: .less)
+        XCTAssertTrue(strained.creditPaused.contains(.pullBar), "a hard session marks the branch")
+
+        let next = Engine.applyFeedback(state: strained, session: Engine.generateSession(strained),
+                                        result: .plan)
+        XCTAssertEqual(next.levels[.pullBar], strained.levels[.pullBar],
+                       "a marked branch earns no credit")
+        XCTAssertGreaterThan(next.levels[.pull] ?? 0, strained.levels[.pull] ?? 0,
+                             "the trained branch still moves")
+
+        let cleared = Engine.applyFeedback(state: next, session: Engine.generateSession(next),
+                                           result: .plan)
+        XCTAssertFalse(cleared.creditPaused.contains(.pullBar), "an appearance without a signal clears it")
+        let resumed = Engine.applyFeedback(state: cleared, session: Engine.generateSession(cleared),
+                                           result: .plan)
+        XCTAssertGreaterThan(resumed.levels[.pullBar] ?? 0, cleared.levels[.pullBar] ?? 0,
+                             "and the credit comes back")
+    }
+
+    func testAFactBelowPlanAHoldAndPainAllMarkTheBranch() throws {
+        let state = seeded(counter: 1)
+        let session = Engine.generateSession(state)
+        let bar = try XCTUnwrap(session.exercises.first { $0.pattern == .pullBar })
+        let cases: [(String, EngineState)] = [
+            ("a fact below plan", Engine.applyFeedback(state: state, session: session, result: .plan,
+                                                       overrides: [.pullBar: bar.load - 2])),
+            ("pain", Engine.applyFeedback(state: state, session: session, result: .plan,
+                                          discomfort: [.pullBar])),
+            ("a hold", Engine.applyFeedback(state: state, session: session, result: .plan,
+                                            pinned: [.pullBar])),
+        ]
+        for (label, after) in cases {
+            XCTAssertTrue(after.creditPaused.contains(.pullBar), "\(label) marks the branch")
+        }
+    }
+
+    func testABreakClearsTheMark() {
+        let state = seeded(counter: 1)
+        let strained = Engine.applyFeedback(state: state, session: Engine.generateSession(state),
+                                            result: .less)
+        XCTAssertTrue(Engine.applyComeback(state: strained, gapDays: 30).creditPaused.isEmpty)
+        XCTAssertTrue(Engine.applySilentDecay(state: strained, gapDays: 9).creditPaused.isEmpty)
+    }
+
+    /// The question this wave has to answer: someone whose pull-ups top out
+    /// must not be asked for more and more forever.
+    func testThePlanSettlesAtWhatTheAthleteCanHold() {
+        for ceiling in [6, 12, 20] {
+            var state = EngineState.initial
+            state.hasBar = true
+            for _ in 0..<90 {
+                let session = Engine.generateSession(state)
+                let barIsIn = session.exercises.contains { $0.pattern == .pullBar }
+                let tooHard = barIsIn && (state.levels[.pullBar] ?? 0) > ceiling
+                state = Engine.applyFeedback(state: state, session: session,
+                                             result: tooHard ? .less : .plan)
+            }
+            XCTAssertLessThanOrEqual(state.levels[.pullBar] ?? 0, ceiling + 1,
+                                     "ceiling \(ceiling): the plan parks a step above it, not beyond")
+        }
+    }
+
+    func testAStateFileWithoutThePauseDecodesEmpty() throws {
+        let legacy = """
+        {"counter":3,"levels":["pull",7,"pull_bar",7],"failStreak":["pull",0],"hasBar":true}
+        """
+        let state = try JSONDecoder().decode(EngineState.self, from: Data(legacy.utf8))
+        XCTAssertTrue(state.creditPaused.isEmpty, "a file written before v2.10 reads as no pause")
+    }
 }

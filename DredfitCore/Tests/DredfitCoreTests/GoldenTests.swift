@@ -80,6 +80,7 @@ private struct Golden: Decodable {
         let frozenAfter: [Int]?    // appearances left, by patternOrder
         let barFrozenAfter: Int?
         let lessRunAfter: Int?     // v2.9: run of "less" ratings naming nothing
+        let creditPausedAfter: [Int]?   // v2.10: [pull, pullBar], 1 = credit paused
         let silentDecay: SilentDecay?
         let comeback: Comeback?
     }
@@ -240,6 +241,11 @@ final class GoldenTests: XCTestCase {
                 // v2.9: the run of unnamed "less" ratings (spec §19.1)
                 if let lessRun = step.lessRunAfter {
                     XCTAssertEqual(state.lessRun, lessRun, ctx + " (less run)")
+                }
+                // v2.10: the cross-credit pause on the pull slot (spec §20.1)
+                if let paused = step.creditPausedAfter {
+                    XCTAssertEqual([Pattern.pull, .pullBar].map { state.creditPaused.contains($0) ? 1 : 0 },
+                                   paused, ctx + " (credit paused)")
                 }
             }
         }
