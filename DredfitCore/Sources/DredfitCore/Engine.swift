@@ -21,6 +21,11 @@ public enum Pattern: String, Codable, CaseIterable, Sendable {
     case coreAntiExt = "core_anti_ext", coreRot = "core_rot", calf
     case pullBar = "pull_bar"
 
+    /// The two branches of the pull slot and the two push patterns — the sides
+    /// the balance principle weighs against each other (spec §20).
+    public static let pullSide: Set<Pattern> = [.pull, .pullBar]
+    public static let pushSide: Set<Pattern> = [.pushH, .pushV]
+
     /// Fixed order — defines the rotation. Cannot be changed without a migration.
     public static let ordered: [Pattern] = [
         .squat, .pushH, .hinge, .pull, .pushV, .lunge, .coreAntiExt, .coreRot, .calf
@@ -116,7 +121,10 @@ public enum EngineConfig {
         .coreAntiExt: [4: 1],
         .coreRot: [4: 1],
         .calf: [1: 1, 2: 1, 3: 1, 4: 1],
-        .pullBar: [4: 1]
+        // v2.10 (spec §20.1): the cross-credit restores the pull slot's full
+        // speed, so #76's frequency argument now reaches the vertical branch
+        // too — tiers 2-3 line up with the horizontal row.
+        .pullBar: [2: 1, 3: 1, 4: 1]
     ]
 
     /// `tier` comes from the level BEFORE the update: the ceiling governs
@@ -385,21 +393,30 @@ public enum Engine {
         let patterns = Pattern.ordered.filter { chosen.contains($0) } // ordering follows Pattern.ordered
             .map { $0 == .pull && useBar ? Pattern.pullBar : $0 }
 
+        // v2.10 (spec §20.2): the pull slot's set band caps the push of the same
+        // session. With the bar the pull enters the bands 13-16 sessions after
+        // the push, and those windows are exactly where the balance fell to
+        // 0.60. The PLAN is clamped, not the state: the push level keeps
+        // growing and gets its sets back the moment the pull catches up.
+        let pullSets = patterns.first { Pattern.pullSide.contains($0) }
+            .map { Level.decode(state.levels[$0] ?? 0).sets } ?? EngineConfig.setsMax
+
         let exercises: [SessionExercise] = patterns.map { p in
             let lib = ExerciseLibrary.entry(for: p)
             let d = Level.decode(state.levels[p] ?? 0)
             let variation = lib.variations[d.tier - 1]
             let unit = lib.unit(forTier: d.tier)
             let load = unit == .reps ? d.reps : d.hold
+            let sets = Pattern.pushSide.contains(p) ? min(d.sets, pullSets) : d.sets
 
             return SessionExercise(
                 pattern: p, name: variation.name, tier: d.tier,
                 unit: unit, load: load, perSide: variation.unilateral,
-                sets: d.sets,
+                sets: sets,
                 // v2.8 (spec §18.2): the rest between sets follows the set
                 // band — the field is per-exercise, so the timer needs no
                 // change.
-                restSetSec: EngineConfig.restSetByBand[d.sets] ?? EngineConfig.restSetSec,
+                restSetSec: EngineConfig.restSetByBand[sets] ?? EngineConfig.restSetSec,
                 restExerciseSec: EngineConfig.restExerciseSec
             )
         }
@@ -599,6 +616,26 @@ public enum Engine {
                 next.failStreak[p] = 0
             }
             next.levels[p] = newL
+        }
+
+        // v2.10 (spec §20.1): the cross-credit on the pull slot. The slot is in
+        // every session, but with the bar its bookkeeping is split in two, so
+        // each branch grew at half the slot's speed and the push entered the
+        // set bands 13-16 sessions earlier. The delta that landed is repeated
+        // to the other branch, capped by ITS OWN growth cell (§15.3). Upward
+        // only: a zero or negative delta credits nothing, so a skip, a
+        // discomfort report, a hold and a freeze on the trained branch all
+        // leave the other one alone without a special case. The other branch's
+        // streak is untouched — it was not trained.
+        if next.hasBar,
+           let trained = session.exercises.first(where: { Pattern.pullSide.contains($0.pattern) })?.pattern {
+            let other: Pattern = trained == .pull ? .pullBar : .pull
+            let gained = (next.levels[trained] ?? 0) - (state.levels[trained] ?? 0)
+            if gained > 0 {
+                let oldOther = next.levels[other] ?? 0
+                let cap = EngineConfig.maxUp(pattern: other, tier: Level.decode(oldOther).tier)
+                next.levels[other] = min(max(oldOther + min(gained, cap), 0), EngineConfig.levelMax)
+            }
         }
         return next
     }
