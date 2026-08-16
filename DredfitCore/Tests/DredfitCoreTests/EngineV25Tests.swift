@@ -168,66 +168,93 @@ final class EngineV25Tests: XCTestCase {
                                     skipped: skipped, discomfort: discomfort)
     }
 
-    /// The reported session behaves as a skip — nothing moves — and the
-    /// pattern comes out frozen.
+    /// v2.11 (spec §21.1): the report voids the session for the pattern AND
+    /// takes the load off — the level lands at the bottom of the previous
+    /// tier, the streak resets, the episode opens.
     func testDiscomfortLeavesTheSessionAloneAndFreezes() {
         var state = seeded(level: 12)
         state.failStreak[.pull] = 1
         let next = report(state, .more, discomfort: [.pull])
 
-        XCTAssertEqual(next.levels[.pull], 12, "the level does not move")
-        XCTAssertEqual(next.failStreak[.pull], 1, "the streak does not move")
+        XCTAssertEqual(next.levels[.pull], Level.unload(12), "tier 2 lands at the floor")
+        XCTAssertEqual(next.failStreak[.pull], 0, "the unload resets the streak")
         XCTAssertEqual(next.freezeRemaining(.pull), EngineConfig.freezeAppearances)
+        XCTAssertEqual(next.sore[.pull], EngineConfig.freezeAppearances, "the episode opens")
         XCTAssertEqual(next.counter, state.counter + 1, "the workout still happened")
         XCTAssertEqual(next.levels[.squat], 14, "a neighbour still climbs")
     }
 
-    /// Frozen, the pattern keeps its place in the plan and holds its level for
-    /// exactly N appearances — `pull` is in every session, so appearances are
-    /// sessions here.
+    /// Frozen, the pattern holds its unloaded level for exactly N appearances
+    /// — and then WAITS (v2.11, spec §21.2): taps never resume growth, only a
+    /// fact at or above the plan does. `pull` is in every session, so
+    /// appearances are sessions here.
     func testTheFreezeHoldsForExactlyThreeAppearances() {
-        var state = report(seeded(level: 12), .plan, discomfort: [.pull])
+        var state = report(seeded(level: 20), .plan, discomfort: [.pull])
+        let dropped = Level.unload(20)
+        XCTAssertEqual(state.levels[.pull], dropped)
         for left in stride(from: EngineConfig.freezeAppearances, to: 0, by: -1) {
             XCTAssertEqual(state.freezeRemaining(.pull), left)
             state = report(state, .more)
-            XCTAssertEqual(state.levels[.pull], 12, "no growth while frozen")
+            XCTAssertEqual(state.levels[.pull], dropped, "no growth while frozen")
         }
         XCTAssertEqual(state.freezeRemaining(.pull), 0, "the freeze has run out")
+        XCTAssertEqual(state.sore[.pull], EngineConfig.freezeAppearances, "the episode lives on")
         state = report(state, .more)
-        XCTAssertEqual(state.levels[.pull], 13, "growth returns — by the tier-2 cell (#76)")
+        XCTAssertEqual(state.levels[.pull], dropped, "a tap does not bring growth back")
+        let session = Engine.generateSession(state)
+        let load = session.exercises.first { $0.pattern == .pull }!.load
+        state = Engine.applyFeedback(state: state, session: session, result: .plan,
+                                     overrides: [.pull: load])
+        XCTAssertNil(state.sore[.pull], "the fact confirms recovery")
+        XCTAssertEqual(state.levels[.pull], dropped + EngineConfig.deltaPlan,
+                       "and the same fact takes the step")
     }
 
     /// Honesty is never overridden: a fact still takes the level down, while
-    /// one above the plan is clamped to where it was.
+    /// one above the plan is clamped — and under the freeze it does not
+    /// confirm either (v2.11: the assigned rest is served in full).
     func testAFactStillMovesAFrozenPatternDown() {
-        let frozen = report(seeded(level: 12), .plan, discomfort: [.pull])
-        let down = report(frozen, .plan, overrides: [.pull: 8])
-        XCTAssertLessThan(down.levels[.pull]!, 12, "a fact below the plan still lands")
+        let frozen = report(seeded(level: 20), .plan, discomfort: [.pull])   // level 8
+        let down = report(frozen, .plan, overrides: [.pull: 5])
+        XCTAssertLessThan(down.levels[.pull]!, 8, "a fact below the plan still lands")
         let up = report(frozen, .plan, overrides: [.pull: 99])
-        XCTAssertEqual(up.levels[.pull], 12, "a fact above the plan cannot grow it")
+        XCTAssertEqual(up.levels[.pull], 8, "a fact above the plan cannot grow it")
+        XCTAssertEqual(up.sore[.pull], EngineConfig.freezeAppearances,
+                       "a fact during the freeze does not confirm")
     }
 
-    /// No double punishment: the streak neither grows nor resets under a
-    /// freeze, so the deload cannot fire on top of it.
+    /// No double punishment: the unload resets the streak, and under the
+    /// freeze — and the waiting after it — the streak stands, so the deload
+    /// is unreachable until the episode is confirmed (v2.11, spec §21.2).
     func testAFreezeCannotDeload() {
         var state = seeded(level: 20)
         state.failStreak[.pull] = 2
         state = report(state, .less, discomfort: [.pull])
+        XCTAssertEqual(state.levels[.pull], 8, "the report unloads")
+        XCTAssertEqual(state.failStreak[.pull], 0, "and resets the streak")
         for _ in 0..<EngineConfig.freezeAppearances { state = report(state, .less) }
 
-        XCTAssertEqual(state.levels[.pull], 17, "three shortfalls, three steps — no deload")
-        XCTAssertEqual(state.failStreak[.pull], 2, "the streak stayed where it was")
+        XCTAssertEqual(state.levels[.pull], 5, "three shortfalls, three steps — no deload")
+        XCTAssertEqual(state.failStreak[.pull], 0, "the streak stays put")
         state = report(state, .less)
-        XCTAssertEqual(state.levels[.pull], 13, "once thawed the deload is possible again")
+        XCTAssertEqual(state.levels[.pull], 4, "waiting: still a step, still no deload")
+        XCTAssertEqual(state.failStreak[.pull], 0)
     }
 
-    /// A repeat report starts the rest over.
-    func testARepeatReportRefreshesTheCounter() {
-        var state = report(seeded(level: 12), .plan, discomfort: [.pull])
+    /// v2.11 (spec §21.2 p.2): a repeat report doubles the rest up the
+    /// 3 → 6 → 12 ladder instead of refreshing it, and never drops twice.
+    func testARepeatReportDoublesTheRest() {
+        var state = report(seeded(level: 20), .plan, discomfort: [.pull])
         state = report(state, .plan)
         XCTAssertEqual(state.freezeRemaining(.pull), EngineConfig.freezeAppearances - 1)
         state = report(state, .plan, discomfort: [.pull])
-        XCTAssertEqual(state.freezeRemaining(.pull), EngineConfig.freezeAppearances)
+        XCTAssertEqual(state.freezeRemaining(.pull), 6, "3 → 6")
+        XCTAssertEqual(state.levels[.pull], Level.unload(20), "no second drop")
+        state = report(state, .plan, discomfort: [.pull])
+        XCTAssertEqual(state.freezeRemaining(.pull), EngineConfig.freezeCapAppearances, "6 → 12")
+        state = report(state, .plan, discomfort: [.pull])
+        XCTAssertEqual(state.freezeRemaining(.pull), EngineConfig.freezeCapAppearances,
+                       "the ladder tops out")
     }
 
     /// A skip freezes the counter with everything else — the pattern was not
@@ -237,15 +264,15 @@ final class EngineV25Tests: XCTestCase {
         let before = state.freezeRemaining(.pull)
         state = report(state, .plan, skipped: [.pull])
         XCTAssertEqual(state.freezeRemaining(.pull), before)
-        XCTAssertEqual(state.levels[.pull], 12)
+        XCTAssertEqual(state.levels[.pull], Level.unload(12), "held at the unloaded level")
     }
 
-    /// Named in both, discomfort wins: the freeze carries information a silent
-    /// skip does not.
+    /// Named in both, discomfort wins: the unload is stronger than the fact,
+    /// and the freeze carries information a silent skip does not.
     func testDiscomfortOutranksASkipAndAFact() {
         let state = report(seeded(level: 12), .more, discomfort: [.pull],
                            skipped: [.pull], overrides: [.pull: 99])
-        XCTAssertEqual(state.levels[.pull], 12)
+        XCTAssertEqual(state.levels[.pull], Level.unload(12))
         XCTAssertEqual(state.freezeRemaining(.pull), EngineConfig.freezeAppearances)
     }
 
@@ -257,19 +284,22 @@ final class EngineV25Tests: XCTestCase {
         XCTAssertEqual(report(state, .plan, discomfort: [outside]).freezeRemaining(outside), 0)
     }
 
-    /// A break lowers the levels but must not thaw a freeze.
+    /// A break lowers the levels but must not thaw a freeze — nor close a
+    /// pain episode (v2.11, spec §21.2 p.8).
     func testBreaksDoNotThawTheFreeze() {
-        let frozen = report(seeded(level: 20), .plan, discomfort: [.pull])
+        let frozen = report(seeded(level: 20), .plan, discomfort: [.pull])   // level 8
         let left = frozen.freezeRemaining(.pull)
 
         let decayed = Engine.applySilentDecay(state: frozen, gapDays: 10)
         XCTAssertEqual(decayed.freezeRemaining(.pull), left, "silent decay keeps the freeze")
-        XCTAssertEqual(decayed.levels[.pull], 19, "and still takes the step")
+        XCTAssertEqual(decayed.sore[.pull], EngineConfig.freezeAppearances, "and the episode")
+        XCTAssertEqual(decayed.levels[.pull], 7, "and still takes the step")
 
         let back = Engine.applyComeback(state: decayed, gapDays: 16, alreadyDecayed: true)
         XCTAssertEqual(back.freezeRemaining(.pull), left, "the comeback keeps it too")
-        XCTAssertEqual(back.levels[.pull], 18, "the two drops still do not stack")
-        XCTAssertEqual(report(back, .more).levels[.pull], 18, "and it is still frozen")
+        XCTAssertEqual(back.sore[.pull], EngineConfig.freezeAppearances, "episode included")
+        XCTAssertEqual(back.levels[.pull], 6, "the two drops still do not stack")
+        XCTAssertEqual(report(back, .more).levels[.pull], 6, "and it is still frozen")
     }
 
     // MARK: - Serialization

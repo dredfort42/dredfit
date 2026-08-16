@@ -166,9 +166,10 @@ final class EngineV26Tests: XCTestCase {
 
     // MARK: - The identity and the reporting appearance
 
-    /// The identity the whole wave rests on, across the level lattice:
-    /// `pinned` arms the rest, `skipped` voids the session, discomfort does
-    /// both — so pinned + skipped is discomfort, state for state.
+    /// The v2.6 identity `pinned + skipped ≡ discomfort` is superseded in
+    /// v2.11 (spec §21.2): discomfort additionally unloads, resets the streak
+    /// and opens an episode. What remains — the narrowed identity: the freeze
+    /// counters and everything else in the state line up exactly.
     func testAPinPlusASkipReproducesDiscomfort() {
         for result in [FeedbackResult.less, .plan, .more] {
             for level in 0...EngineConfig.levelMax {
@@ -176,8 +177,23 @@ final class EngineV26Tests: XCTestCase {
                 state.failStreak[.pull] = 1
                 let viaPin = report(state, result, pinned: [.pull], skipped: [.pull])
                 let viaDiscomfort = report(state, result, discomfort: [.pull])
-                XCTAssertEqual(viaPin, viaDiscomfort,
-                               "pinned + skipped ≠ discomfort at level \(level), \(result)")
+                XCTAssertEqual(viaPin.freezeRemaining(.pull), viaDiscomfort.freezeRemaining(.pull),
+                               "the counters diverge at level \(level), \(result)")
+                XCTAssertEqual(viaDiscomfort.levels[.pull], Level.unload(level),
+                               "discomfort unloads at level \(level), \(result)")
+                XCTAssertEqual(viaPin.levels[.pull], level,
+                               "pinned + skipped holds at level \(level), \(result)")
+                XCTAssertEqual(viaDiscomfort.failStreak[.pull], 0, "the unload resets the streak")
+                XCTAssertEqual(viaPin.failStreak[.pull], 1, "the pin keeps it")
+                XCTAssertEqual(viaDiscomfort.sore[.pull], EngineConfig.freezeAppearances,
+                               "only pain opens an episode")
+                XCTAssertNil(viaPin.sore[.pull])
+                XCTAssertEqual(viaPin.counter, viaDiscomfort.counter)
+                XCTAssertEqual(viaPin.lessRun, viaDiscomfort.lessRun)
+                for other in Pattern.allCases where other != .pull {
+                    XCTAssertEqual(viaPin.levels[other], viaDiscomfort.levels[other],
+                                   "\(other) diverges at level \(level), \(result)")
+                }
             }
         }
     }
