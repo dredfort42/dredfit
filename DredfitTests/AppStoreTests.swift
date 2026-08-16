@@ -147,49 +147,6 @@ final class AppStoreTests: XCTestCase {
         XCTAssertEqual(store.restingPatterns.contains(heldPattern), inNextPlan)
     }
 
-    /// The sign that flips against discomfort: a pinned exercise WAS
-    /// performed, so its tier counts toward the debut history — while the
-    /// painful one was not. v2.11 (spec §21) moves where that shows: the
-    /// report unloads the movement to the previous tier, so the badge
-    /// question returns only when the user climbs back — and tier 2, never
-    /// actually performed, debuts then.
-    func testAPinnedExerciseCountsAsPerformedWhereAPainfulOneDoesNot() {
-        let hurtURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("dredfit-test-\(UUID().uuidString).json")
-        defer { try? FileManager.default.removeItem(at: hurtURL) }
-        for (url, pin) in [(tempURL!, true), (hurtURL, false)] {
-            let store = AppStore(storageURL: url)
-            // Walk pull to tier 2: it is in every session, and its cells
-            // allow +2 below tier 4, so four easy workouts reach level 8.
-            for _ in 0..<4 { store.completeWorkout(session: store.nextSession, result: .more) }
-            let session = store.nextSession
-            XCTAssertEqual(session.exercises.first { $0.pattern == .pull }?.tier, 2, "seeding")
-            store.completeWorkout(session: session, result: .plan,
-                                  discomfort: pin ? [] : [.pull], pinned: pin ? [.pull] : [])
-            if pin {
-                XCTAssertFalse(store.debutPatterns.contains(.pull),
-                               "performed under a pin — tier 2 is no debut")
-                continue
-            }
-            // The report unloaded pull to tier 1 — performed before, no badge.
-            XCTAssertEqual(store.nextSession.exercises.first { $0.pattern == .pull }?.tier, 1,
-                           "the pain report lands on the previous variation")
-            XCTAssertFalse(store.debutPatterns.contains(.pull),
-                           "the unloaded tier was performed — no badge")
-            // Serve the freeze (3 appearances — pull is in every session),
-            // confirm recovery with a fact at the plan, then climb back.
-            for _ in 0..<3 { store.completeWorkout(session: store.nextSession, result: .plan) }
-            let confirm = store.nextSession
-            let load = confirm.exercises.first { $0.pattern == .pull }!.load
-            store.completeWorkout(session: confirm, result: .plan, overrides: [.pull: load])
-            while store.nextSession.exercises.first(where: { $0.pattern == .pull })!.tier < 2 {
-                store.completeWorkout(session: store.nextSession, result: .more)
-            }
-            XCTAssertTrue(store.debutPatterns.contains(.pull),
-                          "back at tier 2 after the pain: it was never performed — it debuts")
-        }
-    }
-
     func testCorruptedStorageFallsBackToInitial() throws {
         try Data("{not a json".utf8).write(to: tempURL)
         let store = AppStore(storageURL: tempURL)
@@ -932,5 +889,51 @@ extension AppStoreTests {
         frozen.refreshWidgetSnapshot()   // what backgrounding does
         XCTAssertEqual(try Data(contentsOf: url), published,
                        "the widget must keep showing the last state that was real")
+    }
+}
+
+// MARK: - The debut badge across the v2.11 pain semantics
+
+extension AppStoreTests {
+
+    /// The sign that flips against discomfort: a pinned exercise WAS
+    /// performed, so its tier counts toward the debut history — while the
+    /// painful one was not. v2.11 (spec §21) moves where that shows: the
+    /// report unloads the movement to the previous tier, so the badge
+    /// question returns only when the user climbs back — and tier 2, never
+    /// actually performed, debuts then.
+    func testAPinnedExerciseCountsAsPerformedWhereAPainfulOneDoesNot() {
+        let hurtURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("dredfit-test-\(UUID().uuidString).json")
+        defer { try? FileManager.default.removeItem(at: hurtURL) }
+        for (url, pin) in [(tempURL!, true), (hurtURL, false)] {
+            let store = AppStore(storageURL: url)
+            // Walk pull to tier 2: it is in every session, and its cells
+            // allow +2 below tier 4, so four easy workouts reach level 8.
+            for _ in 0..<4 { store.completeWorkout(session: store.nextSession, result: .more) }
+            let session = store.nextSession
+            XCTAssertEqual(session.exercises.first { $0.pattern == .pull }?.tier, 2, "seeding")
+            store.completeWorkout(session: session, result: .plan,
+                                  discomfort: pin ? [] : [.pull], pinned: pin ? [.pull] : [])
+            if pin {
+                XCTAssertFalse(store.debutPatterns.contains(.pull),
+                               "performed under a pin — tier 2 is no debut")
+                continue
+            }
+            // The report unloaded pull to tier 1 (performed — no badge); the
+            // debut returns when the user climbs back: serve the freeze,
+            // confirm with a fact at the plan, grow to tier 2 again.
+            XCTAssertFalse(store.debutPatterns.contains(.pull),
+                           "the unloaded tier was performed — no badge")
+            for _ in 0..<3 { store.completeWorkout(session: store.nextSession, result: .plan) }
+            let confirm = store.nextSession
+            let load = confirm.exercises.first { $0.pattern == .pull }!.load
+            store.completeWorkout(session: confirm, result: .plan, overrides: [.pull: load])
+            while store.nextSession.exercises.first(where: { $0.pattern == .pull })!.tier < 2 {
+                store.completeWorkout(session: store.nextSession, result: .more)
+            }
+            XCTAssertTrue(store.debutPatterns.contains(.pull),
+                          "back at tier 2 after the pain: it was never performed — it debuts")
+        }
     }
 }

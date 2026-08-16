@@ -50,6 +50,28 @@ private struct Golden: Decodable {
         let frozenAfter: [Int]?    // v2.5: a break must not thaw a freeze
         let soreAfter: [Int]?      // v2.11: nor close a pain episode
         let lessRunAfter: Int?     // v2.9: a break does not continue a run of "less"
+        let returnRunAfter: Int?   // v2.12: consecutive returns deepen the drop
+        let illnessAfter: Int?     // v2.12: the illness lens survives a break
+    }
+    /// v2.12 (§22.3): one step may carry a SERIES of comebacks — returns in a
+    /// row with no session between, each past the first one deeper. The wire
+    /// form is either a single snapshot (the old shape) or {series: [...]}.
+    struct ComebackStep: Decodable {
+        let snaps: [Comeback]
+        private enum Keys: String, CodingKey { case series }
+        init(from decoder: Decoder) throws {
+            if let c = try? decoder.container(keyedBy: Keys.self),
+               let series = try c.decodeIfPresent([Comeback].self, forKey: .series) {
+                snaps = series
+            } else {
+                snaps = [try Comeback(from: decoder)]
+            }
+        }
+    }
+    /// v2.12 (§22.4): the "I was sick" tap, applied after the comeback and
+    /// before the session is generated.
+    struct IllnessTap: Decodable {
+        let illnessAfter: Int
     }
     /// applySilentDecay invoked before this step's session (v2.4) — and
     /// before the step's comeback, when both are present: the user peeked
@@ -63,6 +85,8 @@ private struct Golden: Decodable {
         let frozenAfter: [Int]?
         let soreAfter: [Int]?      // v2.11
         let lessRunAfter: Int?
+        let returnRunAfter: Int?   // v2.12: a decay is not a return
+        let illnessAfter: Int?     // v2.12: the lens survives a decay
     }
     struct Step: Decodable {
         let sessionNumber: Int
@@ -85,8 +109,11 @@ private struct Golden: Decodable {
         let barSoreAfter: Int?
         let lessRunAfter: Int?     // v2.9: run of "less" ratings naming nothing
         let creditPausedAfter: [Int]?   // v2.10: [pull, pullBar], 1 = credit paused
+        let returnRunAfter: Int?   // v2.12: 0 after any completed session
+        let illnessAfter: Int?     // v2.12: lens sessions left
         let silentDecay: SilentDecay?
-        let comeback: Comeback?
+        let comeback: ComebackStep?
+        let illnessTap: IllnessTap?
     }
     struct Ex: Decodable {
         let pattern: String
@@ -114,7 +141,7 @@ final class GoldenTests: XCTestCase {
     /// re-baseline every number instead of catching a port bug.
     func testGeneratorIsThePinnedReferenceVersion() throws {
         let g = try loadGolden()
-        XCTAssertEqual(g.generator, "adaptive_engine.js v2.11.0",
+        XCTAssertEqual(g.generator, "adaptive_engine.js v2.12.0",
                        "golden.json regenerated from an unexpected reference version")
     }
 
@@ -174,29 +201,7 @@ final class GoldenTests: XCTestCase {
             for (i, step) in scenario.steps.enumerated() {
                 let ctx = "\(scenario.name)/step \(i + 1)"
                 if let hasBar = step.hasBar { state.hasBar = hasBar } // settings toggle
-                if let decay = step.silentDecay {
-                    state = Engine.applySilentDecay(state: state, gapDays: decay.gapDays)
-                    assertBreak(state, BreakSnapshot(
-                        levels: decay.levelsAfter, streaks: decay.failStreakAfter,
-                        barLevel: decay.barLevelAfter, barStreak: decay.barStreakAfter,
-                        frozen: decay.frozenAfter, sore: decay.soreAfter,
-                        lessRun: decay.lessRunAfter),
-                        order: g.patternOrder, ctx: "\(ctx) silent decay")
-                }
-                if let comeback = step.comeback {
-                    // the app applies this on launch after a break,
-                    // before the plan is generated — same order here
-                    state = Engine.applyComeback(state: state, gapDays: comeback.gapDays,
-                                                 alreadyDecayed: comeback.alreadyDecayed ?? false)
-                    assertBreak(state, BreakSnapshot(
-                        levels: comeback.levelsAfter, streaks: comeback.failStreakAfter,
-                        barLevel: comeback.barLevelAfter, barStreak: comeback.barStreakAfter,
-                        frozen: comeback.frozenAfter, sore: comeback.soreAfter,
-                        lessRun: comeback.lessRunAfter),
-                        order: g.patternOrder, ctx: "\(ctx) comeback")
-                    XCTAssertEqual(state.counter, comeback.counterAfter,
-                                   "\(ctx) comeback must not move the counter")
-                }
+                replayBreaks(step, into: &state, order: g.patternOrder, ctx: ctx)
                 let session = Engine.generateSession(state)
 
                 // --- session matches the reference ---
@@ -241,32 +246,89 @@ final class GoldenTests: XCTestCase {
                     XCTAssertEqual(state.failStreak[.pullBar], barStreak, ctx + " (bar streak)")
                 }
 
-                // freeze counters after discomfort
-                if let frozen = step.frozenAfter {
-                    XCTAssertEqual(Pattern.ordered.map { state.freezeRemaining($0) },
-                                   frozen, ctx + " (frozen)")
-                }
-                if let barFrozen = step.barFrozenAfter {
-                    XCTAssertEqual(state.freezeRemaining(.pullBar), barFrozen, ctx + " (bar frozen)")
-                }
-                // v2.11: pain-episode assignments (spec §21.2)
-                if let sore = step.soreAfter {
-                    XCTAssertEqual(Pattern.ordered.map { state.sore[$0] ?? 0 },
-                                   sore, ctx + " (sore)")
-                }
-                if let barSore = step.barSoreAfter {
-                    XCTAssertEqual(state.sore[.pullBar] ?? 0, barSore, ctx + " (bar sore)")
-                }
-                // v2.9: the run of unnamed "less" ratings (spec §19.1)
-                if let lessRun = step.lessRunAfter {
-                    XCTAssertEqual(state.lessRun, lessRun, ctx + " (less run)")
-                }
-                // v2.10: the cross-credit pause on the pull slot (spec §20.1)
-                if let paused = step.creditPausedAfter {
-                    XCTAssertEqual([Pattern.pull, .pullBar].map { state.creditPaused.contains($0) ? 1 : 0 },
-                                   paused, ctx + " (credit paused)")
-                }
+                assertAuxFields(step, state, ctx: ctx)
             }
+        }
+    }
+
+    /// The breaks a step may carry, replayed in the app's order: the silent
+    /// decay first, then the comeback (v2.12: possibly a series of them with
+    /// no session between), then the "I was sick" tap.
+    private func replayBreaks(_ step: Golden.Step, into state: inout EngineState,
+                              order: [String], ctx: String) {
+        if let decay = step.silentDecay {
+            state = Engine.applySilentDecay(state: state, gapDays: decay.gapDays)
+            assertBreak(state, BreakSnapshot(
+                levels: decay.levelsAfter, streaks: decay.failStreakAfter,
+                barLevel: decay.barLevelAfter, barStreak: decay.barStreakAfter,
+                frozen: decay.frozenAfter, sore: decay.soreAfter,
+                lessRun: decay.lessRunAfter),
+                order: order, ctx: "\(ctx) silent decay")
+            if let run = decay.returnRunAfter {
+                XCTAssertEqual(state.returnRun, run, "\(ctx) decay (return run)")
+            }
+            if let ill = decay.illnessAfter {
+                XCTAssertEqual(state.illness, ill, "\(ctx) decay (illness)")
+            }
+        }
+        for (n, comeback) in (step.comeback?.snaps ?? []).enumerated() {
+            state = Engine.applyComeback(state: state, gapDays: comeback.gapDays,
+                                         alreadyDecayed: comeback.alreadyDecayed ?? false)
+            let cctx = "\(ctx) comeback[\(n)]"
+            assertBreak(state, BreakSnapshot(
+                levels: comeback.levelsAfter, streaks: comeback.failStreakAfter,
+                barLevel: comeback.barLevelAfter, barStreak: comeback.barStreakAfter,
+                frozen: comeback.frozenAfter, sore: comeback.soreAfter,
+                lessRun: comeback.lessRunAfter),
+                order: order, ctx: cctx)
+            XCTAssertEqual(state.counter, comeback.counterAfter,
+                           "\(cctx) must not move the counter")
+            if let run = comeback.returnRunAfter {
+                XCTAssertEqual(state.returnRun, run, "\(cctx) (return run)")
+            }
+            if let ill = comeback.illnessAfter {
+                XCTAssertEqual(state.illness, ill, "\(cctx) (illness)")
+            }
+        }
+        if let tap = step.illnessTap {
+            state = Engine.applyIllness(state: state)
+            XCTAssertEqual(state.illness, tap.illnessAfter, "\(ctx) illness tap")
+        }
+    }
+
+    /// Every optional per-step snapshot past levels and streaks — the fields
+    /// each wave added, compared only where the fixture carries them.
+    private func assertAuxFields(_ step: Golden.Step, _ state: EngineState, ctx: String) {
+        if let frozen = step.frozenAfter {
+            XCTAssertEqual(Pattern.ordered.map { state.freezeRemaining($0) },
+                           frozen, ctx + " (frozen)")
+        }
+        if let barFrozen = step.barFrozenAfter {
+            XCTAssertEqual(state.freezeRemaining(.pullBar), barFrozen, ctx + " (bar frozen)")
+        }
+        // v2.11: pain-episode assignments (spec §21.2)
+        if let sore = step.soreAfter {
+            XCTAssertEqual(Pattern.ordered.map { state.sore[$0] ?? 0 },
+                           sore, ctx + " (sore)")
+        }
+        if let barSore = step.barSoreAfter {
+            XCTAssertEqual(state.sore[.pullBar] ?? 0, barSore, ctx + " (bar sore)")
+        }
+        // v2.9: the run of unnamed "less" ratings (spec §19.1)
+        if let lessRun = step.lessRunAfter {
+            XCTAssertEqual(state.lessRun, lessRun, ctx + " (less run)")
+        }
+        // v2.10: the cross-credit pause on the pull slot (spec §20.1)
+        if let paused = step.creditPausedAfter {
+            XCTAssertEqual([Pattern.pull, .pullBar].map { state.creditPaused.contains($0) ? 1 : 0 },
+                           paused, ctx + " (credit paused)")
+        }
+        // v2.12: the comeback series and the illness lens (spec §22)
+        if let run = step.returnRunAfter {
+            XCTAssertEqual(state.returnRun, run, ctx + " (return run)")
+        }
+        if let ill = step.illnessAfter {
+            XCTAssertEqual(state.illness, ill, ctx + " (illness)")
         }
     }
 }
