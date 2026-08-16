@@ -572,22 +572,8 @@ public enum Engine {
             let p = ex.pattern
             // Discomfort outranks a skip: the session is voided for the
             // pattern either way, but only one of them carries information.
-            // v2.11 (spec §21.1-21.2): the first report of an episode takes
-            // the load off — the level lands at the bottom of the previous
-            // tier, the streak resets, the episode is marked in `sore`. A
-            // repeat report while the episode lives leaves the level alone
-            // and doubles the rest assignment up the 3 → 6 → 12 ladder.
             if discomfort.contains(p) {
-                if let episode = state.sore[p] {
-                    let assigned = min(episode * 2, EngineConfig.freezeCapAppearances)
-                    next.frozen[p] = assigned
-                    next.sore[p] = assigned
-                } else {
-                    next.levels[p] = Level.unload(state.levels[p] ?? 0)
-                    next.failStreak[p] = 0
-                    next.frozen[p] = EngineConfig.freezeAppearances
-                    next.sore[p] = EngineConfig.freezeAppearances
-                }
+                Self.applyDiscomfortReport(&next, state: state, pattern: p)
                 continue
             }
             if skipped.contains(p) {
@@ -704,47 +690,74 @@ public enum Engine {
             next.levels[p] = newL
         }
 
-        // v2.10 (spec §20.1): the cross-credit on the pull slot. The slot is in
-        // every session, but with the bar its bookkeeping is split in two, so
-        // each branch grew at half the slot's speed and the push entered the
-        // set bands 13-16 sessions earlier. The delta that landed is repeated
-        // to the other branch, capped by ITS OWN growth cell (§15.3). Upward
-        // only: a zero or negative delta credits nothing, so a skip, a
-        // discomfort report, a hold and a freeze on the trained branch all
-        // leave the other one alone without a special case. The other branch's
-        // streak is untouched — it was not trained.
-        if next.hasBar,
-           let trained = session.exercises.first(where: { Pattern.pullSide.contains($0.pattern) })?.pattern {
-            let other: Pattern = trained == .pull ? .pullBar : .pull
-            // The pause (spec §20.1): a branch whose last appearance you called
-            // hard earns no credit until an appearance goes by without such a
-            // signal. Measured without it, the level climbed to 29 whether what
-            // you could hold was 6, 12 or 20 — the credit lands on days the
-            // branch is not in the plan, and a targeted "less" (§19.1) aims at
-            // the highest-level movement of the session, usually not this one.
-            let factBelowPlan = session.exercises.first { $0.pattern == trained }
-                .map { ex in (overrides[trained].map { $0 < ex.load }) ?? false } ?? false
-            if result == .less || discomfort.contains(trained) || pinned.contains(trained)
-                || factBelowPlan {
-                next.creditPaused.insert(trained)
-            } else {
-                next.creditPaused.remove(trained)
-            }
-
-            // v2.11 (spec §21.3, #125): the credit never grows a frozen or
-            // sore receiver — "a frozen pattern cannot grow" (§15.2 p.2)
-            // extends to growth by someone else's credit. The receiving
-            // branch was not in this session, so its freeze and episode in
-            // `next` are exactly the state's.
-            let gained = (next.levels[trained] ?? 0) - (state.levels[trained] ?? 0)
-            if gained > 0, !next.creditPaused.contains(other),
-               next.freezeRemaining(other) == 0, next.sore[other] == nil {
-                let oldOther = next.levels[other] ?? 0
-                let cap = EngineConfig.maxUp(pattern: other, tier: Level.decode(oldOther).tier)
-                next.levels[other] = min(max(oldOther + min(gained, cap), 0), EngineConfig.levelMax)
-            }
-        }
+        Self.applyCrossCredit(&next, state: state, session: session, result: result,
+                              overrides: overrides, discomfort: discomfort, pinned: pinned)
         return next
+    }
+
+    /// v2.11 (spec §21.1-21.2): the first report of an episode takes the load
+    /// off — the level lands at the bottom of the previous tier
+    /// (`Level.unload`), the streak resets, the episode is marked in `sore`.
+    /// A repeat report while the episode lives leaves the level alone and
+    /// doubles the rest assignment up the 3 → 6 → 12 ladder.
+    private static func applyDiscomfortReport(_ next: inout EngineState,
+                                              state: EngineState, pattern p: Pattern) {
+        if let episode = state.sore[p] {
+            let assigned = min(episode * 2, EngineConfig.freezeCapAppearances)
+            next.frozen[p] = assigned
+            next.sore[p] = assigned
+        } else {
+            next.levels[p] = Level.unload(state.levels[p] ?? 0)
+            next.failStreak[p] = 0
+            next.frozen[p] = EngineConfig.freezeAppearances
+            next.sore[p] = EngineConfig.freezeAppearances
+        }
+    }
+
+    /// v2.10 (spec §20.1): the cross-credit on the pull slot. The slot is in
+    /// every session, but with the bar its bookkeeping is split in two, so
+    /// each branch grew at half the slot's speed and the push entered the
+    /// set bands 13-16 sessions earlier. The delta that landed is repeated
+    /// to the other branch, capped by ITS OWN growth cell (§15.3). Upward
+    /// only: a zero or negative delta credits nothing, so a skip, a
+    /// discomfort report, a hold and a freeze on the trained branch all
+    /// leave the other one alone without a special case. The other branch's
+    /// streak is untouched — it was not trained.
+    private static func applyCrossCredit(_ next: inout EngineState, state: EngineState,
+                                         session: Session, result: FeedbackResult,
+                                         overrides: [Pattern: Int],
+                                         discomfort: Set<Pattern>, pinned: Set<Pattern>) {
+        guard next.hasBar,
+              let trained = session.exercises.first(where: { Pattern.pullSide.contains($0.pattern) })?.pattern
+        else { return }
+        let other: Pattern = trained == .pull ? .pullBar : .pull
+        // The pause (spec §20.1): a branch whose last appearance you called
+        // hard earns no credit until an appearance goes by without such a
+        // signal. Measured without it, the level climbed to 29 whether what
+        // you could hold was 6, 12 or 20 — the credit lands on days the
+        // branch is not in the plan, and a targeted "less" (§19.1) aims at
+        // the highest-level movement of the session, usually not this one.
+        let factBelowPlan = session.exercises.first { $0.pattern == trained }
+            .map { ex in (overrides[trained].map { $0 < ex.load }) ?? false } ?? false
+        if result == .less || discomfort.contains(trained) || pinned.contains(trained)
+            || factBelowPlan {
+            next.creditPaused.insert(trained)
+        } else {
+            next.creditPaused.remove(trained)
+        }
+
+        // v2.11 (spec §21.3, #125): the credit never grows a frozen or sore
+        // receiver — "a frozen pattern cannot grow" (§15.2 p.2) extends to
+        // growth by someone else's credit. The receiving branch was not in
+        // this session, so its freeze and episode in `next` are exactly the
+        // state's.
+        let gained = (next.levels[trained] ?? 0) - (state.levels[trained] ?? 0)
+        if gained > 0, !next.creditPaused.contains(other),
+           next.freezeRemaining(other) == 0, next.sore[other] == nil {
+            let oldOther = next.levels[other] ?? 0
+            let cap = EngineConfig.maxUp(pattern: other, tier: Level.decode(oldOther).tier)
+            next.levels[other] = min(max(oldOther + min(gained, cap), 0), EngineConfig.levelMax)
+        }
     }
 
     // Time enters the engine here, and only here (issue #98, spec §7). The two
