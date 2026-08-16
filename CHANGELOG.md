@@ -14,6 +14,47 @@ learns to speak up quietly where the audit found it silent, and the whole
 set of workout tones grows into a voice of its own. Every new field
 decodes tolerantly: the state and journal formats need no migrations.
 
+### Engine v2.10.0 — the pull keeps up with the push when you have a bar (issue #90)
+
+With a bar enabled the pull's fixed slot alternates between the row and the
+vertical branch, and each branch kept its own count — so each climbed at half
+the slot's speed while both push movements climbed at full speed. The push
+therefore reached the 4- and 5-set bands 13 to 16 workouts earlier, and in
+those windows it did four sets against the pull's three. Measured over 32
+weeks: 22 weeks out of 94 sat below the 0.7 pull/push balance the model is
+built on, the worst at 0.56, up to five weeks in a row. Without a bar this
+never happened.
+
+- **Training one pull moves the other.** The step the slot earns is repeated
+  to the branch that was not in today's workout, capped by that branch's own
+  growth ceiling. Both rows and pull-ups develop the same lats and biceps, and
+  the slot is trained every workout either way — so it now progresses at the
+  speed it always did without a bar, rather than half of it.
+- **The push never shows more sets than the pull of the same workout.** Only
+  the plan is clamped: the push level keeps growing, history and Progress show
+  it honestly, and the sets come back the moment the pull reaches the band.
+- Two things this also fixes, both invisible until now: with an alternating
+  "harder/easier" rhythm the vertical branch used to land in the same rating
+  forever and never left zero, and with a four-workout rhythm the row lagged
+  the same way. Both branches now keep pace.
+- **And it stops when you say the movement is hard.** The credit lands on the
+  workouts a branch is not in — the ones you have no way to answer — so a
+  branch whose last appearance you reported as harder than usual earns no
+  credit until an appearance goes by without that. Without it the plan climbed
+  away from what you could actually do and never came back; with it it parks
+  one step above your current ceiling, exactly where every other movement
+  parks. Reporting pain, holding the level, or logging a number below the plan
+  all count as the same signal.
+- Pull-ups join the row's growth ceiling at variations 2 and 3 — one step per
+  workout. The #76 wave had left the bar branch alone precisely because it
+  appeared half as often; the credit removes that premise, so the frequency
+  argument now applies to it too.
+- Spec §20, 17,848 property checks (was 14,733) — the balance envelope is now
+  swept across seven rating rhythms and both bar settings instead of one, and
+  the volume side of it counts time under load, so an isometric hang stops
+  reading as zero. A sixteenth golden scenario; no migration, state files
+  decode unchanged.
+
 ### Engine v2.9.0 — "harder than usual" stops punishing the movements that were fine (issue #91)
 
 One tap used to hand one delta to all six movements of the workout, and

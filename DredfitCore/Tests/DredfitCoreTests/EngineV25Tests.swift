@@ -57,9 +57,12 @@ final class EngineV25Tests: XCTestCase {
     func testTheShippedCeilingMatchesTheDeclaredRule() {
         for p in Pattern.allCases {
             for tier in 1...EngineConfig.tiers {
+                // v2.10 (spec §20.1): the bar branch joins the pull's cells —
+                // the cross-credit gives it the slot's full speed, so the
+                // frequency argument of #76 reaches it too.
                 let slow = p == .calf
                     || (p == .pushV && tier >= 3)
-                    || (p == .pull && tier >= 2)
+                    || (Pattern.pullSide.contains(p) && tier >= 2)
                     || tier == EngineConfig.tiers
                 XCTAssertEqual(EngineConfig.maxUp(pattern: p, tier: tier), slow ? 1 : 2,
                                "\(p.rawValue) tier \(tier)")
@@ -71,14 +74,16 @@ final class EngineV25Tests: XCTestCase {
     /// fixed slot gives it eight appearances where a rotating pattern gets
     /// five, so from the first real row on it is held to a step. Tier 1 is
     /// scapular activation, not a row, and deliberately keeps the default;
-    /// the bar branch sits at four appearances in eight and is not capped
-    /// by frequency at all.
+    /// the bar branch used to sit at four appearances in eight and went
+    /// uncapped — until v2.10 (spec §20.1) gave the slot back its full speed
+    /// through the cross-credit, which makes the same argument apply to it.
     func testThePullIsHeldToAStepFromTierTwo() {
         XCTAssertEqual(EngineConfig.maxUp(pattern: .pull, tier: 1), 2, "tier 1 keeps the default")
         XCTAssertEqual(EngineConfig.maxUp(pattern: .pull, tier: 2), 1, "the inverted row")
         XCTAssertEqual(EngineConfig.maxUp(pattern: .pull, tier: 3), 1, "the feet-elevated row")
-        XCTAssertEqual(EngineConfig.maxUp(pattern: .pullBar, tier: 2), 2, "the bar branch is not frequency-capped")
-        XCTAssertEqual(EngineConfig.maxUp(pattern: .pullBar, tier: 3), 2, "the bar branch is not frequency-capped")
+        XCTAssertEqual(EngineConfig.maxUp(pattern: .pullBar, tier: 2), 1, "the bar branch is capped alongside the row")
+        XCTAssertEqual(EngineConfig.maxUp(pattern: .pullBar, tier: 3), 1, "the bar branch is capped alongside the row")
+        XCTAssertEqual(EngineConfig.maxUp(pattern: .pullBar, tier: 1), 2, "the hang keeps the default")
 
         // "More" at a tier-2 level takes one step, not two; "on plan" is
         // never capped, so the pull still moves every session.

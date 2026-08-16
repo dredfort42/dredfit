@@ -541,16 +541,21 @@ final class AppStoreTests: XCTestCase {
 
         // the toggle and the branch snapshot survive a reload
         store.completeWorkout(session: second, result: .more)
-        XCTAssertEqual(store.records.last?.levelsAfter?[.pullBar], 2,
+        // v2.10 (spec §20.1): the cross-credit moves the branch on pull
+        // sessions too, so the level is read from the engine rather than
+        // spelled out — this test is about the snapshot and the reload.
+        let barLevel = store.engineState.levels[.pullBar]
+        XCTAssertEqual(store.records.last?.levelsAfter?[.pullBar], barLevel,
                        "the journal snapshot must include the pull_bar level")
         let reloaded = AppStore(storageURL: tempURL)
         XCTAssertTrue(reloaded.engineState.hasBar)
-        XCTAssertEqual(reloaded.engineState.levels[.pullBar], 2)
+        XCTAssertEqual(reloaded.engineState.levels[.pullBar], barLevel)
 
         // turning the bar off freezes the branch but keeps its progress
         reloaded.setHasBar(false)
         XCTAssertFalse(reloaded.nextSession.exercises.contains { $0.pattern == .pullBar })
-        XCTAssertEqual(reloaded.engineState.levels[.pullBar], 2)
+        XCTAssertEqual(reloaded.engineState.levels[.pullBar], barLevel,
+                       "turning the bar off keeps the branch where it was")
     }
 
     // MARK: - Calendar logic
