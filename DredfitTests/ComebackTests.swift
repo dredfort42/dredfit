@@ -117,9 +117,11 @@ final class ComebackTests: XCTestCase {
 
     // MARK: - Fresh start
 
-    func testFreshStartOnlyOfferedAfterHalfAYear() throws {
-        XCTAssertFalse(try storeWithLastWorkout(daysAgo: 100).offersFreshStart())
-        XCTAssertTrue(try storeWithLastWorkout(daysAgo: 180).offersFreshStart())
+    func testFreshStartOnlyOfferedAfterANinetyDayBreak() throws {
+        // v2.12 (#127): from a quarter away, not half a year — after 90 days
+        // "as it was" is blind enough that "from scratch" must be on the card.
+        XCTAssertFalse(try storeWithLastWorkout(daysAgo: 89).offersFreshStart())
+        XCTAssertTrue(try storeWithLastWorkout(daysAgo: 90).offersFreshStart())
     }
 
     func testFreshStartResetsLevelsButKeepsHistoryAndTheBar() throws {

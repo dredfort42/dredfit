@@ -162,10 +162,37 @@ struct TodayView: View {
 
             if store.shouldOfferComeback() {
                 ComebackCard(offersFreshStart: store.offersFreshStart(),
+                             preview: store.comebackPreview(),
                              onAccept: { store.acceptComeback() },
                              onDecline: { store.declineComeback() },
-                             onFreshStart: { freshStartConfirmShown = true })
+                             onFreshStart: { freshStartConfirmShown = true },
+                             // Spec §22.4: the comeback lands first, the lens
+                             // goes on top of the landing.
+                             onSick: { store.acceptComeback(); store.markIllness() })
                     .padding(.top, 10)
+            }
+
+            // v2.12 (#133): the window the engine cannot see — a short gap
+            // below the comeback. One quiet tap, no questionnaire.
+            if store.shouldOfferIllnessTap() {
+                Button { store.markIllness() } label: {
+                    Text("Been sick? Take two gentler weeks")
+                        .dredfitFont(13.5)
+                        .foregroundStyle(Theme.ink2)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .accessibilityIdentifier("illness-offer")
+                .padding(.top, 6)
+            }
+
+            // While the lens runs, say so — a plan that quietly got easier
+            // reads as a glitch without the reason on screen.
+            if store.illnessSessionsLeft > 0 {
+                Text("Recovery: \(store.illnessSessionsLeft) gentler workouts left")
+                    .dredfitFont(13.5)
+                    .foregroundStyle(Theme.ink2)
+                    .padding(.top, 6)
+                    .accessibilityIdentifier("illness-lens-line")
             }
 
             // The card replaces Start — its own two actions already are

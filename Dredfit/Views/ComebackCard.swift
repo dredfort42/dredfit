@@ -10,9 +10,13 @@ import SwiftUI
 
 struct ComebackCard: View {
     let offersFreshStart: Bool
+    /// The two offers as the same movement in numbers (#127): what the plan
+    /// holds if left alone, and what "easier" actually is. Nil hides the rows.
+    let preview: (was: String, easier: String)?
     let onAccept: () -> Void
     let onDecline: () -> Void
     let onFreshStart: () -> Void
+    let onSick: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -27,6 +31,17 @@ struct ComebackCard: View {
                 .lineSpacing(2.5)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 8)
+
+            // The choice in numbers, not adjectives (#127): after a long
+            // break "leave as it was" used to hand out the old plan blind.
+            if let preview {
+                VStack(alignment: .leading, spacing: 5) {
+                    previewRow(label: String(localized: "Easier:"), value: preview.easier)
+                    previewRow(label: String(localized: "As it was:"), value: preview.was)
+                }
+                .padding(.top, 12)
+                .accessibilityIdentifier("comeback-preview")
+            }
 
             HStack(spacing: 10) {
                 Button(action: onAccept) {
@@ -50,6 +65,17 @@ struct ComebackCard: View {
             }
             .padding(.top, 16)
 
+            // v2.12 (#133): the "I was sick" path — the easier start plus a
+            // recovery fortnight at one tier gentler, in a single tap.
+            Button(action: onSick) {
+                Text("I was sick — two gentler weeks")
+                    .dredfitFont(13)
+                    .foregroundStyle(Theme.ink2)
+                    .frame(maxWidth: .infinity, minHeight: 30)
+            }
+            .accessibilityIdentifier("comeback-sick")
+            .padding(.top, 4)
+
             if offersFreshStart {
                 Button(action: onFreshStart) {
                     // ink2, not ink3: an interactive control has to pass 3:1.
@@ -59,10 +85,21 @@ struct ComebackCard: View {
                         .frame(maxWidth: .infinity, minHeight: 30)
                 }
                 .accessibilityIdentifier("comeback-fresh")
-                .padding(.top, 4)
             }
         }
         .padding(18)
         .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 18))
+    }
+
+    private func previewRow(label: String, value: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 6) {
+            Text(label)
+                .dredfitFont(13, weight: .semibold)
+                .foregroundStyle(Theme.ink2)
+            Text(value)
+                .dredfitFont(13)
+                .foregroundStyle(Theme.ink)
+                .fixedSize(horizontal: false, vertical: true)
+        }
     }
 }
