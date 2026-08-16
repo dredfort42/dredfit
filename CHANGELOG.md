@@ -14,6 +14,41 @@ learns to speak up quietly where the audit found it silent, and the whole
 set of workout tones grows into a voice of its own. Every new field
 decodes tolerantly: the state and journal formats need no migrations.
 
+### Engine v2.11.0 — pain takes the load off and asks before growth resumes (issues #124, #125)
+
+Reporting pain used to freeze a movement for three appearances — at its full
+load. The plan kept offering the same pistol squats to the same complaining
+knee, and when the freeze quietly ran out (about a week and a half at three
+workouts a week) growth resumed into the sore joint with no questions asked —
+against tissue-recovery timelines measured in months. The 2026-08-16 audit
+confirmed it as the one place the app could physically harm; the spec had
+already written the rule this wave finally enforces: take the load off,
+don't trim it.
+
+- **A pain report now unloads the movement.** The level lands at the bottom
+  of the previous variation — an easier movement for the joint, not fewer
+  reps of the one that hurts. The shortfall streak resets with it: the old
+  variation's history has nothing to say about the new one.
+- **The rest ends with a question, not a timer.** A pain freeze expires into
+  waiting: taps keep the level parked indefinitely, and growth resumes only
+  after a logged number at or above the plan — proof, not optimism. The
+  confirming number itself takes the first step, through the ordinary
+  per-session ceiling. A held level (the "I need longer here" request) still
+  expires into growth as before — a request is not an injury.
+- **Saying it again buys more rest.** A repeat report doubles the assignment
+  — 3, then 6, then 12 appearances, about a month at the ceiling — and never
+  drops the level twice. The care line that suggests a specialist from the
+  third report is untouched.
+- **The cross-credit respects the rest.** With a bar, training one pull
+  branch no longer grows the other while that other is frozen or waiting —
+  the audit caught a hang climbing from 35 to 55 seconds during the "rest"
+  of an injured shoulder. A hold request never shortens a pain rest either.
+- Spec §21, 19,972 property checks (was 17,848) — the freeze lifecycle,
+  the ladder, the confirmation gate and the credit gate swept across the
+  level lattice; a seventeenth golden scenario walks two overlapping pain
+  episodes through a break, a pin and a confirmation. State files decode
+  unchanged: the episode field is additive, like every field before it.
+
 ### Engine v2.10.0 — the pull keeps up with the push when you have a bar (issue #90)
 
 With a bar enabled the pull's fixed slot alternates between the row and the

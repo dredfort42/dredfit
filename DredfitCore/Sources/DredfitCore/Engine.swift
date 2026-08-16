@@ -93,6 +93,10 @@ public enum EngineConfig {
     /// eight, so "three sessions" would make the actual rest unpredictable.
     /// Three ≈ a calendar week.
     public static let freezeAppearances = 3
+    /// v2.11 (spec §21.2): the rest ladder's ceiling for repeated pain
+    /// reports — the assignment doubles 3 → 6 → 12 and stops here
+    /// (≈ a month at three sessions a week).
+    public static let freezeCapAppearances = 12
     public static let repStart = [1: 8, 2: 6, 3: 5, 4: 4]
     public static let holdStart = [1: 20, 2: 15, 3: 15, 4: 10]
     public static var levelMax: Int { (tiers + setsMax - setsBase) * stepsPerTier - 1 } // 47
@@ -169,18 +173,25 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// credit lands on sessions the branch is not in — the ones you cannot
     /// answer — so without this the level runs away from what you can do.
     public var creditPaused: Set<Pattern>
+    /// v2.11 (spec §21.2): live pain episodes. The value is the last freeze
+    /// assignment made by this episode (the 3 → 6 → 12 ladder). An episode
+    /// outlives its freeze counter: once the counter runs out the pattern
+    /// waits — growth stays clamped until an explicit fact at or above the
+    /// plan confirms the pain settled. Empty map = no episodes, so a state
+    /// file written before this existed decodes to exactly that.
+    public var sore: [Pattern: Int]
 
     // Spelled out (same names the compiler would synthesize) so that
     // decodeLenient can reference the type — synthesized CodingKeys are only
     // visible inside init(from:)/encode(to:). The wire format is unchanged.
     private enum CodingKeys: String, CodingKey {
-        case counter, levels, failStreak, hasBar, frozen, lessRun, creditPaused
+        case counter, levels, failStreak, hasBar, frozen, lessRun, creditPaused, sore
     }
 
     public init(counter: Int, levels: [Pattern: Int],
                 failStreak: [Pattern: Int], hasBar: Bool = false,
                 frozen: [Pattern: Int] = [:], lessRun: Int = 0,
-                creditPaused: Set<Pattern> = []) {
+                creditPaused: Set<Pattern> = [], sore: [Pattern: Int] = [:]) {
         self.counter = counter
         self.levels = levels
         self.failStreak = failStreak
@@ -188,6 +199,7 @@ public struct EngineState: Codable, Equatable, Sendable {
         self.frozen = frozen
         self.lessRun = lessRun
         self.creditPaused = creditPaused
+        self.sore = sore
     }
 
     /// Lenient in both directions: files written before hasBar/pull_bar
@@ -221,6 +233,13 @@ public struct EngineState: Codable, Equatable, Sendable {
         // same way the level maps drop them.
         creditPaused = Set((try c.decodeIfPresent([String].self, forKey: .creditPaused) ?? [])
             .compactMap(Pattern.init(rawValue:)))
+        // Additive, sanitized as the reference does (§21.4): only positive
+        // entries survive, values are clamped to the ladder's ceiling.
+        sore = c.contains(.sore)
+            ? try Self.decodeLenient(c, forKey: .sore)
+                .filter { $0.value >= 1 }
+                .mapValues { min($0, EngineConfig.freezeCapAppearances) }
+            : [:]
     }
 
     /// Manual decode of the exact wire format Swift synthesizes for a
@@ -284,6 +303,15 @@ public enum Level {
             hold: (EngineConfig.holdStart[tier] ?? EngineConfig.holdMin)
                 + step * EngineConfig.holdStepSec
         )
+    }
+
+    /// v2.11 (spec §21.1): where a pain report lands — the bottom of the
+    /// previous tier. A change of variation, not fewer reps of the same one:
+    /// "take the load off, don't trim it" (§15.2). The set bands are tier 4
+    /// by encoding, so they too land at the bottom of tier 3.
+    public static func unload(_ level: Int) -> Int {
+        let tier = decode(level).tier
+        return max(0, (tier - 2) * EngineConfig.stepsPerTier)
     }
 
     /// Level from an actual value (reps or seconds) given the planned tier and
@@ -500,16 +528,23 @@ public enum Engine {
     /// counter stay untouched (the streak is frozen, not reset), overrides for
     /// it are ignored. The counter still advances.
     ///
-    /// `discomfort` is the joint-pain input: the pattern behaves as skipped
-    /// for this session and is then frozen — it keeps appearing at its current
-    /// level but cannot grow for its next `freezeAppearances` appearances.
+    /// `discomfort` is the joint-pain input (reworked in v2.11, spec §21):
+    /// the session is voided for the pattern, the first report of an episode
+    /// takes the load off — the level lands at `Level.unload`, the streak
+    /// resets — and the pattern is frozen with the episode marked in `sore`.
+    /// The freeze expires into WAITING, not into growth: taps keep clamping
+    /// until an explicit fact at or above the plan confirms recovery. A
+    /// repeat report doubles the rest up the 3 → 6 → 12 ladder and never
+    /// drops the level twice.
     ///
     /// `pinned` is the hold-this-level request (v2.6), the second and milder
     /// way into the same freeze. The session is processed, not voided: the
     /// rating applies, a fact applies and may still take the level DOWN — but
     /// growth clamps to the old level, the streak neither grows nor resets,
-    /// and the pattern is then frozen exactly as after discomfort. The
-    /// identity tying the three inputs together: discomfort ≡ pinned + skipped.
+    /// and the pattern is then frozen. A pin expires into growth as before —
+    /// a request is not an injury — and never shortens a pain freeze. The
+    /// v2.6 identity discomfort ≡ pinned + skipped is superseded (§21.2):
+    /// discomfort = pinned + skipped + unload + a confirmation gate.
     public static func applyFeedback(
         state: EngineState,
         session: Session,
@@ -535,10 +570,24 @@ public enum Engine {
 
         for ex in session.exercises {
             let p = ex.pattern
-            // Discomfort outranks a skip: both leave the level and the streak
-            // alone, but only one of them carries information.
+            // Discomfort outranks a skip: the session is voided for the
+            // pattern either way, but only one of them carries information.
+            // v2.11 (spec §21.1-21.2): the first report of an episode takes
+            // the load off — the level lands at the bottom of the previous
+            // tier, the streak resets, the episode is marked in `sore`. A
+            // repeat report while the episode lives leaves the level alone
+            // and doubles the rest assignment up the 3 → 6 → 12 ladder.
             if discomfort.contains(p) {
-                next.frozen[p] = EngineConfig.freezeAppearances   // a repeat report refreshes it
+                if let episode = state.sore[p] {
+                    let assigned = min(episode * 2, EngineConfig.freezeCapAppearances)
+                    next.frozen[p] = assigned
+                    next.sore[p] = assigned
+                } else {
+                    next.levels[p] = Level.unload(state.levels[p] ?? 0)
+                    next.failStreak[p] = 0
+                    next.frozen[p] = EngineConfig.freezeAppearances
+                    next.sore[p] = EngineConfig.freezeAppearances
+                }
                 continue
             }
             if skipped.contains(p) {
@@ -601,18 +650,44 @@ public enum Engine {
             // athlete's honesty is never overridden. The streak neither grows
             // nor resets, so a deload cannot fire on top of a freeze. A pin
             // runs through the same arithmetic, then arms the rest AFTER the
-            // level update: the reporting appearance is never spent, and a
-            // pin on an already-frozen pattern refreshes the counter to N.
+            // level update: the reporting appearance is never spent. v2.11
+            // (spec §21.2 p.7): a pin arms the rest through max() and never
+            // shortens a pain freeze — before v2.11 frozenLeft never exceeded
+            // N, so max() reproduces the old "refresh to N" bit for bit.
             if frozenLeft > 0 || pinned.contains(p) {
                 next.levels[p] = min(newL, oldL)
                 if pinned.contains(p) {
-                    next.frozen[p] = EngineConfig.freezeAppearances
+                    next.frozen[p] = max(frozenLeft, EngineConfig.freezeAppearances)
                 } else if frozenLeft > 1 {
                     next.frozen[p] = frozenLeft - 1
                 } else {
                     next.frozen.removeValue(forKey: p)
                 }
                 continue
+            }
+
+            // v2.11 (spec §21.2 p.4-5): the pain freeze ran out but the
+            // episode lives — the pattern waits, indefinitely: growth clamps,
+            // a fact may still go down, the streak stands. Only an explicit
+            // fact at or above the session's plan confirms recovery, and that
+            // same fact resumes growth — through the ordinary cap, without
+            // the zero-level calibration exception: a sore pattern at zero is
+            // unloaded history, not a blank slate.
+            if state.sore[p] != nil {
+                if let actual = overrides[p], actual >= ex.load {
+                    next.sore.removeValue(forKey: p)
+                    if actual == ex.load {
+                        newL = min(oldL + EngineConfig.deltaPlan, oldL + cap)
+                    } else {
+                        let factL = Level.fromActual(pattern: p, tier: ex.tier,
+                                                     sets: ex.sets, actual: actual)
+                        newL = min(max(factL, 0), oldL + cap)
+                    }
+                    newL = min(max(newL, 0), EngineConfig.levelMax)
+                } else {
+                    next.levels[p] = min(newL, oldL)
+                    continue
+                }
             }
 
             if newL < oldL {
@@ -656,8 +731,14 @@ public enum Engine {
                 next.creditPaused.remove(trained)
             }
 
+            // v2.11 (spec §21.3, #125): the credit never grows a frozen or
+            // sore receiver — "a frozen pattern cannot grow" (§15.2 p.2)
+            // extends to growth by someone else's credit. The receiving
+            // branch was not in this session, so its freeze and episode in
+            // `next` are exactly the state's.
             let gained = (next.levels[trained] ?? 0) - (state.levels[trained] ?? 0)
-            if gained > 0, !next.creditPaused.contains(other) {
+            if gained > 0, !next.creditPaused.contains(other),
+               next.freezeRemaining(other) == 0, next.sore[other] == nil {
                 let oldOther = next.levels[other] ?? 0
                 let cap = EngineConfig.maxUp(pattern: other, tier: Level.decode(oldOther).tier)
                 next.levels[other] = min(max(oldOther + min(gained, cap), 0), EngineConfig.levelMax)
@@ -678,9 +759,11 @@ public enum Engine {
     /// All patterns drop, `pullBar` included even with `hasBar == false`: a
     /// break detrains the whole body. A freeze survives it untouched — the
     /// error is asymmetric, and a couple of sessions without growth cost less
-    /// than a tendon. `failStreak` must reset — otherwise the
-    /// first underperformance after the return would ride the old streak into
-    /// a deload and drop the level twice. `counter` does not move.
+    /// than a tendon — and so does a pain episode (v2.11, spec §21.2 p.8):
+    /// levels drop as usual, the confirmation stays owed. `failStreak` must
+    /// reset — otherwise the first underperformance after the return would
+    /// ride the old streak into a deload and drop the level twice. `counter`
+    /// does not move.
     ///
     /// NOT idempotent: every call subtracts the drop again. The caller must
     /// apply it at most once per break (the app keys this on

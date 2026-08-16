@@ -48,6 +48,7 @@ private struct Golden: Decodable {
         let barLevelAfter: Int?
         let barStreakAfter: Int?
         let frozenAfter: [Int]?    // v2.5: a break must not thaw a freeze
+        let soreAfter: [Int]?      // v2.11: nor close a pain episode
         let lessRunAfter: Int?     // v2.9: a break does not continue a run of "less"
     }
     /// applySilentDecay invoked before this step's session (v2.4) — and
@@ -60,6 +61,7 @@ private struct Golden: Decodable {
         let barLevelAfter: Int?
         let barStreakAfter: Int?
         let frozenAfter: [Int]?
+        let soreAfter: [Int]?      // v2.11
         let lessRunAfter: Int?
     }
     struct Step: Decodable {
@@ -79,6 +81,8 @@ private struct Golden: Decodable {
         let barStreakAfter: Int?
         let frozenAfter: [Int]?    // appearances left, by patternOrder
         let barFrozenAfter: Int?
+        let soreAfter: [Int]?      // v2.11: pain-episode assignments, by patternOrder
+        let barSoreAfter: Int?
         let lessRunAfter: Int?     // v2.9: run of "less" ratings naming nothing
         let creditPausedAfter: [Int]?   // v2.10: [pull, pullBar], 1 = credit paused
         let silentDecay: SilentDecay?
@@ -110,7 +114,7 @@ final class GoldenTests: XCTestCase {
     /// re-baseline every number instead of catching a port bug.
     func testGeneratorIsThePinnedReferenceVersion() throws {
         let g = try loadGolden()
-        XCTAssertEqual(g.generator, "adaptive_engine.js v2.10.0",
+        XCTAssertEqual(g.generator, "adaptive_engine.js v2.11.0",
                        "golden.json regenerated from an unexpected reference version")
     }
 
@@ -128,6 +132,7 @@ final class GoldenTests: XCTestCase {
         let barLevel: Int?
         let barStreak: Int?
         let frozen: [Int]?
+        let sore: [Int]?
         let lessRun: Int?
     }
 
@@ -142,6 +147,10 @@ final class GoldenTests: XCTestCase {
         if let v = snap.frozen {
             XCTAssertEqual(order.map { state.freezeRemaining(Pattern(rawValue: $0)!) },
                            v, "\(ctx): freezes survive")
+        }
+        if let v = snap.sore {
+            XCTAssertEqual(order.map { state.sore[Pattern(rawValue: $0)!] ?? 0 },
+                           v, "\(ctx): pain episodes survive")
         }
         if let v = snap.lessRun { XCTAssertEqual(state.lessRun, v, "\(ctx): less run") }
     }
@@ -170,7 +179,8 @@ final class GoldenTests: XCTestCase {
                     assertBreak(state, BreakSnapshot(
                         levels: decay.levelsAfter, streaks: decay.failStreakAfter,
                         barLevel: decay.barLevelAfter, barStreak: decay.barStreakAfter,
-                        frozen: decay.frozenAfter, lessRun: decay.lessRunAfter),
+                        frozen: decay.frozenAfter, sore: decay.soreAfter,
+                        lessRun: decay.lessRunAfter),
                         order: g.patternOrder, ctx: "\(ctx) silent decay")
                 }
                 if let comeback = step.comeback {
@@ -181,7 +191,8 @@ final class GoldenTests: XCTestCase {
                     assertBreak(state, BreakSnapshot(
                         levels: comeback.levelsAfter, streaks: comeback.failStreakAfter,
                         barLevel: comeback.barLevelAfter, barStreak: comeback.barStreakAfter,
-                        frozen: comeback.frozenAfter, lessRun: comeback.lessRunAfter),
+                        frozen: comeback.frozenAfter, sore: comeback.soreAfter,
+                        lessRun: comeback.lessRunAfter),
                         order: g.patternOrder, ctx: "\(ctx) comeback")
                     XCTAssertEqual(state.counter, comeback.counterAfter,
                                    "\(ctx) comeback must not move the counter")
@@ -237,6 +248,14 @@ final class GoldenTests: XCTestCase {
                 }
                 if let barFrozen = step.barFrozenAfter {
                     XCTAssertEqual(state.freezeRemaining(.pullBar), barFrozen, ctx + " (bar frozen)")
+                }
+                // v2.11: pain-episode assignments (spec §21.2)
+                if let sore = step.soreAfter {
+                    XCTAssertEqual(Pattern.ordered.map { state.sore[$0] ?? 0 },
+                                   sore, ctx + " (sore)")
+                }
+                if let barSore = step.barSoreAfter {
+                    XCTAssertEqual(state.sore[.pullBar] ?? 0, barSore, ctx + " (bar sore)")
                 }
                 // v2.9: the run of unnamed "less" ratings (spec §19.1)
                 if let lessRun = step.lessRunAfter {
