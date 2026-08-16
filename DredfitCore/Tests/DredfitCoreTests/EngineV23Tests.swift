@@ -126,24 +126,29 @@ final class EngineV23Tests: XCTestCase {
     }
 
     func testComebackDropTable() {
-        let table: [(gap: Int, drop: Int)] = [
-            (14, 2), (34, 2), (35, 3), (55, 3), (56, 4), (76, 4),
-            (77, 5), (98, 6), (119, 7), (140, 8),
+        // v2.12 (spec §22.1-22.2): from L30 the table drop rules inside the
+        // tier; from 56 days the ceiling ladder (tier bottoms) takes over,
+        // and tier crossings land by rep continuity. Expected values are the
+        // actual landings.
+        let table: [(gap: Int, landed: Int)] = [
+            (14, 28), (34, 28), (35, 27), (55, 27),
+            (56, 24), (76, 24),          // ceiling 24: bottom of tier 4
+            (77, 16), (98, 16),          // ceiling 16: bottom of tier 3
+            (119, 8), (140, 8),          // ceiling 8: bottom of tier 2
         ]
-        for (gap, drop) in table {
+        for (gap, landed) in table {
             let after = Engine.applyComeback(state: seeded(level: 30, streak: 1), gapDays: gap)
-            XCTAssertEqual(after.levels[.squat], 30 - drop, "\(gap) days should drop \(drop)")
-            XCTAssertEqual(after.levels[.pullBar], 30 - drop,
+            XCTAssertEqual(after.levels[.squat], landed, "\(gap) days should land at \(landed)")
+            XCTAssertEqual(after.levels[.pullBar], landed,
                            "\(gap) days: the bar branch drops with everything else")
         }
-        // v2.7 (spec §17.2): past the table's edge the landing ceilings take
-        // over — half a year lands no higher than 15, a year no higher than 7.
-        for (gap, ceil) in [(180, 15), (200, 15), (364, 15), (365, 7), (3650, 7)] {
+        // v2.12 (spec §22.2): the ladder's tail — 119-364 days land no higher
+        // than the bottom of tier 2, a year is a clean slate.
+        for (gap, ceil) in [(180, 8), (200, 8), (364, 8), (365, 0), (3650, 0)] {
             let after = Engine.applyComeback(state: seeded(level: 30, streak: 1), gapDays: gap)
-            let expected = min(30 - EngineConfig.comebackMax, ceil)
-            XCTAssertEqual(after.levels[.squat], expected,
+            XCTAssertEqual(after.levels[.squat], ceil,
                            "\(gap) days: landing ceiling \(ceil)")
-            XCTAssertEqual(after.levels[.pullBar], expected,
+            XCTAssertEqual(after.levels[.pullBar], ceil,
                            "\(gap) days: the bar branch lands with everything else")
         }
     }
@@ -175,19 +180,18 @@ final class EngineV23Tests: XCTestCase {
         }
     }
 
-    /// −8 is exactly one tier down at the same step within the tier, so the
-    /// movement gets easier while the rep count lands in the easier tier's
-    /// range (which is usually a little higher).
+    /// v2.12 (spec §22.1): a tier crossing lands by rep CONTINUITY — the same
+    /// dose of reps in an easier variation, never the same mod-8 rung (which
+    /// used to land on the lower tier's top with a higher dose, audit A3-1).
     func testEightStepDropIsExactlyOneTierAtTheSameStep() {
-        let after = Engine.applyComeback(state: seeded(level: 20, streak: 0), gapDays: 140)
+        let after = Engine.applyComeback(state: seeded(level: 20, streak: 0), gapDays: 77)
         let level = after.levels[.squat] ?? -1
         let before = Level.decode(20), now = Level.decode(level)
 
         XCTAssertEqual(now.tier, before.tier - 1)
-        XCTAssertEqual(level % EngineConfig.stepsPerTier, 20 % EngineConfig.stepsPerTier,
-                       "the step within the tier is preserved")
-        XCTAssertGreaterThan(now.reps, before.reps,
-                             "the easier tier allows more reps at the same step")
+        XCTAssertEqual(now.reps, before.reps,
+                       "the rep dose survives the change of variation")
+        XCTAssertEqual(level, 11, "L20 after 77 days: tier 2 × 9")
     }
 
     /// The streak reset is the point: the first shortfall after a comeback is

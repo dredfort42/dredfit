@@ -75,47 +75,48 @@ final class EngineV27Tests: XCTestCase {
 
     // MARK: - Comeback landing ceilings and the set-band snap (§17.2)
 
-    /// Half a year lands no higher than tier 2, a year no higher than tier 1
-    /// — the calendar cap of −8 alone left a former ceiling user in tier 4.
+    /// v2.12 (spec §22.2): the ladder of tier-bottom ceilings — every next
+    /// storey of the break lands a floor lower, and the 179 → 180 cliff of
+    /// the old 15/7 rows is gone.
     func testLandingCeilingsPastTheTableEdge() {
         let top = seeded(level: 47)
-        XCTAssertEqual(Engine.applyComeback(state: top, gapDays: 179).levels[.squat], 32,
-                       "179 days: the ceiling does not act yet")
-        XCTAssertEqual(Engine.applyComeback(state: top, gapDays: 180).levels[.squat], 15,
-                       "180 days: tier-2 landing")
-        XCTAssertEqual(Engine.applyComeback(state: top, gapDays: 365).levels[.squat], 7,
-                       "365 days: tier-1 landing")
-        XCTAssertEqual(Engine.applyComeback(state: top, gapDays: 3650).levels[.squat], 7,
-                       "ten years: same tier-1 landing")
+        XCTAssertEqual(Engine.applyComeback(state: top, gapDays: 56).levels[.squat], 24,
+                       "56 days: bottom of tier 4")
+        XCTAssertEqual(Engine.applyComeback(state: top, gapDays: 90).levels[.squat], 16,
+                       "90 days: bottom of tier 3")
+        XCTAssertEqual(Engine.applyComeback(state: top, gapDays: 179).levels[.squat], 8,
+                       "179 days: bottom of tier 2")
+        XCTAssertEqual(Engine.applyComeback(state: top, gapDays: 180).levels[.squat], 8,
+                       "180 days: the same floor — no cliff")
+        XCTAssertEqual(Engine.applyComeback(state: top, gapDays: 365).levels[.squat], 0,
+                       "365 days: a clean slate")
+        XCTAssertEqual(Engine.applyComeback(state: top, gapDays: 3650).levels[.squat], 0,
+                       "ten years: same clean slate")
         // Below the ceiling the drop result stands.
         let low = seeded(level: 10)
-        XCTAssertEqual(Engine.applyComeback(state: low, gapDays: 365).levels[.squat], 2,
+        XCTAssertEqual(Engine.applyComeback(state: low, gapDays: 14).levels[.squat], 8,
                        "a low level keeps the plain table drop")
     }
 
-    /// Crossing a set band snaps the rung to the band floor; inside a band
-    /// the rung is preserved as documented since v2.3.
+    /// Crossing a set band snaps the rung to the band floor — the v2.7 rule
+    /// keeps its priority over the v2.12 tier continuity.
     func testSetBandCrossingSnapsTheRung() {
         let top = seeded(level: 47)
-        XCTAssertEqual(Engine.applyComeback(state: top, gapDays: 90).levels[.squat], 42,
-                       "90 days: same band, rung preserved")
-        XCTAssertEqual(Engine.applyComeback(state: top, gapDays: 140).levels[.squat], 32,
-                       "140 days: band crossed, rung snapped to the floor")
+        XCTAssertEqual(Engine.applyComeback(state: top, gapDays: 14).levels[.squat], 45,
+                       "same band, rung preserved")
         let edge = seeded(level: 33)
         XCTAssertEqual(Engine.applyComeback(state: edge, gapDays: 14).levels[.squat], 24,
-                       "a −2 across the 32 boundary snaps too")
-        // The audit's dose inversion is gone: 140 days now costs less volume
-        // than 90 days.
-        let d90 = Level.decode(42), d140 = Level.decode(32)
-        XCTAssertGreaterThan(d90.sets * d90.reps, d140.sets * d140.reps)
+                       "a −2 across the 32 boundary snaps to the band floor")
     }
 
-    /// Tier crossings below the set bands keep the rung — the snap must not
-    /// leak into the documented v2.3 behavior.
+    /// v2.12 (spec §22.1): a tier crossing below the bands lands by rep
+    /// continuity — the same dose in the easier variation, never the lower
+    /// tier's top.
     func testTierCrossingBelowTheBandsKeepsTheRung() {
         let mid = seeded(level: 20)
-        XCTAssertEqual(Engine.applyComeback(state: mid, gapDays: 140).levels[.squat], 12,
-                       "−8 below the bands is still exactly one tier down, same rung")
+        let landed = Engine.applyComeback(state: mid, gapDays: 77).levels[.squat] ?? -1
+        XCTAssertEqual(landed, 11, "L20 crosses into tier 2 carrying its 9 reps")
+        XCTAssertEqual(Level.decode(landed).reps, Level.decode(20).reps)
     }
 
     /// The no-stacking identity of §14.2 survives the ceilings and the snap:

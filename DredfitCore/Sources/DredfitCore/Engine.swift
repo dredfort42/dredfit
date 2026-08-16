@@ -97,6 +97,11 @@ public enum EngineConfig {
     /// reports — the assignment doubles 3 → 6 → 12 and stops here
     /// (≈ a month at three sessions a week).
     public static let freezeCapAppearances = 12
+    /// v2.12 (spec §22.4): how many sessions the "I was sick" lens holds —
+    /// the plan is one tier easier, the levels stand. Six ≈ two weeks at
+    /// three sessions a week: the clinical minimum-load window after an
+    /// illness (Salman 2021, BMJ m4721).
+    public static let illnessSessions = 6
     public static let repStart = [1: 8, 2: 6, 3: 5, 4: 4]
     public static let holdStart = [1: 20, 2: 15, 3: 15, 4: 10]
     public static var levelMax: Int { (tiers + setsMax - setsBase) * stepsPerTier - 1 } // 47
@@ -142,7 +147,12 @@ public enum EngineConfig {
     /// the calendar cap of −8 knows nothing about the level, and a year away
     /// used to land a former ceiling user in tier 4. Rows are (minimum gap,
     /// level ceiling) in descending gap order; the first match wins.
-    public static let comebackLandingCeil: [(minGap: Int, ceil: Int)] = [(365, 7), (180, 15)]
+    /// v2.12 (spec §22.2): a ladder of tier BOTTOMS — every next storey of
+    /// the break lowers the ceiling by a tier, and a ceiling landing can
+    /// never carry a high dose by construction. The old 15/7 rows (tier
+    /// tops, the 11.08 decision) were themselves the sweep's worst case.
+    public static let comebackLandingCeil: [(minGap: Int, ceil: Int)] =
+        [(365, 0), (119, 8), (77, 16), (56, 24)]
 
     /// A "slow tissue" pattern is one the §15.3 table holds to a step at
     /// EVERY tier — today only the calf. Derived from the table rather than
@@ -180,18 +190,28 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// plan confirms the pain settled. Empty map = no episodes, so a state
     /// file written before this existed decodes to exactly that.
     public var sore: [Pattern: Int]
+    /// v2.12 (spec §22.3): comebacks applied in a row with no completed
+    /// session between them. Each one past the first deepens the drop by one
+    /// — the plan must slide faster than fitness decays, or every return in
+    /// a "come back once, vanish a month" series is infeasible.
+    public var returnRun: Int
+    /// v2.12 (spec §22.4): sessions left under the "I was sick" lens — the
+    /// plan is one tier easier, the stored levels stand.
+    public var illness: Int
 
     // Spelled out (same names the compiler would synthesize) so that
     // decodeLenient can reference the type — synthesized CodingKeys are only
     // visible inside init(from:)/encode(to:). The wire format is unchanged.
     private enum CodingKeys: String, CodingKey {
-        case counter, levels, failStreak, hasBar, frozen, lessRun, creditPaused, sore
+        case counter, levels, failStreak, hasBar, frozen, lessRun, creditPaused, sore,
+             returnRun, illness
     }
 
     public init(counter: Int, levels: [Pattern: Int],
                 failStreak: [Pattern: Int], hasBar: Bool = false,
                 frozen: [Pattern: Int] = [:], lessRun: Int = 0,
-                creditPaused: Set<Pattern> = [], sore: [Pattern: Int] = [:]) {
+                creditPaused: Set<Pattern> = [], sore: [Pattern: Int] = [:],
+                returnRun: Int = 0, illness: Int = 0) {
         self.counter = counter
         self.levels = levels
         self.failStreak = failStreak
@@ -200,6 +220,8 @@ public struct EngineState: Codable, Equatable, Sendable {
         self.lessRun = lessRun
         self.creditPaused = creditPaused
         self.sore = sore
+        self.returnRun = returnRun
+        self.illness = illness
     }
 
     /// Lenient in both directions: files written before hasBar/pull_bar
@@ -240,6 +262,10 @@ public struct EngineState: Codable, Equatable, Sendable {
                 .filter { $0.value >= 1 }
                 .mapValues { min($0, EngineConfig.freezeCapAppearances) }
             : [:]
+        // Additive (v2.12, §22.3-22.4), garbage sanitized as the reference does.
+        returnRun = max(0, try c.decodeIfPresent(Int.self, forKey: .returnRun) ?? 0)
+        illness = min(max(try c.decodeIfPresent(Int.self, forKey: .illness) ?? 0, 0),
+                      EngineConfig.illnessSessions)
     }
 
     /// Manual decode of the exact wire format Swift synthesizes for a
@@ -312,6 +338,28 @@ public enum Level {
     public static func unload(_ level: Int) -> Int {
         let tier = decode(level).tier
         return max(0, (tier - 2) * EngineConfig.stepsPerTier)
+    }
+
+    /// v2.12 (spec §22.1/§22.4): the rung of a tier that carries a given rep
+    /// dose — rep continuity. A descent into an easier variation keeps the
+    /// NUMBER of reps, not the mod-8 rung: repStart grows down the tiers, so
+    /// keeping the rung landed on the top of the lower tier with a higher
+    /// dose (audit finding A3-1).
+    static func rung(tier: Int, reps: Int) -> Int {
+        min(max(reps - (EngineConfig.repStart[tier] ?? EngineConfig.repMin), 0),
+            EngineConfig.stepsPerTier - 1)
+    }
+
+    /// v2.12 (spec §22.4): the "I was sick" lens — the same level seen one
+    /// tier easier. Tier 1 stays itself; the set bands are tier 4 by encoding
+    /// and ease into tier 3 on base sets. Stored levels never change — this
+    /// builds the plan's VIEW.
+    public static func eased(_ level: Int) -> Int {
+        let s = min(max(level, 0), EngineConfig.levelMax)
+        let d = decode(s)
+        if d.tier <= 1 { return s }
+        let t = d.tier - 1
+        return (t - 1) * EngineConfig.stepsPerTier + rung(tier: t, reps: d.reps)
     }
 
     /// Level from an actual value (reps or seconds) given the planned tier and
@@ -432,17 +480,25 @@ public enum Engine {
         let patterns = Pattern.ordered.filter { chosen.contains($0) } // ordering follows Pattern.ordered
             .map { $0 == .pull && useBar ? Pattern.pullBar : $0 }
 
+        // v2.12 (spec §22.4): under the "I was sick" lens every level is seen
+        // one tier easier; the stored levels never change.
+        let eased = state.illness > 0
+        func viewLevel(_ p: Pattern) -> Int {
+            let level = state.levels[p] ?? 0
+            return eased ? Level.eased(level) : level
+        }
+
         // v2.10 (spec §20.2): the pull slot's set band caps the push of the same
         // session. With the bar the pull enters the bands 13-16 sessions after
         // the push, and those windows are exactly where the balance fell to
         // 0.60. The PLAN is clamped, not the state: the push level keeps
         // growing and gets its sets back the moment the pull catches up.
         let pullSets = patterns.first { Pattern.pullSide.contains($0) }
-            .map { Level.decode(state.levels[$0] ?? 0).sets } ?? EngineConfig.setsMax
+            .map { Level.decode(viewLevel($0)).sets } ?? EngineConfig.setsMax
 
         let exercises: [SessionExercise] = patterns.map { p in
             let lib = ExerciseLibrary.entry(for: p)
-            let d = Level.decode(state.levels[p] ?? 0)
+            let d = Level.decode(viewLevel(p))
             let variation = lib.variations[d.tier - 1]
             let unit = lib.unit(forTier: d.tier)
             let load = unit == .reps ? d.reps : d.hold
@@ -555,8 +611,18 @@ public enum Engine {
         pinned: Set<Pattern> = []
     ) -> EngineState {
         guard session.sessionNumber == state.counter + 1 else { return state }
+
+        // v2.12 (spec §22.4): a session under the illness lens is restorative
+        // — levels, streaks and the run of "less" stand.
+        if state.illness > 0 {
+            return Self.applyRestorativeSession(state: state, session: session,
+                                                skipped: skipped,
+                                                discomfort: discomfort, pinned: pinned)
+        }
+
         var next = state
         next.counter = state.counter + 1
+        next.returnRun = 0                          // v2.12: a session breaks the series
 
         // v2.9 (spec §19.1): who receives the SESSION-WIDE "less".
         let named = Self.namedMovements(session: session, overrides: overrides,
@@ -695,6 +761,45 @@ public enum Engine {
         return next
     }
 
+    /// v2.12 (spec §22.4): the restorative session under the illness lens.
+    /// The counter moves, the journal is written, the comeback series breaks,
+    /// the lens ticks down, freezes spend appearances — but levels, streaks
+    /// and the run of "less" stand: an illness is a time for neither growth
+    /// nor conclusions. The rest inputs (§21/§16) are the exception — safety
+    /// outranks the gentle mode.
+    private static func applyRestorativeSession(
+        state: EngineState, session: Session, skipped: Set<Pattern>,
+        discomfort: Set<Pattern>, pinned: Set<Pattern>
+    ) -> EngineState {
+        var next = state
+        next.counter = state.counter + 1
+        next.returnRun = 0
+        next.illness = state.illness - 1
+        for ex in session.exercises {
+            let p = ex.pattern
+            if discomfort.contains(p) {
+                Self.applyDiscomfortReport(&next, state: state, pattern: p)
+                continue
+            }
+            if skipped.contains(p) {
+                if pinned.contains(p) {
+                    next.frozen[p] = max(state.freezeRemaining(p),
+                                         EngineConfig.freezeAppearances)
+                }
+                continue                            // a skip spends no appearance
+            }
+            let frozenLeft = state.freezeRemaining(p)
+            if pinned.contains(p) {
+                next.frozen[p] = max(frozenLeft, EngineConfig.freezeAppearances)
+            } else if frozenLeft > 1 {
+                next.frozen[p] = frozenLeft - 1
+            } else if frozenLeft == 1 {
+                next.frozen.removeValue(forKey: p)
+            }
+        }
+        return next
+    }
+
     /// v2.11 (spec §21.1-21.2): the first report of an episode takes the load
     /// off — the level lands at the bottom of the previous tier
     /// (`Level.unload`), the streak resets, the episode is marked in `sore`.
@@ -796,8 +901,12 @@ public enum Engine {
     public static func applyComeback(state: EngineState, gapDays: Int,
                                      alreadyDecayed: Bool = false) -> EngineState {
         guard gapDays >= EngineConfig.comebackMinGapDays else { return state }
+        // v2.12 (spec §22.3): consecutive comebacks with no session between
+        // deepen the drop by one each — the plan must slide faster than
+        // fitness decays (A8b-9). The cap is the same table cap.
         let raw = EngineConfig.comebackBase
             + (gapDays - EngineConfig.comebackMinGapDays) / EngineConfig.comebackStepDays
+            + state.returnRun
         let drop = min(max(raw, 2), EngineConfig.comebackMax) - (alreadyDecayed ? 1 : 0)
         let landingCeil = EngineConfig.comebackLandingCeil
             .first { gapDays >= $0.minGap }?.ceil ?? Int.max
@@ -805,17 +914,26 @@ public enum Engine {
         var next = state
         next.lessRun = 0            // v2.9: a break is not a continued run of "less"
         next.creditPaused = []      // v2.10: a break clears the strain evidence too
+        next.returnRun = state.returnRun + 1   // v2.12 (§22.3)
         for p in Pattern.allCases {
             let stored = state.levels[p] ?? 0
             // The level BEFORE the break: with alreadyDecayed the input
-            // already carries the silent −1, and reading the band from it
-            // would break the identity exactly at the band floors 40 and 32.
+            // already carries the silent −1, and reading the band or the tier
+            // from it would break the identity exactly at the boundaries.
             let preL = alreadyDecayed ? min(stored + 1, EngineConfig.levelMax) : stored
+            let pre = Level.decode(preL)
             var landed = max(0, stored - drop)
-            // The snap applies to the DROP's result only — the landing
-            // ceiling below is a deliberate absolute whose rung is chosen.
-            if Level.decode(preL).sets != Level.decode(landed).sets {
+            let post = Level.decode(landed)
+            // The snap applies to the DROP's result only; the band keeps its
+            // v2.7 priority, then v2.12 rep continuity on a tier crossing:
+            // the same dose of reps in an easier variation, never the top of
+            // the lower tier (audit finding A3-1). The ceiling below is a
+            // deliberate absolute — a tier bottom by construction.
+            if pre.sets != post.sets {
                 landed = (landed / EngineConfig.stepsPerTier) * EngineConfig.stepsPerTier
+            } else if pre.tier != post.tier {
+                landed = (post.tier - 1) * EngineConfig.stepsPerTier
+                    + Level.rung(tier: post.tier, reps: pre.reps)
             }
             next.levels[p] = min(landed, landingCeil)
             next.failStreak[p] = 0
@@ -837,10 +955,25 @@ public enum Engine {
         var next = state
         next.lessRun = 0            // v2.9: same as the comeback (spec §19.1)
         next.creditPaused = []      // v2.10: and so does the pause
+        // v2.12 (§22.3-22.4): the decay belongs to the same break — it is not
+        // a return, so `returnRun` stands; the illness lens survives too.
         for p in Pattern.allCases {
             next.levels[p] = max(0, (state.levels[p] ?? 0) - 1)
             next.failStreak[p] = 0
         }
+        return next
+    }
+
+    /// v2.12 (spec §22.4): the "I was sick" one-tap — the sixth API function.
+    /// An illness shorter than seven days is invisible to the time contract
+    /// (§7) by construction, so the channel is explicit. The lens makes the
+    /// plan one tier easier for `illnessSessions` restorative sessions
+    /// without touching the stored levels; a repeat tap tops the lens back
+    /// up (a prolongation, not an escalation), and on a fresh lens the call
+    /// is a no-op.
+    public static func applyIllness(state: EngineState) -> EngineState {
+        var next = state
+        next.illness = EngineConfig.illnessSessions
         return next
     }
 }

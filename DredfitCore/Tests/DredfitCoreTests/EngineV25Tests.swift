@@ -298,8 +298,13 @@ final class EngineV25Tests: XCTestCase {
         let back = Engine.applyComeback(state: decayed, gapDays: 16, alreadyDecayed: true)
         XCTAssertEqual(back.freezeRemaining(.pull), left, "the comeback keeps it too")
         XCTAssertEqual(back.sore[.pull], EngineConfig.freezeAppearances, "episode included")
-        XCTAssertEqual(back.levels[.pull], 6, "the two drops still do not stack")
-        XCTAssertEqual(report(back, .more).levels[.pull], 6, "and it is still frozen")
+        // v2.12 (spec §22.1): 8 − 2 crosses into tier 1 whose repStart is
+        // above the carried dose, so rep continuity clamps to the floor — and
+        // the no-stacking identity holds there too (both paths land at 0).
+        XCTAssertEqual(back.levels[.pull], 0, "the tier crossing clamps to the floor")
+        XCTAssertEqual(Engine.applyComeback(state: frozen, gapDays: 16).levels[.pull],
+                       back.levels[.pull], "the two paths still agree")
+        XCTAssertEqual(report(back, .more).levels[.pull], 0, "and it is still frozen")
     }
 
     // MARK: - Serialization

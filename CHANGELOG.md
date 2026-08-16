@@ -14,6 +14,42 @@ learns to speak up quietly where the audit found it silent, and the whole
 set of workout tones grows into a voice of its own. Every new field
 decodes tolerantly: the state and journal formats need no migrations.
 
+### Engine v2.12.0 — a comeback lands no heavier than your last workout (issues #126, #133)
+
+The comeback level was monotone in the break — the dose was not. Dropping
+across a variation boundary kept the rung, which landed on the TOP of the
+easier variation: three weeks away from level 18 met thirteen rows where
+seven used to be — 1.86× the work of the last completed session. The window
+of 56–179 days had no landing ceiling at all (90 days of illness still
+offered tier-4 archer rows), the 180/365 ceilings were themselves tier tops,
+and a run of "come back once, vanish a month" was infeasible six times in a
+row. The 2026-08-16 audit measured all of it; this wave makes the first
+session after any break carry no more than the last one before it.
+
+- **Crossing down lands on the same dose.** An easier variation at the reps
+  you actually had — not the easier variation's hardest rung. Verified across
+  all 9,118 (level × break) pairs: zero landings heavier than the session
+  before the break (the old rule violated 3,609 of them).
+- **The landing ceilings are a ladder of floors.** 56 days caps the landing
+  at the bottom of tier 4, 77 at tier 3's floor, 119 at tier 2's, a year is
+  a clean slate. Every ceiling is the bottom of its range, so a ceiling
+  landing is soft by construction — and the old 179 → 180 two-tier cliff is
+  gone.
+- **Returning again and again digs deeper.** Comebacks with no completed
+  workout between them drop one extra level each — the plan now slides
+  faster than fitness decays, so even the sixth attempt at returning meets
+  a session you can actually do.
+- **"I was sick" is one tap.** A flu shorter than a week used to be
+  invisible. The new tap makes the next six workouts one variation easier
+  without touching your levels — a recovery fortnight, exactly the clinical
+  minimum-load window. Facts and ratings conclude nothing while it runs
+  (illness is a time for neither growth nor verdicts), pain reports still
+  work — safety outranks the gentle mode — and the lens survives breaks.
+- Spec §22, 22,483 property checks (was 19,972); an eighteenth golden
+  scenario walks a double return, the whole life of the lens and a clean
+  slate at a year. State files decode unchanged — both new fields are
+  additive.
+
 ### Engine v2.11.0 — pain takes the load off and asks before growth resumes (issues #124, #125)
 
 Reporting pain used to freeze a movement for three appearances — at its full
