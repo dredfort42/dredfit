@@ -10,6 +10,7 @@
 //
 
 import Foundation
+import DredfitCore
 
 extension AppStore {
 
@@ -21,7 +22,14 @@ extension AppStore {
     /// being cases at all. Display places (same-day stamps, rest weekdays,
     /// the widget) stay on the calendar midnight.
     static func trainingDays(from start: Date, to end: Date) -> Int {
-        max(0, Int(end.timeIntervalSince(start) / 86_400))
+        // The conversion is done in Double and clamped BEFORE it becomes an
+        // Int: a corrupt date in the journal makes the quotient larger than
+        // Int can hold, and `Int(_:)` traps on that rather than saturating
+        // (spec §24.1 — the engine heals its inputs, so its callers must not
+        // crash on the way in).
+        let days = end.timeIntervalSince(start) / 86_400
+        guard days.isFinite else { return 0 }
+        return Int(min(max(days, 0), Double(EngineConfig.countMax)))
     }
 
     /// Training days since the last workout — the one number the engine's

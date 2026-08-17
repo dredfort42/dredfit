@@ -41,6 +41,14 @@ loaded just fine. The 2026-08-16 audit found both classes; this closes them.
   sessions is 2700 years of daily training), so nothing overflows and nothing
   traps. The two implementations were compared on 2,272 corrupt-state cases
   across all six functions: zero divergences, zero crashes.
+- **The journal is an input too.** The engine's own snapshots come back out of
+  the save file and go straight into arithmetic — the retrospective subtracts
+  a stored level from the current one, the week summary subtracts two totals,
+  the Health export re-estimates a duration from stored exercises — and in
+  Swift those operations crash on a corrupt number rather than shrugging it
+  off. Every number the journal holds is now clamped to the range it can
+  mean, and the day-gap maths saturates instead of trapping on a nonsense
+  date. The valid domain never notices.
 
 ### A steady rhythm is not a break (issues #134, #147)
 
