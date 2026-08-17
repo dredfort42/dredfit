@@ -34,6 +34,54 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     var durationSec: Int?
     /// Only `true` is ever written; nil means "not exported yet".
     var healthExported: Bool?
+
+    /// v2.13 (spec §24.1): the journal is an input too. The engine heals the
+    /// state it is handed, but its own snapshots come back out of this file
+    /// and straight into arithmetic — the retrospective subtracts a stored
+    /// level from the current one, the week summary subtracts two totals —
+    /// and a hand-edited `Int.min` traps that subtraction instead of
+    /// saturating. Every number here is clamped to the range it can mean; the
+    /// valid domain never notices.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        func clamp(_ v: Int, _ lo: Int, _ hi: Int) -> Int { min(max(v, lo), hi) }
+        sessionNumber = clamp(try c.decode(Int.self, forKey: .sessionNumber),
+                              0, EngineConfig.countMax)
+        date = try c.decode(Date.self, forKey: .date)
+        result = try c.decode(FeedbackResult.self, forKey: .result)
+        totalLevelAfter = clamp(try c.decode(Int.self, forKey: .totalLevelAfter),
+                                0, EngineConfig.countMax)
+        exercises = try c.decodeIfPresent([SessionExercise].self, forKey: .exercises)
+        actuals = try c.decodeIfPresent([Pattern: Int].self, forKey: .actuals)?
+            .mapValues { clamp($0, 0, EngineConfig.countMax) }
+        skipped = try c.decodeIfPresent(Set<Pattern>.self, forKey: .skipped)
+        discomfort = try c.decodeIfPresent(Set<Pattern>.self, forKey: .discomfort)
+        pinned = try c.decodeIfPresent(Set<Pattern>.self, forKey: .pinned)
+        levelsAfter = try c.decodeIfPresent([Pattern: Int].self, forKey: .levelsAfter)?
+            .mapValues { clamp($0, 0, EngineConfig.levelMax) }
+        durationSec = try c.decodeIfPresent(Int.self, forKey: .durationSec)
+            .map { clamp($0, 0, EngineConfig.countMax) }
+        healthExported = try c.decodeIfPresent(Bool.self, forKey: .healthExported)
+    }
+
+    init(sessionNumber: Int, date: Date, result: FeedbackResult, totalLevelAfter: Int,
+         exercises: [SessionExercise]? = nil, actuals: [Pattern: Int]? = nil,
+         skipped: Set<Pattern>? = nil, discomfort: Set<Pattern>? = nil,
+         pinned: Set<Pattern>? = nil, levelsAfter: [Pattern: Int]? = nil,
+         durationSec: Int? = nil, healthExported: Bool? = nil) {
+        self.sessionNumber = sessionNumber
+        self.date = date
+        self.result = result
+        self.totalLevelAfter = totalLevelAfter
+        self.exercises = exercises
+        self.actuals = actuals
+        self.skipped = skipped
+        self.discomfort = discomfort
+        self.pinned = pinned
+        self.levelsAfter = levelsAfter
+        self.durationSec = durationSec
+        self.healthExported = healthExported
+    }
 }
 
 /// Decoding is field-by-field tolerant — every key optional with a default,
@@ -949,19 +997,26 @@ final class AppStore {
 
     /// For records that predate duration capture. Mirrors the engine's
     /// formula; records without a snapshot get a flat 35 min.
+    ///
+    /// The exercise snapshot comes back out of the journal file, so the whole
+    /// sum runs in Double and lands through one clamp (spec §24.1): in Int the
+    /// products would trap on a hand-edited load, and the final conversion
+    /// traps on anything Int cannot hold.
     private func estimatedDurationSec(for record: WorkoutRecord) -> Int {
         guard let exercises = record.exercises, !exercises.isEmpty else { return 35 * 60 }
         let skipped = (record.skipped ?? []).union(record.discomfort ?? [])
         var workSec = 0.0
         for ex in exercises where !skipped.contains(ex.pattern) {
-            let sides = ex.perSide ? 2 : 1
+            let sides: Double = ex.perSide ? 2 : 1
             let perSet = ex.unit == .reps
-                ? Double(ex.load * sides) * 2.5
-                : Double(ex.load * sides)
+                ? Double(ex.load) * sides * 2.5
+                : Double(ex.load) * sides
             workSec += Double(ex.sets) * perSet
-                + Double((ex.sets - 1) * ex.restSetSec + ex.restExerciseSec)
+                + (Double(ex.sets) - 1) * Double(ex.restSetSec) + Double(ex.restExerciseSec)
         }
-        return Int(workSec) + (5 + 3) * 60   // warm-up + cool-down
+        let total = workSec + Double((5 + 3) * 60)   // warm-up + cool-down
+        guard total.isFinite else { return 35 * 60 }
+        return Int(min(max(total, 0), Double(EngineConfig.countMax)))
     }
 
     // MARK: - Local reminders

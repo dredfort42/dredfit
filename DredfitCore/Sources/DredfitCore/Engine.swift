@@ -102,6 +102,17 @@ public enum EngineConfig {
     /// three sessions a week: the clinical minimum-load window after an
     /// illness (Salman 2021, BMJ m4721).
     public static let illnessSessions = 6
+    /// v2.13 (spec §24.1): the technical ceiling of every counter and of the
+    /// gap in days. These have no semantic ceiling — a run grows freely (the
+    /// golden fixture reaches a `lessRun` of 7 against a threshold of 2), so
+    /// clamping them to their meaning would change behavior. But this port
+    /// does its arithmetic on Int64: `counter * rotationStep` near `Int.max`
+    /// traps the process (exit 133) on every plan, in a loop the store's
+    /// quarantine never catches — the decode succeeded, so the file stays.
+    /// A million is 2700 years of daily sessions: beyond any real history and
+    /// far from any overflow, so the clamp is identity on the valid domain and
+    /// identical on both sides — the dirty-state differential lines up exactly.
+    public static let countMax = 1_000_000
     public static let repStart = [1: 8, 2: 6, 3: 5, 4: 4]
     public static let holdStart = [1: 20, 2: 15, 3: 15, 4: 10]
     public static var levelMax: Int { (tiers + setsMax - setsBase) * stepsPerTier - 1 } // 47
@@ -232,12 +243,17 @@ public struct EngineState: Codable, Equatable, Sendable {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         // A corrupt or hand-edited file must not feed a negative counter into
         // the rotation — it would index out of bounds in generateSession.
-        counter = max(0, try c.decode(Int.self, forKey: .counter))
+        // v2.13 (§24.1): and not a huge one either — `counter * rotationStep`
+        // near Int.max traps the process on every plan.
+        counter = Self.clamped(try c.decode(Int.self, forKey: .counter), 0, EngineConfig.countMax)
         var lv = try Self.decodeLenient(c, forKey: .levels)
         var fs = try Self.decodeLenient(c, forKey: .failStreak)
         for p in Pattern.allCases {
-            if lv[p] == nil { lv[p] = 0 }
-            if fs[p] == nil { fs[p] = 0 }
+            // v2.13 (§24.1): a level outside the scale used to survive decode
+            // and produce an unearned deload on a successful session (`999`
+            // read as an old level made every new one a shortfall).
+            lv[p] = Self.clamped(lv[p] ?? 0, 0, EngineConfig.levelMax)
+            fs[p] = Self.clamped(fs[p] ?? 0, 0, EngineConfig.countMax)
         }
         levels = lv
         failStreak = fs
@@ -246,15 +262,20 @@ public struct EngineState: Codable, Equatable, Sendable {
         // and zero counters are never written, so this stays empty until a
         // pattern is actually frozen.
         frozen = c.contains(.frozen)
-            ? try Self.decodeLenient(c, forKey: .frozen).filter { $0.value > 0 }
+            ? try Self.decodeLenient(c, forKey: .frozen)
+                .filter { $0.value > 0 }
+                .mapValues { Self.clamped($0, 1, EngineConfig.countMax) }
             : [:]
         // Additive, same shape as `frozen`: absent in every file written
         // before v2.9, and a hand-edited negative can only mean garbage.
-        lessRun = max(0, try c.decodeIfPresent(Int.self, forKey: .lessRun) ?? 0)
+        lessRun = Self.clamped(try c.decodeIfPresent(Int.self, forKey: .lessRun) ?? 0,
+                               0, EngineConfig.countMax)
         // Additive: absent before v2.10, and unknown patterns are dropped the
-        // same way the level maps drop them.
+        // same way the level maps drop them. v2.13 (§24.1): the pause is a map
+        // over the pull slot's two branches — any other pattern is garbage the
+        // reference filters out on every build, and used to live here forever.
         creditPaused = Set((try c.decodeIfPresent([String].self, forKey: .creditPaused) ?? [])
-            .compactMap(Pattern.init(rawValue:)))
+            .compactMap(Pattern.init(rawValue:))).intersection(Pattern.pullSide)
         // Additive, sanitized as the reference does (§21.4): only positive
         // entries survive, values are clamped to the ladder's ceiling.
         sore = c.contains(.sore)
@@ -263,9 +284,10 @@ public struct EngineState: Codable, Equatable, Sendable {
                 .mapValues { min($0, EngineConfig.freezeCapAppearances) }
             : [:]
         // Additive (v2.12, §22.3-22.4), garbage sanitized as the reference does.
-        returnRun = max(0, try c.decodeIfPresent(Int.self, forKey: .returnRun) ?? 0)
-        illness = min(max(try c.decodeIfPresent(Int.self, forKey: .illness) ?? 0, 0),
-                      EngineConfig.illnessSessions)
+        returnRun = Self.clamped(try c.decodeIfPresent(Int.self, forKey: .returnRun) ?? 0,
+                                 0, EngineConfig.countMax)
+        illness = Self.clamped(try c.decodeIfPresent(Int.self, forKey: .illness) ?? 0,
+                               0, EngineConfig.illnessSessions)
     }
 
     /// Manual decode of the exact wire format Swift synthesizes for a
@@ -298,6 +320,40 @@ public struct EngineState: Codable, Equatable, Sendable {
     public func freezeRemaining(_ pattern: Pattern) -> Int { frozen[pattern] ?? 0 }
 
     public var frozenPatterns: Set<Pattern> { Set(frozen.filter { $0.value > 0 }.keys) }
+
+    /// v2.13 (spec §24.1, issue #132): the state as the engine is willing to
+    /// read it — the port's mirror of the reference's "rebuild every field
+    /// through a sanitizer on every build". Decoding alone was not enough:
+    /// the memberwise initializer is a second door (the app's migrations, a
+    /// test, a future caller), and the reference heals the same garbage on
+    /// every call. On the valid domain this is the identity, which is what
+    /// keeps the golden fixture bit-for-bit.
+    func sanitized() -> EngineState {
+        var lv: [Pattern: Int] = [:]
+        var fs: [Pattern: Int] = [:]
+        for p in Pattern.allCases {
+            lv[p] = Self.clamped(levels[p] ?? 0, 0, EngineConfig.levelMax)
+            fs[p] = Self.clamped(failStreak[p] ?? 0, 0, EngineConfig.countMax)
+        }
+        return EngineState(
+            counter: Self.clamped(counter, 0, EngineConfig.countMax),
+            levels: lv,
+            failStreak: fs,
+            hasBar: hasBar,
+            // Sparse maps keep only live entries, exactly as the reference does.
+            frozen: frozen.filter { $0.value >= 1 }
+                .mapValues { Self.clamped($0, 1, EngineConfig.countMax) },
+            lessRun: Self.clamped(lessRun, 0, EngineConfig.countMax),
+            // The credit pause is a map over the pull slot's two branches; any
+            // other pattern in there is garbage the reference filters out.
+            creditPaused: creditPaused.intersection(Pattern.pullSide),
+            sore: sore.filter { $0.value >= 1 }
+                .mapValues { Self.clamped($0, 1, EngineConfig.freezeCapAppearances) },
+            returnRun: Self.clamped(returnRun, 0, EngineConfig.countMax),
+            illness: Self.clamped(illness, 0, EngineConfig.illnessSessions))
+    }
+
+    static func clamped(_ v: Int, _ lo: Int, _ hi: Int) -> Int { min(max(v, lo), hi) }
 }
 
 // MARK: - Level encoding
@@ -439,13 +495,24 @@ public enum Engine {
     /// Rotating patterns (all except pull — it appears in every session).
     private static let rotating: [Pattern] = Pattern.ordered.filter { $0 != .pull }
 
+    /// v2.13 (spec §24.2): the gap in days is the engine's only numeric input
+    /// besides the reported facts, and it sat outside the §17.4 contract. In
+    /// the reference a NaN gap wrote NaN into every level; here the type rules
+    /// that out, but `Int.min` would still trap the subtraction below. A
+    /// negative gap already meant "no break", so clamping it to zero keeps the
+    /// two sides answering identically on every input either can express.
+    static func sanitizeGapDays(_ raw: Int) -> Int {
+        EngineState.clamped(raw, 0, EngineConfig.countMax)
+    }
+
     /// The first movement of the rotation window for a counter — the anchor
     /// of the short workout. The window shifts by 3 over 8 rotating patterns,
     /// so over any 8 consecutive sessions the anchor visits all 8; the short
     /// workout depends on that property.
     public static func rotationAnchor(counter: Int) -> Pattern {
         let n = rotating.count
-        let start = (((counter * EngineConfig.rotationStep) % n) + n) % n
+        let start = (((EngineState.clamped(counter, 0, EngineConfig.countMax)
+                       * EngineConfig.rotationStep) % n) + n) % n
         return rotating[start]
     }
 
@@ -467,7 +534,10 @@ public enum Engine {
     }
 
     /// A pure function: the only input is the state.
-    public static func generateSession(_ state: EngineState) -> Session {
+    public static func generateSession(_ dirty: EngineState) -> Session {
+        // v2.13 (spec §24.1): every public entry heals its input first, as the
+        // reference does on every build. Identity on the valid domain.
+        let state = dirty.sanitized()
         let n = rotating.count
         // Nonnegative modulo: Swift's % is a remainder and goes negative with
         // a negative counter, which would index out of bounds below.
@@ -602,15 +672,26 @@ public enum Engine {
     /// v2.6 identity discomfort ≡ pinned + skipped is superseded (§21.2):
     /// discomfort = pinned + skipped + unload + a confirmation gate.
     public static func applyFeedback(
-        state: EngineState,
+        state dirty: EngineState,
         session: Session,
         result: FeedbackResult,
-        overrides: [Pattern: Int] = [:],
+        overrides dirtyOverrides: [Pattern: Int] = [:],
         skipped: Set<Pattern> = [],
         discomfort: Set<Pattern> = [],
         pinned: Set<Pattern> = []
     ) -> EngineState {
-        guard session.sessionNumber == state.counter + 1 else { return state }
+        // v2.13 (spec §24.1/§24.3): the state heals on entry, and a reported
+        // fact is clamped to the same technical range — `actual - repStart`
+        // near Int.min would trap, and past the range every fact already
+        // saturates the 0...levelMax result, so this is identity on anything
+        // a person could log.
+        let state = dirty.sanitized()
+        let overrides = dirtyOverrides.mapValues {
+            EngineState.clamped($0, -EngineConfig.countMax, EngineConfig.countMax)
+        }
+        // A no-op on a stale pair, exactly as the reference: the guard reads
+        // the sanitized counter, so a garbage one cannot smuggle a match.
+        guard session.sessionNumber == state.counter + 1 else { return dirty }
 
         // v2.12 (spec §22.4): a session under the illness lens is restorative
         // — levels, streaks and the run of "less" stand.
@@ -898,9 +979,14 @@ public enum Engine {
     /// construction. And crossing a SET BAND snaps the rung to the band
     /// floor: preserving `L mod 8` across 40/32 made the first dose
     /// non-monotonic in the gap (90 days → 5×6, 140 days → 4×11).
-    public static func applyComeback(state: EngineState, gapDays: Int,
+    public static func applyComeback(state dirty: EngineState, gapDays rawGap: Int,
                                      alreadyDecayed: Bool = false) -> EngineState {
-        guard gapDays >= EngineConfig.comebackMinGapDays else { return state }
+        // v2.13 (spec §24.1-24.2): heal the state, clamp the gap. A negative
+        // gap already fell through this guard; the clamp also keeps
+        // `gapDays - comebackMinGapDays` off Int.min.
+        let state = dirty.sanitized()
+        let gapDays = Engine.sanitizeGapDays(rawGap)
+        guard gapDays >= EngineConfig.comebackMinGapDays else { return dirty }
         // v2.12 (spec §22.3): consecutive comebacks with no session between
         // deepen the drop by one each — the plan must slide faster than
         // fitness decays (A8b-9). The cap is the same table cap.
@@ -949,9 +1035,11 @@ public enum Engine {
     ///
     /// NOT idempotent, same as the comeback: the app layer applies it at most
     /// once per break, keyed to the last workout's date.
-    public static func applySilentDecay(state: EngineState, gapDays: Int) -> EngineState {
+    public static func applySilentDecay(state dirty: EngineState, gapDays rawGap: Int) -> EngineState {
+        let state = dirty.sanitized()
+        let gapDays = Engine.sanitizeGapDays(rawGap)
         guard gapDays >= EngineConfig.silentDecayGapDays,
-              gapDays < EngineConfig.comebackMinGapDays else { return state }
+              gapDays < EngineConfig.comebackMinGapDays else { return dirty }
         var next = state
         next.lessRun = 0            // v2.9: same as the comeback (spec §19.1)
         next.creditPaused = []      // v2.10: and so does the pause
@@ -971,8 +1059,10 @@ public enum Engine {
     /// without touching the stored levels; a repeat tap tops the lens back
     /// up (a prolongation, not an escalation), and on a fresh lens the call
     /// is a no-op.
-    public static func applyIllness(state: EngineState) -> EngineState {
-        var next = state
+    public static func applyIllness(state dirty: EngineState) -> EngineState {
+        // v2.13 (spec §24.1): the sixth entry heals its input too — the
+        // reference rebuilds every field here just as it does elsewhere.
+        var next = dirty.sanitized()
         next.illness = EngineConfig.illnessSessions
         return next
     }
