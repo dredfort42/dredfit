@@ -141,7 +141,7 @@ final class GoldenTests: XCTestCase {
     /// re-baseline every number instead of catching a port bug.
     func testGeneratorIsThePinnedReferenceVersion() throws {
         let g = try loadGolden()
-        XCTAssertEqual(g.generator, "adaptive_engine.js v2.12.0",
+        XCTAssertEqual(g.generator, "adaptive_engine.js v2.13.0",
                        "golden.json regenerated from an unexpected reference version")
     }
 

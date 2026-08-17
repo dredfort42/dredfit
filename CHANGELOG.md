@@ -14,6 +14,34 @@ learns to speak up quietly where the audit found it silent, and the whole
 set of workout tones grows into a voice of its own. Every new field
 decodes tolerantly: the state and journal formats need no migrations.
 
+### Engine v2.13.0 — a corrupt save file cannot break the plan (issues #132, #146)
+
+The model promised that "the plan is valid even with garbage in the state",
+and that promise held on most paths and quietly failed on the rest. A level
+of 999 in a hand-edited or corrupted save file survived loading and was read
+as *the level you were at* — so every honest session counted as a shortfall,
+the failure streak grew on success, and the app handed out an unearned
+deload; a comeback from that state landed at 98 on a scale that ends at 47.
+Worse, a counter near the integer limit crashed the app on every single plan
+— a loop the store's own quarantine could never catch, because the file had
+loaded just fine. The 2026-08-16 audit found both classes; this closes them.
+
+- **Every entry point heals its input first.** All six engine functions now
+  sanitize the state they are handed, exactly as the reference always did on
+  the way out: levels back inside the scale, counters and runs to whole
+  non-negative numbers, sparse maps to live entries only. The valid domain is
+  untouched — the golden fixture is bit-for-bit identical, all 233 steps.
+- **The gap between workouts is an input too.** A nonsense gap used to write
+  nonsense into every level, and the next save "healed" it to zero — a total
+  wipe of the user's progress; a nonsense gap could also slip past both ends
+  of the silent-decay window and take a level anyway. Now anything that is
+  not a real number of days simply does nothing.
+- **No arithmetic edge can take the app down.** Counters, gaps and reported
+  facts carry a technical ceiling far beyond any real history (a million
+  sessions is 2700 years of daily training), so nothing overflows and nothing
+  traps. The two implementations were compared on 2,272 corrupt-state cases
+  across all six functions: zero divergences, zero crashes.
+
 ### A steady rhythm is not a break (issues #134, #147)
 
 The model was written for one-off breaks, but the product itself promotes a
