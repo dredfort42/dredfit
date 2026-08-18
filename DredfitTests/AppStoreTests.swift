@@ -54,6 +54,23 @@ final class AppStoreTests: XCTestCase {
         XCTAssertEqual(reloaded.records.last?.levelsAfter, store.engineState.levels)
     }
 
+    /// The journal keeps the sets behind the number, so history can say
+    /// "15 · 15 · 10" instead of the bare mean the engine was handed.
+    func testTheJournalKeepsTheSetsBehindTheReportedNumber() throws {
+        let store = AppStore(storageURL: tempURL)
+        let session = store.nextSession
+        let ex = session.exercises[0]
+        let facts = SetFacts.recording(ex.load - 5, in: [:], ex, set: ex.sets - 1)
+        let overrides = SetFacts.overrides(facts, in: session.exercises)
+        store.completeWorkout(session: session, result: .plan,
+                              overrides: overrides, setActuals: facts)
+
+        let record = try XCTUnwrap(AppStore(storageURL: tempURL).records.last)
+        XCTAssertEqual(record.setActuals?[ex.pattern], facts[ex.pattern])
+        XCTAssertEqual(record.actuals?[ex.pattern], overrides[ex.pattern],
+                       "the stored number is the one the engine acted on")
+    }
+
     func testSkippedExerciseKeepsItsLevel() {
         let store = AppStore(storageURL: tempURL)
         let session = store.nextSession

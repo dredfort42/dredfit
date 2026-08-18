@@ -31,7 +31,7 @@ final class WorkoutSnapshotTests: XCTestCase {
         WorkoutSnapshot(sessionNumber: sessionNumber,
                         exIndex: 4, setIndex: 1,
                         restEndDate: nil, restTotalSec: nil,
-                        actuals: [.pushH: 9], skipped: [.coreAntiExt],
+                        setActuals: [.pushH: [12, 9]], skipped: [.coreAntiExt],
                         workoutStart: savedAt.addingTimeInterval(-20 * 60),
                         savedAt: savedAt,
                         fingerprint: WorkoutSnapshot.fingerprint(of: store.nextSession))
@@ -47,8 +47,26 @@ final class WorkoutSnapshotTests: XCTestCase {
         let resumed = relaunched.resumableWorkout()
         XCTAssertNotNil(resumed, "a fresh snapshot must be offered after a cold start")
         XCTAssertEqual(resumed?.exIndex, 4)
-        XCTAssertEqual(resumed?.actuals, [.pushH: 9])
+        XCTAssertEqual(resumed?.facts, [.pushH: [12, 9]],
+                       "which set ran at which number is the progress, not just the last one")
         XCTAssertEqual(resumed?.skipped, [.coreAntiExt])
+    }
+
+    /// A snapshot written before a fact belonged to its own set carried one
+    /// number for the whole exercise. That number was in force from the first
+    /// set on, which is exactly what a one-element array says — and it must
+    /// resume rather than take the file down.
+    func testASnapshotFromTheOneNumberShapeStillResumes() {
+        let store = AppStore(storageURL: tempURL)
+        store.saveWorkoutSnapshot(WorkoutSnapshot(
+            sessionNumber: 1, exIndex: 4, setIndex: 1,
+            actuals: [.pushH: 9],
+            workoutStart: .now.addingTimeInterval(-20 * 60), savedAt: .now,
+            fingerprint: WorkoutSnapshot.fingerprint(of: store.nextSession)))
+
+        let resumed = AppStore(storageURL: tempURL).resumableWorkout()
+        XCTAssertNotNil(resumed, "a lone old-shape fact is still progress worth offering")
+        XCTAssertEqual(resumed?.facts, [.pushH: [9]])
     }
 
     func testClearedSnapshotStaysClearedAcrossRelaunch() {

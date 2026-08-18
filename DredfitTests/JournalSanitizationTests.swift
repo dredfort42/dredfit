@@ -136,9 +136,35 @@ final class JournalSanitizationTests: XCTestCase {
         XCTAssertEqual(r.healthExported, true)
     }
 
+    /// The per-set detail is journal too, so it is sanitized like every other
+    /// number in the file: values clamped, and an array longer than any
+    /// exercise has sets cut back to one.
+    func testPerSetFactsAreSanitizedLikeTheRest() throws {
+        let s = try store(records: """
+        {"sessionNumber":3,"date":0,"result":"plan","totalLevelAfter":40,
+         "actuals":["squat",13],
+         "setActuals":["squat",[15,15,10,-9223372036854775808,7,7,7,7]]}
+        """)
+        let r = try XCTUnwrap(s.records.first)
+        XCTAssertEqual(r.actuals?[.squat], 13)
+        XCTAssertEqual(r.setActuals?[.squat], [15, 15, 10, 0, 7],
+                       "cut to the sets an exercise can have, every value inside its range")
+    }
+
+    func testARecordWithoutPerSetFactsStillDecodes() throws {
+        let s = try store(records: """
+        {"sessionNumber":4,"date":0,"result":"less","totalLevelAfter":30,
+         "actuals":["squat",11]}
+        """)
+        let r = try XCTUnwrap(s.records.first)
+        XCTAssertEqual(r.actuals?[.squat], 11)
+        XCTAssertNil(r.setActuals, "records written before the per-set shape keep reading true")
+    }
+
     func testARecordRoundTripsThroughEncodeAndDecode() throws {
         let original = WorkoutRecord(sessionNumber: 7, date: Date(timeIntervalSince1970: 1_000),
                                      result: .plan, totalLevelAfter: 99,
+                                     actuals: [.squat: 13], setActuals: [.squat: [15, 15, 10]],
                                      levelsAfter: [.squat: 11], durationSec: 1800)
         let data = try JSONEncoder().encode(original)
         XCTAssertEqual(try JSONDecoder().decode(WorkoutRecord.self, from: data), original)

@@ -63,7 +63,9 @@ struct WorkoutFlowView: View {
     @State private var techniqueExercise: SessionExercise?
     // Unlike techniqueExercise, presenting this freezes the countdown.
     @State private var positionTechnique: PositionTechnique?
-    @State private var actuals: [Pattern: Int] = [:]
+    /// A fact belongs to the set it happened on — see SetFacts for the shape
+    /// and for what a set of them collapses to.
+    @State private var actuals: SetFacts.PerSet = [:]
     @State private var skippedPatterns: Set<Pattern> = []
     /// Kept apart from `skippedPatterns`: the engine treats both as skips for
     /// the session, but the rating and the history say different things.
@@ -144,7 +146,7 @@ struct WorkoutFlowView: View {
             case .cooldown:
                 cooldownView
             case .feedback:
-                FeedbackView(session: session, actuals: actuals,
+                FeedbackView(session: session, facts: actuals,
                              skipped: skippedPatterns.union(omitted),
                              discomfort: discomfortPatterns,
                              pinned: pinnedPatterns,
@@ -152,6 +154,7 @@ struct WorkoutFlowView: View {
                     let earned = store.completeWorkout(
                         session: session, result: result,
                         overrides: overrides,
+                        setActuals: actuals,
                         // Skips like any other: levels frozen, counter and
                         // rotation still advance. The engine has no idea the
                         // workout was short, and that is the point.
@@ -456,8 +459,7 @@ struct WorkoutFlowView: View {
 
             WorkStatusCaption(switchingSides: holdSwitchPausing,
                               secondSide: holdSecondSide,
-                              actual: actuals[exercise.pattern] == exercise.load
-                                  ? nil : actuals[exercise.pattern],
+                              actual: setActual,
                               held: pinnedPatterns.contains(exercise.pattern),
                               setIndex: setIndex, sets: exercise.sets)
                 .padding(.top, 10)
@@ -466,10 +468,9 @@ struct WorkoutFlowView: View {
 
             if adjusting {
                 AdjustPanel(value: $adjustValue, unit: exercise.unit) {
-                    actuals[exercise.pattern] = adjustValue
-                    if adjustValue == exercise.load {
-                        actuals.removeValue(forKey: exercise.pattern) // back to the plan
-                    }
+                    // This set only — the ones behind keep what they ran at.
+                    actuals = SetFacts.recording(adjustValue, in: actuals,
+                                                 exercise, set: setIndex)
                     adjusting = false
                     persistProgress()   // an entered actual is worth keeping
                 }
@@ -520,13 +521,19 @@ struct WorkoutFlowView: View {
     private var workNumber: Int {
         if holdSwitchPausing { return holdPauseRemaining }
         if holding { return holdRemaining }
-        return actuals[exercise.pattern] ?? exercise.load
+        return SetFacts.inForce(actuals, exercise, set: setIndex)
+    }
+
+    /// The caption's: this set's own number, nothing when it is the plan.
+    private var setActual: Int? {
+        let value = SetFacts.inForce(actuals, exercise, set: setIndex)
+        return value == exercise.load ? nil : value
     }
 
     // MARK: - Inline actual adjuster (the panel itself is AdjustPanel.swift)
 
     private func startAdjusting() {
-        adjustValue = actuals[exercise.pattern] ?? exercise.load
+        adjustValue = SetFacts.inForce(actuals, exercise, set: setIndex)
         adjusting = true
     }
 
@@ -697,7 +704,7 @@ private extension WorkoutFlowView {
 
     func startHold() {
         adjusting = false
-        holdTotal = actuals[exercise.pattern] ?? exercise.load
+        holdTotal = SetFacts.inForce(actuals, exercise, set: setIndex)
         holdRemaining = holdTotal
         holdEndDate = Date.now.addingTimeInterval(TimeInterval(holdTotal))
     }
@@ -778,15 +785,11 @@ private extension WorkoutFlowView {
         }
     }
 
-    /// The 5-second step of the manual adjuster, within 5...90. The planned
-    /// value removes the override — that is "on plan".
+    /// Onto the grid the manual adjuster steps on, and onto the set actually
+    /// held: stopping at 40 s of 55 in the third set is the third set's fact.
     func recordHoldActual(heldSeconds: Int) {
-        let rounded = min(max(Int((Double(heldSeconds) / 5).rounded()) * 5, 5), 90)
-        if rounded == exercise.load {
-            actuals.removeValue(forKey: exercise.pattern)
-        } else {
-            actuals[exercise.pattern] = rounded
-        }
+        actuals = SetFacts.recording(SetFacts.snap(Double(heldSeconds), unit: .hold),
+                                     in: actuals, exercise, set: setIndex)
     }
 
     // MARK: - Audible countdown of the last rest seconds
@@ -839,7 +842,7 @@ private extension WorkoutFlowView {
             sessionNumber: session.sessionNumber,
             exIndex: exIndex, setIndex: setIndex,
             restEndDate: restEnd, restTotalSec: restTotal, restPlannedSec: restPlan,
-            actuals: actuals, skipped: skippedPatterns,
+            setActuals: actuals, skipped: skippedPatterns,
             discomfort: discomfortPatterns.isEmpty ? nil : discomfortPatterns,
             pinned: pinnedPatterns.isEmpty ? nil : pinnedPatterns,
             workoutStart: workoutStart ?? .now, savedAt: .now,
@@ -860,7 +863,7 @@ private extension WorkoutFlowView {
     func restore(from snap: WorkoutSnapshot) {
         exIndex = min(max(snap.exIndex, 0), exercises.count - 1)
         setIndex = min(max(snap.setIndex, 0), exercises[exIndex].sets - 1)
-        actuals = snap.actuals
+        actuals = snap.facts
         skippedPatterns = snap.skipped
         discomfortPatterns = snap.discomfort ?? []
         pinnedPatterns = snap.pinned ?? []

@@ -14,6 +14,40 @@ learns to speak up quietly where the audit found it silent, and the whole
 set of workout tones grows into a voice of its own. Every new field
 decodes tolerantly: the state and journal formats need no migrations.
 
+### "Went differently" belongs to the set you tapped it on (issue #158)
+
+The number you enter mid-workout is about the set you are standing in, and
+the app recorded it for the whole exercise. Tap it on the last set of 3×15,
+enter 10, and the engine was handed "10" — a full shortfall: level 7 down to
+2, plus a tick toward a deload, although two of the three sets had been done
+exactly on plan. A hold stopped early took the same path with no tap at all:
+releasing at 40 s of a 55 s plank in the third set was recorded as 40 seconds
+three times over. The one-set-short case was the worst of it — a single rep
+missing on the last set cost a level and a streak tick where the honest
+answer was a step forward.
+
+- **Each set carries its own number.** A fact is written against the set
+  under way; the sets already behind keep what they ran at. A number entered
+  mid-exercise still carries forward to the sets that follow — that is what
+  the screen shows and what a hold then counts down, so it really is what
+  those sets ran at. Everything landing back on the plan is nothing said at
+  all, exactly as correcting a number back to the plan always did.
+- **The engine is told the volume you did.** The sets collapse to their mean,
+  snapped to the step the movement is prescribed in: 15 / 15 / 10 reports 13
+  and lands on level 5 instead of 2; 55 / 55 / 40 seconds reports 50 and
+  lands on 6 instead of 4. One set a single rep short now averages back onto
+  the plan and takes the "on plan" step — level 8 with the failure streak
+  reset, where before it was level 6 and a tick toward an unearned deload.
+- **The sets are shown as they ran.** The rating screen and the history row
+  print "15 · 15 · 10" where the sets differed, and the single number where
+  they did not — spoken as a plain list to VoiceOver, so nothing is shown to
+  one reader and withheld from another.
+
+The engine is untouched: its contract is still one honest number per movement
+per session (spec §5), and the collapse happens in the app. Journals and
+interrupted-workout snapshots written by earlier builds decode as they always
+did — a single stored number simply means every set ran at it.
+
 ### Engine v2.13.0 — a corrupt save file cannot break the plan (issues #132, #146)
 
 The model promised that "the plan is valid even with garbage in the state",
