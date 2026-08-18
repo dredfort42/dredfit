@@ -12,6 +12,10 @@
 import XCTest
 @testable import DredfitCore
 
+// macOS puts a C `Pattern` struct (Quickdraw) in scope, so the package
+// build needs the name pinned — same line every test file in here carries.
+private typealias Pattern = DredfitCore.Pattern
+
 final class EngineV214Tests: XCTestCase {
 
     private func seeded(_ level: Int, _ over: [Pattern: Int] = [:]) -> EngineState {
