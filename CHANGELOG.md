@@ -58,6 +58,37 @@ per session (spec §5), and the collapse happens in the app. Journals and
 interrupted-workout snapshots written by earlier builds decode as they always
 did — a single stored number simply means every set ran at it.
 
+### Engine v2.14.0 — honest facts are never scored worse (issues #139, #140, #138)
+
+Logging what you actually did is the engine's main input, and in three places
+it was punished. Hold a plank for 21 seconds when the plan said 20 and the
+model moved nothing — while stopping at exactly 20 earned a step up. Beat a
+plan the app itself had trimmed (the pull is behind, so the push shows fewer
+sets) and the level went *down* and counted toward a deload. And an honest
+zero on the upper third of the scale handed back a plan with **half again as
+many reps** of the same movement — say zero, get more. All three come from
+the same place: rung arithmetic done in coordinates the reported number does
+not live in. The 2026-08-16 audit found them; a full sweep then showed the
+third one was not a band-only quirk but 194 broken cells out of 480.
+
+- **"You met the plan" is a window, not a point.** Seconds are stored in
+  five-second steps, so anything from the plan up to the next step now counts
+  as meeting it. Reps are unchanged — their step is one, so the window is the
+  old exact match.
+- **A trimmed plan is still your plan.** A reported number is now read against
+  the movement's true set band, never the one the gate shortened for display.
+  Beating a gated plan climbs exactly as it would have without the gate, and
+  never feeds the deload counter.
+- **Going down never asks for more.** A descent lands on the nearest level
+  that is not heavier than what you were just given; falling below a tier's
+  floor drops you to an easier variation instead of adding reps to the one you
+  could not finish — the way to say "this movement is beyond me", which the
+  model had no way to hear. Growth is untouched, and the familiar descent
+  (47 → 36 → 28 → 16 → 8 → 0) still converges.
+
+Verified across the whole scale: the level is now monotone in the number you
+report, for every pattern and every level.
+
 ### Engine v2.13.0 — a corrupt save file cannot break the plan (issues #132, #146)
 
 The model promised that "the plan is valid even with garbage in the state",
