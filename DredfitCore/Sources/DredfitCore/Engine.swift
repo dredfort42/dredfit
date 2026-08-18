@@ -418,6 +418,66 @@ public enum Level {
         return (t - 1) * EngineConfig.stepsPerTier + rung(tier: t, reps: d.reps)
     }
 
+    /// v2.14 (spec §25.1): the encoding step of a unit — one rep, or
+    /// `holdStepSec` seconds. The window of "the plan was met" is one step
+    /// wide, so for reps it collapses to the old equality.
+    static func step(of unit: LoadUnit) -> Int {
+        unit == .reps ? 1 : EngineConfig.holdStepSec
+    }
+
+    /// v2.14 (spec §25.3): how much work the plan of a level asks for. Only
+    /// comparable within one unit; sides are a property of the variation, not
+    /// of the rung, so they stay out of it.
+    struct PlanWork {
+        let tier: Int
+        let sets: Int
+        let unit: LoadUnit
+        let load: Int
+    }
+
+    static func work(pattern: Pattern, level: Int) -> PlanWork {
+        let d = decode(level)
+        let unit = ExerciseLibrary.entry(for: pattern).unit(forTier: d.tier)
+        return PlanWork(tier: d.tier, sets: d.sets, unit: unit,
+                        load: unit == .reps ? d.reps : d.hold)
+    }
+
+    /// v2.14 (spec §25.3): "no harder". A descent has no right to make the
+    /// plan heavier — an honest zero on a 4×4 band used to land on 3×8, half
+    /// again as many reps of the same movement ("I said zero and it added
+    /// more"). Same root cause as A3-1: repStart grows DOWN the tiers, so
+    /// rung arithmetic done in the planned tier's coordinates means more work
+    /// one tier below.
+    static func noHarder(pattern: Pattern, from: Int, to: Int) -> Bool {
+        let a = work(pattern: pattern, level: from), b = work(pattern: pattern, level: to)
+        if b.tier > a.tier { return false }
+        if b.tier == a.tier {
+            guard b.unit == a.unit else { return true }
+            return b.sets * b.load <= a.sets * a.load
+        }
+        // A lower tier: rep continuity (§22.1) — never more reps than the plan
+        // asked for, except landing on that tier's own floor.
+        if to == (b.tier - 1) * EngineConfig.stepsPerTier { return true }
+        guard b.unit == a.unit else { return true }
+        return b.load <= a.load
+    }
+
+    /// v2.14 (spec §25.3): the nearest level at or below the inversion's
+    /// result that does not ask for more work than the current plan. Applies
+    /// to descents only — growth lives under the §15.3 ceiling, where by
+    /// construction nothing gets heavier.
+    static func descendNoHarder(pattern: Pattern, from: Int, factLevel: Int) -> Int {
+        if factLevel >= from || noHarder(pattern: pattern, from: from, to: factLevel) {
+            return factLevel
+        }
+        var cand = factLevel - 1
+        while cand > 0 {
+            if noHarder(pattern: pattern, from: from, to: cand) { return cand }
+            cand -= 1
+        }
+        return 0
+    }
+
     /// Level from an actual value (reps or seconds) given the planned tier and
     /// sets. Tier 4 spans three set bands, so the base depends on sets; the
     /// unit comes from the (pattern, tier) library record.
@@ -597,6 +657,43 @@ public enum Engine {
         )
     }
 
+    /// Where a single reported number puts the level (spec §12.1/§18.1/§25).
+    /// Pulled out of `applyFeedback` so the three v2.14 rules read together —
+    /// and so that function stays inside the lint's body-length ceiling.
+    private static func levelFromPointFact(pattern p: Pattern, exercise ex: SessionExercise,
+                                           actual: Int, oldL: Int, cap: Int) -> Int {
+        // v2.14 (spec §25.2): the inversion reads the pattern's TRUE set band,
+        // not the shown one. The §20.2 gate clamps the PLAN, not the state —
+        // but the fact was inverted against the trimmed sets, so an honest
+        // overshoot of a gated plan dropped the level (32 → 30) and fed the
+        // deload streak.
+        let factL = Level.fromActual(pattern: p, tier: ex.tier,
+                                     sets: Level.decode(oldL).sets, actual: actual)
+        // v2.14 (spec §25.1): "the plan was met" is a WINDOW, not a point.
+        // Seconds are encoded in steps of holdStepSec, so an honest 21-22 s
+        // against a plan of 20 rounded into the same rung and moved nothing,
+        // while exactly 20 gave +1 — the level stopped being monotone in the
+        // reported fact across the whole static class (v2.8 §18.1 granted the
+        // step only at equality). For reps the step is one and the window is
+        // that old equality.
+        if actual >= ex.load && actual < ex.load + Level.step(of: ex.unit) {
+            return min(oldL + EngineConfig.deltaPlan, oldL + cap)
+        }
+        // Calibration: from a zero level the per-session cap does not apply —
+        // but the reps→level inversion is only valid one tier out (v2.7, spec
+        // §17.1): the result is bounded by the neighboring tier's ceiling,
+        // slow tissues by tier 1's.
+        if oldL == 0 {
+            let zeroCeil = EngineConfig.isSlowTissue(p)
+                ? EngineConfig.stepsPerTier - 1
+                : 2 * EngineConfig.stepsPerTier - 1
+            return min(max(factL, 0), zeroCeil)
+        }
+        // v2.14 (spec §25.3): a descent may not make the plan heavier.
+        return Level.descendNoHarder(pattern: p, from: oldL,
+                                     factLevel: min(max(factL, 0), oldL + cap))
+    }
+
     /// v2.9 (spec §19.1): movements the user pointed at during the workout —
     /// an exact number below the plan, a discomfort report, a hold request.
     private static func namedMovements(
@@ -743,27 +840,8 @@ public enum Engine {
             var newL: Int
 
             if let actual = overrides[p] {
-                let factL = Level.fromActual(pattern: p, tier: ex.tier,
-                                             sets: ex.sets, actual: actual)
-                // Calibration: from a zero level the per-session cap does not
-                // apply — but the reps→level inversion is only valid one tier
-                // out (v2.7, spec §17.1): the result is bounded by the
-                // neighboring tier's ceiling, slow tissues by tier 1's.
-                let zeroCeil = EngineConfig.isSlowTissue(p)
-                    ? EngineConfig.stepsPerTier - 1
-                    : 2 * EngineConfig.stepsPerTier - 1
-                // v2.8 (spec §18.1): a fact EXACTLY equal to the plan steps
-                // like "on plan" — the diligent logger must not stand still
-                // where a tap moves. Compared against the plan's load, not
-                // the inverted level: fromActual clamps at zero and would
-                // read "below plan" as "equal to plan".
-                if actual == ex.load {
-                    newL = min(oldL + EngineConfig.deltaPlan, oldL + cap)
-                } else {
-                    newL = oldL == 0
-                        ? min(max(factL, 0), zeroCeil)
-                        : min(max(factL, 0), oldL + cap)
-                }
+                newL = Self.levelFromPointFact(pattern: p, exercise: ex, actual: actual,
+                                               oldL: oldL, cap: cap)
             } else {
                 // "More" runs through the same ceiling; downward moves never do.
                 // v2.9 (§19.1): a targeted "less" reaches its aim only; every

@@ -80,22 +80,28 @@ final class EdgeCaseTests: XCTestCase {
         }
         XCTAssertEqual(state.levels[.pull], 24)
 
-        // three sessions in a row we drop pull via a "plan − 2" actual
-        var expected = 24
+        // Three sessions in a row we drop pull via a "plan − 2" actual.
+        // Re-marked for v2.14 (spec §25.3): the landing is no longer a flat
+        // "level − 2". A fact below the tier's floor means "this variation is
+        // beyond me", so the descent goes to the floor of an easier tier —
+        // what it may never do is hand back a HEAVIER plan, which is what the
+        // old arithmetic did (repStart grows down the tiers). The deload
+        // machinery itself is unchanged: the streak counts and resets.
         for i in 1...3 {
+            let before = state.levels[.pull] ?? 0
             let s = Engine.generateSession(state)
             let ex = s.exercises.first { $0.pattern == .pull }!
-            let actual = ex.load - 2
             state = Engine.applyFeedback(state: state, session: s,
-                                         result: .plan, overrides: [.pull: actual])
-            expected -= 2
+                                         result: .plan, overrides: [.pull: ex.load - 2])
+            let after = state.levels[.pull] ?? 0
+            XCTAssertLessThan(after, before, "step \(i): an underperformance goes down")
+            XCTAssertTrue(Level.noHarder(pattern: .pull, from: before, to: after),
+                          "step \(i): the descent never asks for more work")
             if i == 3 {
-                expected -= EngineConfig.deloadDrop  // third fail → deload
                 XCTAssertEqual(state.failStreak[.pull], 0, "after a deload the streak must reset")
             } else {
                 XCTAssertEqual(state.failStreak[.pull], i)
             }
-            XCTAssertEqual(state.levels[.pull], expected, "step \(i)")
         }
     }
 
