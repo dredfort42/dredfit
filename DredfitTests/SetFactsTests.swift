@@ -126,12 +126,47 @@ final class SetFactsTests: XCTestCase {
         XCTAssertEqual(SetFacts.override(facts, for: reps), 12)
     }
 
-    /// A mean landing back ON the plan is still evidence: §18.1 gives it the
-    /// "on plan" step rather than letting the rating decide.
-    func testAMeanBackOnThePlanIsStillReported() {
+    /// A shortfall must never be reported as MEETING the plan. To the engine
+    /// `actual == load` is both the "on plan" step (§18.1) and the fact that
+    /// confirms a pain episode has recovered (§21.2) — a near miss rounded up
+    /// onto the plan would claim both.
+    func testANearMissIsNeverRoundedUpOntoThePlan() {
         let facts = SetFacts.recording(50, in: [:], hold, set: 2)
-        XCTAssertEqual(SetFacts.allSets(facts, hold), [55, 55, 50])
-        XCTAssertEqual(SetFacts.override(facts, for: hold), 55)
+        XCTAssertEqual(SetFacts.allSets(facts, hold), [55, 55, 50],
+                       "the sets themselves are still recorded and shown")
+        XCTAssertNil(SetFacts.override(facts, for: hold),
+                     "53.3 s snaps to 55 — below the plan must not report as on it")
+
+        let reps = SetFacts.recording(self.reps.load - 1, in: [:], self.reps, set: 2)
+        XCTAssertNil(SetFacts.override(reps, for: self.reps), "the same on the reps grid")
+    }
+
+    /// The rule is about the DIRECTION, not the landing: a mean at or above
+    /// the plan that snaps onto it is an honest "on plan" fact.
+    func testAMeanAtOrAboveThePlanStillReportsIt() throws {
+        let facts = SetFacts.recording(hold.load + 5, in: [:], hold, set: 2)
+        XCTAssertEqual(SetFacts.allSets(facts, hold), [55, 55, 60])
+        XCTAssertEqual(SetFacts.override(facts, for: hold), 55,
+                       "56.7 s snaps to 55, and the athlete did not fall short")
+    }
+
+    /// The safety gate this protects, stated where it is actually enforced:
+    /// a session that fell short must not end a pain episode.
+    func testAShortfallCannotConfirmRecoveryFromPain() throws {
+        let p = hold.pattern
+        state.sore[p] = EngineConfig.freezeAppearances
+        let facts = SetFacts.recording(50, in: [:], hold, set: 2)
+        let overrides = SetFacts.overrides(facts, in: session.exercises)
+
+        let next = Engine.applyFeedback(state: state, session: session,
+                                        result: .plan, overrides: overrides)
+        XCTAssertNotNil(next.sore[p], "a short third set is not proof of recovery")
+        XCTAssertEqual(next.levels[p], Self.planLevel, "growth stays clamped while sore")
+
+        // What it would have done had the mean been allowed onto the plan.
+        let claimed = Engine.applyFeedback(state: state, session: session,
+                                           result: .plan, overrides: [p: hold.load])
+        XCTAssertNil(claimed.sore[p], "the shape this guard exists to prevent")
     }
 
     // MARK: - The grid
@@ -149,6 +184,49 @@ final class SetFactsTests: XCTestCase {
         XCTAssertEqual(SetFacts.snap(-4, unit: .reps), 0)
         XCTAssertEqual(SetFacts.snap(99, unit: .reps), 30)
         XCTAssertEqual(SetFacts.snap(.nan, unit: .reps), 0)
+    }
+
+    /// Reached from a snapshot off disk, so no magnitude may trap the
+    /// conversion to Int.
+    func testNoDoubleCanTrapTheSnap() {
+        XCTAssertEqual(SetFacts.snap(1e300, unit: .hold), 90)
+        XCTAssertEqual(SetFacts.snap(-1e300, unit: .hold), 5)
+        XCTAssertEqual(SetFacts.snap(.infinity, unit: .reps), 0)
+        XCTAssertEqual(SetFacts.snap(Double(Int.max), unit: .reps), 30)
+    }
+
+    // MARK: - Read back off disk
+
+    /// A workout snapshot carries no decoder of its own, so what it hands
+    /// back is sanitized where it is read.
+    func testFactsOffDiskAreClampedAndCut() {
+        let dirty: SetFacts.PerSet = [
+            reps.pattern: [15, -7, Int.max, 12, 9, 9, 9, 9],
+            hold.pattern: [],
+        ]
+        let clean = SetFacts.sanitized(dirty)
+        XCTAssertEqual(clean[reps.pattern], [15, 0, EngineConfig.countMax, 12, 9],
+                       "cut to the sets an exercise can have, every value inside its range")
+        XCTAssertNil(clean[hold.pattern], "an entry holding no sets is not an entry")
+    }
+
+    /// `sets` comes back out of the journal unclamped — `SessionExercise` has
+    /// no sanitizing decoder — and this walk runs on the main thread inside a
+    /// history row. Sizing an allocation from it would let one hand-edited
+    /// record take the app down; the same hostile value the journal tests
+    /// already use is the input here.
+    func testTheSetWalkIsBoundedByTheScaleNotTheRecord() throws {
+        let hostile = try JSONDecoder().decode(SessionExercise.self, from: Data("""
+        {"pattern":"squat","name":"x","tier":1,"unit":"reps","load":15,
+         "perSide":false,"sets":9223372036854775807,
+         "restSetSec":60,"restExerciseSec":60}
+        """.utf8))
+        XCTAssertEqual(hostile.sets, Int.max, "the record really is unclamped")
+
+        let facts = SetFacts.recording(10, in: [:], hostile, set: 0)
+        XCTAssertEqual(SetFacts.allSets(facts, hostile), [10, 10, 10, 10, 10],
+                       "the walk stops at the scale's ceiling, not the record's claim")
+        XCTAssertEqual(SetFacts.override(facts, for: hostile), 10)
     }
 
     // MARK: - The whole session

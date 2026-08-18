@@ -48,11 +48,27 @@ nonisolated enum SetFacts {
     /// stopped early, and the mean below — so the number shown is always a
     /// number that can be stored.
     static func snap(_ value: Double, unit: LoadUnit) -> Int {
-        let step = Double(self.step(for: unit))
         let corridor = self.corridor(for: unit)
         guard value.isFinite else { return corridor.lowerBound }
-        return min(max(Int((value / step).rounded() * step), corridor.lowerBound),
-                   corridor.upperBound)
+        let step = Double(self.step(for: unit))
+        // Clamped while still a Double: `Int(_:)` traps on anything past its
+        // range, and a snapshot off disk can carry any number at all.
+        let stepped = (value / step).rounded() * step
+        return Int(min(max(stepped, Double(corridor.lowerBound)),
+                       Double(corridor.upperBound)))
+    }
+
+    /// The per-set shape as the app is willing to read it back off disk. The
+    /// journal earns this on decode (spec §24.1); a workout snapshot carries
+    /// no decoder of its own, so it is sanitized where it is read: values
+    /// inside the range they can mean, arrays no longer than an exercise can
+    /// be, and nothing left standing that holds no sets at all.
+    static func sanitized(_ facts: PerSet) -> PerSet {
+        facts.compactMapValues { values in
+            let clean = values.prefix(EngineConfig.setsMax)
+                .map { min(max($0, 0), EngineConfig.countMax) }
+            return clean.isEmpty ? nil : Array(clean)
+        }
     }
 
     // MARK: - Reading
@@ -66,8 +82,15 @@ nonisolated enum SetFacts {
 
     /// Every set of the exercise, the ones already behind at what they ran at
     /// and the ones ahead at what is in force for them.
+    ///
+    /// The count is bounded by the scale, not by the record: `sets` comes
+    /// back out of the journal unclamped, and this walk is on the main thread
+    /// inside a row body — a hand-edited `Int.max` would allocate until the
+    /// app is killed. No exercise ever had more sets than the scale has
+    /// bands, so the valid domain never notices.
     static func allSets(_ facts: PerSet, _ ex: SessionExercise) -> [Int] {
-        (0..<max(ex.sets, 1)).map { inForce(facts, ex, set: $0) }
+        let sets = min(max(ex.sets, 1), EngineConfig.setsMax)
+        return (0..<sets).map { inForce(facts, ex, set: $0) }
     }
 
     // MARK: - Writing
@@ -96,14 +119,27 @@ nonisolated enum SetFacts {
     /// when every set ran to plan and the rating should govern.
     ///
     /// The mean, snapped to the unit's grid: 15 / 15 / 10 against a plan of
-    /// 3×15 reports 13, and 55 / 55 / 40 against 3×55 s reports 50. A mean
-    /// that lands back ON the plan is still a fact — §18.1 gives it the "on
-    /// plan" step — because something was said about the sets even so.
+    /// 3×15 reports 13, and 55 / 55 / 40 against 3×55 s reports 50.
+    ///
+    /// A shortfall is never reported as MEETING the plan, however close the
+    /// mean lands. To the engine `actual == load` is two statements at once:
+    /// the "on plan" step (§18.1) and the explicit fact that confirms a pain
+    /// episode has recovered (§21.2). A near miss rounded up onto the plan
+    /// would make both claims on the strength of a session that fell short —
+    /// promoting out of a freeze the athlete who missed a rep, while the one
+    /// who hit every rep says nothing and never escapes it. So when the grid
+    /// cannot hold the mean below the plan without over-penalising a near
+    /// miss, this says nothing at all and the session rating speaks instead.
     static func override(_ facts: PerSet, for ex: SessionExercise) -> Int? {
         guard facts[ex.pattern]?.isEmpty == false else { return nil }
         let values = allSets(facts, ex)
         guard !values.isEmpty else { return nil }
-        return snap(Double(values.reduce(0, +)) / Double(values.count), unit: ex.unit)
+        // Summed as Doubles: the values are sanitized, but this is the one
+        // place their total is taken and an Int overflow would trap.
+        let raw = values.reduce(0.0) { $0 + Double($1) } / Double(values.count)
+        let reported = snap(raw, unit: ex.unit)
+        if raw < Double(ex.load) && reported >= ex.load { return nil }
+        return reported
     }
 
     /// The whole session's `overrides`, keyed the way the engine wants them.

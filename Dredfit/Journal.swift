@@ -140,8 +140,10 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// What the flow restores into. A snapshot from before this shape kept
     /// one number per exercise, and that number was in force from the first
     /// set on — which is exactly what a one-element array says.
+    /// Sanitized on the way out: unlike the journal's records this struct has
+    /// no decoder of its own, and everything here comes back off disk.
     var facts: SetFacts.PerSet {
-        setActuals ?? actuals.mapValues { [$0] }
+        SetFacts.sanitized(setActuals ?? actuals.mapValues { [$0] })
     }
 
     static func fingerprint(of session: Session) -> String {

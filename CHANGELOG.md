@@ -35,9 +35,19 @@ answer was a step forward.
 - **The engine is told the volume you did.** The sets collapse to their mean,
   snapped to the step the movement is prescribed in: 15 / 15 / 10 reports 13
   and lands on level 5 instead of 2; 55 / 55 / 40 seconds reports 50 and
-  lands on 6 instead of 4. One set a single rep short now averages back onto
-  the plan and takes the "on plan" step — level 8 with the failure streak
-  reset, where before it was level 6 and a tick toward an unearned deload.
+  lands on 6 instead of 4. One set a single rep short now costs no level at
+  all — the mean lands within a step of the plan, the movement stands down
+  and the session rating speaks for it, so an "on plan" tap ends at level 8
+  with the failure streak reset where before it was level 6 and a tick
+  toward an unearned deload.
+- **A shortfall is never reported as meeting the plan.** Landing exactly on
+  the plan says two things to the engine at once — take the "on plan" step,
+  and confirm that a movement resting after a pain report has recovered
+  (spec §18.1 and §21.2). A near miss rounded up onto the plan would make
+  both claims on a session that fell short: it would promote out of a freeze
+  the athlete who missed a rep, while the one who hit every rep reports
+  nothing and never escapes it. So a mean that only reaches the plan by
+  rounding reports nothing instead, and the rating decides.
 - **The sets are shown as they ran.** The rating screen and the history row
   print "15 · 15 · 10" where the sets differed, and the single number where
   they did not — spoken as a plain list to VoiceOver, so nothing is shown to
