@@ -53,11 +53,9 @@ struct HistorySheet: View {
                                 Text("held")
                                     .dredfitFont(12.5)
                                     .foregroundStyle(Theme.accentText)
-                            } else if let actual = record.actuals?[ex.pattern], actual != ex.load {
-                                Text("actual \(actual)")
-                                    .dredfitFont(12.5)
-                                    .monospacedDigit()
-                                    .foregroundStyle(Theme.accentText)
+                            } else if let fact = setFacts(ex) {
+                                SetFactsLabel(values: fact.values,
+                                              reported: fact.reported, size: 12.5)
                             }
                         }
                     }
@@ -99,6 +97,28 @@ struct HistorySheet: View {
     /// The snapshot froze `name` in the language active when the session was
     /// generated; resolve it again so history follows a language switch. The
     /// stored name stays the fallback for a tier the library no longer has.
+    /// The facts worth printing for one exercise, or nil when it simply ran
+    /// to plan. The sets lead: a near miss that stood down rather than claim
+    /// the plan hands the engine no number at all, and the record of what was
+    /// actually done must survive that. A record written before a fact
+    /// belonged to its own set keeps one number for the whole exercise —
+    /// that number was in force for every set of it, which is what a single
+    /// value says.
+    private func setFacts(_ ex: SessionExercise) -> (values: [Int], reported: Int)? {
+        let reported = record.actuals?[ex.pattern]
+        let values: [Int]
+        if let facts = record.setActuals, facts[ex.pattern] != nil {
+            values = SetFacts.allSets(facts, ex)
+        } else if let reported {
+            values = [reported]
+        } else {
+            return nil
+        }
+        guard let first = values.first,
+              values.contains(where: { $0 != ex.load }) else { return nil }
+        return (values, reported ?? first)
+    }
+
     private func currentName(_ ex: SessionExercise) -> String {
         let variations = ExerciseLibrary.entry(for: ex.pattern).variations
         guard (1...variations.count).contains(ex.tier) else { return ex.name }

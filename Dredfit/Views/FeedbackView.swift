@@ -3,7 +3,7 @@
 //  Dredfit
 //
 //  One tap to rate the workout. The rating applies to all non-adjusted,
-//  non-skipped exercises; per-exercise actuals override it for theirs.
+//  non-skipped exercises; an exercise's own facts override it for theirs.
 //
 
 import SwiftUI
@@ -11,7 +11,10 @@ import DredfitCore
 
 struct FeedbackView: View {
     let session: Session
-    let actuals: [Pattern: Int]
+    /// Per-set, as the flow recorded them. The single number each one
+    /// collapses to for the engine is `overrides` below — computed here so
+    /// the screen and the engine can never be shown different arithmetic.
+    let facts: SetFacts.PerSet
     var skipped: Set<Pattern> = []
     /// Reported as painful: to the engine a skip, to the reader a different
     /// fact — the movement is resting, not merely missed.
@@ -22,6 +25,10 @@ struct FeedbackView: View {
     /// To the engine a skip like the others; the label says "not finished".
     var interrupted: Pattern?
     let onComplete: (FeedbackResult, [Pattern: Int]) -> Void
+
+    private var overrides: [Pattern: Int] {
+        SetFacts.overrides(facts, in: session.exercises)
+    }
 
     var body: some View {
         // Centred while it fits, scrollable once it doesn't: a fixed VStack
@@ -68,7 +75,7 @@ struct FeedbackView: View {
 
                     Spacer(minLength: 20)
 
-                    if !actuals.isEmpty || !setAside.isEmpty || !held.isEmpty {
+                    if !overrides.isEmpty || !setAside.isEmpty || !held.isEmpty {
                         adjustedSummary
                             .padding(.bottom, 24)
                     }
@@ -89,15 +96,13 @@ struct FeedbackView: View {
             Text("Your rating applies to \(applies) of \(total)")
                 .dredfitFont(13, weight: .semibold)
                 .foregroundStyle(Theme.ink2)
-            ForEach(session.exercises.filter { actuals[$0.pattern] != nil }) { ex in
+            ForEach(session.exercises.filter { overrides[$0.pattern] != nil }) { ex in
                 HStack {
                     Text(ex.name)
                         .dredfitFont(14, weight: .medium)
                     Spacer()
-                    Text("actual \(actuals[ex.pattern] ?? 0)")
-                        .dredfitFont(14, weight: .semibold)
-                        .monospacedDigit()
-                        .foregroundStyle(Theme.accentText)
+                    SetFactsLabel(values: SetFacts.allSets(facts, ex),
+                                  reported: overrides[ex.pattern] ?? 0)
                 }
             }
             if !held.isEmpty {
@@ -186,7 +191,7 @@ struct FeedbackView: View {
     /// became, and one that carries its own number reads as the adjustment —
     /// its actual, not the rating, is what moves it.
     private var held: Set<Pattern> {
-        pinned.subtracting(setAside).filter { actuals[$0] == nil }
+        pinned.subtracting(setAside).filter { overrides[$0] == nil }
     }
 
     /// What every held movement shows: the appearances the rest will cover
@@ -202,7 +207,7 @@ struct FeedbackView: View {
     /// aside minus what carries its own number.
     private var adjusted: Int {
         session.exercises.filter {
-            actuals[$0.pattern] != nil && !setAside.contains($0.pattern)
+            overrides[$0.pattern] != nil && !setAside.contains($0.pattern)
         }.count
     }
 
@@ -213,7 +218,7 @@ struct FeedbackView: View {
     private func optionCard(title: String, caption: String,
                             result: FeedbackResult) -> some View {
         Button {
-            onComplete(result, actuals)
+            onComplete(result, overrides)
         } label: {
             HStack {
                 VStack(alignment: .leading, spacing: 3) {

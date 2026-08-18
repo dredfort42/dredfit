@@ -10,8 +10,9 @@ import DredfitCore
 
 struct AdjustPanel: View {
     @Binding var value: Int
-    /// The corridors the engine prescribes in: holds step by 5 within 5…90,
-    /// reps by 1 within 0…30.
+    /// Picks the corridor and the step — both defined once, in SetFacts, so
+    /// what this panel offers and what a hold stopped early rounds to are the
+    /// same grid.
     let unit: LoadUnit
     let onConfirm: () -> Void
 
@@ -39,9 +40,9 @@ struct AdjustPanel: View {
     }
 
     private func bump(_ dir: Int) {
-        let step = unit == .hold ? 5 : 1
-        let range = unit == .hold ? 5...90 : 0...30
-        value = min(max(value + dir * step, range.lowerBound), range.upperBound)
+        let range = SetFacts.corridor(for: unit)
+        let stepped = value + dir * SetFacts.step(for: unit)
+        value = min(max(stepped, range.lowerBound), range.upperBound)
     }
 
     private func stepButton(_ icon: String, action: @escaping () -> Void) -> some View {
