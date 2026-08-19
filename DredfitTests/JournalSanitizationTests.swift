@@ -100,7 +100,19 @@ final class JournalSanitizationTests: XCTestCase {
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
         """
         try Data(json.utf8).write(to: tempURL)
-        return AppStore(storageURL: tempURL)
+        return AppStore(storageURL: tempURL, health: AcceptingHealth())
+    }
+
+    /// A stand-in for the HealthKit writer. Not a convenience: pointed at the
+    /// real one, this test asks a simulator's HealthKit to store a workout and
+    /// waits for an answer that never comes — the whole process sits idle
+    /// until the runner gives up. That is what stopped CI finishing on any
+    /// branch from 2026-08-17 (#164). Nothing here is under test; what is
+    /// under test is the estimate the backfill computes before it calls this.
+    private struct AcceptingHealth: WorkoutHealthWriting {
+        var isAvailable: Bool { true }
+        func requestWriteAuthorization() async -> Bool { true }
+        func saveWorkout(start: Date, end: Date) async -> Bool { start < end }
     }
 
     func testACorruptExerciseSnapshotCannotTrapTheDurationEstimate() async throws {
