@@ -36,6 +36,7 @@ struct SettingsSheet: View {
                     howItWorksSection
                     restDaysSection
                     equipmentSection
+                    timeBudgetSection
                     soundsSection
                     reminderSection
                     healthSection
@@ -159,6 +160,44 @@ struct SettingsSheet: View {
             Text("Every other workout swaps the row for a vertical pull")
                 .dredfitFont(12.5)
                 .foregroundStyle(Theme.ink2)
+        }
+    }
+
+    // MARK: - Session length (v2.17, #136)
+
+    /// The rungs are measured, not chosen: 20 is the shortest budget that
+    /// still keeps three movements at every level — below it a session stops
+    /// outrunning the decay of the ones it drops. 45 is where all six always
+    /// fit, so it costs no progress at all.
+    private static let budgetRungs = [20, 35, 45, 0]
+
+    private var timeBudgetSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Kicker(text: String(localized: "Session length"))
+            HStack(spacing: 8) {
+                ForEach(Self.budgetRungs, id: \.self) { minutes in
+                    Button {
+                        store.setTimeBudget(minutes)
+                    } label: {
+                        Text(minutes == 0
+                             ? String(localized: "No limit")
+                             : String(localized: "\(minutes) min"))
+                            .dredfitFont(14, weight: .medium)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 9)
+                            .background(store.engineState.timeBudgetMin == minutes
+                                        ? Theme.accent.opacity(0.14) : Theme.cardBG)
+                            .foregroundStyle(store.engineState.timeBudgetMin == minutes
+                                             ? Theme.accent : Theme.ink)
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    }
+                    .accessibilityIdentifier("budget-\(minutes)")
+                }
+            }
+            Text("Shorter workouts drop sets first, then movements — never below three. Your levels do not change.")
+                .dredfitFont(12.5)
+                .foregroundStyle(Theme.ink2)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 

@@ -183,8 +183,17 @@ final class EngineV214Tests: XCTestCase {
         // floor is the only place left, and it is a genuinely easier movement.
         XCTAssertTrue(Level.noHarder(pattern: .pull, from: 8, to: 0))
         XCTAssertFalse(Level.noHarder(pattern: .pull, from: 8, to: 7))
-        XCTAssertTrue(Level.noHarder(pattern: .pushH, from: 32, to: 25))
-        XCTAssertFalse(Level.noHarder(pattern: .pushH, from: 32, to: 28))
+        // Re-marked for v2.17 (spec §28.1): band 4 now asks 4×6 rather than
+        // 4×4, so the levels that count as "no harder" moved with it. The
+        // property is unchanged — these are the boundaries, checked by hand.
+        XCTAssertTrue(Level.noHarder(pattern: .pushH, from: 32, to: 28),
+                      "3×8 = 24 is exactly the 4×6 = 24 the plan asked for")
+        XCTAssertFalse(Level.noHarder(pattern: .pushH, from: 32, to: 31),
+                       "3×11 = 33 is more work than 4×6 = 24")
+        XCTAssertTrue(Level.noHarder(pattern: .pushH, from: 32, to: 0),
+                      "the floor of tier 1 is always allowed")
+        XCTAssertFalse(Level.noHarder(pattern: .pushH, from: 32, to: 7),
+                       "but the top of tier 1 asks 15 reps against 6")
     }
 
     // MARK: - The valid domain is untouched

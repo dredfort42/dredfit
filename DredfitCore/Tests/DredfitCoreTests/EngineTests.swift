@@ -18,14 +18,17 @@ final class EngineTests: XCTestCase {
             let d = Level.decode(l)
             XCTAssertTrue((1...EngineConfig.tiers).contains(d.tier), "L=\(l) tier")
             XCTAssertTrue((EngineConfig.setsBase...EngineConfig.setsMax).contains(d.sets), "L=\(l) sets")
-            // the range is per tier — 8...15 / 6...13 / 5...12 / 4...11
-            let repLo = EngineConfig.repStart[d.tier]!
-            let holdLo = EngineConfig.holdStart[d.tier]!
+            // Re-marked for v2.17 (spec §28.1): the range is per tier below
+            // the bands and per BAND inside them — 8...15 / 6...13 / 5...12 /
+            // 4...11, then 6...13 (band 4) and 8...15 (band 5).
+            let repLo = EngineConfig.repStartBand[d.sets] ?? EngineConfig.repStart[d.tier]!
+            let holdLo = EngineConfig.holdStartBand[d.sets] ?? EngineConfig.holdStart[d.tier]!
+            let holdStep = EngineConfig.holdStepBand[d.sets] ?? EngineConfig.holdStepSec
             XCTAssertTrue((repLo...(repLo + EngineConfig.stepsPerTier - 1)).contains(d.reps),
-                          "L=\(l) reps \(d.reps) outside tier \(d.tier) range")
-            XCTAssertTrue((holdLo...(holdLo + (EngineConfig.stepsPerTier - 1) * EngineConfig.holdStepSec))
+                          "L=\(l) reps \(d.reps) outside the range of tier \(d.tier)/band \(d.sets)")
+            XCTAssertTrue((holdLo...(holdLo + (EngineConfig.stepsPerTier - 1) * holdStep))
                             .contains(d.hold),
-                          "L=\(l) hold \(d.hold) outside tier \(d.tier) range")
+                          "L=\(l) hold \(d.hold) outside the range of tier \(d.tier)/band \(d.sets)")
         }
     }
 
@@ -37,11 +40,13 @@ final class EngineTests: XCTestCase {
         XCTAssertEqual(Level.decode(23), LevelDecoded(tier: 3, sets: 3, reps: 12, hold: 50))
         XCTAssertEqual(Level.decode(24), LevelDecoded(tier: 4, sets: 3, reps: 4, hold: 10))
         XCTAssertEqual(Level.decode(31), LevelDecoded(tier: 4, sets: 3, reps: 11, hold: 45))
-        // set bands above tier 4
-        XCTAssertEqual(Level.decode(32), LevelDecoded(tier: 4, sets: 4, reps: 4, hold: 10))
-        XCTAssertEqual(Level.decode(39), LevelDecoded(tier: 4, sets: 4, reps: 11, hold: 45))
-        XCTAssertEqual(Level.decode(40), LevelDecoded(tier: 4, sets: 5, reps: 4, hold: 10))
-        XCTAssertEqual(Level.decode(47), LevelDecoded(tier: 4, sets: 5, reps: 11, hold: 45)) // ceiling
+        // Set bands above tier 4. Re-marked for v2.17 (spec §28.1): a band
+        // starts at its own dose — the old reset to tier 4's floor cut the
+        // actual work by 52-72% at the boundary while the session grew longer.
+        XCTAssertEqual(Level.decode(32), LevelDecoded(tier: 4, sets: 4, reps: 6, hold: 25))
+        XCTAssertEqual(Level.decode(39), LevelDecoded(tier: 4, sets: 4, reps: 13, hold: 46))
+        XCTAssertEqual(Level.decode(40), LevelDecoded(tier: 4, sets: 5, reps: 8, hold: 30))
+        XCTAssertEqual(Level.decode(47), LevelDecoded(tier: 4, sets: 5, reps: 15, hold: 51)) // ceiling
     }
 
     func testLevelDecodeClamps() {
@@ -64,10 +69,13 @@ final class EngineTests: XCTestCase {
             XCTAssertEqual(Level.fromActual(pattern: .pullBar, tier: d.tier,
                                             sets: d.sets, actual: barActual), l, "pullBar L=\(l)")
         }
-        // The spec's worked example: an actual below the band's floor
-        // (tier 4 starts at 4 reps, so 2 is below it) drops back a band.
-        XCTAssertEqual(Level.fromActual(pattern: .pull, tier: 4, sets: 4, actual: 2), 30)
-        XCTAssertEqual(Level.decode(30), LevelDecoded(tier: 4, sets: 3, reps: 10, hold: 40))
+        // The spec's worked example: an actual below the band's floor drops
+        // back a band. Re-marked for v2.17 (spec §28.1): band 4 now starts at
+        // 6 reps rather than tier 4's 4, so the same fact of 2 lands deeper —
+        // the PROPERTY is what matters, so it is computed, not pinned.
+        let belowBand = Level.fromActual(pattern: .pull, tier: 4, sets: 4, actual: 2)
+        XCTAssertEqual(Level.decode(belowBand).sets, EngineConfig.setsBase,
+                       "a fact below band 4's floor returns to the 3-set world")
     }
 
     // MARK: Rotation
@@ -122,9 +130,12 @@ final class EngineTests: XCTestCase {
         for ex in s.exercises {
             XCTAssertEqual(ex.tier, EngineConfig.tiers, "at the ceiling tier \(EngineConfig.tiers) is expected")
             XCTAssertEqual(ex.sets, EngineConfig.setsMax, "at the ceiling \(EngineConfig.setsMax) sets are expected")
-            // the ceiling is the top step of tier 4 — 11 reps / 45 s
-            XCTAssertEqual(ex.load, ex.unit == .reps ? 11 : 45,
-                           "at the ceiling the load must be the top of tier 4")
+            // Re-marked for v2.17 (spec §28.1): the ceiling is the top step of
+            // BAND 5, which now starts at its own dose rather than at the
+            // bottom of tier 4.
+            let d = Level.decode(EngineConfig.levelMax)
+            XCTAssertEqual(ex.load, ex.unit == .reps ? d.reps : d.hold,
+                           "at the ceiling the load must be the top of band 5")
         }
     }
 
@@ -141,7 +152,9 @@ final class EngineTests: XCTestCase {
         s = Engine.generateSession(state)
         let ex = s.exercises.first { $0.pattern == .pull }!
         XCTAssertEqual(ex.sets, 4)
-        XCTAssertEqual(ex.load, 4, "32 = 4×4 (v2.3: tier 4 starts at 4 reps)")
+        // Re-marked for v2.17 (spec §28.1): the band starts at its own dose.
+        XCTAssertEqual(ex.load, EngineConfig.repStartBand[4],
+                       "32 = 4×\(EngineConfig.repStartBand[4]!) — the band's own start")
 
         // a third consecutive fail at 32 deloads back across the boundary: 32 → 31−3 = 28
         state.failStreak[.pull] = 2

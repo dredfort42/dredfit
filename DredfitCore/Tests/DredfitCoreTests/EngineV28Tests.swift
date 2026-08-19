@@ -98,8 +98,13 @@ final class EngineV28Tests: XCTestCase {
         for level in 0...EngineConfig.levelMax {
             let session = Engine.generateSession(seeded(level: level))
             for ex in session.exercises {
-                XCTAssertEqual(ex.restSetSec, EngineConfig.restSetByBand[ex.sets],
-                               "L=\(level) \(ex.pattern.rawValue): rest must follow the band")
+                // Re-marked for v2.17 (spec §28.2): the rest reads the TIER as
+                // well as the band — a tier-4 movement in band 3 rests 90 s,
+                // because the band was never the whole story about difficulty.
+                let expected = EngineConfig.restSetByTierBand[ex.tier]?[ex.sets]
+                    ?? EngineConfig.restSetByBand[ex.sets]
+                XCTAssertEqual(ex.restSetSec, expected,
+                               "L=\(level) \(ex.pattern.rawValue): rest must follow tier and band")
                 XCTAssertEqual(ex.restExerciseSec, EngineConfig.restExerciseSec,
                                "the between-exercise pause is not banded")
             }

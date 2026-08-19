@@ -58,6 +58,43 @@ per session (spec §5), and the collapse happens in the app. Journals and
 interrupted-workout snapshots written by earlier builds decode as they always
 did — a single stored number simply means every set ran at it.
 
+### Engine v2.17.0 — you decide how long a workout is (issues #136, #129, #142, #144)
+
+How long a session takes was something the model told you, not something you
+could tell the model. The shortest plan anywhere on the scale was 31 minutes;
+honest progress pushed it past 45 minutes by the 37th workout and past 75 by
+the 67th; and "Short on time?" bottomed out at 20 minutes — the fifteen-minute
+window a parent with a toddler actually has did not exist at any level. The
+cost of the habit grew in proportion to how well you kept it.
+
+- **A session length you choose.** Settings now offer 20, 35 or 45 minutes, or
+  no limit — which stays the default, so nothing changes for anyone who does
+  not open the setting. A shorter budget drops sets first and movements only
+  after, never below three, and never touches your levels: the same progress
+  per session, in less time. The rungs are measured, not picked — 20 is the
+  shortest length that still trains three movements at every level, 45 is where
+  all six always fit.
+- **Entering a new set band no longer halves the work.** Crossing into four or
+  five sets used to reset the reps to the bottom of the hardest tier, cutting
+  the actual work by half to two-thirds while the session got *longer* — a
+  45-second plank became "hold it for 10". Bands now start at their own dose.
+- **Hard movements get a real rest.** A tier-4 movement at three sets — pistol
+  squats, archer rows, wall handstand work — rested a minute, where the
+  evidence for trained people on hard variations says two. It now rests 90
+  seconds, the honest step that keeps the ladder going one way.
+- **Training every day no longer outruns your tendons.** Twenty-eight daily
+  workouts used to put full pull-ups in the plan — the per-session growth caps
+  were simply multiplied by the number of days. A weekly ceiling now applies to
+  the slow-adapting movements, and coming back from a long break opens ten
+  sessions where growth is gentle. Costs an honest two-or-three-times-a-week
+  trainee almost nothing: answering "on plan" it costs nothing at all — the
+  plans are identical level by level — and answering "easy" every single time
+  it costs three levels of pull over three months, against ten to eleven for
+  the daily case it exists to catch.
+- **A collapse found while measuring all this:** answering honestly with more
+  reps than a *trimmed* plan asked for could drop a resting movement fifteen
+  levels. Fixed, and the fix ships here.
+
 ### Engine v2.16.0 — the push plan stops flickering (issues #141, #145, #148)
 
 With a pull-up bar the pull slot alternates between two movements, and the

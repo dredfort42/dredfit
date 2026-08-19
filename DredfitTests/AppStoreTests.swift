@@ -928,15 +928,32 @@ extension AppStoreTests {
         let hurtURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-test-\(UUID().uuidString).json")
         defer { try? FileManager.default.removeItem(at: hurtURL) }
+        // v2.17 (spec §28.5, #129): the weekly ceiling holds the slow-adapting
+        // patterns to three levels a week, so a walk up the scale can no longer
+        // be a run of same-instant taps — every workout here gets its own day.
+        let start = Date()
         for (url, pin) in [(tempURL!, true), (hurtURL, false)] {
             let store = AppStore(storageURL: url)
-            // Walk pull to tier 2: it is in every session, and its cells
-            // allow +2 below tier 4, so four easy workouts reach level 8.
-            for _ in 0..<4 { store.completeWorkout(session: store.nextSession, result: .more) }
-            let session = store.nextSession
-            XCTAssertEqual(session.exercises.first { $0.pattern == .pull }?.tier, 2, "seeding")
-            store.completeWorkout(session: session, result: .plan,
-                                  discomfort: pin ? [] : [.pull], pinned: pin ? [.pull] : [])
+            var day = 0
+            func train(_ result: FeedbackResult, overrides: [Pattern: Int] = [:],
+                       discomfort: Set<Pattern> = [], pinned: Set<Pattern> = []) {
+                day += 1
+                store.completeWorkout(session: store.nextSession, result: result,
+                                      overrides: overrides, discomfort: discomfort,
+                                      pinned: pinned,
+                                      date: start.addingTimeInterval(Double(day) * 86_400))
+            }
+            func pullTier() -> Int {
+                store.nextSession.exercises.first { $0.pattern == .pull }!.tier
+            }
+
+            // Walk pull to tier 2: it is in every session, and its cells allow
+            // +2 below tier 4 — three levels a week, so the climb takes weeks.
+            while pullTier() < 2 {
+                guard day < 60 else { return XCTFail("seeding: pull never reached tier 2") }
+                train(.more)
+            }
+            train(.plan, discomfort: pin ? [] : [.pull], pinned: pin ? [.pull] : [])
             if pin {
                 XCTAssertFalse(store.debutPatterns.contains(.pull),
                                "performed under a pin — tier 2 is no debut")
@@ -947,12 +964,14 @@ extension AppStoreTests {
             // confirm with a fact at the plan, grow to tier 2 again.
             XCTAssertFalse(store.debutPatterns.contains(.pull),
                            "the unloaded tier was performed — no badge")
-            for _ in 0..<3 { store.completeWorkout(session: store.nextSession, result: .plan) }
-            let confirm = store.nextSession
-            let load = confirm.exercises.first { $0.pattern == .pull }!.load
-            store.completeWorkout(session: confirm, result: .plan, overrides: [.pull: load])
-            while store.nextSession.exercises.first(where: { $0.pattern == .pull })!.tier < 2 {
-                store.completeWorkout(session: store.nextSession, result: .more)
+            for _ in 0..<3 { train(.plan) }
+            let load = store.nextSession.exercises.first { $0.pattern == .pull }!.load
+            train(.plan, overrides: [.pull: load])
+            while pullTier() < 2 {
+                guard day < 120 else {
+                    return XCTFail("the climb back to tier 2 should not take four months")
+                }
+                train(.more)
             }
             XCTAssertTrue(store.debutPatterns.contains(.pull),
                           "back at tier 2 after the pain: it was never performed — it debuts")

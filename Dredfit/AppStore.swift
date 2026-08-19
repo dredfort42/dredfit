@@ -466,80 +466,6 @@ final class AppStore {
         return records.last { cal.isDate($0.date, inSameDayAs: date) }
     }
 
-    var nextTrainingDate: Date { nextTrainingDate(from: today) }
-
-    func nextTrainingDate(from now: Date) -> Date {
-        let cal = Calendar.current
-        var d = now
-        if isDone(on: now) || isRestDay(d) {
-            var hops = 0
-            repeat {
-                d = cal.date(byAdding: .day, value: 1, to: d)!
-                hops += 1
-            } while isRestDay(d) && hops < 7   // toggleRestDay guarantees ≥ 1 training day
-        }
-        return d
-    }
-
-    /// The week is Monday–Sunday regardless of locale.
-    struct WeekSummary: Equatable {
-        let workouts: Int
-        let levelsDelta: Int
-    }
-
-    /// Deload weeks can be negative — that is honest, not an error.
-    /// nil `date` = the store's anchor, so callers stay midnight-reactive.
-    func weekSummary(for date: Date? = nil) -> WeekSummary {
-        let date = date ?? today
-        var cal = Calendar(identifier: .iso8601)   // Monday-first weeks
-        cal.timeZone = Calendar.current.timeZone
-        guard let week = cal.dateInterval(of: .weekOfYear, for: date) else {
-            return WeekSummary(workouts: 0, levelsDelta: 0)
-        }
-        let inWeek = records.filter { $0.date >= week.start && $0.date < week.end }
-        guard let last = inWeek.last else { return WeekSummary(workouts: 0, levelsDelta: 0) }
-        let baseline = records.last { $0.date < week.start }?.totalLevelAfter ?? 0
-        return WeekSummary(workouts: inWeek.count,
-                           levelsDelta: last.totalLevelAfter - baseline)
-    }
-
-    var nextTrainingDateLabel: String { nextTrainingDateLabel(from: today) }
-
-    /// From an arbitrary day: the widget carries one per day, because a
-    /// timeline entry rendered days after the write must still say the right
-    /// relative word.
-    func nextTrainingDateLabel(from day: Date) -> String {
-        let cal = Calendar.current
-        let d = nextTrainingDate(from: day)
-        if cal.isDate(d, inSameDayAs: day) { return String(localized: "today") }
-        if let tomorrow = cal.date(byAdding: .day, value: 1, to: day),
-           cal.isDate(d, inSameDayAs: tomorrow) { return String(localized: "tomorrow") }
-        let weekday = d.formatted(.dateTime.weekday(.wide))
-        let index = cal.component(.weekday, from: d)   // 1 = Sunday … 7 = Saturday
-        switch Locale.current.language.languageCode {
-        case .russian:
-            return russianOnWeekday(index)
-        case .portuguese:
-            // Weekday gender: o sábado / o domingo, a segunda…sexta-feira.
-            return (index == 1 || index == 7 ? "no " : "na ") + weekday
-        default:
-            return String(localized: "on \(weekday)")
-        }
-    }
-
-    /// The formatter only gives the nominative; this needs the accusative.
-    private func russianOnWeekday(_ index: Int) -> String {
-        switch index {
-        case 1: return "в воскресенье"
-        case 2: return "в понедельник"
-        case 3: return "во вторник"
-        case 4: return "в среду"
-        case 5: return "в четверг"
-        case 6: return "в пятницу"
-        default: return "в субботу"
-        }
-    }
-
     // MARK: - The only mutation
 
     /// - Returns: the milestones this workout earned — derived here because
@@ -564,10 +490,16 @@ final class AppStore {
         let before = engineState
         let discomfort = spendPendingDiscomfort(in: session, adding: discomfort)
         let pinned = spendPendingPinned(in: session, adding: pinned)
+        // v2.17 (spec §28.5, #129): the app hands the engine the one aggregate
+        // it needs to stop daily training from multiplying its way around the
+        // per-session growth caps — the same gap in whole days it already
+        // computes for the decay and the comeback. Nil on the first workout:
+        // there is nothing to measure from.
         engineState = Engine.applyFeedback(state: engineState, session: session,
                                            result: result, overrides: overrides,
                                            skipped: skipped, discomfort: discomfort,
-                                           pinned: pinned)
+                                           pinned: pinned,
+                                           gapDays: gapDays(now: date))
         records.append(WorkoutRecord(
             sessionNumber: session.sessionNumber,
             date: date,
@@ -782,6 +714,17 @@ final class AppStore {
     /// stored levels stand. A repeat tap tops the lens back up. The read-only
     /// company (the offer window, the countdown, the card preview) lives in
     /// AppStore+Comeback.
+    /// v2.17 (spec §28.3, #136): how long the trainee wants a session to be.
+    /// The budget trims the PLAN — sets first, then movements, never below
+    /// three — and leaves the levels alone, so choosing less time costs
+    /// nothing but the sets it removes. 0 = no limit, which is what every
+    /// install had until now.
+    func setTimeBudget(_ minutes: Int) {
+        guard engineState.timeBudgetMin != minutes else { return }
+        engineState.timeBudgetMin = minutes
+        persist()
+    }
+
     func markIllness() {
         engineState = Engine.applyIllness(state: engineState)
         persist()

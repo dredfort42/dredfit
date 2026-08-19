@@ -140,9 +140,14 @@ final class EngineV210Tests: XCTestCase {
             for ex in session.exercises where Pattern.pushSide.contains(ex.pattern) {
                 XCTAssertEqual(ex.sets, min(Level.decode(pushL).sets, slot.sets),
                                "pull \(pullL) / push \(pushL): the band is the smaller of the two")
+                // Re-marked for v2.17 (spec §28.2): the rest follows the
+                // resulting band AND the tier — a gated tier-4 push rests 90 s,
+                // because the gate trimmed the plan, not the difficulty.
                 XCTAssertEqual(ex.restSetSec,
-                               EngineConfig.restSetByBand[ex.sets] ?? EngineConfig.restSetSec,
-                               "the rest follows the resulting band")
+                               EngineConfig.restSetByTierBand[ex.tier]?[ex.sets]
+                                ?? EngineConfig.restSetByBand[ex.sets]
+                                ?? EngineConfig.restSetSec,
+                               "the rest follows the resulting band and tier")
             }
         }
     }

@@ -252,10 +252,14 @@ final class EngineV23Tests: XCTestCase {
         for level in 0...EngineConfig.levelMax {
             let d = Level.decode(level)
             let step = level % EngineConfig.stepsPerTier
-            XCTAssertEqual(d.reps, EngineConfig.repStart[d.tier]! + step, "L=\(level) reps")
-            XCTAssertEqual(d.hold,
-                           EngineConfig.holdStart[d.tier]! + step * EngineConfig.holdStepSec,
-                           "L=\(level) hold")
+            // Re-marked for v2.17 (spec §28.1): inside a sets band the start
+            // and the step are the band's own — entering a band used to reset
+            // the reps to the bottom of tier 4 and halve the actual work.
+            let repStart = EngineConfig.repStartBand[d.sets] ?? EngineConfig.repStart[d.tier]!
+            let holdStart = EngineConfig.holdStartBand[d.sets] ?? EngineConfig.holdStart[d.tier]!
+            let holdStep = EngineConfig.holdStepBand[d.sets] ?? EngineConfig.holdStepSec
+            XCTAssertEqual(d.reps, repStart + step, "L=\(level) reps")
+            XCTAssertEqual(d.hold, holdStart + step * holdStep, "L=\(level) hold")
         }
     }
 
