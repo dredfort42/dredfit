@@ -5077,49 +5077,49 @@
         }
       }
     },
-    "Kick up into a handstand with your back to the wall, heels resting on it.": {
+    "Getting in: face away from the wall, hands a palm's length from it, and walk your feet up until your heels rest on it.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Schwing dich mit dem Rücken zur Wand in den Handstand, die Fersen lehnen an der Wand."
+            "value": "Einstieg: mit dem Rücken zur Wand, Hände eine Handbreit davor, dann mit den Füßen die Wand hochlaufen, bis die Fersen aufliegen."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kick up into a handstand with your back to the wall, heels resting on it."
+            "value": "Getting in: face away from the wall, hands a palm's length from it, and walk your feet up until your heels rest on it."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sube a la parada de manos de espaldas a la pared, con los talones apoyados en ella."
+            "value": "Entrada: de espaldas a la pared, manos a un palmo de ella, y sube caminando con los pies hasta apoyar los talones."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Élance-toi en poirier dos au mur, les talons appuyés dessus."
+            "value": "Entrée : dos au mur, mains à une paume de distance, puis monte les pieds le long du mur jusqu'à poser les talons."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sali in verticale con uno slancio, dando le spalle al muro, talloni appoggiati."
+            "value": "Ingresso: schiena al muro, mani a un palmo da esso, e cammina con i piedi sul muro finché i talloni non si appoggiano."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Suba na parada de mão de costas para a parede, com os calcanhares apoiados nela."
+            "value": "Entrada: de costas para a parede, mãos a um palmo dela, e suba com os pés pela parede até apoiar os calcanhares."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Выйди в стойку на руках спиной к стене, пятки на стене."
+            "value": "Вход: спиной к стене, ладони в ладони от неё, и поднимайся ногами по стене, пока пятки не лягут на неё."
           }
         }
       }
@@ -5171,49 +5171,49 @@
         }
       }
     },
-    "Press back up; know how to exit safely — step down one leg at a time.": {
+    "Getting out: walk the feet back down the wall. If you have to bail mid-rep, turn your head to one side and step over — never collapse straight down.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Drück dich wieder hoch; überleg dir vorher, wie du sicher wieder runterkommst – setz ein Bein nach dem anderen ab."
+            "value": "Ausstieg: die Füße an der Wand wieder hinunterlaufen. Musst du mitten in der Wiederholung abbrechen, dreh den Kopf zur Seite und steig seitlich ab – sacke nie gerade nach unten zusammen."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Press back up; know how to exit safely — step down one leg at a time."
+            "value": "Getting out: walk the feet back down the wall. If you have to bail mid-rep, turn your head to one side and step over — never collapse straight down."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Empuja hacia arriba; ten claro cómo salir con seguridad: baja una pierna y después la otra."
+            "value": "Salida: baja los pies por la pared. Si tienes que abandonar a media repetición, gira la cabeza hacia un lado y pasa por encima; nunca te desplomes en línea recta."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Repousse-toi vers le haut ; prévois comment redescendre en toute sécurité : repose une jambe, puis l’autre."
+            "value": "Sortie : redescends les pieds le long du mur. S'il faut abandonner en pleine répétition, tourne la tête sur le côté et enjambe — ne t'effondre jamais à la verticale."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spingi verso l’alto; pensa prima a come uscire in sicurezza – abbassa una gamba alla volta."
+            "value": "Uscita: riporta i piedi giù lungo il muro. Se devi interrompere a metà ripetizione, gira la testa di lato e scavalca: mai accasciarti in linea retta."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Empurre para cima; saiba sair com segurança: desça uma perna de cada vez."
+            "value": "Saída: desça os pés pela parede. Se precisar abortar no meio da repetição, vire a cabeça para o lado e passe por cima — nunca desabe em linha reta."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Выжмись вверх; заранее знай, как безопасно выйти из стойки — опускай ноги по одной."
+            "value": "Сход: спусти ноги по стене обратно. Если приходится сойти на середине повтора — поверни голову вбок и перешагни, но не складывайся вниз."
           }
         }
       }
@@ -5312,284 +5312,237 @@
         }
       }
     },
-    "Chest-to-wall handstand push-up": {
+    "Feet-elevated pike push-up": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Handstand-Liegestütze mit Brust zur Wand"
+            "value": "Pike-Liegestütz mit erhöhten Füßen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chest-to-wall handstand push-up"
+            "value": "Feet-elevated pike push-up"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Flexión en parada de manos de frente a la pared"
+            "value": "Flexión en pica con pies elevados"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pompes en poirier face au mur"
+            "value": "Pompes en pique, pieds surélevés"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Flessioni in verticale petto al muro"
+            "value": "Piegamenti a pike con piedi rialzati"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Flexão em parada de mão de frente para a parede"
+            "value": "Flexão em pique com pés elevados"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Отжимания в стойке грудью к стене"
+            "value": "Отжимания «щучкой» с ногами на возвышении"
           }
         }
       }
     },
-    "Walk your feet up the wall, chest facing it, body close to vertical.": {
+    "Put your feet on a chair or a low bed and walk your hands back into a steep inverted V.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Geh mit den Füßen die Wand hoch, Brust zur Wand, der Körper fast senkrecht."
+            "value": "Stell die Füße auf einen Stuhl oder ein niedriges Bett und lauf mit den Händen zurück in ein steiles umgekehrtes V."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Walk your feet up the wall, chest facing it, body close to vertical."
+            "value": "Put your feet on a chair or a low bed and walk your hands back into a steep inverted V."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sube caminando con los pies por la pared, el pecho hacia ella y el cuerpo casi vertical."
+            "value": "Apoya los pies en una silla o una cama baja y camina con las manos hasta formar una V invertida pronunciada."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Monte les pieds pas à pas le long du mur, poitrine face au mur, le corps presque à la verticale."
+            "value": "Pose les pieds sur une chaise ou un lit bas et rapproche les mains pour former un V inversé bien marqué."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sali camminando con i piedi sul muro, petto rivolto al muro, corpo quasi verticale."
+            "value": "Appoggia i piedi su una sedia o un letto basso e cammina con le mani fino a formare una V rovesciata ripida."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Suba caminhando com os pés pela parede, o peito voltado para ela e o corpo quase vertical."
+            "value": "Apoie os pés numa cadeira ou cama baixa e caminhe com as mãos até formar um V invertido bem fechado."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Шагай ногами вверх по стене, грудью к ней, тело почти вертикально."
+            "value": "Поставь ноги на стул или низкую кровать и подставь руки ближе — тело в крутой букве V."
           }
         }
       }
     },
-    "Bend the elbows slowly, lowering the head to the floor.": {
+    "Press back up; the higher the feet, the closer this gets to a handstand.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Beug die Ellenbogen langsam und senk den Kopf zum Boden."
+            "value": "Drück dich wieder hoch – je höher die Füße, desto näher am Handstand."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bend the elbows slowly, lowering the head to the floor."
+            "value": "Press back up; the higher the feet, the closer this gets to a handstand."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dobla los codos despacio, bajando la cabeza hacia el suelo."
+            "value": "Empuja hasta arriba; cuanto más altos los pies, más se parece al pino."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Plie lentement les coudes en descendant la tête vers le sol."
+            "value": "Repousse jusqu'en haut ; plus les pieds sont hauts, plus on se rapproche de l'ATR."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Piega i gomiti lentamente, portando la testa verso terra."
+            "value": "Spingi di nuovo su: più alti sono i piedi, più ci si avvicina alla verticale."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dobre os cotovelos devagar, descendo a cabeça em direção ao chão."
+            "value": "Empurre de volta para cima; quanto mais altos os pés, mais perto fica da parada de mão."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Медленно сгибай локти, опуская голову к полу."
+            "value": "Выжми обратно вверх: чем выше ноги, тем ближе это к стойке на руках."
           }
         }
       }
     },
-    "Press back up; keep the body in one tight line.": {
+    "Hips sagging toward the floor — keep the V sharp, weight over the hands.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Drück dich wieder hoch; halte den Körper in einer festen Linie."
+            "value": "Die Hüfte sinkt ab – halte das V spitz, das Gewicht über den Händen."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Press back up; keep the body in one tight line."
+            "value": "Hips sagging toward the floor — keep the V sharp, weight over the hands."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Empuja hacia arriba; mantén el cuerpo en una línea firme."
+            "value": "La cadera se hunde: mantén la V cerrada y el peso sobre las manos."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pousse pour remonter ; garde le corps gainé, en une seule ligne."
+            "value": "Les hanches s'affaissent : garde le V bien fermé, le poids au-dessus des mains."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spingi e risali; tieni il corpo in un’unica linea compatta."
+            "value": "Il bacino scende: tieni la V stretta, il peso sopra le mani."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Empurre para cima; mantenha o corpo em uma linha firme."
+            "value": "O quadril afunda: mantenha o V fechado, com o peso sobre as mãos."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Выжмись вверх; держи тело одной жесткой линией."
+            "value": "Таз проваливается вниз — держи букву V острой, вес над ладонями."
           }
         }
       }
     },
-    "Arching away from the wall — stay close, ribs tucked in.": {
+    "Starting too high — if the head cannot reach the floor with control, lower the feet.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Der Körper wölbt sich von der Wand weg – bleib nah dran, Rippen eingezogen."
+            "value": "Zu hoch angefangen – wenn der Kopf nicht kontrolliert den Boden erreicht, stell die Füße tiefer."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Arching away from the wall — stay close, ribs tucked in."
+            "value": "Starting too high — if the head cannot reach the floor with control, lower the feet."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Arquearte separándote de la pared: quédate cerca, con las costillas metidas."
+            "value": "Empezar demasiado alto: si la cabeza no llega al suelo con control, baja los pies."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tu te cambres en t’éloignant du mur : reste tout près, les côtes rentrées."
+            "value": "Départ trop haut : si la tête n'atteint pas le sol sous contrôle, baisse les pieds."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il corpo si inarca allontanandosi dal muro – restaci vicino, costole chiuse."
+            "value": "Partenza troppo alta: se la testa non arriva a terra sotto controllo, abbassa i piedi."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Arquear afastando-se da parede: fique perto, com as costelas encaixadas."
+            "value": "Começar alto demais: se a cabeça não alcança o chão com controle, abaixe os pés."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Прогиб от стены — держись ближе, ребра подобраны."
-          }
-        }
-      }
-    },
-    "Uncontrolled descent — the head must land softly.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Unkontrolliertes Absenken – der Kopf muss weich aufsetzen."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uncontrolled descent — the head must land softly."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Descenso sin control: la cabeza tiene que apoyarse suave en el suelo."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Descente non contrôlée : la tête doit se poser en douceur."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Discesa senza controllo – la testa deve appoggiarsi dolcemente a terra."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Descida sem controle: a cabeça precisa encostar de leve no chão."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Неконтролируемое опускание — голова должна мягко касаться пола."
+            "value": "Слишком высокая опора — если голова не доходит до пола под контролем, опусти ноги ниже."
           }
         }
       }

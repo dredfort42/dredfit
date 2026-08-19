@@ -27,8 +27,13 @@ final class LibraryPinTests: XCTestCase {
                  "Single-leg Romanian deadlift", "Sliding leg curl"],
         .pull: ["Y-T-W raises", "Inverted row (table)",
                 "Feet-elevated inverted row", "Archer inverted row"],
-        .pushV: ["Wall push-up", "Pike push-up", "Wall handstand push-up",
-                 "Chest-to-wall handstand push-up"],
+        // v2.18 (#131): the elevated pike took tier 3 and the wall handstand
+        // moved up to 4; the chest-to-wall variation left the library. Stored
+        // levels keep their numbers (owner's decision 19.08.2026), so anyone
+        // above tier 2 meets an easier movement at the same level — never a
+        // harder one.
+        .pushV: ["Wall push-up", "Pike push-up", "Feet-elevated pike push-up",
+                 "Wall handstand push-up"],
         .lunge: ["Static lunge", "Reverse lunge", "Jump lunge", "Paused jump lunge"],
         .coreAntiExt: ["Knee plank", "Plank", "Hollow hold", "Long-lever plank"],
         .coreRot: ["Bird dog (hold)", "Side plank", "Side plank with leg raise",

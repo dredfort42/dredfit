@@ -274,29 +274,36 @@ public enum ExerciseLibrary {
                     String(localized: "Hips dropping as the arms bend — keep the V shape.", bundle: .module),
                     String(localized: "Bumping the head on the floor — lower slowly, with control.", bundle: .module),
                 ]),
+            // v2.18 (#131): the rung the ladder was missing. Pike straight to a
+            // handstand was the only step in the library that asked for a new
+            // SKILL — a kick-up at near-full bodyweight — rather than more of
+            // the same strength. Feet on a chair or a bed is the same movement
+            // as the pike, just steeper, and it can be left at any moment by
+            // stepping down.
+            ExerciseVariation(
+                name: String(localized: "Feet-elevated pike push-up", bundle: .module),
+                unilateral: false,
+                steps: [
+                    String(localized: "Put your feet on a chair or a low bed and walk your hands back into a steep inverted V.", bundle: .module),
+                    String(localized: "Bend the elbows, lowering the top of the head toward the floor between the hands.", bundle: .module),
+                    String(localized: "Press back up; the higher the feet, the closer this gets to a handstand.", bundle: .module),
+                ],
+                mistakes: [
+                    String(localized: "Hips sagging toward the floor — keep the V sharp, weight over the hands.", bundle: .module),
+                    String(localized: "Starting too high — if the head cannot reach the floor with control, lower the feet.", bundle: .module),
+                ]),
             ExerciseVariation(
                 name: String(localized: "Wall handstand push-up", bundle: .module),
                 unilateral: false,
                 steps: [
-                    String(localized: "Kick up into a handstand with your back to the wall, heels resting on it.", bundle: .module),
+                    String(localized: "Getting in: face away from the wall, hands a palm's length from it, and walk your feet up until your heels rest on it.", bundle: .module),
                     String(localized: "Bend the elbows slowly, lowering the top of the head toward the floor.", bundle: .module),
-                    String(localized: "Press back up; know how to exit safely — step down one leg at a time.", bundle: .module),
+                    String(localized: "Getting out: walk the feet back down the wall. If you have to bail mid-rep, turn your head to one side and step over — never collapse straight down.",
+                                    bundle: .module),
                 ],
                 mistakes: [
                     String(localized: "Arching the lower back — keep the core and glutes tight.", bundle: .module),
                     String(localized: "Elbows drifting outward — track them forward and down.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Chest-to-wall handstand push-up", bundle: .module),
-                unilateral: false,
-                steps: [
-                    String(localized: "Walk your feet up the wall, chest facing it, body close to vertical.", bundle: .module),
-                    String(localized: "Bend the elbows slowly, lowering the head to the floor.", bundle: .module),
-                    String(localized: "Press back up; keep the body in one tight line.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Arching away from the wall — stay close, ribs tucked in.", bundle: .module),
-                    String(localized: "Uncontrolled descent — the head must land softly.", bundle: .module),
                 ]),
         ]),
 

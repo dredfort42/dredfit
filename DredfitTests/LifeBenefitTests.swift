@@ -47,7 +47,7 @@ final class LifeBenefitTests: XCTestCase {
     private let closedList: [OverridePin] = [
         OverridePin(pattern: .squat, tier: 3, variationName: "Pistol squat"),
         OverridePin(pattern: .pushH, tier: 2, variationName: "Push-up"),
-        OverridePin(pattern: .pushV, tier: 4, variationName: "Chest-to-wall handstand push-up"),
+        OverridePin(pattern: .pushV, tier: 4, variationName: "Wall handstand push-up"),
         OverridePin(pattern: .pullBar, tier: 4, variationName: "Pull-up"),
     ]
 

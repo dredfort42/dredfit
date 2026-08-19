@@ -58,6 +58,35 @@ per session (spec §5), and the collapse happens in the app. Journals and
 interrupted-workout snapshots written by earlier builds decode as they always
 did — a single stored number simply means every set ran at it.
 
+### Engine v2.18.0 — the rung the push-up ladder was missing (issue #131)
+
+Of the forty steps in the exercise library, exactly one asked for a new
+*skill* rather than more strength: pike push-ups straight into a wall
+handstand, entered by kicking up at nearly full bodyweight — with nothing on
+the sheet about how to get in, and nothing about how to get out. Someone whose
+ceiling is fifteen pike push-ups met a plan of five handstand reps and stopped
+there for good. Honest logging made it worse than standing still: reporting
+what actually happened walked the level back *down*.
+
+- **A step between them.** Feet-elevated pike push-ups — feet on a chair or a
+  low bed — take tier 3, and the wall handstand moves up to tier 4. It is the
+  same movement as the pike, only steeper, and it can be left at any moment by
+  stepping down. The chest-to-wall variation leaves the library: it needed the
+  same entry and stood even higher.
+- **Getting in and getting out are now part of the handstand.** Walk up the
+  wall instead of kicking; walk back down to finish. And if a rep has to be
+  abandoned halfway, turn the head to one side and step over — never collapse
+  straight down.
+- **Measured on a trainee with a fifteen-rep ceiling, over sixty sessions:**
+  someone logging honest facts used to slide to 8–16 and now holds 20–21;
+  someone who only taps the button was stuck at 14–16 and now holds 19–21. The
+  point is not the five levels. It is that the climb now ends at the limit of
+  their strength, in a movement they can actually perform.
+- **Nothing changes for anyone already up the ladder.** The level number
+  stays exactly as it was, so the movement at that number is easier than the
+  one they finished with — never harder. Sets, reps and the scale itself are
+  untouched.
+
 ### Engine v2.17.0 — you decide how long a workout is (issues #136, #129, #142, #144)
 
 How long a session takes was something the model told you, not something you
