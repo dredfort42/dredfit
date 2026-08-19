@@ -539,8 +539,19 @@ public enum Engine {
         // the push, and those windows are exactly where the balance fell to
         // 0.60. The PLAN is clamped, not the state: the push level keeps
         // growing and gets its sets back the moment the pull catches up.
+        // v2.16 (spec §27.2, #141): the ceiling is the WEAKER of the slot's two
+        // branches, not whichever one stands in this session. Reading the
+        // in-slot branch made the push plan flip 5×4 ↔ 3×6 every session once
+        // the branches diverged — visible churn with no cause on screen. The
+        // gate exists so the push does not run ahead of the pull; the weaker
+        // branch holds that line more strictly (owner's decision 19.08.2026).
         let pullSets = patterns.first { Pattern.pullSide.contains($0) }
-            .map { Level.decode(viewLevel($0)).sets } ?? EngineConfig.setsMax
+            .map { _ in
+                state.hasBar
+                    ? min(Level.decode(viewLevel(.pull)).sets,
+                          Level.decode(viewLevel(.pullBar)).sets)
+                    : Level.decode(viewLevel(.pull)).sets
+            } ?? EngineConfig.setsMax
 
         let exercises: [SessionExercise] = patterns.map { p in
             let lib = ExerciseLibrary.entry(for: p)
