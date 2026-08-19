@@ -71,7 +71,7 @@ enum LifeBenefit {
         case (.pushH, 2):      // Push-up
             return String(localized: "life.override.push_h-2",
                           defaultValue: "Your own bodyweight — under full control.")
-        case (.pushV, 4):      // Chest-to-wall handstand push-up
+        case (.pushV, 4):      // Wall handstand push-up (tier 4 since #131)
             return String(localized: "life.override.push_v-4",
                           defaultValue: "Your whole body above your hands — a rare level of control.")
         case (.pullBar, 4):    // Pull-up
