@@ -1,5 +1,5 @@
 {
- "generator": "adaptive_engine.js v2.14.0",
+ "generator": "adaptive_engine.js v2.15.0",
  "patternOrder": [
   "squat",
   "push_h",
@@ -1202,7 +1202,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 2,
@@ -1294,7 +1295,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 3,
@@ -1386,7 +1388,15 @@
       0,
       0
      ],
-     "lessRunAfter": 1
+     "lessRunAfter": 1,
+     "lessHistAfter": {
+      "squat": 1,
+      "push_h": 1,
+      "hinge": 1,
+      "pull": 1,
+      "core_rot": 1,
+      "calf": 1
+     }
     },
     {
      "sessionNumber": 4,
@@ -1478,7 +1488,15 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 1,
+      "push_h": 2,
+      "hinge": 2,
+      "pull": 2,
+      "core_rot": 1,
+      "calf": 1
+     }
     },
     {
      "sessionNumber": 5,
@@ -1570,7 +1588,15 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 2,
+      "push_h": 2,
+      "hinge": 2,
+      "pull": 4,
+      "core_rot": 2,
+      "calf": 2
+     }
     },
     {
      "sessionNumber": 6,
@@ -1662,7 +1688,16 @@
       0,
       0
      ],
-     "lessRunAfter": 1
+     "lessRunAfter": 1,
+     "lessHistAfter": {
+      "squat": 5,
+      "push_h": 5,
+      "hinge": 5,
+      "pull": 9,
+      "core_rot": 2,
+      "calf": 5,
+      "push_v": 1
+     }
     },
     {
      "sessionNumber": 7,
@@ -1735,10 +1770,10 @@
      "levelsAfter": [
       3,
       4,
-      4,
+      2,
       4,
       5,
-      5,
+      6,
       4,
       2,
       2
@@ -1746,15 +1781,26 @@
      "failStreakAfter": [
       0,
       0,
-      0,
-      0,
-      0,
       1,
+      0,
+      0,
+      0,
       0,
       0,
       0
      ],
-     "lessRunAfter": 2
+     "lessRunAfter": 2,
+     "lessHistAfter": {
+      "squat": 5,
+      "push_h": 5,
+      "hinge": 11,
+      "pull": 3,
+      "push_v": 3,
+      "core_rot": 5,
+      "calf": 5,
+      "lunge": 1,
+      "core_anti_ext": 1
+     }
     },
     {
      "sessionNumber": 8,
@@ -1827,10 +1873,10 @@
      "levelsAfter": [
       4,
       5,
-      4,
+      2,
       5,
       5,
-      5,
+      6,
       5,
       3,
       3
@@ -1838,15 +1884,26 @@
      "failStreakAfter": [
       0,
       0,
-      0,
-      0,
-      0,
       1,
+      0,
+      0,
+      0,
       0,
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 10,
+      "push_h": 10,
+      "hinge": 11,
+      "pull": 6,
+      "push_v": 3,
+      "lunge": 1,
+      "core_anti_ext": 2,
+      "core_rot": 10,
+      "calf": 10
+     }
     },
     {
      "sessionNumber": 9,
@@ -1876,7 +1933,7 @@
        "pattern": "hinge",
        "tier": 1,
        "unit": "reps",
-       "load": 12,
+       "load": 10,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -1906,7 +1963,7 @@
        "pattern": "lunge",
        "tier": 1,
        "unit": "reps",
-       "load": 13,
+       "load": 14,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -1919,10 +1976,10 @@
      "levelsAfter": [
       6,
       7,
-      6,
+      4,
       7,
       7,
-      7,
+      8,
       5,
       3,
       3
@@ -1938,11 +1995,22 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 4,
+      "push_h": 4,
+      "hinge": 6,
+      "pull": 12,
+      "push_v": 6,
+      "lunge": 2,
+      "core_anti_ext": 2,
+      "core_rot": 10,
+      "calf": 10
+     }
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 40.6,
+     "estimatedTotalMin": 38.4,
      "exercises": [
       {
        "pattern": "pull",
@@ -1966,9 +2034,9 @@
       },
       {
        "pattern": "lunge",
-       "tier": 1,
+       "tier": 2,
        "unit": "reps",
-       "load": 15,
+       "load": 6,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -2011,10 +2079,10 @@
      "levelsAfter": [
       6,
       7,
-      6,
+      4,
       8,
       8,
-      8,
+      9,
       6,
       4,
       4
@@ -2030,11 +2098,22 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 4,
+      "push_h": 4,
+      "hinge": 6,
+      "pull": 8,
+      "push_v": 12,
+      "lunge": 4,
+      "core_anti_ext": 4,
+      "core_rot": 4,
+      "calf": 4
+     }
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 37.6,
+     "estimatedTotalMin": 37.4,
      "exercises": [
       {
        "pattern": "squat",
@@ -2060,7 +2139,7 @@
        "pattern": "hinge",
        "tier": 1,
        "unit": "reps",
-       "load": 14,
+       "load": 12,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -2103,10 +2182,10 @@
      "levelsAfter": [
       6,
       7,
-      6,
-      7,
+      2,
       8,
       8,
+      9,
       6,
       4,
       4
@@ -2114,19 +2193,30 @@
      "failStreakAfter": [
       0,
       0,
-      0,
       1,
+      0,
       0,
       0,
       0,
       0,
       0
      ],
-     "lessRunAfter": 1
+     "lessRunAfter": 1,
+     "lessHistAfter": {
+      "squat": 9,
+      "push_h": 9,
+      "hinge": 13,
+      "pull": 1,
+      "push_v": 12,
+      "lunge": 4,
+      "core_anti_ext": 4,
+      "core_rot": 9,
+      "calf": 9
+     }
     },
     {
      "sessionNumber": 12,
-     "estimatedTotalMin": 36.3,
+     "estimatedTotalMin": 34.9,
      "exercises": [
       {
        "pattern": "push_h",
@@ -2142,7 +2232,7 @@
        "pattern": "hinge",
        "tier": 1,
        "unit": "reps",
-       "load": 14,
+       "load": 10,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -2150,9 +2240,9 @@
       },
       {
        "pattern": "pull",
-       "tier": 1,
+       "tier": 2,
        "unit": "reps",
-       "load": 15,
+       "load": 6,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -2172,7 +2262,7 @@
        "pattern": "lunge",
        "tier": 2,
        "unit": "reps",
-       "load": 6,
+       "load": 7,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -2195,10 +2285,10 @@
      "levelsAfter": [
       6,
       8,
-      7,
-      8,
+      3,
       9,
       9,
+      10,
       7,
       4,
       4
@@ -2214,7 +2304,18 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 9,
+      "push_h": 2,
+      "hinge": 10,
+      "pull": 2,
+      "push_v": 8,
+      "lunge": 8,
+      "core_anti_ext": 8,
+      "core_rot": 9,
+      "calf": 9
+     }
     }
    ]
   },
@@ -2313,7 +2414,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 2,
@@ -2405,7 +2507,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 3,
@@ -2500,7 +2603,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 4,
@@ -2594,7 +2698,15 @@
       0,
       0
      ],
-     "lessRunAfter": 1
+     "lessRunAfter": 1,
+     "lessHistAfter": {
+      "push_h": 1,
+      "hinge": 1,
+      "pull": 1,
+      "push_v": 1,
+      "lunge": 1,
+      "core_anti_ext": 1
+     }
     },
     {
      "sessionNumber": 5,
@@ -2688,7 +2800,15 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {
+      "push_h": 1,
+      "hinge": 1,
+      "pull": 2,
+      "push_v": 1,
+      "lunge": 2,
+      "core_anti_ext": 2
+     }
     }
    ]
   },
@@ -2785,7 +2905,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 2,
@@ -2877,7 +2998,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 3,
@@ -2969,7 +3091,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 4,
@@ -3061,7 +3184,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 5,
@@ -3153,7 +3277,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 6,
@@ -3245,7 +3370,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 7,
@@ -3337,7 +3463,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 8,
@@ -3429,7 +3556,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 9,
@@ -3521,7 +3649,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 10,
@@ -3613,7 +3742,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 11,
@@ -3705,7 +3835,15 @@
       0,
       0
      ],
-     "lessRunAfter": 1
+     "lessRunAfter": 1,
+     "lessHistAfter": {
+      "squat": 1,
+      "push_h": 1,
+      "hinge": 1,
+      "pull": 1,
+      "core_rot": 1,
+      "calf": 1
+     }
     },
     {
      "sessionNumber": 12,
@@ -3797,7 +3935,18 @@
       0,
       0
      ],
-     "lessRunAfter": 2
+     "lessRunAfter": 2,
+     "lessHistAfter": {
+      "squat": 1,
+      "push_h": 3,
+      "hinge": 3,
+      "pull": 3,
+      "core_rot": 1,
+      "calf": 1,
+      "push_v": 1,
+      "lunge": 1,
+      "core_anti_ext": 1
+     }
     },
     {
      "sessionNumber": 13,
@@ -3889,7 +4038,18 @@
       1,
       1
      ],
-     "lessRunAfter": 3
+     "lessRunAfter": 3,
+     "lessHistAfter": {
+      "squat": 3,
+      "push_h": 3,
+      "hinge": 3,
+      "pull": 7,
+      "push_v": 1,
+      "lunge": 3,
+      "core_anti_ext": 3,
+      "core_rot": 3,
+      "calf": 3
+     }
     },
     {
      "sessionNumber": 14,
@@ -3981,7 +4141,18 @@
       1,
       2
      ],
-     "lessRunAfter": 4
+     "lessRunAfter": 4,
+     "lessHistAfter": {
+      "squat": 7,
+      "push_h": 7,
+      "hinge": 7,
+      "pull": 15,
+      "push_v": 3,
+      "lunge": 3,
+      "core_anti_ext": 3,
+      "core_rot": 3,
+      "calf": 7
+     }
     },
     {
      "sessionNumber": 15,
@@ -4073,7 +4244,18 @@
       2,
       2
      ],
-     "lessRunAfter": 5
+     "lessRunAfter": 5,
+     "lessHistAfter": {
+      "squat": 7,
+      "push_h": 7,
+      "hinge": 15,
+      "pull": 15,
+      "push_v": 7,
+      "lunge": 7,
+      "core_anti_ext": 7,
+      "core_rot": 7,
+      "calf": 7
+     }
     },
     {
      "sessionNumber": 16,
@@ -4165,7 +4347,18 @@
       0,
       0
      ],
-     "lessRunAfter": 6
+     "lessRunAfter": 6,
+     "lessHistAfter": {
+      "squat": 15,
+      "push_h": 15,
+      "hinge": 15,
+      "pull": 15,
+      "push_v": 7,
+      "lunge": 7,
+      "core_anti_ext": 15,
+      "core_rot": 15,
+      "calf": 15
+     }
     },
     {
      "sessionNumber": 17,
@@ -4257,7 +4450,18 @@
       0,
       0
      ],
-     "lessRunAfter": 7
+     "lessRunAfter": 7,
+     "lessHistAfter": {
+      "squat": 15,
+      "push_h": 15,
+      "hinge": 15,
+      "pull": 15,
+      "push_v": 15,
+      "lunge": 15,
+      "core_anti_ext": 15,
+      "core_rot": 15,
+      "calf": 15
+     }
     }
    ]
   },
@@ -4356,7 +4560,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 2,
@@ -4448,7 +4653,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 3,
@@ -4542,7 +4748,15 @@
       0,
       0
      ],
-     "lessRunAfter": 1
+     "lessRunAfter": 1,
+     "lessHistAfter": {
+      "squat": 1,
+      "push_h": 1,
+      "hinge": 1,
+      "pull": 1,
+      "core_rot": 1,
+      "calf": 1
+     }
     },
     {
      "sessionNumber": 4,
@@ -4638,7 +4852,15 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 1,
+      "push_h": 2,
+      "hinge": 2,
+      "pull": 2,
+      "core_rot": 1,
+      "calf": 1
+     }
     },
     {
      "sessionNumber": 5,
@@ -4730,7 +4952,17 @@
       0,
       0
      ],
-     "lessRunAfter": 1
+     "lessRunAfter": 1,
+     "lessHistAfter": {
+      "squat": 3,
+      "push_h": 2,
+      "hinge": 2,
+      "pull": 5,
+      "core_rot": 3,
+      "calf": 3,
+      "lunge": 1,
+      "core_anti_ext": 1
+     }
     },
     {
      "sessionNumber": 6,
@@ -4807,28 +5039,39 @@
       2,
       2,
       3,
-      3,
+      4,
       4,
       2,
       1,
-      1
+      0
      ],
      "failStreakAfter": [
       0,
       0,
       0,
       1,
-      1,
       0,
       0,
       0,
-      0
+      0,
+      1
      ],
-     "lessRunAfter": 2
+     "lessRunAfter": 2,
+     "lessHistAfter": {
+      "squat": 7,
+      "push_h": 5,
+      "hinge": 5,
+      "pull": 11,
+      "lunge": 1,
+      "core_anti_ext": 1,
+      "core_rot": 3,
+      "calf": 7,
+      "push_v": 1
+     }
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 37,
+     "estimatedTotalMin": 37.1,
      "exercises": [
       {
        "pattern": "hinge",
@@ -4854,7 +5097,7 @@
        "pattern": "push_v",
        "tier": 1,
        "unit": "reps",
-       "load": 11,
+       "load": 12,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -4899,28 +5142,39 @@
       2,
       1,
       2,
-      2,
+      3,
       3,
       1,
       0,
-      1
+      0
      ],
      "failStreakAfter": [
       0,
       0,
       1,
       2,
-      2,
       1,
       1,
       1,
-      0
+      1,
+      1
      ],
-     "lessRunAfter": 3
+     "lessRunAfter": 3,
+     "lessHistAfter": {
+      "squat": 7,
+      "push_h": 5,
+      "hinge": 11,
+      "pull": 7,
+      "push_v": 3,
+      "lunge": 3,
+      "core_anti_ext": 3,
+      "core_rot": 7,
+      "calf": 7
+     }
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 33.9,
+     "estimatedTotalMin": 33.8,
      "exercises": [
       {
        "pattern": "squat",
@@ -4976,7 +5230,7 @@
        "pattern": "calf",
        "tier": 1,
        "unit": "reps",
-       "load": 9,
+       "load": 8,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -4994,28 +5248,39 @@
       2,
       1,
       4,
-      2,
       3,
       3,
+      3,
       2,
-      2
+      1
      ],
      "failStreakAfter": [
       0,
       0,
       1,
       0,
-      2,
+      1,
       1,
       0,
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 14,
+      "push_h": 10,
+      "hinge": 11,
+      "pull": 14,
+      "push_v": 3,
+      "lunge": 3,
+      "core_anti_ext": 6,
+      "core_rot": 14,
+      "calf": 14
+     }
     },
     {
      "sessionNumber": 9,
-     "estimatedTotalMin": 35.1,
+     "estimatedTotalMin": 35.3,
      "exercises": [
       {
        "pattern": "squat",
@@ -5061,7 +5326,7 @@
        "pattern": "push_v",
        "tier": 1,
        "unit": "reps",
-       "load": 10,
+       "load": 11,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -5096,24 +5361,35 @@
       2,
       1,
       4,
-      2,
       3,
       3,
+      3,
       2,
-      2
+      1
      ],
      "failStreakAfter": [
       0,
       0,
       1,
       0,
-      2,
+      1,
       1,
       0,
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 12,
+      "push_h": 4,
+      "hinge": 6,
+      "pull": 12,
+      "push_v": 6,
+      "lunge": 6,
+      "core_anti_ext": 6,
+      "core_rot": 14,
+      "calf": 14
+     }
     },
     {
      "sessionNumber": 10,
@@ -5133,7 +5409,7 @@
        "pattern": "push_v",
        "tier": 1,
        "unit": "reps",
-       "load": 10,
+       "load": 11,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -5173,7 +5449,7 @@
        "pattern": "calf",
        "tier": 1,
        "unit": "reps",
-       "load": 10,
+       "load": 9,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -5188,11 +5464,11 @@
       2,
       1,
       5,
-      3,
       4,
       4,
+      4,
       3,
-      3
+      2
      ],
      "failStreakAfter": [
       0,
@@ -5205,7 +5481,18 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 12,
+      "push_h": 4,
+      "hinge": 6,
+      "pull": 8,
+      "push_v": 12,
+      "lunge": 12,
+      "core_anti_ext": 12,
+      "core_rot": 12,
+      "calf": 12
+     }
     }
    ]
   },
@@ -5302,7 +5589,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 2,
@@ -5394,7 +5682,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 3,
@@ -5486,7 +5775,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 4,
@@ -5578,7 +5868,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 5,
@@ -5670,7 +5961,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 6,
@@ -5762,7 +6054,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 7,
@@ -5854,7 +6147,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 8,
@@ -5946,7 +6240,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 9,
@@ -6038,7 +6333,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 10,
@@ -6130,7 +6426,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 11,
@@ -6222,7 +6519,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 12,
@@ -6314,7 +6612,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 13,
@@ -6406,7 +6705,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 14,
@@ -6498,7 +6798,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 15,
@@ -6590,7 +6891,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 16,
@@ -6682,7 +6984,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 17,
@@ -6774,7 +7077,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 18,
@@ -6866,7 +7170,15 @@
       0,
       0
      ],
-     "lessRunAfter": 1
+     "lessRunAfter": 1,
+     "lessHistAfter": {
+      "pull": 1,
+      "push_v": 1,
+      "lunge": 1,
+      "core_anti_ext": 1,
+      "core_rot": 1,
+      "calf": 1
+     }
     },
     {
      "sessionNumber": 19,
@@ -6958,7 +7270,15 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {
+      "pull": 2,
+      "push_v": 1,
+      "lunge": 1,
+      "core_anti_ext": 1,
+      "core_rot": 2,
+      "calf": 2
+     }
     },
     {
      "sessionNumber": 20,
@@ -7050,7 +7370,17 @@
       0,
       0
      ],
-     "lessRunAfter": 1
+     "lessRunAfter": 1,
+     "lessHistAfter": {
+      "pull": 5,
+      "push_v": 3,
+      "lunge": 3,
+      "core_anti_ext": 3,
+      "core_rot": 2,
+      "calf": 2,
+      "push_h": 1,
+      "hinge": 1
+     }
     },
     {
      "sessionNumber": 21,
@@ -7121,10 +7451,10 @@
      "overrides": {},
      "skipped": [],
      "levelsAfter": [
-      21,
       22,
       22,
-      21,
+      22,
+      19,
       19,
       21,
       19,
@@ -7132,17 +7462,28 @@
       11
      ],
      "failStreakAfter": [
-      1,
+      0,
       0,
       1,
-      0,
+      1,
       0,
       0,
       0,
       0,
       0
      ],
-     "lessRunAfter": 2
+     "lessRunAfter": 2,
+     "lessHistAfter": {
+      "push_h": 1,
+      "hinge": 1,
+      "pull": 11,
+      "push_v": 3,
+      "lunge": 7,
+      "core_anti_ext": 7,
+      "core_rot": 5,
+      "calf": 5,
+      "squat": 1
+     }
     },
     {
      "sessionNumber": 22,
@@ -7152,7 +7493,7 @@
        "pattern": "squat",
        "tier": 3,
        "unit": "reps",
-       "load": 10,
+       "load": 11,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -7182,7 +7523,7 @@
        "pattern": "pull",
        "tier": 3,
        "unit": "reps",
-       "load": 10,
+       "load": 8,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -7213,10 +7554,10 @@
      "overrides": {},
      "skipped": [],
      "levelsAfter": [
-      20,
       21,
       21,
-      20,
+      21,
+      18,
       18,
       21,
       19,
@@ -7224,21 +7565,32 @@
       10
      ],
      "failStreakAfter": [
-      2,
+      1,
       1,
       2,
-      1,
+      2,
       1,
       0,
       0,
       0,
       1
      ],
-     "lessRunAfter": 3
+     "lessRunAfter": 3,
+     "lessHistAfter": {
+      "squat": 3,
+      "push_h": 3,
+      "hinge": 3,
+      "pull": 7,
+      "push_v": 7,
+      "lunge": 7,
+      "core_anti_ext": 7,
+      "core_rot": 5,
+      "calf": 11
+     }
     },
     {
      "sessionNumber": 23,
-     "estimatedTotalMin": 38.5,
+     "estimatedTotalMin": 38.3,
      "exercises": [
       {
        "pattern": "hinge",
@@ -7254,7 +7606,7 @@
        "pattern": "pull",
        "tier": 3,
        "unit": "reps",
-       "load": 9,
+       "load": 7,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -7305,10 +7657,10 @@
      "overrides": {},
      "skipped": [],
      "levelsAfter": [
-      20,
+      21,
       21,
       23,
-      21,
+      19,
       19,
       23,
       21,
@@ -7316,7 +7668,7 @@
       10
      ],
      "failStreakAfter": [
-      2,
+      1,
       1,
       0,
       0,
@@ -7326,7 +7678,18 @@
       0,
       1
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 3,
+      "push_h": 3,
+      "hinge": 6,
+      "pull": 14,
+      "push_v": 14,
+      "lunge": 14,
+      "core_anti_ext": 14,
+      "core_rot": 10,
+      "calf": 11
+     }
     },
     {
      "sessionNumber": 24,
@@ -7336,7 +7699,7 @@
        "pattern": "squat",
        "tier": 3,
        "unit": "reps",
-       "load": 9,
+       "load": 10,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -7356,7 +7719,7 @@
        "pattern": "pull",
        "tier": 3,
        "unit": "reps",
-       "load": 10,
+       "load": 8,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -7397,10 +7760,10 @@
      "overrides": {},
      "skipped": [],
      "levelsAfter": [
-      22,
       23,
       23,
-      22,
+      23,
+      20,
       19,
       23,
       23,
@@ -7418,7 +7781,18 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 6,
+      "push_h": 6,
+      "hinge": 6,
+      "pull": 12,
+      "push_v": 14,
+      "lunge": 14,
+      "core_anti_ext": 12,
+      "core_rot": 4,
+      "calf": 6
+     }
     },
     {
      "sessionNumber": 25,
@@ -7428,7 +7802,7 @@
        "pattern": "squat",
        "tier": 3,
        "unit": "reps",
-       "load": 11,
+       "load": 12,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -7458,7 +7832,7 @@
        "pattern": "pull",
        "tier": 3,
        "unit": "reps",
-       "load": 11,
+       "load": 9,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -7489,10 +7863,10 @@
      "overrides": {},
      "skipped": [],
      "levelsAfter": [
-      24,
       25,
       25,
-      23,
+      25,
+      21,
       20,
       25,
       23,
@@ -7510,17 +7884,28 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 12,
+      "push_h": 12,
+      "hinge": 12,
+      "pull": 8,
+      "push_v": 12,
+      "lunge": 12,
+      "core_anti_ext": 12,
+      "core_rot": 4,
+      "calf": 6
+     }
     },
     {
      "sessionNumber": 26,
-     "estimatedTotalMin": 36.1,
+     "estimatedTotalMin": 35.9,
      "exercises": [
       {
        "pattern": "pull",
        "tier": 3,
        "unit": "reps",
-       "load": 12,
+       "load": 10,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -7583,7 +7968,7 @@
      },
      "skipped": [],
      "levelsAfter": [
-      24,
+      25,
       25,
       25,
       17,
@@ -7604,17 +7989,27 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 12,
+      "push_h": 12,
+      "hinge": 12,
+      "push_v": 8,
+      "lunge": 8,
+      "core_anti_ext": 8,
+      "core_rot": 8,
+      "calf": 12
+     }
     },
     {
      "sessionNumber": 27,
-     "estimatedTotalMin": 34.1,
+     "estimatedTotalMin": 34.4,
      "exercises": [
       {
        "pattern": "squat",
        "tier": 4,
        "unit": "reps",
-       "load": 4,
+       "load": 5,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -7675,7 +8070,7 @@
      "overrides": {},
      "skipped": [],
      "levelsAfter": [
-      25,
+      26,
       26,
       26,
       18,
@@ -7696,7 +8091,16 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 8,
+      "push_h": 8,
+      "hinge": 8,
+      "push_v": 8,
+      "lunge": 8,
+      "core_anti_ext": 8,
+      "calf": 8
+     }
     },
     {
      "sessionNumber": 28,
@@ -7767,7 +8171,7 @@
      "overrides": {},
      "skipped": [],
      "levelsAfter": [
-      25,
+      26,
       27,
       27,
       19,
@@ -7788,17 +8192,21 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 8,
+      "calf": 8
+     }
     },
     {
      "sessionNumber": 29,
-     "estimatedTotalMin": 36,
+     "estimatedTotalMin": 36.3,
      "exercises": [
       {
        "pattern": "squat",
        "tier": 4,
        "unit": "reps",
-       "load": 5,
+       "load": 6,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -7859,7 +8267,7 @@
      "overrides": {},
      "skipped": [],
      "levelsAfter": [
-      26,
+      27,
       27,
       27,
       20,
@@ -7880,17 +8288,18 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 30,
-     "estimatedTotalMin": 35.6,
+     "estimatedTotalMin": 35.9,
      "exercises": [
       {
        "pattern": "squat",
        "tier": 4,
        "unit": "reps",
-       "load": 6,
+       "load": 7,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -7951,7 +8360,7 @@
      "overrides": {},
      "skipped": [],
      "levelsAfter": [
-      27,
+      28,
       28,
       28,
       21,
@@ -7972,7 +8381,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 31,
@@ -8043,7 +8453,7 @@
      "overrides": {},
      "skipped": [],
      "levelsAfter": [
-      27,
+      28,
       28,
       29,
       22,
@@ -8064,17 +8474,18 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 32,
-     "estimatedTotalMin": 39.1,
+     "estimatedTotalMin": 39.4,
      "exercises": [
       {
        "pattern": "squat",
        "tier": 4,
        "unit": "reps",
-       "load": 7,
+       "load": 8,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -8137,7 +8548,7 @@
      },
      "skipped": [],
      "levelsAfter": [
-      28,
+      29,
       29,
       29,
       21,
@@ -8158,17 +8569,18 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 33,
-     "estimatedTotalMin": 35.4,
+     "estimatedTotalMin": 35.6,
      "exercises": [
       {
        "pattern": "squat",
        "tier": 4,
        "unit": "reps",
-       "load": 8,
+       "load": 9,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -8229,7 +8641,7 @@
      "overrides": {},
      "skipped": [],
      "levelsAfter": [
-      29,
+      30,
       30,
       30,
       22,
@@ -8250,7 +8662,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 34,
@@ -8321,7 +8734,7 @@
      "overrides": {},
      "skipped": [],
      "levelsAfter": [
-      29,
+      30,
       30,
       30,
       23,
@@ -8342,17 +8755,18 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 35,
-     "estimatedTotalMin": 39.5,
+     "estimatedTotalMin": 39.8,
      "exercises": [
       {
        "pattern": "squat",
        "tier": 4,
        "unit": "reps",
-       "load": 9,
+       "load": 10,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -8413,7 +8827,7 @@
      "overrides": {},
      "skipped": [],
      "levelsAfter": [
-      30,
+      31,
       31,
       31,
       24,
@@ -8434,7 +8848,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 36,
@@ -8505,7 +8920,7 @@
      "overrides": {},
      "skipped": [],
      "levelsAfter": [
-      30,
+      31,
       32,
       32,
       25,
@@ -8526,17 +8941,18 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 37,
-     "estimatedTotalMin": 41.2,
+     "estimatedTotalMin": 41.4,
      "exercises": [
       {
        "pattern": "squat",
        "tier": 4,
        "unit": "reps",
-       "load": 10,
+       "load": 11,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -8597,7 +9013,7 @@
      "overrides": {},
      "skipped": [],
      "levelsAfter": [
-      31,
+      32,
       32,
       32,
       26,
@@ -8618,20 +9034,21 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 38,
-     "estimatedTotalMin": 37.3,
+     "estimatedTotalMin": 38.4,
      "exercises": [
       {
        "pattern": "squat",
        "tier": 4,
        "unit": "reps",
-       "load": 11,
+       "load": 4,
        "perSide": true,
-       "sets": 3,
-       "restSetSec": 60,
+       "sets": 4,
+       "restSetSec": 90,
        "restExerciseSec": 60
       },
       {
@@ -8689,7 +9106,7 @@
      "overrides": {},
      "skipped": [],
      "levelsAfter": [
-      32,
+      33,
       33,
       33,
       27,
@@ -8710,7 +9127,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 39,
@@ -8781,7 +9199,7 @@
      "overrides": {},
      "skipped": [],
      "levelsAfter": [
-      32,
+      33,
       33,
       34,
       28,
@@ -8802,7 +9220,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     }
    ]
   },
@@ -8903,6 +9322,7 @@
      "barLevelAfter": 2,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "creditPausedAfter": [
       0,
       0
@@ -9002,6 +9422,7 @@
      "barLevelAfter": 4,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "creditPausedAfter": [
       0,
       0
@@ -9101,6 +9522,7 @@
      "barLevelAfter": 5,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "creditPausedAfter": [
       0,
       0
@@ -9202,6 +9624,7 @@
      "barLevelAfter": 3,
      "barStreakAfter": 1,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "creditPausedAfter": [
       0,
       1
@@ -9301,6 +9724,14 @@
      "barLevelAfter": 3,
      "barStreakAfter": 1,
      "lessRunAfter": 1,
+     "lessHistAfter": {
+      "squat": 1,
+      "pull": 1,
+      "lunge": 1,
+      "core_anti_ext": 1,
+      "core_rot": 1,
+      "calf": 1
+     },
      "creditPausedAfter": [
       1,
       1
@@ -9400,6 +9831,18 @@
      "barLevelAfter": 3,
      "barStreakAfter": 0,
      "lessRunAfter": 2,
+     "lessHistAfter": {
+      "squat": 3,
+      "pull": 1,
+      "lunge": 1,
+      "core_anti_ext": 1,
+      "core_rot": 1,
+      "calf": 3,
+      "push_h": 1,
+      "hinge": 1,
+      "pull_bar": 1,
+      "push_v": 1
+     },
      "creditPausedAfter": [
       1,
       1
@@ -9499,6 +9942,18 @@
      "barLevelAfter": 3,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 3,
+      "push_h": 1,
+      "hinge": 2,
+      "pull": 2,
+      "push_v": 2,
+      "lunge": 2,
+      "core_anti_ext": 2,
+      "core_rot": 2,
+      "calf": 3,
+      "pull_bar": 1
+     },
      "creditPausedAfter": [
       0,
       1
@@ -9576,8 +10031,8 @@
      ],
      "hasBar": true,
      "levelsAfter": [
-      3,
-      3,
+      1,
+      4,
       5,
       5,
       5,
@@ -9587,8 +10042,8 @@
       2
      ],
      "failStreakAfter": [
-      0,
       1,
+      0,
       0,
       0,
       0,
@@ -9600,6 +10055,18 @@
      "barLevelAfter": 3,
      "barStreakAfter": 0,
      "lessRunAfter": 1,
+     "lessHistAfter": {
+      "squat": 7,
+      "push_h": 3,
+      "hinge": 2,
+      "pull": 2,
+      "push_v": 2,
+      "lunge": 2,
+      "core_anti_ext": 5,
+      "core_rot": 5,
+      "calf": 7,
+      "pull_bar": 3
+     },
      "creditPausedAfter": [
       0,
       1
@@ -9607,13 +10074,13 @@
     },
     {
      "sessionNumber": 9,
-     "estimatedTotalMin": 37.1,
+     "estimatedTotalMin": 37,
      "exercises": [
       {
        "pattern": "squat",
        "tier": 1,
        "unit": "reps",
-       "load": 11,
+       "load": 9,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -9623,7 +10090,7 @@
        "pattern": "push_h",
        "tier": 1,
        "unit": "reps",
-       "load": 11,
+       "load": 12,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -9675,8 +10142,8 @@
      "skipped": [],
      "hasBar": true,
      "levelsAfter": [
-      4,
-      4,
+      2,
+      5,
       6,
       6,
       6,
@@ -9699,6 +10166,18 @@
      "barLevelAfter": 3,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 14,
+      "push_h": 6,
+      "hinge": 4,
+      "pull": 4,
+      "push_v": 4,
+      "lunge": 4,
+      "core_anti_ext": 5,
+      "core_rot": 5,
+      "calf": 7,
+      "pull_bar": 3
+     },
      "creditPausedAfter": [
       0,
       1
@@ -9774,8 +10253,8 @@
      "skipped": [],
      "hasBar": true,
      "levelsAfter": [
-      4,
-      4,
+      2,
+      5,
       6,
       8,
       8,
@@ -9798,6 +10277,18 @@
      "barLevelAfter": 5,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 14,
+      "push_h": 6,
+      "hinge": 4,
+      "pull": 4,
+      "push_v": 8,
+      "lunge": 8,
+      "core_anti_ext": 10,
+      "core_rot": 10,
+      "calf": 14,
+      "pull_bar": 6
+     },
      "creditPausedAfter": [
       0,
       0
@@ -9805,13 +10296,13 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 37.9,
+     "estimatedTotalMin": 37.8,
      "exercises": [
       {
        "pattern": "squat",
        "tier": 1,
        "unit": "reps",
-       "load": 12,
+       "load": 10,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -9821,7 +10312,7 @@
        "pattern": "push_h",
        "tier": 1,
        "unit": "reps",
-       "load": 12,
+       "load": 13,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -9873,8 +10364,8 @@
      "skipped": [],
      "hasBar": true,
      "levelsAfter": [
-      5,
-      5,
+      3,
+      6,
       7,
       9,
       8,
@@ -9897,6 +10388,18 @@
      "barLevelAfter": 6,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 12,
+      "push_h": 12,
+      "hinge": 8,
+      "pull": 8,
+      "push_v": 8,
+      "lunge": 8,
+      "core_anti_ext": 10,
+      "core_rot": 4,
+      "calf": 12,
+      "pull_bar": 6
+     },
      "creditPausedAfter": [
       0,
       0
@@ -9904,13 +10407,13 @@
     },
     {
      "sessionNumber": 12,
-     "estimatedTotalMin": 37,
+     "estimatedTotalMin": 37.1,
      "exercises": [
       {
        "pattern": "push_h",
        "tier": 1,
        "unit": "reps",
-       "load": 13,
+       "load": 14,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -9972,8 +10475,8 @@
      "skipped": [],
      "hasBar": true,
      "levelsAfter": [
-      5,
-      7,
+      3,
+      8,
       9,
       10,
       10,
@@ -9996,6 +10499,15 @@
      "barLevelAfter": 8,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 12,
+      "push_h": 8,
+      "pull": 8,
+      "core_anti_ext": 4,
+      "core_rot": 4,
+      "calf": 12,
+      "pull_bar": 12
+     },
      "creditPausedAfter": [
       0,
       0
@@ -10003,13 +10515,13 @@
     },
     {
      "sessionNumber": 13,
-     "estimatedTotalMin": 38.6,
+     "estimatedTotalMin": 38.4,
      "exercises": [
       {
        "pattern": "squat",
        "tier": 1,
        "unit": "reps",
-       "load": 13,
+       "load": 11,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10071,8 +10583,8 @@
      "skipped": [],
      "hasBar": true,
      "levelsAfter": [
-      6,
-      7,
+      4,
+      8,
       9,
       11,
       10,
@@ -10095,6 +10607,14 @@
      "barLevelAfter": 9,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 8,
+      "push_h": 8,
+      "core_anti_ext": 8,
+      "core_rot": 8,
+      "calf": 8,
+      "pull_bar": 12
+     },
      "creditPausedAfter": [
       0,
       0
@@ -10102,13 +10622,13 @@
     },
     {
      "sessionNumber": 14,
-     "estimatedTotalMin": 34.9,
+     "estimatedTotalMin": 33.5,
      "exercises": [
       {
        "pattern": "squat",
        "tier": 1,
        "unit": "reps",
-       "load": 14,
+       "load": 12,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10116,9 +10636,9 @@
       },
       {
        "pattern": "push_h",
-       "tier": 1,
+       "tier": 2,
        "unit": "reps",
-       "load": 15,
+       "load": 6,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10170,8 +10690,8 @@
      "skipped": [],
      "hasBar": true,
      "levelsAfter": [
-      8,
-      9,
+      6,
+      10,
       11,
       12,
       12,
@@ -10194,6 +10714,11 @@
      "barLevelAfter": 10,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "core_anti_ext": 8,
+      "core_rot": 8,
+      "pull_bar": 8
+     },
      "creditPausedAfter": [
       0,
       0
@@ -10269,8 +10794,8 @@
      "skipped": [],
      "hasBar": false,
      "levelsAfter": [
-      8,
-      9,
+      6,
+      10,
       12,
       13,
       13,
@@ -10293,6 +10818,9 @@
      "barLevelAfter": 10,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "pull_bar": 8
+     },
      "creditPausedAfter": [
       0,
       0
@@ -10300,14 +10828,14 @@
     },
     {
      "sessionNumber": 16,
-     "estimatedTotalMin": 34.8,
+     "estimatedTotalMin": 35.1,
      "exercises": [
       {
        "pattern": "squat",
-       "tier": 2,
+       "tier": 1,
        "unit": "reps",
-       "load": 6,
-       "perSide": true,
+       "load": 14,
+       "perSide": false,
        "sets": 3,
        "restSetSec": 60,
        "restExerciseSec": 60
@@ -10316,7 +10844,7 @@
        "pattern": "push_h",
        "tier": 2,
        "unit": "reps",
-       "load": 7,
+       "load": 8,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10368,8 +10896,8 @@
      "skipped": [],
      "hasBar": false,
      "levelsAfter": [
-      9,
-      10,
+      7,
+      11,
       12,
       14,
       13,
@@ -10392,6 +10920,9 @@
      "barLevelAfter": 10,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "pull_bar": 8
+     },
      "creditPausedAfter": [
       0,
       0
@@ -10399,14 +10930,14 @@
     },
     {
      "sessionNumber": 17,
-     "estimatedTotalMin": 36.9,
+     "estimatedTotalMin": 37.1,
      "exercises": [
       {
        "pattern": "squat",
-       "tier": 2,
+       "tier": 1,
        "unit": "reps",
-       "load": 7,
-       "perSide": true,
+       "load": 15,
+       "perSide": false,
        "sets": 3,
        "restSetSec": 60,
        "restExerciseSec": 60
@@ -10415,7 +10946,7 @@
        "pattern": "push_h",
        "tier": 2,
        "unit": "reps",
-       "load": 8,
+       "load": 9,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10467,8 +10998,8 @@
      "skipped": [],
      "hasBar": true,
      "levelsAfter": [
-      11,
-      12,
+      9,
+      13,
       14,
       15,
       15,
@@ -10491,6 +11022,9 @@
      "barLevelAfter": 11,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "pull_bar": 8
+     },
      "creditPausedAfter": [
       0,
       0
@@ -10568,8 +11102,8 @@
      "skipped": [],
      "hasBar": true,
      "levelsAfter": [
-      11,
-      12,
+      9,
+      13,
       14,
       16,
       16,
@@ -10592,6 +11126,7 @@
      "barLevelAfter": 12,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "creditPausedAfter": [
       0,
       0
@@ -10677,10 +11212,10 @@
      "skipped": [],
      "hasBar": false,
      "levelsAfter": [
-      12,
+      7,
       6,
       0,
-      9,
+      7,
       1,
       1,
       0,
@@ -10707,13 +11242,13 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 34.3,
+     "estimatedTotalMin": 35.3,
      "exercises": [
       {
        "pattern": "pull",
-       "tier": 2,
+       "tier": 1,
        "unit": "reps",
-       "load": 7,
+       "load": 15,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10777,10 +11312,10 @@
      "skipped": [],
      "hasBar": false,
      "levelsAfter": [
-      12,
+      7,
       6,
       0,
-      10,
+      9,
       2,
       2,
       1,
@@ -10807,14 +11342,14 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 35.9,
+     "estimatedTotalMin": 35.1,
      "exercises": [
       {
        "pattern": "squat",
-       "tier": 2,
+       "tier": 1,
        "unit": "reps",
-       "load": 10,
-       "perSide": true,
+       "load": 15,
+       "perSide": false,
        "sets": 3,
        "restSetSec": 60,
        "restExerciseSec": 60
@@ -10843,7 +11378,7 @@
        "pattern": "pull",
        "tier": 2,
        "unit": "reps",
-       "load": 8,
+       "load": 7,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10875,10 +11410,10 @@
      "skipped": [],
      "hasBar": false,
      "levelsAfter": [
-      13,
+      8,
       7,
       1,
-      11,
+      10,
       2,
       2,
       1,
@@ -10905,7 +11440,7 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 35.1,
+     "estimatedTotalMin": 35,
      "exercises": [
       {
        "pattern": "push_h",
@@ -10931,7 +11466,7 @@
        "pattern": "pull",
        "tier": 2,
        "unit": "reps",
-       "load": 9,
+       "load": 8,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10975,10 +11510,10 @@
      "skipped": [],
      "hasBar": false,
      "levelsAfter": [
-      13,
+      8,
       8,
       2,
-      12,
+      11,
       3,
       3,
       0,
@@ -11005,13 +11540,13 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 38,
+     "estimatedTotalMin": 36.6,
      "exercises": [
       {
        "pattern": "squat",
        "tier": 2,
        "unit": "reps",
-       "load": 11,
+       "load": 6,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -11021,7 +11556,7 @@
        "pattern": "pull",
        "tier": 2,
        "unit": "reps",
-       "load": 10,
+       "load": 9,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -11077,10 +11612,10 @@
      ],
      "hasBar": false,
      "levelsAfter": [
-      14,
+      9,
       8,
       2,
-      13,
+      12,
       3,
       4,
       1,
@@ -11107,13 +11642,13 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 35,
+     "estimatedTotalMin": 33.6,
      "exercises": [
       {
        "pattern": "squat",
        "tier": 2,
        "unit": "reps",
-       "load": 12,
+       "load": 7,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -11143,7 +11678,7 @@
        "pattern": "pull",
        "tier": 2,
        "unit": "reps",
-       "load": 11,
+       "load": 10,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -11175,10 +11710,10 @@
      "skipped": [],
      "hasBar": false,
      "levelsAfter": [
-      16,
+      11,
       10,
       4,
-      14,
+      13,
       5,
       4,
       1,
@@ -11205,7 +11740,7 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 38.4,
+     "estimatedTotalMin": 38.3,
      "exercises": [
       {
        "pattern": "hinge",
@@ -11221,7 +11756,7 @@
        "pattern": "pull",
        "tier": 2,
        "unit": "reps",
-       "load": 12,
+       "load": 11,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -11273,10 +11808,10 @@
      "skipped": [],
      "hasBar": true,
      "levelsAfter": [
-      16,
+      11,
       10,
       5,
-      15,
+      14,
       6,
       5,
       2,
@@ -11303,13 +11838,13 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 36.4,
+     "estimatedTotalMin": 37.4,
      "exercises": [
       {
        "pattern": "squat",
-       "tier": 3,
+       "tier": 2,
        "unit": "reps",
-       "load": 5,
+       "load": 9,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -11373,10 +11908,10 @@
      "skipped": [],
      "hasBar": true,
      "levelsAfter": [
-      17,
+      12,
       11,
       5,
-      16,
+      15,
       6,
       5,
       3,
@@ -11403,13 +11938,13 @@
     },
     {
      "sessionNumber": 9,
-     "estimatedTotalMin": 35.9,
+     "estimatedTotalMin": 37.9,
      "exercises": [
       {
        "pattern": "squat",
-       "tier": 3,
+       "tier": 2,
        "unit": "reps",
-       "load": 6,
+       "load": 10,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -11437,9 +11972,9 @@
       },
       {
        "pattern": "pull",
-       "tier": 3,
+       "tier": 2,
        "unit": "reps",
-       "load": 5,
+       "load": 13,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -11471,10 +12006,10 @@
      "skipped": [],
      "hasBar": true,
      "levelsAfter": [
-      18,
+      13,
       12,
       6,
-      17,
+      16,
       7,
       6,
       3,
@@ -11571,10 +12106,10 @@
      "skipped": [],
      "hasBar": true,
      "levelsAfter": [
-      18,
+      13,
       12,
       6,
-      18,
+      17,
       8,
       7,
       4,
@@ -11698,6 +12233,7 @@
      "barLevelAfter": 13,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -11800,6 +12336,7 @@
       "barLevelAfter": 11,
       "barStreakAfter": 0,
       "lessRunAfter": 0,
+      "lessHistAfter": {},
       "returnRunAfter": 1
      },
      "hasBar": true,
@@ -11828,6 +12365,7 @@
      "barLevelAfter": 12,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -11930,6 +12468,7 @@
       "barLevelAfter": 12,
       "barStreakAfter": 0,
       "lessRunAfter": 0,
+      "lessHistAfter": {},
       "returnRunAfter": 0
      },
      "hasBar": true,
@@ -11958,6 +12497,7 @@
      "barLevelAfter": 13,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -12060,6 +12600,7 @@
       "barLevelAfter": 10,
       "barStreakAfter": 0,
       "lessRunAfter": 0,
+      "lessHistAfter": {},
       "returnRunAfter": 1
      },
      "hasBar": true,
@@ -12088,6 +12629,14 @@
      "barLevelAfter": 10,
      "barStreakAfter": 0,
      "lessRunAfter": 1,
+     "lessHistAfter": {
+      "hinge": 1,
+      "pull": 1,
+      "push_v": 1,
+      "lunge": 1,
+      "core_anti_ext": 1,
+      "core_rot": 1
+     },
      "returnRunAfter": 0,
      "creditPausedAfter": [
       1,
@@ -12188,6 +12737,18 @@
      "barLevelAfter": 10,
      "barStreakAfter": 0,
      "lessRunAfter": 2,
+     "lessHistAfter": {
+      "hinge": 1,
+      "pull": 1,
+      "push_v": 1,
+      "lunge": 1,
+      "core_anti_ext": 3,
+      "core_rot": 3,
+      "squat": 1,
+      "push_h": 1,
+      "pull_bar": 1,
+      "calf": 1
+     },
      "returnRunAfter": 0,
      "creditPausedAfter": [
       1,
@@ -12290,6 +12851,7 @@
       "barLevelAfter": 0,
       "barStreakAfter": 0,
       "lessRunAfter": 0,
+      "lessHistAfter": {},
       "returnRunAfter": 1
      },
      "hasBar": true,
@@ -12318,6 +12880,14 @@
      "barLevelAfter": 0,
      "barStreakAfter": 0,
      "lessRunAfter": 1,
+     "lessHistAfter": {
+      "squat": 1,
+      "push_h": 1,
+      "hinge": 1,
+      "pull": 1,
+      "push_v": 1,
+      "lunge": 1
+     },
      "returnRunAfter": 0,
      "creditPausedAfter": [
       1,
@@ -12418,6 +12988,18 @@
      "barLevelAfter": 0,
      "barStreakAfter": 0,
      "lessRunAfter": 2,
+     "lessHistAfter": {
+      "squat": 1,
+      "push_h": 1,
+      "hinge": 1,
+      "pull": 1,
+      "push_v": 3,
+      "lunge": 3,
+      "pull_bar": 1,
+      "core_anti_ext": 1,
+      "core_rot": 1,
+      "calf": 1
+     },
      "returnRunAfter": 0,
      "creditPausedAfter": [
       1,
@@ -12518,6 +13100,18 @@
      "barLevelAfter": 0,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 2,
+      "push_h": 2,
+      "hinge": 2,
+      "pull": 2,
+      "push_v": 3,
+      "lunge": 3,
+      "core_anti_ext": 1,
+      "core_rot": 2,
+      "calf": 2,
+      "pull_bar": 1
+     },
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -12618,6 +13212,18 @@
      "barLevelAfter": 2,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 2,
+      "push_h": 4,
+      "hinge": 4,
+      "pull": 2,
+      "push_v": 6,
+      "lunge": 6,
+      "core_anti_ext": 2,
+      "core_rot": 2,
+      "calf": 2,
+      "pull_bar": 2
+     },
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -12718,6 +13324,18 @@
      "barLevelAfter": 3,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 4,
+      "push_h": 4,
+      "hinge": 4,
+      "pull": 4,
+      "push_v": 6,
+      "lunge": 12,
+      "core_anti_ext": 4,
+      "core_rot": 4,
+      "calf": 4,
+      "pull_bar": 2
+     },
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -12851,6 +13469,7 @@
      "barLevelAfter": 10,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -12952,6 +13571,7 @@
       "barLevelAfter": 9,
       "barStreakAfter": 0,
       "lessRunAfter": 0,
+      "lessHistAfter": {},
       "returnRunAfter": 0
      },
      "hasBar": true,
@@ -12980,6 +13600,14 @@
      "barLevelAfter": 9,
      "barStreakAfter": 0,
      "lessRunAfter": 1,
+     "lessHistAfter": {
+      "hinge": 1,
+      "pull": 1,
+      "push_v": 1,
+      "lunge": 1,
+      "core_anti_ext": 1,
+      "core_rot": 1
+     },
      "returnRunAfter": 0,
      "creditPausedAfter": [
       1,
@@ -13080,6 +13708,14 @@
      "barLevelAfter": 10,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "hinge": 1,
+      "pull": 1,
+      "push_v": 1,
+      "lunge": 1,
+      "core_anti_ext": 2,
+      "core_rot": 2
+     },
      "returnRunAfter": 0,
      "creditPausedAfter": [
       1,
@@ -13181,6 +13817,14 @@
       "barLevelAfter": 9,
       "barStreakAfter": 0,
       "lessRunAfter": 0,
+      "lessHistAfter": {
+       "hinge": 1,
+       "pull": 1,
+       "push_v": 1,
+       "lunge": 1,
+       "core_anti_ext": 2,
+       "core_rot": 2
+      },
       "returnRunAfter": 0
      },
      "hasBar": true,
@@ -13209,6 +13853,14 @@
      "barLevelAfter": 10,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "hinge": 2,
+      "pull": 2,
+      "push_v": 2,
+      "lunge": 2,
+      "core_anti_ext": 2,
+      "core_rot": 2
+     },
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -13309,6 +13961,14 @@
      "barLevelAfter": 11,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "hinge": 2,
+      "pull": 2,
+      "push_v": 4,
+      "lunge": 4,
+      "core_anti_ext": 4,
+      "core_rot": 4
+     },
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -13410,6 +14070,14 @@
       "barLevelAfter": 11,
       "barStreakAfter": 0,
       "lessRunAfter": 0,
+      "lessHistAfter": {
+       "hinge": 2,
+       "pull": 2,
+       "push_v": 4,
+       "lunge": 4,
+       "core_anti_ext": 4,
+       "core_rot": 4
+      },
       "returnRunAfter": 0
      },
      "hasBar": true,
@@ -13438,6 +14106,14 @@
      "barLevelAfter": 12,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "hinge": 4,
+      "pull": 4,
+      "push_v": 4,
+      "lunge": 4,
+      "core_anti_ext": 4,
+      "core_rot": 8
+     },
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -13539,6 +14215,14 @@
       "barLevelAfter": 11,
       "barStreakAfter": 0,
       "lessRunAfter": 0,
+      "lessHistAfter": {
+       "hinge": 4,
+       "pull": 4,
+       "push_v": 4,
+       "lunge": 4,
+       "core_anti_ext": 4,
+       "core_rot": 8
+      },
       "returnRunAfter": 0
      },
      "comeback": {
@@ -13570,6 +14254,7 @@
       "barLevelAfter": 10,
       "barStreakAfter": 0,
       "lessRunAfter": 0,
+      "lessHistAfter": {},
       "returnRunAfter": 1
      },
      "hasBar": true,
@@ -13598,6 +14283,7 @@
      "barLevelAfter": 11,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -13698,6 +14384,14 @@
      "barLevelAfter": 11,
      "barStreakAfter": 0,
      "lessRunAfter": 1,
+     "lessHistAfter": {
+      "squat": 1,
+      "pull": 1,
+      "lunge": 1,
+      "core_anti_ext": 1,
+      "core_rot": 1,
+      "calf": 1
+     },
      "returnRunAfter": 0,
      "creditPausedAfter": [
       1,
@@ -13798,6 +14492,14 @@
      "barLevelAfter": 12,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 2,
+      "pull": 1,
+      "lunge": 1,
+      "core_anti_ext": 1,
+      "core_rot": 1,
+      "calf": 2
+     },
      "returnRunAfter": 0,
      "creditPausedAfter": [
       1,
@@ -13898,6 +14600,14 @@
      "barLevelAfter": 13,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 2,
+      "pull": 2,
+      "lunge": 2,
+      "core_anti_ext": 2,
+      "core_rot": 2,
+      "calf": 2
+     },
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -14058,6 +14768,7 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -14183,6 +14894,14 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 1,
+     "lessHistAfter": {
+      "hinge": 1,
+      "pull": 1,
+      "push_v": 1,
+      "lunge": 1,
+      "core_anti_ext": 1,
+      "core_rot": 1
+     },
      "returnRunAfter": 0,
      "creditPausedAfter": [
       1,
@@ -14308,6 +15027,18 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 2,
+     "lessHistAfter": {
+      "hinge": 1,
+      "pull": 1,
+      "push_v": 1,
+      "lunge": 1,
+      "core_anti_ext": 3,
+      "core_rot": 3,
+      "squat": 1,
+      "push_h": 1,
+      "pull_bar": 1,
+      "calf": 1
+     },
      "returnRunAfter": 0,
      "creditPausedAfter": [
       1,
@@ -14435,6 +15166,18 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 2,
+      "push_h": 2,
+      "hinge": 2,
+      "pull": 2,
+      "push_v": 2,
+      "lunge": 2,
+      "core_anti_ext": 3,
+      "core_rot": 3,
+      "calf": 1,
+      "pull_bar": 1
+     },
      "returnRunAfter": 0,
      "creditPausedAfter": [
       1,
@@ -14562,6 +15305,18 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 2,
+      "push_h": 2,
+      "hinge": 2,
+      "pull": 2,
+      "push_v": 4,
+      "lunge": 4,
+      "core_anti_ext": 6,
+      "core_rot": 6,
+      "calf": 2,
+      "pull_bar": 2
+     },
      "returnRunAfter": 0,
      "creditPausedAfter": [
       1,
@@ -14689,6 +15444,18 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 4,
+      "push_h": 4,
+      "hinge": 4,
+      "pull": 4,
+      "push_v": 4,
+      "lunge": 4,
+      "core_anti_ext": 6,
+      "core_rot": 12,
+      "calf": 4,
+      "pull_bar": 2
+     },
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -14816,6 +15583,18 @@
      ],
      "barSoreAfter": 3,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 4,
+      "push_h": 8,
+      "hinge": 8,
+      "pull": 4,
+      "push_v": 8,
+      "lunge": 8,
+      "core_anti_ext": 12,
+      "core_rot": 12,
+      "calf": 4,
+      "pull_bar": 4
+     },
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -14943,6 +15722,17 @@
      ],
      "barSoreAfter": 3,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 8,
+      "push_h": 8,
+      "hinge": 8,
+      "pull": 8,
+      "push_v": 8,
+      "core_anti_ext": 8,
+      "core_rot": 8,
+      "calf": 8,
+      "pull_bar": 4
+     },
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -15067,6 +15857,17 @@
        6
       ],
       "lessRunAfter": 0,
+      "lessHistAfter": {
+       "squat": 8,
+       "push_h": 8,
+       "hinge": 8,
+       "pull": 8,
+       "push_v": 8,
+       "core_anti_ext": 8,
+       "core_rot": 8,
+       "calf": 8,
+       "pull_bar": 4
+      },
       "returnRunAfter": 0
      },
      "comeback": {
@@ -15120,6 +15921,7 @@
        6
       ],
       "lessRunAfter": 0,
+      "lessHistAfter": {},
       "returnRunAfter": 1
      },
      "hasBar": true,
@@ -15172,6 +15974,7 @@
      ],
      "barSoreAfter": 3,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -15297,6 +16100,7 @@
      ],
      "barSoreAfter": 3,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -15422,6 +16226,7 @@
      ],
      "barSoreAfter": 3,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -15547,6 +16352,7 @@
      ],
      "barSoreAfter": 3,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -15695,6 +16501,7 @@
      ],
      "barFrozenAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -15810,6 +16617,7 @@
      ],
      "barFrozenAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       1,
@@ -15927,6 +16735,7 @@
      ],
      "barFrozenAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       1,
@@ -16042,6 +16851,7 @@
      ],
      "barFrozenAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       1,
@@ -16155,6 +16965,7 @@
      ],
      "barFrozenAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       1,
@@ -16270,6 +17081,7 @@
      ],
      "barFrozenAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -16387,6 +17199,7 @@
      ],
      "barFrozenAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -16500,6 +17313,7 @@
      ],
      "barFrozenAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -16615,6 +17429,7 @@
      ],
      "barFrozenAfter": 3,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -16728,6 +17543,7 @@
        1
       ],
       "lessRunAfter": 0,
+      "lessHistAfter": {},
       "returnRunAfter": 0
      },
      "comeback": {
@@ -16770,6 +17586,7 @@
        1
       ],
       "lessRunAfter": 0,
+      "lessHistAfter": {},
       "returnRunAfter": 1
      },
      "hasBar": true,
@@ -16810,6 +17627,7 @@
      ],
      "barFrozenAfter": 3,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -16923,6 +17741,7 @@
      ],
      "barFrozenAfter": 2,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -17036,6 +17855,7 @@
      ],
      "barFrozenAfter": 2,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -17169,6 +17989,7 @@
      "barLevelAfter": 40,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -17271,6 +18092,7 @@
       "barLevelAfter": 16,
       "barStreakAfter": 0,
       "lessRunAfter": 0,
+      "lessHistAfter": {},
       "returnRunAfter": 1
      },
      "hasBar": true,
@@ -17299,6 +18121,7 @@
      "barLevelAfter": 17,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -17401,6 +18224,7 @@
       "barLevelAfter": 8,
       "barStreakAfter": 0,
       "lessRunAfter": 0,
+      "lessHistAfter": {},
       "returnRunAfter": 1
      },
      "hasBar": true,
@@ -17429,6 +18253,7 @@
      "barLevelAfter": 9,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -17531,6 +18356,7 @@
       "barLevelAfter": 0,
       "barStreakAfter": 0,
       "lessRunAfter": 0,
+      "lessHistAfter": {},
       "returnRunAfter": 1
      },
      "hasBar": true,
@@ -17559,6 +18385,7 @@
      "barLevelAfter": 1,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -17661,6 +18488,7 @@
       "barLevelAfter": 0,
       "barStreakAfter": 0,
       "lessRunAfter": 0,
+      "lessHistAfter": {},
       "returnRunAfter": 1
      },
      "hasBar": true,
@@ -17689,6 +18517,14 @@
      "barLevelAfter": 0,
      "barStreakAfter": 0,
      "lessRunAfter": 1,
+     "lessHistAfter": {
+      "squat": 1,
+      "push_h": 1,
+      "hinge": 1,
+      "pull": 1,
+      "push_v": 1,
+      "lunge": 1
+     },
      "returnRunAfter": 0,
      "creditPausedAfter": [
       1,
@@ -17791,6 +18627,7 @@
       "barLevelAfter": 0,
       "barStreakAfter": 0,
       "lessRunAfter": 0,
+      "lessHistAfter": {},
       "returnRunAfter": 1
      },
      "hasBar": true,
@@ -17819,6 +18656,7 @@
      "barLevelAfter": 1,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -17920,6 +18758,7 @@
       "barLevelAfter": 0,
       "barStreakAfter": 0,
       "lessRunAfter": 0,
+      "lessHistAfter": {},
       "returnRunAfter": 0
      },
      "comeback": {
@@ -17951,6 +18790,7 @@
       "barLevelAfter": 0,
       "barStreakAfter": 0,
       "lessRunAfter": 0,
+      "lessHistAfter": {},
       "returnRunAfter": 1
      },
      "hasBar": true,
@@ -17979,6 +18819,7 @@
      "barLevelAfter": 1,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -18079,6 +18920,7 @@
      "barLevelAfter": 2,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "creditPausedAfter": [
       0,
@@ -18242,6 +19084,7 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "creditPausedAfter": [
       0,
       0
@@ -18371,6 +19214,7 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "creditPausedAfter": [
       0,
       0
@@ -18500,6 +19344,14 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 1,
+     "lessHistAfter": {
+      "squat": 1,
+      "push_h": 1,
+      "pull_bar": 1,
+      "core_anti_ext": 1,
+      "core_rot": 1,
+      "calf": 1
+     },
      "creditPausedAfter": [
       0,
       1
@@ -18627,6 +19479,14 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 2,
+      "push_h": 2,
+      "core_anti_ext": 1,
+      "core_rot": 1,
+      "calf": 1,
+      "pull_bar": 1
+     },
      "creditPausedAfter": [
       1,
       1
@@ -18754,6 +19614,16 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 1,
+     "lessHistAfter": {
+      "squat": 2,
+      "push_h": 2,
+      "core_anti_ext": 3,
+      "core_rot": 3,
+      "calf": 3,
+      "pull_bar": 3,
+      "push_v": 1,
+      "lunge": 1
+     },
      "creditPausedAfter": [
       1,
       1
@@ -18879,6 +19749,16 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 4,
+      "push_h": 4,
+      "push_v": 1,
+      "lunge": 1,
+      "core_anti_ext": 3,
+      "core_rot": 6,
+      "calf": 6,
+      "pull_bar": 3
+     },
      "creditPausedAfter": [
       0,
       1
@@ -19008,6 +19888,16 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 4,
+      "push_h": 8,
+      "push_v": 2,
+      "lunge": 2,
+      "core_anti_ext": 6,
+      "core_rot": 6,
+      "calf": 6,
+      "pull_bar": 6
+     },
      "creditPausedAfter": [
       0,
       0
@@ -19133,6 +20023,16 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 8,
+      "push_h": 8,
+      "push_v": 2,
+      "lunge": 4,
+      "core_anti_ext": 12,
+      "core_rot": 12,
+      "calf": 12,
+      "pull_bar": 6
+     },
      "creditPausedAfter": [
       0,
       0
@@ -19291,6 +20191,14 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 1,
+     "lessHistAfter": {
+      "squat": 1,
+      "pull": 1,
+      "lunge": 1,
+      "core_anti_ext": 1,
+      "core_rot": 1,
+      "calf": 1
+     },
      "creditPausedAfter": [
       1,
       0
@@ -19416,6 +20324,18 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 2,
+     "lessHistAfter": {
+      "squat": 3,
+      "pull": 1,
+      "lunge": 1,
+      "core_anti_ext": 1,
+      "core_rot": 1,
+      "calf": 3,
+      "push_h": 1,
+      "hinge": 1,
+      "pull_bar": 1,
+      "push_v": 1
+     },
      "creditPausedAfter": [
       1,
       1
@@ -19541,6 +20461,18 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 3,
+     "lessHistAfter": {
+      "squat": 3,
+      "push_h": 1,
+      "hinge": 3,
+      "pull": 3,
+      "push_v": 3,
+      "lunge": 3,
+      "core_anti_ext": 3,
+      "core_rot": 3,
+      "calf": 3,
+      "pull_bar": 1
+     },
      "creditPausedAfter": [
       1,
       1
@@ -19666,6 +20598,18 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 6,
+      "push_h": 2,
+      "hinge": 3,
+      "pull": 3,
+      "push_v": 3,
+      "lunge": 3,
+      "core_anti_ext": 6,
+      "core_rot": 6,
+      "calf": 6,
+      "pull_bar": 2
+     },
      "creditPausedAfter": [
       1,
       0
@@ -19745,7 +20689,7 @@
      "pinned": [],
      "hasBar": true,
      "levelsAfter": [
-      20,
+      19,
       18,
       12,
       10,
@@ -19793,6 +20737,18 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 1,
+     "lessHistAfter": {
+      "squat": 13,
+      "push_h": 5,
+      "hinge": 7,
+      "pull": 7,
+      "push_v": 7,
+      "lunge": 7,
+      "core_anti_ext": 6,
+      "core_rot": 6,
+      "calf": 6,
+      "pull_bar": 2
+     },
      "creditPausedAfter": [
       1,
       0
@@ -19872,14 +20828,14 @@
      ],
      "hasBar": true,
      "levelsAfter": [
-      20,
+      19,
       18,
       12,
       10,
-      8,
+      6,
       5,
       8,
-      14,
+      15,
       5
      ],
      "failStreakAfter": [
@@ -19887,10 +20843,10 @@
       0,
       0,
       0,
-      0,
-      0,
-      0,
       1,
+      0,
+      0,
+      0,
       0
      ],
      "barLevelAfter": 8,
@@ -19920,6 +20876,18 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 2,
+     "lessHistAfter": {
+      "squat": 13,
+      "push_h": 5,
+      "hinge": 7,
+      "pull": 7,
+      "push_v": 15,
+      "lunge": 15,
+      "core_anti_ext": 13,
+      "core_rot": 13,
+      "calf": 13,
+      "pull_bar": 5
+     },
      "creditPausedAfter": [
       1,
       1
@@ -19927,13 +20895,13 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 38.8,
+     "estimatedTotalMin": 39,
      "exercises": [
       {
        "pattern": "squat",
        "tier": 3,
        "unit": "reps",
-       "load": 9,
+       "load": 8,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -19973,7 +20941,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 45,
+       "load": 50,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -19999,14 +20967,14 @@
      "pinned": [],
      "hasBar": true,
      "levelsAfter": [
-      19,
+      18,
       17,
       11,
       9,
-      8,
+      6,
       5,
       8,
-      13,
+      14,
       0
      ],
      "failStreakAfter": [
@@ -20014,10 +20982,10 @@
       1,
       1,
       1,
+      1,
       0,
       0,
-      0,
-      2,
+      1,
       0
      ],
      "barLevelAfter": 8,
@@ -20047,6 +21015,18 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 10,
+      "push_h": 10,
+      "hinge": 14,
+      "pull": 14,
+      "push_v": 15,
+      "lunge": 15,
+      "core_anti_ext": 13,
+      "core_rot": 10,
+      "calf": 10,
+      "pull_bar": 5
+     },
      "creditPausedAfter": [
       1,
       1
@@ -20054,7 +21034,7 @@
     },
     {
      "sessionNumber": 12,
-     "estimatedTotalMin": 34.5,
+     "estimatedTotalMin": 35.5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -20088,9 +21068,9 @@
       },
       {
        "pattern": "push_v",
-       "tier": 2,
+       "tier": 1,
        "unit": "reps",
-       "load": 6,
+       "load": 14,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -20124,25 +21104,25 @@
      "pinned": [],
      "hasBar": true,
      "levelsAfter": [
-      19,
-      16,
+      18,
+      17,
       11,
       9,
-      8,
+      4,
       5,
       8,
-      13,
+      14,
       0
      ],
      "failStreakAfter": [
       2,
-      2,
+      0,
       0,
       1,
-      0,
-      0,
-      0,
       2,
+      0,
+      0,
+      1,
       0
      ],
      "barLevelAfter": 8,
@@ -20172,6 +21152,18 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 1,
+     "lessHistAfter": {
+      "squat": 10,
+      "push_h": 5,
+      "hinge": 13,
+      "pull": 14,
+      "push_v": 15,
+      "lunge": 15,
+      "core_anti_ext": 11,
+      "core_rot": 10,
+      "calf": 10,
+      "pull_bar": 11
+     },
      "creditPausedAfter": [
       1,
       1
@@ -20179,13 +21171,13 @@
     },
     {
      "sessionNumber": 13,
-     "estimatedTotalMin": 38.8,
+     "estimatedTotalMin": 39,
      "exercises": [
       {
        "pattern": "squat",
        "tier": 3,
        "unit": "reps",
-       "load": 7,
+       "load": 6,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -20225,7 +21217,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 35,
+       "load": 40,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -20250,14 +21242,14 @@
      "silentDecay": {
       "gapDays": 9,
       "levelsAfter": [
-       18,
-       15,
+       17,
+       16,
        10,
        8,
-       7,
+       3,
        4,
        7,
-       12,
+       13,
        0
       ],
       "failStreakAfter": [
@@ -20295,27 +21287,39 @@
        0,
        3
       ],
-      "lessRunAfter": 0
+      "lessRunAfter": 0,
+      "lessHistAfter": {
+       "squat": 10,
+       "push_h": 5,
+       "hinge": 13,
+       "pull": 14,
+       "push_v": 15,
+       "lunge": 15,
+       "core_anti_ext": 11,
+       "core_rot": 10,
+       "calf": 10,
+       "pull_bar": 11
+      }
      },
      "hasBar": true,
      "levelsAfter": [
       17,
-      15,
+      16,
       10,
       8,
+      3,
+      2,
       7,
-      4,
-      7,
-      12,
+      13,
       0
      ],
      "failStreakAfter": [
+      0,
+      0,
+      0,
+      0,
+      0,
       1,
-      0,
-      0,
-      0,
-      0,
-      0,
       0,
       0,
       0
@@ -20347,6 +21351,18 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 1,
+     "lessHistAfter": {
+      "squat": 5,
+      "push_h": 5,
+      "hinge": 13,
+      "pull": 13,
+      "push_v": 15,
+      "lunge": 15,
+      "core_anti_ext": 7,
+      "core_rot": 5,
+      "calf": 5,
+      "pull_bar": 11
+     },
      "creditPausedAfter": [
       1,
       0
@@ -20354,7 +21370,7 @@
     },
     {
      "sessionNumber": 14,
-     "estimatedTotalMin": 36.8,
+     "estimatedTotalMin": 35.3,
      "exercises": [
       {
        "pattern": "squat",
@@ -20368,9 +21384,9 @@
       },
       {
        "pattern": "push_h",
-       "tier": 2,
+       "tier": 3,
        "unit": "reps",
-       "load": 13,
+       "load": 5,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -20400,7 +21416,7 @@
        "pattern": "push_v",
        "tier": 1,
        "unit": "reps",
-       "load": 15,
+       "load": 11,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -20424,23 +21440,23 @@
      "pinned": [],
      "hasBar": true,
      "levelsAfter": [
+      17,
       16,
-      15,
       10,
       8,
+      1,
+      2,
       7,
-      4,
-      7,
-      12,
+      13,
       0
      ],
      "failStreakAfter": [
-      2,
       0,
       0,
       0,
       0,
-      0,
+      1,
+      1,
       0,
       0,
       0
@@ -20472,6 +21488,18 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 2,
+     "lessHistAfter": {
+      "squat": 11,
+      "push_h": 11,
+      "hinge": 11,
+      "pull": 13,
+      "push_v": 15,
+      "lunge": 15,
+      "core_anti_ext": 7,
+      "core_rot": 5,
+      "calf": 11,
+      "pull_bar": 7
+     },
      "creditPausedAfter": [
       1,
       1
@@ -20617,6 +21645,7 @@
      ],
      "barFrozenAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "creditPausedAfter": [
       0,
       0
@@ -20729,6 +21758,7 @@
      ],
      "barFrozenAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "creditPausedAfter": [
       0,
       0
@@ -20841,6 +21871,14 @@
      ],
      "barFrozenAfter": 0,
      "lessRunAfter": 1,
+     "lessHistAfter": {
+      "squat": 1,
+      "pull": 1,
+      "lunge": 1,
+      "core_anti_ext": 1,
+      "core_rot": 1,
+      "calf": 1
+     },
      "creditPausedAfter": [
       1,
       0
@@ -20955,6 +21993,14 @@
      ],
      "barFrozenAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 2,
+      "pull": 1,
+      "lunge": 1,
+      "core_anti_ext": 1,
+      "core_rot": 1,
+      "calf": 2
+     },
      "creditPausedAfter": [
       1,
       0
@@ -21069,6 +22115,14 @@
      ],
      "barFrozenAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 2,
+      "pull": 2,
+      "lunge": 2,
+      "core_anti_ext": 2,
+      "core_rot": 2,
+      "calf": 2
+     },
      "creditPausedAfter": [
       0,
       0
@@ -21183,6 +22237,14 @@
      ],
      "barFrozenAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 4,
+      "pull": 2,
+      "lunge": 2,
+      "core_anti_ext": 4,
+      "core_rot": 4,
+      "calf": 4
+     },
      "creditPausedAfter": [
       0,
       0
@@ -21295,6 +22357,14 @@
      ],
      "barFrozenAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 8,
+      "pull": 4,
+      "lunge": 4,
+      "core_anti_ext": 4,
+      "core_rot": 4,
+      "calf": 4
+     },
      "creditPausedAfter": [
       0,
       0
@@ -21407,6 +22477,14 @@
      ],
      "barFrozenAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 8,
+      "pull": 4,
+      "lunge": 8,
+      "core_anti_ext": 8,
+      "core_rot": 8,
+      "calf": 8
+     },
      "creditPausedAfter": [
       0,
       0
@@ -21519,6 +22597,16 @@
      ],
      "barFrozenAfter": 0,
      "lessRunAfter": 1,
+     "lessHistAfter": {
+      "squat": 1,
+      "pull": 9,
+      "lunge": 8,
+      "core_anti_ext": 8,
+      "core_rot": 1,
+      "calf": 1,
+      "push_h": 1,
+      "hinge": 1
+     },
      "creditPausedAfter": [
       1,
       0
@@ -21631,6 +22719,14 @@
      ],
      "barFrozenAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 1,
+      "push_h": 2,
+      "hinge": 2,
+      "pull": 9,
+      "core_rot": 1,
+      "calf": 1
+     },
      "creditPausedAfter": [
       1,
       0
@@ -21743,6 +22839,14 @@
      ],
      "barFrozenAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 2,
+      "push_h": 2,
+      "hinge": 2,
+      "pull": 2,
+      "core_rot": 2,
+      "calf": 2
+     },
      "creditPausedAfter": [
       0,
       0
@@ -21855,6 +22959,14 @@
      ],
      "barFrozenAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {
+      "squat": 4,
+      "push_h": 4,
+      "hinge": 4,
+      "pull": 2,
+      "core_rot": 2,
+      "calf": 4
+     },
      "creditPausedAfter": [
       0,
       0
@@ -24090,6 +25202,7 @@
        0
       ],
       "lessRunAfter": 0,
+      "lessHistAfter": {},
       "returnRunAfter": 1,
       "illnessAfter": 0
      },
@@ -24140,6 +25253,7 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "illnessAfter": 0
     },
@@ -24262,6 +25376,7 @@
          0
         ],
         "lessRunAfter": 0,
+        "lessHistAfter": {},
         "returnRunAfter": 1,
         "illnessAfter": 0
        },
@@ -24313,6 +25428,7 @@
          0
         ],
         "lessRunAfter": 0,
+        "lessHistAfter": {},
         "returnRunAfter": 2,
         "illnessAfter": 0
        }
@@ -24368,6 +25484,7 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "illnessAfter": 5
     },
@@ -24489,6 +25606,7 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "illnessAfter": 4
     },
@@ -24610,6 +25728,7 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "illnessAfter": 3
     },
@@ -24729,6 +25848,7 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "illnessAfter": 2
     },
@@ -24850,6 +25970,7 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "illnessAfter": 1
     },
@@ -24969,6 +26090,7 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "illnessAfter": 0
     },
@@ -25088,6 +26210,7 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "illnessAfter": 0
     },
@@ -25208,6 +26331,7 @@
        0
       ],
       "lessRunAfter": 0,
+      "lessHistAfter": {},
       "returnRunAfter": 1,
       "illnessAfter": 0
      },
@@ -25258,6 +26382,7 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "illnessAfter": 0
     },
@@ -25377,6 +26502,7 @@
        0
       ],
       "lessRunAfter": 0,
+      "lessHistAfter": {},
       "returnRunAfter": 0,
       "illnessAfter": 0
      },
@@ -25427,6 +26553,7 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "illnessAfter": 0
     },
@@ -25547,6 +26674,7 @@
        0
       ],
       "lessRunAfter": 0,
+      "lessHistAfter": {},
       "returnRunAfter": 1,
       "illnessAfter": 0
      },
@@ -25597,6 +26725,7 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "illnessAfter": 0
     },
@@ -25716,6 +26845,7 @@
      ],
      "barSoreAfter": 0,
      "lessRunAfter": 0,
+     "lessHistAfter": {},
      "returnRunAfter": 0,
      "illnessAfter": 0
     }
@@ -25844,7 +26974,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 2,
@@ -25938,7 +27069,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 3,
@@ -26032,7 +27164,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 4,
@@ -26126,7 +27259,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 5,
@@ -26220,7 +27354,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 6,
@@ -26314,7 +27449,8 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {}
     },
     {
      "sessionNumber": 7,
@@ -26406,7 +27542,15 @@
       0,
       0
      ],
-     "lessRunAfter": 1
+     "lessRunAfter": 1,
+     "lessHistAfter": {
+      "hinge": 1,
+      "pull": 1,
+      "push_v": 1,
+      "lunge": 1,
+      "core_anti_ext": 1,
+      "core_rot": 1
+     }
     },
     {
      "sessionNumber": 8,
@@ -26500,7 +27644,15 @@
       0,
       0
      ],
-     "lessRunAfter": 0
+     "lessRunAfter": 0,
+     "lessHistAfter": {
+      "hinge": 1,
+      "pull": 2,
+      "push_v": 1,
+      "lunge": 1,
+      "core_anti_ext": 2,
+      "core_rot": 2
+     }
     }
    ],
    "seed": {

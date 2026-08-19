@@ -50,6 +50,7 @@ private struct Golden: Decodable {
         let frozenAfter: [Int]?    // v2.5: a break must not thaw a freeze
         let soreAfter: [Int]?      // v2.11: nor close a pain episode
         let lessRunAfter: Int?     // v2.9: a break does not continue a run of "less"
+        let lessHistAfter: [String: Int]?   // v2.15: the appearance window (§26.1)
         let returnRunAfter: Int?   // v2.12: consecutive returns deepen the drop
         let illnessAfter: Int?     // v2.12: the illness lens survives a break
     }
@@ -85,6 +86,7 @@ private struct Golden: Decodable {
         let frozenAfter: [Int]?
         let soreAfter: [Int]?      // v2.11
         let lessRunAfter: Int?
+        let lessHistAfter: [String: Int]?
         let returnRunAfter: Int?   // v2.12: a decay is not a return
         let illnessAfter: Int?     // v2.12: the lens survives a decay
     }
@@ -108,6 +110,7 @@ private struct Golden: Decodable {
         let soreAfter: [Int]?      // v2.11: pain-episode assignments, by patternOrder
         let barSoreAfter: Int?
         let lessRunAfter: Int?     // v2.9: run of "less" ratings naming nothing
+        let lessHistAfter: [String: Int]?   // v2.15: the appearance window (§26.1)
         let creditPausedAfter: [Int]?   // v2.10: [pull, pullBar], 1 = credit paused
         let returnRunAfter: Int?   // v2.12: 0 after any completed session
         let illnessAfter: Int?     // v2.12: lens sessions left
@@ -141,7 +144,7 @@ final class GoldenTests: XCTestCase {
     /// re-baseline every number instead of catching a port bug.
     func testGeneratorIsThePinnedReferenceVersion() throws {
         let g = try loadGolden()
-        XCTAssertEqual(g.generator, "adaptive_engine.js v2.14.0",
+        XCTAssertEqual(g.generator, "adaptive_engine.js v2.15.0",
                        "golden.json regenerated from an unexpected reference version")
     }
 
@@ -264,6 +267,11 @@ final class GoldenTests: XCTestCase {
                 frozen: decay.frozenAfter, sore: decay.soreAfter,
                 lessRun: decay.lessRunAfter),
                 order: order, ctx: "\(ctx) silent decay")
+            if let hist = decay.lessHistAfter {
+                var actual: [String: Int] = [:]
+                for (p, mask) in state.lessHist where mask > 0 { actual[p.rawValue] = mask }
+                XCTAssertEqual(actual, hist, "\(ctx) decay (appearance window)")
+            }
             if let run = decay.returnRunAfter {
                 XCTAssertEqual(state.returnRun, run, "\(ctx) decay (return run)")
             }
@@ -283,6 +291,11 @@ final class GoldenTests: XCTestCase {
                 order: order, ctx: cctx)
             XCTAssertEqual(state.counter, comeback.counterAfter,
                            "\(cctx) must not move the counter")
+            if let hist = comeback.lessHistAfter {
+                var actual: [String: Int] = [:]
+                for (p, mask) in state.lessHist where mask > 0 { actual[p.rawValue] = mask }
+                XCTAssertEqual(actual, hist, "\(cctx) (appearance window)")
+            }
             if let run = comeback.returnRunAfter {
                 XCTAssertEqual(state.returnRun, run, "\(cctx) (return run)")
             }
@@ -317,6 +330,12 @@ final class GoldenTests: XCTestCase {
         // v2.9: the run of unnamed "less" ratings (spec §19.1)
         if let lessRun = step.lessRunAfter {
             XCTAssertEqual(state.lessRun, lessRun, ctx + " (less run)")
+        }
+        // v2.15: the window of recent appearances (spec §26.1)
+        if let hist = step.lessHistAfter {
+            var actual: [String: Int] = [:]
+            for (p, mask) in state.lessHist where mask > 0 { actual[p.rawValue] = mask }
+            XCTAssertEqual(actual, hist, ctx + " (appearance window)")
         }
         // v2.10: the cross-credit pause on the pull slot (spec §20.1)
         if let paused = step.creditPausedAfter {

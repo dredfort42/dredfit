@@ -113,6 +113,20 @@ public enum EngineConfig {
     /// far from any overflow, so the clamp is identity on the valid domain and
     /// identical on both sides — the dirty-state differential lines up exactly.
     public static let countMax = 1_000_000
+    /// v2.15 (spec §26.1, #137): the chronic weak-link signal §19.4 deferred
+    /// back in v2.9. The window counts a pattern's own APPEARANCES, not
+    /// sessions: a rotating pattern shows up in five sessions out of eight, so
+    /// a session-based threshold is structurally out of its reach — the same
+    /// reason `lessRunToGlobal` never catches it. Three of the last four, and
+    /// a double step: the owner's decision of 18.08.2026, measured — the weak
+    /// link reaches its capacity in 13 appearances instead of 31, and the
+    /// healthy movements stop being the lightning rod (19.4 of 20 vs 15.5).
+    public static let chronicWindow = 4
+    public static let chronicHits = 3
+    public static let chronicStep = -2
+    /// v2.15 (spec §26.2, #130): how many patterns calibrating from zero in
+    /// ONE session make it a claim about the day rather than about the body.
+    public static let calibrationGroup = 3
     public static let repStart = [1: 8, 2: 6, 3: 5, 4: 4]
     public static let holdStart = [1: 20, 2: 15, 3: 15, 4: 10]
     public static var levelMax: Int { (tiers + setsMax - setsBase) * stepsPerTier - 1 } // 47
@@ -209,20 +223,25 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// v2.12 (spec §22.4): sessions left under the "I was sick" lens — the
     /// plan is one tier easier, the stored levels stand.
     public var illness: Int
+    /// v2.15 (spec §26.1): the last appearances of each pattern as a bit mask
+    /// — bit set = that appearance fell in a session rated an unnamed "less".
+    /// Sparse: an empty mask is not stored, so a state file written before this
+    /// existed decodes to exactly that.
+    public var lessHist: [Pattern: Int]
 
     // Spelled out (same names the compiler would synthesize) so that
     // decodeLenient can reference the type — synthesized CodingKeys are only
     // visible inside init(from:)/encode(to:). The wire format is unchanged.
     private enum CodingKeys: String, CodingKey {
         case counter, levels, failStreak, hasBar, frozen, lessRun, creditPaused, sore,
-             returnRun, illness
+             returnRun, illness, lessHist
     }
 
     public init(counter: Int, levels: [Pattern: Int],
                 failStreak: [Pattern: Int], hasBar: Bool = false,
                 frozen: [Pattern: Int] = [:], lessRun: Int = 0,
                 creditPaused: Set<Pattern> = [], sore: [Pattern: Int] = [:],
-                returnRun: Int = 0, illness: Int = 0) {
+                returnRun: Int = 0, illness: Int = 0, lessHist: [Pattern: Int] = [:]) {
         self.counter = counter
         self.levels = levels
         self.failStreak = failStreak
@@ -233,6 +252,7 @@ public struct EngineState: Codable, Equatable, Sendable {
         self.sore = sore
         self.returnRun = returnRun
         self.illness = illness
+        self.lessHist = lessHist
     }
 
     /// Lenient in both directions: files written before hasBar/pull_bar
@@ -288,6 +308,13 @@ public struct EngineState: Codable, Equatable, Sendable {
                                  0, EngineConfig.countMax)
         illness = Self.clamped(try c.decodeIfPresent(Int.self, forKey: .illness) ?? 0,
                                0, EngineConfig.illnessSessions)
+        // Additive (v2.15, §26.1), sanitized as the reference does: only live
+        // masks survive, each clamped to the window's width.
+        lessHist = c.contains(.lessHist)
+            ? try Self.decodeLenient(c, forKey: .lessHist)
+                .filter { $0.value >= 1 }
+                .mapValues { Self.clamped($0, 1, EngineState.chronicMaskMax) }
+            : [:]
     }
 
     /// Manual decode of the exact wire format Swift synthesizes for a
@@ -350,10 +377,25 @@ public struct EngineState: Codable, Equatable, Sendable {
             sore: sore.filter { $0.value >= 1 }
                 .mapValues { Self.clamped($0, 1, EngineConfig.freezeCapAppearances) },
             returnRun: Self.clamped(returnRun, 0, EngineConfig.countMax),
-            illness: Self.clamped(illness, 0, EngineConfig.illnessSessions))
+            illness: Self.clamped(illness, 0, EngineConfig.illnessSessions),
+            lessHist: lessHist.filter { $0.value >= 1 }
+                .mapValues { Self.clamped($0, 1, EngineState.chronicMaskMax) })
     }
 
     static func clamped(_ v: Int, _ lo: Int, _ hi: Int) -> Int { min(max(v, lo), hi) }
+
+    /// The widest a window mask can be (v2.15, §26.1).
+    static var chronicMaskMax: Int { (1 << EngineConfig.chronicWindow) - 1 }
+
+    /// How many of the last appearances fell in a failed session.
+    func chronicHits(_ pattern: Pattern) -> Int {
+        (lessHist[pattern] ?? 0).nonzeroBitCount
+    }
+
+    /// v2.15 (spec §26.1): does the chronic signal fire for this pattern?
+    func chronicFires(_ pattern: Pattern) -> Bool {
+        chronicHits(pattern) >= EngineConfig.chronicHits
+    }
 }
 
 // MARK: - Level encoding
@@ -369,132 +411,6 @@ public struct LevelDecoded: Equatable, Sendable {
         self.sets = sets
         self.reps = reps
         self.hold = hold
-    }
-}
-
-public enum Level {
-    public static func decode(_ level: Int) -> LevelDecoded {
-        let l = min(max(level, 0), EngineConfig.levelMax)
-        let band = l / EngineConfig.stepsPerTier   // 0...5
-        let step = l % EngineConfig.stepsPerTier
-        let tier = min(EngineConfig.tiers, 1 + band)
-        return LevelDecoded(
-            tier: tier,
-            sets: EngineConfig.setsBase + max(0, band - (EngineConfig.tiers - 1)),
-            reps: (EngineConfig.repStart[tier] ?? EngineConfig.repMin) + step,
-            hold: (EngineConfig.holdStart[tier] ?? EngineConfig.holdMin)
-                + step * EngineConfig.holdStepSec
-        )
-    }
-
-    /// v2.11 (spec §21.1): where a pain report lands — the bottom of the
-    /// previous tier. A change of variation, not fewer reps of the same one:
-    /// "take the load off, don't trim it" (§15.2). The set bands are tier 4
-    /// by encoding, so they too land at the bottom of tier 3.
-    public static func unload(_ level: Int) -> Int {
-        let tier = decode(level).tier
-        return max(0, (tier - 2) * EngineConfig.stepsPerTier)
-    }
-
-    /// v2.12 (spec §22.1/§22.4): the rung of a tier that carries a given rep
-    /// dose — rep continuity. A descent into an easier variation keeps the
-    /// NUMBER of reps, not the mod-8 rung: repStart grows down the tiers, so
-    /// keeping the rung landed on the top of the lower tier with a higher
-    /// dose (audit finding A3-1).
-    static func rung(tier: Int, reps: Int) -> Int {
-        min(max(reps - (EngineConfig.repStart[tier] ?? EngineConfig.repMin), 0),
-            EngineConfig.stepsPerTier - 1)
-    }
-
-    /// v2.12 (spec §22.4): the "I was sick" lens — the same level seen one
-    /// tier easier. Tier 1 stays itself; the set bands are tier 4 by encoding
-    /// and ease into tier 3 on base sets. Stored levels never change — this
-    /// builds the plan's VIEW.
-    public static func eased(_ level: Int) -> Int {
-        let s = min(max(level, 0), EngineConfig.levelMax)
-        let d = decode(s)
-        if d.tier <= 1 { return s }
-        let t = d.tier - 1
-        return (t - 1) * EngineConfig.stepsPerTier + rung(tier: t, reps: d.reps)
-    }
-
-    /// v2.14 (spec §25.1): the encoding step of a unit — one rep, or
-    /// `holdStepSec` seconds. The window of "the plan was met" is one step
-    /// wide, so for reps it collapses to the old equality.
-    static func step(of unit: LoadUnit) -> Int {
-        unit == .reps ? 1 : EngineConfig.holdStepSec
-    }
-
-    /// v2.14 (spec §25.3): how much work the plan of a level asks for. Only
-    /// comparable within one unit; sides are a property of the variation, not
-    /// of the rung, so they stay out of it.
-    struct PlanWork {
-        let tier: Int
-        let sets: Int
-        let unit: LoadUnit
-        let load: Int
-    }
-
-    static func work(pattern: Pattern, level: Int) -> PlanWork {
-        let d = decode(level)
-        let unit = ExerciseLibrary.entry(for: pattern).unit(forTier: d.tier)
-        return PlanWork(tier: d.tier, sets: d.sets, unit: unit,
-                        load: unit == .reps ? d.reps : d.hold)
-    }
-
-    /// v2.14 (spec §25.3): "no harder". A descent has no right to make the
-    /// plan heavier — an honest zero on a 4×4 band used to land on 3×8, half
-    /// again as many reps of the same movement ("I said zero and it added
-    /// more"). Same root cause as A3-1: repStart grows DOWN the tiers, so
-    /// rung arithmetic done in the planned tier's coordinates means more work
-    /// one tier below.
-    static func noHarder(pattern: Pattern, from: Int, to: Int) -> Bool {
-        let a = work(pattern: pattern, level: from), b = work(pattern: pattern, level: to)
-        if b.tier > a.tier { return false }
-        if b.tier == a.tier {
-            guard b.unit == a.unit else { return true }
-            return b.sets * b.load <= a.sets * a.load
-        }
-        // A lower tier: rep continuity (§22.1) — never more reps than the plan
-        // asked for, except landing on that tier's own floor.
-        if to == (b.tier - 1) * EngineConfig.stepsPerTier { return true }
-        guard b.unit == a.unit else { return true }
-        return b.load <= a.load
-    }
-
-    /// v2.14 (spec §25.3): the nearest level at or below the inversion's
-    /// result that does not ask for more work than the current plan. Applies
-    /// to descents only — growth lives under the §15.3 ceiling, where by
-    /// construction nothing gets heavier.
-    static func descendNoHarder(pattern: Pattern, from: Int, factLevel: Int) -> Int {
-        if factLevel >= from || noHarder(pattern: pattern, from: from, to: factLevel) {
-            return factLevel
-        }
-        var cand = factLevel - 1
-        while cand > 0 {
-            if noHarder(pattern: pattern, from: from, to: cand) { return cand }
-            cand -= 1
-        }
-        return 0
-    }
-
-    /// Level from an actual value (reps or seconds) given the planned tier and
-    /// sets. Tier 4 spans three set bands, so the base depends on sets; the
-    /// unit comes from the (pattern, tier) library record.
-    public static func fromActual(pattern: Pattern, tier: Int, sets: Int, actual: Int) -> Int {
-        let lib = ExerciseLibrary.entry(for: pattern)
-        let step: Int
-        switch lib.unit(forTier: tier) {
-        case .reps:
-            step = actual - (EngineConfig.repStart[tier] ?? EngineConfig.repMin)
-        case .hold:
-            let start = EngineConfig.holdStart[tier] ?? EngineConfig.holdMin
-            step = Int((Double(actual - start) / Double(EngineConfig.holdStepSec)).rounded())
-        }
-        let base = sets <= EngineConfig.setsBase
-            ? (tier - 1) * EngineConfig.stepsPerTier
-            : (EngineConfig.tiers + sets - EngineConfig.setsBase - 1) * EngineConfig.stepsPerTier
-        return min(max(base + step, 0), EngineConfig.levelMax)
     }
 }
 
@@ -661,7 +577,8 @@ public enum Engine {
     /// Pulled out of `applyFeedback` so the three v2.14 rules read together —
     /// and so that function stays inside the lint's body-length ceiling.
     private static func levelFromPointFact(pattern p: Pattern, exercise ex: SessionExercise,
-                                           actual: Int, oldL: Int, cap: Int) -> Int {
+                                           actual: Int, oldL: Int, cap: Int,
+                                           calibratedUp: inout [Pattern]) -> Int {
         // v2.14 (spec §25.2): the inversion reads the pattern's TRUE set band,
         // not the shown one. The §20.2 gate clamps the PLAN, not the state —
         // but the fact was inverted against the trimmed sets, so an honest
@@ -687,7 +604,9 @@ public enum Engine {
             let zeroCeil = EngineConfig.isSlowTissue(p)
                 ? EngineConfig.stepsPerTier - 1
                 : 2 * EngineConfig.stepsPerTier - 1
-            return min(max(factL, 0), zeroCeil)
+            let landed = min(max(factL, 0), zeroCeil)
+            if landed > 0 { calibratedUp.append(p) }
+            return landed
         }
         // v2.14 (spec §25.3): a descent may not make the plan heavier.
         return Level.descendNoHarder(pattern: p, from: oldL,
@@ -720,10 +639,36 @@ public enum Engine {
     private static func lessTargets(
         state: EngineState, session: Session, result: FeedbackResult,
         named: Set<Pattern>, overrides: [Pattern: Int],
-        skipped: Set<Pattern>, discomfort: Set<Pattern>
+        skipped: Set<Pattern>, discomfort: Set<Pattern>,
+        chronic: Set<Pattern> = [], window: [Pattern: Int] = [:]
     ) -> Set<Pattern>? {
         guard result == .less, state.lessRun < EngineConfig.lessRunToGlobal else { return nil }
         guard named.isEmpty else { return named }
+        // v2.15 (spec §26.1): the culprit is the pattern whose OWN appearances
+        // fail most often — the weak link fails every time it shows up, a
+        // healthy one only when it shared a session with the weak link. The
+        // old aim ("the highest level") reached the weak link zero times out
+        // of 62 failing appearances (audit A3-4): the weak link is by
+        // definition the LOWER one. Ties go to the higher level.
+        if !chronic.isEmpty {
+            var best: Pattern?
+            var bestHits = -1, bestLevel = -1
+            // Walked in SESSION order, never over the set itself: a Swift Set
+            // has no order, and the reference resolves ties by insertion —
+            // iterating the set would make the two sides disagree on a tie.
+            for ex in session.exercises {
+                let p = ex.pattern
+                guard chronic.contains(p), !skipped.contains(p), !discomfort.contains(p)
+                else { continue }
+                if overrides[p] != nil { continue }
+                let hits = (window[p] ?? 0).nonzeroBitCount
+                let level = state.levels[p] ?? 0
+                if hits > bestHits || (hits == bestHits && level > bestLevel) {
+                    bestHits = hits; bestLevel = level; best = p
+                }
+            }
+            if let best { return [best] }
+        }
         // Only movements that would take the delta at all can be the aim: a
         // skipped one was not trained, and one carrying an exact number goes
         // its own way.
@@ -805,9 +750,19 @@ public enum Engine {
         // v2.9 (spec §19.1): who receives the SESSION-WIDE "less".
         let named = Self.namedMovements(session: session, overrides: overrides,
                                         discomfort: discomfort, pinned: pinned)
+        // v2.15 (spec §26.1): the appearance window. Every exercise of the
+        // session shifts its own mask — 1 when the session was rated an
+        // unnamed "less". A named "less" writes nothing: it is already
+        // addressed, and the chronic signal exists for the sessions where the
+        // trainee says nothing and taps once.
+        // v2.15 (spec §26.2, #130): who calibrates from zero in THIS session.
+        var calibratedUp: [Pattern] = []
+        let chronic = Self.rollChronicWindow(&next, session: session,
+                                            unnamedLess: result == .less && named.isEmpty)
         let lessTargets = Self.lessTargets(state: state, session: session, result: result,
                                            named: named, overrides: overrides,
-                                           skipped: skipped, discomfort: discomfort)
+                                           skipped: skipped, discomfort: discomfort,
+                                           chronic: chronic, window: next.lessHist)
         // A named "less" does not feed the run: "it was hard, and it was this
         // one" is a statement about one movement, however often it repeats.
         next.lessRun = result == .less && named.isEmpty ? state.lessRun + 1 : 0
@@ -841,14 +796,21 @@ public enum Engine {
 
             if let actual = overrides[p] {
                 newL = Self.levelFromPointFact(pattern: p, exercise: ex, actual: actual,
-                                               oldL: oldL, cap: cap)
+                                               oldL: oldL, cap: cap,
+                                               calibratedUp: &calibratedUp)
             } else {
                 // "More" runs through the same ceiling; downward moves never do.
                 // v2.9 (§19.1): a targeted "less" reaches its aim only; every
                 // other movement holds — holding is not underperforming.
+                // v2.15 (spec §26.1): a chronic aim takes a double step —
+                // otherwise the descent to a manageable level costs 31
+                // appearances, and all that time the sessions keep failing
+                // while "less" grinds down the healthy movements.
                 let sessionDelta: Int
                 if let targets = lessTargets {
-                    sessionDelta = targets.contains(p) ? EngineConfig.deltaLess : 0
+                    sessionDelta = targets.contains(p)
+                        ? (chronic.contains(p) ? EngineConfig.chronicStep : EngineConfig.deltaLess)
+                        : 0
                 } else {
                     sessionDelta = result.delta
                 }
@@ -915,6 +877,7 @@ public enum Engine {
             next.levels[p] = newL
         }
 
+        Self.applyHumbleGroupLanding(&next, calibratedUp: calibratedUp)
         Self.applyCrossCredit(&next, state: state, session: session, result: result,
                               overrides: overrides, discomfort: discomfort, pinned: pinned)
         return next
@@ -1078,6 +1041,10 @@ public enum Engine {
         var next = state
         next.lessRun = 0            // v2.9: a break is not a continued run of "less"
         next.creditPaused = []      // v2.10: a break clears the strain evidence too
+        // v2.15 (spec §26.1): a comeback rebuilds the levels, which makes the
+        // appearance window a record about DIFFERENT levels — it goes with
+        // them. The silent decay (−1) barely moves the levels and keeps it.
+        next.lessHist = [:]
         next.returnRun = state.returnRun + 1   // v2.12 (§22.3)
         for p in Pattern.allCases {
             let stored = state.levels[p] ?? 0
@@ -1143,5 +1110,45 @@ public enum Engine {
         var next = dirty.sanitized()
         next.illness = EngineConfig.illnessSessions
         return next
+    }
+
+    /// v2.15 (spec §26.1): rolls the appearance window and returns the
+    /// patterns whose chronic signal fires. Every exercise of the session
+    /// shifts its own mask — 1 when the session was rated an unnamed "less".
+    /// A named "less" writes nothing: it is already addressed, and the signal
+    /// exists for the sessions where the trainee says nothing and taps once.
+    ///
+    /// The branches of a split pull slot are excluded: with a bar each stands
+    /// every other session, so its appearances can line up with "less" through
+    /// no fault of its own — which is exactly why §20.1 gave the slot a
+    /// cross-credit instead of its own feedback. The period-2 lock opened in
+    /// v2.10 must not latch again.
+    private static func rollChronicWindow(_ next: inout EngineState, session: Session,
+                                          unnamedLess: Bool) -> Set<Pattern> {
+        for ex in session.exercises {
+            let shifted = (((next.lessHist[ex.pattern] ?? 0) << 1) | (unnamedLess ? 1 : 0))
+                & EngineState.chronicMaskMax
+            next.lessHist[ex.pattern] = shifted > 0 ? shifted : nil
+        }
+        let splitPullSlot = next.hasBar
+        return Set(session.exercises.map(\.pattern)
+            .filter { !(splitPullSlot && Pattern.pullSide.contains($0)) }
+            .filter { next.chronicFires($0) })
+    }
+
+    /// v2.15 (spec §26.2, #130): the humble group landing. §17.1 caps a
+    /// from-zero calibration at the NEIGHBOUR tier's top — per pattern, and
+    /// half the body can go there in one session while §19.1 untangles it one
+    /// −1 at a time: an overconfident novice spent about a month above his
+    /// abilities (17 sessions of 24 past capacity+1, six deloads). A session
+    /// that calibrated `calibrationGroup` patterns at once is a claim about
+    /// the DAY, not about the body — they land at their own tier's top, the
+    /// ceiling the slow tissues always had.
+    private static func applyHumbleGroupLanding(_ next: inout EngineState,
+                                                calibratedUp: [Pattern]) {
+        guard calibratedUp.count >= EngineConfig.calibrationGroup else { return }
+        for p in calibratedUp {
+            next.levels[p] = min(next.levels[p] ?? 0, EngineConfig.stepsPerTier - 1)
+        }
     }
 }
