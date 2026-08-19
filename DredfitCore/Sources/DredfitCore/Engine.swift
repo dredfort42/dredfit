@@ -113,6 +113,34 @@ public enum EngineConfig {
     /// far from any overflow, so the clamp is identity on the valid domain and
     /// identical on both sides — the dirty-state differential lines up exactly.
     public static let countMax = 1_000_000
+    /// v2.17 (spec §28.2, #144): rest reads the TIER as well as the band.
+    /// Tier-4 movements sitting in band 3 (levels 24-31 — pistols, archer
+    /// rows, wall handstand work) were given 60 s, while Grgic 2018 and
+    /// Schoenfeld 2016 put trained users on hard variations at >= 2 min. 90 s
+    /// rather than 120: 120 inverts the ladder (L24-31 would rest longer than
+    /// L32-39) and breaks the tier transition's unload.
+    public static let restSetByTierBand: [Int: [Int: Int]] = [4: [3: 90]]
+    /// v2.17 (spec §28.1, #142): the sets bands start at their own dose. The
+    /// entry used to reset reps to the bottom of tier 4, which cut the actual
+    /// work by 52-72% while the session got LONGER.
+    public static let repStartBand = [4: 6, 5: 8]
+    public static let holdStartBand = [4: 25, 5: 30]
+    public static let holdStepBand = [4: 3, 5: 3]
+    /// v2.17 (spec §28.4, #129): sessions of limited growth after a comeback.
+    public static let rampWindowSessions = 10
+    /// v2.17 (spec §28.5, #129): the weekly ceiling on rises. The §15.3 caps
+    /// are per session, so daily training walks around them by multiplication:
+    /// 28 consecutive "plan" sessions took BOTH pull branches from 0 to 28 —
+    /// full pull-ups in the plan after 28 days with no rest day at all.
+    public static let weeklyRiseSlow = 3
+    public static let weeklyRiseFast = 6
+    public static let weeklyWindowDays = 7
+    /// v2.17 (spec §28.3, #136): the time budget trims the PLAN, never levels.
+    public static let budgetSetsFloor = 2
+    public static let budgetPatternsFloor = 3
+    public static let budgetShortEndsAt = 20
+    public static let warmupShortMin = 3
+    public static let cooldownShortMin = 2
     /// v2.15 (spec §26.1, #137): the chronic weak-link signal §19.4 deferred
     /// back in v2.9. The window counts a pattern's own APPEARANCES, not
     /// sessions: a rotating pattern shows up in five sessions out of eight, so
@@ -228,20 +256,33 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// Sparse: an empty mask is not stored, so a state file written before this
     /// existed decodes to exactly that.
     public var lessHist: [Pattern: Int]
+    /// v2.17 (spec §28.4): sessions left in the limited-growth window a
+    /// comeback opens — "more" is credited as "plan" and every rise is one.
+    public var rampWindow: Int
+    /// v2.17 (spec §28.3): the session-time budget in minutes; 0 = no limit.
+    /// It trims the PLAN and never the levels.
+    public var timeBudgetMin: Int
+    /// v2.17 (spec §28.5): levels gained inside the current weekly window and
+    /// how old that window is in days. Both stay idle until the app supplies
+    /// the gap signal — without it the engine is calendar-blind, as §7 says.
+    public var weekGain: [Pattern: Int]
+    public var weekAgeDays: Int
 
     // Spelled out (same names the compiler would synthesize) so that
     // decodeLenient can reference the type — synthesized CodingKeys are only
     // visible inside init(from:)/encode(to:). The wire format is unchanged.
     private enum CodingKeys: String, CodingKey {
         case counter, levels, failStreak, hasBar, frozen, lessRun, creditPaused, sore,
-             returnRun, illness, lessHist
+             returnRun, illness, lessHist, rampWindow, timeBudgetMin, weekGain, weekAgeDays
     }
 
     public init(counter: Int, levels: [Pattern: Int],
                 failStreak: [Pattern: Int], hasBar: Bool = false,
                 frozen: [Pattern: Int] = [:], lessRun: Int = 0,
                 creditPaused: Set<Pattern> = [], sore: [Pattern: Int] = [:],
-                returnRun: Int = 0, illness: Int = 0, lessHist: [Pattern: Int] = [:]) {
+                returnRun: Int = 0, illness: Int = 0, lessHist: [Pattern: Int] = [:],
+                rampWindow: Int = 0, timeBudgetMin: Int = 0,
+                weekGain: [Pattern: Int] = [:], weekAgeDays: Int = 0) {
         self.counter = counter
         self.levels = levels
         self.failStreak = failStreak
@@ -253,6 +294,10 @@ public struct EngineState: Codable, Equatable, Sendable {
         self.returnRun = returnRun
         self.illness = illness
         self.lessHist = lessHist
+        self.rampWindow = rampWindow
+        self.timeBudgetMin = timeBudgetMin
+        self.weekGain = weekGain
+        self.weekAgeDays = weekAgeDays
     }
 
     /// Lenient in both directions: files written before hasBar/pull_bar
@@ -315,6 +360,18 @@ public struct EngineState: Codable, Equatable, Sendable {
                 .filter { $0.value >= 1 }
                 .mapValues { Self.clamped($0, 1, EngineState.chronicMaskMax) }
             : [:]
+        // Additive (v2.17, §28): absent in every file written before this.
+        rampWindow = Self.clamped(try c.decodeIfPresent(Int.self, forKey: .rampWindow) ?? 0,
+                                  0, EngineConfig.rampWindowSessions)
+        let budget = try c.decodeIfPresent(Int.self, forKey: .timeBudgetMin) ?? 0
+        timeBudgetMin = budget > 0 ? Self.clamped(budget, 5, EngineConfig.countMax) : 0
+        weekGain = c.contains(.weekGain)
+            ? try Self.decodeLenient(c, forKey: .weekGain)
+                .filter { $0.value >= 1 }
+                .mapValues { Self.clamped($0, 1, EngineConfig.countMax) }
+            : [:]
+        weekAgeDays = Self.clamped(try c.decodeIfPresent(Int.self, forKey: .weekAgeDays) ?? 0,
+                                   0, EngineConfig.countMax)
     }
 
     /// Manual decode of the exact wire format Swift synthesizes for a
@@ -379,7 +436,13 @@ public struct EngineState: Codable, Equatable, Sendable {
             returnRun: Self.clamped(returnRun, 0, EngineConfig.countMax),
             illness: Self.clamped(illness, 0, EngineConfig.illnessSessions),
             lessHist: lessHist.filter { $0.value >= 1 }
-                .mapValues { Self.clamped($0, 1, EngineState.chronicMaskMax) })
+                .mapValues { Self.clamped($0, 1, EngineState.chronicMaskMax) },
+            rampWindow: Self.clamped(rampWindow, 0, EngineConfig.rampWindowSessions),
+            timeBudgetMin: timeBudgetMin > 0
+                ? Self.clamped(timeBudgetMin, 5, EngineConfig.countMax) : 0,
+            weekGain: weekGain.filter { $0.value >= 1 }
+                .mapValues { Self.clamped($0, 1, EngineConfig.countMax) },
+            weekAgeDays: Self.clamped(weekAgeDays, 0, EngineConfig.countMax))
     }
 
     static func clamped(_ v: Int, _ lo: Int, _ hi: Int) -> Int { min(max(v, lo), hi) }
@@ -492,7 +555,8 @@ public enum Engine {
         return rotating[start]
     }
 
-    public static func estimatedMin(exercises: [SessionExercise]) -> Double {
+    public static func estimatedMin(exercises: [SessionExercise],
+                                    ends: Int = EngineConfig.warmupMin + EngineConfig.cooldownMin) -> Double {
         var workSec = 0.0
         for ex in exercises {
             let sides = ex.perSide ? 2 : 1
@@ -503,8 +567,7 @@ public enum Engine {
                 + Double((ex.sets - 1) * ex.restSetSec)
                 + Double(ex.restExerciseSec)
         }
-        let totalSec = Double(EngineConfig.warmupMin * 60) + workSec
-            + Double(EngineConfig.cooldownMin * 60)
+        let totalSec = workSec + Double(ends * 60)
         // Round to 0.1 min — as in the reference (toFixed(1)).
         return (totalSec / 60 * 10).rounded() / 10
     }
@@ -568,20 +631,92 @@ public enum Engine {
                 // v2.8 (spec §18.2): the rest between sets follows the set
                 // band — the field is per-exercise, so the timer needs no
                 // change.
-                restSetSec: EngineConfig.restSetByBand[sets] ?? EngineConfig.restSetSec,
+                // v2.17 (spec §28.2): the (tier, band) cell wins when set.
+                restSetSec: EngineConfig.restSetByTierBand[d.tier]?[sets]
+                    ?? EngineConfig.restSetByBand[sets] ?? EngineConfig.restSetSec,
                 restExerciseSec: EngineConfig.restExerciseSec
             )
         }
 
-        let totalMin = estimatedMin(exercises: exercises)
+        // v2.17 (spec §28.3): the budget trims the plan to fit. Warm-up and
+        // cool-down shrink on the short rungs — eight fixed minutes would eat
+        // half of a fifteen-minute session.
+        let budget = state.timeBudgetMin
+        let short = budget > 0 && budget <= EngineConfig.budgetShortEndsAt
+        let warmup = short ? EngineConfig.warmupShortMin : EngineConfig.warmupMin
+        let cooldown = short ? EngineConfig.cooldownShortMin : EngineConfig.cooldownMin
+        let trimmed = budget > 0
+            ? trimToBudget(exercises, budget: budget, ends: warmup + cooldown,
+                           counter: state.counter, levels: state.levels)
+            : exercises
 
         return Session(
             sessionNumber: state.counter + 1,
-            warmupMin: EngineConfig.warmupMin,
-            cooldownMin: EngineConfig.cooldownMin,
-            exercises: exercises,
-            estimatedTotalMin: totalMin
+            warmupMin: warmup,
+            cooldownMin: cooldown,
+            exercises: trimmed,
+            estimatedTotalMin: estimatedMin(exercises: trimmed, ends: warmup + cooldown)
         )
+    }
+
+    /// v2.17 (spec §28.3): fit the plan into the budget. The order is measured:
+    /// sets first, movements only after. Growth in the model is +1 per pattern
+    /// per session and does not depend on the set count, so a dropped set costs
+    /// no progress while a dropped movement costs all of it (measured on the
+    /// busy-parent persona: 66.6 levels against 30.4 at a 20-minute budget).
+    /// Levels are never touched — the budget trims the PLAN.
+    private static func trimToBudget(_ exercises: [SessionExercise], budget: Int,
+                                     ends: Int, counter: Int,
+                                     levels: [Pattern: Int]) -> [SessionExercise] {
+        var cur = exercises
+        if estimatedMin(exercises: cur, ends: ends) <= Double(budget) { return cur }
+        for sets in stride(from: EngineConfig.setsMax - 1,
+                           through: EngineConfig.budgetSetsFloor, by: -1) {
+            cur = cur.map { $0.sets <= sets ? $0 : Self.withSets($0, sets) }
+            if estimatedMin(exercises: cur, ends: ends) <= Double(budget) { return cur }
+        }
+        for n in stride(from: cur.count - 1,
+                        through: EngineConfig.budgetPatternsFloor, by: -1) {
+            cur = keepForBudget(cur, n, counter: counter, levels: levels)
+            if estimatedMin(exercises: cur, ends: ends) <= Double(budget) { return cur }
+        }
+        return cur   // the budget is below the floor — the shortest legal plan
+    }
+
+    /// WHO stays when movements have to go. Cutting the tail is wrong: the
+    /// session order is fixed, so the last patterns (calves, rotation) would
+    /// never appear at all — measured zero appearances of calves over 24
+    /// sessions. The rule is the app's own short-workout rule (#27, verified by
+    /// simulation): the pull slot, the rotation anchor, then the laggards.
+    private static func keepForBudget(_ exercises: [SessionExercise], _ n: Int,
+                                      counter: Int,
+                                      levels: [Pattern: Int]) -> [SessionExercise] {
+        var keep: [Pattern] = []
+        if let pull = exercises.first(where: { Pattern.pullSide.contains($0.pattern) }) {
+            keep.append(pull.pattern)
+        }
+        let anchor = rotationAnchor(counter: counter)
+        if exercises.contains(where: { $0.pattern == anchor }), !keep.contains(anchor) {
+            keep.append(anchor)
+        }
+        for ex in exercises.filter({ !keep.contains($0.pattern) })
+            .sorted(by: { (levels[$0.pattern] ?? 0) < (levels[$1.pattern] ?? 0) }) {
+            if keep.count >= n { break }
+            keep.append(ex.pattern)
+        }
+        return exercises.filter { keep.contains($0.pattern) }
+    }
+
+    /// Rebuild an exercise on a different set count; the rest follows the
+    /// RESULTING band (owner's decision 19.08.2026) — two minutes between two
+    /// sets would swallow a short budget whole.
+    private static func withSets(_ ex: SessionExercise, _ sets: Int) -> SessionExercise {
+        SessionExercise(
+            pattern: ex.pattern, name: ex.name, tier: ex.tier, unit: ex.unit,
+            load: ex.load, perSide: ex.perSide, sets: sets,
+            restSetSec: EngineConfig.restSetByTierBand[ex.tier]?[sets]
+                ?? EngineConfig.restSetByBand[sets] ?? EngineConfig.restSetSec,
+            restExerciseSec: ex.restExerciseSec)
     }
 
     /// Where a single reported number puts the level (spec §12.1/§18.1/§25).
@@ -731,7 +866,12 @@ public enum Engine {
         overrides dirtyOverrides: [Pattern: Int] = [:],
         skipped: Set<Pattern> = [],
         discomfort: Set<Pattern> = [],
-        pinned: Set<Pattern> = []
+        pinned: Set<Pattern> = [],
+        /// v2.17 (spec §28.5): the one aggregate the engine needs to stop
+        /// daily training from multiplying its way around the §15.3 caps.
+        /// `nil` = the app supplies no signal, and the engine stays
+        /// calendar-blind exactly as §7 promises.
+        gapDays: Int? = nil
     ) -> EngineState {
         // v2.13 (spec §24.1/§24.3): the state heals on entry, and a reported
         // fact is clamped to the same technical range — `actual - repStart`
@@ -768,6 +908,16 @@ public enum Engine {
         // trainee says nothing and taps once.
         // v2.15 (spec §26.2, #130): who calibrates from zero in THIS session.
         var calibratedUp: [Pattern] = []
+        // v2.17 (spec §28.5): no signal, no rule — the engine behaves exactly
+        // as it did before v2.17, which is what makes the rollout safe.
+        let haveGap = gapDays != nil
+        let agedDays = haveGap ? state.weekAgeDays + max(0, gapDays ?? 0) : 0
+        let windowExpired = agedDays >= EngineConfig.weeklyWindowDays
+        var weekGain = (!haveGap || windowExpired) ? [:] : state.weekGain
+        next.weekAgeDays = (!haveGap || windowExpired) ? 0 : agedDays
+        // v2.17 (spec §28.4): the window a comeback opened is spent by sessions.
+        let rampLeft = state.rampWindow
+        next.rampWindow = max(0, rampLeft - 1)
         let chronic = Self.rollChronicWindow(&next, session: session,
                                             unnamedLess: result == .less && named.isEmpty)
         let lessTargets = Self.lessTargets(state: state, session: session, result: result,
@@ -817,15 +967,20 @@ public enum Engine {
                 // otherwise the descent to a manageable level costs 31
                 // appearances, and all that time the sessions keep failing
                 // while "less" grinds down the healthy movements.
+                // v2.17 (spec §28.4): while the window is open, "more" is
+                // credited as "plan" — a comeback dropped the levels, but the
+                // tissue does not come back with the number.
+                let effective: FeedbackResult = rampLeft > 0 && result == .more ? .plan : result
                 let sessionDelta: Int
                 if let targets = lessTargets {
                     sessionDelta = targets.contains(p)
                         ? (chronic.contains(p) ? EngineConfig.chronicStep : EngineConfig.deltaLess)
                         : 0
                 } else {
-                    sessionDelta = result.delta
+                    sessionDelta = effective.delta
                 }
-                newL = min(oldL + sessionDelta, oldL + cap)
+                let rampCap = rampLeft > 0 ? min(cap, EngineConfig.deltaPlan) : cap
+                newL = min(oldL + sessionDelta, oldL + rampCap)
             }
             newL = min(max(newL, 0), EngineConfig.levelMax)
 
@@ -863,8 +1018,14 @@ public enum Engine {
                     if actual == ex.load {
                         newL = min(oldL + EngineConfig.deltaPlan, oldL + cap)
                     } else {
+                        // v2.17 (spec §28.0): the inversion reads the TRUE set
+                        // band, as the main fact branch has since v2.14 (§25.2).
+                        // This one stayed on the shown sets, so the §20.2 gate
+                        // turned an honest overshoot into a collapse: push_v at
+                        // 44, trimmed to 3×8, answered with 9 reps, fell to 29.
                         let factL = Level.fromActual(pattern: p, tier: ex.tier,
-                                                     sets: ex.sets, actual: actual)
+                                                     sets: Level.decode(oldL).sets,
+                                                     actual: actual)
                         newL = min(max(factL, 0), oldL + cap)
                     }
                     newL = min(max(newL, 0), EngineConfig.levelMax)
@@ -891,6 +1052,23 @@ public enum Engine {
         Self.applyHumbleGroupLanding(&next, calibratedUp: calibratedUp)
         Self.applyCrossCredit(&next, state: state, session: session, result: result,
                               overrides: overrides, discomfort: discomfort, pinned: pinned)
+        // v2.17 (spec §28.5): the weekly ceiling is applied ONCE, after every
+        // rise this session — the cross-credit included, or it would walk
+        // around the budget: with a bar the branch grows on credit every other
+        // session, and the measurement gave 25 levels over 28 daily sessions.
+        if haveGap {
+            for p in Pattern.allCases {
+                let rise = (next.levels[p] ?? 0) - (state.levels[p] ?? 0)
+                guard rise > 0 else { continue }
+                let budget = EngineConfig.isSlowTissue(p) || Pattern.pullSide.contains(p)
+                    ? EngineConfig.weeklyRiseSlow : EngineConfig.weeklyRiseFast
+                let spent = weekGain[p] ?? 0
+                let granted = min(rise, max(0, budget - spent))
+                next.levels[p] = (state.levels[p] ?? 0) + granted
+                if granted > 0 { weekGain[p] = spent + granted }
+            }
+        }
+        next.weekGain = weekGain
         return next
     }
 
@@ -1056,6 +1234,11 @@ public enum Engine {
         // appearance window a record about DIFFERENT levels — it goes with
         // them. The silent decay (−1) barely moves the levels and keeps it.
         next.lessHist = [:]
+        // v2.17 (spec §28.4): a comeback opens the limited-growth window.
+        next.rampWindow = EngineConfig.rampWindowSessions
+        // The weekly window is about a week that is now over.
+        next.weekGain = [:]
+        next.weekAgeDays = 0
         next.returnRun = state.returnRun + 1   // v2.12 (§22.3)
         for p in Pattern.allCases {
             let stored = state.levels[p] ?? 0

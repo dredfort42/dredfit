@@ -564,10 +564,16 @@ final class AppStore {
         let before = engineState
         let discomfort = spendPendingDiscomfort(in: session, adding: discomfort)
         let pinned = spendPendingPinned(in: session, adding: pinned)
+        // v2.17 (spec §28.5, #129): the app hands the engine the one aggregate
+        // it needs to stop daily training from multiplying its way around the
+        // per-session growth caps — the same gap in whole days it already
+        // computes for the decay and the comeback. Nil on the first workout:
+        // there is nothing to measure from.
         engineState = Engine.applyFeedback(state: engineState, session: session,
                                            result: result, overrides: overrides,
                                            skipped: skipped, discomfort: discomfort,
-                                           pinned: pinned)
+                                           pinned: pinned,
+                                           gapDays: gapDays(now: date))
         records.append(WorkoutRecord(
             sessionNumber: session.sessionNumber,
             date: date,
@@ -782,6 +788,17 @@ final class AppStore {
     /// stored levels stand. A repeat tap tops the lens back up. The read-only
     /// company (the offer window, the countdown, the card preview) lives in
     /// AppStore+Comeback.
+    /// v2.17 (spec §28.3, #136): how long the trainee wants a session to be.
+    /// The budget trims the PLAN — sets first, then movements, never below
+    /// three — and leaves the levels alone, so choosing less time costs
+    /// nothing but the sets it removes. 0 = no limit, which is what every
+    /// install had until now.
+    func setTimeBudget(_ minutes: Int) {
+        guard engineState.timeBudgetMin != minutes else { return }
+        engineState.timeBudgetMin = minutes
+        persist()
+    }
+
     func markIllness() {
         engineState = Engine.applyIllness(state: engineState)
         persist()

@@ -16,12 +16,19 @@ public enum Level {
         let band = l / EngineConfig.stepsPerTier   // 0...5
         let step = l % EngineConfig.stepsPerTier
         let tier = min(EngineConfig.tiers, 1 + band)
+        let sets = EngineConfig.setsBase + max(0, band - (EngineConfig.tiers - 1))
+        // v2.17 (spec §28.1): inside a sets band the start and the step are
+        // the band's own — otherwise entering a band halves the dose.
+        let repStart = EngineConfig.repStartBand[sets]
+            ?? EngineConfig.repStart[tier] ?? EngineConfig.repMin
+        let holdStart = EngineConfig.holdStartBand[sets]
+            ?? EngineConfig.holdStart[tier] ?? EngineConfig.holdMin
+        let holdStep = EngineConfig.holdStepBand[sets] ?? EngineConfig.holdStepSec
         return LevelDecoded(
             tier: tier,
-            sets: EngineConfig.setsBase + max(0, band - (EngineConfig.tiers - 1)),
-            reps: (EngineConfig.repStart[tier] ?? EngineConfig.repMin) + step,
-            hold: (EngineConfig.holdStart[tier] ?? EngineConfig.holdMin)
-                + step * EngineConfig.holdStepSec
+            sets: sets,
+            reps: repStart + step,
+            hold: holdStart + step * holdStep
         )
     }
 
@@ -121,13 +128,19 @@ public enum Level {
     /// unit comes from the (pattern, tier) library record.
     public static func fromActual(pattern: Pattern, tier: Int, sets: Int, actual: Int) -> Int {
         let lib = ExerciseLibrary.entry(for: pattern)
+        // v2.17 (spec §28.1): the inversion reads the same start and step the
+        // render used — the band's own when the plan sits in a band.
+        let repStart = EngineConfig.repStartBand[sets]
+            ?? EngineConfig.repStart[tier] ?? EngineConfig.repMin
+        let holdStart = EngineConfig.holdStartBand[sets]
+            ?? EngineConfig.holdStart[tier] ?? EngineConfig.holdMin
+        let holdStep = EngineConfig.holdStepBand[sets] ?? EngineConfig.holdStepSec
         let step: Int
         switch lib.unit(forTier: tier) {
         case .reps:
-            step = actual - (EngineConfig.repStart[tier] ?? EngineConfig.repMin)
+            step = actual - repStart
         case .hold:
-            let start = EngineConfig.holdStart[tier] ?? EngineConfig.holdMin
-            step = Int((Double(actual - start) / Double(EngineConfig.holdStepSec)).rounded())
+            step = Int((Double(actual - holdStart) / Double(holdStep)).rounded())
         }
         let base = sets <= EngineConfig.setsBase
             ? (tier - 1) * EngineConfig.stepsPerTier
