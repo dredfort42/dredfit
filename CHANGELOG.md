@@ -58,6 +58,29 @@ per session (spec §5), and the collapse happens in the app. Journals and
 interrupted-workout snapshots written by earlier builds decode as they always
 did — a single stored number simply means every set ran at it.
 
+### Engine v2.16.0 — the push plan stops flickering (issues #141, #145, #148)
+
+With a pull-up bar the pull slot alternates between two movements, and the
+rule that keeps the push from running ahead of the pull was reading whichever
+one happened to be in today's session. Once the two drifted apart, the push
+plan flipped between 5×4 and 3×6 every single session — a visible change with
+no cause shown for it. The gate now reads the weaker of the two branches, so
+the plan is steady and still holds the line it exists to hold.
+
+- **A measured decision, not a fix.** The audit also asked that the credit
+  pause stop parking a branch under an alternating rhythm. Four rules were
+  measured; the only ones that unlock it also break the protection the pause
+  exists for — a plan that runs to level 43 for someone who can hold 6. From
+  the inside the two situations look identical, so the protection stays, and
+  the spec now carries the real numbers instead of a promise it never kept.
+- **Coverage the audit found missing** is now pinned: the gate with no bar
+  (the one mutation that survived the whole verifier — and no bar is the
+  common case), the discomfort → credit-pause path that existed only as a
+  safety guard, the session's composition on a corrupt counter, and a skip
+  combined with an exact number.
+- **The spec stops contradicting the code** in four places the audit listed,
+  including a pseudocode box that promised the opposite of what runs.
+
 ### Engine v2.15.0 — the aim finally reaches the weak link (issues #137, #130, #135)
 
 When one movement is beyond you and the rest is fine, the app used to take it
