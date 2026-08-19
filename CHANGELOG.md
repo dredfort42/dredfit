@@ -58,6 +58,35 @@ per session (spec §5), and the collapse happens in the app. Journals and
 interrupted-workout snapshots written by earlier builds decode as they always
 did — a single stored number simply means every set ran at it.
 
+### Engine v2.15.0 — the aim finally reaches the weak link (issues #137, #130, #135)
+
+When one movement is beyond you and the rest is fine, the app used to take it
+out on everything except that movement. The rule picked whatever stood
+*highest* in the session as the thing to ease off — and a weak link is by
+definition the lowest one, so across 62 failing appearances it was never once
+chosen. The movements that were fine kept getting easier instead. Meanwhile a
+first session logged with inflated numbers could put half the body on a level
+it could not hold, and unwinding that took about a month and six deloads.
+
+- **The movement that keeps failing is the one that eases off.** Each movement
+  now carries a short memory of its own last four appearances, and the one
+  that keeps landing in tough sessions steps down twice as fast — the weak
+  link settles at a workable level in 13 appearances instead of 31, while the
+  healthy movements stay at 19.4 of 20 instead of sliding to 15.5.
+- **One bragged session is a claim about the day, not about the body.** When
+  three or more movements calibrate from zero at once, they land a tier lower
+  than a single honest calibration would — the overconfident first week now
+  costs zero deloads instead of six, and the levels settle right at what the
+  trainee can actually do.
+- **The app asks about the movement it keeps seeing.** If "tough" keeps
+  landing on the same exercise and you never say why, Today carries one quiet
+  line — *tough sessions keep landing on this movement* — with three answers:
+  it hurts (rests it, the same path as the button during a workout), just hard
+  (pauses its growth, load unchanged), or it's fine. Asked once per session,
+  never while that movement is already resting. Without it, someone with a
+  sore shoulder who only taps "tough" loses the entire programme in nine
+  weeks; the model cannot tell that apart on its own.
+
 ### Engine v2.14.0 — honest facts are never scored worse (issues #139, #140, #138)
 
 Logging what you actually did is the engine's main input, and in three places

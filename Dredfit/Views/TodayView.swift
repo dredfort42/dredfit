@@ -174,7 +174,9 @@ struct TodayView: View {
 
             // v2.12 (#133): the window the engine cannot see — a short gap
             // below the comeback. One quiet tap, no questionnaire.
-            if store.shouldOfferIllnessTap() {
+            // One quiet offer at a time: the weak-link question is the more
+            // specific of the two, so it takes precedence over the illness tap.
+            if store.shouldOfferIllnessTap() && !store.shouldAskAboutSuspect() {
                 Button { store.markIllness() } label: {
                     Text("Been sick? Take two gentler weeks")
                         .dredfitFont(13.5)
@@ -183,6 +185,31 @@ struct TodayView: View {
                 }
                 .accessibilityIdentifier("illness-offer")
                 .padding(.top, 6)
+            }
+
+            // v2.15 (#135): the journal keeps finding the same movement under
+            // an unnamed "tough". One contextual question — never a
+            // questionnaire — routing into the pain path that already exists.
+            if store.shouldAskAboutSuspect(), let suspect = store.unnamedLessSuspect() {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Tough sessions keep landing on \(suspect.displayName).")
+                        .dredfitFont(13.5)
+                        .foregroundStyle(Theme.ink2)
+                        .fixedSize(horizontal: false, vertical: true)
+                    HStack(spacing: 16) {
+                        Button("It hurts") { store.confirmSuspectHurts(suspect) }
+                            .accessibilityIdentifier("weak-link-hurts")
+                        Button("Just hard") { store.confirmSuspectIsHard(suspect) }
+                            .accessibilityIdentifier("weak-link-hard")
+                        Button("It's fine") { store.dismissSuspectPrompt() }
+                            .accessibilityIdentifier("weak-link-fine")
+                    }
+                    .dredfitFont(13.5)
+                    .foregroundStyle(Theme.accent)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 6)
+                .accessibilityIdentifier("weak-link-prompt")
             }
 
             // While the lens runs, say so — a plan that quietly got easier

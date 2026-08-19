@@ -34,6 +34,15 @@ struct AppSettings: Codable, Equatable {
     // workout it is stale and a future break asks again, while the current
     // break never asks twice. Same mechanism for the silent decay below.
     var comebackDecidedFor: Date?
+    /// v2.15 (#135): the session number the weak-link prompt was answered for
+    /// — one question per session, never a campaign.
+    var weakLinkPromptAnsweredFor: Int?
+    /// v2.15 (#135): movements the trainee answered the prompt about. Pain
+    /// enters the next session they appear in exactly as the mid-workout
+    /// "Something hurt" button would; "just hard" enters as a hold request —
+    /// growth pauses, the load stays, nothing waits for a confirmation.
+    var pendingDiscomfort: Set<Pattern> = []
+    var pendingPinned: Set<Pattern> = []
     var silentDecayAppliedFor: Date?
 
     init() {}
@@ -42,7 +51,7 @@ struct AppSettings: Codable, Equatable {
         case restWeekdays, soundsEnabled, reminderEnabled, reminderHour, reminderMinute
         case healthEnabled, healthExportedThrough
         case onboardingCompleted, careAcknowledgedAt, lastReviewRequestAt
-        case comebackDecidedFor
+        case comebackDecidedFor, weakLinkPromptAnsweredFor, pendingDiscomfort, pendingPinned
         case silentDecayAppliedFor
     }
 
@@ -61,6 +70,9 @@ struct AppSettings: Codable, Equatable {
         careAcknowledgedAt = try c.decodeIfPresent(Date.self, forKey: .careAcknowledgedAt)
         lastReviewRequestAt = try c.decodeIfPresent(Date.self, forKey: .lastReviewRequestAt)
         comebackDecidedFor = try c.decodeIfPresent(Date.self, forKey: .comebackDecidedFor)
+        weakLinkPromptAnsweredFor = try c.decodeIfPresent(Int.self, forKey: .weakLinkPromptAnsweredFor)
+        pendingDiscomfort = try c.decodeIfPresent(Set<Pattern>.self, forKey: .pendingDiscomfort) ?? []
+        pendingPinned = try c.decodeIfPresent(Set<Pattern>.self, forKey: .pendingPinned) ?? []
         silentDecayAppliedFor = try c.decodeIfPresent(Date.self, forKey: .silentDecayAppliedFor)
     }
 }
@@ -328,6 +340,7 @@ final class AppStore {
             seedLoneWorkout(daysAgo: 20)
         }
         // Make today a rest day, whichever weekday that is.
+        seedWeakLinkIfRequested()
         if CommandLine.arguments.contains("--uitest-restday") {
             settings.restWeekdays = [Calendar.current.component(.weekday, from: .now)]
         }
@@ -549,6 +562,8 @@ final class AppStore {
         guard session.sessionNumber == engineState.counter + 1 else { return [] }
         pendingWorkout = nil   // the workout is over — nothing to resume
         let before = engineState
+        let discomfort = spendPendingDiscomfort(in: session, adding: discomfort)
+        let pinned = spendPendingPinned(in: session, adding: pinned)
         engineState = Engine.applyFeedback(state: engineState, session: session,
                                            result: result, overrides: overrides,
                                            skipped: skipped, discomfort: discomfort,
@@ -1077,5 +1092,91 @@ struct UserNotificationScheduler: NotificationScheduling {
         let trigger = UNCalendarNotificationTrigger(dateMatching: fireDate, repeats: false)
         UNUserNotificationCenter.current()
             .add(UNNotificationRequest(identifier: id, content: content, trigger: trigger))
+    }
+}
+
+// MARK: - The weak-link prompt (v2.15, spec §26.3, #135)
+
+/// The mutating half of the prompt lives here: `settings` and `persist` are
+/// the store's own, and an extension in another file cannot reach them. The
+/// read-only half — who the suspect is, whether to ask — is in
+/// `AppStore+Signals`.
+extension AppStore {
+
+    /// Records the answer: yes, it is this movement. The engine's contract
+    /// keeps pain reports inside a session (§21), so the answer is held and
+    /// spent on the next session the movement appears in — exactly what the
+    /// mid-workout "Something hurt" button would have done, answered early.
+    func confirmSuspectHurts(_ pattern: Pattern) {
+        settings.weakLinkPromptAnsweredFor = records.last?.sessionNumber
+        settings.pendingDiscomfort.insert(pattern)
+        persist()
+    }
+
+    /// "It is just hard" — the answer that is NOT a diagnosis. The signal only
+    /// knows that the movement keeps coinciding with a tough session, and the
+    /// causes are many: pain, a level that ran ahead, an awkward variation,
+    /// plain fatigue. This one holds the level instead of taking the load off,
+    /// so a wrong answer costs a pause rather than a long rest with a
+    /// confirmation gate (spec §26.3).
+    func confirmSuspectIsHard(_ pattern: Pattern) {
+        settings.weakLinkPromptAnsweredFor = records.last?.sessionNumber
+        settings.pendingPinned.insert(pattern)
+        persist()
+    }
+
+    /// Dismisses the prompt for this session without changing the plan.
+    func dismissSuspectPrompt() {
+        settings.weakLinkPromptAnsweredFor = records.last?.sessionNumber
+        persist()
+    }
+
+}
+
+// MARK: - The pending pain report (v2.15, #135)
+
+extension AppStore {
+    /// A movement the trainee confirmed as painful from the prompt joins this
+    /// session's pain reports the moment it appears — the same path the
+    /// mid-workout button takes, answered in advance.
+    func spendPendingDiscomfort(in session: Session,
+                                adding discomfort: Set<Pattern>) -> Set<Pattern> {
+        let confirmed = settings.pendingDiscomfort
+            .intersection(Set(session.exercises.map(\.pattern)))
+        guard !confirmed.isEmpty else { return discomfort }
+        settings.pendingDiscomfort.subtract(confirmed)
+        return discomfort.union(confirmed)
+    }
+
+    /// The softer of the two answers: "just hard" arms a hold (§16), not a
+    /// pain report — growth pauses at the level the trainee is on, the load is
+    /// not taken off, and nothing waits for a confirming fact.
+    func spendPendingPinned(in session: Session,
+                            adding pinned: Set<Pattern>) -> Set<Pattern> {
+        let confirmed = settings.pendingPinned
+            .intersection(Set(session.exercises.map(\.pattern)))
+        guard !confirmed.isEmpty else { return pinned }
+        settings.pendingPinned.subtract(confirmed)
+        return pinned.union(confirmed)
+    }
+}
+
+// MARK: - UI-test seed for the weak-link prompt (v2.15, #135)
+
+extension AppStore {
+    /// A journal where every "tough" landed on the same movement → Today
+    /// carries the one contextual question. Lives in an extension so the
+    /// store's own body stays inside the lint's ceiling.
+    func seedWeakLinkIfRequested() {
+        guard CommandLine.arguments.contains("--uitest-weak-link") else { return }
+        settings.restWeekdays = []      // the prompt lives on a training day
+        for _ in 0..<12 {
+            let session = nextSession
+            let carries = session.exercises.contains { $0.pattern == .pushV }
+            _ = completeWorkout(session: session, result: carries ? .less : .plan,
+                                date: Calendar.current.date(
+                                    byAdding: .day, value: -(12 - engineState.counter) * 2,
+                                    to: .now)!)
+        }
     }
 }

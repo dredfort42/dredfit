@@ -72,3 +72,59 @@ extension AppStore {
         !doneToday && wouldBeConsecutiveDay > Self.longRunThreshold
     }
 }
+
+// MARK: - The weak link the trainee never names (v2.15, spec §26.3, #135)
+
+extension AppStore {
+
+    /// A movement the journal keeps finding under an unnamed "tough" — the
+    /// same threshold the engine's chronic signal uses (3 of the last 4 of its
+    /// appearances), so the app and the model agree on what "keeps failing"
+    /// means.
+    ///
+    /// The audit's shoulder persona is the case: someone who only knows the
+    /// one-tap gesture rates "tough" whenever the pushes come up. Because the
+    /// pushes are in most sessions, that reads to the model as "the whole
+    /// programme is too hard", and nine weeks later the programme is gone —
+    /// while the movement that actually hurts is still in every plan. The
+    /// "Something hurt" button has existed since 1.10; the price of never
+    /// discovering it was everything else.
+    func unnamedLessSuspect() -> Pattern? {
+        var best: Pattern?
+        var bestHits = 0
+        for pattern in Pattern.ordered + [.pullBar] {
+            var hits = 0, seen = 0
+            for record in records.reversed() {
+                guard let exercises = record.exercises else { break }
+                guard exercises.contains(where: { $0.pattern == pattern }) else { continue }
+                seen += 1
+                if record.result == .less && Self.namesNothing(record) { hits += 1 }
+                if seen == EngineConfig.chronicWindow { break }
+            }
+            guard seen == EngineConfig.chronicWindow, hits >= EngineConfig.chronicHits else { continue }
+            // A tie goes to the movement that failed more often, then to the
+            // one the rotation shows first — the same order the engine walks.
+            if hits > bestHits { bestHits = hits; best = pattern }
+        }
+        // Nothing to suggest while the movement is already resting or its pain
+        // is already on record: the path this prompt routes into is taken.
+        guard let best, engineState.freezeRemaining(best) == 0,
+              engineState.sore[best] == nil else { return nil }
+        return best
+    }
+
+    /// A session where the trainee said "tough" and pointed at nothing: no
+    /// exact numbers, no pain report, no hold request.
+    private static func namesNothing(_ record: WorkoutRecord) -> Bool {
+        (record.actuals ?? [:]).isEmpty
+            && (record.discomfort ?? []).isEmpty
+            && (record.pinned ?? []).isEmpty
+    }
+
+    /// At most one prompt per session (spec §26.3): it is a question, not a
+    /// campaign.
+    func shouldAskAboutSuspect() -> Bool {
+        guard settings.weakLinkPromptAnsweredFor != records.last?.sessionNumber else { return false }
+        return unnamedLessSuspect() != nil
+    }
+}
