@@ -816,6 +816,15 @@ public enum Engine {
         next.counter = state.counter + 1
         next.returnRun = 0
         next.illness = state.illness - 1
+        // v2.17 (spec §28.4): a restorative session spends the limited-growth
+        // window like any other. The reference has always done this
+        // (`adaptive_engine.js`, the `illnessLeft > 0` branch); the port did
+        // not, so a comeback followed by "I was sick" left the window full and
+        // handed the trainee extra sessions of damped growth. Golden could not
+        // catch it: `rampWindow`, `weekGain` and `weekAgeDays` are the three
+        // state fields `make_golden.js` never snapshots (audit 2026-08-20,
+        // findings S5-1/S5-2), so the divergence lived behind 309 green tests.
+        next.rampWindow = max(0, state.rampWindow - 1)
         for ex in session.exercises {
             let p = ex.pattern
             if inputs.discomfort.contains(p) {
