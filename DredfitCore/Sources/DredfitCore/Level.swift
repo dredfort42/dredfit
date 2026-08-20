@@ -118,9 +118,11 @@ public enum Level {
     ///
     /// The rejected alternative was to drop v2.14's "landing on a tier floor
     /// is never harder" exemption: `Level.unload` returns exactly a tier
-    /// floor, so on the pain path the exemption did switch the gate off (57
-    /// pairs out of 57) — but fixing that here would declare a measure in
-    /// reps valid across a change of variation, which it is not. The
+    /// floor, so on the pain path the gate rests on that one exemption — of
+    /// the 400 pairs where the unload crosses a tier it is what lets 34
+    /// through, and in 41 the total work across sides grows. But fixing that
+    /// here would declare a measure in reps valid across a change of
+    /// variation, which it is not. The
     /// exemption stays; the pain path is closed by the first step of §30.6,
     /// which never crosses a tier boundary at all.
     ///

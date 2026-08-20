@@ -2,8 +2,8 @@
   "generator": "adaptive_engine.js v2.19.0",
   "golden.json": "ccd66170d0f11cad023c29bdba263950d0500bfe992753fe63e2e7a65f134022",
   "reference": {
-    "SPEC-v2.md": "f89cbffb9547dedfd70dc59fce9246e46ec6be5405b610642634fc37a52f8fcf",
-    "adaptive_engine.js": "496daad8f1e2d761409d53c3382baa8211a2c0c88323240d99e712729a93e9bc",
+    "SPEC-v2.md": "b4f44932b460e8a41d02829205546903f0981a2c04f6166605a14ef5eedfcb81",
+    "adaptive_engine.js": "37295276a419548cfd5c488f8e5550650bda3303cfb446c7dbc3005b41dd3909",
     "make_golden.js": "f6c1b103c0ae5250411d76e942a845c3efb8518ba0de7a83fe1c23871b083085",
     "verify2.js": "4a3440adb02f69696705606b652902d35816d66eb83a3020e1f31e1c56a061ff"
   }
