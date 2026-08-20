@@ -158,7 +158,7 @@ final class EngineV217Tests: XCTestCase {
 
     func testTheWeeklyCeilingIsFreeForAnHonestThreeTimesAWeek() {
         var blind = EngineState.initial, signalled = EngineState.initial
-        let gaps = [2, 2, 3]
+        let gaps: [Double] = [2, 2, 3]   // v2.19 (§30.8): the gap is fractional now
         for k in 0..<36 {
             blind = Engine.applyFeedback(state: blind,
                                          session: Engine.generateSession(blind), result: .plan)

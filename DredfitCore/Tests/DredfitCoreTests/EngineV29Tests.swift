@@ -120,8 +120,9 @@ final class EngineV29Tests: XCTestCase {
         let hurt = try XCTUnwrap(session.exercises.first?.pattern)
         let after = Engine.applyFeedback(state: state, session: session, result: .less,
                                          discomfort: [hurt])
-        XCTAssertEqual(after.levels[hurt], Level.unload(10),
-                       "discomfort voids the session for itself — and unloads (v2.11)")
+        XCTAssertEqual(after.levels[hurt], Level.tierFloor(10),
+                       "discomfort voids the session for itself — and unloads "
+                       + "(v2.11, first step since v2.19)")
         for ex in session.exercises where ex.pattern != hurt {
             XCTAssertEqual(after.levels[ex.pattern], 10, "\(ex.pattern) holds")
         }

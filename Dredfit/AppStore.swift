@@ -492,14 +492,16 @@ final class AppStore {
         let pinned = spendPendingPinned(in: session, adding: pinned)
         // v2.17 (spec §28.5, #129): the app hands the engine the one aggregate
         // it needs to stop daily training from multiplying its way around the
-        // per-session growth caps — the same gap in whole days it already
-        // computes for the decay and the comeback. Nil on the first workout:
-        // there is nothing to measure from.
+        // per-session growth caps — the gap since the last workout. Nil on the
+        // first workout: there is nothing to measure from.
+        // v2.19 (spec §30.8): the FRACTION of a day, not whole days. Floored,
+        // a second workout on the same day reported a zero gap and the weekly
+        // window stopped ageing for good.
         engineState = Engine.applyFeedback(state: engineState, session: session,
                                            result: result, overrides: overrides,
                                            skipped: skipped, discomfort: discomfort,
                                            pinned: pinned,
-                                           gapDays: gapDays(now: date))
+                                           gapDays: gapFraction(now: date))
         records.append(WorkoutRecord(
             sessionNumber: session.sessionNumber,
             date: date,

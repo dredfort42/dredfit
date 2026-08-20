@@ -179,7 +179,10 @@ final class EngineV26Tests: XCTestCase {
                 let viaDiscomfort = report(state, result, discomfort: [.pull])
                 XCTAssertEqual(viaPin.freezeRemaining(.pull), viaDiscomfort.freezeRemaining(.pull),
                                "the counters diverge at level \(level), \(result)")
-                XCTAssertEqual(viaDiscomfort.levels[.pull], Level.unload(level),
+                // v2.19 (§30.6): the first report lands on the current
+                // tier's floor; the identity under test is about the freeze
+                // machinery, which is untouched.
+                XCTAssertEqual(viaDiscomfort.levels[.pull], Level.tierFloor(level),
                                "discomfort unloads at level \(level), \(result)")
                 XCTAssertEqual(viaPin.levels[.pull], level,
                                "pinned + skipped holds at level \(level), \(result)")

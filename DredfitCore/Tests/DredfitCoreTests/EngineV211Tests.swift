@@ -65,29 +65,41 @@ final class EngineV211Tests: XCTestCase {
         XCTAssertEqual(Level.unload(47), 16)   // and so is band 5
     }
 
+    /// v2.19 (spec §30.6): re-marked, not weakened. The first report now lands
+    /// on the floor of the CURRENT tier — the same variation at its smallest
+    /// dose — and the previous tier's floor became the second step, asserted
+    /// below and swept over the whole scale in EngineV219Tests.
     func testFirstReportUnloadsFreezesAndOpensTheEpisode() {
         var state = seeded()
         state.failStreak[.squat] = 2
         let session = Engine.generateSession(state)   // counter 0: squat is in
         let after = Engine.applyFeedback(state: state, session: session,
                                          result: .more, discomfort: [.squat])
-        XCTAssertEqual(after.levels[.squat], 8, "tier 3 lands at the bottom of tier 2")
+        XCTAssertEqual(after.levels[.squat], Level.tierFloor(20),
+                       "tier 3 lands on its own floor")
         XCTAssertEqual(after.failStreak[.squat], 0, "the unload resets the streak")
         XCTAssertEqual(after.frozen[.squat], EngineConfig.freezeAppearances)
         XCTAssertEqual(after.sore[.squat], EngineConfig.freezeAppearances)
     }
 
-    func testRepeatReportsClimbTheLadderWithoutASecondDrop() {
+    /// v2.19 (spec §30.6): re-marked and strengthened. The rest ladder is
+    /// unchanged; what moved is the level. The SECOND report takes the step
+    /// v2.11 took first — the floor of the previous tier — and from the third
+    /// on the level stands, so the descent is bounded at two steps.
+    func testRepeatReportsClimbTheLadderAndTakeTheSecondStepOnce() {
         var state = seeded()
         var (s, w) = advanceToAppearance(state, of: .squat)
         s = Engine.applyFeedback(state: s, session: w, result: .plan, discomfort: [.squat])
-        let dropped = s.levels[.squat]
-        for expected in [6, 12, 12] {   // ×2 with the ceiling
+        let firstStep = s.levels[.squat]
+        XCTAssertEqual(firstStep, Level.tierFloor(20), "first report: this tier's floor")
+        let secondStep = Level.unload(Level.tierFloor(20))
+        for (report, expected) in zip(2..., [6, 12, 12]) {   // ×2 with the ceiling
             (s, w) = advanceToAppearance(s, of: .squat)
             s = Engine.applyFeedback(state: s, session: w, result: .plan, discomfort: [.squat])
             XCTAssertEqual(s.frozen[.squat], expected)
             XCTAssertEqual(s.sore[.squat], expected)
-            XCTAssertEqual(s.levels[.squat], dropped, "a repeat never drops again")
+            XCTAssertEqual(s.levels[.squat], secondStep,
+                           "report \(report): the second step lands once and then holds")
         }
         state = s
     }
