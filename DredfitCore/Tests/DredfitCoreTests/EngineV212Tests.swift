@@ -150,8 +150,17 @@ final class EngineV212Tests: XCTestCase {
         let w = Engine.generateSession(ill)
         let hurt = Engine.applyFeedback(state: ill, session: w, result: .plan,
                                         discomfort: [.squat])
-        XCTAssertEqual(hurt.levels[.squat], Level.unload(20), "the unload outranks the lens")
+        // v2.19 (spec §30.6): re-marked to the two-step landing. The point of
+        // the block is that pain outranks the lens, and it still does — the
+        // branch under the lens must match the main one report for report,
+        // which is why the second step is asserted here too.
+        XCTAssertEqual(hurt.levels[.squat], Level.tierFloor(20),
+                       "the unload outranks the lens")
         XCTAssertEqual(hurt.sore[.squat], EngineConfig.freezeAppearances)
+        let again = Engine.applyFeedback(state: hurt, session: Engine.generateSession(hurt),
+                                         result: .plan, discomfort: [.squat])
+        XCTAssertEqual(again.levels[.squat], Level.unload(Level.tierFloor(20)),
+                       "and the second report takes the second step, lens or no lens")
     }
 
     func testTheLensSurvivesBreaksAndRepeatTapsTopUp() {

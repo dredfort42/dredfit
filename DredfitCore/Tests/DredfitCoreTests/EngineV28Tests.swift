@@ -143,8 +143,8 @@ final class EngineV28Tests: XCTestCase {
                                         discomfort: [p], pinned: [p])
         let pinnedOnly = Engine.applyFeedback(state: state, session: session, result: .less,
                                               pinned: [p])
-        XCTAssertEqual(both.levels[p], Level.unload(14),
-                       "annulled — and unloaded (v2.11, spec §21.1)")
+        XCTAssertEqual(both.levels[p], Level.tierFloor(14),
+                       "annulled — and unloaded (v2.11 §21.1, v2.19 §30.6)")
         XCTAssertEqual(pinnedOnly.levels[p], 13, "a lone pin follows the rating down")
     }
 }

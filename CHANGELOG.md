@@ -58,6 +58,40 @@ per session (spec §5), and the collapse happens in the app. Journals and
 interrupted-workout snapshots written by earlier builds decode as they always
 did — a single stored number simply means every set ran at it.
 
+### Engine v2.19.0 — a descent never adds load (issue #149)
+
+Saying "this hurt" could hand you more work than before you said it. The
+report dropped the movement a whole tier, and where the easier tier is a
+one-sided movement the volume went *up*: sliding leg curls at 3×4 — twelve
+reps — became single-leg deadlifts at 3×5 a leg, thirty. Two and a half times
+the work, in a movement you had never done, for a tap that meant the opposite.
+
+- **Taking the load off happens in two steps now.** The first report keeps the
+  movement you know and puts it at the lightest dose that movement has —
+  swept over every pattern and every level, it never asks for more work than
+  the plan it replaces. Only a second report, while the joint is still
+  complaining, changes the movement itself. From the third on the level holds
+  and only the rest keeps doubling, 3 → 6 → 12 appearances, as before. So one
+  tap can no longer cost you a variation, and the way down to an easier one is
+  still there when you actually need it — you just have to say it twice.
+- **A descent is measured the way you feel it.** Work now counts both sides of
+  a one-sided movement, and a step down may no longer trade a set away to buy
+  reps: 3×8 is not an easier answer than 4×6, whatever the totals say.
+- **Two workouts in one day no longer freeze progress for good.** The weekly
+  growth ceiling ages by real elapsed time, down to the hour, instead of whole
+  days rounded off. Training twice a day used to report a gap of zero, so the
+  week never turned over and its growth budget was spent once and never
+  renewed — measured over 120 sessions, levels stopped at a total of 48 where
+  a once-a-day rhythm reached 423. The same 120 sessions now reach 336, with
+  the weekly ceiling still doing its job. A once-a-day rhythm is unchanged to
+  the level.
+
+Nothing else about the pain channel moved: the rest is still counted in
+appearances, the freeze still expires into waiting rather than growth, and
+only an honest number at or above the plan confirms recovery. States written
+by earlier builds are read as they are — an episode already open takes its
+second step on the next report.
+
 ### Engine v2.18.0 — the rung the push-up ladder was missing (issue #131)
 
 Of the forty steps in the exercise library, exactly one asked for a new

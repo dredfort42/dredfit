@@ -95,6 +95,38 @@ final class CadenceTests: XCTestCase {
         XCTAssertEqual(s.gapDays(now: dates.last!.addingTimeInterval(6 * 86400 + 2 * 3600)), 6)
     }
 
+    // MARK: - The fractional gap the engine reads (v2.19, spec §30.8)
+
+    /// `trainingDays` floors, which is right for the decay, the comeback and
+    /// the rhythm — and wrong for the one argument the engine's weekly window
+    /// reads. `gapFraction` keeps the fraction; the two must not be confused.
+    func testTheFractionalGapKeepsWhatTheTrainingDayThrowsAway() throws {
+        let s = try store(workoutsAt: [date(day: 0, hour: 8)])
+        let sameEvening = date(day: 0, hour: 20)
+        XCTAssertEqual(s.gapDays(now: sameEvening), 0, "half a day is no training day")
+        XCTAssertEqual(try XCTUnwrap(s.gapFraction(now: sameEvening)), 0.5, accuracy: 1e-9)
+        XCTAssertEqual(try XCTUnwrap(s.gapFraction(now: date(day: 3, hour: 8))), 3,
+                       "and a whole gap is still the whole gap")
+        XCTAssertEqual(try XCTUnwrap(s.gapFraction(now: date(day: 0, hour: 2))), 0,
+                       "a clock set backwards never yields a negative gap")
+    }
+
+    func testAnEmptyJournalHasNoGapAtAll() {
+        let fresh = AppStore(storageURL: tempURL)
+        XCTAssertNil(fresh.gapFraction(), "nothing to measure from")
+    }
+
+    /// The defect end to end: two workouts in one day used to hand the engine
+    /// a gap of zero, so the weekly window never aged and its growth budget
+    /// was spent once for good.
+    func testTwoWorkoutsInOneDayStillAgeTheWeeklyWindow() throws {
+        let s = try store(workoutsAt: [date(day: 0, hour: 8)], level: 0)
+        s.completeWorkout(session: s.nextSession, result: .plan,
+                          date: date(day: 0, hour: 20))
+        XCTAssertEqual(s.engineState.weekAgeDays, 0.5, accuracy: 1e-9,
+                       "the window ages by the half day that really passed")
+    }
+
     // MARK: - The rhythm and the silent decay (#134)
 
     func testWeeklyRhythmSkipsSilentDecayAndLeavesNoStamp() throws {

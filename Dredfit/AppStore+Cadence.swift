@@ -42,6 +42,20 @@ extension AppStore {
         return Self.trainingDays(from: last.date, to: now ?? Date())
     }
 
+    /// v2.19 (spec §30.8): the same elapsed time, NOT floored — the fraction
+    /// of a day the engine's weekly window needs. `trainingDays` throws it
+    /// away, so two workouts inside one day handed the engine a zero, the
+    /// §28.5 window never aged, and the weekly growth budget was spent once
+    /// for a lifetime (48 levels against 423 over 120 sessions). This feeds
+    /// `applyFeedback` and nothing else: the decay, the comeback and the
+    /// cadence keep counting whole training days.
+    func gapFraction(now: Date? = nil) -> Double? {
+        guard let last = records.last else { return nil }
+        let days = (now ?? Date()).timeIntervalSince(last.date) / 86_400
+        guard days.isFinite else { return 0 }
+        return min(max(days, 0), Double(EngineConfig.countMax))
+    }
+
     /// The last up-to-three gaps between consecutive journal entries — the
     /// memory a new break is compared against. Three is enough to see a
     /// rhythm through one outlier and cheap enough to recompute on the fly.

@@ -1,5 +1,5 @@
 {
- "generator": "adaptive_engine.js v2.18.0",
+ "generator": "adaptive_engine.js v2.19.0",
  "patternOrder": [
   "squat",
   "push_h",
@@ -14728,7 +14728,7 @@
       6,
       4,
       11,
-      8
+      16
      ],
      "failStreakAfter": [
       0,
@@ -14854,7 +14854,7 @@
       6,
       4,
       11,
-      8
+      16
      ],
      "failStreakAfter": [
       0,
@@ -14910,7 +14910,7 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 36.6,
+     "estimatedTotalMin": 36.4,
      "exercises": [
       {
        "pattern": "squat",
@@ -14964,9 +14964,9 @@
       },
       {
        "pattern": "calf",
-       "tier": 2,
+       "tier": 3,
        "unit": "reps",
-       "load": 6,
+       "load": 5,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -14987,7 +14987,7 @@
       6,
       4,
       11,
-      8
+      16
      ],
      "failStreakAfter": [
       1,
@@ -15121,12 +15121,12 @@
       25,
       21,
       15,
-      0,
+      8,
       12,
       8,
       4,
       11,
-      8
+      16
      ],
      "failStreakAfter": [
       0,
@@ -15186,7 +15186,7 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 36.1,
+     "estimatedTotalMin": 35.9,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -15240,9 +15240,9 @@
       },
       {
        "pattern": "calf",
-       "tier": 2,
+       "tier": 3,
        "unit": "reps",
-       "load": 6,
+       "load": 5,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -15260,12 +15260,12 @@
       25,
       21,
       15,
-      0,
+      8,
       14,
       10,
       6,
       13,
-      8
+      16
      ],
      "failStreakAfter": [
       0,
@@ -15325,7 +15325,7 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 39.3,
+     "estimatedTotalMin": 38.8,
      "exercises": [
       {
        "pattern": "squat",
@@ -15359,9 +15359,9 @@
       },
       {
        "pattern": "pull",
-       "tier": 1,
+       "tier": 2,
        "unit": "reps",
-       "load": 8,
+       "load": 6,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -15379,9 +15379,9 @@
       },
       {
        "pattern": "calf",
-       "tier": 2,
+       "tier": 3,
        "unit": "reps",
-       "load": 6,
+       "load": 5,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -15399,12 +15399,12 @@
       26,
       22,
       16,
-      0,
+      8,
       14,
       10,
       6,
       14,
-      8
+      16
      ],
      "failStreakAfter": [
       0,
@@ -15538,12 +15538,12 @@
       26,
       24,
       18,
-      0,
+      8,
       16,
       12,
       8,
       14,
-      8
+      16
      ],
      "failStreakAfter": [
       0,
@@ -15556,7 +15556,7 @@
       0,
       0
      ],
-     "barLevelAfter": 0,
+     "barLevelAfter": 8,
      "barStreakAfter": 0,
      "frozenAfter": [
       0,
@@ -15603,7 +15603,7 @@
     },
     {
      "sessionNumber": 13,
-     "estimatedTotalMin": 38.8,
+     "estimatedTotalMin": 38.3,
      "exercises": [
       {
        "pattern": "squat",
@@ -15617,9 +15617,9 @@
       },
       {
        "pattern": "pull",
-       "tier": 1,
+       "tier": 2,
        "unit": "reps",
-       "load": 8,
+       "load": 6,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -15657,9 +15657,9 @@
       },
       {
        "pattern": "calf",
-       "tier": 2,
+       "tier": 3,
        "unit": "reps",
-       "load": 6,
+       "load": 5,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -15677,7 +15677,7 @@
       27,
       24,
       18,
-      0,
+      8,
       16,
       14,
       10,
@@ -15695,7 +15695,7 @@
       0,
       0
      ],
-     "barLevelAfter": 0,
+     "barLevelAfter": 8,
      "barStreakAfter": 0,
      "frozenAfter": [
       0,
@@ -15814,7 +15814,7 @@
        26,
        23,
        17,
-       0,
+       7,
        15,
        13,
        9,
@@ -15832,7 +15832,7 @@
        0,
        0
       ],
-      "barLevelAfter": 0,
+      "barLevelAfter": 7,
       "barStreakAfter": 0,
       "frozenAfter": [
        0,
@@ -19044,7 +19044,7 @@
       5,
       6,
       10,
-      8
+      16
      ],
      "failStreakAfter": [
       0,
@@ -19174,7 +19174,7 @@
       6,
       7,
       11,
-      8
+      16
      ],
      "failStreakAfter": [
       0,
@@ -19222,7 +19222,7 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 36.9,
+     "estimatedTotalMin": 36.6,
      "exercises": [
       {
        "pattern": "squat",
@@ -19276,9 +19276,9 @@
       },
       {
        "pattern": "calf",
-       "tier": 2,
+       "tier": 3,
        "unit": "reps",
-       "load": 6,
+       "load": 5,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -19304,7 +19304,7 @@
       6,
       7,
       11,
-      8
+      16
      ],
      "failStreakAfter": [
       1,
@@ -19439,7 +19439,7 @@
       7,
       7,
       11,
-      8
+      16
      ],
      "failStreakAfter": [
       0,
@@ -19494,7 +19494,7 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 39,
+     "estimatedTotalMin": 38.8,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -19548,9 +19548,9 @@
       },
       {
        "pattern": "calf",
-       "tier": 2,
+       "tier": 3,
        "unit": "reps",
-       "load": 6,
+       "load": 5,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -19573,8 +19573,8 @@
       10,
       7,
       7,
-      10,
-      8
+      11,
+      15
      ],
      "failStreakAfter": [
       0,
@@ -19584,7 +19584,7 @@
       0,
       0,
       0,
-      1,
+      0,
       0
      ],
      "barLevelAfter": 10,
@@ -19631,7 +19631,7 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 36.9,
+     "estimatedTotalMin": 39.1,
      "exercises": [
       {
        "pattern": "squat",
@@ -19677,7 +19677,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 25,
+       "load": 30,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -19687,7 +19687,7 @@
        "pattern": "calf",
        "tier": 2,
        "unit": "reps",
-       "load": 6,
+       "load": 13,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -19708,8 +19708,8 @@
       10,
       7,
       7,
-      11,
-      8
+      12,
+      15
      ],
      "failStreakAfter": [
       0,
@@ -19847,8 +19847,8 @@
       11,
       8,
       8,
-      11,
-      8
+      12,
+      15
      ],
      "failStreakAfter": [
       0,
@@ -19905,7 +19905,7 @@
     },
     {
      "sessionNumber": 13,
-     "estimatedTotalMin": 36.1,
+     "estimatedTotalMin": 38.4,
      "exercises": [
       {
        "pattern": "squat",
@@ -19951,7 +19951,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 30,
+       "load": 35,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -19961,7 +19961,7 @@
        "pattern": "calf",
        "tier": 2,
        "unit": "reps",
-       "load": 6,
+       "load": 13,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -19982,8 +19982,8 @@
       11,
       10,
       10,
-      13,
-      8
+      14,
+      15
      ],
      "failStreakAfter": [
       0,
@@ -23100,7 +23100,7 @@
       0,
       0
      ],
-     "barLevelAfter": 0,
+     "barLevelAfter": 8,
      "barStreakAfter": 0,
      "frozenAfter": [
       0,
@@ -23224,7 +23224,7 @@
       0,
       0
      ],
-     "barLevelAfter": 0,
+     "barLevelAfter": 8,
      "barStreakAfter": 0,
      "frozenAfter": [
       0,
@@ -23257,7 +23257,7 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 37,
+     "estimatedTotalMin": 36.8,
      "exercises": [
       {
        "pattern": "squat",
@@ -23281,9 +23281,9 @@
       },
       {
        "pattern": "pull_bar",
-       "tier": 1,
-       "unit": "hold",
-       "load": 20,
+       "tier": 2,
+       "unit": "reps",
+       "load": 6,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -23703,7 +23703,7 @@
      "pinned": [],
      "hasBar": true,
      "levelsAfter": [
-      16,
+      24,
       21,
       20,
       21,
@@ -23829,7 +23829,7 @@
      "pinned": [],
      "hasBar": true,
      "levelsAfter": [
-      16,
+      24,
       22,
       21,
       21,
@@ -23883,16 +23883,16 @@
     },
     {
      "sessionNumber": 13,
-     "estimatedTotalMin": 35.8,
+     "estimatedTotalMin": 36.5,
      "exercises": [
       {
        "pattern": "squat",
-       "tier": 3,
+       "tier": 4,
        "unit": "reps",
-       "load": 5,
+       "load": 4,
        "perSide": true,
        "sets": 3,
-       "restSetSec": 60,
+       "restSetSec": 90,
        "restExerciseSec": 60
       },
       {
@@ -23955,7 +23955,7 @@
      ],
      "hasBar": true,
      "levelsAfter": [
-      16,
+      24,
       22,
       21,
       22,
@@ -24009,16 +24009,16 @@
     },
     {
      "sessionNumber": 14,
-     "estimatedTotalMin": 35,
+     "estimatedTotalMin": 35.8,
      "exercises": [
       {
        "pattern": "squat",
-       "tier": 3,
+       "tier": 4,
        "unit": "reps",
-       "load": 5,
+       "load": 4,
        "perSide": true,
        "sets": 3,
-       "restSetSec": 60,
+       "restSetSec": 90,
        "restExerciseSec": 60
       },
       {
@@ -24079,7 +24079,7 @@
      "pinned": [],
      "hasBar": true,
      "levelsAfter": [
-      16,
+      24,
       23,
       22,
       22,
@@ -24204,7 +24204,7 @@
      "silentDecay": {
       "gapDays": 9,
       "levelsAfter": [
-       15,
+       23,
        22,
        21,
        21,
@@ -24252,7 +24252,7 @@
      },
      "hasBar": true,
      "levelsAfter": [
-      15,
+      23,
       22,
       22,
       22,
@@ -24306,13 +24306,13 @@
     },
     {
      "sessionNumber": 16,
-     "estimatedTotalMin": 38.1,
+     "estimatedTotalMin": 37.9,
      "exercises": [
       {
        "pattern": "squat",
-       "tier": 2,
+       "tier": 3,
        "unit": "reps",
-       "load": 13,
+       "load": 12,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -24376,7 +24376,7 @@
      "pinned": [],
      "hasBar": true,
      "levelsAfter": [
-      15,
+      23,
       23,
       22,
       22,
@@ -24430,13 +24430,13 @@
     },
     {
      "sessionNumber": 17,
-     "estimatedTotalMin": 37.9,
+     "estimatedTotalMin": 37.6,
      "exercises": [
       {
        "pattern": "squat",
-       "tier": 2,
+       "tier": 3,
        "unit": "reps",
-       "load": 13,
+       "load": 12,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -24502,7 +24502,7 @@
      "pinned": [],
      "hasBar": true,
      "levelsAfter": [
-      15,
+      23,
       24,
       23,
       23,
@@ -24626,7 +24626,7 @@
      "pinned": [],
      "hasBar": true,
      "levelsAfter": [
-      15,
+      23,
       24,
       23,
       23,
@@ -24680,13 +24680,13 @@
     },
     {
      "sessionNumber": 19,
-     "estimatedTotalMin": 41.8,
+     "estimatedTotalMin": 41.5,
      "exercises": [
       {
        "pattern": "squat",
-       "tier": 2,
+       "tier": 3,
        "unit": "reps",
-       "load": 13,
+       "load": 12,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -24750,7 +24750,7 @@
      "pinned": [],
      "hasBar": true,
      "levelsAfter": [
-      15,
+      23,
       25,
       25,
       24,
@@ -24874,7 +24874,7 @@
      "pinned": [],
      "hasBar": true,
      "levelsAfter": [
-      15,
+      23,
       26,
       26,
       24,
@@ -24928,13 +24928,13 @@
     },
     {
      "sessionNumber": 21,
-     "estimatedTotalMin": 43,
+     "estimatedTotalMin": 42.8,
      "exercises": [
       {
        "pattern": "squat",
-       "tier": 2,
+       "tier": 3,
        "unit": "reps",
-       "load": 13,
+       "load": 12,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -25000,7 +25000,7 @@
      "pinned": [],
      "hasBar": true,
      "levelsAfter": [
-      17,
+      25,
       26,
       26,
       25,
@@ -28429,7 +28429,7 @@
       0,
       0
      ],
-     "barLevelAfter": 16,
+     "barLevelAfter": 24,
      "barStreakAfter": 0,
      "frozenAfter": [
       0,
@@ -28561,7 +28561,7 @@
       0,
       0
      ],
-     "barLevelAfter": 16,
+     "barLevelAfter": 24,
      "barStreakAfter": 0,
      "frozenAfter": [
       0,
@@ -28603,7 +28603,7 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 40.5,
+     "estimatedTotalMin": 41.4,
      "exercises": [
       {
        "pattern": "squat",
@@ -28627,12 +28627,12 @@
       },
       {
        "pattern": "pull_bar",
-       "tier": 3,
+       "tier": 4,
        "unit": "reps",
-       "load": 5,
+       "load": 4,
        "perSide": false,
        "sets": 3,
-       "restSetSec": 60,
+       "restSetSec": 90,
        "restExerciseSec": 60
       },
       {
@@ -28693,7 +28693,7 @@
       0,
       0
      ],
-     "barLevelAfter": 16,
+     "barLevelAfter": 24,
      "barStreakAfter": 0,
      "frozenAfter": [
       0,

@@ -41,6 +41,17 @@ public enum Level {
         return max(0, (tier - 2) * EngineConfig.stepsPerTier)
     }
 
+    /// v2.19 (spec §30.6): the floor of the CURRENT tier — the first step of
+    /// taking the load off. The variation does not change; the dose becomes
+    /// the smallest that variation has. The work falls by construction:
+    /// `repStart` is the tier's minimum and the mod-8 rung goes to zero.
+    /// Swept over 10 patterns × 48 levels: 0 cells where the landing asks for
+    /// more work than the level it came from.
+    public static func tierFloor(_ level: Int) -> Int {
+        let tier = decode(level).tier
+        return (tier - 1) * EngineConfig.stepsPerTier
+    }
+
     /// v2.12 (spec §22.1/§22.4): the rung of a tier that carries a given rep
     /// dose — rep continuity. A descent into an easier variation keeps the
     /// NUMBER of reps, not the mod-8 rung: repStart grows down the tiers, so
@@ -71,37 +82,67 @@ public enum Level {
     }
 
     /// v2.14 (spec §25.3): how much work the plan of a level asks for. Only
-    /// comparable within one unit; sides are a property of the variation, not
-    /// of the rung, so they stay out of it.
+    /// comparable within one unit.
+    ///
+    /// v2.19 (spec §30.1): sides are IN the measure. The old wording — "sides
+    /// are a property of the variation, not of the rung, so they stay out of
+    /// it" — was the reason a descent from a two-sided movement onto a
+    /// one-sided one passed the gate: hinge L24 3×4 with both legs → 3×5 per
+    /// leg is 12 reps against 30.
     struct PlanWork {
         let tier: Int
         let sets: Int
         let unit: LoadUnit
+        let sides: Int
         let load: Int
+
+        var total: Int { sets * load * sides }
     }
 
     static func work(pattern: Pattern, level: Int) -> PlanWork {
         let d = decode(level)
-        let unit = ExerciseLibrary.entry(for: pattern).unit(forTier: d.tier)
+        let entry = ExerciseLibrary.entry(for: pattern)
+        let unit = entry.unit(forTier: d.tier)
         return PlanWork(tier: d.tier, sets: d.sets, unit: unit,
+                        sides: entry.variations[d.tier - 1].unilateral ? 2 : 1,
                         load: unit == .reps ? d.reps : d.hold)
     }
 
-    /// v2.14 (spec §25.3): "no harder". A descent has no right to make the
-    /// plan heavier — an honest zero on a 4×4 band used to land on 3×8, half
+    /// v2.14 (spec §25.3) · v2.19 (spec §30.2): "no harder". A descent has no
+    /// right to make the plan heavier — neither per set nor in total work
+    /// across sides. An honest zero on a 4×4 band used to land on 3×8, half
     /// again as many reps of the same movement ("I said zero and it added
     /// more"). Same root cause as A3-1: repStart grows DOWN the tiers, so
     /// rung arithmetic done in the planned tier's coordinates means more work
     /// one tier below.
+    ///
+    /// The rejected alternative was to drop v2.14's "landing on a tier floor
+    /// is never harder" exemption: `Level.unload` returns exactly a tier
+    /// floor, so on the pain path the gate rests on that one exemption — of
+    /// the 400 pairs where the unload crosses a tier it is what lets 34
+    /// through, and in 41 the total work across sides grows. But fixing that
+    /// here would declare a measure in reps valid across a change of
+    /// variation, which it is not. The
+    /// exemption stays; the pain path is closed by the first step of §30.6,
+    /// which never crosses a tier boundary at all.
+    ///
+    /// §30.4, ACCEPTED GAP: a change of unit (`pullBar` holds seconds at tier
+    /// 1 and counts reps above) does not submit to comparison — 3×4 negative
+    /// pull-ups and 3×50 s of hanging are incommensurable. That break belongs
+    /// to the LADDER and is fixed in the library, the way v2.18 (§29) fixed
+    /// pike → handstand, not in the measure of work.
     static func noHarder(pattern: Pattern, from: Int, to: Int) -> Bool {
         let a = work(pattern: pattern, level: from), b = work(pattern: pattern, level: to)
         if b.tier > a.tier { return false }
         if b.tier == a.tier {
             guard b.unit == a.unit else { return true }
-            return b.sets * b.load <= a.sets * a.load
+            // Inside a tier the variation is the same one, so sides are
+            // comparable and count. Across a tier boundary they are not.
+            return b.load <= a.load && b.total <= a.total
         }
         // A lower tier: rep continuity (§22.1) — never more reps than the plan
-        // asked for, except landing on that tier's own floor.
+        // asked for, except landing on that tier's own floor, which is the
+        // step §15.2 provides for taking the load off.
         if to == (b.tier - 1) * EngineConfig.stepsPerTier { return true }
         guard b.unit == a.unit else { return true }
         return b.load <= a.load

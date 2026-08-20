@@ -920,10 +920,17 @@ extension AppStoreTests {
 
     /// The sign that flips against discomfort: a pinned exercise WAS
     /// performed, so its tier counts toward the debut history — while the
-    /// painful one was not. v2.11 (spec §21) moves where that shows: the
-    /// report unloads the movement to the previous tier, so the badge
-    /// question returns only when the user climbs back — and tier 2, never
-    /// actually performed, debuts then.
+    /// painful one was not. v2.11 (spec §21) moved where that shows: the
+    /// report unloaded the movement to the previous tier, so the badge
+    /// question returned only after a climb back.
+    ///
+    /// v2.19 (spec §30.6) moves it again, and closer to the point: the first
+    /// report keeps the variation and only drops the dose inside it, so the
+    /// badge is still standing right after the report — the tier really has
+    /// never been performed, because the report voided the session for it.
+    /// It goes the moment the trainee actually performs that tier. The
+    /// re-marking is not a weakening: the contrast under test is asserted
+    /// twice now, once on each side of the same tier.
     func testAPinnedExerciseCountsAsPerformedWhereAPainfulOneDoesNot() {
         let hurtURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-test-\(UUID().uuidString).json")
@@ -959,22 +966,18 @@ extension AppStoreTests {
                                "performed under a pin — tier 2 is no debut")
                 continue
             }
-            // The report unloaded pull to tier 1 (performed — no badge); the
-            // debut returns when the user climbs back: serve the freeze,
-            // confirm with a fact at the plan, grow to tier 2 again.
-            XCTAssertFalse(store.debutPatterns.contains(.pull),
-                           "the unloaded tier was performed — no badge")
-            for _ in 0..<3 { train(.plan) }
-            let load = store.nextSession.exercises.first { $0.pattern == .pull }!.load
-            train(.plan, overrides: [.pull: load])
-            while pullTier() < 2 {
-                guard day < 120 else {
-                    return XCTFail("the climb back to tier 2 should not take four months")
-                }
-                train(.more)
-            }
+            // The report keeps pull in tier 2 and puts it on that tier's floor
+            // (v2.19, spec §30.6). The session was voided for it, so the tier
+            // is still ahead of the trainee and the badge stands.
+            XCTAssertEqual(pullTier(), 2, "the first report does not change the variation")
             XCTAssertTrue(store.debutPatterns.contains(.pull),
-                          "back at tier 2 after the pain: it was never performed — it debuts")
+                          "the report voided the session — tier 2 is still a debut")
+            // And it goes when the tier is finally performed, freeze or no
+            // freeze: the badge is about what the trainee has done, not about
+            // what the engine allows to grow.
+            train(.plan)
+            XCTAssertFalse(store.debutPatterns.contains(.pull),
+                           "performed at last — the badge is spent")
         }
     }
 }

@@ -186,8 +186,18 @@ final class EngineV214Tests: XCTestCase {
         // Re-marked for v2.17 (spec §28.1): band 4 now asks 4×6 rather than
         // 4×4, so the levels that count as "no harder" moved with it. The
         // property is unchanged — these are the boundaries, checked by hand.
-        XCTAssertTrue(Level.noHarder(pattern: .pushH, from: 32, to: 28),
-                      "3×8 = 24 is exactly the 4×6 = 24 the plan asked for")
+        // Re-marked again for v2.19 (spec §30.2): the gate now also reads the
+        // dose of a single set, so dropping a set to buy reps no longer
+        // passes. 3×8 and 4×6 are the same 24 reps in total, but eight in a
+        // set against six is harder in the only place the trainee feels it.
+        // The check is not weakened — it moved from accepting that pair to
+        // rejecting it, and the nearest accepted landing is asserted below.
+        XCTAssertFalse(Level.noHarder(pattern: .pushH, from: 32, to: 28),
+                       "3×8 asks eight reps a set against the plan's six")
+        XCTAssertTrue(Level.noHarder(pattern: .pushH, from: 32, to: 26),
+                      "3×6 keeps the plan's dose per set and drops a set")
+        XCTAssertEqual(Level.descendNoHarder(pattern: .pushH, from: 32, factLevel: 28), 26,
+                       "the descent steps past the rungs that trade sets for reps")
         XCTAssertFalse(Level.noHarder(pattern: .pushH, from: 32, to: 31),
                        "3×11 = 33 is more work than 4×6 = 24")
         XCTAssertTrue(Level.noHarder(pattern: .pushH, from: 32, to: 0),

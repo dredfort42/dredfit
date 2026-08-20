@@ -168,15 +168,17 @@ final class EngineV25Tests: XCTestCase {
                                     skipped: skipped, discomfort: discomfort)
     }
 
-    /// v2.11 (spec §21.1): the report voids the session for the pattern AND
-    /// takes the load off — the level lands at the bottom of the previous
-    /// tier, the streak resets, the episode opens.
+    /// v2.11 (spec §21.1), re-marked for v2.19 (spec §30.6): the report voids
+    /// the session for the pattern AND takes the load off — the FIRST step
+    /// being the floor of the current tier, the streak resets, the episode
+    /// opens.
     func testDiscomfortLeavesTheSessionAloneAndFreezes() {
         var state = seeded(level: 12)
         state.failStreak[.pull] = 1
         let next = report(state, .more, discomfort: [.pull])
 
-        XCTAssertEqual(next.levels[.pull], Level.unload(12), "tier 2 lands at the floor")
+        XCTAssertEqual(next.levels[.pull], Level.tierFloor(12),
+                       "tier 2 lands on its own floor")
         XCTAssertEqual(next.failStreak[.pull], 0, "the unload resets the streak")
         XCTAssertEqual(next.freezeRemaining(.pull), EngineConfig.freezeAppearances)
         XCTAssertEqual(next.sore[.pull], EngineConfig.freezeAppearances, "the episode opens")
@@ -190,7 +192,7 @@ final class EngineV25Tests: XCTestCase {
     /// appearances are sessions here.
     func testTheFreezeHoldsForExactlyThreeAppearances() {
         var state = report(seeded(level: 20), .plan, discomfort: [.pull])
-        let dropped = Level.unload(20)
+        let dropped = Level.tierFloor(20)          // v2.19 (§30.6): first step
         XCTAssertEqual(state.levels[.pull], dropped)
         for left in stride(from: EngineConfig.freezeAppearances, to: 0, by: -1) {
             XCTAssertEqual(state.freezeRemaining(.pull), left)
@@ -214,11 +216,17 @@ final class EngineV25Tests: XCTestCase {
     /// one above the plan is clamped — and under the freeze it does not
     /// confirm either (v2.11: the assigned rest is served in full).
     func testAFactStillMovesAFrozenPatternDown() {
-        let frozen = report(seeded(level: 20), .plan, discomfort: [.pull])   // level 8
-        let down = report(frozen, .plan, overrides: [.pull: 5])
-        XCTAssertLessThan(down.levels[.pull]!, 8, "a fact below the plan still lands")
+        // v2.19 (§30.6): the landing is the current tier's floor; the block is
+        // about the fact, so it reads the landing rather than a pinned number.
+        let landed = Level.tierFloor(20)
+        let frozen = report(seeded(level: 20), .plan, discomfort: [.pull])
+        XCTAssertEqual(frozen.levels[.pull], landed)
+        let down = report(frozen, .plan, overrides: [.pull: 3])
+        XCTAssertLessThan(down.levels[.pull]!, landed, "a fact below the plan still lands")
+        XCTAssertTrue(Level.noHarder(pattern: .pull, from: landed, to: down.levels[.pull]!),
+                      "and lands no harder than the plan it fell short of")
         let up = report(frozen, .plan, overrides: [.pull: 99])
-        XCTAssertEqual(up.levels[.pull], 8, "a fact above the plan cannot grow it")
+        XCTAssertEqual(up.levels[.pull], landed, "a fact above the plan cannot grow it")
         XCTAssertEqual(up.sore[.pull], EngineConfig.freezeAppearances,
                        "a fact during the freeze does not confirm")
     }
@@ -230,14 +238,18 @@ final class EngineV25Tests: XCTestCase {
         var state = seeded(level: 20)
         state.failStreak[.pull] = 2
         state = report(state, .less, discomfort: [.pull])
-        XCTAssertEqual(state.levels[.pull], 8, "the report unloads")
+        // v2.19 (§30.6): the landing moved, the arithmetic below did not.
+        let landed = Level.tierFloor(20)
+        XCTAssertEqual(state.levels[.pull], landed, "the report unloads")
         XCTAssertEqual(state.failStreak[.pull], 0, "and resets the streak")
         for _ in 0..<EngineConfig.freezeAppearances { state = report(state, .less) }
 
-        XCTAssertEqual(state.levels[.pull], 5, "three shortfalls, three steps — no deload")
+        XCTAssertEqual(state.levels[.pull], landed - EngineConfig.freezeAppearances,
+                       "three shortfalls, three steps — no deload")
         XCTAssertEqual(state.failStreak[.pull], 0, "the streak stays put")
         state = report(state, .less)
-        XCTAssertEqual(state.levels[.pull], 4, "waiting: still a step, still no deload")
+        XCTAssertEqual(state.levels[.pull], landed - EngineConfig.freezeAppearances - 1,
+                       "waiting: still a step, still no deload")
         XCTAssertEqual(state.failStreak[.pull], 0)
     }
 
@@ -249,7 +261,12 @@ final class EngineV25Tests: XCTestCase {
         XCTAssertEqual(state.freezeRemaining(.pull), EngineConfig.freezeAppearances - 1)
         state = report(state, .plan, discomfort: [.pull])
         XCTAssertEqual(state.freezeRemaining(.pull), 6, "3 → 6")
-        XCTAssertEqual(state.levels[.pull], Level.unload(20), "no second drop")
+        // v2.19 (§30.6): the second report takes the second step. From level
+        // 20 both landings happen to be 8 — tier 3's floor is 16 and its
+        // unload is 8, exactly where v2.11 landed in one go — so the number
+        // is spelled as the composition it now is, not as a coincidence.
+        XCTAssertEqual(state.levels[.pull], Level.unload(Level.tierFloor(20)),
+                       "the second report is the second step")
         state = report(state, .plan, discomfort: [.pull])
         XCTAssertEqual(state.freezeRemaining(.pull), EngineConfig.freezeCapAppearances, "6 → 12")
         state = report(state, .plan, discomfort: [.pull])
@@ -264,7 +281,8 @@ final class EngineV25Tests: XCTestCase {
         let before = state.freezeRemaining(.pull)
         state = report(state, .plan, skipped: [.pull])
         XCTAssertEqual(state.freezeRemaining(.pull), before)
-        XCTAssertEqual(state.levels[.pull], Level.unload(12), "held at the unloaded level")
+        XCTAssertEqual(state.levels[.pull], Level.tierFloor(12),
+                       "held at the unloaded level")
     }
 
     /// Named in both, discomfort wins: the unload is stronger than the fact,
@@ -272,7 +290,7 @@ final class EngineV25Tests: XCTestCase {
     func testDiscomfortOutranksASkipAndAFact() {
         let state = report(seeded(level: 12), .more, discomfort: [.pull],
                            skipped: [.pull], overrides: [.pull: 99])
-        XCTAssertEqual(state.levels[.pull], Level.unload(12))
+        XCTAssertEqual(state.levels[.pull], Level.tierFloor(12))
         XCTAssertEqual(state.freezeRemaining(.pull), EngineConfig.freezeAppearances)
     }
 
@@ -287,24 +305,33 @@ final class EngineV25Tests: XCTestCase {
     /// A break lowers the levels but must not thaw a freeze — nor close a
     /// pain episode (v2.11, spec §21.2 p.8).
     func testBreaksDoNotThawTheFreeze() {
-        let frozen = report(seeded(level: 20), .plan, discomfort: [.pull])   // level 8
+        let landed = Level.tierFloor(20)             // v2.19 (§30.6): first step
+        let frozen = report(seeded(level: 20), .plan, discomfort: [.pull])
+        XCTAssertEqual(frozen.levels[.pull], landed)
         let left = frozen.freezeRemaining(.pull)
 
         let decayed = Engine.applySilentDecay(state: frozen, gapDays: 10)
         XCTAssertEqual(decayed.freezeRemaining(.pull), left, "silent decay keeps the freeze")
         XCTAssertEqual(decayed.sore[.pull], EngineConfig.freezeAppearances, "and the episode")
-        XCTAssertEqual(decayed.levels[.pull], 7, "and still takes the step")
+        XCTAssertEqual(decayed.levels[.pull], landed - 1, "and still takes the step")
 
         let back = Engine.applyComeback(state: decayed, gapDays: 16, alreadyDecayed: true)
         XCTAssertEqual(back.freezeRemaining(.pull), left, "the comeback keeps it too")
         XCTAssertEqual(back.sore[.pull], EngineConfig.freezeAppearances, "episode included")
-        // v2.12 (spec §22.1): 8 − 2 crosses into tier 1 whose repStart is
-        // above the carried dose, so rep continuity clamps to the floor — and
-        // the no-stacking identity holds there too (both paths land at 0).
-        XCTAssertEqual(back.levels[.pull], 0, "the tier crossing clamps to the floor")
+        // v2.12 (spec §22.1): the landing crosses a tier boundary, so rep
+        // continuity decides where it lands. Re-marked for v2.19 (§30.6): the
+        // block is about a break not thawing a freeze, so it asserts the
+        // property — down, and no harder — rather than the pinned 0 the old
+        // one-step landing produced.
+        XCTAssertLessThan(back.levels[.pull]!, decayed.levels[.pull]!,
+                          "the tier crossing still goes down")
+        XCTAssertTrue(Level.noHarder(pattern: .pull, from: decayed.levels[.pull]!,
+                                     to: back.levels[.pull]!),
+                      "and never asks for more work than before the break")
         XCTAssertEqual(Engine.applyComeback(state: frozen, gapDays: 16).levels[.pull],
                        back.levels[.pull], "the two paths still agree")
-        XCTAssertEqual(report(back, .more).levels[.pull], 0, "and it is still frozen")
+        XCTAssertEqual(report(back, .more).levels[.pull], back.levels[.pull],
+                       "and it is still frozen")
     }
 
     // MARK: - Serialization
