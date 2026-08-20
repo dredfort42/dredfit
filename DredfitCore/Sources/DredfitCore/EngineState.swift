@@ -36,6 +36,23 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// plan confirms the pain settled. Empty map = no episodes, so a state
     /// file written before this existed decodes to exactly that.
     public var sore: [Pattern: Int]
+    /// v2.20 (spec §31.2): how many CLEAN appearances the episode still needs
+    /// before it closes — the second way out, for the trainee who logs no
+    /// numbers. A clean appearance is one where the pattern was trained and
+    /// the session carried no "it was hard" signal about it; each one spends
+    /// one tick, and at zero both this and `sore` are dropped.
+    ///
+    /// It is a SEPARATE field from `sore` on purpose (spec §31.3): `sore`
+    /// holds the episode's freeze ASSIGNMENT, and two rules read it — the
+    /// 3 → 6 → 12 rest ladder and which report this is in the two-step unload
+    /// (§30.6). A counting-down `sore` would misread both, and an assignment
+    /// of 6 worn down to 3 would land the variation drop a SECOND time.
+    ///
+    /// Sparse and only ever alongside a live `sore`. A missing entry for a
+    /// live episode reads as the FULL assignment, so an episode opened before
+    /// v2.20 gets a whole confirmation window instead of closing on the first
+    /// appearance — old files need no migration.
+    public var soreLeft: [Pattern: Int]
     /// v2.12 (spec §22.3): comebacks applied in a row with no completed
     /// session between them. Each one past the first deepens the drop by one
     /// — the plan must slide faster than fitness decays, or every return in
@@ -70,13 +87,15 @@ public struct EngineState: Codable, Equatable, Sendable {
     // visible inside init(from:)/encode(to:). The wire format is unchanged.
     private enum CodingKeys: String, CodingKey {
         case counter, levels, failStreak, hasBar, frozen, lessRun, creditPaused, sore,
-             returnRun, illness, lessHist, rampWindow, timeBudgetMin, weekGain, weekAgeDays
+             soreLeft, returnRun, illness, lessHist, rampWindow, timeBudgetMin, weekGain,
+             weekAgeDays
     }
 
     public init(counter: Int, levels: [Pattern: Int],
                 failStreak: [Pattern: Int], hasBar: Bool = false,
                 frozen: [Pattern: Int] = [:], lessRun: Int = 0,
                 creditPaused: Set<Pattern> = [], sore: [Pattern: Int] = [:],
+                soreLeft: [Pattern: Int] = [:],
                 returnRun: Int = 0, illness: Int = 0, lessHist: [Pattern: Int] = [:],
                 rampWindow: Int = 0, timeBudgetMin: Int = 0,
                 weekGain: [Pattern: Int] = [:], weekAgeDays: Double = 0) {
@@ -88,6 +107,7 @@ public struct EngineState: Codable, Equatable, Sendable {
         self.lessRun = lessRun
         self.creditPaused = creditPaused
         self.sore = sore
+        self.soreLeft = soreLeft
         self.returnRun = returnRun
         self.illness = illness
         self.lessHist = lessHist
@@ -140,11 +160,20 @@ public struct EngineState: Codable, Equatable, Sendable {
             .compactMap(Pattern.init(rawValue:))).intersection(Pattern.pullSide)
         // Additive, sanitized as the reference does (§21.4): only positive
         // entries survive, values are clamped to the ladder's ceiling.
-        sore = c.contains(.sore)
+        let episodes: [Pattern: Int] = c.contains(.sore)
             ? try Self.decodeLenient(c, forKey: .sore)
                 .filter { $0.value >= 1 }
                 .mapValues { min($0, EngineConfig.freezeCapAppearances) }
             : [:]
+        sore = episodes
+        // Additive (v2.20, §31.3): the confirmation countdown. Absent for a
+        // live episode means the FULL assignment — that is how a file written
+        // before v2.20 gets a whole confirmation window rather than closing on
+        // the first appearance. An entry without a live episode is garbage.
+        let left: [Pattern: Int] = c.contains(.soreLeft)
+            ? try Self.decodeLenient(c, forKey: .soreLeft)
+            : [:]
+        soreLeft = Self.healSoreLeft(left, episodes: episodes)
         // Additive (v2.12, §22.3-22.4), garbage sanitized as the reference does.
         returnRun = Self.clamped(try c.decodeIfPresent(Int.self, forKey: .returnRun) ?? 0,
                                  0, EngineConfig.countMax)
@@ -212,6 +241,8 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// every call. On the valid domain this is the identity, which is what
     /// keeps the golden fixture bit-for-bit.
     func sanitized() -> EngineState {
+        let healedEpisodes = sore.filter { $0.value >= 1 }
+            .mapValues { Self.clamped($0, 1, EngineConfig.freezeCapAppearances) }
         var lv: [Pattern: Int] = [:]
         var fs: [Pattern: Int] = [:]
         for p in Pattern.allCases {
@@ -230,8 +261,8 @@ public struct EngineState: Codable, Equatable, Sendable {
             // The credit pause is a map over the pull slot's two branches; any
             // other pattern in there is garbage the reference filters out.
             creditPaused: creditPaused.intersection(Pattern.pullSide),
-            sore: sore.filter { $0.value >= 1 }
-                .mapValues { Self.clamped($0, 1, EngineConfig.freezeCapAppearances) },
+            sore: healedEpisodes,
+            soreLeft: Self.healSoreLeft(soreLeft, episodes: healedEpisodes),
             returnRun: Self.clamped(returnRun, 0, EngineConfig.countMax),
             illness: Self.clamped(illness, 0, EngineConfig.illnessSessions),
             lessHist: lessHist.filter { $0.value >= 1 }
@@ -242,6 +273,23 @@ public struct EngineState: Codable, Equatable, Sendable {
             weekGain: weekGain.filter { $0.value >= 1 }
                 .mapValues { Self.clamped($0, 1, EngineConfig.countMax) },
             weekAgeDays: Self.clamped(weekAgeDays, 0, Double(EngineConfig.countMax)))
+    }
+
+    /// v2.20 (spec §31.3): the confirmation countdown, healed the way the
+    /// reference heals it. A tick without a live episode is dropped; a tick
+    /// above its own assignment is impossible by construction (the countdown
+    /// starts AT the assignment and only falls), so it clamps down to it; and
+    /// a missing tick for a live episode reads as the full assignment.
+    static func healSoreLeft(_ src: [Pattern: Int],
+                             episodes: [Pattern: Int]) -> [Pattern: Int] {
+        var out: [Pattern: Int] = [:]
+        for (p, assigned) in episodes {
+            let raw = src[p] ?? 0
+            out[p] = raw >= 1
+                ? min(clamped(raw, 1, EngineConfig.freezeCapAppearances), assigned)
+                : assigned
+        }
+        return out
     }
 
     static func clamped(_ v: Int, _ lo: Int, _ hi: Int) -> Int { min(max(v, lo), hi) }

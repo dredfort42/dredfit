@@ -238,6 +238,12 @@ final class EngineV213Tests: XCTestCase {
         s.counter = 42
         s.frozen = [.squat: 3]
         s.sore = [.calf: 6]
+        // v2.20 (spec §31.3): the valid domain gained a field. A live episode
+        // with no countdown beside it is no longer a valid state — the
+        // sanitizer fills it in with the full assignment, exactly as the
+        // reference does, so that files written before v2.20 get a whole
+        // confirmation window. Identity therefore needs both halves present.
+        s.soreLeft = [.calf: 6]
         s.creditPaused = [.pullBar]
         s.lessRun = 1
         s.returnRun = 2

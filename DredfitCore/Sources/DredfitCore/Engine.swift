@@ -401,10 +401,14 @@ public enum Engine {
     /// of the current tier (`Level.tierFloor`), the second on the floor of the
     /// previous one (`Level.unload`), the streak resetting on both. The
     /// pattern is frozen with the episode marked in `sore`, and the freeze
-    /// expires into WAITING, not into growth: taps keep clamping until an
-    /// explicit fact at or above the plan confirms recovery. Every repeat
-    /// report doubles the rest up the 3 → 6 → 12 ladder; from the third on,
-    /// the level no longer moves.
+    /// expires into WAITING, not into growth: taps keep clamping until the
+    /// episode is confirmed. v2.20 (spec §31) gave that confirmation a SECOND
+    /// route: an explicit fact at or above the plan still closes the episode
+    /// on the spot and grows the level in the same move, and now a run of
+    /// `soreLeft` CLEAN appearances closes it too — growth resuming from the
+    /// NEXT appearance. Every repeat report doubles the rest up the
+    /// 3 → 6 → 12 ladder and restarts the countdown at the new assignment;
+    /// from the third report on, the level no longer moves.
     ///
     /// `pinned` is the hold-this-level request (v2.6), the second and milder
     /// way into the same freeze. The session is processed, not voided: the
@@ -448,8 +452,8 @@ public enum Engine {
         // — levels, streaks and the run of "less" stand.
         if state.illness > 0 {
             return Self.applyRestorativeSession(state: state, session: session,
-                                                skipped: skipped,
-                                                discomfort: discomfort, pinned: pinned)
+                inputs: FeedbackInputs(result: result, overrides: overrides, skipped: skipped,
+                                       discomfort: discomfort, pinned: pinned))
         }
 
         var next = state
@@ -561,17 +565,24 @@ public enum Engine {
                 continue
             }
 
-            // v2.11 (spec §21.2 p.4-5): the pain freeze ran out but the
-            // episode lives — the pattern waits, indefinitely: growth clamps,
-            // a fact may still go down, the streak stands. Only an explicit
-            // fact at or above the session's plan confirms recovery, and that
-            // same fact resumes growth — through the ordinary cap, without
-            // the zero-level calibration exception: a sore pattern at zero is
-            // unloaded history, not a blank slate.
+            // v2.11 (spec §21.2 p.4-5), revised in v2.20 (spec §31.2): the
+            // pain freeze ran out but the episode lives — the pattern waits.
+            // Growth clamps, a fact may still go down, the streak stands.
+            // There are TWO confirmations, and they are deliberately not
+            // equally fast: an explicit fact at or above the session's plan
+            // closes the episode and resumes growth in the SAME move, while a
+            // run of clean appearances closes it but leaves the growth for the
+            // next one. The second route exists because the first is
+            // unreachable by construction for someone who logs no numbers —
+            // one "it hurts" tap used to cost the movement for good (§31).
             if state.sore[p] != nil {
                 guard let confirmed = Self.soreConfirmation(&next, exercise: ex,
                                                             actual: overrides[p],
                                                             oldL: oldL, cap: cap) else {
+                    Self.spendCleanAppearance(&next, p, rating: result, fact: overrides[p], load: ex.load)
+                    // The clamp is applied whether or not that tick was the
+                    // last one: an appearance without growth is cheaper than a
+                    // tendon, so the closing session still holds the level.
                     next.levels[p] = min(newL, oldL)
                     continue
                 }
@@ -634,7 +645,7 @@ public enum Engine {
     private static func soreConfirmation(_ next: inout EngineState, exercise ex: SessionExercise,
                                          actual: Int?, oldL: Int, cap: Int) -> Int? {
         guard let actual, actual >= ex.load else { return nil }
-        next.sore.removeValue(forKey: ex.pattern)
+        Self.closeEpisode(&next, pattern: ex.pattern)
         let earned: Int
         if actual == ex.load {
             earned = min(oldL + EngineConfig.deltaPlan, oldL + cap)
@@ -649,6 +660,36 @@ public enum Engine {
             earned = min(max(factL, 0), oldL + cap)
         }
         return min(max(earned, 0), EngineConfig.levelMax)
+    }
+
+    /// v2.20 (spec §31.2 p.1-2): one appearance of a waiting pattern.
+    ///
+    /// A CLEAN appearance — the pattern was trained and the session carried no
+    /// "it was hard" signal about it — spends one tick of the countdown, and
+    /// at zero the episode closes. A "less" rating or a fact below the plan
+    /// takes the cleanliness away and the countdown stands; a fact at or above
+    /// the plan is clean (on the fast route it has already closed the episode
+    /// and never reaches here). Skips, discomfort reports and holds leave the
+    /// loop earlier and never reach here either.
+    ///
+    /// One implementation for both branches — the ordinary one and the
+    /// restorative one under the illness lens (§22.4): the same appearance
+    /// cannot mean different things depending on whether the trainee tapped
+    /// "I was sick". Growth is the caller's business, and the session that
+    /// closes an episode still keeps its clamp (§31.2 p.2).
+    private static func spendCleanAppearance(_ next: inout EngineState, _ p: Pattern,
+                                             rating: FeedbackResult, fact: Int?, load: Int) {
+        guard next.sore[p] != nil, rating != .less,
+              fact.map({ $0 >= load }) ?? true else { return }
+        let left = (next.soreLeft[p] ?? next.sore[p] ?? 0) - 1
+        if left > 0 { next.soreLeft[p] = left } else { Self.closeEpisode(&next, pattern: p) }
+    }
+
+    /// The episode is over: assignment and countdown go together — a leftover
+    /// tick with no episode behind it would just be garbage in a saved file.
+    private static func closeEpisode(_ next: inout EngineState, pattern p: Pattern) {
+        next.sore.removeValue(forKey: p)
+        next.soreLeft.removeValue(forKey: p)
     }
 
     /// A frozen pattern keeps its place in the plan at its current level but
@@ -671,6 +712,18 @@ public enum Engine {
         }
     }
 
+    /// One session's inputs as a single value. The restorative branch needs
+    /// all five of them, and an argument-count limit is not a reason to leave
+    /// one out — v2.20 needed the rating and the facts there to tell a clean
+    /// appearance from a hard one (§31.2 p.1).
+    private struct FeedbackInputs {
+        let result: FeedbackResult
+        let overrides: [Pattern: Int]
+        let skipped: Set<Pattern>
+        let discomfort: Set<Pattern>
+        let pinned: Set<Pattern>
+    }
+
     /// v2.12 (spec §22.4): the restorative session under the illness lens.
     /// The counter moves, the journal is written, the comeback series breaks,
     /// the lens ticks down, freezes spend appearances — but levels, streaks
@@ -678,8 +731,7 @@ public enum Engine {
     /// nor conclusions. The rest inputs (§21/§16) are the exception — safety
     /// outranks the gentle mode.
     private static func applyRestorativeSession(
-        state: EngineState, session: Session, skipped: Set<Pattern>,
-        discomfort: Set<Pattern>, pinned: Set<Pattern>
+        state: EngineState, session: Session, inputs: FeedbackInputs
     ) -> EngineState {
         var next = state
         next.counter = state.counter + 1
@@ -687,25 +739,32 @@ public enum Engine {
         next.illness = state.illness - 1
         for ex in session.exercises {
             let p = ex.pattern
-            if discomfort.contains(p) {
+            if inputs.discomfort.contains(p) {
                 Self.applyDiscomfortReport(&next, state: state, pattern: p)
                 continue
             }
-            if skipped.contains(p) {
-                if pinned.contains(p) {
+            if inputs.skipped.contains(p) {
+                if inputs.pinned.contains(p) {
                     next.frozen[p] = max(state.freezeRemaining(p),
                                          EngineConfig.freezeAppearances)
                 }
                 continue                            // a skip spends no appearance
             }
             let frozenLeft = state.freezeRemaining(p)
-            if pinned.contains(p) {
+            if inputs.pinned.contains(p) {
                 next.frozen[p] = max(frozenLeft, EngineConfig.freezeAppearances)
-            } else if frozenLeft > 1 {
-                next.frozen[p] = frozenLeft - 1
-            } else if frozenLeft == 1 {
-                next.frozen.removeValue(forKey: p)
+                continue
             }
+            if frozenLeft > 1 { next.frozen[p] = frozenLeft - 1; continue }
+            if frozenLeft == 1 { next.frozen.removeValue(forKey: p); continue }
+            // v2.20 (spec §31.2 p.1): an appearance under the lens spends the
+            // confirmation countdown just as an ordinary one does — the lens
+            // already spends `frozen` (§22.4), and separate arithmetic here
+            // would mean recovery counts differently depending on the "I was
+            // sick" tap. Same predicate, and the fast route stays shut under
+            // the lens: a fact at or above the plan does not confirm here, it
+            // only leaves the appearance clean.
+            Self.spendCleanAppearance(&next, p, rating: inputs.result, fact: inputs.overrides[p], load: ex.load)
         }
         return next
     }
@@ -739,11 +798,18 @@ public enum Engine {
             }
             next.frozen[p] = assigned
             next.sore[p] = assigned
+            // v2.20 (spec §31.2 p.4): the countdown restarts, and at the NEW
+            // assignment — the way back lengthens along with the rest. From
+            // here assignment and countdown agree again, which is what keeps
+            // the ladder readable after any number of clean appearances: one
+            // field could never carry both meanings (§31.3).
+            next.soreLeft[p] = assigned
         } else {
             next.levels[p] = Level.tierFloor(state.levels[p] ?? 0)
             next.failStreak[p] = 0
             next.frozen[p] = EngineConfig.freezeAppearances
             next.sore[p] = EngineConfig.freezeAppearances
+            next.soreLeft[p] = EngineConfig.freezeAppearances
         }
     }
 
