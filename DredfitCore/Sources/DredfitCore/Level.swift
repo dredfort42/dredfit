@@ -96,6 +96,20 @@ public enum Level {
         return (tier - 1) * EngineConfig.stepsPerTier
     }
 
+    /// v2.23 (spec §34.1): the floor of a TIER OR SET BAND — the bottom of the
+    /// mod-8 block the level sits in. Nothing lighter exists inside one
+    /// variation, and the evaluative descent never steps past it.
+    ///
+    /// Why a block and not a tier: on the set bands (32–47) the tier is the
+    /// same 4 throughout, but a step down across a band boundary changes both
+    /// the set count and the starting dose (`repStartBand`, §28.1) — `squat`
+    /// 32 → 31 reads as 4×4 → 3×11, 16 reps against 33. For levels 0..31 the
+    /// block and the tier coincide word for word, and this equals `tierFloor`.
+    public static func bandFloor(_ level: Int) -> Int {
+        let l = min(max(level, 0), EngineConfig.levelMax)
+        return l - (l % EngineConfig.stepsPerTier)
+    }
+
     /// v2.12 (spec §22.1/§22.4): the rung of a tier that carries a given rep
     /// dose — rep continuity. A descent into an easier variation keeps the
     /// NUMBER of reps, not the mod-8 rung: repStart grows down the tiers, so

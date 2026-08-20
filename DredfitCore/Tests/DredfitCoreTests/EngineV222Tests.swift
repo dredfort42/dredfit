@@ -371,11 +371,16 @@ final class EngineV222Tests: XCTestCase {
     func testEveryDescentZeroesTheSubStep() throws {
         var grown = seeded(20)
         grown.sub[.pull] = 2
-        // A rating down. The run is already going, so the delta is
+        // v2.23 (spec §34.1): the RATING is now the one descent that does not
+        // zero the sub-step — it gives back exactly one, walking the growth
+        // path backwards, because that is the whole point of the wave. Every
+        // descent that moves a LEVEL still zeroes it, and the five cases below
+        // are unchanged. The run is already going, so the delta is
         // session-wide (§19.2) — an unnamed "less" is otherwise targeted and
         // would simply leave `pull` holding, sub-step included.
         grown.lessRun = EngineConfig.lessRunToGlobal
-        XCTAssertEqual(tap(grown, .less).sub[.pull] ?? 0, 0, "a 'less' zeroes it")
+        assertDescended(tap(grown, .less), .pull, from: grown.position(.pull), by: 1,
+                        "a 'less' gives back one sub-step instead of zeroing it")
         // A fact below the base dose.
         let session = Engine.generateSession(grown)
         let pull = try XCTUnwrap(session.exercises.first { $0.pattern == .pull })
@@ -394,14 +399,30 @@ final class EngineV222Tests: XCTestCase {
 
     /// Giving up sub-steps without losing a level is not a shortfall — the
     /// streak must not start counting toward a deload for it.
-    func testDroppingSubStepsAloneIsNotAShortfall() {
+    func testDroppingSubStepsAloneIsNotAShortfall() throws {
+        // v2.23 (spec §34.2): the claim belongs to the EXACT-FACT path, which
+        // is where §33.5 put it — the streak there reads the level. It used to
+        // be shown on the rating path because both paths read the level then;
+        // now the rating path counts the INTENT (the second half of this test),
+        // and the fact path is the one that still holds the original claim.
         var state = seeded(0)
         state.sub[.pull] = 2
+        let session = Engine.generateSession(state)
+        let pull = try XCTUnwrap(session.exercises.first { $0.pattern == .pull })
+        let byFact = Engine.applyFeedback(state: state, session: session, result: .plan,
+                                          overrides: [.pull: max(0, pull.load - 3)])
+        XCTAssertEqual(byFact.levels[.pull], 0, "there is nowhere below zero to go")
+        XCTAssertEqual(byFact.sub[.pull] ?? 0, 0, "the sub-steps go")
+        XCTAssertEqual(byFact.failStreak[.pull], 0, "but it is not an underperformance")
+
+        // The rating path, by contrast, counts the intent — and must, or on a
+        // block floor "hard" would be an inert tap: no streak, no deload, no
+        // way out of a variation that is beyond its owner (§34.2).
         state.lessRun = EngineConfig.lessRunToGlobal    // session-wide delta (§19.2)
-        let after = tap(state, .less)
-        XCTAssertEqual(after.levels[.pull], 0, "there is nowhere below zero to go")
-        XCTAssertEqual(after.sub[.pull] ?? 0, 0, "the sub-steps go")
-        XCTAssertEqual(after.failStreak[.pull], 0, "but it is not an underperformance")
+        let byRating = tap(state, .less)
+        XCTAssertEqual(byRating.levels[.pull], 0, "the level still cannot go below zero")
+        XCTAssertEqual(byRating.sub[.pull] ?? 0, 1, "one sub-step is given back")
+        XCTAssertEqual(byRating.failStreak[.pull], 1, "and the intent to descend counts")
     }
 
     // MARK: - The gate takes pairs

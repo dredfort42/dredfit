@@ -58,6 +58,56 @@ per session (spec §5), and the collapse happens in the app. Journals and
 interrupted-workout snapshots written by earlier builds decode as they always
 did — a single stored number simply means every set ran at it.
 
+### Engine v2.23.0 — "tough" steps back the way it came (issue #149)
+
+Saying a session was tough could hand you five times the work. A movement went
+down a whole level, and a level down often crosses the boundary between two
+variations — landing not at the easy end of the one below but in the middle of
+it, where the dose starts higher. The plank on a longer lever went from 3×10 s
+to 3×31 s. The hinge went from 3×4 on one leg to 3×12 across both. You said it
+was hard, and the plan grew. The "no harder" check that has guarded honest
+numbers since v2.14 never saw any of it: it stands on the path where you type
+what you did, and the rating had no gate at all.
+
+- **"Tough" gives back exactly what the last step up added.** One set's worth,
+  the same rung the growth event climbed, walked backwards: 9-9-8 becomes
+  9-8-8 becomes 3×8. The variation, the sets and the unit stay where they are,
+  so the plan cannot get heavier — not because something checks it, but
+  because there is no way there.
+- **On the bottom rung of a variation the plan stands.** There is nothing
+  lighter to ask for inside a movement you already do at its smallest dose,
+  and changing the movement is not what a session rating is for — that belongs
+  to a pain report and to the deload.
+- **Three tough sessions in a row are a different statement.** They still
+  change the movement: the deload takes the plan a variation down, and for the
+  first time that roll-back goes through the same "no harder" check as
+  everything else. It used to be the one descent with no check at all, and it
+  could land you on more work than you started with — from 3×10 s onto 3×31 s,
+  the very jump this release closes elsewhere. Now it lands on the smallest
+  dose of the easier variation, exactly where a second pain report lands.
+- **An impossible plan still comes down.** The guarantee is measured in the
+  step the regulator now takes: from level 20, seven descent events to reach a
+  manageable average, against a ceiling of eleven. What holds it is the
+  deload — on the bottom rung the plan stands, but the count of tough sessions
+  keeps running, and every third appearance drops the movement a variation.
+- **Typing what you actually did is untouched.** An exact number is a claim
+  about a dose, not about fatigue, and it still moves the plan by levels,
+  under the check it has always had. Nothing on that path moved by a bit.
+
+Three consequences, all measured and all accepted. On the bottom rung of a
+variation two taps of "tough" change nothing you can see and the third does —
+the price of never swapping your movement out on a single tap. A movement that
+is rarely the one the rating aims at can park one level higher than before,
+where the step down would have crossed into a harder variation anyway. And the
+aim has become stickier: because a step down usually leaves the level where it
+was, the tallest movement stays the aim instead of handing it on, so a run of
+hard sessions concentrates on one movement rather than smearing across six —
+the healthy movements average 18.0 of a capacity of 20 against 16.9 before,
+six of the eight sit exactly at capacity, and the one that gives way gives way
+further.
+
+Levels are not recalculated and the state file needs no migration.
+
 ### Engine v2.22.0 — one set at a time, and goodbye to "hold this level" (issues #150, #151)
 
 Getting harder meant every set at once. One step of a level added its dose to
