@@ -199,31 +199,38 @@ final class WorkoutSnapshotTests: XCTestCase {
         XCTAssertNil(reloaded.resumableWorkout()?.discomfort)
     }
 
-    /// A hold request is progress worth offering back on its own — the
-    /// workout must not come back with the request lost.
-    func testAPinAloneMakesASnapshotResumable() {
+    /// v2.22 (spec §33): re-marked from `testAPinAloneMakesASnapshotResumable`.
+    /// The hold request is cancelled; a pain report is the remaining per-movement
+    /// mark that is progress worth offering back on its own.
+    func testAPainReportAloneMakesASnapshotResumable() {
         let store = AppStore(storageURL: tempURL)
         store.saveWorkoutSnapshot(WorkoutSnapshot(
             sessionNumber: 1, exIndex: 0, setIndex: 0,
-            pinned: [.squat],
+            discomfort: [.squat],
             workoutStart: .now.addingTimeInterval(-5 * 60), savedAt: .now,
             fingerprint: WorkoutSnapshot.fingerprint(of: store.nextSession)))
         let resumed = store.resumableWorkout()
-        XCTAssertNotNil(resumed, "something was asked for — the card must show")
-        XCTAssertEqual(resumed?.pinned, [.squat])
+        XCTAssertNotNil(resumed, "something was said — the card must show")
+        XCTAssertEqual(resumed?.discomfort, [.squat])
     }
 
-    /// A snapshot written before the pinned field existed still decodes —
-    /// and an empty set is never written at all.
-    func testSnapshotWithoutThePinnedFieldStillResumes() throws {
+    /// A snapshot carrying the cancelled key still decodes: an unknown field
+    /// is ignored, so a workout interrupted before the update comes back.
+    func testASnapshotWithTheCancelledKeyStillResumes() throws {
         let store = AppStore(storageURL: tempURL)
+        let fingerprint = WorkoutSnapshot.fingerprint(of: store.nextSession)
         store.saveWorkoutSnapshot(makeSnapshot(for: store))
-        let raw = try XCTUnwrap(String(data: try Data(contentsOf: tempURL), encoding: .utf8))
+        var raw = try XCTUnwrap(String(data: try Data(contentsOf: tempURL), encoding: .utf8))
         XCTAssertFalse(raw.contains("\"pinned\""),
-                       "an empty request must not be written at all")
+                       "the cancelled key is never written again")
+        // Splice it back in the way a pre-v2.22 build would have written it.
+        raw = raw.replacingOccurrences(
+            of: "\"fingerprint\" : \"\(fingerprint)\"",
+            with: "\"pinned\" : [\"squat\"],\n    \"fingerprint\" : \"\(fingerprint)\"")
+        try Data(raw.utf8).write(to: tempURL)
         let reloaded = AppStore(storageURL: tempURL)
-        XCTAssertNotNil(reloaded.resumableWorkout())
-        XCTAssertNil(reloaded.resumableWorkout()?.pinned)
+        XCTAssertNotNil(reloaded.resumableWorkout(),
+                        "an unknown key must not take the snapshot down")
     }
 
     func testSnapshotWithoutFingerprintIsNotOffered() {

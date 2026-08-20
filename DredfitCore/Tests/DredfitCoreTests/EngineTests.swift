@@ -120,12 +120,14 @@ final class EngineTests: XCTestCase {
     // MARK: Regulator scenarios
 
     func testAlwaysPlanReachesCeiling() {
+        // v2.22 (spec §33): 400 sessions, not 80 — the scale is 153 sub-steps
+        // tall now, and a growth event is worth one of them.
         var state = EngineState.initial
-        for _ in 0..<80 {
+        for _ in 0..<400 {
             let s = Engine.generateSession(state)
             state = Engine.applyFeedback(state: state, session: s, result: .plan)
         }
-        // pull: +80; the rest: 5/8 × 80 = +50 — all above the ceiling of 47
+        // pull: +400 sub-steps; the rest 5/8 of that — all above the scale
         for p in Pattern.ordered {
             XCTAssertEqual(state.levels[p], EngineConfig.levelMax, "\(p) not at the ceiling")
         }
@@ -197,11 +199,15 @@ final class EngineTests: XCTestCase {
             guard inSession else { continue }
             drops += 1
             let diff = before - state.levels[probe]!
+            // v2.22 (spec §33): a descent stays in WHOLE levels, so these two
+            // numbers do not move; the sub-step is zeroed alongside.
+            XCTAssertEqual(state.sub[probe] ?? 0, 0, "a descent zeroes the sub-step")
             if drops % EngineConfig.failsToDeload == 0 {
-                XCTAssertEqual(diff, 1 + EngineConfig.deloadDrop, "deload on the 3rd underperformance")
+                XCTAssertEqual(diff, min(before, 1 + EngineConfig.deloadDrop),
+                               "deload on the 3rd underperformance")
                 deloadSeen = true
             } else {
-                XCTAssertEqual(diff, 1)
+                XCTAssertEqual(diff, min(before, 1))
             }
         }
         XCTAssertTrue(deloadSeen)
@@ -220,12 +226,19 @@ final class EngineTests: XCTestCase {
 
         // The cap still applies once the level is non-zero. Uses pull, which is
         // in every session, so the override is guaranteed to land.
-        let before = next.levels[.pull] ?? 0
+        // v2.22 (spec §33): pull has no fact on the first step here, so "plan"
+        // gives it one SUB-STEP and its level is still zero — the cap is checked
+        // from an explicitly seeded non-zero level, and it counts sub-steps.
+        var seed = next
+        seed.levels[.pull] = 5
+        seed.sub[.pull] = 0
+        let before = seed.levels[.pull] ?? 0
         XCTAssertGreaterThan(before, 0, "pull must be above zero for the cap to apply")
-        let capped = Engine.applyFeedback(state: next, session: Engine.generateSession(next),
+        let capped = Engine.applyFeedback(state: seed, session: Engine.generateSession(seed),
                                           result: .plan, overrides: [.pull: 99])
-        XCTAssertEqual(capped.levels[.pull], before + EngineConfig.maxUpPerSession,
-                       "above zero the +2 cap is unchanged")
+        assertPosition(capped, .pull,
+                       Level.rise(level: before, sub: 0, by: EngineConfig.maxUpPerSession),
+                       "above zero the +2 cap is unchanged, now in sub-steps")
     }
 
     func testDeterminism() {
@@ -274,10 +287,10 @@ final class EngineTests: XCTestCase {
                                "\(result)/\(p): a skipped pattern must not change streak")
                 XCTAssertEqual(after.counter, state.counter + 1)
                 // a neighbour still moves by the ordinary delta
+                // v2.22 (spec §33): in SUB-STEPS, derived from the rule.
                 let other = s.exercises.first { $0.pattern != p }!.pattern
-                let expected = min(max((state.levels[other] ?? 0) + result.delta, 0),
-                                   EngineConfig.levelMax)
-                XCTAssertEqual(after.levels[other], expected,
+                assertPosition(after, other,
+                               expectedPosition(state, other, delta: result.delta),
                                "\(result)/\(p): neighbour \(other) moved wrong")
             }
         }
@@ -341,7 +354,7 @@ final class EngineTests: XCTestCase {
         let deloaded = Engine.applyFeedback(state: frozen.underLessRun,
                                             session: Engine.generateSession(frozen),
                                             result: .less)
-        XCTAssertEqual(deloaded.levels[.pull], level - 1 - EngineConfig.deloadDrop,
+        XCTAssertEqual(deloaded.levels[.pull], max(0, level - 1 - EngineConfig.deloadDrop),
                        "the 3rd real fail after a freeze must deload")
         XCTAssertEqual(deloaded.failStreak[.pull], 0, "deload must reset the streak")
     }

@@ -85,12 +85,13 @@ public enum EngineConfig {
     public static let comebackStepDays = 21
     public static let comebackMax = 8
     public static let silentDecayGapDays = 7
-    /// How many of a pattern's next APPEARANCES stay frozen after either of
-    /// the inputs that arm the rest: a discomfort report (v2.5) or a
-    /// hold-this-level request, `pinned` (v2.6). Counted in appearances, not
-    /// sessions: a rotating pattern shows up in about five sessions out of
-    /// eight, so "three sessions" would make the actual rest unpredictable.
-    /// Three ≈ a calendar week.
+    /// How many of a pattern's next APPEARANCES stay frozen after a discomfort
+    /// report (v2.5). Counted in appearances, not sessions: a rotating pattern
+    /// shows up in about five sessions out of eight, so "three sessions" would
+    /// make the actual rest unpredictable. Three ≈ a calendar week.
+    /// v2.22 (spec §33): the second way into the same freeze — the
+    /// hold-this-level request — is cancelled, so the constant has one consumer
+    /// again.
     public static let freezeAppearances = 3
     /// v2.11 (spec §21.2): the rest ladder's ceiling for repeated pain
     /// reports — the assignment doubles 3 → 6 → 12 and stops here
@@ -309,9 +310,14 @@ public enum Engine {
     /// Where a single reported number puts the level (spec §12.1/§18.1/§25).
     /// Pulled out of `applyFeedback` so the three v2.14 rules read together —
     /// and so that function stays inside the lint's body-length ceiling.
-    private static func levelFromPointFact(pattern p: Pattern, exercise ex: SessionExercise,
-                                           actual: Int, oldL: Int, cap: Int,
-                                           calibratedUp: inout [Pattern]) -> Int {
+    ///
+    /// v2.22 (spec §33): answers a POSITION. Inside the "plan was met" window a
+    /// growth event is worth one SUB-STEP; above the window the inversion still
+    /// answers a level, but the rise is capped in sub-steps; below the base dose
+    /// it is a descent, which stays in whole levels and zeroes the sub-step.
+    private static func positionFromPointFact(pattern p: Pattern, exercise ex: SessionExercise,
+                                              actual: Int, oldL: Int, oldSub: Int, cap: Int,
+                                              calibratedUp: inout [Pattern]) -> Position {
         // v2.14 (spec §25.2): the inversion reads the pattern's TRUE set band,
         // not the shown one. The §20.2 gate clamps the PLAN, not the state —
         // but the fact was inverted against the trimmed sets, so an honest
@@ -328,39 +334,97 @@ public enum Engine {
         // that old equality.
         // v2.21 (spec §32.4): the window is one LOCAL rung of the ladder, not
         // five seconds, and it is read off the same band the inversion uses.
+        // v2.22 (spec §33): the window is measured from the plan's BASE dose —
+        // `ex.load` IS the minimum of an uneven plan.
         let window = Level.step(of: ex.unit, tier: ex.tier,
                                 sets: Level.decode(oldL).sets, load: ex.load)
+        let oldOrdinal = Level.ordinal(level: oldL, sub: oldSub)
         if actual >= ex.load && actual < ex.load + window {
-            return min(oldL + EngineConfig.deltaPlan, oldL + cap)
+            return Level.rise(level: oldL, sub: oldSub,
+                              by: min(EngineConfig.deltaPlan, cap))
         }
         // Calibration: from a zero level the per-session cap does not apply —
         // but the reps→level inversion is only valid one tier out (v2.7, spec
         // §17.1): the result is bounded by the neighboring tier's ceiling,
-        // slow tissues by tier 1's.
+        // slow tissues by tier 1's. That ceiling bounds where a fact may LAND,
+        // so it is a level and stays one (§33.3); the landing carries a zero
+        // sub-step.
         if oldL == 0 {
             let zeroCeil = EngineConfig.isSlowTissue(p)
                 ? EngineConfig.stepsPerTier - 1
                 : 2 * EngineConfig.stepsPerTier - 1
             let landed = min(max(factL, 0), zeroCeil)
             if landed > 0 { calibratedUp.append(p) }
-            return landed
+            return Position(level: landed, sub: 0)
+        }
+        let factOrdinal = Level.ordinal(level: min(max(factL, 0), EngineConfig.levelMax), sub: 0)
+        if factOrdinal > oldOrdinal {
+            return Level.position(atOrdinal: min(factOrdinal, oldOrdinal + cap))
         }
         // v2.14 (spec §25.3): a descent may not make the plan heavier.
-        return Level.descendNoHarder(pattern: p, from: oldL,
-                                     factLevel: min(max(factL, 0), oldL + cap))
+        return Position(level: Level.descendNoHarder(pattern: p, from: oldL,
+                                                     factLevel: factL, fromSub: oldSub),
+                        sub: 0)
+    }
+
+    /// Where a session-wide RATING lands a pattern (spec §5, §19.1, §26.1,
+    /// §28.4).
+    ///
+    /// "More" runs through the same ceiling; downward moves never do. A
+    /// targeted "less" reaches its aim only and every other movement holds —
+    /// holding is not underperforming. A chronic aim takes a double step, or
+    /// the descent to a manageable level costs 31 appearances while "less"
+    /// grinds down the healthy movements. And while the comeback window is
+    /// open "more" is credited as "plan": the levels came back, the tissue did
+    /// not.
+    ///
+    /// v2.22 (spec §33): up by SUB-STEPS; down by whole levels, and a descent
+    /// zeroes the sub-step. The asymmetry is deliberate — the §19.2 guarantee
+    /// ("from 20 to a manageable 10 in about 11 sessions") would stretch
+    /// threefold if "less" took one set at a time. `chronicStep` is a descent
+    /// too, so it stays in levels: only what bounds a RISE is read in
+    /// sub-steps.
+    private static func positionFromRating(
+        pattern p: Pattern, result: FeedbackResult, from entry: Position,
+        cap: Int, rampLeft: Int, lessTargets: Set<Pattern>?, chronic: Set<Pattern>
+    ) -> Position {
+        let effective: FeedbackResult = rampLeft > 0 && result == .more ? .plan : result
+        let sessionDelta: Int
+        if let targets = lessTargets {
+            sessionDelta = targets.contains(p)
+                ? (chronic.contains(p) ? EngineConfig.chronicStep : EngineConfig.deltaLess)
+                : 0
+        } else {
+            sessionDelta = effective.delta
+        }
+        let rampCap = rampLeft > 0 ? min(cap, EngineConfig.deltaPlan) : cap
+        if sessionDelta > 0 {
+            return Level.rise(level: entry.level, sub: entry.sub,
+                              by: min(sessionDelta, rampCap))
+        }
+        if sessionDelta < 0 {
+            return Position(
+                level: min(max(entry.level + sessionDelta, 0), EngineConfig.levelMax), sub: 0)
+        }
+        return entry   // holds
     }
 
     /// v2.9 (spec §19.1): movements the user pointed at during the workout —
     /// an exact number below the plan, a discomfort report, a hold request.
+    /// v2.22 (spec §33): the hold request is gone from this list — the input
+    /// itself is cancelled. Two named signals are left: an exact number below
+    /// the plan's BASE dose, and a discomfort report.
     private static func namedMovements(
-        session: Session, overrides: [Pattern: Int],
-        discomfort: Set<Pattern>, pinned: Set<Pattern>
+        session: Session, overrides: [Pattern: Int], discomfort: Set<Pattern>
     ) -> Set<Pattern> {
         var named: Set<Pattern> = []
         for ex in session.exercises {
             let p = ex.pattern
-            if discomfort.contains(p) || pinned.contains(p) { named.insert(p) }
-            else if let actual = overrides[p], actual < ex.load { named.insert(p) }
+            if discomfort.contains(p) {
+                named.insert(p)
+            } else if let actual = overrides[p], actual < ex.load {
+                named.insert(p)
+            }
         }
         return named
     }
@@ -448,14 +512,18 @@ public enum Engine {
     /// 3 → 6 → 12 ladder and restarts the countdown at the new assignment;
     /// from the third report on, the level no longer moves.
     ///
-    /// `pinned` is the hold-this-level request (v2.6), the second and milder
-    /// way into the same freeze. The session is processed, not voided: the
-    /// rating applies, a fact applies and may still take the level DOWN — but
-    /// growth clamps to the old level, the streak neither grows nor resets,
-    /// and the pattern is then frozen. A pin expires into growth as before —
-    /// a request is not an injury — and never shortens a pain freeze. The
-    /// v2.6 identity discomfort ≡ pinned + skipped is superseded (§21.2):
-    /// discomfort = pinned + skipped + unload + a confirmation gate.
+    /// v2.22 (spec §33): growth moves by SUB-STEPS. What used to be "+1 level"
+    /// is "+1 sub-step": one of the pattern's sets takes the next rung's dose,
+    /// and the level rises only once every set carries it. Every ceiling that
+    /// bounds a RISE counts sub-steps — the §15.3 cell, the §28.5 weekly
+    /// window, the §28.4 ramp — which is what keeps §28.5 free for an honest
+    /// three-a-week rhythm: three "plan" sessions are three sub-steps, exactly
+    /// the slow budget, just as three sessions used to be three levels.
+    /// Descents stay in WHOLE levels and zero the sub-step, so the §19.2
+    /// guarantee does not stretch.
+    ///
+    /// The hold-this-level request (v2.6) is cancelled by the same wave, and
+    /// `gapDays` moved into its place as the seventh parameter.
     public static func applyFeedback(
         state dirty: EngineState,
         session: Session,
@@ -463,7 +531,6 @@ public enum Engine {
         overrides dirtyOverrides: [Pattern: Int] = [:],
         skipped: Set<Pattern> = [],
         discomfort: Set<Pattern> = [],
-        pinned: Set<Pattern> = [],
         /// v2.17 (spec §28.5): the one aggregate the engine needs to stop
         /// daily training from multiplying its way around the §15.3 caps.
         /// `nil` = the app supplies no signal, and the engine stays
@@ -491,7 +558,7 @@ public enum Engine {
         if state.illness > 0 {
             return Self.applyRestorativeSession(state: state, session: session,
                 inputs: FeedbackInputs(result: result, overrides: overrides, skipped: skipped,
-                                       discomfort: discomfort, pinned: pinned))
+                                       discomfort: discomfort))
         }
 
         var next = state
@@ -500,7 +567,7 @@ public enum Engine {
 
         // v2.9 (spec §19.1): who receives the SESSION-WIDE "less".
         let named = Self.namedMovements(session: session, overrides: overrides,
-                                        discomfort: discomfort, pinned: pinned)
+                                        discomfort: discomfort)
         // v2.15 (spec §26.1): the appearance window. Every exercise of the
         // session shifts its own mask — 1 when the session was rated an
         // unnamed "less". A named "less" writes nothing: it is already
@@ -540,66 +607,49 @@ public enum Engine {
                 Self.applyDiscomfortReport(&next, state: state, pattern: p)
                 continue
             }
-            if skipped.contains(p) {
-                // A pin still arms the rest through a skip — the two effects
-                // are orthogonal, which is why pinned + skipped behaves
-                // exactly as discomfort does.
-                if pinned.contains(p) { next.frozen[p] = EngineConfig.freezeAppearances }
-                continue
-            }
+            if skipped.contains(p) { continue }
             // "Frozen when this session started" — read from `state`, never
-            // from `next`: a pin writes `next.frozen` for this very pattern
-            // below, and reading the fresh value would consume the reporting
-            // appearance. The reference reads from its `state` the same way.
+            // from `next`: a discomfort report writes `next.frozen` and leaves
+            // the iteration at once, and leaning on that order would be an
+            // accident. Both implementations read the entry state.
             let frozenLeft = state.freezeRemaining(p)
             let oldL = state.levels[p] ?? 0
+            // v2.22 (spec §33): the whole position. Everything that moves a
+            // pattern up works on the PAIR — a level alone cannot describe it.
+            let oldSub = state.sub[p] ?? 0
+            let oldOrdinal = Level.ordinal(level: oldL, sub: oldSub)
             // The tier is read from the level before the update, not from the
             // session — same thing today, and the rule stays true if a session
             // ever outlives the state it was generated from.
+            // v2.22 (spec §33): the cell counts SUB-STEPS — a "2" means two
+            // sub-steps, not two levels. That is what drops the worst relative
+            // step of one growth event from 25 % to 8.3 % on reps.
             let cap = EngineConfig.maxUp(pattern: p, tier: Level.decode(oldL).tier)
-            var newL: Int
+            var position: Position
 
             if let actual = overrides[p] {
-                newL = Self.levelFromPointFact(pattern: p, exercise: ex, actual: actual,
-                                               oldL: oldL, cap: cap,
-                                               calibratedUp: &calibratedUp)
+                position = Self.positionFromPointFact(
+                    pattern: p, exercise: ex, actual: actual, oldL: oldL, oldSub: oldSub,
+                    cap: cap, calibratedUp: &calibratedUp)
             } else {
-                // "More" runs through the same ceiling; downward moves never do.
-                // v2.9 (§19.1): a targeted "less" reaches its aim only; every
-                // other movement holds — holding is not underperforming.
-                // v2.15 (spec §26.1): a chronic aim takes a double step —
-                // otherwise the descent to a manageable level costs 31
-                // appearances, and all that time the sessions keep failing
-                // while "less" grinds down the healthy movements.
-                // v2.17 (spec §28.4): while the window is open, "more" is
-                // credited as "plan" — a comeback dropped the levels, but the
-                // tissue does not come back with the number.
-                let effective: FeedbackResult = rampLeft > 0 && result == .more ? .plan : result
-                let sessionDelta: Int
-                if let targets = lessTargets {
-                    sessionDelta = targets.contains(p)
-                        ? (chronic.contains(p) ? EngineConfig.chronicStep : EngineConfig.deltaLess)
-                        : 0
-                } else {
-                    sessionDelta = effective.delta
-                }
-                let rampCap = rampLeft > 0 ? min(cap, EngineConfig.deltaPlan) : cap
-                newL = min(oldL + sessionDelta, oldL + rampCap)
+                position = Self.positionFromRating(
+                    pattern: p, result: result, from: Position(level: oldL, sub: oldSub),
+                    cap: cap, rampLeft: rampLeft, lessTargets: lessTargets, chronic: chronic)
             }
-            newL = min(max(newL, 0), EngineConfig.levelMax)
+            position = Position(level: min(max(position.level, 0), EngineConfig.levelMax),
+                                sub: position.sub)
+            var newL = position.level
 
             // A frozen pattern keeps its place in the plan at its current
             // level but cannot grow; a fact may still take it DOWN — the
             // athlete's honesty is never overridden. The streak neither grows
-            // nor resets, so a deload cannot fire on top of a freeze. A pin
-            // runs through the same arithmetic, then arms the rest AFTER the
-            // level update: the reporting appearance is never spent. v2.11
-            // (spec §21.2 p.7): a pin arms the rest through max() and never
-            // shortens a pain freeze — before v2.11 frozenLeft never exceeded
-            // N, so max() reproduces the old "refresh to N" bit for bit.
-            if frozenLeft > 0 || pinned.contains(p) {
-                Self.applyFreezeTick(&next, pattern: p, level: min(newL, oldL),
-                                     frozenLeft: frozenLeft, pinned: pinned.contains(p))
+            // nor resets, so a deload cannot fire on top of a freeze.
+            // v2.22 (spec §33): "cannot grow" clamps the POSITION, not the
+            // level — a sub-step is growth too.
+            if frozenLeft > 0 {
+                let held = Level.position(atOrdinal: min(Level.ordinal(position), oldOrdinal))
+                Self.applyFreezeTick(&next, pattern: p, position: held,
+                                     frozenLeft: frozenLeft)
                 continue
             }
 
@@ -614,23 +664,31 @@ public enum Engine {
             // unreachable by construction for someone who logs no numbers —
             // one "it hurts" tap used to cost the movement for good (§31).
             if state.sore[p] != nil {
-                guard let confirmed = Self.soreConfirmation(&next, exercise: ex,
-                                                            actual: overrides[p],
-                                                            oldL: oldL, cap: cap) else {
+                guard let confirmed = Self.soreConfirmation(
+                    &next, exercise: ex, actual: overrides[p],
+                    oldL: oldL, oldSub: oldSub, cap: cap) else {
                     Self.spendCleanAppearance(&next, p, rating: result, fact: overrides[p], load: ex.load)
                     // The clamp is applied whether or not that tick was the
                     // last one: an appearance without growth is cheaper than a
-                    // tendon, so the closing session still holds the level.
-                    next.levels[p] = min(newL, oldL)
+                    // tendon, so the closing session still holds the position.
+                    let held = Level.position(atOrdinal: min(Level.ordinal(position), oldOrdinal))
+                    Self.setPosition(&next, p, held)
                     continue
                 }
-                newL = confirmed
+                position = confirmed
+                newL = confirmed.level
             }
 
+            // v2.22 (spec §33): the streak reads the LEVEL, not the position.
+            // Giving up sub-steps without losing a level is not a shortfall —
+            // otherwise a descent from `(L, 2)` to `(L, 0)` would start the
+            // count toward a deload, while the work has fallen by exactly what
+            // was not done. At `sub == 0` the branch is bit-for-bit the old one.
             if newL < oldL {
                 let streak = (state.failStreak[p] ?? 0) + 1
                 if streak >= EngineConfig.failsToDeload {
                     newL = min(max(newL - EngineConfig.deloadDrop, 0), EngineConfig.levelMax)
+                    position = Position(level: newL, sub: 0)      // a deload is a descent
                     next.failStreak[p] = 0
                 } else {
                     next.failStreak[p] = streak
@@ -638,12 +696,12 @@ public enum Engine {
             } else {
                 next.failStreak[p] = 0
             }
-            next.levels[p] = newL
+            Self.setPosition(&next, p, position)
         }
 
         Self.applyHumbleGroupLanding(&next, calibratedUp: calibratedUp)
         Self.applyCrossCredit(&next, state: state, session: session, result: result,
-                              overrides: overrides, discomfort: discomfort, pinned: pinned)
+                              overrides: overrides, discomfort: discomfort)
         // v2.17 (spec §28.5): the weekly ceiling is applied ONCE, after every
         // rise this session — the cross-credit included, or it would walk
         // around the budget: with a bar the branch grows on credit every other
@@ -659,18 +717,34 @@ public enum Engine {
     /// session, and the measurement gave 25 levels over 28 daily sessions
     /// instead of twelve. Slow tissue (both pull branches, calves) may rise
     /// three levels a week, everything else six.
+    /// v2.22 (spec §33): the budget is counted in SUB-STEPS. §28.5's property
+    /// — "the rule costs an honest three-a-week rhythm nothing" — survives
+    /// verbatim: three "plan" sessions are three sub-steps, exactly the slow
+    /// budget, where three sessions used to be three levels. A daily rhythm is
+    /// held harder than before, which is the direction the rule exists for.
     private static func applyWeeklyCeiling(_ next: inout EngineState, state: EngineState,
                                            weekGain: inout [Pattern: Int]) {
         for p in Pattern.allCases {
-            let rise = (next.levels[p] ?? 0) - (state.levels[p] ?? 0)
+            let entry = state.position(p)
+            let rise = Level.subRise(from: entry, to: next.position(p))
             guard rise > 0 else { continue }
             let budget = EngineConfig.isSlowTissue(p) || Pattern.pullSide.contains(p)
                 ? EngineConfig.weeklyRiseSlow : EngineConfig.weeklyRiseFast
             let spent = weekGain[p] ?? 0
             let granted = min(rise, max(0, budget - spent))
-            next.levels[p] = (state.levels[p] ?? 0) + granted
+            Self.setPosition(&next, p,
+                             Level.rise(level: entry.level, sub: entry.sub, by: granted))
             if granted > 0 { weekGain[p] = spent + granted }
         }
+    }
+
+    /// v2.22 (spec §33): writing a position. Sparseness is part of the
+    /// contract: a zero is never stored, so a state that descended is
+    /// byte-identical to one that never carried a sub-step at all.
+    static func setPosition(_ next: inout EngineState, _ p: Pattern, _ position: Position) {
+        next.levels[p] = position.level
+        let sub = Level.effectiveSub(level: position.level, sub: position.sub)
+        if sub > 0 { next.sub[p] = sub } else { next.sub.removeValue(forKey: p) }
     }
 
     /// v2.11 (spec §21.2 p.4-5): the pain freeze ran out but the episode
@@ -680,24 +754,30 @@ public enum Engine {
     /// calibration exception: a sore pattern at zero is unloaded history, not
     /// a blank slate. Returns the level the fact earns, or `nil` when the
     /// pattern only waits — then the caller holds it where it was.
+    /// v2.22 (spec §33): the fast route resumes growth in SUB-STEPS, like the
+    /// main branch. Under a live episode the sub-step is always zero — the
+    /// report zeroed it and growth stayed clamped — so the plan's base equals
+    /// the plan here.
     private static func soreConfirmation(_ next: inout EngineState, exercise ex: SessionExercise,
-                                         actual: Int?, oldL: Int, cap: Int) -> Int? {
+                                         actual: Int?, oldL: Int, oldSub: Int,
+                                         cap: Int) -> Position? {
         guard let actual, actual >= ex.load else { return nil }
         Self.closeEpisode(&next, pattern: ex.pattern)
-        let earned: Int
+        let oldOrdinal = Level.ordinal(level: oldL, sub: oldSub)
         if actual == ex.load {
-            earned = min(oldL + EngineConfig.deltaPlan, oldL + cap)
-        } else {
-            // v2.17 (spec §28.0): the inversion reads the TRUE set band, as
-            // the main fact branch has since v2.14 (§25.2). This one stayed on
-            // the shown sets, so the §20.2 gate turned an honest overshoot
-            // into a collapse: push_v at 44, trimmed to 3×8, answered with 9
-            // reps, fell to 29.
-            let factL = Level.fromActual(pattern: ex.pattern, tier: ex.tier,
-                                         sets: Level.decode(oldL).sets, actual: actual)
-            earned = min(max(factL, 0), oldL + cap)
+            return Level.rise(level: oldL, sub: oldSub,
+                              by: min(EngineConfig.deltaPlan, cap))
         }
-        return min(max(earned, 0), EngineConfig.levelMax)
+        // v2.17 (spec §28.0): the inversion reads the TRUE set band, as the
+        // main fact branch has since v2.14 (§25.2). This one stayed on the
+        // shown sets, so the §20.2 gate turned an honest overshoot into a
+        // collapse: push_v at 44, trimmed to 3×8, answered with 9 reps, fell
+        // to 29.
+        let factL = min(max(Level.fromActual(pattern: ex.pattern, tier: ex.tier,
+                                             sets: Level.decode(oldL).sets, actual: actual),
+                            0), EngineConfig.levelMax)
+        return Level.position(atOrdinal: min(Level.ordinal(level: factL, sub: 0),
+                                             oldOrdinal + cap))
     }
 
     /// v2.20 (spec §31.2 p.1-2): one appearance of a waiting pattern.
@@ -739,11 +819,9 @@ public enum Engine {
     /// v2.11 `frozenLeft` never exceeded N, so max() reproduces the old
     /// "refresh to N" bit for bit.
     private static func applyFreezeTick(_ next: inout EngineState, pattern p: Pattern,
-                                        level: Int, frozenLeft: Int, pinned: Bool) {
-        next.levels[p] = level
-        if pinned {
-            next.frozen[p] = max(frozenLeft, EngineConfig.freezeAppearances)
-        } else if frozenLeft > 1 {
+                                        position: Position, frozenLeft: Int) {
+        Self.setPosition(&next, p, position)
+        if frozenLeft > 1 {
             next.frozen[p] = frozenLeft - 1
         } else {
             next.frozen.removeValue(forKey: p)
@@ -759,7 +837,6 @@ public enum Engine {
         let overrides: [Pattern: Int]
         let skipped: Set<Pattern>
         let discomfort: Set<Pattern>
-        let pinned: Set<Pattern>
     }
 
     /// v2.12 (spec §22.4): the restorative session under the illness lens.
@@ -781,18 +858,8 @@ public enum Engine {
                 Self.applyDiscomfortReport(&next, state: state, pattern: p)
                 continue
             }
-            if inputs.skipped.contains(p) {
-                if inputs.pinned.contains(p) {
-                    next.frozen[p] = max(state.freezeRemaining(p),
-                                         EngineConfig.freezeAppearances)
-                }
-                continue                            // a skip spends no appearance
-            }
+            if inputs.skipped.contains(p) { continue }   // a skip spends no appearance
             let frozenLeft = state.freezeRemaining(p)
-            if inputs.pinned.contains(p) {
-                next.frozen[p] = max(frozenLeft, EngineConfig.freezeAppearances)
-                continue
-            }
             if frozenLeft > 1 { next.frozen[p] = frozenLeft - 1; continue }
             if frozenLeft == 1 { next.frozen.removeValue(forKey: p); continue }
             // v2.20 (spec §31.2 p.1): an appearance under the lens spends the
@@ -831,8 +898,15 @@ public enum Engine {
         if let episode = state.sore[p] {
             let assigned = min(episode * 2, EngineConfig.freezeCapAppearances)
             if episode == EngineConfig.freezeAppearances {   // the second report
-                next.levels[p] = Level.unload(state.levels[p] ?? 0)
+                // v2.22 (spec §33): taking the load off is a descent, so the
+                // sub-step goes with it.
+                Self.setPosition(&next, p,
+                                 Position(level: Level.unload(state.levels[p] ?? 0), sub: 0))
                 next.failStreak[p] = 0
+            } else {
+                // The third report and beyond: the level stands, but keeping
+                // heavier sets after "it hurts" makes no sense either.
+                next.sub.removeValue(forKey: p)
             }
             next.frozen[p] = assigned
             next.sore[p] = assigned
@@ -843,7 +917,8 @@ public enum Engine {
             // field could never carry both meanings (§31.3).
             next.soreLeft[p] = assigned
         } else {
-            next.levels[p] = Level.tierFloor(state.levels[p] ?? 0)
+            Self.setPosition(&next, p,
+                             Position(level: Level.tierFloor(state.levels[p] ?? 0), sub: 0))
             next.failStreak[p] = 0
             next.frozen[p] = EngineConfig.freezeAppearances
             next.sore[p] = EngineConfig.freezeAppearances
@@ -863,7 +938,7 @@ public enum Engine {
     private static func applyCrossCredit(_ next: inout EngineState, state: EngineState,
                                          session: Session, result: FeedbackResult,
                                          overrides: [Pattern: Int],
-                                         discomfort: Set<Pattern>, pinned: Set<Pattern>) {
+                                         discomfort: Set<Pattern>) {
         guard next.hasBar,
               let trained = session.exercises.first(where: { Pattern.pullSide.contains($0.pattern) })?.pattern
         else { return }
@@ -876,8 +951,7 @@ public enum Engine {
         // the highest-level movement of the session, usually not this one.
         let factBelowPlan = session.exercises.first { $0.pattern == trained }
             .map { ex in (overrides[trained].map { $0 < ex.load }) ?? false } ?? false
-        if result == .less || discomfort.contains(trained) || pinned.contains(trained)
-            || factBelowPlan {
+        if result == .less || discomfort.contains(trained) || factBelowPlan {
             next.creditPaused.insert(trained)
         } else {
             next.creditPaused.remove(trained)
@@ -888,12 +962,19 @@ public enum Engine {
         // growth by someone else's credit. The receiving branch was not in
         // this session, so its freeze and episode in `next` are exactly the
         // state's.
-        let gained = (next.levels[trained] ?? 0) - (state.levels[trained] ?? 0)
+        // v2.22 (spec §33): the gain is measured in SUB-STEPS and the receiver
+        // is credited in sub-steps by the same helper. A difference of levels
+        // would read zero in two cases out of three — growth by a sub-step does
+        // not move `levels` — and the credit would quietly zero itself out,
+        // handing the slot back the half speed §20.1 was written to fix.
+        let gained = Level.subRise(from: state.position(trained), to: next.position(trained))
         if gained > 0, !next.creditPaused.contains(other),
            next.freezeRemaining(other) == 0, next.sore[other] == nil {
-            let oldOther = next.levels[other] ?? 0
-            let cap = EngineConfig.maxUp(pattern: other, tier: Level.decode(oldOther).tier)
-            next.levels[other] = min(max(oldOther + min(gained, cap), 0), EngineConfig.levelMax)
+            let entry = next.position(other)
+            let cap = EngineConfig.maxUp(pattern: other, tier: Level.decode(entry.level).tier)
+            Self.setPosition(&next, other,
+                             Level.rise(level: entry.level, sub: entry.sub,
+                                        by: min(gained, cap)))
         }
     }
 
@@ -951,6 +1032,10 @@ public enum Engine {
         var next = state
         next.lessRun = 0            // v2.9: a break is not a continued run of "less"
         next.creditPaused = []      // v2.10: a break clears the strain evidence too
+        // v2.22 (spec §33): a comeback is a DESCENT, and it takes the sub-steps
+        // off every pattern — a break detrains the whole body, and the heavier
+        // sets belonged to a dose that is gone.
+        next.sub = [:]
         // v2.15 (spec §26.1): a comeback rebuilds the levels, which makes the
         // appearance window a record about DIFFERENT levels — it goes with
         // them. The silent decay (−1) barely moves the levels and keeps it.
@@ -1003,6 +1088,7 @@ public enum Engine {
         var next = state
         next.lessRun = 0            // v2.9: same as the comeback (spec §19.1)
         next.creditPaused = []      // v2.10: and so does the pause
+        next.sub = [:]              // v2.22 (§33): a decay is a descent too
         // v2.12 (§22.3-22.4): the decay belongs to the same break — it is not
         // a return, so `returnRun` stands; the illness lens survives too.
         for p in Pattern.allCases {
@@ -1063,7 +1149,11 @@ public enum Engine {
                                                 calibratedUp: [Pattern]) {
         guard calibratedUp.count >= EngineConfig.calibrationGroup else { return }
         for p in calibratedUp {
-            next.levels[p] = min(next.levels[p] ?? 0, EngineConfig.stepsPerTier - 1)
+            // A calibration landing always carries a zero sub-step, so there is
+            // nothing to descend here — but the invariant is stated explicitly.
+            Self.setPosition(&next, p,
+                             Position(level: min(next.levels[p] ?? 0,
+                                                 EngineConfig.stepsPerTier - 1), sub: 0))
         }
     }
 }

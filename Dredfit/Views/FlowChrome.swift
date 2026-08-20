@@ -167,10 +167,14 @@ struct WorkStatusCaption: View {
     let actual: Int?
     /// The hold-this-level mark (issue #78). A pin changes nothing visible in
     /// the plan, so the caption is where the tap confirms itself; an entered
-    /// actual still outranks it — that is today's number, this is trajectory.
-    let held: Bool
     let setIndex: Int
     let sets: Int
+    /// v2.22 (spec §33): what THIS set is planned to run at, and whether the
+    /// exercise is uneven at all. On an uneven plan the caption says the
+    /// number, because "set 2 of 3" no longer tells you what to do — the sets
+    /// differ. The actual still outranks it: that is today's number.
+    var planned: Int = 0
+    var uneven: Bool = false
 
     var body: some View {
         if switchingSides {
@@ -179,8 +183,8 @@ struct WorkStatusCaption: View {
             accented(Text("second side"))
         } else if let actual {
             accented(Text("actual \(actual)"))
-        } else if held {
-            accented(Text("level held"))
+        } else if uneven {
+            accented(Text("set \(setIndex + 1) of \(sets) · \(planned)"))
         } else {
             Text("set \(setIndex + 1) of \(sets)")
                 .dredfitFont(14)
@@ -193,19 +197,17 @@ struct WorkStatusCaption: View {
     }
 }
 
-/// The four things you can say about an exercise instead of doing it as
-/// planned — two rows of two (issues #66, #78): the first row is about today,
-/// the second about the body and the trajectory. Two per row is the ceiling —
-/// three overflow the longest labels at accessibility sizes — and at those
-/// sizes even two truncate, so the rows stack into a single column there,
-/// the same rule the rest ring's controls follow.
+/// The three things you can say about an exercise instead of doing it as
+/// planned (issues #66, #78). v2.22 (spec §33): there were four — the fourth
+/// was "hold this level", and it is cancelled. It existed because the plan
+/// could run ahead of what the trainee could do; the sub-step answers that by
+/// itself, and the boldest evidence for the removal is that the input was used
+/// zero times in 24 real sessions. Three fit one row at ordinary type sizes and
+/// stack into a column at accessibility sizes, the same rule the rest ring's
+/// controls follow.
 struct ExerciseActionsRow: View {
-    /// The hold request is a toggle on an exercise still being done, and the
-    /// row is where its state shows.
-    let pinned: Bool
     let onAdjust: () -> Void
     let onSkip: () -> Void
-    let onPin: () -> Void
     let onDiscomfort: () -> Void
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -215,7 +217,6 @@ struct ExerciseActionsRow: View {
             VStack(spacing: 12) {
                 adjustButton
                 skipButton
-                pinButton
                 discomfortButton
             }
         } else {
@@ -224,10 +225,7 @@ struct ExerciseActionsRow: View {
                     adjustButton
                     skipButton
                 }
-                HStack(spacing: 26) {
-                    pinButton
-                    discomfortButton
-                }
+                discomfortButton
             }
         }
     }
@@ -259,32 +257,6 @@ struct ExerciseActionsRow: View {
                 """)))
     }
 
-    /// A pin changes nothing visible in today's plan, so the confirmation is
-    /// carried here: the label flips to a filled pill. accentText on
-    /// accentSoft — the pairing the Today badge pill already vouches for.
-    /// The label carries the state, so VoiceOver never depends on the fill.
-    private var pinButton: some View {
-        Button(action: onPin) {
-            Group {
-                if pinned {
-                    Text("Holding")
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 3)
-                        .background(Theme.accentSoft, in: Capsule())
-                } else {
-                    Text("Hold this level")
-                }
-            }
-            .dredfitFont(14.5, weight: .semibold)
-            .foregroundStyle(Theme.accentText)
-        }
-        .accessibilityIdentifier("hold-level")
-        .accessibilityAddTraits(pinned ? [.isSelected] : [])
-        .accessibilityHint(Text(String(localized: """
-            Today's sets stay as planned; the movement stops getting harder \
-            for a while. Tap again to change your mind.
-            """)))
-    }
 }
 
 /// The "ⓘ technique" affordance — one look shared by the work screen, the

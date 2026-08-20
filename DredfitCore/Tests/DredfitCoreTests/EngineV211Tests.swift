@@ -135,7 +135,9 @@ final class EngineV211Tests: XCTestCase {
         // Only the appearance AFTER the closing one grows (§31.2 p.2).
         (s, w) = advanceToAppearance(s, of: .squat)
         s = Engine.applyFeedback(state: s, session: w, result: .more)
-        XCTAssertGreaterThan(try XCTUnwrap(s.levels[.squat]), held,
+        // v2.22 (spec §33): the first growth event moves the SUB-STEP.
+        XCTAssertGreaterThan(Level.ordinal(s.position(.squat)),
+                             Level.ordinal(Position(level: held, sub: 0)),
                              "growth resumes one appearance after the close")
     }
 
@@ -154,13 +156,15 @@ final class EngineV211Tests: XCTestCase {
                                              overrides: [.squat: load + 20])
         XCTAssertNil(confirmed.sore[.squat], "the episode is closed")
         let cap = EngineConfig.maxUp(pattern: .squat, tier: Level.decode(held).tier)
-        XCTAssertEqual(confirmed.levels[.squat], held + cap)
+        assertPosition(confirmed, .squat, Level.rise(level: held, sub: 0, by: cap),
+                       "the ordinary cell caps the confirming fact, in sub-steps")
 
         // A fact exactly at the plan steps like "on plan" and confirms too.
         let exact = Engine.applyFeedback(state: s, session: w, result: .plan,
                                          overrides: [.squat: load])
         XCTAssertNil(exact.sore[.squat])
-        XCTAssertEqual(exact.levels[.squat], held + EngineConfig.deltaPlan)
+        assertPosition(exact, .squat, Level.rise(level: held, sub: 0, by: EngineConfig.deltaPlan),
+                       "an exact match steps like 'on plan'")
 
         // A fact below the plan goes down and keeps the episode open.
         let below = Engine.applyFeedback(state: s, session: w, result: .plan,
@@ -184,7 +188,13 @@ final class EngineV211Tests: XCTestCase {
 
     // MARK: - §21.2 p.7 a pin never shortens a pain freeze
 
-    func testPinnedOnASoreePatternKeepsTheLongerRest() {
+    /// v2.22 (spec §33): re-marked. The old name was
+    /// `testPinnedOnASoreePatternKeepsTheLongerRest` and it guarded the second
+    /// entry into the freeze against shortening a pain rest. That entry is
+    /// cancelled, so what is left — and what the assertion was really about —
+    /// is that the 3 → 6 → 12 ladder never rolls back: an ordinary appearance
+    /// spends the rest without touching the ASSIGNMENT.
+    func testTheRestLadderNeverRollsBack() {
         var s = seeded()
         var (s1, w) = advanceToAppearance(s, of: .squat)
         s = Engine.applyFeedback(state: s1, session: w, result: .plan, discomfort: [.squat])
@@ -192,9 +202,9 @@ final class EngineV211Tests: XCTestCase {
         s = Engine.applyFeedback(state: s, session: w, result: .plan, discomfort: [.squat])
         XCTAssertEqual(s.frozen[.squat], 6)
         (s, w) = advanceToAppearance(s, of: .squat)
-        let pinned = Engine.applyFeedback(state: s, session: w, result: .plan, pinned: [.squat])
-        XCTAssertEqual(pinned.frozen[.squat], 6, "max(6, 3) — the pain rest stands")
-        XCTAssertEqual(pinned.sore[.squat], 6, "the episode is untouched")
+        let spent = Engine.applyFeedback(state: s, session: w, result: .plan)
+        XCTAssertEqual(spent.frozen[.squat], 5, "an appearance spends the rest")
+        XCTAssertEqual(spent.sore[.squat], 6, "the assignment does not roll back")
     }
 
     // MARK: - §21.2 p.8 breaks
@@ -235,9 +245,9 @@ final class EngineV211Tests: XCTestCase {
             XCTAssertNil(s.sore[reported])
             let other: Pattern = reported == .pull ? .pullBar : .pull
             let (s2, w2) = advanceToAppearance(s, of: other)
-            let before = s2.levels[reported]!
+            let before = Level.ordinal(s2.position(reported))
             let after = Engine.applyFeedback(state: s2, session: w2, result: .plan)
-            XCTAssertEqual(after.levels[reported], before + 1,
+            XCTAssertEqual(Level.ordinal(after.position(reported)), before + 1,
                            "\(reported): after confirmation the credit returns")
         }
     }

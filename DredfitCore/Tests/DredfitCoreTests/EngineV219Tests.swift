@@ -187,11 +187,30 @@ final class EngineV219Tests: XCTestCase {
     /// The control run of the wave: 120 sessions of "plan" at 0.4 days apart.
     /// Under v2.18 the gap rounded to zero and the sum froze at 48 — the whole
     /// weekly budget, spent once and never renewed.
+    /// v2.22 (spec §33): re-marked, 336/423 → 112/226. The numbers are a
+    /// digit-for-digit cross-check against adaptive_engine.js on a path the
+    /// golden fixtures do not cover, and they moved because the §28.5 budget is
+    /// now counted in SUB-STEPS: three sub-steps a week is one level for a slow
+    /// tissue where it used to be three. Both were recomputed from the
+    /// reference, not adjusted to the port. The subject — a fractional gap ages
+    /// the window at all, so growth does not freeze for good — is asserted
+    /// against the one-window budget rather than against a bare constant.
     func testTwiceADayNoLongerFreezesGrowthForever() {
-        XCTAssertEqual(run(sessions: 120, gapDays: 0.4), 336,
-                       "a fractional gap ages the window")
-        XCTAssertEqual(run(sessions: 120, gapDays: 1), 423,
-                       "and a daily rhythm is untouched")
+        let twiceADay = run(sessions: 120, gapDays: 0.4)
+        let daily = run(sessions: 120, gapDays: 1)
+        XCTAssertEqual(twiceADay, 112, "a fractional gap ages the window")
+        XCTAssertEqual(daily, 226, "and a daily rhythm is untouched")
+        // A window that never aged would spend one budget for a lifetime: three
+        // sub-steps for each slow tissue and six for everything else.
+        let slow = Pattern.allCases.filter {
+            EngineConfig.isSlowTissue($0) || Pattern.pullSide.contains($0)
+        }
+        let oneWindow = slow.count * EngineConfig.weeklyRiseSlow
+            + (Pattern.allCases.count - slow.count) * EngineConfig.weeklyRiseFast
+        XCTAssertGreaterThan(twiceADay, oneWindow,
+                             "the window aged more than once — that was the whole defect")
+        XCTAssertGreaterThan(daily, twiceADay,
+                             "and a longer gap still buys more growth than a shorter one")
     }
 
     /// A zero gap is always a fault in the source — a session cannot take less
@@ -220,9 +239,12 @@ final class EngineV219Tests: XCTestCase {
             s = Engine.applyFeedback(state: s, session: Engine.generateSession(s),
                                      result: .plan, gapDays: gaps[i % 3])
         }
+        // v2.22 (spec §33): recomputed from the reference — 269 → 92, 17 → 5.
+        // Same cause as above: the weekly budget counts sub-steps now.
         let total = Pattern.allCases.reduce(0) { $0 + (s.levels[$1] ?? 0) }
-        XCTAssertEqual(total, 269, "reference: Σ levels over 60 sessions")
-        XCTAssertEqual(s.levels[.pullBar], 17, "reference: the bar branch")
+        XCTAssertEqual(total, 92, "reference: Σ levels over 60 sessions")
+        XCTAssertEqual(s.levels[.pullBar], 5, "reference: the bar branch")
+        XCTAssertEqual(s.sub[.pullBar], 2, "reference: and its sub-step")
         XCTAssertEqual(s.weekAgeDays, 0.05, accuracy: 1e-12, "reference: the window age")
     }
 

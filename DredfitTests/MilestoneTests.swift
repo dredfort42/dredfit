@@ -30,13 +30,19 @@ final class MilestoneTests: XCTestCase {
     /// tests have no business being the exception. This also exercises the
     /// real load path.
     private func seededStore(counter: Int = 0,
-                             levels: [Pattern: Int] = [:]) throws -> AppStore {
+                             levels: [Pattern: Int] = [:],
+                             frozen: [Pattern: Int] = [:]) throws -> AppStore {
         func pairs(_ value: (Pattern) -> Int) -> String {
             Pattern.allCases.map { "\"\($0.rawValue)\",\(value($0))" }.joined(separator: ",")
         }
+        // `frozen` is sparse on the wire, so only live entries go in — and the
+        // store's own decoder is the only door into engine state from a test.
+        let frozenPairs = frozen.map { "\"\($0.key.rawValue)\",\($0.value)" }
+            .sorted().joined(separator: ",")
         let json = """
         {"engineState":{"counter":\(counter),
           "levels":[\(pairs { levels[$0] ?? 0 })],
+          "frozen":[\(frozenPairs)],
           "failStreak":[\(pairs { _ in 0 })]},
          "records":[],
          "settings":{"restWeekdays":[],"soundsEnabled":true,
@@ -114,17 +120,20 @@ final class MilestoneTests: XCTestCase {
         XCTAssertTrue(earned.isEmpty)
     }
 
-    /// A pin on one movement must not swallow another movement's milestone —
-    /// pinned patterns stay eligible in the detector, unlike skips. (A pinned
-    /// pattern itself cannot tier up: its growth is clamped.)
-    func testAPinDoesNotSwallowAMilestone() throws {
+    /// v2.22 (spec §33): re-marked from `testAPinDoesNotSwallowAMilestone`. The
+    /// hold is cancelled, so the movement that stays put alongside the
+    /// milestone is a FROZEN one — the detector must still let its neighbour's
+    /// tier-up through, which is the property the pin version was really about.
+    func testAFrozenMovementDoesNotSwallowAMilestone() throws {
         let probe = session(atCounter: 9).exercises[0].pattern
-        let heldOther = session(atCounter: 9).exercises[1].pattern
-        let store = try seededStore(counter: 9, levels: [probe: 7])
+        let frozenOther = session(atCounter: 9).exercises[1].pattern
+        let store = try seededStore(counter: 9, levels: [probe: 7],
+                                    frozen: [frozenOther: EngineConfig.freezeAppearances])
+        XCTAssertEqual(store.engineState.freezeRemaining(frozenOther),
+                       EngineConfig.freezeAppearances, "seeding: the neighbour is frozen")
         let session = store.nextSession
 
-        let earned = store.completeWorkout(session: session, result: .plan,
-                                           pinned: [heldOther])
+        let earned = store.completeWorkout(session: session, result: .plan)
 
         XCTAssertEqual(earned.count, 2, "the tier-up and the jubilee both land")
         guard case .tierUp(let pattern, _, _) = earned[0] else {
@@ -132,8 +141,10 @@ final class MilestoneTests: XCTestCase {
         }
         XCTAssertEqual(pattern, probe)
         XCTAssertEqual(earned[1], .jubilee(workouts: 10))
-        XCTAssertEqual(store.engineState.levels[heldOther], 0,
-                       "the pinned movement itself stayed put")
+        XCTAssertEqual(store.engineState.levels[frozenOther], 0,
+                       "the frozen movement itself stayed put")
+        XCTAssertEqual(store.engineState.sub[frozenOther] ?? 0, 0,
+                       "and it collected no sub-step either")
     }
 
     // MARK: - The acceptance case: a hard session earns nothing

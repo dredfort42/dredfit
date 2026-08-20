@@ -100,16 +100,20 @@ final class EngineV29Tests: XCTestCase {
         XCTAssertEqual(after.lessRun, 0, "a named rating does not feed the run")
     }
 
-    func testAHoldTakesTheDeltaItselfAndKeepsGoingDown() throws {
+    /// v2.22 (spec §33): re-marked from `testAHoldTakesTheDeltaItselfAnd…`.
+    /// The hold is cancelled, so the named signal here is an exact number below
+    /// the plan — and the subject is untouched: whoever is NAMED takes the
+    /// session-wide "less" alone and everybody else holds.
+    func testANamedFactTakesTheDeltaItselfAndKeepsGoingDown() throws {
         let state = seeded(10)
         let session = Engine.generateSession(state)
-        let held = try XCTUnwrap(session.exercises.first?.pattern)
+        let ex0 = try XCTUnwrap(session.exercises.first)
+        let named = ex0.pattern
         let after = Engine.applyFeedback(state: state, session: session, result: .less,
-                                         pinned: [held])
-        // §16.1 is preserved: a hold clamps growth, it does not block a drop
-        XCTAssertEqual(after.levels[held], 9, "the held movement still goes down")
-        for ex in session.exercises where ex.pattern != held {
-            XCTAssertEqual(after.levels[ex.pattern], 10, "\(ex.pattern) holds")
+                                         overrides: [named: ex0.load - 2])
+        XCTAssertLessThan(after.levels[named] ?? 0, 10, "the named movement goes down")
+        for ex in session.exercises where ex.pattern != named {
+            XCTAssertEqual(after.levels[ex.pattern], 10, "\(ex.pattern) holds its level")
         }
         XCTAssertEqual(after.lessRun, 0)
     }
@@ -160,8 +164,10 @@ final class EngineV29Tests: XCTestCase {
             case "plan": after = Engine.applyFeedback(state: state, session: session, result: .plan)
             case "more": after = Engine.applyFeedback(state: state, session: session, result: .more)
             default:
-                let p = try XCTUnwrap(session.exercises.first?.pattern)
-                after = Engine.applyFeedback(state: state, session: session, result: .less, pinned: [p])
+                // v2.22 (§33): a named "less" is now named by a fact or by pain.
+                let ex0 = try XCTUnwrap(session.exercises.first)
+                after = Engine.applyFeedback(state: state, session: session, result: .less,
+                                             overrides: [ex0.pattern: ex0.load - 2])
             }
             XCTAssertEqual(after.lessRun, 0, "\(label) resets the run")
         }
@@ -182,8 +188,10 @@ final class EngineV29Tests: XCTestCase {
             let session = Engine.generateSession(state)
             let after = Engine.applyFeedback(state: state, session: session, result: result)
             for ex in session.exercises {
+                // v2.22 (spec §33): in SUB-STEPS.
                 let cap = EngineConfig.maxUp(pattern: ex.pattern, tier: Level.decode(10).tier)
-                XCTAssertEqual(after.levels[ex.pattern], 10 + min(result.delta, cap),
+                assertPosition(after, ex.pattern,
+                               Level.rise(level: 10, sub: 0, by: min(result.delta, cap)),
                                "\(result) still moves \(ex.pattern)")
             }
             XCTAssertEqual(after.lessRun, 0)
@@ -200,8 +208,12 @@ final class EngineV29Tests: XCTestCase {
             state = Engine.applyFeedback(state: state, session: session,
                                          result: k % 2 == 0 ? .more : .less)
         }
-        XCTAssertGreaterThan(state.levels[.calf]!, 0, "the calf leaves zero")
-        XCTAssertGreaterThan(state.levels[.pull]!, EngineConfig.stepsPerTier,
+        // v2.22 (spec §33): "left zero" is measured on the POSITION — on the
+        // lowest sub-steps the level is still zero while the fixed point is
+        // already broken.
+        XCTAssertGreaterThan(Level.ordinal(state.position(.calf)), 0, "the calf leaves zero")
+        XCTAssertGreaterThan(Level.ordinal(state.position(.pull)),
+                             Level.ordinal(Position(level: EngineConfig.stepsPerTier, sub: 0)),
                              "the pull does not park on the tier-2 boundary")
     }
 

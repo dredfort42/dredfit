@@ -30,9 +30,6 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     /// Reported as painful mid-workout: to the engine a skip, to the journal
     /// a different fact — and the reason the pattern is resting afterwards.
     var discomfort: Set<Pattern>?
-    /// Asked to hold its level (#78): performed, rated one-directionally,
-    /// and not climbing afterwards. Never written when empty, like the rest.
-    var pinned: Set<Pattern>?
     var levelsAfter: [Pattern: Int]?
     var durationSec: Int?
     /// Only `true` is ever written; nil means "not exported yet".
@@ -63,7 +60,6 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
             .mapValues { $0.prefix(EngineConfig.setsMax).map { clamp($0, 0, EngineConfig.countMax) } }
         skipped = try c.decodeIfPresent(Set<Pattern>.self, forKey: .skipped)
         discomfort = try c.decodeIfPresent(Set<Pattern>.self, forKey: .discomfort)
-        pinned = try c.decodeIfPresent(Set<Pattern>.self, forKey: .pinned)
         levelsAfter = try c.decodeIfPresent([Pattern: Int].self, forKey: .levelsAfter)?
             .mapValues { clamp($0, 0, EngineConfig.levelMax) }
         durationSec = try c.decodeIfPresent(Int.self, forKey: .durationSec)
@@ -75,7 +71,7 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
          exercises: [SessionExercise]? = nil, actuals: [Pattern: Int]? = nil,
          setActuals: [Pattern: [Int]]? = nil,
          skipped: Set<Pattern>? = nil, discomfort: Set<Pattern>? = nil,
-         pinned: Set<Pattern>? = nil, levelsAfter: [Pattern: Int]? = nil,
+         levelsAfter: [Pattern: Int]? = nil,
          durationSec: Int? = nil, healthExported: Bool? = nil) {
         self.sessionNumber = sessionNumber
         self.date = date
@@ -86,7 +82,6 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
         self.setActuals = setActuals
         self.skipped = skipped
         self.discomfort = discomfort
-        self.pinned = pinned
         self.levelsAfter = levelsAfter
         self.durationSec = durationSec
         self.healthExported = healthExported
@@ -120,8 +115,6 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// Optional, like the fields below: a snapshot written by an older build
     /// must still decode rather than take the whole file down with it.
     var discomfort: Set<Pattern>?
-    /// Hold-this-level marks (#78) — a lone pin is progress worth resuming.
-    var pinned: Set<Pattern>?
     var workoutStart: Date
     var savedAt: Date
     /// The session number alone is not identity: the bar toggle and an
@@ -148,7 +141,18 @@ struct WorkoutSnapshot: Codable, Equatable {
 
     static func fingerprint(of session: Session) -> String {
         session.exercises
-            .map { "\($0.pattern.rawValue):\($0.tier):\($0.load):\($0.sets)" }
+            .map { ex in
+                let head = "\(ex.pattern.rawValue):\(ex.tier):\(ex.load):\(ex.sets)"
+                // v2.22 (spec §33): the per-set doses belong in the identity.
+                // Without them 3×8 and 9-8-8 share a fingerprint — same tier,
+                // same base dose, same set count — and a snapshot could resume
+                // into a plan that asks different numbers of its sets. Appended
+                // only for an UNEVEN plan, so a uniform one keeps the exact
+                // string it had before and a workout interrupted before the
+                // update still resumes.
+                guard let loads = ex.loads else { return head }
+                return head + ":" + loads.map(String.init).joined(separator: "-")
+            }
             .joined(separator: "|")
     }
 }

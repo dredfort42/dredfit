@@ -54,7 +54,10 @@ final class EngineV23Tests: XCTestCase {
         let second = Engine.applyFeedback(state: first,
                                           session: Engine.generateSession(first),
                                           result: .plan, overrides: [.pull: 99])
-        XCTAssertEqual(second.levels[.pull], 12 + EngineConfig.maxUp(pattern: .pull, tier: 2),
+        // v2.22 (spec §33): the cell counts SUB-STEPS.
+        assertPosition(second, .pull,
+                       Level.rise(level: 12, sub: first.sub[.pull] ?? 0,
+                                  by: EngineConfig.maxUp(pattern: .pull, tier: 2)),
                        "above zero an enormous fact still only moves by the cell")
     }
 
@@ -92,7 +95,10 @@ final class EngineV23Tests: XCTestCase {
         let session = Engine.generateSession(state)
         let next = Engine.applyFeedback(state: state, session: session, result: .more)
         for ex in session.exercises {
-            XCTAssertEqual(next.levels[ex.pattern], EngineConfig.deltaMore,
+            // v2.22 (spec §33): the plain delta is two SUB-STEPS, and at zero
+            // they do not yet add up to a level.
+            assertPosition(next, ex.pattern,
+                           Level.rise(level: 0, sub: 0, by: EngineConfig.deltaMore),
                            "\(ex.pattern.rawValue) should move by the plain delta")
         }
     }

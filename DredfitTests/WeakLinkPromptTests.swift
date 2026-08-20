@@ -121,15 +121,21 @@ final class WeakLinkPromptTests: XCTestCase {
         XCTAssertFalse(reloaded.shouldAskAboutSuspect())
     }
 
-    func testTheSofterAnswerHoldsTheLevelInsteadOfTakingTheLoadOff() throws {
-        // "Just hard" is not a diagnosis: the signal only knows the movement
-        // keeps coinciding with a tough session, so the cheap answer must cost
-        // a pause, not a rest with a confirmation gate (spec §26.3).
+    /// v2.22 (spec §33): re-marked from
+    /// `testTheSofterAnswerHoldsTheLevelInsteadOfTakingTheLoadOff`. The softer
+    /// answer — "just hard" — armed a hold, and the hold is cancelled: the case
+    /// it served (the plan ran ahead of what the trainee can do) is what the
+    /// sub-step fixes without asking. The prompt is down to the diagnosis and a
+    /// dismissal, and THAT is what gets pinned: dismissing must change no plan.
+    func testDismissingTheQuestionChangesNothingAboutThePlan() throws {
         let store = naiveStore(sessions: 12)
         let suspect = try XCTUnwrap(store.unnamedLessSuspect())
-        store.confirmSuspectIsHard(suspect)
-        XCTAssertTrue(store.settings.pendingPinned.contains(suspect))
-        XCTAssertFalse(store.settings.pendingDiscomfort.contains(suspect))
+        let before = store.engineState
+        store.dismissSuspectPrompt()
+        XCTAssertFalse(store.shouldAskAboutSuspect(), "asked once per session")
+        XCTAssertTrue(store.settings.pendingDiscomfort.isEmpty,
+                      "a dismissal arms nothing")
+        XCTAssertEqual(store.engineState, before, "and it touches no state")
 
         var applied = false
         for _ in 0..<8 where !applied {
@@ -138,11 +144,10 @@ final class WeakLinkPromptTests: XCTestCase {
             _ = store.completeWorkout(session: session, result: .plan)
             if carries {
                 applied = true
-                XCTAssertGreaterThan(store.engineState.freezeRemaining(suspect), 0,
-                                     "growth pauses")
+                XCTAssertEqual(store.engineState.freezeRemaining(suspect), 0,
+                               "nothing was armed, so nothing rests")
                 XCTAssertNil(store.engineState.sore[suspect],
-                             "but no pain episode is opened — nothing waits for a fact")
-                XCTAssertFalse(store.settings.pendingPinned.contains(suspect))
+                             "and no pain episode was opened")
             }
         }
         XCTAssertTrue(applied)

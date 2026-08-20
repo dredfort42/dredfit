@@ -114,11 +114,11 @@ extension AppStore {
     }
 
     /// A session where the trainee said "tough" and pointed at nothing: no
-    /// exact numbers, no pain report, no hold request.
+    /// exact numbers and no pain report. v2.22 (spec §33): the third signal —
+    /// a hold request — is cancelled, so the list is down to two.
     private static func namesNothing(_ record: WorkoutRecord) -> Bool {
         (record.actuals ?? [:]).isEmpty
             && (record.discomfort ?? []).isEmpty
-            && (record.pinned ?? []).isEmpty
     }
 
     /// At most one prompt per session (spec §26.3): it is a question, not a

@@ -39,10 +39,14 @@ final class EngineV210Tests: XCTestCase {
                 let other: Pattern = trained == .pull ? .pullBar : .pull
                 let after = Engine.applyFeedback(state: state, session: session, result: result)
 
+                // v2.22 (spec §33): both the delta and the credit are counted in
+                // SUB-STEPS — a difference of levels would read zero here.
                 let gained = min(delta, EngineConfig.maxUp(pattern: trained, tier: Level.decode(7).tier))
                 let credited = min(gained, EngineConfig.maxUp(pattern: other, tier: Level.decode(7).tier))
-                XCTAssertEqual(after.levels[trained], 7 + gained, "\(trained) on \(result)")
-                XCTAssertEqual(after.levels[other], 7 + credited, "\(other) is credited")
+                assertPosition(after, trained, Level.rise(level: 7, sub: 0, by: gained),
+                               "\(trained) on \(result)")
+                assertPosition(after, other, Level.rise(level: 7, sub: 0, by: credited),
+                               "\(other) is credited")
                 XCTAssertEqual(after.failStreak[other], 0, "the other branch's streak is untouched")
             }
         }
@@ -54,8 +58,10 @@ final class EngineV210Tests: XCTestCase {
         let state = seeded([.pull: 7, .pullBar: 10])
         let session = Engine.generateSession(state)
         let after = Engine.applyFeedback(state: state, session: session, result: .more)
-        XCTAssertEqual(after.levels[.pull], 9, "tier 1 takes the full +2")
-        XCTAssertEqual(after.levels[.pullBar], 11, "the credit stops at the receiver's cell")
+        assertPosition(after, .pull, Level.rise(level: 7, sub: 0, by: 2),
+                       "tier 1 takes the full two sub-steps")
+        assertPosition(after, .pullBar, Level.rise(level: 10, sub: 0, by: 1),
+                       "the credit stops at the receiver's cell")
     }
 
     func testNothingIsCreditedWhenTheSlotDidNotGrow() throws {
@@ -66,12 +72,12 @@ final class EngineV210Tests: XCTestCase {
         let down = Engine.applyFeedback(state: state, session: session, result: .less)
         XCTAssertEqual(down.levels[.pullBar], 7, "a downward move credits nothing")
 
-        for (label, opts) in [("a skip", (skipped: Set([trained]), discomfort: Set<Pattern>(), pinned: Set<Pattern>())),
-                              ("a discomfort report", (skipped: Set<Pattern>(), discomfort: Set([trained]), pinned: Set<Pattern>())),
-                              ("a hold", (skipped: Set<Pattern>(), discomfort: Set<Pattern>(), pinned: Set([trained])))] {
+        for (label, opts) in [("a skip", (skipped: Set([trained]), discomfort: Set<Pattern>())),
+                              ("a discomfort report", (skipped: Set<Pattern>(), discomfort: Set([trained])))] {
+            // v2.22 (spec §33): the third case — a hold on the slot — went with
+            // the input it tested.
             let after = Engine.applyFeedback(state: state, session: session, result: .more,
-                                             skipped: opts.skipped, discomfort: opts.discomfort,
-                                             pinned: opts.pinned)
+                                             skipped: opts.skipped, discomfort: opts.discomfort)
             XCTAssertEqual(after.levels[.pullBar], 7, "\(label) on the slot credits nothing")
         }
     }
@@ -90,8 +96,12 @@ final class EngineV210Tests: XCTestCase {
         let after = Engine.applyFeedback(state: state, session: session, result: .plan,
                                          overrides: [ex.pattern: ex.load + 6])
         XCTAssertGreaterThan(after.levels[.pull] ?? 0, 2, "the fact calibrated the trained branch")
-        XCTAssertEqual(after.levels[.pullBar],
-                       min(EngineConfig.maxUp(pattern: .pullBar, tier: 1), after.levels[.pull] ?? 0),
+        // v2.22 (spec §33): the gain, and so the credit, is in sub-steps.
+        let gainedSub = Level.subRise(from: Position(level: 0, sub: 0),
+                                      to: after.position(.pull))
+        assertPosition(after, .pullBar,
+                       Level.rise(level: 0, sub: 0,
+                                  by: min(gainedSub, EngineConfig.maxUp(pattern: .pullBar, tier: 1))),
                        "the credit from a fact stops at the receiver's cell")
     }
 
@@ -105,8 +115,12 @@ final class EngineV210Tests: XCTestCase {
             for _ in 0..<8 {
                 s = Engine.applyFeedback(state: s, session: Engine.generateSession(s), result: .plan)
             }
-            return s.levels.mapValues { $0 } .reduce(into: [:]) { acc, kv in
-                acc[kv.key] = kv.value - (start[kv.key] ?? 0)
+            // v2.22 (spec §33): the gain is counted in SUB-STEPS. The numbers
+            // themselves (8 against 5 appearances) do not move — the asymmetry
+            // of frequency this test guards does not depend on the unit.
+            return Pattern.allCases.reduce(into: [:]) { acc, p in
+                acc[p] = Level.ordinal(s.position(p))
+                    - Level.ordinal(Position(level: start[p] ?? 0, sub: 0))
             }
         }
         let off = gain(overEightSessionsWithBar: false)
@@ -120,14 +134,30 @@ final class EngineV210Tests: XCTestCase {
     /// The period-2 lock inherited from #91: with a rhythm of period two the
     /// bar branch used to land in the same rating forever and never left zero.
     func testThePeriodTwoLockIsOpen() {
+        // v2.22 (spec §33): re-marked, and the subject is named more precisely.
+        // On this rhythm the branch is credited exactly ONCE before the §20.1
+        // pause latches for good (every one of its appearances is a "less", and
+        // nothing clears the mark — §27.1 confirms that decision). In v2.21 that
+        // single credit was worth two levels and "less" took one back, so the
+        // branch parked on level 1; a credit of two SUB-STEPS is taken away
+        // whole by a descent in levels (§33.5), and it parks on zero instead —
+        // a two-second difference in the hang. The lock this test exists for —
+        // "the branch never moves at all", v2.9, before the cross-credit — is
+        // still open, and that is now asserted directly rather than by snapshot.
         var state = EngineState.initial
         state.hasBar = true
+        var rises = 0, best = 0
         for k in 0..<96 {
+            let before = Level.ordinal(state.position(.pullBar))
             state = Engine.applyFeedback(state: state, session: Engine.generateSession(state),
                                          result: k % 2 == 0 ? .more : .less)
+            let now = Level.ordinal(state.position(.pullBar))
+            if now > before { rises += 1 }
+            best = max(best, now)
         }
-        XCTAssertGreaterThan(state.levels[.pullBar] ?? 0, 0,
+        XCTAssertGreaterThan(best, 0,
                              "the vertical branch leaves zero on an alternating rhythm")
+        XCTAssertGreaterThanOrEqual(rises, 1, "the credit reaches the branch at all")
     }
 
     // MARK: - §20.2 the band gate
@@ -158,7 +188,10 @@ final class EngineV210Tests: XCTestCase {
         let push = try XCTUnwrap(session.exercises.first { Pattern.pushSide.contains($0.pattern) })
         XCTAssertEqual(push.sets, Level.decode(0).sets, "the plan shows the pull's band")
         let after = Engine.applyFeedback(state: state, session: session, result: .plan)
-        XCTAssertEqual(after.levels[push.pattern], 41, "the push level grows all the same")
+        // v2.22 (spec §33): "grows" is by a sub-step — the gate clamps the PLAN.
+        XCTAssertGreaterThan(Level.ordinal(after.position(push.pattern)),
+                             Level.ordinal(state.position(push.pattern)),
+                             "the push level grows all the same")
     }
 
     func testTheGateLeavesEveryOtherPatternAlone() {
@@ -223,7 +256,8 @@ final class EngineV210Tests: XCTestCase {
         XCTAssertFalse(cleared.creditPaused.contains(.pullBar), "an appearance without a signal clears it")
         let resumed = Engine.applyFeedback(state: cleared, session: Engine.generateSession(cleared),
                                            result: .plan)
-        XCTAssertGreaterThan(resumed.levels[.pullBar] ?? 0, cleared.levels[.pullBar] ?? 0,
+        XCTAssertGreaterThan(Level.ordinal(resumed.position(.pullBar)),
+                             Level.ordinal(cleared.position(.pullBar)),
                              "and the credit comes back")
     }
 
@@ -236,8 +270,6 @@ final class EngineV210Tests: XCTestCase {
                                                        overrides: [.pullBar: bar.load - 2])),
             ("pain", Engine.applyFeedback(state: state, session: session, result: .plan,
                                           discomfort: [.pullBar])),
-            ("a hold", Engine.applyFeedback(state: state, session: session, result: .plan,
-                                            pinned: [.pullBar])),
         ]
         for (label, after) in cases {
             XCTAssertTrue(after.creditPaused.contains(.pullBar), "\(label) marks the branch")
