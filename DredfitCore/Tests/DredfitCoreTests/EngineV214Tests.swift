@@ -46,7 +46,12 @@ final class EngineV214Tests: XCTestCase {
         XCTAssertEqual(ex.unit, .hold)
         let onPlan = Engine.applyFeedback(state: state, session: session, result: .plan,
                                           overrides: [.coreAntiExt: ex.load]).levels[.coreAntiExt]
-        for extra in 1..<EngineConfig.holdStepSec {
+        // Re-marked for v2.21 (spec §32.4): the window is one LOCAL rung of
+        // the ladder, not five seconds.
+        let window = Level.step(of: ex.unit, tier: ex.tier,
+                                sets: Level.decode(0).sets, load: ex.load)
+        XCTAssertGreaterThan(window, 1, "tier 1 rung 0 is 2 s wide — the window has room")
+        for extra in 1..<window {
             let got = Engine.applyFeedback(state: state, session: session, result: .plan,
                                            overrides: [.coreAntiExt: ex.load + extra])
                 .levels[.coreAntiExt]
@@ -64,7 +69,10 @@ final class EngineV214Tests: XCTestCase {
                     : seeded(0, [pattern: level, .pull: EngineConfig.levelMax])
                 guard let (state, session, ex) = exercise(pattern, in: seed) else { continue }
                 var previous = -1
-                for actual in 0...(ex.load + 2 * EngineConfig.holdStepSec) {
+                // Re-marked for v2.21 (spec §32.4): the old bound was
+                // 2 × holdStepSec = 10; the widest ladder rung is 4 s, so 10
+                // still clears two rungs anywhere on the scale.
+                for actual in 0...(ex.load + 10) {
                     let got = Engine.applyFeedback(state: state, session: session, result: .plan,
                                                    overrides: [pattern: actual]).levels[pattern] ?? 0
                     XCTAssertGreaterThanOrEqual(

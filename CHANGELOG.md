@@ -21,7 +21,7 @@ the app recorded it for the whole exercise. Tap it on the last set of 3×15,
 enter 10, and the engine was handed "10" — a full shortfall: level 7 down to
 2, plus a tick toward a deload, although two of the three sets had been done
 exactly on plan. A hold stopped early took the same path with no tap at all:
-releasing at 40 s of a 55 s plank in the third set was recorded as 40 seconds
+releasing at 30 s of a 39 s plank in the third set was recorded as 30 seconds
 three times over. The one-set-short case was the worst of it — a single rep
 missing on the last set cost a level and a streak tick where the honest
 answer was a step forward.
@@ -34,7 +34,7 @@ answer was a step forward.
   all, exactly as correcting a number back to the plan always did.
 - **The engine is told the volume you did.** The sets collapse to their mean,
   snapped to the step the movement is prescribed in: 15 / 15 / 10 reports 13
-  and lands on level 5 instead of 2; 55 / 55 / 40 seconds reports 50 and
+  and lands on level 5 instead of 2; 39 / 39 / 30 seconds reports 36 and
   lands on 6 instead of 4. One set a single rep short now costs no level at
   all — the mean lands within a step of the plan, the movement stands down
   and the session rating speaks for it, so an "on plan" tap ends at level 8
@@ -57,6 +57,45 @@ The engine is untouched: its contract is still one honest number per movement
 per session (spec §5), and the collapse happens in the app. Journals and
 interrupted-workout snapshots written by earlier builds decode as they always
 did — a single stored number simply means every set ran at it.
+
+### Engine v2.21.0 — hold steps go relative (issue #149)
+
+Every step up in a hold was the same five seconds, wherever you stood. At the
+bottom of the hardest tier that is a plan of 10 s becoming 15 — half again as
+much work for one step, and the ceiling allows two in a session, so 10 could
+become 25 in a fortnight. No training source writes progress that way; they
+write it as a share of what you are already doing, and 2–10 % is the number
+they use. At the other end the same five seconds barely moved anything: a
+55-second plank going to 60 is a rounding error.
+
+- **A step is now about a tenth of the dose you are on.** Holds climb
+  20-22-24-26-29-32-35-39 seconds on the first tier and 10-11-12-13-14-15-17-19
+  on the fourth, instead of a flat +5 everywhere. The worst single step on the
+  whole scale is now 15 %, against 50 % before; the hardest tier costs 20 % for
+  two steps where it used to cost 50 % for one. Reps are untouched — not a
+  single number moves there.
+- **The top of every tier is shorter.** The longest hold on the first tier is
+  39 seconds rather than 55, and on the fourth 19 rather than 45. The starts
+  are exactly where they were: what changed is how fast the plan walks up from
+  them, not where it begins.
+- **Entering a fourth set no longer doubles the static work.** The bands used
+  to start at 25 s measured against the old ladder; against the new one that
+  was a 75 % jump for a single level. They start at 20 and 24 now, so the dose
+  per set carries straight over — 19 seconds becomes 20 — and the work grows
+  only by the set that was added.
+- **Seconds are entered one at a time.** "Went differently" used to snap a hold
+  to the nearest five seconds, which matched the old step. On a relative ladder
+  it does not: three honest seconds short of the plan snapped a whole cell away
+  and cost five steps instead of one. The range you can report, 5 to 90
+  seconds, is unchanged.
+- **A number just over the plan still counts as meeting it.** The window is one
+  real step wide wherever you stand — two seconds low on the scale, four at the
+  top of the first tier — so an honest 21 seconds against a 20-second plan
+  reads as the plan met, exactly as it has since v2.14.
+
+Levels are numbers and are not recalculated: holds simply grow by about 10 % a
+step instead of a fixed five seconds, and the upper steps of every static
+movement are shorter than they were.
 
 ### Engine v2.20.0 — a pain episode ends without numbers too (issue #150)
 
