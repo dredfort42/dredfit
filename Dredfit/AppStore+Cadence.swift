@@ -14,7 +14,7 @@ import DredfitCore
 
 extension AppStore {
 
-    /// v2.24 (spec §35.4, #143): CALENDAR days in the local zone — the number
+    /// v2.24 (spec §35.4, #147): CALENDAR days in the local zone — the number
     /// of midnights between the two workouts, not the number of whole 24-hour
     /// periods. Everything about rhythm is calendar-shaped in the trainee's
     /// head: "yesterday", "every Sunday", "two weeks off". Counting elapsed
