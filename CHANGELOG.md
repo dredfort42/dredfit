@@ -58,6 +58,68 @@ per session (spec §5), and the collapse happens in the app. Journals and
 interrupted-workout snapshots written by earlier builds decode as they always
 did — a single stored number simply means every set ran at it.
 
+### A workout fits into 45 minutes unless you say otherwise (issue #136)
+
+Dredfit never stopped making your workout longer. Train honestly three times a
+week for two years and a session reaches 98 minutes — nearly five hours a week
+of what was meant to be general fitness at home. There has been a handle for
+this since 1.10, and it shipped switched off: it protected the people who went
+looking for it in Settings and nobody else.
+
+- **45 minutes is now the starting point.** It is not a compromise number: 45
+  is the shortest budget at which all six movements still fit at every level,
+  so it costs no progress whatsoever. Two years of the same honest training,
+  measured with the budget and without it, ends on identical levels in all ten
+  movements — only the clock differs: 98 minutes a session becomes 45, and 284
+  minutes a week becomes 129.
+- **Any answer you give is yours to keep.** Pick a length — including "no
+  limit" — and that is what you get from then on, on this launch and every one
+  after. The default only ever applies to someone who has not answered.
+- **Starting your levels over no longer resets the clock.** Resetting progress
+  used to hand back "no limit", a setting you never touched, from a screen
+  about starting the levels again.
+- If you have been using Dredfit already, one line on Today says the default
+  arrived and where to change it. It goes away when you tap it and does not
+  come back.
+
+### Engine v2.24.0 — shorter workouts stop overshooting (issues #136, #143)
+
+Two changes underneath the default above, and one to what the app calls a day.
+
+- **A short workout gives up one set at a time.** Trimming used to cap every
+  movement at once — all six to four sets, then all six to three — and the
+  step between those rungs was wider than the miss it was closing. A 45-minute
+  budget produced a 30-minute workout: you asked for three quarters of an hour
+  and got half of one, with the missing quarter buying nothing. Now the plan
+  gives up the single most expensive set, checks, and repeats. The worst
+  shortfall across the top half of the scale falls from 36% to 6.9%, and the
+  average from 20% to 2.9%.
+- **The clock never takes a movement out of your session.** It takes sets, down
+  to two, and stops there — six movements at two sets each is the shortest
+  workout Dredfit will build. The trade is deliberate: a set costs you nothing
+  in progress, a missing movement costs all of it. One consequence, said
+  plainly: at the 20-minute setting, high up the scale, six movements on two
+  sets each run past 20 minutes. That rung is a target now, not a promise. 35
+  and 45 still fit everywhere.
+- **Two sets is a floor nothing can go under.** Sets are trimmed by two
+  different rules — the clock, and the balance rule that stops the push
+  outrunning the pull — and until now neither knew the other existed. They
+  share one floor.
+- **A day is a day.** Dredfit counted whole 24-hour periods, so a workout at
+  23:00 on Monday and another at 01:00 on Tuesday were "the same day", while a
+  clock change or a flight invented a day out of nothing. Everything that reads
+  a gap — the quiet decay after a week away, the comeback card, your own
+  rhythm, the rest suggestion — now counts calendar days in your timezone, the
+  way you count them. None of the thresholds moved.
+
+Also on the How it works screen: an eleventh card, on running or swimming
+alongside your strength work and why a couple of hours between the two is
+worth arranging when you can.
+
+verify2: 531,947 checks, 0 failures (was 133,929). Golden: 22 scenarios, 257
+steps — all 249 existing steps bit-for-bit, plus a new time_budget scenario.
+Port: 309 tests, 0 failures, GoldenTests bit-for-bit.
+
 ### Engine v2.23.0 — "tough" steps back the way it came (issue #149)
 
 Saying a session was tough could hand you five times the work. A movement went

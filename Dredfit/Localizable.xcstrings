@@ -303,6 +303,98 @@
         }
       }
     },
+    "Cardio and strength" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausdauer und Kraft"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cardio and strength"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cardio y fuerza"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cardio et force"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cardio e forza"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cardio e força"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кардио и силовая"
+          }
+        }
+      }
+    },
+    "If you also run, swim or cycle, try to put that and your strength work in different halves of the day. A couple of hours apart and they barely get in each other's way. Back to back, the interference shows. If splitting them is not an option, no harm done: at home volumes the difference is small." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn du neben Dredfit läufst, schwimmst oder Rad fährst, leg das und das Krafttraining nach Möglichkeit in verschiedene Hälften des Tages. Ein paar Stunden dazwischen, und sie kommen sich kaum in die Quere. Direkt hintereinander stören sie sich merklich. Wenn es nicht anders geht, ist das kein Drama: bei Umfängen fürs Wohnzimmer ist der Unterschied klein."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If you also run, swim or cycle, try to put that and your strength work in different halves of the day. A couple of hours apart and they barely get in each other's way. Back to back, the interference shows. If splitting them is not an option, no harm done: at home volumes the difference is small."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si además de Dredfit corres, nadas o pedaleas, intenta poner eso y la fuerza en mitades distintas del día. Con un par de horas de por medio apenas se estorban. Seguidos, la interferencia se nota. Si no puedes separarlos, no pasa nada: con volúmenes de casa la diferencia es pequeña."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si en plus de Dredfit tu cours, tu nages ou tu pédales, essaie de mettre ça et la force dans deux moitiés différentes de la journée. Deux heures d’écart et ils ne se gênent presque pas. À la suite, la gêne se voit. Si tu ne peux pas les séparer, ce n’est pas grave : aux volumes de la maison, la différence est petite."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se oltre a Dredfit corri, nuoti o pedali, prova a mettere quello e la forza in due metà diverse della giornata. Un paio d’ore di distanza e quasi non si disturbano. Di seguito, il disturbo si sente. Se separarli non è possibile, non è un dramma: ai volumi di casa la differenza è piccola."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se além do Dredfit você corre, nada ou pedala, tente colocar isso e a força em metades diferentes do dia. Com umas duas horas entre eles, quase não atrapalham um ao outro. Um logo após o outro, a interferência aparece. Se não der para separar, tudo bem: nos volumes de casa a diferença é pequena."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Если кроме Dredfit ты бегаешь, плаваешь или крутишь педали — по возможности разнеси это и силовую в разные половины дня. Пара часов между ними — и они почти не мешают друг другу. Подряд — мешают заметнее. Если разнести не выходит, ничего страшного: на домашних объёмах разница невелика."
+          }
+        }
+      }
+    },
     " /side" : {
       "localizations" : {
         "de" : {
@@ -11780,42 +11872,42 @@
         }
       }
     },
-    "Ten things worth knowing about the regulator." : {
+    "Eleven things worth knowing about the regulator." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zehn Dinge, die du über den Regler wissen solltest."
+            "value" : "Elf Dinge, die du über den Regler wissen solltest."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Diez cosas que conviene saber sobre el regulador."
+            "value" : "Once cosas que conviene saber sobre el regulador."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dix choses à savoir sur le régulateur."
+            "value" : "Onze choses à savoir sur le régulateur."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dieci cose da sapere sul regolatore."
+            "value" : "Undici cose da sapere sul regolatore."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dez coisas que vale saber sobre o regulador."
+            "value" : "Onze coisas que vale saber sobre o regulador."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Десять фактов о регуляторе."
+            "value" : "Одиннадцать фактов о регуляторе."
           }
         }
       }
@@ -13908,6 +14000,52 @@
         }
       }
     },
+    "Workouts now fit into 45 minutes by default — you can change that in Settings." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Training passt jetzt standardmäßig in 45 Minuten – ändern kannst du das in den Einstellungen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Workouts now fit into 45 minutes by default — you can change that in Settings."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ahora el entrenamiento cabe en 45 minutos por defecto — puedes cambiarlo en los ajustes."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une séance tient maintenant en 45 minutes par défaut — tu peux changer ça dans les réglages."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ora l’allenamento sta in 45 minuti per impostazione predefinita — puoi cambiarlo nelle impostazioni."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agora o treino cabe em 45 minutos por padrão — dá para mudar nos ajustes."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тренировка теперь по умолчанию укладывается в 45 минут — изменить можно в настройках."
+          }
+        }
+      }
+    },
     "You stopped at exercise %lld of %lld — everything done so far is still in place." : {
       "localizations" : {
         "de" : {
@@ -14223,49 +14361,48 @@
         }
       }
     },
-    "Shorter workouts drop sets first, then movements — never below three. Your levels do not change." : {
-      "extractionState" : "manual",
+    "Shorter workouts drop sets, never movements — down to two per exercise. Your levels do not change." : {
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Shorter workouts drop sets first, then movements — never below three. Your levels do not change."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Короткие тренировки сначала теряют подходы, потом движения — но не меньше трёх. Уровни при этом не меняются."
-          }
-        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kürzere Einheiten streichen zuerst Sätze, dann Übungen — nie unter drei. Deine Level bleiben unverändert."
+            "value" : "Kürzere Trainings nehmen Sätze weg, nie Bewegungen – bis auf zwei pro Übung. Deine Level ändern sich dabei nicht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shorter workouts drop sets, never movements — down to two per exercise. Your levels do not change."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Las sesiones cortas quitan primero series y luego ejercicios, nunca menos de tres. Tus niveles no cambian."
+            "value" : "Los entrenamientos más cortos quitan series, nunca movimientos — hasta dos por ejercicio. Tus niveles no cambian."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Les séances courtes retirent d'abord des séries, puis des mouvements — jamais moins de trois. Tes niveaux ne changent pas."
+            "value" : "Une séance plus courte enlève des séries, jamais des mouvements — jusqu’à deux par exercice. Tes niveaux ne bougent pas."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Le sessioni brevi tolgono prima le serie, poi i movimenti — mai meno di tre. I tuoi livelli non cambiano."
+            "value" : "Gli allenamenti più corti tolgono serie, mai movimenti — fino a due per esercizio. I tuoi livelli non cambiano."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Treinos curtos tiram primeiro as séries e depois os exercícios, nunca menos de três. Seus níveis não mudam."
+            "value" : "Treinos mais curtos tiram séries, nunca movimentos — até duas por exercício. Seus níveis não mudam."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Короткая тренировка снимает подходы, но не движения — до двух на упражнение. Уровни при этом не меняются."
           }
         }
       }

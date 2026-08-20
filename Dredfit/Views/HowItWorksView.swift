@@ -109,6 +109,21 @@ struct HowItWorksView: View {
                     A questionnaire can be wrong; what you actually did cannot. \
                     Dredfit finds your level from real workouts and keeps the \
                     load right at the edge of what you can manage.
+                    """)),
+            // v2.24 (spec §35.5): the interference effect, said once and
+            // statically. It is a scheduling hint, not a rule the engine can
+            // act on — Dredfit cannot see the run you went on — so it belongs
+            // on the explainer screen and nowhere else: no notification, no
+            // card, no repeat.
+            Section(id: 11,
+                    title: String(localized: "Cardio and strength"),
+                    body: String(localized: """
+                    If you also run, swim or cycle, try to put that and your \
+                    strength work in different halves of the day. A couple of \
+                    hours apart and they barely get in each other's way. Back \
+                    to back, the interference shows. If splitting them is not \
+                    an option, no harm done: at home volumes the difference is \
+                    small.
                     """))
         ]
     }
@@ -123,7 +138,7 @@ struct HowItWorksView: View {
                         .padding(.top, 30)
                         .fixedSize(horizontal: false, vertical: true)
 
-                    Text("Ten things worth knowing about the regulator.")
+                    Text("Eleven things worth knowing about the regulator.")
                         .dredfitFont(15)
                         .foregroundStyle(Theme.ink2)
                         .padding(.top, 8)

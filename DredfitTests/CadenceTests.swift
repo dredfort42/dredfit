@@ -64,15 +64,22 @@ final class CadenceTests: XCTestCase {
         return AppStore(storageURL: tempURL)
     }
 
-    // MARK: - The training day (#147)
+    // MARK: - The training day (v2.24, spec §35.4 / #143)
 
-    func testTrainingDaysAreWholeElapsedDays() {
+    /// v2.24: RE-MARKED from whole elapsed 24-hour periods to CALENDAR days in
+    /// the local zone, with the cause. Everything about rhythm is calendar-
+    /// shaped in the trainee's head — "yesterday", "every Sunday", "two weeks
+    /// off" — and elapsed-hours arithmetic disagreed with all of it: Monday
+    /// 23:00 → Tuesday 01:00 was ZERO days. The thresholds themselves did not
+    /// move; what a day IS did.
+    func testTrainingDaysAreCalendarDays() {
         let start = date(day: 0, hour: 23)
-        XCTAssertEqual(AppStore.trainingDays(from: start, to: start.addingTimeInterval(2 * 3600)), 0,
-                       "23:00 and 01:00 are the same evening")
+        XCTAssertEqual(AppStore.trainingDays(from: start, to: start.addingTimeInterval(2 * 3600)), 1,
+                       "23:00 Monday and 01:00 Tuesday are two different days")
+        XCTAssertEqual(AppStore.trainingDays(from: date(day: 0, hour: 0, minute: 30),
+                                             to: date(day: 0, hour: 23, minute: 30)), 0,
+                       "almost a whole day inside one date is still no day at all")
         XCTAssertEqual(AppStore.trainingDays(from: start, to: start.addingTimeInterval(7 * 86400)), 7)
-        XCTAssertEqual(AppStore.trainingDays(from: start, to: start.addingTimeInterval(7 * 86400 - 60)), 6,
-                       "a minute short of seven full days is six — rounding only ever understates a break")
         XCTAssertEqual(AppStore.trainingDays(from: date(day: 0, hour: 9),
                                              to: date(day: 20, hour: 9)), 20,
                        "daytime training is counted as before")
@@ -80,26 +87,86 @@ final class CadenceTests: XCTestCase {
                        "a clock set backwards never yields a negative gap")
     }
 
-    func testShiftWorkerRitualCollectsNoPhantomDays() throws {
+    /// The autumn clock change makes one day 25 hours long. Elapsed-hours
+    /// arithmetic read that as 1 day only by luck and read the 23-hour spring
+    /// day as 0; `startOfDay` is right about both. The zone is named
+    /// explicitly — the test must not depend on where the runner sits.
+    func testTheClockChangeNeitherAddsNorEatsADay() throws {
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = try XCTUnwrap(TimeZone(identifier: "Europe/Berlin"))
+
+        // 25.10.2026, 03:00 -> 02:00. Evening before to evening after.
+        let autumnEve = try XCTUnwrap(cal.date(from: DateComponents(
+            year: 2026, month: 10, day: 24, hour: 22)))
+        let autumnNext = try XCTUnwrap(cal.date(from: DateComponents(
+            year: 2026, month: 10, day: 25, hour: 22)))
+        XCTAssertEqual(
+            AppStore.trainingDays(from: autumnEve, to: autumnNext, calendar: cal), 1,
+            "the 25-hour day is exactly one day")
+
+        // 29.03.2026, 02:00 -> 03:00 — the 23-hour day, the other direction.
+        let springEve = try XCTUnwrap(cal.date(from: DateComponents(
+            year: 2026, month: 3, day: 28, hour: 22)))
+        let springNext = try XCTUnwrap(cal.date(from: DateComponents(
+            year: 2026, month: 3, day: 29, hour: 22)))
+        XCTAssertEqual(
+            AppStore.trainingDays(from: springEve, to: springNext, calendar: cal), 1,
+            "and so is the 23-hour one")
+    }
+
+    /// A flight west moves the phone's zone between two workouts, which can
+    /// put the later one on an EARLIER local date than the arithmetic expects.
+    /// The gap the engine reads is clamped at zero either way — no negative
+    /// gap ever reaches `applySilentDecay` or `applyComeback`.
+    func testAZoneChangeBetweenSessionsNeverGoesNegative() throws {
+        var tokyo = Calendar(identifier: .gregorian)
+        tokyo.timeZone = try XCTUnwrap(TimeZone(identifier: "Asia/Tokyo"))
+        var honolulu = Calendar(identifier: .gregorian)
+        honolulu.timeZone = try XCTUnwrap(TimeZone(identifier: "Pacific/Honolulu"))
+
+        // Trained in Tokyo on the morning of the 2nd, then flew east across the
+        // date line and trained again "the same evening" — which in Honolulu is
+        // still the 1st.
+        let inTokyo = try XCTUnwrap(tokyo.date(from: DateComponents(
+            year: 2026, month: 6, day: 2, hour: 9)))
+        let afterFlight = inTokyo.addingTimeInterval(4 * 3600)
+        XCTAssertEqual(
+            AppStore.trainingDays(from: inTokyo, to: afterFlight, calendar: honolulu), 0,
+            "a westward flight must not produce a negative gap")
+        XCTAssertEqual(
+            AppStore.trainingDays(from: afterFlight, to: inTokyo, calendar: honolulu), 0,
+            "and neither must reading the journal backwards")
+    }
+
+    func testShiftWorkerRitualIsCarriedByTheRhythmNotByTheDayCount() throws {
         // True 6.0-day cadence with the hour drifting 23:00 <-> 01:00 across
-        // midnight — the ritual that used to read as 7 days half the time.
-        // In whole elapsed days the gaps honestly alternate 6/5, both below
-        // the decay zone and within the rhythm's ±1 of each other.
+        // midnight. v2.24: RE-MARKED from [5, 6, 5] to [5, 7, 5], with the
+        // cause. Under calendar days the drift genuinely straddles midnights,
+        // so the ritual reads 7/5 rather than 6/5 — and the thing that keeps it
+        // out of the decay is the rhythm detector (§23.2), not the definition
+        // of a day: a 7 that matches an earlier 7 within ±1 is this trainee's
+        // own rhythm. The price is one decay on the FIRST such gap, before
+        // there is any rhythm to recognise — named in spec §35.4, not hidden.
         var dates = [date(day: 0, hour: 23)]
         for i in 0..<4 {
             let drift: TimeInterval = i.isMultiple(of: 2) ? 2 * 3600 : -2 * 3600
             dates.append(dates[dates.count - 1].addingTimeInterval(6 * 86400 + drift))
         }
         let s = try store(workoutsAt: dates)
-        XCTAssertEqual(s.recentGaps, [5, 6, 5])
-        XCTAssertEqual(s.gapDays(now: dates.last!.addingTimeInterval(6 * 86400 + 2 * 3600)), 6)
+        XCTAssertEqual(s.recentGaps, [5, 7, 5])
+        let next = try XCTUnwrap(dates.last).addingTimeInterval(6 * 86400 + 2 * 3600)
+        XCTAssertEqual(s.gapDays(now: next), 7)
+        XCTAssertTrue(s.isRhythmBreak(7),
+                      "a 7 among 7s is the ritual, not a break in it")
     }
 
     // MARK: - The fractional gap the engine reads (v2.19, spec §30.8)
 
-    /// `trainingDays` floors, which is right for the decay, the comeback and
-    /// the rhythm — and wrong for the one argument the engine's weekly window
-    /// reads. `gapFraction` keeps the fraction; the two must not be confused.
+    /// `trainingDays` counts midnights, which is right for the decay, the
+    /// comeback and the rhythm — and wrong for the one argument the engine's
+    /// weekly window reads. `gapFraction` keeps the fraction of real elapsed
+    /// time (spec §30.8); the two must not be confused, and v2.24 did not
+    /// touch the second one.
     func testTheFractionalGapKeepsWhatTheTrainingDayThrowsAway() throws {
         let s = try store(workoutsAt: [date(day: 0, hour: 8)])
         let sameEvening = date(day: 0, hour: 20)
