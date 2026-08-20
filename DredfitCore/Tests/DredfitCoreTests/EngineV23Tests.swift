@@ -27,9 +27,12 @@ final class EngineV23Tests: XCTestCase {
 
         for ex in session.exercises {
             for level in 1...7 {
+                // Re-marked for v2.21 (spec §32.2): a rung of the tier-1
+                // ladder instead of "start + 5 s × level". Same property,
+                // input derived from the table rather than written out.
                 let actual = ex.unit == .reps
                     ? EngineConfig.repStart[1]! + level
-                    : EngineConfig.holdStart[1]! + level * EngineConfig.holdStepSec
+                    : EngineConfig.holdLadder[1]![level]
                 let next = Engine.applyFeedback(state: state, session: session,
                                                 result: .plan,
                                                 overrides: [ex.pattern: actual])
@@ -244,8 +247,12 @@ final class EngineV23Tests: XCTestCase {
     func testPerTierStartsCoverEveryTier() {
         XCTAssertEqual(Set(EngineConfig.repStart.keys), Set(1...EngineConfig.tiers),
                        "repStart must define exactly tiers 1...\(EngineConfig.tiers)")
-        XCTAssertEqual(Set(EngineConfig.holdStart.keys), Set(1...EngineConfig.tiers),
-                       "holdStart must define exactly tiers 1...\(EngineConfig.tiers)")
+        XCTAssertEqual(Set(EngineConfig.holdLadder.keys), Set(1...EngineConfig.tiers),
+                       "holdLadder must define exactly tiers 1...\(EngineConfig.tiers)")
+        for tier in 1...EngineConfig.tiers {
+            XCTAssertEqual(EngineConfig.holdLadder[tier]?.count, EngineConfig.stepsPerTier,
+                           "tier \(tier) ladder must carry every rung")
+        }
     }
 
     func testForwardEncodingUsesPerTierStarts() {
@@ -256,21 +263,28 @@ final class EngineV23Tests: XCTestCase {
             // and the step are the band's own — entering a band used to reset
             // the reps to the bottom of tier 4 and halve the actual work.
             let repStart = EngineConfig.repStartBand[d.sets] ?? EngineConfig.repStart[d.tier]!
-            let holdStart = EngineConfig.holdStartBand[d.sets] ?? EngineConfig.holdStart[d.tier]!
-            let holdStep = EngineConfig.holdStepBand[d.sets] ?? EngineConfig.holdStepSec
             XCTAssertEqual(d.reps, repStart + step, "L=\(level) reps")
-            XCTAssertEqual(d.hold, holdStart + step * holdStep, "L=\(level) hold")
+            // Re-marked for v2.21 (spec §32.2): a static dose is a rung of the
+            // ladder, not "start + step × rung".
+            XCTAssertEqual(d.hold, Level.ladder(tier: d.tier, sets: d.sets)[step],
+                           "L=\(level) hold")
         }
     }
 
-    /// Tier 1 keeps the original encoding — the per-tier floors only ever
+    /// Tier 1 keeps the original REP encoding — the per-tier floors only ever
     /// touch the tiers above it.
+    ///
+    /// Re-marked for v2.21 (spec §32.2): in seconds it no longer does, and
+    /// deliberately so — tier 1 runs 20-22-24-26-29-32-35-39 instead of
+    /// 20 + 5·L. The rung-0 start (20 s) survives; the top shrank to 39 s.
     func testTierOneIsUnchangedFromTheOldEncoding() {
         for level in 0...7 {
             let d = Level.decode(level)
             XCTAssertEqual(d.reps, 8 + level, "L=\(level) reps must match v2.2")
-            XCTAssertEqual(d.hold, 20 + level * 5, "L=\(level) hold must match v2.2")
+            XCTAssertEqual(d.hold, EngineConfig.holdLadder[1]![level], "L=\(level) hold")
         }
+        XCTAssertEqual(EngineConfig.holdLadder[1]?.first, 20, "tier 1 still starts at 20 s")
+        XCTAssertEqual(EngineConfig.holdLadder[1]?.last, 39, "tier 1 tops out at 39 s, not 55")
     }
 
     /// Every level round-trips through the inverse for every pattern, tier,

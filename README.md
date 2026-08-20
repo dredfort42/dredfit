@@ -24,7 +24,7 @@ band = L / 8                       # 0…5
 tier = min(4, 1 + band)            # which variation: 4 tiers from knee push-up to archer push-up
 sets = 3 + max(0, band - 3)        # 3 sets (L ≤ 31), 4 sets (32…39), 5 sets (40…47)
 reps = repStart[tier] + L % 8      # floors 8/6/5/4 → 8…15 on tier 1, 4…11 on tier 4
-hold = holdStart[tier] + L % 8 * 5 # floors 20/15/15/10 s → 20…55 s on tier 1, 10…45 s on tier 4
+hold = holdLadder[tier][L % 8]     # a ~10% step per rung → 20…39 s on tier 1, 10…19 s on tier 4
 ```
 
 Double progression falls out of the encoding for free: top out a tier's rep range and the next level up switches you to a harder variation, restarting low. The floor drops as the variation gets harder, so a new tier lands softly instead of jumping from an easy fifteen straight into a hard eight. Above tier 4 the same mechanism keeps working by adding a set instead of a variation, so the ceiling is 5 × 11 rather than a dead end. The level history *is* the progress chart.

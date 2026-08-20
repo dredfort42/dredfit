@@ -26,12 +26,26 @@ final class EdgeCaseTests: XCTestCase {
         XCTAssertEqual(next.levels[absent], 0, "an actual for an absent pattern changed the level")
     }
 
-    /// A hold actual rounds to the nearest 5 s step.
-    func testHoldOverrideRoundsToNearestStep() {
-        // 22 s → step round(0.4)=0 → level 0; 23 s → step round(0.6)=1 → level 1
-        XCTAssertEqual(Level.fromActual(pattern: .coreAntiExt, tier: 1, sets: 3, actual: 22), 0)
+    /// A hold actual lands on the nearest rung of its ladder, ties DOWN.
+    ///
+    /// Re-marked for v2.21 (spec §32.5): tier 1 runs 20-22-24-26-29-32-35-39,
+    /// so the rounding is by rung and not by five seconds. 21 s sits dead
+    /// centre between 20 and 22 and settles onto the lower rung; 22 s IS rung
+    /// 1; 55 s is off the top of the ladder, and the edge interval (4 s)
+    /// carries it on to rung 11 — a level in tier 2. Continuing past the edge
+    /// is what keeps the estimate monotone in the fact (§25.1): clamping at
+    /// rung 7 would make an honest 43 s score below an honest 42.
+    func testHoldOverrideLandsOnTheNearestRungOfItsLadder() {
+        XCTAssertEqual(Level.fromActual(pattern: .coreAntiExt, tier: 1, sets: 3, actual: 21), 0)
+        XCTAssertEqual(Level.fromActual(pattern: .coreAntiExt, tier: 1, sets: 3, actual: 22), 1)
         XCTAssertEqual(Level.fromActual(pattern: .coreAntiExt, tier: 1, sets: 3, actual: 23), 1)
-        XCTAssertEqual(Level.fromActual(pattern: .coreAntiExt, tier: 1, sets: 3, actual: 55), 7)
+        XCTAssertEqual(Level.fromActual(pattern: .coreAntiExt, tier: 1, sets: 3, actual: 24), 2)
+        XCTAssertEqual(Level.fromActual(pattern: .coreAntiExt, tier: 1, sets: 3, actual: 39), 7)
+        XCTAssertEqual(Level.fromActual(pattern: .coreAntiExt, tier: 1, sets: 3, actual: 42), 8)
+        XCTAssertEqual(Level.fromActual(pattern: .coreAntiExt, tier: 1, sets: 3, actual: 55), 11)
+        // The bottom of the corridor the app offers: five seconds is far below
+        // tier 1's floor and settles on the bottom of the scale, not on NaN.
+        XCTAssertEqual(Level.fromActual(pattern: .coreAntiExt, tier: 1, sets: 3, actual: 5), 0)
     }
 
     /// An actual below the bottom of the range drops the level into the previous tier (continuous formula).

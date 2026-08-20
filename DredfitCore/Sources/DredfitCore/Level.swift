@@ -21,15 +21,59 @@ public enum Level {
         // the band's own — otherwise entering a band halves the dose.
         let repStart = EngineConfig.repStartBand[sets]
             ?? EngineConfig.repStart[tier] ?? EngineConfig.repMin
-        let holdStart = EngineConfig.holdStartBand[sets]
-            ?? EngineConfig.holdStart[tier] ?? EngineConfig.holdMin
-        let holdStep = EngineConfig.holdStepBand[sets] ?? EngineConfig.holdStepSec
         return LevelDecoded(
             tier: tier,
             sets: sets,
             reps: repStart + step,
-            hold: holdStart + step * holdStep
+            // v2.21 (spec §32.2): the static dose is read off the ladder — the
+            // increment is relative and does not spell out as start + step.
+            hold: ladder(tier: tier, sets: sets)[step]
         )
+    }
+
+    /// The ladder a dose belongs to: the set band outranks the tier — exactly
+    /// the precedence `holdStartBand ?? holdStart[tier]` used to have.
+    static func ladder(tier: Int, sets: Int) -> [Int] {
+        EngineConfig.holdLadderBand[sets]
+            ?? EngineConfig.holdLadder[tier]
+            ?? [EngineConfig.holdMin]
+    }
+
+    /// Rounding to nearest with a tie going DOWN, entirely on integers: the
+    /// platform's rounding mode has no business inside the engine's encoding.
+    static func halfDown(_ delta: Int, step: Int) -> Int {
+        let numerator = step - 2 * delta, denominator = 2 * step   // denominator > 0
+        // Swift's `/` truncates toward zero; floor division is what the
+        // half-down rule needs, and it has to match the reference exactly.
+        let floored = numerator >= 0
+            ? numerator / denominator
+            : -((-numerator + denominator - 1) / denominator)
+        return -floored
+    }
+
+    /// The ladder rung a reported number sits on: nearest, ties DOWN ("do no
+    /// harm"). Walking left to right with a strict comparison is what makes an
+    /// exact tie keep the lower rung.
+    ///
+    /// Past either edge the ladder is continued by its EDGE interval, and the
+    /// rung returned goes freely below zero or above seven — cutting the
+    /// inversion off at a tier's edge is not an option. Measured while building
+    /// the wave: clamping the rung to [0,7] breaks the monotonicity of the
+    /// estimate in the reported fact (§25.1, #139) at the top rung of EVERY
+    /// tier and EVERY band — plank L7, plan 39 s: a fact of 42 gave level 8 and
+    /// an honest 43 gave level 7. Precisely the defect v2.14 was written for.
+    /// The edge a result settles on is the edge of the SCALE (0...47) in
+    /// `fromActual`, not the edge of a tier; the §15.3/§17.1 caps and the §25.3
+    /// gate apply on top, as they always did.
+    static func holdRung(_ ladder: [Int], _ actual: Int) -> Int {
+        let top = ladder.count - 1
+        if actual < ladder[0] { return halfDown(actual - ladder[0], step: ladder[1] - ladder[0]) }
+        if actual > ladder[top] {
+            return top + halfDown(actual - ladder[top], step: ladder[top] - ladder[top - 1])
+        }
+        var best = 0
+        for i in 1...top where abs(actual - ladder[i]) < abs(actual - ladder[best]) { best = i }
+        return best
     }
 
     /// v2.11 (spec §21.1): where a pain report lands — the bottom of the
@@ -74,11 +118,23 @@ public enum Level {
         return (t - 1) * EngineConfig.stepsPerTier + rung(tier: t, reps: d.reps)
     }
 
-    /// v2.14 (spec §25.1): the encoding step of a unit — one rep, or
-    /// `holdStepSec` seconds. The window of "the plan was met" is one step
+    /// v2.14 (spec §25.1): the encoding step of a unit — one rep, or as many
+    /// seconds as ONE rung costs. The window of "the plan was met" is one step
     /// wide, so for reps it collapses to the old equality.
-    static func step(of unit: LoadUnit) -> Int {
-        unit == .reps ? 1 : EngineConfig.holdStepSec
+    ///
+    /// v2.21 (spec §32.4): for statics that step is no longer a constant. The
+    /// ladder is relative, so a rung costs anywhere from 1 s (tier 4, bottom)
+    /// to 4 s (tier 1, top), and the window has to equal ONE REAL rung —
+    /// otherwise it drifts apart from the inversion again, exactly as in #139.
+    /// The step is local: the interval to the right of the plan's rung, or on
+    /// the last rung the interval to the left, there being no ladder further
+    /// right.
+    static func step(of unit: LoadUnit, tier: Int, sets: Int, load: Int) -> Int {
+        guard unit != .reps else { return 1 }
+        let l = ladder(tier: tier, sets: sets)
+        let top = l.count - 1
+        let i = min(max(holdRung(l, load), 0), top)
+        return i < top ? l[i + 1] - l[i] : l[top] - l[top - 1]
     }
 
     /// v2.14 (spec §25.3): how much work the plan of a level asks for. Only
@@ -173,15 +229,16 @@ public enum Level {
         // render used — the band's own when the plan sits in a band.
         let repStart = EngineConfig.repStartBand[sets]
             ?? EngineConfig.repStart[tier] ?? EngineConfig.repMin
-        let holdStart = EngineConfig.holdStartBand[sets]
-            ?? EngineConfig.holdStart[tier] ?? EngineConfig.holdMin
-        let holdStep = EngineConfig.holdStepBand[sets] ?? EngineConfig.holdStepSec
         let step: Int
         switch lib.unit(forTier: tier) {
         case .reps:
             step = actual - repStart
         case .hold:
-            step = Int((Double(actual - holdStart) / Double(holdStep)).rounded())
+            // v2.21 (spec §32.5): the static inversion is a lookup of the
+            // nearest rung ON THE TABLE of the same ladder that drew the plan.
+            // A tie settles down, and past the ladder's edge the edge interval
+            // carries on: the caps §15.3/§17.1 and the §25.3 gate apply on top.
+            step = holdRung(ladder(tier: tier, sets: sets), actual)
         }
         let base = sets <= EngineConfig.setsBase
             ? (tier - 1) * EngineConfig.stepsPerTier

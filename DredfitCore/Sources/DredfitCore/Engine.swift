@@ -54,7 +54,6 @@ public enum EngineConfig {
     public static let stepsPerTier = 8
     public static let tiers = 4
     public static let holdMin = 20
-    public static let holdStepSec = 5
     public static let setsBase = 3
     public static let setsMax = 5
     public static let restSetSec = 60
@@ -124,7 +123,12 @@ public enum EngineConfig {
     /// entry used to reset reps to the bottom of tier 4, which cut the actual
     /// work by 52-72% while the session got LONGER.
     public static let repStartBand = [4: 6, 5: 8]
-    public static let holdStartBand = [4: 25, 5: 30]
+    /// v2.21 (spec §32.3): the band starts drop 25/30 → 20/24. Tier 4 now tops
+    /// out at 19 s (the ladder below), and the old starts tore the continuity
+    /// at the band's door: L31 3×19 = 57 s of static work against L32 4×25 =
+    /// 100 s, +75 % for ONE level. 20/24 give +40 % and −27 % — the same
+    /// bounds every other boundary lives in (§28.1).
+    public static let holdStartBand = [4: 20, 5: 24]
     public static let holdStepBand = [4: 3, 5: 3]
     /// v2.17 (spec §28.4, #129): sessions of limited growth after a comeback.
     public static let rampWindowSessions = 10
@@ -165,7 +169,37 @@ public enum EngineConfig {
     /// ONE session make it a claim about the day rather than about the body.
     public static let calibrationGroup = 3
     public static let repStart = [1: 8, 2: 6, 3: 5, 4: 4]
-    public static let holdStart = [1: 20, 2: 15, 3: 15, 4: 10]
+    /// v2.21 (spec §32): the hold ladder — a relative step instead of a fixed
+    /// five seconds.
+    ///
+    /// Five seconds on a base of 10 (tier 4) is +50 % for ONE rung, and under
+    /// the §15.3 ceiling of two rungs up to +67 % in a single session:
+    /// `coreAntiExt` L8→10 turned a 3×15 s plank into 3×25 s. No source writes
+    /// progression as an absolute increment; ACSM 2009 (Med Sci Sports Exerc
+    /// 41(3):687–708) says "a 2–10 % increase in load". The rung of "do no
+    /// harm": ~10 % of the dose you are standing on.
+    ///
+    /// The tables are LITERAL, not a formula. The derivation —
+    /// `next = prev + max(1, round(prev × 0.10))` — was run once and written
+    /// down; keeping it as a formula would make the engine's behaviour depend
+    /// on the platform's rounding mode (JS `Math.round` sends a half up,
+    /// Swift's `.rounded()` sends it away from zero), and at 15 s and 25 s the
+    /// increment is exactly 1.5 and 2.5 — right on that boundary. A literal
+    /// is the same everywhere.
+    public static let holdLadder: [Int: [Int]] = [
+        1: [20, 22, 24, 26, 29, 32, 35, 39],
+        2: [15, 17, 19, 21, 23, 25, 28, 31],
+        3: [15, 17, 19, 21, 23, 25, 28, 31],
+        4: [10, 11, 12, 13, 14, 15, 17, 19],
+    ]
+    /// The set bands do NOT follow the relative formula: their step stays a
+    /// whole 3 s (§28.1), so the ladder is derived from the start and the step
+    /// by exact integer arithmetic — platform-independent, and needing no
+    /// literal of its own. One source of truth: `holdStartBand`/`holdStepBand`.
+    public static let holdLadderBand: [Int: [Int]] = holdStartBand.reduce(into: [:]) { out, band in
+        let step = holdStepBand[band.key] ?? 0
+        out[band.key] = (0..<stepsPerTier).map { band.value + $0 * step }
+    }
     public static var levelMax: Int { (tiers + setsMax - setsBase) * stepsPerTier - 1 } // 47
 
     /// How many levels a pattern may climb in one session, by (pattern, tier).
@@ -286,13 +320,17 @@ public enum Engine {
         let factL = Level.fromActual(pattern: p, tier: ex.tier,
                                      sets: Level.decode(oldL).sets, actual: actual)
         // v2.14 (spec §25.1): "the plan was met" is a WINDOW, not a point.
-        // Seconds are encoded in steps of holdStepSec, so an honest 21-22 s
+        // Seconds are encoded in ladder rungs, so an honest 21-22 s
         // against a plan of 20 rounded into the same rung and moved nothing,
         // while exactly 20 gave +1 — the level stopped being monotone in the
         // reported fact across the whole static class (v2.8 §18.1 granted the
         // step only at equality). For reps the step is one and the window is
         // that old equality.
-        if actual >= ex.load && actual < ex.load + Level.step(of: ex.unit) {
+        // v2.21 (spec §32.4): the window is one LOCAL rung of the ladder, not
+        // five seconds, and it is read off the same band the inversion uses.
+        let window = Level.step(of: ex.unit, tier: ex.tier,
+                                sets: Level.decode(oldL).sets, load: ex.load)
+        if actual >= ex.load && actual < ex.load + window {
             return min(oldL + EngineConfig.deltaPlan, oldL + cap)
         }
         // Calibration: from a zero level the per-session cap does not apply —

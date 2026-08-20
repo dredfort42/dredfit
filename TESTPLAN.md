@@ -100,7 +100,7 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 | # | Check | Expected |
 |---|---|---|
 | 4.1 | **Went differently** on a reps exercise | Inline stepper opens: −/value/+ and **OK**; steps by 1 within 0…30 |
-| 4.2 | Same on a hold exercise | Steps by 5 within 5…90; value shows a trailing "s" |
+| 4.2 | Same on a hold exercise | Steps by 1 within 5…90; value shows a trailing "s". Re-marked for engine v2.21 (spec §32.6): the hold ladder is relative, so a five-second grid could express only 13 of the scale's 48 rungs |
 | 4.3 | Enter a value **equal to the plan** and confirm | The override is dropped entirely — the rating screen shows no adjustment for it |
 | 4.4 | Enter a different value and finish the workout | Rating screen summary shows "actual N" in accent; history later shows the same |
 | 4.5 | **Skip exercise** | The flow advances; that exercise is marked skipped |
@@ -380,7 +380,7 @@ on a page that does — see I-11.
 | 23.1 | Cross from level 7 to 8 on any pattern | New variation asks for 6 reps, not 8 |
 | 23.2 | Reach a tier-3 exercise (pistol squat, level 16) | 5 per side |
 | 23.3 | Reach a tier-4 exercise (level 24) | 4 per side |
-| 23.4 | Levels 0–7 on any pattern | Identical to 1.4 — 8 to 15 reps, 20 to 55 s |
+| 23.4 | Levels 0–7 on any pattern | 8 to 15 reps; holds walk the tier-1 ladder 20-22-24-26-29-32-35-39 s (engine v2.21, spec §32.1 — the step is ~10% of the dose, not a flat five seconds) |
 | 23.5 | Adjust an actual on a tier-2+ exercise | Placeholder shows the planned number from the session, not a hardcoded 8 |
 
 ### 24. Interrupted workout and resume (design-audit wave)

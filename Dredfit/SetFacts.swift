@@ -35,8 +35,20 @@ nonisolated enum SetFacts {
 
     // MARK: - The corridors
 
-    /// The step the engine prescribes in: holds by 5 seconds, reps by 1.
-    static func step(for unit: LoadUnit) -> Int { unit == .hold ? 5 : 1 }
+    /// The grid a reportable number is snapped to: one second for holds, one
+    /// rep for reps.
+    ///
+    /// v2.21 (spec §32.6): holds used to snap to 5 s, matching the engine's
+    /// old fixed rung. The ladder is relative now — a rung costs from 1 s to
+    /// 4 s depending on where you stand — so a five-second grid can express
+    /// only 13 of the scale's 48 rungs. An honest 3 s short of the plan then
+    /// snapped a full grid cell away and cost five rungs instead of one. The
+    /// corridor itself (5...90 s) does not move.
+    static func step(for unit: LoadUnit) -> Int {
+        switch unit {
+        case .hold, .reps: return 1
+        }
+    }
 
     /// The corridor a reportable number lives in.
     static func corridor(for unit: LoadUnit) -> ClosedRange<Int> {
@@ -119,7 +131,7 @@ nonisolated enum SetFacts {
     /// when every set ran to plan and the rating should govern.
     ///
     /// The mean, snapped to the unit's grid: 15 / 15 / 10 against a plan of
-    /// 3×15 reports 13, and 55 / 55 / 40 against 3×55 s reports 50.
+    /// 3×15 reports 13, and 39 / 39 / 30 against 3×39 s reports 36.
     ///
     /// A shortfall is never reported as MEETING the plan, however close the
     /// mean lands. To the engine `actual == load` is two statements at once:

@@ -22,31 +22,34 @@ final class EngineTests: XCTestCase {
             // the bands and per BAND inside them — 8...15 / 6...13 / 5...12 /
             // 4...11, then 6...13 (band 4) and 8...15 (band 5).
             let repLo = EngineConfig.repStartBand[d.sets] ?? EngineConfig.repStart[d.tier]!
-            let holdLo = EngineConfig.holdStartBand[d.sets] ?? EngineConfig.holdStart[d.tier]!
-            let holdStep = EngineConfig.holdStepBand[d.sets] ?? EngineConfig.holdStepSec
+            // Re-marked for v2.21 (spec §32.2): the static range is the
+            // ladder's own two ends, not "start + 7 steps" — the step is
+            // relative and is not constant inside a ladder.
+            let ladder = Level.ladder(tier: d.tier, sets: d.sets)
             XCTAssertTrue((repLo...(repLo + EngineConfig.stepsPerTier - 1)).contains(d.reps),
                           "L=\(l) reps \(d.reps) outside the range of tier \(d.tier)/band \(d.sets)")
-            XCTAssertTrue((holdLo...(holdLo + (EngineConfig.stepsPerTier - 1) * holdStep))
-                            .contains(d.hold),
+            XCTAssertTrue((ladder[0]...ladder[ladder.count - 1]).contains(d.hold),
                           "L=\(l) hold \(d.hold) outside the range of tier \(d.tier)/band \(d.sets)")
         }
     }
 
     func testLevelDecodeTierTransitions() {
-        XCTAssertEqual(Level.decode(7), LevelDecoded(tier: 1, sets: 3, reps: 15, hold: 55))
+        // Re-marked for v2.21 (spec §32.2): the hold column is the ladder now.
+        // Tier 1 still starts at 20 s; its top is 39 s instead of 55.
+        XCTAssertEqual(Level.decode(7), LevelDecoded(tier: 1, sets: 3, reps: 15, hold: 39))
         // each tier starts lower, so entering a tier is a step down in reps —
         // the whole point of the per-tier floors
         XCTAssertEqual(Level.decode(8), LevelDecoded(tier: 2, sets: 3, reps: 6, hold: 15))
-        XCTAssertEqual(Level.decode(23), LevelDecoded(tier: 3, sets: 3, reps: 12, hold: 50))
+        XCTAssertEqual(Level.decode(23), LevelDecoded(tier: 3, sets: 3, reps: 12, hold: 31))
         XCTAssertEqual(Level.decode(24), LevelDecoded(tier: 4, sets: 3, reps: 4, hold: 10))
-        XCTAssertEqual(Level.decode(31), LevelDecoded(tier: 4, sets: 3, reps: 11, hold: 45))
+        XCTAssertEqual(Level.decode(31), LevelDecoded(tier: 4, sets: 3, reps: 11, hold: 19))
         // Set bands above tier 4. Re-marked for v2.17 (spec §28.1): a band
         // starts at its own dose — the old reset to tier 4's floor cut the
         // actual work by 52-72% at the boundary while the session grew longer.
-        XCTAssertEqual(Level.decode(32), LevelDecoded(tier: 4, sets: 4, reps: 6, hold: 25))
-        XCTAssertEqual(Level.decode(39), LevelDecoded(tier: 4, sets: 4, reps: 13, hold: 46))
-        XCTAssertEqual(Level.decode(40), LevelDecoded(tier: 4, sets: 5, reps: 8, hold: 30))
-        XCTAssertEqual(Level.decode(47), LevelDecoded(tier: 4, sets: 5, reps: 15, hold: 51)) // ceiling
+        XCTAssertEqual(Level.decode(32), LevelDecoded(tier: 4, sets: 4, reps: 6, hold: 20))
+        XCTAssertEqual(Level.decode(39), LevelDecoded(tier: 4, sets: 4, reps: 13, hold: 41))
+        XCTAssertEqual(Level.decode(40), LevelDecoded(tier: 4, sets: 5, reps: 8, hold: 24))
+        XCTAssertEqual(Level.decode(47), LevelDecoded(tier: 4, sets: 5, reps: 15, hold: 45)) // ceiling
     }
 
     func testLevelDecodeClamps() {

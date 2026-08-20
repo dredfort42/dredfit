@@ -74,8 +74,37 @@ extension Engine {
                 + Double(ex.restExerciseSec)
         }
         let totalSec = workSec + Double(ends * 60)
-        // Round to 0.1 min — as in the reference (toFixed(1)).
-        return (totalSec / 60 * 10).rounded() / 10
+        return roundedToTenths(totalSec / 60)
+    }
+
+    /// Rounded to 0.1 min the way the reference does it — `toFixed(1)`: the
+    /// nearest tenth to the EXACT value of the double, with a tie taken to the
+    /// larger number.
+    ///
+    /// `(x * 10).rounded() / 10` is not that, and the two answers differ by a
+    /// whole tenth in both directions. 2079 s / 60 is 34.649999999999999 as a
+    /// double — under 34.65, so the reference prints 34.6 — but `x * 10` rounds
+    /// that product up to exactly 346.5 and `.rounded()` then says 34.7. Going
+    /// the other way, 2115 s / 60 is exactly 35.25, a real tie: the reference
+    /// takes 35.3 while any round-half-to-even conversion takes 35.2.
+    ///
+    /// The divergence is older than this wave and was simply unreachable: with
+    /// static doses at multiples of five seconds no session ever landed on
+    /// either case. v2.21 put odd second counts into the statics and eighteen
+    /// golden steps lit up at once.
+    ///
+    /// A tie is exactly a value that is an ODD number of quarters — 10x is a
+    /// half-integer only for x = m/4 with m odd, because a dyadic fraction has
+    /// no other way to sit halfway between two tenths. Scaling by four is exact
+    /// for every finite double, so the test itself introduces no error; every
+    /// other value is handed to correctly-rounded decimal conversion.
+    static func roundedToTenths(_ value: Double) -> Double {
+        guard value.isFinite else { return value }
+        let quarters = value * 4
+        if quarters == quarters.rounded(), quarters.truncatingRemainder(dividingBy: 2) != 0 {
+            return (value * 10).rounded(.up) / 10
+        }
+        return Double(String(format: "%.1f", value)) ?? value
     }
 
     /// A pure function: the only input is the state.

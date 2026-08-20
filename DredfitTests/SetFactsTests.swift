@@ -9,8 +9,11 @@ import DredfitCore
 
 final class SetFactsTests: XCTestCase {
 
-    /// Every pattern one step below the top of tier 1, so the plan is 3×15
-    /// reps and 3×55 s — level 7 either way, and the whole grid is exact.
+    /// Every pattern at the top of tier 1, so the plan is 3×15 reps and
+    /// 3×39 s — level 7 either way, and the whole grid is exact.
+    ///
+    /// Re-marked for v2.21 (spec §32.2): tier 1 in seconds is the ladder
+    /// 20-22-24-26-29-32-35-39, so its top rung is 39 s and not 55.
     /// Sessions come from the engine: `SessionExercise` has no public
     /// initializer, and a hand-built one would be a plan the app never shows.
     private static let planLevel = 7
@@ -19,7 +22,7 @@ final class SetFactsTests: XCTestCase {
     private var session: Session!
     /// The plan of 3×15 reps.
     private var reps: SessionExercise!
-    /// The plan of 3×55 seconds.
+    /// The plan of 3×39 seconds.
     private var hold: SessionExercise!
 
     override func setUpWithError() throws {
@@ -35,7 +38,7 @@ final class SetFactsTests: XCTestCase {
         // if the generator ever moves, these fail here rather than silently
         // testing arithmetic about some other plan.
         XCTAssertEqual([reps.tier, reps.sets, reps.load], [1, 3, 15])
-        XCTAssertEqual([hold.tier, hold.sets, hold.load], [1, 3, 55])
+        XCTAssertEqual([hold.tier, hold.sets, hold.load], [1, 3, 39])
     }
 
     // MARK: - Nothing said
@@ -59,13 +62,13 @@ final class SetFactsTests: XCTestCase {
     }
 
     /// The same for a hold stopped early — the path that records itself with
-    /// no tap at all. Stopping at 40 s of 55 in the third set reports 50,
-    /// not 40.
+    /// no tap at all. Re-marked for v2.21: stopping at 30 s of 39 in the third
+    /// set reports 36, not 30.
     func testAHoldStoppedEarlyOnTheLastSetReportsTheMean() {
-        let facts = SetFacts.recording(SetFacts.snap(40, unit: .hold),
+        let facts = SetFacts.recording(SetFacts.snap(30, unit: .hold),
                                        in: [:], hold, set: 2)
-        XCTAssertEqual(SetFacts.allSets(facts, hold), [55, 55, 40])
-        XCTAssertEqual(SetFacts.override(facts, for: hold), 50)
+        XCTAssertEqual(SetFacts.allSets(facts, hold), [39, 39, 30])
+        XCTAssertEqual(SetFacts.override(facts, for: hold), 36)
     }
 
     /// What the fix is worth, stated as the engine sees it: the old shape
@@ -130,12 +133,14 @@ final class SetFactsTests: XCTestCase {
     /// `actual == load` is both the "on plan" step (§18.1) and the fact that
     /// confirms a pain episode has recovered (§21.2) — a near miss rounded up
     /// onto the plan would claim both.
+    /// Re-marked for v2.21: on the one-second grid the near miss that still
+    /// snaps onto the plan is 38 s of a 3×39 s plan — mean 38.67.
     func testANearMissIsNeverRoundedUpOntoThePlan() {
-        let facts = SetFacts.recording(50, in: [:], hold, set: 2)
-        XCTAssertEqual(SetFacts.allSets(facts, hold), [55, 55, 50],
+        let facts = SetFacts.recording(38, in: [:], hold, set: 2)
+        XCTAssertEqual(SetFacts.allSets(facts, hold), [39, 39, 38],
                        "the sets themselves are still recorded and shown")
         XCTAssertNil(SetFacts.override(facts, for: hold),
-                     "53.3 s snaps to 55 — below the plan must not report as on it")
+                     "38.7 s snaps to 39 — below the plan must not report as on it")
 
         let reps = SetFacts.recording(self.reps.load - 1, in: [:], self.reps, set: 2)
         XCTAssertNil(SetFacts.override(reps, for: self.reps), "the same on the reps grid")
@@ -144,10 +149,10 @@ final class SetFactsTests: XCTestCase {
     /// The rule is about the DIRECTION, not the landing: a mean at or above
     /// the plan that snaps onto it is an honest "on plan" fact.
     func testAMeanAtOrAboveThePlanStillReportsIt() throws {
-        let facts = SetFacts.recording(hold.load + 5, in: [:], hold, set: 2)
-        XCTAssertEqual(SetFacts.allSets(facts, hold), [55, 55, 60])
-        XCTAssertEqual(SetFacts.override(facts, for: hold), 55,
-                       "56.7 s snaps to 55, and the athlete did not fall short")
+        let facts = SetFacts.recording(hold.load + 1, in: [:], hold, set: 2)
+        XCTAssertEqual(SetFacts.allSets(facts, hold), [39, 39, 40])
+        XCTAssertEqual(SetFacts.override(facts, for: hold), 39,
+                       "39.3 s snaps to 39, and the athlete did not fall short")
     }
 
     /// The safety gate this protects, stated where it is actually enforced:
@@ -155,7 +160,7 @@ final class SetFactsTests: XCTestCase {
     func testAShortfallCannotConfirmRecoveryFromPain() throws {
         let p = hold.pattern
         state.sore[p] = EngineConfig.freezeAppearances
-        let facts = SetFacts.recording(50, in: [:], hold, set: 2)
+        let facts = SetFacts.recording(38, in: [:], hold, set: 2)
         let overrides = SetFacts.overrides(facts, in: session.exercises)
 
         let next = Engine.applyFeedback(state: state, session: session,
@@ -171,9 +176,15 @@ final class SetFactsTests: XCTestCase {
 
     // MARK: - The grid
 
-    func testHoldsSnapToTheFiveSecondStepAndRepsToOne() {
-        XCTAssertEqual(SetFacts.snap(51.67, unit: .hold), 50)
-        XCTAssertEqual(SetFacts.snap(53.0, unit: .hold), 55)
+    /// Re-marked for v2.21 (spec §32.6): the hold grid is one second, not
+    /// five. The ladder is relative now — a rung costs 1 s at the bottom of
+    /// tier 4 and 4 s at the top of tier 1 — so a five-second grid could
+    /// express only 13 of the scale's 48 rungs, and an honest three seconds
+    /// short of the plan snapped a whole cell away and cost five rungs
+    /// instead of one.
+    func testHoldsSnapToTheSecondAndRepsToOne() {
+        XCTAssertEqual(SetFacts.snap(51.67, unit: .hold), 52)
+        XCTAssertEqual(SetFacts.snap(53.0, unit: .hold), 53)
         XCTAssertEqual(SetFacts.snap(13.33, unit: .reps), 13)
         XCTAssertEqual(SetFacts.snap(13.5, unit: .reps), 14)
     }

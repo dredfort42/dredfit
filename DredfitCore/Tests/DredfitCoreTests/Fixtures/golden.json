@@ -1,5 +1,5 @@
 {
- "generator": "adaptive_engine.js v2.20.0",
+ "generator": "adaptive_engine.js v2.21.0",
  "patternOrder": [
   "squat",
   "push_h",
@@ -199,7 +199,7 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 34.3,
+     "estimatedTotalMin": 34,
      "exercises": [
       {
        "pattern": "squat",
@@ -245,7 +245,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -290,7 +290,7 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 34.9,
+     "estimatedTotalMin": 34.7,
      "exercises": [
       {
        "pattern": "push_h",
@@ -346,7 +346,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -381,7 +381,7 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 37.3,
+     "estimatedTotalMin": 36.4,
      "exercises": [
       {
        "pattern": "squat",
@@ -417,7 +417,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 30,
+       "load": 24,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -427,7 +427,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 30,
+       "load": 24,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -563,7 +563,7 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 39,
+     "estimatedTotalMin": 37.6,
      "exercises": [
       {
        "pattern": "hinge",
@@ -609,7 +609,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 35,
+       "load": 26,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -619,7 +619,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 35,
+       "load": 26,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -654,7 +654,7 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 38.4,
+     "estimatedTotalMin": 36.7,
      "exercises": [
       {
        "pattern": "squat",
@@ -690,7 +690,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 40,
+       "load": 29,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -700,7 +700,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 40,
+       "load": 29,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -836,7 +836,7 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 40.5,
+     "estimatedTotalMin": 38.5,
      "exercises": [
       {
        "pattern": "pull",
@@ -872,7 +872,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 45,
+       "load": 32,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -882,7 +882,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 45,
+       "load": 32,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -927,7 +927,7 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 39,
+     "estimatedTotalMin": 37.5,
      "exercises": [
       {
        "pattern": "squat",
@@ -973,7 +973,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 50,
+       "load": 35,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -1018,7 +1018,7 @@
     },
     {
      "sessionNumber": 12,
-     "estimatedTotalMin": 39,
+     "estimatedTotalMin": 38.3,
      "exercises": [
       {
        "pattern": "push_h",
@@ -1074,7 +1074,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 50,
+       "load": 35,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -1300,7 +1300,7 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 34.8,
+     "estimatedTotalMin": 34.5,
      "exercises": [
       {
        "pattern": "squat",
@@ -1346,7 +1346,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -1400,7 +1400,7 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 35.1,
+     "estimatedTotalMin": 35,
      "exercises": [
       {
        "pattern": "push_h",
@@ -1456,7 +1456,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -1500,7 +1500,7 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 37.4,
+     "estimatedTotalMin": 36.6,
      "exercises": [
       {
        "pattern": "squat",
@@ -1536,7 +1536,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 35,
+       "load": 26,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -1546,7 +1546,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -1701,7 +1701,7 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 39.1,
+     "estimatedTotalMin": 38,
      "exercises": [
       {
        "pattern": "hinge",
@@ -1747,7 +1747,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 40,
+       "load": 29,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -1757,7 +1757,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 30,
+       "load": 24,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -1804,7 +1804,7 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 36.6,
+     "estimatedTotalMin": 35.5,
      "exercises": [
       {
        "pattern": "squat",
@@ -1840,7 +1840,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 40,
+       "load": 29,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -1850,7 +1850,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 30,
+       "load": 24,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -2010,7 +2010,7 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 38.4,
+     "estimatedTotalMin": 36.8,
      "exercises": [
       {
        "pattern": "pull",
@@ -2046,7 +2046,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 45,
+       "load": 32,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -2056,7 +2056,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 35,
+       "load": 26,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -2113,7 +2113,7 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 37.4,
+     "estimatedTotalMin": 36.3,
      "exercises": [
       {
        "pattern": "squat",
@@ -2159,7 +2159,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 40,
+       "load": 29,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -2216,7 +2216,7 @@
     },
     {
      "sessionNumber": 12,
-     "estimatedTotalMin": 34.9,
+     "estimatedTotalMin": 34.1,
      "exercises": [
       {
        "pattern": "push_h",
@@ -2272,7 +2272,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 50,
+       "load": 35,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -2512,7 +2512,7 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 34.9,
+     "estimatedTotalMin": 34.6,
      "exercises": [
       {
        "pattern": "squat",
@@ -2558,7 +2558,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -2608,7 +2608,7 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 34.9,
+     "estimatedTotalMin": 34.7,
      "exercises": [
       {
        "pattern": "push_h",
@@ -2664,7 +2664,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -2710,7 +2710,7 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 37.1,
+     "estimatedTotalMin": 36.1,
      "exercises": [
       {
        "pattern": "squat",
@@ -2746,7 +2746,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -2756,7 +2756,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 35,
+       "load": 26,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -3003,7 +3003,7 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 35.4,
+     "estimatedTotalMin": 34.8,
      "exercises": [
       {
        "pattern": "squat",
@@ -3049,7 +3049,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 30,
+       "load": 24,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -3096,7 +3096,7 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 36.8,
+     "estimatedTotalMin": 36.5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -3152,7 +3152,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 30,
+       "load": 24,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -3189,7 +3189,7 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 39,
+     "estimatedTotalMin": 37.4,
      "exercises": [
       {
        "pattern": "squat",
@@ -3225,7 +3225,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 40,
+       "load": 29,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -3235,7 +3235,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 40,
+       "load": 29,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -3375,7 +3375,7 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 38.3,
+     "estimatedTotalMin": 36,
      "exercises": [
       {
        "pattern": "hinge",
@@ -3421,7 +3421,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 50,
+       "load": 35,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -3431,7 +3431,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 50,
+       "load": 35,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -3654,7 +3654,7 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 36.5,
+     "estimatedTotalMin": 35.6,
      "exercises": [
       {
        "pattern": "pull",
@@ -3690,7 +3690,7 @@
        "pattern": "core_anti_ext",
        "tier": 2,
        "unit": "hold",
-       "load": 25,
+       "load": 19,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -3700,7 +3700,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 25,
+       "load": 19,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -3747,7 +3747,7 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 39,
+     "estimatedTotalMin": 37.8,
      "exercises": [
       {
        "pattern": "squat",
@@ -3793,7 +3793,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 35,
+       "load": 23,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -3847,7 +3847,7 @@
     },
     {
      "sessionNumber": 12,
-     "estimatedTotalMin": 37.4,
+     "estimatedTotalMin": 36.8,
      "exercises": [
       {
        "pattern": "push_h",
@@ -3903,7 +3903,7 @@
        "pattern": "core_anti_ext",
        "tier": 2,
        "unit": "hold",
-       "load": 35,
+       "load": 23,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -3950,7 +3950,7 @@
     },
     {
      "sessionNumber": 13,
-     "estimatedTotalMin": 39.9,
+     "estimatedTotalMin": 38.1,
      "exercises": [
       {
        "pattern": "squat",
@@ -3986,7 +3986,7 @@
        "pattern": "core_anti_ext",
        "tier": 2,
        "unit": "hold",
-       "load": 35,
+       "load": 23,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -3996,7 +3996,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 35,
+       "load": 23,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -4156,7 +4156,7 @@
     },
     {
      "sessionNumber": 15,
-     "estimatedTotalMin": 37.9,
+     "estimatedTotalMin": 36.5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -4202,7 +4202,7 @@
        "pattern": "core_anti_ext",
        "tier": 2,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -4212,7 +4212,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -4259,7 +4259,7 @@
     },
     {
      "sessionNumber": 16,
-     "estimatedTotalMin": 36.3,
+     "estimatedTotalMin": 35.4,
      "exercises": [
       {
        "pattern": "squat",
@@ -4295,7 +4295,7 @@
        "pattern": "core_anti_ext",
        "tier": 2,
        "unit": "hold",
-       "load": 25,
+       "load": 19,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -4305,7 +4305,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 25,
+       "load": 19,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -4658,7 +4658,7 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 34.5,
+     "estimatedTotalMin": 34.2,
      "exercises": [
       {
        "pattern": "squat",
@@ -4704,7 +4704,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -4760,7 +4760,7 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 35.1,
+     "estimatedTotalMin": 35,
      "exercises": [
       {
        "pattern": "push_h",
@@ -4816,7 +4816,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -4864,7 +4864,7 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 36.6,
+     "estimatedTotalMin": 36,
      "exercises": [
       {
        "pattern": "squat",
@@ -4900,7 +4900,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 30,
+       "load": 24,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -4910,7 +4910,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -5071,7 +5071,7 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 37.1,
+     "estimatedTotalMin": 36.5,
      "exercises": [
       {
        "pattern": "hinge",
@@ -5117,7 +5117,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 30,
+       "load": 24,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -5127,7 +5127,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -5174,7 +5174,7 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 33.8,
+     "estimatedTotalMin": 33.6,
      "exercises": [
       {
        "pattern": "squat",
@@ -5210,7 +5210,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -5393,7 +5393,7 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 37.5,
+     "estimatedTotalMin": 36.5,
      "exercises": [
       {
        "pattern": "pull",
@@ -5429,7 +5429,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 35,
+       "load": 26,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -5439,7 +5439,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 30,
+       "load": 24,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -5687,7 +5687,7 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 35.4,
+     "estimatedTotalMin": 34.8,
      "exercises": [
       {
        "pattern": "squat",
@@ -5733,7 +5733,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 30,
+       "load": 24,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -5780,7 +5780,7 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 36.8,
+     "estimatedTotalMin": 36.5,
      "exercises": [
       {
        "pattern": "push_h",
@@ -5836,7 +5836,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 30,
+       "load": 24,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -5873,7 +5873,7 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 39,
+     "estimatedTotalMin": 37.4,
      "exercises": [
       {
        "pattern": "squat",
@@ -5909,7 +5909,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 40,
+       "load": 29,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -5919,7 +5919,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 40,
+       "load": 29,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -6059,7 +6059,7 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 38.3,
+     "estimatedTotalMin": 36,
      "exercises": [
       {
        "pattern": "hinge",
@@ -6105,7 +6105,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 50,
+       "load": 35,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -6115,7 +6115,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 50,
+       "load": 35,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -6338,7 +6338,7 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 36.5,
+     "estimatedTotalMin": 35.6,
      "exercises": [
       {
        "pattern": "pull",
@@ -6374,7 +6374,7 @@
        "pattern": "core_anti_ext",
        "tier": 2,
        "unit": "hold",
-       "load": 25,
+       "load": 19,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -6384,7 +6384,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 25,
+       "load": 19,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -6431,7 +6431,7 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 39,
+     "estimatedTotalMin": 37.8,
      "exercises": [
       {
        "pattern": "squat",
@@ -6477,7 +6477,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 35,
+       "load": 23,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -6524,7 +6524,7 @@
     },
     {
      "sessionNumber": 12,
-     "estimatedTotalMin": 38.4,
+     "estimatedTotalMin": 37.8,
      "exercises": [
       {
        "pattern": "push_h",
@@ -6580,7 +6580,7 @@
        "pattern": "core_anti_ext",
        "tier": 2,
        "unit": "hold",
-       "load": 35,
+       "load": 23,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -6617,7 +6617,7 @@
     },
     {
      "sessionNumber": 13,
-     "estimatedTotalMin": 39.5,
+     "estimatedTotalMin": 37,
      "exercises": [
       {
        "pattern": "squat",
@@ -6653,7 +6653,7 @@
        "pattern": "core_anti_ext",
        "tier": 2,
        "unit": "hold",
-       "load": 45,
+       "load": 28,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -6663,7 +6663,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 45,
+       "load": 28,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -6896,7 +6896,7 @@
     },
     {
      "sessionNumber": 16,
-     "estimatedTotalMin": 35.1,
+     "estimatedTotalMin": 34.2,
      "exercises": [
       {
        "pattern": "squat",
@@ -6932,7 +6932,7 @@
        "pattern": "core_anti_ext",
        "tier": 3,
        "unit": "hold",
-       "load": 25,
+       "load": 19,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -6942,7 +6942,7 @@
        "pattern": "core_rot",
        "tier": 3,
        "unit": "hold",
-       "load": 25,
+       "load": 19,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -7082,7 +7082,7 @@
     },
     {
      "sessionNumber": 18,
-     "estimatedTotalMin": 37.3,
+     "estimatedTotalMin": 35.9,
      "exercises": [
       {
        "pattern": "pull",
@@ -7118,7 +7118,7 @@
        "pattern": "core_anti_ext",
        "tier": 3,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -7128,7 +7128,7 @@
        "pattern": "core_rot",
        "tier": 3,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -7182,7 +7182,7 @@
     },
     {
      "sessionNumber": 19,
-     "estimatedTotalMin": 38,
+     "estimatedTotalMin": 37.1,
      "exercises": [
       {
        "pattern": "squat",
@@ -7228,7 +7228,7 @@
        "pattern": "core_rot",
        "tier": 3,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -7282,7 +7282,7 @@
     },
     {
      "sessionNumber": 20,
-     "estimatedTotalMin": 36.6,
+     "estimatedTotalMin": 36.2,
      "exercises": [
       {
        "pattern": "push_h",
@@ -7338,7 +7338,7 @@
        "pattern": "core_anti_ext",
        "tier": 3,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -7384,7 +7384,7 @@
     },
     {
      "sessionNumber": 21,
-     "estimatedTotalMin": 40.3,
+     "estimatedTotalMin": 38.3,
      "exercises": [
       {
        "pattern": "squat",
@@ -7420,7 +7420,7 @@
        "pattern": "core_anti_ext",
        "tier": 3,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -7430,7 +7430,7 @@
        "pattern": "core_rot",
        "tier": 3,
        "unit": "hold",
-       "load": 40,
+       "load": 25,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -7590,7 +7590,7 @@
     },
     {
      "sessionNumber": 23,
-     "estimatedTotalMin": 38.3,
+     "estimatedTotalMin": 36.3,
      "exercises": [
       {
        "pattern": "hinge",
@@ -7636,7 +7636,7 @@
        "pattern": "core_anti_ext",
        "tier": 3,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -7646,7 +7646,7 @@
        "pattern": "core_rot",
        "tier": 3,
        "unit": "hold",
-       "load": 40,
+       "load": 25,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -7693,7 +7693,7 @@
     },
     {
      "sessionNumber": 24,
-     "estimatedTotalMin": 39.8,
+     "estimatedTotalMin": 37.1,
      "exercises": [
       {
        "pattern": "squat",
@@ -7729,7 +7729,7 @@
        "pattern": "core_anti_ext",
        "tier": 3,
        "unit": "hold",
-       "load": 40,
+       "load": 25,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -7739,7 +7739,7 @@
        "pattern": "core_rot",
        "tier": 3,
        "unit": "hold",
-       "load": 50,
+       "load": 31,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -7899,7 +7899,7 @@
     },
     {
      "sessionNumber": 26,
-     "estimatedTotalMin": 37.9,
+     "estimatedTotalMin": 36.5,
      "exercises": [
       {
        "pattern": "pull",
@@ -7935,7 +7935,7 @@
        "pattern": "core_anti_ext",
        "tier": 3,
        "unit": "hold",
-       "load": 50,
+       "load": 31,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -7945,7 +7945,7 @@
        "pattern": "core_rot",
        "tier": 4,
        "unit": "hold",
-       "load": 15,
+       "load": 11,
        "perSide": true,
        "sets": 3,
        "restSetSec": 90,
@@ -8003,7 +8003,7 @@
     },
     {
      "sessionNumber": 27,
-     "estimatedTotalMin": 38.4,
+     "estimatedTotalMin": 37.6,
      "exercises": [
       {
        "pattern": "squat",
@@ -8049,7 +8049,7 @@
        "pattern": "core_rot",
        "tier": 4,
        "unit": "hold",
-       "load": 20,
+       "load": 12,
        "perSide": true,
        "sets": 3,
        "restSetSec": 90,
@@ -8200,7 +8200,7 @@
     },
     {
      "sessionNumber": 29,
-     "estimatedTotalMin": 40.3,
+     "estimatedTotalMin": 38.9,
      "exercises": [
       {
        "pattern": "squat",
@@ -8236,7 +8236,7 @@
        "pattern": "core_anti_ext",
        "tier": 4,
        "unit": "hold",
-       "load": 15,
+       "load": 11,
        "perSide": false,
        "sets": 3,
        "restSetSec": 90,
@@ -8246,7 +8246,7 @@
        "pattern": "core_rot",
        "tier": 4,
        "unit": "hold",
-       "load": 25,
+       "load": 13,
        "perSide": true,
        "sets": 3,
        "restSetSec": 90,
@@ -8386,7 +8386,7 @@
     },
     {
      "sessionNumber": 31,
-     "estimatedTotalMin": 39.8,
+     "estimatedTotalMin": 37.8,
      "exercises": [
       {
        "pattern": "hinge",
@@ -8432,7 +8432,7 @@
        "pattern": "core_anti_ext",
        "tier": 4,
        "unit": "hold",
-       "load": 20,
+       "load": 12,
        "perSide": false,
        "sets": 3,
        "restSetSec": 90,
@@ -8442,7 +8442,7 @@
        "pattern": "core_rot",
        "tier": 4,
        "unit": "hold",
-       "load": 30,
+       "load": 14,
        "perSide": true,
        "sets": 3,
        "restSetSec": 90,
@@ -8479,7 +8479,7 @@
     },
     {
      "sessionNumber": 32,
-     "estimatedTotalMin": 43.4,
+     "estimatedTotalMin": 40.8,
      "exercises": [
       {
        "pattern": "squat",
@@ -8515,7 +8515,7 @@
        "pattern": "core_anti_ext",
        "tier": 4,
        "unit": "hold",
-       "load": 25,
+       "load": 13,
        "perSide": false,
        "sets": 3,
        "restSetSec": 90,
@@ -8525,7 +8525,7 @@
        "pattern": "core_rot",
        "tier": 4,
        "unit": "hold",
-       "load": 35,
+       "load": 15,
        "perSide": true,
        "sets": 3,
        "restSetSec": 90,
@@ -8667,7 +8667,7 @@
     },
     {
      "sessionNumber": 34,
-     "estimatedTotalMin": 41.3,
+     "estimatedTotalMin": 38.1,
      "exercises": [
       {
        "pattern": "pull",
@@ -8703,7 +8703,7 @@
        "pattern": "core_anti_ext",
        "tier": 4,
        "unit": "hold",
-       "load": 30,
+       "load": 14,
        "perSide": false,
        "sets": 3,
        "restSetSec": 90,
@@ -8713,7 +8713,7 @@
        "pattern": "core_rot",
        "tier": 4,
        "unit": "hold",
-       "load": 40,
+       "load": 17,
        "perSide": true,
        "sets": 3,
        "restSetSec": 90,
@@ -8760,7 +8760,7 @@
     },
     {
      "sessionNumber": 35,
-     "estimatedTotalMin": 43.8,
+     "estimatedTotalMin": 41.1,
      "exercises": [
       {
        "pattern": "squat",
@@ -8806,7 +8806,7 @@
        "pattern": "core_rot",
        "tier": 4,
        "unit": "hold",
-       "load": 45,
+       "load": 19,
        "perSide": true,
        "sets": 3,
        "restSetSec": 90,
@@ -8853,7 +8853,7 @@
     },
     {
      "sessionNumber": 36,
-     "estimatedTotalMin": 42.4,
+     "estimatedTotalMin": 41.4,
      "exercises": [
       {
        "pattern": "push_h",
@@ -8909,7 +8909,7 @@
        "pattern": "core_anti_ext",
        "tier": 4,
        "unit": "hold",
-       "load": 35,
+       "load": 15,
        "perSide": false,
        "sets": 3,
        "restSetSec": 90,
@@ -8946,7 +8946,7 @@
     },
     {
      "sessionNumber": 37,
-     "estimatedTotalMin": 47.1,
+     "estimatedTotalMin": 45.3,
      "exercises": [
       {
        "pattern": "squat",
@@ -8982,7 +8982,7 @@
        "pattern": "core_anti_ext",
        "tier": 4,
        "unit": "hold",
-       "load": 40,
+       "load": 17,
        "perSide": false,
        "sets": 3,
        "restSetSec": 90,
@@ -8992,7 +8992,7 @@
        "pattern": "core_rot",
        "tier": 4,
        "unit": "hold",
-       "load": 25,
+       "load": 20,
        "perSide": true,
        "sets": 4,
        "restSetSec": 90,
@@ -9132,7 +9132,7 @@
     },
     {
      "sessionNumber": 39,
-     "estimatedTotalMin": 48.7,
+     "estimatedTotalMin": 46.8,
      "exercises": [
       {
        "pattern": "hinge",
@@ -9178,7 +9178,7 @@
        "pattern": "core_anti_ext",
        "tier": 4,
        "unit": "hold",
-       "load": 45,
+       "load": 19,
        "perSide": false,
        "sets": 3,
        "restSetSec": 90,
@@ -9188,7 +9188,7 @@
        "pattern": "core_rot",
        "tier": 4,
        "unit": "hold",
-       "load": 28,
+       "load": 23,
        "perSide": true,
        "sets": 4,
        "restSetSec": 90,
@@ -9330,13 +9330,13 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 35.3,
+     "estimatedTotalMin": 35,
      "exercises": [
       {
        "pattern": "pull_bar",
        "tier": 1,
        "unit": "hold",
-       "load": 30,
+       "load": 24,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -9430,7 +9430,7 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 35.4,
+     "estimatedTotalMin": 34.8,
      "exercises": [
       {
        "pattern": "squat",
@@ -9476,7 +9476,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 30,
+       "load": 24,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -9530,7 +9530,7 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 37,
+     "estimatedTotalMin": 36,
      "exercises": [
       {
        "pattern": "push_h",
@@ -9556,7 +9556,7 @@
        "pattern": "pull_bar",
        "tier": 1,
        "unit": "hold",
-       "load": 45,
+       "load": 32,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -9586,7 +9586,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 30,
+       "load": 24,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -9603,7 +9603,7 @@
       3,
       4,
       4,
-      5,
+      6,
       5,
       5,
       3,
@@ -9621,18 +9621,18 @@
       0,
       0
      ],
-     "barLevelAfter": 3,
-     "barStreakAfter": 1,
+     "barLevelAfter": 6,
+     "barStreakAfter": 0,
      "lessRunAfter": 0,
      "lessHistAfter": {},
      "creditPausedAfter": [
       0,
-      1
+      0
      ]
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 38.8,
+     "estimatedTotalMin": 37.5,
      "exercises": [
       {
        "pattern": "squat",
@@ -9648,7 +9648,7 @@
        "pattern": "pull",
        "tier": 1,
        "unit": "reps",
-       "load": 13,
+       "load": 14,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -9668,7 +9668,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 35,
+       "load": 26,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -9678,7 +9678,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 35,
+       "load": 26,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -9703,7 +9703,7 @@
       3,
       4,
       4,
-      4,
+      5,
       5,
       5,
       3,
@@ -9721,8 +9721,8 @@
       0,
       0
      ],
-     "barLevelAfter": 3,
-     "barStreakAfter": 1,
+     "barLevelAfter": 6,
+     "barStreakAfter": 0,
      "lessRunAfter": 1,
      "lessHistAfter": {
       "squat": 1,
@@ -9734,7 +9734,7 @@
      },
      "creditPausedAfter": [
       1,
-      1
+      0
      ]
     },
     {
@@ -9810,8 +9810,8 @@
       3,
       4,
       4,
-      4,
-      4,
+      5,
+      5,
       5,
       3,
       3,
@@ -9822,14 +9822,14 @@
       0,
       0,
       1,
-      1,
+      0,
       0,
       0,
       0,
       0
      ],
-     "barLevelAfter": 3,
-     "barStreakAfter": 0,
+     "barLevelAfter": 5,
+     "barStreakAfter": 1,
      "lessRunAfter": 2,
      "lessHistAfter": {
       "squat": 3,
@@ -9850,7 +9850,7 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 39,
+     "estimatedTotalMin": 37.9,
      "exercises": [
       {
        "pattern": "hinge",
@@ -9866,7 +9866,7 @@
        "pattern": "pull",
        "tier": 1,
        "unit": "reps",
-       "load": 12,
+       "load": 13,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -9876,7 +9876,7 @@
        "pattern": "push_v",
        "tier": 1,
        "unit": "reps",
-       "load": 12,
+       "load": 13,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -9896,7 +9896,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 35,
+       "load": 26,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -9906,7 +9906,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 35,
+       "load": 26,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -9921,8 +9921,8 @@
       3,
       4,
       5,
-      5,
-      5,
+      6,
+      6,
       6,
       4,
       4,
@@ -9939,8 +9939,8 @@
       0,
       0
      ],
-     "barLevelAfter": 3,
-     "barStreakAfter": 0,
+     "barLevelAfter": 5,
+     "barStreakAfter": 1,
      "lessRunAfter": 0,
      "lessHistAfter": {
       "squat": 3,
@@ -9961,7 +9961,7 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 37.9,
+     "estimatedTotalMin": 36.1,
      "exercises": [
       {
        "pattern": "squat",
@@ -9987,7 +9987,7 @@
        "pattern": "pull_bar",
        "tier": 1,
        "unit": "hold",
-       "load": 35,
+       "load": 32,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -9997,7 +9997,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 40,
+       "load": 29,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10007,7 +10007,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 40,
+       "load": 29,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -10034,8 +10034,8 @@
       1,
       4,
       5,
-      5,
-      5,
+      6,
+      6,
       6,
       4,
       4,
@@ -10052,8 +10052,8 @@
       0,
       0
      ],
-     "barLevelAfter": 3,
-     "barStreakAfter": 0,
+     "barLevelAfter": 5,
+     "barStreakAfter": 1,
      "lessRunAfter": 1,
      "lessHistAfter": {
       "squat": 7,
@@ -10074,7 +10074,7 @@
     },
     {
      "sessionNumber": 9,
-     "estimatedTotalMin": 37,
+     "estimatedTotalMin": 37.3,
      "exercises": [
       {
        "pattern": "squat",
@@ -10110,7 +10110,7 @@
        "pattern": "pull",
        "tier": 1,
        "unit": "reps",
-       "load": 13,
+       "load": 14,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10120,7 +10120,7 @@
        "pattern": "push_v",
        "tier": 1,
        "unit": "reps",
-       "load": 13,
+       "load": 14,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10145,8 +10145,8 @@
       2,
       5,
       6,
-      6,
-      6,
+      7,
+      7,
       7,
       4,
       4,
@@ -10163,8 +10163,8 @@
       0,
       0
      ],
-     "barLevelAfter": 3,
-     "barStreakAfter": 0,
+     "barLevelAfter": 5,
+     "barStreakAfter": 1,
      "lessRunAfter": 0,
      "lessHistAfter": {
       "squat": 14,
@@ -10185,13 +10185,13 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 40.5,
+     "estimatedTotalMin": 38.8,
      "exercises": [
       {
        "pattern": "pull_bar",
        "tier": 1,
        "unit": "hold",
-       "load": 35,
+       "load": 32,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10201,7 +10201,7 @@
        "pattern": "push_v",
        "tier": 1,
        "unit": "reps",
-       "load": 14,
+       "load": 15,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10221,7 +10221,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 40,
+       "load": 29,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10231,7 +10231,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 40,
+       "load": 29,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -10256,8 +10256,8 @@
       2,
       5,
       6,
-      8,
-      8,
+      9,
+      9,
       9,
       6,
       6,
@@ -10274,7 +10274,7 @@
       0,
       0
      ],
-     "barLevelAfter": 5,
+     "barLevelAfter": 7,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
      "lessHistAfter": {
@@ -10296,7 +10296,7 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 37.8,
+     "estimatedTotalMin": 36.4,
      "exercises": [
       {
        "pattern": "squat",
@@ -10332,7 +10332,7 @@
        "pattern": "pull",
        "tier": 2,
        "unit": "reps",
-       "load": 6,
+       "load": 7,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10342,7 +10342,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 50,
+       "load": 35,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -10367,8 +10367,8 @@
       3,
       6,
       7,
+      10,
       9,
-      8,
       9,
       6,
       7,
@@ -10385,7 +10385,7 @@
       0,
       0
      ],
-     "barLevelAfter": 6,
+     "barLevelAfter": 8,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
      "lessHistAfter": {
@@ -10407,7 +10407,7 @@
     },
     {
      "sessionNumber": 12,
-     "estimatedTotalMin": 37.1,
+     "estimatedTotalMin": 34.8,
      "exercises": [
       {
        "pattern": "push_h",
@@ -10431,9 +10431,9 @@
       },
       {
        "pattern": "pull_bar",
-       "tier": 1,
-       "unit": "hold",
-       "load": 50,
+       "tier": 2,
+       "unit": "reps",
+       "load": 6,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10443,7 +10443,7 @@
        "pattern": "push_v",
        "tier": 2,
        "unit": "reps",
-       "load": 6,
+       "load": 7,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10463,7 +10463,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 50,
+       "load": 35,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10478,8 +10478,8 @@
       3,
       8,
       9,
-      10,
-      10,
+      11,
+      11,
       11,
       8,
       7,
@@ -10496,7 +10496,7 @@
       0,
       0
      ],
-     "barLevelAfter": 8,
+     "barLevelAfter": 9,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
      "lessHistAfter": {
@@ -10515,7 +10515,7 @@
     },
     {
      "sessionNumber": 13,
-     "estimatedTotalMin": 38.4,
+     "estimatedTotalMin": 36.9,
      "exercises": [
       {
        "pattern": "squat",
@@ -10531,7 +10531,7 @@
        "pattern": "pull",
        "tier": 2,
        "unit": "reps",
-       "load": 8,
+       "load": 9,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10561,7 +10561,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 55,
+       "load": 39,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -10586,8 +10586,8 @@
       4,
       8,
       9,
+      12,
       11,
-      10,
       12,
       9,
       8,
@@ -10604,7 +10604,7 @@
       0,
       0
      ],
-     "barLevelAfter": 9,
+     "barLevelAfter": 10,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
      "lessHistAfter": {
@@ -10622,7 +10622,7 @@
     },
     {
      "sessionNumber": 14,
-     "estimatedTotalMin": 33.5,
+     "estimatedTotalMin": 33.8,
      "exercises": [
       {
        "pattern": "squat",
@@ -10658,7 +10658,7 @@
        "pattern": "pull_bar",
        "tier": 2,
        "unit": "reps",
-       "load": 7,
+       "load": 8,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10668,7 +10668,7 @@
        "pattern": "push_v",
        "tier": 2,
        "unit": "reps",
-       "load": 8,
+       "load": 9,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10693,8 +10693,8 @@
       6,
       10,
       11,
-      12,
-      12,
+      13,
+      13,
       12,
       9,
       8,
@@ -10711,7 +10711,7 @@
       0,
       0
      ],
-     "barLevelAfter": 10,
+     "barLevelAfter": 11,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
      "lessHistAfter": {
@@ -10726,7 +10726,7 @@
     },
     {
      "sessionNumber": 15,
-     "estimatedTotalMin": 35.8,
+     "estimatedTotalMin": 35.9,
      "exercises": [
       {
        "pattern": "hinge",
@@ -10742,7 +10742,7 @@
        "pattern": "pull",
        "tier": 2,
        "unit": "reps",
-       "load": 10,
+       "load": 11,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10752,7 +10752,7 @@
        "pattern": "push_v",
        "tier": 2,
        "unit": "reps",
-       "load": 10,
+       "load": 11,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10772,7 +10772,7 @@
        "pattern": "core_anti_ext",
        "tier": 2,
        "unit": "hold",
-       "load": 20,
+       "load": 17,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10797,8 +10797,8 @@
       6,
       10,
       12,
-      13,
-      13,
+      14,
+      14,
       13,
       10,
       9,
@@ -10815,7 +10815,7 @@
       0,
       0
      ],
-     "barLevelAfter": 10,
+     "barLevelAfter": 11,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
      "lessHistAfter": {
@@ -10828,7 +10828,7 @@
     },
     {
      "sessionNumber": 16,
-     "estimatedTotalMin": 35.1,
+     "estimatedTotalMin": 34.6,
      "exercises": [
       {
        "pattern": "squat",
@@ -10854,7 +10854,7 @@
        "pattern": "pull",
        "tier": 2,
        "unit": "reps",
-       "load": 11,
+       "load": 12,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10864,7 +10864,7 @@
        "pattern": "core_anti_ext",
        "tier": 2,
        "unit": "hold",
-       "load": 25,
+       "load": 19,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -10874,7 +10874,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 20,
+       "load": 17,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -10899,111 +10899,9 @@
       7,
       11,
       12,
+      15,
       14,
       13,
-      13,
-      11,
-      10,
-      7
-     ],
-     "failStreakAfter": [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-     ],
-     "barLevelAfter": 10,
-     "barStreakAfter": 0,
-     "lessRunAfter": 0,
-     "lessHistAfter": {
-      "pull_bar": 8
-     },
-     "creditPausedAfter": [
-      0,
-      0
-     ]
-    },
-    {
-     "sessionNumber": 17,
-     "estimatedTotalMin": 37.1,
-     "exercises": [
-      {
-       "pattern": "squat",
-       "tier": 1,
-       "unit": "reps",
-       "load": 15,
-       "perSide": false,
-       "sets": 3,
-       "restSetSec": 60,
-       "restExerciseSec": 60
-      },
-      {
-       "pattern": "push_h",
-       "tier": 2,
-       "unit": "reps",
-       "load": 9,
-       "perSide": false,
-       "sets": 3,
-       "restSetSec": 60,
-       "restExerciseSec": 60
-      },
-      {
-       "pattern": "hinge",
-       "tier": 2,
-       "unit": "reps",
-       "load": 10,
-       "perSide": true,
-       "sets": 3,
-       "restSetSec": 60,
-       "restExerciseSec": 60
-      },
-      {
-       "pattern": "pull",
-       "tier": 2,
-       "unit": "reps",
-       "load": 12,
-       "perSide": false,
-       "sets": 3,
-       "restSetSec": 60,
-       "restExerciseSec": 60
-      },
-      {
-       "pattern": "push_v",
-       "tier": 2,
-       "unit": "reps",
-       "load": 11,
-       "perSide": false,
-       "sets": 3,
-       "restSetSec": 60,
-       "restExerciseSec": 60
-      },
-      {
-       "pattern": "lunge",
-       "tier": 2,
-       "unit": "reps",
-       "load": 11,
-       "perSide": true,
-       "sets": 3,
-       "restSetSec": 60,
-       "restExerciseSec": 60
-      }
-     ],
-     "result": "more",
-     "overrides": {},
-     "skipped": [],
-     "hasBar": true,
-     "levelsAfter": [
-      9,
-      13,
-      14,
-      15,
-      15,
-      15,
       11,
       10,
       7
@@ -11031,11 +10929,21 @@
      ]
     },
     {
-     "sessionNumber": 18,
-     "estimatedTotalMin": 37.9,
+     "sessionNumber": 17,
+     "estimatedTotalMin": 37.4,
      "exercises": [
       {
-       "pattern": "pull_bar",
+       "pattern": "squat",
+       "tier": 1,
+       "unit": "reps",
+       "load": 15,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "push_h",
        "tier": 2,
        "unit": "reps",
        "load": 9,
@@ -11045,10 +10953,102 @@
        "restExerciseSec": 60
       },
       {
-       "pattern": "push_v",
+       "pattern": "hinge",
+       "tier": 2,
+       "unit": "reps",
+       "load": 10,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "pull",
        "tier": 2,
        "unit": "reps",
        "load": 13,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "push_v",
+       "tier": 2,
+       "unit": "reps",
+       "load": 12,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "lunge",
+       "tier": 2,
+       "unit": "reps",
+       "load": 11,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      }
+     ],
+     "result": "more",
+     "overrides": {},
+     "skipped": [],
+     "hasBar": true,
+     "levelsAfter": [
+      9,
+      13,
+      14,
+      16,
+      16,
+      15,
+      11,
+      10,
+      7
+     ],
+     "failStreakAfter": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "barLevelAfter": 12,
+     "barStreakAfter": 0,
+     "lessRunAfter": 0,
+     "lessHistAfter": {
+      "pull_bar": 8
+     },
+     "creditPausedAfter": [
+      0,
+      0
+     ]
+    },
+    {
+     "sessionNumber": 18,
+     "estimatedTotalMin": 36,
+     "exercises": [
+      {
+       "pattern": "pull_bar",
+       "tier": 2,
+       "unit": "reps",
+       "load": 10,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "push_v",
+       "tier": 3,
+       "unit": "reps",
+       "load": 5,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -11068,7 +11068,7 @@
        "pattern": "core_anti_ext",
        "tier": 2,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -11078,7 +11078,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 25,
+       "load": 19,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -11105,8 +11105,8 @@
       9,
       13,
       14,
-      16,
-      16,
+      17,
+      17,
       16,
       12,
       11,
@@ -11123,7 +11123,7 @@
       0,
       0
      ],
-     "barLevelAfter": 12,
+     "barLevelAfter": 13,
      "barStreakAfter": 0,
      "lessRunAfter": 0,
      "lessHistAfter": {},
@@ -11342,7 +11342,7 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 35.1,
+     "estimatedTotalMin": 34.8,
      "exercises": [
       {
        "pattern": "squat",
@@ -11388,7 +11388,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -11440,7 +11440,7 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 35,
+     "estimatedTotalMin": 34.9,
      "exercises": [
       {
        "pattern": "push_h",
@@ -11496,7 +11496,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -11540,7 +11540,7 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 36.6,
+     "estimatedTotalMin": 36,
      "exercises": [
       {
        "pattern": "squat",
@@ -11586,7 +11586,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 30,
+       "load": 24,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -11740,7 +11740,7 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 38.3,
+     "estimatedTotalMin": 37.2,
      "exercises": [
       {
        "pattern": "hinge",
@@ -11786,7 +11786,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -11796,7 +11796,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 35,
+       "load": 26,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -11838,7 +11838,7 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 37.4,
+     "estimatedTotalMin": 35.8,
      "exercises": [
       {
        "pattern": "squat",
@@ -11864,7 +11864,7 @@
        "pattern": "pull_bar",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -11874,7 +11874,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 30,
+       "load": 24,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -11884,7 +11884,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 40,
+       "load": 29,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -12036,13 +12036,13 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 41.1,
+     "estimatedTotalMin": 38.8,
      "exercises": [
       {
        "pattern": "pull_bar",
        "tier": 1,
        "unit": "hold",
-       "load": 40,
+       "load": 29,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -12072,7 +12072,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 35,
+       "load": 26,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -12082,7 +12082,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 45,
+       "load": 32,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -13232,7 +13232,7 @@
     },
     {
      "sessionNumber": 21,
-     "estimatedTotalMin": 35.9,
+     "estimatedTotalMin": 35.4,
      "exercises": [
       {
        "pattern": "squat",
@@ -13268,7 +13268,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -13278,7 +13278,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -13478,7 +13478,7 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 37.3,
+     "estimatedTotalMin": 36,
      "exercises": [
       {
        "pattern": "hinge",
@@ -13534,7 +13534,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 35,
+       "load": 23,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -13616,7 +13616,7 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 35.5,
+     "estimatedTotalMin": 34.6,
      "exercises": [
       {
        "pattern": "squat",
@@ -13662,7 +13662,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -13869,7 +13869,7 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 37,
+     "estimatedTotalMin": 36.1,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -13915,7 +13915,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -13977,7 +13977,7 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 37.9,
+     "estimatedTotalMin": 36.7,
      "exercises": [
       {
        "pattern": "squat",
@@ -14023,7 +14023,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 35,
+       "load": 23,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -14292,7 +14292,7 @@
     },
     {
      "sessionNumber": 13,
-     "estimatedTotalMin": 37.4,
+     "estimatedTotalMin": 36.3,
      "exercises": [
       {
        "pattern": "squat",
@@ -14328,7 +14328,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -14338,7 +14338,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -14508,7 +14508,7 @@
     },
     {
      "sessionNumber": 15,
-     "estimatedTotalMin": 37.8,
+     "estimatedTotalMin": 36.7,
      "exercises": [
       {
        "pattern": "hinge",
@@ -14554,7 +14554,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -14564,7 +14564,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -14789,7 +14789,7 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 38.9,
+     "estimatedTotalMin": 37.4,
      "exercises": [
       {
        "pattern": "hinge",
@@ -14835,7 +14835,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 40,
+       "load": 29,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -14845,7 +14845,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -14934,7 +14934,7 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 36.4,
+     "estimatedTotalMin": 34.9,
      "exercises": [
       {
        "pattern": "squat",
@@ -14970,7 +14970,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 40,
+       "load": 29,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -14980,7 +14980,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -15234,7 +15234,7 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 35.9,
+     "estimatedTotalMin": 34.4,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -15270,7 +15270,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 40,
+       "load": 29,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -15280,7 +15280,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -15385,7 +15385,7 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 38.8,
+     "estimatedTotalMin": 37.3,
      "exercises": [
       {
        "pattern": "squat",
@@ -15431,7 +15431,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 40,
+       "load": 25,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -15536,7 +15536,7 @@
     },
     {
      "sessionNumber": 12,
-     "estimatedTotalMin": 35.6,
+     "estimatedTotalMin": 34.9,
      "exercises": [
       {
        "pattern": "push_h",
@@ -15592,7 +15592,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 50,
+       "load": 35,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -15687,7 +15687,7 @@
     },
     {
      "sessionNumber": 13,
-     "estimatedTotalMin": 38.3,
+     "estimatedTotalMin": 36.5,
      "exercises": [
       {
        "pattern": "squat",
@@ -15733,7 +15733,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 45,
+       "load": 28,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -16251,7 +16251,7 @@
     },
     {
      "sessionNumber": 16,
-     "estimatedTotalMin": 34.3,
+     "estimatedTotalMin": 33.8,
      "exercises": [
       {
        "pattern": "squat",
@@ -16287,7 +16287,7 @@
        "pattern": "core_anti_ext",
        "tier": 2,
        "unit": "hold",
-       "load": 20,
+       "load": 17,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -16297,7 +16297,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 20,
+       "load": 17,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -16676,7 +16676,7 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 40.9,
+     "estimatedTotalMin": 39.2,
      "exercises": [
       {
        "pattern": "hinge",
@@ -16722,7 +16722,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 55,
+       "load": 39,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -16732,7 +16732,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -16792,7 +16792,7 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 38.4,
+     "estimatedTotalMin": 36.7,
      "exercises": [
       {
        "pattern": "squat",
@@ -16828,7 +16828,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 55,
+       "load": 39,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -16838,7 +16838,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -17026,7 +17026,7 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 37,
+     "estimatedTotalMin": 35.8,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -17072,7 +17072,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 35,
+       "load": 23,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -17140,7 +17140,7 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 38.8,
+     "estimatedTotalMin": 37,
      "exercises": [
       {
        "pattern": "squat",
@@ -17186,7 +17186,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 45,
+       "load": 28,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -17256,7 +17256,7 @@
     },
     {
      "sessionNumber": 12,
-     "estimatedTotalMin": 35.6,
+     "estimatedTotalMin": 35.3,
      "exercises": [
       {
        "pattern": "push_h",
@@ -17312,7 +17312,7 @@
        "pattern": "core_anti_ext",
        "tier": 2,
        "unit": "hold",
-       "load": 25,
+       "load": 19,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -17374,7 +17374,7 @@
     },
     {
      "sessionNumber": 13,
-     "estimatedTotalMin": 41.4,
+     "estimatedTotalMin": 39,
      "exercises": [
       {
        "pattern": "squat",
@@ -17410,7 +17410,7 @@
        "pattern": "core_anti_ext",
        "tier": 2,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -17420,7 +17420,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 50,
+       "load": 31,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -17604,7 +17604,7 @@
     },
     {
      "sessionNumber": 15,
-     "estimatedTotalMin": 36.3,
+     "estimatedTotalMin": 35.8,
      "exercises": [
       {
        "pattern": "hinge",
@@ -17650,7 +17650,7 @@
        "pattern": "core_anti_ext",
        "tier": 2,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -17802,7 +17802,7 @@
     },
     {
      "sessionNumber": 16,
-     "estimatedTotalMin": 34.6,
+     "estimatedTotalMin": 33.7,
      "exercises": [
       {
        "pattern": "squat",
@@ -17838,7 +17838,7 @@
        "pattern": "core_anti_ext",
        "tier": 2,
        "unit": "hold",
-       "load": 35,
+       "load": 23,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -17848,7 +17848,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 20,
+       "load": 17,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -18063,7 +18063,7 @@
    "steps": [
     {
      "sessionNumber": 21,
-     "estimatedTotalMin": 56.8,
+     "estimatedTotalMin": 54.8,
      "exercises": [
       {
        "pattern": "squat",
@@ -18099,7 +18099,7 @@
        "pattern": "core_anti_ext",
        "tier": 4,
        "unit": "hold",
-       "load": 30,
+       "load": 14,
        "perSide": false,
        "sets": 3,
        "restSetSec": 90,
@@ -18109,7 +18109,7 @@
        "pattern": "core_rot",
        "tier": 3,
        "unit": "hold",
-       "load": 35,
+       "load": 23,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -18994,7 +18994,7 @@
     },
     {
      "sessionNumber": 28,
-     "estimatedTotalMin": 33.5,
+     "estimatedTotalMin": 33.4,
      "exercises": [
       {
        "pattern": "push_h",
@@ -19020,7 +19020,7 @@
        "pattern": "pull_bar",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -19270,7 +19270,7 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 38.8,
+     "estimatedTotalMin": 37.4,
      "exercises": [
       {
        "pattern": "hinge",
@@ -19316,7 +19316,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 50,
+       "load": 35,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -19326,7 +19326,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 25,
+       "load": 19,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -19412,7 +19412,7 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 36.6,
+     "estimatedTotalMin": 34.9,
      "exercises": [
       {
        "pattern": "squat",
@@ -19448,7 +19448,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 55,
+       "load": 39,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -19458,7 +19458,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -19708,7 +19708,7 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 38.8,
+     "estimatedTotalMin": 37,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -19744,7 +19744,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 55,
+       "load": 39,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -19754,7 +19754,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -19857,7 +19857,7 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 39.1,
+     "estimatedTotalMin": 38.2,
      "exercises": [
       {
        "pattern": "squat",
@@ -19903,7 +19903,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -20004,7 +20004,7 @@
     },
     {
      "sessionNumber": 12,
-     "estimatedTotalMin": 36.6,
+     "estimatedTotalMin": 35.8,
      "exercises": [
       {
        "pattern": "push_h",
@@ -20060,7 +20060,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 55,
+       "load": 39,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -20155,7 +20155,7 @@
     },
     {
      "sessionNumber": 13,
-     "estimatedTotalMin": 38.4,
+     "estimatedTotalMin": 37.2,
      "exercises": [
       {
        "pattern": "squat",
@@ -20201,7 +20201,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 35,
+       "load": 23,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -20335,7 +20335,7 @@
    "steps": [
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 40.6,
+     "estimatedTotalMin": 38.7,
      "exercises": [
       {
        "pattern": "squat",
@@ -20381,7 +20381,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 50,
+       "load": 31,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -20480,7 +20480,7 @@
     },
     {
      "sessionNumber": 6,
-     "estimatedTotalMin": 37.1,
+     "estimatedTotalMin": 36.3,
      "exercises": [
       {
        "pattern": "squat",
@@ -20516,7 +20516,7 @@
        "pattern": "pull_bar",
        "tier": 1,
        "unit": "hold",
-       "load": 55,
+       "load": 39,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -20629,7 +20629,7 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 40,
+     "estimatedTotalMin": 38.1,
      "exercises": [
       {
        "pattern": "hinge",
@@ -20685,7 +20685,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 50,
+       "load": 31,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -20778,7 +20778,7 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 40.5,
+     "estimatedTotalMin": 37.2,
      "exercises": [
       {
        "pattern": "squat",
@@ -20804,7 +20804,7 @@
        "pattern": "pull_bar",
        "tier": 1,
        "unit": "hold",
-       "load": 55,
+       "load": 39,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -20814,7 +20814,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 55,
+       "load": 39,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -20824,7 +20824,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 45,
+       "load": 28,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -21078,7 +21078,7 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 38.1,
+     "estimatedTotalMin": 36.2,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -21124,7 +21124,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 50,
+       "load": 31,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -21229,7 +21229,7 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 39,
+     "estimatedTotalMin": 37.1,
      "exercises": [
       {
        "pattern": "squat",
@@ -21275,7 +21275,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 50,
+       "load": 31,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -21529,7 +21529,7 @@
     },
     {
      "sessionNumber": 13,
-     "estimatedTotalMin": 39,
+     "estimatedTotalMin": 36.7,
      "exercises": [
       {
        "pattern": "squat",
@@ -21565,7 +21565,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 55,
+       "load": 39,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -21575,7 +21575,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 40,
+       "load": 25,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -21751,7 +21751,7 @@
     },
     {
      "sessionNumber": 14,
-     "estimatedTotalMin": 35.3,
+     "estimatedTotalMin": 34.5,
      "exercises": [
       {
        "pattern": "squat",
@@ -21787,7 +21787,7 @@
        "pattern": "pull_bar",
        "tier": 1,
        "unit": "hold",
-       "load": 55,
+       "load": 39,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -21933,7 +21933,7 @@
    "steps": [
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 39.4,
+     "estimatedTotalMin": 38.2,
      "exercises": [
       {
        "pattern": "squat",
@@ -21979,7 +21979,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 35,
+       "load": 23,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -22046,7 +22046,7 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 37.8,
+     "estimatedTotalMin": 36.9,
      "exercises": [
       {
        "pattern": "push_h",
@@ -22102,7 +22102,7 @@
        "pattern": "core_anti_ext",
        "tier": 2,
        "unit": "hold",
-       "load": 45,
+       "load": 28,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -22159,7 +22159,7 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 38,
+     "estimatedTotalMin": 36.5,
      "exercises": [
       {
        "pattern": "squat",
@@ -22205,7 +22205,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 40,
+       "load": 25,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -22401,7 +22401,7 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 38.9,
+     "estimatedTotalMin": 37.4,
      "exercises": [
       {
        "pattern": "hinge",
@@ -22457,7 +22457,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 40,
+       "load": 25,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -22523,7 +22523,7 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 41.6,
+     "estimatedTotalMin": 39.4,
      "exercises": [
       {
        "pattern": "squat",
@@ -22559,7 +22559,7 @@
        "pattern": "core_anti_ext",
        "tier": 3,
        "unit": "hold",
-       "load": 25,
+       "load": 19,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -22569,7 +22569,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 50,
+       "load": 31,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -22765,7 +22765,7 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 37.3,
+     "estimatedTotalMin": 36.8,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -22801,7 +22801,7 @@
        "pattern": "core_anti_ext",
        "tier": 3,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -22885,7 +22885,7 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 40.1,
+     "estimatedTotalMin": 39.8,
      "exercises": [
       {
        "pattern": "squat",
@@ -22931,7 +22931,7 @@
        "pattern": "core_rot",
        "tier": 3,
        "unit": "hold",
-       "load": 20,
+       "load": 17,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -23007,7 +23007,7 @@
     },
     {
      "sessionNumber": 12,
-     "estimatedTotalMin": 40.8,
+     "estimatedTotalMin": 40.1,
      "exercises": [
       {
        "pattern": "push_h",
@@ -23063,7 +23063,7 @@
        "pattern": "core_anti_ext",
        "tier": 3,
        "unit": "hold",
-       "load": 35,
+       "load": 23,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -23127,7 +23127,7 @@
     },
     {
      "sessionNumber": 13,
-     "estimatedTotalMin": 37.9,
+     "estimatedTotalMin": 36.8,
      "exercises": [
       {
        "pattern": "squat",
@@ -23163,7 +23163,7 @@
        "pattern": "core_anti_ext",
        "tier": 3,
        "unit": "hold",
-       "load": 40,
+       "load": 25,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -23173,7 +23173,7 @@
        "pattern": "core_rot",
        "tier": 3,
        "unit": "hold",
-       "load": 20,
+       "load": 17,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -23538,7 +23538,7 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 35.9,
+     "estimatedTotalMin": 34.8,
      "exercises": [
       {
        "pattern": "hinge",
@@ -23584,7 +23584,7 @@
        "pattern": "core_anti_ext",
        "tier": 2,
        "unit": "hold",
-       "load": 20,
+       "load": 17,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -23594,7 +23594,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -23674,7 +23674,7 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 36.8,
+     "estimatedTotalMin": 35.3,
      "exercises": [
       {
        "pattern": "squat",
@@ -23710,7 +23710,7 @@
        "pattern": "core_anti_ext",
        "tier": 2,
        "unit": "hold",
-       "load": 25,
+       "load": 19,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -23720,7 +23720,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 35,
+       "load": 23,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -23948,7 +23948,7 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 39.3,
+     "estimatedTotalMin": 37.3,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -23984,7 +23984,7 @@
        "pattern": "core_anti_ext",
        "tier": 2,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -23994,7 +23994,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 40,
+       "load": 25,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -24084,7 +24084,7 @@
     },
     {
      "sessionNumber": 11,
-     "estimatedTotalMin": 39,
+     "estimatedTotalMin": 37.1,
      "exercises": [
       {
        "pattern": "squat",
@@ -24130,7 +24130,7 @@
        "pattern": "core_rot",
        "tier": 2,
        "unit": "hold",
-       "load": 50,
+       "load": 31,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -24222,7 +24222,7 @@
     },
     {
      "sessionNumber": 12,
-     "estimatedTotalMin": 34.8,
+     "estimatedTotalMin": 34,
      "exercises": [
       {
        "pattern": "push_h",
@@ -24278,7 +24278,7 @@
        "pattern": "core_anti_ext",
        "tier": 2,
        "unit": "hold",
-       "load": 40,
+       "load": 25,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -24360,7 +24360,7 @@
     },
     {
      "sessionNumber": 13,
-     "estimatedTotalMin": 36.5,
+     "estimatedTotalMin": 35.6,
      "exercises": [
       {
        "pattern": "squat",
@@ -24396,7 +24396,7 @@
        "pattern": "core_anti_ext",
        "tier": 2,
        "unit": "hold",
-       "load": 45,
+       "load": 28,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -24634,7 +24634,7 @@
     },
     {
      "sessionNumber": 15,
-     "estimatedTotalMin": 36.1,
+     "estimatedTotalMin": 35.3,
      "exercises": [
       {
        "pattern": "hinge",
@@ -24680,7 +24680,7 @@
        "pattern": "core_anti_ext",
        "tier": 2,
        "unit": "hold",
-       "load": 45,
+       "load": 28,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -24830,7 +24830,7 @@
     },
     {
      "sessionNumber": 16,
-     "estimatedTotalMin": 37.9,
+     "estimatedTotalMin": 36.6,
      "exercises": [
       {
        "pattern": "squat",
@@ -24866,7 +24866,7 @@
        "pattern": "core_anti_ext",
        "tier": 2,
        "unit": "hold",
-       "load": 50,
+       "load": 31,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -24876,7 +24876,7 @@
        "pattern": "core_rot",
        "tier": 3,
        "unit": "hold",
-       "load": 20,
+       "load": 17,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -25104,7 +25104,7 @@
     },
     {
      "sessionNumber": 18,
-     "estimatedTotalMin": 35.9,
+     "estimatedTotalMin": 35.3,
      "exercises": [
       {
        "pattern": "pull_bar",
@@ -25150,7 +25150,7 @@
        "pattern": "core_rot",
        "tier": 3,
        "unit": "hold",
-       "load": 25,
+       "load": 19,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -25240,7 +25240,7 @@
     },
     {
      "sessionNumber": 19,
-     "estimatedTotalMin": 41.5,
+     "estimatedTotalMin": 40.3,
      "exercises": [
       {
        "pattern": "squat",
@@ -25286,7 +25286,7 @@
        "pattern": "core_rot",
        "tier": 3,
        "unit": "hold",
-       "load": 35,
+       "load": 23,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -25376,7 +25376,7 @@
     },
     {
      "sessionNumber": 20,
-     "estimatedTotalMin": 36.1,
+     "estimatedTotalMin": 35.8,
      "exercises": [
       {
        "pattern": "push_h",
@@ -25432,7 +25432,7 @@
        "pattern": "core_anti_ext",
        "tier": 3,
        "unit": "hold",
-       "load": 25,
+       "load": 19,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -25512,7 +25512,7 @@
     },
     {
      "sessionNumber": 21,
-     "estimatedTotalMin": 42.8,
+     "estimatedTotalMin": 40.6,
      "exercises": [
       {
        "pattern": "squat",
@@ -25548,7 +25548,7 @@
        "pattern": "core_anti_ext",
        "tier": 3,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -25558,7 +25558,7 @@
        "pattern": "core_rot",
        "tier": 3,
        "unit": "hold",
-       "load": 45,
+       "load": 28,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -27880,7 +27880,7 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 38.9,
+     "estimatedTotalMin": 38.6,
      "exercises": [
       {
        "pattern": "squat",
@@ -27926,7 +27926,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -27975,7 +27975,7 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 36.1,
+     "estimatedTotalMin": 36,
      "exercises": [
       {
        "pattern": "push_h",
@@ -28031,7 +28031,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -28050,7 +28050,7 @@
       4,
       3,
       3,
-      2,
+      3,
       2,
       14
      ],
@@ -28070,7 +28070,7 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 40.5,
+     "estimatedTotalMin": 39.7,
      "exercises": [
       {
        "pattern": "squat",
@@ -28106,7 +28106,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 30,
+       "load": 26,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -28116,7 +28116,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 30,
+       "load": 24,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -28145,7 +28145,7 @@
       5,
       3,
       4,
-      3,
+      5,
       3,
       15
      ],
@@ -28240,7 +28240,7 @@
       6,
       4,
       4,
-      3,
+      5,
       3,
       16
      ],
@@ -28260,7 +28260,7 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 39,
+     "estimatedTotalMin": 38,
      "exercises": [
       {
        "pattern": "hinge",
@@ -28306,7 +28306,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 35,
+       "load": 32,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -28316,7 +28316,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 35,
+       "load": 26,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -28333,7 +28333,7 @@
       5,
       4,
       4,
-      3,
+      5,
       3,
       16
      ],
@@ -28360,7 +28360,7 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 39.6,
+     "estimatedTotalMin": 38.6,
      "exercises": [
       {
        "pattern": "squat",
@@ -28396,7 +28396,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 35,
+       "load": 32,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -28406,7 +28406,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 35,
+       "load": 26,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -28435,7 +28435,7 @@
       6,
       4,
       4,
-      4,
+      6,
       4,
       17
      ],
@@ -28769,7 +28769,7 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 46.7,
+     "estimatedTotalMin": 46.4,
      "exercises": [
       {
        "pattern": "squat",
@@ -28815,7 +28815,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -28913,7 +28913,7 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 37.8,
+     "estimatedTotalMin": 37.6,
      "exercises": [
       {
        "pattern": "push_h",
@@ -28969,7 +28969,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -29057,7 +29057,7 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 46.6,
+     "estimatedTotalMin": 45.9,
      "exercises": [
       {
        "pattern": "squat",
@@ -29093,7 +29093,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 35,
+       "load": 26,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -29103,7 +29103,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 25,
+       "load": 22,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -29349,7 +29349,7 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 48.4,
+     "estimatedTotalMin": 47.3,
      "exercises": [
       {
        "pattern": "hinge",
@@ -29395,7 +29395,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 40,
+       "load": 29,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -29405,7 +29405,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 30,
+       "load": 24,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -29493,7 +29493,7 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 41.4,
+     "estimatedTotalMin": 39.8,
      "exercises": [
       {
        "pattern": "squat",
@@ -29529,7 +29529,7 @@
        "pattern": "core_anti_ext",
        "tier": 1,
        "unit": "hold",
-       "load": 45,
+       "load": 32,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -29539,7 +29539,7 @@
        "pattern": "core_rot",
        "tier": 1,
        "unit": "hold",
-       "load": 35,
+       "load": 26,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -29802,7 +29802,7 @@
     },
     {
      "sessionNumber": 2,
-     "estimatedTotalMin": 35.5,
+     "estimatedTotalMin": 35.4,
      "exercises": [
       {
        "pattern": "pull",
@@ -29838,7 +29838,7 @@
        "pattern": "core_anti_ext",
        "tier": 3,
        "unit": "hold",
-       "load": 20,
+       "load": 17,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -29932,7 +29932,7 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 36.9,
+     "estimatedTotalMin": 36.3,
      "exercises": [
       {
        "pattern": "squat",
@@ -29978,7 +29978,7 @@
        "pattern": "core_rot",
        "tier": 3,
        "unit": "hold",
-       "load": 25,
+       "load": 19,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -30062,7 +30062,7 @@
     },
     {
      "sessionNumber": 4,
-     "estimatedTotalMin": 35.6,
+     "estimatedTotalMin": 35.2,
      "exercises": [
       {
        "pattern": "push_h",
@@ -30118,7 +30118,7 @@
        "pattern": "core_anti_ext",
        "tier": 3,
        "unit": "hold",
-       "load": 30,
+       "load": 21,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -30192,7 +30192,7 @@
     },
     {
      "sessionNumber": 5,
-     "estimatedTotalMin": 38.6,
+     "estimatedTotalMin": 36.8,
      "exercises": [
       {
        "pattern": "squat",
@@ -30228,7 +30228,7 @@
        "pattern": "core_anti_ext",
        "tier": 3,
        "unit": "hold",
-       "load": 35,
+       "load": 23,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -30238,7 +30238,7 @@
        "pattern": "core_rot",
        "tier": 3,
        "unit": "hold",
-       "load": 35,
+       "load": 23,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -30468,7 +30468,7 @@
     },
     {
      "sessionNumber": 7,
-     "estimatedTotalMin": 38,
+     "estimatedTotalMin": 36.2,
      "exercises": [
       {
        "pattern": "hinge",
@@ -30514,7 +30514,7 @@
        "pattern": "core_anti_ext",
        "tier": 3,
        "unit": "hold",
-       "load": 35,
+       "load": 23,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -30524,7 +30524,7 @@
        "pattern": "core_rot",
        "tier": 3,
        "unit": "hold",
-       "load": 35,
+       "load": 23,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -30605,7 +30605,7 @@
     },
     {
      "sessionNumber": 8,
-     "estimatedTotalMin": 39.8,
+     "estimatedTotalMin": 37.5,
      "exercises": [
       {
        "pattern": "squat",
@@ -30641,7 +30641,7 @@
        "pattern": "core_anti_ext",
        "tier": 3,
        "unit": "hold",
-       "load": 40,
+       "load": 25,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -30651,7 +30651,7 @@
        "pattern": "core_rot",
        "tier": 3,
        "unit": "hold",
-       "load": 40,
+       "load": 25,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -30880,7 +30880,7 @@
     },
     {
      "sessionNumber": 10,
-     "estimatedTotalMin": 39.4,
+     "estimatedTotalMin": 36.8,
      "exercises": [
       {
        "pattern": "pull",
@@ -30916,7 +30916,7 @@
        "pattern": "core_anti_ext",
        "tier": 3,
        "unit": "hold",
-       "load": 45,
+       "load": 28,
        "perSide": false,
        "sets": 3,
        "restSetSec": 60,
@@ -30926,7 +30926,7 @@
        "pattern": "core_rot",
        "tier": 3,
        "unit": "hold",
-       "load": 45,
+       "load": 28,
        "perSide": true,
        "sets": 3,
        "restSetSec": 60,
@@ -31281,7 +31281,7 @@
     },
     {
      "sessionNumber": 13,
-     "estimatedTotalMin": 39.5,
+     "estimatedTotalMin": 38.9,
      "exercises": [
       {
        "pattern": "squat",
@@ -31317,7 +31317,7 @@
        "pattern": "core_anti_ext",
        "tier": 4,
        "unit": "hold",
-       "load": 15,
+       "load": 11,
        "perSide": false,
        "sets": 3,
        "restSetSec": 90,
@@ -31327,7 +31327,7 @@
        "pattern": "core_rot",
        "tier": 4,
        "unit": "hold",
-       "load": 15,
+       "load": 11,
        "perSide": true,
        "sets": 3,
        "restSetSec": 90,
