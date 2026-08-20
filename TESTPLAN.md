@@ -39,7 +39,7 @@ about pixels, not about strings. Walk those on a device before submitting.
 | S6 | Progress tab | Total level > 0, one chart point, per-pattern bars drawn |
 | S7 | Switch to Russian and repeat S1–S3 | No English leaks, no clipped labels |
 | S8 | **Something hurt** on an exercise, then finish the workout | The exercise ends like a skip; the rating lists it under **DISCOMFORT**; the calendar's history row reads "hurt", not "skipped" |
-| S9 | **Hold this level** on an exercise, complete it, finish the workout | The caption reads "level held" and the action flips to its **Holding** pill; the exercise is still performed; the rating lists it under **HELD** with the horizon; the history row reads "held" |
+| S9 | An exercise the plan shows mid-step, e.g. "9-8-8" on Today | The workout screen asks 9 on the first set and 8 on the rest, and its caption names the number of the set in front of you; the history row prints the same "9-8-8". Re-marked for engine v2.22 (spec §33): the row was **Hold this level**, and that input is cancelled — the case it served is what the sub-step now handles by itself |
 
 ---
 

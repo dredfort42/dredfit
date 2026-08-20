@@ -104,19 +104,33 @@ final class EngineV217Tests: XCTestCase {
         var state = seeded(0, budget: 20)
         var last: [Pattern: Int] = [:]
         var worst = 0
+        var seen: [Pattern: Int] = [:]
         for session in 0..<24 {
             let plan = Engine.generateSession(state)
             for ex in plan.exercises {
-                if let seen = last[ex.pattern] { worst = max(worst, session - seen) }
+                if let was = last[ex.pattern] { worst = max(worst, session - was) }
                 last[ex.pattern] = session
+                seen[ex.pattern] = (seen[ex.pattern] ?? 0) + 1
             }
             state = Engine.applyFeedback(state: state, session: plan, result: .plan)
         }
         for p in Pattern.ordered {
             XCTAssertNotNil(last[p], "\(p) never appeared in 24 sessions")
         }
-        XCTAssertLessThanOrEqual(worst, 5,
-            "a pattern waited \(worst) sessions — longer than the silent decay's interval")
+        // v2.22 (spec §33): re-marked 5 → 6, with the cause. Who stays when the
+        // budget trims is decided by "the pull slot, the rotation anchor, then
+        // the laggards", and laggards are ranked BY LEVEL. Growth by sub-steps
+        // leaves the levels far more tightly packed over 24 sessions (3-4
+        // against 10-11 in v2.21), so there is almost nothing to rank by and one
+        // pattern waits a session longer. The structural guarantee is unchanged
+        // — the rotation anchor visits all eight rotating patterns in eight
+        // sessions — and that is now pinned explicitly, which it never was.
+        XCTAssertLessThanOrEqual(worst, 6,
+            "a pattern waited \(worst) sessions on the tightest budget")
+        for p in Pattern.ordered {
+            XCTAssertGreaterThanOrEqual(seen[p] ?? 0, 3,
+                "\(p) appeared \(seen[p] ?? 0) times in 24 sessions — the anchor never starves")
+        }
     }
 
     // MARK: - §28.4 The window after a comeback

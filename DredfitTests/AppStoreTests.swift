@@ -78,7 +78,12 @@ final class AppStoreTests: XCTestCase {
         store.completeWorkout(session: session, result: .more, skipped: [skippedPattern])
         XCTAssertEqual(store.engineState.levels[skippedPattern], 0,
                        "a skipped pattern must not level up")
-        XCTAssertEqual(store.engineState.levels[session.exercises[0].pattern], 2,
+        XCTAssertEqual(store.engineState.sub[skippedPattern] ?? 0, 0,
+                       "nor collect a sub-step")
+        // v2.22 (spec §33): "moves by the rating" is two SUB-STEPS, which at
+        // level zero is not yet a level.
+        XCTAssertEqual(store.engineState.sub[session.exercises[0].pattern],
+                       EngineConfig.deltaMore,
                        "a trained pattern must still move by the rating")
         XCTAssertEqual(store.records.last?.skipped, [skippedPattern])
     }
@@ -94,7 +99,9 @@ final class AppStoreTests: XCTestCase {
         XCTAssertEqual(store.engineState.levels[sore], 0, "a painful pattern must not level up")
         XCTAssertEqual(store.engineState.freezeRemaining(sore),
                        EngineConfig.freezeAppearances, "and it is resting afterwards")
-        XCTAssertEqual(store.engineState.levels[session.exercises[0].pattern], 2,
+        // v2.22 (spec §33): the neighbours take two SUB-STEPS.
+        XCTAssertEqual(store.engineState.sub[session.exercises[0].pattern],
+                       EngineConfig.deltaMore,
                        "its neighbours still move by the rating")
 
         let reloaded = AppStore(storageURL: tempURL)
@@ -129,39 +136,36 @@ final class AppStoreTests: XCTestCase {
         XCTAssertEqual(store.records.last?.skipped, nil, "a report is not a skip")
     }
 
-    // MARK: - Hold this level (#78)
+    // MARK: - The freeze has one entrance again (v2.22, §33)
 
-    /// Mirror of the discomfort case with the one difference that defines the
-    /// input: the session is processed — growth clamps instead of the session
-    /// being voided — and the journal keeps the request apart from both.
-    func testAPinFreezesThePatternAndIsRecorded() {
+    /// The hold-this-level input is cancelled, so what used to be two tests
+    /// about two entrances is one about the survivor: a pain report freezes the
+    /// pattern, the journal keeps it apart from a skip, and it survives a
+    /// reload. Today's horizon line reads the same freeze.
+    func testAPainReportFreezesThePatternAndIsRecorded() {
         let store = AppStore(storageURL: tempURL)
         let session = store.nextSession
-        let heldPattern = session.exercises[2].pattern
-        store.completeWorkout(session: session, result: .more, pinned: [heldPattern])
+        let hurt = session.exercises[2].pattern
+        store.completeWorkout(session: session, result: .more, discomfort: [hurt])
 
-        XCTAssertEqual(store.engineState.levels[heldPattern], 0, "a pinned pattern must not level up")
-        XCTAssertEqual(store.engineState.freezeRemaining(heldPattern),
+        XCTAssertEqual(store.engineState.levels[hurt], 0, "a reported pattern must not level up")
+        XCTAssertEqual(store.engineState.freezeRemaining(hurt),
                        EngineConfig.freezeAppearances, "and it is not climbing afterwards")
-        XCTAssertEqual(store.engineState.levels[session.exercises[0].pattern], 2,
+        // v2.22 (spec §33): the neighbours take two SUB-STEPS, which at level
+        // zero is not yet a level.
+        let neighbour = session.exercises[0].pattern
+        XCTAssertEqual(store.engineState.sub[neighbour], EngineConfig.deltaMore,
                        "its neighbours still move by the rating")
 
         let reloaded = AppStore(storageURL: tempURL)
-        XCTAssertEqual(reloaded.records.last?.pinned, [heldPattern],
-                       "the journal keeps the request apart from a skip and a report")
-        XCTAssertEqual(reloaded.records.last?.skipped, nil, "a pin is not a skip")
-        XCTAssertEqual(reloaded.engineState.freezeRemaining(heldPattern),
+        XCTAssertEqual(reloaded.records.last?.discomfort, [hurt],
+                       "the journal keeps the report apart from a skip")
+        XCTAssertEqual(reloaded.records.last?.skipped, nil, "a report is not a skip")
+        XCTAssertEqual(reloaded.engineState.freezeRemaining(hurt),
                        EngineConfig.freezeAppearances, "the rest survives a reload")
-    }
-
-    /// Today's horizon line covers both entrances — a pin arms the same rest.
-    func testRestingPatternsCoverAPinnedMovement() {
-        let store = AppStore(storageURL: tempURL)
-        let session = store.nextSession
-        let heldPattern = session.exercises[2].pattern
-        store.completeWorkout(session: session, result: .plan, pinned: [heldPattern])
-        let inNextPlan = store.nextSession.exercises.map(\.pattern).contains(heldPattern)
-        XCTAssertEqual(store.restingPatterns.contains(heldPattern), inNextPlan)
+        let inNextPlan = reloaded.nextSession.exercises.map(\.pattern).contains(hurt)
+        XCTAssertEqual(reloaded.restingPatterns.contains(hurt), inNextPlan,
+                       "today's horizon line reads the same freeze")
     }
 
     func testCorruptedStorageFallsBackToInitial() throws {
@@ -693,7 +697,12 @@ final class AppStoreTests: XCTestCase {
 
     /// A store whose last workout happened `daysAgo` days ago. Several
     /// sessions, so the levels sit clear of the zero clamp.
-    private func storeWithWorkout(daysAgo: Int, at url: URL, sessions: Int = 4) -> AppStore {
+    /// v2.22 (spec §33): fifteen sessions, not four. Growth moves by sub-steps
+    /// now — three of them to a level on the base band — so four "plan"
+    /// sessions leave every pattern at level zero, where a drop of one is
+    /// invisible because there is nowhere to drop to. The fixture needs a
+    /// level the break can actually take away.
+    private func storeWithWorkout(daysAgo: Int, at url: URL, sessions: Int = 15) -> AppStore {
         // The date comes first and is seeded in elapsed seconds: gapDays
         // counts whole 24h periods (v2.13, spec §7), so a store created
         // before its record — or a calendar-day seed across a spring-forward
@@ -701,8 +710,15 @@ final class AppStoreTests: XCTestCase {
         // (14 days − ε reads as 13).
         let date = Date(timeIntervalSinceNow: -Double(daysAgo) * 86_400)
         let store = AppStore(storageURL: url)
-        for _ in 0..<sessions {
-            _ = store.completeWorkout(session: store.nextSession, result: .plan, date: date)
+        // v2.22 (spec §33): the seeding workouts are a day apart, ending on
+        // `date`. Stacked on one instant they age the §28.5 window by the
+        // one-hour floor each, and the weekly ceiling — three SUB-STEPS for the
+        // slow tissues — pins every level near zero, where a break has nothing
+        // to take away. The last record still sits exactly `daysAgo` back, so
+        // every gap this fixture is about is unchanged.
+        for i in 0..<sessions {
+            let day = date.addingTimeInterval(-Double(sessions - 1 - i) * 86_400)
+            _ = store.completeWorkout(session: store.nextSession, result: .plan, date: day)
         }
         return store
     }
@@ -918,20 +934,22 @@ extension AppStoreTests {
 
 extension AppStoreTests {
 
-    /// The sign that flips against discomfort: a pinned exercise WAS
-    /// performed, so its tier counts toward the debut history — while the
-    /// painful one was not. v2.11 (spec §21) moved where that shows: the
-    /// report unloaded the movement to the previous tier, so the badge
-    /// question returned only after a climb back.
+    /// The sign that flips against discomfort: an exercise actually PERFORMED
+    /// counts toward the debut history, while a painful one does not. v2.11
+    /// (spec §21) moved where that shows: the report unloaded the movement to
+    /// the previous tier, so the badge question returned only after a climb
+    /// back.
     ///
     /// v2.19 (spec §30.6) moves it again, and closer to the point: the first
     /// report keeps the variation and only drops the dose inside it, so the
     /// badge is still standing right after the report — the tier really has
     /// never been performed, because the report voided the session for it.
-    /// It goes the moment the trainee actually performs that tier. The
-    /// re-marking is not a weakening: the contrast under test is asserted
-    /// twice now, once on each side of the same tier.
-    func testAPinnedExerciseCountsAsPerformedWhereAPainfulOneDoesNot() {
+    /// It goes the moment the trainee actually performs that tier.
+    ///
+    /// v2.22 (spec §33): the "performed" side used to be a held exercise. The
+    /// hold is cancelled, so it is now an ordinary rated session — which is the
+    /// same claim with one fewer input involved.
+    func testAPerformedExerciseCountsWhereAPainfulOneDoesNot() {
         let hurtURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-test-\(UUID().uuidString).json")
         defer { try? FileManager.default.removeItem(at: hurtURL) }
@@ -939,15 +957,14 @@ extension AppStoreTests {
         // patterns to three levels a week, so a walk up the scale can no longer
         // be a run of same-instant taps — every workout here gets its own day.
         let start = Date()
-        for (url, pin) in [(tempURL!, true), (hurtURL, false)] {
+        for (url, performed) in [(tempURL!, true), (hurtURL, false)] {
             let store = AppStore(storageURL: url)
             var day = 0
             func train(_ result: FeedbackResult, overrides: [Pattern: Int] = [:],
-                       discomfort: Set<Pattern> = [], pinned: Set<Pattern> = []) {
+                       discomfort: Set<Pattern> = []) {
                 day += 1
                 store.completeWorkout(session: store.nextSession, result: result,
                                       overrides: overrides, discomfort: discomfort,
-                                      pinned: pinned,
                                       date: start.addingTimeInterval(Double(day) * 86_400))
             }
             func pullTier() -> Int {
@@ -960,10 +977,10 @@ extension AppStoreTests {
                 guard day < 60 else { return XCTFail("seeding: pull never reached tier 2") }
                 train(.more)
             }
-            train(.plan, discomfort: pin ? [] : [.pull], pinned: pin ? [.pull] : [])
-            if pin {
+            train(.plan, discomfort: performed ? [] : [.pull])
+            if performed {
                 XCTAssertFalse(store.debutPatterns.contains(.pull),
-                               "performed under a pin — tier 2 is no debut")
+                               "actually performed — tier 2 is no debut")
                 continue
             }
             // The report keeps pull in tier 2 and puts it on that tier's floor

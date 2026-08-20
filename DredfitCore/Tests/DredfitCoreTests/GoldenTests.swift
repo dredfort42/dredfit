@@ -100,8 +100,12 @@ private struct Golden: Decodable {
         let overrides: [String: Int]
         let skipped: [String]?     // absent in older fixtures
         let discomfort: [String]?  // v2.5: present only in the discomfort scenario
-        let pinned: [String]?      // v2.6: present only in the pinned scenario
         let levelsAfter: [Int]
+        // v2.22 (§33): the sub-step, by patternOrder. Every scenario writes it —
+        // growth moves by sub-steps, so without it the fixture would pin almost
+        // nothing about the wave.
+        let subAfter: [Int]?
+        let barSubAfter: Int?
         let failStreakAfter: [Int]
         // present only in scenarios that exercise the bar module
         let hasBar: Bool?          // effective toggle for this step's session
@@ -127,11 +131,14 @@ private struct Golden: Decodable {
         let pattern: String
         let tier: Int
         let unit: String
-        let load: Int
+        let load: Int          // the BASE dose
         let perSide: Bool
         let sets: Int
         let restSetSec: Int
         let restExerciseSec: Int
+        /// v2.22 (§33): per-set doses, present only on an uneven plan — the
+        /// wire form mirrors `[Int]?` exactly, so its absence is a claim too.
+        let loads: [Int]?
     }
 }
 
@@ -149,7 +156,7 @@ final class GoldenTests: XCTestCase {
     /// re-baseline every number instead of catching a port bug.
     func testGeneratorIsThePinnedReferenceVersion() throws {
         let g = try loadGolden()
-        XCTAssertEqual(g.generator, "adaptive_engine.js v2.21.0",
+        XCTAssertEqual(g.generator, "adaptive_engine.js v2.22.0",
                        "golden.json regenerated from an unexpected reference version")
     }
 
@@ -233,6 +240,9 @@ final class GoldenTests: XCTestCase {
                     XCTAssertEqual(ex.sets, ref.sets, ctx)
                     XCTAssertEqual(ex.restSetSec, ref.restSetSec, ctx)
                     XCTAssertEqual(ex.restExerciseSec, ref.restExerciseSec, ctx)
+                    // v2.22 (§33): the per-set doses, absence included — a
+                    // uniform plan must stay nil on both sides.
+                    XCTAssertEqual(ex.loads, ref.loads, ctx + " \(ref.pattern) loads")
                 }
 
                 // --- feedback yields the same levels ---
@@ -241,16 +251,22 @@ final class GoldenTests: XCTestCase {
                     step.overrides.map { (Pattern(rawValue: $0.key)!, $0.value) })
                 let skipped = Set((step.skipped ?? []).map { Pattern(rawValue: $0)! })
                 let discomfort = Set((step.discomfort ?? []).map { Pattern(rawValue: $0)! })
-                let pinned = Set((step.pinned ?? []).map { Pattern(rawValue: $0)! })
                 state = Engine.applyFeedback(state: state, session: session,
                                              result: result, overrides: overrides,
-                                             skipped: skipped, discomfort: discomfort,
-                                             pinned: pinned)
+                                             skipped: skipped, discomfort: discomfort)
 
                 let levels = Pattern.ordered.map { state.levels[$0]! }
                 let streaks = Pattern.ordered.map { state.failStreak[$0]! }
                 XCTAssertEqual(levels, step.levelsAfter, ctx + " (levels)")
                 XCTAssertEqual(streaks, step.failStreakAfter, ctx + " (failStreak)")
+                // v2.22 (§33): the level is only half the position.
+                if let subs = step.subAfter {
+                    XCTAssertEqual(Pattern.ordered.map { state.sub[$0] ?? 0 }, subs,
+                                   ctx + " (sub)")
+                }
+                if let barSub = step.barSubAfter {
+                    XCTAssertEqual(state.sub[.pullBar] ?? 0, barSub, ctx + " (bar sub)")
+                }
 
                 // vertical branch snapshot
                 if let barLevel = step.barLevelAfter {

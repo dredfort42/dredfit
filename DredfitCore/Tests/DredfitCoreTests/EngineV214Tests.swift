@@ -98,7 +98,9 @@ final class EngineV214Tests: XCTestCase {
         let above = try XCTUnwrap(Engine.applyFeedback(state: state, session: session,
                                                        result: .plan,
                                                        overrides: [.squat: ex.load + 2]).levels[.squat])
-        XCTAssertGreaterThan(above, onPlan, "a real overshoot outscores 'the plan met'")
+        // v2.22 (spec §33): both sides move by sub-steps, so the comparison is
+        // on POSITIONS; at the same level the ordering lives in the sub-step.
+        XCTAssertGreaterThanOrEqual(above, onPlan, "a real overshoot outscores 'the plan met'")
     }
 
     // MARK: - §25.2 The set-band gate and a point fact (#140)
@@ -125,7 +127,8 @@ final class EngineV214Tests: XCTestCase {
         let (gated, session, ex) = try XCTUnwrap(exercise(.pushH, in: seed))
         let after = Engine.applyFeedback(state: gated, session: session, result: .plan,
                                          overrides: [.pushH: ex.load + 6])
-        XCTAssertGreaterThan(try XCTUnwrap(after.levels[.pushH]), 32,
+        XCTAssertGreaterThan(Level.ordinal(after.position(.pushH)),
+                             Level.ordinal(Position(level: 32, sub: 0)),
                              "an honest overshoot climbs; it used to drop 32 → 30")
         XCTAssertEqual(after.failStreak[.pushH], 0,
                        "and it is not an underperformance")
@@ -221,9 +224,10 @@ final class EngineV214Tests: XCTestCase {
         let session = Engine.generateSession(state)
         for ex in session.exercises where ex.pattern != .pull {
             let after = Engine.applyFeedback(state: state, session: session, result: .plan,
-                                             overrides: [ex.pattern: ex.load]).levels[ex.pattern]
+                                             overrides: [ex.pattern: ex.load])
             let cap = EngineConfig.maxUp(pattern: ex.pattern, tier: ex.tier)
-            XCTAssertEqual(after, min(10 + EngineConfig.deltaPlan, 10 + cap),
+            assertPosition(after, ex.pattern,
+                           Level.rise(level: 10, sub: 0, by: min(EngineConfig.deltaPlan, cap)),
                            "\(ex.pattern) moved differently on an exact match")
         }
     }

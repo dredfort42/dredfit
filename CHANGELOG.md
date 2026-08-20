@@ -58,6 +58,63 @@ per session (spec §5), and the collapse happens in the app. Journals and
 interrupted-workout snapshots written by earlier builds decode as they always
 did — a single stored number simply means every set ran at it.
 
+### Engine v2.22.0 — one set at a time, and goodbye to "hold this level" (issues #150, #151)
+
+Getting harder meant every set at once. One step of a level added its dose to
+all three sets, so a single growth event was a median of 11 % more work and up
+to 25 % on reps — 3×4 becoming 3×5 is a quarter more of the hardest variation
+you own, for saying "on plan". The owner's own log shows what that costs: the
+row hovered around its ceiling for twelve sessions, five times overshooting by
+two levels and falling back. The plan could not settle where the trainee
+actually was, because the smallest move it had was too big.
+
+- **A step lands on one set.** 3×8 becomes 9-8-8, then 9-9-8, then 3×9 — three
+  growth events to the level where there used to be one, four on the four-set
+  band and five on the five-set band, so where there are more sets a level
+  costs more. The worst single growth event across the whole scale is now
+  8.3 % of the work on reps and 4.4 % on holds, against 25 % before. The plan
+  parks on your capacity: an overshoot costs one rep in one set, not a level.
+- **Every ceiling that bounds a rise now counts sets, not levels.** The
+  per-movement growth cell (a "two" is two sets, not two levels), the weekly
+  window and the window after a comeback all read the finer unit. That keeps
+  the weekly rule exactly as free as it was for an honest three-a-week rhythm
+  — three sessions are three steps, precisely the slow-tissue budget, just as
+  three sessions used to be three levels — and holds a daily rhythm harder
+  than before, which is the direction that rule exists for.
+- **Going down still moves whole levels.** A "tough", a shortfall, a deload, a
+  break and the load coming off after pain all take a level and clear the
+  part-built one. The asymmetry is deliberate: descending one set at a time
+  would stretch the guarantee that an impossible plan comes down to something
+  manageable in about eleven sessions into thirty.
+- **The top rung of a variation never mixes.** Where the next step means a new
+  variation, a new set band or a new unit, the step goes whole — two different
+  exercises can never share one slot in the plan.
+- **The plan shows it.** A movement mid-step reads "9-8-8" on Today, on the
+  workout screen and in the history, and the work screen names what the set in
+  front of you asks for. Two sessions in three now change something visible
+  where before the level simply stood still.
+
+**"Hold this level" is gone.** It was the third channel for "tough", added in
+v2.6 for the case where a movement is at your ceiling and you need longer
+there. In 24 sessions of real use it was tapped zero times, and it never
+reached anyone else: it shipped behind the engine version that is in the App
+Store. The case it served is the one the sub-step now handles without being
+asked — the plan settles on your capacity by itself. So the button, the
+"just hard" answer to the weak-link question, and the section of "How it
+works" that explained them are all removed, and the rest after a pain report
+has a single entrance again. Nothing to migrate: the request was never stored,
+only passed, and a rest it armed before the update expires on its own schedule.
+
+Levels are not recalculated and the state file needs no migration: a save
+written before this decodes with no part-built steps, and its plan is
+bit-for-bit the plan the previous version drew. Two accepted consequences,
+both measured: with a pull-up bar on a strictly alternating easy/hard rhythm
+the branch that only ever meets hard sessions now sits at the bottom of the
+scale rather than one level up — a two-second difference in the hang — and on
+a run of failing sessions the healthy movements stand a little lower than
+before, because a "tough" takes a whole level while getting it back takes
+three steps.
+
 ### Engine v2.21.0 — hold steps go relative (issue #149)
 
 Every step up in a hold was the same five seconds, wherever you stood. At the

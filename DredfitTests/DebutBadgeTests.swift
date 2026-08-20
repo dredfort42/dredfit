@@ -9,6 +9,18 @@ import DredfitCore
 
 @MainActor
 final class DebutBadgeTests: XCTestCase {
+    /// v2.22 (spec §33): every workout gets its own day. Growth moves one set
+    /// at a time now, so a tier is 24 growth events rather than 8 — and stacked
+    /// on a single instant the §28.5 weekly ceiling (six sub-steps for the fast
+    /// tissues) would hold the walk short of any tier boundary forever.
+    private var day = 0
+    private func train(_ store: AppStore, _ result: FeedbackResult,
+                       skipped: Set<Pattern> = []) {
+        day += 1
+        store.completeWorkout(session: store.nextSession, result: result,
+                              overrides: [:], skipped: skipped,
+                              date: Date(timeIntervalSinceNow: Double(day) * 86_400))
+    }
 
     nonisolated(unsafe) private var tempURL: URL!
 
@@ -33,7 +45,10 @@ final class DebutBadgeTests: XCTestCase {
     func testDebutAppearsWhenAPatternCrossesIntoANewTier() {
         let store = AppStore(storageURL: tempURL)
         var sawDebut = false
-        for _ in 0..<8 {
+        // v2.22 (spec §33): a tier is 24 growth events now, not 8 — growth
+        // moves one set at a time — so the walk to the first tier boundary
+        // needs room. The subject (a crossing raises the badge) is unchanged.
+        for _ in 0..<60 {
             let debuts = store.debutPatterns
             if !debuts.isEmpty {
                 sawDebut = true
@@ -53,41 +68,36 @@ final class DebutBadgeTests: XCTestCase {
                 }
                 break
             }
-            store.completeWorkout(session: store.nextSession, result: .more,
-                                  overrides: [:], skipped: [])
+            train(store, .more)
         }
-        XCTAssertTrue(sawDebut, "eight easy workouts must cross at least one tier boundary")
+        XCTAssertTrue(sawDebut, "the run must cross at least one tier boundary")
     }
 
     /// Performing the new variation retires its badge: the tier is in the
     /// journal now, so the same variation must not announce itself twice —
     func testDebutClearsAfterTheVariationIsPerformed() {
         let store = AppStore(storageURL: tempURL)
-        for _ in 0..<8 where store.debutPatterns.isEmpty {
-            store.completeWorkout(session: store.nextSession, result: .more,
-                                  overrides: [:], skipped: [])
+        for _ in 0..<60 where store.debutPatterns.isEmpty {
+            train(store, .more)
         }
         guard let debut = store.debutPatterns.first else {
             return XCTFail("no debut appeared to complete")
         }
         // Do the workout that contains the debut — on plan, nothing skipped.
-        store.completeWorkout(session: store.nextSession, result: .plan,
-                              overrides: [:], skipped: [])
+        train(store, .plan)
         XCTAssertFalse(store.debutPatterns.contains(debut),
                        "a performed variation is no longer a debut")
     }
 
     func testSkippingTheDebutKeepsTheBadge() {
         let store = AppStore(storageURL: tempURL)
-        for _ in 0..<8 where store.debutPatterns.isEmpty {
-            store.completeWorkout(session: store.nextSession, result: .more,
-                                  overrides: [:], skipped: [])
+        for _ in 0..<60 where store.debutPatterns.isEmpty {
+            train(store, .more)
         }
         guard let debut = store.debutPatterns.first else {
             return XCTFail("no debut appeared to skip")
         }
-        store.completeWorkout(session: store.nextSession, result: .plan,
-                              overrides: [:], skipped: [debut])
+        train(store, .plan, skipped: [debut])
         if store.nextSession.exercises.contains(where: { $0.pattern == debut }) {
             XCTAssertTrue(store.debutPatterns.contains(debut),
                           "skipping must not count as performing the variation")

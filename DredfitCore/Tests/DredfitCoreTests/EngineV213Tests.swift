@@ -189,8 +189,10 @@ final class EngineV213Tests: XCTestCase {
         let p = session.exercises[0].pattern
         let high = Engine.applyFeedback(state: s, session: session, result: .plan,
                                         overrides: [p: Int.max])
-        XCTAssertEqual(high.levels[p], (s.levels[p] ?? 0) + EngineConfig.maxUp(
-            pattern: p, tier: Level.decode(s.levels[p] ?? 0).tier),
+        assertPosition(high, p, Level.rise(level: s.levels[p] ?? 0, sub: s.sub[p] ?? 0,
+                                           by: EngineConfig.maxUp(
+                                               pattern: p,
+                                               tier: Level.decode(s.levels[p] ?? 0).tier)),
                        "a fact past the scale still climbs only by its own ceiling")
         let low = Engine.applyFeedback(state: s, session: session, result: .plan,
                                        overrides: [p: Int.min])

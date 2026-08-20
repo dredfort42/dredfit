@@ -3,9 +3,13 @@
 //  DredfitCoreTests
 //
 //  The audit's polish wave (spec §18): a fact equal to the plan steps like
-//  "on plan", the rest between sets follows the set band, and the last
-//  unspecified input combination — discomfort ∧ pinned — gets its rule.
+//  "on plan" and the rest between sets follows the set band.
 //  Mirrors the corresponding blocks in the reference verifier.
+//
+//  v2.22 (spec §33): §18.3 — the rule for "discomfort ∧ hold this level" — is
+//  cancelled together with the second input, so the two tests that carried it
+//  are gone and what they also covered (discomfort annuls and unloads at any
+//  rating) is asserted directly below.
 //
 
 import XCTest
@@ -33,8 +37,9 @@ final class EngineV28Tests: XCTestCase {
         let first = try XCTUnwrap(session.exercises.first)
         let done = Engine.applyFeedback(state: zero, session: session, result: .plan,
                                         overrides: [first.pattern: first.load])
-        XCTAssertEqual(done.levels[first.pattern], 1,
-                       "a fact of 8 against a plan of 8 is the plan done — level 1")
+        // v2.22 (spec §33): the plan done is worth one SUB-STEP, not a level.
+        assertPosition(done, first.pattern, Level.rise(level: 0, sub: 0, by: 1),
+                       "a fact of 8 against a plan of 8 is the plan done")
 
         for level in [1, 5, 12, 20, 33, 46, 47] {
             let state = seeded(level: level)
@@ -42,8 +47,8 @@ final class EngineV28Tests: XCTestCase {
             let ex = s.exercises[0]
             let after = Engine.applyFeedback(state: state, session: s, result: .plan,
                                              overrides: [ex.pattern: ex.load])
-            XCTAssertEqual(after.levels[ex.pattern], min(level + 1, EngineConfig.levelMax),
-                           "L=\(level): an exact-plan fact steps by one")
+            assertPosition(after, ex.pattern, Level.rise(level: level, sub: 0, by: 1),
+                           "L=\(level): an exact-plan fact steps by one sub-step")
         }
     }
 
@@ -68,7 +73,7 @@ final class EngineV28Tests: XCTestCase {
         let ex = session.exercises[0]
         let after = Engine.applyFeedback(state: state, session: session, result: .less,
                                          overrides: [ex.pattern: ex.load])
-        XCTAssertEqual(after.levels[ex.pattern], 11,
+        assertPosition(after, ex.pattern, Level.rise(level: 10, sub: 0, by: 1),
                        "the exact-plan fact overrides the session rating")
     }
 
@@ -82,10 +87,9 @@ final class EngineV28Tests: XCTestCase {
                                          overrides: [.pull: pull.load])
         XCTAssertEqual(after.levels[.pull], 10, "frozen: the +1 clamps to the old level")
 
-        let pinned = Engine.applyFeedback(state: seeded(level: 10), session: session,
-                                          result: .plan, overrides: [.pull: pull.load],
-                                          pinned: [.pull])
-        XCTAssertEqual(pinned.levels[.pull], 10, "held: same clamp")
+        // v2.22 (spec §33): the clamp is on the POSITION — a sub-step is growth
+        // too, so a frozen pattern may not collect one either.
+        XCTAssertEqual(after.sub[.pull] ?? 0, 0, "frozen: no sub-step either")
     }
 
     // MARK: - Rest between sets follows the set band (§18.2)
@@ -111,40 +115,29 @@ final class EngineV28Tests: XCTestCase {
         }
     }
 
-    // MARK: - discomfort ∧ pinned: discomfort absorbs (§18.3)
+    // MARK: - Discomfort is the only way into the freeze (v2.22, §33)
 
-    /// The last unspecified combination, now a rule: both inputs on one
-    /// pattern behave exactly as pure discomfort — the session is annulled,
-    /// the rest is armed, and the pin adds nothing.
-    func testDiscomfortAbsorbsThePinOnTheSamePattern() {
+    /// §18.3 existed to settle one combination of two inputs. The second input
+    /// is cancelled, so the combination cannot be formed — and what the pair of
+    /// tests also asserted survives here: a discomfort report annuls the
+    /// session, unloads to the current tier's floor and arms the rest at ANY
+    /// rating, sub-step included.
+    func testDiscomfortAnnulsAndUnloadsAtEveryRating() {
         for result in [FeedbackResult.less, .plan, .more] {
             var state = seeded(level: 14)
             state.failStreak[.squat] = 2
+            state.sub[.squat] = 2
             let session = Engine.generateSession(state)
             let p = session.exercises[0].pattern
-            let both = Engine.applyFeedback(state: state, session: session, result: result,
-                                            discomfort: [p], pinned: [p])
-            let pure = Engine.applyFeedback(state: state, session: session, result: result,
-                                            discomfort: [p])
-            XCTAssertEqual(both, pure,
-                           "\(result): the combination must equal pure discomfort")
-            XCTAssertEqual(both.frozen[p], EngineConfig.freezeAppearances)
+            let after = Engine.applyFeedback(state: state, session: session, result: result,
+                                             discomfort: [p])
+            XCTAssertEqual(after.frozen[p], EngineConfig.freezeAppearances,
+                           "\(result): the rest is armed")
+            XCTAssertEqual(after.levels[p], Level.tierFloor(14),
+                           "\(result): unloaded to the current tier's floor")
+            XCTAssertEqual(after.sub[p] ?? 0, 0,
+                           "\(result): a descent zeroes the sub-step")
+            XCTAssertEqual(after.failStreak[p], 0, "\(result): the streak resets")
         }
-    }
-
-    /// The difference from a lone pin is visible on "tough": a pinned
-    /// movement follows the rating down, the combination does not — the
-    /// session was annulled.
-    func testTheCombinationIsNotPinnedSemantics() {
-        let state = seeded(level: 14)
-        let session = Engine.generateSession(state)
-        let p = session.exercises[0].pattern
-        let both = Engine.applyFeedback(state: state, session: session, result: .less,
-                                        discomfort: [p], pinned: [p])
-        let pinnedOnly = Engine.applyFeedback(state: state, session: session, result: .less,
-                                              pinned: [p])
-        XCTAssertEqual(both.levels[p], Level.tierFloor(14),
-                       "annulled — and unloaded (v2.11 §21.1, v2.19 §30.6)")
-        XCTAssertEqual(pinnedOnly.levels[p], 13, "a lone pin follows the rating down")
     }
 }

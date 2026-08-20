@@ -22,18 +22,71 @@ public struct SessionExercise: Codable, Equatable, Identifiable, Sendable {
     public let name: String
     public let tier: Int
     public let unit: LoadUnit
-    public let load: Int          // reps or seconds; per side if perSide
+    public let load: Int          // the BASE dose: reps or seconds, per side if perSide
     public let perSide: Bool
     public let sets: Int
     public let restSetSec: Int
     public let restExerciseSec: Int
+    /// v2.22 (spec §33): per-set doses, descending — `9-8-8`. OPTIONAL on
+    /// purpose, and the optionality is compatibility, not style: a journal
+    /// written by build 1.9 carries no such key, and one non-optional field
+    /// added to this snapshot would zero that journal on decode. `nil` means a
+    /// uniform plan, i.e. every set runs at `load`.
+    public let loads: [Int]?
+
+    /// Written out so `loads` can default to nil at every existing call site.
+    public init(pattern: Pattern, name: String, tier: Int, unit: LoadUnit,
+                load: Int, perSide: Bool, sets: Int, restSetSec: Int,
+                restExerciseSec: Int, loads: [Int]? = nil) {
+        self.pattern = pattern
+        self.name = name
+        self.tier = tier
+        self.unit = unit
+        self.load = load
+        self.perSide = perSide
+        self.sets = sets
+        self.restSetSec = restSetSec
+        self.restExerciseSec = restExerciseSec
+        self.loads = loads
+    }
+
+    /// Every set's planned dose, uniform plan included.
+    ///
+    /// Bounded by the SCALE, not by the record. `sets` comes back out of the
+    /// journal unclamped and this is called from a row body on the main
+    /// thread, so a hand-edited `Int.max` would allocate until the app is
+    /// killed — the same trap `SetFacts.allSets` was written to avoid, and one
+    /// this property walked straight into when it was added. No exercise ever
+    /// had more sets than the scale has bands, so the valid domain never
+    /// notices the clamp.
+    public var perSetLoads: [Int] {
+        let count = min(max(sets, 0), EngineConfig.setsMax)
+        guard let loads, !loads.isEmpty else {
+            return Array(repeating: load, count: count)
+        }
+        return Array(loads.prefix(count))
+    }
+
+    /// What set `index` is planned to run at — the plan's own answer, before
+    /// anything the trainee reports. Answers straight off `loads` so the
+    /// common path allocates nothing at all.
+    public func plannedLoad(set index: Int) -> Int {
+        guard let loads, !loads.isEmpty else { return load }
+        return loads[min(max(index, 0), loads.count - 1)]
+    }
+
+    /// The volume the plan asks for across all sets — the base of both the
+    /// duration estimate and the work measure.
+    public var plannedVolume: Int { perSetLoads.reduce(0, +) }
 
     /// "3×12", "3×10 per side", "3×40 sec" — localized via the core catalog.
+    /// v2.22 (spec §33): "9-8-8" when the sets differ, "3×8" when they do not.
     public var display: String {
         let side = perSide ? " " + String(localized: "per side", bundle: .module) : ""
+        let head = loads.map { $0.map(String.init).joined(separator: "-") } ?? "\(sets)×\(load)"
         switch unit {
-        case .reps: return "\(sets)×\(load)\(side)"
-        case .hold: return "\(sets)×\(load) " + String(localized: "sec", bundle: .module) + side
+        case .reps: return "\(head)\(side)"
+        case .hold: return "\(head) " + String(localized: "sec", bundle: .module) + side
         }
     }
 }
@@ -66,10 +119,12 @@ extension Engine {
         var workSec = 0.0
         for ex in exercises {
             let sides = ex.perSide ? 2 : 1
-            let workPerSet: Double = ex.unit == .reps
-                ? Double(ex.load * sides) * EngineConfig.tempoSecPerRep
-                : Double(ex.load * sides)
-            workSec += Double(ex.sets) * workPerSet
+            // v2.22 (spec §33): the volume is read off the PER-SET doses — with
+            // an uneven plan `load × sets` understates the work by exactly the
+            // sub-steps' addition, and the estimate would stop being one.
+            let volume = Double(ex.plannedVolume * sides)
+            let work = ex.unit == .reps ? volume * EngineConfig.tempoSecPerRep : volume
+            workSec += work
                 + Double((ex.sets - 1) * ex.restSetSec)
                 + Double(ex.restExerciseSec)
         }
@@ -151,6 +206,13 @@ extension Engine {
                     : Level.decode(viewLevel(.pull)).sets
             } ?? EngineConfig.setsMax
 
+        // v2.22 (spec §33): under the "I was sick" lens the plan is UNIFORM.
+        // The lens is the gentler regime, and a sub-step makes part of the sets
+        // heavier — showing one here would hand back with one hand what the
+        // lens took away with the other. The stored sub-step is untouched: the
+        // lens builds the plan's VIEW (§22.4).
+        func viewSub(_ p: Pattern) -> Int { eased ? 0 : (state.sub[p] ?? 0) }
+
         let exercises: [SessionExercise] = patterns.map { p in
             let lib = ExerciseLibrary.entry(for: p)
             let d = Level.decode(viewLevel(p))
@@ -158,6 +220,10 @@ extension Engine {
             let unit = lib.unit(forTier: d.tier)
             let load = unit == .reps ? d.reps : d.hold
             let sets = Pattern.pushSide.contains(p) ? min(d.sets, pullSets) : d.sets
+            // The band is the FINAL one — the §20.2 gate may have trimmed it —
+            // so a sub-step never asks for more sets than are on screen.
+            let loads = Level.perSetLoads(pattern: p, level: viewLevel(p),
+                                          sub: viewSub(p), sets: sets)
 
             return SessionExercise(
                 pattern: p, name: variation.name, tier: d.tier,
@@ -169,7 +235,8 @@ extension Engine {
                 // v2.17 (spec §28.2): the (tier, band) cell wins when set.
                 restSetSec: EngineConfig.restSetByTierBand[d.tier]?[sets]
                     ?? EngineConfig.restSetByBand[sets] ?? EngineConfig.restSetSec,
-                restExerciseSec: EngineConfig.restExerciseSec
+                restExerciseSec: EngineConfig.restExerciseSec,
+                loads: loads
             )
         }
 
@@ -245,12 +312,22 @@ extension Engine {
     /// Rebuild an exercise on a different set count; the rest follows the
     /// RESULTING band (owner's decision 19.08.2026) — two minutes between two
     /// sets would swallow a short budget whole.
+    /// v2.22 (spec §33): the sub-step is rebuilt for the new set count — it
+    /// cannot ask for more sets than are left. Clamping to `sets-1` keeps the
+    /// invariant "`load` is the plan's minimum": dropping a set gives the budget
+    /// no right to raise that minimum.
     private static func withSets(_ ex: SessionExercise, _ sets: Int) -> SessionExercise {
-        SessionExercise(
+        let high = ex.loads?.first ?? ex.load
+        let carried = ex.loads?.filter { $0 > ex.load }.count ?? 0
+        let sub = min(carried, max(sets - 1, 0))
+        let loads: [Int]? = sub > 0
+            ? (0..<sets).map { $0 < sub ? high : ex.load }
+            : nil
+        return SessionExercise(
             pattern: ex.pattern, name: ex.name, tier: ex.tier, unit: ex.unit,
             load: ex.load, perSide: ex.perSide, sets: sets,
             restSetSec: EngineConfig.restSetByTierBand[ex.tier]?[sets]
                 ?? EngineConfig.restSetByBand[sets] ?? EngineConfig.restSetSec,
-            restExerciseSec: ex.restExerciseSec)
+            restExerciseSec: ex.restExerciseSec, loads: loads)
     }
 }

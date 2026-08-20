@@ -87,12 +87,15 @@ final class EdgeCaseTests: XCTestCase {
     func testDeloadTriggersViaOverrideDrop() {
         // pull: 4 × (+2) through tier 1, then one step per session — the
         // tier-2 and -3 cells hold it to +1 from level 8 on (#76).
+        // v2.22 (spec §33): the run-up is longer — "more" is worth two
+        // SUB-STEPS, not two levels — and the landing is derived, not pinned.
         var state = EngineState.initial
-        for _ in 0..<20 {
+        for _ in 0..<60 {
             let s = Engine.generateSession(state)
             state = Engine.applyFeedback(state: state, session: s, result: .more)
         }
-        XCTAssertEqual(state.levels[.pull], 24)
+        XCTAssertGreaterThanOrEqual(state.levels[.pull] ?? 0, 12,
+                                    "the run-up must clear tier 2 for the descent to be visible")
 
         // Three sessions in a row we drop pull via a "plan − 2" actual.
         // Re-marked for v2.14 (spec §25.3): the landing is no longer a flat

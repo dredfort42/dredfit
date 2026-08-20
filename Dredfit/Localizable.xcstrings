@@ -424,46 +424,6 @@
         }
       }
     },
-    "“On plan” adds a step, “more” adds two, “less” takes one away. An exact number for a single exercise outweighs the overall rating. From a standing start an exact number sets the level immediately — the first workout calibrates the system. After that the level climbs at most two steps per workout — and only one wherever the tissue doing the work needs the slower pace: tendons remodel on a longer clock than muscle. Where you asked to hold a level, it doesn't climb at all." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "„Nach Plan“ bringt eine Stufe, „mehr“ zwei, „weniger“ nimmt eine weg. Eine genaue Zahl bei einer einzelnen Übung zählt mehr als die Gesamteinschätzung. Ganz am Anfang setzt eine genaue Zahl das Level sofort – das erste Training kalibriert das System. Danach steigt das Level um höchstens zwei Stufen pro Training – und nur um eine, wo das arbeitende Gewebe das langsamere Tempo braucht: Sehnen bauen sich langsamer um als Muskeln. Und wo du das Level hältst, steigt es gar nicht."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«Según el plan» suma un paso, «más» suma dos y «menos» resta uno. Un número exacto en un ejercicio pesa más que la evaluación general. Desde cero, un número exacto fija el nivel de inmediato: el primer entrenamiento calibra el sistema. A partir de ahí el nivel sube como máximo dos pasos por entrenamiento, y solo uno allí donde el tejido que trabaja necesita un ritmo más lento: los tendones se remodelan más despacio que el músculo. Y donde pediste mantener el nivel, no sube nada."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "« Comme prévu » ajoute un cran, « plus » en ajoute deux, « moins » en retire un. Un chiffre exact sur un seul exercice l’emporte sur le ressenti global. En partant de zéro, un chiffre exact fixe le niveau tout de suite — la première séance calibre le système. Ensuite, le niveau monte d’au plus deux crans par séance — et d’un seul là où le tissu qui travaille a besoin d’un rythme plus lent : les tendons se remodèlent plus lentement que le muscle. Et là où tu as demandé de garder le niveau, il ne monte pas du tout."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“Come previsto” aggiunge un gradino, “più” ne aggiunge due, “meno” ne toglie uno. Il numero esatto di un singolo esercizio pesa più della valutazione complessiva. Partendo da zero, un numero esatto fissa subito il livello – il primo allenamento calibra il sistema. Da lì in poi il livello sale al massimo di due gradini per allenamento – e di uno solo dove il tessuto che lavora ha bisogno di un ritmo più lento: i tendini si rimodellano più lentamente dei muscoli. E dove hai chiesto di tenere il livello, non sale affatto."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“Como planejado” soma um passo, “mais” soma dois e “menos” tira um. Um número exato num exercício pesa mais que a avaliação geral. Do zero, um número exato define o nível na hora: o primeiro treino calibra o sistema. Depois disso o nível sobe no máximo dois passos por treino — e só um onde o tecido que trabalha precisa de um ritmo mais lento: os tendões se remodelam mais devagar que o músculo. E onde você pediu para manter o nível, ele não sobe nada."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«По плану» — плюс ступень, «больше» — две, «меньше» — минус одна. Точное число по упражнению сильнее общей оценки. С нуля точное число ставит уровень сразу — первая тренировка калибрует систему. Дальше уровень поднимается не больше чем на две ступени за тренировку, а там, где работающей ткани нужен темп помедленнее, — только на одну: сухожилия перестраиваются дольше мышц. А там, где уровень удержан по твоей просьбе, он не растет вовсе."
-          }
-        }
-      }
-    },
     "%@ · %lld×%lld" : {
       "localizations" : {
         "de" : {
@@ -596,46 +556,6 @@
         }
       }
     },
-    "%@ has hurt both of its recent appearances — a smaller number or a held level takes the load down." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ hat bei den letzten beiden Malen wehgetan — eine kleinere Zahl oder ein gehaltenes Level nimmt Last raus."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ ha dolido en sus dos últimas apariciones: un número menor o un nivel mantenido baja la carga."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ a fait mal lors de ses deux dernières apparitions — un nombre plus petit ou un niveau gardé allège la charge."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ ha fatto male nelle ultime due apparizioni — un numero più piccolo o un livello tenuto riduce il carico."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ doeu nas duas últimas aparições — um número menor ou um nível mantido reduz a carga."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ болело оба последних появления — меньшее число или удержанный уровень снизит нагрузку."
-          }
-        }
-      }
-    },
     "%@ keeps hurting, appearance after appearance. Pain that stays is a reason to see a specialist." : {
       "localizations" : {
         "de" : {
@@ -712,86 +632,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@, болело — на отдыхе"
-          }
-        }
-      }
-    },
-    "%@, level held" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, Level gehalten"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, nivel mantenido"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, niveau gardé"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, livello tenuto"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, nível mantido"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, уровень удержан"
-          }
-        }
-      }
-    },
-    "%@, level held — %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@, Level gehalten – %2$@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@, nivel mantenido — %2$@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@, niveau gardé — %2$@"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@, livello tenuto – %2$@"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@, nível mantido — %2$@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@, уровень удержан — %2$@"
           }
         }
       }
@@ -6633,46 +6473,6 @@
         }
       }
     },
-    "Held" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gehalten"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mantenido"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Niveau gardé"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Livello tenuto"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mantido"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Удержано"
-          }
-        }
-      }
-    },
     "Highlighted days are rest days" : {
       "localizations" : {
         "de" : {
@@ -6791,86 +6591,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "История"
-          }
-        }
-      }
-    },
-    "Hold this level" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Level halten"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mantener este nivel"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Garder ce niveau"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tieni questo livello"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Manter este nível"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Удержать уровень"
-          }
-        }
-      }
-    },
-    "Holding" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gehalten"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Manteniendo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "On garde"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Teniamo così"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mantendo"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Не усложняем"
           }
         }
       }
@@ -7362,46 +7082,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "уровень %lld"
-          }
-        }
-      }
-    },
-    "level held" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Level gehalten"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "nivel mantenido"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "niveau gardé"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "livello tenuto"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "nível mantido"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "уровень удержан"
           }
         }
       }
@@ -11660,46 +11340,6 @@
         }
       }
     },
-    "Sometimes a movement is simply at your limit and needs longer there. Tap “Hold this level” and it stays where it is: today's sets don't change, and the movement stops getting harder for the next three times it comes round. It can still go down if you do less, and a second tap in the same workout changes your mind." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Manchmal ist eine Bewegung genau an deiner Grenze und braucht dort länger. Tippe auf „Level halten“, und sie bleibt, wo sie ist: Die heutigen Sätze ändern sich nicht, und die Bewegung wird die nächsten drei Male, die sie an der Reihe ist, nicht schwerer. Nach unten kann es weiter gehen, wenn du weniger schaffst – und ein zweites Tippen im selben Training macht es rückgängig."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A veces un movimiento está justo en tu límite y necesita más tiempo ahí. Toca «Mantener este nivel» y se queda donde está: las series de hoy no cambian y el movimiento deja de ponerse más difícil las tres próximas veces que le toque. Todavía puede bajar si haces menos, y un segundo toque en el mismo entrenamiento lo deshace."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Parfois un mouvement est juste à ta limite et demande d’y rester plus longtemps. Touche « Garder ce niveau » et il reste où il est : les séries du jour ne changent pas, et le mouvement cesse de devenir plus difficile les trois prochaines fois où il revient. Il peut encore descendre si tu fais moins ; touche à nouveau dans la même séance pour changer d’avis."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A volte un movimento è semplicemente al tuo limite e ha bisogno di restarci più a lungo. Tocca “Tieni questo livello” e resta dov’è: le serie di oggi non cambiano e nelle tre volte successive in cui torna il movimento non diventa più difficile. Può ancora scendere se fai meno, e un secondo tocco nello stesso allenamento annulla la richiesta."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Às vezes um movimento está bem no seu limite e precisa de mais tempo ali. Toque em “Manter este nível” e ele fica onde está: as séries de hoje não mudam e o movimento para de ficar mais difícil nas três próximas vezes em que aparecer. Ainda pode descer se você fizer menos, e um segundo toque no mesmo treino desfaz o pedido."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Иногда движение просто на пределе, и на нем нужно задержаться. Нажми «Удержать уровень» — и оно останется где есть: сегодняшние подходы не меняются, а тяжелее движение не становится ближайшие три раза, когда выпадет. Вниз уровень уйти может, если сделаешь меньше, а повторный тап в той же тренировке отменяет просьбу."
-          }
-        }
-      }
-    },
     "Sounds and haptics" : {
       "localizations" : {
         "de" : {
@@ -12744,46 +12384,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сегодня"
-          }
-        }
-      }
-    },
-    "Today's sets stay as planned; the movement stops getting harder for a while. Tap again to change your mind." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die heutigen Sätze bleiben wie geplant; die Bewegung wird eine Weile nicht schwerer. Tippe erneut, um es rückgängig zu machen."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Las series de hoy no cambian; el movimiento deja de ponerse más difícil por un tiempo. Toca otra vez para deshacerlo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les séries du jour ne changent pas ; le mouvement cesse de devenir plus difficile pendant un moment. Touche à nouveau pour changer d’avis."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le serie di oggi non cambiano; il movimento per un po’ non diventa più difficile. Tocca di nuovo per annullare."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "As séries de hoje não mudam; o movimento para de ficar mais difícil por um tempo. Toque de novo para desfazer."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сегодняшние подходы не меняются; движение какое-то время не становится тяжелее. Повторный тап отменяет."
           }
         }
       }
@@ -14388,46 +13988,6 @@
         }
       }
     },
-    "Your rating can move these down, but not up." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Deine Einschätzung kann sie nur nach unten bewegen, nicht nach oben."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tu valoración puede bajarlos, pero no subirlos."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ton ressenti peut les faire descendre, mais pas monter."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La tua valutazione può farli scendere, ma non salire."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sua avaliação pode baixá-los, mas não subi-los."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Оценка может увести их вниз, но не вверх."
-          }
-        }
-      }
-    },
     "Tough sessions keep landing on %@." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -14518,53 +14078,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dói"
-          }
-        }
-      }
-    },
-    "Just hard" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Just hard"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Просто тяжело"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nur schwer"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Solo es difícil"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Juste difficile"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Solo faticoso"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Só é difícil"
           }
         }
       }
@@ -14800,6 +14313,298 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld min"
+          }
+        }
+      }
+    },
+    "plan.perSet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@%2$@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@%2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@%2$@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@%2$@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@%2$@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@%2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@%2$@"
+          }
+        }
+      }
+    },
+    "plan.perSetHold" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ s%2$@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ s%2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ s%2$@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ s%2$@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ s%2$@"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ s%2$@"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ с%2$@"
+          }
+        }
+      }
+    },
+    "set %lld of %lld · %lld" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Satz %1$lld von %2$lld · %3$lld"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "serie %1$lld de %2$lld · %3$lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "série %1$lld sur %2$lld · %3$lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "serie %1$lld di %2$lld · %3$lld"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "série %1$lld de %2$lld · %3$lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "подход %1$lld из %2$lld · %3$lld"
+          }
+        }
+      }
+    },
+    "One set at a time" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Satz auf einmal"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una serie a la vez"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une série à la fois"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una serie alla volta"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uma série por vez"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "По одному подходу"
+          }
+        }
+      }
+    },
+    "Getting harder does not mean every set at once. A step adds a rep to ONE set: 3×8 becomes 9-8-8, then 9-9-8, then 3×9. The plan settles where you actually are, and overshooting costs one rep in one set instead of a whole level." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schwerer werden heißt nicht alle Sätze gleichzeitig. Eine Stufe legt eine Wiederholung auf EINEN Satz: aus 3×8 wird 9-8-8, dann 9-9-8, dann 3×9. So bleibt der Plan dort, wo du wirklich stehst, und ein Schuss über das Ziel kostet eine Wiederholung in einem Satz statt eines ganzen Levels."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ponerse más difícil no significa todas las series a la vez. Un paso añade una repetición a UNA serie: 3×8 pasa a 9-8-8, luego 9-9-8, luego 3×9. El plan se queda donde de verdad estás, y pasarse cuesta una repetición en una serie en lugar de un nivel entero."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Devenir plus dur ne veut pas dire toutes les séries d’un coup. Un cran ajoute une répétition à UNE série : 3×8 devient 9-8-8, puis 9-9-8, puis 3×9. Le plan se cale là où tu en es vraiment, et un dépassement coûte une répétition dans une série au lieu d’un niveau entier."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diventare più difficile non vuol dire tutte le serie insieme. Un gradino aggiunge una ripetizione a UNA serie: 3×8 diventa 9-8-8, poi 9-9-8, poi 3×9. Il piano si ferma dove sei davvero, e superare il segno costa una ripetizione in una serie invece di un livello intero."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ficar mais difícil não significa todas as séries de uma vez. Um passo acrescenta uma repetição a UMA série: 3×8 vira 9-8-8, depois 9-9-8, depois 3×9. O plano fica onde você realmente está, e passar do ponto custa uma repetição em uma série em vez de um nível inteiro."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Сложнее» не значит «сразу во всех подходах». Ступень добавляет повтор ОДНОМУ подходу: 3×8 становится 9-8-8, потом 9-9-8, потом 3×9. План паркуется там, где ты на самом деле, а перелёт стоит одного повтора в одном подходе, а не целого уровня."
+          }
+        }
+      }
+    },
+    "“On plan” adds a step, “more” adds two, “less” takes one away. An exact number for a single exercise outweighs the overall rating. From a standing start an exact number sets the level immediately — the first workout calibrates the system. After that the level climbs at most two steps per workout — and only one wherever the tissue doing the work needs the slower pace: tendons remodel on a longer clock than muscle. A step lands on one set, not on all of them." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Nach Plan“ bringt eine Stufe, „mehr“ zwei, „weniger“ nimmt eine weg. Eine genaue Zahl bei einer einzelnen Übung zählt mehr als die Gesamteinschätzung. Ganz am Anfang setzt eine genaue Zahl das Level sofort – das erste Training kalibriert das System. Danach steigt das Level um höchstens zwei Stufen pro Training – und nur um eine, wo das arbeitende Gewebe das langsamere Tempo braucht: Sehnen bauen sich langsamer um als Muskeln. Eine Stufe landet auf einem Satz, nicht auf allen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Según el plan» suma un paso, «más» suma dos y «menos» resta uno. Un número exacto en un ejercicio pesa más que la evaluación general. Desde cero, un número exacto fija el nivel de inmediato: el primer entrenamiento calibra el sistema. A partir de ahí el nivel sube como máximo dos pasos por entrenamiento, y solo uno allí donde el tejido que trabaja necesita un ritmo más lento: los tendones se remodelan más despacio que el músculo. Un paso cae en una serie, no en todas."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« Comme prévu » ajoute un cran, « plus » en ajoute deux, « moins » en retire un. Un chiffre exact sur un seul exercice l’emporte sur le ressenti global. En partant de zéro, un chiffre exact fixe le niveau tout de suite — la première séance calibre le système. Ensuite, le niveau monte d’au plus deux crans par séance — et d’un seul là où le tissu qui travaille a besoin d’un rythme plus lent : les tendons se remodèlent plus lentement que le muscle. Un cran tombe sur une série, pas sur toutes."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Come previsto” aggiunge un gradino, “più” ne aggiunge due, “meno” ne toglie uno. Il numero esatto di un singolo esercizio pesa più della valutazione complessiva. Partendo da zero, un numero esatto fissa subito il livello – il primo allenamento calibra il sistema. Da lì in poi il livello sale al massimo di due gradini per allenamento – e di uno solo dove il tessuto che lavora ha bisogno di un ritmo più lento: i tendini si rimodellano più lentamente dei muscoli. Un gradino cade su una serie, non su tutte."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Como planejado” soma um passo, “mais” soma dois e “menos” tira um. Um número exato num exercício pesa mais que a avaliação geral. Do zero, um número exato define o nível na hora: o primeiro treino calibra o sistema. Depois disso o nível sobe no máximo dois passos por treino — e só um onde o tecido que trabalha precisa de um ritmo mais lento: os tendões se remodelam mais devagar que o músculo. Um passo cai em uma série, não em todas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«По плану» — плюс ступень, «больше» — две, «меньше» — минус одна. Точное число по упражнению сильнее общей оценки. С нуля точное число ставит уровень сразу — первая тренировка калибрует систему. Дальше уровень поднимается не больше чем на две ступени за тренировку, а там, где работающей ткани нужен темп помедленнее, — только на одну: сухожилия перестраиваются дольше мышц. Ступень ложится на один подход, а не на все."
+          }
+        }
+      }
+    },
+    "%@ has hurt both of its recent appearances — a smaller number takes the load down." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ hat bei den letzten beiden Malen wehgetan — eine kleinere Zahl nimmt Last raus."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ha dolido en sus dos últimas apariciones: un número menor baja la carga."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ a fait mal lors de ses deux dernières apparitions — un nombre plus petit allège la charge."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ha fatto male nelle ultime due apparizioni — un numero più piccolo riduce il carico."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ doeu nas duas últimas aparições — um número menor reduz a carga."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ болело оба последних появления — меньшее число снизит нагрузку."
           }
         }
       }

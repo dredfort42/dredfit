@@ -87,8 +87,14 @@ nonisolated enum SetFacts {
 
     /// The number set `index` runs at: the last thing said about this
     /// exercise, or the plan when nothing was.
+    ///
+    /// v2.22 (spec §33): "the plan" is per set now — an uneven plan asks 9-8-8,
+    /// and set one is not set three. Reading `ex.load` here would show the
+    /// minimum on every set and quietly lose the sub-step.
     static func inForce(_ facts: PerSet, _ ex: SessionExercise, set index: Int) -> Int {
-        guard let values = facts[ex.pattern], !values.isEmpty else { return ex.load }
+        guard let values = facts[ex.pattern], !values.isEmpty else {
+            return ex.plannedLoad(set: index)
+        }
         return values[min(max(index, 0), values.count - 1)]
     }
 
@@ -114,14 +120,22 @@ nonisolated enum SetFacts {
     /// Everything landing back on the plan is nothing said at all: the entry
     /// is dropped and the session rating governs the pattern again, exactly
     /// as correcting a single number back to the plan always did.
+    ///
+    /// v2.22 (spec §33): "back on the plan" is compared PER SET against
+    /// `loads ?? [load × sets]`. Against the flat `load` an uneven plan
+    /// performed exactly as written — 9-8-8 — would read as a shortfall on its
+    /// first set and hand the engine a number nobody meant to report.
     static func recording(_ value: Int, in facts: PerSet,
                           _ ex: SessionExercise, set index: Int) -> PerSet {
         var facts = facts
         var values = facts[ex.pattern] ?? []
         let index = max(index, 0)
-        while values.count < index { values.append(values.last ?? ex.load) }
+        while values.count < index {
+            values.append(values.last ?? ex.plannedLoad(set: values.count))
+        }
         values = Array(values.prefix(index)) + [value]
-        facts[ex.pattern] = values.allSatisfy { $0 == ex.load } ? nil : values
+        let onPlan = values.enumerated().allSatisfy { $0.element == ex.plannedLoad(set: $0.offset) }
+        facts[ex.pattern] = onPlan ? nil : values
         return facts
     }
 

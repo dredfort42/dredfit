@@ -87,12 +87,15 @@ final class EngineV25Tests: XCTestCase {
 
         // "More" at a tier-2 level takes one step, not two; "on plan" is
         // never capped, so the pull still moves every session.
-        let atTierTwo = after(seeded(level: 10), .more)
-        XCTAssertEqual(atTierTwo.levels[.pull], 11, "the collateral +2 is gone")
-        let onPlan = after(seeded(level: 10), .plan)
-        XCTAssertEqual(onPlan.levels[.pull], 11, "one step per session survives the cap")
-        let atTierOne = after(seeded(level: 4), .more)
-        XCTAssertEqual(atTierOne.levels[.pull], 6, "tier 1 still climbs by two")
+        // v2.22 (spec §33): the cell counts SUB-STEPS, so all three land on
+        // positions rather than on levels. The subject is untouched.
+        assertPosition(after(seeded(level: 10), .more), .pull,
+                       Level.rise(level: 10, sub: 0, by: 1), "the collateral +2 is gone")
+        assertPosition(after(seeded(level: 10), .plan), .pull,
+                       Level.rise(level: 10, sub: 0, by: 1),
+                       "one step per session survives the cap")
+        assertPosition(after(seeded(level: 4), .more), .pull,
+                       Level.rise(level: 4, sub: 0, by: 2), "tier 1 still climbs by two")
     }
 
     /// The set bands are covered by the tier-4 cell rather than a special case.
@@ -105,6 +108,9 @@ final class EngineV25Tests: XCTestCase {
     // MARK: - The ceiling in applyFeedback
 
     /// "More" climbs by the cell, never past it, at every level.
+    /// v2.22 (spec §33): re-marked. The cell counts SUB-STEPS — a "2" means two
+    /// sub-steps, not two levels — so the expectation is derived from the same
+    /// helper the engine uses. The subject (the cell governs the climb) stands.
     func testMoreClimbsByTheCell() {
         for level in 0...EngineConfig.levelMax {
             let state = seeded(level: level)
@@ -112,22 +118,23 @@ final class EngineV25Tests: XCTestCase {
             for ex in Engine.generateSession(state).exercises {
                 let cap = EngineConfig.maxUp(pattern: ex.pattern,
                                              tier: Level.decode(level).tier)
-                let expected = min(level + min(EngineConfig.deltaMore, cap),
-                                   EngineConfig.levelMax)
-                XCTAssertEqual(next.levels[ex.pattern], expected,
+                assertPosition(next, ex.pattern,
+                               Level.rise(level: level, sub: 0,
+                                          by: min(EngineConfig.deltaMore, cap)),
                                "\(ex.pattern.rawValue) from \(level) with cap \(cap)")
             }
         }
     }
 
     /// A pointed fact far above the plan is clamped by the same cell.
+    /// v2.22 (spec §33): in SUB-STEPS.
     func testAFactIsClampedByTheCell() {
         for level in 1...EngineConfig.levelMax {
             let state = seeded(level: level)
             let cap = EngineConfig.maxUp(pattern: .pull, tier: Level.decode(level).tier)
             let next = after(state, .plan, overrides: [.pull: 99])
-            XCTAssertEqual(next.levels[.pull], min(level + cap, EngineConfig.levelMax),
-                           "an enormous fact from \(level) is capped at +\(cap)")
+            assertPosition(next, .pull, Level.rise(level: level, sub: 0, by: cap),
+                           "an enormous fact from \(level) is capped at +\(cap) sub-steps")
         }
     }
 
@@ -153,7 +160,9 @@ final class EngineV25Tests: XCTestCase {
     func testOnPlanIsAlwaysOneStep() {
         let next = after(seeded(level: 3), .plan)
         for ex in Engine.generateSession(seeded(level: 3)).exercises {
-            XCTAssertEqual(next.levels[ex.pattern], 4, "\(ex.pattern.rawValue)")
+            // v2.22 (spec §33): one step is one SUB-STEP.
+            assertPosition(next, ex.pattern, Level.rise(level: 3, sub: 0, by: 1),
+                           "\(ex.pattern.rawValue)")
         }
     }
 
@@ -183,7 +192,8 @@ final class EngineV25Tests: XCTestCase {
         XCTAssertEqual(next.freezeRemaining(.pull), EngineConfig.freezeAppearances)
         XCTAssertEqual(next.sore[.pull], EngineConfig.freezeAppearances, "the episode opens")
         XCTAssertEqual(next.counter, state.counter + 1, "the workout still happened")
-        XCTAssertEqual(next.levels[.squat], 14, "a neighbour still climbs")
+        assertPosition(next, .squat, expectedPosition(state, .squat, delta: EngineConfig.deltaMore),
+                       "a neighbour still climbs")
     }
 
     /// Frozen, the pattern holds its unloaded level for exactly N appearances
@@ -208,7 +218,7 @@ final class EngineV25Tests: XCTestCase {
         state = Engine.applyFeedback(state: state, session: session, result: .plan,
                                      overrides: [.pull: load])
         XCTAssertNil(state.sore[.pull], "the fact confirms recovery")
-        XCTAssertEqual(state.levels[.pull], dropped + EngineConfig.deltaPlan,
+        assertPosition(state, .pull, Level.rise(level: dropped, sub: 0, by: EngineConfig.deltaPlan),
                        "and the same fact takes the step")
     }
 

@@ -181,43 +181,10 @@ final class ReleaseSmokeTests: XCTestCase {
         }
     }
 
-    // MARK: - S9: the hold-this-level request
-
-    /// Its own launch, like S8: the second entrance to the rest is dead code
-    /// if this button ever stops reaching the journal, and nothing else in
-    /// the smoke would notice.
-    func testReleaseSmokePinned() {
-        app.launch()
-        XCTContext.runActivity(named: "S9 — a movement is held at its level") { _ in
-            app.buttons["Start"].tap()
-            let skipWarmup = app.buttons["Skip warm-up"]
-            XCTAssertTrue(skipWarmup.waitForExistence(timeout: 5), "S9: no warm-up to skip")
-            skipWarmup.tap()
-
-            let pin = app.buttons["hold-level"]
-            XCTAssertTrue(pin.waitForExistence(timeout: 5),
-                          "S9: the hold action is missing from the exercise screen")
-            pin.tap()
-            XCTAssertTrue(app.staticTexts["level held"].exists,
-                          "S9: the caption must confirm the request in place")
-
-            // A held movement is performed, not set aside: the workout is
-            // walked to its end and the rating still calls the request out.
-            driver.completeWorkout()
-            XCTAssertTrue(app.staticTexts["HELD"].exists,
-                          "S9: the rating screen must call the request out")
-
-            app.staticTexts["On plan"].tap()
-            XCTAssertTrue(app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 10),
-                          "S9: the rating must return to Today")
-
-            app.tabBars.buttons["Calendar"].tap()
-            let dayNumber = Calendar.current.component(.day, from: .now)
-            app.buttons["day-\(dayNumber)"].tap()
-            XCTAssertTrue(app.staticTexts["held"].waitForExistence(timeout: 5),
-                          "S9: the history row must say held, not skipped")
-        }
-    }
+    // v2.22 (spec §33): S9 — the hold-this-level request — is gone with the
+    // input it smoke-tested. What it guarded (a per-movement mark reaches the
+    // journal, and the smoke would not otherwise notice if it stopped) is
+    // covered by S8, the pain report, on the same path.
 
     // MARK: - S7: the same first three rows in Russian
 

@@ -42,8 +42,7 @@ struct HowItWorksView: View {
                     system. After that the level climbs at most two steps per \
                     workout — and only one wherever the tissue doing the work \
                     needs the slower pace: tendons remodel on a longer clock \
-                    than muscle. Where you asked to hold a level, it doesn't \
-                    climb at all.
+                    than muscle. A step lands on one set, not on all of them.
                     """)),
             Section(id: 3,
                     title: String(localized: "Deload"),
@@ -91,15 +90,18 @@ struct HowItWorksView: View {
                     harder for the next three times it comes round. Sharp \
                     pain is always a reason to stop.
                     """)),
+            // v2.22 (spec §33): this section used to explain the
+            // hold-this-level input. The input is cancelled — it was used zero
+            // times in 24 real sessions — and the case it served is what the
+            // sub-step now handles without being asked.
             Section(id: 9,
-                    title: String(localized: "Hold this level"),
+                    title: String(localized: "One set at a time"),
                     body: String(localized: """
-                    Sometimes a movement is simply at your limit and needs \
-                    longer there. Tap “Hold this level” and it stays where it \
-                    is: today's sets don't change, and the movement stops \
-                    getting harder for the next three times it comes round. \
-                    It can still go down if you do less, and a second tap in \
-                    the same workout changes your mind.
+                    Getting harder does not mean every set at once. A step \
+                    adds a rep to ONE set: 3×8 becomes 9-8-8, then 9-9-8, \
+                    then 3×9. The plan settles where you actually are, and \
+                    overshooting costs one rep in one set instead of a whole \
+                    level.
                     """)),
             Section(id: 10,
                     title: String(localized: "Why there are no questionnaires"),

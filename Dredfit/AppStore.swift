@@ -39,10 +39,12 @@ struct AppSettings: Codable, Equatable {
     var weakLinkPromptAnsweredFor: Int?
     /// v2.15 (#135): movements the trainee answered the prompt about. Pain
     /// enters the next session they appear in exactly as the mid-workout
-    /// "Something hurt" button would; "just hard" enters as a hold request —
-    /// growth pauses, the load stays, nothing waits for a confirmation.
+    /// "Something hurt" button would.
+    /// v2.22 (spec §33): the softer answer — "just hard" — is gone with the
+    /// hold-this-level input it armed. It existed because the plan could run
+    /// ahead of what the trainee could do, and the sub-step is the answer to
+    /// that: the plan now parks on their capacity by itself.
     var pendingDiscomfort: Set<Pattern> = []
-    var pendingPinned: Set<Pattern> = []
     var silentDecayAppliedFor: Date?
 
     init() {}
@@ -51,7 +53,7 @@ struct AppSettings: Codable, Equatable {
         case restWeekdays, soundsEnabled, reminderEnabled, reminderHour, reminderMinute
         case healthEnabled, healthExportedThrough
         case onboardingCompleted, careAcknowledgedAt, lastReviewRequestAt
-        case comebackDecidedFor, weakLinkPromptAnsweredFor, pendingDiscomfort, pendingPinned
+        case comebackDecidedFor, weakLinkPromptAnsweredFor, pendingDiscomfort
         case silentDecayAppliedFor
     }
 
@@ -72,7 +74,9 @@ struct AppSettings: Codable, Equatable {
         comebackDecidedFor = try c.decodeIfPresent(Date.self, forKey: .comebackDecidedFor)
         weakLinkPromptAnsweredFor = try c.decodeIfPresent(Int.self, forKey: .weakLinkPromptAnsweredFor)
         pendingDiscomfort = try c.decodeIfPresent(Set<Pattern>.self, forKey: .pendingDiscomfort) ?? []
-        pendingPinned = try c.decodeIfPresent(Set<Pattern>.self, forKey: .pendingPinned) ?? []
+        // A settings file written before v2.22 may still carry the cancelled
+        // `pendingPinned`; an unknown key decodes away silently, so nothing to
+        // migrate and nothing to clean up.
         silentDecayAppliedFor = try c.decodeIfPresent(Date.self, forKey: .silentDecayAppliedFor)
     }
 }
@@ -298,17 +302,14 @@ final class AppStore {
         // The suite must not depend on the weekday it runs on;
         // --uitest-restday is applied last so it wins.
         let seedFlags = ["--uitest-reset", "--uitest-session2", "--uitest-milestone",
-                         "--uitest-discomfort", "--uitest-pinned"]
+                         "--uitest-discomfort"]
         if seedFlags.contains(where: CommandLine.arguments.contains) {
             settings.restWeekdays = []
         }
-        // A pull reported as painful — or held — yesterday: today's plan
-        // still has it, and Today carries the same horizon line either way.
+        // A pull reported as painful yesterday: today's plan still has it, and
+        // Today carries the horizon line.
         if CommandLine.arguments.contains("--uitest-discomfort") {
-            seedFrozenPull(pinned: false)
-        }
-        if CommandLine.arguments.contains("--uitest-pinned") {
-            seedFrozenPull(pinned: true)
+            seedFrozenPull()
         }
         // Session 1 completed yesterday → today offers session 2, the only
         // deterministic way to reach hold exercises.
@@ -372,10 +373,9 @@ final class AppStore {
         settings.restWeekdays = []
     }
 
-    /// Yesterday's workout with one frozen pull — the seed the two freeze
-    /// hooks share; the app cannot tell the entrances apart, so only the
-    /// journal mark differs.
-    private func seedFrozenPull(pinned: Bool) {
+    /// Yesterday's workout with one frozen pull. v2.22 (§33): the freeze has a
+    /// single entrance again, so the seed takes no argument.
+    private func seedFrozenPull() {
         var seeded = EngineState.initial
         seeded.counter = 4
         for p in Pattern.allCases { seeded.levels[p] = 6 }
@@ -386,8 +386,7 @@ final class AppStore {
             date: Calendar.current.date(byAdding: .day, value: -1, to: .now)!,
             result: .plan,
             totalLevelAfter: 60,
-            discomfort: pinned ? nil : [.pull],
-            pinned: pinned ? [.pull] : nil,
+            discomfort: [.pull],
             levelsAfter: seeded.levels)]
     }
     #endif
@@ -480,7 +479,6 @@ final class AppStore {
                          setActuals: SetFacts.PerSet = [:],
                          skipped: Set<Pattern> = [],
                          discomfort: Set<Pattern> = [],
-                         pinned: Set<Pattern> = [],
                          durationSec: Int? = nil,
                          date: Date = .now) -> [Milestone] {
         // Mirror of the engine's replay guard: a session that does not belong
@@ -489,7 +487,6 @@ final class AppStore {
         pendingWorkout = nil   // the workout is over — nothing to resume
         let before = engineState
         let discomfort = spendPendingDiscomfort(in: session, adding: discomfort)
-        let pinned = spendPendingPinned(in: session, adding: pinned)
         // v2.17 (spec §28.5, #129): the app hands the engine the one aggregate
         // it needs to stop daily training from multiplying its way around the
         // per-session growth caps — the gap since the last workout. Nil on the
@@ -500,7 +497,6 @@ final class AppStore {
         engineState = Engine.applyFeedback(state: engineState, session: session,
                                            result: result, overrides: overrides,
                                            skipped: skipped, discomfort: discomfort,
-                                           pinned: pinned,
                                            gapDays: gapFraction(now: date))
         records.append(WorkoutRecord(
             sessionNumber: session.sessionNumber,
@@ -512,7 +508,6 @@ final class AppStore {
             setActuals: setActuals.isEmpty ? nil : setActuals,
             skipped: skipped.isEmpty ? nil : skipped,
             discomfort: discomfort.isEmpty ? nil : discomfort,
-            pinned: pinned.isEmpty ? nil : pinned,
             levelsAfter: engineState.levels,
             durationSec: durationSec))
         persist()
@@ -552,7 +547,6 @@ final class AppStore {
                   || snap.exIndex > 0 || snap.setIndex > 0
                   || !snap.facts.isEmpty || !snap.skipped.isEmpty
                   || !(snap.discomfort ?? []).isEmpty
-                  || !(snap.pinned ?? []).isEmpty
         else { return nil }
         return snap
     }
@@ -1058,18 +1052,12 @@ extension AppStore {
         persist()
     }
 
-    /// "It is just hard" — the answer that is NOT a diagnosis. The signal only
-    /// knows that the movement keeps coinciding with a tough session, and the
-    /// causes are many: pain, a level that ran ahead, an awkward variation,
-    /// plain fatigue. This one holds the level instead of taking the load off,
-    /// so a wrong answer costs a pause rather than a long rest with a
-    /// confirmation gate (spec §26.3).
-    func confirmSuspectIsHard(_ pattern: Pattern) {
-        settings.weakLinkPromptAnsweredFor = records.last?.sessionNumber
-        settings.pendingPinned.insert(pattern)
-        persist()
-    }
-
+    /// v2.22 (spec §33): the third answer — "it is just hard" — is gone. It
+    /// armed a hold, and the hold is cancelled: the case it served (the plan
+    /// ran ahead of what the trainee can do) is what the sub-step fixes, and
+    /// fixes without asking. The prompt is down to the diagnosis and a
+    /// dismissal.
+    ///
     /// Dismisses the prompt for this session without changing the plan.
     func dismissSuspectPrompt() {
         settings.weakLinkPromptAnsweredFor = records.last?.sessionNumber
@@ -1093,17 +1081,6 @@ extension AppStore {
         return discomfort.union(confirmed)
     }
 
-    /// The softer of the two answers: "just hard" arms a hold (§16), not a
-    /// pain report — growth pauses at the level the trainee is on, the load is
-    /// not taken off, and nothing waits for a confirming fact.
-    func spendPendingPinned(in session: Session,
-                            adding pinned: Set<Pattern>) -> Set<Pattern> {
-        let confirmed = settings.pendingPinned
-            .intersection(Set(session.exercises.map(\.pattern)))
-        guard !confirmed.isEmpty else { return pinned }
-        settings.pendingPinned.subtract(confirmed)
-        return pinned.union(confirmed)
-    }
 }
 
 // MARK: - UI-test seed for the weak-link prompt (v2.15, #135)

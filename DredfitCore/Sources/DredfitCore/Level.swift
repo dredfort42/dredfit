@@ -145,23 +145,34 @@ public enum Level {
     /// it" — was the reason a descent from a two-sided movement onto a
     /// one-sided one passed the gate: hinge L24 3×4 with both legs → 3×5 per
     /// leg is 12 reps against 30.
+    /// v2.22 (spec §33): the measure takes a PAIR `(level, sub)`. `load` stays
+    /// the BASE (smallest) dose of the plan, and the sub-steps' addition goes
+    /// into `total`:
+    ///
+    ///     total = (sets·load + sub·(dose(L+1) − dose(L)))·sides
+    ///
+    /// At `sub == 0` both numbers are bit-for-bit what v2.21 gave.
     struct PlanWork {
         let tier: Int
         let sets: Int
         let unit: LoadUnit
         let sides: Int
         let load: Int
+        let sub: Int
+        let subDelta: Int
 
-        var total: Int { sets * load * sides }
+        var total: Int { (sets * load + sub * subDelta) * sides }
     }
 
-    static func work(pattern: Pattern, level: Int) -> PlanWork {
+    static func work(pattern: Pattern, level: Int, sub: Int = 0) -> PlanWork {
         let d = decode(level)
         let entry = ExerciseLibrary.entry(for: pattern)
         let unit = entry.unit(forTier: d.tier)
+        let s = effectiveSub(level: level, sub: sub, sets: d.sets)
         return PlanWork(tier: d.tier, sets: d.sets, unit: unit,
                         sides: entry.variations[d.tier - 1].unilateral ? 2 : 1,
-                        load: unit == .reps ? d.reps : d.hold)
+                        load: unit == .reps ? d.reps : d.hold,
+                        sub: s, subDelta: subDelta(pattern: pattern, level: level))
     }
 
     /// v2.14 (spec §25.3) · v2.19 (spec §30.2): "no harder". A descent has no
@@ -187,8 +198,17 @@ public enum Level {
     /// pull-ups and 3×50 s of hanging are incommensurable. That break belongs
     /// to the LADDER and is fixed in the library, the way v2.18 (§29) fixed
     /// pike → handstand, not in the measure of work.
-    static func noHarder(pattern: Pattern, from: Int, to: Int) -> Bool {
-        let a = work(pattern: pattern, level: from), b = work(pattern: pattern, level: to)
+    ///
+    /// v2.22 (spec §33): the gate takes PAIRS `(level, sub)`. A descent from
+    /// `(L, sub>0)` to `(L, 0)` is legal and no harder by construction: `load`
+    /// is the same number (it is the base) and `total` falls by exactly the
+    /// sub-steps that were given up. The per-set comparison reads the BASE,
+    /// which is stricter than reading the heaviest set — the safe direction —
+    /// and with `sub == 0` on both sides the gate is bit-for-bit v2.21's.
+    static func noHarder(pattern: Pattern, from: Int, to: Int,
+                         fromSub: Int = 0, toSub: Int = 0) -> Bool {
+        let a = work(pattern: pattern, level: from, sub: fromSub)
+        let b = work(pattern: pattern, level: to, sub: toSub)
         if b.tier > a.tier { return false }
         if b.tier == a.tier {
             guard b.unit == a.unit else { return true }
@@ -208,13 +228,18 @@ public enum Level {
     /// result that does not ask for more work than the current plan. Applies
     /// to descents only — growth lives under the §15.3 ceiling, where by
     /// construction nothing gets heavier.
-    static func descendNoHarder(pattern: Pattern, from: Int, factLevel: Int) -> Int {
-        if factLevel >= from || noHarder(pattern: pattern, from: from, to: factLevel) {
+    /// v2.22 (spec §33): "the current plan" is the pair `(from, fromSub)`; the
+    /// target of a descent always carries `sub == 0`, because every descent
+    /// zeroes the sub-step.
+    static func descendNoHarder(pattern: Pattern, from: Int, factLevel: Int,
+                                fromSub: Int = 0) -> Int {
+        if factLevel >= from
+            || noHarder(pattern: pattern, from: from, to: factLevel, fromSub: fromSub) {
             return factLevel
         }
         var cand = factLevel - 1
         while cand > 0 {
-            if noHarder(pattern: pattern, from: from, to: cand) { return cand }
+            if noHarder(pattern: pattern, from: from, to: cand, fromSub: fromSub) { return cand }
             cand -= 1
         }
         return 0

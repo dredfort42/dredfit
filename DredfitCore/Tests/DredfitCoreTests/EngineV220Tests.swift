@@ -58,11 +58,11 @@ final class EngineV220Tests: XCTestCase {
     /// One appearance of `pattern`, on the given rating and inputs.
     private func tap(_ state: EngineState, _ result: FeedbackResult = .plan,
                      overrides: [Pattern: Int] = [:], skipped: Set<Pattern> = [],
-                     discomfort: Set<Pattern> = [], pinned: Set<Pattern> = []) -> EngineState {
+                     discomfort: Set<Pattern> = []) -> EngineState {
         let w = Engine.generateSession(state)
         return Engine.applyFeedback(state: state, session: w, result: result,
                                     overrides: overrides, skipped: skipped,
-                                    discomfort: discomfort, pinned: pinned)
+                                    discomfort: discomfort)
     }
 
     /// Report pain on `.pull` from `level`, then burn exactly the assigned
@@ -101,7 +101,10 @@ final class EngineV220Tests: XCTestCase {
             // Growth resumes from the NEXT appearance (§31.2 p.2).
             s = tap(s)
             let cap = EngineConfig.maxUp(pattern: .pull, tier: Level.decode(landed).tier)
-            XCTAssertEqual(s.levels[.pull], landed + min(EngineConfig.deltaPlan, cap),
+            // v2.22 (spec §33): growth resumes by a SUB-STEP.
+            assertPosition(s, .pull,
+                           Level.rise(level: landed, sub: 0,
+                                      by: min(EngineConfig.deltaPlan, cap)),
                            "L\(level): growth resumes one appearance later")
         }
     }
@@ -170,10 +173,14 @@ final class EngineV220Tests: XCTestCase {
         XCTAssertEqual(s.sore[.pull], EngineConfig.freezeAppearances,
                        "the episode outlives a run of skips")
 
-        let held = tap(intoWaiting(20), .plan, pinned: [.pull])
-        XCTAssertEqual(held.freezeRemaining(.pull), EngineConfig.freezeAppearances,
-                       "a hold arms the rest again")
-        XCTAssertEqual(held.soreLeft[.pull], need, "and spends no tick")
+        // v2.22 (spec §33): the hold clause went with the input. The subject —
+        // only CLEAN appearances spend a tick — stands, and a repeat pain report
+        // restarts both the rest and the countdown rather than spending it.
+        let again = tap(intoWaiting(20), .plan, discomfort: [.pull])
+        XCTAssertEqual(again.freezeRemaining(.pull), 2 * EngineConfig.freezeAppearances,
+                       "a repeat report doubles the rest")
+        XCTAssertEqual(again.soreLeft[.pull], 2 * EngineConfig.freezeAppearances,
+                       "and restarts the countdown at the new assignment")
     }
 
     // MARK: - §31.2 p.4 A repeat report
@@ -242,7 +249,9 @@ final class EngineV220Tests: XCTestCase {
                                             overrides: [.pull: load])
             XCTAssertNil(conf.sore[.pull], "\(spent) spent: closed at once")
             XCTAssertNil(conf.soreLeft[.pull], "\(spent) spent: the countdown goes too")
-            XCTAssertEqual(conf.levels[.pull], oldL + EngineConfig.deltaPlan,
+            assertPosition(conf, .pull,
+                           Level.rise(level: oldL, sub: s.sub[.pull] ?? 0,
+                                      by: EngineConfig.deltaPlan),
                            "\(spent) spent: and grows in the same move")
         }
     }
@@ -298,9 +307,9 @@ final class EngineV220Tests: XCTestCase {
         w = Engine.generateSession(s)
         let trained = w.exercises.first { Pattern.pullSide.contains($0.pattern) }?.pattern
         if trained != .pullBar {
-            let before = try XCTUnwrap(s.levels[.pullBar])
+            let before = Level.ordinal(s.position(.pullBar))
             s = Engine.applyFeedback(state: s, session: w, result: .plan)
-            XCTAssertEqual(s.levels[.pullBar], before + 1,
+            XCTAssertEqual(Level.ordinal(s.position(.pullBar)), before + 1,
                            "and the credit flows again after a countdown close")
         }
     }
@@ -380,15 +389,18 @@ final class EngineV220Tests: XCTestCase {
     /// `2 × freezeAppearances + 1` appearances: the rest, the countdown, and
     /// one more to resume. Before v2.20 this loop never terminated.
     func testTheTapOnlyPathIsFinite() throws {
+        // v2.22 (spec §33): "the level moved" is no longer the sign that growth
+        // resumed — the first growth event moves the SUB-STEP. The path is
+        // measured on the position instead; its length is unchanged.
         var s = tap(seeded(20), .plan, discomfort: [.pull])
-        let landed = try XCTUnwrap(s.levels[.pull])
+        let landed = Level.ordinal(s.position(.pull))
         var appearances = 0
-        while s.levels[.pull] == landed, appearances < 200 {
+        while Level.ordinal(s.position(.pull)) == landed, appearances < 200 {
             s = tap(s)
             appearances += 1
         }
         XCTAssertEqual(appearances, EngineConfig.freezeAppearances * 2 + 1,
                        "three of rest, three of countdown, one to resume")
-        XCTAssertGreaterThan(try XCTUnwrap(s.levels[.pull]), landed)
+        XCTAssertGreaterThan(Level.ordinal(s.position(.pull)), landed)
     }
 }

@@ -85,11 +85,19 @@ final class EngineV216Tests: XCTestCase {
             }
             return state
         }
+        // v2.22 (spec §33): "at the ceiling in 96 sessions" rested on a growth
+        // event costing a level. It costs a SUB-STEP now, so 96 sessions carry
+        // a branch about 21 levels up the 47 — nobody reaches the ceiling in
+        // that time. The subject is not the ceiling but the GAP between the
+        // branches, and that is what gets pinned, from the run rather than from
+        // a constant.
         let a = run(phase: 0), b = run(phase: 1)
-        XCTAssertEqual(a.levels[.pull], EngineConfig.levelMax)
-        XCTAssertLessThanOrEqual(a.levels[.pullBar] ?? 0, 2)
-        XCTAssertEqual(b.levels[.pullBar], EngineConfig.levelMax)
-        XCTAssertLessThanOrEqual(b.levels[.pull] ?? 0, 2, "mirrored by phase")
+        XCTAssertGreaterThan(Level.ordinal(a.position(.pull)),
+                             20 * Level.ordinal(a.position(.pullBar)) + 20,
+                             "phase 0: the trained branch runs far ahead")
+        XCTAssertGreaterThan(Level.ordinal(b.position(.pullBar)),
+                             20 * Level.ordinal(b.position(.pull)) + 20,
+                             "phase 1: mirrored")
         XCTAssertTrue(a.creditPaused.contains(.pullBar))
         XCTAssertTrue(b.creditPaused.contains(.pull))
     }
@@ -97,7 +105,8 @@ final class EngineV216Tests: XCTestCase {
     func testOnASteadyRhythmBothBranchesReachTheCeiling() {
         var state = EngineState.initial
         state.hasBar = true
-        for _ in 0..<96 {
+        // v2.22 (spec §33): a longer run — the scale is 153 sub-steps tall.
+        for _ in 0..<200 {
             state = Engine.applyFeedback(state: state, session: Engine.generateSession(state),
                                          result: .plan)
         }

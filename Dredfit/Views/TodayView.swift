@@ -199,8 +199,10 @@ struct TodayView: View {
                     HStack(spacing: 16) {
                         Button("It hurts") { store.confirmSuspectHurts(suspect) }
                             .accessibilityIdentifier("weak-link-hurts")
-                        Button("Just hard") { store.confirmSuspectIsHard(suspect) }
-                            .accessibilityIdentifier("weak-link-hard")
+                        // v2.22 (spec §33): the third answer — "just hard" —
+                        // armed a hold, and the hold is cancelled. The case it
+                        // served is exactly what the sub-step fixes without
+                        // asking anyone anything.
                         Button("It's fine") { store.dismissSuspectPrompt() }
                             .accessibilityIdentifier("weak-link-fine")
                     }
@@ -532,6 +534,19 @@ struct ExerciseRow: View {
 
     private var shortLoad: String {
         let side = exercise.perSide ? String(localized: " /side") : ""
+        // v2.22 (spec §33): an uneven plan spells its sets out — "9-8-8". This
+        // is where the sub-step becomes visible: a third of the sessions used
+        // to read as "nothing changed", and the row is what says otherwise.
+        // Explicit keys, not the bare "%@%@" a plain interpolation would mint.
+        if let loads = exercise.loads {
+            let spelled = loads.map(String.init).joined(separator: "-")
+            switch exercise.unit {
+            case .reps: return String(localized: "plan.perSet",
+                                      defaultValue: "\(spelled)\(side)")
+            case .hold: return String(localized: "plan.perSetHold",
+                                      defaultValue: "\(spelled) s\(side)")
+            }
+        }
         switch exercise.unit {
         case .reps: return String(localized: "\(exercise.sets) × \(exercise.load)\(side)")
         case .hold: return String(localized: "\(exercise.sets) × \(exercise.load) s\(side)")

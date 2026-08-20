@@ -13,6 +13,17 @@ import Foundation
 public struct EngineState: Codable, Equatable, Sendable {
     public var counter: Int
     public var levels: [Pattern: Int]
+    /// v2.22 (spec §33): the sub-step — how many of a pattern's sets already
+    /// carry the next rung's dose. Range after sanitizing is `0...sets(L)-1`:
+    /// at `sets(L)` sub-steps the rung is complete and the level rises on its
+    /// own. Sparse — zeros are never stored — so a state file written before
+    /// this existed decodes to all zeros, and the plan it produces is
+    /// bit-for-bit the plan v2.21 produced. No migration.
+    ///
+    /// On the top rung of a tier or band (`L mod 8 == 7`) the sub-step is
+    /// DISABLED and the sanitizer forces it to zero: rung `L+1` there belongs
+    /// to another variation, and two variations may never share one exercise.
+    public var sub: [Pattern: Int]
     public var failStreak: [Pattern: Int]
     public var hasBar: Bool
     /// Appearances a pattern still has to sit out after discomfort was
@@ -88,7 +99,7 @@ public struct EngineState: Codable, Equatable, Sendable {
     private enum CodingKeys: String, CodingKey {
         case counter, levels, failStreak, hasBar, frozen, lessRun, creditPaused, sore,
              soreLeft, returnRun, illness, lessHist, rampWindow, timeBudgetMin, weekGain,
-             weekAgeDays
+             weekAgeDays, sub
     }
 
     public init(counter: Int, levels: [Pattern: Int],
@@ -98,9 +109,11 @@ public struct EngineState: Codable, Equatable, Sendable {
                 soreLeft: [Pattern: Int] = [:],
                 returnRun: Int = 0, illness: Int = 0, lessHist: [Pattern: Int] = [:],
                 rampWindow: Int = 0, timeBudgetMin: Int = 0,
-                weekGain: [Pattern: Int] = [:], weekAgeDays: Double = 0) {
+                weekGain: [Pattern: Int] = [:], weekAgeDays: Double = 0,
+                sub: [Pattern: Int] = [:]) {
         self.counter = counter
         self.levels = levels
+        self.sub = sub
         self.failStreak = failStreak
         self.hasBar = hasBar
         self.frozen = frozen
@@ -170,10 +183,9 @@ public struct EngineState: Codable, Equatable, Sendable {
         // live episode means the FULL assignment — that is how a file written
         // before v2.20 gets a whole confirmation window rather than closing on
         // the first appearance. An entry without a live episode is garbage.
-        let left: [Pattern: Int] = c.contains(.soreLeft)
-            ? try Self.decodeLenient(c, forKey: .soreLeft)
-            : [:]
-        soreLeft = Self.healSoreLeft(left, episodes: episodes)
+        soreLeft = Self.healSoreLeft(
+            c.contains(.soreLeft) ? try Self.decodeLenient(c, forKey: .soreLeft) : [:],
+            episodes: episodes)
         // Additive (v2.12, §22.3-22.4), garbage sanitized as the reference does.
         returnRun = Self.clamped(try c.decodeIfPresent(Int.self, forKey: .returnRun) ?? 0,
                                  0, EngineConfig.countMax)
@@ -200,6 +212,8 @@ public struct EngineState: Codable, Equatable, Sendable {
         // decodes into a Double unchanged, so old files need no migration.
         weekAgeDays = Self.clamped(try c.decodeIfPresent(Double.self, forKey: .weekAgeDays) ?? 0,
                                    0, Double(EngineConfig.countMax))
+        // Additive (v2.22, §33); healed against the levels, so it is read last.
+        sub = Self.healSub(c.contains(.sub) ? try Self.decodeLenient(c, forKey: .sub) : [:], levels: lv)
     }
 
     /// Manual decode of the exact wire format Swift synthesizes for a
@@ -272,7 +286,30 @@ public struct EngineState: Codable, Equatable, Sendable {
                 ? Self.clamped(timeBudgetMin, 5, EngineConfig.countMax) : 0,
             weekGain: weekGain.filter { $0.value >= 1 }
                 .mapValues { Self.clamped($0, 1, EngineConfig.countMax) },
-            weekAgeDays: Self.clamped(weekAgeDays, 0, Double(EngineConfig.countMax)))
+            weekAgeDays: Self.clamped(weekAgeDays, 0, Double(EngineConfig.countMax)),
+            sub: Self.healSub(sub, levels: lv))
+    }
+
+    /// v2.22 (spec §33): the sub-step map, healed the way the reference heals
+    /// it. Non-numbers and negatives read as zero; anything at or above the
+    /// level's set band clamps to `sets-1`; the top rung of a tier or band is
+    /// forced to zero, which is what makes "the plan on a top rung is always
+    /// uniform" hold structurally rather than by a check inside the plan. Zeros
+    /// are never stored, so a state that descended is byte-identical to one
+    /// that never saw a sub-step at all.
+    static func healSub(_ src: [Pattern: Int], levels: [Pattern: Int]) -> [Pattern: Int] {
+        var out: [Pattern: Int] = [:]
+        for (p, raw) in src {
+            let level = clamped(levels[p] ?? 0, 0, EngineConfig.levelMax)
+            let value = Level.effectiveSub(level: level, sub: raw)
+            if value > 0 { out[p] = value }
+        }
+        return out
+    }
+
+    /// The pattern's place on the progression (v2.22, §33).
+    public func position(_ pattern: Pattern) -> Position {
+        Position(level: levels[pattern] ?? 0, sub: sub[pattern] ?? 0)
     }
 
     /// v2.20 (spec §31.3): the confirmation countdown, healed the way the
