@@ -165,10 +165,12 @@ struct SettingsSheet: View {
 
     // MARK: - Session length (v2.17, #136)
 
-    /// The rungs are measured, not chosen: 20 is the shortest budget that
-    /// still keeps three movements at every level — below it a session stops
-    /// outrunning the decay of the ones it drops. 45 is where all six always
-    /// fit, so it costs no progress at all.
+    /// The rungs are measured, not chosen (spec §28.3). 45 is where all six
+    /// movements always fit, so it costs no progress at all — and since v2.24
+    /// it is what an install that never chose gets by default. 20 is the
+    /// shortest rung: with movements no longer dropped for the budget (§35.2)
+    /// it is a target rather than a promise — high levels land above it, on
+    /// two sets of everything.
     private static let budgetRungs = [20, 35, 45, 0]
 
     private var timeBudgetSection: some View {
@@ -194,7 +196,7 @@ struct SettingsSheet: View {
                     .accessibilityIdentifier("budget-\(minutes)")
                 }
             }
-            Text("Shorter workouts drop sets first, then movements — never below three. Your levels do not change.")
+            Text("Shorter workouts drop sets, never movements — down to two per exercise. Your levels do not change.")
                 .dredfitFont(12.5)
                 .foregroundStyle(Theme.ink2)
                 .fixedSize(horizontal: false, vertical: true)

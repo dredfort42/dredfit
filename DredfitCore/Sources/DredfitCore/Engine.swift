@@ -152,8 +152,13 @@ public enum EngineConfig {
     /// below, so a correct app layer is never double-counted.
     public static let minSessionAgeDays = 1.0 / 24.0
     /// v2.17 (spec §28.3, #136): the time budget trims the PLAN, never levels.
-    public static let budgetSetsFloor = 2
-    public static let budgetPatternsFloor = 3
+    /// v2.24 (spec §35.1): the SHARED floor on sets, not the budget's own. The
+    /// old name (`budgetSetsFloor`) named an owner the floor does not have:
+    /// two mechanisms cut sets — the budget §28.3 and the set-band gate §20.2 —
+    /// and until v2.24 neither knew about the other. Everything that produces a
+    /// set count goes through `clampSets`, so the floor survives ANY
+    /// composition of them, not just one path.
+    public static let setsFloor = 2
     public static let budgetShortEndsAt = 20
     public static let warmupShortMin = 3
     public static let cooldownShortMin = 2

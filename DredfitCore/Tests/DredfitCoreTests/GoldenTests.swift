@@ -37,6 +37,9 @@ private struct Golden: Decodable {
         let failStreak: [Int]
         let barLevel: Int
         let barStreak: Int
+        /// v2.24 (spec §35.2): the time budget the scenario starts under.
+        /// Additive — scenarios that never touch it omit the key entirely.
+        let timeBudgetMin: Int?
     }
     /// applyComeback invoked before this step's session.
     struct Comeback: Decodable {
@@ -109,6 +112,9 @@ private struct Golden: Decodable {
         let failStreakAfter: [Int]
         // present only in scenarios that exercise the bar module
         let hasBar: Bool?          // effective toggle for this step's session
+        // v2.24 (spec §35.2): the budget in force for this step's session — the
+        // second settings toggle, recorded exactly like the first.
+        let timeBudgetMin: Int?
         let barLevelAfter: Int?
         let barStreakAfter: Int?
         let frozenAfter: [Int]?    // appearances left, by patternOrder
@@ -156,7 +162,7 @@ final class GoldenTests: XCTestCase {
     /// re-baseline every number instead of catching a port bug.
     func testGeneratorIsThePinnedReferenceVersion() throws {
         let g = try loadGolden()
-        XCTAssertEqual(g.generator, "adaptive_engine.js v2.23.0",
+        XCTAssertEqual(g.generator, "adaptive_engine.js v2.24.0",
                        "golden.json regenerated from an unexpected reference version")
     }
 
@@ -217,11 +223,14 @@ final class GoldenTests: XCTestCase {
                 }
                 state.levels[.pullBar] = seed.barLevel
                 state.failStreak[.pullBar] = seed.barStreak
+                state.timeBudgetMin = seed.timeBudgetMin ?? 0
             }
 
             for (i, step) in scenario.steps.enumerated() {
                 let ctx = "\(scenario.name)/step \(i + 1)"
-                if let hasBar = step.hasBar { state.hasBar = hasBar } // settings toggle
+                // The two settings toggles a scenario may flip between sessions.
+                state.hasBar = step.hasBar ?? state.hasBar
+                state.timeBudgetMin = step.timeBudgetMin ?? state.timeBudgetMin
                 replayBreaks(step, into: &state, order: g.patternOrder, ctx: ctx)
                 let session = Engine.generateSession(state)
 

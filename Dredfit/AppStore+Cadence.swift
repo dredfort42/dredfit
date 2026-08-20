@@ -14,22 +14,37 @@ import DredfitCore
 
 extension AppStore {
 
-    /// Whole 24-hour periods of true elapsed time (spec §7, #147) — the
-    /// training day is anchored to the trainee, not to a wall clock. The
-    /// floor crosses the 7/14-day thresholds exactly when real time does, so
-    /// a drifting shift-work ritual collects no phantom break days, a rounding
-    /// error only ever understates a break, and DST or a timezone trip stop
-    /// being cases at all. Display places (same-day stamps, rest weekdays,
-    /// the widget) stay on the calendar midnight.
-    static func trainingDays(from start: Date, to end: Date) -> Int {
-        // The conversion is done in Double and clamped BEFORE it becomes an
-        // Int: a corrupt date in the journal makes the quotient larger than
-        // Int can hold, and `Int(_:)` traps on that rather than saturating
-        // (spec §24.1 — the engine heals its inputs, so its callers must not
-        // crash on the way in).
-        let days = end.timeIntervalSince(start) / 86_400
-        guard days.isFinite else { return 0 }
-        return Int(min(max(days, 0), Double(EngineConfig.countMax)))
+    /// v2.24 (spec §35.4, #143): CALENDAR days in the local zone — the number
+    /// of midnights between the two workouts, not the number of whole 24-hour
+    /// periods. Everything about rhythm is calendar-shaped in the trainee's
+    /// head: "yesterday", "every Sunday", "two weeks off". Counting elapsed
+    /// hours instead put Monday 23:00 → Tuesday 01:00 at ZERO days, which is a
+    /// gap the decay, the comeback card, the cadence detector and the frequency
+    /// guard all read — and it made a clock change or a flight into a phantom
+    /// day in either direction. The autumn DST day is 25 hours long and the
+    /// spring one 23, and `startOfDay` is right about both.
+    ///
+    /// The thresholds themselves (7–13 decay, ≥14 comeback, ≥90 fresh start,
+    /// 2–14 illness) are untouched: this changes what a day IS, not how many
+    /// of them mean what.
+    ///
+    /// §28.5 keeps its own fractional gap (`gapFraction`, spec §30.8) — the
+    /// engine's weekly window ages in fractions of a day and must not be
+    /// rounded to midnights.
+    /// The calendar is a parameter only so the DST boundary can be pinned by a
+    /// test in a zone that actually has one — production always passes
+    /// `.current`, which is the trainee's own zone.
+    static func trainingDays(from start: Date, to end: Date,
+                             calendar cal: Calendar = .current) -> Int {
+        let days = cal.dateComponents([.day],
+                                      from: cal.startOfDay(for: start),
+                                      to: cal.startOfDay(for: end)).day
+        // Clamped at zero: the phone's timezone can move between sessions (and
+        // its clock can be set backwards), which would otherwise hand the
+        // engine a negative gap. Capped at countMax for the same reason the
+        // old arithmetic was — a corrupt journal date must not overflow.
+        guard let days else { return 0 }
+        return min(max(days, 0), EngineConfig.countMax)
     }
 
     /// Training days since the last workout — the one number the engine's

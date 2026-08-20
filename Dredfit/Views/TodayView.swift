@@ -148,6 +148,25 @@ struct TodayView: View {
                 .padding(.top, 6)
             }
 
+            // v2.24 (spec §35.3): the one-off line about the 45-minute default.
+            // Existing installs had "no limit" whether they chose it or not, so
+            // the change gets one sentence, once. No notification, no repeat.
+            if store.shouldShowBudgetDefaultNotice {
+                HStack(alignment: .top, spacing: 12) {
+                    Text("Workouts now fit into 45 minutes by default — you can change that in Settings.")
+                        .dredfitFont(13.5)
+                        .foregroundStyle(Theme.ink2)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    Button("Got it") { store.markBudgetDefaultNoticeSeen() }
+                        .dredfitFont(13.5)
+                        .foregroundStyle(Theme.accent)
+                        .accessibilityIdentifier("budget-notice-dismiss")
+                }
+                .padding(.top, 6)
+                .accessibilityIdentifier("budget-default-notice")
+            }
+
             // An offer of rest, not a warning (#98) — and never a number to
             // beat: the count appears only here, in the suggestion to break
             // the run. "Train anyway" and the Start button stay untouched.

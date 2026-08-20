@@ -46,6 +46,17 @@ struct AppSettings: Codable, Equatable {
     /// that: the plan now parks on their capacity by itself.
     var pendingDiscomfort: Set<Pattern> = []
     var silentDecayAppliedFor: Date?
+    /// v2.24 (spec §35.3, #136): whether the trainee has ever chosen a session
+    /// length. False means the app hands the engine the default budget —
+    /// `AppStore.defaultTimeBudgetMin` — rather than "no limit". Any choice at
+    /// all sets it, INCLUDING "no limit": picking no limit is a decision, and a
+    /// decision must not be overwritten by a default on the next launch.
+    var timeBudgetChosen = false
+    /// v2.24: when the one-off line about the default was closed — either read
+    /// and dismissed, or never applicable because this install began at the
+    /// default and so has no "new" to be told about. A date rather than a bool
+    /// for the same reason as the two above: it records when.
+    var budgetDefaultNoticeClosedAt: Date?
 
     init() {}
 
@@ -55,6 +66,7 @@ struct AppSettings: Codable, Equatable {
         case onboardingCompleted, careAcknowledgedAt, lastReviewRequestAt
         case comebackDecidedFor, weakLinkPromptAnsweredFor, pendingDiscomfort
         case silentDecayAppliedFor
+        case timeBudgetChosen, budgetDefaultNoticeClosedAt
     }
 
     init(from decoder: Decoder) throws {
@@ -78,6 +90,10 @@ struct AppSettings: Codable, Equatable {
         // `pendingPinned`; an unknown key decodes away silently, so nothing to
         // migrate and nothing to clean up.
         silentDecayAppliedFor = try c.decodeIfPresent(Date.self, forKey: .silentDecayAppliedFor)
+        // Absent for every install written before v2.24 — which is exactly the
+        // population the default is for: no flag → never chose → 45 minutes.
+        timeBudgetChosen = try c.decodeIfPresent(Bool.self, forKey: .timeBudgetChosen) ?? false
+        budgetDefaultNoticeClosedAt = try c.decodeIfPresent(Date.self, forKey: .budgetDefaultNoticeClosedAt)
     }
 }
 
@@ -208,6 +224,10 @@ final class AppStore {
             Self.log.error("dropped \(dropped) unreadable record(s), original kept aside")
         }
         migrateHealthMarkToFlags()
+        // `loaded == nil` means there was no state file: this install begins
+        // here, at the default, so the "what's new" line has nothing to say to
+        // it and is closed before it can ever appear.
+        applyDefaultTimeBudget(freshInstall: loaded == nil)
         #if DEBUG
         applyUITestHooks()
         #endif
@@ -234,6 +254,8 @@ final class AppStore {
                 Self.log.error("dropped \(loaded.droppedRecordCount) unreadable record(s) on reload, original kept aside")
             }
             migrateHealthMarkToFlags()
+            // A reload always has a file behind it — never a fresh install.
+            applyDefaultTimeBudget(freshInstall: false)
         } catch {
             Self.quarantineStateFile(at: storageURL, keepOriginal: false)
             Self.log.fault("state file failed to decode on reload, moved aside: \(error.localizedDescription)")
@@ -283,6 +305,31 @@ final class AppStore {
     /// re-applying the mark could stamp workouts it was never about: a
     /// foreign import's records, or a post-reset session 1 sitting under an
     /// old high mark (issue #103).
+    /// v2.24 (spec §35.3, #136): a session length nobody chose is 45 minutes,
+    /// not "no limit". The app never stopped lengthening the workout — a
+    /// diligent 3×/week trainee reached 85–92 minutes at the top of the scale
+    /// and a daily one 549 minutes a week — and the budget that fixes it
+    /// (§28.3) shipped switched off, so it protected only the people who went
+    /// looking for it. 45 is the rung at which all six movements still fit, so
+    /// the default costs no progress at all.
+    ///
+    /// Applied on every load rather than written once at install: the engine
+    /// state is the thing the plan is drawn from, and a trainee who has not
+    /// chosen must see the default even if their file predates the flag. The
+    /// moment they choose anything — including "no limit" — the flag goes up
+    /// and this stops touching their state.
+    private func applyDefaultTimeBudget(freshInstall: Bool) {
+        guard !settings.timeBudgetChosen else { return }
+        engineState.timeBudgetMin = Self.defaultTimeBudgetMin
+        if freshInstall, settings.budgetDefaultNoticeClosedAt == nil {
+            settings.budgetDefaultNoticeClosedAt = .now
+        }
+    }
+
+    /// The default budget, in minutes. §28.3 measured the rungs: 45 is the
+    /// smallest one at which all six movements always fit.
+    static let defaultTimeBudgetMin = 45
+
     private func migrateHealthMarkToFlags() {
         guard settings.healthExportedThrough > 0,
               !records.contains(where: { $0.healthExported != nil }) else { return }
@@ -711,13 +758,31 @@ final class AppStore {
     /// company (the offer window, the countdown, the card preview) lives in
     /// AppStore+Comeback.
     /// v2.17 (spec §28.3, #136): how long the trainee wants a session to be.
-    /// The budget trims the PLAN — sets first, then movements, never below
-    /// three — and leaves the levels alone, so choosing less time costs
-    /// nothing but the sets it removes. 0 = no limit, which is what every
-    /// install had until now.
+    /// The budget trims the PLAN — sets, never movements and never levels — so
+    /// choosing less time costs nothing but the sets it removes. 0 = no limit.
+    /// v2.24 (spec §35.3): the choice is recorded even when it lands on the
+    /// value already in force, and even when it is "no limit". Without that,
+    /// deliberately choosing no limit would be silently overwritten by the
+    /// default on the next launch.
     func setTimeBudget(_ minutes: Int) {
-        guard engineState.timeBudgetMin != minutes else { return }
+        let unchanged = engineState.timeBudgetMin == minutes && settings.timeBudgetChosen
+        guard !unchanged else { return }
         engineState.timeBudgetMin = minutes
+        settings.timeBudgetChosen = true
+        persist()
+    }
+
+    /// v2.24 (spec §35.3): the one-off "what's new" line about the default.
+    /// Only for installs that were already running before the default arrived
+    /// — a first launch simply starts at 45 and is told nothing, because
+    /// nothing changed for it. It goes away on a tap and never comes back.
+    var shouldShowBudgetDefaultNotice: Bool {
+        settings.budgetDefaultNoticeClosedAt == nil && !settings.timeBudgetChosen
+    }
+
+    func markBudgetDefaultNoticeSeen(now: Date = .now) {
+        guard settings.budgetDefaultNoticeClosedAt == nil else { return }
+        settings.budgetDefaultNoticeClosedAt = now
         persist()
     }
 
@@ -728,10 +793,17 @@ final class AppStore {
 
     /// Only the engine resets; the journal and settings survive. `hasBar` is
     /// kept — the bar did not disappear from the doorway.
+    /// v2.24 (spec §35.3): and so is the time budget. `.initial` carries a zero
+    /// budget, so a reset used to hand the trainee "no limit" — a setting they
+    /// never touched, on a screen about starting the levels over. Harmless
+    /// while the budget was opt-in and everybody sat at zero anyway; with a
+    /// 45-minute default it would be a visible, unasked-for change.
     func resetProgress() {
         let hadBar = engineState.hasBar
+        let hadBudget = engineState.timeBudgetMin
         engineState = .initial
         engineState.hasBar = hadBar
+        engineState.timeBudgetMin = hadBudget
         // Session numbers restart: a pre-reset snapshot would collide with
         // the new counter and resume into the wrong workout.
         pendingWorkout = nil

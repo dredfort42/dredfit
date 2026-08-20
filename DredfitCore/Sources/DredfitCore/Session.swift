@@ -219,7 +219,9 @@ extension Engine {
             let variation = lib.variations[d.tier - 1]
             let unit = lib.unit(forTier: d.tier)
             let load = unit == .reps ? d.reps : d.hold
-            let sets = Pattern.pushSide.contains(p) ? min(d.sets, pullSets) : d.sets
+            // v2.24 (spec §35.1): the gate and the exercise's own band both go
+            // through the one clamp.
+            let sets = clampSets(Pattern.pushSide.contains(p) ? min(d.sets, pullSets) : d.sets)
             // The band is the FINAL one — the §20.2 gate may have trimmed it —
             // so a sub-step never asks for more sets than are on screen.
             let loads = Level.perSetLoads(pattern: p, level: viewLevel(p),
@@ -248,8 +250,7 @@ extension Engine {
         let warmup = short ? EngineConfig.warmupShortMin : EngineConfig.warmupMin
         let cooldown = short ? EngineConfig.cooldownShortMin : EngineConfig.cooldownMin
         let trimmed = budget > 0
-            ? trimToBudget(exercises, budget: budget, ends: warmup + cooldown,
-                           counter: state.counter, levels: state.levels)
+            ? trimToBudget(exercises, budget: budget, ends: warmup + cooldown)
             : exercises
 
         return Session(
@@ -261,52 +262,63 @@ extension Engine {
         )
     }
 
-    /// v2.17 (spec §28.3): fit the plan into the budget. The order is measured:
-    /// sets first, movements only after. Growth in the model is +1 per pattern
-    /// per session and does not depend on the set count, so a dropped set costs
-    /// no progress while a dropped movement costs all of it (measured on the
-    /// busy-parent persona: 66.6 levels against 30.4 at a 20-minute budget).
-    /// Levels are never touched — the budget trims the PLAN.
-    private static func trimToBudget(_ exercises: [SessionExercise], budget: Int,
-                                     ends: Int, counter: Int,
-                                     levels: [Pattern: Int]) -> [SessionExercise] {
-        var cur = exercises
-        if estimatedMin(exercises: cur, ends: ends) <= Double(budget) { return cur }
-        for sets in stride(from: EngineConfig.setsMax - 1,
-                           through: EngineConfig.budgetSetsFloor, by: -1) {
-            cur = cur.map { $0.sets <= sets ? $0 : Self.withSets($0, sets) }
-            if estimatedMin(exercises: cur, ends: ends) <= Double(budget) { return cur }
-        }
-        for n in stride(from: cur.count - 1,
-                        through: EngineConfig.budgetPatternsFloor, by: -1) {
-            cur = keepForBudget(cur, n, counter: counter, levels: levels)
-            if estimatedMin(exercises: cur, ends: ends) <= Double(budget) { return cur }
-        }
-        return cur   // the budget is below the floor — the shortest legal plan
-    }
+    /// v2.24 (spec §35.1): the one and only clamp on a set count. Both
+    /// mechanisms that CUT sets — the budget (§28.3) and the band gate (§20.2)
+    /// — go through it, so the floor holds for their composition and not just
+    /// for each cut on its own.
+    static func clampSets(_ n: Int) -> Int { max(EngineConfig.setsFloor, n) }
 
-    /// WHO stays when movements have to go. Cutting the tail is wrong: the
-    /// session order is fixed, so the last patterns (calves, rotation) would
-    /// never appear at all — measured zero appearances of calves over 24
-    /// sessions. The rule is the app's own short-workout rule (#27, verified by
-    /// simulation): the pull slot, the rotation anchor, then the laggards.
-    private static func keepForBudget(_ exercises: [SessionExercise], _ n: Int,
-                                      counter: Int,
-                                      levels: [Pattern: Int]) -> [SessionExercise] {
-        var keep: [Pattern] = []
-        if let pull = exercises.first(where: { Pattern.pullSide.contains($0.pattern) }) {
-            keep.append(pull.pattern)
+    /// v2.17 (spec §28.3): fit the plan into the budget. Levels are never
+    /// touched — the budget trims the PLAN, not the state.
+    ///
+    /// v2.24 (spec §35.2): ONE set per iteration, from the exercise whose
+    /// removal saves the most seconds, repeated until the plan fits or every
+    /// exercise stands on the floor. The old algorithm capped ALL six movements
+    /// at once (4, then 3, then 2), and the gap between rungs was wider than
+    /// the miss it was closing: a 45-minute budget went 45 → 29 → 45, a
+    /// shortfall of up to 36%. One set of one movement is the smallest
+    /// indivisible unit of a plan, so the shortfall falls to its size — 6.9%
+    /// worst case over levels 24–47.
+    ///
+    /// Movements are no longer dropped at all (the old second stage and
+    /// `keepForBudget` are gone). The reason is the arithmetic §28.3 already
+    /// used to justify "sets first": a dropped set costs no progress, a dropped
+    /// movement costs all of it. If the plan is still longer than the budget
+    /// with everything on the floor, the session simply runs a little long —
+    /// honest, and cheaper than dropping a pattern out of the rotation.
+    ///
+    /// Monotonicity in the budget comes for free: the removal sequence does not
+    /// depend on the budget, so the plan for budget B is a prefix of one fixed
+    /// sequence, and every removal strictly shortens the session.
+    private static func trimToBudget(_ exercises: [SessionExercise], budget: Int,
+                                     ends: Int) -> [SessionExercise] {
+        var cur = exercises
+        var total = estimatedMin(exercises: cur, ends: ends)
+        while total > Double(budget) {
+            var bestIdx: Int?
+            var bestTotal = total
+            var bestEx: SessionExercise?
+            for i in cur.indices where cur[i].sets > EngineConfig.setsFloor {
+                let trimmedEx = Self.withSets(cur[i], cur[i].sets - 1)
+                var trial = cur
+                trial[i] = trimmedEx
+                let trialTotal = estimatedMin(exercises: trial, ends: ends)
+                // A strict `<` leaves the win with the FIRST of equals, and the
+                // session order is fixed — so the choice is deterministic.
+                if trialTotal < bestTotal {
+                    bestTotal = trialTotal
+                    bestIdx = i
+                    bestEx = trimmedEx
+                }
+            }
+            // Everything on the floor (or a removal that saves nothing): this
+            // is the shortest legal plan. Running a little long is the accepted
+            // consequence of §35.2.
+            guard let idx = bestIdx, let ex = bestEx else { break }
+            cur[idx] = ex
+            total = bestTotal
         }
-        let anchor = rotationAnchor(counter: counter)
-        if exercises.contains(where: { $0.pattern == anchor }), !keep.contains(anchor) {
-            keep.append(anchor)
-        }
-        for ex in exercises.filter({ !keep.contains($0.pattern) })
-            .sorted(by: { (levels[$0.pattern] ?? 0) < (levels[$1.pattern] ?? 0) }) {
-            if keep.count >= n { break }
-            keep.append(ex.pattern)
-        }
-        return exercises.filter { keep.contains($0.pattern) }
+        return cur
     }
 
     /// Rebuild an exercise on a different set count; the rest follows the
@@ -316,7 +328,10 @@ extension Engine {
     /// cannot ask for more sets than are left. Clamping to `sets-1` keeps the
     /// invariant "`load` is the plan's minimum": dropping a set gives the budget
     /// no right to raise that minimum.
-    private static func withSets(_ ex: SessionExercise, _ sets: Int) -> SessionExercise {
+    private static func withSets(_ ex: SessionExercise, _ requested: Int) -> SessionExercise {
+        // v2.24 (spec §35.1): a rebuild is a cut too, so it goes through the
+        // shared clamp — no path can hand back an exercise below the floor.
+        let sets = clampSets(requested)
         let high = ex.loads?.first ?? ex.load
         let carried = ex.loads?.filter { $0 > ex.load }.count ?? 0
         let sub = min(carried, max(sets - 1, 0))

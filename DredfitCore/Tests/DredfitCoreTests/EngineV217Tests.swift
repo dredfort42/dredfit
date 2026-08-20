@@ -73,21 +73,50 @@ final class EngineV217Tests: XCTestCase {
 
     // MARK: - §28.3 The time budget
 
+    /// v2.24 (spec §35.2): RE-MARKED, with the cause. Two expectations here were
+    /// written against an algorithm that dropped movements to make the budget;
+    /// since v2.24 movements are never dropped, and both are replaced by
+    /// stronger claims:
+    ///   • "always fits" → "fits OR every exercise is on the sets floor". The
+    ///     budgets that the app actually offers above the shortest rung (35 and
+    ///     45) still fit everywhere, and that is pinned separately below with no
+    ///     disjunction at all.
+    ///   • "at least the movement floor" → "EXACTLY the movements of the full
+    ///     plan". The movement floor is gone along with the stage that read it.
     func testEveryBudgetIsMetAtEveryLevelWithoutTouchingLevels() {
         for budget in [20, 35, 45] {
             for level in 0...EngineConfig.levelMax {
                 let state = seeded(level, budget: budget)
                 let session = Engine.generateSession(state)
-                XCTAssertLessThanOrEqual(session.estimatedTotalMin, Double(budget),
-                    "L\(level) at budget \(budget): \(session.estimatedTotalMin) min")
-                XCTAssertGreaterThanOrEqual(session.exercises.count,
-                                            EngineConfig.budgetPatternsFloor)
                 let full = Engine.generateSession(seeded(level))
+                let allOnFloor = session.exercises.allSatisfy { $0.sets <= EngineConfig.setsFloor }
+                XCTAssertTrue(session.estimatedTotalMin <= Double(budget) || allOnFloor,
+                    "L\(level) at budget \(budget): \(session.estimatedTotalMin) min, not on the floor")
+                XCTAssertEqual(session.exercises.map(\.pattern), full.exercises.map(\.pattern),
+                    "L\(level) at budget \(budget): the movement list drifted from the full plan")
                 for ex in session.exercises {
                     let same = full.exercises.first { $0.pattern == ex.pattern }
                     XCTAssertEqual(ex.tier, same?.tier, "the budget changed the variation")
                     XCTAssertEqual(ex.load, same?.load, "the budget changed the load")
-                    XCTAssertGreaterThanOrEqual(ex.sets, EngineConfig.budgetSetsFloor)
+                    XCTAssertGreaterThanOrEqual(ex.sets, EngineConfig.setsFloor)
+                }
+            }
+        }
+    }
+
+    /// The rungs above the shortest one keep the old promise outright: no
+    /// disjunction, no floors — the plan fits, everywhere on the scale.
+    func testTheThirtyFiveAndFortyFiveRungsStillFitEverywhere() {
+        for budget in [35, 45] {
+            for level in 0...EngineConfig.levelMax {
+                for counter in 0..<8 {
+                    for bar in [false, true] {
+                        var state = seeded(level, budget: budget, bar: bar)
+                        state.counter = counter
+                        let session = Engine.generateSession(state)
+                        XCTAssertLessThanOrEqual(session.estimatedTotalMin, Double(budget),
+                            "L\(level) c\(counter) bar=\(bar) at budget \(budget)")
+                    }
                 }
             }
         }
@@ -117,19 +146,22 @@ final class EngineV217Tests: XCTestCase {
         for p in Pattern.ordered {
             XCTAssertNotNil(last[p], "\(p) never appeared in 24 sessions")
         }
-        // v2.22 (spec §33): re-marked 5 → 6, with the cause. Who stays when the
-        // budget trims is decided by "the pull slot, the rotation anchor, then
-        // the laggards", and laggards are ranked BY LEVEL. Growth by sub-steps
-        // leaves the levels far more tightly packed over 24 sessions (3-4
-        // against 10-11 in v2.21), so there is almost nothing to rank by and one
-        // pattern waits a session longer. The structural guarantee is unchanged
-        // — the rotation anchor visits all eight rotating patterns in eight
-        // sessions — and that is now pinned explicitly, which it never was.
-        XCTAssertLessThanOrEqual(worst, 6,
+        // v2.24 (spec §35.2): re-marked 6 → 3, with the cause. The number was
+        // written against trimming by movements: a movement dropped for the
+        // budget waited BEYOND its place in the rotation, and 5 → 6 drifted with
+        // how the algorithm ranked "laggards". Movements are no longer dropped,
+        // so a pattern's wait is exactly what the rotation gives it (§4): eight
+        // rotating patterns over five slots with a shift of 3, worst gap 3
+        // sessions. The bound is not loosened but halved, and it now follows
+        // from the rotation rather than from trimming behaviour.
+        XCTAssertLessThanOrEqual(worst, 3,
             "a pattern waited \(worst) sessions on the tightest budget")
+        // Five appearances in eight sessions (§4) over 24 sessions — a derived
+        // lower bound instead of the old round three.
+        let rotatingMin = 24 * 5 / 8
         for p in Pattern.ordered {
-            XCTAssertGreaterThanOrEqual(seen[p] ?? 0, 3,
-                "\(p) appeared \(seen[p] ?? 0) times in 24 sessions — the anchor never starves")
+            XCTAssertGreaterThanOrEqual(seen[p] ?? 0, rotatingMin,
+                "\(p) appeared \(seen[p] ?? 0) times in 24 sessions, expected \(rotatingMin)")
         }
     }
 
