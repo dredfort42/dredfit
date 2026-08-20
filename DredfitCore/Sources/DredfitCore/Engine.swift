@@ -715,7 +715,8 @@ public enum Engine {
     ///
     /// The first report of an episode puts the pattern on the floor of its
     /// CURRENT tier — the same variation, the smallest dose it has. The work
-    /// always falls (0 violations over 440 transitions), and one tap does not
+    /// always falls (0 violations over 480 cells, 10 patterns × 48 levels),
+    /// and one tap does not
     /// hand the trainee a movement they have never seen. The second report,
     /// while the episode still lives, does what v2.11 did first: the floor of
     /// the PREVIOUS tier, i.e. the change of variation §15.2 calls for. After

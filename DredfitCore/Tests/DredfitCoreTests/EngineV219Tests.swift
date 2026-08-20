@@ -209,6 +209,23 @@ final class EngineV219Tests: XCTestCase {
                        "and a real gap is used as it is, not stacked on the floor")
     }
 
+    /// A mixed rhythm of fractional gaps, checked against the same run on the
+    /// reference: the port and adaptive_engine.js must agree digit for digit
+    /// on a path golden does not cover (the fixtures pass no gap at all).
+    func testAMixedFractionalRhythmMatchesTheReference() {
+        var s = EngineState.initial
+        s.hasBar = true
+        let gaps = [0.3, 1.7, 0.05]
+        for i in 0..<60 {
+            s = Engine.applyFeedback(state: s, session: Engine.generateSession(s),
+                                     result: .plan, gapDays: gaps[i % 3])
+        }
+        let total = Pattern.allCases.reduce(0) { $0 + (s.levels[$1] ?? 0) }
+        XCTAssertEqual(total, 269, "reference: Σ levels over 60 sessions")
+        XCTAssertEqual(s.levels[.pullBar], 17, "reference: the bar branch")
+        XCTAssertEqual(s.weekAgeDays, 0.05, accuracy: 1e-12, "reference: the window age")
+    }
+
     func testTheWindowExpiresOnFractionsAndClearsTheGain() {
         var s = EngineState.initial
         for _ in 0..<7 {
