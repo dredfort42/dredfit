@@ -222,11 +222,15 @@ final class EngineV23Tests: XCTestCase {
         let back = Engine.applyComeback(state: state, gapDays: 30)
         XCTAssertEqual(back.failStreak[.pull], 0)
 
-        let level = back.levels[.pull] ?? 0
+        // v2.23 (spec §34.1): the first shortfall after a comeback is one
+        // sub-step back, not −1 level. The subject — the old streak is gone,
+        // so no deload — is untouched and still visible on the position: a
+        // deload would drop `deloadDrop` levels, which no single sub-step can
+        // be mistaken for.
         let after = Engine.applyFeedback(state: back.underLessRun,
                                          session: Engine.generateSession(back), result: .less)
-        XCTAssertEqual(after.levels[.pull], level - 1,
-                       "a plain −1, not −1−3: the old streak is gone")
+        assertDescended(after, .pull, from: back.position(.pull), by: 1,
+                        "one sub-step, not a deload: the old streak is gone")
         XCTAssertEqual(after.failStreak[.pull], 1, "the streak counts again from one")
     }
 

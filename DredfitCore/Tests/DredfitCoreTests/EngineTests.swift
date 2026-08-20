@@ -161,10 +161,21 @@ final class EngineTests: XCTestCase {
         XCTAssertEqual(ex.load, EngineConfig.repStartBand[4],
                        "32 = 4×\(EngineConfig.repStartBand[4]!) — the band's own start")
 
-        // a third consecutive fail at 32 deloads back across the boundary: 32 → 31−3 = 28
-        state.failStreak[.pull] = 2
+        // v2.23 (spec §34.1): a "less" no longer walks out of the band one
+        // level at a time — 32 → 31 read as 4×4 → 3×11, 16 reps against 33.
+        // 32 is a block floor, the position stands, and the streak grows on
+        // INTENT (§34.2); the way out of the band is the deload, and it is
+        // now the first one to pass the "no harder" gate (§34.3).
+        state.failStreak[.pull] = EngineConfig.failsToDeload - 1
+        let atBandFloor = state.position(.pull)
         state = Engine.applyFeedback(state: state, session: s, result: .less)
-        XCTAssertEqual(state.levels[.pull], 28, "deload must cross back into the 3-set band")
+        assertPosition(state, .pull, expectedDeload(.pull, from: atBandFloor),
+                       "the deload must cross back into the 3-set band through the gate")
+        XCTAssertTrue(Level.noHarder(pattern: .pull, from: atBandFloor.level,
+                                     to: state.levels[.pull]!),
+                      "a deload across a band boundary may not make the plan heavier")
+        XCTAssertEqual(Level.decode(state.levels[.pull]!).sets, EngineConfig.setsBase,
+                       "the deload leaves the 4-set band downwards, not sideways")
         XCTAssertEqual(state.failStreak[.pull], 0)
     }
 
@@ -192,22 +203,30 @@ final class EngineTests: XCTestCase {
         for _ in 0..<6 {
             let s = Engine.generateSession(state)
             let inSession = s.exercises.contains { $0.pattern == probe }
-            let before = state.levels[probe]!
+            let entry = state.position(probe)
             // v2.9: the subject is the deload, so the run is already going and
             // the delta is session-wide (spec §19.2).
             state = Engine.applyFeedback(state: state.underLessRun, session: s, result: .less)
             guard inSession else { continue }
             drops += 1
-            let diff = before - state.levels[probe]!
-            // v2.22 (spec §33): a descent stays in WHOLE levels, so these two
-            // numbers do not move; the sub-step is zeroed alongside.
-            XCTAssertEqual(state.sub[probe] ?? 0, 0, "a descent zeroes the sub-step")
+            // v2.23 (spec §34): the subject — a deload on the third
+            // underperformance — is untouched, but both of its figures changed
+            // unit and must be derived from the rule:
+            //   • a plain underperformance is ONE sub-step back along the
+            //     growth path (it was −1 level with the sub-step zeroed);
+            //   • the deload rolls `deloadDrop` levels back FROM `oldL` under
+            //     the gate (it was −1 level and then −3 from there, which is
+            //     where the old "rolled back 4" came from).
             if drops % EngineConfig.failsToDeload == 0 {
-                XCTAssertEqual(diff, min(before, 1 + EngineConfig.deloadDrop),
+                assertPosition(state, probe, expectedDeload(probe, from: entry),
                                "deload on the 3rd underperformance")
+                XCTAssertTrue(Level.noHarder(pattern: probe, from: entry.level,
+                                             to: state.levels[probe]!, fromSub: entry.sub),
+                              "a deload may not make the plan heavier")
                 deloadSeen = true
             } else {
-                XCTAssertEqual(diff, min(before, 1))
+                assertDescended(state, probe, from: entry, by: 1,
+                                "a plain underperformance is one sub-step back")
             }
         }
         XCTAssertTrue(deloadSeen)
@@ -350,11 +369,15 @@ final class EngineTests: XCTestCase {
         XCTAssertEqual(frozen.failStreak[.pull], 2, "skip must freeze the streak")
         XCTAssertEqual(frozen.levels[.pull], level, "skip must keep the level")
 
-        // the next real underperformance is the 3rd → deload −1−3
+        // the next real underperformance is the 3rd → deload
+        // v2.23 (spec §34.3): the subject — a skip POSTPONES the deload rather
+        // than cancelling it — is untouched; the size of the roll-back is
+        // derived from the rule (the old `level − 1 − deloadDrop` added up a
+        // level-wise "less" and the deload, and "less" no longer moves a level).
         let deloaded = Engine.applyFeedback(state: frozen.underLessRun,
                                             session: Engine.generateSession(frozen),
                                             result: .less)
-        XCTAssertEqual(deloaded.levels[.pull], max(0, level - 1 - EngineConfig.deloadDrop),
+        assertPosition(deloaded, .pull, expectedDeload(.pull, from: frozen.position(.pull)),
                        "the 3rd real fail after a freeze must deload")
         XCTAssertEqual(deloaded.failStreak[.pull], 0, "deload must reset the streak")
     }

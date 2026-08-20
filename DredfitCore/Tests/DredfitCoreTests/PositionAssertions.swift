@@ -47,9 +47,13 @@ extension XCTestCase {
         assertPosition(state, p, want, message, file: file, line: line)
     }
 
-    /// The position a session delta lands a pattern on, by the §33 rule: up in
-    /// sub-steps under the growth cell, down in whole levels with the sub-step
-    /// zeroed, and standing still on a zero delta.
+    /// The position a session delta lands a pattern on: up in sub-steps under
+    /// the growth cell (§33), and standing still on a zero delta.
+    /// v2.23 (spec §34.1): DOWN in sub-steps too — one position back along the
+    /// growth path, never past the floor of its own block. The old line
+    /// (`level + delta, sub: 0`) encoded the level-wise descent that was the
+    /// subject of the wave: it crossed the tier boundary and landed in the
+    /// middle of the tier below, where the dose is higher.
     func expectedPosition(_ state: EngineState, _ p: DredfitCore.Pattern, delta: Int) -> Position {
         let entry = state.position(p)
         let cap = EngineConfig.maxUp(pattern: p, tier: Level.decode(entry.level).tier)
@@ -57,8 +61,39 @@ extension XCTestCase {
             return Level.rise(level: entry.level, sub: entry.sub, by: min(delta, cap))
         }
         if delta < 0 {
-            return Position(level: min(max(entry.level + delta, 0), EngineConfig.levelMax), sub: 0)
+            return Level.descend(level: entry.level, sub: entry.sub, by: -delta)
         }
         return entry
+    }
+
+    /// v2.23 (spec §34.3): where a deload lands — `deloadDrop` levels below
+    /// its base, pulled down by the "no harder" gate. The gate is the point:
+    /// until v2.23 the deload was a descent with no gate at all.
+    ///
+    /// The base differs by path (§34.3). On the rating path it is the entry
+    /// level, which the rating never moved; on the exact-fact path it is the
+    /// honest landing, which a deload may not climb back above — pass it as
+    /// `base`. The gate always measures against the plan the session was done
+    /// on, so `from` stays the entry position either way.
+    func expectedDeload(_ p: DredfitCore.Pattern, from: Position, base: Int? = nil) -> Position {
+        let target = min(max((base ?? from.level) - EngineConfig.deloadDrop, 0),
+                         EngineConfig.levelMax)
+        return Position(level: Level.descendNoHarder(pattern: p, from: from.level,
+                                                     factLevel: target, fromSub: from.sub),
+                        sub: 0)
+    }
+
+    /// Assert the pattern stepped exactly `count` sub-steps back from `entry`,
+    /// and that the landing does not ask for more work than it came from.
+    func assertDescended(_ state: EngineState, _ p: DredfitCore.Pattern, from entry: Position,
+                         by count: Int, _ message: String = "",
+                         file: StaticString = #filePath, line: UInt = #line) {
+        assertPosition(state, p, Level.descend(level: entry.level, sub: entry.sub, by: count),
+                       message, file: file, line: line)
+        let got = state.position(p)
+        XCTAssertTrue(Level.noHarder(pattern: p, from: entry.level, to: got.level,
+                                     fromSub: entry.sub, toSub: got.sub),
+                      "\(message) — an evaluative descent may not make the plan heavier",
+                      file: file, line: line)
     }
 }

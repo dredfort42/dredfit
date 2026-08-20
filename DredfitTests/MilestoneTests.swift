@@ -31,7 +31,8 @@ final class MilestoneTests: XCTestCase {
     /// real load path.
     private func seededStore(counter: Int = 0,
                              levels: [Pattern: Int] = [:],
-                             frozen: [Pattern: Int] = [:]) throws -> AppStore {
+                             frozen: [Pattern: Int] = [:],
+                             failStreak: [Pattern: Int] = [:]) throws -> AppStore {
         func pairs(_ value: (Pattern) -> Int) -> String {
             Pattern.allCases.map { "\"\($0.rawValue)\",\(value($0))" }.joined(separator: ",")
         }
@@ -43,7 +44,7 @@ final class MilestoneTests: XCTestCase {
         {"engineState":{"counter":\(counter),
           "levels":[\(pairs { levels[$0] ?? 0 })],
           "frozen":[\(frozenPairs)],
-          "failStreak":[\(pairs { _ in 0 })]},
+          "failStreak":[\(pairs { failStreak[$0] ?? 0 })]},
          "records":[],
          "settings":{"restWeekdays":[],"soundsEnabled":true,
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
@@ -96,9 +97,15 @@ final class MilestoneTests: XCTestCase {
         XCTAssertEqual(sets, 4)
     }
 
+    /// v2.23 (spec §34.1): re-marked. A rating on its own can no longer cross
+    /// a tier — that was the whole point of the wave — so the tier drop this
+    /// test needs is produced the way one is still produced: by the deload on
+    /// the third shortfall (§34.3), seeded here with a streak of two. The
+    /// subject, "a step down is never announced", is untouched.
     func testDroppingATierIsNotAMilestone() throws {
         let probe = session(atCounter: 0).exercises[0].pattern
-        let store = try seededStore(levels: [probe: 8])   // bottom of tier 2
+        let store = try seededStore(levels: [probe: 8],                 // bottom of tier 2
+                                    failStreak: [probe: EngineConfig.failsToDeload - 1])
         let session = store.nextSession
 
         let earned = store.completeWorkout(session: session, result: .less)

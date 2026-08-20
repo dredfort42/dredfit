@@ -128,8 +128,22 @@ final class EngineV216Tests: XCTestCase {
                 state = Engine.applyFeedback(state: state, session: session,
                                              result: tooHard ? .less : .plan)
             }
-            XCTAssertLessThanOrEqual(state.levels[.pullBar] ?? 0, capacity + 1,
-                                     "capacity \(capacity): the plan settles instead of running away")
+            // v2.23 (spec §34.1): the parking spot is "capacity + 1" OR a
+            // block floor, when the evaluative descent has run into one.
+            // Measured: at capacity 6 the branch parks on 8 (v2.22: 7). The
+            // cause is not the descent but the §19.1 aim — the healthy
+            // movements stand higher, the branch is almost never the aim, it
+            // is held instead, and holding is not an intent to descend
+            // (§34.2), so no streak builds and the deload, the only way past a
+            // block floor, never opens. The price is deliberate and bounded to
+            // ONE level; what this block is about — the plan does not run away
+            // (#90 measured 29 against a capacity of 6) — is intact, and the
+            // ceiling below still holds: one block step above capacity, and
+            // standing is only allowed EXACTLY on a floor.
+            let park = state.levels[.pullBar] ?? 0
+            XCTAssertTrue(park <= capacity + 1
+                          || (park == Level.bandFloor(park) && park <= capacity + EngineConfig.stepsPerTier),
+                          "capacity \(capacity): the plan settles instead of running away (parked on \(park))")
         }
     }
 

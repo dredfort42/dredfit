@@ -151,8 +151,21 @@ final class EngineV25Tests: XCTestCase {
     /// third shortfall in a row.
     func testTheCeilingNeverActsDownwards() {
         var state = seeded(level: 10)
-        for _ in 0..<3 { state = after(state, .less) }
-        XCTAssertEqual(state.levels[.pull], 4, "−1, −1, −1 then the −3 deload")
+        var lastEntry = state.position(.pull)
+        for _ in 0..<3 {
+            lastEntry = state.position(.pull)
+            state = after(state, .less)
+        }
+        // v2.23 (spec §34): the subject — the ceiling never bounds a descent,
+        // and the deload still fires on the third shortfall — is untouched;
+        // both figures changed unit. The old 4 was 10 − 1 − 1 − 1 − 3, three
+        // level-wise "less" plus an ungated deload, and it landed `pull` on
+        // tier 1 × 12 reps where the plan had asked for 3×7 — the deload made
+        // the work 71 % heavier. Now the roll-back goes through the gate.
+        assertPosition(state, .pull, expectedDeload(.pull, from: lastEntry),
+                       "one sub-step, one sub-step, then the gated deload")
+        XCTAssertTrue(Level.noHarder(pattern: .pull, from: 10, to: state.levels[.pull]!),
+                      "a deload on top of a ceiling-1 cell may not make the plan heavier")
         XCTAssertEqual(state.failStreak[.pull], 0, "the deload resets the streak")
     }
 
@@ -254,12 +267,19 @@ final class EngineV25Tests: XCTestCase {
         XCTAssertEqual(state.failStreak[.pull], 0, "and resets the streak")
         for _ in 0..<EngineConfig.freezeAppearances { state = report(state, .less) }
 
-        XCTAssertEqual(state.levels[.pull], landed - EngineConfig.freezeAppearances,
-                       "three shortfalls, three steps — no deload")
+        // v2.23 (spec §34.1): taking the load off lands on a block floor by
+        // construction (§30.6), and the evaluative descent does not cross one
+        // — so under the freeze the position stands where the old assertion
+        // expected three level-wise steps. The subject is stronger for it: the
+        // deload is unreachable not merely because the streak is frozen, but
+        // because under a freeze not even the INTENT is counted (§34.2), while
+        // everywhere else that intent is exactly what builds the streak.
+        assertPosition(state, .pull, Position(level: landed, sub: 0),
+                       "three shortfalls under a freeze move nothing — no deload")
         XCTAssertEqual(state.failStreak[.pull], 0, "the streak stays put")
         state = report(state, .less)
-        XCTAssertEqual(state.levels[.pull], landed - EngineConfig.freezeAppearances - 1,
-                       "waiting: still a step, still no deload")
+        assertPosition(state, .pull, Position(level: landed, sub: 0),
+                       "waiting: still nothing, still no deload")
         XCTAssertEqual(state.failStreak[.pull], 0)
     }
 

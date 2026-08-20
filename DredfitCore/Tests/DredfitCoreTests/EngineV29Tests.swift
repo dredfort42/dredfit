@@ -46,11 +46,20 @@ final class EngineV29Tests: XCTestCase {
             var moved = 0
             for ex in session.exercises {
                 if ex.pattern == aim {
-                    XCTAssertEqual(after.levels[ex.pattern], level - 1, "L=\(level): the aim falls")
+                    // v2.23 (spec §34.1): the aim steps ONE SUB-STEP back along
+                    // the growth path, not one level — and on a block floor
+                    // (L mod 8 == 0) it does not move at all: nothing lighter
+                    // exists in this variation. Its streak grows either way,
+                    // because the streak counts the INTENT (§34.2) — without
+                    // that, a deload on a floor would be unreachable and its
+                    // owner locked into a variation beyond them.
+                    assertDescended(after, ex.pattern, from: Position(level: level, sub: 0), by: 1,
+                                    "L=\(level): the aim steps back")
                     XCTAssertEqual(after.failStreak[ex.pattern], 1, "L=\(level): the aim's streak grows")
                     moved += 1
                 } else {
-                    XCTAssertEqual(after.levels[ex.pattern], level, "L=\(level): \(ex.pattern) holds")
+                    assertPosition(after, ex.pattern, Position(level: level, sub: 0),
+                                   "L=\(level): \(ex.pattern) holds")
                     XCTAssertEqual(after.failStreak[ex.pattern], 0,
                                    "L=\(level): holding is not underperforming")
                 }
@@ -140,9 +149,14 @@ final class EngineV29Tests: XCTestCase {
         var moved: [Int] = []
         for _ in 0..<4 {
             let session = Engine.generateSession(state)
-            let before = state.levels
+            // v2.23 (spec §34.1): "moved" is counted on the POSITION — a
+            // session delta gives back a sub-step, and the level follows only
+            // on every third one. The subject (who gets the delta, §19.2) is
+            // untouched.
+            let before = Dictionary(uniqueKeysWithValues:
+                Pattern.allCases.map { ($0, ordinal(state, $0)) })
             let next = Engine.applyFeedback(state: state, session: session, result: .less)
-            moved.append(session.exercises.filter { next.levels[$0.pattern]! < before[$0.pattern]! }.count)
+            moved.append(session.exercises.filter { ordinal(next, $0.pattern) < before[$0.pattern]! }.count)
             state = next
         }
         XCTAssertEqual(Array(moved.prefix(2)), [1, 1], "the first two are targeted")
@@ -219,18 +233,35 @@ final class EngineV29Tests: XCTestCase {
 
     /// The do-no-harm gate: an impossible plan must still come down. Without
     /// the run clause of §19.2 this never reached the target at all.
+    /// v2.23 (spec §34.5): the METRIC is re-marked, not the threshold.
+    /// Sessions can no longer be counted: one session gives back a sub-step,
+    /// not a level, and "11 sessions" would be describing a different
+    /// quantity — a guarantee has to be measured in the step the regulator
+    /// actually takes. A descent EVENT is an appearance the rating took down:
+    /// the position fell, or the streak grew on intent (§34.2). The threshold
+    /// is the same 11, and what holds it is the deload — on a block floor the
+    /// position stands but the streak builds, and every third appearance drops
+    /// the pattern a tier: measured, the ladder runs 20 → 19.x → 16 → 8.
     func testAnImpossiblePlanStillDescends() {
         var state = seeded(20)
         let rotating = Pattern.ordered.filter { $0 != .pull }
-        var sessions: Int?
-        for k in 1...20 where sessions == nil {
+        var events = Dictionary(uniqueKeysWithValues: rotating.map { ($0, 0) })
+        var worstEvents: Int?
+        for _ in 1...40 where worstEvents == nil {
+            let before = Dictionary(uniqueKeysWithValues:
+                rotating.map { ($0, (ordinal(state, $0), state.failStreak[$0] ?? 0)) })
             state = Engine.applyFeedback(state: state, session: Engine.generateSession(state),
                                          result: .less)
+            for p in rotating where ordinal(state, p) < before[p]!.0
+                || (state.failStreak[p] ?? 0) > before[p]!.1 {
+                events[p]! += 1
+            }
             let avg = Double(rotating.reduce(0) { $0 + (state.levels[$1] ?? 0) }) / Double(rotating.count)
-            if avg <= 10 { sessions = k }
+            if avg <= 10 { worstEvents = events.values.max() }
         }
-        XCTAssertNotNil(sessions)
-        XCTAssertLessThanOrEqual(sessions ?? .max, 11, "descent to an average of 10 within 11 sessions")
+        XCTAssertNotNil(worstEvents)
+        XCTAssertLessThanOrEqual(worstEvents ?? .max, 11,
+                                 "descent to an average of 10 within 11 descent events")
     }
 
     func testAStateFileWithoutTheFieldDecodesAsZero() throws {

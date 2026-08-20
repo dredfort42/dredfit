@@ -61,6 +61,8 @@ public enum EngineConfig {
     public static let tempoSecPerRep = 2.5
     public static let patternsPerSession = 6
     public static let rotationStep = 3
+    /// v2.23 (spec §34.1): "less" is counted in SUB-STEPS. The same figure in
+    /// a different unit: one position back along the growth path, not a level.
     public static let deltaLess = -1
     public static let deltaPlan = 1
     public static let deltaMore = 2
@@ -165,6 +167,8 @@ public enum EngineConfig {
     /// healthy movements stop being the lightning rod (19.4 of 20 vs 15.5).
     public static let chronicWindow = 4
     public static let chronicHits = 3
+    /// v2.23 (spec §34.1): sub-steps as well. The 2:1 ratio to a plain "less"
+    /// is kept — both constants changed unit, neither changed magnitude.
     public static let chronicStep = -2
     /// v2.15 (spec §26.2, #130): how many patterns calibrating from zero in
     /// ONE session make it a claim about the day rather than about the body.
@@ -365,48 +369,6 @@ public enum Engine {
         return Position(level: Level.descendNoHarder(pattern: p, from: oldL,
                                                      factLevel: factL, fromSub: oldSub),
                         sub: 0)
-    }
-
-    /// Where a session-wide RATING lands a pattern (spec §5, §19.1, §26.1,
-    /// §28.4).
-    ///
-    /// "More" runs through the same ceiling; downward moves never do. A
-    /// targeted "less" reaches its aim only and every other movement holds —
-    /// holding is not underperforming. A chronic aim takes a double step, or
-    /// the descent to a manageable level costs 31 appearances while "less"
-    /// grinds down the healthy movements. And while the comeback window is
-    /// open "more" is credited as "plan": the levels came back, the tissue did
-    /// not.
-    ///
-    /// v2.22 (spec §33): up by SUB-STEPS; down by whole levels, and a descent
-    /// zeroes the sub-step. The asymmetry is deliberate — the §19.2 guarantee
-    /// ("from 20 to a manageable 10 in about 11 sessions") would stretch
-    /// threefold if "less" took one set at a time. `chronicStep` is a descent
-    /// too, so it stays in levels: only what bounds a RISE is read in
-    /// sub-steps.
-    private static func positionFromRating(
-        pattern p: Pattern, result: FeedbackResult, from entry: Position,
-        cap: Int, rampLeft: Int, lessTargets: Set<Pattern>?, chronic: Set<Pattern>
-    ) -> Position {
-        let effective: FeedbackResult = rampLeft > 0 && result == .more ? .plan : result
-        let sessionDelta: Int
-        if let targets = lessTargets {
-            sessionDelta = targets.contains(p)
-                ? (chronic.contains(p) ? EngineConfig.chronicStep : EngineConfig.deltaLess)
-                : 0
-        } else {
-            sessionDelta = effective.delta
-        }
-        let rampCap = rampLeft > 0 ? min(cap, EngineConfig.deltaPlan) : cap
-        if sessionDelta > 0 {
-            return Level.rise(level: entry.level, sub: entry.sub,
-                              by: min(sessionDelta, rampCap))
-        }
-        if sessionDelta < 0 {
-            return Position(
-                level: min(max(entry.level + sessionDelta, 0), EngineConfig.levelMax), sub: 0)
-        }
-        return entry   // holds
     }
 
     /// v2.9 (spec §19.1): movements the user pointed at during the workout —
@@ -626,13 +588,23 @@ public enum Engine {
             // step of one growth event from 25 % to 8.3 % on reps.
             let cap = EngineConfig.maxUp(pattern: p, tier: Level.decode(oldL).tier)
             var position: Position
+            // v2.23 (spec §34.1): an exact fact does NOT fall under the
+            // sub-step rule — the athlete's honesty is never overridden
+            // (§15.2 p.2). Its path stays v2.22's word for word: invert to a
+            // level, pass the §25.3 gate, zero the sub-step. Someone who wrote
+            // "2 out of 8" is talking about a dose, not about fatigue, and
+            // there is nothing to make finer.
+            let factPath = overrides[p] != nil
+            // v2.23 (spec §34.2): the failure streak counts the INTENT to go
+            // down, not the movement — see `positionFromRating`.
+            var wantedDown = false
 
             if let actual = overrides[p] {
                 position = Self.positionFromPointFact(
                     pattern: p, exercise: ex, actual: actual, oldL: oldL, oldSub: oldSub,
                     cap: cap, calibratedUp: &calibratedUp)
             } else {
-                position = Self.positionFromRating(
+                (position, wantedDown) = Self.positionFromRating(
                     pattern: p, result: result, from: Position(level: oldL, sub: oldSub),
                     cap: cap, rampLeft: rampLeft, lessTargets: lessTargets, chronic: chronic)
             }
@@ -679,23 +651,10 @@ public enum Engine {
                 newL = confirmed.level
             }
 
-            // v2.22 (spec §33): the streak reads the LEVEL, not the position.
-            // Giving up sub-steps without losing a level is not a shortfall —
-            // otherwise a descent from `(L, 2)` to `(L, 0)` would start the
-            // count toward a deload, while the work has fallen by exactly what
-            // was not done. At `sub == 0` the branch is bit-for-bit the old one.
-            if newL < oldL {
-                let streak = (state.failStreak[p] ?? 0) + 1
-                if streak >= EngineConfig.failsToDeload {
-                    newL = min(max(newL - EngineConfig.deloadDrop, 0), EngineConfig.levelMax)
-                    position = Position(level: newL, sub: 0)      // a deload is a descent
-                    next.failStreak[p] = 0
-                } else {
-                    next.failStreak[p] = streak
-                }
-            } else {
-                next.failStreak[p] = 0
-            }
+            position = Self.tickStreak(&next, pattern: p, entryStreak: state.failStreak[p] ?? 0,
+                                       landed: position, entry: Position(level: oldL, sub: oldSub),
+                                       wentDown: factPath ? newL < oldL : wantedDown,
+                                       deloadFrom: factPath ? newL : oldL)
             Self.setPosition(&next, p, position)
         }
 

@@ -104,6 +104,24 @@ extension Level {
         max(0, ordinal(to) - ordinal(from))
     }
 
+    /// v2.23 (spec §34.1): the evaluative descent — `count` sub-steps BACK
+    /// along the very path growth took, with a floor at the bottom of the
+    /// level's own block. Exactly the reverse of a growth event (§33.3):
+    /// `(L, sub>0)` → `(L, sub−1)`; `(L, 0)` → `(L−1, sets(L−1)−1)`; and on a
+    /// block floor the position does not move at all — nothing lighter exists
+    /// inside this variation, and changing the variation is not the rating's
+    /// to make (§15.2 reserves it for pain and for the deload).
+    ///
+    /// This cannot make a plan heavier BY CONSTRUCTION rather than by check:
+    /// inside a block the variation, the unit, the band and the sides are all
+    /// the same, and total work is strictly monotone along the growth path
+    /// (§33.9, block "b"). The `noHarder` gate is therefore not a filter here
+    /// but a statement about the result, and it lives in the tests.
+    public static func descend(level: Int, sub: Int, by count: Int) -> Position {
+        position(atOrdinal: max(ordinal(level: level, sub: sub) - max(0, count),
+                                ordinal(level: bandFloor(level), sub: 0)))
+    }
+
     /// The dose a level asks for, in its own unit — the number the plan shows.
     public static func dose(pattern: Pattern, level: Int) -> Int {
         let d = decode(level)
