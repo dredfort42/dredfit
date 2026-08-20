@@ -2,7 +2,7 @@
 //  EngineV224Tests.swift
 //  DredfitCoreTests
 //
-//  Engine v2.24 (spec §35, issues #136/#143): the shared sets floor and a trim
+//  Engine v2.24 (spec §35, issues #136/#147): the shared sets floor and a trim
 //  that removes one set at a time.
 //
 //  Two mechanisms cut sets — the time budget (§28.3) and the set-band gate

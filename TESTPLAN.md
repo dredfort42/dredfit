@@ -583,6 +583,91 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 
 ---
 
+### 37. The two-step pain unload (engine v2.19, spec §30.6, issue #124)
+
+Reporting pain now **takes load off** instead of only freezing the movement. Two reports, two steps; the third and later ones only lengthen the rest.
+
+| # | Check | Expected |
+|---|---|---|
+| 37.1 | **Something hurt** on a movement standing in the middle of its variation | The next workout offers the **same movement** at the **smallest dose of that variation** — the name does not change, the numbers drop to the bottom rung of the tier. Nothing about the plan gets harder |
+| 37.2 | Rest horizon after the first report | Three appearances, exactly as before (§36.4) |
+| 37.3 | A second report on the same movement while the episode is live | Now the **variation itself** changes — one step easier — and the rest doubles to six appearances |
+| 37.4 | A third and a fourth report | The level no longer moves; the rest doubles to twelve and then stops there. The movement never disappears from the plan |
+| 37.5 | A first report on a movement already at the bottom of tier 1 | Accepted without a level change — there is nothing below; the rest still starts |
+| 37.6 | The reported movement across the whole scale | Never harder after a report than before it, at any level — the first step stays inside the variation by construction |
+| 37.7 | An episode opened before the update (rest recorded, level already dropped) | The next report gives the **second** step. Nothing to migrate; the direction of the error is the safe one |
+| 37.8 | "Tough" or a low number on a resting movement | Still steps the level down — honesty is never overridden by the rest |
+
+### 38. Closing a pain episode without numbers (engine v2.20, spec §31, issue #124)
+
+The fast path (type a number) is unchanged. The new one is for people who never type numbers.
+
+| # | Check | Expected |
+|---|---|---|
+| 38.1 | After a report, do the movement and rate the workout **on plan**, entering no numbers | Each such appearance counts down the confirmation quietly. Nothing new appears on screen |
+| 38.2 | Keep tapping only | Growth resumes by itself. Worst path from one report: the rest, then the same number of clean appearances, then one more — seven appearances in all, roughly two to four weeks at ordinary cadences |
+| 38.3 | An exact number at or above the plan | Closes the episode **immediately** and grows in the same workout — the number is direct evidence, the countdown is not |
+| 38.4 | A workout rated **tough**, or a number below the plan, during the countdown | Not a clean appearance: the countdown stands still and the level still goes down |
+| 38.5 | Skip the movement during the countdown | The countdown does not tick — a workout where the movement was not trained costs it nothing |
+| 38.6 | Report pain again during the countdown | The countdown restarts from the new, longer rest — the path to closing lengthens with the rest |
+| 38.7 | A break (silent decay, comeback, or the illness lens) mid-countdown | The countdown survives the break unchanged, exactly as the rest does |
+| 38.8 | An episode opened before the update | Gets the **full** confirmation window, not an immediate close on the first appearance |
+
+### 39. Hold ladders and the one-second corridor (engine v2.21, spec §32, issues #139, #142)
+
+Holds moved from a fixed five-second step to per-tier ladders, and the number pad follows.
+
+| # | Check | Expected |
+|---|---|---|
+| 39.1 | **Went differently** on a hold | The corridor steps by **one second**, not five. Any whole second in range can be entered |
+| 39.2 | Enter exactly the planned seconds | Counts as the plan met and moves the position up |
+| 39.3 | Enter one to four seconds **above** the plan | Never scores worse than entering the plan exactly — the old five-second bucket that swallowed a +1 is gone |
+| 39.4 | Enter one second **below** the plan | Costs one rung, never a jump of several |
+| 39.5 | Hold plans across the whole scale | Every rung is reachable by an entered number — no rung exists that the pad cannot express |
+| 39.6 | Entering a hold after an upgrade from 1.9 | Old states land on the nearest rung of the new ladder, **downwards**; nothing jumps up on first launch |
+
+### 40. Sub-steps: the plan parks on your capacity (engine v2.22, spec §33, issues #150, #151)
+
+Growth used to move a whole level at a time. Now it adds one set's worth first, so the plan stops overshooting what the body can do.
+
+| # | Check | Expected |
+|---|---|---|
+| 40.1 | Rate a workout **on plan** at a level with three sets | The next plan shows an uneven row — e.g. **11-10-10** — one set carrying the extra rep, not all three |
+| 40.2 | Keep going on plan | The row fills set by set (11-10-10 → 11-11-10 → 11-11-11) and only then becomes the next whole level |
+| 40.3 | The **Done** button and the number pad against an uneven row | The plan the app asks for is the row it shows; entering exactly the shown minimum counts as the plan met and keeps the position moving |
+| 40.4 | The top rung of a tier or a sets band | No uneven row there — growth moves a whole level. Two different exercises never appear in one slot |
+| 40.5 | "Easy, could do more" | Moves at most the same number of sub-steps the ceiling allows for that movement — calves and the vertical push still climb slower |
+| 40.6 | Any step **down** (tough, a low number, a break, a pain report) | Clears the uneven row — the extra sets belonged to a dose that no longer applies |
+| 40.7 | **Hold this level** in Settings and on the rating screen | **Gone entirely.** No control, no stored flag, no leftover string in any of the seven languages |
+| 40.8 | A state file written by 1.9 with "hold this level" set | Opens without it and plans exactly as 1.9 did — the field is dropped, nothing else moves |
+
+### 41. "Tough" steps back the way it came (engine v2.23, spec §34, issue #149)
+
+| # | Check | Expected |
+|---|---|---|
+| 41.1 | Rate a workout **tough** | The movement steps back **one position along the path it grew** — one sub-step, not a whole level, and never a different variation |
+| 41.2 | "Tough" at the bottom of a variation | Still does something: it is never a dead tap |
+| 41.3 | Two "tough" ratings in a row, then a third | The deload fires through the same gate — the plan after it is never heavier than the plan before |
+| 41.4 | The plan after any "tough" | Never asks for more total work than the plan that was just called tough, on any movement, at any level |
+
+### 42. The 45-minute default and calendar days (v2.24, spec §35, issues #136, #147)
+
+| # | Check | Expected |
+|---|---|---|
+| 42.1 | **Session length** in Settings | Four rungs — 20 min, 35 min, 45 min, No limit — with **45 min** selected on a fresh install |
+| 42.2 | An install upgraded from 1.9 that never chose a length | Gets 45 as well, plus a one-off line explaining it. Once closed, the line does not come back |
+| 42.3 | Choose **No limit** | Recorded as a choice: the default never reapplies to that install, on this or any later launch |
+| 42.4 | Workout length at 45 minutes, at levels 32–47 | Sessions land at or under 45 minutes; the shortfall under the target is small and even, never a saw between long and short workouts |
+| 42.5 | What the budget cuts | **Sets only, never movements** — all six movements are always present, each with at least two sets. Levels do not change |
+| 42.6 | The 20-minute rung | A target, not a promise: most plans run a little past it once every movement is already at two sets. Nothing is dropped to make it fit |
+| 42.7 | **Reset progress** | Keeps the chosen session length, like the pull-up bar setting |
+| 42.8 | Two workouts on the same calendar day | Counts as zero days apart for the decay, the comeback card, the cadence line and the rest suggestion — no phantom day |
+| 42.9 | A workout at 23:00 and the next at 01:00 | **One** day apart, not zero — the count is midnights in the local zone, not elapsed hours |
+| 42.10 | Fly across time zones, or change the clock, between two workouts | No phantom day in either direction; the gap never goes negative |
+| 42.11 | The autumn and spring clock-change days | The 25-hour and 23-hour days both count as one day |
+
+---
+
 ## Issue registry
 
 Log every failure found while running this plan. Keep entries until they ship fixed.

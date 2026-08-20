@@ -200,6 +200,28 @@ final class EngineV217Tests: XCTestCase {
         XCTAssertEqual(state.rampWindow, 0)
     }
 
+    /// Audit 2026-08-20, finding S5-1 (P0): a restorative session under the
+    /// "I was sick" lens must spend the limited-growth window like any other
+    /// one — spec §28.4 says so in as many words, and the reference has always
+    /// decremented it in the `illnessLeft > 0` branch. The port did not, so a
+    /// comeback followed by the lens left the window full: six extra sessions
+    /// of damped growth, invisible because `rampWindow` is one of the three
+    /// state fields golden never snapshots (S5-2). Pinned here rather than in
+    /// golden because the fixture cannot see the field at all.
+    func testTheLensSpendsTheGrowthWindowLikeAnOrdinarySession() {
+        var state = Engine.applyIllness(state: Engine.applyComeback(state: seeded(20), gapDays: 30))
+        XCTAssertEqual(state.rampWindow, EngineConfig.rampWindowSessions,
+                       "the comeback opened a full window")
+        let lensSessions = 3
+        for i in 0..<lensSessions {
+            XCTAssertGreaterThan(state.illness, 0, "still under the lens at session \(i)")
+            state = Engine.applyFeedback(state: state, session: Engine.generateSession(state),
+                                         result: .plan)
+        }
+        XCTAssertEqual(state.rampWindow, EngineConfig.rampWindowSessions - lensSessions,
+                       "restorative sessions spend the window (reference parity, spec §28.4)")
+    }
+
     // MARK: - §28.5 The weekly ceiling
 
     func testTheWeeklyCeilingIsFreeForAnHonestThreeTimesAWeek() {

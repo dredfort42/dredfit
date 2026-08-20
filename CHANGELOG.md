@@ -2,17 +2,43 @@
 
 ## 1.10.0
 
-"Tough" used to hide three different facts. The v2.5 safety wave separated
-two of them — muscles giving out, a joint complaining — and this release
-gives the third its own channel: *this movement is at my ceiling and I need
-longer here*. Not an injury, not a bad session, and until now it had no way
-to be said. Then a multi-agent audit of the engine and its golden contour
-(2026-08-11) confirmed 51 findings, and the remediation waves shipped in
-the same release — so the engine steps from v2.5 to v2.8 here, verified
-against the reference at 14,029 property checks (was 9,367), the app
-learns to speak up quietly where the audit found it silent, and the whole
-set of workout tones grows into a voice of its own. Every new field
-decodes tolerantly: the state and journal formats need no migrations.
+The longest release in the project's history, and the one that changed the
+least about what you see. Two multi-agent audits of the engine and its
+golden contour — 2026-08-11 and 2026-08-16 — confirmed findings faster than
+any single wave could carry, so this release is the remediation itself: the
+engine steps from **v2.5 to v2.24** in eighteen waves, each a full pass of
+the reference cycle (spec → reference → verifier → golden → Swift port).
+The verifier grew from 9,367 property checks to **531,947**, the golden
+fixture from 11 scenarios to **22**, and every new field decodes
+tolerantly — the state and journal formats still need no migrations.
+
+What the waves are about, in the order the priority ladder puts them:
+
+- **Do no harm.** A descent may never add load: the "not harder" gate now
+  counts sides and stands on every path down, not one of three (v2.19).
+  Reporting pain takes load off in two steps instead of freezing the
+  movement at a dose you already could not do (v2.19), and "tough" steps
+  back exactly the way it came, one position at a time (v2.23). A comeback
+  lands no heavier than your last workout (v2.12), cross-credit can no
+  longer grow a branch that is resting (v2.11), and the Swift port
+  sanitizes anything a corrupt file hands it (v2.13).
+- **Keep the habit.** A steady rhythm stopped being read as a break
+  (v2.13), a pain episode can now be closed without typing any numbers at
+  all (v2.20), and the plan parks on what you can actually do instead of
+  running ahead of it — growth adds one set's worth at a time (v2.22).
+  Workouts fit **45 minutes** unless you say otherwise (v2.24): the handle
+  shipped in v2.17 switched off, and protecting only the people who went
+  looking for it in Settings was the wrong default.
+- **Improve results.** The aim reaches the weak link instead of the loudest
+  movement (v2.15), honest facts are never scored worse than a tap (v2.14),
+  the push plan stopped flickering (v2.16), the pull-up ladder gained the
+  rung it was missing (v2.18), and hold ladders became per-tier tables with
+  a one-second entry corridor, so a single second short costs a single rung
+  (v2.21).
+
+"Hold this level" was built and withdrawn inside this same cycle — see its
+entry below. It never reached the App Store, and nothing in a saved file
+carries it forward.
 
 ### "Went differently" belongs to the set you tapped it on (issue #158)
 
@@ -82,7 +108,7 @@ looking for it in Settings and nobody else.
   arrived and where to change it. It goes away when you tap it and does not
   come back.
 
-### Engine v2.24.0 — shorter workouts stop overshooting (issues #136, #143)
+### Engine v2.24.0 — shorter workouts stop overshooting (issues #136, #147)
 
 Two changes underneath the default above, and one to what the app calls a day.
 
@@ -707,7 +733,17 @@ parked at the tier-2 boundary for good.
   Spec §19, 14,733 property checks (was 14,029), a fifteenth golden scenario;
   state files written before this decode unchanged.
 
-### Hold this level (issue #75, closes #77, #78)
+### Hold this level (issue #75, closes #77, #78) — built here, withdrawn here
+
+**Withdrawn before release by engine v2.22.** The feature below shipped to
+no one: it was added in this cycle and removed in it, so 1.10.0 contains
+neither the action nor the `pinned` input behind it. The reason is in the
+v2.22 entry — the sub-step does the same job without asking anyone to make a
+decision mid-workout, and the boxed journal showed zero uses across the
+24 sessions the input existed for. A state file that recorded a held level
+decodes without it and plans exactly as it did before. The description is
+kept because the engine version numbers and the golden scenarios it names
+are part of this release's history, not because the button exists.
 
 - A new **Hold this level** action on the exercise screen, beside "Something
   hurt": the movement keeps today's plan and is trained as usual, but stops

@@ -64,7 +64,7 @@ final class CadenceTests: XCTestCase {
         return AppStore(storageURL: tempURL)
     }
 
-    // MARK: - The training day (v2.24, spec §35.4 / #143)
+    // MARK: - The training day (v2.24, spec §35.4 / #147)
 
     /// v2.24: RE-MARKED from whole elapsed 24-hour periods to CALENDAR days in
     /// the local zone, with the cause. Everything about rhythm is calendar-

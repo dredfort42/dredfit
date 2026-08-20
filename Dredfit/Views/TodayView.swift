@@ -306,7 +306,7 @@ struct TodayView: View {
             guard streak >= AppStore.painTrendThreshold else { continue }
             return streak >= AppStore.painSpecialistThreshold
                 ? String(localized: "\(row.name) keeps hurting, appearance after appearance. Pain that stays is a reason to see a specialist.")
-                : String(localized: "\(row.name) has hurt both of its recent appearances — a smaller number or a held level takes the load down.")
+                : String(localized: "\(row.name) has hurt both of its recent appearances — a smaller number takes the load down.")
         }
         return nil
     }

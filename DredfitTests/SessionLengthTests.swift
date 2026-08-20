@@ -7,7 +7,7 @@
 //  that the answer is stored, survives a relaunch, reaches the plan, and
 //  buys its minutes out of the sets rather than out of the levels.
 //
-//  v2.24 (spec §35.3, #136/#143): and that the answer nobody gave is 45
+//  v2.24 (spec §35.3, #136/#147): and that the answer nobody gave is 45
 //  minutes rather than "no limit". The budget shipped switched off, so it
 //  protected only the people who went looking for it while everyone else kept
 //  being handed a longer workout every month.
