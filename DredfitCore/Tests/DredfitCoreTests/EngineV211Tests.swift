@@ -106,20 +106,37 @@ final class EngineV211Tests: XCTestCase {
 
     // MARK: - §21.2 the freeze expires into waiting
 
-    func testExpiryWaitsAndTapsKeepClamping() {
+    /// v2.20 (spec §31.2) REANNOTATED this one. "Taps never resume growth" was
+    /// the whole defect: for a trainee who logs no numbers the fact route is
+    /// unreachable, so the episode never ended. The subject the test was
+    /// written for survives — a tap does not grow the level while the episode
+    /// is open, and the session that closes it does not either — but the wait
+    /// is now a COUNTDOWN, and its length comes from the state rather than
+    /// from a loop bound that happened to stop short of it.
+    func testExpiryWaitsAndTapsClampForTheWholeCountdown() throws {
         var s = seeded()
         var w = Engine.generateSession(s)
         s = Engine.applyFeedback(state: s, session: w, result: .plan, discomfort: [.squat])
         s = burnAppearances(s, of: .squat, count: EngineConfig.freezeAppearances)
         XCTAssertNil(s.frozen[.squat], "the counter is spent")
         XCTAssertEqual(s.sore[.squat], EngineConfig.freezeAppearances, "the episode lives")
-        let held = s.levels[.squat]!
-        for _ in 0..<6 {
-            w = Engine.generateSession(s)
+        XCTAssertEqual(s.soreLeft[.squat], EngineConfig.freezeAppearances,
+                       "and the freeze spent none of its confirmation")
+        let held = try XCTUnwrap(s.levels[.squat])
+        let need = try XCTUnwrap(s.soreLeft[.squat])
+        for i in 1...need {
+            (s, w) = advanceToAppearance(s, of: .squat)
             s = Engine.applyFeedback(state: s, session: w, result: .more)
+            XCTAssertEqual(s.levels[.squat], held, "tap \(i) resumes no growth")
+            XCTAssertEqual(s.failStreak[.squat], 0, "the streak stands while waiting")
+            XCTAssertEqual(s.sore[.squat] != nil, i < need,
+                           "the episode closes on tick \(need), not before")
         }
-        XCTAssertEqual(s.levels[.squat], held, "taps never resume growth")
-        XCTAssertEqual(s.failStreak[.squat], 0, "the streak stands while waiting")
+        // Only the appearance AFTER the closing one grows (§31.2 p.2).
+        (s, w) = advanceToAppearance(s, of: .squat)
+        s = Engine.applyFeedback(state: s, session: w, result: .more)
+        XCTAssertGreaterThan(try XCTUnwrap(s.levels[.squat]), held,
+                             "growth resumes one appearance after the close")
     }
 
     func testAFactAtOrAbovePlanConfirmsAndResumesUnderTheOrdinaryCap() throws {

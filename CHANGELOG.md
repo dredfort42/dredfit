@@ -58,6 +58,45 @@ per session (spec §5), and the collapse happens in the app. Journals and
 interrupted-workout snapshots written by earlier builds decode as they always
 did — a single stored number simply means every set ran at it.
 
+### Engine v2.20.0 — a pain episode ends without numbers too (issue #150)
+
+One tap of "this hurt" could cost you a movement for good. The rest it arms
+runs out after three appearances, and then the movement waits — it stays in
+the plan, at its lightest dose, and never grows again until you log a number
+at or above the plan. That is fine if you log numbers. This app is built for
+one question a day, answered with one finger, and for that person the way out
+did not exist. Measured on a tap-only run: one report on the squat, then
+nothing but "on plan" taps — 125 appearances of the squat later it is exactly
+where it landed, while the movement beside it in the same rotation has gone
+the full length of the scale. Not a slower result — no result, for as long as
+the app is used.
+
+- **Appearances without pain now confirm too.** Three clean appearances after
+  the rest is served close the episode and the movement starts moving again.
+  Clean means it was trained and you said nothing hard about it: an "it was
+  tough" session or a number below the plan leaves the count where it stands,
+  so the way back is three sessions that actually went fine, not three
+  sessions. A tap-only trainee is out of an episode in seven appearances —
+  about three weeks at three workouts a week — instead of never.
+- **A number is still the fast way.** Logging at or above the plan closes the
+  episode on the spot and moves the level in the same session, exactly as
+  before; nothing on that path changed. The slow way closes the episode but
+  leaves the step for the next appearance — a number is direct evidence about
+  the load, three quiet weeks are not, and an extra appearance without growth
+  is cheaper than a tendon.
+- **Saying it hurts again still costs what it cost.** A second report while
+  the episode is open takes the second step down, doubles the rest, and starts
+  the count again from the new figure — six clean appearances instead of
+  three. From the third report on, the level holds, as before.
+- **A skip is not an appearance and a hold is not a confirmation.** Skipping
+  the movement leaves the count untouched; asking to hold the level puts it
+  back under a rest. Breaks, silent decay and the "I was sick" lens all leave
+  the count alone — the lens spends it exactly as it spends the rest, so being
+  ill neither helps nor hurts the way back.
+
+States written by earlier builds need no migration: an episode already open
+gets a full confirmation window rather than closing on its first appearance.
+
 ### Engine v2.19.0 — a descent never adds load (issue #149)
 
 Saying "this hurt" could hand you more work than before you said it. The

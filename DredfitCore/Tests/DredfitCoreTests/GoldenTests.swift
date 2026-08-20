@@ -49,6 +49,7 @@ private struct Golden: Decodable {
         let barStreakAfter: Int?
         let frozenAfter: [Int]?    // v2.5: a break must not thaw a freeze
         let soreAfter: [Int]?      // v2.11: nor close a pain episode
+        let soreLeftAfter: [Int]?  // v2.20: nor spend its confirmation countdown
         let lessRunAfter: Int?     // v2.9: a break does not continue a run of "less"
         let lessHistAfter: [String: Int]?   // v2.15: the appearance window (§26.1)
         let returnRunAfter: Int?   // v2.12: consecutive returns deepen the drop
@@ -85,6 +86,7 @@ private struct Golden: Decodable {
         let barStreakAfter: Int?
         let frozenAfter: [Int]?
         let soreAfter: [Int]?      // v2.11
+        let soreLeftAfter: [Int]?  // v2.20
         let lessRunAfter: Int?
         let lessHistAfter: [String: Int]?
         let returnRunAfter: Int?   // v2.12: a decay is not a return
@@ -109,6 +111,9 @@ private struct Golden: Decodable {
         let barFrozenAfter: Int?
         let soreAfter: [Int]?      // v2.11: pain-episode assignments, by patternOrder
         let barSoreAfter: Int?
+        // v2.20 (§31.2): clean appearances left before the episode closes
+        let soreLeftAfter: [Int]?
+        let barSoreLeftAfter: Int?
         let lessRunAfter: Int?     // v2.9: run of "less" ratings naming nothing
         let lessHistAfter: [String: Int]?   // v2.15: the appearance window (§26.1)
         let creditPausedAfter: [Int]?   // v2.10: [pull, pullBar], 1 = credit paused
@@ -144,7 +149,7 @@ final class GoldenTests: XCTestCase {
     /// re-baseline every number instead of catching a port bug.
     func testGeneratorIsThePinnedReferenceVersion() throws {
         let g = try loadGolden()
-        XCTAssertEqual(g.generator, "adaptive_engine.js v2.19.0",
+        XCTAssertEqual(g.generator, "adaptive_engine.js v2.20.0",
                        "golden.json regenerated from an unexpected reference version")
     }
 
@@ -163,6 +168,7 @@ final class GoldenTests: XCTestCase {
         let barStreak: Int?
         let frozen: [Int]?
         let sore: [Int]?
+        let soreLeft: [Int]?
         let lessRun: Int?
     }
 
@@ -181,6 +187,11 @@ final class GoldenTests: XCTestCase {
         if let v = snap.sore {
             XCTAssertEqual(order.map { state.sore[Pattern(rawValue: $0)!] ?? 0 },
                            v, "\(ctx): pain episodes survive")
+        }
+        // v2.20 (§31.2 p.7): and so does the confirmation countdown.
+        if let v = snap.soreLeft {
+            XCTAssertEqual(order.map { state.soreLeft[Pattern(rawValue: $0)!] ?? 0 },
+                           v, "\(ctx): confirmation countdowns survive")
         }
         if let v = snap.lessRun { XCTAssertEqual(state.lessRun, v, "\(ctx): less run") }
     }
@@ -265,7 +276,7 @@ final class GoldenTests: XCTestCase {
                 levels: decay.levelsAfter, streaks: decay.failStreakAfter,
                 barLevel: decay.barLevelAfter, barStreak: decay.barStreakAfter,
                 frozen: decay.frozenAfter, sore: decay.soreAfter,
-                lessRun: decay.lessRunAfter),
+                soreLeft: decay.soreLeftAfter, lessRun: decay.lessRunAfter),
                 order: order, ctx: "\(ctx) silent decay")
             if let hist = decay.lessHistAfter {
                 var actual: [String: Int] = [:]
@@ -287,7 +298,7 @@ final class GoldenTests: XCTestCase {
                 levels: comeback.levelsAfter, streaks: comeback.failStreakAfter,
                 barLevel: comeback.barLevelAfter, barStreak: comeback.barStreakAfter,
                 frozen: comeback.frozenAfter, sore: comeback.soreAfter,
-                lessRun: comeback.lessRunAfter),
+                soreLeft: comeback.soreLeftAfter, lessRun: comeback.lessRunAfter),
                 order: order, ctx: cctx)
             XCTAssertEqual(state.counter, comeback.counterAfter,
                            "\(cctx) must not move the counter")
@@ -309,6 +320,20 @@ final class GoldenTests: XCTestCase {
         }
     }
 
+    /// v2.20 (spec §31.2): the confirmation countdown, both halves of it.
+    /// Split out of assertAuxFields so that function keeps its complexity
+    /// budget — the list of optional per-step fields only ever grows.
+    private func assertEpisodeCountdown(_ step: Golden.Step, _ state: EngineState,
+                                        ctx: String) {
+        if let left = step.soreLeftAfter {
+            XCTAssertEqual(Pattern.ordered.map { state.soreLeft[$0] ?? 0 },
+                           left, ctx + " (sore left)")
+        }
+        if let barLeft = step.barSoreLeftAfter {
+            XCTAssertEqual(state.soreLeft[.pullBar] ?? 0, barLeft, ctx + " (bar sore left)")
+        }
+    }
+
     /// Every optional per-step snapshot past levels and streaks — the fields
     /// each wave added, compared only where the fixture carries them.
     private func assertAuxFields(_ step: Golden.Step, _ state: EngineState, ctx: String) {
@@ -327,6 +352,7 @@ final class GoldenTests: XCTestCase {
         if let barSore = step.barSoreAfter {
             XCTAssertEqual(state.sore[.pullBar] ?? 0, barSore, ctx + " (bar sore)")
         }
+        assertEpisodeCountdown(step, state, ctx: ctx)   // v2.20 (spec §31.2)
         // v2.9: the run of unnamed "less" ratings (spec §19.1)
         if let lessRun = step.lessRunAfter {
             XCTAssertEqual(state.lessRun, lessRun, ctx + " (less run)")
