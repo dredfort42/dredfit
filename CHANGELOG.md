@@ -6,16 +6,19 @@ The longest release in the project's history, and the one that changed the
 least about what you see. Two multi-agent audits of the engine and its
 golden contour — 2026-08-11 and 2026-08-16 — confirmed findings faster than
 any single wave could carry, so this release is the remediation itself: the
-engine steps from **v2.5 to v2.24** in eighteen waves, each a full pass of
+engine steps from **v2.5 to v2.25** in nineteen waves, each a full pass of
 the reference cycle (spec → reference → verifier → golden → Swift port).
-The verifier grew from 9,367 property checks to **531,947**, the golden
-fixture from 11 scenarios to **22**, and every new field decodes
+The verifier grew from 9,367 property checks to **638,696**, the golden
+fixture from 11 scenarios to **28**, and every new field decodes
 tolerantly — the state and journal formats still need no migrations.
 
 What the waves are about, in the order the priority ladder puts them:
 
 - **Do no harm.** A descent may never add load: the "not harder" gate now
-  counts sides and stands on every path down, not one of three (v2.19).
+  counts sides and stands on every path down, not one of three (v2.19), and
+  the engine finally has a way to say *the same exercise, but less of it* —
+  sets come off without touching the level, so a plan that has to go lighter
+  can (v2.25).
   Reporting pain takes load off in two steps instead of freezing the
   movement at a dose you already could not do (v2.19), and "tough" steps
   back exactly the way it came, one position at a time (v2.23). A comeback
@@ -28,7 +31,8 @@ What the waves are about, in the order the priority ladder puts them:
   running ahead of it — growth adds one set's worth at a time (v2.22).
   Workouts fit **45 minutes** unless you say otherwise (v2.24): the handle
   shipped in v2.17 switched off, and protecting only the people who went
-  looking for it in Settings was the wrong default.
+  looking for it in Settings was the wrong default. A pain episode now ends
+  on its own instead of never (v2.25).
 - **Improve results.** The aim reaches the weak link instead of the loudest
   movement (v2.15), honest facts are never scored worse than a tap (v2.14),
   the push plan stopped flickering (v2.16), the pull-up ladder gained the
@@ -39,6 +43,114 @@ What the waves are about, in the order the priority ladder puts them:
 "Hold this level" was built and withdrawn inside this same cycle — see its
 entry below. It never reached the App Store, and nothing in a saved file
 carries it forward.
+
+### Engine v2.25.0 — the sets handle (issues #149, #150, #151)
+
+The engine had no way to say *the same exercise, but less of it*. A level picks
+the variation and the dose together, and at the floor of a block the dose is
+already the lowest that variation has — so the only way down was to change the
+exercise, and the top of the tier below is heavier than the bottom of the one
+you are standing on. One root, and a whole class of "the plan had to go lighter
+and went heavier instead" grew out of it. Measured on v2.24 across the whole
+lattice, 10 movements × 48 levels:
+
+| What the person did | Where the plan got **heavier** for it |
+|---|---|
+| Came back after a 7–13 day break | 48 cells of 480, worst ×6.50 |
+| Tapped "it hurt here" | 24 — and nothing got lighter |
+| Answered "tough" honestly, every session | all **48 levels** — the movement locked for good |
+| Tapped "I was ill" | 40 |
+
+Each of the four is **zero** in v2.25. What made that possible is a second axis:
+sets. The level still chooses the variation and the dose per set; the new handle
+takes **sets off the same exercise** — same variation, same dose, same unit and
+sides — so a descent finally has somewhere to go that is comparable to where it
+came from. 3→2 sets is −33.3 %, 4→3 is −25.0 %, 5→4 is −20.0 %, and no
+measurement crosses a variation to say so.
+
+**Do no harm.**
+
+- **Pain takes sets, not levels.** Reporting "it hurt here" no longer moves your
+  level at all. The first report of an episode lands the movement on 2 sets, a
+  second on the live episode on 1. The depth deliberately does not read your
+  history: a second tap two years and two hundred clean sessions later must not
+  turn 5×15 per side into 1×15 — minus 80 % for one honest tap is a price that
+  buys silence.
+- **"I was ill" takes a share, not a set.** The lens now halves the band,
+  rounding up — −33 % at L24, −50 % at L36, −40 % at L44. The old fixed one set
+  gave the least to whoever was carrying the most: after flu, someone on a band
+  of five was still looking at four sets of shrimp squats per leg.
+- **A descent is checked, not promised.** Every plan is verified after it is
+  built: if your position has not gone up and the work has, sets come off until
+  it has not. Moving the session-length handle yourself is the one thing that
+  lifts that cap, and only for one transition — your own decision outranks an
+  old showing.
+- **The plan is remembered when it reaches your eyes.** Until now the engine
+  only wrote down a workout you finished, so a plan you looked at and did not
+  train was invisible to it — and the next one could beat it by up to ×1.47, in
+  16–22 % of "opened it, skipped a week, opened it again" on the 30- and
+  35-minute settings. Today tells the engine what it showed. That was the last
+  accepted gap of this wave, and it is closed.
+- **A descent that changes the unit lands by time under load.** Going from reps
+  to seconds on the bar picks the highest rung of the tier below whose time
+  under load is no greater than what you are doing now — the one quantity that
+  is defined for both. Where even the bottom rung is dearer, the branch lands on
+  its floor and loses its level: safety outranks the number until the library
+  gains the rung that is missing (×1.44 before, ×0.74 now).
+
+**Keep the habit.**
+
+- **A pain episode ends.** The rest and the "has it passed" countdown now run in
+  **parallel** — they answer different questions, and running them one after the
+  other meant no appearance was ever clean enough to close the episode. On
+  v2.24 that was 480 cells of 480 where the episode never closed at all. It now
+  closes on the 6th appearance at every one of the 48 levels, full volume is
+  back on the 31st appearance instead of the 48th, and three reports cost 20
+  appearances rather than 38 — under three workouts a week, 6.7 weeks instead of
+  12.7.
+- **Pain memory fades after 90 days, not 14.** A long break is exactly what
+  someone in pain takes, so the old threshold made "this is worth showing to a
+  professional" unreachable for the very person it was written for. The rest
+  ladder — 3 → 6 → 12 appearances — reads how often this movement has hurt in
+  your whole history, not whether an episode is open.
+
+**Improve results.**
+
+- **Volume comes back slowly, and the dose keeps moving.** At most one set
+  returns per session, and the next no sooner than two appearances later. While
+  that hold is ticking, growth goes into the dose instead. The axes are not the
+  same size: a dose step is ×1.033 median and ×1.08 at worst, a returned set is
+  ×1.500 median and ×2.00 at worst. §32 already refused a 50 % jump in dose on
+  the ACSM's 2–10 % guidance; the hold makes the volume axis behave the same
+  way, by letting the dose catch up between set returns.
+- **A quiet decay steps down instead of dropping a level.** A break walks the
+  same ladder the growth walks, rung by rung — the "not harder" gate failed 47
+  transitions of 470 under the old whole-level step, 18 of them inside a single
+  block, all of it happening before you have tapped anything.
+
+Also in the app: two sentences in the exercise card, in all seven shipping
+languages, saying why the plan is showing fewer sets and when one comes back —
+no notification, no card, nothing to dismiss. And the line suggesting a
+specialist now hangs on how many times a movement has hurt rather than on an
+unbroken run of reports, which the 3 / 6 / 12 rest exists to break: nobody it
+was written for used to reach it.
+
+Rejected on the way, with numbers: **a share-based time budget**, where every
+movement independently fits its own slice. Its promised "by construction"
+invariant held only *inside* a band of sets, and a whole-level descent crosses
+bands — 1,504 violations of 11,520 — while costing 8.7–21.0 minutes of thrown
+budget and leaving only three distinguishable positions on a 15–95 minute
+handle.
+
+verify2: 638,696 checks, 0 failures (was 531,947). Golden: 28 scenarios and 331
+steps, up from 22 and 272, with six new scenarios — pain sets, block-floor
+decay, illness bands, the pull-bar unit change, the budget repair and the week
+window. Of the 272 old steps 129 are bit-for-bit on the v2.24 key set and seven
+whole scenarios are untouched; every one of the 143 that changed traces to a
+named v2.25 decision, and the fixture now carries the growth window and the
+six new fields in every scenario rather than gating them by scenario shape.
+Port: 323 tests, 0 failures, GoldenTests bit-for-bit, plus a JS↔Swift
+differential test over 10,000 trajectories. App: 343 tests, 0 failures.
 
 ### "Went differently" belongs to the set you tapped it on (issue #158)
 
