@@ -43,26 +43,59 @@ extension Engine {
     /// the failure streak (§34.2): on a block floor the position does not move,
     /// and without the intent "hard" would be an inert tap there — no streak,
     /// no deload, and no way out of a variation that is beyond its owner.
+    /// v2.25 (spec §36.3-36.4): both directions now walk the SHARED scale —
+    /// growth gives sets back first, a descent spends the dose before the
+    /// sets — so "N up" and "N down" stay integral and mutually inverse.
+    /// `descentFloor` is the pain floor under a live episode and the shared
+    /// one otherwise (§36.9), and `setsBackOk` is the hold on a returning set.
+    /// Neither carries a default: the whole class of defects this wave kept
+    /// finding was an optional argument left out, or left out with the wrong
+    /// floor.
+    /// What bounds this pattern's move this session. Bundled into one value
+    /// because v2.25 added two more of them and nine loose arguments is how a
+    /// caller ends up passing the wrong floor — the very class of defect four
+    /// rounds of skeptics kept finding in this model.
+    struct RatingLimits {
+        /// The §15.3 cell for (pattern, tier) — how far a rise may go.
+        let cap: Int
+        /// Sessions left in the §28.4 window a comeback opened.
+        let rampLeft: Int
+        /// The floor a descent may reach: the PAIN one under a live episode,
+        /// the shared one otherwise (§36.9).
+        let descentFloor: Int
+        /// Whether the hold on a returning set has run out (§36.3).
+        let setsBackOk: Bool
+    }
+
+    /// Who the session-wide "less" is aimed at, and who the chronic signal
+    /// fires for (§19.1, §26.1).
+    struct RatingAim {
+        let targets: Set<Pattern>?
+        let chronic: Set<Pattern>
+    }
+
     static func positionFromRating(
         pattern p: Pattern, result: FeedbackResult, from entry: Position,
-        cap: Int, rampLeft: Int, lessTargets: Set<Pattern>?, chronic: Set<Pattern>
+        limits: RatingLimits, aim: RatingAim
     ) -> (position: Position, wantedDown: Bool) {
-        let effective: FeedbackResult = rampLeft > 0 && result == .more ? .plan : result
+        let effective: FeedbackResult = limits.rampLeft > 0 && result == .more ? .plan : result
         let sessionDelta: Int
-        if let targets = lessTargets {
+        if let targets = aim.targets {
             sessionDelta = targets.contains(p)
-                ? (chronic.contains(p) ? EngineConfig.chronicStep : EngineConfig.deltaLess)
+                ? (aim.chronic.contains(p) ? EngineConfig.chronicStep : EngineConfig.deltaLess)
                 : 0
         } else {
             sessionDelta = effective.delta
         }
-        let rampCap = rampLeft > 0 ? min(cap, EngineConfig.deltaPlan) : cap
+        let rampCap = limits.rampLeft > 0 ? min(limits.cap, EngineConfig.deltaPlan) : limits.cap
         if sessionDelta > 0 {
-            return (Level.rise(level: entry.level, sub: entry.sub,
-                               by: min(sessionDelta, rampCap)), false)
+            return (Level.riseBy(level: entry.level, sub: entry.sub, cut: entry.cut,
+                                 by: min(sessionDelta, rampCap),
+                                 allowSetsBack: limits.setsBackOk), false)
         }
         if sessionDelta < 0 {
-            return (Level.descend(level: entry.level, sub: entry.sub, by: -sessionDelta), true)
+            return (Level.fallBy(level: entry.level, sub: entry.sub, cut: entry.cut,
+                                 by: -sessionDelta, floor: limits.descentFloor), true)
         }
         return (entry, false)   // holds
     }
@@ -105,8 +138,20 @@ extension Engine {
         next.failStreak[p] = 0
         let target = min(max(deloadFrom - EngineConfig.deloadDrop, 0), EngineConfig.levelMax)
         // A deload is a descent, so the sub-step goes with it.
-        return Position(level: Level.descendNoHarder(pattern: p, from: entry.level,
-                                                     factLevel: target, fromSub: entry.sub),
-                        sub: 0)
+        let target2 = Level.descendNoHarder(pattern: p, from: entry.level, factLevel: target,
+                                            fromSub: entry.sub, fromCut: entry.cut)
+        // v2.25 (round 4, S6-3): the cut has to fit the NEW band. A deload
+        // crosses a band boundary, and a cut carried across gave ONE set with
+        // no pain report at all: squat L40 after three "hard" showed 1×6 per
+        // side instead of 5×8. The floor of two sets would have stopped being
+        // an invariant, and it has to be one for everything but the pain
+        // channel.
+        // v2.25 (round 4b, P0-3): the floor here is the PAIN one. The shared
+        // floor raised the cut of anyone sitting on a pain landing — that is,
+        // a deload GAVE BACK a set that pain had taken (340 cells of 1128, up
+        // to ×2.67). A deload is a descent; it may give nothing back.
+        return Position(level: target2, sub: 0,
+                        cut: min(landed.cut, Level.cutMax(level: target2,
+                                                          floor: EngineConfig.setsFloorPain)))
     }
 }

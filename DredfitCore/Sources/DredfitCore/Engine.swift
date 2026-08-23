@@ -81,7 +81,11 @@ public enum EngineConfig {
     /// across the whole scale, including the 4–5-set bands of tier 4 where
     /// the literature gives trained users 2–3 minutes. `restSetSec` stays as
     /// the base and the fallback.
-    public static let restSetByBand = [3: 60, 4: 90, 5: 120]
+    /// v2.25 (Ф6, spec §36.9): 1–2 sets inherit the pause of a triple instead
+    /// of falling through to the shared default. Before the fix a cut handed
+    /// back 60 s where band 5 asks for 120 — the pain channel made the REST
+    /// SHORTER than it was before the complaint.
+    public static let restSetByBand = [1: 60, 2: 60, 3: 60, 4: 90, 5: 120]
     public static let comebackMinGapDays = 14
     public static let comebackBase = 2
     public static let comebackStepDays = 21
@@ -121,7 +125,9 @@ public enum EngineConfig {
     /// Schoenfeld 2016 put trained users on hard variations at >= 2 min. 90 s
     /// rather than 120: 120 inverts the ladder (L24-31 would rest longer than
     /// L32-39) and breaks the tier transition's unload.
-    public static let restSetByTierBand: [Int: [Int: Int]] = [4: [3: 90]]
+    /// v2.25 (Ф6): and the same for the tier-4 cell — the table is spelled out
+    /// whole so a future change is a change of number, not of structure.
+    public static let restSetByTierBand: [Int: [Int: Int]] = [4: [1: 90, 2: 90, 3: 90]]
     /// v2.17 (spec §28.1, #142): the sets bands start at their own dose. The
     /// entry used to reset reps to the bottom of tier 4, which cut the actual
     /// work by 52-72% while the session got LONGER.
@@ -159,6 +165,35 @@ public enum EngineConfig {
     /// set count goes through `clampSets`, so the floor survives ANY
     /// composition of them, not just one path.
     public static let setsFloor = 2
+    /// v2.25 (spec §36): the sets handle. The pain channel is the ONLY path
+    /// allowed a single set: it sits below the shared floor but stays INSIDE
+    /// the variation, so the measure is valid there and the gate can prove the
+    /// landing safe on the ladder's most important rung. Every other path
+    /// stands on the shared floor of two.
+    public static let setsFloorPain = 1
+    /// Sets that come back in one session (§36.3).
+    public static let setsBackPerSession = 1
+    /// HOW MANY APPEARANCES a returned set is held before the next one may
+    /// come back. The sets axis is an order of magnitude coarser than the dose
+    /// axis — a dose step is ×1.033 median and ×1.08 worst, a set coming back
+    /// is ×1.500 median and ×2.00 worst, and 41 % of returns give +100 % or
+    /// more. §32 rejected a +50 % dose step as a breach of "do no harm",
+    /// citing ACSM 2009 ("a 2–10 % increase in load"), and rewrote the hold
+    /// ladder into literals for it. The sets axis exceeded that same standard
+    /// by 20–45× — and did so to the person who had only just stopped
+    /// complaining of pain: weekly volume went from 60 to 162. The hold
+    /// stretches the return so the dose has time to grow between additions.
+    public static let setsBackHold = 2
+    /// The ceiling on the memory of pain — past it the rest ladder is capped
+    /// anyway (§36.5).
+    public static let painSeenMax = 8
+    /// v2.25 (Ф7): the horizon past which the memory of pain fades by one.
+    /// Ninety days is the same threshold the app layer calls "start again".
+    /// Fourteen days was a plain mistake: a break is exactly what a person in
+    /// pain takes, so one break per report kept the memory pinned at one
+    /// forever, and the "time to see a specialist" threshold became
+    /// unreachable for precisely the person it was written for.
+    public static let painForgetGapDays = 90
     public static let budgetShortEndsAt = 20
     public static let warmupShortMin = 3
     public static let cooldownShortMin = 2
@@ -325,8 +360,10 @@ public enum Engine {
     /// answers a level, but the rise is capped in sub-steps; below the base dose
     /// it is a descent, which stays in whole levels and zeroes the sub-step.
     private static func positionFromPointFact(pattern p: Pattern, exercise ex: SessionExercise,
-                                              actual: Int, oldL: Int, oldSub: Int, cap: Int,
+                                              actual: Int, entry: Position, cap: Int,
+                                              setsBackOk: Bool,
                                               calibratedUp: inout [Pattern]) -> Position {
+        let oldL = entry.level, oldSub = entry.sub, oldCut = entry.cut
         // v2.14 (spec §25.2): the inversion reads the pattern's TRUE set band,
         // not the shown one. The §20.2 gate clamps the PLAN, not the state —
         // but the fact was inverted against the trimmed sets, so an honest
@@ -347,10 +384,13 @@ public enum Engine {
         // `ex.load` IS the minimum of an uneven plan.
         let window = Level.step(of: ex.unit, tier: ex.tier,
                                 sets: Level.decode(oldL).sets, load: ex.load)
-        let oldOrdinal = Level.ordinal(level: oldL, sub: oldSub)
+        // v2.25 (spec §36.3): the position is a TRIPLE, and the measure over
+        // all three is what every ceiling counts.
+        let oldOrdinal = Level.posOrd(entry)
         if actual >= ex.load && actual < ex.load + window {
-            return Level.rise(level: oldL, sub: oldSub,
-                              by: min(EngineConfig.deltaPlan, cap))
+            return Level.riseBy(level: oldL, sub: oldSub, cut: oldCut,
+                                by: min(EngineConfig.deltaPlan, cap),
+                                allowSetsBack: setsBackOk)
         }
         // Calibration: from a zero level the per-session cap does not apply —
         // but the reps→level inversion is only valid one tier out (v2.7, spec
@@ -364,16 +404,44 @@ public enum Engine {
                 : 2 * EngineConfig.stepsPerTier - 1
             let landed = min(max(factL, 0), zeroCeil)
             if landed > 0 { calibratedUp.append(p) }
-            return Position(level: landed, sub: 0)
+            // v2.25 (round 4b): a calibration KEEPS the cut. It ignores the
+            // §15.3 ceiling on purpose — there is nothing to trust but the
+            // fact — but that has no bearing on sets taken off: those were
+            // taken by pain or by a descent, not by the engine not knowing.
+            // Zeroing them here was the last route around "one set per
+            // session" (6 cells of 552, up to ×4.13).
+            return Position(level: landed, sub: 0,
+                            cut: min(oldCut, Level.cutMax(level: landed,
+                                                          floor: EngineConfig.setsFloorPain)))
         }
-        let factOrdinal = Level.ordinal(level: min(max(factL, 0), EngineConfig.levelMax), sub: 0)
-        if factOrdinal > oldOrdinal {
-            return Level.position(atOrdinal: min(factOrdinal, oldOrdinal + cap))
+        // v2.25 (Ф2): "above or below" is settled by the DOSE, not by the
+        // shared measure. The measure is lowered by the cut, so a shortfall
+        // read as a rise: an honest "7 of 8" after a pain landing lifted the
+        // plan from 2×8 to 3×8.
+        let clampedFact = min(max(factL, 0), EngineConfig.levelMax)
+        if Level.ordinal(level: clampedFact, sub: 0) > Level.ordinal(level: oldL, sub: oldSub) {
+            // v2.25 (round 4b, P0-1): the rise goes THROUGH `riseBy`, not by
+            // an absolute landing that zeroes the cut. The old form handed
+            // back every taken set at once and walked around §36.3 ("no more
+            // than one set per session"), because that rule lives in `riseBy`:
+            // pull L8 with a cut of 2, answering an honest "did 7", showed
+            // 3×15 instead of 1×6 — ×7.50 of work for one event.
+            return Level.riseBy(level: oldL, sub: oldSub, cut: oldCut,
+                                by: Level.riseSteps(toFact: clampedFact, from: oldOrdinal,
+                                                    cap: cap),
+                                allowSetsBack: setsBackOk)
         }
         // v2.14 (spec §25.3): a descent may not make the plan heavier.
-        return Position(level: Level.descendNoHarder(pattern: p, from: oldL,
-                                                     factLevel: factL, fromSub: oldSub),
-                        sub: 0)
+        // v2.25 (round 4, S6-1): and it KEEPS the sets already taken off.
+        // Zeroing them unconditionally turned "do not move at all" — which is
+        // exactly what the gate returning `oldL` means — into a RISE: push_h
+        // L8 after a "hard" tap went 2×6 → an honest "did 4 of 6" → 3×8, plus
+        // a hundred per cent. 477 cells of 1080.
+        let landed = Level.descendNoHarder(pattern: p, from: oldL, factLevel: factL,
+                                           fromSub: oldSub, fromCut: oldCut)
+        return Position(level: landed, sub: 0,
+                        cut: min(oldCut, Level.cutMax(level: landed,
+                                                      floor: EngineConfig.setsFloorPain)))
     }
 
     /// v2.9 (spec §19.1): movements the user pointed at during the workout —
@@ -531,6 +599,10 @@ public enum Engine {
         var next = state
         next.counter = state.counter + 1
         next.returnRun = 0                          // v2.12: a session breaks the series
+        // v2.25 (spec §36.8): the budget the plan was shown under. Moving the
+        // time handle lifts the repair's cap for exactly one state transition,
+        // so every path that writes a state writes this too.
+        next.shownBudget = EngineState.sanitizeBudget(state.timeBudgetMin)
 
         // v2.9 (spec §19.1): who receives the SESSION-WIDE "less".
         let named = Self.namedMovements(session: session, overrides: overrides,
@@ -542,17 +614,10 @@ public enum Engine {
         // trainee says nothing and taps once.
         // v2.15 (spec §26.2, #130): who calibrates from zero in THIS session.
         var calibratedUp: [Pattern] = []
-        // v2.17 (spec §28.5): no signal, no rule — the engine behaves exactly
-        // as it did before v2.17, which is what makes the rollout safe.
-        let haveGap = (gapDays?.isFinite ?? false)
-        // v2.19 (spec §30.8): the floor replaces the gap from below — a
-        // session that reports no elapsed time still ages the window.
-        let agedDays = haveGap
-            ? state.weekAgeDays + max(EngineConfig.minSessionAgeDays, gapDays ?? 0)
-            : 0
-        let windowExpired = agedDays >= Double(EngineConfig.weeklyWindowDays)
-        var weekGain = (!haveGap || windowExpired) ? [:] : state.weekGain
-        next.weekAgeDays = (!haveGap || windowExpired) ? 0 : agedDays
+        let window = Self.rollWeeklyWindow(state: state, gapDays: gapDays)
+        let haveGap = window.haveGap
+        var weekGain = window.gain
+        next.weekAgeDays = window.ageDays
         // v2.17 (spec §28.4): the window a comeback opened is spent by sessions.
         let rampLeft = state.rampWindow
         next.rampWindow = max(0, rampLeft - 1)
@@ -571,7 +636,7 @@ public enum Engine {
             // Discomfort outranks a skip: the session is voided for the
             // pattern either way, but only one of them carries information.
             if discomfort.contains(p) {
-                Self.applyDiscomfortReport(&next, state: state, pattern: p)
+                Self.applyDiscomfortReport(&next, pattern: p)
                 continue
             }
             if skipped.contains(p) { continue }
@@ -583,8 +648,18 @@ public enum Engine {
             let oldL = state.levels[p] ?? 0
             // v2.22 (spec §33): the whole position. Everything that moves a
             // pattern up works on the PAIR — a level alone cannot describe it.
+            // v2.25 (spec §36.3): on the TRIPLE. The measure `posOrd` folds
+            // sub-steps and sets taken off into one integer scale — a growth
+            // event is exactly +1, a step of a descent exactly −1 — so the
+            // §15.3 caps, the §28.5 window and the §20.1 cross-credit stay the
+            // code and the arithmetic they were.
             let oldSub = state.sub[p] ?? 0
-            let oldOrdinal = Level.ordinal(level: oldL, sub: oldSub)
+            let oldCut = state.cutOf(p)
+            let entry = Position(level: oldL, sub: oldSub, cut: oldCut)
+            let oldOrdinal = Level.posOrd(entry)
+            // The hold on a returning set: while it ticks, growth goes into
+            // the dose (§36.3, round 6 fix 1).
+            let setsBackOk = (state.setsHold[p] ?? 0) == 0
             // The tier is read from the level before the update, not from the
             // session — same thing today, and the rule stays true if a session
             // ever outlives the state it was generated from.
@@ -606,15 +681,23 @@ public enum Engine {
 
             if let actual = overrides[p] {
                 position = Self.positionFromPointFact(
-                    pattern: p, exercise: ex, actual: actual, oldL: oldL, oldSub: oldSub,
-                    cap: cap, calibratedUp: &calibratedUp)
+                    pattern: p, exercise: ex, actual: actual, entry: entry,
+                    cap: cap, setsBackOk: setsBackOk, calibratedUp: &calibratedUp)
             } else {
                 (position, wantedDown) = Self.positionFromRating(
-                    pattern: p, result: result, from: Position(level: oldL, sub: oldSub),
-                    cap: cap, rampLeft: rampLeft, lessTargets: lessTargets, chronic: chronic)
+                    pattern: p, result: result, from: entry,
+                    limits: RatingLimits(
+                        cap: cap, rampLeft: rampLeft,
+                        // v2.25 (spec §36.9): under a LIVE episode an honest
+                        // "hard" reaches the pain floor — the person is saying
+                        // "I can't" a second time about a movement that hurt.
+                        descentFloor: state.sore[p] != nil
+                            ? EngineConfig.setsFloorPain : EngineConfig.setsFloor,
+                        setsBackOk: setsBackOk),
+                    aim: RatingAim(targets: lessTargets, chronic: chronic))
             }
             position = Position(level: min(max(position.level, 0), EngineConfig.levelMax),
-                                sub: position.sub)
+                                sub: position.sub, cut: position.cut)
             var newL = position.level
 
             // A frozen pattern keeps its place in the plan at its current
@@ -624,8 +707,13 @@ public enum Engine {
             // v2.22 (spec §33): "cannot grow" clamps the POSITION, not the
             // level — a sub-step is growth too.
             if frozenLeft > 0 {
-                let held = Level.position(atOrdinal: min(Level.ordinal(position), oldOrdinal))
-                Self.applyFreezeTick(&next, pattern: p, position: held,
+                // v2.25 (spec §36.3): the clamp is expressed as a RETURN TO
+                // THE ENTRY TRIPLE, not through an inverse of the scale: the
+                // measure has none and can have none — one value answers both
+                // "a set is off" and "the dose is one rung lower".
+                Self.applyFreezeTick(&next, pattern: p,
+                                     position: Level.posOrd(position) > oldOrdinal
+                                        ? entry : position,
                                      frozenLeft: frozenLeft)
                 continue
             }
@@ -643,13 +731,13 @@ public enum Engine {
             if state.sore[p] != nil {
                 guard let confirmed = Self.soreConfirmation(
                     &next, exercise: ex, actual: overrides[p],
-                    oldL: oldL, oldSub: oldSub, cap: cap) else {
-                    Self.spendCleanAppearance(&next, p, rating: result, fact: overrides[p], load: ex.load)
+                    entry: entry, cap: cap, setsBackOk: setsBackOk) else {
+                    Self.spendCleanAppearance(&next, p)
                     // The clamp is applied whether or not that tick was the
                     // last one: an appearance without growth is cheaper than a
                     // tendon, so the closing session still holds the position.
-                    let held = Level.position(atOrdinal: min(Level.ordinal(position), oldOrdinal))
-                    Self.setPosition(&next, p, held)
+                    Self.setPosition(&next, p,
+                                     Level.posOrd(position) > oldOrdinal ? entry : position)
                     continue
                 }
                 position = confirmed
@@ -657,15 +745,21 @@ public enum Engine {
             }
 
             position = Self.tickStreak(&next, pattern: p, entryStreak: state.failStreak[p] ?? 0,
-                                       landed: position, entry: Position(level: oldL, sub: oldSub),
+                                       landed: position, entry: entry,
                                        wentDown: factPath ? newL < oldL : wantedDown,
                                        deloadFrom: factPath ? newL : oldL)
+            Self.tickSetsHold(&next, p, entryHold: state.setsHold[p] ?? 0,
+                              gaveBack: position.cut < oldCut)
             Self.setPosition(&next, p, position)
         }
 
         Self.applyHumbleGroupLanding(&next, calibratedUp: calibratedUp)
         Self.applyCrossCredit(&next, state: state, session: session, result: result,
                               overrides: overrides, discomfort: discomfort)
+        // v2.25 (spec §36.8): remember what the person SAW and at which
+        // position. The position is the ENTRY one — the plan was shown before
+        // any of this feedback existed.
+        Self.rememberShownPlan(&next, entry: state, session: session)
         // v2.17 (spec §28.5): the weekly ceiling is applied ONCE, after every
         // rise this session — the cross-credit included, or it would walk
         // around the budget: with a bar the branch grows on credit every other
@@ -673,6 +767,29 @@ public enum Engine {
         if haveGap { Self.applyWeeklyCeiling(&next, state: state, weekGain: &weekGain) }
         next.weekGain = weekGain
         return next
+    }
+
+    /// v2.17 (spec §28.5) · v2.19 (spec §30.8): how old the weekly window is
+    /// at the start of this session, and what is left of its budget.
+    ///
+    /// No signal, no rule — with `nil` the engine behaves exactly as it did
+    /// before v2.17, which is what made the rollout safe. The floor replaces
+    /// the gap from below rather than adding to it: a session that reports no
+    /// elapsed time still ages the window, and a correct app layer is never
+    /// double-counted.
+    ///
+    /// Split out of `applyFeedback` in v2.25 for the lint's function-length
+    /// ceiling; the arithmetic is unchanged.
+    private static func rollWeeklyWindow(
+        state: EngineState, gapDays: Double?
+    ) -> (haveGap: Bool, gain: [Pattern: Int], ageDays: Double) {
+        let haveGap = gapDays?.isFinite ?? false
+        let agedDays = haveGap
+            ? state.weekAgeDays + max(EngineConfig.minSessionAgeDays, gapDays ?? 0)
+            : 0
+        let expired = agedDays >= Double(EngineConfig.weeklyWindowDays)
+        let fresh = !haveGap || expired
+        return (haveGap, fresh ? [:] : state.weekGain, fresh ? 0 : agedDays)
     }
 
     /// v2.17 (spec §28.5): the weekly ceiling, applied ONCE per session over
@@ -690,16 +807,78 @@ public enum Engine {
                                            weekGain: inout [Pattern: Int]) {
         for p in Pattern.allCases {
             let entry = state.position(p)
-            let rise = Level.subRise(from: entry, to: next.position(p))
+            let landed = next.position(p)
+            // v2.25 (spec §36.3): the rise is measured on the SHARED scale — a
+            // growth event spent on giving a set back carries credit just like
+            // one spent on the dose.
+            let rise = max(0, Level.posOrd(landed) - Level.posOrd(entry))
             guard rise > 0 else { continue }
             let budget = EngineConfig.isSlowTissue(p) || Pattern.pullSide.contains(p)
                 ? EngineConfig.weeklyRiseSlow : EngineConfig.weeklyRiseFast
             let spent = weekGain[p] ?? 0
             let granted = min(rise, max(0, budget - spent))
+            // v2.25 (round 6, fix 1): rebuilding the position here used to walk
+            // around the hold and hand back a set the hold was keeping — the
+            // very "one branch of two" class the local sweep exists to catch.
+            // The rebuild does not decide again whether a set comes back: it
+            // only trims the growth steps, so it repeats what the main loop
+            // decided — a set comes back exactly when it already came back.
             Self.setPosition(&next, p,
-                             Level.rise(level: entry.level, sub: entry.sub, by: granted))
+                             Level.riseBy(level: entry.level, sub: entry.sub, cut: entry.cut,
+                                          by: granted,
+                                          allowSetsBack: landed.cut < entry.cut))
             if granted > 0 { weekGain[p] = spent + granted }
         }
+    }
+
+    /// v2.25 (round 6, fix 1): a set came back — arm the hold; otherwise this
+    /// appearance spends it. It ticks by APPEARANCES of the pattern, not by
+    /// the calendar, and only on the ordinary path: a freeze and a waiting
+    /// episode leave the loop earlier, and neither is a chance to grow.
+    static func tickSetsHold(_ next: inout EngineState, _ p: Pattern,
+                             entryHold: Int, gaveBack: Bool) {
+        guard !gaveBack else {
+            next.setsHold[p] = EngineConfig.setsBackHold
+            return
+        }
+        let held = entryHold - 1
+        if held > 0 { next.setsHold[p] = held } else { next.setsHold.removeValue(forKey: p) }
+    }
+
+    /// v2.25 (spec §36.8): the work a session showed, in the units of the
+    /// measure — sets × dose × sides, sub-steps included. The same number
+    /// `Level.work` computes, but read off an already-assembled plan.
+    static func exerciseWork(_ ex: SessionExercise) -> Int {
+        ex.plannedVolume * (ex.perSide ? 2 : 1)
+    }
+
+    /// The shown-plan memory: what was on screen, and the position it was
+    /// shown at. One writer for the automatic path and for `recordShown`, so
+    /// the two can never disagree about what "shown" means.
+    static func rememberShownPlan(_ next: inout EngineState, entry: EngineState,
+                                  session: Session) {
+        for ex in session.exercises {
+            let p = ex.pattern
+            next.shownWork[p] = Self.exerciseWork(ex)
+            next.shownOrd[p] = Level.posOrd(entry.position(p))
+        }
+    }
+
+    /// v2.25 (round 6, fix 7): recording a shown plan WITHOUT any feedback.
+    /// The app layer owns the state and can call this right after showing the
+    /// plan — and then the "a descent never adds load" invariant holds against
+    /// a plan the person merely saw and did not train, not only between
+    /// completed sessions.
+    ///
+    /// ACCEPTED until the app layer calls it (§36.8): memory is written by a
+    /// COMPLETED session, so against a merely-seen plan a rise of up to ×1.47
+    /// is possible — 16–22 % of "showed, skipped a week, opened again"
+    /// episodes on budgets of 30–35.
+    public static func recordShown(state dirty: EngineState, session: Session) -> EngineState {
+        var next = dirty.sanitized()
+        Self.rememberShownPlan(&next, entry: next, session: session)
+        next.shownBudget = EngineState.sanitizeBudget(next.timeBudgetMin)
+        return next
     }
 
     /// v2.22 (spec §33): writing a position. Sparseness is part of the
@@ -707,196 +886,21 @@ public enum Engine {
     /// byte-identical to one that never carried a sub-step at all.
     static func setPosition(_ next: inout EngineState, _ p: Pattern, _ position: Position) {
         next.levels[p] = position.level
-        let sub = Level.effectiveSub(level: position.level, sub: position.sub)
+        // v2.25 (Ф5): a sub-step may not ask for more sets than the cut leaves.
+        // Without this the measure saw the upper sub-steps and the plan did
+        // not, and 1960 steps of a descent out of 5600 moved the plan not at
+        // all: every third tap wasted, and on exactly the person who had
+        // already had a set taken away.
+        let cut = Level.effCut(level: position.level, cut: position.cut,
+                               floor: EngineConfig.setsFloorPain)
+        let room = max(0, Level.decode(position.level).sets - cut)
+        let sub = Level.effectiveSub(level: position.level, sub: position.sub, sets: room)
         if sub > 0 { next.sub[p] = sub } else { next.sub.removeValue(forKey: p) }
-    }
-
-    /// v2.11 (spec §21.2 p.4-5): the pain freeze ran out but the episode
-    /// lives — the pattern waits, indefinitely. Only an explicit fact at or
-    /// above the session's plan confirms recovery, and that same fact resumes
-    /// growth, through the ordinary cap and without the zero-level
-    /// calibration exception: a sore pattern at zero is unloaded history, not
-    /// a blank slate. Returns the level the fact earns, or `nil` when the
-    /// pattern only waits — then the caller holds it where it was.
-    /// v2.22 (spec §33): the fast route resumes growth in SUB-STEPS, like the
-    /// main branch. Under a live episode the sub-step is always zero — the
-    /// report zeroed it and growth stayed clamped — so the plan's base equals
-    /// the plan here.
-    private static func soreConfirmation(_ next: inout EngineState, exercise ex: SessionExercise,
-                                         actual: Int?, oldL: Int, oldSub: Int,
-                                         cap: Int) -> Position? {
-        guard let actual, actual >= ex.load else { return nil }
-        Self.closeEpisode(&next, pattern: ex.pattern)
-        let oldOrdinal = Level.ordinal(level: oldL, sub: oldSub)
-        if actual == ex.load {
-            return Level.rise(level: oldL, sub: oldSub,
-                              by: min(EngineConfig.deltaPlan, cap))
-        }
-        // v2.17 (spec §28.0): the inversion reads the TRUE set band, as the
-        // main fact branch has since v2.14 (§25.2). This one stayed on the
-        // shown sets, so the §20.2 gate turned an honest overshoot into a
-        // collapse: push_v at 44, trimmed to 3×8, answered with 9 reps, fell
-        // to 29.
-        let factL = min(max(Level.fromActual(pattern: ex.pattern, tier: ex.tier,
-                                             sets: Level.decode(oldL).sets, actual: actual),
-                            0), EngineConfig.levelMax)
-        return Level.position(atOrdinal: min(Level.ordinal(level: factL, sub: 0),
-                                             oldOrdinal + cap))
-    }
-
-    /// v2.20 (spec §31.2 p.1-2): one appearance of a waiting pattern.
-    ///
-    /// A CLEAN appearance — the pattern was trained and the session carried no
-    /// "it was hard" signal about it — spends one tick of the countdown, and
-    /// at zero the episode closes. A "less" rating or a fact below the plan
-    /// takes the cleanliness away and the countdown stands; a fact at or above
-    /// the plan is clean (on the fast route it has already closed the episode
-    /// and never reaches here). Skips, discomfort reports and holds leave the
-    /// loop earlier and never reach here either.
-    ///
-    /// One implementation for both branches — the ordinary one and the
-    /// restorative one under the illness lens (§22.4): the same appearance
-    /// cannot mean different things depending on whether the trainee tapped
-    /// "I was sick". Growth is the caller's business, and the session that
-    /// closes an episode still keeps its clamp (§31.2 p.2).
-    private static func spendCleanAppearance(_ next: inout EngineState, _ p: Pattern,
-                                             rating: FeedbackResult, fact: Int?, load: Int) {
-        guard next.sore[p] != nil, rating != .less,
-              fact.map({ $0 >= load }) ?? true else { return }
-        let left = (next.soreLeft[p] ?? next.sore[p] ?? 0) - 1
-        if left > 0 { next.soreLeft[p] = left } else { Self.closeEpisode(&next, pattern: p) }
-    }
-
-    /// The episode is over: assignment and countdown go together — a leftover
-    /// tick with no episode behind it would just be garbage in a saved file.
-    private static func closeEpisode(_ next: inout EngineState, pattern p: Pattern) {
-        next.sore.removeValue(forKey: p)
-        next.soreLeft.removeValue(forKey: p)
-    }
-
-    /// A frozen pattern keeps its place in the plan at its current level but
-    /// cannot grow; a fact may still take it DOWN — the athlete's honesty is
-    /// never overridden. The streak neither grows nor resets, so a deload
-    /// cannot fire on top of a freeze. A pin arms the rest AFTER the level
-    /// update, so the reporting appearance is never spent; v2.11 (spec §21.2
-    /// p.7) arms it through max(), which never shortens a pain freeze — before
-    /// v2.11 `frozenLeft` never exceeded N, so max() reproduces the old
-    /// "refresh to N" bit for bit.
-    private static func applyFreezeTick(_ next: inout EngineState, pattern p: Pattern,
-                                        position: Position, frozenLeft: Int) {
-        Self.setPosition(&next, p, position)
-        if frozenLeft > 1 {
-            next.frozen[p] = frozenLeft - 1
-        } else {
-            next.frozen.removeValue(forKey: p)
-        }
-    }
-
-    /// One session's inputs as a single value. The restorative branch needs
-    /// all five of them, and an argument-count limit is not a reason to leave
-    /// one out — v2.20 needed the rating and the facts there to tell a clean
-    /// appearance from a hard one (§31.2 p.1).
-    private struct FeedbackInputs {
-        let result: FeedbackResult
-        let overrides: [Pattern: Int]
-        let skipped: Set<Pattern>
-        let discomfort: Set<Pattern>
-    }
-
-    /// v2.12 (spec §22.4): the restorative session under the illness lens.
-    /// The counter moves, the journal is written, the comeback series breaks,
-    /// the lens ticks down, freezes spend appearances — but levels, streaks
-    /// and the run of "less" stand: an illness is a time for neither growth
-    /// nor conclusions. The rest inputs (§21/§16) are the exception — safety
-    /// outranks the gentle mode.
-    private static func applyRestorativeSession(
-        state: EngineState, session: Session, inputs: FeedbackInputs
-    ) -> EngineState {
-        var next = state
-        next.counter = state.counter + 1
-        next.returnRun = 0
-        next.illness = state.illness - 1
-        // v2.17 (spec §28.4): a restorative session spends the limited-growth
-        // window like any other. The reference has always done this
-        // (`adaptive_engine.js`, the `illnessLeft > 0` branch); the port did
-        // not, so a comeback followed by "I was sick" left the window full and
-        // handed the trainee extra sessions of damped growth. Golden could not
-        // catch it: `rampWindow`, `weekGain` and `weekAgeDays` are the three
-        // state fields `make_golden.js` never snapshots (audit 2026-08-20,
-        // findings S5-1/S5-2), so the divergence lived behind 309 green tests.
-        next.rampWindow = max(0, state.rampWindow - 1)
-        for ex in session.exercises {
-            let p = ex.pattern
-            if inputs.discomfort.contains(p) {
-                Self.applyDiscomfortReport(&next, state: state, pattern: p)
-                continue
-            }
-            if inputs.skipped.contains(p) { continue }   // a skip spends no appearance
-            let frozenLeft = state.freezeRemaining(p)
-            if frozenLeft > 1 { next.frozen[p] = frozenLeft - 1; continue }
-            if frozenLeft == 1 { next.frozen.removeValue(forKey: p); continue }
-            // v2.20 (spec §31.2 p.1): an appearance under the lens spends the
-            // confirmation countdown just as an ordinary one does — the lens
-            // already spends `frozen` (§22.4), and separate arithmetic here
-            // would mean recovery counts differently depending on the "I was
-            // sick" tap. Same predicate, and the fast route stays shut under
-            // the lens: a fact at or above the plan does not confirm here, it
-            // only leaves the appearance clean.
-            Self.spendCleanAppearance(&next, p, rating: inputs.result, fact: inputs.overrides[p], load: ex.load)
-        }
-        return next
-    }
-
-    /// v2.11 (spec §21.1-21.2), reworked in v2.19 (spec §30.6): taking the
-    /// load off is TWO-STEP.
-    ///
-    /// The first report of an episode puts the pattern on the floor of its
-    /// CURRENT tier — the same variation, the smallest dose it has. The work
-    /// always falls (0 violations over 480 cells, 10 patterns × 48 levels),
-    /// and one tap does not
-    /// hand the trainee a movement they have never seen. The second report,
-    /// while the episode still lives, does what v2.11 did first: the floor of
-    /// the PREVIOUS tier, i.e. the change of variation §15.2 calls for. After
-    /// that the level stands — "the load comes off once per episode" (§21.3)
-    /// survives in substance, the descent being bounded at two steps and
-    /// never reaching zero on honest reports alone. The 3 → 6 → 12 rest
-    /// ladder already encodes which report this is, so no extra counter is
-    /// needed. The streak resets on both steps: it belonged to the old dose.
-    ///
-    /// This runs under the illness lens too (§22.4) — safety outranks the
-    /// gentler regime, and one tap must not land differently depending on
-    /// whether the trainee happened to be ill.
-    private static func applyDiscomfortReport(_ next: inout EngineState,
-                                              state: EngineState, pattern p: Pattern) {
-        if let episode = state.sore[p] {
-            let assigned = min(episode * 2, EngineConfig.freezeCapAppearances)
-            if episode == EngineConfig.freezeAppearances {   // the second report
-                // v2.22 (spec §33): taking the load off is a descent, so the
-                // sub-step goes with it.
-                Self.setPosition(&next, p,
-                                 Position(level: Level.unload(state.levels[p] ?? 0), sub: 0))
-                next.failStreak[p] = 0
-            } else {
-                // The third report and beyond: the level stands, but keeping
-                // heavier sets after "it hurts" makes no sense either.
-                next.sub.removeValue(forKey: p)
-            }
-            next.frozen[p] = assigned
-            next.sore[p] = assigned
-            // v2.20 (spec §31.2 p.4): the countdown restarts, and at the NEW
-            // assignment — the way back lengthens along with the rest. From
-            // here assignment and countdown agree again, which is what keeps
-            // the ladder readable after any number of clean appearances: one
-            // field could never carry both meanings (§31.3).
-            next.soreLeft[p] = assigned
-        } else {
-            Self.setPosition(&next, p,
-                             Position(level: Level.tierFloor(state.levels[p] ?? 0), sub: 0))
-            next.failStreak[p] = 0
-            next.frozen[p] = EngineConfig.freezeAppearances
-            next.sore[p] = EngineConfig.freezeAppearances
-            next.soreLeft[p] = EngineConfig.freezeAppearances
-        }
+        // v2.25 (§36.1): sparseness is part of the contract here too. What is
+        // stored is the value the caller passed, exactly as the reference
+        // stores it — every caller hands over an already-clamped cut, and the
+        // sanitizer heals anything that ever is not on the next read.
+        if position.cut > 0 { next.cut[p] = position.cut } else { next.cut.removeValue(forKey: p) }
     }
 
     /// v2.10 (spec §20.1): the cross-credit on the pull slot. The slot is in
@@ -940,150 +944,20 @@ public enum Engine {
         // would read zero in two cases out of three — growth by a sub-step does
         // not move `levels` — and the credit would quietly zero itself out,
         // handing the slot back the half speed §20.1 was written to fix.
-        let gained = Level.subRise(from: state.position(trained), to: next.position(trained))
+        // v2.25 (spec §36.3): the gain is measured on the shared scale, or the
+        // credit would zero itself out for anyone recovering from a cut.
+        let gained = max(0, Level.posOrd(next.position(trained))
+                         - Level.posOrd(state.position(trained)))
         if gained > 0, !next.creditPaused.contains(other),
            next.freezeRemaining(other) == 0, next.sore[other] == nil {
             let entry = next.position(other)
             let cap = EngineConfig.maxUp(pattern: other, tier: Level.decode(entry.level).tier)
+            // v2.25 (round 6, fix 1): the cross-credit respects the hold too.
             Self.setPosition(&next, other,
-                             Level.rise(level: entry.level, sub: entry.sub,
-                                        by: min(gained, cap)))
+                             Level.riseBy(level: entry.level, sub: entry.sub, cut: entry.cut,
+                                          by: min(gained, cap),
+                                          allowSetsBack: (next.setsHold[other] ?? 0) == 0))
         }
-    }
-
-    // Time enters the engine here, and only here (issue #98, spec §7). The two
-    // functions below are the whole of the model's date awareness, and both
-    // read a single number — the gap since the last workout, from seven days
-    // up. Below that the engine is blind by contract: `generateSession` and
-    // `applyFeedback` never see a date, which is what makes them pure and the
-    // golden fixture reproducible. Training frequency is therefore an
-    // app-layer concern — seven workouts in seven days are legal here, and the
-    // quiet rest offer that answers them lives in `AppStore+Signals`.
-
-    /// All patterns drop, `pullBar` included even with `hasBar == false`: a
-    /// break detrains the whole body. A freeze survives it untouched — the
-    /// error is asymmetric, and a couple of sessions without growth cost less
-    /// than a tendon — and so does a pain episode (v2.11, spec §21.2 p.8):
-    /// levels drop as usual, the confirmation stays owed. `failStreak` must
-    /// reset — otherwise the first underperformance after the return would
-    /// ride the old streak into a deload and drop the level twice. `counter`
-    /// does not move.
-    ///
-    /// NOT idempotent: every call subtracts the drop again. The caller must
-    /// apply it at most once per break (the app keys this on
-    /// `comebackDecidedFor`).
-    ///
-    /// `alreadyDecayed`: the silent −1 already hit this same break, so the
-    /// comeback weakens by one and the two drops do not stack. Exact even at
-    /// the clamp: `max(max(L−1,0) − (drop−1), 0) == max(L − drop, 0)` for
-    /// drop ≥ 2.
-    ///
-    /// v2.7 (spec §17.2): past the table's edge an absolute landing ceiling
-    /// (`comebackLandingCeil`) — `min` composes with the alreadyDecayed
-    /// weakening untouched, so the no-stacking identity holds by
-    /// construction. And crossing a SET BAND snaps the rung to the band
-    /// floor: preserving `L mod 8` across 40/32 made the first dose
-    /// non-monotonic in the gap (90 days → 5×6, 140 days → 4×11).
-    public static func applyComeback(state dirty: EngineState, gapDays rawGap: Int,
-                                     alreadyDecayed: Bool = false) -> EngineState {
-        // v2.13 (spec §24.1-24.2): heal the state, clamp the gap. A negative
-        // gap already fell through this guard; the clamp also keeps
-        // `gapDays - comebackMinGapDays` off Int.min.
-        let state = dirty.sanitized()
-        let gapDays = Engine.sanitizeGapDays(rawGap)
-        guard gapDays >= EngineConfig.comebackMinGapDays else { return dirty }
-        // v2.12 (spec §22.3): consecutive comebacks with no session between
-        // deepen the drop by one each — the plan must slide faster than
-        // fitness decays (A8b-9). The cap is the same table cap.
-        let raw = EngineConfig.comebackBase
-            + (gapDays - EngineConfig.comebackMinGapDays) / EngineConfig.comebackStepDays
-            + state.returnRun
-        let drop = min(max(raw, 2), EngineConfig.comebackMax) - (alreadyDecayed ? 1 : 0)
-        let landingCeil = EngineConfig.comebackLandingCeil
-            .first { gapDays >= $0.minGap }?.ceil ?? Int.max
-
-        var next = state
-        next.lessRun = 0            // v2.9: a break is not a continued run of "less"
-        next.creditPaused = []      // v2.10: a break clears the strain evidence too
-        // v2.22 (spec §33): a comeback is a DESCENT, and it takes the sub-steps
-        // off every pattern — a break detrains the whole body, and the heavier
-        // sets belonged to a dose that is gone.
-        next.sub = [:]
-        // v2.15 (spec §26.1): a comeback rebuilds the levels, which makes the
-        // appearance window a record about DIFFERENT levels — it goes with
-        // them. The silent decay (−1) barely moves the levels and keeps it.
-        next.lessHist = [:]
-        // v2.17 (spec §28.4): a comeback opens the limited-growth window.
-        next.rampWindow = EngineConfig.rampWindowSessions
-        // The weekly window is about a week that is now over.
-        next.weekGain = [:]
-        next.weekAgeDays = 0
-        next.returnRun = state.returnRun + 1   // v2.12 (§22.3)
-        for p in Pattern.allCases {
-            let stored = state.levels[p] ?? 0
-            // The level BEFORE the break: with alreadyDecayed the input
-            // already carries the silent −1, and reading the band or the tier
-            // from it would break the identity exactly at the boundaries.
-            let preL = alreadyDecayed ? min(stored + 1, EngineConfig.levelMax) : stored
-            let pre = Level.decode(preL)
-            var landed = max(0, stored - drop)
-            let post = Level.decode(landed)
-            // The snap applies to the DROP's result only; the band keeps its
-            // v2.7 priority, then v2.12 rep continuity on a tier crossing:
-            // the same dose of reps in an easier variation, never the top of
-            // the lower tier (audit finding A3-1). The ceiling below is a
-            // deliberate absolute — a tier bottom by construction.
-            if pre.sets != post.sets {
-                landed = (landed / EngineConfig.stepsPerTier) * EngineConfig.stepsPerTier
-            } else if pre.tier != post.tier {
-                landed = (post.tier - 1) * EngineConfig.stepsPerTier
-                    + Level.rung(tier: post.tier, reps: pre.reps)
-            }
-            next.levels[p] = min(landed, landingCeil)
-            next.failStreak[p] = 0
-        }
-        return next
-    }
-
-    /// v2.7 (spec §17.3): `failStreak` resets, same as the comeback. The old
-    /// "deliberately untouched" reading inverted the 13/14-day boundary at a
-    /// streak of 2: a 13-day pause plus the first honest "less" rode into a
-    /// deload (−5 total) while a 14-day break cost −3. `counter` does not
-    /// move.
-    ///
-    /// NOT idempotent, same as the comeback: the app layer applies it at most
-    /// once per break, keyed to the last workout's date.
-    public static func applySilentDecay(state dirty: EngineState, gapDays rawGap: Int) -> EngineState {
-        let state = dirty.sanitized()
-        let gapDays = Engine.sanitizeGapDays(rawGap)
-        guard gapDays >= EngineConfig.silentDecayGapDays,
-              gapDays < EngineConfig.comebackMinGapDays else { return dirty }
-        var next = state
-        next.lessRun = 0            // v2.9: same as the comeback (spec §19.1)
-        next.creditPaused = []      // v2.10: and so does the pause
-        next.sub = [:]              // v2.22 (§33): a decay is a descent too
-        // v2.12 (§22.3-22.4): the decay belongs to the same break — it is not
-        // a return, so `returnRun` stands; the illness lens survives too.
-        for p in Pattern.allCases {
-            next.levels[p] = max(0, (state.levels[p] ?? 0) - 1)
-            next.failStreak[p] = 0
-        }
-        return next
-    }
-
-    /// v2.12 (spec §22.4): the "I was sick" one-tap — the sixth API function.
-    /// An illness shorter than seven days is invisible to the time contract
-    /// (§7) by construction, so the channel is explicit. The lens makes the
-    /// plan one tier easier for `illnessSessions` restorative sessions
-    /// without touching the stored levels; a repeat tap tops the lens back
-    /// up (a prolongation, not an escalation), and on a fresh lens the call
-    /// is a no-op.
-    public static func applyIllness(state dirty: EngineState) -> EngineState {
-        // v2.13 (spec §24.1): the sixth entry heals its input too — the
-        // reference rebuilds every field here just as it does elsewhere.
-        var next = dirty.sanitized()
-        next.illness = EngineConfig.illnessSessions
-        return next
     }
 
     /// v2.15 (spec §26.1): rolls the appearance window and returns the
@@ -1124,9 +998,16 @@ public enum Engine {
         for p in calibratedUp {
             // A calibration landing always carries a zero sub-step, so there is
             // nothing to descend here — but the invariant is stated explicitly.
-            Self.setPosition(&next, p,
-                             Position(level: min(next.levels[p] ?? 0,
-                                                 EngineConfig.stepsPerTier - 1), sub: 0))
+            // v2.25 (local sweep, H2): the humble group landing KEEPS the cut
+            // too. It was the last of the position-writing sites where it was
+            // wiped unconditionally — and the one place the round-4b fix did
+            // not reach: exactly the "one branch of two" class the skeptics
+            // found three times.
+            let capped = min(next.levels[p] ?? 0, EngineConfig.stepsPerTier - 1)
+            Self.setPosition(&next, p, Position(
+                level: capped, sub: 0,
+                cut: min(next.cutOf(p), Level.cutMax(level: capped,
+                                                     floor: EngineConfig.setsFloorPain))))
         }
     }
 }

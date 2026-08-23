@@ -179,13 +179,20 @@ extension Engine {
         let patterns = Pattern.ordered.filter { chosen.contains($0) } // ordering follows Pattern.ordered
             .map { $0 == .pull && useBar ? Pattern.pullBar : $0 }
 
-        // v2.12 (spec §22.4): under the "I was sick" lens every level is seen
-        // one tier easier; the stored levels never change.
+        // v2.12 (spec §22.4) · v2.25 (spec §36.6): the "I was sick" lens no
+        // longer moves the LEVEL at all. Showing every level one tier easier
+        // made the plan HEAVIER in 84 cells of 480 (audit 20.08, P0-6): rep
+        // continuity read a phantom `reps` field on the statics, and the v2.21
+        // ladders of tier 3 sit above those of tier 4 (hinge L24 → 3×4 = 12
+        // reps became 3×5 per leg = 30). The one tap a person has for "I need
+        // something lighter right now" did the exact opposite of its promise.
+        //
+        // Taking sets off cannot make a plan heavier BY CONSTRUCTION: the
+        // variation, the dose per set, the unit and the sides are the same and
+        // the number of sets is strictly smaller. Zero cells of 480, with no
+        // check needed — it follows from the definition of the measure.
         let eased = state.illness > 0
-        func viewLevel(_ p: Pattern) -> Int {
-            let level = state.levels[p] ?? 0
-            return eased ? Level.eased(level) : level
-        }
+        func viewLevel(_ p: Pattern) -> Int { state.levels[p] ?? 0 }
 
         // v2.10 (spec §20.2): the pull slot's set band caps the push of the same
         // session. With the bar the pull enters the bands 13-16 sessions after
@@ -198,12 +205,16 @@ extension Engine {
         // the branches diverged — visible churn with no cause on screen. The
         // gate exists so the push does not run ahead of the pull; the weaker
         // branch holds that line more strictly (owner's decision 19.08.2026).
+        // v2.25 (Ф4): the ceiling reads the pull slot's sets AFTER the cut. A
+        // pull that hurts no longer moves its level, so a ceiling reading the
+        // level's band stopped reacting at all: one "it hurt" tap on the pull
+        // dropped the balance from 0.800 to 0.533, and on band 5 to 0.160.
         let pullSets = patterns.first { Pattern.pullSide.contains($0) }
             .map { _ in
                 state.hasBar
-                    ? min(Level.decode(viewLevel(.pull)).sets,
-                          Level.decode(viewLevel(.pullBar)).sets)
-                    : Level.decode(viewLevel(.pull)).sets
+                    ? min(Level.setsAfterCut(level: viewLevel(.pull), cut: viewCut(.pull)),
+                          Level.setsAfterCut(level: viewLevel(.pullBar), cut: viewCut(.pullBar)))
+                    : Level.setsAfterCut(level: viewLevel(.pull), cut: viewCut(.pull))
             } ?? EngineConfig.setsMax
 
         // v2.22 (spec §33): under the "I was sick" lens the plan is UNIFORM.
@@ -213,15 +224,52 @@ extension Engine {
         // lens builds the plan's VIEW (§22.4).
         func viewSub(_ p: Pattern) -> Int { eased ? 0 : (state.sub[p] ?? 0) }
 
+        // v2.25 (round 6, fix 4): the lens is a SHARE and it adds to the pain
+        // cut. A flat minus-one-set gave the less the more loaded a person
+        // was: after flu, on a band of five, `4×12 shrimp squats per leg` was
+        // left — minus 20 %, which is no gentle regime at all. And over a set
+        // pain had already taken it gave NOTHING: someone with a bad knee and
+        // the flu pressed the button and saw no difference — the same dead-tap
+        // class §36.5 was fixing elsewhere. The lens now takes the plan to
+        // half the band, rounding up, never past what pain already took and
+        // never below the shared floor.
+        //
+        // ACCEPTED (§36.10 p. 6): if the plan is already on the shared floor
+        // of two sets the lens gives nothing. Letting it reach a single set
+        // would hand the pain floor to a channel that is not the pain channel.
+        func viewCut(_ p: Pattern) -> Int {
+            let stored = state.cutOf(p)
+            guard eased else { return stored }
+            let band = Level.decode(state.levels[p] ?? 0).sets
+            return max(stored, band - max(EngineConfig.setsFloor, (band + 1) / 2))
+        }
+
+        // v2.25 (spec §36.6): ONE order of cuts. The level's band → the sets
+        // handle (pain channel / descent / lens) → the §20.2 gate → the §28.3
+        // budget. Each next one may only lower, none may raise, and there is
+        // one shared floor: two sets, except for a position the pain channel
+        // has already taken to one — neither the gate nor the budget has the
+        // right to lift that back.
+        //
+        // The per-exercise floor is SERVICE data and stays out of the
+        // snapshot, exactly as it is a non-enumerable property in the
+        // reference: `SessionExercise` gains no field, so a journal written by
+        // build 1.9 still decodes whole. It travels alongside instead.
+        var floors: [Int] = []
         let exercises: [SessionExercise] = patterns.map { p in
             let lib = ExerciseLibrary.entry(for: p)
             let d = Level.decode(viewLevel(p))
             let variation = lib.variations[d.tier - 1]
             let unit = lib.unit(forTier: d.tier)
             let load = unit == .reps ? d.reps : d.hold
+            let ownSets = d.sets - Level.effCut(level: viewLevel(p), cut: viewCut(p),
+                                                floor: EngineConfig.setsFloorPain)
+            let floor = min(EngineConfig.setsFloor, ownSets)
+            floors.append(floor)
             // v2.24 (spec §35.1): the gate and the exercise's own band both go
             // through the one clamp.
-            let sets = clampSets(Pattern.pushSide.contains(p) ? min(d.sets, pullSets) : d.sets)
+            let sets = clampSets(Pattern.pushSide.contains(p) ? min(ownSets, pullSets) : ownSets,
+                                 floor: floor)
             // The band is the FINAL one — the §20.2 gate may have trimmed it —
             // so a sub-step never asks for more sets than are on screen.
             let loads = Level.perSetLoads(pattern: p, level: viewLevel(p),
@@ -235,8 +283,15 @@ extension Engine {
                 // band — the field is per-exercise, so the timer needs no
                 // change.
                 // v2.17 (spec §28.2): the (tier, band) cell wins when set.
-                restSetSec: EngineConfig.restSetByTierBand[d.tier]?[sets]
-                    ?? EngineConfig.restSetByBand[sets] ?? EngineConfig.restSetSec,
+                // v2.25 (Ф6, §36.9): the band is the LEVEL'S, not the number of
+                // sets shown. The handle takes volume off, not recovery: before
+                // the fix a pain landing on band 5 was handed 90 s instead of
+                // 120 — a REST SHORTER than before the complaint. The budget
+                // still recomputes the pause on its result (`withSets`), and
+                // there it is justified: two minutes between two sets would
+                // swallow a short limit whole.
+                restSetSec: EngineConfig.restSetByTierBand[d.tier]?[d.sets]
+                    ?? EngineConfig.restSetByBand[d.sets] ?? EngineConfig.restSetSec,
                 restExerciseSec: EngineConfig.restExerciseSec,
                 loads: loads
             )
@@ -249,9 +304,20 @@ extension Engine {
         let short = budget > 0 && budget <= EngineConfig.budgetShortEndsAt
         let warmup = short ? EngineConfig.warmupShortMin : EngineConfig.warmupMin
         let cooldown = short ? EngineConfig.cooldownShortMin : EngineConfig.cooldownMin
-        let trimmed = budget > 0
-            ? trimToBudget(exercises, budget: budget, ends: warmup + cooldown)
+        let trimmedRaw = budget > 0
+            ? trimToBudget(exercises, floors: floors, budget: budget, ends: warmup + cooldown)
             : exercises
+        // v2.25 (spec §36.8, round 4): the postcondition "a descent never adds
+        // load" is checked ON THE RESULT rather than derived from the way the
+        // cut is built. It works with no budget at all: the §20.2 band gate can
+        // move sets about too.
+        //
+        // The position here is the STORED one — the lens does not move it.
+        var ordNow: [Pattern: Int] = [:]
+        for ex in trimmedRaw { ordNow[ex.pattern] = Level.posOrd(state.position(ex.pattern)) }
+        let trimmed = repairDescent(trimmedRaw, floors: floors, shownWork: state.shownWork,
+                                    shownOrd: state.shownOrd, ordNow: ordNow,
+                                    budgetChanged: state.shownBudget != budget)
 
         return Session(
             sessionNumber: state.counter + 1,
@@ -266,7 +332,11 @@ extension Engine {
     /// mechanisms that CUT sets — the budget (§28.3) and the band gate (§20.2)
     /// — go through it, so the floor holds for their composition and not just
     /// for each cut on its own.
-    static func clampSets(_ n: Int) -> Int { max(EngineConfig.setsFloor, n) }
+    /// v2.25 (spec §36.6): the floor is a per-exercise number now, and it
+    /// carries NO default — the pain channel's landing of a single set is the
+    /// one place it drops below the shared two, and a caller that forgot to
+    /// say so would silently hand that set back.
+    static func clampSets(_ n: Int, floor: Int) -> Int { max(floor, n) }
 
     /// v2.17 (spec §28.3): fit the plan into the budget. Levels are never
     /// touched — the budget trims the PLAN, not the state.
@@ -290,35 +360,96 @@ extension Engine {
     /// Monotonicity in the budget comes for free: the removal sequence does not
     /// depend on the budget, so the plan for budget B is a prefix of one fixed
     /// sequence, and every removal strictly shortens the session.
-    private static func trimToBudget(_ exercises: [SessionExercise], budget: Int,
-                                     ends: Int) -> [SessionExercise] {
+    /// v2.25 (spec §36.8, round 4): THE SESSION-WIDE CUT IS BACK, and that is
+    /// a deliberate rollback. The per-share scheme — every exercise fitting
+    /// independently into its own slice of the budget — was introduced for the
+    /// invariant "a descent never adds load BY CONSTRUCTION". The invariant
+    /// turned out to be false: it is proven only INSIDE a set band, and a
+    /// descent by a whole level — an honest fact below the plan, a deload, a
+    /// chronic aim — crosses bands, and there the ground under the arithmetic
+    /// falls away with the band. Measured: 1504 violations of 11,520 cells,
+    /// 140 of them inside one variation, worst ×2.50. The price was steep too:
+    /// 8.7–21.0 minutes of the budget thrown away, and the time handle
+    /// distinguishing three positions on a scale from 15 to 95 minutes.
+    ///
+    /// The invariant is now held not by the shape of the cut but by CHECKING
+    /// THE RESULT — see `repairDescent`. Checking it turned out to be both
+    /// simpler and safer than deriving it.
+    ///
+    /// The cut itself is v2.24's in substance, but the victim is chosen
+    /// WITHOUT READING THE DOSE: the set comes off the exercise with the most
+    /// sets, ties by session order. The old greedy choice — "whoever saves the
+    /// most seconds" — read doses, so a small change of dose moved the cut to
+    /// another movement (audit 20.08, P0-2: 418 cells). The new order has no
+    /// such class, and it also removes the churn in set counts (S1-07) and the
+    /// unfairness to the start of the session order.
+    private static func trimToBudget(_ exercises: [SessionExercise], floors: [Int],
+                                     budget: Int, ends: Int) -> [SessionExercise] {
         var cur = exercises
         var total = estimatedMin(exercises: cur, ends: ends)
         while total > Double(budget) {
-            var bestIdx: Int?
-            var bestTotal = total
-            var bestEx: SessionExercise?
-            for i in cur.indices where cur[i].sets > EngineConfig.setsFloor {
-                let trimmedEx = Self.withSets(cur[i], cur[i].sets - 1)
-                var trial = cur
-                trial[i] = trimmedEx
-                let trialTotal = estimatedMin(exercises: trial, ends: ends)
-                // A strict `<` leaves the win with the FIRST of equals, and the
+            var idx = -1
+            var best = -1
+            for i in cur.indices {
+                let floor = floors[i]
+                if cur[i].sets <= floor { continue }
+                // A strict `>` leaves the win with the FIRST of equals, and the
                 // session order is fixed — so the choice is deterministic.
-                if trialTotal < bestTotal {
-                    bestTotal = trialTotal
-                    bestIdx = i
-                    bestEx = trimmedEx
-                }
+                if cur[i].sets > best { best = cur[i].sets; idx = i }
             }
-            // Everything on the floor (or a removal that saves nothing): this
-            // is the shortest legal plan. Running a little long is the accepted
-            // consequence of §35.2.
-            guard let idx = bestIdx, let ex = bestEx else { break }
-            cur[idx] = ex
-            total = bestTotal
+            // Everything on its floor: this is the shortest legal plan.
+            // Running a little long is the accepted consequence of §35.2.
+            guard idx >= 0 else { break }
+            cur[idx] = Self.withSets(cur[idx], cur[idx].sets - 1, floor: floors[idx])
+            total = estimatedMin(exercises: cur, ends: ends)
         }
         return cur
+    }
+
+    /// v2.25 (spec §36.8, round 4): THE POSTCONDITION REPAIR. The invariant the
+    /// model promises is "if a pattern's position did not rise, its plan cannot
+    /// get heavier". Deriving it from the shape of the budget did not work —
+    /// three rounds of skeptics found a class of violations in every attempt.
+    /// So it is checked ON THE RESULT: a movement whose position has not risen
+    /// since it was last shown, and whose shown work has grown, loses sets
+    /// until it stops.
+    ///
+    /// Why that is correct and why it terminates: taking a set off always
+    /// strictly reduces the work (the dose per set and the sides do not
+    /// change), so the loop is finite; the floor bounds it from below; and if
+    /// even on the floor the work is above the old one, then the DOSE grew —
+    /// that is, the position did rise after all and the condition does not
+    /// hold. The cost is six checks a session.
+    ///
+    /// The comparison is NON-STRICT: "the position did not rise" covers both
+    /// "fell" and "stood still". A strict one let through the very class the
+    /// repair exists for — the budget can move a cut between movements with
+    /// the position standing still (measured: 20 cells of 488). The ratchet
+    /// this might have become is lifted at one point, the moved time handle
+    /// below; and the lens expiring never reaches the repair at all, because
+    /// the branch under the lens does NOT write the memory — the base stays
+    /// the last ordinary showing, and after the lens the work returns exactly
+    /// to it.
+    private static func repairDescent(_ exercises: [SessionExercise], floors: [Int],
+                                      shownWork: [Pattern: Int], shownOrd: [Pattern: Int],
+                                      ordNow: [Pattern: Int],
+                                      budgetChanged: Bool) -> [SessionExercise] {
+        // The person moved the time handle — the last showing says nothing any
+        // more. Without this the cap held the plan at the old limit until the
+        // first growth event: raising 30 to 60 gave 45.9 minutes instead of
+        // 59.1.
+        guard !budgetChanged else { return exercises }
+        return exercises.enumerated().map { i, ex in
+            let p = ex.pattern
+            guard let work = shownWork[p], let ord = shownOrd[p] else { return ex }
+            if (ordNow[p] ?? 0) > ord { return ex }
+            var cur = ex
+            let floor = floors[i]
+            while cur.sets > floor, Engine.exerciseWork(cur) > work {
+                cur = Self.withSets(cur, cur.sets - 1, floor: floor)
+            }
+            return cur
+        }
     }
 
     /// Rebuild an exercise on a different set count; the rest follows the
@@ -328,10 +459,11 @@ extension Engine {
     /// cannot ask for more sets than are left. Clamping to `sets-1` keeps the
     /// invariant "`load` is the plan's minimum": dropping a set gives the budget
     /// no right to raise that minimum.
-    private static func withSets(_ ex: SessionExercise, _ requested: Int) -> SessionExercise {
+    private static func withSets(_ ex: SessionExercise, _ requested: Int,
+                                 floor: Int) -> SessionExercise {
         // v2.24 (spec §35.1): a rebuild is a cut too, so it goes through the
         // shared clamp — no path can hand back an exercise below the floor.
-        let sets = clampSets(requested)
+        let sets = clampSets(requested, floor: floor)
         let high = ex.loads?.first ?? ex.load
         let carried = ex.loads?.filter { $0 > ex.load }.count ?? 0
         let sub = min(carried, max(sets - 1, 0))

@@ -16,15 +16,22 @@
 
 import Foundation
 
-/// A pattern's place on the progression: the level plus how many of its sets
-/// already carry the next rung's dose.
+/// A pattern's place on the progression: the level, how many of its sets
+/// already carry the next rung's dose, and — since v2.25 (spec §36.3) — how
+/// many sets have been taken off it.
+///
+/// The third coordinate defaults to zero so every pre-v2.25 construction still
+/// reads as it did: a position that never met the sets handle IS a position
+/// with an empty cut, and the plan it produces is bit-for-bit v2.24's.
 public struct Position: Equatable, Sendable {
     public let level: Int
     public let sub: Int
+    public let cut: Int
 
-    public init(level: Int, sub: Int) {
+    public init(level: Int, sub: Int, cut: Int = 0) {
         self.level = level
         self.sub = sub
+        self.cut = cut
     }
 }
 

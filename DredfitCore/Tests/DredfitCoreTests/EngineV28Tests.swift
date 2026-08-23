@@ -98,17 +98,32 @@ final class EngineV28Tests: XCTestCase {
     /// band's rest across the whole scale — the app timer reads the field
     /// per exercise and needs no change.
     func testRestBetweenSetsFollowsTheSetBand() {
-        XCTAssertEqual(EngineConfig.restSetByBand, [3: 60, 4: 90, 5: 120])
+        // Re-marked for v2.25 (spec §36.9): the table gained the 1–2 rungs.
+        // They inherit a triple's pause instead of falling through to the
+        // shared default — before the fix a cut handed back 60 s where band 5
+        // asks for 120, i.e. a REST SHORTER than before the complaint.
+        XCTAssertEqual(EngineConfig.restSetByBand, [1: 60, 2: 60, 3: 60, 4: 90, 5: 120])
         for level in 0...EngineConfig.levelMax {
             let session = Engine.generateSession(seeded(level: level))
             for ex in session.exercises {
                 // Re-marked for v2.17 (spec §28.2): the rest reads the TIER as
                 // well as the band — a tier-4 movement in band 3 rests 90 s,
                 // because the band was never the whole story about difficulty.
-                let expected = EngineConfig.restSetByTierBand[ex.tier]?[ex.sets]
-                    ?? EngineConfig.restSetByBand[ex.sets]
+                // Re-marked again for v2.25 (§36.9): the BAND IS THE LEVEL'S,
+                // not the number of sets shown. The sets handle and the §20.2
+                // gate take volume off, not recovery. The expectation is not
+                // weakened — it is read off the same level the plan was built
+                // from, and the second assertion below pins the direction the
+                // old form could not: a trimmed set may never shorten a pause.
+                let band = Level.decode(level).sets
+                let expected = EngineConfig.restSetByTierBand[ex.tier]?[band]
+                    ?? EngineConfig.restSetByBand[band]
                 XCTAssertEqual(ex.restSetSec, expected,
                                "L=\(level) \(ex.pattern.rawValue): rest must follow tier and band")
+                let ifTrimmed = EngineConfig.restSetByTierBand[ex.tier]?[ex.sets]
+                    ?? EngineConfig.restSetByBand[ex.sets] ?? EngineConfig.restSetSec
+                XCTAssertGreaterThanOrEqual(ex.restSetSec, ifTrimmed,
+                                            "a trimmed set may not shorten the pause")
                 XCTAssertEqual(ex.restExerciseSec, EngineConfig.restExerciseSec,
                                "the between-exercise pause is not banded")
             }
@@ -120,8 +135,16 @@ final class EngineV28Tests: XCTestCase {
     /// §18.3 existed to settle one combination of two inputs. The second input
     /// is cancelled, so the combination cannot be formed — and what the pair of
     /// tests also asserted survives here: a discomfort report annuls the
-    /// session, unloads to the current tier's floor and arms the rest at ANY
-    /// rating, sub-step included.
+    /// session, takes the load off and arms the rest at ANY rating, sub-step
+    /// included.
+    ///
+    /// Re-marked for v2.25 (spec §36.5): the load comes off as a CUT OF SETS
+    /// at a level that does not move. The old landing on the current tier's
+    /// floor took 0 % of the work off in 40 cells of 480 — every block floor,
+    /// where the dose is already the smallest that variation has. The
+    /// expectation is stronger now, not weaker: the level is pinned to stand,
+    /// the cut is pinned to an exact depth, and the work is pinned to fall
+    /// STRICTLY, which the old form could not claim at all.
     func testDiscomfortAnnulsAndUnloadsAtEveryRating() {
         for result in [FeedbackResult.less, .plan, .more] {
             var state = seeded(level: 14)
@@ -129,15 +152,26 @@ final class EngineV28Tests: XCTestCase {
             state.sub[.squat] = 2
             let session = Engine.generateSession(state)
             let p = session.exercises[0].pattern
+            let before = try? XCTUnwrap(session.exercises.first { $0.pattern == p })
             let after = Engine.applyFeedback(state: state, session: session, result: result,
                                              discomfort: [p])
-            XCTAssertEqual(after.frozen[p], EngineConfig.freezeAppearances,
+            XCTAssertEqual(after.frozen[p], Engine.painStair(seen: 1),
                            "\(result): the rest is armed")
-            XCTAssertEqual(after.levels[p], Level.tierFloor(14),
-                           "\(result): unloaded to the current tier's floor")
+            XCTAssertEqual(after.levels[p], 14, "\(result): the level stands")
+            XCTAssertEqual(after.cutOf(p),
+                           Level.cutMax(level: 14, floor: EngineConfig.setsFloor),
+                           "\(result): the sets come off down to the shared floor")
             XCTAssertEqual(after.sub[p] ?? 0, 0,
                            "\(result): a descent zeroes the sub-step")
             XCTAssertEqual(after.failStreak[p], 0, "\(result): the streak resets")
+            let shown = Engine.generateSession(after).exercises.first { $0.pattern == p }
+            if let before, let shown {
+                XCTAssertEqual(shown.sets, EngineConfig.setsFloor, "\(result): two sets are shown")
+                XCTAssertEqual(shown.tier, before.tier, "\(result): the variation is untouched")
+                XCTAssertEqual(shown.load, before.load, "\(result): and so is the dose per set")
+                XCTAssertLessThan(Engine.exerciseWork(shown), Engine.exerciseWork(before),
+                                  "\(result): the work falls strictly")
+            }
         }
     }
 }

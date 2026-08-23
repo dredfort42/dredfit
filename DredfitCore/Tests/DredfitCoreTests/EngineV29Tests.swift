@@ -133,9 +133,13 @@ final class EngineV29Tests: XCTestCase {
         let hurt = try XCTUnwrap(session.exercises.first?.pattern)
         let after = Engine.applyFeedback(state: state, session: session, result: .less,
                                          discomfort: [hurt])
-        XCTAssertEqual(after.levels[hurt], Level.tierFloor(10),
-                       "discomfort voids the session for itself — and unloads "
-                       + "(v2.11, first step since v2.19)")
+        // Re-marked for v2.25 (spec §36.5): the load comes off as a cut of
+        // sets, and the level stands.
+        XCTAssertEqual(after.levels[hurt], 10,
+                       "discomfort voids the session for itself — the level stands")
+        XCTAssertEqual(after.cutOf(hurt),
+                       Level.cutMax(level: 10, floor: EngineConfig.setsFloor),
+                       "and the sets come off down to the shared floor")
         for ex in session.exercises where ex.pattern != hurt {
             XCTAssertEqual(after.levels[ex.pattern], 10, "\(ex.pattern) holds")
         }

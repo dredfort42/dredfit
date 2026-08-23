@@ -144,7 +144,7 @@ final class EngineV214Tests: XCTestCase {
                                                            result: .plan,
                                                            overrides: [.pushH: 0]).levels[.pushH])
             XCTAssertLessThan(after, level, "a zero still goes down")
-            XCTAssertTrue(Level.noHarder(pattern: .pushH, from: level, to: after),
+            XCTAssertTrue(Level.noHarder(pattern: .pushH, from: level, to: after, fromCut: 0, toCut: 0),
                           "L\(level) → L\(after) asked for more work")
         }
     }
@@ -161,7 +161,7 @@ final class EngineV214Tests: XCTestCase {
                                                      overrides: [pattern: actual])
                         .levels[pattern] ?? 0
                     guard after < level else { continue }
-                    XCTAssertTrue(Level.noHarder(pattern: pattern, from: level, to: after),
+                    XCTAssertTrue(Level.noHarder(pattern: pattern, from: level, to: after, fromCut: 0, toCut: 0),
                                   "\(pattern) L\(level) fact \(actual) → L\(after) is heavier")
                 }
             }
@@ -192,8 +192,8 @@ final class EngineV214Tests: XCTestCase {
     func testNoHarderAcceptsALandingOnATierFloor() {
         // Below tier 2's floor every rung of tier 1 asks for more reps — the
         // floor is the only place left, and it is a genuinely easier movement.
-        XCTAssertTrue(Level.noHarder(pattern: .pull, from: 8, to: 0))
-        XCTAssertFalse(Level.noHarder(pattern: .pull, from: 8, to: 7))
+        XCTAssertTrue(Level.noHarder(pattern: .pull, from: 8, to: 0, fromCut: 0, toCut: 0))
+        XCTAssertFalse(Level.noHarder(pattern: .pull, from: 8, to: 7, fromCut: 0, toCut: 0))
         // Re-marked for v2.17 (spec §28.1): band 4 now asks 4×6 rather than
         // 4×4, so the levels that count as "no harder" moved with it. The
         // property is unchanged — these are the boundaries, checked by hand.
@@ -203,17 +203,17 @@ final class EngineV214Tests: XCTestCase {
         // set against six is harder in the only place the trainee feels it.
         // The check is not weakened — it moved from accepting that pair to
         // rejecting it, and the nearest accepted landing is asserted below.
-        XCTAssertFalse(Level.noHarder(pattern: .pushH, from: 32, to: 28),
+        XCTAssertFalse(Level.noHarder(pattern: .pushH, from: 32, to: 28, fromCut: 0, toCut: 0),
                        "3×8 asks eight reps a set against the plan's six")
-        XCTAssertTrue(Level.noHarder(pattern: .pushH, from: 32, to: 26),
+        XCTAssertTrue(Level.noHarder(pattern: .pushH, from: 32, to: 26, fromCut: 0, toCut: 0),
                       "3×6 keeps the plan's dose per set and drops a set")
-        XCTAssertEqual(Level.descendNoHarder(pattern: .pushH, from: 32, factLevel: 28), 26,
+        XCTAssertEqual(Level.descendNoHarder(pattern: .pushH, from: 32, factLevel: 28, fromCut: 0), 26,
                        "the descent steps past the rungs that trade sets for reps")
-        XCTAssertFalse(Level.noHarder(pattern: .pushH, from: 32, to: 31),
+        XCTAssertFalse(Level.noHarder(pattern: .pushH, from: 32, to: 31, fromCut: 0, toCut: 0),
                        "3×11 = 33 is more work than 4×6 = 24")
-        XCTAssertTrue(Level.noHarder(pattern: .pushH, from: 32, to: 0),
+        XCTAssertTrue(Level.noHarder(pattern: .pushH, from: 32, to: 0, fromCut: 0, toCut: 0),
                       "the floor of tier 1 is always allowed")
-        XCTAssertFalse(Level.noHarder(pattern: .pushH, from: 32, to: 7),
+        XCTAssertFalse(Level.noHarder(pattern: .pushH, from: 32, to: 7, fromCut: 0, toCut: 0),
                        "but the top of tier 1 asks 15 reps against 6")
     }
 

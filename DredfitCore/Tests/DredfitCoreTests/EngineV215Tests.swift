@@ -253,7 +253,7 @@ final class EngineV215Tests: XCTestCase {
             for p in Pattern.allCases where (before[p] ?? 0) - (state.levels[p] ?? 0) >= 3 {
                 deloads += 1
                 if !Level.noHarder(pattern: p, from: before[p] ?? 0,
-                                   to: state.levels[p] ?? 0) { deloadsThatGotHeavier += 1 }
+                                   to: state.levels[p] ?? 0, fromCut: 0, toCut: 0) { deloadsThatGotHeavier += 1 }
             }
         }
         // v2.23 (spec §34): RE-MARKED, with the reason. The novice now pays
