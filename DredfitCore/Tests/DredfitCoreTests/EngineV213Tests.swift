@@ -49,12 +49,36 @@ final class EngineV213Tests: XCTestCase {
             for state in [Engine.applyFeedback(state: s, session: Engine.generateSession(s),
                                                result: .plan),
                           Engine.applyComeback(state: s, gapDays: 30),
-                          Engine.applySilentDecay(state: s, gapDays: 10),
-                          Engine.applyIllness(state: s)] {
+                          Engine.applySilentDecay(state: s, gapDays: 10)] {
                 for p in Pattern.allCases {
                     let l = state.levels[p] ?? -1
                     XCTAssertTrue((0...EngineConfig.levelMax).contains(l),
                                   "level \(l) out of scale for \(p) from \(garbage)")
+                }
+            }
+            // v2.26 (§37.4-§37.5): the three HANDLES are deliberately NOT in
+            // the list above, and this is the difference in kind rather than a
+            // gap. The three state builders rebuild every field through the
+            // sanitizer; a handle is a NARROW EDITOR of one axis and passes the
+            // rest through as it found them, garbage included. The reference
+            // does exactly the same — verified call for call by the
+            // differential — and a port that "fixed" it here would diverge.
+            //
+            // What a handle DOES promise is asserted instead, and in full: it
+            // never throws, and the plan built from its result is valid, so
+            // the garbage carried through is healed at generation like any
+            // other (§24.1).
+            for state in [Engine.setCut(state: s, pattern: .squat, cut: 1),
+                          Engine.setCut(state: s, pattern: .squat, cut: garbage),
+                          Engine.shorterSession(state: s, steps: 2),
+                          Engine.shorterSession(state: s, steps: garbage),
+                          Engine.easierVariation(state: s, pattern: .squat)] {
+                let session = Engine.generateSession(state)
+                XCTAssertEqual(session.exercises.count, EngineConfig.patternsPerSession,
+                               "a handle's result must still plan a full session (\(garbage))")
+                for ex in session.exercises {
+                    XCTAssertGreaterThanOrEqual(ex.sets, EngineConfig.setsFloor,
+                                                "a handle went below the floor (\(garbage))")
                 }
             }
         }
@@ -106,21 +130,28 @@ final class EngineV213Tests: XCTestCase {
         // foreign pattern in it forever.
         var s = seeded(hasBar: true)
         s.creditPaused = [.squat, .calf, .pull]
-        let after = Engine.applyIllness(state: s)
+        // v2.26 (§37.2): `applyIllness` was the entry point used here purely
+        // because it healed its input and changed almost nothing else. It is
+        // gone; `recordShown` is the surviving entry with the same property.
+        let after = Engine.recordShown(state: s, session: Engine.generateSession(s))
         XCTAssertEqual(after.creditPaused, [.pull])
     }
 
+    /// v2.26 (§37.2): re-marked, not weakened. The claim is unchanged — a
+    /// sparse map keeps only live entries and clamps them — but `frozen` and
+    /// `sore` no longer exist. `setsHold` is the surviving counter of the same
+    /// SHAPE (sparse, per-pattern, positive-only, clamped to its own ceiling),
+    /// so the same three assertions are made on it.
     func testSparseMapsKeepOnlyLiveEntries() {
         var s = seeded()
-        s.frozen = [.squat: -3, .hinge: 0, .pull: 2]
-        s.sore = [.squat: 0, .calf: 99]
-        let after = Engine.applyIllness(state: s)
-        XCTAssertNil(after.frozen[.squat], "a non-positive freeze is not a freeze")
-        XCTAssertNil(after.frozen[.hinge])
-        XCTAssertEqual(after.frozen[.pull], 2)
-        XCTAssertNil(after.sore[.squat])
-        XCTAssertEqual(after.sore[.calf], EngineConfig.freezeCapAppearances,
-                       "a pain episode is clamped to the ladder's ceiling")
+        s.setsHold = [.squat: -3, .hinge: 0, .pull: 2]
+        s.weekGain = [.calf: 99]
+        let after = Engine.recordShown(state: s, session: Engine.generateSession(s))
+        XCTAssertNil(after.setsHold[.squat], "a non-positive hold is not a hold")
+        XCTAssertNil(after.setsHold[.hinge])
+        XCTAssertEqual(after.setsHold[.pull], 2)
+        XCTAssertEqual(after.weekGain[.calf], min(99, EngineConfig.countMax),
+                       "a gain is clamped to its own ceiling")
     }
 
     func testTheRunsStayFiniteWithoutLosingTheirMeaning() {
@@ -202,6 +233,10 @@ final class EngineV213Tests: XCTestCase {
     // MARK: - Decoding a corrupt file (§24.1)
 
     func testACorruptFileDecodesIntoAStateTheEngineCanRead() throws {
+        // v2.26 (§37.2): the corrupt file still carries the SEVEN removed keys
+        // — that is what a file written by an older build looks like — and the
+        // decoder is expected to ignore them rather than choke. The garbage in
+        // the live fields is healed exactly as before.
         let json = """
         {"counter":9223372036854775807,
          "levels":["squat",999,"pull",-4,"calf",47],
@@ -211,6 +246,11 @@ final class EngineV213Tests: XCTestCase {
          "lessRun":-5,
          "creditPaused":["squat","pull","nonsense"],
          "sore":["squat",0,"calf",99],
+         "soreLeft":["calf",4],
+         "painSeen":["calf",7],
+         "timeBudgetMin":45,
+         "shownBudget":30,
+         "setsHold":["squat",-3,"pull",9223372036854775807],
          "returnRun":-7,
          "illness":9999}
         """
@@ -220,14 +260,12 @@ final class EngineV213Tests: XCTestCase {
         XCTAssertEqual(state.levels[.pull], 0)
         XCTAssertEqual(state.levels[.hinge], 0, "a missing pattern is a zero, not a hole")
         XCTAssertEqual(state.failStreak[.squat], 0)
-        XCTAssertNil(state.frozen[.squat])
-        XCTAssertEqual(state.frozen[.pull], EngineConfig.countMax)
+        XCTAssertNil(state.setsHold[.squat], "a non-positive hold is dropped")
+        XCTAssertEqual(state.setsHold[.pull], EngineConfig.setsBackHold,
+                       "and a huge one clamps to its ceiling")
         XCTAssertEqual(state.lessRun, 0)
         XCTAssertEqual(state.creditPaused, [.pull], "only the pull slot's branches survive")
-        XCTAssertNil(state.sore[.squat])
-        XCTAssertEqual(state.sore[.calf], EngineConfig.freezeCapAppearances)
         XCTAssertEqual(state.returnRun, 0)
-        XCTAssertEqual(state.illness, EngineConfig.illnessSessions)
 
         // And the state that came out plans a real session.
         let session = Engine.generateSession(state)
@@ -238,18 +276,10 @@ final class EngineV213Tests: XCTestCase {
         // The property the golden fixture rests on.
         var s = seeded(level: 17, hasBar: true)
         s.counter = 42
-        s.frozen = [.squat: 3]
-        s.sore = [.calf: 6]
-        // v2.20 (spec §31.3): the valid domain gained a field. A live episode
-        // with no countdown beside it is no longer a valid state — the
-        // sanitizer fills it in with the full assignment, exactly as the
-        // reference does, so that files written before v2.20 get a whole
-        // confirmation window. Identity therefore needs both halves present.
-        s.soreLeft = [.calf: 6]
+        s.setsHold = [.squat: EngineConfig.setsBackHold]
         s.creditPaused = [.pullBar]
         s.lessRun = 1
         s.returnRun = 2
-        s.illness = 4
         XCTAssertEqual(s.sanitized(), s)
     }
 }

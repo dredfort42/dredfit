@@ -79,8 +79,6 @@ extension Engine {
         next.weekGain = [:]
         next.weekAgeDays = 0
         next.returnRun = state.returnRun + 1   // v2.12 (§22.3)
-        // v2.25 (§36.8): the budget travels with every state-writing path.
-        next.shownBudget = EngineState.sanitizeBudget(state.timeBudgetMin)
         // The sub-steps of the ENTRY state. `next.sub` is already empty (a
         // comeback is a descent), and reading from it would lose exactly the
         // coordinate the compensation has to reverse.
@@ -155,16 +153,6 @@ extension Engine {
         // Fourteen days was a plain mistake: a break is exactly what a person
         // in pain takes, so one break per report kept the memory at one for
         // ever, the "time to see a specialist" threshold became unreachable
-        // for precisely the person it was written for, and the rest ladder
-        // stuck on three appearances for good. The horizon is the same one a
-        // full progress reset uses — the only point at which the engine
-        // already considers the past to have stopped being about this person.
-        if gapDays >= EngineConfig.painForgetGapDays {
-            for p in Pattern.allCases {
-                let faded = (next.painSeen[p] ?? 0) - 1
-                if faded > 0 { next.painSeen[p] = faded } else { next.painSeen.removeValue(forKey: p) }
-            }
-        }
         return next
     }
 
@@ -185,10 +173,8 @@ extension Engine {
         next.lessRun = 0            // v2.9: same as the comeback (spec §19.1)
         next.creditPaused = []      // v2.10: and so does the pause
         next.sub = [:]              // v2.22 (§33): a decay is a descent too
-        // v2.25 (§36.8): and the budget travels here as well.
-        next.shownBudget = EngineState.sanitizeBudget(state.timeBudgetMin)
-        // v2.12 (§22.3-22.4): the decay belongs to the same break — it is not
-        // a return, so `returnRun` stands; the illness lens survives too.
+        // v2.12 (§22.3): the decay belongs to the same break — it is not
+        // a return, so `returnRun` stands.
         //
         // v2.25 (spec §36.7): A DECAY IS A DESCENT, and it has to walk the
         // same steps as every other one. The old `L − 1` failed the "no
@@ -214,17 +200,4 @@ extension Engine {
     /// plan one tier easier for `illnessSessions` restorative sessions
     /// without touching the stored levels; a repeat tap tops the lens back
     /// up (a prolongation, not an escalation), and on a fresh lens the call
-    /// is a no-op.
-    public static func applyIllness(state dirty: EngineState) -> EngineState {
-        // v2.13 (spec §24.1): the sixth entry heals its input too — the
-        // reference rebuilds every field here just as it does elsewhere.
-        var next = dirty.sanitized()
-        next.illness = EngineConfig.illnessSessions
-        // v2.25 (§36.8): a moved time handle lifts the repair's cap for one
-        // state transition, and the lens consumes one just like a decay or a
-        // comeback — otherwise the loophole would stay open until the next
-        // piece of feedback.
-        next.shownBudget = EngineState.sanitizeBudget(next.timeBudgetMin)
-        return next
-    }
 }

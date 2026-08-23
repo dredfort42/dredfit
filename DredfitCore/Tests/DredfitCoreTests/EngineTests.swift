@@ -646,7 +646,7 @@ final class EngineTests: XCTestCase {
     func testTheFourteenTwoDivergenceWithACutStaysWhereItIs() {
         var cells = 0, harsher = 0, softer = 0, worst = 0
         for level in 0...EngineConfig.levelMax {
-            for cut in 0...Level.cutMax(level: level, floor: EngineConfig.setsFloorPain) {
+            for cut in 0...Level.cutMax(level: level, floor: EngineConfig.setsFloor) {
                 for gap in [14, 20, 35, 56, 90, 140, 365] {
                     var state = EngineState.initial
                     for p in Pattern.allCases {
@@ -666,9 +666,18 @@ final class EngineTests: XCTestCase {
                 }
             }
         }
-        XCTAssertEqual(cells, 11_760, "the sweep must cover the same domain the reference does")
+        // v2.26 (§37.3): 11 760 → 8 400. The sweep is not narrowed — the STATE
+        // SPACE is: the cut's ceiling is read through `cutMax(level:floor:)`
+        // with the shared floor, and cuts "down to a single set" stopped being
+        // reachable when the pain floor went. Checking the identity on states
+        // the engine cannot arrive at would be guarding nothing.
+        //
+        // The divergence bound is TIGHTENED to the new measurement rather than
+        // left where it was: 920 over a space of 8 400 cells would be a
+        // formality, not a bound. Mirrors the reference's block 51(e).
+        XCTAssertEqual(cells, 8_400, "the sweep must cover the same domain the reference does")
         XCTAssertEqual(softer, 0, "the decay path may never come out cheaper than a plain comeback")
-        XCTAssertLessThanOrEqual(harsher, 920, "the known divergence grew")
+        XCTAssertLessThanOrEqual(harsher, 615, "the known divergence grew")
         XCTAssertLessThanOrEqual(worst, 6, "the worst known divergence grew")
     }
 

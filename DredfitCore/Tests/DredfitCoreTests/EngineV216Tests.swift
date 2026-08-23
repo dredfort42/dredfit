@@ -154,8 +154,12 @@ final class EngineV216Tests: XCTestCase {
         let session = Engine.generateSession(state)
         let slot = try XCTUnwrap(session.exercises.first { Pattern.pullSide.contains($0.pattern) })
             .pattern
+        // v2.26 (§37.0): the signal was a discomfort report; it is now an
+        // exact number below the plan. The guard is the same guard, in the
+        // same place — only what arms it changed.
+        let plan = try XCTUnwrap(session.exercises.first { $0.pattern == slot }).load
         let after = Engine.applyFeedback(state: state, session: session, result: .plan,
-                                         discomfort: [slot])
+                                         overrides: [slot: max(0, plan - 2)])
         XCTAssertTrue(after.creditPaused.contains(slot),
                       "this path exists purely as a harm guard and was never pinned")
     }

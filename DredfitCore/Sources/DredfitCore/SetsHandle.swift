@@ -48,7 +48,7 @@ extension Level {
     /// allowed to raise it back.
     public static func setsAfterCut(level: Int, cut: Int) -> Int {
         decode(level).sets - effCut(level: level, cut: cut,
-                                    floor: EngineConfig.setsFloorPain)
+                                    floor: EngineConfig.setsFloor)
     }
 
     /// v2.25 (spec §36.3): the position's MEASURE. One growth event is exactly
@@ -70,7 +70,7 @@ extension Level {
     /// safety's favour.
     public static func posOrd(level: Int, sub: Int, cut: Int) -> Int {
         ordinal(level: level, sub: sub)
-            - effCut(level: level, cut: cut, floor: EngineConfig.setsFloorPain)
+            - effCut(level: level, cut: cut, floor: EngineConfig.setsFloor)
     }
 
     public static func posOrd(_ position: Position) -> Int {
@@ -102,12 +102,12 @@ extension Level {
     /// load".
     public static func riseBy(level: Int, sub: Int, cut: Int, by count: Int,
                               allowSetsBack: Bool) -> Position {
-        var c = effCut(level: level, cut: cut, floor: EngineConfig.setsFloorPain)
+        var c = effCut(level: level, cut: cut, floor: EngineConfig.setsFloor)
         var k = max(0, count)
         let back = allowSetsBack ? min(min(c, k), EngineConfig.setsBackPerSession) : 0
         if back > 0 { c -= back; k = 0 }
         let pos = rise(level: level, sub: sub, by: k)
-        let cc = min(c, cutMax(level: pos.level, floor: EngineConfig.setsFloorPain))
+        let cc = min(c, cutMax(level: pos.level, floor: EngineConfig.setsFloor))
         return Position(level: pos.level,
                         sub: min(max(pos.sub, 0),
                                  max(0, decode(pos.level).sets - cc - 1)),
@@ -127,10 +127,10 @@ extension Level {
         func fit(_ lv: Int, _ sb: Int, _ ct: Int) -> Int {
             min(max(sb, 0),
                 max(0, decode(lv).sets
-                    - effCut(level: lv, cut: ct, floor: EngineConfig.setsFloorPain) - 1))
+                    - effCut(level: lv, cut: ct, floor: EngineConfig.setsFloor) - 1))
         }
         var curLevel = level
-        var c = effCut(level: level, cut: cut, floor: EngineConfig.setsFloorPain)
+        var c = effCut(level: level, cut: cut, floor: EngineConfig.setsFloor)
         var curSub = fit(level, sub, c)
         var k = max(0, count)
         while k > 0 {

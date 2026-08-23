@@ -29,11 +29,10 @@ final class EngineV222Tests: XCTestCase {
     }
 
     private func tap(_ state: EngineState, _ result: FeedbackResult = .plan,
-                     overrides: [Pattern: Int] = [:], skipped: Set<Pattern> = [],
-                     discomfort: Set<Pattern> = []) -> EngineState {
+                     overrides: [Pattern: Int] = [:], skipped: Set<Pattern> = []
+                     ) -> EngineState {
         Engine.applyFeedback(state: state, session: Engine.generateSession(state),
-                             result: result, overrides: overrides, skipped: skipped,
-                             discomfort: discomfort)
+                             result: result, overrides: overrides, skipped: skipped)
     }
 
     // MARK: - (a) Migration: at sub = 0 the plan is v2.21's
@@ -265,18 +264,6 @@ final class EngineV222Tests: XCTestCase {
                        "the encoded plan carries no cancelled key")
     }
 
-    /// A freeze armed by the cancelled input before the update still expires on
-    /// schedule — there was never any state of its own to migrate.
-    func testALegacyFreezeStillExpiresOnSchedule() {
-        var state = seeded(10)
-        state.frozen[.pull] = EngineConfig.freezeAppearances
-        for _ in 0..<EngineConfig.freezeAppearances { state = tap(state, .more) }
-        XCTAssertEqual(state.freezeRemaining(.pull), 0,
-                       "the legacy rest expires in exactly freezeAppearances appearances")
-        XCTAssertEqual(state.levels[.pull], 10, "and it held the level the whole time")
-        XCTAssertEqual(state.sub[.pull] ?? 0, 0, "and the sub-step too")
-    }
-
     // MARK: - The plan a person sees
 
     /// The acceptance ladder: `squat` from L0 goes 8-8-8 → 9-8-8 → 9-9-8 →
@@ -354,18 +341,6 @@ final class EngineV222Tests: XCTestCase {
                              "heavier sets make a longer session")
     }
 
-    /// Under the "I was sick" lens the plan is uniform: the lens is the gentler
-    /// regime, and the stored sub-step is untouched (§22.4 builds a VIEW).
-    func testTheIllnessLensShowsAUniformPlan() {
-        var state = seeded(20)
-        state.sub[.squat] = 2
-        state.illness = EngineConfig.illnessSessions
-        for ex in Engine.generateSession(state).exercises {
-            XCTAssertNil(ex.loads, "\(ex.pattern): the lens shows a uniform plan")
-        }
-        XCTAssertEqual(state.sub[.squat], 2, "and the stored sub-step stands")
-    }
-
     // MARK: - Descents stay in whole levels
 
     func testEveryDescentZeroesTheSubStep() throws {
@@ -387,9 +362,12 @@ final class EngineV222Tests: XCTestCase {
         let below = Engine.applyFeedback(state: grown, session: session, result: .plan,
                                          overrides: [.pull: max(0, pull.load - 3)])
         XCTAssertEqual(below.sub[.pull] ?? 0, 0, "a fact below the base zeroes it")
-        // A pain report.
-        XCTAssertEqual(tap(grown, .plan, discomfort: [.pull]).sub[.pull] ?? 0, 0,
-                       "a pain report zeroes it")
+        // v2.26 (§37.4): the pain report was one of the paths that zeroed the
+        // sub-step; it is gone. The handle "give me an easier variation" now
+        // does it, and for a reason the report never had — the variation
+        // changed, so there is nothing to carry the old position on (§30.4).
+        XCTAssertEqual(Engine.easierVariation(state: grown, pattern: .pull).sub[.pull] ?? 0, 0,
+                       "the easier-variation handle zeroes it")
         // A break, either kind.
         XCTAssertTrue(Engine.applyComeback(state: grown, gapDays: 30).sub.isEmpty,
                       "a comeback zeroes every one")
@@ -488,4 +466,10 @@ final class EngineV222Tests: XCTestCase {
         XCTAssertEqual(run(gapDays: 7.0 / 3.0), run(gapDays: nil),
                        "with the signal and without it — the same positions")
     }
+
+    // SNIPPED v2.26 (§37.0): two tests that stood on mechanisms this wave
+    // removes — a legacy freeze expiring on schedule, and the uniform plan the
+    // "I was sick" lens showed. Neither has a field to read any more.
+    //
+    // The sub-step itself — what this suite is about — is untouched.
 }

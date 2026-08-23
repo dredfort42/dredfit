@@ -152,6 +152,6 @@ extension Engine {
         // to ×2.67). A deload is a descent; it may give nothing back.
         return Position(level: target2, sub: 0,
                         cut: min(landed.cut, Level.cutMax(level: target2,
-                                                          floor: EngineConfig.setsFloorPain)))
+                                                          floor: EngineConfig.setsFloor)))
     }
 }

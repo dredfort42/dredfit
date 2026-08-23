@@ -77,20 +77,11 @@ final class EngineV28Tests: XCTestCase {
                        "the exact-plan fact overrides the session rating")
     }
 
-    /// Under a freeze or a hold the growth still clamps to the old level.
-    func testExactPlanFactStillHoldsUnderAFreeze() throws {
-        var frozen = seeded(level: 10)
-        frozen.frozen[.pull] = 2
-        let session = Engine.generateSession(frozen)
-        let pull = try XCTUnwrap(session.exercises.first { $0.pattern == .pull })
-        let after = Engine.applyFeedback(state: frozen, session: session, result: .plan,
-                                         overrides: [.pull: pull.load])
-        XCTAssertEqual(after.levels[.pull], 10, "frozen: the +1 clamps to the old level")
-
-        // v2.22 (spec §33): the clamp is on the POSITION — a sub-step is growth
-        // too, so a frozen pattern may not collect one either.
-        XCTAssertEqual(after.sub[.pull] ?? 0, 0, "frozen: no sub-step either")
-    }
+    // SNIPPED v2.26 (§37.0): `testExactPlanFactStillHoldsUnderAFreeze`.
+    // The freeze went with the pain channel, and with it the only state in
+    // which an exact-plan fact had to clamp instead of growing. The rest of
+    // §18.1 — "a fact equal to the plan steps exactly like a tap of plan" —
+    // is asserted directly above and is untouched.
 
     // MARK: - Rest between sets follows the set band (§18.2)
 
@@ -132,46 +123,9 @@ final class EngineV28Tests: XCTestCase {
 
     // MARK: - Discomfort is the only way into the freeze (v2.22, §33)
 
-    /// §18.3 existed to settle one combination of two inputs. The second input
-    /// is cancelled, so the combination cannot be formed — and what the pair of
-    /// tests also asserted survives here: a discomfort report annuls the
-    /// session, takes the load off and arms the rest at ANY rating, sub-step
-    /// included.
-    ///
-    /// Re-marked for v2.25 (spec §36.5): the load comes off as a CUT OF SETS
-    /// at a level that does not move. The old landing on the current tier's
-    /// floor took 0 % of the work off in 40 cells of 480 — every block floor,
-    /// where the dose is already the smallest that variation has. The
-    /// expectation is stronger now, not weaker: the level is pinned to stand,
-    /// the cut is pinned to an exact depth, and the work is pinned to fall
-    /// STRICTLY, which the old form could not claim at all.
-    func testDiscomfortAnnulsAndUnloadsAtEveryRating() {
-        for result in [FeedbackResult.less, .plan, .more] {
-            var state = seeded(level: 14)
-            state.failStreak[.squat] = 2
-            state.sub[.squat] = 2
-            let session = Engine.generateSession(state)
-            let p = session.exercises[0].pattern
-            let before = try? XCTUnwrap(session.exercises.first { $0.pattern == p })
-            let after = Engine.applyFeedback(state: state, session: session, result: result,
-                                             discomfort: [p])
-            XCTAssertEqual(after.frozen[p], Engine.painStair(seen: 1),
-                           "\(result): the rest is armed")
-            XCTAssertEqual(after.levels[p], 14, "\(result): the level stands")
-            XCTAssertEqual(after.cutOf(p),
-                           Level.cutMax(level: 14, floor: EngineConfig.setsFloor),
-                           "\(result): the sets come off down to the shared floor")
-            XCTAssertEqual(after.sub[p] ?? 0, 0,
-                           "\(result): a descent zeroes the sub-step")
-            XCTAssertEqual(after.failStreak[p], 0, "\(result): the streak resets")
-            let shown = Engine.generateSession(after).exercises.first { $0.pattern == p }
-            if let before, let shown {
-                XCTAssertEqual(shown.sets, EngineConfig.setsFloor, "\(result): two sets are shown")
-                XCTAssertEqual(shown.tier, before.tier, "\(result): the variation is untouched")
-                XCTAssertEqual(shown.load, before.load, "\(result): and so is the dose per set")
-                XCTAssertLessThan(Engine.exerciseWork(shown), Engine.exerciseWork(before),
-                                  "\(result): the work falls strictly")
-            }
-        }
-    }
+    // SNIPPED v2.26 (§37.0): `testDiscomfortAnnulsAndUnloadsAtEveryRating`.
+    // Its subject was the PRIORITY of an input that no longer exists — "a
+    // report annuls the session and takes the load off at any rating". §18.3
+    // ("discomfort and hold together") had already been dropped in v2.22
+    // when the second entrance went; this is the first one going.
 }

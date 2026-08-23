@@ -72,12 +72,13 @@ final class EngineV210Tests: XCTestCase {
         let down = Engine.applyFeedback(state: state, session: session, result: .less)
         XCTAssertEqual(down.levels[.pullBar], 7, "a downward move credits nothing")
 
-        for (label, opts) in [("a skip", (skipped: Set([trained]), discomfort: Set<Pattern>())),
-                              ("a discomfort report", (skipped: Set<Pattern>(), discomfort: Set([trained])))] {
-            // v2.22 (spec §33): the third case — a hold on the slot — went with
-            // the input it tested.
+        // v2.22 (§33): the hold on the slot went with the input it tested.
+        // v2.26 (§37.0): so did the discomfort report. ONE case is left, and
+        // it carries the claim that mattered: a slot the person did not work
+        // through hands the other branch no credit.
+        for (label, skipped) in [("a skip", Set([trained]))] {
             let after = Engine.applyFeedback(state: state, session: session, result: .more,
-                                             skipped: opts.skipped, discomfort: opts.discomfort)
+                                             skipped: skipped)
             XCTAssertEqual(after.levels[.pullBar], 7, "\(label) on the slot credits nothing")
         }
     }
@@ -280,8 +281,8 @@ final class EngineV210Tests: XCTestCase {
         let cases: [(String, EngineState)] = [
             ("a fact below plan", Engine.applyFeedback(state: state, session: session, result: .plan,
                                                        overrides: [.pullBar: bar.load - 2])),
-            ("pain", Engine.applyFeedback(state: state, session: session, result: .plan,
-                                          discomfort: [.pullBar])),
+            // v2.26 (§37.0): the "pain" case is gone — ONE signal marks the
+            // branch now, and the test says so instead of implying two.
         ]
         for (label, after) in cases {
             XCTAssertTrue(after.creditPaused.contains(.pullBar), "\(label) marks the branch")

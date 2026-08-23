@@ -76,7 +76,16 @@ public enum EngineConfig {
     public static let lessRunToGlobal = 2
     public static let deloadDrop = 3
     public static let warmupMin = 5
-    public static let cooldownMin = 3
+    /// v2.26 (spec §37.7a): 3 → 4. The reserve for the two blocks was spent
+    /// EXACTLY — 215 + 265 = 480 s = 8:00 at a five-second transition — and
+    /// doubling the transition to ten seconds takes the worst composition to
+    /// 540 s. So the reserve had to grow, and it grows here rather than in the
+    /// app: `GetReady.swift` said so in as many words, and it was right.
+    ///
+    /// The price is named, not absorbed: every announced duration is one
+    /// minute longer, and the reference's acceptance asserts "grew by exactly
+    /// 1.0" rather than "unchanged". The PLAN is bit-for-bit v2.25's.
+    public static let cooldownMin = 4
     /// Rest between sets by set band (v2.8, spec §18.2): 60 s was a constant
     /// across the whole scale, including the 4–5-set bands of tier 4 where
     /// the literature gives trained users 2–3 minutes. `restSetSec` stays as
@@ -91,23 +100,6 @@ public enum EngineConfig {
     public static let comebackStepDays = 21
     public static let comebackMax = 8
     public static let silentDecayGapDays = 7
-    /// How many of a pattern's next APPEARANCES stay frozen after a discomfort
-    /// report (v2.5). Counted in appearances, not sessions: a rotating pattern
-    /// shows up in about five sessions out of eight, so "three sessions" would
-    /// make the actual rest unpredictable. Three ≈ a calendar week.
-    /// v2.22 (spec §33): the second way into the same freeze — the
-    /// hold-this-level request — is cancelled, so the constant has one consumer
-    /// again.
-    public static let freezeAppearances = 3
-    /// v2.11 (spec §21.2): the rest ladder's ceiling for repeated pain
-    /// reports — the assignment doubles 3 → 6 → 12 and stops here
-    /// (≈ a month at three sessions a week).
-    public static let freezeCapAppearances = 12
-    /// v2.12 (spec §22.4): how many sessions the "I was sick" lens holds —
-    /// the plan is one tier easier, the levels stand. Six ≈ two weeks at
-    /// three sessions a week: the clinical minimum-load window after an
-    /// illness (Salman 2021, BMJ m4721).
-    public static let illnessSessions = 6
     /// v2.13 (spec §24.1): the technical ceiling of every counter and of the
     /// gap in days. These have no semantic ceiling — a run grows freely (the
     /// golden fixture reaches a `lessRun` of 7 against a threshold of 2), so
@@ -165,12 +157,12 @@ public enum EngineConfig {
     /// set count goes through `clampSets`, so the floor survives ANY
     /// composition of them, not just one path.
     public static let setsFloor = 2
-    /// v2.25 (spec §36): the sets handle. The pain channel is the ONLY path
-    /// allowed a single set: it sits below the shared floor but stays INSIDE
-    /// the variation, so the measure is valid there and the gate can prove the
-    /// landing safe on the ladder's most important rung. Every other path
-    /// stands on the shared floor of two.
-    public static let setsFloorPain = 1
+    /// v2.26 (spec §37.3): `setsFloorPain` is gone. It sat below the shared
+    /// floor for the pain channel, and the audit found the default it was
+    /// supposed to be an exception to was never once taken: all ten calls to
+    /// `cutMax` and all seven to `effCut` passed the pain floor. The honest
+    /// "hard" sweep put 3458 plans out of 18 000 below two sets — reachable
+    /// without touching a handle. One floor now, and `setsFloor` is it.
     /// Sets that come back in one session (§36.3).
     public static let setsBackPerSession = 1
     /// HOW MANY APPEARANCES a returned set is held before the next one may
@@ -184,19 +176,6 @@ public enum EngineConfig {
     /// complaining of pain: weekly volume went from 60 to 162. The hold
     /// stretches the return so the dose has time to grow between additions.
     public static let setsBackHold = 2
-    /// The ceiling on the memory of pain — past it the rest ladder is capped
-    /// anyway (§36.5).
-    public static let painSeenMax = 8
-    /// v2.25 (Ф7): the horizon past which the memory of pain fades by one.
-    /// Ninety days is the same threshold the app layer calls "start again".
-    /// Fourteen days was a plain mistake: a break is exactly what a person in
-    /// pain takes, so one break per report kept the memory pinned at one
-    /// forever, and the "time to see a specialist" threshold became
-    /// unreachable for precisely the person it was written for.
-    public static let painForgetGapDays = 90
-    public static let budgetShortEndsAt = 20
-    public static let warmupShortMin = 3
-    public static let cooldownShortMin = 2
     /// v2.15 (spec §26.1, #137): the chronic weak-link signal §19.4 deferred
     /// back in v2.9. The window counts a pattern's own APPEARANCES, not
     /// sessions: a rotating pattern shows up in five sessions out of eight, so
@@ -412,7 +391,7 @@ public enum Engine {
             // session" (6 cells of 552, up to ×4.13).
             return Position(level: landed, sub: 0,
                             cut: min(oldCut, Level.cutMax(level: landed,
-                                                          floor: EngineConfig.setsFloorPain)))
+                                                          floor: EngineConfig.setsFloor)))
         }
         // v2.25 (Ф2): "above or below" is settled by the DOSE, not by the
         // shared measure. The measure is lowered by the cut, so a shortfall
@@ -441,23 +420,22 @@ public enum Engine {
                                            fromSub: oldSub, fromCut: oldCut)
         return Position(level: landed, sub: 0,
                         cut: min(oldCut, Level.cutMax(level: landed,
-                                                      floor: EngineConfig.setsFloorPain)))
+                                                      floor: EngineConfig.setsFloor)))
     }
 
-    /// v2.9 (spec §19.1): movements the user pointed at during the workout —
-    /// an exact number below the plan, a discomfort report, a hold request.
-    /// v2.22 (spec §33): the hold request is gone from this list — the input
-    /// itself is cancelled. Two named signals are left: an exact number below
-    /// the plan's BASE dose, and a discomfort report.
+    /// v2.9 (spec §19.1): movements the user pointed at during the workout.
+    /// v2.22 (spec §33): the hold request left this list — the input was
+    /// cancelled. v2.26 (spec §37.0): so did the discomfort report. ONE named
+    /// signal is left, an exact number below the plan's BASE dose, and that is
+    /// stated rather than implied: addressing is about who the delta reaches,
+    /// not about how many ways there are to name a movement.
     private static func namedMovements(
-        session: Session, overrides: [Pattern: Int], discomfort: Set<Pattern>
+        session: Session, overrides: [Pattern: Int]
     ) -> Set<Pattern> {
         var named: Set<Pattern> = []
         for ex in session.exercises {
             let p = ex.pattern
-            if discomfort.contains(p) {
-                named.insert(p)
-            } else if let actual = overrides[p], actual < ex.load {
+            if let actual = overrides[p], actual < ex.load {
                 named.insert(p)
             }
         }
@@ -475,7 +453,7 @@ public enum Engine {
     private static func lessTargets(
         state: EngineState, session: Session, result: FeedbackResult,
         named: Set<Pattern>, overrides: [Pattern: Int],
-        skipped: Set<Pattern>, discomfort: Set<Pattern>,
+        skipped: Set<Pattern>,
         chronic: Set<Pattern> = [], window: [Pattern: Int] = [:]
     ) -> Set<Pattern>? {
         guard result == .less, state.lessRun < EngineConfig.lessRunToGlobal else { return nil }
@@ -494,8 +472,7 @@ public enum Engine {
             // iterating the set would make the two sides disagree on a tie.
             for ex in session.exercises {
                 let p = ex.pattern
-                guard chronic.contains(p), !skipped.contains(p), !discomfort.contains(p)
-                else { continue }
+                guard chronic.contains(p), !skipped.contains(p) else { continue }
                 if overrides[p] != nil { continue }
                 let hits = (window[p] ?? 0).nonzeroBitCount
                 let level = state.levels[p] ?? 0
@@ -512,7 +489,7 @@ public enum Engine {
         var bestL = -1
         for ex in session.exercises {
             let p = ex.pattern
-            if skipped.contains(p) || discomfort.contains(p) || overrides[p] != nil { continue }
+            if skipped.contains(p) || overrides[p] != nil { continue }
             let level = state.levels[p] ?? 0
             if level > bestL { bestL = level; best = p }
         }
@@ -532,20 +509,13 @@ public enum Engine {
     /// counter stay untouched (the streak is frozen, not reset), overrides for
     /// it are ignored. The counter still advances.
     ///
-    /// `discomfort` is the joint-pain input (reworked in v2.11, spec §21, and
-    /// again in v2.19, spec §30.6): the session is voided for the pattern and
-    /// the load comes off in two steps — the first report lands on the floor
-    /// of the current tier (`Level.tierFloor`), the second on the floor of the
-    /// previous one (`Level.unload`), the streak resetting on both. The
-    /// pattern is frozen with the episode marked in `sore`, and the freeze
-    /// expires into WAITING, not into growth: taps keep clamping until the
-    /// episode is confirmed. v2.20 (spec §31) gave that confirmation a SECOND
-    /// route: an explicit fact at or above the plan still closes the episode
-    /// on the spot and grows the level in the same move, and now a run of
-    /// `soreLeft` CLEAN appearances closes it too — growth resuming from the
-    /// NEXT appearance. Every repeat report doubles the rest up the
-    /// 3 → 6 → 12 ladder and restarts the countdown at the new assignment;
-    /// from the third report on, the level no longer moves.
+    /// v2.26 (spec §37.0): the joint-pain input is GONE, and with it the
+    /// episode, the freeze and the 3 → 6 → 12 rest ladder. The audit of
+    /// 23.08 found the channel broken in four independent places, and every
+    /// honest way out of the state cost infinity. What replaces it is the
+    /// channel that already worked better: honest numbers. A person with a
+    /// capacity of one rep who logs it goes L24/tier 4 → L0/tier 1 in FOUR
+    /// appearances; the tap used to strand them at L16/tier 3 indefinitely.
     ///
     /// v2.22 (spec §33): growth moves by SUB-STEPS. What used to be "+1 level"
     /// is "+1 sub-step": one of the pattern's sets takes the next rung's dose,
@@ -557,15 +527,19 @@ public enum Engine {
     /// Descents stay in WHOLE levels and zero the sub-step, so the §19.2
     /// guarantee does not stretch.
     ///
-    /// The hold-this-level request (v2.6) is cancelled by the same wave, and
-    /// `gapDays` moved into its place as the seventh parameter.
+    /// The hold-this-level request (v2.6) was cancelled in v2.22 and
+    /// `gapDays` moved into its place as the seventh parameter. v2.26 removes
+    /// `discomfort` the same way, so `gapDays` is now the SIXTH. The arity is
+    /// pinned by a test on purpose: a call written for the old signature does
+    /// not fail to compile in a dynamically typed caller — it hands a set of
+    /// patterns to `gapDays`, which sanitizes it to nil, and the gap signal
+    /// silently disappears. That exact defect has now happened twice.
     public static func applyFeedback(
         state dirty: EngineState,
         session: Session,
         result: FeedbackResult,
         overrides dirtyOverrides: [Pattern: Int] = [:],
         skipped: Set<Pattern> = [],
-        discomfort: Set<Pattern> = [],
         /// v2.17 (spec §28.5): the one aggregate the engine needs to stop
         /// daily training from multiplying its way around the §15.3 caps.
         /// `nil` = the app supplies no signal, and the engine stays
@@ -588,25 +562,12 @@ public enum Engine {
         // the sanitized counter, so a garbage one cannot smuggle a match.
         guard session.sessionNumber == state.counter + 1 else { return dirty }
 
-        // v2.12 (spec §22.4): a session under the illness lens is restorative
-        // — levels, streaks and the run of "less" stand.
-        if state.illness > 0 {
-            return Self.applyRestorativeSession(state: state, session: session,
-                inputs: FeedbackInputs(result: result, overrides: overrides, skipped: skipped,
-                                       discomfort: discomfort))
-        }
-
         var next = state
         next.counter = state.counter + 1
         next.returnRun = 0                          // v2.12: a session breaks the series
-        // v2.25 (spec §36.8): the budget the plan was shown under. Moving the
-        // time handle lifts the repair's cap for exactly one state transition,
-        // so every path that writes a state writes this too.
-        next.shownBudget = EngineState.sanitizeBudget(state.timeBudgetMin)
 
         // v2.9 (spec §19.1): who receives the SESSION-WIDE "less".
-        let named = Self.namedMovements(session: session, overrides: overrides,
-                                        discomfort: discomfort)
+        let named = Self.namedMovements(session: session, overrides: overrides)
         // v2.15 (spec §26.1): the appearance window. Every exercise of the
         // session shifts its own mask — 1 when the session was rated an
         // unnamed "less". A named "less" writes nothing: it is already
@@ -625,7 +586,7 @@ public enum Engine {
                                             unnamedLess: result == .less && named.isEmpty)
         let lessTargets = Self.lessTargets(state: state, session: session, result: result,
                                            named: named, overrides: overrides,
-                                           skipped: skipped, discomfort: discomfort,
+                                           skipped: skipped,
                                            chronic: chronic, window: next.lessHist)
         // A named "less" does not feed the run: "it was hard, and it was this
         // one" is a statement about one movement, however often it repeats.
@@ -633,18 +594,7 @@ public enum Engine {
 
         for ex in session.exercises {
             let p = ex.pattern
-            // Discomfort outranks a skip: the session is voided for the
-            // pattern either way, but only one of them carries information.
-            if discomfort.contains(p) {
-                Self.applyDiscomfortReport(&next, pattern: p)
-                continue
-            }
             if skipped.contains(p) { continue }
-            // "Frozen when this session started" — read from `state`, never
-            // from `next`: a discomfort report writes `next.frozen` and leaves
-            // the iteration at once, and leaning on that order would be an
-            // accident. Both implementations read the entry state.
-            let frozenLeft = state.freezeRemaining(p)
             let oldL = state.levels[p] ?? 0
             // v2.22 (spec §33): the whole position. Everything that moves a
             // pattern up works on the PAIR — a level alone cannot describe it.
@@ -687,62 +637,19 @@ public enum Engine {
                 (position, wantedDown) = Self.positionFromRating(
                     pattern: p, result: result, from: entry,
                     limits: RatingLimits(
+                        // v2.26 (spec §37.3): ONE floor. The episode-aware
+                        // exception is gone with the episode, and with it the
+                        // leak that let the pain floor reach every internal
+                        // call — the honest-"hard" sweep put 3458 plans out of
+                        // 18 000 below two sets, and now puts none.
                         cap: cap, rampLeft: rampLeft,
-                        // v2.25 (spec §36.9): under a LIVE episode an honest
-                        // "hard" reaches the pain floor — the person is saying
-                        // "I can't" a second time about a movement that hurt.
-                        descentFloor: state.sore[p] != nil
-                            ? EngineConfig.setsFloorPain : EngineConfig.setsFloor,
+                        descentFloor: EngineConfig.setsFloor,
                         setsBackOk: setsBackOk),
                     aim: RatingAim(targets: lessTargets, chronic: chronic))
             }
             position = Position(level: min(max(position.level, 0), EngineConfig.levelMax),
                                 sub: position.sub, cut: position.cut)
-            var newL = position.level
-
-            // A frozen pattern keeps its place in the plan at its current
-            // level but cannot grow; a fact may still take it DOWN — the
-            // athlete's honesty is never overridden. The streak neither grows
-            // nor resets, so a deload cannot fire on top of a freeze.
-            // v2.22 (spec §33): "cannot grow" clamps the POSITION, not the
-            // level — a sub-step is growth too.
-            if frozenLeft > 0 {
-                // v2.25 (spec §36.3): the clamp is expressed as a RETURN TO
-                // THE ENTRY TRIPLE, not through an inverse of the scale: the
-                // measure has none and can have none — one value answers both
-                // "a set is off" and "the dose is one rung lower".
-                Self.applyFreezeTick(&next, pattern: p,
-                                     position: Level.posOrd(position) > oldOrdinal
-                                        ? entry : position,
-                                     frozenLeft: frozenLeft)
-                continue
-            }
-
-            // v2.11 (spec §21.2 p.4-5), revised in v2.20 (spec §31.2): the
-            // pain freeze ran out but the episode lives — the pattern waits.
-            // Growth clamps, a fact may still go down, the streak stands.
-            // There are TWO confirmations, and they are deliberately not
-            // equally fast: an explicit fact at or above the session's plan
-            // closes the episode and resumes growth in the SAME move, while a
-            // run of clean appearances closes it but leaves the growth for the
-            // next one. The second route exists because the first is
-            // unreachable by construction for someone who logs no numbers —
-            // one "it hurts" tap used to cost the movement for good (§31).
-            if state.sore[p] != nil {
-                guard let confirmed = Self.soreConfirmation(
-                    &next, exercise: ex, actual: overrides[p],
-                    entry: entry, cap: cap, setsBackOk: setsBackOk) else {
-                    Self.spendCleanAppearance(&next, p)
-                    // The clamp is applied whether or not that tick was the
-                    // last one: an appearance without growth is cheaper than a
-                    // tendon, so the closing session still holds the position.
-                    Self.setPosition(&next, p,
-                                     Level.posOrd(position) > oldOrdinal ? entry : position)
-                    continue
-                }
-                position = confirmed
-                newL = confirmed.level
-            }
+            let newL = position.level
 
             position = Self.tickStreak(&next, pattern: p, entryStreak: state.failStreak[p] ?? 0,
                                        landed: position, entry: entry,
@@ -755,7 +662,7 @@ public enum Engine {
 
         Self.applyHumbleGroupLanding(&next, calibratedUp: calibratedUp)
         Self.applyCrossCredit(&next, state: state, session: session, result: result,
-                              overrides: overrides, discomfort: discomfort)
+                              overrides: overrides)
         // v2.25 (spec §36.8): remember what the person SAW and at which
         // position. The position is the ENTRY one — the plan was shown before
         // any of this feedback existed.
@@ -871,13 +778,10 @@ public enum Engine {
     /// completed sessions.
     ///
     /// ACCEPTED until the app layer calls it (§36.8): memory is written by a
-    /// COMPLETED session, so against a merely-seen plan a rise of up to ×1.47
-    /// is possible — 16–22 % of "showed, skipped a week, opened again"
-    /// episodes on budgets of 30–35.
+    /// COMPLETED session, so against a merely-seen plan a rise is possible.
     public static func recordShown(state dirty: EngineState, session: Session) -> EngineState {
         var next = dirty.sanitized()
         Self.rememberShownPlan(&next, entry: next, session: session)
-        next.shownBudget = EngineState.sanitizeBudget(next.timeBudgetMin)
         return next
     }
 
@@ -892,7 +796,7 @@ public enum Engine {
         // all: every third tap wasted, and on exactly the person who had
         // already had a set taken away.
         let cut = Level.effCut(level: position.level, cut: position.cut,
-                               floor: EngineConfig.setsFloorPain)
+                               floor: EngineConfig.setsFloor)
         let room = max(0, Level.decode(position.level).sets - cut)
         let sub = Level.effectiveSub(level: position.level, sub: position.sub, sets: room)
         if sub > 0 { next.sub[p] = sub } else { next.sub.removeValue(forKey: p) }
@@ -909,13 +813,13 @@ public enum Engine {
     /// set bands 13-16 sessions earlier. The delta that landed is repeated
     /// to the other branch, capped by ITS OWN growth cell (§15.3). Upward
     /// only: a zero or negative delta credits nothing, so a skip, a
-    /// discomfort report, a hold and a freeze on the trained branch all
+    /// an exact fact below the plan on the trained branch all
     /// leave the other one alone without a special case. The other branch's
     /// streak is untouched — it was not trained.
     private static func applyCrossCredit(_ next: inout EngineState, state: EngineState,
                                          session: Session, result: FeedbackResult,
                                          overrides: [Pattern: Int],
-                                         discomfort: Set<Pattern>) {
+                                         ) {
         guard next.hasBar,
               let trained = session.exercises.first(where: { Pattern.pullSide.contains($0.pattern) })?.pattern
         else { return }
@@ -928,7 +832,7 @@ public enum Engine {
         // the highest-level movement of the session, usually not this one.
         let factBelowPlan = session.exercises.first { $0.pattern == trained }
             .map { ex in (overrides[trained].map { $0 < ex.load }) ?? false } ?? false
-        if result == .less || discomfort.contains(trained) || factBelowPlan {
+        if result == .less || factBelowPlan {
             next.creditPaused.insert(trained)
         } else {
             next.creditPaused.remove(trained)
@@ -948,8 +852,7 @@ public enum Engine {
         // credit would zero itself out for anyone recovering from a cut.
         let gained = max(0, Level.posOrd(next.position(trained))
                          - Level.posOrd(state.position(trained)))
-        if gained > 0, !next.creditPaused.contains(other),
-           next.freezeRemaining(other) == 0, next.sore[other] == nil {
+        if gained > 0, !next.creditPaused.contains(other) {
             let entry = next.position(other)
             let cap = EngineConfig.maxUp(pattern: other, tier: Level.decode(entry.level).tier)
             // v2.25 (round 6, fix 1): the cross-credit respects the hold too.
@@ -1007,7 +910,7 @@ public enum Engine {
             Self.setPosition(&next, p, Position(
                 level: capped, sub: 0,
                 cut: min(next.cutOf(p), Level.cutMax(level: capped,
-                                                     floor: EngineConfig.setsFloorPain))))
+                                                     floor: EngineConfig.setsFloor))))
         }
     }
 }

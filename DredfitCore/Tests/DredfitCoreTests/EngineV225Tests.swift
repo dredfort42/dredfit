@@ -27,14 +27,13 @@ private typealias Pattern = DredfitCore.Pattern
 
 final class EngineV225Tests: XCTestCase {
 
-    private func seeded(_ level: Int, budget: Int = 0, bar: Bool = false,
+    private func seeded(_ level: Int, bar: Bool = false,
                         cut: Int = 0) -> EngineState {
         var s = EngineState.initial
         s.hasBar = bar
-        s.timeBudgetMin = budget
         for p in Pattern.allCases {
             s.levels[p] = level
-            let c = min(cut, Level.cutMax(level: level, floor: EngineConfig.setsFloorPain))
+            let c = min(cut, Level.cutMax(level: level, floor: EngineConfig.setsFloor))
             if c > 0 { s.cut[p] = c }
         }
         return s
@@ -97,14 +96,13 @@ final class EngineV225Tests: XCTestCase {
         var json = try XCTUnwrap(
             try JSONSerialization.jsonObject(with: try JSONEncoder().encode(modern))
                 as? [String: Any])
-        for key in ["cut", "painSeen", "setsHold", "shownWork", "shownOrd", "shownBudget"] {
+        for key in ["cut", "setsHold", "shownWork", "shownOrd"] {
             json.removeValue(forKey: key)
         }
         let legacy = try JSONDecoder().decode(
             EngineState.self, from: try JSONSerialization.data(withJSONObject: json))
-        XCTAssertTrue(legacy.cut.isEmpty && legacy.painSeen.isEmpty && legacy.setsHold.isEmpty)
+        XCTAssertTrue(legacy.cut.isEmpty && legacy.setsHold.isEmpty)
         XCTAssertTrue(legacy.shownWork.isEmpty && legacy.shownOrd.isEmpty)
-        XCTAssertEqual(legacy.shownBudget, 0)
         XCTAssertEqual(Engine.generateSession(legacy), Engine.generateSession(modern),
                        "and the plan is the one the fields-present state gives")
     }
@@ -126,17 +124,27 @@ final class EngineV225Tests: XCTestCase {
             ("silent decay", { Engine.applySilentDecay(state: $0, gapDays: 8) }),
             ("comeback 14", { Engine.applyComeback(state: $0, gapDays: 14, alreadyDecayed: false) }),
             ("comeback 90", { Engine.applyComeback(state: $0, gapDays: 90, alreadyDecayed: false) }),
-            ("illness lens", { Engine.applyIllness(state: $0) }),
+            // v2.26 (§37.4-§37.5): the lens and the pain report left the list
+            // of ways down; the three handles joined it. The invariant is
+            // indifferent to which lever moved — that is the whole point.
+            ("easier variation", {
+                var s = $0
+                for p in Pattern.allCases { s = Engine.easierVariation(state: s, pattern: p) }
+                return s
+            }),
+            ("fewer sets", {
+                var s = $0
+                for p in Pattern.allCases {
+                    s = Engine.setCut(state: s, pattern: p, cut: s.cutOf(p) + 1)
+                }
+                return s
+            }),
+            ("shorter session", { Engine.shorterSession(state: $0, steps: 1) }),
             ("hard rating", {
                 var s = $0
                 s.lessRun = EngineConfig.lessRunToGlobal
                 return Engine.applyFeedback(state: s, session: Engine.generateSession(s),
                                             result: .less)
-            }),
-            ("pain report", {
-                let w = Engine.generateSession($0)
-                return Engine.applyFeedback(state: $0, session: w, result: .plan,
-                                            discomfort: Set(w.exercises.map(\.pattern)))
             }),
             ("fact below plan", {
                 let w = Engine.generateSession($0)
@@ -146,11 +154,14 @@ final class EngineV225Tests: XCTestCase {
                                             overrides: overrides)
             }),
         ]
+        // v2.26: the budget axis is gone with the budget. The sweep is NOT
+        // narrowed to compensate — the whole level scale replaces the thirteen
+        // sampled rungs, and the cut axis reaches its deepest admissible step.
         for (name, step) in ways {
-            for budget in [0, 20, 35, 45, 90] {
-                for level in [0, 5, 8, 13, 16, 21, 24, 29, 32, 37, 40, 45, 47] {
-                    for cut in [0, 1, 2] {
-                        var s = seeded(level, budget: budget, cut: cut)
+            do {
+                for level in 0...EngineConfig.levelMax {
+                    for cut in [0, 1, 2, 3] {
+                        var s = seeded(level, cut: cut)
                         s = Engine.applyFeedback(state: s, session: Engine.generateSession(s),
                                                  result: .plan, gapDays: 7.0 / 3.0)
                         let before = Engine.generateSession(s)
@@ -168,7 +179,7 @@ final class EngineV225Tests: XCTestCase {
                             XCTAssertLessThanOrEqual(
                                 Engine.exerciseWork(now), Engine.exerciseWork(was),
                                 "\(name) made \(was.pattern) heavier at L\(level) "
-                                + "cut\(cut) budget\(budget): \(was.display) → \(now.display)")
+                                + "cut\(cut): \(was.display) → \(now.display)")
                         }
                     }
                 }
@@ -177,62 +188,6 @@ final class EngineV225Tests: XCTestCase {
         XCTAssertGreaterThan(compared, 5_000, "the sweep has to be wide to mean anything")
         XCTAssertGreaterThanOrEqual(crossed, 0,
                                     "cells across a change of variation or unit: \(crossed)")
-    }
-
-    // MARK: - (c) §36.5 The pain ladder
-
-    /// The ladder decreases strictly and never changes the variation — the
-    /// whole lattice of 10 patterns × 48 levels. The old ladder was defective
-    /// at both steps and in the same direction: the first took 0 % off in 40
-    /// cells of 480, the second left the plan heavier than before the pain in
-    /// 53.
-    func testThePainLadderFallsStrictlyAndKeepsTheVariation() {
-        var cells = 0
-        for p in Pattern.allCases {
-            for level in 0...EngineConfig.levelMax {
-                var (s, w) = advance(seeded(level, bar: true), to: p)
-                guard let base = exercise(w, p) else { continue }
-                cells += 1
-                // Walking a rotating pattern up to its own appearance costs
-                // "plan" sessions, and those GROW it — so the level the report
-                // lands on is read here, not assumed from the seed.
-                let at = s.levels[p] ?? level
-
-                var one = Engine.applyFeedback(state: s, session: w, result: .plan,
-                                               discomfort: [p])
-                (one, w) = advance(one, to: p)
-                guard let first = exercise(w, p) else { continue }
-                XCTAssertEqual(one.levels[p], at, "\(p) L\(level): the level stands")
-                XCTAssertEqual(first.tier, base.tier, "\(p) L\(level): the variation stands")
-                XCTAssertEqual(first.load, base.load, "\(p) L\(level): the dose per set stands")
-                XCTAssertEqual(first.perSide, base.perSide, "\(p) L\(level): and the sides")
-                XCTAssertEqual(first.sets, EngineConfig.setsFloor,
-                               "\(p) L\(level): the first report shows the shared floor")
-                XCTAssertLessThan(Engine.exerciseWork(first), Engine.exerciseWork(base),
-                                  "\(p) L\(level): the first step falls strictly")
-
-                var two = Engine.applyFeedback(state: one, session: w, result: .plan,
-                                               discomfort: [p])
-                (two, w) = advance(two, to: p)
-                guard let second = exercise(w, p) else { continue }
-                XCTAssertEqual(two.levels[p], at, "\(p) L\(level): still the same level")
-                XCTAssertEqual(second.tier, base.tier, "\(p) L\(level): still the same variation")
-                XCTAssertEqual(second.load, base.load, "\(p) L\(level): still the same dose")
-                XCTAssertEqual(second.sets, EngineConfig.setsFloorPain,
-                               "\(p) L\(level): the second report shows the pain floor")
-                XCTAssertLessThan(Engine.exerciseWork(second), Engine.exerciseWork(first),
-                                  "\(p) L\(level): and the ladder falls strictly")
-
-                let three = Engine.applyFeedback(state: two, session: w, result: .plan,
-                                                 discomfort: [p])
-                XCTAssertEqual(three.cutOf(p), two.cutOf(p),
-                               "\(p) L\(level): a third report cuts no deeper")
-                XCTAssertEqual(three.frozen[p], Engine.painStair(seen: three.painSeen[p] ?? 0),
-                               "\(p) L\(level): only the rest deepens, by the history")
-            }
-        }
-        XCTAssertEqual(cells, Pattern.allCases.count * (EngineConfig.levelMax + 1),
-                       "the ladder was checked on every cell of the lattice")
     }
 
     // MARK: - (d) §36.3 One set back per session
@@ -247,7 +202,7 @@ final class EngineV225Tests: XCTestCase {
         let ways: [(String, Double?)] = [("with a gap", 7.0 / 3.0), ("with no gap", nil)]
         for (name, gap) in ways {
             for level in 0...EngineConfig.levelMax {
-                let deepest = Level.cutMax(level: level, floor: EngineConfig.setsFloorPain)
+                let deepest = Level.cutMax(level: level, floor: EngineConfig.setsFloor)
                 guard deepest >= 1 else { continue }
                 for p in Pattern.allCases {
                     var s = seeded(level, bar: true)
@@ -283,7 +238,7 @@ final class EngineV225Tests: XCTestCase {
     /// appearances, and in between the growth goes into the dose.
     func testAReturnedSetIsHeldForItsAppearances() {
         for level in [8, 24, 40] {
-            let deepest = Level.cutMax(level: level, floor: EngineConfig.setsFloorPain)
+            let deepest = Level.cutMax(level: level, floor: EngineConfig.setsFloor)
             guard deepest >= 2 else { continue }
             var s = seeded(level)
             s.cut[.pull] = deepest            // `pull` stands in every session
@@ -309,45 +264,49 @@ final class EngineV225Tests: XCTestCase {
         }
     }
 
-    // MARK: - (e) §36.5 The floors
+    // MARK: - (e) §37.3 The one floor
 
-    /// Below two sets only the pain channel goes; below one, nothing ever
-    /// does. Swept over every composition of the cuts: the handle, the lens,
-    /// the §20.2 gate and the budget.
-    func testOnlyThePainChannelGoesBelowTheSharedFloor() {
-        var cells = 0, singles = 0
-        for budget in [0, 15, 20, 25, 30, 35, 45, 60, 90] {
+    /// v2.26 (§37.3): RE-MARKED, and the claim is INVERTED.
+    ///
+    /// It used to read "below two sets only the pain channel goes; below one,
+    /// nothing ever does", and it counted the single-set cells to prove the
+    /// pain floor was reachable. There is one floor now, so there is nothing
+    /// to reach: the count must be exactly ZERO. The old assertion guarded the
+    /// EXISTENCE of a hole; this one guards its absence.
+    ///
+    /// That hole was not theoretical. `setsFloorPain` leaked into every
+    /// internal call — the audit found the shared floor was never once the
+    /// argument — and an honest sweep of "hard" put 3458 plans out of 18 000
+    /// below two sets, reachable without touching a handle at all.
+    ///
+    /// The budget and lens axes are replaced by the rotation counter, which
+    /// moves both the session's composition and the side of the bar slot —
+    /// the compositions where the §20.2 gate and a cut actually meet.
+    func testNothingEverGoesBelowTheOneFloor() {
+        var cells = 0, belowFloor = 0
+        for counter in 0..<8 {
             for level in 0...EngineConfig.levelMax {
                 for cut in [0, 1, 2, 3, 4] {
-                    for ill in [0, 2] {
-                        for bar in [false, true] {
-                            var s = seeded(level, budget: budget, bar: bar, cut: cut)
-                            s.illness = ill
-                            // Diverged pull branches: the §20.2 gate trims the
-                            // push by the weaker one, on top of everything else.
-                            s.levels[.pullBar] = max(0, level - 8)
-                            let painFloor = Level.cutMax(level: level,
-                                                         floor: EngineConfig.setsFloorPain)
-                            for ex in Engine.generateSession(s).exercises {
-                                cells += 1
-                                XCTAssertGreaterThanOrEqual(
-                                    ex.sets, EngineConfig.setsFloorPain,
-                                    "\(ex.pattern) L\(level) cut\(cut) budget\(budget): below one set")
-                                if ex.sets < EngineConfig.setsFloor {
-                                    singles += 1
-                                    XCTAssertGreaterThanOrEqual(
-                                        s.cutOf(ex.pattern), painFloor,
-                                        "\(ex.pattern) L\(level) budget\(budget): below the shared "
-                                        + "floor with no pain cut")
-                                }
-                            }
+                    for bar in [false, true] {
+                        var s = seeded(level, bar: bar, cut: cut)
+                        s.counter = counter
+                        // Diverged pull branches: the §20.2 gate trims the
+                        // push by the weaker one, on top of everything else.
+                        s.levels[.pullBar] = max(0, level - 8)
+                        for ex in Engine.generateSession(s).exercises {
+                            cells += 1
+                            XCTAssertGreaterThanOrEqual(
+                                ex.sets, EngineConfig.setsFloor,
+                                "\(ex.pattern) L\(level) cut\(cut) c\(counter): below the floor")
+                            if ex.sets < EngineConfig.setsFloor { belowFloor += 1 }
                         }
                     }
                 }
             }
         }
-        XCTAssertGreaterThan(cells, 20_000, "the sweep covered every composition")
-        XCTAssertGreaterThan(singles, 0, "and the pain floor is reached in it at all")
+        XCTAssertGreaterThan(cells, 20_000, "the floor sweep covered \(cells) exercises")
+        XCTAssertEqual(belowFloor, 0,
+                       "cells below the floor must be 0, found \(belowFloor)")
     }
 
     // MARK: - (f) §14.2 The identity with a non-empty cut
@@ -394,62 +353,78 @@ final class EngineV225Tests: XCTestCase {
     // MARK: - (g) §36.8 The postcondition repair
 
     /// The invariant survives a changing rotation — a movement comes back into
-    /// the plan a session or two later — and a moved time handle, which is a
-    /// LEGAL reason for a plan to grow and lifts the cap for exactly one state
-    /// transition.
-    func testTheRepairHoldsAcrossTheRotationAndAMovedBudget() {
-        var compared = 0, budgetMoves = 0
-        for startBudget in [0, 30, 35, 45] {
-            for level in [4, 12, 20, 28, 36, 44] {
+    /// the plan a session or two later — and a moved HANDLE.
+    ///
+    /// v2.26 (§37.5): re-marked, and one carve-out DISAPPEARED. The budget was
+    /// a legal reason for the plan to grow at a standing position, so it had
+    /// to lift the repair's cap for exactly one transition, by hand. It worked
+    /// PAST the position measure: it trimmed the plan without touching level,
+    /// sub-step or cut. The handle writes `cut`, a coordinate of the position,
+    /// so releasing it IS a rise and the general gate excludes it on its own —
+    /// `budgetTouched` is gone, not replaced.
+    ///
+    /// The budget axis is replaced by a denser level grid so the sweep does
+    /// not shrink.
+    func testTheRepairHoldsAcrossTheRotationAndAMovedHandle() {
+        var compared = 0, handleMoves = 0
+        do {
+            for level in stride(from: 0, through: EngineConfig.levelMax, by: 2) {
                 for bar in [false, true] {
-                    var s = seeded(level, budget: startBudget, bar: bar)
+                    var s = seeded(level, bar: bar)
                     var shownWork: [Pattern: Int] = [:]
                     var shownOrd: [Pattern: Int] = [:]
                     var shownUnit: [Pattern: (LoadUnit, Int)] = [:]
-                    var budgetTouched = false
                     for step in 0..<24 {
                         let w = Engine.generateSession(s)
                         for ex in w.exercises {
                             let p = ex.pattern
                             if let was = shownWork[p], let ord = shownOrd[p],
                                let (unit, tier) = shownUnit[p],
-                               !budgetTouched, Level.posOrd(s.position(p)) <= ord,
+                               Level.posOrd(s.position(p)) <= ord,
                                ex.unit == unit, ex.tier == tier {
                                 compared += 1
                                 XCTAssertLessThanOrEqual(
                                     Engine.exerciseWork(ex), was,
                                     "the plan of \(p) grew at a standing position "
-                                    + "(L\(level) budget\(s.timeBudgetMin) step \(step))")
+                                    + "(L\(level) step \(step))")
                             }
                             shownWork[p] = Engine.exerciseWork(ex)
                             shownOrd[p] = Level.posOrd(s.position(p))
                             shownUnit[p] = (ex.unit, ex.tier)
                         }
-                        budgetTouched = false
                         switch step % 5 {
                         case 3:
                             s.lessRun = EngineConfig.lessRunToGlobal
                             s = Engine.applyFeedback(state: s, session: w, result: .less,
                                                      gapDays: 7.0 / 3.0)
                         case 4:
+                            // v2.26 (§37.0): the pain report was the second
+                            // signal that left the position standing; a SKIP is
+                            // the one that survives, and it is the same class
+                            // of transition the invariant is written about.
                             s = Engine.applyFeedback(state: s, session: w, result: .plan,
-                                                     discomfort: [w.exercises[step % 6].pattern],
+                                                     skipped: [w.exercises[step % 6].pattern],
                                                      gapDays: 7.0 / 3.0)
                         default:
                             s = Engine.applyFeedback(state: s, session: w, result: .plan,
                                                      gapDays: 7.0 / 3.0)
                         }
-                        if step == 11 {
-                            s.timeBudgetMin = startBudget == 0 ? 30 : 0
-                            budgetTouched = true
-                            budgetMoves += 1
+                        // The person moves the handle, down and back up. That is
+                        // a move of the position on its third axis, so the
+                        // general gate handles it — no carve-out.
+                        if step == 11 { s = Engine.shorterSession(state: s, steps: 1); handleMoves += 1 }
+                        if step == 17 {
+                            for p in Pattern.allCases { s = Engine.setCut(state: s, pattern: p, cut: 0) }
+                            handleMoves += 1
                         }
                     }
                 }
             }
         }
+        // The threshold is NOT lowered: the level grid was widened to pay for
+        // the axis the budget took with it.
         XCTAssertGreaterThan(compared, 1_500, "the sweep has to be wide to mean anything")
-        XCTAssertGreaterThan(budgetMoves, 0, "and the time handle really did move in it")
+        XCTAssertGreaterThan(handleMoves, 0, "and the handle really did move in it")
     }
 
     // MARK: - Compatibility: the 1.9 journal
@@ -506,4 +481,14 @@ final class EngineV225Tests: XCTestCase {
         XCTAssertEqual(decoded.exercises.count, 1)
         XCTAssertEqual(decoded.estimatedTotalMin, 33.5)
     }
+
+    // SNIPPED v2.26 (§37.0): `testThePainLadderFallsStrictlyAndKeepsTheVariation`.
+    // The ladder was the pain channel walking down the SETS axis; the channel is
+    // gone, so there is no ladder to walk.
+    //
+    // NOT LOST: "a cut takes sets and touches neither the variation nor the
+    // dose" is the same claim on the surviving lever, and it is asserted by
+    // `testTheHandleTakesSetsAndNothingElse` in EngineV224Tests over the whole
+    // scale; "no way down ever adds load" — with the handles in the list —
+    // stays in this suite.
 }

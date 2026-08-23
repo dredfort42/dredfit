@@ -46,103 +46,6 @@ final class EngineV219Tests: XCTestCase {
         return (s, w)
     }
 
-    private func report(_ state: EngineState, _ pattern: Pattern) -> EngineState {
-        let (s, w) = advance(state, to: pattern)
-        return Engine.applyFeedback(state: s, session: w, result: .plan,
-                                    discomfort: [pattern])
-    }
-
-    // MARK: - §30.6 Taking the load off is two-step
-
-    /// Both steps, on every rung of the scale: the first lands on the floor of
-    /// the current tier, the second on the floor of the previous one — which
-    /// is exactly where v2.11 landed in one go.
-    /// Re-marked for v2.25 (spec §36.5) across the whole scale: both steps are
-    /// CUTS OF SETS at a level that never moves — the first to the shared
-    /// floor, the second to the pain floor. The old landings were defective in
-    /// the same direction: the first took 0 % of the work off in 40 cells of
-    /// 480, the second left the plan HEAVIER than before the pain in 53. The
-    /// sweep is stronger than the one it replaces: it pins the level standing,
-    /// the exact depth of each cut, and a STRICT fall of work at every step —
-    /// none of which the old form could claim.
-    func testBothStepsLandOnTheirFloorsAcrossTheWholeScale() {
-        for level in 0...EngineConfig.levelMax {
-            let first = report(seeded(level), .pull)
-            XCTAssertEqual(first.levels[.pull], level, "L\(level): the level stands")
-            XCTAssertEqual(first.cutOf(.pull),
-                           Level.cutMax(level: level, floor: EngineConfig.setsFloor),
-                           "L\(level): the first report lands on the shared floor of sets")
-            XCTAssertEqual(first.failStreak[.pull], 0, "L\(level): the streak resets")
-            XCTAssertEqual(first.frozen[.pull], Engine.painStair(seen: 1))
-            XCTAssertEqual(first.sore[.pull], Engine.painStair(seen: 1))
-            XCTAssertLessThan(Level.work(pattern: .pull, level: level, sub: 0,
-                                         cut: first.cutOf(.pull)).total,
-                              Level.work(pattern: .pull, level: level, sub: 0, cut: 0).total,
-                              "L\(level): the first step takes work off, strictly")
-
-            let second = report(first, .pull)
-            XCTAssertEqual(second.levels[.pull], level,
-                           "L\(level): the level stands on the second report too")
-            XCTAssertEqual(second.cutOf(.pull),
-                           Level.cutMax(level: level, floor: EngineConfig.setsFloorPain),
-                           "L\(level): the second report lands on the pain floor of sets")
-            XCTAssertEqual(second.failStreak[.pull], 0,
-                           "L\(level): the streak resets on the second step too")
-            XCTAssertEqual(second.frozen[.pull], Engine.painStair(seen: 2),
-                           "L\(level): the rest deepens on the second report")
-            XCTAssertLessThan(Level.work(pattern: .pull, level: level, sub: 0,
-                                         cut: second.cutOf(.pull)).total,
-                              Level.work(pattern: .pull, level: level, sub: 0,
-                                         cut: first.cutOf(.pull)).total,
-                              "L\(level): and the ladder falls strictly")
-        }
-    }
-
-    /// The descent is bounded at two steps: from the third report on, the rest
-    /// keeps doubling but the level stands. Three honest reports must not walk
-    /// a pattern to zero (§21.3).
-    func testAThirdReportDoublesTheRestButNotTheDescent() {
-        for level in [7, 12, 20, 28, 35, 47] {
-            let second = report(report(seeded(level), .pull), .pull)
-            let third = report(second, .pull)
-            XCTAssertEqual(third.levels[.pull], second.levels[.pull],
-                           "L\(level): the third report leaves the level alone")
-            XCTAssertEqual(third.frozen[.pull], EngineConfig.freezeCapAppearances,
-                           "L\(level): 6 → 12")
-            let fourth = report(third, .pull)
-            XCTAssertEqual(fourth.levels[.pull], second.levels[.pull],
-                           "L\(level): and so does the fourth")
-            XCTAssertEqual(fourth.frozen[.pull], EngineConfig.freezeCapAppearances,
-                           "L\(level): the ladder tops out")
-        }
-    }
-
-    /// The control run of the wave (§30.6): hinge from level 28 — the case
-    /// where v2.18 answered "it hurts" with two and a half times the work.
-    /// Re-marked for v2.25 (spec §36.5): the acceptance run in sets instead of
-    /// levels. `hinge` at 28 sits in band 3, so the ladder is 3 → 2 → 1 sets
-    /// with the level standing at 28 throughout — where the old run went
-    /// 28 → 24 → 16 and left the plan heavier than it started at the second
-    /// step. The rest ladder is unchanged and still carries the count of
-    /// reports, now read off `painSeen`.
-    func testHingeFromLevel28LandsAt24Then16AndStops() {
-        var s = seeded(28)
-        var shown: [Int] = []
-        var levels: [Int] = []
-        var rest: [Int] = []
-        for _ in 0..<3 {
-            s = report(s, .hinge)
-            shown.append(Level.setsAfterCut(level: s.levels[.hinge] ?? 0, cut: s.cutOf(.hinge)))
-            levels.append(s.levels[.hinge] ?? -1)
-            rest.append(s.frozen[.hinge] ?? 0)
-        }
-        XCTAssertEqual(shown, [2, 1, 1], "two steps down in sets, then the plan holds")
-        XCTAssertEqual(levels, [28, 28, 28], "and the level never moves")
-        XCTAssertEqual(rest, [3, 6, 12], "the rest ladder carries the count of reports")
-        XCTAssertEqual(s.sore[.hinge], EngineConfig.freezeCapAppearances)
-        XCTAssertEqual(s.painSeen[.hinge], 3, "three reports are remembered")
-    }
-
     /// The first step never adds work — swept over every pattern and every
     /// rung, through the measure itself rather than through pinned numbers.
     /// This is the property the pain channel exists for: the trainee said "it
@@ -338,4 +241,15 @@ final class EngineV219Tests: XCTestCase {
         s.weekAgeDays = .infinity
         XCTAssertEqual(s.sanitized().weekAgeDays, 0)
     }
+
+    // SNIPPED v2.26 (§37.0): three tests driven by the discomfort report — the
+    // two-step unload landing on its floors, the third report that doubled the
+    // rest without moving the level, and the §30.6 control run on `hinge`.
+    // All three needed an input that no longer exists.
+    //
+    // The INVARIANT the wave of §30 was written for — a descent never adds work
+    // inside a variation — is not lost with them: it is asserted here by
+    // `testTheFirstStepNeverAddsWorkAnywhereOnTheGrid`, by the gate tests
+    // below, and swept over every downward path (the handles now included) by
+    // the reference's block 51(b).
 }
