@@ -354,16 +354,22 @@ struct WorkoutFlowView: View {
         // Warmup.advance absorbs whatever a long absence already covered.
         guard let next = Warmup.advance(from: (warmupIndex, warmupStage),
                                         overshoot: Int(max(0, -end.timeIntervalSinceNow))) else {
-            playGo()            // the block is over: the first exercise is up
+            // The block is over: done, not go — a tap starts the first exercise (#186).
+            playDone()
             finishWarmup()
             return
         }
-        // The go marks the moment a movement starts — the end of the
-        // transition, not the end of the move before it. `entered` names the
-        // first boundary crossed and `stage` where the overshoot landed; a
-        // long absence crosses several, so a landing on a transition stays
-        // silent whichever boundary opened the run.
-        if next.entered != .getReady, next.stage != .getReady { playGo() }
+        // A transition opening is the done of the position before it; the go
+        // marks where a movement starts, the end of the transition. `entered`
+        // names the first boundary crossed and `stage` where the overshoot
+        // landed: a long absence crosses several, so anything but a landing on
+        // the boundary that opened the run stays silent — the signal belongs
+        // to what is on screen.
+        if next.entered == .getReady, next.stage == .getReady {
+            playDone()
+        } else if next.entered != .getReady, next.stage != .getReady {
+            playGo()
+        }
         enterWarmupStage(index: next.index, stage: next.stage, remaining: next.remaining)
     }
 
@@ -615,6 +621,10 @@ struct WorkoutFlowView: View {
     // MARK: - State machine transitions
 
     private func completeSet() {
+        // All three ways a set ends meet here (#186): the Done tap, the hold
+        // reaching zero, an early stop past the mis-tap window. A per-side
+        // hold's first side goes to the switch pause instead, not here.
+        playDone()
         adjusting = false
         if isLastSet && isLastExercise {
             // "Finish now" deliberately does not run the cool-down.
@@ -706,10 +716,8 @@ private extension WorkoutFlowView {
         let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
         guard newRemaining != holdRemaining else { return }
         if newRemaining == 0 {
-            // The end of a hold says "release", not "start" (#84). The
-            // switch pause still announces itself — a done here would end
-            // the exercise a side too early.
-            if !(exercise.perSide && !holdSecondSide) { playDone() }
+            // Silent: completeSet() owns the end-of-set signal now, whatever
+            // ended it (#186). Sounding a done here would double it.
             finishHold(heldSeconds: holdTotal)
         } else {
             if newRemaining <= Self.countdownSignalSeconds && newRemaining < holdRemaining {
@@ -1055,15 +1063,16 @@ extension WorkoutFlowView {
             finishCooldown()
             return
         }
-        // The signal belongs to what is on screen now: a landing on a
-        // transition is silent whichever boundary opened the run (see
-        // tickWarmup).
-        if next.stage != .getReady {
-            switch next.entered {
-            case .switchPause: playSwitch()
-            case .getReady:    break
-            default:           playGo()
-            }
+        // (boundary crossed, where the overshoot landed). A transition that
+        // is the boundary just crossed means the position before it ended —
+        // done, and for a unilateral position only at its far end, never at
+        // the switch. Landing anywhere else after a long absence stays
+        // silent: the signal belongs to what is on screen (see tickWarmup).
+        switch (next.entered, next.stage) {
+        case (.getReady, .getReady):         playDone()
+        case (.getReady, _), (_, .getReady): break
+        case (.switchPause, _):              playSwitch()
+        default:                             playGo()
         }
         cooldownIndex = next.index
         cooldownStage = next.stage
