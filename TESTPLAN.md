@@ -1,6 +1,6 @@
 # Dredfit — manual QA checklist
 
-Automated coverage (369 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
+Automated coverage (717 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
 
 **How to use.** Run the *Release smoke* block before every release. Run *Full pass* when the engine, persistence or an integration changed. Device-only rows cannot pass on a simulator and are marked ⌚. Record anything that fails in the [Issue registry](#issue-registry) at the bottom rather than fixing it silently.
 
@@ -666,6 +666,54 @@ Growth used to move a whole level at a time. Now it adds one set's worth first, 
 | 42.10 | Fly across time zones, or change the clock, between two workouts | No phantom day in either direction; the gap never goes negative |
 | 42.11 | The autumn and spring clock-change days | The 25-hour and 23-hour days both count as one day |
 
+### 43. The sets handle (engine v2.25, spec §36, issues #149, #150, #151)
+
+The engine gained a way to say *the same exercise, but less of it*. Until v2.25
+the only way down was the level, which also picks the variation and the dose, so
+a descent off the floor of a block had to change the exercise — and the top of
+the tier below is heavier than the bottom of the one you are on. Four things a
+person could do and get a **heavier** plan for it are all zero now: a 7–13 day
+break (48 cells of 480, worst ×6.50), "it hurt here" (24), honest "tough" every
+session (all 48 levels locked forever), and "I was ill" (40).
+
+| # | Check | Expected |
+|---|---|---|
+| 43.1 | Report **"it hurt here"** on a movement | The **same** exercise comes back with **fewer sets** — same variation, same dose per set, same unit and sides. The level does not move |
+| 43.2 | First report of a **new** episode, at any point in your history | Lands on **2 sets** — always, whether it is your first tap ever or your tenth. Depth does not read history: a second tap two years and two hundred clean sessions later must not turn 5×15 per side into 1×15 |
+| 43.3 | Second report while the episode is still live · third and later | 1 set. The rest between appearances doubles **3 → 6 → 12**, and that ladder reads how many times this movement has hurt **in your whole history**, not the current episode |
+| 43.4 | Keep training the movement after a pain report | Two counters run **in parallel**, not one after the other — "how long to rest" and "has it passed". The episode closes on the **6th** appearance at every level, and full volume is back on the 31st, not the 48th |
+| 43.5 | Recover and keep going | At most **one set** comes back per session, and the next no sooner than **2 appearances** later. While that hold is ticking, growth goes into the **dose**, not into another set |
+| 43.6 | Tap **"I was ill"** | The plan drops to half the band, rounded up (−33 % at L24, −50 % at L36, −40 % at L44) — never below the two-set floor, and never above what pain has already taken. If the plan is already on the floor, the lens gives nothing: that is deliberate, not a bug |
+| 43.7 | Let the illness lens run out | The plan returns **exactly** to the last ordinary showing, never heavier. The lens is a view — it does not overwrite what the engine remembers |
+| 43.8 | Anything that lowers your position (a break, "tough", a pain report) | The next plan is **not heavier** than the one you last saw at that position. The single exception is moving the **session-length handle** yourself: that lifts the cap for one transition, because your own decision outranks the old showing |
+| 43.9 | On the pull-up bar, a descent that changes the **unit** (reps → seconds) | Lands by **time under load**, not by the number — the highest rung of the target tier whose time is no greater than what you are doing now. If even the bottom rung is dearer, it lands on the branch floor and the branch loses its level. Known and accepted: safety outranks the level until the library gains the missing rung |
+| 43.10 | A save file written by 1.9 or earlier (no `cut`, no `painSeen`, no `setsHold`) | Opens, and the plan is **bit-for-bit** what v2.24 built. Every new field is sparse — a zero is never stored — and all of them survive a break |
+| 43.11 | Open the app, look at the plan, **do not train**, come back a week later | The new plan is not heavier than the one you saw. v2.25 records the plan when it reaches your eyes, not only when you finish a workout |
+| 43.12 | The **35-minute** rung with every movement on the floor | Known: 27 of 768 cells run up to 2.5 minutes over. 45 fits everywhere without a caveat |
+
+---
+
+## Engine gates before a release
+
+Not a manual row — the four automated gates a release runs from `reference/`,
+recorded here because "clean" is not the same word for each of them. The full
+definition, and the residues that are known and named, live in phase 0 item 3 of
+`instructions/CORE_AUDIT.md` — a working document that is deliberately not in the
+repository, like `reference/` itself.
+
+| Command | Clean means |
+|---|---|
+| `python3 scripts/update_reference_manifest.py --check` | `OK` — the local `reference/` really is the one that produced the fixture. It is not versioned, so it goes stale silently |
+| `node verify2.js` | 0 failures |
+| `node audit_static.js` | "НОВЫХ СРАБАТЫВАНИЙ НЕТ" — no new hit of the "fix applied to one branch of two" class |
+| `node audit_local.js` | "ЛОКАЛЬНЫЙ ПЕРЕБОР ЧИСТ" — H1–H8 without failures |
+| `node audit_local2.js` | S2–S6 without failures; S1 carries **one** named residue (1 of 10,014, ×1.05). A second line in S1 is a finding |
+
+What is compared is **not the number but the absence of new lines** against the
+previous run. The cell counts move every wave — the sweep walks a lattice that
+grows — and chasing a particular figure hides a regression as well as a red run
+does.
+
 ---
 
 ## Issue registry
@@ -687,5 +735,7 @@ Log every failure found while running this plan. Keep entries until they ship fi
 | I-11 | 2026-08-03 | Widgets | Reported (#55, iPhone, iOS 26.5.2, App Store 1.8.0 (11)): the medium and large entries of the home-screen size row do nothing — the widget stays small, nothing redraws, no placeholder, no error. The page it was reported from was close to full | low | **not reproducible on iOS 26.5** — on an iPhone 17 simulator with room on the page, the size row converts the widget through all three home sizes (168×191 → 353×191 → 353×391) and each layout renders; the gallery offers the same three sizes and adds at any of them; the extension neither crashes nor is jetsammed while doing it. Nothing to fix in `supportedFamilies` — all six families have shipped since #23, tag `v1.8.0` included. The plan gains §12.18–12.21 so the resize path is covered from here on, and the page-space check is the first thing to rule out. What the acceptance check did find is the ru truncation fixed alongside it (below) |
 | I-12 | 2026-08-03 | Widgets | Found running §12.21 for I-11: on the large widget in Russian the longest catalog name ended in an ellipsis — «Птица-собака» (удер… — because the plan row carries the load in the long form the snapshot writes ("3×20 сек на сторону"), leaving the name short of the width it needs. Brazilian Portuguese fits; English is nowhere near the edge | low | **fixed in the #55 wave** — the name shrinks like every other line of the widget (`minimumScaleFactor(0.8)`) instead of truncating, which also matters because sibling variations differ at the *end* of the name. Verified on the simulator in all three locales |
 | I-13 | 2026-08-07 | Store screenshots | Frame s8 was captioned "Eight plain facts about how the plan moves" in all seven languages, while the screen inside the frame has read "Nine things worth knowing about the regulator" since the discomfort section was added in the #38 wave. The caption lives in `appstore/tools/compose.py`, not in a String Catalog, so no localization gate could see it — the frame contradicted itself in every locale | low | **fixed in the 1.9.0 wave** — all seven captions now say nine, and the full recapture reissued the frames. Exactly the I-7 failure mode (a count in prose going stale when a section is added) and caught the same way: by recapturing rather than by a test. The standing mitigation is unchanged — any release that adds a "How it works" section must re-read the s8 caption |
+
+| I-14 | 2026-08-23 | Progress | Found by the UI suite, which is **red on `develop`** for this one cause: `testProgressReflectsCompletedWorkout` ("0" is not equal to "12" — the total level after "easy" should be 12) and `ReleaseSmokeTests.testReleaseSmokeEnglish` row S5 ("the history sheet must list the level the workout ended on"). Since v2.22 the first growth steps do not land in the **level** at all — they land in the **sub-step**: one honest "easy" on a fresh install moves all six worked patterns by 2 sub-steps each, and every level stays 0. The Progress screen and the history sheet both read levels, so a person who has just trained and been told the plan will grow is shown a screen that says nothing happened. The tests are not stale markup — they assert the right amount of progress (12 is exactly the sub-step total) against a screen that cannot see it | medium | **open — the screen is the question, not the test.** Verified on `chore/close-v2.25` (develop + docs only), each test run alone: both still fail with the signatures above. Deliberately not fixed inside the closing wave: what Progress should show for a sub-step is a product decision (a fractional level, a second axis, or a different sentence), not a markup change. Backlog: "Прогресс не видит под-ступени" |
 
 **Severity.** *high* — data loss, crash, or a broken core flow · *medium* — a feature misbehaves but there is a way around it · *low* — cosmetic or a rare edge case.
