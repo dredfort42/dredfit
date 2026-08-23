@@ -8,7 +8,6 @@
 
 import Foundation
 import Observation
-import UserNotifications
 import os
 import DredfitCore
 
@@ -427,6 +426,14 @@ final class AppStore {
         seeded.counter = 4
         for p in Pattern.allCases { seeded.levels[p] = 6 }
         seeded.frozen[.pull] = EngineConfig.freezeAppearances
+        // v2.25 (spec §36.5): a report leaves more behind than a freeze — an
+        // open episode, its countdown, the memory, and the sets the handle
+        // took off. Seeding only the freeze made this a state the app can
+        // never actually be in, and hid the sentence the card owes the reader.
+        seeded.sore[.pull] = EngineConfig.freezeAppearances
+        seeded.soreLeft[.pull] = EngineConfig.freezeAppearances
+        seeded.painSeen[.pull] = 1
+        seeded.cut[.pull] = Level.cutMax(level: 6, floor: EngineConfig.setsFloor)
         engineState = seeded
         records = [WorkoutRecord(
             sessionNumber: 4,
@@ -568,6 +575,42 @@ final class AppStore {
         return MilestoneDetector.detect(before: before, after: engineState,
                                         session: session,
                                         skipped: skipped.union(discomfort))
+    }
+
+    // MARK: - The shown plan (v2.25, spec §36.8)
+
+    /// The plan is on screen — the engine gets to remember it. Until this
+    /// call the "a descent never adds load" guarantee held only BETWEEN
+    /// COMPLETED SESSIONS: a plan a person saw and did not train could be
+    /// beaten by the next one by up to ×1.47, in 16–22 % of the "showed,
+    /// skipped a week, opened again" episodes on budgets of 30–35. That was
+    /// the last accepted gap of the wave (§36.10 p. 2, §36.11) and this call
+    /// is the whole of its fix — `recordShown` has been exported since the
+    /// port, waiting for a caller.
+    ///
+    /// ONE WRITE PER SHOWING, not one per render. The guard is the memory
+    /// itself: writing down a plan that is already written down changes
+    /// nothing, so every render after the first returns without a state
+    /// write, a file write or a widget reload. That it settles at all is by
+    /// construction — the memory keeps the work of the plan AFTER the
+    /// postcondition repair, and the repair only ever trims work STRICTLY
+    /// above what was shown, so the second pass has nothing left to trim.
+    ///
+    /// The one showing deliberately NOT written down is the illness lens
+    /// (§36.6). Its plan is a VIEW: the base has to stay the last ordinary
+    /// showing, or coming off the lens reads as a rise and the repair takes
+    /// sets off someone who has only just recovered.
+    func recordPlanShown(_ session: Session) {
+        // A frozen journal is a launch that could not READ the state file —
+        // before first unlock, usually. The plan on screen was drawn from an
+        // empty state and is worth remembering least of all, and writing it
+        // would pin the freeze (`mutatedWhileFrozen`) and cost the trainee
+        // their journal for the rest of the launch.
+        guard !journalFrozen, engineState.illness == 0 else { return }
+        let recorded = Engine.recordShown(state: engineState, session: session)
+        guard recorded != engineState else { return }
+        engineState = recorded
+        persist()
     }
 
     // MARK: - Workout in progress
@@ -798,6 +841,12 @@ final class AppStore {
     /// never touched, on a screen about starting the levels over. Harmless
     /// while the budget was opt-in and everybody sat at zero anyway; with a
     /// 45-minute default it would be a visible, unasked-for change.
+    /// v2.25 (spec §36.1): the five new fields of the sets handle — the cut,
+    /// the memory of pain, the hold, and the shown-plan pair with its budget —
+    /// are exactly what a reset is FOR, and `.initial` zeroes all of them with
+    /// no line of their own. `timeBudgetChosen` lives in `settings` and is
+    /// untouched here, so a deliberate "no limit" survives the reset the same
+    /// way the chosen 45 does.
     func resetProgress() {
         let hadBar = engineState.hasBar
         let hadBudget = engineState.timeBudgetMin
@@ -1067,42 +1116,6 @@ final class AppStore {
         }
         // Except the changes that provably cannot alter what it shows.
         if refreshWidget { refreshWidgetSnapshot() }
-    }
-}
-
-// MARK: - Notification seam
-
-/// Injectable seam: unit tests substitute a spy.
-protocol NotificationScheduling {
-    /// True only when granted.
-    func requestAuthorization() async -> Bool
-    func removePendingRequests(withIdentifiers ids: [String])
-    func addReminder(id: String, title: String, body: String,
-                     fireDate: DateComponents)
-}
-
-struct UserNotificationScheduler: NotificationScheduling {
-    func requestAuthorization() async -> Bool {
-        (try? await UNUserNotificationCenter.current()
-            .requestAuthorization(options: [.alert, .sound])) ?? false
-    }
-
-    func removePendingRequests(withIdentifiers ids: [String]) {
-        UNUserNotificationCenter.current()
-            .removePendingNotificationRequests(withIdentifiers: ids)
-    }
-
-    func addReminder(id: String, title: String, body: String,
-                     fireDate: DateComponents) {
-        let content = UNMutableNotificationContent()
-        content.title = title
-        content.body = body
-        // The branded reminder tone (#84) — provisioned on demand, falls
-        // back to .default if the file cannot be written.
-        content.sound = ReminderSoundFile.notificationSound()
-        let trigger = UNCalendarNotificationTrigger(dateMatching: fireDate, repeats: false)
-        UNUserNotificationCenter.current()
-            .add(UNNotificationRequest(identifier: id, content: content, trigger: trigger))
     }
 }
 

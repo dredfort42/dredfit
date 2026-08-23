@@ -15,10 +15,17 @@ extension AppStore {
 
     /// The pain line appears from this many painful appearances in a row…
     static let painTrendThreshold = 2
-    /// …and starts mentioning a specialist from this many. A repeat report
-    /// means the movement hurt, rested its three appearances, and hurt
-    /// again — that is the "pain persists" trend the monitoring literature
-    /// reacts to, not a one-off.
+    /// …and starts mentioning a specialist from this many REPORTS — the
+    /// engine's `painSeen`, its memory of how many times this movement has
+    /// hurt over the whole history (v2.25, spec §36.5).
+    ///
+    /// It used to hang on the RUN of reports, and the run is exactly what the
+    /// 3 / 6 / 12 rest is built to break: the movement hurts, rests its
+    /// appearances, comes back healthy — and the count it needed to reach
+    /// three was back at zero. Nobody the line was written for ever saw it.
+    /// The memory does not reset; it only fades, by one, after a break of
+    /// ninety days (§36.5), because a break is precisely what a person in
+    /// pain takes.
     static let painSpecialistThreshold = 3
     /// The rest offer appears when today's workout would be at least the
     /// (threshold + 1)-th consecutive training day.
@@ -64,12 +71,88 @@ extension AppStore {
         return consecutiveTrainingDays(endingOn: yesterday) + 1
     }
 
+    /// What the resting line has to say about a movement beyond "it is not
+    /// getting harder" (#100). Two rungs, and the upper one is the engine's,
+    /// not the journal's — see `painSpecialistThreshold`.
+    enum PainNote {
+        /// It hurt on both of its last two appearances: a report, a rest, and
+        /// a report again.
+        case hurtAgain
+        /// It has hurt `painSpecialistThreshold` times over its history,
+        /// however far apart those times were.
+        case seeSpecialist
+    }
+
+    /// The escalation wins wherever both could fire: a history of three
+    /// reports is the stronger fact, and only one sentence is ever shown.
+    func painNote(_ pattern: Pattern) -> PainNote? {
+        if (engineState.painSeen[pattern] ?? 0) >= Self.painSpecialistThreshold {
+            return .seeSpecialist
+        }
+        if discomfortStreak(pattern) >= Self.painTrendThreshold { return .hurtAgain }
+        return nil
+    }
+
     /// True when starting today's workout would make it at least the fourth
     /// training day in a row — the moment a rest offer is worth one quiet
     /// sentence. Never true once today's workout is done: the line is an
     /// offer before the fact, not a remark after it.
     var todayWouldExtendALongRun: Bool {
         !doneToday && wouldBeConsecutiveDay > Self.longRunThreshold
+    }
+}
+
+// MARK: - Why the card shows the number it does (v2.25, spec §36.2)
+
+extension AppStore {
+
+    /// What an exercise card has to explain about its own set count. The
+    /// handle of v2.25 moves sets, not levels, so `1×4 /side` can appear
+    /// under a name that used to carry `4×4 /side` with nothing on screen
+    /// having changed — and a plan that quietly got easier reads as a bug
+    /// exactly the way a plan that quietly got harder does.
+    enum SetsNote {
+        /// The pain channel is holding the volume down while the episode runs.
+        case painCut
+        /// A set has just come back.
+        case setBack
+    }
+
+    /// One line per card at most, and only while it is true — no notification,
+    /// no card of its own, nothing to dismiss.
+    func setsNote(for exercise: SessionExercise) -> SetsNote? {
+        let pattern = exercise.pattern
+        // The STORED cut, never the shown one: the illness lens takes sets off
+        // as a view (§36.6) and has its own sentence on Today already, and the
+        // §20.2 gate takes them off for a reason that has nothing to do with
+        // pain. A live episode plus a cut is the pain channel and only it.
+        if engineState.sore[pattern] != nil, engineState.cutOf(pattern) > 0 {
+            return .painCut
+        }
+        // The hold is armed by the very transition that handed a set back and
+        // spends a tick on each appearance after it, so "full" means the
+        // returned set is in THIS plan (§36.3). That alone is not enough to
+        // say so out loud: the gate, the budget and the postcondition repair
+        // all cut AFTER the handle, and a line about a set the card does not
+        // show would simply be false. So the journal has the last word — what
+        // the card carried the last time this movement came round.
+        if engineState.setsHold[pattern] == EngineConfig.setsBackHold,
+           let before = lastShownSets(pattern), exercise.sets > before {
+            return .setBack
+        }
+        return nil
+    }
+
+    /// The set count this movement's card carried at its last appearance.
+    /// Read from the journal rather than the state because it is what the
+    /// person actually saw. A record too old to know its exercises (pre-1.4)
+    /// ends the walk, the same way the pain streak's does.
+    private func lastShownSets(_ pattern: Pattern) -> Int? {
+        for record in records.reversed() {
+            guard let exercises = record.exercises else { return nil }
+            if let was = exercises.first(where: { $0.pattern == pattern }) { return was.sets }
+        }
+        return nil
     }
 }
 

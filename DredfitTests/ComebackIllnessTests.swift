@@ -94,13 +94,29 @@ final class ComebackIllnessTests: XCTestCase {
 
     // MARK: - #133 the illness lens through the app
 
-    func testMarkIllnessEasesThePlanWithoutTouchingLevels() {
+    /// v2.25 (spec §36.6): RE-MARKED, and the old mark was the bug. The lens
+    /// used to show every level one tier easier; that made the plan HEAVIER in
+    /// 84 cells of 480 (audit 20.08, P0-6), because rep continuity read a
+    /// phantom field on the statics and the v2.21 ladders of tier 3 sit above
+    /// those of tier 4 — hinge L24, `3×4` became `3×5 per leg`. The one tap a
+    /// person has for "I need something lighter right now" did the opposite of
+    /// its promise.
+    ///
+    /// The lens takes SETS off now — to half the band, rounded up — and leaves
+    /// the level, the variation and the dose per set exactly where they are.
+    /// Fewer sets of the same thing cannot be heavier by construction, so the
+    /// promise holds with no cell to check.
+    func testMarkIllnessEasesThePlanWithoutTouchingLevels() throws {
         let store = returned(after: 5)
-        let tierBefore = store.nextSession.exercises.first { $0.pattern == .pull }!.tier
+        let before = try XCTUnwrap(store.nextSession.exercises.first { $0.pattern == .pull })
         store.markIllness()
-        let tierAfter = store.nextSession.exercises.first { $0.pattern == .pull }!.tier
-        XCTAssertEqual(tierAfter, tierBefore - 1, "the plan is one tier gentler")
+        let after = try XCTUnwrap(store.nextSession.exercises.first { $0.pattern == .pull })
+        XCTAssertEqual(after.tier, before.tier, "the lens moves volume, not the variation")
+        XCTAssertEqual(after.load, before.load, "nor the dose per set")
+        XCTAssertLessThan(after.sets, before.sets, "the plan is gentler by sets")
         XCTAssertEqual(store.engineState.levels[.pull], 20, "the stored level stands")
+        XCTAssertEqual(store.engineState.cutOf(.pull), 0,
+                       "the lens builds the plan's VIEW — it stores no cut of its own")
         XCTAssertEqual(store.illnessSessionsLeft, EngineConfig.illnessSessions)
     }
 

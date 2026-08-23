@@ -33,7 +33,10 @@ struct NextWorkoutSheet: View {
                 Button {
                     techniqueFor = ex
                 } label: {
-                    ExerciseRow(exercise: ex)
+                    // The same card as Today's, so it carries the same one
+                    // line about why the set count is what it is (§36.2).
+                    ExerciseRow(exercise: ex,
+                                note: ExerciseRow.note(store.setsNote(for: ex)))
                 }
                 .listRowSeparatorTint(Theme.hairline)
                 .listRowBackground(Color.clear)
