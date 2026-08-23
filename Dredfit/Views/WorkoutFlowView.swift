@@ -13,9 +13,10 @@ import StoreKit
 import UIKit
 import DredfitCore
 
-// v2.26: the type is split across files — the cool-down block lives in
-// WorkoutFlowView+Cooldown.swift, because this file crossed the lint's hard
-// ceiling of 1200 lines and a CI error is not a style opinion. Swift's
+// v2.26: the type is split across files — one per guided block, in
+// WorkoutFlowView+Warmup.swift and WorkoutFlowView+Cooldown.swift, because
+// this file crossed the lint's hard ceiling of 1200 lines and a CI error is
+// not a style opinion. Swift's
 // `private` is FILE-scoped, so the state and helpers that block reaches for
 // are declared without it. They are internal to the module and to this type,
 // not API: nothing outside the two files touches them.
@@ -47,12 +48,12 @@ struct WorkoutFlowView: View {
     @State private var exIndex = 0
     @State private var setIndex = 0          // 0-based
     @State var phase: Phase = .warmup
-    @State private var warmupIndex = 0
-    @State private var warmupRemaining = 0
-    @State private var warmupEndDate: Date?
+    @State var warmupIndex = 0
+    @State var warmupRemaining = 0
+    @State var warmupEndDate: Date?
     // Shares the block's countdown state — one timer, two stages — so
     // nothing new has to survive backgrounding.
-    @State private var warmupStage: Warmup.Stage = .getReady
+    @State var warmupStage: Warmup.Stage = .getReady
     // Computed once on entry: the composition depends on what was performed.
     @State var cooldownPositions: [CooldownPosition] = []
     @State var cooldownIndex = 0
@@ -284,108 +285,7 @@ struct WorkoutFlowView: View {
         }
     }
 
-    // MARK: - Warm-up
-
-    /// The way back in from a pause wears the transition's screen, because it
-    /// is the same beat: the name of the position, the 3-2-1, then the
-    /// position. Only the seconds it counts and what "I'm ready" cuts short
-    /// differ.
-    @ViewBuilder
-    private var warmupView: some View {
-        if reentering || warmupStage == .getReady {
-            GetReadyScreen(name: Warmup.moves[warmupIndex].name,
-                           remaining: reentering ? blockPause.reentryRemaining : warmupRemaining,
-                           index: warmupIndex, count: Warmup.moves.count,
-                           countdownIdentifier: countdownIdentifier(reentering: reentering),
-                           blockSkipTitle: String(localized: "Skip warm-up"),
-                           paused: blockPause.isHeld,
-                           onTechnique: { openWarmupTechnique() },
-                           onStart: { reentering ? endBlockReentry() : startWarmupMoveNow() },
-                           onPauseToggle: { toggleBlockPause() },
-                           onSkipPosition: { skipWarmupPosition() },
-                           onSkipBlock: { finishWarmup() })
-        } else {
-            warmupMoveView
-        }
-    }
-
-    private var warmupMoveView: some View {
-        WarmupMoveScreen(name: Warmup.moves[warmupIndex].name,
-                         remaining: warmupRemaining,
-                         index: warmupIndex, count: Warmup.moves.count,
-                         paused: blockPause.isHeld,
-                         onTechnique: { openWarmupTechnique() },
-                         onPauseToggle: { toggleBlockPause() },
-                         onSkipPosition: { skipWarmupPosition() },
-                         onSkipBlock: { finishWarmup() })
-    }
-
-    private func openWarmupTechnique() {
-        openPositionTechnique(PositionTechnique(warmup: Warmup.moves[warmupIndex]))
-    }
-
-    /// Skipping from the transition skips the move it was announcing.
-    private func skipWarmupPosition() {
-        if warmupIndex + 1 < Warmup.moves.count {
-            startWarmupPosition(warmupIndex + 1)
-        } else {
-            finishWarmup()
-        }
-    }
-
-    private func startWarmupPosition(_ index: Int) {
-        enterWarmupStage(index: index, stage: .getReady,
-                         remaining: Warmup.stageSeconds(.getReady, index: index))
-    }
-
-    /// The transition is a floor on the pause between positions, never a wait.
-    private func startWarmupMoveNow() {
-        enterWarmupStage(index: warmupIndex, stage: .move,
-                         remaining: Warmup.stageSeconds(.move, index: warmupIndex))
-    }
-
-    private func enterWarmupStage(index: Int, stage: Warmup.Stage, remaining: Int) {
-        clearBlockPause()   // a new stage is never entered still frozen
-        warmupIndex = index
-        warmupStage = stage
-        warmupRemaining = remaining
-        warmupEndDate = Date.now.addingTimeInterval(TimeInterval(remaining))
-    }
-
-    private func tickWarmup() {
-        guard let end = warmupEndDate else { return }
-        let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
-        guard newRemaining != warmupRemaining else { return }
-        if newRemaining > 0 {
-            if newRemaining <= Self.countdownSignalSeconds && newRemaining < warmupRemaining {
-                playTick()
-            }
-            // Animated so contentTransition(.numericText) rolls the digits —
-            // a bare mutation swaps them with no transaction.
-            withAnimation(.linear(duration: 0.3)) { warmupRemaining = newRemaining }
-            return
-        }
-        // Warmup.advance absorbs whatever a long absence already covered.
-        guard let next = Warmup.advance(from: (warmupIndex, warmupStage),
-                                        overshoot: Int(max(0, -end.timeIntervalSinceNow))) else {
-            // The block is over: done, not go — a tap starts the first exercise (#186).
-            playDone()
-            finishWarmup()
-            return
-        }
-        // A transition opening is the done of the position before it; the go
-        // marks where a movement starts, the end of the transition. `entered`
-        // names the first boundary crossed and `stage` where the overshoot
-        // landed: a long absence crosses several, so anything but a landing on
-        // the boundary that opened the run stays silent — the signal belongs
-        // to what is on screen.
-        if next.entered == .getReady, next.stage == .getReady {
-            playDone()
-        } else if next.entered != .getReady, next.stage != .getReady {
-            playGo()
-        }
-        enterWarmupStage(index: next.index, stage: next.stage, remaining: next.remaining)
-    }
+    // MARK: - The technique sheet (shared by both guided blocks)
 
     /// Freezes the running countdown: the end date comes off (the tick
     /// guards go quiet) while the remaining seconds stay put and rebuild it.
@@ -414,18 +314,10 @@ struct WorkoutFlowView: View {
         }
     }
 
-    private func finishWarmup() {
-        clearBlockPause()
-        warmupEndDate = nil
-        phase = .work
-        liveActivity.update(activityWorkState())
-        persistProgress()
-    }
-
     // MARK: - Live Activity
 
     /// Strings leave the app pre-localized — the extension renders verbatim.
-    private func activityWorkState() -> RestActivityAttributes.ContentState {
+    func activityWorkState() -> RestActivityAttributes.ContentState {
         if phase == .warmup {
             return .init(phase: .work, title: String(localized: "WARM-UP"),
                          detail: "", restEndDate: nil)
