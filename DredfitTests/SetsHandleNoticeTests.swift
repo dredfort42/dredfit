@@ -145,6 +145,10 @@ final class SetsHandleNoticeTests: XCTestCase {
             "Start the cool-down",
             "Skip the cool-down",
             "The work is done. A few minutes of stretching helps it settle.",
+            "Warm-up",
+            "Start the warm-up",
+            "Skip the warm-up",
+            "A few easy minutes to get the body ready. Skip it if you are already warm.",
         ]
         for key in keys {
             let entry = try XCTUnwrap(strings[key] as? [String: Any],

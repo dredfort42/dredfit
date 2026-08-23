@@ -74,31 +74,83 @@ final class HandlesUITests: XCTestCase {
                       "a movement with a set off must offer to put it back")
     }
 
+    // MARK: - Offered, not required (§37.7a, both blocks)
+
+    /// The warm-up's own version of the cool-down screen below. The claim is
+    /// the ABSENCE of a running block, not the presence of a button: a screen
+    /// that merely appeared over a countdown already ticking would pass a
+    /// presence check and fail the person.
+    func testTheWarmUpAsksBeforeItStarts() {
+        app.launch()
+        app.buttons["Start"].tap()
+        let offer = app.buttons["warmup-start"]
+        XCTAssertTrue(offer.waitForExistence(timeout: 5),
+                      "the workout must open on the warm-up offer")
+        XCTAssertFalse(app.staticTexts["getready-countdown"].exists,
+                       "nothing may be counting down before the block is agreed to")
+        XCTAssertFalse(app.staticTexts["warmup-countdown"].exists,
+                       "the warm-up must not have started itself")
+        offer.tap()
+        XCTAssertTrue(app.staticTexts["getready-countdown"].waitForExistence(timeout: 5),
+                      "saying yes must open the block on its first transition")
+    }
+
+    /// …and the other answer is a real one: straight to the work, with nothing
+    /// recorded against the person for arriving already warm.
+    func testTheWarmUpCanBeDeclined() {
+        app.launch()
+        app.buttons["Start"].tap()
+        let skip = app.buttons["warmup-intro-skip"]
+        XCTAssertTrue(skip.waitForExistence(timeout: 5),
+                      "the offer must carry a way past it")
+        skip.tap()
+        XCTAssertTrue(app.buttons["Done"].waitForExistence(timeout: 5),
+                      "declining the warm-up must lead straight to the first exercise")
+    }
+
     /// v2.26 (§37.7a): the cool-down is offered, not started — and the same
     /// screen lets it be declined.
     func testTheCoolDownAsksBeforeItStarts() {
+        // Five movements skipped and the sixth actually performed: the block
+        // is drawn from what was DONE, so a workout of pure skips has nothing
+        // to stretch and is never asked the question at all.
+        app.launchArguments.append("--uitest-fast")
         app.launch()
         app.buttons["Start"].tap()
-        let skipWarmup = app.buttons["Skip warm-up"]
+        let skipWarmup = app.buttons["warmup-intro-skip"]
         if skipWarmup.waitForExistence(timeout: 5) { skipWarmup.tap() }
-        // Straight through the work: every exercise skipped still counts as a
-        // workout, and the cool-down set is drawn from what was performed — so
-        // one exercise is done properly to keep the block non-empty.
-        for _ in 0..<5 { app.buttons["Skip exercise"].tap() }
-
-        let start = app.buttons["cooldown-start"]
-        let skip = app.buttons["cooldown-intro-skip"]
-        // A workout of pure skips has nothing to stretch and goes straight to
-        // the rating — either outcome is correct, and only one may happen.
-        let asked = start.waitForExistence(timeout: 5)
-        let rated = app.staticTexts["How did it go?"].waitForExistence(timeout: 1)
-        XCTAssertTrue(asked || rated,
-                      "the flow must reach either the cool-down question or the rating")
-        if asked {
-            XCTAssertTrue(skip.exists, "the question must be answerable both ways")
+        for _ in 0..<5 {
+            let skip = app.buttons["Skip exercise"]
+            XCTAssertTrue(skip.waitForExistence(timeout: 10), "the work screen never came up")
             skip.tap()
-            XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 5),
-                          "declining the cool-down goes to the rating")
         }
+
+        // The last movement is walked to its end; the question comes after it.
+        let driver = WorkoutDriver(app: app)
+        let start = app.buttons["cooldown-start"]
+        let rating = app.staticTexts["How did it go?"]
+        let done = app.buttons["Done"]
+        let startHold = app.buttons["Start hold"]
+        let deadline = Date.now.addingTimeInterval(180)
+        while !start.exists && !rating.exists && Date.now < deadline {
+            if done.exists {
+                driver.coordinateTap(done)
+                _ = done.waitForNonExistence(timeout: 3)
+            } else if startHold.exists {
+                driver.coordinateTap(startHold)
+                _ = startHold.waitForNonExistence(timeout: 3)
+            } else {
+                _ = start.waitForExistence(timeout: 2)
+            }
+        }
+
+        XCTAssertTrue(start.exists, "the work must end on the cool-down question")
+        XCTAssertTrue(app.buttons["cooldown-intro-skip"].exists,
+                      "the question must be answerable both ways")
+        XCTAssertFalse(app.staticTexts["cooldown-countdown"].exists,
+                       "nothing may be counting down before the block is agreed to")
+        app.buttons["cooldown-intro-skip"].tap()
+        XCTAssertTrue(rating.waitForExistence(timeout: 5),
+                      "declining the cool-down goes to the rating")
     }
 }

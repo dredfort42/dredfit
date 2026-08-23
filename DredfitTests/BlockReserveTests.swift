@@ -79,6 +79,22 @@ final class BlockReserveTests: XCTestCase {
     }
 
     /// The two halves separately, so a failure says WHICH block moved.
+    /// v2.26: the warm-up's offer screen names a length before the person
+    /// agrees to it, and the one thing it must never do is under-promise —
+    /// a block that overruns what it said is worse than one that beats it.
+    ///
+    /// Derived from the same composition the reserve above is, so adding a
+    /// move fails here rather than quietly making the screen lie.
+    func testTheWarmupOfferNeverPromisesLessThanTheBlockTakes() {
+        let announced = WorkoutFlowView.warmupIntroMinutes
+        XCTAssertGreaterThanOrEqual(
+            announced * 60, warmupSec,
+            "the offer promises \(announced) min for a block that takes \(warmupSec) s")
+        // And not absurdly more: rounding up one minute, never two.
+        XCTAssertLessThan(announced * 60, warmupSec + 60,
+                          "the offer overstates the block by a whole minute")
+    }
+
     func testEachBlockCostsWhatTheSpecSays() {
         XCTAssertEqual(warmupSec, 245, "§37.7a: the warm-up's composition is 245 s")
         XCTAssertEqual(worstCooldownSec(), 295, "§37.7a: the worst cool-down is 295 s")

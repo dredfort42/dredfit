@@ -32,7 +32,7 @@ final class SetFactsUITests: XCTestCase {
     func testAFactOnTheLastSetLeavesTheEarlierSetsOnPlan() {
         app.launch()
         app.buttons["Start"].tap()
-        let skipWarmup = app.buttons["Skip warm-up"]
+        let skipWarmup = app.buttons["warmup-intro-skip"]
         if skipWarmup.waitForExistence(timeout: 3) { skipWarmup.tap() }
 
         let done = app.buttons["Done"]

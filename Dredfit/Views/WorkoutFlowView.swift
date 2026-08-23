@@ -32,6 +32,12 @@ struct WorkoutFlowView: View {
     @Environment(\.requestReview) private var requestReview
 
     enum Phase: Equatable {
+        /// v2.26 (spec §37.7a, owner's call): the warm-up no longer starts
+        /// itself either. Being dropped straight into a countdown nobody
+        /// agreed to is how a block gets skipped by walking away rather than
+        /// by saying so — and the answer "I am already warm" is a real one.
+        /// Offered, never required; the same two answers as the cool-down.
+        case warmupIntro
         case warmup
         case work
         case rest(seconds: Int)
@@ -47,7 +53,7 @@ struct WorkoutFlowView: View {
 
     @State private var exIndex = 0
     @State private var setIndex = 0          // 0-based
-    @State var phase: Phase = .warmup
+    @State var phase: Phase = .warmupIntro
     @State var warmupIndex = 0
     @State var warmupRemaining = 0
     @State var warmupEndDate: Date?
@@ -149,6 +155,8 @@ struct WorkoutFlowView: View {
             header
 
             switch phase {
+            case .warmupIntro:
+                warmupIntroView
             case .warmup:
                 warmupView
             case .work:
@@ -228,7 +236,6 @@ struct WorkoutFlowView: View {
                 liveActivity.start(sessionNumber: session.sessionNumber,
                                    state: currentActivityState())
             }
-            if phase == .warmup { startWarmupPosition(0) }
         }
         .onDisappear {
             UIApplication.shared.isIdleTimerDisabled = false
@@ -265,7 +272,7 @@ struct WorkoutFlowView: View {
     private var header: some View {
         if phase != .feedback, !isMilestone {
             FlowHeader(title: headerTitle,
-                       steps: phase == .warmup ? 0 : exercises.count,
+                       steps: isWarmingUp ? 0 : exercises.count,
                        doneIndex: exIndex) {
                 if hasProgress {
                     exitConfirmShown = true
@@ -279,7 +286,7 @@ struct WorkoutFlowView: View {
     private var headerTitle: String {
         switch phase {
         case .work:     return String(localized: "\(exIndex + 1) / \(exercises.count)")
-        case .warmup:   return String(localized: "WARM-UP")
+        case .warmup, .warmupIntro: return String(localized: "WARM-UP")
         case .cooldownIntro, .cooldown: return String(localized: "COOL-DOWN")
         default:        return String(localized: "REST")
         }
@@ -318,7 +325,7 @@ struct WorkoutFlowView: View {
 
     /// Strings leave the app pre-localized — the extension renders verbatim.
     func activityWorkState() -> RestActivityAttributes.ContentState {
-        if phase == .warmup {
+        if isWarmingUp {
             return .init(phase: .work, title: String(localized: "WARM-UP"),
                          detail: "", restEndDate: nil)
         }
@@ -847,7 +854,9 @@ extension WorkoutFlowView {
     func finishNow() {
         // Every exercise is already behind. Without this the generic path
         // would call the completed last exercise "not finished".
-        if phase == .cooldown {
+        // v2.26: the cool-down QUESTION is behind the work too — leaving from
+        // it must end the same way leaving from the block does.
+        if phase == .cooldown || phase == .cooldownIntro {
             finishCooldown()
             return
         }

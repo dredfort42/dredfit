@@ -15,6 +15,75 @@ import DredfitCore
 // A same-file extension so the view struct stays within the linter's size for
 // a type body. @State storage stays in the struct; only behaviour here.
 extension WorkoutFlowView {
+    /// v2.26 (spec §37.7a, extended to this block at the owner's call): the
+    /// warm-up is OFFERED, not started.
+    ///
+    /// Same two answers as the cool-down and the same tone: no consequence
+    /// attaches to saying no. The one difference is the reason on offer —
+    /// arriving already warm is ordinary, and the screen says so rather than
+    /// making the person justify a skip by walking out of a countdown.
+    var warmupIntroView: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Spacer()
+            Text("Warm-up")
+                .dredfitFont(32, weight: .heavy)
+                .tracking(-0.5)
+                .foregroundStyle(Theme.ink)
+            Text("A few easy minutes to get the body ready. Skip it if you are already warm.")
+                .dredfitFont(15)
+                .foregroundStyle(Theme.ink2)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 8)
+            Text("\(Warmup.moves.count) positions · about \(Self.warmupIntroMinutes) min")
+                .dredfitFont(13.5)
+                .foregroundStyle(Theme.ink3)
+                .padding(.top, 6)
+                .accessibilityIdentifier("warmup-intro-length")
+            Spacer()
+            PrimaryButton(title: String(localized: "Start the warm-up")) { beginWarmup() }
+                .accessibilityIdentifier("warmup-start")
+            Button(String(localized: "Skip the warm-up")) { declineWarmup() }
+                .dredfitFont(14.5)
+                .foregroundStyle(Theme.ink2)
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .padding(.top, 4)
+                .accessibilityIdentifier("warmup-intro-skip")
+        }
+        .padding(.horizontal, 20)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    /// The block is fixed, so this is a constant — but it is DERIVED, because
+    /// a hand-typed 5 would go stale the first time a move is added. Rounded
+    /// up, like the cool-down's: a promise the block overruns is worse than
+    /// one it beats.
+    static var warmupIntroMinutes: Int {
+        let seconds = Warmup.moves.indices.reduce(0) { total, index in
+            total + Warmup.stageSeconds(.getReady, index: index)
+                  + Warmup.stageSeconds(.move, index: index)
+        }
+        return max(1, Int((Double(seconds) / 60).rounded(.up)))
+    }
+
+    /// Both warm-up screens are the same beat as far as the rest of the view
+    /// is concerned: not a step of the work, and WARM-UP on the lock screen.
+    var isWarmingUp: Bool { phase == .warmup || phase == .warmupIntro }
+
+    /// The person said yes. This is the start the view used to make for them
+    /// on appear — nothing is persisted, exactly as before: there is no
+    /// progress yet to survive anything.
+    func beginWarmup() {
+        phase = .warmup
+        startWarmupPosition(0)
+    }
+
+    /// …or no. The same ending the footer's "Skip warm-up" already had, and
+    /// the same one taking every move in turn arrives at: straight to the
+    /// work, with nothing recorded about the block either way.
+    func declineWarmup() {
+        finishWarmup()
+    }
+
     /// The way back in from a pause wears the transition's screen, because it
     /// is the same beat: the name of the position, the 3-2-1, then the
     /// position. Only the seconds it counts and what "I'm ready" cuts short
