@@ -170,14 +170,26 @@ final class EngineV210Tests: XCTestCase {
             for ex in session.exercises where Pattern.pushSide.contains(ex.pattern) {
                 XCTAssertEqual(ex.sets, min(Level.decode(pushL).sets, slot.sets),
                                "pull \(pullL) / push \(pushL): the band is the smaller of the two")
-                // Re-marked for v2.17 (spec §28.2): the rest follows the
-                // resulting band AND the tier — a gated tier-4 push rests 90 s,
-                // because the gate trimmed the plan, not the difficulty.
+                // Re-marked for v2.17 (spec §28.2): the rest follows the band
+                // AND the tier — a gated tier-4 push rests 90 s, because the
+                // gate trimmed the plan, not the difficulty.
+                // Re-marked again for v2.25 (§36.9): the band is the LEVEL'S.
+                // The old form read the trimmed set count, so the gate — which
+                // exists to take VOLUME off — also shortened the recovery. The
+                // pair of assertions below is stricter than the single one it
+                // replaces: the pause is pinned to a number, and separately to
+                // never fall below what the trimmed band would have given.
+                let band = Level.decode(pushL).sets
                 XCTAssertEqual(ex.restSetSec,
-                               EngineConfig.restSetByTierBand[ex.tier]?[ex.sets]
-                                ?? EngineConfig.restSetByBand[ex.sets]
+                               EngineConfig.restSetByTierBand[ex.tier]?[band]
+                                ?? EngineConfig.restSetByBand[band]
                                 ?? EngineConfig.restSetSec,
-                               "the rest follows the resulting band and tier")
+                               "the rest follows the LEVEL's band and tier")
+                XCTAssertGreaterThanOrEqual(
+                    ex.restSetSec,
+                    EngineConfig.restSetByTierBand[ex.tier]?[ex.sets]
+                        ?? EngineConfig.restSetByBand[ex.sets] ?? EngineConfig.restSetSec,
+                    "the gate may not shorten the pause by taking a set")
             }
         }
     }

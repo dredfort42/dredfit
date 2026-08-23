@@ -173,20 +173,35 @@ public enum Level {
         let sides: Int
         let load: Int
         let sub: Int
+        let cut: Int
         let subDelta: Int
 
         var total: Int { (sets * load + sub * subDelta) * sides }
     }
 
-    static func work(pattern: Pattern, level: Int, sub: Int = 0) -> PlanWork {
+    /// v2.25 (spec §36.2): the plan's sets are the band's LESS the ones taken
+    /// off. The level fixes the variation and the dose per set; the cut only
+    /// ever touches volume — neither the unit, nor the sides, nor the
+    /// variation move — so the measure stays valid whatever the cut is:
+    /// 3→2 is −33.3 %, 4→3 is −25.0 %, 5→4 is −20.0 %.
+    ///
+    /// `cut` carries NO default on purpose. Four skeptic rounds in a row found
+    /// the same class of defect — an optional argument left out, or left out
+    /// with the wrong floor — and a compile error is a stronger guard than a
+    /// grep. The same rule holds for every §36 function below.
+    static func work(pattern: Pattern, level: Int, sub: Int, cut: Int) -> PlanWork {
         let d = decode(level)
         let entry = ExerciseLibrary.entry(for: pattern)
         let unit = entry.unit(forTier: d.tier)
-        let s = effectiveSub(level: level, sub: sub, sets: d.sets)
-        return PlanWork(tier: d.tier, sets: d.sets, unit: unit,
+        let sets = setsAfterCut(level: level, cut: cut)
+        let s = effectiveSub(level: level, sub: sub, sets: sets)
+        return PlanWork(tier: d.tier, sets: sets, unit: unit,
                         sides: entry.variations[d.tier - 1].unilateral ? 2 : 1,
                         load: unit == .reps ? d.reps : d.hold,
-                        sub: s, subDelta: subDelta(pattern: pattern, level: level))
+                        sub: s,
+                        cut: effCut(level: level, cut: cut,
+                                    floor: EngineConfig.setsFloorPain),
+                        subDelta: subDelta(pattern: pattern, level: level))
     }
 
     /// v2.14 (spec §25.3) · v2.19 (spec §30.2): "no harder". A descent has no
@@ -219,10 +234,15 @@ public enum Level {
     /// sub-steps that were given up. The per-set comparison reads the BASE,
     /// which is stricter than reading the heaviest set — the safe direction —
     /// and with `sub == 0` on both sides the gate is bit-for-bit v2.21's.
+    /// v2.25 (spec §36.4): the gate takes TRIPLES `(level, sub, cut)`. Taking a
+    /// set off inside one variation is always comparable — the dose per set is
+    /// the same, the sides are the same, only the number of sets falls — so
+    /// neither `load` nor `total` can grow by construction.
     static func noHarder(pattern: Pattern, from: Int, to: Int,
-                         fromSub: Int = 0, toSub: Int = 0) -> Bool {
-        let a = work(pattern: pattern, level: from, sub: fromSub)
-        let b = work(pattern: pattern, level: to, sub: toSub)
+                         fromSub: Int = 0, toSub: Int = 0,
+                         fromCut: Int, toCut: Int) -> Bool {
+        let a = work(pattern: pattern, level: from, sub: fromSub, cut: fromCut)
+        let b = work(pattern: pattern, level: to, sub: toSub, cut: toCut)
         if b.tier > a.tier { return false }
         if b.tier == a.tier {
             guard b.unit == a.unit else { return true }
@@ -245,18 +265,48 @@ public enum Level {
     /// v2.22 (spec §33): "the current plan" is the pair `(from, fromSub)`; the
     /// target of a descent always carries `sub == 0`, because every descent
     /// zeroes the sub-step.
+    /// v2.25 (spec §36.4): the descent reads the triple, and a landing that
+    /// CHANGES THE UNIT is chosen by time under load rather than by the rung
+    /// next door — see `landOnUnitChange`.
     static func descendNoHarder(pattern: Pattern, from: Int, factLevel: Int,
-                                fromSub: Int = 0) -> Int {
-        if factLevel >= from
-            || noHarder(pattern: pattern, from: from, to: factLevel, fromSub: fromSub) {
+                                fromSub: Int = 0, fromCut: Int) -> Int {
+        if factLevel >= from { return factLevel }
+        if noHarder(pattern: pattern, from: from, to: factLevel,
+                    fromSub: fromSub, toSub: 0, fromCut: fromCut, toCut: 0) {
+            // v2.25 (round 6, fix 5): the unit check stands on the EARLY
+            // return too — without it an honest fact walked past it into the
+            // hang.
+            let a0 = work(pattern: pattern, level: from, sub: fromSub, cut: fromCut)
+            let b0 = work(pattern: pattern, level: factLevel, sub: 0, cut: 0)
+            if a0.unit != b0.unit {
+                return landOnUnitChange(pattern: pattern, fromLevel: from, fromSub: fromSub,
+                                        fromCut: fromCut, toTier: b0.tier)
+            }
             return factLevel
         }
+        // v2.25 (Ф2): the loop covers ZERO as well. The old `while cand > 0`
+        // ended in an unconditional `return 0` — a position the gate might
+        // itself have rejected: 352 triples were handed out around the very
+        // check the gate exists for.
         var cand = factLevel - 1
-        while cand > 0 {
-            if noHarder(pattern: pattern, from: from, to: cand, fromSub: fromSub) { return cand }
+        while cand >= 0 {
+            if noHarder(pattern: pattern, from: from, to: cand,
+                        fromSub: fromSub, toSub: 0, fromCut: fromCut, toCut: 0) {
+                let a = work(pattern: pattern, level: from, sub: fromSub, cut: fromCut)
+                let b = work(pattern: pattern, level: cand, sub: 0, cut: 0)
+                if a.unit != b.unit {
+                    return landOnUnitChange(pattern: pattern, fromLevel: from, fromSub: fromSub,
+                                            fromCut: fromCut, toTier: b.tier)
+                }
+                return cand
+            }
             cand -= 1
         }
-        return 0
+        // Below zero there is nothing. If the gate rejected the whole scale we
+        // do not move at all: standing still is always safer than jumping into
+        // a cell the measure just called heavier. From here the descent goes
+        // by taking sets off (§36.4).
+        return from
     }
 
     /// Level from an actual value (reps or seconds) given the planned tier and

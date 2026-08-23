@@ -57,6 +57,12 @@ private struct Golden: Decodable {
         let lessHistAfter: [String: Int]?   // v2.15: the appearance window (§26.1)
         let returnRunAfter: Int?   // v2.12: consecutive returns deepen the drop
         let illnessAfter: Int?     // v2.12: the illness lens survives a break
+        // v2.25 (§36.7): a comeback carries the cut across and reclamps it to
+        // the new band, and on a long break the memory of pain fades.
+        let subAfter: [Int]?
+        let cutAfter: [Int]?
+        let barCutAfter: Int?
+        let painSeenAfter: [Int]?
     }
     /// v2.12 (§22.3): one step may carry a SERIES of comebacks — returns in a
     /// row with no session between, each past the first one deeper. The wire
@@ -94,6 +100,13 @@ private struct Golden: Decodable {
         let lessHistAfter: [String: Int]?
         let returnRunAfter: Int?   // v2.12: a decay is not a return
         let illnessAfter: Int?     // v2.12: the lens survives a decay
+        // v2.25 (§36.7): a decay is a DESCENT and walks a step of the growth
+        // path — on a block floor it takes a SET and leaves the level alone,
+        // so `levelsAfter` alone no longer describes where it landed.
+        let subAfter: [Int]?
+        let cutAfter: [Int]?
+        let barCutAfter: Int?
+        let painSeenAfter: [Int]?
     }
     struct Step: Decodable {
         let sessionNumber: Int
@@ -132,6 +145,30 @@ private struct Golden: Decodable {
         let silentDecay: SilentDecay?
         let comeback: ComebackStep?
         let illnessTap: IllnessTap?
+        // v2.25 (§36): the third coordinate of a position and everything the
+        // wave added around it. Every scenario writes them — gating them by
+        // scenario shape is exactly the hole P0-5 of the last audit came
+        // through — so they are asserted on every step.
+        let cutAfter: [Int]?
+        let barCutAfter: Int?
+        let painSeenAfter: [Int]?
+        let barPainSeenAfter: Int?
+        let setsHoldAfter: [Int]?
+        let barSetsHoldAfter: Int?
+        let shownWorkAfter: [Int]?
+        let barShownWorkAfter: Int?
+        let shownOrdAfter: [Int]?
+        let barShownOrdAfter: Int?
+        let shownBudgetAfter: Int?
+        // The three fields `make_golden.js` never used to snapshot (audit
+        // 2026-08-20, S5-1/S5-2) — the hole this wave closed.
+        let rampWindowAfter: Int?
+        let weekGainAfter: [Int]?
+        let barWeekGainAfter: Int?
+        let weekAgeDaysAfter: Double?
+        /// v2.25: the SEVENTH argument. Absent means nil, which pins the
+        /// calendar-blind path of §7 just as a present one pins §28.5/§30.8.
+        let gapDays: Double?
     }
     struct Ex: Decodable {
         let pattern: String
@@ -162,7 +199,7 @@ final class GoldenTests: XCTestCase {
     /// re-baseline every number instead of catching a port bug.
     func testGeneratorIsThePinnedReferenceVersion() throws {
         let g = try loadGolden()
-        XCTAssertEqual(g.generator, "adaptive_engine.js v2.24.0",
+        XCTAssertEqual(g.generator, "adaptive_engine.js v2.25.0",
                        "golden.json regenerated from an unexpected reference version")
     }
 
@@ -183,6 +220,12 @@ final class GoldenTests: XCTestCase {
         let sore: [Int]?
         let soreLeft: [Int]?
         let lessRun: Int?
+        // v2.25 (§36.7): a break moves the whole TRIPLE, and a long one fades
+        // the memory of pain.
+        let sub: [Int]?
+        let cut: [Int]?
+        let barCut: Int?
+        let painSeen: [Int]?
     }
 
     private func assertBreak(_ state: EngineState, _ snap: BreakSnapshot,
@@ -207,6 +250,21 @@ final class GoldenTests: XCTestCase {
                            v, "\(ctx): confirmation countdowns survive")
         }
         if let v = snap.lessRun { XCTAssertEqual(state.lessRun, v, "\(ctx): less run") }
+        // v2.25 (§36.7): the decay steps along the growth path, so the
+        // sub-step and the cut are part of where it landed.
+        if let v = snap.sub {
+            XCTAssertEqual(order.map { state.sub[Pattern(rawValue: $0)!] ?? 0 }, v,
+                           "\(ctx): sub")
+        }
+        if let v = snap.cut {
+            XCTAssertEqual(order.map { state.cut[Pattern(rawValue: $0)!] ?? 0 }, v,
+                           "\(ctx): cut")
+        }
+        if let v = snap.barCut { XCTAssertEqual(state.cutOf(.pullBar), v, "\(ctx): bar cut") }
+        if let v = snap.painSeen {
+            XCTAssertEqual(order.map { state.painSeen[Pattern(rawValue: $0)!] ?? 0 }, v,
+                           "\(ctx): pain memory")
+        }
     }
 
     func testAllScenariosMatchReferenceEngine() throws {
@@ -262,7 +320,8 @@ final class GoldenTests: XCTestCase {
                 let discomfort = Set((step.discomfort ?? []).map { Pattern(rawValue: $0)! })
                 state = Engine.applyFeedback(state: state, session: session,
                                              result: result, overrides: overrides,
-                                             skipped: skipped, discomfort: discomfort)
+                                             skipped: skipped, discomfort: discomfort,
+                                             gapDays: step.gapDays)
 
                 let levels = Pattern.ordered.map { state.levels[$0]! }
                 let streaks = Pattern.ordered.map { state.failStreak[$0]! }
@@ -301,7 +360,9 @@ final class GoldenTests: XCTestCase {
                 levels: decay.levelsAfter, streaks: decay.failStreakAfter,
                 barLevel: decay.barLevelAfter, barStreak: decay.barStreakAfter,
                 frozen: decay.frozenAfter, sore: decay.soreAfter,
-                soreLeft: decay.soreLeftAfter, lessRun: decay.lessRunAfter),
+                soreLeft: decay.soreLeftAfter, lessRun: decay.lessRunAfter,
+                sub: decay.subAfter, cut: decay.cutAfter, barCut: decay.barCutAfter,
+                painSeen: decay.painSeenAfter),
                 order: order, ctx: "\(ctx) silent decay")
             if let hist = decay.lessHistAfter {
                 var actual: [String: Int] = [:]
@@ -323,7 +384,9 @@ final class GoldenTests: XCTestCase {
                 levels: comeback.levelsAfter, streaks: comeback.failStreakAfter,
                 barLevel: comeback.barLevelAfter, barStreak: comeback.barStreakAfter,
                 frozen: comeback.frozenAfter, sore: comeback.soreAfter,
-                soreLeft: comeback.soreLeftAfter, lessRun: comeback.lessRunAfter),
+                soreLeft: comeback.soreLeftAfter, lessRun: comeback.lessRunAfter,
+                sub: comeback.subAfter, cut: comeback.cutAfter,
+                barCut: comeback.barCutAfter, painSeen: comeback.painSeenAfter),
                 order: order, ctx: cctx)
             XCTAssertEqual(state.counter, comeback.counterAfter,
                            "\(cctx) must not move the counter")
@@ -359,6 +422,64 @@ final class GoldenTests: XCTestCase {
         }
     }
 
+    /// v2.25 (spec §36): the sets handle and everything the wave put in the
+    /// state around it — the third coordinate of a position, the memory of
+    /// pain, the hold on a returning set, the shown-plan memory, and the three
+    /// §28.4-28.5 fields that used to sit outside the golden contract
+    /// altogether. Split out of `assertAuxFields` so that function keeps its
+    /// complexity budget.
+    private func assertSetsHandle(_ step: Golden.Step, _ state: EngineState, ctx: String) {
+        if let cut = step.cutAfter {
+            XCTAssertEqual(Pattern.ordered.map { state.cut[$0] ?? 0 }, cut, ctx + " (cut)")
+        }
+        if let v = step.barCutAfter { XCTAssertEqual(state.cutOf(.pullBar), v, ctx + " (bar cut)") }
+        if let v = step.painSeenAfter {
+            XCTAssertEqual(Pattern.ordered.map { state.painSeen[$0] ?? 0 }, v,
+                           ctx + " (pain memory)")
+        }
+        if let v = step.barPainSeenAfter {
+            XCTAssertEqual(state.painSeen[.pullBar] ?? 0, v, ctx + " (bar pain memory)")
+        }
+        if let v = step.setsHoldAfter {
+            XCTAssertEqual(Pattern.ordered.map { state.setsHold[$0] ?? 0 }, v,
+                           ctx + " (sets hold)")
+        }
+        if let v = step.barSetsHoldAfter {
+            XCTAssertEqual(state.setsHold[.pullBar] ?? 0, v, ctx + " (bar sets hold)")
+        }
+        if let v = step.shownWorkAfter {
+            XCTAssertEqual(Pattern.ordered.map { state.shownWork[$0] ?? 0 }, v,
+                           ctx + " (shown work)")
+        }
+        if let v = step.barShownWorkAfter {
+            XCTAssertEqual(state.shownWork[.pullBar] ?? 0, v, ctx + " (bar shown work)")
+        }
+        if let v = step.shownOrdAfter {
+            XCTAssertEqual(Pattern.ordered.map { state.shownOrd[$0] ?? 0 }, v,
+                           ctx + " (shown position)")
+        }
+        if let v = step.barShownOrdAfter {
+            XCTAssertEqual(state.shownOrd[.pullBar] ?? 0, v, ctx + " (bar shown position)")
+        }
+        if let v = step.shownBudgetAfter {
+            XCTAssertEqual(state.shownBudget, v, ctx + " (shown budget)")
+        }
+        // The three fields that were outside the contract until this wave.
+        if let v = step.rampWindowAfter {
+            XCTAssertEqual(state.rampWindow, v, ctx + " (ramp window)")
+        }
+        if let v = step.weekGainAfter {
+            XCTAssertEqual(Pattern.ordered.map { state.weekGain[$0] ?? 0 }, v,
+                           ctx + " (weekly gain)")
+        }
+        if let v = step.barWeekGainAfter {
+            XCTAssertEqual(state.weekGain[.pullBar] ?? 0, v, ctx + " (bar weekly gain)")
+        }
+        if let v = step.weekAgeDaysAfter {
+            XCTAssertEqual(state.weekAgeDays, v, accuracy: 1e-9, ctx + " (window age)")
+        }
+    }
+
     /// Every optional per-step snapshot past levels and streaks — the fields
     /// each wave added, compared only where the fixture carries them.
     private func assertAuxFields(_ step: Golden.Step, _ state: EngineState, ctx: String) {
@@ -378,6 +499,7 @@ final class GoldenTests: XCTestCase {
             XCTAssertEqual(state.sore[.pullBar] ?? 0, barSore, ctx + " (bar sore)")
         }
         assertEpisodeCountdown(step, state, ctx: ctx)   // v2.20 (spec §31.2)
+        assertSetsHandle(step, state, ctx: ctx)         // v2.25 (spec §36)
         // v2.9: the run of unnamed "less" ratings (spec §19.1)
         if let lessRun = step.lessRunAfter {
             XCTAssertEqual(state.lessRun, lessRun, ctx + " (less run)")

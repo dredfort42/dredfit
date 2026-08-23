@@ -175,15 +175,30 @@ final class EngineV27Tests: XCTestCase {
         // v2.9: the subject is the 13/14-day boundary, so the delta is taken
         // session-wide (spec §19.2).
         paused = Engine.applyFeedback(state: paused.underLessRun, session: session, result: .less)
+        // Re-marked for v2.25 (spec §36.7): a decay is a DESCENT and walks one
+        // step of the growth path, not a whole level; the rating is a step too
+        // (§34.1). Two steps down from 12.0 are composed out of the rule
+        // itself rather than written as the level 10, and the subject of the
+        // block — no premature deload — is asserted exactly as before.
+        let first = Level.fallBy(level: 12, sub: 0, cut: 0, by: 1, floor: EngineConfig.setsFloor)
+        let want = Level.fallBy(level: first.level, sub: first.sub, cut: first.cut,
+                                by: 1, floor: EngineConfig.setsFloor)
         for ex in session.exercises {
-            XCTAssertEqual(paused.levels[ex.pattern], 10,
-                           "\(ex.pattern.rawValue): −1 decay and −1 rating, no −3")
+            assertPosition(paused, ex.pattern, want,
+                           "\(ex.pattern.rawValue): one step of decay and one of the rating, no −3")
             XCTAssertEqual(paused.failStreak[ex.pattern], 1,
                            "\(ex.pattern.rawValue): the streak counts anew")
         }
+        // The subject of §17.3 itself: thirteen days may never cost MORE than
+        // fourteen. The two sides stopped being commensurable in levels — one
+        // walks the growth path, the other the comeback table — so they are
+        // compared on the shared measure (§36.3), which is what "cost" means.
         let fourteen = Engine.applyComeback(state: seeded(level: 12, streak: 2),
                                             gapDays: 14)
-        XCTAssertEqual(fourteen.levels[.squat], 10,
-                       "the 14-day comeback lands on the same level")
+        XCTAssertEqual(fourteen.levels[.squat], 12 - EngineConfig.comebackBase,
+                       "the 14-day comeback is the table's own drop")
+        XCTAssertGreaterThanOrEqual(Level.posOrd(paused.position(.squat)),
+                                    Level.posOrd(fourteen.position(.squat)),
+                                    "thirteen days may never cost more than fourteen")
     }
 }

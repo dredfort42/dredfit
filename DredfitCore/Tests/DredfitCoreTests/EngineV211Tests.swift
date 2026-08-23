@@ -41,6 +41,25 @@ final class EngineV211Tests: XCTestCase {
         return s
     }
 
+    /// v2.25 (spec §36.5): reach WAITING — a live episode with the freeze
+    /// spent. The counters run in parallel now, so the ordinary trajectory
+    /// passes straight through that state: the appearance that burns the
+    /// freeze closes the episode too. It stayed reachable through the "I was
+    /// sick" lens, whose appearances spend the freeze without touching the
+    /// countdown (§22.4), and that is the route used here. The lens is then
+    /// cleared, because under it the fast confirmation route is shut.
+    private func intoWaiting(_ state: EngineState, of pattern: Pattern) -> EngineState {
+        var s = state
+        var guardCount = 0
+        while s.frozen[pattern] != nil, guardCount < 60 {
+            s = Engine.applyIllness(state: s)      // the lens must not expire first
+            s = Engine.applyFeedback(state: s, session: Engine.generateSession(s), result: .plan)
+            guardCount += 1
+        }
+        s.illness = 0
+        return s
+    }
+
     /// Advance until the pattern is in the plan, without spending one of its
     /// appearances.
     private func advanceToAppearance(_ state: EngineState,
@@ -75,11 +94,15 @@ final class EngineV211Tests: XCTestCase {
         let session = Engine.generateSession(state)   // counter 0: squat is in
         let after = Engine.applyFeedback(state: state, session: session,
                                          result: .more, discomfort: [.squat])
-        XCTAssertEqual(after.levels[.squat], Level.tierFloor(20),
-                       "tier 3 lands on its own floor")
+        // Re-marked for v2.25 (§36.5): the level stands and the sets come off
+        // down to the shared floor.
+        XCTAssertEqual(after.levels[.squat], 20, "the level stands")
+        XCTAssertEqual(after.cutOf(.squat),
+                       Level.cutMax(level: 20, floor: EngineConfig.setsFloor),
+                       "the first report of an episode lands on two sets")
         XCTAssertEqual(after.failStreak[.squat], 0, "the unload resets the streak")
-        XCTAssertEqual(after.frozen[.squat], EngineConfig.freezeAppearances)
-        XCTAssertEqual(after.sore[.squat], EngineConfig.freezeAppearances)
+        XCTAssertEqual(after.frozen[.squat], Engine.painStair(seen: 1))
+        XCTAssertEqual(after.sore[.squat], Engine.painStair(seen: 1))
     }
 
     /// v2.19 (spec §30.6): re-marked and strengthened. The rest ladder is
@@ -90,16 +113,25 @@ final class EngineV211Tests: XCTestCase {
         var state = seeded()
         var (s, w) = advanceToAppearance(state, of: .squat)
         s = Engine.applyFeedback(state: s, session: w, result: .plan, discomfort: [.squat])
-        let firstStep = s.levels[.squat]
-        XCTAssertEqual(firstStep, Level.tierFloor(20), "first report: this tier's floor")
-        let secondStep = Level.unload(Level.tierFloor(20))
+        // Re-marked for v2.25 (§36.5): both steps are cuts of SETS at a level
+        // that never moves. The first lands on the shared floor, the second on
+        // the pain floor, and the third and beyond cut no deeper — only the
+        // rest gets longer, and the ladder is read off `painSeen`.
+        XCTAssertEqual(s.levels[.squat], 20, "first report: the level stands")
+        XCTAssertEqual(s.cutOf(.squat), Level.cutMax(level: 20, floor: EngineConfig.setsFloor),
+                       "first report: the shared floor of sets")
+        let painFloorCut = Level.cutMax(level: 20, floor: EngineConfig.setsFloorPain)
         for (report, expected) in zip(2..., [6, 12, 12]) {   // ×2 with the ceiling
             (s, w) = advanceToAppearance(s, of: .squat)
             s = Engine.applyFeedback(state: s, session: w, result: .plan, discomfort: [.squat])
             XCTAssertEqual(s.frozen[.squat], expected)
             XCTAssertEqual(s.sore[.squat], expected)
-            XCTAssertEqual(s.levels[.squat], secondStep,
-                           "report \(report): the second step lands once and then holds")
+            XCTAssertEqual(s.frozen[.squat], Engine.painStair(seen: s.painSeen[.squat] ?? 0),
+                           "report \(report): the rest is the ladder read off the history")
+            XCTAssertEqual(s.levels[.squat], 20,
+                           "report \(report): the level never moves")
+            XCTAssertEqual(s.cutOf(.squat), painFloorCut,
+                           "report \(report): the pain floor lands once and then holds")
         }
         state = s
     }
@@ -113,21 +145,28 @@ final class EngineV211Tests: XCTestCase {
     /// is open, and the session that closes it does not either — but the wait
     /// is now a COUNTDOWN, and its length comes from the state rather than
     /// from a loop bound that happened to stop short of it.
+    /// Re-marked for v2.25 (spec §36.5): "the freeze spends none of its
+    /// confirmation" was the SEQUENCE of counters, and the sequence is what
+    /// held a person on one set for 38 appearances after three reports. The
+    /// waiting state itself is unchanged and still reachable (see
+    /// `intoWaiting`), so the subject of the block — taps resume no growth,
+    /// the streak stands, and the episode closes on the last tick and not
+    /// before — is asserted exactly as it was.
     func testExpiryWaitsAndTapsClampForTheWholeCountdown() throws {
         var s = seeded()
         var w = Engine.generateSession(s)
         s = Engine.applyFeedback(state: s, session: w, result: .plan, discomfort: [.squat])
-        s = burnAppearances(s, of: .squat, count: EngineConfig.freezeAppearances)
+        s = intoWaiting(s, of: .squat)
         XCTAssertNil(s.frozen[.squat], "the counter is spent")
-        XCTAssertEqual(s.sore[.squat], EngineConfig.freezeAppearances, "the episode lives")
-        XCTAssertEqual(s.soreLeft[.squat], EngineConfig.freezeAppearances,
-                       "and the freeze spent none of its confirmation")
-        let held = try XCTUnwrap(s.levels[.squat])
+        XCTAssertEqual(s.sore[.squat], Engine.painStair(seen: 1), "the episode lives")
+        XCTAssertEqual(s.soreLeft[.squat], Engine.painStair(seen: 1),
+                       "and the lens spent none of its confirmation")
+        let held = s.position(.squat)
         let need = try XCTUnwrap(s.soreLeft[.squat])
         for i in 1...need {
             (s, w) = advanceToAppearance(s, of: .squat)
             s = Engine.applyFeedback(state: s, session: w, result: .more)
-            XCTAssertEqual(s.levels[.squat], held, "tap \(i) resumes no growth")
+            assertPosition(s, .squat, held, "tap \(i) resumes no growth")
             XCTAssertEqual(s.failStreak[.squat], 0, "the streak stands while waiting")
             XCTAssertEqual(s.sore[.squat] != nil, i < need,
                            "the episode closes on tick \(need), not before")
@@ -136,8 +175,8 @@ final class EngineV211Tests: XCTestCase {
         (s, w) = advanceToAppearance(s, of: .squat)
         s = Engine.applyFeedback(state: s, session: w, result: .more)
         // v2.22 (spec §33): the first growth event moves the SUB-STEP.
-        XCTAssertGreaterThan(Level.ordinal(s.position(.squat)),
-                             Level.ordinal(Position(level: held, sub: 0)),
+        // v2.25 (spec §36.3): or gives a SET back — the measure counts both.
+        XCTAssertGreaterThan(Level.posOrd(s.position(.squat)), Level.posOrd(held),
                              "growth resumes one appearance after the close")
     }
 
@@ -145,8 +184,8 @@ final class EngineV211Tests: XCTestCase {
         var s = seeded()
         var w = Engine.generateSession(s)
         s = Engine.applyFeedback(state: s, session: w, result: .plan, discomfort: [.squat])
-        s = burnAppearances(s, of: .squat, count: EngineConfig.freezeAppearances)
-        let held = s.levels[.squat]!
+        s = intoWaiting(s, of: .squat)
+        let held = s.position(.squat)
         (s, w) = advanceToAppearance(s, of: .squat)
         let load = try XCTUnwrap(w.exercises.first { $0.pattern == .squat }).load
 
@@ -155,22 +194,28 @@ final class EngineV211Tests: XCTestCase {
         let confirmed = Engine.applyFeedback(state: s, session: w, result: .plan,
                                              overrides: [.squat: load + 20])
         XCTAssertNil(confirmed.sore[.squat], "the episode is closed")
-        let cap = EngineConfig.maxUp(pattern: .squat, tier: Level.decode(held).tier)
-        assertPosition(confirmed, .squat, Level.rise(level: held, sub: 0, by: cap),
-                       "the ordinary cell caps the confirming fact, in sub-steps")
+        let cap = EngineConfig.maxUp(pattern: .squat, tier: Level.decode(held.level).tier)
+        // v2.25 (§36.3): the resumption gives a SET back first, so the
+        // expectation is read off the growth step itself.
+        assertPosition(confirmed, .squat,
+                       Level.riseBy(level: held.level, sub: held.sub, cut: held.cut,
+                                    by: cap, allowSetsBack: true),
+                       "the ordinary cell caps the confirming fact")
 
         // A fact exactly at the plan steps like "on plan" and confirms too.
         let exact = Engine.applyFeedback(state: s, session: w, result: .plan,
                                          overrides: [.squat: load])
         XCTAssertNil(exact.sore[.squat])
-        assertPosition(exact, .squat, Level.rise(level: held, sub: 0, by: EngineConfig.deltaPlan),
+        assertPosition(exact, .squat,
+                       Level.riseBy(level: held.level, sub: held.sub, cut: held.cut,
+                                    by: EngineConfig.deltaPlan, allowSetsBack: true),
                        "an exact match steps like 'on plan'")
 
         // A fact below the plan goes down and keeps the episode open.
         let below = Engine.applyFeedback(state: s, session: w, result: .plan,
                                          overrides: [.squat: max(0, load - 2)])
-        XCTAssertEqual(below.sore[.squat], EngineConfig.freezeAppearances)
-        XCTAssertLessThan(below.levels[.squat]!, held)
+        XCTAssertEqual(below.sore[.squat], Engine.painStair(seen: 1))
+        XCTAssertLessThan(Level.posOrd(below.position(.squat)), Level.posOrd(held))
     }
 
     func testAFactUpDuringTheFreezeNeitherGrowsNorConfirms() throws {

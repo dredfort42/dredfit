@@ -164,7 +164,7 @@ final class EngineV25Tests: XCTestCase {
         // the work 71 % heavier. Now the roll-back goes through the gate.
         assertPosition(state, .pull, expectedDeload(.pull, from: lastEntry),
                        "one sub-step, one sub-step, then the gated deload")
-        XCTAssertTrue(Level.noHarder(pattern: .pull, from: 10, to: state.levels[.pull]!),
+        XCTAssertTrue(Level.noHarder(pattern: .pull, from: 10, to: state.levels[.pull]!, fromCut: 0, toCut: 0),
                       "a deload on top of a ceiling-1 cell may not make the plan heavier")
         XCTAssertEqual(state.failStreak[.pull], 0, "the deload resets the streak")
     }
@@ -190,20 +190,22 @@ final class EngineV25Tests: XCTestCase {
                                     skipped: skipped, discomfort: discomfort)
     }
 
-    /// v2.11 (spec §21.1), re-marked for v2.19 (spec §30.6): the report voids
-    /// the session for the pattern AND takes the load off — the FIRST step
-    /// being the floor of the current tier, the streak resets, the episode
-    /// opens.
+    /// v2.11 (spec §21.1), re-marked for v2.19 (spec §30.6) and again for
+    /// v2.25 (spec §36.5): the report voids the session for the pattern AND
+    /// takes the load off — as a CUT OF SETS at a level that does not move.
+    /// The streak resets, the episode opens.
     func testDiscomfortLeavesTheSessionAloneAndFreezes() {
         var state = seeded(level: 12)
         state.failStreak[.pull] = 1
         let next = report(state, .more, discomfort: [.pull])
 
-        XCTAssertEqual(next.levels[.pull], Level.tierFloor(12),
-                       "tier 2 lands on its own floor")
+        XCTAssertEqual(next.levels[.pull], 12, "the level stands")
+        XCTAssertEqual(next.cutOf(.pull),
+                       Level.cutMax(level: 12, floor: EngineConfig.setsFloor),
+                       "the sets come off down to the shared floor")
         XCTAssertEqual(next.failStreak[.pull], 0, "the unload resets the streak")
-        XCTAssertEqual(next.freezeRemaining(.pull), EngineConfig.freezeAppearances)
-        XCTAssertEqual(next.sore[.pull], EngineConfig.freezeAppearances, "the episode opens")
+        XCTAssertEqual(next.freezeRemaining(.pull), Engine.painStair(seen: 1))
+        XCTAssertEqual(next.sore[.pull], Engine.painStair(seen: 1), "the episode opens")
         XCTAssertEqual(next.counter, state.counter + 1, "the workout still happened")
         assertPosition(next, .squat, expectedPosition(state, .squat, delta: EngineConfig.deltaMore),
                        "a neighbour still climbs")
@@ -213,44 +215,60 @@ final class EngineV25Tests: XCTestCase {
     /// — and then WAITS (v2.11, spec §21.2): taps never resume growth, only a
     /// fact at or above the plan does. `pull` is in every session, so
     /// appearances are sessions here.
+    /// Re-marked for v2.25 (spec §36.5): the counters run in PARALLEL, so the
+    /// appearance that burns the freeze closes the episode as well. The old
+    /// sequence — freeze first, countdown afterwards — held a person on ONE
+    /// set for 38 appearances after three reports, 12.7 weeks at three
+    /// sessions a week. The subject of the block survives whole: the freeze
+    /// holds for exactly N appearances, taps never resume growth, and the
+    /// position does not move for any of them.
     func testTheFreezeHoldsForExactlyThreeAppearances() {
         var state = report(seeded(level: 20), .plan, discomfort: [.pull])
-        let dropped = Level.tierFloor(20)          // v2.19 (§30.6): first step
-        XCTAssertEqual(state.levels[.pull], dropped)
-        for left in stride(from: EngineConfig.freezeAppearances, to: 0, by: -1) {
+        let held = Position(level: 20, sub: 0,
+                            cut: Level.cutMax(level: 20, floor: EngineConfig.setsFloor))
+        assertPosition(state, .pull, held)
+        let assigned = Engine.painStair(seen: 1)
+        for left in stride(from: assigned, to: 0, by: -1) {
             XCTAssertEqual(state.freezeRemaining(.pull), left)
+            XCTAssertEqual(state.soreLeft[.pull], left,
+                           "the countdown runs alongside the freeze, not after it")
             state = report(state, .more)
-            XCTAssertEqual(state.levels[.pull], dropped, "no growth while frozen")
+            assertPosition(state, .pull, held, "no growth while frozen")
         }
         XCTAssertEqual(state.freezeRemaining(.pull), 0, "the freeze has run out")
-        XCTAssertEqual(state.sore[.pull], EngineConfig.freezeAppearances, "the episode lives on")
+        XCTAssertNil(state.sore[.pull],
+                     "and the same appearance closed the episode — the counters are parallel")
         state = report(state, .more)
-        XCTAssertEqual(state.levels[.pull], dropped, "a tap does not bring growth back")
-        let session = Engine.generateSession(state)
-        let load = session.exercises.first { $0.pattern == .pull }!.load
-        state = Engine.applyFeedback(state: state, session: session, result: .plan,
-                                     overrides: [.pull: load])
-        XCTAssertNil(state.sore[.pull], "the fact confirms recovery")
-        assertPosition(state, .pull, Level.rise(level: dropped, sub: 0, by: EngineConfig.deltaPlan),
-                       "and the same fact takes the step")
+        // v2.25 (§36.3): growth returns a SET first, not a dose.
+        assertPosition(state, .pull,
+                       Level.riseBy(level: held.level, sub: held.sub, cut: held.cut,
+                                    by: EngineConfig.deltaPlan, allowSetsBack: true),
+                       "the first growth event after the episode gives a set back")
     }
 
     /// Honesty is never overridden: a fact still takes the level down, while
     /// one above the plan is clamped — and under the freeze it does not
     /// confirm either (v2.11: the assigned rest is served in full).
     func testAFactStillMovesAFrozenPatternDown() {
-        // v2.19 (§30.6): the landing is the current tier's floor; the block is
-        // about the fact, so it reads the landing rather than a pinned number.
-        let landed = Level.tierFloor(20)
+        // v2.25 (§36.5): the landing is a cut of sets at a standing level;
+        // the block is about the fact, so it reads the landing rather than a
+        // pinned number.
         let frozen = report(seeded(level: 20), .plan, discomfort: [.pull])
-        XCTAssertEqual(frozen.levels[.pull], landed)
+        let landed = Position(level: 20, sub: 0,
+                              cut: Level.cutMax(level: 20, floor: EngineConfig.setsFloor))
+        assertPosition(frozen, .pull, landed)
         let down = report(frozen, .plan, overrides: [.pull: 3])
-        XCTAssertLessThan(down.levels[.pull]!, landed, "a fact below the plan still lands")
-        XCTAssertTrue(Level.noHarder(pattern: .pull, from: landed, to: down.levels[.pull]!),
+        XCTAssertLessThan(down.levels[.pull]!, landed.level, "a fact below the plan still lands")
+        // v2.25 (§36.4): the gate reads the TRIPLE — otherwise it would compare
+        // a full plan with a trimmed one and call the lighter one heavier.
+        XCTAssertTrue(Level.noHarder(pattern: .pull, from: landed.level,
+                                     to: down.levels[.pull]!, fromSub: landed.sub,
+                                     toSub: down.sub[.pull] ?? 0,
+                                     fromCut: landed.cut, toCut: down.cutOf(.pull)),
                       "and lands no harder than the plan it fell short of")
         let up = report(frozen, .plan, overrides: [.pull: 99])
-        XCTAssertEqual(up.levels[.pull], landed, "a fact above the plan cannot grow it")
-        XCTAssertEqual(up.sore[.pull], EngineConfig.freezeAppearances,
+        assertPosition(up, .pull, landed, "a fact above the plan cannot grow it")
+        XCTAssertEqual(up.sore[.pull], Engine.painStair(seen: 1),
                        "a fact during the freeze does not confirm")
     }
 
@@ -261,47 +279,70 @@ final class EngineV25Tests: XCTestCase {
         var state = seeded(level: 20)
         state.failStreak[.pull] = 2
         state = report(state, .less, discomfort: [.pull])
-        // v2.19 (§30.6): the landing moved, the arithmetic below did not.
-        let landed = Level.tierFloor(20)
-        XCTAssertEqual(state.levels[.pull], landed, "the report unloads")
+        // v2.25 (§36.5): the landing moved again — a cut of sets at a standing
+        // level. The arithmetic below did not.
+        var landed = Position(level: 20, sub: 0,
+                              cut: Level.cutMax(level: 20, floor: EngineConfig.setsFloor))
+        assertPosition(state, .pull, landed, "the report takes the load off")
         XCTAssertEqual(state.failStreak[.pull], 0, "and resets the streak")
-        for _ in 0..<EngineConfig.freezeAppearances { state = report(state, .less) }
 
-        // v2.23 (spec §34.1): taking the load off lands on a block floor by
-        // construction (§30.6), and the evaluative descent does not cross one
-        // — so under the freeze the position stands where the old assertion
-        // expected three level-wise steps. The subject is stronger for it: the
-        // deload is unreachable not merely because the streak is frozen, but
-        // because under a freeze not even the INTENT is counted (§34.2), while
-        // everywhere else that intent is exactly what builds the streak.
-        assertPosition(state, .pull, Position(level: landed, sub: 0),
-                       "three shortfalls under a freeze move nothing — no deload")
-        XCTAssertEqual(state.failStreak[.pull], 0, "the streak stays put")
-        state = report(state, .less)
-        assertPosition(state, .pull, Position(level: landed, sub: 0),
-                       "waiting: still nothing, still no deload")
-        XCTAssertEqual(state.failStreak[.pull], 0)
+        // v2.23 (spec §34.1) · v2.25 (spec §36.3): under a live episode "hard"
+        // no longer stands still — the sets handle gives it a step down in
+        // every one of the 480 cells, and under a live episode that step
+        // reaches the PAIN floor (§36.9). The subject of the block is
+        // untouched and now carries one more fact: the deload is unreachable
+        // not merely because the streak is frozen, but because under a freeze
+        // not even the INTENT is counted (§34.2) — while the position keeps
+        // moving honestly downward the whole time.
+        let assigned = Engine.painStair(seen: 1)
+        for _ in 0..<assigned {
+            state = report(state, .less)
+            landed = Level.fallBy(level: landed.level, sub: landed.sub, cut: landed.cut,
+                                  by: 1, floor: EngineConfig.setsFloorPain)
+            assertPosition(state, .pull, landed,
+                           "a shortfall under a freeze steps down, it does not deload")
+            XCTAssertEqual(state.failStreak[.pull], 0, "the streak stays put")
+        }
+        XCTAssertNil(state.sore[.pull], "the parallel counters closed the episode")
+        // Past the episode the streak starts counting again, and it takes the
+        // full `failsToDeload` shortfalls to reach a deload — never fewer.
+        for _ in 0..<(EngineConfig.failsToDeload - 1) {
+            state = report(state, .less)
+            XCTAssertNotEqual(state.failStreak[.pull], 0, "the streak counts again")
+        }
     }
 
     /// v2.11 (spec §21.2 p.2): a repeat report doubles the rest up the
     /// 3 → 6 → 12 ladder instead of refreshing it, and never drops twice.
+    /// Re-marked for v2.25 (spec §36.5): the ladder is read off `painSeen` —
+    /// the movement's HISTORY — rather than off whether an episode is open,
+    /// and the second report lands on the PAIN floor of sets instead of the
+    /// previous tier's floor. The old landing left the plan heavier than it
+    /// was before the pain in 53 cells of 480.
     func testARepeatReportDoublesTheRest() {
         var state = report(seeded(level: 20), .plan, discomfort: [.pull])
+        XCTAssertEqual(state.painSeen[.pull], 1, "the memory of pain counts reports")
         state = report(state, .plan)
-        XCTAssertEqual(state.freezeRemaining(.pull), EngineConfig.freezeAppearances - 1)
+        XCTAssertEqual(state.freezeRemaining(.pull), Engine.painStair(seen: 1) - 1)
         state = report(state, .plan, discomfort: [.pull])
         XCTAssertEqual(state.freezeRemaining(.pull), 6, "3 → 6")
-        // v2.19 (§30.6): the second report takes the second step. From level
-        // 20 both landings happen to be 8 — tier 3's floor is 16 and its
-        // unload is 8, exactly where v2.11 landed in one go — so the number
-        // is spelled as the composition it now is, not as a coincidence.
-        XCTAssertEqual(state.levels[.pull], Level.unload(Level.tierFloor(20)),
-                       "the second report is the second step")
+        XCTAssertEqual(state.painSeen[.pull], 2)
+        // v2.25 (§36.5): the second report is the pain floor of SETS, and the
+        // level does not move at all.
+        assertPosition(state, .pull,
+                       Position(level: 20, sub: 0,
+                                cut: Level.cutMax(level: 20, floor: EngineConfig.setsFloorPain)),
+                       "the second report lands on the pain floor of sets")
         state = report(state, .plan, discomfort: [.pull])
         XCTAssertEqual(state.freezeRemaining(.pull), EngineConfig.freezeCapAppearances, "6 → 12")
         state = report(state, .plan, discomfort: [.pull])
         XCTAssertEqual(state.freezeRemaining(.pull), EngineConfig.freezeCapAppearances,
                        "the ladder tops out")
+        // The depth of the CUT does not read the history: past the pain floor
+        // nothing cuts deeper, only the rest gets longer (§36.5).
+        XCTAssertEqual(state.cutOf(.pull),
+                       Level.cutMax(level: 20, floor: EngineConfig.setsFloorPain),
+                       "no report cuts below the pain floor")
     }
 
     /// A skip freezes the counter with everything else — the pattern was not
@@ -311,8 +352,10 @@ final class EngineV25Tests: XCTestCase {
         let before = state.freezeRemaining(.pull)
         state = report(state, .plan, skipped: [.pull])
         XCTAssertEqual(state.freezeRemaining(.pull), before)
-        XCTAssertEqual(state.levels[.pull], Level.tierFloor(12),
-                       "held at the unloaded level")
+        assertPosition(state, .pull,
+                       Position(level: 12, sub: 0,
+                                cut: Level.cutMax(level: 12, floor: EngineConfig.setsFloor)),
+                       "held at the unloaded position")
     }
 
     /// Named in both, discomfort wins: the unload is stronger than the fact,
@@ -320,8 +363,10 @@ final class EngineV25Tests: XCTestCase {
     func testDiscomfortOutranksASkipAndAFact() {
         let state = report(seeded(level: 12), .more, discomfort: [.pull],
                            skipped: [.pull], overrides: [.pull: 99])
-        XCTAssertEqual(state.levels[.pull], Level.tierFloor(12))
-        XCTAssertEqual(state.freezeRemaining(.pull), EngineConfig.freezeAppearances)
+        assertPosition(state, .pull,
+                       Position(level: 12, sub: 0,
+                                cut: Level.cutMax(level: 12, floor: EngineConfig.setsFloor)))
+        XCTAssertEqual(state.freezeRemaining(.pull), Engine.painStair(seen: 1))
     }
 
     /// A pattern that is not in the session is a no-op, as with skips.
@@ -335,31 +380,42 @@ final class EngineV25Tests: XCTestCase {
     /// A break lowers the levels but must not thaw a freeze — nor close a
     /// pain episode (v2.11, spec §21.2 p.8).
     func testBreaksDoNotThawTheFreeze() {
-        let landed = Level.tierFloor(20)             // v2.19 (§30.6): first step
         let frozen = report(seeded(level: 20), .plan, discomfort: [.pull])
-        XCTAssertEqual(frozen.levels[.pull], landed)
+        // v2.25 (§36.5): the report takes sets off, the level stands.
+        let landed = Position(level: 20, sub: 0,
+                              cut: Level.cutMax(level: 20, floor: EngineConfig.setsFloor))
+        assertPosition(frozen, .pull, landed)
         let left = frozen.freezeRemaining(.pull)
 
         let decayed = Engine.applySilentDecay(state: frozen, gapDays: 10)
         XCTAssertEqual(decayed.freezeRemaining(.pull), left, "silent decay keeps the freeze")
-        XCTAssertEqual(decayed.sore[.pull], EngineConfig.freezeAppearances, "and the episode")
-        XCTAssertEqual(decayed.levels[.pull], landed - 1, "and still takes the step")
+        XCTAssertEqual(decayed.sore[.pull], Engine.painStair(seen: 1), "and the episode")
+        // v2.25 (§36.7): a decay is a DESCENT and walks one step of the growth
+        // path — on a block floor it takes a SET and leaves the level alone.
+        assertPosition(decayed, .pull,
+                       Level.fallBy(level: landed.level, sub: landed.sub, cut: landed.cut,
+                                    by: 1, floor: EngineConfig.setsFloor),
+                       "and still takes the step")
 
         let back = Engine.applyComeback(state: decayed, gapDays: 16, alreadyDecayed: true)
         XCTAssertEqual(back.freezeRemaining(.pull), left, "the comeback keeps it too")
-        XCTAssertEqual(back.sore[.pull], EngineConfig.freezeAppearances, "episode included")
+        XCTAssertEqual(back.sore[.pull], Engine.painStair(seen: 1), "episode included")
         // v2.12 (spec §22.1): the landing crosses a tier boundary, so rep
-        // continuity decides where it lands. Re-marked for v2.19 (§30.6): the
-        // block is about a break not thawing a freeze, so it asserts the
-        // property — down, and no harder — rather than the pinned 0 the old
-        // one-step landing produced.
-        XCTAssertLessThan(back.levels[.pull]!, decayed.levels[.pull]!,
+        // continuity decides where it lands. Re-marked for v2.19 (§30.6) and
+        // again for v2.25: the block is about a break not thawing a freeze, so
+        // it asserts the property — down, and no harder — rather than a pinned
+        // number, and it reads the whole triple both times.
+        XCTAssertLessThan(Level.posOrd(back.position(.pull)),
+                          Level.posOrd(decayed.position(.pull)),
                           "the tier crossing still goes down")
         XCTAssertTrue(Level.noHarder(pattern: .pull, from: decayed.levels[.pull]!,
-                                     to: back.levels[.pull]!),
+                                     to: back.levels[.pull]!,
+                                     fromSub: decayed.sub[.pull] ?? 0,
+                                     toSub: back.sub[.pull] ?? 0,
+                                     fromCut: decayed.cutOf(.pull), toCut: back.cutOf(.pull)),
                       "and never asks for more work than before the break")
         XCTAssertEqual(Engine.applyComeback(state: frozen, gapDays: 16).levels[.pull],
-                       back.levels[.pull], "the two paths still agree")
+                       back.levels[.pull], "the two paths still agree on the level")
         XCTAssertEqual(report(back, .more).levels[.pull], back.levels[.pull],
                        "and it is still frozen")
     }

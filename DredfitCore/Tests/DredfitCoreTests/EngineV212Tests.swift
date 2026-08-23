@@ -109,15 +109,34 @@ final class EngineV212Tests: XCTestCase {
 
     // MARK: - §22.4 the illness lens
 
+    /// Re-marked for v2.25 (spec §36.6): the lens is a SHARE OF THE BAND, not
+    /// a tier down. Showing every level one tier easier made the plan HEAVIER
+    /// in 84 cells of 480 — rep continuity read a phantom `reps` field on the
+    /// statics, and the v2.21 ladders of tier 3 sit above those of tier 4. The
+    /// expectation gains what the old one could not state at all: the
+    /// variation and the dose per set are untouched, the sets fall to half the
+    /// band rounded up, and the work falls STRICTLY.
     func testTheLensEasesThePlanWithoutTouchingLevels() {
+        let healthy = Engine.generateSession(seeded(20))
         let ill = Engine.applyIllness(state: seeded(20))
         XCTAssertEqual(ill.illness, EngineConfig.illnessSessions)
         let w = Engine.generateSession(ill)
+        let band = Level.decode(20).sets
+        let lensSets = max(EngineConfig.setsFloor, (band + 1) / 2)
         for ex in w.exercises {
-            XCTAssertEqual(ex.tier, Level.decode(Level.eased(20)).tier,
-                           "\(ex.pattern) is one tier easier")
+            let before = healthy.exercises.first { $0.pattern == ex.pattern }
+            XCTAssertEqual(ex.tier, before?.tier, "\(ex.pattern): the variation is untouched")
+            XCTAssertEqual(ex.load, before?.load, "\(ex.pattern): and the dose per set")
+            XCTAssertEqual(ex.sets, lensSets, "\(ex.pattern): half the band, rounded up")
+            XCTAssertGreaterThanOrEqual(ex.sets, EngineConfig.setsFloor,
+                                        "\(ex.pattern): never below the shared floor")
+            if let before {
+                XCTAssertLessThan(Engine.exerciseWork(ex), Engine.exerciseWork(before),
+                                  "\(ex.pattern): the plan is strictly lighter")
+            }
         }
         XCTAssertEqual(ill.levels[.squat], 20, "stored levels stand")
+        XCTAssertEqual(ill.cutOf(.squat), 0, "and the lens stores nothing — it is a VIEW")
     }
 
     func testARestorativeSessionCountsButConcludesNothing() {
@@ -150,16 +169,20 @@ final class EngineV212Tests: XCTestCase {
         let w = Engine.generateSession(ill)
         let hurt = Engine.applyFeedback(state: ill, session: w, result: .plan,
                                         discomfort: [.squat])
-        // v2.19 (spec §30.6): re-marked to the two-step landing. The point of
-        // the block is that pain outranks the lens, and it still does — the
-        // branch under the lens must match the main one report for report,
-        // which is why the second step is asserted here too.
-        XCTAssertEqual(hurt.levels[.squat], Level.tierFloor(20),
+        // v2.19 (spec §30.6), re-marked again for v2.25 (§36.5): both steps
+        // are cuts of SETS at a level that stands. The point of the block is
+        // that pain outranks the lens, and it still does — the branch under
+        // the lens must match the main one report for report, which is why the
+        // second step is asserted here too.
+        XCTAssertEqual(hurt.levels[.squat], 20, "the level stands under the lens too")
+        XCTAssertEqual(hurt.cutOf(.squat),
+                       Level.cutMax(level: 20, floor: EngineConfig.setsFloor),
                        "the unload outranks the lens")
-        XCTAssertEqual(hurt.sore[.squat], EngineConfig.freezeAppearances)
+        XCTAssertEqual(hurt.sore[.squat], Engine.painStair(seen: 1))
         let again = Engine.applyFeedback(state: hurt, session: Engine.generateSession(hurt),
                                          result: .plan, discomfort: [.squat])
-        XCTAssertEqual(again.levels[.squat], Level.unload(Level.tierFloor(20)),
+        XCTAssertEqual(again.cutOf(.squat),
+                       Level.cutMax(level: 20, floor: EngineConfig.setsFloorPain),
                        "and the second report takes the second step, lens or no lens")
     }
 

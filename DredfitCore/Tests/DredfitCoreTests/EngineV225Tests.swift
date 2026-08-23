@@ -1,0 +1,509 @@
+//
+//  EngineV225Tests.swift
+//  DredfitCoreTests
+//
+//  v2.25 (spec §36, issues #149/#150/#151): the sets handle.
+//
+//  The engine had no way to say "the same movement, less of it". A level fixes
+//  the VARIATION and the DOSE PER SET, and on the floor of every mod-8 block
+//  the dose is already the smallest that variation has, so a step down had to
+//  swap the exercise — and the top of the tier below is heavier than the
+//  bottom of the current one. Measured on v2.24 over the whole 10 × 48
+//  lattice: a 7-13 day break made the plan HEAVIER in 48 cells of 480 (worst
+//  ×6.50), a pain report made nothing lighter in 24, an honest "hard" every
+//  session locked movement on all 48 levels, and the "I was ill" tap made the
+//  plan heavier in 40. Each of the four is zero now.
+//
+//  One test per guarantee of §36, in the section's own order, plus the one
+//  compatibility claim the wave had to keep: a journal written by build 1.9
+//  still decodes whole.
+//
+
+import XCTest
+@testable import DredfitCore
+
+// Foundation ships its own `Pattern`; the tests mean the engine's.
+private typealias Pattern = DredfitCore.Pattern
+
+final class EngineV225Tests: XCTestCase {
+
+    private func seeded(_ level: Int, budget: Int = 0, bar: Bool = false,
+                        cut: Int = 0) -> EngineState {
+        var s = EngineState.initial
+        s.hasBar = bar
+        s.timeBudgetMin = budget
+        for p in Pattern.allCases {
+            s.levels[p] = level
+            let c = min(cut, Level.cutMax(level: level, floor: EngineConfig.setsFloorPain))
+            if c > 0 { s.cut[p] = c }
+        }
+        return s
+    }
+
+    private func exercise(_ w: Session, _ p: Pattern) -> SessionExercise? {
+        w.exercises.first { $0.pattern == p }
+    }
+
+    /// Run the pattern up to a session it actually stands in, without spending
+    /// one of its appearances.
+    private func advance(_ state: EngineState, to p: Pattern) -> (EngineState, Session) {
+        var s = state
+        var w = Engine.generateSession(s)
+        var guardCount = 0
+        while !w.exercises.contains(where: { $0.pattern == p }), guardCount < 16 {
+            s = Engine.applyFeedback(state: s, session: w, result: .plan)
+            w = Engine.generateSession(s)
+            guardCount += 1
+        }
+        return (s, w)
+    }
+
+    // MARK: - (a) §36.1 Migration
+
+    /// Every new field is sparse, so a state that never met the sets handle
+    /// produces the plan v2.24 produced. Two halves: the plan of a level with
+    /// an empty cut is the v2.24 formula to the number, and a state file
+    /// written before the wave decodes into exactly the state with the fields
+    /// present and empty.
+    ///
+    /// The bit-for-bit comparison against the frozen v2.24 build itself lives
+    /// where it can be run against that build — the reference verifier and the
+    /// golden fixture, where seven whole scenarios come out unchanged.
+    func testAPlanWithNoCutIsTheV224Formula() {
+        var cells = 0
+        for p in Pattern.allCases {
+            for level in 0...EngineConfig.levelMax {
+                for sub in 0..<EngineConfig.setsMax {
+                    let w = Level.work(pattern: p, level: level, sub: sub, cut: 0)
+                    let d = Level.decode(level)
+                    let sides = ExerciseLibrary.entry(for: p)
+                        .variations[d.tier - 1].unilateral ? 2 : 1
+                    let effSub = Level.effectiveSub(level: level, sub: sub, sets: d.sets)
+                    let delta = Level.subDelta(pattern: p, level: level)
+                    cells += 1
+                    XCTAssertEqual(w.sets, d.sets, "\(p) L\(level): the band is the level's own")
+                    XCTAssertEqual(w.cut, 0, "\(p) L\(level): and nothing is taken off")
+                    XCTAssertEqual(w.total, (d.sets * w.load + effSub * delta) * sides,
+                                   "\(p) L\(level) sub\(sub): the v2.24 formula to the number")
+                }
+            }
+        }
+        XCTAssertEqual(cells, Pattern.allCases.count * (EngineConfig.levelMax + 1)
+                       * EngineConfig.setsMax, "the sweep covered the whole lattice")
+    }
+
+    func testAStateFileWithoutTheNewFieldsDecodesAsEmpty() throws {
+        let modern = seeded(20)
+        var json = try XCTUnwrap(
+            try JSONSerialization.jsonObject(with: try JSONEncoder().encode(modern))
+                as? [String: Any])
+        for key in ["cut", "painSeen", "setsHold", "shownWork", "shownOrd", "shownBudget"] {
+            json.removeValue(forKey: key)
+        }
+        let legacy = try JSONDecoder().decode(
+            EngineState.self, from: try JSONSerialization.data(withJSONObject: json))
+        XCTAssertTrue(legacy.cut.isEmpty && legacy.painSeen.isEmpty && legacy.setsHold.isEmpty)
+        XCTAssertTrue(legacy.shownWork.isEmpty && legacy.shownOrd.isEmpty)
+        XCTAssertEqual(legacy.shownBudget, 0)
+        XCTAssertEqual(Engine.generateSession(legacy), Engine.generateSession(modern),
+                       "and the plan is the one the fields-present state gives")
+    }
+
+    // MARK: - (b) §36 A descent never adds load
+
+    /// Every way down, every budget: if a pattern's position did not rise, its
+    /// plan may not get heavier. Cells where the variation or the unit changed
+    /// are counted out loud rather than silently skipped — a measure in reps
+    /// across a change of variation is not valid (§30.4), and that is the
+    /// accepted gap §36.10 p. 1.
+    ///
+    /// The invariant holds against the last plan the person actually SAW, so
+    /// the sweep records the showing with `recordShown` — the very call §36.8
+    /// says closes the gap — before taking each way down.
+    func testNoWayDownEverAddsLoad() {
+        var compared = 0, crossed = 0
+        let ways: [(String, (EngineState) -> EngineState)] = [
+            ("silent decay", { Engine.applySilentDecay(state: $0, gapDays: 8) }),
+            ("comeback 14", { Engine.applyComeback(state: $0, gapDays: 14, alreadyDecayed: false) }),
+            ("comeback 90", { Engine.applyComeback(state: $0, gapDays: 90, alreadyDecayed: false) }),
+            ("illness lens", { Engine.applyIllness(state: $0) }),
+            ("hard rating", {
+                var s = $0
+                s.lessRun = EngineConfig.lessRunToGlobal
+                return Engine.applyFeedback(state: s, session: Engine.generateSession(s),
+                                            result: .less)
+            }),
+            ("pain report", {
+                let w = Engine.generateSession($0)
+                return Engine.applyFeedback(state: $0, session: w, result: .plan,
+                                            discomfort: Set(w.exercises.map(\.pattern)))
+            }),
+            ("fact below plan", {
+                let w = Engine.generateSession($0)
+                var overrides: [Pattern: Int] = [:]
+                for ex in w.exercises { overrides[ex.pattern] = max(0, ex.load - 2) }
+                return Engine.applyFeedback(state: $0, session: w, result: .plan,
+                                            overrides: overrides)
+            }),
+        ]
+        for (name, step) in ways {
+            for budget in [0, 20, 35, 45, 90] {
+                for level in [0, 5, 8, 13, 16, 21, 24, 29, 32, 37, 40, 45, 47] {
+                    for cut in [0, 1, 2] {
+                        var s = seeded(level, budget: budget, cut: cut)
+                        s = Engine.applyFeedback(state: s, session: Engine.generateSession(s),
+                                                 result: .plan, gapDays: 7.0 / 3.0)
+                        let before = Engine.generateSession(s)
+                        let shown = Engine.recordShown(state: s, session: before)
+                        let next = step(shown)
+                        let after = Engine.generateSession(next)
+                        for was in before.exercises {
+                            guard let now = exercise(after, was.pattern) else { continue }
+                            // The position rose — growth is legal, and the
+                            // invariant is not about it.
+                            if Level.posOrd(next.position(was.pattern))
+                                > Level.posOrd(shown.position(was.pattern)) { continue }
+                            if now.unit != was.unit || now.tier != was.tier { crossed += 1; continue }
+                            compared += 1
+                            XCTAssertLessThanOrEqual(
+                                Engine.exerciseWork(now), Engine.exerciseWork(was),
+                                "\(name) made \(was.pattern) heavier at L\(level) "
+                                + "cut\(cut) budget\(budget): \(was.display) → \(now.display)")
+                        }
+                    }
+                }
+            }
+        }
+        XCTAssertGreaterThan(compared, 5_000, "the sweep has to be wide to mean anything")
+        XCTAssertGreaterThanOrEqual(crossed, 0,
+                                    "cells across a change of variation or unit: \(crossed)")
+    }
+
+    // MARK: - (c) §36.5 The pain ladder
+
+    /// The ladder decreases strictly and never changes the variation — the
+    /// whole lattice of 10 patterns × 48 levels. The old ladder was defective
+    /// at both steps and in the same direction: the first took 0 % off in 40
+    /// cells of 480, the second left the plan heavier than before the pain in
+    /// 53.
+    func testThePainLadderFallsStrictlyAndKeepsTheVariation() {
+        var cells = 0
+        for p in Pattern.allCases {
+            for level in 0...EngineConfig.levelMax {
+                var (s, w) = advance(seeded(level, bar: true), to: p)
+                guard let base = exercise(w, p) else { continue }
+                cells += 1
+                // Walking a rotating pattern up to its own appearance costs
+                // "plan" sessions, and those GROW it — so the level the report
+                // lands on is read here, not assumed from the seed.
+                let at = s.levels[p] ?? level
+
+                var one = Engine.applyFeedback(state: s, session: w, result: .plan,
+                                               discomfort: [p])
+                (one, w) = advance(one, to: p)
+                guard let first = exercise(w, p) else { continue }
+                XCTAssertEqual(one.levels[p], at, "\(p) L\(level): the level stands")
+                XCTAssertEqual(first.tier, base.tier, "\(p) L\(level): the variation stands")
+                XCTAssertEqual(first.load, base.load, "\(p) L\(level): the dose per set stands")
+                XCTAssertEqual(first.perSide, base.perSide, "\(p) L\(level): and the sides")
+                XCTAssertEqual(first.sets, EngineConfig.setsFloor,
+                               "\(p) L\(level): the first report shows the shared floor")
+                XCTAssertLessThan(Engine.exerciseWork(first), Engine.exerciseWork(base),
+                                  "\(p) L\(level): the first step falls strictly")
+
+                var two = Engine.applyFeedback(state: one, session: w, result: .plan,
+                                               discomfort: [p])
+                (two, w) = advance(two, to: p)
+                guard let second = exercise(w, p) else { continue }
+                XCTAssertEqual(two.levels[p], at, "\(p) L\(level): still the same level")
+                XCTAssertEqual(second.tier, base.tier, "\(p) L\(level): still the same variation")
+                XCTAssertEqual(second.load, base.load, "\(p) L\(level): still the same dose")
+                XCTAssertEqual(second.sets, EngineConfig.setsFloorPain,
+                               "\(p) L\(level): the second report shows the pain floor")
+                XCTAssertLessThan(Engine.exerciseWork(second), Engine.exerciseWork(first),
+                                  "\(p) L\(level): and the ladder falls strictly")
+
+                let three = Engine.applyFeedback(state: two, session: w, result: .plan,
+                                                 discomfort: [p])
+                XCTAssertEqual(three.cutOf(p), two.cutOf(p),
+                               "\(p) L\(level): a third report cuts no deeper")
+                XCTAssertEqual(three.frozen[p], Engine.painStair(seen: three.painSeen[p] ?? 0),
+                               "\(p) L\(level): only the rest deepens, by the history")
+            }
+        }
+        XCTAssertEqual(cells, Pattern.allCases.count * (EngineConfig.levelMax + 1),
+                       "the ladder was checked on every cell of the lattice")
+    }
+
+    // MARK: - (d) §36.3 One set back per session
+
+    /// Every way up, `gapDays == nil` included. The rule lives in `riseBy`,
+    /// and until round 4b three paths walked around it — an absolute landing
+    /// by fact, a calibration, and the weekly window's rebuild. It held then
+    /// only through the OPTIONAL seventh argument, and an invariant may not
+    /// rest on an input that might not be there.
+    func testAtMostOneSetComesBackPerSession() {
+        var cells = 0
+        let ways: [(String, Double?)] = [("with a gap", 7.0 / 3.0), ("with no gap", nil)]
+        for (name, gap) in ways {
+            for level in 0...EngineConfig.levelMax {
+                let deepest = Level.cutMax(level: level, floor: EngineConfig.setsFloorPain)
+                guard deepest >= 1 else { continue }
+                for p in Pattern.allCases {
+                    var s = seeded(level, bar: true)
+                    s.cut[p] = deepest
+                    let w = Engine.generateSession(s)
+                    guard exercise(w, p) != nil else { continue }
+                    cells += 1
+                    for (label, result, overrides) in [
+                        ("plan", FeedbackResult.plan, [Pattern: Int]()),
+                        ("more", .more, [:]),
+                        ("fact above plan", .plan,
+                         Dictionary(uniqueKeysWithValues:
+                            w.exercises.map { ($0.pattern, $0.load + 5) })),
+                        ("fact at plan", .plan,
+                         Dictionary(uniqueKeysWithValues:
+                            w.exercises.map { ($0.pattern, $0.load) })),
+                    ] {
+                        let next = Engine.applyFeedback(state: s, session: w, result: result,
+                                                        overrides: overrides, gapDays: gap)
+                        let back = deepest - next.cutOf(p)
+                        XCTAssertLessThanOrEqual(back, EngineConfig.setsBackPerSession,
+                                                 "\(name)/\(label): \(p) L\(level) gave \(back) back")
+                        XCTAssertGreaterThanOrEqual(back, 0,
+                                                    "\(name)/\(label): \(p) L\(level) cut deeper on a way UP")
+                    }
+                }
+            }
+        }
+        XCTAssertGreaterThan(cells, 400, "the sweep has to reach every band")
+    }
+
+    /// And the hold between returns: the next set waits `setsBackHold`
+    /// appearances, and in between the growth goes into the dose.
+    func testAReturnedSetIsHeldForItsAppearances() {
+        for level in [8, 24, 40] {
+            let deepest = Level.cutMax(level: level, floor: EngineConfig.setsFloorPain)
+            guard deepest >= 2 else { continue }
+            var s = seeded(level)
+            s.cut[.pull] = deepest            // `pull` stands in every session
+            var previous = deepest
+            var returns = 0, sinceReturn = 0
+            for _ in 0..<12 {
+                s = Engine.applyFeedback(state: s, session: Engine.generateSession(s),
+                                         result: .more, gapDays: 7.0 / 3.0)
+                let now = s.cutOf(.pull)
+                if now < previous {
+                    if returns > 0 {
+                        XCTAssertGreaterThanOrEqual(sinceReturn, EngineConfig.setsBackHold,
+                                                    "L\(level): the hold was skipped")
+                    }
+                    returns += 1
+                    sinceReturn = 0
+                } else {
+                    sinceReturn += 1
+                }
+                previous = now
+            }
+            XCTAssertGreaterThanOrEqual(returns, 1, "L\(level): sets do come back eventually")
+        }
+    }
+
+    // MARK: - (e) §36.5 The floors
+
+    /// Below two sets only the pain channel goes; below one, nothing ever
+    /// does. Swept over every composition of the cuts: the handle, the lens,
+    /// the §20.2 gate and the budget.
+    func testOnlyThePainChannelGoesBelowTheSharedFloor() {
+        var cells = 0, singles = 0
+        for budget in [0, 15, 20, 25, 30, 35, 45, 60, 90] {
+            for level in 0...EngineConfig.levelMax {
+                for cut in [0, 1, 2, 3, 4] {
+                    for ill in [0, 2] {
+                        for bar in [false, true] {
+                            var s = seeded(level, budget: budget, bar: bar, cut: cut)
+                            s.illness = ill
+                            // Diverged pull branches: the §20.2 gate trims the
+                            // push by the weaker one, on top of everything else.
+                            s.levels[.pullBar] = max(0, level - 8)
+                            let painFloor = Level.cutMax(level: level,
+                                                         floor: EngineConfig.setsFloorPain)
+                            for ex in Engine.generateSession(s).exercises {
+                                cells += 1
+                                XCTAssertGreaterThanOrEqual(
+                                    ex.sets, EngineConfig.setsFloorPain,
+                                    "\(ex.pattern) L\(level) cut\(cut) budget\(budget): below one set")
+                                if ex.sets < EngineConfig.setsFloor {
+                                    singles += 1
+                                    XCTAssertGreaterThanOrEqual(
+                                        s.cutOf(ex.pattern), painFloor,
+                                        "\(ex.pattern) L\(level) budget\(budget): below the shared "
+                                        + "floor with no pain cut")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        XCTAssertGreaterThan(cells, 20_000, "the sweep covered every composition")
+        XCTAssertGreaterThan(singles, 0, "and the pain floor is reached in it at all")
+    }
+
+    // MARK: - (f) §14.2 The identity with a non-empty cut
+
+    /// "A comeback" and "a decay plus a comeback" land in the same place, so
+    /// that opening the app during the blind zone never costs more than
+    /// staying away.
+    ///
+    /// THE STATE OF PLAY, named rather than hidden. §14.2 states the identity
+    /// ON LEVELS and with no cut, and in that form it holds exactly — the
+    /// sweep below finds no divergence at all. It does NOT hold once a cut is
+    /// carried across: `fallBy` spends the dose before the sets while `riseBy`
+    /// returns the sets before the dose (§36.3 makes that asymmetry
+    /// deliberate), so the compensation reverses the decay's step precisely
+    /// only where the decay moved the same axis. The reference has the same
+    /// property, and the port has to reproduce it rather than paper over it —
+    /// which is why the divergence is held by a BOUND, in
+    /// `EngineTests.testTheFourteenTwoDivergenceWithACutStaysWhereItIs`: 920
+    /// cells of 11,760, all one-sided, worst 6 positions. A fix makes that
+    /// pass more easily; a regression turns it red.
+    func testTheIdentityHoldsOnLevelsWithNoCut() {
+        var cells = 0
+        for level in 0...EngineConfig.levelMax {
+            for gap in [14, 20, 35, 56, 90, 140, 365] {
+                let s = seeded(level)
+                let straight = Engine.applyComeback(state: s, gapDays: gap,
+                                                    alreadyDecayed: false)
+                let viaDecay = Engine.applyComeback(
+                    state: Engine.applySilentDecay(state: s, gapDays: 8),
+                    gapDays: gap, alreadyDecayed: true)
+                for p in Pattern.allCases {
+                    cells += 1
+                    XCTAssertEqual(straight.levels[p], viaDecay.levels[p],
+                                   "\(p) L\(level) gap\(gap): the levels diverged")
+                    XCTAssertEqual(straight.sub[p] ?? 0, viaDecay.sub[p] ?? 0,
+                                   "\(p) L\(level) gap\(gap): and so did the sub-step")
+                }
+            }
+        }
+        XCTAssertEqual(cells, Pattern.allCases.count * (EngineConfig.levelMax + 1) * 7,
+                       "the identity was swept over the whole scale")
+    }
+
+    // MARK: - (g) §36.8 The postcondition repair
+
+    /// The invariant survives a changing rotation — a movement comes back into
+    /// the plan a session or two later — and a moved time handle, which is a
+    /// LEGAL reason for a plan to grow and lifts the cap for exactly one state
+    /// transition.
+    func testTheRepairHoldsAcrossTheRotationAndAMovedBudget() {
+        var compared = 0, budgetMoves = 0
+        for startBudget in [0, 30, 35, 45] {
+            for level in [4, 12, 20, 28, 36, 44] {
+                for bar in [false, true] {
+                    var s = seeded(level, budget: startBudget, bar: bar)
+                    var shownWork: [Pattern: Int] = [:]
+                    var shownOrd: [Pattern: Int] = [:]
+                    var shownUnit: [Pattern: (LoadUnit, Int)] = [:]
+                    var budgetTouched = false
+                    for step in 0..<24 {
+                        let w = Engine.generateSession(s)
+                        for ex in w.exercises {
+                            let p = ex.pattern
+                            if let was = shownWork[p], let ord = shownOrd[p],
+                               let (unit, tier) = shownUnit[p],
+                               !budgetTouched, Level.posOrd(s.position(p)) <= ord,
+                               ex.unit == unit, ex.tier == tier {
+                                compared += 1
+                                XCTAssertLessThanOrEqual(
+                                    Engine.exerciseWork(ex), was,
+                                    "the plan of \(p) grew at a standing position "
+                                    + "(L\(level) budget\(s.timeBudgetMin) step \(step))")
+                            }
+                            shownWork[p] = Engine.exerciseWork(ex)
+                            shownOrd[p] = Level.posOrd(s.position(p))
+                            shownUnit[p] = (ex.unit, ex.tier)
+                        }
+                        budgetTouched = false
+                        switch step % 5 {
+                        case 3:
+                            s.lessRun = EngineConfig.lessRunToGlobal
+                            s = Engine.applyFeedback(state: s, session: w, result: .less,
+                                                     gapDays: 7.0 / 3.0)
+                        case 4:
+                            s = Engine.applyFeedback(state: s, session: w, result: .plan,
+                                                     discomfort: [w.exercises[step % 6].pattern],
+                                                     gapDays: 7.0 / 3.0)
+                        default:
+                            s = Engine.applyFeedback(state: s, session: w, result: .plan,
+                                                     gapDays: 7.0 / 3.0)
+                        }
+                        if step == 11 {
+                            s.timeBudgetMin = startBudget == 0 ? 30 : 0
+                            budgetTouched = true
+                            budgetMoves += 1
+                        }
+                    }
+                }
+            }
+        }
+        XCTAssertGreaterThan(compared, 1_500, "the sweep has to be wide to mean anything")
+        XCTAssertGreaterThan(budgetMoves, 0, "and the time handle really did move in it")
+    }
+
+    // MARK: - Compatibility: the 1.9 journal
+
+    /// `SessionExercise` gained no NON-OPTIONAL field in this wave, and that is
+    /// compatibility rather than style: a journal written by build 1.9 carries
+    /// none of the keys added since, and one required field would zero the
+    /// whole history on decode. The per-exercise sets floor the budget needs
+    /// (§36.6) is therefore carried alongside the plan and never inside it —
+    /// the port's answer to the reference's non-enumerable property.
+    func testAJournalFromBuildOneNineStillDecodesWhole() throws {
+        // Exactly the keys build 1.9 wrote — no `loads`, and nothing from v2.25.
+        let legacy = """
+        {
+          "pattern": "push_h",
+          "name": "Push-ups",
+          "tier": 2,
+          "unit": "reps",
+          "load": 8,
+          "perSide": false,
+          "sets": 3,
+          "restSetSec": 60,
+          "restExerciseSec": 60
+        }
+        """
+        let ex = try JSONDecoder().decode(SessionExercise.self,
+                                          from: try XCTUnwrap(legacy.data(using: .utf8)))
+        XCTAssertEqual(ex.pattern, .pushH)
+        XCTAssertEqual(ex.name, "Push-ups")
+        XCTAssertEqual(ex.tier, 2)
+        XCTAssertEqual(ex.unit, .reps)
+        XCTAssertEqual(ex.load, 8)
+        XCTAssertEqual(ex.perSide, false)
+        XCTAssertEqual(ex.sets, 3)
+        XCTAssertEqual(ex.restSetSec, 60)
+        XCTAssertEqual(ex.restExerciseSec, 60)
+        XCTAssertNil(ex.loads, "a uniform plan stays nil — absence is a claim too")
+        XCTAssertEqual(ex.perSetLoads, [8, 8, 8], "and every set reads back at the base dose")
+        XCTAssertEqual(Engine.exerciseWork(ex), 24, "the work measure reads it whole")
+
+        // And a whole session of them, which is the shape the journal stores.
+        let session = """
+        {
+          "sessionNumber": 7,
+          "warmupMin": 5,
+          "cooldownMin": 3,
+          "estimatedTotalMin": 33.5,
+          "exercises": [\(legacy)]
+        }
+        """
+        let decoded = try JSONDecoder().decode(Session.self,
+                                               from: try XCTUnwrap(session.data(using: .utf8)))
+        XCTAssertEqual(decoded.sessionNumber, 7)
+        XCTAssertEqual(decoded.exercises.count, 1)
+        XCTAssertEqual(decoded.estimatedTotalMin, 33.5)
+    }
+}

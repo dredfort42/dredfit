@@ -166,13 +166,22 @@ final class EngineTests: XCTestCase {
         // 32 is a block floor, the position stands, and the streak grows on
         // INTENT (§34.2); the way out of the band is the deload, and it is
         // now the first one to pass the "no harder" gate (§34.3).
+        // v2.25 (spec §36.3): on a block floor a "less" is no longer inert —
+        // the sets handle gives it a step down there, and the deload that
+        // follows reads the ACCUMULATED cut, so the gate compares a trimmed
+        // plan with a trimmed one.
         state.failStreak[.pull] = EngineConfig.failsToDeload - 1
         let atBandFloor = state.position(.pull)
+        let stepped = Level.fallBy(level: atBandFloor.level, sub: atBandFloor.sub,
+                                   cut: atBandFloor.cut, by: 1, floor: EngineConfig.setsFloor)
         state = Engine.applyFeedback(state: state, session: s, result: .less)
-        assertPosition(state, .pull, expectedDeload(.pull, from: atBandFloor),
+        assertPosition(state, .pull,
+                       expectedDeload(.pull, from: atBandFloor, stepped: stepped),
                        "the deload must cross back into the 3-set band through the gate")
         XCTAssertTrue(Level.noHarder(pattern: .pull, from: atBandFloor.level,
-                                     to: state.levels[.pull]!),
+                                     to: state.levels[.pull]!, fromSub: atBandFloor.sub,
+                                     toSub: state.sub[.pull] ?? 0,
+                                     fromCut: atBandFloor.cut, toCut: state.cutOf(.pull)),
                       "a deload across a band boundary may not make the plan heavier")
         XCTAssertEqual(Level.decode(state.levels[.pull]!).sets, EngineConfig.setsBase,
                        "the deload leaves the 4-set band downwards, not sideways")
@@ -221,7 +230,7 @@ final class EngineTests: XCTestCase {
                 assertPosition(state, probe, expectedDeload(probe, from: entry),
                                "deload on the 3rd underperformance")
                 XCTAssertTrue(Level.noHarder(pattern: probe, from: entry.level,
-                                             to: state.levels[probe]!, fromSub: entry.sub),
+                                             to: state.levels[probe]!, fromSub: entry.sub, fromCut: 0, toCut: 0),
                               "a deload may not make the plan heavier")
                 deloadSeen = true
             } else {
@@ -591,6 +600,21 @@ final class EngineTests: XCTestCase {
     /// The non-stacking property (spec §14.2): a break that got the silent −1
     /// and then a weakened comeback ends exactly where a plain comeback for
     /// the same gap would — per pattern, clamp included.
+    /// Re-marked for v2.25, and the state of play is named rather than hidden.
+    /// §14.2 states the identity ON LEVELS, and in that form it holds: the
+    /// sweep below finds no divergence at all with an empty cut. The whole
+    /// TRIPLE does not converge everywhere: `fallBy` spends the dose before
+    /// the sets while `riseBy` returns the sets before the dose (§36.3 makes
+    /// that asymmetry deliberate), so the `alreadyDecayed` compensation
+    /// reverses the decay's step exactly only where the decay moved the same
+    /// axis. The reference has the same property — a divergence in 920 cells
+    /// of 11,760, ALL of them one-sided: going through the decay is harsher,
+    /// never softer, by up to 6 positions.
+    ///
+    /// That is a DEFECT, not a guarantee, and it is held by a bound rather
+    /// than blessed by an equality: the one direction that must stay empty is
+    /// asserted empty, and the divergence may not grow. A fix makes this pass
+    /// more easily; a regression turns it red.
     func testDecayPlusWeakenedComebackEqualsPlainComeback() {
         for level in [0, 1, 2, 12, 47] {
             var state = EngineState.initial
@@ -600,9 +624,52 @@ final class EngineTests: XCTestCase {
                 let decayed = Engine.applyComeback(
                     state: Engine.applySilentDecay(state: state, gapDays: 10),
                     gapDays: gap, alreadyDecayed: true)
-                XCTAssertEqual(decayed, plain, "L=\(level), gap=\(gap): totals must match the table")
+                for p in Pattern.allCases {
+                    XCTAssertEqual(decayed.levels[p], plain.levels[p],
+                                   "L=\(level), gap=\(gap), \(p): levels must match the table")
+                    XCTAssertEqual(decayed.sub[p] ?? 0, plain.sub[p] ?? 0,
+                                   "L=\(level), gap=\(gap), \(p): and so must the sub-step")
+                    // The one direction that would be a hole rather than a
+                    // price: peeking during the blind zone may never cost LESS.
+                    XCTAssertLessThanOrEqual(Level.posOrd(decayed.position(p)),
+                                             Level.posOrd(plain.position(p)),
+                                             "L=\(level), gap=\(gap), \(p): the decay path came out CHEAPER")
+                }
             }
         }
+    }
+
+    /// The bound on the §14.2 divergence with a NON-EMPTY cut — the same
+    /// measurement the reference verifier pins, ported here so the two cannot
+    /// drift apart. 920 divergent cells of 11,760, worst 6 positions, and not
+    /// one of them in the direction that would be a hole.
+    func testTheFourteenTwoDivergenceWithACutStaysWhereItIs() {
+        var cells = 0, harsher = 0, softer = 0, worst = 0
+        for level in 0...EngineConfig.levelMax {
+            for cut in 0...Level.cutMax(level: level, floor: EngineConfig.setsFloorPain) {
+                for gap in [14, 20, 35, 56, 90, 140, 365] {
+                    var state = EngineState.initial
+                    for p in Pattern.allCases {
+                        state.levels[p] = level
+                        if cut > 0 { state.cut[p] = cut }
+                    }
+                    let plain = Engine.applyComeback(state: state, gapDays: gap)
+                    let viaDecay = Engine.applyComeback(
+                        state: Engine.applySilentDecay(state: state, gapDays: 8),
+                        gapDays: gap, alreadyDecayed: true)
+                    for p in Pattern.allCases {
+                        cells += 1
+                        let a = Level.posOrd(plain.position(p))
+                        let b = Level.posOrd(viaDecay.position(p))
+                        if b > a { softer += 1 } else if b < a { harsher += 1; worst = max(worst, a - b) }
+                    }
+                }
+            }
+        }
+        XCTAssertEqual(cells, 11_760, "the sweep must cover the same domain the reference does")
+        XCTAssertEqual(softer, 0, "the decay path may never come out cheaper than a plain comeback")
+        XCTAssertLessThanOrEqual(harsher, 920, "the known divergence grew")
+        XCTAssertLessThanOrEqual(worst, 6, "the worst known divergence grew")
     }
 
     // MARK: Library

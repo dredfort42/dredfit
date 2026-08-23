@@ -57,24 +57,44 @@ final class EngineV219Tests: XCTestCase {
     /// Both steps, on every rung of the scale: the first lands on the floor of
     /// the current tier, the second on the floor of the previous one — which
     /// is exactly where v2.11 landed in one go.
+    /// Re-marked for v2.25 (spec §36.5) across the whole scale: both steps are
+    /// CUTS OF SETS at a level that never moves — the first to the shared
+    /// floor, the second to the pain floor. The old landings were defective in
+    /// the same direction: the first took 0 % of the work off in 40 cells of
+    /// 480, the second left the plan HEAVIER than before the pain in 53. The
+    /// sweep is stronger than the one it replaces: it pins the level standing,
+    /// the exact depth of each cut, and a STRICT fall of work at every step —
+    /// none of which the old form could claim.
     func testBothStepsLandOnTheirFloorsAcrossTheWholeScale() {
         for level in 0...EngineConfig.levelMax {
             let first = report(seeded(level), .pull)
-            XCTAssertEqual(first.levels[.pull], Level.tierFloor(level),
-                           "L\(level): the first report lands on this tier's floor")
+            XCTAssertEqual(first.levels[.pull], level, "L\(level): the level stands")
+            XCTAssertEqual(first.cutOf(.pull),
+                           Level.cutMax(level: level, floor: EngineConfig.setsFloor),
+                           "L\(level): the first report lands on the shared floor of sets")
             XCTAssertEqual(first.failStreak[.pull], 0, "L\(level): the streak resets")
-            XCTAssertEqual(first.frozen[.pull], EngineConfig.freezeAppearances)
-            XCTAssertEqual(first.sore[.pull], EngineConfig.freezeAppearances)
+            XCTAssertEqual(first.frozen[.pull], Engine.painStair(seen: 1))
+            XCTAssertEqual(first.sore[.pull], Engine.painStair(seen: 1))
+            XCTAssertLessThan(Level.work(pattern: .pull, level: level, sub: 0,
+                                         cut: first.cutOf(.pull)).total,
+                              Level.work(pattern: .pull, level: level, sub: 0, cut: 0).total,
+                              "L\(level): the first step takes work off, strictly")
 
             let second = report(first, .pull)
-            XCTAssertEqual(second.levels[.pull], Level.unload(Level.tierFloor(level)),
-                           "L\(level): the second report lands on the previous tier's floor")
+            XCTAssertEqual(second.levels[.pull], level,
+                           "L\(level): the level stands on the second report too")
+            XCTAssertEqual(second.cutOf(.pull),
+                           Level.cutMax(level: level, floor: EngineConfig.setsFloorPain),
+                           "L\(level): the second report lands on the pain floor of sets")
             XCTAssertEqual(second.failStreak[.pull], 0,
                            "L\(level): the streak resets on the second step too")
-            XCTAssertEqual(second.frozen[.pull],
-                           min(EngineConfig.freezeAppearances * 2,
-                               EngineConfig.freezeCapAppearances),
-                           "L\(level): the rest doubles on the second report")
+            XCTAssertEqual(second.frozen[.pull], Engine.painStair(seen: 2),
+                           "L\(level): the rest deepens on the second report")
+            XCTAssertLessThan(Level.work(pattern: .pull, level: level, sub: 0,
+                                         cut: second.cutOf(.pull)).total,
+                              Level.work(pattern: .pull, level: level, sub: 0,
+                                         cut: first.cutOf(.pull)).total,
+                              "L\(level): and the ladder falls strictly")
         }
     }
 
@@ -99,18 +119,28 @@ final class EngineV219Tests: XCTestCase {
 
     /// The control run of the wave (§30.6): hinge from level 28 — the case
     /// where v2.18 answered "it hurts" with two and a half times the work.
+    /// Re-marked for v2.25 (spec §36.5): the acceptance run in sets instead of
+    /// levels. `hinge` at 28 sits in band 3, so the ladder is 3 → 2 → 1 sets
+    /// with the level standing at 28 throughout — where the old run went
+    /// 28 → 24 → 16 and left the plan heavier than it started at the second
+    /// step. The rest ladder is unchanged and still carries the count of
+    /// reports, now read off `painSeen`.
     func testHingeFromLevel28LandsAt24Then16AndStops() {
         var s = seeded(28)
-        var seen: [Int] = []
+        var shown: [Int] = []
+        var levels: [Int] = []
         var rest: [Int] = []
         for _ in 0..<3 {
             s = report(s, .hinge)
-            seen.append(s.levels[.hinge] ?? -1)
+            shown.append(Level.setsAfterCut(level: s.levels[.hinge] ?? 0, cut: s.cutOf(.hinge)))
+            levels.append(s.levels[.hinge] ?? -1)
             rest.append(s.frozen[.hinge] ?? 0)
         }
-        XCTAssertEqual(seen, [24, 16, 16], "two steps down, then the level holds")
+        XCTAssertEqual(shown, [2, 1, 1], "two steps down in sets, then the plan holds")
+        XCTAssertEqual(levels, [28, 28, 28], "and the level never moves")
         XCTAssertEqual(rest, [3, 6, 12], "the rest ladder carries the count of reports")
         XCTAssertEqual(s.sore[.hinge], EngineConfig.freezeCapAppearances)
+        XCTAssertEqual(s.painSeen[.hinge], 3, "three reports are remembered")
     }
 
     /// The first step never adds work — swept over every pattern and every
@@ -123,8 +153,8 @@ final class EngineV219Tests: XCTestCase {
             for level in 0...EngineConfig.levelMax {
                 cells += 1
                 let landed = Level.tierFloor(level)
-                let before = Level.work(pattern: pattern, level: level)
-                let after = Level.work(pattern: pattern, level: landed)
+                let before = Level.work(pattern: pattern, level: level, sub: 0, cut: 0)
+                let after = Level.work(pattern: pattern, level: landed, sub: 0, cut: 0)
                 XCTAssertEqual(after.tier, before.tier,
                                "\(pattern) L\(level): the first step stays in the tier")
                 XCTAssertEqual(after.sides, before.sides,
@@ -133,7 +163,7 @@ final class EngineV219Tests: XCTestCase {
                                          "\(pattern) L\(level): never more per set")
                 XCTAssertLessThanOrEqual(after.total, before.total,
                                          "\(pattern) L\(level): never more work in total")
-                XCTAssertTrue(Level.noHarder(pattern: pattern, from: level, to: landed),
+                XCTAssertTrue(Level.noHarder(pattern: pattern, from: level, to: landed, fromCut: 0, toCut: 0),
                               "\(pattern) L\(level): the gate agrees")
             }
         }
@@ -146,8 +176,8 @@ final class EngineV219Tests: XCTestCase {
     func testTheMeasureCountsSides() {
         // hinge tier 4 is the sliding leg curl (both legs), tier 3 the
         // single-leg deadlift — the pair that made the descent heavier.
-        let bothLegs = Level.work(pattern: .hinge, level: 24)
-        let oneLeg = Level.work(pattern: .hinge, level: 16)
+        let bothLegs = Level.work(pattern: .hinge, level: 24, sub: 0, cut: 0)
+        let oneLeg = Level.work(pattern: .hinge, level: 16, sub: 0, cut: 0)
         XCTAssertEqual(bothLegs.sides, 1)
         XCTAssertEqual(oneLeg.sides, 2)
         XCTAssertEqual(bothLegs.total, 12, "3×4 with both legs")
@@ -157,9 +187,9 @@ final class EngineV219Tests: XCTestCase {
     /// Inside a tier the gate reads both the dose of a set and the total, so
     /// trading a set for reps no longer passes (spec §30.2).
     func testInsideATierTheGateReadsTheDosePerSetToo() {
-        XCTAssertFalse(Level.noHarder(pattern: .pushH, from: 32, to: 28),
+        XCTAssertFalse(Level.noHarder(pattern: .pushH, from: 32, to: 28, fromCut: 0, toCut: 0),
                        "3×8 asks eight reps a set against the plan's six")
-        XCTAssertTrue(Level.noHarder(pattern: .pushH, from: 32, to: 26),
+        XCTAssertTrue(Level.noHarder(pattern: .pushH, from: 32, to: 26, fromCut: 0, toCut: 0),
                       "3×6 keeps the dose and drops a set")
     }
 
@@ -167,9 +197,9 @@ final class EngineV219Tests: XCTestCase {
     /// variation a measure in reps is not valid, and the floor of the lower
     /// tier IS the "take the load off" step §15.2 provides for.
     func testTheTierFloorExemptionSurvives() {
-        XCTAssertTrue(Level.noHarder(pattern: .hinge, from: 24, to: 16),
+        XCTAssertTrue(Level.noHarder(pattern: .hinge, from: 24, to: 16, fromCut: 0, toCut: 0),
                       "the second step is allowed: a different, easier movement")
-        XCTAssertFalse(Level.noHarder(pattern: .hinge, from: 24, to: 17),
+        XCTAssertFalse(Level.noHarder(pattern: .hinge, from: 24, to: 17, fromCut: 0, toCut: 0),
                        "but the middle of the lower tier is not")
     }
 

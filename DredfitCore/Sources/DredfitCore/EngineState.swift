@@ -24,6 +24,43 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// DISABLED and the sanitizer forces it to zero: rung `L+1` there belongs
     /// to another variation, and two variations may never share one exercise.
     public var sub: [Pattern: Int]
+    /// v2.25 (spec §36.1): sets taken off the level's plan. Range after
+    /// sanitizing is `0...band − setsFloorPain`: the ceiling is the PAIN one,
+    /// because a state may legitimately carry the pain channel's landing of a
+    /// single set and the sanitizer has no right to raise it. Sparse — zeros
+    /// are never stored — so a file written before this existed decodes to all
+    /// zeros and the plan it produces is bit-for-bit v2.24's. No migration.
+    ///
+    /// The second axis of a position: the level fixes the VARIATION and the
+    /// DOSE PER SET, the cut fixes only the VOLUME.
+    public var cut: [Pattern: Int]
+    /// v2.25 (spec §36.5): how many times this movement has hurt over its
+    /// whole history. Separate from the episode on purpose — an episode is
+    /// "now", the history is "ever". The 3 → 6 → 12 rest ladder reads THIS,
+    /// not whether an episode is open, and so does the "time to see a
+    /// specialist" threshold. It fades by one after a break of
+    /// `painForgetGapDays`, and that is the only place it ever falls.
+    public var painSeen: [Pattern: Int]
+    /// v2.25 (spec §36.3): appearances left before the next set may come back.
+    /// While it ticks, a growth event goes into the DOSE — the trainee keeps
+    /// growing, just by a smaller step. Sparse, like every other counter here.
+    public var setsHold: [Pattern: Int]
+    /// v2.25 (spec §36.8): the work shown in the last COMPLETED session, and
+    /// the position it was shown AT. Together with `shownBudget` they are the
+    /// input to the postcondition repair — "if a pattern's position did not
+    /// rise, its plan may not get heavier". Without the position there is no
+    /// telling "the plan grew because the person grew" from "the plan grew
+    /// because the budget moved the cut somewhere else".
+    ///
+    /// `shownWork` is sparse on "work > 0", so an absent entry unambiguously
+    /// means "never shown"; `shownOrd` is only meaningful where `shownWork`
+    /// has an entry — the pair is written by one loop and always together.
+    public var shownWork: [Pattern: Int]
+    public var shownOrd: [Pattern: Int]
+    /// The time budget in force when that plan was shown. A person moving the
+    /// time handle lifts the repair's cap for exactly ONE state transition:
+    /// without it, raising 30 to 60 gave 45.9 minutes instead of 59.1.
+    public var shownBudget: Int
     public var failStreak: [Pattern: Int]
     public var hasBar: Bool
     /// Appearances a pattern still has to sit out after discomfort was
@@ -99,7 +136,9 @@ public struct EngineState: Codable, Equatable, Sendable {
     private enum CodingKeys: String, CodingKey {
         case counter, levels, failStreak, hasBar, frozen, lessRun, creditPaused, sore,
              soreLeft, returnRun, illness, lessHist, rampWindow, timeBudgetMin, weekGain,
-             weekAgeDays, sub
+             weekAgeDays, sub,
+             // v2.25 (§36.1): five sparse maps and one scalar, all additive.
+             cut, painSeen, setsHold, shownWork, shownOrd, shownBudget
     }
 
     public init(counter: Int, levels: [Pattern: Int],
@@ -110,10 +149,19 @@ public struct EngineState: Codable, Equatable, Sendable {
                 returnRun: Int = 0, illness: Int = 0, lessHist: [Pattern: Int] = [:],
                 rampWindow: Int = 0, timeBudgetMin: Int = 0,
                 weekGain: [Pattern: Int] = [:], weekAgeDays: Double = 0,
-                sub: [Pattern: Int] = [:]) {
+                sub: [Pattern: Int] = [:],
+                cut: [Pattern: Int] = [:], painSeen: [Pattern: Int] = [:],
+                setsHold: [Pattern: Int] = [:], shownWork: [Pattern: Int] = [:],
+                shownOrd: [Pattern: Int] = [:], shownBudget: Int = 0) {
         self.counter = counter
         self.levels = levels
         self.sub = sub
+        self.cut = cut
+        self.painSeen = painSeen
+        self.setsHold = setsHold
+        self.shownWork = shownWork
+        self.shownOrd = shownOrd
+        self.shownBudget = shownBudget
         self.failStreak = failStreak
         self.hasBar = hasBar
         self.frozen = frozen
@@ -214,6 +262,38 @@ public struct EngineState: Codable, Equatable, Sendable {
                                    0, Double(EngineConfig.countMax))
         // Additive (v2.22, §33); healed against the levels, so it is read last.
         sub = Self.healSub(c.contains(.sub) ? try Self.decodeLenient(c, forKey: .sub) : [:], levels: lv)
+        // Additive (v2.25, §36.1). The cut is healed against the levels too —
+        // its ceiling is a property of the level's band, not a constant.
+        cut = Self.healCut(c.contains(.cut) ? try Self.decodeLenient(c, forKey: .cut) : [:],
+                           levels: lv)
+        painSeen = c.contains(.painSeen)
+            ? try Self.decodeLenient(c, forKey: .painSeen)
+                .filter { $0.value >= 1 }
+                .mapValues { Self.clamped($0, 1, EngineConfig.painSeenMax) }
+            : [:]
+        setsHold = c.contains(.setsHold)
+            ? try Self.decodeLenient(c, forKey: .setsHold)
+                .filter { $0.value >= 1 }
+                .mapValues { Self.clamped($0, 1, EngineConfig.setsBackHold) }
+            : [:]
+        // Sparse on "work > 0": an absent entry means the plan was never
+        // shown, which is what the repair reads it as.
+        shownWork = c.contains(.shownWork)
+            ? try Self.decodeLenient(c, forKey: .shownWork).filter { $0.value > 0 }
+            : [:]
+        // NOT sparse on zero: a shown position of exactly zero is a real
+        // value, and only the presence of the key carries "was it shown".
+        shownOrd = c.contains(.shownOrd) ? try Self.decodeLenient(c, forKey: .shownOrd) : [:]
+        shownBudget = Self.sanitizeBudget(
+            try c.decodeIfPresent(Int.self, forKey: .shownBudget) ?? 0)
+    }
+
+    /// v2.17 (spec §28.3) · v2.25 (§36.8): the time budget, healed the way the
+    /// reference heals it. Both the live handle and the one recorded with the
+    /// last shown plan go through it, so the two can never be compared across
+    /// different sanitizings.
+    static func sanitizeBudget(_ raw: Int) -> Int {
+        raw > 0 ? clamped(raw, 5, EngineConfig.countMax) : 0
     }
 
     /// Manual decode of the exact wire format Swift synthesizes for a
@@ -287,7 +367,31 @@ public struct EngineState: Codable, Equatable, Sendable {
             weekGain: weekGain.filter { $0.value >= 1 }
                 .mapValues { Self.clamped($0, 1, EngineConfig.countMax) },
             weekAgeDays: Self.clamped(weekAgeDays, 0, Double(EngineConfig.countMax)),
-            sub: Self.healSub(sub, levels: lv))
+            sub: Self.healSub(sub, levels: lv),
+            cut: Self.healCut(cut, levels: lv),
+            painSeen: painSeen.filter { $0.value >= 1 }
+                .mapValues { Self.clamped($0, 1, EngineConfig.painSeenMax) },
+            setsHold: setsHold.filter { $0.value >= 1 }
+                .mapValues { Self.clamped($0, 1, EngineConfig.setsBackHold) },
+            shownWork: shownWork.filter { $0.value > 0 },
+            shownOrd: shownOrd,
+            shownBudget: Self.sanitizeBudget(shownBudget))
+    }
+
+    /// v2.25 (spec §36.1): the cut map, healed the way the reference heals it.
+    /// The ceiling is the PAIN floor, not the shared one: a state may hold the
+    /// pain channel's legitimate landing of a single set, and the sanitizer is
+    /// not allowed to raise it back. Zeros are never stored, so a state that
+    /// gave every set back is byte-identical to one that never lost any.
+    static func healCut(_ src: [Pattern: Int], levels: [Pattern: Int]) -> [Pattern: Int] {
+        var out: [Pattern: Int] = [:]
+        for (p, raw) in src {
+            let level = clamped(levels[p] ?? 0, 0, EngineConfig.levelMax)
+            let value = Level.effCut(level: level, cut: raw,
+                                     floor: EngineConfig.setsFloorPain)
+            if value > 0 { out[p] = value }
+        }
+        return out
     }
 
     /// v2.22 (spec §33): the sub-step map, healed the way the reference heals
@@ -307,9 +411,14 @@ public struct EngineState: Codable, Equatable, Sendable {
         return out
     }
 
-    /// The pattern's place on the progression (v2.22, §33).
+    /// v2.25 (§36.1): the sets taken off a pattern, zero when none are.
+    public func cutOf(_ pattern: Pattern) -> Int { cut[pattern] ?? 0 }
+
+    /// The pattern's place on the progression (v2.22, §33) — a TRIPLE since
+    /// v2.25 (§36.3): the sets taken off are a coordinate of the position, and
+    /// every ceiling that reads a rise reads the measure over all three.
     public func position(_ pattern: Pattern) -> Position {
-        Position(level: levels[pattern] ?? 0, sub: sub[pattern] ?? 0)
+        Position(level: levels[pattern] ?? 0, sub: sub[pattern] ?? 0, cut: cut[pattern] ?? 0)
     }
 
     /// v2.20 (spec §31.3): the confirmation countdown, healed the way the

@@ -26,16 +26,17 @@ extension XCTestCase {
     }
 
     /// Assert a pattern landed exactly on the expected position.
+    /// v2.25 (spec §36.3): a position is a TRIPLE, so the third coordinate is
+    /// compared too. Every pre-v2.25 call site keeps reading as it did — a
+    /// `Position` built without a cut carries zero — and now says so.
     func assertPosition(_ state: EngineState, _ p: DredfitCore.Pattern, _ want: Position,
                         _ message: String = "",
                         file: StaticString = #filePath, line: UInt = #line) {
         let got = state.position(p)
-        XCTAssertEqual(got.level, want.level,
-                       "\(message) — level (got \(got.level).\(got.sub), want \(want.level).\(want.sub))",
-                       file: file, line: line)
-        XCTAssertEqual(got.sub, want.sub,
-                       "\(message) — sub-step (got \(got.level).\(got.sub), want \(want.level).\(want.sub))",
-                       file: file, line: line)
+        let shown = "(got \(got.level).\(got.sub)/\(got.cut), want \(want.level).\(want.sub)/\(want.cut))"
+        XCTAssertEqual(got.level, want.level, "\(message) — level \(shown)", file: file, line: line)
+        XCTAssertEqual(got.sub, want.sub, "\(message) — sub-step \(shown)", file: file, line: line)
+        XCTAssertEqual(got.cut, want.cut, "\(message) — cut \(shown)", file: file, line: line)
     }
 
     /// Assert the pattern rose by exactly `count` sub-steps from `entry`.
@@ -54,14 +55,21 @@ extension XCTestCase {
     /// (`level + delta, sub: 0`) encoded the level-wise descent that was the
     /// subject of the wave: it crossed the tier boundary and landed in the
     /// middle of the tier below, where the dose is higher.
+    /// v2.25 (spec §36.3): both directions walk the shared scale — growth
+    /// gives sets back first, a descent spends the dose before the sets — and
+    /// the descent's floor is the pain one under a live episode (§36.9).
     func expectedPosition(_ state: EngineState, _ p: DredfitCore.Pattern, delta: Int) -> Position {
         let entry = state.position(p)
         let cap = EngineConfig.maxUp(pattern: p, tier: Level.decode(entry.level).tier)
         if delta > 0 {
-            return Level.rise(level: entry.level, sub: entry.sub, by: min(delta, cap))
+            return Level.riseBy(level: entry.level, sub: entry.sub, cut: entry.cut,
+                                by: min(delta, cap),
+                                allowSetsBack: (state.setsHold[p] ?? 0) == 0)
         }
         if delta < 0 {
-            return Level.descend(level: entry.level, sub: entry.sub, by: -delta)
+            return Level.fallBy(level: entry.level, sub: entry.sub, cut: entry.cut, by: -delta,
+                                floor: state.sore[p] != nil
+                                    ? EngineConfig.setsFloorPain : EngineConfig.setsFloor)
         }
         return entry
     }
@@ -75,24 +83,37 @@ extension XCTestCase {
     /// honest landing, which a deload may not climb back above — pass it as
     /// `base`. The gate always measures against the plan the session was done
     /// on, so `from` stays the entry position either way.
-    func expectedDeload(_ p: DredfitCore.Pattern, from: Position, base: Int? = nil) -> Position {
+    /// v2.25 (spec §36.3): the deload reads the ACCUMULATED cut — it stands
+    /// after the rating's own step, so the gate has to compare a trimmed plan
+    /// with a trimmed one — and the cut it keeps has to fit the NEW band, at
+    /// the pain floor: a deload is a descent and may give nothing back.
+    func expectedDeload(_ p: DredfitCore.Pattern, from: Position, base: Int? = nil,
+                        stepped: Position? = nil) -> Position {
         let target = min(max((base ?? from.level) - EngineConfig.deloadDrop, 0),
                          EngineConfig.levelMax)
-        return Position(level: Level.descendNoHarder(pattern: p, from: from.level,
-                                                     factLevel: target, fromSub: from.sub),
-                        sub: 0)
+        let landed = Level.descendNoHarder(pattern: p, from: from.level, factLevel: target,
+                                           fromSub: from.sub, fromCut: from.cut)
+        let carried = stepped?.cut ?? from.cut
+        return Position(level: landed, sub: 0,
+                        cut: min(carried, Level.cutMax(level: landed,
+                                                       floor: EngineConfig.setsFloorPain)))
     }
 
     /// Assert the pattern stepped exactly `count` sub-steps back from `entry`,
     /// and that the landing does not ask for more work than it came from.
+    /// v2.25 (spec §36.3): a step of the descent walks `fallBy` — the dose
+    /// first, and a set on a block floor — and the gate reads the whole triple.
     func assertDescended(_ state: EngineState, _ p: DredfitCore.Pattern, from entry: Position,
                          by count: Int, _ message: String = "",
                          file: StaticString = #filePath, line: UInt = #line) {
-        assertPosition(state, p, Level.descend(level: entry.level, sub: entry.sub, by: count),
+        assertPosition(state, p,
+                       Level.fallBy(level: entry.level, sub: entry.sub, cut: entry.cut,
+                                    by: count, floor: EngineConfig.setsFloor),
                        message, file: file, line: line)
         let got = state.position(p)
         XCTAssertTrue(Level.noHarder(pattern: p, from: entry.level, to: got.level,
-                                     fromSub: entry.sub, toSub: got.sub),
+                                     fromSub: entry.sub, toSub: got.sub,
+                                     fromCut: entry.cut, toCut: got.cut),
                       "\(message) — an evaluative descent may not make the plan heavier",
                       file: file, line: line)
     }

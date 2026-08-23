@@ -86,12 +86,12 @@ final class EngineV222Tests: XCTestCase {
         for p in Pattern.allCases {
             for level in 0..<EngineConfig.levelMax where !Level.subDisabled(at: level) {
                 let sets = Level.decode(level).sets
-                let levelStep = Level.work(pattern: p, level: level + 1).total
-                    - Level.work(pattern: p, level: level).total
-                var previous = Level.work(pattern: p, level: level).total
+                let levelStep = Level.work(pattern: p, level: level + 1, sub: 0, cut: 0).total
+                    - Level.work(pattern: p, level: level, sub: 0, cut: 0).total
+                var previous = Level.work(pattern: p, level: level, sub: 0, cut: 0).total
                 for k in 1...sets {
                     let at = Level.rise(level: level, sub: 0, by: k)
-                    let current = Level.work(pattern: p, level: at.level, sub: at.sub).total
+                    let current = Level.work(pattern: p, level: at.level, sub: at.sub, cut: 0).total
                     XCTAssertGreaterThan(current, previous,
                                          "\(p) L\(level): sub-step \(k) must be strictly heavier")
                     if levelStep > 0 {
@@ -114,9 +114,9 @@ final class EngineV222Tests: XCTestCase {
         for p in Pattern.allCases {
             for level in 0...EngineConfig.levelMax where !Level.subDisabled(at: level) {
                 for sub in 0..<Level.decode(level).sets {
-                    let from = Level.work(pattern: p, level: level, sub: sub)
+                    let from = Level.work(pattern: p, level: level, sub: sub, cut: 0)
                     let to = Level.rise(level: level, sub: sub, by: 1)
-                    let step = Level.work(pattern: p, level: to.level, sub: to.sub).total - from.total
+                    let step = Level.work(pattern: p, level: to.level, sub: to.sub, cut: 0).total - from.total
                     let bound = from.unit == .reps ? 9 : 6
                     XCTAssertLessThanOrEqual(step * 100, from.total * bound,
                                              "\(p) L\(level).\(sub): step \(step) of \(from.total)")
@@ -155,8 +155,8 @@ final class EngineV222Tests: XCTestCase {
                 let a = Level.decode(level), b = Level.decode(level + 1)
                 XCTAssertEqual(a.tier, b.tier, "\(p) L\(level): same tier")
                 XCTAssertEqual(a.sets, b.sets, "\(p) L\(level): same band")
-                XCTAssertEqual(Level.work(pattern: p, level: level).unit,
-                               Level.work(pattern: p, level: level + 1).unit,
+                XCTAssertEqual(Level.work(pattern: p, level: level, sub: 0, cut: 0).unit,
+                               Level.work(pattern: p, level: level + 1, sub: 0, cut: 0).unit,
                                "\(p) L\(level): same unit")
             }
         }
@@ -393,8 +393,19 @@ final class EngineV222Tests: XCTestCase {
         // A break, either kind.
         XCTAssertTrue(Engine.applyComeback(state: grown, gapDays: 30).sub.isEmpty,
                       "a comeback zeroes every one")
-        XCTAssertTrue(Engine.applySilentDecay(state: grown, gapDays: 9).sub.isEmpty,
-                      "and so does a silent decay")
+        // Re-marked for v2.25 (spec §36.7): a decay drops the sub-steps and
+        // THEN walks one step of the growth path from there, so what it leaves
+        // is that step's own sub-step, not an empty map. The subject — every
+        // descent gives up what the trainee did not earn — is asserted as the
+        // composition of the two, which is stricter than "empty": it pins
+        // where the step landed as well.
+        let decayed = Engine.applySilentDecay(state: grown, gapDays: 9)
+        for p in Pattern.allCases {
+            assertPosition(decayed, p,
+                           Level.fallBy(level: 20, sub: 0, cut: 0, by: 1,
+                                        floor: EngineConfig.setsFloor),
+                           "a silent decay drops the sub-step and steps back once (\(p))")
+        }
     }
 
     /// Giving up sub-steps without losing a level is not a shortfall — the
@@ -434,10 +445,10 @@ final class EngineV222Tests: XCTestCase {
             for level in 0...EngineConfig.levelMax where !Level.subDisabled(at: level) {
                 for sub in 1..<Level.decode(level).sets {
                     XCTAssertTrue(Level.noHarder(pattern: p, from: level, to: level,
-                                                 fromSub: sub, toSub: 0),
+                                                 fromSub: sub, toSub: 0, fromCut: 0, toCut: 0),
                                   "\(p) L\(level).\(sub) → L\(level).0 must pass")
-                    XCTAssertLessThan(Level.work(pattern: p, level: level, sub: 0).total,
-                                      Level.work(pattern: p, level: level, sub: sub).total,
+                    XCTAssertLessThan(Level.work(pattern: p, level: level, sub: 0, cut: 0).total,
+                                      Level.work(pattern: p, level: level, sub: sub, cut: 0).total,
                                       "\(p) L\(level): shedding sub-steps is less work")
                 }
             }
@@ -449,9 +460,9 @@ final class EngineV222Tests: XCTestCase {
         for p in Pattern.allCases {
             for from in 0...EngineConfig.levelMax {
                 for to in 0...EngineConfig.levelMax {
-                    XCTAssertEqual(Level.noHarder(pattern: p, from: from, to: to),
+                    XCTAssertEqual(Level.noHarder(pattern: p, from: from, to: to, fromCut: 0, toCut: 0),
                                    Level.noHarder(pattern: p, from: from, to: to,
-                                                  fromSub: 0, toSub: 0),
+                                                  fromSub: 0, toSub: 0, fromCut: 0, toCut: 0),
                                    "\(p) \(from) → \(to)")
                 }
             }

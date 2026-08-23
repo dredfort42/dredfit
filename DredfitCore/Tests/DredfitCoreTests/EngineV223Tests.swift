@@ -65,10 +65,10 @@ final class EngineV223Tests: XCTestCase {
                                    Level.ordinal(level: Level.bandFloor(entry.level), sub: 0)),
                                "\(entry.level).\(entry.sub): not exactly \(count) sub-steps back")
                 for p in Pattern.allCases {
-                    let a = Level.work(pattern: p, level: entry.level, sub: entry.sub)
-                    let b = Level.work(pattern: p, level: to.level, sub: to.sub)
+                    let a = Level.work(pattern: p, level: entry.level, sub: entry.sub, cut: 0)
+                    let b = Level.work(pattern: p, level: to.level, sub: to.sub, cut: 0)
                     XCTAssertTrue(Level.noHarder(pattern: p, from: entry.level, to: to.level,
-                                                 fromSub: entry.sub, toSub: to.sub),
+                                                 fromSub: entry.sub, toSub: to.sub, fromCut: 0, toCut: 0),
                                   "\(p) \(entry.level).\(entry.sub) → \(to.level).\(to.sub) is heavier")
                     XCTAssertEqual(b.unit, a.unit, "\(p): the unit changed under a descent")
                     XCTAssertEqual(b.sides, a.sides, "\(p): the sides changed under a descent")
@@ -118,6 +118,13 @@ final class EngineV223Tests: XCTestCase {
             // not the same thing as three shortfalls (the reason §26.1 counts
             // its window in appearances too).
             var seen = Dictionary(uniqueKeysWithValues: Pattern.allCases.map { ($0, 0) })
+            // v2.25 (spec §36.3): on a block floor a "less" takes a SET, so
+            // the expected position is tracked through the run instead of
+            // being pinned to the floor. The subject of the block is untouched
+            // and gains a fact: the level never crosses the block floor even
+            // though the position keeps moving.
+            var want = Dictionary(uniqueKeysWithValues:
+                Pattern.allCases.map { ($0, Position(level: floor, sub: 0, cut: 0)) })
             var deloaded: Set<Pattern> = []
             var guardCount = 0
             while deloaded.count < Pattern.allCases.count && guardCount < 4 * EngineConfig.stepsPerTier {
@@ -128,17 +135,26 @@ final class EngineV223Tests: XCTestCase {
                 for ex in session.exercises where !deloaded.contains(ex.pattern) {
                     let p = ex.pattern
                     seen[p]! += 1
+                    let before = want[p]!
+                    let stepped = Level.fallBy(level: before.level, sub: before.sub,
+                                               cut: before.cut, by: 1,
+                                               floor: EngineConfig.setsFloor)
                     if seen[p]! < EngineConfig.failsToDeload {
-                        assertPosition(state, p, Position(level: floor, sub: 0),
-                                       "floor \(floor): hard #\(seen[p]!) moved \(p)")
+                        want[p] = stepped
+                        assertPosition(state, p, stepped,
+                                       "floor \(floor): hard #\(seen[p]!) moved \(p) off the rule")
+                        XCTAssertEqual(stepped.level, floor,
+                                       "floor \(floor): hard #\(seen[p]!) crossed the block floor of \(p)")
                         XCTAssertEqual(state.failStreak[p], seen[p]!,
                                        "floor \(floor): the streak of \(p) after hard #\(seen[p]!)")
                     } else {
-                        assertPosition(state, p,
-                                       expectedDeload(p, from: Position(level: floor, sub: 0)),
+                        want[p] = expectedDeload(p, from: before, stepped: stepped)
+                        assertPosition(state, p, want[p]!,
                                        "floor \(floor): the deload of \(p) missed the rule")
-                        XCTAssertTrue(Level.noHarder(pattern: p, from: floor,
-                                                     to: state.levels[p]!),
+                        XCTAssertTrue(Level.noHarder(pattern: p, from: before.level,
+                                                     to: state.levels[p]!, fromSub: before.sub,
+                                                     toSub: state.sub[p] ?? 0,
+                                                     fromCut: before.cut, toCut: state.cutOf(p)),
                                       "floor \(floor): the deload of \(p) made the plan heavier")
                         XCTAssertEqual(state.failStreak[p], 0,
                                        "floor \(floor): the deload of \(p) left the streak")
@@ -150,7 +166,7 @@ final class EngineV223Tests: XCTestCase {
                                           || landedIn.sets < Level.decode(floor).sets,
                                           "floor \(floor): the deload of \(p) stayed in the same variation")
                         } else {
-                            assertPosition(state, p, Position(level: 0, sub: 0),
+                            XCTAssertEqual(state.levels[p], 0,
                                            "at the very bottom a deload has nowhere to lead")
                         }
                         deloaded.insert(p)
@@ -178,8 +194,19 @@ final class EngineV223Tests: XCTestCase {
             guard inSession else { continue }
             hits += 1
             if hits < EngineConfig.failsToDeload {
-                assertPosition(state, p, Position(level: top, sub: 0),
-                               "L24 is a tier floor: hard #\(hits) must not move it")
+                // v2.25 (spec §36.3): L24 is a tier floor, so the LEVEL still
+                // does not move — but the sets handle gives the rating a step
+                // there, which is the whole point of the wave: before it, a
+                // "hard" on a block floor was an inert tap.
+                XCTAssertEqual(state.levels[p], top,
+                               "L24 is a tier floor: hard #\(hits) must not move the level")
+                // Band 3 has exactly one set to give above the shared floor,
+                // so the second "hard" finds the bottom of the variation and
+                // the position stands — which is what still builds the streak
+                // toward the deload (§34.2).
+                XCTAssertEqual(state.cutOf(p),
+                               min(hits, Level.cutMax(level: top, floor: EngineConfig.setsFloor)),
+                               "and hard #\(hits) takes a set while the band has one to give")
                 XCTAssertEqual(state.failStreak[p], hits, "the streak is \(hits)")
             }
         }
@@ -191,17 +218,17 @@ final class EngineV223Tests: XCTestCase {
         // valid (§30.2/§30.4). The sum does go 30 → 45 s — the same landing the
         // second step of taking the load off gives (§30.6), where that price
         // is named and accepted.
-        XCTAssertTrue(Level.noHarder(pattern: p, from: top, to: state.levels[p]!),
+        XCTAssertTrue(Level.noHarder(pattern: p, from: top, to: state.levels[p]!, fromCut: 0, toCut: 0),
                       "the deload is not heavier by the gate")
         XCTAssertEqual(state.levels[p], Level.tierFloor(state.levels[p]!),
                        "the landing is the smallest dose of its own variation")
         // And the step the wave closed: the old level-wise 24 → 23 asked for
         // three times the work here, six times on `hinge`.
-        XCTAssertGreaterThan(Level.work(pattern: p, level: top - 1, sub: 0).total,
-                             Level.work(pattern: p, level: top, sub: 0).total * 3,
+        XCTAssertGreaterThan(Level.work(pattern: p, level: top - 1, sub: 0, cut: 0).total,
+                             Level.work(pattern: p, level: top, sub: 0, cut: 0).total * 3,
                              "the old level-wise step really did treble the work")
-        XCTAssertGreaterThan(Level.work(pattern: .hinge, level: top - 1, sub: 0).total,
-                             Level.work(pattern: .hinge, level: top, sub: 0).total * 5,
+        XCTAssertGreaterThan(Level.work(pattern: .hinge, level: top - 1, sub: 0, cut: 0).total,
+                             Level.work(pattern: .hinge, level: top, sub: 0, cut: 0).total * 5,
                              "on hinge the same step cost six times as much")
     }
 
@@ -242,7 +269,7 @@ final class EngineV223Tests: XCTestCase {
                 return Level.position(atOrdinal: min(factOrdinal, oldOrdinal + cap))
             }
             return Position(level: Level.descendNoHarder(pattern: p, from: oldL,
-                                                         factLevel: factL, fromSub: oldSub),
+                                                         factLevel: factL, fromSub: oldSub, fromCut: 0),
                             sub: 0)
         }
 
@@ -281,7 +308,7 @@ final class EngineV223Tests: XCTestCase {
             let actual = max(0, ex.load - 1)
             let factL = Level.fromActual(pattern: .pull, tier: ex.tier,
                                          sets: Level.decode(level).sets, actual: actual)
-            let landed = Level.descendNoHarder(pattern: .pull, from: level, factLevel: factL)
+            let landed = Level.descendNoHarder(pattern: .pull, from: level, factLevel: factL, fromCut: 0)
             guard landed < level else { continue }        // the fact led nowhere down
             let after = Engine.applyFeedback(state: state, session: session, result: .plan,
                                              overrides: [.pull: actual])
@@ -290,7 +317,7 @@ final class EngineV223Tests: XCTestCase {
                            "L=\(level): the deload counts from the landing \(landed)")
             XCTAssertLessThanOrEqual(after.levels[.pull] ?? 0, landed,
                                      "L=\(level): the deload rose above the honest landing")
-            XCTAssertTrue(Level.noHarder(pattern: .pull, from: level, to: after.levels[.pull]!),
+            XCTAssertTrue(Level.noHarder(pattern: .pull, from: level, to: after.levels[.pull]!, fromCut: 0, toCut: 0),
                           "L=\(level): the deload on the fact path made the plan heavier")
         }
     }

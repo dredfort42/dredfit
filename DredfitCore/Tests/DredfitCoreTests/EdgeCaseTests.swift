@@ -112,7 +112,7 @@ final class EdgeCaseTests: XCTestCase {
                                          result: .plan, overrides: [.pull: ex.load - 2])
             let after = state.levels[.pull] ?? 0
             XCTAssertLessThan(after, before, "step \(i): an underperformance goes down")
-            XCTAssertTrue(Level.noHarder(pattern: .pull, from: before, to: after),
+            XCTAssertTrue(Level.noHarder(pattern: .pull, from: before, to: after, fromCut: 0, toCut: 0),
                           "step \(i): the descent never asks for more work")
             if i == 3 {
                 XCTAssertEqual(state.failStreak[.pull], 0, "after a deload the streak must reset")
