@@ -65,12 +65,17 @@ final class CountdownSounds {
 /// and envelope stay reviewable and unit-testable.
 ///
 /// The "Minimal+" set (issue #84): the same C-major language — a fifth up
-/// means start, its mirror means switch — but every note is an additive
-/// pair (fundamental + a 15% octave harmonic) with an exponential decay,
-/// so the tones carry warmth and survive over music instead of piercing
-/// through it. Peaks sit below full scale on a strict loudness hierarchy:
-/// the frequent is quiet, the rare is bright —
+/// means start, a flat double tap means switch — but every note is an
+/// additive pair (fundamental + a 15% octave harmonic) with an exponential
+/// decay, so the tones carry warmth and survive over music instead of
+/// piercing through it. Peaks sit below full scale on a strict loudness
+/// hierarchy: the frequent is quiet, the rare is bright —
 /// tick < switchSides = done < go < workoutDone < milestone.
+///
+/// Every signal owns a *shape*, not just a melody: one quiet note counts,
+/// two notes up start, two notes down from above release, three notes up
+/// close the workout, an arpeggio crowns a milestone — and two fast notes
+/// at one pitch change the side.
 enum SignalTone {
 
     static let sampleRate = 44_100
@@ -90,10 +95,13 @@ enum SignalTone {
                          (start: 0.095, samples: note(hz: g6, seconds: 0.45, tau: 0.128))],
                         total: 0.55, peak: 0.80)
 
-    /// Switch sides: the go mirrored, G6 → C6, a step quieter.
-    static let switchSides = mix([(start: 0, samples: note(hz: g6, seconds: 0.30, tau: 0.080)),
-                                  (start: 0.095, samples: note(hz: c6, seconds: 0.45, tau: 0.128))],
-                                 total: 0.55, peak: 0.66)
+    /// Switch sides: two fast taps on one pitch — G6, G6, 75 ms apart
+    /// against the 95–110 ms of the melodic pairs. A rhythmic identity, not
+    /// a contour: the mirrored go it replaces was still a two-note melody
+    /// and, eyes closed mid-stretch, read as either a start or a release.
+    static let switchSides = mix([(start: 0, samples: note(hz: g6, seconds: 0.18, tau: 0.060)),
+                                  (start: 0.075, samples: note(hz: g6, seconds: 0.40, tau: 0.130))],
+                                 total: 0.48, peak: 0.66)
 
     /// The effort is over: top-down C7 → G6 — light, not another direction
     /// of the two already in use.
