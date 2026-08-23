@@ -14745,6 +14745,98 @@
           }
         }
       }
+    },
+    "Fewer sets for now — you said this one hurt. They come back once it passes." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorerst weniger Sätze — hier hat es wehgetan. Sie kommen zurück, wenn es vorbei ist."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fewer sets for now — you said this one hurt. They come back once it passes."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por ahora, menos series: aquí te dolió. Vuelven cuando pase."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moins de séries pour l’instant — ça a fait mal ici. Elles reviennent quand ce sera passé."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per ora meno serie — qui faceva male. Torneranno quando sarà passato."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menos séries por enquanto — aqui doeu. Elas voltam quando passar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пока даем меньше подходов — здесь болело. Вернем, когда пройдет."
+          }
+        }
+      }
+    },
+    "A set is back — your body is coping." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Satz ist zurück — dein Körper kommt mit."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A set is back — your body is coping."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una serie de vuelta: el cuerpo lo está llevando bien."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une série revient — ton corps suit."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una serie è tornata — il corpo regge."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uma série de volta — o corpo está dando conta."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавили подход — организм справляется."
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

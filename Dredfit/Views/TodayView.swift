@@ -65,6 +65,30 @@ struct TodayView: View {
         } message: {
             Text("Levels go back to the beginning. Your history stays.")
         }
+        // v2.25 (spec §36.8): the plan reached a pair of eyes — the engine is
+        // told. Keyed on the showing, so a scroll, a rotation or a Dynamic
+        // Type change is the same showing and costs nothing, while a plan that
+        // changed under the reader (a budget moved in Settings, an "I was
+        // sick" tap, a finished workout) is the new showing it is.
+        .task(id: planShowing) {
+            guard let showing = planShowing else { return }
+            store.recordPlanShown(showing.session)
+        }
+    }
+
+    /// What makes a showing a showing: the plan on screen, and the budget it
+    /// was drawn under — a budget that moves without moving the plan still
+    /// lifts the repair's cap for one transition (§36.8), so it belongs to
+    /// the identity. `nil` on the two days the plan is not on screen at all.
+    private var planShowing: PlanShowing? {
+        guard !store.doneToday, !store.isRestDay(store.today) else { return nil }
+        return PlanShowing(session: store.nextSession,
+                           budget: store.engineState.timeBudgetMin)
+    }
+
+    private struct PlanShowing: Equatable {
+        let session: Session
+        let budget: Int
     }
 
     // MARK: - Plan state
@@ -112,7 +136,8 @@ struct TodayView: View {
                 } label: {
                     ExerciseRow(exercise: ex,
                                 badge: debuts.contains(ex.pattern)
-                                    ? String(localized: "new variation") : nil)
+                                    ? String(localized: "new variation") : nil,
+                                note: ExerciseRow.note(store.setsNote(for: ex)))
                 }
                 .listRowSeparatorTint(Theme.hairline)
                 .listRowBackground(Color.clear)
@@ -297,16 +322,19 @@ struct TodayView: View {
                               remaining: store.engineState.freezeRemaining($0.pattern)) }
     }
 
-    /// One sentence, not one per row: the first resting movement whose last
-    /// appearances all ended in a pain report. The wording escalates at
-    /// three — a repeat report means it hurt, rested, and hurt again.
+    /// One sentence, not one per row: the first resting movement the journal
+    /// or the engine's memory has something to add about.
+    ///
+    /// v2.25 (spec §36.5): the escalation reads `painSeen` — reports over the
+    /// whole history — and is therefore looked up FIRST, across every row,
+    /// before the softer line can claim the one sentence. On a run it never
+    /// fired at all: the rest that follows a report is what breaks the run.
     private func painTrendLine(rows: [RestingRow]) -> String? {
-        for row in rows {
-            let streak = store.discomfortStreak(row.id)
-            guard streak >= AppStore.painTrendThreshold else { continue }
-            return streak >= AppStore.painSpecialistThreshold
-                ? String(localized: "\(row.name) keeps hurting, appearance after appearance. Pain that stays is a reason to see a specialist.")
-                : String(localized: "\(row.name) has hurt both of its recent appearances — a smaller number takes the load down.")
+        if let row = rows.first(where: { store.painNote($0.id) == .seeSpecialist }) {
+            return String(localized: "\(row.name) keeps hurting, appearance after appearance. Pain that stays is a reason to see a specialist.")
+        }
+        if let row = rows.first(where: { store.painNote($0.id) == .hurtAgain }) {
+            return String(localized: "\(row.name) has hurt both of its recent appearances — a smaller number takes the load down.")
         }
         return nil
     }
@@ -504,97 +532,5 @@ struct TodayView: View {
         case .more: return String(localized: "Rating: easy — progressing as fast as each movement allows")
         case nil:   return ""
         }
-    }
-}
-
-// MARK: - Exercise row (shared with NextWorkoutSheet)
-
-struct ExerciseRow: View {
-    let exercise: SessionExercise
-    /// The pill rides INLINE at the end of the name and wraps with it as a
-    /// unit: the longest catalog name is wider than the content column by
-    /// itself, so a sibling HStack pill would push the load off screen. Not
-    /// an ellipsis either — sibling variations differ at the END of the name.
-    var badge: String?
-    @Environment(\.displayScale) private var displayScale
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-
-    var body: some View {
-        HStack(alignment: .firstTextBaseline) {
-            nameWithBadge
-                .frame(maxWidth: .infinity, alignment: .leading)
-            Text(shortLoad)
-                .dredfitFont(15.5)
-                .monospacedDigit()
-                .foregroundStyle(Theme.ink2)
-            Image(systemName: "chevron.right")
-                .dredfitFont(12, weight: .semibold)
-                .foregroundStyle(Theme.ink3.opacity(0.7))
-        }
-        .padding(.vertical, 4)
-    }
-
-    /// Text concatenation is the only SwiftUI flow that lets the pill follow
-    /// the last word and wrap with it, so it travels as an inline image.
-    private var nameWithBadge: some View {
-        var name = Text(exercise.name)
-        if let badge,
-           let pill = BadgePill.image(text: badge, scale: displayScale,
-                                      typeSize: dynamicTypeSize) {
-            name = name + Text(verbatim: " ")
-                + Text(Image(uiImage: pill)).baselineOffset(-4)
-        }
-        return name
-            .dredfitFont(16.5, weight: .medium)
-            .foregroundStyle(Theme.ink)
-            .accessibilityLabel(badge.map { Text(verbatim: "\(exercise.name), \($0)") }
-                ?? Text(verbatim: exercise.name))
-    }
-
-    private var shortLoad: String {
-        let side = exercise.perSide ? String(localized: " /side") : ""
-        // v2.22 (spec §33): an uneven plan spells its sets out — "9-8-8". This
-        // is where the sub-step becomes visible: a third of the sessions used
-        // to read as "nothing changed", and the row is what says otherwise.
-        // Explicit keys, not the bare "%@%@" a plain interpolation would mint.
-        if let loads = exercise.loads {
-            let spelled = loads.map(String.init).joined(separator: "-")
-            switch exercise.unit {
-            case .reps: return String(localized: "plan.perSet",
-                                      defaultValue: "\(spelled)\(side)")
-            case .hold: return String(localized: "plan.perSetHold",
-                                      defaultValue: "\(spelled) s\(side)")
-            }
-        }
-        switch exercise.unit {
-        case .reps: return String(localized: "\(exercise.sets) × \(exercise.load)\(side)")
-        case .hold: return String(localized: "\(exercise.sets) × \(exercise.load) s\(side)")
-        }
-    }
-}
-
-/// Cached per text, display scale and Dynamic Type size. accentText on
-/// accentSoft — accent itself is 2.91:1 on that fill.
-@MainActor
-private enum BadgePill {
-    private static var cache: [String: UIImage] = [:]
-
-    static func image(text: String, scale: CGFloat,
-                      typeSize: DynamicTypeSize) -> UIImage? {
-        let key = "\(text)|\(scale)|\(typeSize)"
-        if let hit = cache[key] { return hit }
-        let renderer = ImageRenderer(content:
-            Text(text)
-                .dredfitFont(11, weight: .semibold)
-                .foregroundStyle(Theme.accentText)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 2)
-                .background(Theme.accentSoft, in: Capsule())
-                .environment(\.dynamicTypeSize, typeSize)
-        )
-        renderer.scale = scale
-        guard let image = renderer.uiImage else { return nil }
-        cache[key] = image
-        return image
     }
 }

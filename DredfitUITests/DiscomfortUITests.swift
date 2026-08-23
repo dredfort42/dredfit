@@ -73,4 +73,21 @@ final class DiscomfortUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Y-T-W raises, not getting harder — 3 more times"].exists,
                       "the row carries neither the name nor the horizon")
     }
+
+    /// v2.25 (spec §36.2): and the card itself says why its number shrank.
+    /// The handle takes SETS off at a level that does not move, so without
+    /// this sentence the plan just quietly got smaller — which reads as a bug
+    /// exactly the way a plan that quietly got bigger does.
+    func testTheCardSaysWhyThePlanIsLighter() {
+        app.launchArguments.append("--uitest-discomfort")
+        app.launch()
+        let note = app.staticTexts["sets-note"]
+        XCTAssertTrue(note.waitForExistence(timeout: 5),
+                      "the cut card carries no explanation")
+        XCTAssertEqual(note.label,
+                       "Fewer sets for now — you said this one hurt. "
+                       + "They come back once it passes.")
+        XCTAssertEqual(app.staticTexts.matching(identifier: "sets-note").count, 1,
+                       "only the movement that hurt has anything to explain")
+    }
 }
