@@ -1084,13 +1084,13 @@ the harness that guards the other waves. 14,029 property checks (was
   that was never true — replaced with the real 8:10 appearance ratio and
   the ≥ 0.7 set balance the verifier actually holds.
 
-### The tones grow a voice of their own (issue #84)
+### The tones grow a voice of their own (issues #84, #186)
 
 The three workout tones were bare sines at full scale: harsh on a phone
 speaker, easy to lose under music, and overloaded — "go" meant a start,
 the end of a hold and the end of the whole workout alike, while the
 milestone screen said nothing. The "Minimal+" set keeps the language —
-C major, a fifth up to start, its mirror to switch — and gives it a body
+C major, a fifth up to start — and gives it a body, a rhythm of its own
 and three new words.
 
 - Every note is now an additive pair (fundamental plus a soft octave
@@ -1098,14 +1098,23 @@ and three new words.
   enough overtone to survive over music. Peaks sit below full scale on a
   strict loudness hierarchy — the frequent is quiet, the rare is bright:
   tick, then switch, then go, then the finale, then the milestone.
-- Endings get their own voice. A hold ends on **done** — top-down
-  C7 → G6, "release", with its own `.rigid` haptic — instead of a go that
-  said "start" a beat too early. The cool-down closes the workout with a
+- **Every ending is announced, whatever ended it** — a set logged by
+  tap, a hold run down to zero, a hold stopped early, a warm-up move, a
+  cool-down stretch. Each closes on **done**: top-down C7 → G6,
+  "release", with its own `.rigid` haptic, instead of a go that said
+  "start" a beat too early. The cool-down closes the workout with a
   **finale** that completes the go's motif by the octave, and an earned
   milestone opens with a major arpeggio crowned by its own echo — the
   first sound that screen has ever had. Everything that started with a go
-  still starts with a go, silent taps stay silent, and skipping the
-  cool-down stays a tap, not a fanfare.
+  still starts with a go, and everything silent stays silent: a pause,
+  extra rest, a hold abandoned inside the mis-tap window, and every skip
+  — skipping is not finishing, and the cool-down's skip stays a tap
+  rather than a fanfare.
+- **Switching sides is a rhythm, not a melody.** Two taps on one note,
+  75 ms apart against the 95–110 ms of the melodic pairs. Eyes closed
+  halfway through a stretch, an inverted go only ever said "a pair of
+  notes happened" and left the listener to work out which pair; nothing
+  else in the set is two attacks on one pitch.
 - The reminder notification rings in the app's own voice: the same motif
   slowed and softened, generated on demand into `Library/Sounds` (no
   audio asset ships in the app), falling back to the system sound if the
@@ -1114,7 +1123,9 @@ and three new words.
   workout tones.
 - All seven sounds remain code — reviewable, deterministic, and pinned by
   tests: exact durations and peak targets, the loudness hierarchy, the
-  direction of every motif, and byte-for-byte reproducibility.
+  rise of the go, the fall of the done, the flat double tap of the switch
+  measured off its own envelope, and byte-for-byte reproducibility. The
+  engine is untouched.
 
 ### The mark's third ring rejoins the palette (brand-colour audit, 2026-08-12)
 
