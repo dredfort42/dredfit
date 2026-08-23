@@ -38,17 +38,13 @@ extension AppStore {
         return (before.levels[.pull] ?? 0) - (after.levels[.pull] ?? 0)
     }
 
-    /// Gentler workouts left under the illness lens; 0 = the lens is off.
-    var illnessSessionsLeft: Int { engineState.illness }
-
-    /// The quiet offer on Today, shown exactly in the window the engine
-    /// cannot see (gap 2–13 days: below the comeback, at or past a missed
-    /// beat) — a longer break carries the same tap on the comeback card.
-    /// Unless the break is the trainee's own rhythm (v2.13, spec §23.3):
-    /// rhythm breaks have no card, so the quiet offer stays for them.
-    func shouldOfferIllnessTap(now: Date? = nil) -> Bool {
-        guard engineState.illness == 0, let gap = gapDays(now: now) else { return false }
-        if gap >= EngineConfig.comebackMinGapDays { return isRhythmBreak(gap) }
-        return gap >= 2
-    }
+    // v2.26 (spec §37.0): the "I was sick" lens is gone, and with it
+    // `illnessSessionsLeft` and the quiet offer that armed it. The lens made
+    // the plan HEAVIER in 76 cells out of 480 (finding S6-2) — the opposite of
+    // what the offer promised — so there was nothing to keep.
+    //
+    // The window it covered (a 2–13 day gap, below the comeback and past a
+    // missed beat) is not left empty: a person coming back from a break
+    // reaches for the session handle, which shortens today's workout without
+    // touching the levels and without a six-session tail.
 }

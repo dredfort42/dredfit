@@ -197,18 +197,26 @@ struct WorkStatusCaption: View {
     }
 }
 
-/// The three things you can say about an exercise instead of doing it as
-/// planned (issues #66, #78). v2.22 (spec §33): there were four — the fourth
-/// was "hold this level", and it is cancelled. It existed because the plan
-/// could run ahead of what the trainee could do; the sub-step answers that by
-/// itself, and the boldest evidence for the removal is that the input was used
-/// zero times in 24 real sessions. Three fit one row at ordinary type sizes and
-/// stack into a column at accessibility sizes, the same rule the rest ring's
-/// controls follow.
+/// What you can say about an exercise instead of doing it as planned
+/// (issues #66, #78).
+///
+/// v2.22 (spec §33): "hold this level" went with the input it armed.
+/// v2.26 (spec §37.0): "Something hurt" goes the same way, and it is NOT
+/// replaced here. The two handles of §37.4-§37.5 live on the plan, before the
+/// workout starts, where pulling one regenerates the session and the announced
+/// duration along with it — mid-workout they would have to mutate a session
+/// the engine is already going to read the plan from, and a shown plan that
+/// disagrees with the one feedback is computed against is a defect, not a
+/// feature.
+///
+/// What is left is the answer the wave is actually built around: "Went
+/// differently" — the honest number. §37.0 measures it against the tap it
+/// replaces: honest numbers take someone with a capacity of one rep from
+/// L24/tier 4 to L0/tier 1 in FOUR appearances, while the pain tap stranded
+/// them at L16/tier 3 indefinitely.
 struct ExerciseActionsRow: View {
     let onAdjust: () -> Void
     let onSkip: () -> Void
-    let onDiscomfort: () -> Void
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
@@ -217,44 +225,32 @@ struct ExerciseActionsRow: View {
             VStack(spacing: 12) {
                 adjustButton
                 skipButton
-                discomfortButton
             }
         } else {
-            VStack(spacing: 12) {
-                HStack(spacing: 26) {
-                    adjustButton
-                    skipButton
-                }
-                discomfortButton
+            HStack(spacing: 26) {
+                adjustButton
+                skipButton
             }
         }
     }
 
     private var adjustButton: some View {
         Button(String(localized: "Went differently"), action: onAdjust)
-            .dredfitFont(14.5)
-            .foregroundStyle(Theme.ink2)
+            .dredfitFont(14.5, weight: .semibold)
+            .foregroundStyle(Theme.accentText)
+            .accessibilityIdentifier("exercise-adjust")
+            // One literal, split for width: a concatenation would resolve to
+            // the verbatim initializer and never reach the catalog.
+            .accessibilityHint(Text(String(localized: """
+                Enter what you actually did. \
+                The plan follows your numbers.
+                """)))
     }
 
     private var skipButton: some View {
         Button(String(localized: "Skip exercise"), action: onSkip)
             .dredfitFont(14.5)
             .foregroundStyle(Theme.ink2)
-    }
-
-    /// One tap, no confirmation: nothing here is worth making someone in
-    /// pain read a dialog.
-    private var discomfortButton: some View {
-        Button(String(localized: "Something hurt"), action: onDiscomfort)
-            .dredfitFont(14.5, weight: .semibold)
-            .foregroundStyle(Theme.accentText)
-            .accessibilityIdentifier("report-discomfort")
-            // One literal, split for width: a concatenation would resolve to
-            // the verbatim initializer and never reach the catalog.
-            .accessibilityHint(Text(String(localized: """
-                The movement stays in the plan at this level and stops \
-                getting harder for a while.
-                """)))
     }
 
 }

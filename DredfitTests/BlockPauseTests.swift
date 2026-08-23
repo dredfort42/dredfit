@@ -18,8 +18,12 @@ final class BlockPauseTests: XCTestCase {
         // the sides of one (#35). Deliberately not the supplemented length of
         // #83 even for a flagged position — Resume is tapped by someone
         // already back in place.
+        // v2.26 (spec §37.7a): the way back in follows the TRANSITION, which
+        // doubled — being counted back into a position you walked away from is
+        // travel, not a turn inside one. The side-switch pause stayed at five
+        // and the two are no longer the same number.
         XCTAssertEqual(BlockPause.reentrySeconds, GetReady.seconds)
-        XCTAssertEqual(BlockPause.reentrySeconds, Cooldown.sideSwitchPauseSec)
+        XCTAssertNotEqual(BlockPause.reentrySeconds, Cooldown.sideSwitchPauseSec)
     }
 
     func testTheWayBackInLeavesRoomForTheCountdownItPlays() {

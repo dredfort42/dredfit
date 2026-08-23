@@ -127,20 +127,19 @@ final class MilestoneTests: XCTestCase {
         XCTAssertTrue(earned.isEmpty)
     }
 
-    /// v2.22 (spec §33): re-marked from `testAPinDoesNotSwallowAMilestone`. The
-    /// hold is cancelled, so the movement that stays put alongside the
-    /// milestone is a FROZEN one — the detector must still let its neighbour's
-    /// tier-up through, which is the property the pin version was really about.
-    func testAFrozenMovementDoesNotSwallowAMilestone() throws {
+    /// v2.22 (spec §33): re-marked from `testAPinDoesNotSwallowAMilestone`.
+    /// v2.26 (spec §37.0): re-marked again. The property was always "a
+    /// neighbour that stays put must not swallow this movement's milestone";
+    /// what makes a neighbour stay put has changed twice — a pin, then a
+    /// freeze, and now a SKIP, which is the signal that survived both.
+    func testAMovementThatStaysPutDoesNotSwallowAMilestone() throws {
         let probe = session(atCounter: 9).exercises[0].pattern
-        let frozenOther = session(atCounter: 9).exercises[1].pattern
-        let store = try seededStore(counter: 9, levels: [probe: 7],
-                                    frozen: [frozenOther: EngineConfig.freezeAppearances])
-        XCTAssertEqual(store.engineState.freezeRemaining(frozenOther),
-                       EngineConfig.freezeAppearances, "seeding: the neighbour is frozen")
+        let stillOther = session(atCounter: 9).exercises[1].pattern
+        let store = try seededStore(counter: 9, levels: [probe: 7])
         let session = store.nextSession
 
-        let earned = store.completeWorkout(session: session, result: .plan)
+        let earned = store.completeWorkout(session: session, result: .plan,
+                                           skipped: [stillOther])
 
         XCTAssertEqual(earned.count, 2, "the tier-up and the jubilee both land")
         guard case .tierUp(let pattern, _, _) = earned[0] else {
@@ -148,9 +147,9 @@ final class MilestoneTests: XCTestCase {
         }
         XCTAssertEqual(pattern, probe)
         XCTAssertEqual(earned[1], .jubilee(workouts: 10))
-        XCTAssertEqual(store.engineState.levels[frozenOther], 0,
-                       "the frozen movement itself stayed put")
-        XCTAssertEqual(store.engineState.sub[frozenOther] ?? 0, 0,
+        XCTAssertEqual(store.engineState.levels[stillOther], 0,
+                       "the movement that stayed put stayed put")
+        XCTAssertEqual(store.engineState.sub[stillOther] ?? 0, 0,
                        "and it collected no sub-step either")
     }
 

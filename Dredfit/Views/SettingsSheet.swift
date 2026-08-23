@@ -36,7 +36,6 @@ struct SettingsSheet: View {
                     howItWorksSection
                     restDaysSection
                     equipmentSection
-                    timeBudgetSection
                     soundsSection
                     reminderSection
                     healthSection
@@ -163,45 +162,12 @@ struct SettingsSheet: View {
         }
     }
 
-    // MARK: - Session length (v2.17, #136)
-
-    /// The rungs are measured, not chosen (spec §28.3). 45 is where all six
-    /// movements always fit, so it costs no progress at all — and since v2.24
-    /// it is what an install that never chose gets by default. 20 is the
-    /// shortest rung: with movements no longer dropped for the budget (§35.2)
-    /// it is a target rather than a promise — high levels land above it, on
-    /// two sets of everything.
-    private static let budgetRungs = [20, 35, 45, 0]
-
-    private var timeBudgetSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Kicker(text: String(localized: "Session length"))
-            HStack(spacing: 8) {
-                ForEach(Self.budgetRungs, id: \.self) { minutes in
-                    Button {
-                        store.setTimeBudget(minutes)
-                    } label: {
-                        Text(minutes == 0
-                             ? String(localized: "No limit")
-                             : String(localized: "\(minutes) min"))
-                            .dredfitFont(14, weight: .medium)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 9)
-                            .background(store.engineState.timeBudgetMin == minutes
-                                        ? Theme.accent.opacity(0.14) : Theme.cardBG)
-                            .foregroundStyle(store.engineState.timeBudgetMin == minutes
-                                             ? Theme.accent : Theme.ink)
-                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                    }
-                    .accessibilityIdentifier("budget-\(minutes)")
-                }
-            }
-            Text("Shorter workouts drop sets, never movements — down to two per exercise. Your levels do not change.")
-                .dredfitFont(12.5)
-                .foregroundStyle(Theme.ink2)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-    }
+    // v2.26 (spec §37.7): the session-length picker is gone. The audit
+    // measured what its rungs actually did: 10, 15 and 20 produced the SAME
+    // plan, and the "20" rung missed its own target in 100 % of sessions. The
+    // engine now announces how long a session takes, and the person shortens
+    // today's with the handle on the plan itself — where the recalculated
+    // number is visible before they agree to it.
 
     // MARK: - Sounds
 

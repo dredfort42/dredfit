@@ -142,14 +142,18 @@ final class ReleaseSmokeTests: XCTestCase {
         }
     }
 
-    // MARK: - S8: the discomfort report
+    // MARK: - S8: the honest number
 
     /// Its own launch: S1–S6 owns a clean journal, and this row needs one too.
-    /// The safety half of the engine is dead code if this button ever stops
-    /// reaching the journal, and nothing else in the smoke would notice.
-    func testReleaseSmokeDiscomfort() {
+    ///
+    /// v2.26 (§37.0): this row used to walk the pain report, on the argument
+    /// that the safety half of the engine is dead code if the button stops
+    /// reaching the journal. The button is gone and so is that half; the
+    /// channel that remains — the honest number — carries the same weight and
+    /// the same argument, so the row now walks it.
+    func testReleaseSmokeHonestNumber() {
         app.launch()
-        XCTContext.runActivity(named: "S8 — a painful exercise is reported and rests") { _ in
+        XCTContext.runActivity(named: "S8 — an honest number reaches the rating") { _ in
             app.buttons["Start"].tap()
             let skipWarmup = app.buttons["Skip warm-up"]
             XCTAssertTrue(skipWarmup.waitForExistence(timeout: 5), "S8: no warm-up to skip")
@@ -157,17 +161,18 @@ final class ReleaseSmokeTests: XCTestCase {
 
             // The pull slot: in every session, so the rest it earns is real
             // rather than three workouts away.
+            // v2.26 (§37.0): the pain report is gone from this screen. What the
+            // smoke test walks now is the answer that replaced it — the honest
+            // number — and it has to reach the rating the same way.
             for _ in 0..<3 { app.buttons["Skip exercise"].tap() }
-            let report = app.buttons["report-discomfort"]
-            XCTAssertTrue(report.waitForExistence(timeout: 5),
-                          "S8: the report action is missing from the exercise screen")
-            report.tap()
+            let adjust = app.buttons["exercise-adjust"]
+            XCTAssertTrue(adjust.waitForExistence(timeout: 5),
+                          "S8: the adjust action is missing from the exercise screen")
+            adjust.tap()
             for _ in 0..<2 { app.buttons["Skip exercise"].tap() }
 
             XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 10),
-                          "S8: reporting must end the exercise and reach the rating")
-            XCTAssertTrue(app.staticTexts["DISCOMFORT"].exists,
-                          "S8: the rating screen must call the report out")
+                          "S8: the workout must reach the rating")
 
             app.staticTexts["On plan"].tap()
             XCTAssertTrue(app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 10),

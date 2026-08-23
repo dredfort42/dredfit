@@ -32,7 +32,28 @@ final class WeakLinkPromptTests: XCTestCase {
 
     /// A store whose journal is `count` sessions, each one an unnamed "tough"
     /// when it carried `culprit` and "on plan" otherwise — the naive persona.
-    private func naiveStore(sessions count: Int, culprit: Pattern = .pushV) -> AppStore {
+    /// The audit's shoulder persona, and it is seeded UP THE SCALE on purpose.
+    ///
+    /// v2.26 (§37.4): the prompt now routes into the handles, and it stays
+    /// silent when neither of them could do anything — so a persona sitting at
+    /// L0 on the sets floor is not the case this suite is about. It is the
+    /// case §37.1 accepts: at the declared bottom of the app there is nothing
+    /// left to offer, and `testAMovementWithNoHandleLeftIsNotSuggested` pins
+    /// exactly that. Someone whose shoulder keeps failing is somewhere up the
+    /// scale, with both handles still live, and that is who is seeded here.
+    private func naiveStore(sessions count: Int, culprit: Pattern = .pushV,
+                            level: Int = 20) -> AppStore {
+        let levels = Pattern.allCases
+            .map { "\"\($0.rawValue)\",\(level)" }.joined(separator: ",")
+        let zeros = Pattern.allCases
+            .map { "\"\($0.rawValue)\",0" }.joined(separator: ",")
+        let json = """
+        {"engineState":{"counter":0,"levels":[\(levels)],"failStreak":[\(zeros)]},
+         "records":[],
+         "settings":{"restWeekdays":[],"soundsEnabled":true,
+                     "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
+        """
+        try? Data(json.utf8).write(to: tempURL)
         let store = AppStore(storageURL: tempURL)
         for _ in 0..<count {
             let session = store.nextSession
@@ -58,13 +79,18 @@ final class WeakLinkPromptTests: XCTestCase {
     }
 
     func testATraineeWhoAlreadyNamesTheMovementIsNeverAsked() {
-        // Saying "this one hurt" is the answer the prompt is trying to reach.
+        // v2.26 (§37.0): naming the movement used to mean reporting pain on it;
+        // the surviving way to name one is an exact number below the plan, and
+        // that is the answer the prompt is trying to reach.
         let store = AppStore(storageURL: tempURL)
         for _ in 0..<12 {
             let session = store.nextSession
-            let carries = session.exercises.contains { $0.pattern == .pushV }
-            _ = store.completeWorkout(session: session, result: carries ? .less : .plan,
-                                      discomfort: carries ? [.pushV] : [])
+            let carried = session.exercises.first { $0.pattern == .pushV }
+            var overrides: [Pattern: Int] = [:]
+            if let carried { overrides[.pushV] = max(0, carried.load - 2) }
+            _ = store.completeWorkout(session: session,
+                                      result: carried != nil ? .less : .plan,
+                                      overrides: overrides)
         }
         XCTAssertNil(store.unnamedLessSuspect())
     }
@@ -80,47 +106,6 @@ final class WeakLinkPromptTests: XCTestCase {
         XCTAssertTrue(store.shouldAskAboutSuspect())
     }
 
-    func testAnsweringYesRestsTheMovementOnItsNextAppearance() throws {
-        let store = naiveStore(sessions: 12)
-        let suspect = try XCTUnwrap(store.unnamedLessSuspect())
-        store.confirmSuspectHurts(suspect)
-        XCTAssertTrue(store.settings.pendingDiscomfort.contains(suspect))
-        XCTAssertFalse(store.shouldAskAboutSuspect(), "the question is answered")
-
-        // Walk until the movement appears; that session takes the pain path.
-        var applied = false
-        for _ in 0..<8 where !applied {
-            let session = store.nextSession
-            let carries = session.exercises.contains { $0.pattern == suspect }
-            let before = store.engineState.levels[suspect] ?? 0
-            _ = store.completeWorkout(session: session, result: .plan)
-            if carries {
-                applied = true
-                // The load comes off (this persona never left the floor, so
-                // there is nothing below zero to take) and the rest is armed.
-                XCTAssertLessThanOrEqual(store.engineState.levels[suspect] ?? 0, before,
-                                         "the pain path never adds load")
-                XCTAssertGreaterThan(store.engineState.freezeRemaining(suspect), 0,
-                                     "and rests the movement")
-                XCTAssertNotNil(store.engineState.sore[suspect],
-                                "the episode is on record, so growth waits for a confirmation")
-                XCTAssertFalse(store.settings.pendingDiscomfort.contains(suspect),
-                               "the answer is spent, not sticky")
-            }
-        }
-        XCTAssertTrue(applied, "the movement appears within a rotation")
-    }
-
-    func testTheAnswerSurvivesARelaunch() throws {
-        let store = naiveStore(sessions: 12)
-        let suspect = try XCTUnwrap(store.unnamedLessSuspect())
-        store.confirmSuspectHurts(suspect)
-
-        let reloaded = AppStore(storageURL: tempURL)
-        XCTAssertTrue(reloaded.settings.pendingDiscomfort.contains(suspect))
-        XCTAssertFalse(reloaded.shouldAskAboutSuspect())
-    }
-
     /// v2.22 (spec §33): re-marked from
     /// `testTheSofterAnswerHoldsTheLevelInsteadOfTakingTheLoadOff`. The softer
     /// answer — "just hard" — armed a hold, and the hold is cancelled: the case
@@ -133,9 +118,7 @@ final class WeakLinkPromptTests: XCTestCase {
         let before = store.engineState
         store.dismissSuspectPrompt()
         XCTAssertFalse(store.shouldAskAboutSuspect(), "asked once per session")
-        XCTAssertTrue(store.settings.pendingDiscomfort.isEmpty,
-                      "a dismissal arms nothing")
-        XCTAssertEqual(store.engineState, before, "and it touches no state")
+        XCTAssertEqual(store.engineState, before, "a dismissal touches no state")
 
         var applied = false
         for _ in 0..<8 where !applied {
@@ -144,24 +127,77 @@ final class WeakLinkPromptTests: XCTestCase {
             _ = store.completeWorkout(session: session, result: .plan)
             if carries {
                 applied = true
-                XCTAssertEqual(store.engineState.freezeRemaining(suspect), 0,
-                               "nothing was armed, so nothing rests")
-                XCTAssertNil(store.engineState.sore[suspect],
-                             "and no pain episode was opened")
+                XCTAssertEqual(store.engineState.cutOf(suspect), 0,
+                               "nothing was pulled, so no set came off")
             }
         }
         XCTAssertTrue(applied)
     }
 
-    func testAMovementAlreadyRestingIsNotSuggested() throws {
+
+    // v2.26 (§37.4): three tests moved rather than vanished — see the two
+    // below. The prompt used to answer "it hurts" by QUEUEING a pain report
+    // for the movement's next appearance: the answer was sticky, it had to
+    // survive a relaunch, and it took effect an appearance later. The handle
+    // takes effect at once and needs no queue, so "the answer survives a
+    // relaunch" has nothing left to survive.
+
+    // MARK: - v2.26: the answer is a handle, not a diagnosis (§37.4)
+
+    /// "Make it easier" acts AT ONCE and on the movement named. The old answer
+    /// queued a pain report for the next appearance; this one changes the
+    /// variation now and keeps the movement in every plan from here on.
+    func testMakingItEasierActsAtOnceOnTheNamedMovement() throws {
         let store = naiveStore(sessions: 12)
         let suspect = try XCTUnwrap(store.unnamedLessSuspect())
-        store.confirmSuspectHurts(suspect)
-        for _ in 0..<8 {
-            _ = store.completeWorkout(session: store.nextSession, result: .plan)
-            if store.engineState.freezeRemaining(suspect) > 0 { break }
+        let before = store.engineState.levels[suspect] ?? 0
+        let othersBefore = store.engineState.levels
+
+        store.makeSuspectEasier(suspect)
+
+        let after = store.engineState.levels[suspect] ?? 0
+        XCTAssertLessThan(after, before, "the named movement drops to an easier variation")
+        XCTAssertLessThan(Level.decode(after).tier, Level.decode(before).tier,
+                          "and it is the VARIATION that dropped, not just the rung")
+        for (pattern, level) in othersBefore where pattern != suspect {
+            XCTAssertEqual(store.engineState.levels[pattern], level,
+                           "\(pattern) was not named and must not move")
         }
+        XCTAssertFalse(store.shouldAskAboutSuspect(),
+                       "the question is answered for this session")
+    }
+
+    /// And the movement stays IN the plan — the difference from the mechanism
+    /// this replaces, which took it out for weeks.
+    func testTheMovementStaysInThePlanAfterTheHandle() throws {
+        let store = naiveStore(sessions: 12)
+        let suspect = try XCTUnwrap(store.unnamedLessSuspect())
+        store.makeSuspectEasier(suspect)
+
+        var seen = false
+        for _ in 0..<8 where !seen {
+            let session = store.nextSession
+            if session.exercises.contains(where: { $0.pattern == suspect }) { seen = true }
+            _ = store.completeWorkout(session: session, result: .plan)
+        }
+        XCTAssertTrue(seen, "the movement is still in the rotation")
+    }
+
+    /// Nothing to suggest when neither handle would do anything: on tier 1 at
+    /// the sets floor the prompt would route into two dead controls.
+    ///
+    /// This is §37.1's accepted bottom stated from the app's side — at L0 on
+    /// two sets the app has run out of things to offer, and going quiet is the
+    /// honest answer rather than showing a button that cannot fire.
+    func testAMovementWithNoHandleLeftIsNotSuggested() throws {
+        let store = naiveStore(sessions: 12)
+        let suspect = try XCTUnwrap(store.unnamedLessSuspect())
+        // Take it as low as the two handles can go.
+        while store.canMakeEasier(suspect) { store.makeEasier(suspect) }
+        while store.canTakeSetOff(suspect) { store.takeSetOff(suspect) }
+        XCTAssertFalse(store.canMakeEasier(suspect), "seeding: the easier handle is spent")
+        XCTAssertFalse(store.canTakeSetOff(suspect), "seeding: the sets handle is spent")
         XCTAssertNil(store.unnamedLessSuspect(),
-                     "while it rests there is nothing left to ask")
+                     "with both handles spent there is nothing left to offer")
     }
 }

@@ -66,15 +66,18 @@ final class CooldownTests: XCTestCase {
                       "a workout of pure skips has nothing to stretch")
     }
 
-    func testTheBlockFillsExactlyTheEnginesReservedMinutes() {
-        // 6 × 30 s = the 3 minutes `cooldownMin` has promised since 1.0:
-        // sides and positions sum to the reserved minutes. The side-switch
-        // pauses (issue #35) and the get-ready transitions (issue #52) ride
-        // on top, within the "≈" every estimate has always carried — they are
-        // deliberately not part of this equation. GetReadyTests holds the
-        // whole of both blocks to the reserved warm-up + cool-down minutes.
-        XCTAssertEqual(Cooldown.positionCount * Cooldown.positionSeconds,
-                       EngineConfig.cooldownMin * 60)
+    /// v2.26 (spec §37.7a): RE-MARKED. The holds alone used to equal the
+    /// reserved minutes exactly — 6 × 30 s = 3 min — with the transitions and
+    /// the switch pauses riding inside the "≈". `cooldownMin` is 4 now, and
+    /// the extra minute is not more stretching: it pays for the longer
+    /// transitions. So the identity moved from "the holds fill the reserve" to
+    /// "the holds plus what carries them do", and the whole-block version of
+    /// it lives in BlockReserveTests where both blocks are counted together.
+    func testTheHoldsAloneNoLongerFillTheReserve() {
+        let holds = Cooldown.positionCount * Cooldown.positionSeconds
+        XCTAssertEqual(holds, 180, "six positions of thirty seconds")
+        XCTAssertLessThan(holds, EngineConfig.cooldownMin * 60,
+                          "the reserve now carries the transitions as well")
     }
 
     func testAPerSidePositionSplitsIntoTwoWholeSidesPlusThePause() {

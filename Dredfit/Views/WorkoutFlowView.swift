@@ -13,6 +13,12 @@ import StoreKit
 import UIKit
 import DredfitCore
 
+// v2.26: the type is split across files — the cool-down block lives in
+// WorkoutFlowView+Cooldown.swift, because this file crossed the lint's hard
+// ceiling of 1200 lines and a CI error is not a style opinion. Swift's
+// `private` is FILE-scoped, so the state and helpers that block reaches for
+// are declared without it. They are internal to the module and to this type,
+// not API: nothing outside the two files touches them.
 struct WorkoutFlowView: View {
     let session: Session
     var resume: WorkoutSnapshot?
@@ -24,10 +30,15 @@ struct WorkoutFlowView: View {
     @Environment(AppStore.self) private var store
     @Environment(\.requestReview) private var requestReview
 
-    private enum Phase: Equatable {
+    enum Phase: Equatable {
         case warmup
         case work
         case rest(seconds: Int)
+        /// v2.26 (spec §37.7a): the cool-down no longer starts itself. The
+        /// work is behind, and being dropped straight into a stretch nobody
+        /// asked for is how a block gets skipped by walking away instead of by
+        /// saying so. One screen, two answers, and both are fine.
+        case cooldownIntro
         case cooldown                 // between the last exercise and the rating
         case feedback
         case milestone([Milestone])   // only when the workout earned one
@@ -35,7 +46,7 @@ struct WorkoutFlowView: View {
 
     @State private var exIndex = 0
     @State private var setIndex = 0          // 0-based
-    @State private var phase: Phase = .warmup
+    @State var phase: Phase = .warmup
     @State private var warmupIndex = 0
     @State private var warmupRemaining = 0
     @State private var warmupEndDate: Date?
@@ -43,16 +54,16 @@ struct WorkoutFlowView: View {
     // nothing new has to survive backgrounding.
     @State private var warmupStage: Warmup.Stage = .getReady
     // Computed once on entry: the composition depends on what was performed.
-    @State private var cooldownPositions: [CooldownPosition] = []
-    @State private var cooldownIndex = 0
-    @State private var cooldownRemaining = 0
-    @State private var cooldownEndDate: Date?
-    @State private var cooldownStage: Cooldown.Stage = Cooldown.openingStage
+    @State var cooldownPositions: [CooldownPosition] = []
+    @State var cooldownIndex = 0
+    @State var cooldownRemaining = 0
+    @State var cooldownEndDate: Date?
+    @State var cooldownStage: Cooldown.Stage = Cooldown.openingStage
     // The pause of the guided blocks (issue #61). One for both, like the
     // stage/remaining pairs above: the two blocks never run at once. Held, the
     // frozen seconds sit in warmupRemaining / cooldownRemaining and no end
     // date exists anywhere; re-entering, only this moves.
-    @State private var blockPause = BlockPause.State()
+    @State var blockPause = BlockPause.State()
     @State private var restRemaining = 0
     @State private var restEndDate: Date?
     /// What this transition planned, kept because the phase carries the
@@ -66,15 +77,18 @@ struct WorkoutFlowView: View {
     /// A fact belongs to the set it happened on — see SetFacts for the shape
     /// and for what a set of them collapses to.
     @State private var actuals: SetFacts.PerSet = [:]
-    @State private var skippedPatterns: Set<Pattern> = []
+    @State var skippedPatterns: Set<Pattern> = []
     /// Kept apart from `skippedPatterns`: the engine treats both as skips for
     /// the session, but the rating and the history say different things.
-    @State private var discomfortPatterns: Set<Pattern> = []
     @State private var adjusting = false
+    /// v2.26 (spec §37.8 p. 2): movements this session has already been warned
+    /// about. Once per exercise — a second copy of the same advice is nagging.
+    @State private var maximumNoted: Set<Pattern> = []
+    @State private var maximumWarning: String?
     @State private var adjustValue = 0
     @State private var workoutStart: Date?   // actual duration for Health
     @State private var lastResult: FeedbackResult?   // gates the review ask
-    @State private var liveActivity = WorkoutActivityController()
+    @State var liveActivity = WorkoutActivityController()
     @State private var exitConfirmShown = false
     /// Labelled "not finished" on the rating screen; to the engine it is a
     /// skip like any other.
@@ -100,7 +114,7 @@ struct WorkoutFlowView: View {
 
     /// Every position in the flow (indices, "N / M", the capsules, restore
     /// clamping) counts in these, not in session.exercises.
-    private var exercises: [SessionExercise] {
+    var exercises: [SessionExercise] {
         guard let shortPlan else { return session.exercises }
         return session.exercises.filter { shortPlan.contains($0.pattern) }
     }
@@ -140,12 +154,13 @@ struct WorkoutFlowView: View {
                 workView
             case .rest:
                 restView
+            case .cooldownIntro:
+                cooldownIntroView
             case .cooldown:
                 cooldownView
             case .feedback:
                 FeedbackView(session: session, facts: actuals,
                              skipped: skippedPatterns.union(omitted),
-                             discomfort: discomfortPatterns,
                              interrupted: interruptedPattern) { result, overrides in
                     let earned = store.completeWorkout(
                         session: session, result: result,
@@ -155,7 +170,6 @@ struct WorkoutFlowView: View {
                         // rotation still advance. The engine has no idea the
                         // workout was short, and that is the point.
                         skipped: skippedPatterns.union(omitted),
-                        discomfort: discomfortPatterns,
                         durationSec: workoutStart.map {
                             // max: the wall clock can move backwards mid-workout
                             max(0, Int(Date.now.timeIntervalSince($0)))
@@ -265,7 +279,7 @@ struct WorkoutFlowView: View {
         switch phase {
         case .work:     return String(localized: "\(exIndex + 1) / \(exercises.count)")
         case .warmup:   return String(localized: "WARM-UP")
-        case .cooldown: return String(localized: "COOL-DOWN")
+        case .cooldownIntro, .cooldown: return String(localized: "COOL-DOWN")
         default:        return String(localized: "REST")
         }
     }
@@ -377,7 +391,7 @@ struct WorkoutFlowView: View {
     /// guards go quiet) while the remaining seconds stay put and rebuild it.
     /// The way back in from a pause freezes with it — reading is not getting
     /// back into position either.
-    private func openPositionTechnique(_ technique: PositionTechnique) {
+    func openPositionTechnique(_ technique: PositionTechnique) {
         positionTechnique = technique
         warmupEndDate = nil
         cooldownEndDate = nil
@@ -471,10 +485,23 @@ struct WorkoutFlowView: View {
                     // This set only — the ones behind keep what they ran at.
                     actuals = SetFacts.recording(adjustValue, in: actuals,
                                                  exercise, set: setIndex)
+                    noteMaximumOutOfOrder()
                     adjusting = false
                     persistProgress()   // an entered actual is worth keeping
                 }
                 .padding(.bottom, 8)
+            }
+
+            // v2.26 (spec §37.8 p. 2): soft, once per exercise per session,
+            // and it never blocks the entry.
+            if let warning = maximumWarning {
+                Text(warning)
+                    .dredfitFont(13)
+                    .foregroundStyle(Theme.ink2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.bottom, 8)
+                    .accessibilityIdentifier("maximum-order-note")
             }
 
             if exercise.unit == .hold {
@@ -492,8 +519,7 @@ struct WorkoutFlowView: View {
             }
 
             ExerciseActionsRow(onAdjust: { startAdjusting() },
-                               onSkip: { leaveExercise() },
-                               onDiscomfort: { leaveExercise(hurt: true) })
+                               onSkip: { leaveExercise() })
             .padding(.vertical, 14)
             // no adjusting/skipping mid-hold or mid-pause
             .opacity(holding || holdSwitchPausing ? 0 : 1)
@@ -636,25 +662,42 @@ struct WorkoutFlowView: View {
         }
     }
 
-    /// One exit for both ways of ending an exercise early: a skip says "not
-    /// today", a report says the joint complained (issue #66). The engine
-    /// leaves the level alone either way — only the rest afterwards differs.
-    private func leaveExercise(hurt: Bool = false) {
+    /// Leaving an exercise early. v2.26 (spec §37.0): there used to be two
+    /// ways — a skip and a pain report — and the report is gone. A person who
+    /// finds the movement too hard now reaches for a handle instead, which
+    /// keeps the movement in the plan rather than taking it out for weeks.
+    /// v2.26 (spec §37.8 p. 2): a soft note when the person enters MORE than
+    /// the plan on a set that is not the last one. Once per exercise per
+    /// session, and the entry stands either way — it is advice about the
+    /// workout, never a correction of the number.
+    ///
+    /// What it must NOT say is that the system measures the last set more
+    /// accurately. Under a mean the ORDER OF SETS DOES NOT REACH THE ENGINE at
+    /// all: 12, 8, 8 and 8, 8, 12 both collapse to 9 (§37.8 p. 3). The advice
+    /// is about training — a maximum attempt fatigues what follows it — and
+    /// the wording says exactly that and nothing more.
+    private func noteMaximumOutOfOrder() {
+        let pattern = exercise.pattern
+        guard !maximumNoted.contains(pattern) else { return }
+        guard setIndex < exercise.sets - 1 else { return }          // the last set is fine
+        guard adjustValue > exercise.plannedLoad(set: setIndex) else { return }
+        maximumNoted.insert(pattern)
+        maximumWarning = String(localized: "Do the plan, and leave your maximum for the last set.")
+    }
+
+    private func leaveExercise() {
         adjusting = false
         holdSecondSide = false
         firstSideHeld = nil
         holdPauseEndDate = nil
-        actuals.removeValue(forKey: exercise.pattern)   // either wins over an actual
-        if hurt {
-            discomfortPatterns.insert(exercise.pattern)
-        } else {
-            skippedPatterns.insert(exercise.pattern)
-        }
+        actuals.removeValue(forKey: exercise.pattern)   // a skip wins over an actual
+        skippedPatterns.insert(exercise.pattern)
         if isLastExercise {
             // startCooldown degrades to the rating when nothing was performed.
             startCooldown()
         } else {
             exIndex += 1
+            maximumWarning = nil   // the note belongs to the exercise it was about
             setIndex = 0
             phase = .work
             liveActivity.update(activityWorkState())
@@ -700,7 +743,10 @@ struct WorkoutFlowView: View {
 // MARK: - Holds, signals and session persistence
 
 /// Same file, so the private state stays private.
-private extension WorkoutFlowView {
+// Declared without `private` for the same reason as the state above: Swift's
+// `private` is file-scoped, and the cool-down block was moved to its own file
+// when this one crossed the lint's hard ceiling.
+extension WorkoutFlowView {
 
     // MARK: - Hold countdown
 
@@ -810,6 +856,7 @@ private extension WorkoutFlowView {
     func advanceAfterRest() {
         if isLastSet {
             exIndex += 1
+            maximumWarning = nil   // the note belongs to the exercise it was about
             setIndex = 0
         } else {
             setIndex += 1
@@ -836,12 +883,14 @@ private extension WorkoutFlowView {
             exIndex: exIndex, setIndex: setIndex,
             restEndDate: restEnd, restTotalSec: restTotal, restPlannedSec: restPlan,
             setActuals: actuals, skipped: skippedPatterns,
-            discomfort: discomfortPatterns.isEmpty ? nil : discomfortPatterns,
             workoutStart: workoutStart ?? .now, savedAt: .now,
             fingerprint: WorkoutSnapshot.fingerprint(of: session),
             // Process death during the cool-down restores to the rating
             // (spec §4): the work is fully behind.
-            atFeedback: phase == .feedback || phase == .cooldown ? true : nil,
+            // v2.26: the intro screen counts as "the work is behind" too —
+            // process death there must not resume into the last exercise.
+            atFeedback: phase == .feedback || phase == .cooldown
+                || phase == .cooldownIntro ? true : nil,
             interrupted: interruptedPattern,
             // Without it a short-workout snapshot resumes into the full six
             // with indices pointing into a list nobody agreed to.
@@ -857,7 +906,6 @@ private extension WorkoutFlowView {
         setIndex = min(max(snap.setIndex, 0), exercises[exIndex].sets - 1)
         actuals = snap.facts
         skippedPatterns = snap.skipped
-        discomfortPatterns = snap.discomfort ?? []
         workoutStart = snap.workoutStart
         interruptedPattern = snap.interrupted
         if snap.atFeedback == true {
@@ -875,6 +923,7 @@ private extension WorkoutFlowView {
             if snap.restEndDate != nil, !(isLastSet && isLastExercise) {
                 if isLastSet {
                     exIndex += 1
+            maximumWarning = nil   // the note belongs to the exercise it was about
                     setIndex = 0
                 } else {
                     setIndex += 1
@@ -899,7 +948,6 @@ private extension WorkoutFlowView {
         if case .rest = phase { return true }
         return exIndex > 0 || setIndex > 0
             || !actuals.isEmpty || !skippedPatterns.isEmpty
-            || !discomfortPatterns.isEmpty
     }
 
     /// Every exercise not fully completed keeps its level via the engine's
@@ -931,8 +979,7 @@ private extension WorkoutFlowView {
             if midway { interruptedPattern = exercise.pattern }
         }
         if firstUnfinished < exercises.count {
-            for ex in exercises[firstUnfinished...]
-            where !discomfortPatterns.contains(ex.pattern) {
+            for ex in exercises[firstUnfinished...] {
                 actuals.removeValue(forKey: ex.pattern)   // a skip wins over an actual
                 skippedPatterns.insert(ex.pattern)
             }
@@ -950,148 +997,6 @@ private extension WorkoutFlowView {
     }
 }
 
-// MARK: - Cool-down (issue #28)
-//
-// A same-file extension so the view struct stays within the linter's size
-// for a type body. @State storage stays in the struct; only behaviour here.
-extension WorkoutFlowView {
-    /// The way back in borrows the transition's screen here too — see
-    /// `warmupView`.
-    @ViewBuilder
-    private var cooldownView: some View {
-        if reentering || cooldownStage == .getReady {
-            GetReadyScreen(name: cooldownPositions[cooldownIndex].name,
-                           remaining: reentering ? blockPause.reentryRemaining : cooldownRemaining,
-                           index: cooldownIndex, count: cooldownPositions.count,
-                           countdownIdentifier: countdownIdentifier(reentering: reentering),
-                           blockSkipTitle: String(localized: "cooldown.skip",
-                                                  defaultValue: "Skip cool-down"),
-                           blockSkipIdentifier: "skip-cooldown",
-                           paused: blockPause.isHeld,
-                           onTechnique: { openCooldownTechnique() },
-                           onStart: { reentering ? endBlockReentry() : startCooldownPositionNow() },
-                           onPauseToggle: { toggleBlockPause() },
-                           onSkipPosition: { skipCooldownPosition() },
-                           onSkipBlock: { finishCooldown() })
-        } else {
-            cooldownPositionView
-        }
-    }
-
-    private var cooldownPositionView: some View {
-        CooldownPositionScreen(position: cooldownPositions[cooldownIndex],
-                               stage: cooldownStage,
-                               remaining: cooldownRemaining,
-                               index: cooldownIndex, count: cooldownPositions.count,
-                               paused: blockPause.isHeld,
-                               onTechnique: { openCooldownTechnique() },
-                               onPauseToggle: { toggleBlockPause() },
-                               onSkipPosition: { skipCooldownPosition() },
-                               onSkipBlock: { finishCooldown() })
-    }
-
-    /// A workout of pure skips has nothing to stretch — straight to the
-    /// rating instead.
-    private func startCooldown() {
-        let notPerformed = skippedPatterns.union(discomfortPatterns)
-        let performed = exercises.map(\.pattern).filter { !notPerformed.contains($0) }
-        cooldownPositions = Cooldown.positions(performed: performed)
-        guard !cooldownPositions.isEmpty else {
-            phase = .feedback
-            liveActivity.end()
-            persistProgress()
-            return
-        }
-        phase = .cooldown
-        liveActivity.update(.init(phase: .work, title: String(localized: "COOL-DOWN"),
-                                  detail: "", restEndDate: nil))
-        startCooldownPosition(0)
-        persistProgress()
-    }
-
-    private func openCooldownTechnique() {
-        openPositionTechnique(PositionTechnique(cooldown: cooldownPositions[cooldownIndex]))
-    }
-
-    private func skipCooldownPosition() {
-        if cooldownIndex + 1 < cooldownPositions.count {
-            startCooldownPosition(cooldownIndex + 1)
-        } else {
-            finishCooldown()
-        }
-    }
-
-    private func startCooldownPosition(_ index: Int) {
-        enterCooldownStage(index: index, stage: Cooldown.openingStage)
-    }
-
-    private func startCooldownPositionNow() {
-        guard let next = Cooldown.step(after: (cooldownIndex, .getReady),
-                                       positions: cooldownPositions) else { return }
-        enterCooldownStage(index: next.index, stage: next.stage)
-    }
-
-    private func enterCooldownStage(index: Int, stage: Cooldown.Stage) {
-        clearBlockPause()   // a new stage is never entered still frozen
-        cooldownIndex = index
-        cooldownStage = stage
-        cooldownRemaining = Cooldown.stageSeconds(stage, of: cooldownPositions[index])
-        cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(cooldownRemaining))
-    }
-
-    private func tickCooldown() {
-        guard let end = cooldownEndDate else { return }
-        let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
-        guard newRemaining != cooldownRemaining else { return }
-        if newRemaining > 0 {
-            // No 3-2-1 inside the switch pause: ticks would bury the tone it
-            // opened with. The transition is the opposite — the 3-2-1 IS its
-            // signal.
-            if cooldownStage != .switchPause,
-               newRemaining <= Self.countdownSignalSeconds && newRemaining < cooldownRemaining {
-                playTick()
-            }
-            withAnimation(.linear(duration: 0.3)) { cooldownRemaining = newRemaining }
-            return
-        }
-        guard let next = Cooldown.advance(from: (cooldownIndex, cooldownStage),
-                                          overshoot: Int(max(0, -end.timeIntervalSinceNow)),
-                                          positions: cooldownPositions) else {
-            // The whole workout is assembled — the finale, not another start
-            // (#84). Skipping the cool-down stays silent: a tap is a tap.
-            playWorkoutDone()
-            finishCooldown()
-            return
-        }
-        // (boundary crossed, where the overshoot landed). A transition that
-        // is the boundary just crossed means the position before it ended —
-        // done, and for a unilateral position only at its far end, never at
-        // the switch. Landing anywhere else after a long absence stays
-        // silent: the signal belongs to what is on screen (see tickWarmup).
-        switch (next.entered, next.stage) {
-        case (.getReady, .getReady):         playDone()
-        case (.getReady, _), (_, .getReady): break
-        case (.switchPause, _):              playSwitch()
-        default:                             playGo()
-        }
-        cooldownIndex = next.index
-        cooldownStage = next.stage
-        cooldownRemaining = next.remaining
-        cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(next.remaining))
-        // Re-stamp so a long cool-down keeps the session resumable — it
-        // restores onto the rating (spec §4), never into a stretch.
-        if next.entered == .getReady { persistProgress() }
-    }
-
-    private func finishCooldown() {
-        clearBlockPause()
-        cooldownEndDate = nil
-        phase = .feedback
-        liveActivity.end()
-        persistProgress()
-    }
-}
-
 // MARK: - The pause of the guided blocks (issue #61)
 //
 // The state machine is BlockPause.State; this is the flow's half — the block's
@@ -1100,14 +1005,14 @@ extension WorkoutFlowView {
 // boundaries, and process death while paused restores by the rules it had.
 extension WorkoutFlowView {
 
-    private var reentering: Bool { blockPause.isReentering }
+    var reentering: Bool { blockPause.isReentering }
 
-    private func countdownIdentifier(reentering: Bool) -> String {
+    func countdownIdentifier(reentering: Bool) -> String {
         reentering ? "reentry-countdown" : "getready-countdown"
     }
 
     /// Held, the only way on is Resume; counting back in, the tap holds again.
-    private func toggleBlockPause() {
+    func toggleBlockPause() {
         if blockPause.isHeld { resumeBlock() } else { pauseBlock() }
     }
 
@@ -1157,7 +1062,7 @@ extension WorkoutFlowView {
 
     /// The go marks the moment the position starts again — the signal a "Get
     /// ready" ends on, for the same reason.
-    private func endBlockReentry() {
+    func endBlockReentry() {
         playGo()
         blockPause.clear()
         restartFrozenStage()
@@ -1179,7 +1084,7 @@ extension WorkoutFlowView {
     /// Entering a stage, skipping a position and leaving a block all end the
     /// pause with it: one state serves both blocks and must never outlive the
     /// screen that froze.
-    private func clearBlockPause() { blockPause.clear() }
+    func clearBlockPause() { blockPause.clear() }
 
     /// VoiceOver stays on the control it has just used, so the state change
     /// has to be spoken; everyone else reads it under the countdown.

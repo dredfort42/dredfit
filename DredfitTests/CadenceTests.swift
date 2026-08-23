@@ -255,18 +255,6 @@ final class CadenceTests: XCTestCase {
         XCTAssertTrue(s.shouldOfferComeback(now: date(day: 104)))
     }
 
-    func testIllnessTapStaysForRhythmBreaks() throws {
-        // A rhythm break of 14+ days has no comeback card, so the quiet
-        // "I was sick" offer must stay on Today for it (the card carries the
-        // tap only where the card actually shows).
-        let rhythm = try store(workoutsAt: [0, 14, 28].map { date(day: $0) })
-        XCTAssertTrue(rhythm.shouldOfferIllnessTap(now: date(day: 42)))
-
-        let firstBreak = try store(workoutsAt: [date(day: 0)])
-        XCTAssertFalse(firstBreak.shouldOfferIllnessTap(now: date(day: 20)),
-                       "a real long break shows the card, and the card carries the tap")
-    }
-
     func testOneOffBreakInATwiceAWeekRhythmStillDecays() throws {
         let s = try store(workoutsAt: [0, 3, 7, 10].map { date(day: $0) })
         XCTAssertEqual(s.recentGaps, [3, 4, 3])
@@ -312,4 +300,9 @@ final class CadenceTests: XCTestCase {
         XCTAssertEqual(s.comebackDrop(now: date(day: 36)), 2,
                        "no silent decay was taken, so the comeback is the full table amount")
     }
+
+    // SNIPPED v2.26 (§37.0): `testIllnessTapStaysForRhythmBreaks`. The quiet
+    // "I was sick" offer is gone with the lens it armed. The rhythm-break rule
+    // it leaned on — a 14+ day gap that is the person's own rhythm carries no
+    // comeback card — is asserted by the comeback tests in this same file.
 }

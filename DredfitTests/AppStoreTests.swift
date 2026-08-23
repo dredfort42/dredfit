@@ -88,86 +88,6 @@ final class AppStoreTests: XCTestCase {
         XCTAssertEqual(store.records.last?.skipped, [skippedPattern])
     }
 
-    // MARK: - Discomfort
-
-    func testDiscomfortFreezesThePatternAndIsRecorded() {
-        let store = AppStore(storageURL: tempURL)
-        let session = store.nextSession
-        let sore = session.exercises[2].pattern
-        store.completeWorkout(session: session, result: .more, discomfort: [sore])
-
-        XCTAssertEqual(store.engineState.levels[sore], 0, "a painful pattern must not level up")
-        XCTAssertEqual(store.engineState.freezeRemaining(sore),
-                       EngineConfig.freezeAppearances, "and it is resting afterwards")
-        // v2.22 (spec §33): the neighbours take two SUB-STEPS.
-        XCTAssertEqual(store.engineState.sub[session.exercises[0].pattern],
-                       EngineConfig.deltaMore,
-                       "its neighbours still move by the rating")
-
-        let reloaded = AppStore(storageURL: tempURL)
-        XCTAssertEqual(reloaded.records.last?.discomfort, [sore],
-                       "the journal keeps the report apart from a plain skip")
-        XCTAssertEqual(reloaded.engineState.freezeRemaining(sore),
-                       EngineConfig.freezeAppearances, "the freeze survives a reload")
-    }
-
-    /// Today only mentions a resting movement while it is actually in the plan.
-    func testRestingPatternsFollowTheUpcomingPlan() {
-        let store = AppStore(storageURL: tempURL)
-        let session = store.nextSession
-        let sore = session.exercises[2].pattern
-        store.completeWorkout(session: session, result: .plan, discomfort: [sore])
-
-        let inNextPlan = store.nextSession.exercises.map(\.pattern).contains(sore)
-        XCTAssertEqual(store.restingPatterns.contains(sore), inNextPlan)
-        XCTAssertTrue(store.restingPatterns.allSatisfy {
-            store.engineState.freezeRemaining($0) > 0
-        })
-    }
-
-    /// A painful exercise was not performed, so it cannot earn a "new
-    /// variation" badge either.
-    func testAPainfulExerciseIsNotCountedAsPerformed() {
-        let store = AppStore(storageURL: tempURL)
-        let session = store.nextSession
-        let sore = session.exercises[2].pattern
-        store.completeWorkout(session: session, result: .plan, discomfort: [sore])
-        XCTAssertFalse(store.records.last?.exercises == nil)
-        XCTAssertEqual(store.records.last?.skipped, nil, "a report is not a skip")
-    }
-
-    // MARK: - The freeze has one entrance again (v2.22, §33)
-
-    /// The hold-this-level input is cancelled, so what used to be two tests
-    /// about two entrances is one about the survivor: a pain report freezes the
-    /// pattern, the journal keeps it apart from a skip, and it survives a
-    /// reload. Today's horizon line reads the same freeze.
-    func testAPainReportFreezesThePatternAndIsRecorded() {
-        let store = AppStore(storageURL: tempURL)
-        let session = store.nextSession
-        let hurt = session.exercises[2].pattern
-        store.completeWorkout(session: session, result: .more, discomfort: [hurt])
-
-        XCTAssertEqual(store.engineState.levels[hurt], 0, "a reported pattern must not level up")
-        XCTAssertEqual(store.engineState.freezeRemaining(hurt),
-                       EngineConfig.freezeAppearances, "and it is not climbing afterwards")
-        // v2.22 (spec §33): the neighbours take two SUB-STEPS, which at level
-        // zero is not yet a level.
-        let neighbour = session.exercises[0].pattern
-        XCTAssertEqual(store.engineState.sub[neighbour], EngineConfig.deltaMore,
-                       "its neighbours still move by the rating")
-
-        let reloaded = AppStore(storageURL: tempURL)
-        XCTAssertEqual(reloaded.records.last?.discomfort, [hurt],
-                       "the journal keeps the report apart from a skip")
-        XCTAssertEqual(reloaded.records.last?.skipped, nil, "a report is not a skip")
-        XCTAssertEqual(reloaded.engineState.freezeRemaining(hurt),
-                       EngineConfig.freezeAppearances, "the rest survives a reload")
-        let inNextPlan = reloaded.nextSession.exercises.map(\.pattern).contains(hurt)
-        XCTAssertEqual(reloaded.restingPatterns.contains(hurt), inNextPlan,
-                       "today's horizon line reads the same freeze")
-    }
-
     func testCorruptedStorageFallsBackToInitial() throws {
         try Data("{not a json".utf8).write(to: tempURL)
         let store = AppStore(storageURL: tempURL)
@@ -961,10 +881,10 @@ extension AppStoreTests {
             let store = AppStore(storageURL: url)
             var day = 0
             func train(_ result: FeedbackResult, overrides: [Pattern: Int] = [:],
-                       discomfort: Set<Pattern> = []) {
+                       skipped: Set<Pattern> = []) {
                 day += 1
                 store.completeWorkout(session: store.nextSession, result: result,
-                                      overrides: overrides, discomfort: discomfort,
+                                      overrides: overrides, skipped: skipped,
                                       date: start.addingTimeInterval(Double(day) * 86_400))
             }
             func pullTier() -> Int {
@@ -977,24 +897,38 @@ extension AppStoreTests {
                 guard day < 60 else { return XCTFail("seeding: pull never reached tier 2") }
                 train(.more)
             }
-            train(.plan, discomfort: performed ? [] : [.pull])
+            // v2.26 (§37.0): the movement used to be taken out of the session
+            // by a pain report; a SKIP is the signal that survived, and the
+            // badge's rule is the same either way — it is about what the person
+            // has DONE, not about what was planned for them.
             if performed {
+                train(.plan)
                 XCTAssertFalse(store.debutPatterns.contains(.pull),
                                "actually performed — tier 2 is no debut")
                 continue
             }
-            // The report keeps pull in tier 2 and puts it on that tier's floor
-            // (v2.19, spec §30.6). The session was voided for it, so the tier
-            // is still ahead of the trainee and the badge stands.
-            XCTAssertEqual(pullTier(), 2, "the first report does not change the variation")
+            train(.plan, skipped: [.pull])
+            XCTAssertEqual(pullTier(), 2, "a skip does not change the variation")
             XCTAssertTrue(store.debutPatterns.contains(.pull),
-                          "the report voided the session — tier 2 is still a debut")
-            // And it goes when the tier is finally performed, freeze or no
-            // freeze: the badge is about what the trainee has done, not about
-            // what the engine allows to grow.
+                          "not performed — tier 2 is still a debut")
             train(.plan)
             XCTAssertFalse(store.debutPatterns.contains(.pull),
                            "performed at last — the badge is spent")
         }
     }
+
+    // SNIPPED v2.26 (§37.0): the two tests of the freeze — that a report rested
+    // the movement and was kept apart from a plain skip in the journal, and that
+    // Today only mentioned a resting movement while it was in the plan.
+    // Nothing rests any more: a movement the person finds too hard stays in the
+    // plan and gets an easier variation or fewer sets.
+    //
+    // The handle's own equivalents live in SessionLengthTests (what a handle
+    // does to the plan) and WeakLinkPromptTests (that the movement stays in the
+    // rotation afterwards).
+
+    // SNIPPED v2.26 (§37.0): two more tests of the pain report — that a
+    // reported exercise did not count as performed, and that the report froze
+    // the pattern, stayed apart from a skip in the journal and survived a
+    // reload. The input is gone; the journal field went with it.
 }

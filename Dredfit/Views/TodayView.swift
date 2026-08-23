@@ -76,19 +76,111 @@ struct TodayView: View {
         }
     }
 
-    /// What makes a showing a showing: the plan on screen, and the budget it
-    /// was drawn under — a budget that moves without moving the plan still
-    /// lifts the repair's cap for one transition (§36.8), so it belongs to
-    /// the identity. `nil` on the two days the plan is not on screen at all.
+    /// What makes a showing a showing: the plan on screen.
+    ///
+    /// v2.26 (spec §37.5): the budget it was drawn under used to be part of
+    /// the identity, because a budget could move WITHOUT moving the plan and
+    /// still lift the repair's cap for one transition. The handle writes
+    /// `cut`, a coordinate of the position, so a handle that moves moves the
+    /// session — and the session is already here.
+    /// `nil` on the two days the plan is not on screen at all.
+    /// v2.26 (spec §37.5): the session handle, and the whole point of it — the
+    /// person sees the recalculated duration BEFORE agreeing to it. The number
+    /// is the engine's own `estimatedTotalMin` on both sides of the arrow, not
+    /// an app-side estimate: "how long will this take" is a question the engine
+    /// answers now, and this is where it says so.
+    ///
+    /// The control disappears at the floor rather than going grey: unlike the
+    /// per-movement handle there is no single movement it could explain itself
+    /// about, and "every exercise is already at two sets" is a sentence nobody
+    /// needs on the screen they are about to start from.
+    /// v2.26 (spec §37.4-§37.5): the two per-movement handles, on the movement
+    /// they act on. They live here rather than inside the workout because
+    /// `nextSession` is generated from the state on every access, so a tap
+    /// redraws this row, the announced duration and the plan together. Inside
+    /// the workout they would have to mutate a session the engine is going to
+    /// read the plan from when the rating lands.
+    ///
+    /// "Easier version" carries its RESULT, not its promise: the name and dose
+    /// the movement would have after the tap. §37.4 lands it through the
+    /// ordinary gate, so on `pull_bar` the drop from negatives to a hang is a
+    /// change of unit and the preview is the only way to see that coming.
+    @ViewBuilder
+    private func exerciseHandles(_ ex: SessionExercise) -> some View {
+        let pattern = ex.pattern
+        HStack(spacing: 16) {
+            if let preview = store.easierPreview(pattern) {
+                Button {
+                    store.makeEasier(pattern)
+                } label: {
+                    Text("Easier · \(preview)")
+                        .dredfitFont(12.5)
+                        .foregroundStyle(Theme.accent)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                }
+                .accessibilityIdentifier("easier-\(pattern.rawValue)")
+            }
+            Spacer(minLength: 0)
+            if store.canTakeSetOff(pattern) {
+                Button {
+                    store.takeSetOff(pattern)
+                } label: {
+                    Text("Fewer sets")
+                        .dredfitFont(12.5)
+                        .foregroundStyle(Theme.accent)
+                }
+                .accessibilityIdentifier("fewer-sets-\(pattern.rawValue)")
+            }
+            if store.canGiveSetBack(pattern) {
+                Button {
+                    store.giveSetBack(pattern)
+                } label: {
+                    Text("More sets")
+                        .dredfitFont(12.5)
+                        .foregroundStyle(Theme.ink2)
+                }
+                .accessibilityIdentifier("more-sets-\(pattern.rawValue)")
+            }
+        }
+        .padding(.top, 2)
+    }
+
+    @ViewBuilder
+    private var sessionHandleRow: some View {
+        let length = store.sessionLengthPreview()
+        HStack(spacing: 16) {
+            if let shorter = length.shorter {
+                Button {
+                    store.makeSessionShorter()
+                } label: {
+                    Text("Shorter today · \(length.now) → \(shorter) min")
+                        .dredfitFont(13, weight: .medium)
+                        .foregroundStyle(Theme.accent)
+                }
+                .accessibilityIdentifier("session-shorter")
+                .accessibilityHint(Text(String(localized: "Takes one set off every movement. Your levels do not change.")))
+            }
+            if store.isSessionShortened {
+                Button {
+                    store.restoreFullSession()
+                } label: {
+                    Text("Full workout")
+                        .dredfitFont(13, weight: .medium)
+                        .foregroundStyle(Theme.ink2)
+                }
+                .accessibilityIdentifier("session-full")
+            }
+        }
+    }
+
     private var planShowing: PlanShowing? {
         guard !store.doneToday, !store.isRestDay(store.today) else { return nil }
-        return PlanShowing(session: store.nextSession,
-                           budget: store.engineState.timeBudgetMin)
+        return PlanShowing(session: store.nextSession)
     }
 
     private struct PlanShowing: Equatable {
         let session: Session
-        let budget: Int
     }
 
     // MARK: - Plan state
@@ -96,10 +188,6 @@ struct TodayView: View {
     private var planView: some View {
         let session = store.nextSession
         let debuts = store.debutPatterns
-        // Derived from the session this view already holds: store.nextSession
-        // generates a fresh one on every access, and store.restingPatterns
-        // generates another inside itself.
-        let resting = restingRows(in: session)
         return VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 6) {
                 Kicker(text: store.today.formatted(.dateTime.weekday(.wide).day().month(.wide))
@@ -127,17 +215,21 @@ struct TodayView: View {
                     }
                     .accessibilityIdentifier("why-this-plan")
                 }
+                sessionHandleRow
             }
             .padding(.top, 18)
 
             List(session.exercises) { ex in
-                Button {
-                    techniqueFor = ex
-                } label: {
-                    ExerciseRow(exercise: ex,
-                                badge: debuts.contains(ex.pattern)
-                                    ? String(localized: "new variation") : nil,
-                                note: ExerciseRow.note(store.setsNote(for: ex)))
+                VStack(alignment: .leading, spacing: 0) {
+                    Button {
+                        techniqueFor = ex
+                    } label: {
+                        ExerciseRow(exercise: ex,
+                                    badge: debuts.contains(ex.pattern)
+                                        ? String(localized: "new variation") : nil,
+                                    note: ExerciseRow.note(store.setsNote(for: ex)))
+                    }
+                    exerciseHandles(ex)
                 }
                 .listRowSeparatorTint(Theme.hairline)
                 .listRowBackground(Color.clear)
@@ -145,52 +237,11 @@ struct TodayView: View {
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
 
-            // A fact about the plan, not a warning: the movement is in today's
-            // workout at the level it was, and it stays at that level for a
-            // known number of its own appearances.
-            if !resting.isEmpty {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Not getting harder")
-                        .dredfitFont(13.5)
-                        .foregroundStyle(Theme.ink2)
-                        .accessibilityIdentifier("resting-line")
-                    ForEach(resting) { row in
-                        restingRow(row)
-                    }
-                    // The trend the freeze alone cannot say (#100): the same
-                    // movement hurting appearance after appearance. Derived
-                    // from the journal on every render — the first clean
-                    // appearance takes the line down with it.
-                    if let trend = painTrendLine(rows: resting) {
-                        Text(trend)
-                            .dredfitFont(12.5)
-                            .foregroundStyle(Theme.ink2)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .padding(.top, 2)
-                            .accessibilityIdentifier("pain-trend-line")
-                    }
-                }
-                .padding(.top, 6)
-            }
-
-            // v2.24 (spec §35.3): the one-off line about the 45-minute default.
-            // Existing installs had "no limit" whether they chose it or not, so
-            // the change gets one sentence, once. No notification, no repeat.
-            if store.shouldShowBudgetDefaultNotice {
-                HStack(alignment: .top, spacing: 12) {
-                    Text("Workouts now fit into 45 minutes by default — you can change that in Settings.")
-                        .dredfitFont(13.5)
-                        .foregroundStyle(Theme.ink2)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    Button("Got it") { store.markBudgetDefaultNoticeSeen() }
-                        .dredfitFont(13.5)
-                        .foregroundStyle(Theme.accent)
-                        .accessibilityIdentifier("budget-notice-dismiss")
-                }
-                .padding(.top, 6)
-                .accessibilityIdentifier("budget-default-notice")
-            }
+            // v2.26 (spec §37.0): the "not getting harder" block is gone with
+            // the freeze it described. Nothing rests any more — a movement the
+            // person finds too hard stays in the plan and gets an easier
+            // variation or fewer sets, which is the point of the wave: the
+            // channel that took movements out took them out for weeks.
 
             // An offer of rest, not a warning (#98) — and never a number to
             // beat: the count appears only here, in the suggestion to break
@@ -209,31 +260,15 @@ struct TodayView: View {
                              preview: store.comebackPreview(),
                              onAccept: { store.acceptComeback() },
                              onDecline: { store.declineComeback() },
-                             onFreshStart: { freshStartConfirmShown = true },
-                             // Spec §22.4: the comeback lands first, the lens
-                             // goes on top of the landing.
-                             onSick: { store.acceptComeback(); store.markIllness() })
+                             onFreshStart: { freshStartConfirmShown = true })
                     .padding(.top, 10)
-            }
-
-            // v2.12 (#133): the window the engine cannot see — a short gap
-            // below the comeback. One quiet tap, no questionnaire.
-            // One quiet offer at a time: the weak-link question is the more
-            // specific of the two, so it takes precedence over the illness tap.
-            if store.shouldOfferIllnessTap() && !store.shouldAskAboutSuspect() {
-                Button { store.markIllness() } label: {
-                    Text("Been sick? Take two gentler weeks")
-                        .dredfitFont(13.5)
-                        .foregroundStyle(Theme.ink2)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .accessibilityIdentifier("illness-offer")
-                .padding(.top, 6)
             }
 
             // v2.15 (#135): the journal keeps finding the same movement under
             // an unnamed "tough". One contextual question — never a
-            // questionnaire — routing into the pain path that already exists.
+            // questionnaire. v2.26 (§37.4): it used to route into the pain
+            // path; it now routes into the handle, which changes the thing the
+            // person is complaining about instead of taking it away.
             if store.shouldAskAboutSuspect(), let suspect = store.unnamedLessSuspect() {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Tough sessions keep landing on \(suspect.displayName).")
@@ -241,8 +276,8 @@ struct TodayView: View {
                         .foregroundStyle(Theme.ink2)
                         .fixedSize(horizontal: false, vertical: true)
                     HStack(spacing: 16) {
-                        Button("It hurts") { store.confirmSuspectHurts(suspect) }
-                            .accessibilityIdentifier("weak-link-hurts")
+                        Button("Make it easier") { store.makeSuspectEasier(suspect) }
+                            .accessibilityIdentifier("weak-link-easier")
                         // v2.22 (spec §33): the third answer — "just hard" —
                         // armed a hold, and the hold is cancelled. The case it
                         // served is exactly what the sub-step fixes without
@@ -256,16 +291,6 @@ struct TodayView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, 6)
                 .accessibilityIdentifier("weak-link-prompt")
-            }
-
-            // While the lens runs, say so — a plan that quietly got easier
-            // reads as a glitch without the reason on screen.
-            if store.illnessSessionsLeft > 0 {
-                Text("Recovery: \(store.illnessSessionsLeft) gentler workouts left")
-                    .dredfitFont(13.5)
-                    .foregroundStyle(Theme.ink2)
-                    .padding(.top, 6)
-                    .accessibilityIdentifier("illness-lens-line")
             }
 
             // The card replaces Start — its own two actions already are
@@ -300,63 +325,6 @@ struct TodayView: View {
             }
             Spacer(minLength: 0).frame(height: 14)   // breathing room above the tab bar
         }
-    }
-
-    private struct RestingRow: Identifiable {
-        let id: Pattern
-        let name: String
-        let remaining: Int
-    }
-
-    /// Named the way the list above names them: the freeze belongs to the
-    /// movement, but the row the reader is looking at says "Y-T-W raises".
-    /// A frozen movement cannot change variation, so the name holds for as
-    /// long as the block is up. The horizon is per movement, not a constant:
-    /// a fresh report refreshes that one counter while the others keep
-    /// counting down.
-    private func restingRows(in session: Session) -> [RestingRow] {
-        let resting = Set(store.restingPatterns(in: session))
-        return session.exercises
-            .filter { resting.contains($0.pattern) }
-            .map { RestingRow(id: $0.pattern, name: $0.name,
-                              remaining: store.engineState.freezeRemaining($0.pattern)) }
-    }
-
-    /// One sentence, not one per row: the first resting movement the journal
-    /// or the engine's memory has something to add about.
-    ///
-    /// v2.25 (spec §36.5): the escalation reads `painSeen` — reports over the
-    /// whole history — and is therefore looked up FIRST, across every row,
-    /// before the softer line can claim the one sentence. On a run it never
-    /// fired at all: the rest that follows a report is what breaks the run.
-    private func painTrendLine(rows: [RestingRow]) -> String? {
-        if let row = rows.first(where: { store.painNote($0.id) == .seeSpecialist }) {
-            return String(localized: "\(row.name) keeps hurting, appearance after appearance. Pain that stays is a reason to see a specialist.")
-        }
-        if let row = rows.first(where: { store.painNote($0.id) == .hurtAgain }) {
-            return String(localized: "\(row.name) has hurt both of its recent appearances — a smaller number takes the load down.")
-        }
-        return nil
-    }
-
-    /// The pill rides inline after the name and wraps with it, the same way
-    /// the debut badge does in ExerciseRow — a sibling HStack would push it
-    /// off screen on the longest catalog names.
-    private func restingRow(_ row: RestingRow) -> some View {
-        let horizon = String(localized: "\(row.remaining) more times")
-        var text = Text(row.name)
-        if let pill = BadgePill.image(text: horizon, scale: displayScale,
-                                      typeSize: dynamicTypeSize) {
-            text = text + Text(verbatim: " ")
-                + Text(Image(uiImage: pill)).baselineOffset(-3)
-        }
-        return text
-            .dredfitFont(13.5)
-            .foregroundStyle(Theme.ink2)
-            .fixedSize(horizontal: false, vertical: true)
-            // One phrase for VoiceOver: name, state, horizon — the pill is an
-            // image and would otherwise be read as nothing at all.
-            .accessibilityLabel(Text("\(row.name), not getting harder — \(horizon)"))
     }
 
     // MARK: - Interrupted workout

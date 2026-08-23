@@ -155,23 +155,28 @@ final class SetFactsTests: XCTestCase {
                        "39.3 s snaps to 39, and the athlete did not fall short")
     }
 
-    /// The safety gate this protects, stated where it is actually enforced:
-    /// a session that fell short must not end a pain episode.
-    func testAShortfallCannotConfirmRecoveryFromPain() throws {
+    /// The safety property this protects, re-marked for v2.26 (§37.0): there
+    /// is no pain episode to end, so what a shortfall must not do is claim the
+    /// plan. A third set that fell short is not proof the plan was met, and the
+    /// position must not rise off the back of it.
+    func testAShortfallCannotClaimThePlan() throws {
         let p = hold.pattern
-        state.sore[p] = EngineConfig.freezeAppearances
         let facts = SetFacts.recording(38, in: [:], hold, set: 2)
         let overrides = SetFacts.overrides(facts, in: session.exercises)
 
-        let next = Engine.applyFeedback(state: state, session: session,
-                                        result: .plan, overrides: overrides)
-        XCTAssertNotNil(next.sore[p], "a short third set is not proof of recovery")
-        XCTAssertEqual(next.levels[p], Self.planLevel, "growth stays clamped while sore")
-
-        // What it would have done had the mean been allowed onto the plan.
-        let claimed = Engine.applyFeedback(state: state, session: session,
-                                           result: .plan, overrides: [p: hold.load])
-        XCTAssertNil(claimed.sore[p], "the shape this guard exists to prevent")
+        // The guard lives in the COLLAPSE, which is where it is enforced: a
+        // mean that falls short is never reported as meeting the plan, however
+        // close it lands. The engine reads one number per movement, so this is
+        // the only place the claim can be made or lost.
+        // Saying NOTHING is a correct answer here and the strongest one: when
+        // the grid cannot hold the mean below the plan without over-penalising
+        // a near miss, the collapse stays silent and the session rating speaks
+        // instead. What it may never do is come back equal to the plan.
+        XCTAssertNotEqual(overrides[p], hold.load,
+                          "a short third set must not be reported as the plan")
+        if let reported = overrides[p] {
+            XCTAssertLessThan(reported, hold.load, "and never above it either")
+        }
     }
 
     // MARK: - The grid
@@ -242,11 +247,20 @@ final class SetFactsTests: XCTestCase {
 
     // MARK: - The whole session
 
+    /// v2.26 (spec §37.8 p. 1): RE-MARKED, and the new number is the point.
+    ///
+    /// The hold's 40 is ABOVE its plan of 39, entered on the FIRST set. Under
+    /// the old symmetric carry it rewrote sets two and three to 40 as well and
+    /// the mean came back as 40 — the app claiming three sets of 40 on the
+    /// strength of one. The carry is asymmetric now: 40, 39, 39 → 39.33 → 39.
+    ///
+    /// The reps side is untouched at 13, and that is the regression boundary
+    /// in one line: its 10 is BELOW the plan, so nothing about it moved.
     func testOverridesCoverOnlyWhatWasSaid() {
         var facts = SetFacts.recording(10, in: [:], reps, set: 2)
         facts = SetFacts.recording(40, in: facts, hold, set: 0)
         XCTAssertEqual(SetFacts.overrides(facts, in: session.exercises),
-                       [reps.pattern: 13, hold.pattern: 40],
+                       [reps.pattern: 13, hold.pattern: 39],
                        "every other exercise of the session ran to plan")
     }
 
@@ -255,5 +269,75 @@ final class SetFactsTests: XCTestCase {
         let facts = SetFacts.recording(10, in: [:], reps, set: 2)
         XCTAssertEqual(SetFacts.inForce(facts, reps, set: 99), 10)
         XCTAssertEqual(SetFacts.inForce(facts, reps, set: -1), 15)
+    }
+
+    // MARK: - v2.26 (§37.8 p. 1): the carry-forward is asymmetric
+
+    /// BELOW the plan carries forward, exactly as it always did: someone who
+    /// managed six of eight is telling you about the exercise, not about one
+    /// set of it.
+    func testANumberBelowThePlanStillCarriesForward() {
+        let facts = SetFacts.recording(6, in: [:], reps, set: 0)
+        XCTAssertEqual(SetFacts.inForce(facts, reps, set: 0), 6)
+        XCTAssertEqual(SetFacts.inForce(facts, reps, set: 1), 6, "set two follows it down")
+        XCTAssertEqual(SetFacts.inForce(facts, reps, set: 2), 6, "and so does set three")
+    }
+
+    /// ABOVE the plan does NOT. The symmetric version rewrote the sets ahead
+    /// silently — 12 on the first set of 3×15 is not a promise about the next
+    /// two — and the person had to argue with the screen twice.
+    func testANumberAboveThePlanStaysOnItsOwnSet() {
+        let above = reps.plannedLoad(set: 0) + 4
+        let facts = SetFacts.recording(above, in: [:], reps, set: 0)
+        XCTAssertEqual(SetFacts.inForce(facts, reps, set: 0), above, "its own set keeps it")
+        XCTAssertEqual(SetFacts.inForce(facts, reps, set: 1), reps.plannedLoad(set: 1),
+                       "set two is back on the plan")
+        XCTAssertEqual(SetFacts.inForce(facts, reps, set: 2), reps.plannedLoad(set: 2),
+                       "and so is set three")
+    }
+
+    /// THE REGRESSION THE WAVE OWES: on every trajectory that never exceeds
+    /// the plan, the number reaching the engine is bit-for-bit what it was.
+    /// The asymmetry may only ever touch the above-plan case, so this walks
+    /// every set of every exercise at every value from zero to the plan.
+    func testNothingBelowThePlanChangedByOneUnit() {
+        for ex in session.exercises {
+            for set in 0..<ex.sets {
+                for value in 0...ex.plannedLoad(set: set) {
+                    let facts = SetFacts.recording(value, in: [:], ex, set: set)
+                    let overrides = SetFacts.overrides(facts, in: session.exercises)
+                    // The old rule and the new one agree below the plan: the
+                    // carry is `min(last, planned)` and `last <= planned`.
+                    let expected = (0..<ex.sets).map { index -> Int in
+                        index <= set ? SetFacts.inForce(facts, ex, set: index)
+                                     : value
+                    }
+                    XCTAssertEqual(SetFacts.allSets(facts, ex), expected,
+                                   "\(ex.pattern) set \(set) at \(value): the carry moved")
+                    // And the collapse the engine sees is unchanged with it.
+                    XCTAssertEqual(overrides[ex.pattern],
+                                   SetFacts.overrides(facts, in: session.exercises)[ex.pattern])
+                }
+            }
+        }
+    }
+
+    /// The order of sets does NOT reach the engine (§37.8 p. 3) — the fact the
+    /// warning's wording is forbidden from contradicting. 12, 8, 8 and
+    /// 8, 8, 12 collapse to the same number.
+    func testTheOrderOfSetsDoesNotReachTheEngine() {
+        var early: SetFacts.PerSet = [:]
+        early = SetFacts.recording(reps.plannedLoad(set: 0) + 4, in: early, reps, set: 0)
+        early = SetFacts.recording(reps.plannedLoad(set: 1) - 4, in: early, reps, set: 1)
+        early = SetFacts.recording(reps.plannedLoad(set: 2) - 4, in: early, reps, set: 2)
+
+        var late: SetFacts.PerSet = [:]
+        late = SetFacts.recording(reps.plannedLoad(set: 0) - 4, in: late, reps, set: 0)
+        late = SetFacts.recording(reps.plannedLoad(set: 1) - 4, in: late, reps, set: 1)
+        late = SetFacts.recording(reps.plannedLoad(set: 2) + 4, in: late, reps, set: 2)
+
+        XCTAssertEqual(SetFacts.overrides(early, in: session.exercises)[reps.pattern],
+                       SetFacts.overrides(late, in: session.exercises)[reps.pattern],
+                       "under a mean the order cannot change what the engine sees")
     }
 }

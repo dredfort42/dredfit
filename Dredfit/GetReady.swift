@@ -2,17 +2,23 @@
 //  GetReady.swift
 //  Dredfit
 //
-//  The transition before every guided position (issue #52). Five seconds is
-//  the base, the same length as the side-switch pause of issue #35; a
-//  position that has to be walked to or got down into carries a supplement
-//  on top (issue #83). Neither number is a user setting.
+//  The transition before every guided position (issue #52). Ten seconds is
+//  the base since v2.26 (spec §37.7a); a position that has to be walked to or
+//  got down into carries a supplement on top (issue #83). Neither number is a
+//  user setting.
+//
+//  The side-switch pause of issue #35 shared the base length and no longer
+//  does: it is a pause inside one position, not travel to another.
 //
 
 import Foundation
 
 enum GetReady {
 
-    static let seconds = 5
+    /// v2.26 (spec §37.7a): 5 → 10. Five seconds to change posture is a rush,
+    /// and it is what people said about it. The reserve this is spent against
+    /// was raised to match by the engine, not here — see `setupSupplementSec`.
+    static let seconds = 10
 
     /// The supplement of issue #83, on top of `seconds`, for a position that
     /// changes the starting position (standing → the floor) or needs a prop
