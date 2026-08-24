@@ -695,7 +695,7 @@ session (all 48 levels locked forever), and "I was ill" (40).
 
 ## Engine gates before a release
 
-Not a manual row — the four automated gates a release runs from `reference/`,
+Not a manual row — the six automated gates a release runs from `reference/`,
 recorded here because "clean" is not the same word for each of them. The full
 definition, and the residues that are known and named, live in phase 0 item 3 of
 `instructions/CORE_AUDIT.md` — a working document that is deliberately not in the
@@ -705,14 +705,48 @@ repository, like `reference/` itself.
 |---|---|
 | `python3 scripts/update_reference_manifest.py --check` | `OK` — the local `reference/` really is the one that produced the fixture. It is not versioned, so it goes stale silently |
 | `node verify2.js` | 0 failures |
+| `node accept.js` | "ПРИЁМКА ЧИСТА" and not one `ПРОВАЛ` line — the twelve wave-acceptance checks below |
 | `node audit_static.js` | "НОВЫХ СРАБАТЫВАНИЙ НЕТ" — no new hit of the "fix applied to one branch of two" class |
 | `node audit_local.js` | "ЛОКАЛЬНЫЙ ПЕРЕБОР ЧИСТ" — H1–H8 without failures |
-| `node audit_local2.js` | S2–S6 without failures; S1 carries **one** named residue (1 of 10,014, ×1.05). A second line in S1 is a finding |
+| `node audit_local2.js` | S2–S6 without failures; S1 reports **zero** invariant violations and **one** cell parked at the set floor — the named residue of item 46. A second at-floor cell, or any violation off the floor, is a finding |
 
 What is compared is **not the number but the absence of new lines** against the
 previous run. The cell counts move every wave — the sweep walks a lattice that
 grows — and chasing a particular figure hides a regression as well as a red run
 does.
+
+### What `accept.js` checks, and why each check is there
+
+`verify2.js` proves the engine obeys the spec. `accept.js` proves a *wave* kept
+the promises it was built on — every check below was put there by a defect that
+shipped, or by a decision the owner made and would otherwise have to take on
+trust. It is deterministic, self-contained and takes seconds; the only thing it
+needs from outside is the previous engine, `adaptive_engine.v2.25-baseline.js`,
+which lives in `reference/model-v2.26/` (point `DREDFIT_V225` at another copy to
+compare against a different baseline). Twelve numbered checks, seventeen
+assertions — П7 prints a number and asserts nothing on purpose.
+
+| Check | What it asserts | Why it is a gate |
+|---|---|---|
+| П1 | On the honest "that was tough" path a movement never drops below two sets — every pattern × every level × every cut, 25 taps deep | The set floor is the last thing between the engine and a one-set plan. v2.25 could reach the floor by two different mechanisms at once, and the second one did not know about the first |
+| П2 | Every plan is well-formed: sets within floor and max, a positive dose, a display string, six movements | Cheap, and it catches a whole class of "the handle produced a plan nobody can read" |
+| П3a/b | A set never comes back while the person is answering "tough" or skipping | The set is returned by growing strength, not by a timer. This is the promise the wave replaced the time budget with, and it is invisible unless swept |
+| П3c | When a set does come back, the volume jump is at most ×1.50 | The first set back used to be +100 % by construction (a gap §36.10 п. 5 named and priced). The floor moving 1 → 2 is what bought the ×1.50, and this is the assertion that keeps it bought |
+| П4 | The "give me an easier variation" handle always changes the variation — 400 cells, zero of them staying inside their tier | A handle that answers with the same exercise is a lie on a button. Descending inside a tier is the engine's own job, not the handle's |
+| П4b | Time under load after that handle stays inside the accepted ×2.50 | §30.4 says reps are not comparable across a variation change, so the honest gate is the accepted bound of §36.10 п. 1, not zero. Named, not silently tolerated |
+| П5a/b | `generateSession` is deterministic, and state survives a JSON round-trip | The fixture, the port and the whole audit apparatus stand on both. A single field that does not survive `JSON.parse` turns golden into a coin toss |
+| П6 | `descendNoHarder` never returns a position the engine's own `noHarder` predicate rejects | The 20.08 audit found "descent never adds load" checked on two of six paths, while the other four produced transitions the exported predicate refused. This asserts the predicate against itself |
+| П7 | *Informational:* the sum of levels over an honest year, and where `squat` lands | Progress is what a safety wave is most likely to quietly destroy. It is printed, not asserted, because there is no right number — П10 does the asserting |
+| П8a/b/c | Against the v2.25 engine, on the axis's zero: the plan is bit-for-bit equal (96 cells), the shared state fields are equal after a session, and the announced duration grew by **exactly** one minute | This is the wave's parity claim, and the reason a refactor can be told from a change. The one minute is §37.7а — the longer run-in before every guided position — and it is asserted as a number so it cannot creep |
+| П9 | "Shorter today" only ever shortens, and stops at the floor | A handle that could lengthen a session, or dig below two sets, is worse than no handle |
+| П10 | A year of levels stays within ±1 % of v2.25 across four answering styles | Removing two mechanisms must not cost progress. ±1 % is the tolerance; the run gives ±0.0 % on all four |
+| П11 | "Tough" never makes the next shown plan heavier — including on top of an active cut | The composition question. Each mechanism was fine alone in v2.25; the P0s came from the pairs |
+| П12 | The wave added no new cell where a growth event lightens the plan — parity with v2.25, not an absolute | Absolute is unreachable and saying otherwise would be a false guarantee: at a band start the per-set dose resets lower while the set count grows (v2.21, deliberately), and across a variation the measure is invalid at all. So the assertion is that the count did not move: 6 before, 6 after, all at L31/L39 |
+
+Two things this table deliberately does not claim. П4b and П12 are bounded by
+what v2.25 already accepted, so they detect a *regression*, not a defect that was
+already priced. And П8 compares plans, not durations — the duration moved by
+design, which is why it gets its own line and its own exact number.
 
 ---
 
