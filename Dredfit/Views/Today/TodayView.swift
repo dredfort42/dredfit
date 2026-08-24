@@ -26,6 +26,10 @@ struct TodayView: View {
     @State private var nextPreviewShown = false
     @State private var freshStartConfirmShown = false
     @State private var howItWorksShown = false
+    /// The short version is a choice about TODAY, not a setting: it lives
+    /// here, never in the store, and it is dropped the moment the session
+    /// number moves. See `handleRow`.
+    @State private var shortVersion = false
 
     var body: some View {
         Group {
@@ -70,6 +74,12 @@ struct TodayView: View {
         .task(id: planShowing) {
             guard let showing = planShowing else { return }
             store.recordPlanShown(showing.session)
+        }
+        // Keyed on the NUMBER, not on the showing: pulling the sets handle
+        // makes a new showing of the same workout, and dropping the movement
+        // choice there would undo a tap the person just made.
+        .onChange(of: store.nextSession.sessionNumber) { _, _ in
+            shortVersion = false
         }
     }
 
@@ -141,34 +151,6 @@ struct TodayView: View {
         .padding(.top, 2)
     }
 
-    @ViewBuilder
-    private var sessionHandleRow: some View {
-        let length = store.sessionLengthPreview()
-        HStack(spacing: 16) {
-            if let shorter = length.shorter {
-                Button {
-                    store.makeSessionShorter()
-                } label: {
-                    Text("Shorter today · \(length.now) → \(shorter) min")
-                        .dredfitFont(13, weight: .medium)
-                        .foregroundStyle(Theme.accent)
-                }
-                .accessibilityIdentifier("session-shorter")
-                .accessibilityHint(Text(String(localized: "Takes one set off every movement. Your levels do not change.")))
-            }
-            if store.isSessionShortened {
-                Button {
-                    store.restoreFullSession()
-                } label: {
-                    Text("Full workout")
-                        .dredfitFont(13, weight: .medium)
-                        .foregroundStyle(Theme.ink2)
-                }
-                .accessibilityIdentifier("session-full")
-            }
-        }
-    }
-
     private var planShowing: PlanShowing? {
         guard !store.doneToday, !store.isRestDay(store.today) else { return nil }
         return PlanShowing(session: store.nextSession)
@@ -183,6 +165,16 @@ struct TodayView: View {
     private var planView: some View {
         let session = store.nextSession
         let debuts = store.debutPatterns
+        let shortPlan = ShortWorkout.plan(session: session,
+                                          counter: store.engineState.counter,
+                                          levels: store.engineState.levels)
+        // What Start is going to run. The line counts THIS, so the handles
+        // under it can each say what they would turn it into instead of
+        // advertising two workouts at once.
+        let chosen = shortVersion ? shortPlan : nil
+        let minutes = chosen.map { ShortWorkout.estimatedMin(session: session, plan: $0) }
+            ?? Int(session.estimatedTotalMin.rounded())
+        let count = chosen?.count ?? session.exercises.count
         return VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 6) {
                 Kicker(text: store.today.screenDateText)
@@ -190,7 +182,7 @@ struct TodayView: View {
                     .dredfitFont(32, weight: .heavy)
                     .tracking(-0.5)
                 HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    Text("≈ \(Int(session.estimatedTotalMin.rounded())) min · \(session.exercises.count) exercises")
+                    Text("≈ \(minutes) min · \(count) exercises")
                         .dredfitFont(15)
                         .foregroundStyle(Theme.ink2)
                     // A quiet way into the existing explainer for everyone who
@@ -209,22 +201,30 @@ struct TodayView: View {
                     }
                     .accessibilityIdentifier("why-this-plan")
                 }
-                sessionHandleRow
+                handleRow(session: session, shortPlan: shortPlan)
             }
             .padding(.top, 18)
 
             List(session.exercises) { ex in
+                // Set aside by the movements handle: still listed, because
+                // "3 of 6" has to be able to say WHICH three, and dimmed
+                // rather than removed, because the list is the plan and the
+                // plan did not change — these three are recorded as skips and
+                // keep their level. Same treatment the rating card gives them.
+                let setAside = chosen.map { !$0.contains(ex.pattern) } ?? false
                 VStack(alignment: .leading, spacing: 0) {
-                    Button {
-                        techniqueFor = ex
-                    } label: {
-                        ExerciseRow(exercise: ex,
-                                    badge: debuts.contains(ex.pattern)
-                                        ? String(localized: "new variation") : nil,
-                                    note: ExerciseRow.note(store.setsNote(for: ex)))
+                    // Overridden only when set aside: the default label is the
+                    // whole row — name, load and note — and replacing it on
+                    // every row to add one word would cost the other three.
+                    if setAside {
+                        planRow(ex, debuts: debuts)
+                            .accessibilityLabel(Text("\(ex.name), skipped"))
+                    } else {
+                        planRow(ex, debuts: debuts)
+                        exerciseHandles(ex)
                     }
-                    exerciseHandles(ex)
                 }
+                .opacity(setAside ? 0.45 : 1)
                 .listRowSeparatorTint(Theme.hairline)
                 .listRowBackground(Color.clear)
             }
@@ -294,28 +294,15 @@ struct TodayView: View {
                     .padding(.top, 10)
                     .padding(.bottom, 14)
             } else {
+                // One Start, and it runs whatever the handles left on the
+                // line above. The short version used to be a SECOND start
+                // button down here, which is how the screen came to carry two
+                // offers of "shorter" that never met.
                 PrimaryButton(title: String(localized: "Start")) {
-                    activeWorkout = ActiveWorkout(session: store.nextSession)
+                    activeWorkout = ActiveWorkout(session: store.nextSession,
+                                                  shortPlan: chosen)
                 }
                     .padding(.top, 10)
-
-                // Secondary by design: the full workout stays the default
-                // every day, and the choice is never remembered.
-                if let plan = ShortWorkout.plan(session: session,
-                                                counter: store.engineState.counter,
-                                                levels: store.engineState.levels) {
-                    Button {
-                        activeWorkout = ActiveWorkout(session: store.nextSession,
-                                                      shortPlan: plan)
-                    } label: {
-                        Text("Short on time? Short version · ≈ \(ShortWorkout.estimatedMin(session: session, plan: plan)) min")
-                            .dredfitFont(15, weight: .medium)
-                            .foregroundStyle(Theme.ink2)
-                            .frame(maxWidth: .infinity, minHeight: 44)
-                    }
-                    .accessibilityIdentifier("start-short")
-                    .padding(.top, 2)
-                }
             }
             Spacer(minLength: 0).frame(height: 14)   // breathing room above the tab bar
         }
@@ -485,5 +472,99 @@ struct TodayView: View {
         case .more: return String(localized: "Rating: easy — progressing as fast as each movement allows")
         case nil:   return ""
         }
+    }
+}
+
+// MARK: - The plan's controls
+//
+// In an extension rather than in the struct body: the two session handles,
+// their shared look and the plan row are one subject, and the type is at the
+// linter's size bound without them.
+
+private extension TodayView {
+
+    /// The two ways to make today lighter, in one place and each naming the
+    /// axis it moves — sets or movements. They used to sit at opposite ends
+    /// of the screen under two anonymous "shorter" labels, with numbers that
+    /// looked like a contradiction (26 against 21) because they price two
+    /// different workouts.
+    ///
+    /// They compose, and the row says so by arithmetic rather than by prose:
+    /// the sets handle measures itself INSIDE the movements that are going to
+    /// be performed, and the line above counts what Start will actually run.
+    /// Neither is remembered past the workout.
+    @ViewBuilder
+    private func handleRow(session: Session, shortPlan: Set<Pattern>?) -> some View {
+        let length = store.sessionLengthPreview(within: shortVersion ? shortPlan : nil)
+        let shortMin = shortPlan.map { ShortWorkout.estimatedMin(session: session, plan: $0) } ?? 0
+        let total = session.exercises.count
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(spacing: 16) {
+                if let shorter = length.shorter {
+                    handle(accented: true, identifier: "session-shorter",
+                           hint: String(localized: "Takes one set off every movement. Your levels do not change.")) {
+                        store.makeSessionShorter()
+                    } label: {
+                        Text("Fewer sets in every movement · \(length.now) → \(shorter) min")
+                    }
+                }
+                if store.isSessionShortened {
+                    handle(accented: false, identifier: "session-full", hint: nil) {
+                        store.restoreFullSession()
+                    } label: {
+                        Text("All sets back")
+                    }
+                }
+            }
+            if let shortPlan {
+                HStack(spacing: 16) {
+                    if !shortVersion {
+                        handle(accented: true, identifier: "start-short",
+                               hint: String(localized: "The rest are recorded as skips. They keep their level.")) {
+                            shortVersion = true
+                        } label: {
+                            Text("Fewer movements · \(shortPlan.count) of \(total) · ≈ \(shortMin) min")
+                        }
+                    } else {
+                        handle(accented: false, identifier: "start-full", hint: nil) {
+                            shortVersion = false
+                        } label: {
+                            Text("All movements back")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func planRow(_ ex: SessionExercise, debuts: Set<Pattern>) -> some View {
+        Button {
+            techniqueFor = ex
+        } label: {
+            ExerciseRow(exercise: ex,
+                        badge: debuts.contains(ex.pattern)
+                            ? String(localized: "new variation") : nil,
+                        note: ExerciseRow.note(store.setsNote(for: ex)))
+        }
+    }
+
+    /// One look for all four: 13pt medium, accent for the direction that
+    /// makes today lighter and ink2 for the way back, and a 44pt target
+    /// under a 16pt line of text.
+    private func handle<Label: View>(accented: Bool,
+                                     identifier: String,
+                                     hint: String?,
+                                     action: @escaping () -> Void,
+                                     @ViewBuilder label: () -> Label) -> some View {
+        Button(action: action) {
+            label()
+                .dredfitFont(13, weight: .medium)
+                .foregroundStyle(accented ? Theme.accent : Theme.ink2)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(minHeight: 34)
+                .contentShape(Rectangle())
+        }
+        .accessibilityIdentifier(identifier)
+        .accessibilityHint(hint.map { Text($0) } ?? Text(""))
     }
 }

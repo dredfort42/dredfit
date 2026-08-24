@@ -118,11 +118,17 @@ final class SetsHandleNoticeTests: XCTestCase {
             "A set is back — your body is coping.",
             "Fewer sets",
             "More sets",
-            "Full workout",
             "Make it easier",
             "Takes one set off every movement. Your levels do not change.",
             "Enter what you actually did. The plan follows your numbers.",
-            "Shorter today · %lld → %lld min",
+            // The plan's two ways to make today lighter and the way back
+            // from each. They replaced "Shorter today" and the second start
+            // button that used to sit under Start as "Short on time?".
+            "Fewer sets in every movement · %lld → %lld min",
+            "All sets back",
+            "Fewer movements · %lld of %lld · ≈ %lld min",
+            "All movements back",
+            "The rest are recorded as skips. They keep their level.",
             "Easier · %@",
             "%lld positions · about %lld min",
             "Do the plan, and leave your maximum for the last set.",

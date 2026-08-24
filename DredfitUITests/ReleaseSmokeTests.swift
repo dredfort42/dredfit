@@ -59,7 +59,7 @@ final class ReleaseSmokeTests: XCTestCase {
                           "S1: the plan line must read ≈ 34 min · 6 exercises")
             XCTAssertTrue(app.buttons["Start"].exists, "S1: Start is missing")
             XCTAssertTrue(app.buttons["start-short"].exists,
-                          "S1: the short-version offer must sit under Start")
+                          "S1: the short-version handle must sit under the plan line")
         }
     }
 

@@ -29,7 +29,8 @@ final class HandlesUITests: XCTestCase {
         let shorter = app.buttons["session-shorter"]
         XCTAssertTrue(shorter.waitForExistence(timeout: 5),
                       "the session handle is missing from the plan")
-        // "Shorter today · 37 → 26 min" — both numbers, before agreeing.
+        // "Fewer sets in every movement · 37 → 26 min" — both numbers,
+        // and the axis it moves, before agreeing.
         let promise = shorter.label
         XCTAssertTrue(promise.contains("→"),
                       "the handle must show what the session becomes, not just that it shrinks")
@@ -40,7 +41,7 @@ final class HandlesUITests: XCTestCase {
                       "a shortened session must offer the way back")
     }
 
-    /// The way back: "Full workout" restores every set on every movement.
+    /// The way back: "All sets back" restores every set on every movement.
     func testTheFullWorkoutIsReachableAgain() {
         app.launch()
         let shorter = app.buttons["session-shorter"]

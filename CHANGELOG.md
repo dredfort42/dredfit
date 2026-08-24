@@ -84,11 +84,26 @@ handles. You decide.
   to a floor of two. The floor moved from one set to two, and that is what made
   the first set back cost ×1.50 instead of the ×2.00 it cost by construction
   before.
-- **"Shorter today"** — the session handle, showing both numbers before you agree:
-  *37 → 26 min*. Sets come off, movements never do.
-- All three live **on the plan**, not inside the workout, so pressing one redraws
-  the plan and the announced duration together. Inside the workout what remains
-  is the honest number — "went differently" — and skipping.
+- **"Fewer sets in every movement"** — the session handle, showing both numbers
+  before you agree: *37 → 26 min*. Sets come off, movements never do.
+- **"Fewer movements"** — the short workout is a handle too, and no longer a
+  second start button under Start: three of the six, the other three recorded as
+  skips that keep their level. It says *3 of 6 · ≈ 21 min*, and the three it sets
+  aside are dimmed in the plan rather than hidden, because "3 of 6" has to be
+  able to say which three.
+- The two compose, and the screen says so by arithmetic rather than by prose: the
+  line above counts what Start will run, and the sets handle prices itself inside
+  the movements that are going to be performed. They used to sit at opposite ends
+  of the screen under two anonymous offers of "shorter", with numbers that read
+  as a contradiction because they were pricing two different workouts.
+- All of them live **on the plan**, not inside the workout, so pressing one
+  redraws the plan and the announced duration together. Inside the workout what
+  remains is the honest number — "went differently" — and skipping.
+- **The workout's controls are reachable.** "Went differently" is a 44 pt target
+  with 18 pt between it and the button that logs the set: it was as tall as its
+  own text, and a thumb that landed a few points high did not miss — it finished
+  the set at plan. On the rest screen "+15 s" takes a third of the row and "Skip
+  rest" two thirds, because the two are not asked for equally often.
 - **A set comes back when strength does, not on a timer.** Answering "tough" or
   skipping never returns one.
 

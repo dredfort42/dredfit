@@ -852,9 +852,18 @@ extension DredfitUITests {
         app.launch()
         _ = app.staticTexts["Workout 1"].waitForExistence(timeout: 5)
 
+        // The short version is a handle on the plan now, not a second start
+        // button: it is chosen up in the row that prices it, and the one
+        // Start runs whatever the row left on the line above.
         let short = app.buttons["start-short"]
         XCTAssertTrue(short.exists, "Today must offer the short version")
         short.tap()
+        XCTAssertTrue(app.buttons["start-full"].waitForExistence(timeout: 3),
+                      "a chosen short version must offer the way back")
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label ENDSWITH %@", "· 3 exercises")).firstMatch.exists,
+            "the plan line must count the three the short version will run")
+        app.buttons["Start"].tap()
 
         let skipWarmup = app.buttons["warmup-intro-skip"]
         if skipWarmup.waitForExistence(timeout: 3) { skipWarmup.tap() }
@@ -904,6 +913,9 @@ extension DredfitUITests {
         _ = app.staticTexts["Workout 1"].waitForExistence(timeout: 5)
         XCTAssertTrue(app.buttons["Start"].exists, "Start stays the primary action")
         XCTAssertTrue(app.buttons["start-short"].exists)
+        // Offered, not taken: the way back only exists once it is chosen.
+        XCTAssertFalse(app.buttons["start-full"].exists,
+                       "the short version must not be the default")
     }
 
     // MARK: - Cool-down (issue #28)
