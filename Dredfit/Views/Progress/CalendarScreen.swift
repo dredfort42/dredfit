@@ -182,7 +182,15 @@ struct CalendarScreen: View {
             .accessibilityLabel(Text(accessibilityText(day)))
             // The label carries the full spoken date, so it is not a stable
             // query key for UI tests.
-            .accessibilityIdentifier("day-\(day.number)")
+            //
+            // Only for a day of the month on screen. A grid carries up to two
+            // weeks of neighbouring months, and those cells repeat real
+            // numbers — three cells could answer to "day-1". Being
+            // accessibilityHidden keeps them out of the tree today, so this
+            // is not a live flake; it is the identifier not claiming a name
+            // it has no business holding, so that unhiding a cell can never
+            // silently make a query ambiguous.
+            .accessibilityIdentifier(day.state == .out ? "" : "day-\(day.number)")
     }
 
     private func accessibilityText(_ day: Day) -> String {

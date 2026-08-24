@@ -72,6 +72,48 @@ final class HandlesUITests: XCTestCase {
                       "a movement with a set off must offer to put it back")
     }
 
+    /// The trap this asserts is not hypothetical: before `.plain` and
+    /// `.borderless` were set, one tap on the empty strip of a plan row took a
+    /// set off the plan — the announced duration went 35 min to 33 and the
+    /// handle vanished from under the finger. A List row treats several
+    /// default-styled buttons as one control, and the row itself is a button
+    /// into the technique sheet.
+    ///
+    /// Two claims, in this order: an aimless tap on the row changes nothing,
+    /// and the row's own affordance still opens the sheet. By coordinate,
+    /// because what is being tested is a place on the screen rather than a
+    /// control — a query would find the control wherever it went.
+    func testATapOnAPlanRowDoesNotPullItsHandles() {
+        app.launch()
+        let minutes = app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS %@", "exercises")).firstMatch
+        XCTAssertTrue(minutes.waitForExistence(timeout: 5))
+        let announced = minutes.label
+
+        let handles = app.buttons.matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", "fewer-sets-"))
+        XCTAssertTrue(handles.firstMatch.waitForExistence(timeout: 5))
+        let count = handles.count
+
+        app.coordinate(withNormalizedOffset: .zero)
+            .withOffset(CGVector(dx: 40, dy: handles.firstMatch.frame.midY))
+            .tap()
+
+        XCTAssertEqual(minutes.label, announced,
+                       "a tap on the row's empty strip rewrote the plan")
+        XCTAssertEqual(handles.count, count,
+                       "a tap on the row's empty strip took a set off a movement")
+
+        // A row above the handle is the card itself — that one does open.
+        app.coordinate(withNormalizedOffset: .zero)
+            .withOffset(CGVector(dx: 60, dy: handles.firstMatch.frame.minY - 34))
+            .tap()
+        XCTAssertTrue(app.staticTexts["technique-life"].waitForExistence(timeout: 5),
+                      "the plan row no longer opens the technique sheet")
+        XCTAssertEqual(minutes.label, announced,
+                       "opening the technique sheet rewrote the plan")
+    }
+
     // MARK: - Offered, not required (both blocks)
 
     /// The warm-up's own version of the cool-down screen below. The claim is

@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// The palette lives in `Design/Brand.xcassets`, one colorset per token with
 /// four appearances — light and dark, each with an Increased Contrast
@@ -57,6 +58,44 @@ enum Theme {
     /// Grid AND legend. hairline (1.17:1) is too faint for a 13pt legend dot;
     /// this half-step (≈1.35:1) reads at dot size without shouting at cell size.
     static let restFill = Color("restFill", bundle: .main)
+}
+
+// MARK: - The palette, resolved for a bitmap
+
+/// For the badge pill, which is drawn to a bitmap and then shown inline
+/// inside a `Text`. `ImageRenderer` renders outside any view hierarchy, so
+/// the appearance has to be handed to it — and a SwiftUI environment can
+/// carry `colorScheme` but not `colorSchemeContrast`, a get-only key, while
+/// the palette has a separate Increased Contrast column. A trait collection
+/// carries both, so the resolve happens in UIKit: here, where the asset
+/// names already live, rather than at the call site.
+///
+/// The share card renders to a bitmap too and does not need this. It is a
+/// picture leaving the app, fixed in the light palette on purpose, so it
+/// has no appearance to follow.
+extension Theme {
+    static func badgePillColors(colorScheme: ColorScheme,
+                                contrast: ColorSchemeContrast) -> (text: Color, fill: Color) {
+        let traits = UITraitCollection(traitsFrom: [
+            UITraitCollection(userInterfaceStyle: colorScheme == .dark ? .dark : .light),
+            UITraitCollection(accessibilityContrast: contrast == .increased ? .high : .normal),
+        ])
+        return (resolved("accentText", traits), resolved("accentSoft", traits))
+    }
+
+    /// `resolvedColor`, not the `compatibleWith:` initializer: that one hands
+    /// back a colour that is still dynamic, and SwiftUI then resolves it a
+    /// second time in the renderer's own environment — which is how a dark
+    /// pill came out light. This flattens it to one value before SwiftUI ever
+    /// sees it.
+    ///
+    /// clear on a miss, not a plausible stand-in: `BrandPaletteTests` pins
+    /// every colorset, so a missing name is a red test — and an invisible
+    /// pill is a louder report than a pill in the wrong orange.
+    private static func resolved(_ name: String, _ traits: UITraitCollection) -> Color {
+        guard let named = UIColor(named: name, in: .main, compatibleWith: nil) else { return .clear }
+        return Color(uiColor: named.resolvedColor(with: traits))
+    }
 }
 
 // MARK: - Type that scales

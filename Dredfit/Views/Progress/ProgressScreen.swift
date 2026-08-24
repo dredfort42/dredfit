@@ -247,7 +247,15 @@ struct ProgressScreen: View {
               last > first else { return false }
         // The band is a fraction of the axis; the label is not — it grows
         // with Dynamic Type, so the width it needs has to grow with it.
-        let needed = typeSize.isAccessibilitySize ? 0.30 : 0.14
+        //
+        // Both fractions moved by a tenth with the label, 0.14 → 0.155 and
+        // 0.30 → 0.33, because they were measured against a 10 pt label and
+        // it is 11 pt now. The language that decides this is Italian: "14
+        // giorni" is 41.6 pt at 10 and 45.2 at 11, against the 42.4 pt that
+        // 0.14 of the plot buys on the narrowest screen. Left alone, the one
+        // band narrow enough to be interesting would have its label spill
+        // over the line it is explaining.
+        let needed = typeSize.isAccessibilitySize ? 0.33 : 0.155
         return band.to.timeIntervalSince(band.from) / last.timeIntervalSince(first) >= needed
     }
 
@@ -335,9 +343,26 @@ struct ProgressScreen: View {
             .foregroundStyle(Theme.hairline.opacity(0.55))
             .annotation(position: .overlay, alignment: .center) {
                 if labelFits(band, in: points) {
+                    // ink2, not ink3: this text sits ON a fill rather than on
+                    // the ground, and ink3 read 2.16:1 light / 2.57:1 dark
+                    // against it — under the 4.5:1 the wave that drew this
+                    // band set for itself, and under the 3.53:1 mockup that
+                    // same wave turned down. Same reasoning as the calendar's
+                    // rest digit, which is ink2 for exactly this reason. The
+                    // fill is hairline at 55 % over bg, so the ground is
+                    // #F5F5F6 light and #1B1D20 dark; ink2 gives 4.55 and
+                    // 5.94, and 5.99 / 6.54 in the two Increased Contrast
+                    // variants. 11, not 10: nothing else in the interface is
+                    // smaller than 11, and the calendar's weekday header —
+                    // the other 11 — is what this now matches.
+                    //
+                    // dredfitFont, unlike the axis labels below: an
+                    // annotation IS a View, and `labelFits` reserves a wider
+                    // band at accessibility sizes precisely because this
+                    // label grows.
                     Text("\(band.days) days")
-                        .dredfitFont(10)
-                        .foregroundStyle(Theme.ink3)
+                        .dredfitFont(11)
+                        .foregroundStyle(Theme.ink2)
                 }
             }
     }
@@ -438,6 +463,13 @@ struct ProgressScreen: View {
                         .foregroundStyle(Theme.ink2)
                         .frame(width: 44, alignment: .trailing)
                 }
+                // "Squat, 18" was a number with no scale: the bar carries the
+                // scale visually and carries nothing at all to VoiceOver. The
+                // element is this row only — the selected line below keeps its
+                // own label, and a label on the Button would swallow it.
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(Text(verbatim: p.displayName + ", ")
+                    + Text("level \(level) of \(EngineConfig.levelMax)"))
                 if selected {
                     // Verbatim: the pieces are either core-localized (the
                     // name) or language-neutral (the count).

@@ -21,11 +21,7 @@ struct FlowHeader: View {
     var body: some View {
         VStack(spacing: 10) {
             HStack {
-                // ink2, not ink3: ink3 (~2.4:1) fails contrast for
-                // interactive text.
-                Button(String(localized: "Exit"), action: onExit)
-                    .dredfitFont(14)
-                    .foregroundStyle(Theme.ink2)
+                exitButton(action: onExit)
                 Spacer()
                 Text(title)
                     .dredfitFont(13, weight: .semibold)
@@ -33,7 +29,9 @@ struct FlowHeader: View {
                     // ink2, not ink3: this is information, not decoration.
                     .foregroundStyle(Theme.ink2)
                 Spacer()
-                Button(String(localized: "Exit")) { }.dredfitFont(14).hidden() // symmetry
+                // Symmetry: the title is centred by two equal ends, so the
+                // right one has to measure the same — including the 44 pt.
+                exitButton(action: { }).hidden()
             }
             if steps > 0 {
                 HStack(spacing: 5) {
@@ -47,6 +45,21 @@ struct FlowHeader: View {
             }
         }
         .padding(.top, 12)
+    }
+
+    /// The way out of a workout in progress, and the hidden twin that keeps
+    /// the title centred. 44 pt: a bare 14 pt label is about 17, and this is
+    /// the control someone reaches for when a set has gone wrong.
+    private func exitButton(action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            // ink2, not ink3: ink3 (~2.4:1) fails contrast for
+            // interactive text.
+            Text("Exit")
+                .dredfitFont(14)
+                .foregroundStyle(Theme.ink2)
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
+        }
     }
 }
 
@@ -383,6 +396,12 @@ struct TechniqueButton: View {
             Label(String(localized: "technique"), systemImage: "info.circle")
                 .dredfitFont(14, weight: .medium)
                 .foregroundStyle(Theme.ink2)
+                // 44 pt, like the two escapes above — and for a harder
+                // reason. This one is offered on five screens, three of them
+                // mid-effort, where the hand that reaches for it is the hand
+                // that just did the set. The bare label came to about 17 pt.
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
         }
         // Without an identifier the button answers only to its English
         // label, and a localized run cannot open the sheet at all.

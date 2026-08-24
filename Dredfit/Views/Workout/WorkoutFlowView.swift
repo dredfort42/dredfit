@@ -356,6 +356,12 @@ struct WorkoutFlowView: View {
                     .foregroundStyle(Theme.ink2)
             }
             .padding(.top, 20)
+            // One element, like the rest ring below: two made VoiceOver read
+            // "8" and then "reps per side" as if they were separate facts, and
+            // the number alone is meaningless. Both halves are recomputed on
+            // every body pass, so the label follows a hold's countdown down.
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text(verbatim: "\(workNumber) ") + Text(verbatim: loadCaption))
 
             HStack(spacing: 10) {
                 ForEach(0..<exercise.sets, id: \.self) { i in

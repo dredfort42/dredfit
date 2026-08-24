@@ -1,5 +1,37 @@
 # Changelog
 
+## Unreleased
+
+Five app-layer fixes from the design re-review. The engine is untouched:
+`DredfitCore/` has no diff and `golden.json` is the same file.
+
+- **The break band says its length legibly.** The "N days" label on the grey
+  band of the Progress chart was ink3 on that fill — 2.16 : 1 in light,
+  2.57 in dark, against the 4.5 : 1 floor the wave that drew the band set
+  for itself. It is ink2 now: 4.55 and 5.94, and 5.99 / 6.54 in the two
+  Increased Contrast variants. It also went from 10 pt to 11, which was the
+  only text in the app below 11, so the width a band must have to carry a
+  label went up by the same tenth — otherwise the narrowest band's label
+  would lie across the line it explains.
+- **The badge pill follows the theme.** It is rendered to a bitmap, and the
+  bitmap was cached without the appearance in its key, so a pill drawn on a
+  light Today survived into dark mode. Both the key and the render now carry
+  the colour scheme and the contrast setting.
+- **Four controls that were smaller than a fingertip** — the flow's Exit and
+  its "technique" affordance, Today's per-movement handles, and the session
+  handles, whose code said 34 pt while its own comment promised 44 — are 44
+  pt of target. The flow's header grows about 26 pt for it and a plan row
+  about 29.5.
+- **A tap on a plan row stops rewriting the plan.** With every button in the
+  row default-styled, a List treats the row as one control: one tap on the
+  empty strip beside "Fewer sets" took a set off and the announced duration
+  went from 35 min to 33. A UI test holds it now. The calendar also stops
+  lending "day-N" to cells of the neighbouring month.
+- **VoiceOver gets the scale.** A Progress row read "Squat, 18" — a number
+  with nothing to measure it against, because the scale is drawn as a bar.
+  It reads "Squat, level 18 of 47". On the work screen the number and its
+  unit are one element, so "8 reps per side" arrives as one fact.
+
 ## 1.10.0
 
 The longest release in the project's history, and the one that changed the

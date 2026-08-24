@@ -110,6 +110,10 @@ struct TodayView: View {
     /// the movement would have after the tap. The engine lands it through the
     /// ordinary gate, so on `pull_bar` the drop from negatives to a hang is a
     /// change of unit and the preview is the only way to see that coming.
+    ///
+    /// All three carry 44 pt under a 12.5 pt line, and the row grows ~29 pt
+    /// for it — worth it, because the row around them is itself a button into
+    /// the technique sheet, so a near miss opens a sheet instead of missing.
     @ViewBuilder
     private func exerciseHandles(_ ex: SessionExercise) -> some View {
         let pattern = ex.pattern
@@ -123,7 +127,10 @@ struct TodayView: View {
                         .foregroundStyle(Theme.accent)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
+                        .frame(minHeight: 44)
+                        .contentShape(Rectangle())
                 }
+                .buttonStyle(.borderless)
                 .accessibilityIdentifier("easier-\(pattern.rawValue)")
             }
             Spacer(minLength: 0)
@@ -134,7 +141,10 @@ struct TodayView: View {
                     Text("Fewer sets")
                         .dredfitFont(12.5)
                         .foregroundStyle(Theme.accent)
+                        .frame(minHeight: 44)
+                        .contentShape(Rectangle())
                 }
+                .buttonStyle(.borderless)
                 .accessibilityIdentifier("fewer-sets-\(pattern.rawValue)")
             }
             if store.canGiveSetBack(pattern) {
@@ -144,7 +154,10 @@ struct TodayView: View {
                     Text("More sets")
                         .dredfitFont(12.5)
                         .foregroundStyle(Theme.ink2)
+                        .frame(minHeight: 44)
+                        .contentShape(Rectangle())
                 }
+                .buttonStyle(.borderless)
                 .accessibilityIdentifier("more-sets-\(pattern.rawValue)")
             }
         }
@@ -498,7 +511,10 @@ private extension TodayView {
         let length = store.sessionLengthPreview(within: shortVersion ? shortPlan : nil)
         let shortMin = shortPlan.map { ShortWorkout.estimatedMin(session: session, plan: $0) } ?? 0
         let total = session.exercises.count
-        VStack(alignment: .leading, spacing: 5) {
+        // 0, not the 5 it was: each line is a 44 pt box now and the boxes
+        // hold the pair apart on their own — the old gap on top of them read
+        // as two unrelated sentences.
+        VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 16) {
                 if let shorter = length.shorter {
                     handle(accented: true, identifier: "session-shorter",
@@ -537,6 +553,17 @@ private extension TodayView {
         }
     }
 
+    /// `.plain`, and the handles below `.borderless`, because a List row with
+    /// several default-styled buttons in it is one button as far as the row is
+    /// concerned: measured, a single tap on the empty strip beside "Fewer
+    /// sets" took a set off the plan — 35 min became 33 and the handle
+    /// vanished under the finger. Neither style changes how anything looks.
+    ///
+    /// `contentShape` is the other half of that fix, not decoration: a
+    /// `.plain` button answers only where it DRAWS, and this row draws a name
+    /// on the left and a load on the right with a wide gap between. Without
+    /// the shape a tap into the gap reached nothing — a different bug, no
+    /// better. The card is the target; the handles under it are their own.
     private func planRow(_ ex: SessionExercise, debuts: Set<Pattern>) -> some View {
         Button {
             techniqueFor = ex
@@ -545,12 +572,15 @@ private extension TodayView {
                         badge: debuts.contains(ex.pattern)
                             ? String(localized: "new variation") : nil,
                         note: ExerciseRow.note(store.setsNote(for: ex)))
+                .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
     }
 
     /// One look for all four: 13pt medium, accent for the direction that
     /// makes today lighter and ink2 for the way back, and a 44pt target
-    /// under a 16pt line of text.
+    /// under a 16pt line of text — the number named here all along, which the
+    /// frame said 34 for.
     private func handle<Label: View>(accented: Bool,
                                      identifier: String,
                                      hint: String?,
@@ -561,7 +591,7 @@ private extension TodayView {
                 .dredfitFont(13, weight: .medium)
                 .foregroundStyle(accented ? Theme.accent : Theme.ink2)
                 .fixedSize(horizontal: false, vertical: true)
-                .frame(minHeight: 34)
+                .frame(minHeight: 44)
                 .contentShape(Rectangle())
         }
         .accessibilityIdentifier(identifier)
