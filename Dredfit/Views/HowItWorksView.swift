@@ -80,15 +80,21 @@ struct HowItWorksView: View {
                     A skipped exercise simply doesn't count: its level stays \
                     where it was. No penalty, no rollback.
                     """)),
+            // v2.26 (spec §37.0): this section used to explain the pain
+            // channel — a tap that rested a movement for three appearances.
+            // The channel is gone, and the case it served is answered by the
+            // two handles instead. The stop rule stays: what was removed is a
+            // state machine, not the warning.
             Section(id: 8,
-                    title: String(localized: "Something hurt"),
+                    title: String(localized: "Too much today"),
                     body: String(localized: """
                     Muscles giving out and a joint hurting are different \
-                    things, so they get different answers. Tap “Something \
-                    hurt” during a workout and that movement rests: it keeps \
-                    its place in the plan at the same level and stops getting \
-                    harder for the next three times it comes round. Sharp \
-                    pain is always a reason to stop.
+                    things, and the app does not ask which. When a movement \
+                    is too much today, you answer with the plan and not with \
+                    a diagnosis: take the same movement in an easier \
+                    variation, or take one set off. Either one redraws the \
+                    plan in front of you and leaves the other movements \
+                    alone. Sharp pain is always a reason to stop.
                     """)),
             // v2.22 (spec §33): this section used to explain the
             // hold-this-level input. The input is cancelled — it was used zero

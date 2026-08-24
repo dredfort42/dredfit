@@ -8765,42 +8765,42 @@
         }
       }
     },
-    "Muscles giving out and a joint hurting are different things, so they get different answers. Tap “Something hurt” during a workout and that movement rests: it keeps its place in the plan at the same level and stops getting harder for the next three times it comes round. Sharp pain is always a reason to stop." : {
+    "Muscles giving out and a joint hurting are different things, and the app does not ask which. When a movement is too much today, you answer with the plan and not with a diagnosis: take the same movement in an easier variation, or take one set off. Either one redraws the plan in front of you and leaves the other movements alone. Sharp pain is always a reason to stop." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wenn die Muskeln aufgeben, ist das etwas anderes, als wenn ein Gelenk wehtut – also fällt die Antwort anders aus. Tippe im Training auf „Etwas tat weh“, und diese Bewegung ruht: Sie bleibt im Plan auf demselben Level und wird die nächsten drei Male, die sie an der Reihe ist, nicht schwerer. Scharfer Schmerz heißt immer aufhören."
+            "value" : "Wenn die Muskeln aufgeben, ist das etwas anderes, als wenn ein Gelenk wehtut – und die App fragt nicht, was davon. Ist eine Bewegung heute zu viel, antwortest du mit dem Plan und nicht mit einer Diagnose: dieselbe Bewegung in einer leichteren Variante, oder ein Satz weniger. Beides zeichnet den Plan vor dir neu und lässt die anderen Bewegungen in Ruhe. Scharfer Schmerz heißt immer aufhören."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Que los músculos se agoten y que duela una articulación son cosas distintas, y por eso la respuesta es distinta. Toca «Algo me dolió» durante el entrenamiento y ese movimiento descansa: sigue en el plan en el mismo nivel y deja de ponerse más difícil las tres próximas veces que le toque. Un dolor agudo siempre significa parar."
+            "value" : "Que los músculos se agoten y que duela una articulación son cosas distintas, y la app no pregunta cuál de las dos es. Si hoy un movimiento es demasiado, respondes con el plan y no con un diagnóstico: el mismo movimiento en una variación más fácil, o una serie menos. Cualquiera de las dos redibuja el plan que tienes delante y deja en paz al resto de los movimientos. Un dolor agudo siempre significa parar."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Des muscles qui lâchent et une articulation qui fait mal, ce n’est pas la même chose : la réponse non plus. Touche « Ça a fait mal » pendant la séance et ce mouvement se repose : il garde sa place au programme, au même niveau, et cesse de devenir plus difficile les trois prochaines fois où il revient. Une douleur vive, c’est toujours un arrêt."
+            "value" : "Des muscles qui lâchent et une articulation qui fait mal, ce n’est pas la même chose — et l’app ne demande pas laquelle. Si un mouvement est trop dur aujourd’hui, tu réponds par le programme et non par un diagnostic : le même mouvement dans une variante plus légère, ou une série de moins. L’un comme l’autre redessine le programme sous tes yeux et laisse les autres mouvements tranquilles. Une douleur vive, c’est toujours un arrêt."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Muscoli che cedono e un’articolazione che fa male sono cose diverse, e la risposta è diversa. Tocca “Ha fatto male” durante l’allenamento e quel movimento riposa: resta nel piano allo stesso livello e nelle tre volte successive in cui torna non diventa più difficile. Un dolore acuto è sempre un motivo per fermarsi."
+            "value" : "Muscoli che cedono e un’articolazione che fa male sono cose diverse, e l’app non chiede quale delle due sia. Se oggi un movimento è troppo, rispondi con il piano e non con una diagnosi: lo stesso movimento in una variante più leggera, oppure una serie in meno. Entrambe ridisegnano il piano che hai davanti e lasciano in pace gli altri movimenti. Un dolore acuto è sempre un motivo per fermarsi."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Músculo que falha e articulação que dói são coisas diferentes, então a resposta é diferente. Toque em “Algo doeu” durante o treino e esse movimento descansa: continua no plano no mesmo nível e para de ficar mais difícil nas três próximas vezes em que aparecer. Dor aguda sempre significa parar."
+            "value" : "Músculo que falha e articulação que dói são coisas diferentes, e o app não pergunta qual das duas é. Se um movimento está demais hoje, você responde com o plano e não com um diagnóstico: o mesmo movimento em uma variação mais leve, ou uma série menos. Qualquer uma delas redesenha o plano na sua frente e deixa os outros movimentos em paz. Dor aguda sempre significa parar."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Мышцы кончились и болит сустав — разные вещи, и ответ на них разный. Нажми «Здесь болело» во время тренировки, и это движение отдыхает: остается в плане на том же уровне и не становится тяжелее ближайшие три раза, когда выпадет. Острая боль — всегда повод остановиться."
+            "value" : "Мышцы кончились и болит сустав — разные вещи, и приложение не спрашивает, что именно. Если движение сегодня непосильно, ты отвечаешь планом, а не диагнозом: то же движение в вариации полегче или на один подход меньше. И то и другое перерисовывает план у тебя на экране и не трогает остальные движения. Острая боль — всегда повод остановиться."
           }
         }
       }
@@ -12720,46 +12720,6 @@
         }
       }
     },
-    "Something hurt" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Etwas tat weh"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Algo me dolió"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ça a fait mal"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ha fatto male"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Algo doeu"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Здесь болело"
-          }
-        }
-      }
-    },
     "Sounds and haptics" : {
       "localizations" : {
         "de" : {
@@ -14032,6 +13992,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "завтра"
+          }
+        }
+      }
+    },
+    "Too much today" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heute zu viel"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoy es demasiado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trop pour aujourd’hui"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oggi è troppo"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoje é demais"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сегодня многовато"
           }
         }
       }
