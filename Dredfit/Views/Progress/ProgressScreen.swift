@@ -335,9 +335,23 @@ struct ProgressScreen: View {
             .foregroundStyle(Theme.hairline.opacity(0.55))
             .annotation(position: .overlay, alignment: .center) {
                 if labelFits(band, in: points) {
+                    // ink2, not ink3: this is the only text in the app drawn
+                    // ON a fill, and ink3 read 2.16:1 light / 2.57:1 dark on
+                    // it — under the 4.5:1 the wave's own acceptance set. The
+                    // fill is hairline at 55 % over bg, so the ground is
+                    // #F5F5F6 light and #1B1D20 dark; ink2 gives 4.55 and
+                    // 5.94, and 5.99 / 6.54 in the two Increased Contrast
+                    // variants. 11, not 10: nothing else in the interface is
+                    // smaller than 11, and the calendar's weekday header —
+                    // the other 11 — is what this now matches.
+                    //
+                    // dredfitFont, unlike the axis labels below: an
+                    // annotation IS a View, and `labelFits` reserves a wider
+                    // band at accessibility sizes precisely because this
+                    // label grows.
                     Text("\(band.days) days")
-                        .dredfitFont(10)
-                        .foregroundStyle(Theme.ink3)
+                        .dredfitFont(11)
+                        .foregroundStyle(Theme.ink2)
                 }
             }
     }
