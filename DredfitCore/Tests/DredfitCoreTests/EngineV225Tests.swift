@@ -117,9 +117,10 @@ final class EngineV225Tests: XCTestCase {
     /// The invariant holds against the last plan the person actually SAW, so
     /// the sweep records the showing with `recordShown` — the very call says
     /// closes the gap — before taking each way down.
-    func testNoWayDownEverAddsLoad() {
-        var compared = 0, crossed = 0
-        let ways: [(String, (EngineState) -> EngineState)] = [
+    /// Every way DOWN the engine has. Its own property because the list
+    /// grows with each wave while the invariant below does not.
+    private var waysDown: [(String, (EngineState) -> EngineState)] {
+        [
             ("silent decay", { Engine.applySilentDecay(state: $0, gapDays: 8) }),
             ("comeback 14", { Engine.applyComeback(state: $0, gapDays: 14, alreadyDecayed: false) }),
             ("comeback 90", { Engine.applyComeback(state: $0, gapDays: 90, alreadyDecayed: false) }),
@@ -165,10 +166,14 @@ final class EngineV225Tests: XCTestCase {
                                             overrides: overrides)
             }),
         ]
+    }
+
+    func testNoWayDownEverAddsLoad() {
+        var compared = 0, crossed = 0
         // The budget axis is gone with the budget. The sweep is NOT narrowed
         // to compensate — the whole level scale replaces the thirteen sampled
         // rungs, and the cut axis reaches its deepest admissible step.
-        for (name, step) in ways {
+        for (name, step) in waysDown {
             do {
                 for level in 0...EngineConfig.levelMax {
                     for cut in [0, 1, 2, 3] {
