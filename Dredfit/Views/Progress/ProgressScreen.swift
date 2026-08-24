@@ -247,7 +247,15 @@ struct ProgressScreen: View {
               last > first else { return false }
         // The band is a fraction of the axis; the label is not — it grows
         // with Dynamic Type, so the width it needs has to grow with it.
-        let needed = typeSize.isAccessibilitySize ? 0.30 : 0.14
+        //
+        // Both fractions moved by a tenth with the label, 0.14 → 0.155 and
+        // 0.30 → 0.33, because they were measured against a 10 pt label and
+        // it is 11 pt now. The language that decides this is Italian: "14
+        // giorni" is 41.6 pt at 10 and 45.2 at 11, against the 42.4 pt that
+        // 0.14 of the plot buys on the narrowest screen. Left alone, the one
+        // band narrow enough to be interesting would have its label spill
+        // over the line it is explaining.
+        let needed = typeSize.isAccessibilitySize ? 0.33 : 0.155
         return band.to.timeIntervalSince(band.from) / last.timeIntervalSince(first) >= needed
     }
 
