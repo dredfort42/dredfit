@@ -416,7 +416,11 @@ struct WorkoutFlowView: View {
 
             ExerciseActionsRow(onAdjust: { startAdjusting() },
                                onSkip: { leaveExercise() })
-            .padding(.vertical, 14)
+            // 18 above, not 14: the row sits directly under the button that
+            // LOGS THE SET, and the gap is the only thing between a thumb
+            // aimed at "Went differently" and a set finished at plan.
+            .padding(.top, 18)
+            .padding(.bottom, 10)
             // no adjusting/skipping mid-hold or mid-pause
             .opacity(holding || holdSwitchPausing ? 0 : 1)
             .disabled(holding || holdSwitchPausing)
