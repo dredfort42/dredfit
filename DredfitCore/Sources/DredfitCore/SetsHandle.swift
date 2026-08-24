@@ -38,7 +38,7 @@ extension Level {
 
     /// The cut actually in force: garbage and negatives read as none, anything
     /// past the path's own ceiling clamps to it.
-    public static func effCut(level: Int, cut: Int, floor: Int) -> Int {
+    static func effCut(level: Int, cut: Int, floor: Int) -> Int {
         min(max(cut, 0), cutMax(level: level, floor: floor))
     }
 
@@ -46,7 +46,7 @@ extension Level {
     /// budget. The floor here is the PAIN one: a state may legitimately carry
     /// the pain channel's landing of a single set, and nothing downstream is
     /// allowed to raise it back.
-    public static func setsAfterCut(level: Int, cut: Int) -> Int {
+    static func setsAfterCut(level: Int, cut: Int) -> Int {
         decode(level).sets - effCut(level: level, cut: cut,
                                     floor: EngineConfig.setsFloor)
     }
@@ -100,7 +100,7 @@ extension Level {
     /// is ×1.500 median and ×2.00 worst), and §32 rejected a +50 % dose step
     /// as a breach of "do no harm", citing ACSM 2009's "a 2–10 % increase in
     /// load".
-    public static func riseBy(level: Int, sub: Int, cut: Int, by count: Int,
+    static func riseBy(level: Int, sub: Int, cut: Int, by count: Int,
                               allowSetsBack: Bool) -> Position {
         var c = effCut(level: level, cut: cut, floor: EngineConfig.setsFloor)
         var k = max(0, count)
@@ -120,7 +120,7 @@ extension Level {
     /// out, and the step down becomes a set taken off. The bottom is `floor`
     /// sets; below that a descent has to change the variation, and that is the
     /// one place where a measure across the boundary stops being valid (§30.4).
-    public static func fallBy(level: Int, sub: Int, cut: Int, by count: Int,
+    static func fallBy(level: Int, sub: Int, cut: Int, by count: Int,
                               floor: Int) -> Position {
         // v2.25 (Ф5): the same invariant on entry and at every step — a
         // sub-step can never ask for more sets than the cut leaves.
@@ -157,7 +157,7 @@ extension Level {
     /// incommensurable (§30.4), but "how many seconds the muscle works" is
     /// defined for both: a rep costs `tempoSecPerRep` seconds, a second of a
     /// hold costs a second.
-    public static func timeUnderLoad(pattern: Pattern, level: Int, sub: Int, cut: Int) -> Double {
+    static func timeUnderLoad(pattern: Pattern, level: Int, sub: Int, cut: Int) -> Double {
         let w = work(pattern: pattern, level: level, sub: sub, cut: cut)
         return w.unit == .reps
             ? Double(w.total) * EngineConfig.tempoSecPerRep
@@ -183,7 +183,7 @@ extension Level {
     /// a break in the UNIT is a defect of the LADDER and is fixed in the
     /// library, the way v2.18 (§29) fixed the pike → handstand gap. Until then
     /// safety outranks a kept level.
-    public static func landOnUnitChange(pattern: Pattern, fromLevel: Int, fromSub: Int,
+    static func landOnUnitChange(pattern: Pattern, fromLevel: Int, fromSub: Int,
                                         fromCut: Int, toTier: Int) -> Int {
         let budget = timeUnderLoad(pattern: pattern, level: fromLevel,
                                    sub: fromSub, cut: fromCut)
@@ -213,7 +213,7 @@ extension Level {
     /// non-empty cut the measure is negative, and without the floor the step
     /// would be counted from a position that does not exist — that is, sets
     /// would be handed back for free.
-    public static func riseSteps(toFact factLevel: Int, from ordinal: Int, cap: Int) -> Int {
+    static func riseSteps(toFact factLevel: Int, from ordinal: Int, cap: Int) -> Int {
         let base = max(0, ordinal)
         return max(0, min(Level.ordinal(level: factLevel, sub: 0), base + cap) - base)
     }

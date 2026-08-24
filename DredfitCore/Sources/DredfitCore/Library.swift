@@ -23,7 +23,7 @@ public struct ExerciseEntry: Equatable, Sendable {
     public let variations: [ExerciseVariation]  // index = tier − 1
     // Per-tier unit override (pullBar: hold at tier 1, reps above).
     // nil means the scalar `unit` applies to every tier.
-    public var units: [LoadUnit]?
+    var units: [LoadUnit]?
 
     /// The unit of the (pattern, tier) record — the load encoding,
     /// levelFromActual and display all resolve the unit through this.
