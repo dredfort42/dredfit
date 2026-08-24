@@ -63,7 +63,7 @@ extension AppStore {
     /// Past days come from the journal, not `isDone(on:)`, which only ever
     /// knows about the latest record. A missed training day stays *unmarked*
     /// — the Calendar leaves those unshamed and the widget follows.
-    private func widgetStatus(of day: Date, today: Date) -> WidgetSnapshot.Day.Status {
+    private func widgetStatus(of day: Date, today: Date) -> WidgetSnapshot.DayStatus {
         if record(on: day) != nil { return .done }
         if isRestDay(day) { return .rest }
         return day < today ? .unmarked : .workout

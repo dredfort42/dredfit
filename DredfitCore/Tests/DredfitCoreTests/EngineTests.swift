@@ -226,7 +226,7 @@ final class EngineTests: XCTestCase {
             //   • the deload rolls `deloadDrop` levels back FROM `oldL` under
             //     the gate (it was −1 level and then −3 from there, which is
             //     where the old "rolled back 4" came from).
-            if drops % EngineConfig.failsToDeload == 0 {
+            if drops.isMultiple(of: EngineConfig.failsToDeload) {
                 assertPosition(state, probe, expectedDeload(probe, from: entry),
                                "deload on the 3rd underperformance")
                 XCTAssertTrue(Level.noHarder(pattern: probe, from: entry.level,
@@ -424,7 +424,7 @@ final class EngineTests: XCTestCase {
             XCTAssertEqual(Set(pats).count, pats.count, "duplicate pattern in session \(k)")
             let hasPull = pats.contains(.pull), hasBar = pats.contains(.pullBar)
             XCTAssertNotEqual(hasPull, hasBar, "session \(k): exactly one pull slot")
-            XCTAssertEqual(state.counter % 2 == 0, hasPull,
+            XCTAssertEqual(state.counter.isMultiple(of: 2), hasPull,
                            "session \(k): even counter → pull, odd → pullBar")
             // pullBar inherits pull's position in the canonical order
             let indices = pats.map { Pattern.ordered.firstIndex(of: $0 == .pullBar ? .pull : $0)! }

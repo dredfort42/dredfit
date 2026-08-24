@@ -264,7 +264,7 @@ final class EngineV221Tests: XCTestCase {
                 Level.fromActual(pattern: cell.pattern, tier: cell.plan.tier,
                                  sets: cell.plan.sets, actual: actual)
             }
-            if gap % 2 == 0 {
+            if gap.isMultiple(of: 2) {
                 XCTAssertEqual(inverted(rungs[here] + gap / 2), cell.level,
                                "\(cell.pattern) L\(cell.level): dead centre must settle down")
             }

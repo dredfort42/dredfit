@@ -28,7 +28,7 @@ enum MilestoneDetector {
 
     /// Jubilees: 10, 25, then every 50 (50, 100, 150, …).
     static func isJubilee(_ counter: Int) -> Bool {
-        counter == 10 || counter == 25 || (counter > 0 && counter % 50 == 0)
+        counter == 10 || counter == 25 || (counter > 0 && counter.isMultiple(of: 50))
     }
 
     /// Skipped patterns are excluded explicitly, so this stays true even if
