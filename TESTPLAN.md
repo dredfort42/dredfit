@@ -1,6 +1,6 @@
 # Dredfit — manual QA checklist
 
-Automated coverage (717 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
+Automated coverage (653 tests: core invariants, golden parity, app units, UI flow) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
 
 **How to use.** Run the *Release smoke* block before every release. Run *Full pass* when the engine, persistence or an integration changed. Device-only rows cannot pass on a simulator and are marked ⌚. Record anything that fails in the [Issue registry](#issue-registry) at the bottom rather than fixing it silently.
 
@@ -31,14 +31,14 @@ about pixels, not about strings. Walk those on a device before submitting.
 
 | # | Check | Expected |
 |---|---|---|
-| S1 | Cold start on a fresh install | Opens on **Today** with "Workout 1", ≈33 min, 6 exercises, a **Start** button with the short-version offer under it |
+| S1 | Cold start on a fresh install | Opens on **Today** with "Workout 1", **≈34 min**, 6 exercises, a **Start** button with the short-version offer under it, and the handles on the movement rows. The minute is engine arithmetic, not decoration: read it from the reference when it moves, never off the screen |
 | S2 | Full workout: Start → warm-up (opens on its "Get ready" transition) → 6 exercises → cool-down → rating | Rating screen appears; tapping an option returns to Today in the done state |
 | S3 | Today after completion | Checkmark, "Workout 1 completed", a rating caption, and a **Next** card (no Start button) |
 | S4 | Relaunch the app | Still in the done state — the record survived the restart |
 | S5 | Calendar tab | Today is filled and tappable; the history sheet lists what was done |
 | S6 | Progress tab | Total level > 0, one chart point, per-pattern bars drawn |
 | S7 | Switch to Russian and repeat S1–S3 | No English leaks, no clipped labels |
-| S8 | **Something hurt** on an exercise, then finish the workout | The exercise ends like a skip; the rating lists it under **DISCOMFORT**; the calendar's history row reads "hurt", not "skipped" |
+| S8 | Skip three exercises, **answer** the fourth with a number, then finish the workout | The answered exercise reaches the journal as **work**, not as a fourth skip, and the history row prints the number. Re-marked for engine v2.26 (spec §37.0): the row was **Something hurt** and asserted the word "hurt" in the history — the pain channel is gone, and what replaced it as the honest channel is the number |
 | S9 | An exercise the plan shows mid-step, e.g. "9-8-8" on Today | The workout screen asks 9 on the first set and 8 on the rest, and its caption names the number of the set in front of you; the history row prints the same "9-8-8". Re-marked for engine v2.22 (spec §33): the row was **Hold this level**, and that input is cancelled — the case it served is what the sub-step now handles by itself |
 
 ---
@@ -301,7 +301,7 @@ on a page that does — see I-11.
 | 17.3 | Relaunch | The onboarding does **not** come back |
 | 17.4 | Reinstall, tap **Skip** on card 1 | Lands on Today; a relaunch does not show it again |
 | 17.5 | Install over existing history (upgrade from 1.3) | No onboarding — it is for a genuinely fresh install only |
-| 17.6 | Settings → first row → **How it works** | **Eight** numbered sections under "Eight things worth knowing about the regulator."; the numbers agree with the engine (±1/+2, three shortfalls → −3, five of eight rotations) |
+| 17.6 | Settings → first row → **How it works** | **Eleven** numbered sections under "Eleven things worth knowing about the regulator."; the count in the subtitle matches the sections below it — a stale count here has shipped twice (I-7, I-13) — and the numbers agree with the engine (±1/+2, three shortfalls → −3, five of eight rotations) |
 | 17.7 | Same screen in Russian | Fully translated, no English left, no `ё` |
 
 ### 18. Milestones (1.4)
@@ -558,6 +558,8 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 
 ### 36. Discomfort and the growth ceiling (engine v2.5, issues #38 / #64–#67)
 
+> **Rows 36.1–36.13 and 36.17–36.20 are void from v2.26** — everything about the discomfort input: the action, its rating row, the resting block on Today, its VoiceOver, its seven-language strings, its state field, and the section count on "How it works". **What still stands is the growth ceiling — 36.14–36.16** — which was the other half of the #38 wave and is untouched. Voided rows are kept as the history of what the app used to promise; a green result on one of them means the mechanism came back. See §44.
+
 | # | Check | Expected |
 |---|---|---|
 | 36.1 | **Something hurt** on the exercise screen | Its own line under **Went differently** / **Skip exercise**, visually distinct from both. One tap, no confirmation dialog — the exercise ends and the flow moves to the next one, exactly as a skip does |
@@ -585,6 +587,8 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 
 ### 37. The two-step pain unload (engine v2.19, spec §30.6, issue #124)
 
+> **This whole section is void from v2.26:** the pain channel was removed. Kept as the history of what the app used to promise; a green row here would mean the mechanism came back. See §44.
+
 Reporting pain now **takes load off** instead of only freezing the movement. Two reports, two steps; the third and later ones only lengthen the rest.
 
 | # | Check | Expected |
@@ -599,6 +603,8 @@ Reporting pain now **takes load off** instead of only freezing the movement. Two
 | 37.8 | "Tough" or a low number on a resting movement | Still steps the level down — honesty is never overridden by the rest |
 
 ### 38. Closing a pain episode without numbers (engine v2.20, spec §31, issue #124)
+
+> **This whole section is void from v2.26:** there is no episode to close. See §44.
 
 The fast path (type a number) is unchanged. The new one is for people who never type numbers.
 
@@ -652,6 +658,8 @@ Growth used to move a whole level at a time. Now it adds one set's worth first, 
 
 ### 42. The 45-minute default and calendar days (v2.24, spec §35, issues #136, #147)
 
+> **Rows 42.1–42.3 are void from v2.26** — there is no session length in Settings and no default to explain. The calendar-day rows below them stand. See §44.
+
 | # | Check | Expected |
 |---|---|---|
 | 42.1 | **Session length** in Settings | Four rungs — 20 min, 35 min, 45 min, No limit — with **45 min** selected on a fresh install |
@@ -667,6 +675,8 @@ Growth used to move a whole level at a time. Now it adds one set's worth first, 
 | 42.11 | The autumn and spring clock-change days | The 25-hour and 23-hour days both count as one day |
 
 ### 43. The sets handle (engine v2.25, spec §36, issues #149, #150, #151)
+
+> **Rows 43.1–43.7 and 43.12 are void from v2.26** — the pain depth ladder, the illness lens and the 35-minute rung. 43.8–43.11 stand and are the load-bearing half of this section. See §44.
 
 The engine gained a way to say *the same exercise, but less of it*. Until v2.25
 the only way down was the level, which also picks the variation and the dose, so
@@ -690,6 +700,45 @@ session (all 48 levels locked forever), and "I was ill" (40).
 | 43.10 | A save file written by 1.9 or earlier (no `cut`, no `painSeen`, no `setsHold`) | Opens, and the plan is **bit-for-bit** what v2.24 built. Every new field is sparse — a zero is never stored — and all of them survive a break |
 | 43.11 | Open the app, look at the plan, **do not train**, come back a week later | The new plan is not heavier than the one you saw. v2.25 records the plan when it reaches your eyes, not only when you finish a workout |
 | 43.12 | The **35-minute** rung with every movement on the floor | Known: 27 of 768 cells run up to 2.5 minutes over. 45 fits everywhere without a caveat |
+
+### 44. The handles, and what the app stopped asking (engine v2.26, spec §37, issues #184, #99)
+
+A wave of removal. The pain channel and the time budget are gone, and two handles
+take their place — on the **plan**, not inside the workout, so pressing one
+redraws the plan and the announced duration together. Level 0 becomes a declared
+floor rather than a hole: three sets of eight in the gentlest variation of six
+movements, about 34 minutes, and about 25 minutes at the shortest the app can
+build at all. Nothing below it exists.
+
+**Rows this wave voids, so nobody walks them looking for a button that is gone.**
+§36.1–§36.13 and §36.17–§36.20 (everything about the discomfort input; the growth
+ceiling of §36.14–§36.16 stands), §37 and §38 entirely (the two-step unload and
+closing an episode), §42.1–§42.3 (Session length in Settings and its one-off notice), and
+§43.1–§43.7 plus §43.12 (the pain depth ladder, the illness lens, the 35-minute
+rung). They stay in the file as the history of what the app used to promise —
+a row silently deleted is a row nobody can check was deliberate — but a red
+result on any of them means the mechanism came back, not that the app is broken.
+What survives from §43 is §43.8 (a descent is never heavier), §43.9 (a unit
+change lands by time under load), §43.10 (an old save file opens unchanged) and
+§43.11 (the plan is remembered when it reaches your eyes).
+
+| # | Check | Expected |
+|---|---|---|
+| 44.1 | The plan on Today, any level above the floor | Each movement row carries **"Easier"** and **"Fewer"**; a movement with a set already off also carries **"More"**. Under the duration sits **"Shorter today · 37 → 26 min"** — both numbers, before you agree to either |
+| 44.2 | Tap **Easier** on a movement | The **name and the dose of what you will get** are on the button before you press it, and after the tap the movement is in a genuinely different variation — never the same exercise with smaller numbers. The announced duration redraws in the same beat |
+| 44.3 | Tap **Fewer** down as far as it goes | Stops at **two sets**. There is no third tap and no disabled-looking button that does nothing — when the floor is reached the control is gone |
+| 44.4 | Tap **Shorter today**, then **Full workout** | Shorter only ever shortens; Full restores every set on every movement and then disappears, because with nothing cut there is nothing to restore |
+| 44.5 | A movement at level 0 with two sets | Both handles are **absent**, and the weak-link prompt stays silent. This is §37.1 from the app's side: at the declared bottom there is nothing to offer, and a button that cannot work is worse than no button |
+| 44.6 | Level 0, answer **"tough"** many workouts running | The plan does not move — for **124 appearances** if you keep going. Known, accepted and named: below the declared floor there is nowhere to descend. What the app must not do is pretend otherwise |
+| 44.7 | Start a workout | The **warm-up asks first** — "6 positions · about 5 min", with start and skip — instead of dropping you into a countdown. Same for the cool-down after the last exercise |
+| 44.8 | The run-in before each guided position | **Ten seconds**, and **fifteen** where the position means walking to a wall or getting down onto the floor. Time the worst warm-up and the worst cool-down: neither block may exceed the 9:00 the plan reserves for the two of them |
+| 44.9 | **Went differently** with a number **below** the plan on set 1 of 3 | Carries forward: 8/8/8 for a planned 9. A number **above** the plan stays on its own set — 40 on set 1 of a planned 39 reads 40/39/39, not 40/40/40 |
+| 44.10 | Enter a number above the plan | One soft note per exercise — "do the plan, save your maximum for the last set" — which does not block the entry and does not promise the engine will do anything with the order. It will not: 12-8-8 and 8-8-12 reach the engine as the same number |
+| 44.11 | Settings | **No session length row.** Nothing offers 15, 20, 35 or 45 minutes, and nothing explains a default that no longer exists |
+| 44.12 | Anywhere in the workout or on the rating screen | **No "Something hurt"**, no discomfort section, no "I was ill" offer, no "see a specialist" line. The warning that sharp pain means stop **remains** — in the care note and on "How it works". What was removed is a state machine, not the warning |
+| 44.13 | A save file written before this wave, carrying a pain episode and a chosen session length | Opens, and the plan is what the current engine builds — the removed fields decode away silently. The **journal keeps showing the pain reports it recorded**: a record that loses a fact is a record that lies about the past |
+| 44.14 | "How it works", section 8 | Titled **"Too much today"**, and it describes the two handles. If it still says "Something hurt", the screen is older than the app |
+| 44.15 | The announced duration of workout 1 on a fresh install | **≈ 34 min** — one minute more than v2.25, which is the longer run-in of §44.8 and the only number this wave moved on purpose. Drift here blocks a release: it is the engine's own arithmetic, read from the reference, not copied off the screen |
 
 ---
 
