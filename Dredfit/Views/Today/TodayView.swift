@@ -132,6 +132,7 @@ struct TodayView: View {
                         .frame(minHeight: 44)
                         .contentShape(Rectangle())
                 }
+                .buttonStyle(.borderless)
                 .accessibilityIdentifier("easier-\(pattern.rawValue)")
             }
             Spacer(minLength: 0)
@@ -145,6 +146,7 @@ struct TodayView: View {
                         .frame(minHeight: 44)
                         .contentShape(Rectangle())
                 }
+                .buttonStyle(.borderless)
                 .accessibilityIdentifier("fewer-sets-\(pattern.rawValue)")
             }
             if store.canGiveSetBack(pattern) {
@@ -157,6 +159,7 @@ struct TodayView: View {
                         .frame(minHeight: 44)
                         .contentShape(Rectangle())
                 }
+                .buttonStyle(.borderless)
                 .accessibilityIdentifier("more-sets-\(pattern.rawValue)")
             }
         }
@@ -552,6 +555,12 @@ private extension TodayView {
         }
     }
 
+    /// `.plain`, and the handles below are `.borderless`, because a List row
+    /// with several default-styled buttons in it is one button as far as the
+    /// row is concerned: measured on the simulator, a single tap on the empty
+    /// strip beside "Fewer sets" took a set off the plan — 35 min became 33
+    /// and the handle vanished under the finger. Neither style changes how
+    /// anything looks; both views paint their own colours.
     private func planRow(_ ex: SessionExercise, debuts: Set<Pattern>) -> some View {
         Button {
             techniqueFor = ex
@@ -561,6 +570,7 @@ private extension TodayView {
                             ? String(localized: "new variation") : nil,
                         note: ExerciseRow.note(store.setsNote(for: ex)))
         }
+        .buttonStyle(.plain)
     }
 
     /// One look for all four: 13pt medium, accent for the direction that
