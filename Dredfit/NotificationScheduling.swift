@@ -1,7 +1,4 @@
 //
-//  NotificationScheduling.swift
-//  Dredfit
-//
 //  The reminder seam, lifted out of AppStore.swift: it is UserNotifications
 //  and nothing else, and the store's own file has a lint ceiling to stay
 //  under. Unit tests substitute a spy for the protocol.

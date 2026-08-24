@@ -1,7 +1,4 @@
 //
-//  Cooldown.swift
-//  Dredfit
-//
 //  Six positions × 30 s, materialising the 3 minutes `cooldownMin` has
 //  reserved since 1.0 — so no estimate anywhere changes. Composition is
 //  deterministic from what was actually performed.
@@ -176,7 +173,7 @@ enum Cooldown {
                          ])
     }
 
-    /// The movement → position mapping (spec §4).
+    /// The movement → position mapping.
     private static func position(for pattern: Pattern) -> CooldownPosition {
         switch pattern {
         case .squat, .hinge:            return forwardFold

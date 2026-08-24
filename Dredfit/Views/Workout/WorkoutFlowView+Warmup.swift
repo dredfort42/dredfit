@@ -1,7 +1,4 @@
 //
-//  WorkoutFlowView+Warmup.swift
-//  Dredfit
-//
 //  The warm-up block of the workout flow, split out of WorkoutFlowView the
 //  way the cool-down already was — one file per guided block, and this one
 //  stays clear of the lint's ceiling. The code moved unchanged.
@@ -15,8 +12,7 @@ import DredfitCore
 // A same-file extension so the view struct stays within the linter's size for
 // a type body. @State storage stays in the struct; only behaviour here.
 extension WorkoutFlowView {
-    /// v2.26 (spec §37.7a, extended to this block at the owner's call): the
-    /// warm-up is OFFERED, not started.
+    /// The warm-up is OFFERED, not started.
     ///
     /// Same two answers as the cool-down and the same tone: no consequence
     /// attaches to saying no. The one difference is the reason on offer —

@@ -1,16 +1,15 @@
 //
-//  EngineV221Tests.swift
 //  DredfitCoreTests
 //
-//  v2.21 (spec §32, #149): hold steps go relative.
+//  Hold steps go relative.
 //
 //  `holdStepSec = 5` was the same five seconds everywhere on the scale. On a
 //  base of 10 s — the floor of tier 4 — that is +50 % for ONE rung, and under
-//  the §15.3 ceiling of two rungs up to +67 % in a single session:
-//  `coreAntiExt` L8→10 turned a 3×15 s plank into 3×25 s. No source writes
-//  progression as an absolute increment; ACSM 2009 (Med Sci Sports Exerc
-//  41(3):687–708) says "a 2–10 % increase in load". This is the "do no harm"
-//  rung of the ladder, so the step became a share of the dose you stand on.
+// the ceiling of two rungs up to +67 % in a single session: `coreAntiExt`
+// L8→10 turned a 3×15 s plank into 3×25 s. No source writes progression as an
+// absolute increment; ACSM 2009 (Med Sci Sports Exerc 41(3):687–708) says "a
+// 2–10 % increase in load". This is the "do no harm" rung of the ladder, so
+// the step became a share of the dose you stand on.
 //
 //  Three things are pinned here: the ladders themselves (literal tables, so
 //  the rounding mode of a platform never enters the encoding), the inversion
@@ -19,10 +18,10 @@
 //
 //  One thing deliberately deviates from the wave's brief: past the ladder's
 //  edge the inversion does NOT clamp to rung 0 / rung 7. Clamping was tried
-//  and measured — it re-breaks §25.1 monotonicity at the top rung of every
-//  tier and every band (plank L7, plan 39 s: a fact of 42 gave level 8 while
-//  an honest 43 gave 7), which is the exact defect #139 and v2.14 exist for.
-//  The edge a result settles on is the edge of the SCALE, not of a tier.
+// and measured — it re-breaks monotonicity at the top rung of every tier and
+// every band (plank L7, plan 39 s: a fact of 42 gave level 8 while an honest
+// 43 gave 7), which is the exact defect #139 and exist for. The edge a result
+// settles on is the edge of the SCALE, not of a tier.
 //
 
 import XCTest
@@ -135,8 +134,8 @@ final class EngineV221Tests: XCTestCase {
 
     /// The set bands do not follow the relative formula — their step is a
     /// whole 3 s — so the band-4 door (20 → 23 s) is 3/20 = 15 %, the widest
-    /// rung on the whole scale. It sits where the §15.3 ceiling is one rung,
-    /// so nothing takes more than it in a session.
+    /// rung on the whole scale. It sits where the ceiling is one rung, so
+    /// nothing takes more than it in a session.
     func testARungInsideABandCostsAtMostThreeTwentieths() {
         for ladder in bandLadders {
             let rungs = ladder.rungs
@@ -147,9 +146,9 @@ final class EngineV221Tests: XCTestCase {
         }
     }
 
-    /// Two rungs are only ever taken where the §15.3 cell hands them out. On
-    /// tier 4 and in every band the ceiling is one, so the band-4 30 % over two
-    /// rungs is unreachable in a session by construction.
+    /// Two rungs are only ever taken where the cell hands them out. On tier 4
+    /// and in every band the ceiling is one, so the band-4 30 % over two rungs
+    /// is unreachable in a session by construction.
     func testASessionUnderACapOfTwoCostsAtMostFourFifteenths() {
         var checked = 0
         for cell in holdCells {
@@ -183,14 +182,14 @@ final class EngineV221Tests: XCTestCase {
                 XCTAssertEqual(ladder[i + 1], want, "tier \(tier) rung \(i)")
             }
         }
-        // The tier starts survive from v2.3; only the step moved.
+        // The tier starts survive from; only the step moved.
         XCTAssertEqual([1, 2, 3, 4].map { EngineConfig.holdLadder[$0]?.first }, [20, 15, 15, 10])
         // The tops shrank — that is the part a person actually feels.
         XCTAssertEqual([1, 2, 3, 4].map { EngineConfig.holdLadder[$0]?.last }, [39, 31, 31, 19])
     }
 
     /// The band ladders are derived, not written twice: editing a band stays a
-    /// change of NUMBER rather than of structure (§28.2).
+    /// change of NUMBER rather than of structure.
     func testTheBandLaddersDeriveFromTheirStartAndStep() {
         for band in EngineConfig.holdLadderBand.keys.sorted() {
             let start = EngineConfig.holdStartBand[band]
@@ -230,7 +229,7 @@ final class EngineV221Tests: XCTestCase {
         // The second band door stays an unload, as it always was.
         XCTAssertLessThan(staticSum(40), staticSum(39))
         XCTAssertGreaterThanOrEqual(staticSum(40) * 100, staticSum(39) * 70)
-        // Tier transitions stay unloads too (§13.4 p.2).
+        // Tier transitions stay unloads too.
         for level in [8, 16, 24] {
             XCTAssertLessThan(staticSum(level), staticSum(level - 1), "tier door at L\(level)")
         }

@@ -1,7 +1,4 @@
 //
-//  CountdownSoundsTests.swift
-//  DredfitTests
-//
 //  The "Minimal+" set of issue #84: seven generated sounds, one synthesis
 //  rule, a strict loudness hierarchy. Everything here reads the WAV bytes —
 //  the tones are code, so their frequencies, peaks and envelopes are facts

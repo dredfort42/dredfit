@@ -1,7 +1,4 @@
 //
-//  LifeBenefit.swift
-//  Dredfit
-//
 //  Copy discipline: every line is a fact of mechanics ("lifting with your
 //  hips, not your lower back"), never a health promise ("your back will stop
 //  hurting") — promises invite App Review questions. Keep that boundary when

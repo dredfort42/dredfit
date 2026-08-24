@@ -1,7 +1,4 @@
 //
-//  CountdownSounds.swift
-//  Dredfit
-//
 //  Played at *media* volume: a system sound would follow the ringer volume,
 //  which routinely sits near zero while music plays.
 //

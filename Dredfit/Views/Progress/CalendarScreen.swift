@@ -1,7 +1,4 @@
 //
-//  CalendarScreen.swift
-//  Dredfit
-//
 //  Missed days are deliberately unmarked — plain dimmed numbers.
 //
 

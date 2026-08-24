@@ -1,8 +1,3 @@
-//
-//  Theme.swift
-//  Dredfit
-//
-
 import SwiftUI
 
 /// The palette lives in `Design/Brand.xcassets`, one colorset per token with

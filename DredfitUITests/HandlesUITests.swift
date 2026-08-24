@@ -1,8 +1,5 @@
 //
-//  HandlesUITests.swift
-//  DredfitUITests
-//
-//  v2.26 (spec §37.4-§37.5): the athlete's handles, end to end.
+//  The athlete's handles, end to end.
 //
 //  This file replaces DiscomfortUITests, which walked "Something hurt" through
 //  the workout, the rating screen and the resting line on Today. None of that
@@ -25,8 +22,8 @@ final class HandlesUITests: XCTestCase {
         app.launchArguments = ["--uitest-reset", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
     }
 
-    /// §37.5's headline: the recalculated duration is on screen BEFORE the tap,
-    /// and the workout the person gets is the one the button promised.
+    /// 's headline: the recalculated duration is on screen BEFORE the tap, and
+    /// the workout the person gets is the one the button promised.
     func testTheSessionHandleShowsBothNumbersAndDeliversTheSecond() {
         app.launch()
         let shorter = app.buttons["session-shorter"]
@@ -74,7 +71,7 @@ final class HandlesUITests: XCTestCase {
                       "a movement with a set off must offer to put it back")
     }
 
-    // MARK: - Offered, not required (§37.7a, both blocks)
+    // MARK: - Offered, not required (both blocks)
 
     /// The warm-up's own version of the cool-down screen below. The claim is
     /// the ABSENCE of a running block, not the presence of a button: a screen
@@ -108,8 +105,8 @@ final class HandlesUITests: XCTestCase {
                       "declining the warm-up must lead straight to the first exercise")
     }
 
-    /// v2.26 (§37.7a): the cool-down is offered, not started — and the same
-    /// screen lets it be declined.
+    /// The cool-down is offered, not started — and the same screen lets it be
+    /// declined.
     func testTheCoolDownAsksBeforeItStarts() {
         // Five movements skipped and the sixth actually performed: the block
         // is drawn from what was DONE, so a workout of pure skips has nothing

@@ -1,8 +1,7 @@
 //
-//  EngineV211Tests.swift
 //  DredfitCoreTests
 //
-//  Engine v2.11 (spec §21) — RE-MARKED for v2.26 (§37.0).
+// Engine — RE-MARKED.
 //
 //  The suite was about the pain report: it took the load off, armed a freeze,
 //  opened an episode, and the 3 → 6 → 12 ladder deepened the rest on every
@@ -10,12 +9,12 @@
 //  argument and the state has no `sore`, `soreLeft`, `frozen` or `painSeen`.
 //  Ten of the eleven tests here stood on that and are gone with it.
 //
-//  ONE claim survives untouched and stays here: §21.1's encoding, "an unload
-//  lands at the bottom of the PREVIOUS tier". `Level.unload` is still part of
-//  the contract and still exported — the reference keeps it for the port and
-//  the verifier even though nothing inside the model calls it since §36.5 —
-//  so dropping the test with the mechanism would have left an exported
-//  function with no coverage at all.
+// ONE claim survives untouched and stays here: 's encoding, "an unload lands
+// at the bottom of the PREVIOUS tier". `Level.unload` is still part of the
+// contract and still exported — the reference keeps it for the port and the
+// verifier even though nothing inside the model calls it since — so dropping
+// the test with the mechanism would have left an exported function with no
+// coverage at all.
 //
 
 import XCTest
@@ -26,9 +25,9 @@ private typealias Pattern = DredfitCore.Pattern
 
 final class EngineV211Tests: XCTestCase {
 
-    /// §21.1: the landing of an unload, over the whole scale. The bands of
-    /// four and five sets are tier 4 by the encoding, so they land in tier 3
-    /// exactly as tier 4 does.
+    /// the landing of an unload, over the whole scale. The bands of four and
+    /// five sets are tier 4 by the encoding, so they land in tier 3 exactly as
+    /// tier 4 does.
     func testUnloadLandsAtTheBottomOfThePreviousTier() {
         XCTAssertEqual(Level.unload(5), 0)     // tier 1 → the floor
         XCTAssertEqual(Level.unload(12), 0)    // tier 2 → the floor
@@ -39,9 +38,9 @@ final class EngineV211Tests: XCTestCase {
     }
 
     /// And the landing is always the floor of a tier, never its middle — the
-    /// property the whole §30 wave was about. Swept rather than sampled: the
-    /// six literals above pin the rungs a reader checks by eye, this pins the
-    /// rule they are instances of.
+    /// property the whole wave was about. Swept rather than sampled: the six
+    /// literals above pin the rungs a reader checks by eye, this pins the rule
+    /// they are instances of.
     func testEveryUnloadLandsOnATierFloor() {
         for level in 0...EngineConfig.levelMax {
             let landed = Level.unload(level)

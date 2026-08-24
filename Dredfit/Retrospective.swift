@@ -1,7 +1,4 @@
 //
-//  Retrospective.swift
-//  Dredfit
-//
 //  The "then → now" block for anniversary milestones (issue #26), built from
 //  the journal's levelsAfter snapshots.
 //

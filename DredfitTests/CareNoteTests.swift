@@ -1,7 +1,4 @@
 //
-//  CareNoteTests.swift
-//  DredfitTests
-//
 //  The care card's acknowledgement (#101): one timestamp recording that the
 //  contraindication checklist was on screen and confirmed — statements, not
 //  questions, and nothing else is stored or gated on it.

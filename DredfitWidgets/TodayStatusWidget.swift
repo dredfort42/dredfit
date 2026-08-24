@@ -1,7 +1,4 @@
 //
-//  TodayStatusWidget.swift
-//  DredfitWidgets
-//
 //  The app writes a two-week snapshot into the App Group; the widget only
 //  reads it, one timeline entry per day. The timeline itself lives in
 //  TodayProvider.swift, where the unit tests can reach it.

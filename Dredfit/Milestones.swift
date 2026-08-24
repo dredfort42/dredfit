@@ -1,7 +1,4 @@
 //
-//  Milestones.swift
-//  Dredfit
-//
 //  Derived, never stored: computed from the state before and after
 //  applyFeedback, so they cannot go stale or be double-counted.
 //

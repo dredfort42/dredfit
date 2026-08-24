@@ -1,17 +1,13 @@
 //
-//  SessionLengthTests.swift
-//  DredfitTests
-//
-//  v2.26 (spec §37.5, §37.7): how long a session takes, and what the person can
+//  How long a session takes, and what the person can
 //  do about it.
 //
 //  This suite used to be about the TIME BUDGET: that the answer was stored,
 //  survived a relaunch, reached the plan, and bought its minutes out of the
-//  sets rather than the levels — and, since v2.24, that the answer nobody gave
-//  was 45 minutes rather than "no limit". All thirteen tests went with the
-//  mechanism. The audit measured what its rungs actually did: 10, 15 and 20
-//  produced the SAME plan, and the "20" rung missed its own target in 100 % of
-//  sessions.
+// sets rather than the levels — and that the answer nobody gave was 45 minutes
+// rather than "no limit". All thirteen tests went with the mechanism. The
+// audit measured what its rungs actually did: 10, 15 and 20 produced the SAME
+// plan, and the "20" rung missed its own target in 100 % of sessions.
 //
 //  What replaces it is the other way round. The engine ANNOUNCES the duration
 //  and the person shortens today's workout with a handle — and sees the
@@ -41,8 +37,8 @@ final class SessionLengthTests: XCTestCase {
     }
 
     /// A trainee well up the scale, where a full session runs long — the case
-    /// the handle exists for. §37.5 measures it: L40 is 79.7 min at full and
-    /// 33.7 at the floor.
+    /// the handle exists for. measures it: L40 is 79.7 min at full and 33.7 at
+    /// the floor.
     private func advancedStore(counter: Int = 0, level: Int = 40) throws -> AppStore {
         let levels = Pattern.allCases
             .map { "\"\($0.rawValue)\",\(level)" }.joined(separator: ",")
@@ -60,9 +56,9 @@ final class SessionLengthTests: XCTestCase {
 
     // MARK: - "37 → 26 min", before agreeing to it
 
-    /// The claim §37.5 makes about the control: the person sees the
-    /// recalculated duration BEFORE the tap, and both numbers are the engine's
-    /// own `estimatedTotalMin`.
+    /// The claim makes about the control: the person sees the recalculated
+    /// duration BEFORE the tap, and both numbers are the engine's own
+    /// `estimatedTotalMin`.
     func testThePreviewShowsBothNumbersAndTheTapDeliversTheSecond() throws {
         let store = try advancedStore()
         let preview = store.sessionLengthPreview()
@@ -114,7 +110,7 @@ final class SessionLengthTests: XCTestCase {
         }
     }
 
-    /// And the floor holds however hard the handle is pulled (§37.3).
+    /// And the floor holds however hard the handle is pulled.
     func testTheFloorHoldsAtTheBottomOfTheHandle() throws {
         for level in [0, 16, 24, 32, 40, 47] {
             let store = try advancedStore(level: level)
@@ -149,7 +145,7 @@ final class SessionLengthTests: XCTestCase {
     }
 
     /// The choice survives a relaunch: it is `cut`, an ordinary state field,
-    /// which is precisely what "no new state field" (§37.5) buys.
+    /// which is precisely what "no new state field" buys.
     func testTheShortenedSessionSurvivesARelaunch() throws {
         let store = try advancedStore()
         store.makeSessionShorter()
@@ -182,7 +178,7 @@ final class SessionLengthTests: XCTestCase {
     }
 
     /// "Easier version" is inactive on tier 1, and says so rather than
-    /// disappearing (§37.4).
+    /// disappearing.
     func testTheEasierHandleIsInactiveOnTheFirstTier() throws {
         let store = try advancedStore(level: 0)
         for ex in store.nextSession.exercises {

@@ -1,7 +1,4 @@
 //
-//  SetFacts.swift
-//  Dredfit
-//
 //  A fact belongs to the set it happened on.
 //
 
@@ -19,10 +16,10 @@ import DredfitCore
 /// deload nobody earned.
 ///
 /// The engine's contract is untouched — one honest number per pattern per
-/// session (spec §5) — so the collapse lives here: the mean per set, which is
-/// the volume actually performed divided by the sets that carried it.
-/// Pure arithmetic over values, so it is not the main actor's business — and
-/// the journal decodes off it.
+/// session — so the collapse lives here: the mean per set, which is the volume
+/// actually performed divided by the sets that carried it. Pure arithmetic
+/// over values, so it is not the main actor's business — and the journal
+/// decodes off it.
 nonisolated enum SetFacts {
     /// Per-set values for each adjusted exercise, in set order.
     ///
@@ -38,12 +35,12 @@ nonisolated enum SetFacts {
     /// The grid a reportable number is snapped to: one second for holds, one
     /// rep for reps.
     ///
-    /// v2.21 (spec §32.6): holds used to snap to 5 s, matching the engine's
-    /// old fixed rung. The ladder is relative now — a rung costs from 1 s to
-    /// 4 s depending on where you stand — so a five-second grid can express
-    /// only 13 of the scale's 48 rungs. An honest 3 s short of the plan then
-    /// snapped a full grid cell away and cost five rungs instead of one. The
-    /// corridor itself (5...90 s) does not move.
+    /// Holds used to snap to 5 s, matching the engine's old fixed rung. The
+    /// ladder is relative now — a rung costs from 1 s to 4 s depending on
+    /// where you stand — so a five-second grid can express only 13 of the
+    /// scale's 48 rungs. An honest 3 s short of the plan then snapped a full
+    /// grid cell away and cost five rungs instead of one. The corridor itself
+    /// (5...90 s) does not move.
     static func step(for unit: LoadUnit) -> Int {
         switch unit {
         case .hold, .reps: return 1
@@ -71,10 +68,10 @@ nonisolated enum SetFacts {
     }
 
     /// The per-set shape as the app is willing to read it back off disk. The
-    /// journal earns this on decode (spec §24.1); a workout snapshot carries
-    /// no decoder of its own, so it is sanitized where it is read: values
-    /// inside the range they can mean, arrays no longer than an exercise can
-    /// be, and nothing left standing that holds no sets at all.
+    /// journal earns this on decode; a workout snapshot carries no decoder of
+    /// its own, so it is sanitized where it is read: values inside the range
+    /// they can mean, arrays no longer than an exercise can be, and nothing
+    /// left standing that holds no sets at all.
     static func sanitized(_ facts: PerSet) -> PerSet {
         facts.compactMapValues { values in
             let clean = values.prefix(EngineConfig.setsMax)
@@ -88,15 +85,14 @@ nonisolated enum SetFacts {
     /// The number set `index` runs at: the last thing said about this
     /// exercise, or the plan when nothing was.
     ///
-    /// v2.22 (spec §33): "the plan" is per set now — an uneven plan asks 9-8-8,
-    /// and set one is not set three. Reading `ex.load` here would show the
-    /// minimum on every set and quietly lose the sub-step.
+    /// "the plan" is per set now — an uneven plan asks 9-8-8, and set one is
+    /// not set three. Reading `ex.load` here would show the minimum on every
+    /// set and quietly lose the sub-step.
     ///
-    /// v2.26 (spec §37.8 p. 1): THE CARRY-FORWARD IS ASYMMETRIC. A number
-    /// BELOW the plan carries onto the sets ahead, as it always did — someone
-    /// who managed six of eight is telling you about the exercise, not about
-    /// one set of it. A number ABOVE the plan applies to its own set and
-    /// stops there.
+    /// THE CARRY-FORWARD IS ASYMMETRIC. A number BELOW the plan carries onto
+    /// the sets ahead, as it always did — someone who managed six of eight is
+    /// telling you about the exercise, not about one set of it. A number ABOVE
+    /// the plan applies to its own set and stops there.
     ///
     /// The symmetric version raised the remaining sets silently: entering 12
     /// on the first set of 3×8 rewrote sets two and three to 12, up to +50 %,
@@ -138,10 +134,10 @@ nonisolated enum SetFacts {
     /// is dropped and the session rating governs the pattern again, exactly
     /// as correcting a single number back to the plan always did.
     ///
-    /// v2.22 (spec §33): "back on the plan" is compared PER SET against
-    /// `loads ?? [load × sets]`. Against the flat `load` an uneven plan
-    /// performed exactly as written — 9-8-8 — would read as a shortfall on its
-    /// first set and hand the engine a number nobody meant to report.
+    /// "back on the plan" is compared PER SET against `loads ?? [load ×
+    /// sets]`. Against the flat `load` an uneven plan performed exactly as
+    /// written — 9-8-8 — would read as a shortfall on its first set and hand
+    /// the engine a number nobody meant to report.
     static func recording(_ value: Int, in facts: PerSet,
                           _ ex: SessionExercise, set index: Int) -> PerSet {
         var facts = facts
@@ -166,13 +162,13 @@ nonisolated enum SetFacts {
     ///
     /// A shortfall is never reported as MEETING the plan, however close the
     /// mean lands. To the engine `actual == load` is two statements at once:
-    /// the "on plan" step (§18.1) and the explicit fact that confirms a pain
-    /// episode has recovered (§21.2). A near miss rounded up onto the plan
-    /// would make both claims on the strength of a session that fell short —
-    /// promoting out of a freeze the athlete who missed a rep, while the one
-    /// who hit every rep says nothing and never escapes it. So when the grid
-    /// cannot hold the mean below the plan without over-penalising a near
-    /// miss, this says nothing at all and the session rating speaks instead.
+    /// the "on plan" step and the explicit fact that confirms a pain episode
+    /// has recovered. A near miss rounded up onto the plan would make both
+    /// claims on the strength of a session that fell short — promoting out of
+    /// a freeze the athlete who missed a rep, while the one who hit every rep
+    /// says nothing and never escapes it. So when the grid cannot hold the
+    /// mean below the plan without over-penalising a near miss, this says
+    /// nothing at all and the session rating speaks instead.
     static func override(_ facts: PerSet, for ex: SessionExercise) -> Int? {
         guard facts[ex.pattern]?.isEmpty == false else { return nil }
         let values = allSets(facts, ex)

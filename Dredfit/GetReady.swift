@@ -1,11 +1,7 @@
 //
-//  GetReady.swift
-//  Dredfit
-//
 //  The transition before every guided position (issue #52). Ten seconds is
-//  the base since v2.26 (spec §37.7a); a position that has to be walked to or
-//  got down into carries a supplement on top (issue #83). Neither number is a
-//  user setting.
+// the base; a position that has to be walked to or got down into carries a
+// supplement on top (issue #83). Neither number is a user setting.
 //
 //  The side-switch pause of issue #35 shared the base length and no longer
 //  does: it is a pause inside one position, not travel to another.
@@ -15,9 +11,9 @@ import Foundation
 
 enum GetReady {
 
-    /// v2.26 (spec §37.7a): 5 → 10. Five seconds to change posture is a rush,
-    /// and it is what people said about it. The reserve this is spent against
-    /// was raised to match by the engine, not here — see `setupSupplementSec`.
+    /// 5 → 10. Five seconds to change posture is a rush, and it is what people
+    /// said about it. The reserve this is spent against was raised to match by
+    /// the engine, not here — see `setupSupplementSec`.
     static let seconds = 10
 
     /// The supplement of issue #83, on top of `seconds`, for a position that
@@ -38,13 +34,12 @@ enum GetReady {
     /// At a 5-second base that is 215 + 265 = 480 s = 8:00; at a 10-second
     /// base it is 245 + 295 = 540 s = 9:00. This comment used to say that one
     /// second more would break the reserve and that fixing it is an engine
-    /// change, not an app one. That was right, and engine v2.26 is that
-    /// change: §37.7а doubles the base transition to 10 s — five seconds is
-    /// not enough to change posture without hurrying — and raises
-    /// `cooldownMin` from 3 to 4 to pay for it. The price is named rather
-    /// than absorbed: every announced session duration grew by exactly one
-    /// minute, and the engine's own acceptance asserts "grew by 1.0", not
-    /// "unchanged".
+    /// change, not an app one. That was right, and engine is that change:
+    /// doubles the base transition to 10 s — five seconds is not enough to
+    /// change posture without hurrying — and raises `cooldownMin` from 3 to 4
+    /// to pay for it. The price is named rather than absorbed: every announced
+    /// session duration grew by exactly one minute, and the engine's own
+    /// acceptance asserts "grew by 1.0", not "unchanged".
     ///
     /// The reserve is again spent to the second, so the warning stands as it
     /// did: the next second has to be bought from the engine.

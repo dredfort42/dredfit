@@ -1,7 +1,4 @@
 //
-//  ReleaseSmokeTests.swift
-//  DredfitUITests
-//
 //  The Release smoke block of TESTPLAN.md (S1–S7), automated. Row names are
 //  carried into activity names and failure messages, so a red run says "S3"
 //  and the checklist row is found without translation.
@@ -53,11 +50,11 @@ final class ReleaseSmokeTests: XCTestCase {
             // The engine's own arithmetic surfaced: if this line drifts, a
             // release-blocking number drifted.
             //
-            // v2.26: 33 → 34, and the minute is accounted for — `cooldownMin`
-            // went 3 → 4, the wave's one changed constant (§37.7a). Read back
-            // from the reference engine (`estimatedTotalMin` for session 1),
-            // not copied off the screen: this line is a pin, and a pin taken
-            // from the thing it guards guards nothing.
+            // 33 → 34, and the minute is accounted for — `cooldownMin` went 3
+            // → 4, the wave's one changed constant. Read back from the
+            // reference engine (`estimatedTotalMin` for session 1), not copied
+            // off the screen: this line is a pin, and a pin taken from the
+            // thing it guards guards nothing.
             XCTAssertTrue(app.staticTexts["≈ 34 min · 6 exercises"].exists,
                           "S1: the plan line must read ≈ 34 min · 6 exercises")
             XCTAssertTrue(app.buttons["Start"].exists, "S1: Start is missing")
@@ -69,8 +66,8 @@ final class ReleaseSmokeTests: XCTestCase {
     private func s2FullWorkout() {
         XCTContext.runActivity(named: "S2 — full workout to the rating") { _ in
             app.buttons["Start"].tap()
-            // v2.26 (§37.7a): the block is offered before it runs. S2 says yes
-            // — the countdown it asserts below only exists once somebody has.
+            // The block is offered before it runs. S2 says yes — the countdown
+            // it asserts below only exists once somebody has.
             let startWarmup = app.buttons["warmup-start"]
             XCTAssertTrue(startWarmup.waitForExistence(timeout: 5),
                           "S2: the warm-up must be offered before it starts")
@@ -158,11 +155,11 @@ final class ReleaseSmokeTests: XCTestCase {
 
     /// Its own launch: S1–S6 owns a clean journal, and this row needs one too.
     ///
-    /// v2.26 (§37.0): this row used to walk the pain report, on the argument
-    /// that the safety half of the engine is dead code if the button stops
-    /// reaching the journal. The button is gone and so is that half; the
-    /// channel that remains — the honest number — carries the same weight and
-    /// the same argument, so the row now walks it.
+    /// This row used to walk the pain report, on the argument that the safety
+    /// half of the engine is dead code if the button stops reaching the
+    /// journal. The button is gone and so is that half; the channel that
+    /// remains — the honest number — carries the same weight and the same
+    /// argument, so the row now walks it.
     func testReleaseSmokeHonestNumber() {
         app.launch()
         XCTContext.runActivity(named: "S8 — an honest number reaches the rating") { _ in
@@ -172,10 +169,10 @@ final class ReleaseSmokeTests: XCTestCase {
             skipWarmup.tap()
 
             // The pull slot: in every session, so the rest it earns is real
-            // rather than three workouts away.
-            // v2.26 (§37.0): the pain report is gone from this screen. What the
-            // smoke test walks now is the answer that replaced it — the honest
-            // number — and it has to reach the rating the same way.
+            // rather than three workouts away. The pain report is gone from
+            // this screen. What the smoke test walks now is the answer that
+            // replaced it — the honest number — and it has to reach the rating
+            // the same way.
             for _ in 0..<3 {
                 let skip = app.buttons["Skip exercise"]
                 XCTAssertTrue(skip.waitForExistence(timeout: 10), "S8: no work screen to skip")
@@ -186,8 +183,8 @@ final class ReleaseSmokeTests: XCTestCase {
                           "S8: the adjust action is missing from the exercise screen")
             adjust.tap()
 
-            // A number BELOW the plan, entered by hand: the one channel v2.26
-            // leaves for saying the work went differently.
+            // A number BELOW the plan, entered by hand: the one channel leaves
+            // for saying the work went differently.
             let minus = app.buttons["minus"]
             XCTAssertTrue(minus.waitForExistence(timeout: 5), "S8: the stepper did not open")
             minus.tap()
@@ -209,9 +206,9 @@ final class ReleaseSmokeTests: XCTestCase {
             app.buttons["day-\(dayNumber)"].tap()
             XCTAssertTrue(app.staticTexts["Workout 1"].waitForExistence(timeout: 5),
                           "S8: the history sheet must open on the workout")
-            // v2.26 (§37.0): this row used to end on the word "hurt". No record
-            // written after the wave can carry it — the mark only survives on
-            // journal entries older than the wave — so the claim moves to what
+            // This row used to end on the word "hurt". No record written after
+            // the wave can carry it — the mark only survives on journal
+            // entries older than the wave — so the claim moves to what
             // replaced it: three movements were skipped and the fourth was
             // ANSWERED, and the answer has to reach the journal as work done
             // rather than be lost as a fourth skip.
@@ -224,10 +221,10 @@ final class ReleaseSmokeTests: XCTestCase {
         }
     }
 
-    // v2.22 (spec §33): S9 — the hold-this-level request — is gone with the
-    // input it smoke-tested. What it guarded (a per-movement mark reaches the
-    // journal, and the smoke would not otherwise notice if it stopped) is
-    // covered by S8, the pain report, on the same path.
+    // S9 — the hold-this-level request — is gone with the input it
+    // smoke-tested. What it guarded (a per-movement mark reaches the journal,
+    // and the smoke would not otherwise notice if it stopped) is covered by
+    // S8, the pain report, on the same path.
 
     // MARK: - S7: the same first three rows in Russian
 

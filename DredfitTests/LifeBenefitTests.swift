@@ -1,7 +1,4 @@
 //
-//  LifeBenefitTests.swift
-//  DredfitTests
-//
 //  The life-benefit layer (issue #25) is pure data with one rule
 //  (override → base), so the tests pin three things: every movement has a
 //  line, the override list is exactly the closed list from the spec, and

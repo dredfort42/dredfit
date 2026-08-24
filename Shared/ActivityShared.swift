@@ -1,7 +1,4 @@
 //
-//  ActivityShared.swift
-//  Dredfit (app + DredfitWidgets)
-//
 //  Kept out of WidgetShared.swift: that file also compiles into the unit
 //  test bundle, and this type is handed to app APIs from tests — it must
 //  exist exactly once, as the app's own type.

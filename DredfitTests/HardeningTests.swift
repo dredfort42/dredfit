@@ -1,8 +1,3 @@
-//
-//  HardeningTests.swift
-//  DredfitTests
-//
-
 import XCTest
 import DredfitCore
 @testable import Dredfit

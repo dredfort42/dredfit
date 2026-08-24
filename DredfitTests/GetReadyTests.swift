@@ -1,8 +1,3 @@
-//
-//  GetReadyTests.swift
-//  DredfitTests
-//
-
 import XCTest
 import DredfitCore
 @testable import Dredfit
@@ -12,14 +7,14 @@ final class GetReadyTests: XCTestCase {
 
     // MARK: - The transition itself
 
-    /// v2.26 (spec §37.7a): RE-MARKED, and the claim is now the OPPOSITE one.
+    /// RE-MARKED, and the claim is now the OPPOSITE one.
     ///
     /// The two lengths used to be identical, and the test said so: #35 counts
     /// the switch inside a position, #52 the switch between positions, and one
     /// base served both. The transition doubled to ten seconds and the pause
     /// did NOT follow it, because they are not the same thing — travelling to
     /// another position takes time, turning over inside one does not. So what
-    /// is pinned now is the split, in both directions, and §37.7a's arithmetic
+    /// is pinned now is the split, in both directions, and 's arithmetic
     /// counts the pause as five.
     func testTheTransitionAndTheSideSwitchPauseAreNoLongerTheSame() {
         XCTAssertEqual(GetReady.seconds, 10)
@@ -89,7 +84,7 @@ final class GetReadyTests: XCTestCase {
         }
 
         // One pattern per pool position; index 2 of a one-pattern composition
-        // is the position that pattern maps to (spec §4).
+        // is the position that pattern maps to.
         let pool = [Pattern.squat, .pull, .pushH, .coreAntiExt, .calf, .lunge]
             .map { Cooldown.positions(performed: [$0])[2] }
         let worstMapped = pool.map(cost(of:)).sorted(by: >).prefix(3).reduce(0, +)
@@ -98,10 +93,10 @@ final class GetReadyTests: XCTestCase {
             + cost(of: anyComposition[5])
         let reserved = (EngineConfig.warmupMin + EngineConfig.cooldownMin) * 60
 
-        // v2.26 (spec §37.7a): 215 → 245 and 265 → 295, because the base
-        // transition doubled. The sum still fills the reserve EXACTLY — the
-        // reserve grew by the same minute (`cooldownMin` 3 → 4), which is why
-        // this was an engine change and not an app one.
+        // 215 → 245 and 265 → 295, because the base transition doubled. The
+        // sum still fills the reserve EXACTLY — the reserve grew by the same
+        // minute (`cooldownMin` 3 → 4), which is why this was an engine change
+        // and not an app one.
         XCTAssertEqual(warmup, 245)
         XCTAssertEqual(fixed + worstMapped, 295)
         XCTAssertEqual(warmup + fixed + worstMapped, reserved,
@@ -153,9 +148,9 @@ final class GetReadyTests: XCTestCase {
     func testWarmupAdvanceAbsorbsBackgroundedTime() {
         // Past a move's end by the whole next transition plus two seconds: the
         // transition is consumed whole and the landing is 2 s into the move it
-        // announced. v2.26 (§37.7a): written from the constant rather than from
-        // "7", which was the base of five plus two and silently became wrong
-        // when the base doubled.
+        // announced.: written from the constant rather than from "7", which
+        // was the base of five plus two and silently became wrong when the
+        // base doubled.
         let landing = Warmup.advance(from: (0, .move), overshoot: GetReady.seconds + 2)
         XCTAssertEqual(landing?.index, 1)
         XCTAssertEqual(landing?.stage, .move)

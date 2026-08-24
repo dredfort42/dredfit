@@ -1,8 +1,5 @@
 //
-//  SetsHandle.swift
-//  DredfitCore
-//
-//  v2.25 (spec §36): the sets handle — the second axis of a position. Split
+//  The sets handle — the second axis of a position. Split
 //  out of Level.swift the way Level itself was split out of Engine.swift: the
 //  arithmetic is Level's, the file is separate only because the lint's ceiling
 //  is a real one.
@@ -42,32 +39,29 @@ extension Level {
         min(max(cut, 0), cutMax(level: level, floor: floor))
     }
 
-    /// The exercise's sets before the §20.2 band gate and before the §28.3
-    /// budget. The floor here is the PAIN one: a state may legitimately carry
-    /// the pain channel's landing of a single set, and nothing downstream is
-    /// allowed to raise it back.
+    /// The exercise's sets before the band gate. The floor is the shared one:
+    /// the pain channel that once landed a movement on a single set is gone,
+    /// and there is no second floor left to choose between.
     static func setsAfterCut(level: Int, cut: Int) -> Int {
         decode(level).sets - effCut(level: level, cut: cut,
                                     floor: EngineConfig.setsFloor)
     }
 
-    /// v2.25 (spec §36.3): the position's MEASURE. One growth event is exactly
-    /// +1 and one step of a descent exactly −1, so the §15.3 caps, the §28.5
-    /// window and the §20.1 cross-credit keep counting it as integers and stay
-    /// the code they were.
+    /// The position's MEASURE. One growth event is exactly +1 and one step of
+    /// a descent exactly −1, so the growth caps, the window and the
+    /// cross-credit keep counting it as integers and stay the code they were.
     ///
     /// A measure, not an encoding: it has no inverse and needs none — no path
     /// asks for one, because every clamp is expressed as a RETURN TO THE ENTRY
     /// TRIPLE rather than as a lookup by ordinal.
     ///
-    /// ACCEPTED PROPERTY (round 4, S6-4): with a non-empty cut the scale is not
-    /// surjective — the plan shows only the sub-steps that fit after the cut
-    /// while the measure counts the whole band's, so ONE step of a descent
-    /// sometimes moves it by 2–5 (118 triples of 392). Upward the step is
-    /// exactly +1 (387 of 392, the rest being the scale's ceiling). The §15.3
-    /// and §28.5 ceilings bound GROWTH, and there the measure is exact; on a
-    /// descent they do not act at all, so the asymmetry is one-sided and in
-    /// safety's favour.
+    /// ACCEPTED PROPERTY: with a non-empty cut the scale is not surjective —
+    /// the plan shows only the sub-steps that fit after the cut while the
+    /// measure counts the whole band's, so ONE step of a descent sometimes
+    /// moves it by 2–5 (118 triples of 392). Upward the step is exactly +1
+    /// (387 of 392, the rest being the scale's ceiling). The and ceilings
+    /// bound GROWTH, and there the measure is exact; on a descent they do not
+    /// act at all, so the asymmetry is one-sided and in safety's favour.
     public static func posOrd(level: Int, sub: Int, cut: Int) -> Int {
         ordinal(level: level, sub: sub)
             - effCut(level: level, cut: cut, floor: EngineConfig.setsFloor)
@@ -92,14 +86,14 @@ extension Level {
     /// trainee progress on the scale, and they would pay for it twice.
     ///
     /// A set only comes back once the hold has run out (`setsBackHold`). While
-    /// it holds, a growth event goes into the DOSE — the trainee keeps growing,
-    /// just by a smaller step, and the volume is added less often. That is the
-    /// alternation the axis was missing: set, dose, dose, set — instead of
-    /// set, set, set. The sets axis is an order of magnitude coarser than the
-    /// dose axis (a dose step is ×1.033 median, ×1.08 worst; a set coming back
-    /// is ×1.500 median and ×2.00 worst), and §32 rejected a +50 % dose step
-    /// as a breach of "do no harm", citing ACSM 2009's "a 2–10 % increase in
-    /// load".
+    /// it holds, a growth event goes into the DOSE — the trainee keeps
+    /// growing, just by a smaller step, and the volume is added less often.
+    /// That is the alternation the axis was missing: set, dose, dose, set —
+    /// instead of set, set, set. The sets axis is an order of magnitude
+    /// coarser than the dose axis (a dose step is ×1.033 median, ×1.08 worst;
+    /// a set coming back is ×1.500 median and ×2.00 worst), and rejected a +50
+    /// % dose step as a breach of "do no harm", citing ACSM 2009's "a 2–10 %
+    /// increase in load".
     static func riseBy(level: Int, sub: Int, cut: Int, by count: Int,
                        allowSetsBack: Bool) -> Position {
         var c = effCut(level: level, cut: cut, floor: EngineConfig.setsFloor)
@@ -116,14 +110,14 @@ extension Level {
 
     /// Descent: THE DOSE GOES BEFORE THE SETS. While there is somewhere to
     /// step inside the block along the growth path we step there — exactly the
-    /// reverse of a growth event (§34.1). On a block floor that path has run
-    /// out, and the step down becomes a set taken off. The bottom is `floor`
-    /// sets; below that a descent has to change the variation, and that is the
-    /// one place where a measure across the boundary stops being valid (§30.4).
+    /// reverse of a growth event. On a block floor that path has run out, and
+    /// the step down becomes a set taken off. The bottom is `floor` sets;
+    /// below that a descent has to change the variation, and that is the one
+    /// place where a measure across the boundary stops being valid.
     static func fallBy(level: Int, sub: Int, cut: Int, by count: Int,
                        floor: Int) -> Position {
-        // v2.25 (Ф5): the same invariant on entry and at every step — a
-        // sub-step can never ask for more sets than the cut leaves.
+        // The same invariant on entry and at every step — a sub-step can never
+        // ask for more sets than the cut leaves.
         func fit(_ lv: Int, _ sb: Int, _ ct: Int) -> Int {
             min(max(sb, 0),
                 max(0, decode(lv).sets
@@ -152,11 +146,10 @@ extension Level {
         return Position(level: curLevel, sub: fit(curLevel, curSub, c), cut: c)
     }
 
-    /// v2.25 (spec §36.4, round 6 fix 5): TIME UNDER LOAD — the only quantity
-    /// that is comparable across a change of unit. Reps and seconds are
-    /// incommensurable (§30.4), but "how many seconds the muscle works" is
-    /// defined for both: a rep costs `tempoSecPerRep` seconds, a second of a
-    /// hold costs a second.
+    /// TIME UNDER LOAD — the only quantity that is comparable across a change
+    /// of unit. Reps and seconds are incommensurable, but "how many seconds
+    /// the muscle works" is defined for both: a rep costs `tempoSecPerRep`
+    /// seconds, a second of a hold costs a second.
     static func timeUnderLoad(pattern: Pattern, level: Int, sub: Int, cut: Int) -> Double {
         let w = work(pattern: pattern, level: level, sub: sub, cut: cut)
         return w.unit == .reps
@@ -175,13 +168,13 @@ extension Level {
     /// cured the overload but wiped the branch out. A search by time gives
     /// both: no harder, and not the bottom either.
     ///
-    /// ACCEPTED (§36.10 p. 7): if even the bottom rung of the target tier
+    /// ACCEPTED: if even the bottom rung of the target tier
     /// costs more at the same set count, we sit down on the floor and the
     /// branch loses what it had. For `pullBar` that is L8 → L0: three sets of
     /// a 20 s hang (60 s) already cost more than three sets of six negatives
-    /// (45 s), and the library has no rung in between. §30.4 says it plainly —
+    /// (45 s), and the library has no rung in between. The accepted gap says it plainly —
     /// a break in the UNIT is a defect of the LADDER and is fixed in the
-    /// library, the way v2.18 (§29) fixed the pike → handstand gap. Until then
+    /// library, the way fixed the pike → handstand gap. Until then
     /// safety outranks a kept level.
     static func landOnUnitChange(pattern: Pattern, fromLevel: Int, fromSub: Int,
                                  fromCut: Int, toTier: Int) -> Int {

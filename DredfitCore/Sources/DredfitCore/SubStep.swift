@@ -1,8 +1,5 @@
 //
-//  SubStep.swift
-//  DredfitCore
-//
-//  v2.22 (spec §33): the sub-step. One rung of a level used to add its dose to
+//  The sub-step. One rung of a level used to add its dose to
 //  ALL the sets at once — a median of +11 % more work per growth event, up to
 //  +25 % on reps. A sub-step splits that rung across the sets: growth takes one
 //  set at a time, so a plan that overshoots its owner's capacity costs one rep
@@ -17,12 +14,12 @@
 import Foundation
 
 /// A pattern's place on the progression: the level, how many of its sets
-/// already carry the next rung's dose, and — since v2.25 (spec §36.3) — how
-/// many sets have been taken off it.
+/// already carry the next rung's dose, and how many sets have been taken off
+/// it.
 ///
-/// The third coordinate defaults to zero so every pre-v2.25 construction still
+/// The third coordinate defaults to zero so every earlier construction still
 /// reads as it did: a position that never met the sets handle IS a position
-/// with an empty cut, and the plan it produces is bit-for-bit v2.24's.
+/// with an empty cut, and the plan it produces is bit-for-bit 's.
 public struct Position: Equatable, Sendable {
     public let level: Int
     public let sub: Int
@@ -55,9 +52,9 @@ extension Level {
 
     /// The sub-step actually in force: garbage, the top rung, and a set count
     /// trimmed below the level's own band all collapse to a uniform plan. Pass
-    /// `sets` when the exercise shows fewer sets than its band (the §20.2 gate
-    /// or the §28.3 budget) — a sub-step can never ask for more sets than are
-    /// on screen.
+    /// `sets` when the exercise shows fewer sets than its band (the gate or
+    /// the budget) — a sub-step can never ask for more sets than are on
+    /// screen.
     static func effectiveSub(level: Int, sub: Int, sets: Int? = nil) -> Int {
         guard !subDisabled(at: level) else { return 0 }
         let top = max(0, (sets ?? decode(level).sets) - 1)
@@ -111,19 +108,19 @@ extension Level {
         max(0, ordinal(to) - ordinal(from))
     }
 
-    /// v2.23 (spec §34.1): the evaluative descent — `count` sub-steps BACK
-    /// along the very path growth took, with a floor at the bottom of the
-    /// level's own block. Exactly the reverse of a growth event (§33.3):
-    /// `(L, sub>0)` → `(L, sub−1)`; `(L, 0)` → `(L−1, sets(L−1)−1)`; and on a
-    /// block floor the position does not move at all — nothing lighter exists
-    /// inside this variation, and changing the variation is not the rating's
-    /// to make (§15.2 reserves it for pain and for the deload).
+    /// The evaluative descent — `count` sub-steps BACK along the very path
+    /// growth took, with a floor at the bottom of the level's own block.
+    /// Exactly the reverse of a growth event: `(L, sub>0)` → `(L, sub−1)`;
+    /// `(L, 0)` → `(L−1, sets(L−1)−1)`; and on a block floor the position does
+    /// not move at all — nothing lighter exists inside this variation, and
+    /// changing the variation is not the rating's to make (reserves it for
+    /// pain and for the deload).
     ///
     /// This cannot make a plan heavier BY CONSTRUCTION rather than by check:
     /// inside a block the variation, the unit, the band and the sides are all
     /// the same, and total work is strictly monotone along the growth path
-    /// (§33.9, block "b"). The `noHarder` gate is therefore not a filter here
-    /// but a statement about the result, and it lives in the tests.
+    /// (block "b"). The `noHarder` gate is therefore not a filter here but a
+    /// statement about the result, and it lives in the tests.
     static func descend(level: Int, sub: Int, by count: Int) -> Position {
         position(atOrdinal: max(ordinal(level: level, sub: sub) - max(0, count),
                                 ordinal(level: bandFloor(level), sub: 0)))
@@ -146,8 +143,8 @@ extension Level {
 
     /// Per-set doses, in DESCENDING order: the first `sub` sets carry the next
     /// rung's dose. A uniform plan answers `nil` — "nothing to say" — which is
-    /// exactly what `SessionExercise.loads` being optional means, and what lets
-    /// a journal written before v2.22 decode without a migration.
+    /// exactly what `SessionExercise.loads` being optional means, and what
+    /// lets a journal written by an older build decode without a migration.
     static func perSetLoads(pattern: Pattern, level: Int, sub: Int, sets: Int) -> [Int]? {
         let s = effectiveSub(level: level, sub: sub, sets: sets)
         guard s > 0 else { return nil }

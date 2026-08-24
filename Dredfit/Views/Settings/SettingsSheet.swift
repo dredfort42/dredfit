@@ -1,7 +1,4 @@
 //
-//  SettingsSheet.swift
-//  Dredfit
-//
 //  Rest days, equipment, sounds, a reminder, Apple Health, backup.
 //
 
@@ -162,12 +159,12 @@ struct SettingsSheet: View {
         }
     }
 
-    // v2.26 (spec §37.7): the session-length picker is gone. The audit
-    // measured what its rungs actually did: 10, 15 and 20 produced the SAME
-    // plan, and the "20" rung missed its own target in 100 % of sessions. The
-    // engine now announces how long a session takes, and the person shortens
-    // today's with the handle on the plan itself — where the recalculated
-    // number is visible before they agree to it.
+    // The session-length picker is gone. The audit measured what its rungs
+    // actually did: 10, 15 and 20 produced the SAME plan, and the "20" rung
+    // missed its own target in 100 % of sessions. The engine now announces how
+    // long a session takes, and the person shortens today's with the handle on
+    // the plan itself — where the recalculated number is visible before they
+    // agree to it.
 
     // MARK: - Sounds
 

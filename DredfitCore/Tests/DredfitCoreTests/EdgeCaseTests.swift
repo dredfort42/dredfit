@@ -1,5 +1,4 @@
 //
-//  EdgeCaseTests.swift
 //  Engine edge cases not covered by invariants and golden fixtures.
 //
 
@@ -28,13 +27,13 @@ final class EdgeCaseTests: XCTestCase {
 
     /// A hold actual lands on the nearest rung of its ladder, ties DOWN.
     ///
-    /// Re-marked for v2.21 (spec §32.5): tier 1 runs 20-22-24-26-29-32-35-39,
-    /// so the rounding is by rung and not by five seconds. 21 s sits dead
-    /// centre between 20 and 22 and settles onto the lower rung; 22 s IS rung
-    /// 1; 55 s is off the top of the ladder, and the edge interval (4 s)
-    /// carries it on to rung 11 — a level in tier 2. Continuing past the edge
-    /// is what keeps the estimate monotone in the fact (§25.1): clamping at
-    /// rung 7 would make an honest 43 s score below an honest 42.
+    /// Re-marked: tier 1 runs 20-22-24-26-29-32-35-39, so the rounding is by
+    /// rung and not by five seconds. 21 s sits dead centre between 20 and 22
+    /// and settles onto the lower rung; 22 s IS rung 1; 55 s is off the top of
+    /// the ladder, and the edge interval (4 s) carries it on to rung 11 — a
+    /// level in tier 2. Continuing past the edge is what keeps the estimate
+    /// monotone in the fact: clamping at rung 7 would make an honest 43 s
+    /// score below an honest 42.
     func testHoldOverrideLandsOnTheNearestRungOfItsLadder() {
         XCTAssertEqual(Level.fromActual(pattern: .coreAntiExt, tier: 1, sets: 3, actual: 21), 0)
         XCTAssertEqual(Level.fromActual(pattern: .coreAntiExt, tier: 1, sets: 3, actual: 22), 1)
@@ -86,9 +85,9 @@ final class EdgeCaseTests: XCTestCase {
     /// (not through a "less" rating). We use pull — it is in every session.
     func testDeloadTriggersViaOverrideDrop() {
         // pull: 4 × (+2) through tier 1, then one step per session — the
-        // tier-2 and -3 cells hold it to +1 from level 8 on (#76).
-        // v2.22 (spec §33): the run-up is longer — "more" is worth two
-        // SUB-STEPS, not two levels — and the landing is derived, not pinned.
+        // tier-2 and -3 cells hold it to +1 from level 8 on (#76). The run-up
+        // is longer — "more" is worth two SUB-STEPS, not two levels — and the
+        // landing is derived, not pinned.
         var state = EngineState.initial
         for _ in 0..<60 {
             let s = Engine.generateSession(state)
@@ -98,12 +97,12 @@ final class EdgeCaseTests: XCTestCase {
                                     "the run-up must clear tier 2 for the descent to be visible")
 
         // Three sessions in a row we drop pull via a "plan − 2" actual.
-        // Re-marked for v2.14 (spec §25.3): the landing is no longer a flat
-        // "level − 2". A fact below the tier's floor means "this variation is
-        // beyond me", so the descent goes to the floor of an easier tier —
-        // what it may never do is hand back a HEAVIER plan, which is what the
-        // old arithmetic did (repStart grows down the tiers). The deload
-        // machinery itself is unchanged: the streak counts and resets.
+        // Re-marked: the landing is no longer a flat "level − 2". A fact below
+        // the tier's floor means "this variation is beyond me", so the descent
+        // goes to the floor of an easier tier — what it may never do is hand
+        // back a HEAVIER plan, which is what the old arithmetic did (repStart
+        // grows down the tiers). The deload machinery itself is unchanged: the
+        // streak counts and resets.
         for i in 1...3 {
             let before = state.levels[.pull] ?? 0
             let s = Engine.generateSession(state)

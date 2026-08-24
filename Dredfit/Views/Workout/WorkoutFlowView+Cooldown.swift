@@ -1,11 +1,8 @@
 //
-//  WorkoutFlowView+Cooldown.swift
-//  Dredfit
-//
 //  The cool-down block of the workout flow (issue #28), split out of
-//  WorkoutFlowView when v2.26 pushed that file past the lint's ceiling.
-//  The code moved unchanged; what v2.26 added to it is the intro screen —
-//  the block no longer starts itself (spec §37.7a).
+// WorkoutFlowView when pushed that file past the lint's ceiling. The code
+// moved unchanged; what added to it is the intro screen — the block no longer
+// starts itself.
 //
 
 import SwiftUI
@@ -16,7 +13,7 @@ import DredfitCore
 // A same-file extension so the view struct stays within the linter's size
 // for a type body. @State storage stays in the struct; only behaviour here.
 extension WorkoutFlowView {
-    /// v2.26 (spec §37.7a): the cool-down is OFFERED, not started.
+    /// The cool-down is OFFERED, not started.
     ///
     /// The tone is the wave's own: it is proposed, never required, and the
     /// screen carries no consequence for saying no. The warm-up keeps its
@@ -111,8 +108,8 @@ extension WorkoutFlowView {
             persistProgress()
             return
         }
-        // v2.26 (spec §37.7a): ask first. The positions are already drawn, so
-        // the screen can say how many and how long.
+        // Ask first. The positions are already drawn, so the screen can say
+        // how many and how long.
         phase = .cooldownIntro
         liveActivity.update(.init(phase: .work, title: String(localized: "COOL-DOWN"),
                                   detail: "", restEndDate: nil))
@@ -202,7 +199,7 @@ extension WorkoutFlowView {
         cooldownRemaining = next.remaining
         cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(next.remaining))
         // Re-stamp so a long cool-down keeps the session resumable — it
-        // restores onto the rating (spec §4), never into a stretch.
+        // restores onto the rating, never into a stretch.
         if next.entered == .getReady { persistProgress() }
     }
 

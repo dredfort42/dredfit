@@ -1,8 +1,5 @@
 //
-//  AppStore+Handles.swift
-//  Dredfit
-//
-//  v2.26 (spec §37.4-§37.5): the athlete's handles.
+//  The athlete's handles.
 //
 //  The wave removes two mechanisms that decided FOR the person — the pain
 //  channel and the time budget — and gives back three controls that decide
@@ -72,10 +69,10 @@ extension AppStore {
     /// take one step shorter. Nil for the second when every movement is
     /// already on the floor.
     ///
-    /// This is the pair §37.5 asks to be visible BEFORE the person agrees:
-    /// "37 → 26 min". The number is the engine's own `estimatedTotalMin`, not
-    /// an app-side estimate — the wave's answer to "how long will this take"
-    /// is that the engine announces it.
+    /// This is the pair the engine asks to be visible BEFORE the person
+    /// agrees: "37 → 26 min". The number is the engine's own
+    /// `estimatedTotalMin`, not an app-side estimate — the wave's answer to
+    /// "how long will this take" is that the engine announces it.
     func sessionLengthPreview() -> (now: Int, shorter: Int?) {
         let now = Int(nextSession.estimatedTotalMin.rounded())
         let shortened = Engine.shorterSession(state: engineState, steps: 1)

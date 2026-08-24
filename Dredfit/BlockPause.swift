@@ -1,7 +1,4 @@
 //
-//  BlockPause.swift
-//  Dredfit
-//
 //  The pause of the guided blocks (issue #61). Warm-up and cool-down are the
 //  only part of a workout that runs strictly on timers — working sets are
 //  self-paced, and a rest timer that ran out while you answered the door only

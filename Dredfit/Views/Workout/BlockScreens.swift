@@ -1,7 +1,4 @@
 //
-//  BlockScreens.swift
-//  Dredfit
-//
 //  The three screens of a guided block: the "Get ready" transition, a
 //  running warm-up move, and a running cool-down position.
 //

@@ -1,7 +1,4 @@
 //
-//  TodayView.swift
-//  Dredfit
-//
 //  Three states: plan + Start, rest day, or completed with a preview of the
 //  next workout under its honest date.
 //
@@ -65,11 +62,11 @@ struct TodayView: View {
         } message: {
             Text("Levels go back to the beginning. Your history stays.")
         }
-        // v2.25 (spec §36.8): the plan reached a pair of eyes — the engine is
-        // told. Keyed on the showing, so a scroll, a rotation or a Dynamic
-        // Type change is the same showing and costs nothing, while a plan that
-        // changed under the reader (a budget moved in Settings, an "I was
-        // sick" tap, a finished workout) is the new showing it is.
+        // The plan reached a pair of eyes — the engine is told. Keyed on the
+        // showing, so a scroll, a rotation or a Dynamic Type change is the
+        // same showing and costs nothing, while a plan that changed under the
+        // reader (a budget moved in Settings, an "I was sick" tap, a finished
+        // workout) is the new showing it is.
         .task(id: planShowing) {
             guard let showing = planShowing else { return }
             store.recordPlanShown(showing.session)
@@ -78,31 +75,29 @@ struct TodayView: View {
 
     /// What makes a showing a showing: the plan on screen.
     ///
-    /// v2.26 (spec §37.5): the budget it was drawn under used to be part of
-    /// the identity, because a budget could move WITHOUT moving the plan and
-    /// still lift the repair's cap for one transition. The handle writes
-    /// `cut`, a coordinate of the position, so a handle that moves moves the
-    /// session — and the session is already here.
-    /// `nil` on the two days the plan is not on screen at all.
-    /// v2.26 (spec §37.5): the session handle, and the whole point of it — the
-    /// person sees the recalculated duration BEFORE agreeing to it. The number
-    /// is the engine's own `estimatedTotalMin` on both sides of the arrow, not
-    /// an app-side estimate: "how long will this take" is a question the engine
-    /// answers now, and this is where it says so.
+    /// The budget it was drawn under used to be part of the identity, because
+    /// a budget could move WITHOUT moving the plan and still lift the repair's
+    /// cap for one transition. The handle writes `cut`, a coordinate of the
+    /// position, so a handle that moves moves the session — and the session is
+    /// already here. `nil` on the two days the plan is not on screen at all.
+    /// The session handle, and the whole point of it — the person sees the
+    /// recalculated duration BEFORE agreeing to it. The number is the engine's
+    /// own `estimatedTotalMin` on both sides of the arrow, not an app-side
+    /// estimate: "how long will this take" is a question the engine answers
+    /// now, and this is where it says so.
     ///
     /// The control disappears at the floor rather than going grey: unlike the
     /// per-movement handle there is no single movement it could explain itself
     /// about, and "every exercise is already at two sets" is a sentence nobody
-    /// needs on the screen they are about to start from.
-    /// v2.26 (spec §37.4-§37.5): the two per-movement handles, on the movement
-    /// they act on. They live here rather than inside the workout because
-    /// `nextSession` is generated from the state on every access, so a tap
-    /// redraws this row, the announced duration and the plan together. Inside
-    /// the workout they would have to mutate a session the engine is going to
-    /// read the plan from when the rating lands.
+    /// needs on the screen they are about to start from. The two per-movement
+    /// handles, on the movement they act on. They live here rather than inside
+    /// the workout because `nextSession` is generated from the state on every
+    /// access, so a tap redraws this row, the announced duration and the plan
+    /// together. Inside the workout they would have to mutate a session the
+    /// engine is going to read the plan from when the rating lands.
     ///
     /// "Easier version" carries its RESULT, not its promise: the name and dose
-    /// the movement would have after the tap. §37.4 lands it through the
+    /// the movement would have after the tap. The engine lands it through the
     /// ordinary gate, so on `pull_bar` the drop from negatives to a hang is a
     /// change of unit and the preview is the only way to see that coming.
     @ViewBuilder
@@ -236,11 +231,11 @@ struct TodayView: View {
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
 
-            // v2.26 (spec §37.0): the "not getting harder" block is gone with
-            // the freeze it described. Nothing rests any more — a movement the
-            // person finds too hard stays in the plan and gets an easier
-            // variation or fewer sets, which is the point of the wave: the
-            // channel that took movements out took them out for weeks.
+            // The "not getting harder" block is gone with the freeze it
+            // described. Nothing rests any more — a movement the person finds
+            // too hard stays in the plan and gets an easier variation or fewer
+            // sets, which is the point of the wave: the channel that took
+            // movements out took them out for weeks.
 
             // An offer of rest, not a warning (#98) — and never a number to
             // beat: the count appears only here, in the suggestion to break
@@ -263,11 +258,11 @@ struct TodayView: View {
                     .padding(.top, 10)
             }
 
-            // v2.15 (#135): the journal keeps finding the same movement under
-            // an unnamed "tough". One contextual question — never a
-            // questionnaire. v2.26 (§37.4): it used to route into the pain
-            // path; it now routes into the handle, which changes the thing the
-            // person is complaining about instead of taking it away.
+            // The journal keeps finding the same movement under an unnamed
+            // "tough". One contextual question — never a questionnaire.: it
+            // used to route into the pain path; it now routes into the handle,
+            // which changes the thing the person is complaining about instead
+            // of taking it away.
             if store.shouldAskAboutSuspect(), let suspect = store.unnamedLessSuspect() {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Tough sessions keep landing on \(suspect.displayName).")
@@ -277,10 +272,10 @@ struct TodayView: View {
                     HStack(spacing: 16) {
                         Button("Make it easier") { store.makeSuspectEasier(suspect) }
                             .accessibilityIdentifier("weak-link-easier")
-                        // v2.22 (spec §33): the third answer — "just hard" —
-                        // armed a hold, and the hold is cancelled. The case it
-                        // served is exactly what the sub-step fixes without
-                        // asking anyone anything.
+                        // The third answer — "just hard" — armed a hold, and
+                        // the hold is cancelled. The case it served is exactly
+                        // what the sub-step fixes without asking anyone
+                        // anything.
                         Button("It's fine") { store.dismissSuspectPrompt() }
                             .accessibilityIdentifier("weak-link-fine")
                     }

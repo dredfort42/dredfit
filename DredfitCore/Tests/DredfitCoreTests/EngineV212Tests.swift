@@ -1,12 +1,11 @@
 //
-//  EngineV212Tests.swift
 //  DredfitCoreTests
 //
-//  Engine v2.12 (spec §22, issues #126/#133): a comeback lands at a dose no
-//  higher than the last completed session — rep continuity on tier crossings,
-//  a ladder of tier-bottom ceilings, a deepening series of returns — and the
-//  "I was sick" lens makes the plan one tier easier for six restorative
-//  sessions without touching the stored levels.
+// Engine (issues #126, #133): a comeback lands at a dose no higher than the
+// last completed session — rep continuity on tier crossings, a ladder of
+// tier-bottom ceilings, a deepening series of returns — and the "I was sick"
+// lens makes the plan one tier easier for six restorative sessions without
+// touching the stored levels.
 //
 
 import XCTest
@@ -24,7 +23,7 @@ final class EngineV212Tests: XCTestCase {
         return s
     }
 
-    // MARK: - §22.1 rep continuity
+    // MARK: - rep continuity
 
     func testTierCrossingKeepsTheRepDose() {
         // L20 (tier 3 × 9 reps), 77 days → raw 15 crosses into tier 2:
@@ -51,13 +50,13 @@ final class EngineV212Tests: XCTestCase {
     }
 
     func testTheBandSnapKeepsItsPriority() {
-        // 33 → 31 crosses the band boundary: the v2.7 floor snap, not the
-        // tier continuity, decides.
+        // 33 → 31 crosses the band boundary: the floor snap, not the tier
+        // continuity, decides.
         let after = Engine.applyComeback(state: seeded(33), gapDays: 14)
         XCTAssertEqual(after.levels[.squat], 24)
     }
 
-    // MARK: - §22.2 the ceiling ladder
+    // MARK: - the ceiling ladder
 
     func testTheLadderLandsOnTierBottoms() {
         for (gap, ceil) in [(56, 24), (77, 16), (119, 8), (180, 8), (365, 0)] {
@@ -75,7 +74,7 @@ final class EngineV212Tests: XCTestCase {
         XCTAssertEqual(d179, d180, "179 → 180 is no longer a two-tier cliff")
     }
 
-    // MARK: - §22.3 the series of returns
+    // MARK: - the series of returns
 
     func testConsecutiveReturnsDeepenAndASessionResets() {
         var s = Engine.applyComeback(state: seeded(21), gapDays: 30)
@@ -109,9 +108,9 @@ final class EngineV212Tests: XCTestCase {
 
     // MARK: - serialization
 
-    /// v2.26 (§37.2): the lens half of this test is gone with the lens. The
-    /// half that stays is the one that mattered for the wire format — a legacy
-    /// file has no `returnRun`, and garbage in it is healed on the way in.
+    /// The lens half of this test is gone with the lens. The half that stays
+    /// is the one that mattered for the wire format — a legacy file has no
+    /// `returnRun`, and garbage in it is healed on the way in.
     func testNewFieldsDecodeLenientlyAndRoundtrip() throws {
         var s = seeded(20)
         s = Engine.applyComeback(state: s, gapDays: 30)
@@ -129,9 +128,9 @@ final class EngineV212Tests: XCTestCase {
                                              from: JSONSerialization.data(withJSONObject: dict))
         XCTAssertEqual(dirty.returnRun, 0, "a negative series is garbage")
 
-        // v2.26 (§37.2): the SEVEN removed keys are simply ignored. A file
-        // written by an older build still carries them, and that IS the whole
-        // migration — the decoder never asks for them.
+        // The SEVEN removed keys are simply ignored. A file written by an
+        // older build still carries them, and that IS the whole migration —
+        // the decoder never asks for them.
         for key in ["frozen", "sore", "soreLeft", "painSeen",
                     "illness", "timeBudgetMin", "shownBudget"] {
             dict[key] = 99
@@ -142,11 +141,11 @@ final class EngineV212Tests: XCTestCase {
         XCTAssertEqual(old.counter, dirty.counter, "and its counter")
     }
 
-    // SNIPPED v2.26 (§37.0): five tests of §22.4 — the "I was sick" lens.
-    // The lens made the plan HEAVIER in 76 cells out of 480 (finding S6-2, P0)
-    // — the exact opposite of what it promised — and there was nothing to fix:
-    // the mechanism contradicted its own claim.
+    // SNIPPED: five tests of — the "I was sick" lens. The lens made the plan
+    // HEAVIER in 76 cells out of 480 (finding S6-2, P0) — the exact opposite
+    // of what it promised — and there was nothing to fix: the mechanism
+    // contradicted its own claim.
     //
-    // §22.1-§22.3 — the comeback landing, the ceiling ladder and the run of
-    // returns — are untouched and stay here: they never belonged to the lens.
+    // — the comeback landing, the ceiling ladder and the run of returns — are
+    // untouched and stay here: they never belonged to the lens.
 }

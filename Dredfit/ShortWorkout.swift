@@ -1,7 +1,4 @@
 //
-//  ShortWorkout.swift
-//  Dredfit
-//
 //  The short workout (issue #27): three of the session's six exercises are
 //  performed, the rest go to the engine as honest skips.
 //
@@ -9,9 +6,9 @@
 //  very list Today shows, so the resume fingerprint still matches.
 //
 //  Selection is "pull + anchor + laggard", verified by simulation (spec
-//  §3.1): over 32 short workouts every movement is trained 4–16 times and
-//  none waits longer than 8 sessions. The naive "pull + the two lowest" was
-//  rejected — it starves strong movements completely.
+// ): over 32 short workouts every movement is trained 4–16 times and none
+// waits longer than 8 sessions. The naive "pull + the two lowest" was rejected
+// — it starves strong movements completely.
 //
 
 import Foundation

@@ -1,11 +1,9 @@
 //
-//  EngineV29Tests.swift
 //  DredfitCoreTests
 //
-//  Engine v2.9 (spec §19, issue #91): a session-wide "less" reaches the
-//  movement the user named, or — when nothing was named — the single
-//  highest-level one, until a run of unnamed "less" hands the delta back to
-//  everyone.
+// Engine (issue #91): a session-wide "less" reaches the movement the user
+// named, or — when nothing was named — the single highest-level one, until a
+// run of unnamed "less" hands the delta back to everyone.
 //
 
 import XCTest
@@ -13,9 +11,8 @@ import XCTest
 
 /// Tests whose subject is the deload, a freeze, a hold, a break or the bar
 /// branch take their "less" under an already-running series of unnamed ones:
-/// there the delta is session-wide (spec §19.2), which is exactly the
-/// semantics those tests were written against. The targeting itself is the
-/// subject of this file.
+/// there the delta is session-wide, which is exactly the semantics those tests
+/// were written against. The targeting itself is the subject of this file.
 extension EngineState {
     var underLessRun: EngineState {
         var copy = self
@@ -46,13 +43,13 @@ final class EngineV29Tests: XCTestCase {
             var moved = 0
             for ex in session.exercises {
                 if ex.pattern == aim {
-                    // v2.23 (spec §34.1): the aim steps ONE SUB-STEP back along
-                    // the growth path, not one level — and on a block floor
-                    // (L mod 8 == 0) it does not move at all: nothing lighter
-                    // exists in this variation. Its streak grows either way,
-                    // because the streak counts the INTENT (§34.2) — without
-                    // that, a deload on a floor would be unreachable and its
-                    // owner locked into a variation beyond them.
+                    // The aim steps ONE SUB-STEP back along the growth path,
+                    // not one level — and on a block floor (L mod 8 == 0) it
+                    // does not move at all: nothing lighter exists in this
+                    // variation. Its streak grows either way, because the
+                    // streak counts the INTENT — without that, a deload on a
+                    // floor would be unreachable and its owner locked into a
+                    // variation beyond them.
                     assertDescended(after, ex.pattern, from: Position(level: level, sub: 0), by: 1,
                                     "L=\(level): the aim steps back")
                     XCTAssertEqual(after.failStreak[ex.pattern], 1, "L=\(level): the aim's streak grows")
@@ -109,10 +106,10 @@ final class EngineV29Tests: XCTestCase {
         XCTAssertEqual(after.lessRun, 0, "a named rating does not feed the run")
     }
 
-    /// v2.22 (spec §33): re-marked from `testAHoldTakesTheDeltaItselfAnd…`.
-    /// The hold is cancelled, so the named signal here is an exact number below
-    /// the plan — and the subject is untouched: whoever is NAMED takes the
-    /// session-wide "less" alone and everybody else holds.
+    /// Re-marked from `testAHoldTakesTheDeltaItselfAnd…`. The hold is
+    /// cancelled, so the named signal here is an exact number below the plan —
+    /// and the subject is untouched: whoever is NAMED takes the session-wide
+    /// "less" alone and everybody else holds.
     func testANamedFactTakesTheDeltaItselfAndKeepsGoingDown() throws {
         let state = seeded(10)
         let session = Engine.generateSession(state)
@@ -127,10 +124,10 @@ final class EngineV29Tests: XCTestCase {
         XCTAssertEqual(after.lessRun, 0)
     }
 
-    // SNIPPED v2.26 (§37.0): `testADiscomfortReportNamesTheMovementToo`.
-    // Discomfort was one of the two named signals; it is gone. The claim it
-    // made — "a named movement takes the delta alone and the rest are spared"
-    // — is carried word for word by
+    // SNIPPED: `testADiscomfortReportNamesTheMovementToo`. Discomfort was one
+    // of the two named signals; it is gone. The claim it made — "a named
+    // movement takes the delta alone and the rest are spared" — is carried
+    // word for word by
     // `testAnExactNumberBelowPlanNamesTheMovementAndSparesTheRest` above, on
     // the signal that survived. One named signal is left, and saying so is
     // more honest than keeping a second test that no longer has an input.
@@ -140,10 +137,9 @@ final class EngineV29Tests: XCTestCase {
         var moved: [Int] = []
         for _ in 0..<4 {
             let session = Engine.generateSession(state)
-            // v2.23 (spec §34.1): "moved" is counted on the POSITION — a
-            // session delta gives back a sub-step, and the level follows only
-            // on every third one. The subject (who gets the delta, §19.2) is
-            // untouched.
+            // "moved" is counted on the POSITION — a session delta gives back
+            // a sub-step, and the level follows only on every third one. The
+            // subject (who gets the delta) is untouched.
             let before = Dictionary(uniqueKeysWithValues:
                 Pattern.allCases.map { ($0, ordinal(state, $0)) })
             let next = Engine.applyFeedback(state: state, session: session, result: .less)
@@ -169,7 +165,7 @@ final class EngineV29Tests: XCTestCase {
             case "plan": after = Engine.applyFeedback(state: state, session: session, result: .plan)
             case "more": after = Engine.applyFeedback(state: state, session: session, result: .more)
             default:
-                // v2.22 (§33): a named "less" is now named by a fact or by pain.
+                // A named "less" is now named by a fact or by pain.
                 let ex0 = try XCTUnwrap(session.exercises.first)
                 after = Engine.applyFeedback(state: state, session: session, result: .less,
                                              overrides: [ex0.pattern: ex0.load - 2])
@@ -193,7 +189,7 @@ final class EngineV29Tests: XCTestCase {
             let session = Engine.generateSession(state)
             let after = Engine.applyFeedback(state: state, session: session, result: result)
             for ex in session.exercises {
-                // v2.22 (spec §33): in SUB-STEPS.
+                // In SUB-STEPS.
                 let cap = EngineConfig.maxUp(pattern: ex.pattern, tier: Level.decode(10).tier)
                 assertPosition(after, ex.pattern,
                                Level.rise(level: 10, sub: 0, by: min(result.delta, cap)),
@@ -213,9 +209,8 @@ final class EngineV29Tests: XCTestCase {
             state = Engine.applyFeedback(state: state, session: session,
                                          result: k.isMultiple(of: 2) ? .more : .less)
         }
-        // v2.22 (spec §33): "left zero" is measured on the POSITION — on the
-        // lowest sub-steps the level is still zero while the fixed point is
-        // already broken.
+        // "left zero" is measured on the POSITION — on the lowest sub-steps
+        // the level is still zero while the fixed point is already broken.
         XCTAssertGreaterThan(Level.ordinal(state.position(.calf)), 0, "the calf leaves zero")
         XCTAssertGreaterThan(Level.ordinal(state.position(.pull)),
                              Level.ordinal(Position(level: EngineConfig.stepsPerTier, sub: 0)),
@@ -223,16 +218,16 @@ final class EngineV29Tests: XCTestCase {
     }
 
     /// The do-no-harm gate: an impossible plan must still come down. Without
-    /// the run clause of §19.2 this never reached the target at all.
-    /// v2.23 (spec §34.5): the METRIC is re-marked, not the threshold.
-    /// Sessions can no longer be counted: one session gives back a sub-step,
-    /// not a level, and "11 sessions" would be describing a different
-    /// quantity — a guarantee has to be measured in the step the regulator
-    /// actually takes. A descent EVENT is an appearance the rating took down:
-    /// the position fell, or the streak grew on intent (§34.2). The threshold
-    /// is the same 11, and what holds it is the deload — on a block floor the
-    /// position stands but the streak builds, and every third appearance drops
-    /// the pattern a tier: measured, the ladder runs 20 → 19.x → 16 → 8.
+    /// the run clause of this never reached the target at all. The METRIC is
+    /// re-marked, not the threshold. Sessions can no longer be counted: one
+    /// session gives back a sub-step, not a level, and "11 sessions" would be
+    /// describing a different quantity — a guarantee has to be measured in the
+    /// step the regulator actually takes. A descent EVENT is an appearance the
+    /// rating took down: the position fell, or the streak grew on intent. The
+    /// threshold is the same 11, and what holds it is the deload — on a block
+    /// floor the position stands but the streak builds, and every third
+    /// appearance drops the pattern a tier: measured, the ladder runs 20 →
+    /// 19.x → 16 → 8.
     func testAnImpossiblePlanStillDescends() {
         var state = seeded(20)
         let rotating = Pattern.ordered.filter { $0 != .pull }

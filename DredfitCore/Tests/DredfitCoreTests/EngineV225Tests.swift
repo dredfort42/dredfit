@@ -1,22 +1,21 @@
 //
-//  EngineV225Tests.swift
 //  DredfitCoreTests
 //
-//  v2.25 (spec §36, issues #149/#150/#151): the sets handle.
+//  The sets handle.
 //
 //  The engine had no way to say "the same movement, less of it". A level fixes
 //  the VARIATION and the DOSE PER SET, and on the floor of every mod-8 block
 //  the dose is already the smallest that variation has, so a step down had to
 //  swap the exercise — and the top of the tier below is heavier than the
-//  bottom of the current one. Measured on v2.24 over the whole 10 × 48
-//  lattice: a 7-13 day break made the plan HEAVIER in 48 cells of 480 (worst
-//  ×6.50), a pain report made nothing lighter in 24, an honest "hard" every
-//  session locked movement on all 48 levels, and the "I was ill" tap made the
-//  plan heavier in 40. Each of the four is zero now.
+// bottom of the current one. Measured on over the whole 10 × 48 lattice: a
+// 7-13 day break made the plan HEAVIER in 48 cells of 480 (worst ×6.50), a
+// pain report made nothing lighter in 24, an honest "hard" every session
+// locked movement on all 48 levels, and the "I was ill" tap made the plan
+// heavier in 40. Each of the four is zero now.
 //
-//  One test per guarantee of §36, in the section's own order, plus the one
-//  compatibility claim the wave had to keep: a journal written by build 1.9
-//  still decodes whole.
+// One test per guarantee, in the wave's own order, plus the one compatibility
+// claim the wave had to keep: a journal written by build 1.9 still decodes
+// whole.
 //
 
 import XCTest
@@ -57,16 +56,16 @@ final class EngineV225Tests: XCTestCase {
         return (s, w)
     }
 
-    // MARK: - (a) §36.1 Migration
+    // MARK: - (a) Migration
 
     /// Every new field is sparse, so a state that never met the sets handle
-    /// produces the plan v2.24 produced. Two halves: the plan of a level with
-    /// an empty cut is the v2.24 formula to the number, and a state file
-    /// written before the wave decodes into exactly the state with the fields
-    /// present and empty.
+    /// produces the plan produced. Two halves: the plan of a level with an
+    /// empty cut is the formula to the number, and a state file written before
+    /// the wave decodes into exactly the state with the fields present and
+    /// empty.
     ///
-    /// The bit-for-bit comparison against the frozen v2.24 build itself lives
-    /// where it can be run against that build — the reference verifier and the
+    /// The bit-for-bit comparison against the frozen build itself lives where
+    /// it can be run against that build — the reference verifier and the
     /// golden fixture, where seven whole scenarios come out unchanged.
     func testAPlanWithNoCutIsTheV224Formula() {
         var cells = 0
@@ -107,26 +106,26 @@ final class EngineV225Tests: XCTestCase {
                        "and the plan is the one the fields-present state gives")
     }
 
-    // MARK: - (b) §36 A descent never adds load
+    // MARK: - (b) A descent never adds load
 
     /// Every way down, every budget: if a pattern's position did not rise, its
     /// plan may not get heavier. Cells where the variation or the unit changed
     /// are counted out loud rather than silently skipped — a measure in reps
-    /// across a change of variation is not valid (§30.4), and that is the
-    /// accepted gap §36.10 p. 1.
+    /// across a change of variation is not valid, and that is the accepted
+    /// gap.
     ///
     /// The invariant holds against the last plan the person actually SAW, so
-    /// the sweep records the showing with `recordShown` — the very call §36.8
-    /// says closes the gap — before taking each way down.
+    /// the sweep records the showing with `recordShown` — the very call says
+    /// closes the gap — before taking each way down.
     func testNoWayDownEverAddsLoad() {
         var compared = 0, crossed = 0
         let ways: [(String, (EngineState) -> EngineState)] = [
             ("silent decay", { Engine.applySilentDecay(state: $0, gapDays: 8) }),
             ("comeback 14", { Engine.applyComeback(state: $0, gapDays: 14, alreadyDecayed: false) }),
             ("comeback 90", { Engine.applyComeback(state: $0, gapDays: 90, alreadyDecayed: false) }),
-            // v2.26 (§37.4-§37.5): the lens and the pain report left the list
-            // of ways down; the three handles joined it. The invariant is
-            // indifferent to which lever moved — that is the whole point.
+            // The lens and the pain report left the list of ways down; the
+            // three handles joined it. The invariant is indifferent to which
+            // lever moved — that is the whole point.
             ("easier variation", {
                 var s = $0
                 for p in Pattern.allCases { s = Engine.easierVariation(state: s, pattern: p) }
@@ -154,9 +153,9 @@ final class EngineV225Tests: XCTestCase {
                                             overrides: overrides)
             }),
         ]
-        // v2.26: the budget axis is gone with the budget. The sweep is NOT
-        // narrowed to compensate — the whole level scale replaces the thirteen
-        // sampled rungs, and the cut axis reaches its deepest admissible step.
+        // The budget axis is gone with the budget. The sweep is NOT narrowed
+        // to compensate — the whole level scale replaces the thirteen sampled
+        // rungs, and the cut axis reaches its deepest admissible step.
         for (name, step) in ways {
             do {
                 for level in 0...EngineConfig.levelMax {
@@ -190,7 +189,7 @@ final class EngineV225Tests: XCTestCase {
                                     "cells across a change of variation or unit: \(crossed)")
     }
 
-    // MARK: - (d) §36.3 One set back per session
+    // MARK: - (d) One set back per session
 
     /// Every way up, `gapDays == nil` included. The rule lives in `riseBy`,
     /// and until round 4b three paths walked around it — an absolute landing
@@ -264,9 +263,9 @@ final class EngineV225Tests: XCTestCase {
         }
     }
 
-    // MARK: - (e) §37.3 The one floor
+    // MARK: - (e) The one floor
 
-    /// v2.26 (§37.3): RE-MARKED, and the claim is INVERTED.
+    /// RE-MARKED, and the claim is INVERTED.
     ///
     /// It used to read "below two sets only the pain channel goes; below one,
     /// nothing ever does", and it counted the single-set cells to prove the
@@ -280,8 +279,8 @@ final class EngineV225Tests: XCTestCase {
     /// below two sets, reachable without touching a handle at all.
     ///
     /// The budget and lens axes are replaced by the rotation counter, which
-    /// moves both the session's composition and the side of the bar slot —
-    /// the compositions where the §20.2 gate and a cut actually meet.
+    /// moves both the session's composition and the side of the bar slot — the
+    /// compositions where the gate and a cut actually meet.
     func testNothingEverGoesBelowTheOneFloor() {
         var cells = 0, belowFloor = 0
         for counter in 0..<8 {
@@ -290,8 +289,8 @@ final class EngineV225Tests: XCTestCase {
                     for bar in [false, true] {
                         var s = seeded(level, bar: bar, cut: cut)
                         s.counter = counter
-                        // Diverged pull branches: the §20.2 gate trims the
-                        // push by the weaker one, on top of everything else.
+                        // Diverged pull branches: the gate trims the push by
+                        // the weaker one, on top of everything else.
                         s.levels[.pullBar] = max(0, level - 8)
                         for ex in Engine.generateSession(s).exercises {
                             cells += 1
@@ -309,21 +308,21 @@ final class EngineV225Tests: XCTestCase {
                        "cells below the floor must be 0, found \(belowFloor)")
     }
 
-    // MARK: - (f) §14.2 The identity with a non-empty cut
+    // MARK: - (f) The identity with a non-empty cut
 
     /// "A comeback" and "a decay plus a comeback" land in the same place, so
     /// that opening the app during the blind zone never costs more than
     /// staying away.
     ///
-    /// THE STATE OF PLAY, named rather than hidden. §14.2 states the identity
-    /// ON LEVELS and with no cut, and in that form it holds exactly — the
-    /// sweep below finds no divergence at all. It does NOT hold once a cut is
+    /// THE STATE OF PLAY, named rather than hidden. states the identity ON
+    /// LEVELS and with no cut, and in that form it holds exactly — the sweep
+    /// below finds no divergence at all. It does NOT hold once a cut is
     /// carried across: `fallBy` spends the dose before the sets while `riseBy`
-    /// returns the sets before the dose (§36.3 makes that asymmetry
-    /// deliberate), so the compensation reverses the decay's step precisely
-    /// only where the decay moved the same axis. The reference has the same
-    /// property, and the port has to reproduce it rather than paper over it —
-    /// which is why the divergence is held by a BOUND, in
+    /// returns the sets before the dose (the position measure makes that
+    /// asymmetry deliberate), so the compensation reverses the decay's step
+    /// precisely only where the decay moved the same axis. The reference has
+    /// the same property, and the port has to reproduce it rather than paper
+    /// over it — which is why the divergence is held by a BOUND, in
     /// `EngineTests.testTheFourteenTwoDivergenceWithACutStaysWhereItIs`: 920
     /// cells of 11,760, all one-sided, worst 6 positions. A fix makes that
     /// pass more easily; a regression turns it red.
@@ -350,17 +349,17 @@ final class EngineV225Tests: XCTestCase {
                        "the identity was swept over the whole scale")
     }
 
-    // MARK: - (g) §36.8 The postcondition repair
+    // MARK: - (g) The postcondition repair
 
     /// The invariant survives a changing rotation — a movement comes back into
     /// the plan a session or two later — and a moved HANDLE.
     ///
-    /// v2.26 (§37.5): re-marked, and one carve-out DISAPPEARED. The budget was
-    /// a legal reason for the plan to grow at a standing position, so it had
-    /// to lift the repair's cap for exactly one transition, by hand. It worked
-    /// PAST the position measure: it trimmed the plan without touching level,
-    /// sub-step or cut. The handle writes `cut`, a coordinate of the position,
-    /// so releasing it IS a rise and the general gate excludes it on its own —
+    /// Re-marked, and one carve-out DISAPPEARED. The budget was a legal reason
+    /// for the plan to grow at a standing position, so it had to lift the
+    /// repair's cap for exactly one transition, by hand. It worked PAST the
+    /// position measure: it trimmed the plan without touching level, sub-step
+    /// or cut. The handle writes `cut`, a coordinate of the position, so
+    /// releasing it IS a rise and the general gate excludes it on its own —
     /// `budgetTouched` is gone, not replaced.
     ///
     /// The budget axis is replaced by a denser level grid so the sweep does
@@ -398,10 +397,10 @@ final class EngineV225Tests: XCTestCase {
                             s = Engine.applyFeedback(state: s, session: w, result: .less,
                                                      gapDays: 7.0 / 3.0)
                         case 4:
-                            // v2.26 (§37.0): the pain report was the second
-                            // signal that left the position standing; a SKIP is
-                            // the one that survives, and it is the same class
-                            // of transition the invariant is written about.
+                            // The pain report was the second signal that left
+                            // the position standing; a SKIP is the one that
+                            // survives, and it is the same class of transition
+                            // the invariant is written about.
                             s = Engine.applyFeedback(state: s, session: w, result: .plan,
                                                      skipped: [w.exercises[step % 6].pattern],
                                                      gapDays: 7.0 / 3.0)
@@ -429,14 +428,14 @@ final class EngineV225Tests: XCTestCase {
 
     // MARK: - Compatibility: the 1.9 journal
 
-    /// `SessionExercise` gained no NON-OPTIONAL field in this wave, and that is
-    /// compatibility rather than style: a journal written by build 1.9 carries
-    /// none of the keys added since, and one required field would zero the
-    /// whole history on decode. The per-exercise sets floor the budget needs
-    /// (§36.6) is therefore carried alongside the plan and never inside it —
-    /// the port's answer to the reference's non-enumerable property.
+    /// `SessionExercise` gained no NON-OPTIONAL field in this wave, and that
+    /// is compatibility rather than style: a journal written by build 1.9
+    /// carries none of the keys added since, and one required field would zero
+    /// the whole history on decode. The per-exercise sets floor the budget
+    /// needs is therefore carried alongside the plan and never inside it — the
+    /// port's answer to the reference's non-enumerable property.
     func testAJournalFromBuildOneNineStillDecodesWhole() throws {
-        // Exactly the keys build 1.9 wrote — no `loads`, and nothing from v2.25.
+        // Exactly the keys build 1.9 wrote — no `loads`, and nothing from the later waves.
         let legacy = """
         {
           "pattern": "push_h",
@@ -482,8 +481,8 @@ final class EngineV225Tests: XCTestCase {
         XCTAssertEqual(decoded.estimatedTotalMin, 33.5)
     }
 
-    // SNIPPED v2.26 (§37.0): `testThePainLadderFallsStrictlyAndKeepsTheVariation`.
-    // The ladder was the pain channel walking down the SETS axis; the channel is
+    // SNIPPED: `testThePainLadderFallsStrictlyAndKeepsTheVariation`. The
+    // ladder was the pain channel walking down the SETS axis; the channel is
     // gone, so there is no ladder to walk.
     //
     // NOT LOST: "a cut takes sets and touches neither the variation nor the

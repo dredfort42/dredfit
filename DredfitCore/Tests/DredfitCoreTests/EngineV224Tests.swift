@@ -1,15 +1,14 @@
 //
-//  EngineV224Tests.swift
 //  DredfitCoreTests
 //
-//  Engine v2.24 (spec §35) — RE-MARKED for v2.26 (§37.3/§37.5).
+// Engine — RE-MARKED.
 //
-//  §35 is removed by this wave EXCEPT §35.1, the shared sets floor, which
-//  moves into §37.2 and becomes the ONLY floor. So four of the six tests here
-//  are gone with the budget — the shortfall under ten per cent, "shrinking the
-//  budget never lengthens the session", "no limit is identical to no budget",
-//  and "the tightest budget keeps every movement": all four measured the
-//  quality of a trim that no longer exists.
+// is removed by this wave EXCEPT, the shared sets floor, which moves into the
+// shared floor and becomes the ONLY floor. So four of the six tests here are
+// gone with the budget — the shortfall under ten per cent, "shrinking the
+// budget never lengthens the session", "no limit is identical to no budget",
+// and "the tightest budget keeps every movement": all four measured the
+// quality of a trim that no longer exists.
 //
 //  The two that survive did not measure the budget, they measured the FLOOR
 //  and what a cut is allowed to touch. Both are kept word for word with the
@@ -40,7 +39,7 @@ final class EngineV224Tests: XCTestCase {
         return s
     }
 
-    // MARK: - §37.3 The one floor
+    // MARK: - The one floor
 
     /// The sweep the spec asks for, re-marked: no combination of HANDLE and
     /// gate may put any exercise below two sets — or above the ceiling, or
@@ -82,7 +81,7 @@ final class EngineV224Tests: XCTestCase {
         }
     }
 
-    // MARK: - §37.5 A cut takes sets and nothing else
+    // MARK: - A cut takes sets and nothing else
 
     /// Word for word the old claim, with the handle as the lever: the list of
     /// movements, the variations, the doses and the levels are the ones the

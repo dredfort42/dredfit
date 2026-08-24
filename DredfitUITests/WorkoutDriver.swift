@@ -1,7 +1,4 @@
 //
-//  WorkoutDriver.swift
-//  DredfitUITests
-//
 //  The one way the UI tests drive a workout to the rating screen. Two copies
 //  of this walk would drift, and the last time it drifted it cost the nightly
 //  six red runs (I-5).
@@ -42,20 +39,20 @@ struct WorkoutDriver {
         return true
     }
 
-    /// v2.26: the warm-up opens on its offer screen, so getting past the
-    /// block is one tap on the offer's own skip rather than the footer's.
+    /// The warm-up opens on its offer screen, so getting past the block is one
+    /// tap on the offer's own skip rather than the footer's.
     func startWorkout() {
         app.buttons["Start"].tap()
         let skipWarmup = app.buttons["warmup-intro-skip"]
         if skipWarmup.waitForExistence(timeout: 3) { skipWarmup.tap() }
     }
 
-    /// v2.26 (§37.7a): the cool-down asks before it runs, and the question
-    /// stands between the last exercise and the rating. Any walk that ends on
-    /// the rating has to answer it — otherwise it waits for a screen that
-    /// cannot arrive. Answers only if asked, so it is safe to call on a path
-    /// that never reaches the block (a workout of pure skips has nothing to
-    /// stretch and is never asked).
+    /// The cool-down asks before it runs, and the question stands between the
+    /// last exercise and the rating. Any walk that ends on the rating has to
+    /// answer it — otherwise it waits for a screen that cannot arrive. Answers
+    /// only if asked, so it is safe to call on a path that never reaches the
+    /// block (a workout of pure skips has nothing to stretch and is never
+    /// asked).
     @discardableResult
     func declineCooldownIfAsked(timeout: TimeInterval = 5) -> Bool {
         let skip = app.buttons["cooldown-intro-skip"]
@@ -98,9 +95,9 @@ struct WorkoutDriver {
                 coordinateTap(startHold)
                 _ = startHold.waitForNonExistence(timeout: 3)  // countdown started
             } else if cooldownQuestion.exists {
-                // v2.26 (§37.7a): the block asks first. Skipping answers the
-                // question rather than the footer — the block never runs, so
-                // this is deliberately NOT counted as having seen it.
+                // The block asks first. Skipping answers the question rather
+                // than the footer — the block never runs, so this is
+                // deliberately NOT counted as having seen it.
                 coordinateTap(skipsCooldown ? cooldownDeclineButton : cooldownQuestion)
                 _ = cooldownQuestion.waitForNonExistence(timeout: 3)
             } else if skipsCooldown, skipCooldownButton.exists {

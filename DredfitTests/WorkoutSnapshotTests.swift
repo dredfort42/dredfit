@@ -1,8 +1,3 @@
-//
-//  WorkoutSnapshotTests.swift
-//  DredfitTests
-//
-
 import XCTest
 import DredfitCore
 @testable import Dredfit
@@ -199,9 +194,9 @@ final class WorkoutSnapshotTests: XCTestCase {
         XCTAssertNil(reloaded.resumableWorkout()?.discomfort)
     }
 
-    /// v2.22 (spec §33): re-marked from `testAPinAloneMakesASnapshotResumable`.
-    /// The hold request is cancelled; a pain report is the remaining per-movement
-    /// mark that is progress worth offering back on its own.
+    /// Re-marked from `testAPinAloneMakesASnapshotResumable`. The hold request
+    /// is cancelled; a pain report is the remaining per-movement mark that is
+    /// progress worth offering back on its own.
     func testAPainReportAloneMakesASnapshotResumable() {
         let store = AppStore(storageURL: tempURL)
         store.saveWorkoutSnapshot(WorkoutSnapshot(
@@ -223,7 +218,7 @@ final class WorkoutSnapshotTests: XCTestCase {
         var raw = try XCTUnwrap(String(data: try Data(contentsOf: tempURL), encoding: .utf8))
         XCTAssertFalse(raw.contains("\"pinned\""),
                        "the cancelled key is never written again")
-        // Splice it back in the way a pre-v2.22 build would have written it.
+        // Splice it back in the way an older build would have written it.
         raw = raw.replacingOccurrences(
             of: "\"fingerprint\" : \"\(fingerprint)\"",
             with: "\"pinned\" : [\"squat\"],\n    \"fingerprint\" : \"\(fingerprint)\"")

@@ -1,8 +1,3 @@
-//
-//  ShareCardTests.swift
-//  DredfitTests
-//
-
 import XCTest
 import SwiftUI
 import DredfitCore

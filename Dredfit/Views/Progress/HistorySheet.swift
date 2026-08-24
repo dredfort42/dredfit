@@ -1,7 +1,4 @@
 //
-//  HistorySheet.swift
-//  Dredfit
-//
 //  A completed workout viewed from the calendar.
 //
 
@@ -38,9 +35,9 @@ struct HistorySheet: View {
                                 .dredfitFont(15)
                                 .monospacedDigit()
                                 .foregroundStyle(Theme.ink2)
-                            // v2.26 (§37.0): only a record written before the
-                            // wave can carry this. History says what happened,
-                            // and what happened is that the person reported it.
+                            // Only a record written before the wave can carry
+                            // this. History says what happened, and what
+                            // happened is that the person reported it.
                             if record.discomfort?.contains(ex.pattern) == true {
                                 Text("hurt")
                                     .dredfitFont(12.5)

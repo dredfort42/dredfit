@@ -1,7 +1,4 @@
 //
-//  Journal.swift
-//  Dredfit
-//
 //  What a finished workout leaves behind, and what an unfinished one holds
 //  on to. Both are read back out of one JSON file, so both are inputs.
 //
@@ -27,25 +24,25 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     /// shows when the sets did not all run the same.
     var setActuals: [Pattern: [Int]]?
     var skipped: Set<Pattern>?
-    /// Reported as painful mid-workout: to the engine a skip, to the journal
-    /// a different fact — and the reason the pattern is resting afterwards.
-    /// LEGACY, read-only (v2.26, spec §37.0). The pain report is gone, and
-    /// nothing writes this any more — but a journal on disk still carries it,
-    /// and a record that loses the fact is a record that lies about what
-    /// happened. Kept so history stays readable; never populated again.
+    /// Reported as painful mid-workout: to the engine a skip, to the journal a
+    /// different fact — and the reason the pattern is resting afterwards.
+    /// LEGACY, read-only. The pain report is gone, and nothing writes this any
+    /// more — but a journal on disk still carries it, and a record that loses
+    /// the fact is a record that lies about what happened. Kept so history
+    /// stays readable; never populated again.
     var discomfort: Set<Pattern>?
     var levelsAfter: [Pattern: Int]?
     var durationSec: Int?
     /// Only `true` is ever written; nil means "not exported yet".
     var healthExported: Bool?
 
-    /// v2.13 (spec §24.1): the journal is an input too. The engine heals the
-    /// state it is handed, but its own snapshots come back out of this file
-    /// and straight into arithmetic — the retrospective subtracts a stored
-    /// level from the current one, the week summary subtracts two totals —
-    /// and a hand-edited `Int.min` traps that subtraction instead of
-    /// saturating. Every number here is clamped to the range it can mean; the
-    /// valid domain never notices.
+    /// The journal is an input too. The engine heals the state it is handed,
+    /// but its own snapshots come back out of this file and straight into
+    /// arithmetic — the retrospective subtracts a stored level from the
+    /// current one, the week summary subtracts two totals — and a hand-edited
+    /// `Int.min` traps that subtraction instead of saturating. Every number
+    /// here is clamped to the range it can mean; the valid domain never
+    /// notices.
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         func clamp(_ v: Int, _ lo: Int, _ hi: Int) -> Int { min(max(v, lo), hi) }
@@ -117,11 +114,11 @@ struct WorkoutSnapshot: Codable, Equatable {
     var actuals: [Pattern: Int] = [:]
     var skipped: Set<Pattern> = []
     /// Optional, like the fields below: a snapshot written by an older build
-    /// must still decode rather than take the whole file down with it.
-    /// LEGACY, read-only (v2.26, spec §37.0). The pain report is gone, and
-    /// nothing writes this any more — but a journal on disk still carries it,
-    /// and a record that loses the fact is a record that lies about what
-    /// happened. Kept so history stays readable; never populated again.
+    /// must still decode rather than take the whole file down with it. LEGACY,
+    /// read-only. The pain report is gone, and nothing writes this any more —
+    /// but a journal on disk still carries it, and a record that loses the
+    /// fact is a record that lies about what happened. Kept so history stays
+    /// readable; never populated again.
     var discomfort: Set<Pattern>?
     var workoutStart: Date
     var savedAt: Date
@@ -151,13 +148,13 @@ struct WorkoutSnapshot: Codable, Equatable {
         session.exercises
             .map { ex in
                 let head = "\(ex.pattern.rawValue):\(ex.tier):\(ex.load):\(ex.sets)"
-                // v2.22 (spec §33): the per-set doses belong in the identity.
-                // Without them 3×8 and 9-8-8 share a fingerprint — same tier,
-                // same base dose, same set count — and a snapshot could resume
-                // into a plan that asks different numbers of its sets. Appended
-                // only for an UNEVEN plan, so a uniform one keeps the exact
-                // string it had before and a workout interrupted before the
-                // update still resumes.
+                // The per-set doses belong in the identity. Without them 3×8
+                // and 9-8-8 share a fingerprint — same tier, same base dose,
+                // same set count — and a snapshot could resume into a plan
+                // that asks different numbers of its sets. Appended only for
+                // an UNEVEN plan, so a uniform one keeps the exact string it
+                // had before and a workout interrupted before the update still
+                // resumes.
                 guard let loads = ex.loads else { return head }
                 return head + ":" + loads.map(String.init).joined(separator: "-")
             }

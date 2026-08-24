@@ -1,7 +1,4 @@
 //
-//  RestExtensionUITests.swift
-//  DredfitUITests
-//
 //  "+15 s" on the rest screen (issue #73, item D). Deliberately runs WITHOUT
 //  --uitest-fast: that hook collapses a rest to one second, which also
 //  collapses the extension cap to two — the control would be disabled before

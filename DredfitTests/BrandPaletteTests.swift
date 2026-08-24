@@ -1,7 +1,4 @@
 //
-//  BrandPaletteTests.swift
-//  DredfitTests
-//
 //  The palette lives in Brand.xcassets and code only reaches it through the
 //  Theme façade, so a colorset edited blind — or a façade string with no
 //  colorset behind it — would ship without a compile error. These resolve
