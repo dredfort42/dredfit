@@ -65,6 +65,23 @@ extension AppStore {
 
     // MARK: - The session handle: shorter today
 
+    /// SCAFFOLDING, v2.27 (§38.1) — delete with the four members below.
+    ///
+    /// `Engine.shorterSession` is gone: §38 removed the last handle that asked
+    /// the person to decide BEFORE the workout. The members that called it are
+    /// removed by the app wave, together with their UI and their strings; this
+    /// keeps them compiling until then and does exactly what the removed export
+    /// did — `max(current, k)` in `allCases` order — so nothing about their
+    /// behaviour moves in the meantime. Nothing new may start calling it.
+    private func sessionCut(_ steps: Int) -> EngineState {
+        var next = engineState
+        for pattern in Pattern.allCases {
+            next = Engine.setCut(state: next, pattern: pattern,
+                                 cut: max(next.cutOf(pattern), steps))
+        }
+        return next
+    }
+
     /// How long today's workout is announced to take, and how long it would
     /// take one step shorter. Nil for the second when every movement is
     /// already on the floor.
@@ -75,7 +92,7 @@ extension AppStore {
     /// "how long will this take" is that the engine announces it.
     func sessionLengthPreview() -> (now: Int, shorter: Int?) {
         let now = Int(nextSession.estimatedTotalMin.rounded())
-        let shortened = Engine.shorterSession(state: engineState, steps: 1)
+        let shortened = sessionCut(1)
         guard shortened != engineState else { return (now, nil) }
         let after = Int(Engine.generateSession(shortened).estimatedTotalMin.rounded())
         return (now, after < now ? after : nil)
@@ -88,7 +105,7 @@ extension AppStore {
     func sessionLengthPreview(within plan: Set<Pattern>?) -> (now: Int, shorter: Int?) {
         guard let plan else { return sessionLengthPreview() }
         let now = ShortWorkout.estimatedMin(session: nextSession, plan: plan)
-        let shortened = Engine.shorterSession(state: engineState, steps: 1)
+        let shortened = sessionCut(1)
         guard shortened != engineState else { return (now, nil) }
         let after = ShortWorkout.estimatedMin(session: Engine.generateSession(shortened),
                                               plan: plan)
@@ -97,7 +114,7 @@ extension AppStore {
 
     /// True while any movement in today's plan still has room to lose a set.
     var canMakeSessionShorter: Bool {
-        Engine.shorterSession(state: engineState, steps: 1) != engineState
+        sessionCut(1) != engineState
     }
 
     var isSessionShortened: Bool {

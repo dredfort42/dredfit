@@ -1,7 +1,9 @@
 //
-//  The athlete's handles. The wave removes two
-//  mechanisms that decided FOR the person — the pain channel and the time
-//  budget — and gives back three controls that decide WITH them.
+//  The athlete's handles. v2.26 removed two mechanisms that decided FOR the
+//  person — the pain channel and the time budget — and gave back controls that
+//  decide WITH them. v2.27 removed the last one that still asked them to decide
+//  BEFORE the workout ("shorter today"); what is left is one variation handle,
+//  one axis entry point, and the order in which a skip has to land on it.
 //
 //  All three are engine entry points on purpose. The app layer writing into
 //  the state directly is the very bypass of `applyFeedback` the audit counts
@@ -85,28 +87,48 @@ extension Engine {
         return next
     }
 
-    /// "shorter today" — the same cut across every movement at once.
+    /// A session's feedback and the sets skipped while doing it, landed in the
+    /// ONE order that does not lose them (spec §38.2, rule 1).
     ///
-    /// NO NEW STATE FIELD is introduced, and that is the point rather than an
-    /// implementation detail: this is the same `cut`, written as a list, so a
-    /// set earned back by growing works for it exactly as it does for a cut
-    /// taken one movement at a time. A separate "session mode" field would
-    /// have needed its own return path, its own sanitizer and its own place in
-    /// every gate that reads the position.
+    /// The order is a CONTRACT, not a caller's convention, which is why this
+    /// exists at all: a skip written BEFORE the rating disappears in silence.
+    /// On a session the person completed, `applyFeedback` calls `riseBy`, and
+    /// `riseBy` hands a set BACK instead of raising the level (§37.6) — so the
+    /// cut recorded in advance is eaten by exactly the event that should have
+    /// returned it later. The cut belongs on the RESULT of the feedback, never
+    /// on its input. Reproduced on L24 (3×4 stays 3×4 instead of becoming 2×4)
+    /// and on L40 (5×8 stays 5×8 instead of 4×8), and the reference's block 55
+    /// asserts BOTH directions so a port that swaps them cannot pass quietly.
     ///
-    /// Each movement takes `max(current, steps)`: the session handle never
-    /// gives a set BACK to a movement the person had already cut deeper by
-    /// hand. Releasing it is `setCut(..., 0)`.
-    public static func shorterSession(state: EngineState, steps: Int) -> EngineState {
-        let k = max(0, steps)
-        var next = state
+    /// The app layer never has to get this right, because it cannot express
+    /// the wrong order through this entry point: it hands over what happened,
+    /// and the order is settled here.
+    ///
+    /// `setsSkipped` counts sets skipped DURING the session, per movement. It
+    /// is added to whatever cut the feedback left behind — not assigned — and
+    /// `setCut` clamps it to `cutMax`, so asking for more than remains is
+    /// ordinary, not an error. A movement already at the floor has nothing to
+    /// take: rule 2 says that skip travels as an ordinary skipped EXERCISE, in
+    /// `skipped`, never as a fact of 0 reps, and the caller decides which of
+    /// the two a tap became before it gets here.
+    public static func applyFeedback(
+        state: EngineState,
+        session: Session,
+        result: FeedbackResult,
+        overrides: [Pattern: Int] = [:],
+        skipped: Set<Pattern> = [],
+        setsSkipped: [Pattern: Int],
+        gapDays: Double? = nil
+    ) -> EngineState {
+        var next = Self.applyFeedback(state: state, session: session, result: result,
+                                      overrides: overrides, skipped: skipped,
+                                      gapDays: gapDays)
         // Walked in `Pattern.allCases` order, which is the reference's
-        // `ALL_PATTERNS` order: each step re-reads the cut through the
-        // sanitizer, so the walk is not order-free.
+        // `ALL_PATTERNS` order: each step re-reads the cut it is adding to, so
+        // the walk is not order-free.
         for p in Pattern.allCases {
-            let levels = Self.healedLevels(next)
-            let current = EngineState.healCut(next.cut, levels: levels)[p] ?? 0
-            next = Self.setCut(state: next, pattern: p, cut: max(current, k))
+            guard let k = setsSkipped[p], k > 0 else { continue }
+            next = Self.setCut(state: next, pattern: p, cut: next.cutOf(p) + k)
         }
         return next
     }
