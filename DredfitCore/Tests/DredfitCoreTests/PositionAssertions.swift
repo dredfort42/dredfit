@@ -39,15 +39,6 @@ extension XCTestCase {
         XCTAssertEqual(got.cut, want.cut, "\(message) — cut \(shown)", file: file, line: line)
     }
 
-    /// Assert the pattern rose by exactly `count` sub-steps from `entry`.
-    func assertRose(_ state: EngineState, _ p: DredfitCore.Pattern, from entry: EngineState,
-                    by count: Int, _ message: String = "",
-                    file: StaticString = #filePath, line: UInt = #line) {
-        let want = Level.rise(level: entry.position(p).level,
-                              sub: entry.position(p).sub, by: count)
-        assertPosition(state, p, want, message, file: file, line: line)
-    }
-
     /// The position a session delta lands a pattern on: up in sub-steps under
     /// the growth cell (§33), and standing still on a zero delta.
     /// v2.23 (spec §34.1): DOWN in sub-steps too — one position back along the

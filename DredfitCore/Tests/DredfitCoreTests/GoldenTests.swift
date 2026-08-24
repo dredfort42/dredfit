@@ -37,9 +37,6 @@ private struct Golden: Decodable {
         let failStreak: [Int]
         let barLevel: Int
         let barStreak: Int
-        /// v2.24 (spec §35.2): the time budget the scenario starts under.
-        /// Additive — scenarios that never touch it omit the key entirely.
-        let timeBudgetMin: Int?
     }
     /// applyComeback invoked before this step's session.
     struct Comeback: Decodable {
@@ -74,11 +71,6 @@ private struct Golden: Decodable {
                 snaps = [try Comeback(from: decoder)]
             }
         }
-    }
-    /// v2.12 (§22.4): the "I was sick" tap, applied after the comeback and
-    /// before the session is generated.
-    struct IllnessTap: Decodable {
-        let illnessAfter: Int
     }
     /// applySilentDecay invoked before this step's session (v2.4) — and
     /// before the step's comeback, when both are present: the user peeked
