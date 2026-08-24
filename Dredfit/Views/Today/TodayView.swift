@@ -561,6 +561,13 @@ private extension TodayView {
     /// strip beside "Fewer sets" took a set off the plan — 35 min became 33
     /// and the handle vanished under the finger. Neither style changes how
     /// anything looks; both views paint their own colours.
+    ///
+    /// `contentShape` is not decoration here, it is the other half of the
+    /// fix. A `.plain` button answers only where it DRAWS, and this row draws
+    /// a name on the left and a load on the right with a wide gap between
+    /// them — without the shape, a tap into that gap reached nothing, which
+    /// is a different bug from the one being fixed and no better. The card is
+    /// the target; the handles under it are their own.
     private func planRow(_ ex: SessionExercise, debuts: Set<Pattern>) -> some View {
         Button {
             techniqueFor = ex
@@ -569,6 +576,7 @@ private extension TodayView {
                         badge: debuts.contains(ex.pattern)
                             ? String(localized: "new variation") : nil,
                         note: ExerciseRow.note(store.setsNote(for: ex)))
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
