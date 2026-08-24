@@ -80,7 +80,7 @@ public enum Level {
     /// previous tier. A change of variation, not fewer reps of the same one:
     /// "take the load off, don't trim it" (§15.2). The set bands are tier 4
     /// by encoding, so they too land at the bottom of tier 3.
-    public static func unload(_ level: Int) -> Int {
+    static func unload(_ level: Int) -> Int {
         let tier = decode(level).tier
         return max(0, (tier - 2) * EngineConfig.stepsPerTier)
     }
@@ -91,7 +91,7 @@ public enum Level {
     /// `repStart` is the tier's minimum and the mod-8 rung goes to zero.
     /// Swept over 10 patterns × 48 levels: 0 cells where the landing asks for
     /// more work than the level it came from.
-    public static func tierFloor(_ level: Int) -> Int {
+    static func tierFloor(_ level: Int) -> Int {
         let tier = decode(level).tier
         return (tier - 1) * EngineConfig.stepsPerTier
     }
@@ -105,7 +105,7 @@ public enum Level {
     /// the set count and the starting dose (`repStartBand`, §28.1) — `squat`
     /// 32 → 31 reads as 4×4 → 3×11, 16 reps against 33. For levels 0..31 the
     /// block and the tier coincide word for word, and this equals `tierFloor`.
-    public static func bandFloor(_ level: Int) -> Int {
+    static func bandFloor(_ level: Int) -> Int {
         let l = min(max(level, 0), EngineConfig.levelMax)
         return l - (l % EngineConfig.stepsPerTier)
     }
@@ -300,7 +300,7 @@ public enum Level {
     /// Level from an actual value (reps or seconds) given the planned tier and
     /// sets. Tier 4 spans three set bands, so the base depends on sets; the
     /// unit comes from the (pattern, tier) library record.
-    public static func fromActual(pattern: Pattern, tier: Int, sets: Int, actual: Int) -> Int {
+    static func fromActual(pattern: Pattern, tier: Int, sets: Int, actual: Int) -> Int {
         let lib = ExerciseLibrary.entry(for: pattern)
         // v2.17 (spec §28.1): the inversion reads the same start and step the
         // render used — the band's own when the plan sits in a band.

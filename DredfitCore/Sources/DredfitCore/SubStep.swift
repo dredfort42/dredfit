@@ -42,14 +42,14 @@ extension Level {
     /// or — on `pullBar` — a different unit), and mixing two variations inside
     /// one exercise is forbidden. Without the rule 110 of 1680 cells would ask
     /// for two different exercises in one session slot.
-    public static func subDisabled(at level: Int) -> Bool {
+    static func subDisabled(at level: Int) -> Bool {
         min(max(level, 0), EngineConfig.levelMax) % EngineConfig.stepsPerTier
             == EngineConfig.stepsPerTier - 1
     }
 
     /// How many growth events it takes to LEAVE level `L`: one per set, or a
     /// single one on the top rung, which goes straight to `L+1`.
-    public static func subSteps(at level: Int) -> Int {
+    static func subSteps(at level: Int) -> Int {
         subDisabled(at: level) ? 1 : decode(level).sets
     }
 
@@ -58,7 +58,7 @@ extension Level {
     /// `sets` when the exercise shows fewer sets than its band (the §20.2 gate
     /// or the §28.3 budget) — a sub-step can never ask for more sets than are
     /// on screen.
-    public static func effectiveSub(level: Int, sub: Int, sets: Int? = nil) -> Int {
+    static func effectiveSub(level: Int, sub: Int, sets: Int? = nil) -> Int {
         guard !subDisabled(at: level) else { return 0 }
         let top = max(0, (sets ?? decode(level).sets) - 1)
         return min(max(sub, 0), top)
@@ -80,13 +80,13 @@ extension Level {
     static var subOrdinalMax: Int { subOrdinalTable[EngineConfig.levelMax] }
 
     /// Where a position sits on the scale.
-    public static func ordinal(_ position: Position) -> Int {
+    static func ordinal(_ position: Position) -> Int {
         let level = min(max(position.level, 0), EngineConfig.levelMax)
         return subOrdinalTable[level]
             + effectiveSub(level: level, sub: position.sub)
     }
 
-    public static func ordinal(level: Int, sub: Int) -> Int {
+    static func ordinal(level: Int, sub: Int) -> Int {
         ordinal(Position(level: level, sub: sub))
     }
 
@@ -101,13 +101,13 @@ extension Level {
     /// A growth event is ONE sub-step: `sub += 1`, and at `sub == sets(L)` the
     /// level rises and the sub-step returns to zero. On a tier's top rung one
     /// event goes straight to `L+1, sub = 0`.
-    public static func rise(level: Int, sub: Int, by count: Int) -> Position {
+    static func rise(level: Int, sub: Int, by count: Int) -> Position {
         position(atOrdinal: ordinal(level: level, sub: sub) + max(0, count))
     }
 
     /// How far one position lies above another, in sub-steps; zero when the
     /// target is not above.
-    public static func subRise(from: Position, to: Position) -> Int {
+    static func subRise(from: Position, to: Position) -> Int {
         max(0, ordinal(to) - ordinal(from))
     }
 
@@ -124,13 +124,13 @@ extension Level {
     /// the same, and total work is strictly monotone along the growth path
     /// (§33.9, block "b"). The `noHarder` gate is therefore not a filter here
     /// but a statement about the result, and it lives in the tests.
-    public static func descend(level: Int, sub: Int, by count: Int) -> Position {
+    static func descend(level: Int, sub: Int, by count: Int) -> Position {
         position(atOrdinal: max(ordinal(level: level, sub: sub) - max(0, count),
                                 ordinal(level: bandFloor(level), sub: 0)))
     }
 
     /// The dose a level asks for, in its own unit — the number the plan shows.
-    public static func dose(pattern: Pattern, level: Int) -> Int {
+    static func dose(pattern: Pattern, level: Int) -> Int {
         let d = decode(level)
         let entry = ExerciseLibrary.entry(for: pattern)
         return entry.unit(forTier: d.tier) == .reps ? d.reps : d.hold
@@ -139,7 +139,7 @@ extension Level {
     /// What ONE sub-step adds: the dose of rung `L+1` less the dose of `L`.
     /// Only ever asked where sub-steps are enabled, so `L+1` is guaranteed to
     /// be the same tier, the same band, the same variation and the same unit.
-    public static func subDelta(pattern: Pattern, level: Int) -> Int {
+    static func subDelta(pattern: Pattern, level: Int) -> Int {
         guard !subDisabled(at: level) else { return 0 }
         return dose(pattern: pattern, level: level + 1) - dose(pattern: pattern, level: level)
     }
@@ -148,7 +148,7 @@ extension Level {
     /// rung's dose. A uniform plan answers `nil` — "nothing to say" — which is
     /// exactly what `SessionExercise.loads` being optional means, and what lets
     /// a journal written before v2.22 decode without a migration.
-    public static func perSetLoads(pattern: Pattern, level: Int, sub: Int, sets: Int) -> [Int]? {
+    static func perSetLoads(pattern: Pattern, level: Int, sub: Int, sets: Int) -> [Int]? {
         let s = effectiveSub(level: level, sub: sub, sets: sets)
         guard s > 0 else { return nil }
         let base = dose(pattern: pattern, level: level)

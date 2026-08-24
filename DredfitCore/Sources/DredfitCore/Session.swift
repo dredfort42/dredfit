@@ -58,7 +58,7 @@ public struct SessionExercise: Codable, Equatable, Identifiable, Sendable {
     /// this property walked straight into when it was added. No exercise ever
     /// had more sets than the scale has bands, so the valid domain never
     /// notices the clamp.
-    public var perSetLoads: [Int] {
+    var perSetLoads: [Int] {
         let count = min(max(sets, 0), EngineConfig.setsMax)
         guard let loads, !loads.isEmpty else {
             return Array(repeating: load, count: count)

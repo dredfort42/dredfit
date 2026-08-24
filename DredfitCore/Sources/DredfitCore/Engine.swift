@@ -24,7 +24,7 @@ public enum Pattern: String, Codable, CaseIterable, Sendable {
     /// The two branches of the pull slot and the two push patterns — the sides
     /// the balance principle weighs against each other (spec §20).
     public static let pullSide: Set<Pattern> = [.pull, .pullBar]
-    public static let pushSide: Set<Pattern> = [.pushH, .pushV]
+    static let pushSide: Set<Pattern> = [.pushH, .pushV]
 
     /// Fixed order — defines the rotation. Cannot be changed without a migration.
     public static let ordered: [Pattern] = [
@@ -50,31 +50,31 @@ public enum Pattern: String, Codable, CaseIterable, Sendable {
 // MARK: - Configuration (all model constants)
 
 public enum EngineConfig {
-    public static let repMin = 8
+    static let repMin = 8
     public static let stepsPerTier = 8
     public static let tiers = 4
-    public static let holdMin = 20
-    public static let setsBase = 3
+    static let holdMin = 20
+    static let setsBase = 3
     public static let setsMax = 5
     public static let restSetSec = 60
     public static let restExerciseSec = 60
-    public static let tempoSecPerRep = 2.5
-    public static let patternsPerSession = 6
-    public static let rotationStep = 3
+    static let tempoSecPerRep = 2.5
+    static let patternsPerSession = 6
+    static let rotationStep = 3
     /// v2.23 (spec §34.1): "less" is counted in SUB-STEPS. The same figure in
     /// a different unit: one position back along the growth path, not a level.
-    public static let deltaLess = -1
-    public static let deltaPlan = 1
+    static let deltaLess = -1
+    static let deltaPlan = 1
     public static let deltaMore = 2
     /// Default cell of the growth ceiling below — the scalar this used to be.
-    public static let maxUpPerSession = 2
+    static let maxUpPerSession = 2
     public static let failsToDeload = 3
     /// v2.9 (spec §19.2): how many "less" ratings in a row that named nothing
     /// before the delta goes back to the whole session. Measured, not chosen:
     /// at 1 the weak link suffers, at 3 the descent from an impossible plan
     /// costs another session.
-    public static let lessRunToGlobal = 2
-    public static let deloadDrop = 3
+    static let lessRunToGlobal = 2
+    static let deloadDrop = 3
     public static let warmupMin = 5
     /// v2.26 (spec §37.7a): 3 → 4. The reserve for the two blocks was spent
     /// EXACTLY — 215 + 265 = 480 s = 8:00 at a five-second transition — and
@@ -94,11 +94,11 @@ public enum EngineConfig {
     /// of falling through to the shared default. Before the fix a cut handed
     /// back 60 s where band 5 asks for 120 — the pain channel made the REST
     /// SHORTER than it was before the complaint.
-    public static let restSetByBand = [1: 60, 2: 60, 3: 60, 4: 90, 5: 120]
+    static let restSetByBand = [1: 60, 2: 60, 3: 60, 4: 90, 5: 120]
     public static let comebackMinGapDays = 14
-    public static let comebackBase = 2
-    public static let comebackStepDays = 21
-    public static let comebackMax = 8
+    static let comebackBase = 2
+    static let comebackStepDays = 21
+    static let comebackMax = 8
     public static let silentDecayGapDays = 7
     /// v2.13 (spec §24.1): the technical ceiling of every counter and of the
     /// gap in days. These have no semantic ceiling — a run grows freely (the
@@ -119,27 +119,27 @@ public enum EngineConfig {
     /// L32-39) and breaks the tier transition's unload.
     /// v2.25 (Ф6): and the same for the tier-4 cell — the table is spelled out
     /// whole so a future change is a change of number, not of structure.
-    public static let restSetByTierBand: [Int: [Int: Int]] = [4: [1: 90, 2: 90, 3: 90]]
+    static let restSetByTierBand: [Int: [Int: Int]] = [4: [1: 90, 2: 90, 3: 90]]
     /// v2.17 (spec §28.1, #142): the sets bands start at their own dose. The
     /// entry used to reset reps to the bottom of tier 4, which cut the actual
     /// work by 52-72% while the session got LONGER.
-    public static let repStartBand = [4: 6, 5: 8]
+    static let repStartBand = [4: 6, 5: 8]
     /// v2.21 (spec §32.3): the band starts drop 25/30 → 20/24. Tier 4 now tops
     /// out at 19 s (the ladder below), and the old starts tore the continuity
     /// at the band's door: L31 3×19 = 57 s of static work against L32 4×25 =
     /// 100 s, +75 % for ONE level. 20/24 give +40 % and −27 % — the same
     /// bounds every other boundary lives in (§28.1).
-    public static let holdStartBand = [4: 20, 5: 24]
-    public static let holdStepBand = [4: 3, 5: 3]
+    static let holdStartBand = [4: 20, 5: 24]
+    static let holdStepBand = [4: 3, 5: 3]
     /// v2.17 (spec §28.4, #129): sessions of limited growth after a comeback.
-    public static let rampWindowSessions = 10
+    static let rampWindowSessions = 10
     /// v2.17 (spec §28.5, #129): the weekly ceiling on rises. The §15.3 caps
     /// are per session, so daily training walks around them by multiplication:
     /// 28 consecutive "plan" sessions took BOTH pull branches from 0 to 28 —
     /// full pull-ups in the plan after 28 days with no rest day at all.
-    public static let weeklyRiseSlow = 3
-    public static let weeklyRiseFast = 6
-    public static let weeklyWindowDays = 7
+    static let weeklyRiseSlow = 3
+    static let weeklyRiseFast = 6
+    static let weeklyWindowDays = 7
     /// v2.19 (spec §30.8): the floor on how much a single session ages the
     /// window. A session cannot take less than an hour, so a zero gap is
     /// always a fault in the source, never a fact. Without the floor the
@@ -148,7 +148,7 @@ public enum EngineConfig {
     /// budget was spent once for a lifetime — 48 levels against 423 over 120
     /// sessions. The floor does not add to the real gap, it replaces it from
     /// below, so a correct app layer is never double-counted.
-    public static let minSessionAgeDays = 1.0 / 24.0
+    static let minSessionAgeDays = 1.0 / 24.0
     /// v2.17 (spec §28.3, #136): the time budget trims the PLAN, never levels.
     /// v2.24 (spec §35.1): the SHARED floor on sets, not the budget's own. The
     /// old name (`budgetSetsFloor`) named an owner the floor does not have:
@@ -164,7 +164,7 @@ public enum EngineConfig {
     /// "hard" sweep put 3458 plans out of 18 000 below two sets — reachable
     /// without touching a handle. One floor now, and `setsFloor` is it.
     /// Sets that come back in one session (§36.3).
-    public static let setsBackPerSession = 1
+    static let setsBackPerSession = 1
     /// HOW MANY APPEARANCES a returned set is held before the next one may
     /// come back. The sets axis is an order of magnitude coarser than the dose
     /// axis — a dose step is ×1.033 median and ×1.08 worst, a set coming back
@@ -188,11 +188,11 @@ public enum EngineConfig {
     public static let chronicHits = 3
     /// v2.23 (spec §34.1): sub-steps as well. The 2:1 ratio to a plain "less"
     /// is kept — both constants changed unit, neither changed magnitude.
-    public static let chronicStep = -2
+    static let chronicStep = -2
     /// v2.15 (spec §26.2, #130): how many patterns calibrating from zero in
     /// ONE session make it a claim about the day rather than about the body.
-    public static let calibrationGroup = 3
-    public static let repStart = [1: 8, 2: 6, 3: 5, 4: 4]
+    static let calibrationGroup = 3
+    static let repStart = [1: 8, 2: 6, 3: 5, 4: 4]
     /// v2.21 (spec §32): the hold ladder — a relative step instead of a fixed
     /// five seconds.
     ///
@@ -210,7 +210,7 @@ public enum EngineConfig {
     /// Swift's `.rounded()` sends it away from zero), and at 15 s and 25 s the
     /// increment is exactly 1.5 and 2.5 — right on that boundary. A literal
     /// is the same everywhere.
-    public static let holdLadder: [Int: [Int]] = [
+    static let holdLadder: [Int: [Int]] = [
         1: [20, 22, 24, 26, 29, 32, 35, 39],
         2: [15, 17, 19, 21, 23, 25, 28, 31],
         3: [15, 17, 19, 21, 23, 25, 28, 31],
@@ -220,7 +220,7 @@ public enum EngineConfig {
     /// whole 3 s (§28.1), so the ladder is derived from the start and the step
     /// by exact integer arithmetic — platform-independent, and needing no
     /// literal of its own. One source of truth: `holdStartBand`/`holdStepBand`.
-    public static let holdLadderBand: [Int: [Int]] = holdStartBand.reduce(into: [:]) { out, band in
+    static let holdLadderBand: [Int: [Int]] = holdStartBand.reduce(into: [:]) { out, band in
         let step = holdStepBand[band.key] ?? 0
         out[band.key] = (0..<stepsPerTier).map { band.value + $0 * step }
     }
@@ -240,7 +240,7 @@ public enum EngineConfig {
     /// variants, the heaviest unilaterals, and the set bands 32...47, which
     /// are tier 4 by encoding. Spec §15.3 carries the table cell by cell with
     /// a rationale each, and the reference verifier compares the two.
-    public static let maxUpByPatternTier: [Pattern: [Int: Int]] = [
+    static let maxUpByPatternTier: [Pattern: [Int: Int]] = [
         .squat: [4: 1],
         .pushH: [4: 1],
         .hinge: [4: 1],
@@ -259,7 +259,7 @@ public enum EngineConfig {
     /// `tier` comes from the level BEFORE the update: the ceiling governs
     /// leaving a level, not arriving at one. Levels 32...47 are tier 4 by
     /// encoding, so the set bands need no special case.
-    public static func maxUp(pattern: Pattern, tier: Int) -> Int {
+    static func maxUp(pattern: Pattern, tier: Int) -> Int {
         maxUpByPatternTier[pattern]?[tier] ?? maxUpPerSession
     }
 
@@ -271,13 +271,13 @@ public enum EngineConfig {
     /// the break lowers the ceiling by a tier, and a ceiling landing can
     /// never carry a high dose by construction. The old 15/7 rows (tier
     /// tops, the 11.08 decision) were themselves the sweep's worst case.
-    public static let comebackLandingCeil: [(minGap: Int, ceil: Int)] =
+    static let comebackLandingCeil: [(minGap: Int, ceil: Int)] =
         [(365, 0), (119, 8), (77, 16), (56, 24)]
 
     /// A "slow tissue" pattern is one the §15.3 table holds to a step at
     /// EVERY tier — today only the calf. Derived from the table rather than
     /// kept as a second list: one source of truth (v2.7, spec §17.1).
-    public static func isSlowTissue(_ pattern: Pattern) -> Bool {
+    static func isSlowTissue(_ pattern: Pattern) -> Bool {
         (1...tiers).allSatisfy { maxUp(pattern: pattern, tier: $0) == 1 }
     }
 }
