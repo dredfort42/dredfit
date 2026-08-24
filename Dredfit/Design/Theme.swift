@@ -62,14 +62,17 @@ enum Theme {
 
 // MARK: - The palette, resolved for a bitmap
 
-/// One thing in the app is drawn to a bitmap rather than to the screen — the
-/// badge pill that rides inline inside a `Text`. `ImageRenderer` renders
-/// outside any view hierarchy, so the appearance has to be handed to it, and
-/// a SwiftUI environment can carry `colorScheme` but not
-/// `colorSchemeContrast`: that key is get-only, and the palette has a
-/// separate Increased Contrast column. A trait collection carries both, so
-/// the resolve happens in UIKit — here, where the asset names already live,
-/// rather than at the call site.
+/// For the badge pill, which is drawn to a bitmap and then shown inline
+/// inside a `Text`. `ImageRenderer` renders outside any view hierarchy, so
+/// the appearance has to be handed to it — and a SwiftUI environment can
+/// carry `colorScheme` but not `colorSchemeContrast`, a get-only key, while
+/// the palette has a separate Increased Contrast column. A trait collection
+/// carries both, so the resolve happens in UIKit: here, where the asset
+/// names already live, rather than at the call site.
+///
+/// The share card renders to a bitmap too and does not need this. It is a
+/// picture leaving the app, fixed in the light palette on purpose, so it
+/// has no appearance to follow.
 extension Theme {
     static func badgePillColors(colorScheme: ColorScheme,
                                 contrast: ColorSchemeContrast) -> (text: Color, fill: Color) {
