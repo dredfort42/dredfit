@@ -16,7 +16,6 @@ struct ComebackCard: View {
     let onAccept: () -> Void
     let onDecline: () -> Void
     let onFreshStart: () -> Void
-    let onSick: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -67,13 +66,11 @@ struct ComebackCard: View {
 
             // v2.12 (#133): the "I was sick" path — the easier start plus a
             // recovery fortnight at one tier gentler, in a single tap.
-            Button(action: onSick) {
-                Text("I was sick — two gentler weeks")
-                    .dredfitFont(13)
-                    .foregroundStyle(Theme.ink2)
-                    .frame(maxWidth: .infinity, minHeight: 30)
-            }
-            .accessibilityIdentifier("comeback-sick")
+            // v2.26 (spec §37.0): the "I was sick" tap is gone. The lens it
+            // armed made the plan HEAVIER in 76 cells out of 480, which is the
+            // opposite of what the button offered. Someone coming back short
+            // on strength reaches for the session handle on the plan itself,
+            // where the recalculated duration is visible before they agree.
             .padding(.top, 4)
 
             if offersFreshStart {

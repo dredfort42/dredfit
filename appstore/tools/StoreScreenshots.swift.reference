@@ -168,24 +168,36 @@ final class StoreScreenshots: XCTestCase {
         app.terminate()
     }
 
-    // MARK: - Discomfort: Today while a movement rests (own --uitest hook)
+    // MARK: - The handles: Today with the session shortened (v2.26, §37.5)
+    //
+    // This replaces `restingToday`, which launched with `--uitest-discomfort`
+    // and waited for the freeze block. Neither the flag nor the block exists:
+    // the pain channel was removed in v2.26. The frame the slot needs now is
+    // the one the wave is actually about — the session handle, with BOTH
+    // numbers on screen and the way back offered underneath.
 
-    private func restingToday(_ l: L) {
-        let app = launch(["--uitest-reset", "--uitest-discomfort"], l)
-        XCTAssertTrue(app.staticTexts["resting-line"].waitForExistence(timeout: 8),
-                      "no freeze block on Today")
+    private func handlesToday(_ l: L) {
+        let app = launch(["--uitest-reset"], l)
+        let shorter = app.buttons["session-shorter"]
+        XCTAssertTrue(shorter.waitForExistence(timeout: 8),
+                      "no session handle under the plan")
+        // Tapped, not just shown: the shortened plan and the redrawn duration
+        // are the claim, and "Full workout" appearing proves it took effect.
+        shorter.tap()
+        XCTAssertTrue(app.buttons["session-full"].waitForExistence(timeout: 5),
+                      "the shortened session must offer the way back")
         Thread.sleep(forTimeInterval: 1)
-        snap("resting_\(l.tag)")
+        snap("handles_\(l.tag)")
         app.terminate()
     }
 
-    func testRestingEnglish() { restingToday(Self.en) }
-    func testRestingRussian() { restingToday(Self.ru) }
-    func testRestingSpanish() { restingToday(Self.es) }
-    func testRestingPortuguese() { restingToday(Self.ptBR) }
-    func testRestingGerman() { restingToday(Self.de) }
-    func testRestingFrench() { restingToday(Self.fr) }
-    func testRestingItalian() { restingToday(Self.it) }
+    func testHandlesEnglish() { handlesToday(Self.en) }
+    func testHandlesRussian() { handlesToday(Self.ru) }
+    func testHandlesSpanish() { handlesToday(Self.es) }
+    func testHandlesPortuguese() { handlesToday(Self.ptBR) }
+    func testHandlesGerman() { handlesToday(Self.de) }
+    func testHandlesFrench() { handlesToday(Self.fr) }
+    func testHandlesItalian() { handlesToday(Self.it) }
 
     func testProgressEnglish() { progress(Self.en) }
     func testProgressRussian() { progress(Self.ru) }

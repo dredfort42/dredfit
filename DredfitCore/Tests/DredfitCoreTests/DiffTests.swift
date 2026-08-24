@@ -2,223 +2,282 @@
 //  DiffTests.swift
 //  DredfitCoreTests
 //
-//  The JS ↔ Swift differential. `golden.json` pins 331 steps chosen by hand
-//  around known forks and explains every one of them; this does the other
-//  half of the job — ten thousand random trajectories from a fixed seed,
-//  folded into a single fingerprint. The reference computes it in
-//  `reference/difftest.js`, the port recomputes it here with the same
-//  pseudo-random generator, and the two numbers are compared.
+//  The JS ↔ Swift differential, REWRITTEN for v2.26 — one call at a time.
 //
-//  A divergence in one set, one second of rest or one field of state moves the
-//  fingerprint. What it will not do is tell you WHERE — that is golden's job,
-//  and the division of labour is deliberate: golden answers "why", the
-//  differential answers "and nowhere else?".
+//  It used to run ten thousand random TRAJECTORIES and fold them into a single
+//  fingerprint. Audit 2026-08-23 (zone A2) named both faults of that shape: a
+//  single cause is inherited into hundreds of later steps, so the diff cannot
+//  be used to count how many causes there really are; and one shared
+//  fingerprint does not even say where to look.
 //
-//  The fold is FNV-1a 64 over a stream of INTEGERS. Integers mean the same
-//  thing in both languages with no caveats; the single fractional field
-//  (`weekAgeDays`) goes in as the bit pattern of its double, because both
-//  sides are IEEE 754 running the same sequence of operations.
+//  Here every case is ONE call on ONE pre-state, and the pre-state comes FROM
+//  THE REFERENCE rather than being regenerated here — otherwise a divergence
+//  in how the two sides build states would read as a divergence in the engine.
+//
+//  The comparison is BYTE-EXACT over a canonical string:
+//    • fractional numbers as the IEEE 754 hex bit pattern (`DataView.
+//      setFloat64` on one side, `Double.bitPattern` on the other), because the
+//      two languages print decimals differently;
+//    • sparse maps as a list of the keys that are PRESENT, because "no key"
+//      and "key with value 0" are different states — and that difference is
+//      exactly where the P0 of the previous wave lived: one missing decrement
+//      gave 1876 diverging calls while 309 tests stayed green.
+//
+//  Regenerate with `node reference/difftest.js`; explain a failing case with
+//  `node reference/difftest.js --explain <index>`.
 //
 
 import XCTest
 @testable import DredfitCore
 
-// Foundation ships its own `Pattern`; the tests mean the engine's.
 private typealias Pattern = DredfitCore.Pattern
 
-/// The fingerprint the reference wrote, with the run's shape alongside it —
-/// so a mismatch says whether the two sides even ran the same experiment.
 private struct DiffFixture: Decodable {
     let generator: String
-    let seed: UInt32
-    let trajectories: Int
-    let steps: Int
-    let values: Int
-    let digest: String
-}
+    let method: String
+    let states: [String]
+    let cases: [Case]
 
-/// xorshift32 — literally the same three shifts as the reference, on the same
-/// seed. The trajectories have to be identical before the fingerprints can
-/// mean anything.
-private struct XorShift32 {
-    private var state: UInt32
-    init(seed: UInt32) { state = seed }
-
-    mutating func next() -> UInt32 {
-        state ^= state << 13
-        state ^= state >> 17
-        state ^= state << 5
-        return state
+    struct Case: Decodable {
+        let s: Int              // index into `states`
+        let c: Call
+        let d: String           // FNV-1a 64 of the canonical result
+        let r: String?          // the full string, on the diagnostic sample
     }
-
-    mutating func pick<T>(_ options: [T]) -> T {
-        options[Int(next() % UInt32(options.count))]
+    struct Call: Decodable {
+        let k: String
+        let r: String?          // feedback result
+        let g: Double?          // gapDays / break length
+        let ad: Int?            // alreadyDecayed
+        let p: String?          // pattern
+        let n: Int?             // number
+        let ov: [String: Int]?  // overrides
+        let sk: [String]?       // skipped
     }
-}
-
-/// FNV-1a 64.
-private struct Fold {
-    private(set) var hash: UInt64 = 14_695_981_039_346_656_037
-    private(set) var values = 0
-    private static let prime: UInt64 = 1_099_511_628_211
-
-    mutating func feed(_ n: Int) {
-        var v = UInt64(bitPattern: Int64(n))
-        for _ in 0..<8 {
-            hash = (hash ^ (v & 0xff)) &* Self.prime
-            v >>= 8
-        }
-        values += 1
-    }
-
-    mutating func feed(_ x: Double) { feed(Int(bitPattern: UInt(x.bitPattern))) }
-    mutating func feed(_ flag: Bool) { feed(flag ? 1 : 0) }
 }
 
 final class DiffTests: XCTestCase {
 
-    private func loadFixture() throws -> DiffFixture {
-        let url = try XCTUnwrap(
-            Bundle.module.url(forResource: "difftest", withExtension: "json"),
-            "difftest.json not found in test resources")
-        return try JSONDecoder().decode(DiffFixture.self, from: Data(contentsOf: url))
+    // MARK: - the canonical encoding, mirrored from `reference/difftest.js`
+
+    private static func hex(_ x: Double) -> String {
+        String(format: "%016llx", x.bitPattern)
     }
 
-    /// The fixture must come from the pinned reference version, for the same
-    /// reason golden's generator string is checked: a fingerprint regenerated
-    /// from the wrong engine would re-baseline everything instead of catching
-    /// a port bug.
-    func testTheDifferentialFixtureComesFromThePinnedReference() throws {
-        let f = try loadFixture()
-        XCTAssertEqual(f.generator, "adaptive_engine.js v2.25.0")
-        XCTAssertGreaterThanOrEqual(f.trajectories, 10_000,
-                                    "the differential is meant to be a wide sweep")
+    /// Only the keys that are PRESENT, in `ALL_PATTERNS` order.
+    private static func sparse(_ m: [Pattern: Int]) -> String {
+        Pattern.allCases.filter { m[$0] != nil }
+            .map { "\($0.rawValue):\(m[$0]!)" }.joined(separator: ",")
     }
 
-    private func feedSession(_ fold: inout Fold, _ w: Session) {
-        fold.feed(w.sessionNumber)
-        // The duration in tenths of a minute, exactly as the engine prints it.
-        fold.feed(Int((w.estimatedTotalMin * 10).rounded()))
-        fold.feed(w.warmupMin)
-        fold.feed(w.cooldownMin)
-        fold.feed(w.exercises.count)
-        for ex in w.exercises {
-            fold.feed(Pattern.allCases.firstIndex(of: ex.pattern) ?? -1)
-            fold.feed(ex.tier)
-            fold.feed(ex.unit == .reps ? 0 : 1)
-            fold.feed(ex.load)
-            fold.feed(ex.perSide)
-            fold.feed(ex.sets)
-            fold.feed(ex.restSetSec)
-            fold.feed(ex.restExerciseSec)
-            fold.feed(ex.loads?.count ?? 0)
-            for v in ex.loads ?? [] { fold.feed(v) }
+    private static func dense(_ m: [Pattern: Int]) -> String {
+        Pattern.ordered.map { String(m[$0] ?? 0) }.joined(separator: ",")
+    }
+
+    private static func canon(_ s: EngineState) -> String {
+        [
+            "c=\(s.counter)",
+            "L=\(dense(s.levels))",
+            "Lb=\(s.levels[.pullBar] ?? 0)",
+            "F=\(dense(s.failStreak))",
+            "Fb=\(s.failStreak[.pullBar] ?? 0)",
+            "B=\(s.hasBar ? 1 : 0)",
+            "s=\(sparse(s.sub))",
+            "k=\(sparse(s.cut))",
+            "h=\(sparse(s.setsHold))",
+            "w=\(sparse(s.shownWork))",
+            "o=\(sparse(s.shownOrd))",
+            "g=\(sparse(s.weekGain))",
+            "lh=\(sparse(s.lessHist))",
+            "cp=" + Pattern.allCases.filter { s.creditPaused.contains($0) }
+                .map(\.rawValue).joined(separator: ","),
+            "lr=\(s.lessRun)",
+            "rw=\(s.rampWindow)",
+            "rr=\(s.returnRun)",
+            "wa=\(hex(s.weekAgeDays))",
+        ].joined(separator: ";")
+    }
+
+    private static func canon(_ w: Session) -> String {
+        let exercises = w.exercises.map { e in
+            [
+                e.pattern.rawValue, String(e.tier), e.unit.rawValue, String(e.load),
+                e.perSide ? "1" : "0", String(e.sets),
+                String(e.restSetSec), String(e.restExerciseSec),
+                e.loads.map { $0.map(String.init).joined(separator: "/") } ?? "-",
+            ].joined(separator: ",")
+        }.joined(separator: "|")
+        return [
+            "n=\(w.sessionNumber)", "wu=\(w.warmupMin)", "cd=\(w.cooldownMin)",
+            "t=\(hex(w.estimatedTotalMin))", "E=" + exercises,
+        ].joined(separator: ";")
+    }
+
+    private static func fnv(_ s: String) -> String {
+        var h: UInt64 = 0xcbf2_9ce4_8422_2325
+        for byte in Array(s.utf8) {
+            h ^= UInt64(byte)
+            h = h &* 0x0000_0100_0000_01b3
+        }
+        return String(format: "%016llx", h)
+    }
+
+    // MARK: - parsing a pre-state the reference wrote
+
+    private static func parseSparse(_ raw: String) -> [Pattern: Int] {
+        var out: [Pattern: Int] = [:]
+        for pair in raw.split(separator: ",") where !pair.isEmpty {
+            let kv = pair.split(separator: ":")
+            guard kv.count == 2, let p = Pattern(rawValue: String(kv[0])),
+                  let v = Int(kv[1]) else { continue }
+            out[p] = v
+        }
+        return out
+    }
+
+    private static func parseState(_ raw: String) throws -> EngineState {
+        var f: [String: String] = [:]
+        for part in raw.split(separator: ";", omittingEmptySubsequences: false) {
+            guard let eq = part.firstIndex(of: "=") else { continue }
+            f[String(part[part.startIndex..<eq])] = String(part[part.index(after: eq)...])
+        }
+        var s = EngineState.initial
+        s.counter = Int(f["c"] ?? "0") ?? 0
+        let levels = (f["L"] ?? "").split(separator: ",").map { Int($0) ?? 0 }
+        let streaks = (f["F"] ?? "").split(separator: ",").map { Int($0) ?? 0 }
+        for (i, p) in Pattern.ordered.enumerated() {
+            s.levels[p] = i < levels.count ? levels[i] : 0
+            s.failStreak[p] = i < streaks.count ? streaks[i] : 0
+        }
+        s.levels[.pullBar] = Int(f["Lb"] ?? "0") ?? 0
+        s.failStreak[.pullBar] = Int(f["Fb"] ?? "0") ?? 0
+        s.hasBar = (f["B"] ?? "0") == "1"
+        s.sub = parseSparse(f["s"] ?? "")
+        s.cut = parseSparse(f["k"] ?? "")
+        s.setsHold = parseSparse(f["h"] ?? "")
+        s.shownWork = parseSparse(f["w"] ?? "")
+        s.shownOrd = parseSparse(f["o"] ?? "")
+        s.weekGain = parseSparse(f["g"] ?? "")
+        s.lessHist = parseSparse(f["lh"] ?? "")
+        s.creditPaused = Set((f["cp"] ?? "").split(separator: ",")
+            .compactMap { Pattern(rawValue: String($0)) })
+        s.lessRun = Int(f["lr"] ?? "0") ?? 0
+        s.rampWindow = Int(f["rw"] ?? "0") ?? 0
+        s.returnRun = Int(f["rr"] ?? "0") ?? 0
+        s.weekAgeDays = Double(bitPattern: UInt64(f["wa"] ?? "0", radix: 16) ?? 0)
+        return s
+    }
+
+    // MARK: - one isolated call
+
+    private static func run(_ state: EngineState, _ call: DiffFixture.Call) throws -> String {
+        switch call.k {
+        case "gen":
+            return canon(Engine.generateSession(state))
+        case "fb":
+            let w = Engine.generateSession(state)
+            var overrides: [Pattern: Int] = [:]
+            for (raw, v) in call.ov ?? [:] {
+                overrides[try XCTUnwrap(Pattern(rawValue: raw))] = v
+            }
+            let skipped = Set((call.sk ?? []).compactMap { Pattern(rawValue: $0) })
+            // Every optional passed explicitly — the rule of the v2.25 wave.
+            return canon(Engine.applyFeedback(
+                state: state, session: w,
+                result: try XCTUnwrap(FeedbackResult(rawValue: try XCTUnwrap(call.r))),
+                overrides: overrides, skipped: skipped, gapDays: call.g))
+        case "come":
+            return canon(Engine.applyComeback(state: state,
+                                              gapDays: Int(try XCTUnwrap(call.g)),
+                                              alreadyDecayed: call.ad == 1))
+        case "decay":
+            return canon(Engine.applySilentDecay(state: state,
+                                                 gapDays: Int(try XCTUnwrap(call.g))))
+        case "shown":
+            return canon(Engine.recordShown(state: state,
+                                            session: Engine.generateSession(state)))
+        case "setCut":
+            return canon(Engine.setCut(state: state,
+                                       pattern: try XCTUnwrap(Pattern(rawValue: try XCTUnwrap(call.p))),
+                                       cut: try XCTUnwrap(call.n)))
+        case "shorter":
+            return canon(Engine.shorterSession(state: state, steps: try XCTUnwrap(call.n)))
+        case "easier":
+            return canon(Engine.easierVariation(state: state,
+                                                pattern: try XCTUnwrap(Pattern(rawValue: try XCTUnwrap(call.p)))))
+        case "easierL":
+            let p = try XCTUnwrap(Pattern(rawValue: try XCTUnwrap(call.p)))
+            let to = Engine.easierLevel(pattern: p, level: state.levels[p] ?? 0,
+                                        sub: state.sub[p] ?? 0, cut: state.cut[p] ?? 0)
+            return "easierLevel=\(to.map(String.init) ?? "nil")"
+        default:
+            XCTFail("unknown call kind \(call.k)")
+            return ""
         }
     }
 
-    private func feedState(_ fold: inout Fold, _ s: EngineState) {
-        fold.feed(s.counter)
-        fold.feed(s.hasBar)
-        for p in Pattern.allCases {
-            fold.feed(s.levels[p] ?? 0)
-            fold.feed(s.sub[p] ?? 0)
-            fold.feed(s.cut[p] ?? 0)
-            fold.feed(s.painSeen[p] ?? 0)
-            fold.feed(s.setsHold[p] ?? 0)
-            // Sparseness is part of the contract: "no entry" and "zero" have
-            // to differ, or the postcondition repair reads them alike.
-            fold.feed(s.shownWork[p] != nil)
-            fold.feed(s.shownWork[p] ?? 0)
-            fold.feed(s.shownOrd[p] != nil)
-            fold.feed(s.shownOrd[p] ?? 0)
-            fold.feed(s.failStreak[p] ?? 0)
-            fold.feed(s.frozen[p] ?? 0)
-            fold.feed(s.sore[p] ?? 0)
-            fold.feed(s.soreLeft[p] ?? 0)
-            fold.feed(s.lessHist[p] ?? 0)
-            fold.feed(s.weekGain[p] ?? 0)
-            fold.feed(s.creditPaused.contains(p))
+    // MARK: - the test
+
+    func testEveryIsolatedCallMatchesTheReference() throws {
+        let url = try XCTUnwrap(Bundle.module.url(forResource: "difftest",
+                                                  withExtension: "json"))
+        let fx = try JSONDecoder().decode(DiffFixture.self, from: try Data(contentsOf: url))
+        XCTAssertEqual(fx.generator, "adaptive_engine.js v2.26.0",
+                       "the fixture was written by a different engine")
+        XCTAssertEqual(fx.method, "isolated-call",
+                       "the trajectory method is the one this wave replaced")
+        XCTAssertGreaterThanOrEqual(fx.cases.count, 10_000,
+                                    "the differential must be at least 10 000 calls")
+
+        // Pre-states are parsed once: they come from the reference, and a
+        // divergence in parsing them would masquerade as an engine divergence.
+        let states = try fx.states.map { try Self.parseState($0) }
+        // A pre-state must survive the round trip, or the comparison below is
+        // measuring the parser rather than the engine.
+        for (i, s) in states.enumerated() {
+            XCTAssertEqual(Self.canon(s), fx.states[i],
+                           "pre-state \(i) did not round-trip through the canonical form")
         }
-        fold.feed(s.shownBudget)
-        fold.feed(s.lessRun)
-        fold.feed(s.returnRun)
-        fold.feed(s.illness)
-        fold.feed(s.rampWindow)
-        fold.feed(s.timeBudgetMin)
-        fold.feed(s.weekAgeDays)
-    }
 
-    /// Ten thousand trajectories, twenty-four steps each, from the reference's
-    /// seed — and one number at the end.
-    ///
-    /// The branching is the reference's, step for step: the pain channel down
-    /// to a single set and back, the silent decay, the comeback, the lens,
-    /// budgets 0/30/45/90, skips, exact facts, `recordShown`, a moved time
-    /// handle, and a gap that is sometimes absent — the calendar-blind path of
-    /// §7 is a contract too and has to agree bit for bit like everything else.
-    func testTenThousandRandomTrajectoriesAgreeWithTheReference() throws {
-        let fixture = try loadFixture()
-        let budgets = [0, 30, 45, 90]
-        var rng = XorShift32(seed: fixture.seed)
-        var fold = Fold()
-
-        for _ in 0..<fixture.trajectories {
-            var s = EngineState.initial
-            s.hasBar = rng.next() % 2 == 0
-            s.timeBudgetMin = rng.pick(budgets)
-            // Some trajectories start from a level already climbed: without it
-            // bands 4-5 and the `pullBar` unit change would show up in a
-            // handful of runs out of ten thousand.
-            let seedLevel = Int(rng.next() % 48)
-            for p in Pattern.allCases { s.levels[p] = (seedLevel + Int(rng.next() % 8)) % 48 }
-            feedState(&fold, s)
-
-            for _ in 0..<fixture.steps {
-                let w = Engine.generateSession(s)
-                feedSession(&fold, w)
-                let r = rng.next() % 100
-                if r < 5 {
-                    s = Engine.applySilentDecay(state: s, gapDays: 7 + Int(rng.next() % 6))
-                } else if r < 9 {
-                    s = Engine.applyComeback(state: s, gapDays: 14 + Int(rng.next() % 200),
-                                             alreadyDecayed: false)
-                } else if r < 12 {
-                    s = Engine.applyIllness(state: s)
-                } else if r < 14 {
-                    s = Engine.recordShown(state: s, session: w)
-                } else if r < 16 {
-                    s.timeBudgetMin = rng.pick(budgets)
-                } else {
-                    var overrides: [Pattern: Int] = [:]
-                    if rng.next() % 4 == 0 {
-                        for ex in w.exercises where rng.next() % 3 == 0 {
-                            overrides[ex.pattern] = max(0, ex.load + Int(rng.next() % 9) - 4)
-                        }
-                    }
-                    var skipped: Set<Pattern> = []
-                    if rng.next() % 12 == 0 {
-                        skipped = [w.exercises[Int(rng.next() % UInt32(w.exercises.count))].pattern]
-                    }
-                    var discomfort: Set<Pattern> = []
-                    if rng.next() % 8 == 0 {
-                        discomfort = [w.exercises[Int(rng.next() % UInt32(w.exercises.count))].pattern]
-                    }
-                    let result = rng.pick([FeedbackResult.less, .plan, .plan, .more])
-                    let gap: Double? = rng.next() % 5 == 0
-                        ? nil : Double(rng.next() % 400) / 100
-                    s = Engine.applyFeedback(state: s, session: w, result: result,
-                                             overrides: overrides, skipped: skipped,
-                                             discomfort: discomfort, gapDays: gap)
-                }
-                feedState(&fold, s)
+        struct Mismatch { let index: Int; let got: String; let want: String }
+        var mismatches: [Mismatch] = []
+        for (i, c) in fx.cases.enumerated() {
+            let got = try Self.run(states[c.s], c.c)
+            if Self.fnv(got) != c.d {
+                mismatches.append(Mismatch(index: i, got: got,
+                                           want: c.r ?? "(digest \(c.d))"))
             }
         }
+        if !mismatches.isEmpty {
+            // The point of the isolated method: a COUNT of causes, and the
+            // first few spelled out rather than folded into one number.
+            for m in mismatches.prefix(5) {
+                let (i, got, want) = (m.index, m.got, m.want)
+                let call = fx.cases[i].c
+                XCTFail("""
+                    case \(i) (\(call.k)) diverged
+                      pre  : \(fx.states[fx.cases[i].s])
+                      got  : \(got)
+                      want : \(want)
+                      explain: node reference/difftest.js --explain \(i)
+                    """)
+            }
+        }
+        XCTAssertEqual(mismatches.count, 0,
+                       "\(mismatches.count) of \(fx.cases.count) isolated calls diverged")
+    }
 
-        XCTAssertEqual(fold.values, fixture.values,
-                       "the two sides folded a different number of values — "
-                       + "the trajectories themselves diverged, not just the results")
-        XCTAssertEqual(String(format: "%016lx", fold.hash), fixture.digest,
-                       "the port diverged from the reference somewhere in "
-                       + "\(fixture.trajectories) trajectories")
+    /// The sample carries full strings, so a typical failure is readable
+    /// straight out of the fixture. This asserts the sample is really there —
+    /// a fixture regenerated without it would silently lose the diagnosis.
+    func testTheFixtureCarriesADiagnosticSample() throws {
+        let url = try XCTUnwrap(Bundle.module.url(forResource: "difftest",
+                                                  withExtension: "json"))
+        let fx = try JSONDecoder().decode(DiffFixture.self, from: try Data(contentsOf: url))
+        XCTAssertGreaterThanOrEqual(fx.cases.filter { $0.r != nil }.count, 100)
+        for c in fx.cases where c.r != nil {
+            XCTAssertEqual(Self.fnv(try XCTUnwrap(c.r)), c.d,
+                           "the sample string and its digest disagree in the fixture itself")
+        }
     }
 }

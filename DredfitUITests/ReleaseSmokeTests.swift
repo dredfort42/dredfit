@@ -52,8 +52,14 @@ final class ReleaseSmokeTests: XCTestCase {
                           "S1: a fresh install must open Today on Workout 1")
             // The engine's own arithmetic surfaced: if this line drifts, a
             // release-blocking number drifted.
-            XCTAssertTrue(app.staticTexts["≈ 33 min · 6 exercises"].exists,
-                          "S1: the plan line must read ≈ 33 min · 6 exercises")
+            //
+            // v2.26: 33 → 34, and the minute is accounted for — `cooldownMin`
+            // went 3 → 4, the wave's one changed constant (§37.7a). Read back
+            // from the reference engine (`estimatedTotalMin` for session 1),
+            // not copied off the screen: this line is a pin, and a pin taken
+            // from the thing it guards guards nothing.
+            XCTAssertTrue(app.staticTexts["≈ 34 min · 6 exercises"].exists,
+                          "S1: the plan line must read ≈ 34 min · 6 exercises")
             XCTAssertTrue(app.buttons["Start"].exists, "S1: Start is missing")
             XCTAssertTrue(app.buttons["start-short"].exists,
                           "S1: the short-version offer must sit under Start")
@@ -63,6 +69,12 @@ final class ReleaseSmokeTests: XCTestCase {
     private func s2FullWorkout() {
         XCTContext.runActivity(named: "S2 — full workout to the rating") { _ in
             app.buttons["Start"].tap()
+            // v2.26 (§37.7a): the block is offered before it runs. S2 says yes
+            // — the countdown it asserts below only exists once somebody has.
+            let startWarmup = app.buttons["warmup-start"]
+            XCTAssertTrue(startWarmup.waitForExistence(timeout: 5),
+                          "S2: the warm-up must be offered before it starts")
+            startWarmup.tap()
             XCTAssertTrue(app.staticTexts["warmup-countdown"].waitForExistence(timeout: 5),
                           "S2: the workout must open on the warm-up and reach "
                             + "its first move through the get-ready transition")
@@ -142,32 +154,51 @@ final class ReleaseSmokeTests: XCTestCase {
         }
     }
 
-    // MARK: - S8: the discomfort report
+    // MARK: - S8: the honest number
 
     /// Its own launch: S1–S6 owns a clean journal, and this row needs one too.
-    /// The safety half of the engine is dead code if this button ever stops
-    /// reaching the journal, and nothing else in the smoke would notice.
-    func testReleaseSmokeDiscomfort() {
+    ///
+    /// v2.26 (§37.0): this row used to walk the pain report, on the argument
+    /// that the safety half of the engine is dead code if the button stops
+    /// reaching the journal. The button is gone and so is that half; the
+    /// channel that remains — the honest number — carries the same weight and
+    /// the same argument, so the row now walks it.
+    func testReleaseSmokeHonestNumber() {
         app.launch()
-        XCTContext.runActivity(named: "S8 — a painful exercise is reported and rests") { _ in
+        XCTContext.runActivity(named: "S8 — an honest number reaches the rating") { _ in
             app.buttons["Start"].tap()
-            let skipWarmup = app.buttons["Skip warm-up"]
+            let skipWarmup = app.buttons["warmup-intro-skip"]
             XCTAssertTrue(skipWarmup.waitForExistence(timeout: 5), "S8: no warm-up to skip")
             skipWarmup.tap()
 
             // The pull slot: in every session, so the rest it earns is real
             // rather than three workouts away.
-            for _ in 0..<3 { app.buttons["Skip exercise"].tap() }
-            let report = app.buttons["report-discomfort"]
-            XCTAssertTrue(report.waitForExistence(timeout: 5),
-                          "S8: the report action is missing from the exercise screen")
-            report.tap()
-            for _ in 0..<2 { app.buttons["Skip exercise"].tap() }
+            // v2.26 (§37.0): the pain report is gone from this screen. What the
+            // smoke test walks now is the answer that replaced it — the honest
+            // number — and it has to reach the rating the same way.
+            for _ in 0..<3 {
+                let skip = app.buttons["Skip exercise"]
+                XCTAssertTrue(skip.waitForExistence(timeout: 10), "S8: no work screen to skip")
+                skip.tap()
+            }
+            let adjust = app.buttons["exercise-adjust"]
+            XCTAssertTrue(adjust.waitForExistence(timeout: 5),
+                          "S8: the adjust action is missing from the exercise screen")
+            adjust.tap()
+
+            // A number BELOW the plan, entered by hand: the one channel v2.26
+            // leaves for saying the work went differently.
+            let minus = app.buttons["minus"]
+            XCTAssertTrue(minus.waitForExistence(timeout: 5), "S8: the stepper did not open")
+            minus.tap()
+            app.buttons["OK"].tap()
+
+            // …and it has to reach the rating from there — through the rest of
+            // the work and the cool-down's question, which the driver answers.
+            driver.completeWorkout()
 
             XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 10),
-                          "S8: reporting must end the exercise and reach the rating")
-            XCTAssertTrue(app.staticTexts["DISCOMFORT"].exists,
-                          "S8: the rating screen must call the report out")
+                          "S8: the workout must reach the rating")
 
             app.staticTexts["On plan"].tap()
             XCTAssertTrue(app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 10),
@@ -176,8 +207,20 @@ final class ReleaseSmokeTests: XCTestCase {
             app.tabBars.buttons["Calendar"].tap()
             let dayNumber = Calendar.current.component(.day, from: .now)
             app.buttons["day-\(dayNumber)"].tap()
-            XCTAssertTrue(app.staticTexts["hurt"].waitForExistence(timeout: 5),
-                          "S8: the history row must say hurt, not skipped")
+            XCTAssertTrue(app.staticTexts["Workout 1"].waitForExistence(timeout: 5),
+                          "S8: the history sheet must open on the workout")
+            // v2.26 (§37.0): this row used to end on the word "hurt". No record
+            // written after the wave can carry it — the mark only survives on
+            // journal entries older than the wave — so the claim moves to what
+            // replaced it: three movements were skipped and the fourth was
+            // ANSWERED, and the answer has to reach the journal as work done
+            // rather than be lost as a fourth skip.
+            let skippedRows = app.staticTexts.matching(
+                NSPredicate(format: "label == %@", "skipped"))
+            XCTAssertEqual(skippedRows.count, 3,
+                           "S8: only the three skipped movements may read skipped")
+            XCTAssertFalse(app.staticTexts["hurt"].exists,
+                           "S8: the pain mark cannot appear on a record written after v2.26")
         }
     }
 
@@ -208,7 +251,7 @@ final class ReleaseSmokeTests: XCTestCase {
 
         XCTContext.runActivity(named: "S7/S2 — тренировка целиком до оценки") { _ in
             app.buttons["Начать"].tap()
-            let skipWarmup = app.buttons["Пропустить разминку"]
+            let skipWarmup = app.buttons["Пропустить разминку"]   // the offer's own
             XCTAssertTrue(skipWarmup.waitForExistence(timeout: 5),
                           "S7/S2: разминка не открылась или её нельзя пропустить")
             skipWarmup.tap()

@@ -313,8 +313,8 @@ final class DredfitUITests: XCTestCase {
         XCTAssertTrue(relaunch.staticTexts["Continue the workout?"]
                         .waitForExistence(timeout: 5))
         relaunch.buttons["resume-restart"].tap()
-        XCTAssertTrue(relaunch.buttons["Skip warm-up"].waitForExistence(timeout: 5),
-                      "starting over must open a fresh session from the warm-up")
+        XCTAssertTrue(relaunch.buttons["warmup-start"].waitForExistence(timeout: 5),
+                      "starting over must open a fresh session at the warm-up offer")
     }
 
     func testSkipAllExercisesStillReachesRating() {
@@ -524,6 +524,8 @@ final class DredfitUITests: XCTestCase {
         app.buttons["Start"].tap()
         XCTAssertTrue(app.staticTexts["WARM-UP"].waitForExistence(timeout: 3),
                       "the workout must open with the warm-up")
+        // v2.26: the block is offered, not started — say yes before walking it.
+        app.buttons["warmup-start"].tap()
         // Since #52 the block opens on the transition announcing the first
         // move; the label is the one VoiceOver reads.
         XCTAssertTrue(app.staticTexts["Get ready: Marching in place"].exists,
@@ -548,6 +550,7 @@ final class DredfitUITests: XCTestCase {
         app.launchArguments.append("--uitest-long-transition")
         app.launch()
         app.buttons["Start"].tap()
+        app.buttons["warmup-start"].tap()
         XCTAssertTrue(app.buttons["get-ready-start"].waitForExistence(timeout: 5),
                       "the warm-up must open on the transition")
         app.buttons["get-ready-start"].tap()
@@ -678,6 +681,7 @@ final class DredfitUITests: XCTestCase {
             let skip = app.buttons["Skip exercise"]
             if skip.waitForExistence(timeout: 3) { coordinateTap(skip) }
         }
+        driver.declineCooldownIfAsked()   // v2.26 (§37.7a): the block asks first
         XCTAssertTrue(rating.waitForExistence(timeout: 3))
         app.staticTexts["On plan"].tap()
         XCTAssertTrue(app.staticTexts["Workout 2 completed"].waitForExistence(timeout: 5),
@@ -719,7 +723,7 @@ final class DredfitUITests: XCTestCase {
         app.launch()
         XCTAssertTrue(app.buttons["train-anyway"].waitForExistence(timeout: 5))
         app.buttons["train-anyway"].tap()
-        XCTAssertTrue(app.buttons["Skip warm-up"].waitForExistence(timeout: 5),
+        XCTAssertTrue(app.buttons["warmup-start"].waitForExistence(timeout: 5),
                       "Train anyway must open the workout flow")
     }
 
@@ -855,7 +859,7 @@ extension DredfitUITests {
         XCTAssertTrue(short.exists, "Today must offer the short version")
         short.tap()
 
-        let skipWarmup = app.buttons["Skip warm-up"]
+        let skipWarmup = app.buttons["warmup-intro-skip"]
         if skipWarmup.waitForExistence(timeout: 3) { skipWarmup.tap() }
         // The flow counts in the short list, not in the session's six.
         XCTAssertTrue(app.staticTexts["1 / 3"].waitForExistence(timeout: 3),
@@ -873,6 +877,7 @@ extension DredfitUITests {
                 coordinateTap(startHold)
                 _ = startHold.waitForNonExistence(timeout: 3)
             } else {
+                driver.declineCooldownIfAsked(timeout: 0)
                 _ = rating.waitForExistence(timeout: 2)
             }
         }
@@ -928,6 +933,11 @@ extension DredfitUITests {
         }
         XCTAssertTrue(cooldown.waitForExistence(timeout: 5),
                       "the cool-down must follow the last exercise")
+
+        // v2.26 (§37.7a): the header is up as soon as the block is OFFERED —
+        // the block itself runs only once the offer is accepted.
+        let acceptCooldown = app.buttons["cooldown-start"]
+        if acceptCooldown.waitForExistence(timeout: 5) { acceptCooldown.tap() }
 
         // The position mini-sheet (issue #34) opens over the running block
         // and closes back into it — opening freezes the countdown, so the

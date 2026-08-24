@@ -75,7 +75,6 @@ final class ShownPlanTests: XCTestCase {
             XCTAssertEqual(store.engineState.shownWork[ex.pattern], work(ex),
                            "\(ex.pattern.rawValue) was shown at a different work")
         }
-        XCTAssertEqual(store.engineState.shownBudget, store.engineState.timeBudgetMin)
     }
 
     /// ONE WRITE PER SHOWING. SwiftUI redraws the plan on every scroll, every
@@ -131,27 +130,6 @@ final class ShownPlanTests: XCTestCase {
             XCTAssertEqual(store.engineState.shownWork[ex.pattern], work(ex),
                            "\(ex.pattern.rawValue) is remembered at the plan on screen now")
         }
-    }
-
-    /// The one showing deliberately NOT written down (spec §36.6). The lens
-    /// plan is a VIEW: the base has to stay the last ordinary showing, or
-    /// coming off the lens reads as a rise and the repair takes sets off
-    /// someone who has only just recovered.
-    func testTheIllnessLensShowingIsNotWrittenDown() throws {
-        let store = try advancedStore()
-        let ordinary = store.nextSession
-        store.recordPlanShown(ordinary)
-        let base = store.engineState.shownWork
-
-        store.markIllness()
-        let lensPlan = store.nextSession
-        XCTAssertTrue(lensPlan.exercises.contains { ex in
-            ordinary.exercises.first { $0.pattern == ex.pattern }.map { ex.sets < $0.sets } ?? false
-        }, "the lens must actually take sets off, or this test proves nothing")
-
-        store.recordPlanShown(lensPlan)
-        XCTAssertEqual(store.engineState.shownWork, base,
-                       "the lens must not become the base the work returns to")
     }
 
     // MARK: - What the showing buys (spec §36.8)
@@ -223,32 +201,35 @@ final class ShownPlanTests: XCTestCase {
 
     // MARK: - Reset (spec §36.1)
 
-    /// A reset is exactly what the five new fields are FOR, and `.initial`
+    /// A reset is exactly what the sets-handle fields are FOR, and `.initial`
     /// zeroes all of them. What it must NOT take with them: the bar in the
-    /// doorway and the answer to "how long do I have".
-    func testResetClearsTheSetsHandleAndKeepsTheDoorwayAndTheBudget() throws {
-        let store = try advancedStore(budget: 35)
+    /// doorway.
+    ///
+    /// v2.26 (spec §37.7): the budget half of this test is gone with the
+    /// budget. What took its place is the handle — and the handle IS one of
+    /// the fields a reset clears, deliberately: starting the levels over is
+    /// starting the plan over, and a session someone shortened at L40 has no
+    /// meaning at L0.
+    func testResetClearsTheSetsHandleAndKeepsTheDoorway() throws {
+        let store = try advancedStore()
         store.setHasBar(true)
-        store.setTimeBudget(35)
         let session = store.nextSession
         store.recordPlanShown(session)
-        _ = store.completeWorkout(session: session, result: .plan,
-                                  discomfort: [.pull], date: day(-1))
+        store.takeSetOff(.pull)
         XCTAssertGreaterThan(store.engineState.cutOf(.pull), 0, "the handle moved")
-        XCTAssertFalse(store.engineState.painSeen.isEmpty)
         XCTAssertFalse(store.engineState.shownWork.isEmpty)
 
         store.resetProgress()
 
         XCTAssertTrue(store.engineState.cut.isEmpty)
-        XCTAssertTrue(store.engineState.painSeen.isEmpty)
         XCTAssertTrue(store.engineState.setsHold.isEmpty)
         XCTAssertTrue(store.engineState.shownWork.isEmpty)
         XCTAssertTrue(store.engineState.shownOrd.isEmpty)
-        XCTAssertEqual(store.engineState.shownBudget, 0)
         XCTAssertTrue(store.engineState.hasBar, "the bar did not leave the doorway")
-        XCTAssertEqual(store.engineState.timeBudgetMin, 35)
-        XCTAssertTrue(store.settings.timeBudgetChosen,
-                      "starting the levels over is not un-choosing the time")
     }
+
+    // SNIPPED v2.26 (§37.0): `testTheIllnessLensShowingIsNotWrittenDown`. The
+    // lens built a VIEW of the plan rather than moving the position, so its
+    // showing had to be kept out of the memory the postcondition repair reads.
+    // There is no lens, and no view: every plan on screen is the plan.
 }

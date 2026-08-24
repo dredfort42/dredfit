@@ -18,10 +18,9 @@ private typealias Pattern = DredfitCore.Pattern
 
 final class EngineV217Tests: XCTestCase {
 
-    private func seeded(_ level: Int, budget: Int = 0, bar: Bool = false) -> EngineState {
+    private func seeded(_ level: Int, bar: Bool = false) -> EngineState {
         var s = EngineState.initial
         s.hasBar = bar
-        s.timeBudgetMin = budget
         for p in Pattern.allCases { s.levels[p] = level }
         return s
     }
@@ -71,122 +70,6 @@ final class EngineV217Tests: XCTestCase {
         }
     }
 
-    // MARK: - §28.3 The time budget
-
-    /// v2.24 (spec §35.2): RE-MARKED, with the cause. Two expectations here were
-    /// written against an algorithm that dropped movements to make the budget;
-    /// since v2.24 movements are never dropped, and both are replaced by
-    /// stronger claims:
-    ///   • "always fits" → "fits OR every exercise is on the sets floor". The
-    ///     budgets that the app actually offers above the shortest rung (35 and
-    ///     45) still fit everywhere, and that is pinned separately below with no
-    ///     disjunction at all.
-    ///   • "at least the movement floor" → "EXACTLY the movements of the full
-    ///     plan". The movement floor is gone along with the stage that read it.
-    func testEveryBudgetIsMetAtEveryLevelWithoutTouchingLevels() {
-        for budget in [20, 35, 45] {
-            for level in 0...EngineConfig.levelMax {
-                let state = seeded(level, budget: budget)
-                let session = Engine.generateSession(state)
-                let full = Engine.generateSession(seeded(level))
-                let allOnFloor = session.exercises.allSatisfy { $0.sets <= EngineConfig.setsFloor }
-                XCTAssertTrue(session.estimatedTotalMin <= Double(budget) || allOnFloor,
-                    "L\(level) at budget \(budget): \(session.estimatedTotalMin) min, not on the floor")
-                XCTAssertEqual(session.exercises.map(\.pattern), full.exercises.map(\.pattern),
-                    "L\(level) at budget \(budget): the movement list drifted from the full plan")
-                for ex in session.exercises {
-                    let same = full.exercises.first { $0.pattern == ex.pattern }
-                    XCTAssertEqual(ex.tier, same?.tier, "the budget changed the variation")
-                    XCTAssertEqual(ex.load, same?.load, "the budget changed the load")
-                    XCTAssertGreaterThanOrEqual(ex.sets, EngineConfig.setsFloor)
-                }
-            }
-        }
-    }
-
-    /// The rungs above the shortest one keep the old promise outright: no
-    /// disjunction, no floors — the plan fits, everywhere on the scale.
-    /// Re-marked for v2.25 (spec §36.9), and the cost is named rather than
-    /// hidden. Adding the 1–2 rungs to the rest table — so a cut can no longer
-    /// hand back a SHORTER pause than the trainee had before complaining —
-    /// makes a floor plan longer by exactly that pause. The 45-minute rung
-    /// still fits across the whole scale with no disjunction at all. The
-    /// 35-minute one overshoots in 27 cells of 768 (3.5 %), by at most 2.5
-    /// minutes, and in every one of them all six movements are already on
-    /// their floor: that is the same honest shape §35.2 accepted for the
-    /// 20-minute rung — six movements at two sets IS the shortest legal plan,
-    /// and running a little long is cheaper than dropping a pattern.
-    ///
-    /// The expectation is not weakened. It gains two facts the single
-    /// inequality never stated: that an overshoot only ever happens with every
-    /// movement on its floor, and how large the worst one is.
-    func testTheThirtyFiveAndFortyFiveRungsStillFitEverywhere() {
-        var worstOvershoot = 0.0
-        for budget in [35, 45] {
-            for level in 0...EngineConfig.levelMax {
-                for counter in 0..<8 {
-                    for bar in [false, true] {
-                        var state = seeded(level, budget: budget, bar: bar)
-                        state.counter = counter
-                        let session = Engine.generateSession(state)
-                        let ctx = "L\(level) c\(counter) bar=\(bar) at budget \(budget)"
-                        guard session.estimatedTotalMin > Double(budget) else { continue }
-                        XCTAssertNotEqual(budget, 45, "the 45 rung must fit with no excuse: \(ctx)")
-                        XCTAssertTrue(session.exercises.allSatisfy { $0.sets <= EngineConfig.setsFloor },
-                                      "over budget with something still above the floor: \(ctx)")
-                        worstOvershoot = max(worstOvershoot,
-                                             session.estimatedTotalMin - Double(budget))
-                    }
-                }
-            }
-        }
-        XCTAssertLessThanOrEqual(worstOvershoot, 2.5,
-                                 "the accepted overshoot of the 35 rung grew past 2.5 min")
-    }
-
-    func testNoBudgetIsExactlyTheOldBehaviour() {
-        for level in stride(from: 0, through: EngineConfig.levelMax, by: 7) {
-            XCTAssertEqual(Engine.generateSession(seeded(level)),
-                           Engine.generateSession(seeded(level, budget: 0)))
-        }
-    }
-
-    func testAShortBudgetStillShowsEveryMovementOftenEnough() {
-        var state = seeded(0, budget: 20)
-        var last: [Pattern: Int] = [:]
-        var worst = 0
-        var seen: [Pattern: Int] = [:]
-        for session in 0..<24 {
-            let plan = Engine.generateSession(state)
-            for ex in plan.exercises {
-                if let was = last[ex.pattern] { worst = max(worst, session - was) }
-                last[ex.pattern] = session
-                seen[ex.pattern] = (seen[ex.pattern] ?? 0) + 1
-            }
-            state = Engine.applyFeedback(state: state, session: plan, result: .plan)
-        }
-        for p in Pattern.ordered {
-            XCTAssertNotNil(last[p], "\(p) never appeared in 24 sessions")
-        }
-        // v2.24 (spec §35.2): re-marked 6 → 3, with the cause. The number was
-        // written against trimming by movements: a movement dropped for the
-        // budget waited BEYOND its place in the rotation, and 5 → 6 drifted with
-        // how the algorithm ranked "laggards". Movements are no longer dropped,
-        // so a pattern's wait is exactly what the rotation gives it (§4): eight
-        // rotating patterns over five slots with a shift of 3, worst gap 3
-        // sessions. The bound is not loosened but halved, and it now follows
-        // from the rotation rather than from trimming behaviour.
-        XCTAssertLessThanOrEqual(worst, 3,
-            "a pattern waited \(worst) sessions on the tightest budget")
-        // Five appearances in eight sessions (§4) over 24 sessions — a derived
-        // lower bound instead of the old round three.
-        let rotatingMin = 24 * 5 / 8
-        for p in Pattern.ordered {
-            XCTAssertGreaterThanOrEqual(seen[p] ?? 0, rotatingMin,
-                "\(p) appeared \(seen[p] ?? 0) times in 24 sessions, expected \(rotatingMin)")
-        }
-    }
-
     // MARK: - §28.4 The window after a comeback
 
     func testAComebackOpensAWindowWhereMoreCountsAsPlan() {
@@ -220,28 +103,6 @@ final class EngineV217Tests: XCTestCase {
                                          result: .plan)
         }
         XCTAssertEqual(state.rampWindow, 0)
-    }
-
-    /// Audit 2026-08-20, finding S5-1 (P0): a restorative session under the
-    /// "I was sick" lens must spend the limited-growth window like any other
-    /// one — spec §28.4 says so in as many words, and the reference has always
-    /// decremented it in the `illnessLeft > 0` branch. The port did not, so a
-    /// comeback followed by the lens left the window full: six extra sessions
-    /// of damped growth, invisible because `rampWindow` is one of the three
-    /// state fields golden never snapshots (S5-2). Pinned here rather than in
-    /// golden because the fixture cannot see the field at all.
-    func testTheLensSpendsTheGrowthWindowLikeAnOrdinarySession() {
-        var state = Engine.applyIllness(state: Engine.applyComeback(state: seeded(20), gapDays: 30))
-        XCTAssertEqual(state.rampWindow, EngineConfig.rampWindowSessions,
-                       "the comeback opened a full window")
-        let lensSessions = 3
-        for i in 0..<lensSessions {
-            XCTAssertGreaterThan(state.illness, 0, "still under the lens at session \(i)")
-            state = Engine.applyFeedback(state: state, session: Engine.generateSession(state),
-                                         result: .plan)
-        }
-        XCTAssertEqual(state.rampWindow, EngineConfig.rampWindowSessions - lensSessions,
-                       "restorative sessions spend the window (reference parity, spec §28.4)")
     }
 
     // MARK: - §28.5 The weekly ceiling
@@ -279,20 +140,19 @@ final class EngineV217Tests: XCTestCase {
                           "full pull-ups no longer arrive after 28 days without a rest day")
     }
 
-    // MARK: - The inversion bug the budget work uncovered (§28.0)
-
-    func testAnHonestOvershootOfAGatedPlanDoesNotCollapseASoreMovement() throws {
-        var state = seeded(10)
-        state.levels[.pushV] = 44
-        state.levels[.pull] = 20
-        state.sore[.pushV] = EngineConfig.freezeAppearances
-        let session = Engine.generateSession(state)
-        guard let ex = session.exercises.first(where: { $0.pattern == .pushV }) else { return }
-        XCTAssertLessThan(ex.sets, Level.decode(44).sets, "the gate trimmed the plan")
-        let after = Engine.applyFeedback(state: state, session: session, result: .plan,
-                                         overrides: [.pushV: ex.load + 1])
-        XCTAssertGreaterThanOrEqual(after.levels[.pushV] ?? 0, 44,
-                                    "an honest overshoot used to drop the level to 29")
-        XCTAssertNil(after.sore[.pushV], "and it closes the pain episode")
-    }
+    // SNIPPED v2.26 (§37.0 / §37.7): six tests.
+    // Four were §28.3, the time budget: every budget is met, the 35 and 45
+    // rungs fit, no-budget is the old behaviour, a short budget still shows
+    // every movement. The budget is gone — it trimmed the WORKOUT to fit a
+    // number, and four composition findings all read zero with it switched off.
+    // One was the lens spending the growth window; one was an honest overshoot
+    // on a SORE movement. Neither input exists.
+    //
+    // §28.1 (a band starts at its own dose), §28.2 (the rest ladder), §28.4
+    // (the ramp window) and §28.5 (the weekly ceiling) are untouched and stay
+    // here in full — they are the part of §28 the wave does not address.
+    //
+    // What replaces the budget is measured elsewhere: the session handle only
+    // ever SHORTENS (EngineV224Tests), and the announced duration is what the
+    // golden fixture pins.
 }

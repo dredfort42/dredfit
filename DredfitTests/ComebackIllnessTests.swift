@@ -2,9 +2,10 @@
 //  ComebackIllnessTests.swift
 //  DredfitTests
 //
-//  The app half of the v2.12 comeback wave (issues #127, #128, #133): the
-//  accept guard, the sighted decline path, and the "I was sick" lens as the
-//  user meets them through AppStore.
+//  The app half of the v2.12 comeback wave (issues #127, #128): the accept
+//  guard, the sighted decline path and the numbered preview, as the user meets
+//  them through AppStore. The "I was sick" lens the file is half-named after
+//  was removed in v2.26 — its four tests, and why they went, are at the bottom.
 //
 
 import XCTest
@@ -92,63 +93,15 @@ final class ComebackIllnessTests: XCTestCase {
         XCTAssertTrue(preview.easier.contains("×"))
     }
 
-    // MARK: - #133 the illness lens through the app
-
-    /// v2.25 (spec §36.6): RE-MARKED, and the old mark was the bug. The lens
-    /// used to show every level one tier easier; that made the plan HEAVIER in
-    /// 84 cells of 480 (audit 20.08, P0-6), because rep continuity read a
-    /// phantom field on the statics and the v2.21 ladders of tier 3 sit above
-    /// those of tier 4 — hinge L24, `3×4` became `3×5 per leg`. The one tap a
-    /// person has for "I need something lighter right now" did the opposite of
-    /// its promise.
-    ///
-    /// The lens takes SETS off now — to half the band, rounded up — and leaves
-    /// the level, the variation and the dose per set exactly where they are.
-    /// Fewer sets of the same thing cannot be heavier by construction, so the
-    /// promise holds with no cell to check.
-    func testMarkIllnessEasesThePlanWithoutTouchingLevels() throws {
-        let store = returned(after: 5)
-        let before = try XCTUnwrap(store.nextSession.exercises.first { $0.pattern == .pull })
-        store.markIllness()
-        let after = try XCTUnwrap(store.nextSession.exercises.first { $0.pattern == .pull })
-        XCTAssertEqual(after.tier, before.tier, "the lens moves volume, not the variation")
-        XCTAssertEqual(after.load, before.load, "nor the dose per set")
-        XCTAssertLessThan(after.sets, before.sets, "the plan is gentler by sets")
-        XCTAssertEqual(store.engineState.levels[.pull], 20, "the stored level stands")
-        XCTAssertEqual(store.engineState.cutOf(.pull), 0,
-                       "the lens builds the plan's VIEW — it stores no cut of its own")
-        XCTAssertEqual(store.illnessSessionsLeft, EngineConfig.illnessSessions)
-    }
-
-    func testTheLensSurvivesAReload() {
-        let store = returned(after: 5)
-        store.markIllness()
-        store.completeWorkout(session: store.nextSession, result: .plan)
-        let reloaded = AppStore(storageURL: tempURL)
-        XCTAssertEqual(reloaded.illnessSessionsLeft, EngineConfig.illnessSessions - 1,
-                       "the countdown persists across launches")
-    }
-
-    func testTheQuietOfferLivesExactlyInTheBlindWindow() {
-        XCTAssertFalse(returned(after: 0).shouldOfferIllnessTap(), "trained today")
-        XCTAssertFalse(returned(after: 1).shouldOfferIllnessTap(), "an ordinary rest day")
-        XCTAssertTrue(returned(after: 2).shouldOfferIllnessTap())
-        XCTAssertTrue(returned(after: 13).shouldOfferIllnessTap())
-        XCTAssertFalse(returned(after: 14).shouldOfferIllnessTap(),
-                       "from fourteen days the comeback card carries the tap")
-        let tapped = returned(after: 5)
-        tapped.markIllness()
-        XCTAssertFalse(tapped.shouldOfferIllnessTap(), "the lens is on — the offer is spent")
-    }
-
-    /// The card's sick path per spec §22.4: the comeback lands first, the
-    /// lens goes on top of the landing.
-    func testSickOnTheCardComposesComebackAndLens() {
-        let store = returned(after: 35)
-        store.acceptComeback()
-        store.markIllness()
-        XCTAssertLessThan(store.engineState.levels[.pull] ?? 99, 20, "the landing happened")
-        XCTAssertEqual(store.illnessSessionsLeft, EngineConfig.illnessSessions)
-        XCTAssertFalse(store.shouldOfferComeback(), "the question is closed")
-    }
+    // SNIPPED v2.26 (§37.0): the four tests of the "I was sick" lens.
+    // The lens made the plan HEAVIER in 76 cells out of 480 (finding S6-2, P0)
+    // — the opposite of what the tap offered — so the mechanism went rather
+    // than being fixed. `markIllness`, `illnessSessionsLeft` and the quiet
+    // offer in the blind window went with it.
+    //
+    // The comeback half of this suite is untouched: it never belonged to the
+    // lens, and §22.1-§22.3 are not part of this wave.
+    //
+    // The file keeps its name so the Xcode project does not have to move: the
+    // rename would be a change to project.pbxproj for no behaviour at all.
 }

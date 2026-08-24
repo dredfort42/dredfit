@@ -51,10 +51,13 @@ final class EngineV215Tests: XCTestCase {
         let state = seeded(20)
         let session = Engine.generateSession(state)
         let target = try XCTUnwrap(session.exercises.first).pattern
-        // v2.22 (spec §33): the hold is gone, so "named" is a fact below the
-        // plan or a discomfort report. The subject is unchanged.
+        // v2.22 (spec §33): the hold left the "named" list. v2.26 (§37.0): so
+        // did the discomfort report, and one signal is left — an exact number
+        // below the plan. The subject of the test is unchanged: a named less
+        // is already addressed, so it writes no chronic window.
+        let plan = try XCTUnwrap(session.exercises.first).load
         let after = Engine.applyFeedback(state: state, session: session, result: .less,
-                                         discomfort: [target])
+                                         overrides: [target: max(0, plan - 2)])
         XCTAssertEqual(after.lessHist[target] ?? 0, 0,
                        "a named less is already addressed — the window is for silence")
     }

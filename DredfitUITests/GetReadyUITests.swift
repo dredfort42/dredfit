@@ -31,6 +31,7 @@ final class GetReadyUITests: XCTestCase {
         app.launchArguments.append("--uitest-long-transition")
         app.launch()
         app.buttons["Start"].tap()
+        app.buttons["warmup-start"].tap()   // v2.26: the block is offered first
         let transition = app.staticTexts["getready-countdown"]
         let move = app.staticTexts["warmup-countdown"]
         XCTAssertTrue(transition.waitForExistence(timeout: 5),
@@ -54,6 +55,7 @@ final class GetReadyUITests: XCTestCase {
     func testGetReadyHandsOverToTheMoveOnItsOwn() {
         app.launch()
         app.buttons["Start"].tap()
+        app.buttons["warmup-start"].tap()   // v2.26: the block is offered first
         XCTAssertTrue(app.staticTexts["getready-countdown"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["warmup-countdown"].waitForExistence(timeout: 12),
                       "the transition must start the move by itself")
@@ -66,6 +68,7 @@ final class GetReadyUITests: XCTestCase {
         app.launchArguments.append("--uitest-long-transition")
         app.launch()
         app.buttons["Start"].tap()
+        app.buttons["warmup-start"].tap()   // v2.26: the block is offered first
         XCTAssertTrue(app.buttons["get-ready-start"].waitForExistence(timeout: 5))
         app.buttons["Skip warm-up"].tap()
         XCTAssertTrue(app.buttons["Done"].waitForExistence(timeout: 3),

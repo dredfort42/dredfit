@@ -2,10 +2,15 @@
 //  AppStore+Signals.swift
 //  Dredfit
 //
-//  Quiet safety signals derived from the journal (issues #100, #98): a
-//  per-movement pain trend and a run of training days. Nothing here is
-//  persisted — the same journal always produces the same lines, backups
-//  included — and nothing blocks, colors, or counts toward an achievement.
+//  Quiet safety signals derived from the journal (issues #100, #98): a run of
+//  training days, and the movement the journal keeps finding under an unnamed
+//  "tough". Nothing here is persisted — the same journal always produces the
+//  same lines, backups included — and nothing blocks, colors, or counts toward
+//  an achievement.
+//
+//  v2.26 (spec §37.0): the per-movement PAIN TREND is gone with the channel it
+//  read. Both of its rungs — "it hurt again" and "time to see a specialist" —
+//  counted pain reports, and there are none to count.
 //
 
 import Foundation
@@ -13,39 +18,9 @@ import DredfitCore
 
 extension AppStore {
 
-    /// The pain line appears from this many painful appearances in a row…
-    static let painTrendThreshold = 2
-    /// …and starts mentioning a specialist from this many REPORTS — the
-    /// engine's `painSeen`, its memory of how many times this movement has
-    /// hurt over the whole history (v2.25, spec §36.5).
-    ///
-    /// It used to hang on the RUN of reports, and the run is exactly what the
-    /// 3 / 6 / 12 rest is built to break: the movement hurts, rests its
-    /// appearances, comes back healthy — and the count it needed to reach
-    /// three was back at zero. Nobody the line was written for ever saw it.
-    /// The memory does not reset; it only fades, by one, after a break of
-    /// ninety days (§36.5), because a break is precisely what a person in
-    /// pain takes.
-    static let painSpecialistThreshold = 3
     /// The rest offer appears when today's workout would be at least the
     /// (threshold + 1)-th consecutive training day.
     static let longRunThreshold = 3
-
-    /// How many consecutive APPEARANCES of the pattern ended with a pain
-    /// report, counting back from the latest. Sessions the pattern was not
-    /// part of do not break the run — the engine's freeze counts in
-    /// appearances the same way. A record too old to know its exercises
-    /// (pre-1.4) ends the walk: honesty over reach.
-    func discomfortStreak(_ pattern: Pattern) -> Int {
-        var streak = 0
-        for record in records.reversed() {
-            guard let exercises = record.exercises else { break }
-            guard exercises.contains(where: { $0.pattern == pattern }) else { continue }
-            guard record.discomfort?.contains(pattern) == true else { break }
-            streak += 1
-        }
-        return streak
-    }
 
     /// Consecutive calendar days with a completed workout, counting back
     /// from (and including) the given day. Local-midnight day math — a
@@ -71,28 +46,6 @@ extension AppStore {
         return consecutiveTrainingDays(endingOn: yesterday) + 1
     }
 
-    /// What the resting line has to say about a movement beyond "it is not
-    /// getting harder" (#100). Two rungs, and the upper one is the engine's,
-    /// not the journal's — see `painSpecialistThreshold`.
-    enum PainNote {
-        /// It hurt on both of its last two appearances: a report, a rest, and
-        /// a report again.
-        case hurtAgain
-        /// It has hurt `painSpecialistThreshold` times over its history,
-        /// however far apart those times were.
-        case seeSpecialist
-    }
-
-    /// The escalation wins wherever both could fire: a history of three
-    /// reports is the stronger fact, and only one sentence is ever shown.
-    func painNote(_ pattern: Pattern) -> PainNote? {
-        if (engineState.painSeen[pattern] ?? 0) >= Self.painSpecialistThreshold {
-            return .seeSpecialist
-        }
-        if discomfortStreak(pattern) >= Self.painTrendThreshold { return .hurtAgain }
-        return nil
-    }
-
     /// True when starting today's workout would make it at least the fourth
     /// training day in a row — the moment a rest offer is worth one quiet
     /// sentence. Never true once today's workout is done: the line is an
@@ -112,29 +65,26 @@ extension AppStore {
     /// having changed — and a plan that quietly got easier reads as a bug
     /// exactly the way a plan that quietly got harder does.
     enum SetsNote {
-        /// The pain channel is holding the volume down while the episode runs.
-        case painCut
         /// A set has just come back.
         case setBack
     }
 
     /// One line per card at most, and only while it is true — no notification,
     /// no card of its own, nothing to dismiss.
+    ///
+    /// v2.26 (spec §37.0): the "pain is holding the volume down" rung is gone
+    /// with the episode. What is left is the one the person cannot otherwise
+    /// account for — a set coming BACK — and it matters more now, not less:
+    /// sets are taken off by the person's own handle, so the card has to say
+    /// when the engine gives one back on its own.
     func setsNote(for exercise: SessionExercise) -> SetsNote? {
         let pattern = exercise.pattern
-        // The STORED cut, never the shown one: the illness lens takes sets off
-        // as a view (§36.6) and has its own sentence on Today already, and the
-        // §20.2 gate takes them off for a reason that has nothing to do with
-        // pain. A live episode plus a cut is the pain channel and only it.
-        if engineState.sore[pattern] != nil, engineState.cutOf(pattern) > 0 {
-            return .painCut
-        }
         // The hold is armed by the very transition that handed a set back and
         // spends a tick on each appearance after it, so "full" means the
         // returned set is in THIS plan (§36.3). That alone is not enough to
-        // say so out loud: the gate, the budget and the postcondition repair
-        // all cut AFTER the handle, and a line about a set the card does not
-        // show would simply be false. So the journal has the last word — what
+        // say so out loud: the gate and the postcondition repair both cut
+        // AFTER the handle, and a line about a set the card does not show
+        // would simply be false. So the journal has the last word — what
         // the card carried the last time this movement came round.
         if engineState.setsHold[pattern] == EngineConfig.setsBackHold,
            let before = lastShownSets(pattern), exercise.sets > before {
@@ -169,9 +119,14 @@ extension AppStore {
     /// one-tap gesture rates "tough" whenever the pushes come up. Because the
     /// pushes are in most sessions, that reads to the model as "the whole
     /// programme is too hard", and nine weeks later the programme is gone —
-    /// while the movement that actually hurts is still in every plan. The
-    /// "Something hurt" button has existed since 1.10; the price of never
-    /// discovering it was everything else.
+    /// while the movement that is actually the problem is still in every plan.
+    ///
+    /// v2.26 (spec §37.0): the prompt used to route to "Something hurt", and
+    /// that button no longer exists. It routes to the HANDLES instead, which
+    /// is the better destination anyway: the pain report took the movement's
+    /// volume away and gave nothing back for weeks, while "easier variation"
+    /// and "fewer sets" change exactly the thing the person is complaining
+    /// about, immediately, and keep the movement in the plan.
     func unnamedLessSuspect() -> Pattern? {
         var best: Pattern?
         var bestHits = 0
@@ -189,19 +144,29 @@ extension AppStore {
             // one the rotation shows first — the same order the engine walks.
             if hits > bestHits { bestHits = hits; best = pattern }
         }
-        // Nothing to suggest while the movement is already resting or its pain
-        // is already on record: the path this prompt routes into is taken.
-        guard let best, engineState.freezeRemaining(best) == 0,
-              engineState.sore[best] == nil else { return nil }
+        // Nothing to suggest when neither handle would do anything: the
+        // movement is already in its easiest variation AND already on the sets
+        // floor, so the prompt would route into a screen with two dead
+        // controls. This is the v2.26 replacement for "already resting or its
+        // pain is already on record" — the same idea, that the path this
+        // prompt offers is already taken.
+        guard let best else { return nil }
+        let level = engineState.levels[best] ?? 0
+        let canEase = Engine.easierLevel(pattern: best, level: level,
+                                         sub: engineState.sub[best] ?? 0,
+                                         cut: engineState.cutOf(best)) != nil
+        let canCut = engineState.cutOf(best) < Level.cutMax(level: level,
+                                                            floor: EngineConfig.setsFloor)
+        guard canEase || canCut else { return nil }
         return best
     }
 
-    /// A session where the trainee said "tough" and pointed at nothing: no
-    /// exact numbers and no pain report. v2.22 (spec §33): the third signal —
-    /// a hold request — is cancelled, so the list is down to two.
+    /// A session where the trainee said "tough" and pointed at nothing.
+    /// v2.22 (spec §33) cancelled the hold request, v2.26 (§37.0) the pain
+    /// report — so "naming something" is down to ONE signal, exact numbers,
+    /// and the check says so rather than listing an empty set.
     private static func namesNothing(_ record: WorkoutRecord) -> Bool {
         (record.actuals ?? [:]).isEmpty
-            && (record.discomfort ?? []).isEmpty
     }
 
     /// At most one prompt per session (spec §26.3): it is a question, not a

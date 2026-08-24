@@ -25,49 +25,39 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// to another variation, and two variations may never share one exercise.
     public var sub: [Pattern: Int]
     /// v2.25 (spec §36.1): sets taken off the level's plan. Range after
-    /// sanitizing is `0...band − setsFloorPain`: the ceiling is the PAIN one,
-    /// because a state may legitimately carry the pain channel's landing of a
-    /// single set and the sanitizer has no right to raise it. Sparse — zeros
+    /// sanitizing is `0...band − setsFloor`. v2.26 (§37.3): the ceiling is the
+    /// SHARED floor, and it is the only one — the pain channel's landing of a
+    /// single set no longer exists, so a state carrying one is normalized up
+    /// to two sets rather than preserved. Sparse — zeros
     /// are never stored — so a file written before this existed decodes to all
     /// zeros and the plan it produces is bit-for-bit v2.24's. No migration.
     ///
     /// The second axis of a position: the level fixes the VARIATION and the
     /// DOSE PER SET, the cut fixes only the VOLUME.
     public var cut: [Pattern: Int]
-    /// v2.25 (spec §36.5): how many times this movement has hurt over its
-    /// whole history. Separate from the episode on purpose — an episode is
-    /// "now", the history is "ever". The 3 → 6 → 12 rest ladder reads THIS,
-    /// not whether an episode is open, and so does the "time to see a
-    /// specialist" threshold. It fades by one after a break of
-    /// `painForgetGapDays`, and that is the only place it ever falls.
-    public var painSeen: [Pattern: Int]
     /// v2.25 (spec §36.3): appearances left before the next set may come back.
     /// While it ticks, a growth event goes into the DOSE — the trainee keeps
     /// growing, just by a smaller step. Sparse, like every other counter here.
     public var setsHold: [Pattern: Int]
     /// v2.25 (spec §36.8): the work shown in the last COMPLETED session, and
-    /// the position it was shown AT. Together with `shownBudget` they are the
-    /// input to the postcondition repair — "if a pattern's position did not
-    /// rise, its plan may not get heavier". Without the position there is no
-    /// telling "the plan grew because the person grew" from "the plan grew
-    /// because the budget moved the cut somewhere else".
+    /// the position it was shown AT. Together they are the input to the
+    /// postcondition repair — "if a pattern's position did not rise, its plan
+    /// may not get heavier".
+    ///
+    /// v2.26 (§37.5): the third input, `shownBudget`, is gone with the budget.
+    /// It existed because the budget worked PAST the position measure — it
+    /// trimmed the plan without touching level, sub-step or cut, so moving the
+    /// handle had to be declared a legitimate cause of growth by hand. The
+    /// sets handle writes `cut`, a coordinate of the position, so releasing it
+    /// IS a rise and the general gate excludes it on its own.
     ///
     /// `shownWork` is sparse on "work > 0", so an absent entry unambiguously
     /// means "never shown"; `shownOrd` is only meaningful where `shownWork`
     /// has an entry — the pair is written by one loop and always together.
     public var shownWork: [Pattern: Int]
     public var shownOrd: [Pattern: Int]
-    /// The time budget in force when that plan was shown. A person moving the
-    /// time handle lifts the repair's cap for exactly ONE state transition:
-    /// without it, raising 30 to 60 gave 45.9 minutes instead of 59.1.
-    public var shownBudget: Int
     public var failStreak: [Pattern: Int]
     public var hasBar: Bool
-    /// Appearances a pattern still has to sit out after discomfort was
-    /// reported on it. Only positive counters are kept, so an empty map is
-    /// "nothing is frozen" — and a state file written before this existed
-    /// decodes to exactly that.
-    public var frozen: [Pattern: Int]
     /// How many "less" ratings in a row named no movement (spec §19.1). The
     /// third such rating hands the delta back to the whole session — a run of
     /// unnamed "less" is a statement about the plan, not about one exercise.
@@ -77,38 +67,11 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// credit lands on sessions the branch is not in — the ones you cannot
     /// answer — so without this the level runs away from what you can do.
     public var creditPaused: Set<Pattern>
-    /// v2.11 (spec §21.2): live pain episodes. The value is the last freeze
-    /// assignment made by this episode (the 3 → 6 → 12 ladder). An episode
-    /// outlives its freeze counter: once the counter runs out the pattern
-    /// waits — growth stays clamped until an explicit fact at or above the
-    /// plan confirms the pain settled. Empty map = no episodes, so a state
-    /// file written before this existed decodes to exactly that.
-    public var sore: [Pattern: Int]
-    /// v2.20 (spec §31.2): how many CLEAN appearances the episode still needs
-    /// before it closes — the second way out, for the trainee who logs no
-    /// numbers. A clean appearance is one where the pattern was trained and
-    /// the session carried no "it was hard" signal about it; each one spends
-    /// one tick, and at zero both this and `sore` are dropped.
-    ///
-    /// It is a SEPARATE field from `sore` on purpose (spec §31.3): `sore`
-    /// holds the episode's freeze ASSIGNMENT, and two rules read it — the
-    /// 3 → 6 → 12 rest ladder and which report this is in the two-step unload
-    /// (§30.6). A counting-down `sore` would misread both, and an assignment
-    /// of 6 worn down to 3 would land the variation drop a SECOND time.
-    ///
-    /// Sparse and only ever alongside a live `sore`. A missing entry for a
-    /// live episode reads as the FULL assignment, so an episode opened before
-    /// v2.20 gets a whole confirmation window instead of closing on the first
-    /// appearance — old files need no migration.
-    public var soreLeft: [Pattern: Int]
     /// v2.12 (spec §22.3): comebacks applied in a row with no completed
     /// session between them. Each one past the first deepens the drop by one
     /// — the plan must slide faster than fitness decays, or every return in
     /// a "come back once, vanish a month" series is infeasible.
     public var returnRun: Int
-    /// v2.12 (spec §22.4): sessions left under the "I was sick" lens — the
-    /// plan is one tier easier, the stored levels stand.
-    public var illness: Int
     /// v2.15 (spec §26.1): the last appearances of each pattern as a bit mask
     /// — bit set = that appearance fell in a session rated an unnamed "less".
     /// Sparse: an empty mask is not stored, so a state file written before this
@@ -117,9 +80,6 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// v2.17 (spec §28.4): sessions left in the limited-growth window a
     /// comeback opens — "more" is credited as "plan" and every rise is one.
     public var rampWindow: Int
-    /// v2.17 (spec §28.3): the session-time budget in minutes; 0 = no limit.
-    /// It trims the PLAN and never the levels.
-    public var timeBudgetMin: Int
     /// v2.17 (spec §28.5): levels gained inside the current weekly window and
     /// how old that window is in days. Both stay idle until the app supplies
     /// the gap signal — without it the engine is calendar-blind, as §7 says.
@@ -133,47 +93,43 @@ public struct EngineState: Codable, Equatable, Sendable {
     // Spelled out (same names the compiler would synthesize) so that
     // decodeLenient can reference the type — synthesized CodingKeys are only
     // visible inside init(from:)/encode(to:). The wire format is unchanged.
+    // v2.26 (§37.2): seven keys are gone — `frozen`, `sore`, `soreLeft`,
+    // `painSeen`, `illness`, `timeBudgetMin`, `shownBudget`. A file written by
+    // an older build still carries them; `decodeIfPresent`/`contains` never
+    // ask for them, so they are simply ignored. That IS the migration.
     private enum CodingKeys: String, CodingKey {
-        case counter, levels, failStreak, hasBar, frozen, lessRun, creditPaused, sore,
-             soreLeft, returnRun, illness, lessHist, rampWindow, timeBudgetMin, weekGain,
+        case counter, levels, failStreak, hasBar, lessRun, creditPaused,
+             returnRun, lessHist, rampWindow, weekGain,
              weekAgeDays, sub,
-             // v2.25 (§36.1): five sparse maps and one scalar, all additive.
-             cut, painSeen, setsHold, shownWork, shownOrd, shownBudget
+             // v2.25 (§36.1): four sparse maps, all additive.
+             cut, setsHold, shownWork, shownOrd
     }
 
     public init(counter: Int, levels: [Pattern: Int],
                 failStreak: [Pattern: Int], hasBar: Bool = false,
-                frozen: [Pattern: Int] = [:], lessRun: Int = 0,
-                creditPaused: Set<Pattern> = [], sore: [Pattern: Int] = [:],
-                soreLeft: [Pattern: Int] = [:],
-                returnRun: Int = 0, illness: Int = 0, lessHist: [Pattern: Int] = [:],
-                rampWindow: Int = 0, timeBudgetMin: Int = 0,
+                lessRun: Int = 0,
+                creditPaused: Set<Pattern> = [],
+                returnRun: Int = 0, lessHist: [Pattern: Int] = [:],
+                rampWindow: Int = 0,
                 weekGain: [Pattern: Int] = [:], weekAgeDays: Double = 0,
                 sub: [Pattern: Int] = [:],
-                cut: [Pattern: Int] = [:], painSeen: [Pattern: Int] = [:],
+                cut: [Pattern: Int] = [:],
                 setsHold: [Pattern: Int] = [:], shownWork: [Pattern: Int] = [:],
-                shownOrd: [Pattern: Int] = [:], shownBudget: Int = 0) {
+                shownOrd: [Pattern: Int] = [:]) {
         self.counter = counter
         self.levels = levels
         self.sub = sub
         self.cut = cut
-        self.painSeen = painSeen
         self.setsHold = setsHold
         self.shownWork = shownWork
         self.shownOrd = shownOrd
-        self.shownBudget = shownBudget
         self.failStreak = failStreak
         self.hasBar = hasBar
-        self.frozen = frozen
         self.lessRun = lessRun
         self.creditPaused = creditPaused
-        self.sore = sore
-        self.soreLeft = soreLeft
         self.returnRun = returnRun
-        self.illness = illness
         self.lessHist = lessHist
         self.rampWindow = rampWindow
-        self.timeBudgetMin = timeBudgetMin
         self.weekGain = weekGain
         self.weekAgeDays = weekAgeDays
     }
@@ -201,16 +157,8 @@ public struct EngineState: Codable, Equatable, Sendable {
         levels = lv
         failStreak = fs
         hasBar = try c.decodeIfPresent(Bool.self, forKey: .hasBar) ?? false
-        // Additive: absent in every file written before the discomfort input,
-        // and zero counters are never written, so this stays empty until a
-        // pattern is actually frozen.
-        frozen = c.contains(.frozen)
-            ? try Self.decodeLenient(c, forKey: .frozen)
-                .filter { $0.value > 0 }
-                .mapValues { Self.clamped($0, 1, EngineConfig.countMax) }
-            : [:]
-        // Additive, same shape as `frozen`: absent in every file written
-        // before v2.9, and a hand-edited negative can only mean garbage.
+        // Additive: absent in every file written before v2.9, and a
+        // hand-edited negative can only mean garbage.
         lessRun = Self.clamped(try c.decodeIfPresent(Int.self, forKey: .lessRun) ?? 0,
                                0, EngineConfig.countMax)
         // Additive: absent before v2.10, and unknown patterns are dropped the
@@ -219,26 +167,9 @@ public struct EngineState: Codable, Equatable, Sendable {
         // reference filters out on every build, and used to live here forever.
         creditPaused = Set((try c.decodeIfPresent([String].self, forKey: .creditPaused) ?? [])
             .compactMap(Pattern.init(rawValue:))).intersection(Pattern.pullSide)
-        // Additive, sanitized as the reference does (§21.4): only positive
-        // entries survive, values are clamped to the ladder's ceiling.
-        let episodes: [Pattern: Int] = c.contains(.sore)
-            ? try Self.decodeLenient(c, forKey: .sore)
-                .filter { $0.value >= 1 }
-                .mapValues { min($0, EngineConfig.freezeCapAppearances) }
-            : [:]
-        sore = episodes
-        // Additive (v2.20, §31.3): the confirmation countdown. Absent for a
-        // live episode means the FULL assignment — that is how a file written
-        // before v2.20 gets a whole confirmation window rather than closing on
-        // the first appearance. An entry without a live episode is garbage.
-        soreLeft = Self.healSoreLeft(
-            c.contains(.soreLeft) ? try Self.decodeLenient(c, forKey: .soreLeft) : [:],
-            episodes: episodes)
         // Additive (v2.12, §22.3-22.4), garbage sanitized as the reference does.
         returnRun = Self.clamped(try c.decodeIfPresent(Int.self, forKey: .returnRun) ?? 0,
                                  0, EngineConfig.countMax)
-        illness = Self.clamped(try c.decodeIfPresent(Int.self, forKey: .illness) ?? 0,
-                               0, EngineConfig.illnessSessions)
         // Additive (v2.15, §26.1), sanitized as the reference does: only live
         // masks survive, each clamped to the window's width.
         lessHist = c.contains(.lessHist)
@@ -249,8 +180,6 @@ public struct EngineState: Codable, Equatable, Sendable {
         // Additive (v2.17, §28): absent in every file written before this.
         rampWindow = Self.clamped(try c.decodeIfPresent(Int.self, forKey: .rampWindow) ?? 0,
                                   0, EngineConfig.rampWindowSessions)
-        let budget = try c.decodeIfPresent(Int.self, forKey: .timeBudgetMin) ?? 0
-        timeBudgetMin = budget > 0 ? Self.clamped(budget, 5, EngineConfig.countMax) : 0
         weekGain = c.contains(.weekGain)
             ? try Self.decodeLenient(c, forKey: .weekGain)
                 .filter { $0.value >= 1 }
@@ -266,11 +195,6 @@ public struct EngineState: Codable, Equatable, Sendable {
         // its ceiling is a property of the level's band, not a constant.
         cut = Self.healCut(c.contains(.cut) ? try Self.decodeLenient(c, forKey: .cut) : [:],
                            levels: lv)
-        painSeen = c.contains(.painSeen)
-            ? try Self.decodeLenient(c, forKey: .painSeen)
-                .filter { $0.value >= 1 }
-                .mapValues { Self.clamped($0, 1, EngineConfig.painSeenMax) }
-            : [:]
         setsHold = c.contains(.setsHold)
             ? try Self.decodeLenient(c, forKey: .setsHold)
                 .filter { $0.value >= 1 }
@@ -284,16 +208,6 @@ public struct EngineState: Codable, Equatable, Sendable {
         // NOT sparse on zero: a shown position of exactly zero is a real
         // value, and only the presence of the key carries "was it shown".
         shownOrd = c.contains(.shownOrd) ? try Self.decodeLenient(c, forKey: .shownOrd) : [:]
-        shownBudget = Self.sanitizeBudget(
-            try c.decodeIfPresent(Int.self, forKey: .shownBudget) ?? 0)
-    }
-
-    /// v2.17 (spec §28.3) · v2.25 (§36.8): the time budget, healed the way the
-    /// reference heals it. Both the live handle and the one recorded with the
-    /// last shown plan go through it, so the two can never be compared across
-    /// different sanitizings.
-    static func sanitizeBudget(_ raw: Int) -> Int {
-        raw > 0 ? clamped(raw, 5, EngineConfig.countMax) : 0
     }
 
     /// Manual decode of the exact wire format Swift synthesizes for a
@@ -322,11 +236,6 @@ public struct EngineState: Codable, Equatable, Sendable {
         )
     }
 
-    /// Appearances left before this pattern may grow again; 0 = not frozen.
-    public func freezeRemaining(_ pattern: Pattern) -> Int { frozen[pattern] ?? 0 }
-
-    public var frozenPatterns: Set<Pattern> { Set(frozen.filter { $0.value > 0 }.keys) }
-
     /// v2.13 (spec §24.1, issue #132): the state as the engine is willing to
     /// read it — the port's mirror of the reference's "rebuild every field
     /// through a sanitizer on every build". Decoding alone was not enough:
@@ -335,8 +244,6 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// every call. On the valid domain this is the identity, which is what
     /// keeps the golden fixture bit-for-bit.
     func sanitized() -> EngineState {
-        let healedEpisodes = sore.filter { $0.value >= 1 }
-            .mapValues { Self.clamped($0, 1, EngineConfig.freezeCapAppearances) }
         var lv: [Pattern: Int] = [:]
         var fs: [Pattern: Int] = [:]
         for p in Pattern.allCases {
@@ -349,46 +256,39 @@ public struct EngineState: Codable, Equatable, Sendable {
             failStreak: fs,
             hasBar: hasBar,
             // Sparse maps keep only live entries, exactly as the reference does.
-            frozen: frozen.filter { $0.value >= 1 }
-                .mapValues { Self.clamped($0, 1, EngineConfig.countMax) },
             lessRun: Self.clamped(lessRun, 0, EngineConfig.countMax),
             // The credit pause is a map over the pull slot's two branches; any
             // other pattern in there is garbage the reference filters out.
             creditPaused: creditPaused.intersection(Pattern.pullSide),
-            sore: healedEpisodes,
-            soreLeft: Self.healSoreLeft(soreLeft, episodes: healedEpisodes),
             returnRun: Self.clamped(returnRun, 0, EngineConfig.countMax),
-            illness: Self.clamped(illness, 0, EngineConfig.illnessSessions),
             lessHist: lessHist.filter { $0.value >= 1 }
                 .mapValues { Self.clamped($0, 1, EngineState.chronicMaskMax) },
             rampWindow: Self.clamped(rampWindow, 0, EngineConfig.rampWindowSessions),
-            timeBudgetMin: timeBudgetMin > 0
-                ? Self.clamped(timeBudgetMin, 5, EngineConfig.countMax) : 0,
             weekGain: weekGain.filter { $0.value >= 1 }
                 .mapValues { Self.clamped($0, 1, EngineConfig.countMax) },
             weekAgeDays: Self.clamped(weekAgeDays, 0, Double(EngineConfig.countMax)),
             sub: Self.healSub(sub, levels: lv),
             cut: Self.healCut(cut, levels: lv),
-            painSeen: painSeen.filter { $0.value >= 1 }
-                .mapValues { Self.clamped($0, 1, EngineConfig.painSeenMax) },
             setsHold: setsHold.filter { $0.value >= 1 }
                 .mapValues { Self.clamped($0, 1, EngineConfig.setsBackHold) },
             shownWork: shownWork.filter { $0.value > 0 },
-            shownOrd: shownOrd,
-            shownBudget: Self.sanitizeBudget(shownBudget))
+            shownOrd: shownOrd)
     }
 
     /// v2.25 (spec §36.1): the cut map, healed the way the reference heals it.
-    /// The ceiling is the PAIN floor, not the shared one: a state may hold the
-    /// pain channel's legitimate landing of a single set, and the sanitizer is
-    /// not allowed to raise it back. Zeros are never stored, so a state that
-    /// gave every set back is byte-identical to one that never lost any.
+    /// v2.26 (§37.3): the ceiling is the SHARED floor, and it is now the only
+    /// one. A state written by an older build that sat on the pain channel's
+    /// single set normalizes UP to two — 480 positions out of 480, worst
+    /// `squat L0: 1×8 → 2×8`. That cost is named in the spec and accepted:
+    /// one set of anything is lighter than two of the easiest thing, so no
+    /// landing of the level could avoid it. Zeros are never stored, so a state
+    /// that gave every set back is byte-identical to one that never lost any.
     static func healCut(_ src: [Pattern: Int], levels: [Pattern: Int]) -> [Pattern: Int] {
         var out: [Pattern: Int] = [:]
         for (p, raw) in src {
             let level = clamped(levels[p] ?? 0, 0, EngineConfig.levelMax)
             let value = Level.effCut(level: level, cut: raw,
-                                     floor: EngineConfig.setsFloorPain)
+                                     floor: EngineConfig.setsFloor)
             if value > 0 { out[p] = value }
         }
         return out
@@ -419,23 +319,6 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// every ceiling that reads a rise reads the measure over all three.
     public func position(_ pattern: Pattern) -> Position {
         Position(level: levels[pattern] ?? 0, sub: sub[pattern] ?? 0, cut: cut[pattern] ?? 0)
-    }
-
-    /// v2.20 (spec §31.3): the confirmation countdown, healed the way the
-    /// reference heals it. A tick without a live episode is dropped; a tick
-    /// above its own assignment is impossible by construction (the countdown
-    /// starts AT the assignment and only falls), so it clamps down to it; and
-    /// a missing tick for a live episode reads as the full assignment.
-    static func healSoreLeft(_ src: [Pattern: Int],
-                             episodes: [Pattern: Int]) -> [Pattern: Int] {
-        var out: [Pattern: Int] = [:]
-        for (p, assigned) in episodes {
-            let raw = src[p] ?? 0
-            out[p] = raw >= 1
-                ? min(clamped(raw, 1, EngineConfig.freezeCapAppearances), assigned)
-                : assigned
-        }
-        return out
     }
 
     static func clamped(_ v: Int, _ lo: Int, _ hi: Int) -> Int { min(max(v, lo), hi) }

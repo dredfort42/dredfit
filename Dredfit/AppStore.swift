@@ -36,26 +36,14 @@ struct AppSettings: Codable, Equatable {
     /// v2.15 (#135): the session number the weak-link prompt was answered for
     /// — one question per session, never a campaign.
     var weakLinkPromptAnsweredFor: Int?
-    /// v2.15 (#135): movements the trainee answered the prompt about. Pain
-    /// enters the next session they appear in exactly as the mid-workout
-    /// "Something hurt" button would.
-    /// v2.22 (spec §33): the softer answer — "just hard" — is gone with the
-    /// hold-this-level input it armed. It existed because the plan could run
-    /// ahead of what the trainee could do, and the sub-step is the answer to
-    /// that: the plan now parks on their capacity by itself.
-    var pendingDiscomfort: Set<Pattern> = []
     var silentDecayAppliedFor: Date?
-    /// v2.24 (spec §35.3, #136): whether the trainee has ever chosen a session
-    /// length. False means the app hands the engine the default budget —
-    /// `AppStore.defaultTimeBudgetMin` — rather than "no limit". Any choice at
-    /// all sets it, INCLUDING "no limit": picking no limit is a decision, and a
-    /// decision must not be overwritten by a default on the next launch.
-    var timeBudgetChosen = false
-    /// v2.24: when the one-off line about the default was closed — either read
-    /// and dismissed, or never applicable because this install began at the
-    /// default and so has no "new" to be told about. A date rather than a bool
-    /// for the same reason as the two above: it records when.
-    var budgetDefaultNoticeClosedAt: Date?
+    // v2.26 (spec §37.0): `pendingDiscomfort` went with the pain channel and
+    // `timeBudgetChosen` / `budgetDefaultNoticeClosedAt` went with the time
+    // budget — the two flags existed only to remember whether a person had
+    // ever picked a session length and been told about the default, and there
+    // is no length to pick. A settings file written before this wave still
+    // carries all three keys; they decode away silently, because this type
+    // lists what it reads rather than refusing what it does not know.
 
     init() {}
 
@@ -63,9 +51,8 @@ struct AppSettings: Codable, Equatable {
         case restWeekdays, soundsEnabled, reminderEnabled, reminderHour, reminderMinute
         case healthEnabled, healthExportedThrough
         case onboardingCompleted, careAcknowledgedAt, lastReviewRequestAt
-        case comebackDecidedFor, weakLinkPromptAnsweredFor, pendingDiscomfort
+        case comebackDecidedFor, weakLinkPromptAnsweredFor
         case silentDecayAppliedFor
-        case timeBudgetChosen, budgetDefaultNoticeClosedAt
     }
 
     init(from decoder: Decoder) throws {
@@ -84,15 +71,10 @@ struct AppSettings: Codable, Equatable {
         lastReviewRequestAt = try c.decodeIfPresent(Date.self, forKey: .lastReviewRequestAt)
         comebackDecidedFor = try c.decodeIfPresent(Date.self, forKey: .comebackDecidedFor)
         weakLinkPromptAnsweredFor = try c.decodeIfPresent(Int.self, forKey: .weakLinkPromptAnsweredFor)
-        pendingDiscomfort = try c.decodeIfPresent(Set<Pattern>.self, forKey: .pendingDiscomfort) ?? []
         // A settings file written before v2.22 may still carry the cancelled
         // `pendingPinned`; an unknown key decodes away silently, so nothing to
         // migrate and nothing to clean up.
         silentDecayAppliedFor = try c.decodeIfPresent(Date.self, forKey: .silentDecayAppliedFor)
-        // Absent for every install written before v2.24 — which is exactly the
-        // population the default is for: no flag → never chose → 45 minutes.
-        timeBudgetChosen = try c.decodeIfPresent(Bool.self, forKey: .timeBudgetChosen) ?? false
-        budgetDefaultNoticeClosedAt = try c.decodeIfPresent(Date.self, forKey: .budgetDefaultNoticeClosedAt)
     }
 }
 
@@ -223,10 +205,6 @@ final class AppStore {
             Self.log.error("dropped \(dropped) unreadable record(s), original kept aside")
         }
         migrateHealthMarkToFlags()
-        // `loaded == nil` means there was no state file: this install begins
-        // here, at the default, so the "what's new" line has nothing to say to
-        // it and is closed before it can ever appear.
-        applyDefaultTimeBudget(freshInstall: loaded == nil)
         #if DEBUG
         applyUITestHooks()
         #endif
@@ -253,8 +231,6 @@ final class AppStore {
                 Self.log.error("dropped \(loaded.droppedRecordCount) unreadable record(s) on reload, original kept aside")
             }
             migrateHealthMarkToFlags()
-            // A reload always has a file behind it — never a fresh install.
-            applyDefaultTimeBudget(freshInstall: false)
         } catch {
             Self.quarantineStateFile(at: storageURL, keepOriginal: false)
             Self.log.fault("state file failed to decode on reload, moved aside: \(error.localizedDescription)")
@@ -297,6 +273,15 @@ final class AppStore {
         }
     }
 
+    // v2.26 (spec §37.7): there is no default time budget, because there is no
+    // budget. The audit measured what the rungs actually did: 10, 15 and 20
+    // produced the SAME plan, and the "20" rung missed its own target in 100 %
+    // of sessions. The engine now announces how long a session takes and the
+    // person shortens it with the handle. What stood here was `defaultTimeBudgetMin`
+    // and the v2.24 argument for it (§35.3, #136): a length nobody chose was 45
+    // minutes rather than "no limit", because the budget shipped switched off and
+    // so protected only the people who went looking for it.
+
     /// Legacy high-water mark → per-record flags. The mark keeps being
     /// written so a downgraded build still sees a sane value. Runs only on a
     /// journal that carries no flags at all — a pre-flag legacy file. Once
@@ -304,31 +289,6 @@ final class AppStore {
     /// re-applying the mark could stamp workouts it was never about: a
     /// foreign import's records, or a post-reset session 1 sitting under an
     /// old high mark (issue #103).
-    /// v2.24 (spec §35.3, #136): a session length nobody chose is 45 minutes,
-    /// not "no limit". The app never stopped lengthening the workout — a
-    /// diligent 3×/week trainee reached 85–92 minutes at the top of the scale
-    /// and a daily one 549 minutes a week — and the budget that fixes it
-    /// (§28.3) shipped switched off, so it protected only the people who went
-    /// looking for it. 45 is the rung at which all six movements still fit, so
-    /// the default costs no progress at all.
-    ///
-    /// Applied on every load rather than written once at install: the engine
-    /// state is the thing the plan is drawn from, and a trainee who has not
-    /// chosen must see the default even if their file predates the flag. The
-    /// moment they choose anything — including "no limit" — the flag goes up
-    /// and this stops touching their state.
-    private func applyDefaultTimeBudget(freshInstall: Bool) {
-        guard !settings.timeBudgetChosen else { return }
-        engineState.timeBudgetMin = Self.defaultTimeBudgetMin
-        if freshInstall, settings.budgetDefaultNoticeClosedAt == nil {
-            settings.budgetDefaultNoticeClosedAt = .now
-        }
-    }
-
-    /// The default budget, in minutes. §28.3 measured the rungs: 45 is the
-    /// smallest one at which all six movements always fit.
-    static let defaultTimeBudgetMin = 45
-
     private func migrateHealthMarkToFlags() {
         guard settings.healthExportedThrough > 0,
               !records.contains(where: { $0.healthExported != nil }) else { return }
@@ -348,14 +308,14 @@ final class AppStore {
         // The suite must not depend on the weekday it runs on;
         // --uitest-restday is applied last so it wins.
         let seedFlags = ["--uitest-reset", "--uitest-session2", "--uitest-milestone",
-                         "--uitest-discomfort"]
+                         "--uitest-handled"]
         if seedFlags.contains(where: CommandLine.arguments.contains) {
             settings.restWeekdays = []
         }
-        // A pull reported as painful yesterday: today's plan still has it, and
-        // Today carries the horizon line.
-        if CommandLine.arguments.contains("--uitest-discomfort") {
-            seedFrozenPull()
+        // A pull the person cut to the sets floor yesterday: today's plan
+        // still has it, and the card owes a sentence about the number.
+        if CommandLine.arguments.contains("--uitest-handled") {
+            seedHandledPull()
         }
         // Session 1 completed yesterday → today offers session 2, the only
         // deterministic way to reach hold exercises.
@@ -396,11 +356,10 @@ final class AppStore {
         if CommandLine.arguments.contains("--uitest-comeback-long") {
             seedLoneWorkout(daysAgo: 95)
         }
-        // Only workout 5 days ago → Today carries the quiet "I was sick"
-        // offer (v2.12, #133): the gap the engine cannot see.
-        if CommandLine.arguments.contains("--uitest-illness") {
-            seedLoneWorkout(daysAgo: 5)
-        }
+        // v2.26 (spec §37.0): `--uitest-illness` seeded a five-day gap so the
+        // quiet "I was sick" offer would appear. The offer is gone, no test
+        // passed the flag any more, and a hook nothing reaches is a branch that
+        // will be trusted by the next reader.
     }
 
     /// A single workout `daysAgo` at a uniform level 20 — the seed the three
@@ -419,28 +378,25 @@ final class AppStore {
         settings.restWeekdays = []
     }
 
-    /// Yesterday's workout with one frozen pull. v2.22 (§33): the freeze has a
-    /// single entrance again, so the seed takes no argument.
-    private func seedFrozenPull() {
+    /// Yesterday's workout with the pull handled down to the sets floor.
+    ///
+    /// v2.26 (spec §37.0): this used to seed a FROZEN pull — an episode, its
+    /// countdown, the memory of pain and the sets the channel took off. None
+    /// of that exists. What the screenshot state needs now is the state a
+    /// person can actually reach with the handle, so it seeds exactly that:
+    /// one movement cut to the floor, which is what the card has to explain.
+    private func seedHandledPull() {
         var seeded = EngineState.initial
         seeded.counter = 4
         for p in Pattern.allCases { seeded.levels[p] = 6 }
-        seeded.frozen[.pull] = EngineConfig.freezeAppearances
-        // v2.25 (spec §36.5): a report leaves more behind than a freeze — an
-        // open episode, its countdown, the memory, and the sets the handle
-        // took off. Seeding only the freeze made this a state the app can
-        // never actually be in, and hid the sentence the card owes the reader.
-        seeded.sore[.pull] = EngineConfig.freezeAppearances
-        seeded.soreLeft[.pull] = EngineConfig.freezeAppearances
-        seeded.painSeen[.pull] = 1
-        seeded.cut[.pull] = Level.cutMax(level: 6, floor: EngineConfig.setsFloor)
+        seeded = Engine.setCut(state: seeded, pattern: .pull,
+                               cut: Level.cutMax(level: 6, floor: EngineConfig.setsFloor))
         engineState = seeded
         records = [WorkoutRecord(
             sessionNumber: 4,
             date: Calendar.current.date(byAdding: .day, value: -1, to: .now)!,
             result: .plan,
             totalLevelAfter: 60,
-            discomfort: [.pull],
             levelsAfter: seeded.levels)]
     }
     #endif
@@ -461,6 +417,9 @@ final class AppStore {
         for record in records {
             guard let exercises = record.exercises else { continue }
             // A painful exercise was not performed either.
+            // A record written before v2.26 keeps its pain reports, and they were
+            // "not performed" exactly as a skip was — so reading history has to
+            // count both. Nothing writes `discomfort` any more.
             let skipped = (record.skipped ?? []).union(record.discomfort ?? [])
             for ex in exercises where !skipped.contains(ex.pattern) {
                 maxPerformed[ex.pattern] = max(maxPerformed[ex.pattern] ?? 0, ex.tier)
@@ -475,21 +434,10 @@ final class AppStore {
         return debuts
     }
 
-    /// Patterns in the upcoming plan whose growth is frozen — after a
-    /// discomfort report or a hold-this-level request; the state cannot tell
-    /// the two apart, and must not (#75). Still there, still at their level,
-    /// not climbing. Scoped to the plan on purpose — a line about a movement
-    /// today's workout does not contain would explain nothing.
-    ///
-    /// Takes the session so a caller that already holds one does not make the
-    /// engine generate another: nextSession builds a fresh session on every
-    /// access.
-    func restingPatterns(in session: Session) -> [Pattern] {
-        session.exercises.map(\.pattern)
-            .filter { engineState.freezeRemaining($0) > 0 }
-    }
-
-    var restingPatterns: [Pattern] { restingPatterns(in: nextSession) }
+    // v2.26 (spec §37.0): `restingPatterns` is gone with the freeze. Nothing
+    // rests any more — a movement the person finds too hard stays in the plan
+    // and gets an easier variation or fewer sets, which is the whole point of
+    // the wave: the channel that removed movements removed them for weeks.
 
     var totalLevel: Int { engineState.levels.values.reduce(0, +) }
 
@@ -532,7 +480,6 @@ final class AppStore {
                          /// is their mean (`SetFacts.override`).
                          setActuals: SetFacts.PerSet = [:],
                          skipped: Set<Pattern> = [],
-                         discomfort: Set<Pattern> = [],
                          durationSec: Int? = nil,
                          date: Date = .now) -> [Milestone] {
         // Mirror of the engine's replay guard: a session that does not belong
@@ -540,7 +487,6 @@ final class AppStore {
         guard session.sessionNumber == engineState.counter + 1 else { return [] }
         pendingWorkout = nil   // the workout is over — nothing to resume
         let before = engineState
-        let discomfort = spendPendingDiscomfort(in: session, adding: discomfort)
         // v2.17 (spec §28.5, #129): the app hands the engine the one aggregate
         // it needs to stop daily training from multiplying its way around the
         // per-session growth caps — the gap since the last workout. Nil on the
@@ -548,9 +494,12 @@ final class AppStore {
         // v2.19 (spec §30.8): the FRACTION of a day, not whole days. Floored,
         // a second workout on the same day reported a zero gap and the weekly
         // window stopped ageing for good.
+        // v2.26 (spec §37.2): SIX arguments. Every optional is passed
+        // explicitly — the wave's rule, kept because the arity shift is
+        // exactly the defect that has now happened twice in the harnesses.
         engineState = Engine.applyFeedback(state: engineState, session: session,
                                            result: result, overrides: overrides,
-                                           skipped: skipped, discomfort: discomfort,
+                                           skipped: skipped,
                                            gapDays: gapFraction(now: date))
         records.append(WorkoutRecord(
             sessionNumber: session.sessionNumber,
@@ -561,7 +510,6 @@ final class AppStore {
             actuals: overrides.isEmpty ? nil : overrides,
             setActuals: setActuals.isEmpty ? nil : setActuals,
             skipped: skipped.isEmpty ? nil : skipped,
-            discomfort: discomfort.isEmpty ? nil : discomfort,
             levelsAfter: engineState.levels,
             durationSec: durationSec))
         persist()
@@ -574,7 +522,7 @@ final class AppStore {
         }
         return MilestoneDetector.detect(before: before, after: engineState,
                                         session: session,
-                                        skipped: skipped.union(discomfort))
+                                        skipped: skipped)
     }
 
     // MARK: - The shown plan (v2.25, spec §36.8)
@@ -606,7 +554,7 @@ final class AppStore {
         // empty state and is worth remembering least of all, and writing it
         // would pin the freeze (`mutatedWhileFrozen`) and cost the trainee
         // their journal for the rest of the launch.
-        guard !journalFrozen, engineState.illness == 0 else { return }
+        guard !journalFrozen else { return }
         let recorded = Engine.recordShown(state: engineState, session: session)
         guard recorded != engineState else { return }
         engineState = recorded
@@ -791,68 +739,79 @@ final class AppStore {
         closeComebackQuestion()
     }
 
+    // MARK: - The handles (v2.26, spec §37.4-§37.5)
+
+    /// Every handle goes through the ENGINE. Writing a level or a cut into the
+    /// state here would skip the floor, the sanitizer and the position measure
+    /// the postcondition repair reads — the bypass of `applyFeedback` the audit
+    /// counts as a finding. What each handle may do is asked in
+    /// AppStore+Handles; what it does is here.
+
+    func makeEasier(_ pattern: Pattern) {
+        guard canMakeEasier(pattern) else { return }
+        engineState = Engine.easierVariation(state: engineState, pattern: pattern)
+        persist()
+    }
+
+    func takeSetOff(_ pattern: Pattern) {
+        guard canTakeSetOff(pattern) else { return }
+        engineState = Engine.setCut(state: engineState, pattern: pattern,
+                                    cut: engineState.cutOf(pattern) + 1)
+        persist()
+    }
+
+    /// Releasing the handle on one movement. Not "undo": the engine hands sets
+    /// back on its own as the person gets stronger (§37.6), and this is the
+    /// same axis, moved by the person instead.
+    func giveSetBack(_ pattern: Pattern) {
+        guard canGiveSetBack(pattern) else { return }
+        engineState = Engine.setCut(state: engineState, pattern: pattern,
+                                    cut: engineState.cutOf(pattern) - 1)
+        persist()
+    }
+
+    /// One step shorter for every movement at once. The same `cut` the
+    /// per-movement handle writes — no new state field, so a set earned back
+    /// by growing comes back here exactly as it does there (§37.5).
+    func makeSessionShorter() {
+        let shortened = Engine.shorterSession(state: engineState, steps: 1)
+        guard shortened != engineState else { return }
+        engineState = shortened
+        persist()
+    }
+
+    /// Puts every set back, on every movement — the way out of a session the
+    /// person shortened and then found too easy.
+    func restoreFullSession() {
+        var next = engineState
+        for pattern in Pattern.allCases {
+            next = Engine.setCut(state: next, pattern: pattern, cut: 0)
+        }
+        guard next != engineState else { return }
+        engineState = next
+        persist()
+    }
+
     func declineComeback() {
         closeComebackQuestion()
     }
 
-    /// The "I was sick" one-tap (v2.12, spec §22.4 / #133): the next
-    /// `EngineConfig.illnessSessions` workouts come one tier easier while the
-    /// stored levels stand. A repeat tap tops the lens back up. The read-only
-    /// company (the offer window, the countdown, the card preview) lives in
-    /// AppStore+Comeback.
-    /// v2.17 (spec §28.3, #136): how long the trainee wants a session to be.
-    /// The budget trims the PLAN — sets, never movements and never levels — so
-    /// choosing less time costs nothing but the sets it removes. 0 = no limit.
-    /// v2.24 (spec §35.3): the choice is recorded even when it lands on the
-    /// value already in force, and even when it is "no limit". Without that,
-    /// deliberately choosing no limit would be silently overwritten by the
-    /// default on the next launch.
-    func setTimeBudget(_ minutes: Int) {
-        let unchanged = engineState.timeBudgetMin == minutes && settings.timeBudgetChosen
-        guard !unchanged else { return }
-        engineState.timeBudgetMin = minutes
-        settings.timeBudgetChosen = true
-        persist()
-    }
-
-    /// v2.24 (spec §35.3): the one-off "what's new" line about the default.
-    /// Only for installs that were already running before the default arrived
-    /// — a first launch simply starts at 45 and is told nothing, because
-    /// nothing changed for it. It goes away on a tap and never comes back.
-    var shouldShowBudgetDefaultNotice: Bool {
-        settings.budgetDefaultNoticeClosedAt == nil && !settings.timeBudgetChosen
-    }
-
-    func markBudgetDefaultNoticeSeen(now: Date = .now) {
-        guard settings.budgetDefaultNoticeClosedAt == nil else { return }
-        settings.budgetDefaultNoticeClosedAt = now
-        persist()
-    }
-
-    func markIllness() {
-        engineState = Engine.applyIllness(state: engineState)
-        persist()
-    }
+    // v2.26 (spec §37.7 / §37.0): `setTimeBudget`, the "what's new" notice
+    // about its default, and `markIllness` are all gone. The budget trimmed
+    // the WORKOUT to fit a number the person picked once and forgot; the lens
+    // made the plan heavier than it was. What answers "how long will this
+    // take" now is the announced duration, and what shortens it is the
+    // session handle — see `setSessionCut` below.
 
     /// Only the engine resets; the journal and settings survive. `hasBar` is
     /// kept — the bar did not disappear from the doorway.
-    /// v2.24 (spec §35.3): and so is the time budget. `.initial` carries a zero
-    /// budget, so a reset used to hand the trainee "no limit" — a setting they
-    /// never touched, on a screen about starting the levels over. Harmless
-    /// while the budget was opt-in and everybody sat at zero anyway; with a
-    /// 45-minute default it would be a visible, unasked-for change.
-    /// v2.25 (spec §36.1): the five new fields of the sets handle — the cut,
-    /// the memory of pain, the hold, and the shown-plan pair with its budget —
-    /// are exactly what a reset is FOR, and `.initial` zeroes all of them with
-    /// no line of their own. `timeBudgetChosen` lives in `settings` and is
-    /// untouched here, so a deliberate "no limit" survives the reset the same
-    /// way the chosen 45 does.
+    /// v2.25 (spec §36.1): the fields of the sets handle — the cut, the hold
+    /// and the shown-plan pair — are exactly what a reset is FOR, and
+    /// `.initial` zeroes all of them with no line of their own.
     func resetProgress() {
         let hadBar = engineState.hasBar
-        let hadBudget = engineState.timeBudgetMin
         engineState = .initial
         engineState.hasBar = hadBar
-        engineState.timeBudgetMin = hadBudget
         // Session numbers restart: a pre-reset snapshot would collide with
         // the new counter and resume into the wrong workout.
         pendingWorkout = nil
@@ -968,7 +927,10 @@ final class AppStore {
     /// traps on anything Int cannot hold.
     private func estimatedDurationSec(for record: WorkoutRecord) -> Int {
         guard let exercises = record.exercises, !exercises.isEmpty else { return 35 * 60 }
-        let skipped = (record.skipped ?? []).union(record.discomfort ?? [])
+        // A record written before v2.26 keeps its pain reports, and they were
+            // "not performed" exactly as a skip was — so reading history has to
+            // count both. Nothing writes `discomfort` any more.
+            let skipped = (record.skipped ?? []).union(record.discomfort ?? [])
         var workSec = 0.0
         for ex in exercises where !skipped.contains(ex.pattern) {
             let sides: Double = ex.perSide ? 2 : 1
@@ -1131,9 +1093,18 @@ extension AppStore {
     /// keeps pain reports inside a session (§21), so the answer is held and
     /// spent on the next session the movement appears in — exactly what the
     /// mid-workout "Something hurt" button would have done, answered early.
-    func confirmSuspectHurts(_ pattern: Pattern) {
+    /// v2.26 (spec §37.4): the answer used to be "it hurts", and it queued a
+    /// pain report for the movement's next appearance. There is no pain
+    /// channel, and the honest replacement is not another diagnosis but the
+    /// control the person would have wanted either way: drop this movement to
+    /// an easier variation, now, and keep it in the plan.
+    ///
+    /// It goes through the ENGINE (`easierVariation`), never by writing the
+    /// state here: a level written by hand skips the gate that guarantees the
+    /// landing is not heavier.
+    func makeSuspectEasier(_ pattern: Pattern) {
         settings.weakLinkPromptAnsweredFor = records.last?.sessionNumber
-        settings.pendingDiscomfort.insert(pattern)
+        engineState = Engine.easierVariation(state: engineState, pattern: pattern)
         persist()
     }
 
@@ -1151,22 +1122,10 @@ extension AppStore {
 
 }
 
-// MARK: - The pending pain report (v2.15, #135)
-
-extension AppStore {
-    /// A movement the trainee confirmed as painful from the prompt joins this
-    /// session's pain reports the moment it appears — the same path the
-    /// mid-workout button takes, answered in advance.
-    func spendPendingDiscomfort(in session: Session,
-                                adding discomfort: Set<Pattern>) -> Set<Pattern> {
-        let confirmed = settings.pendingDiscomfort
-            .intersection(Set(session.exercises.map(\.pattern)))
-        guard !confirmed.isEmpty else { return discomfort }
-        settings.pendingDiscomfort.subtract(confirmed)
-        return discomfort.union(confirmed)
-    }
-
-}
+// v2.26 (spec §37.0): the pending pain report is gone. It existed to carry a
+// "yes, it hurts" answered on Today into the movement's next appearance; the
+// answer is now applied immediately, because an easier variation needs no
+// appearance to wait for.
 
 // MARK: - UI-test seed for the weak-link prompt (v2.15, #135)
 

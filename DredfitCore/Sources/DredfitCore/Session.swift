@@ -191,7 +191,6 @@ extension Engine {
         // variation, the dose per set, the unit and the sides are the same and
         // the number of sets is strictly smaller. Zero cells of 480, with no
         // check needed — it follows from the definition of the measure.
-        let eased = state.illness > 0
         func viewLevel(_ p: Pattern) -> Int { state.levels[p] ?? 0 }
 
         // v2.10 (spec §20.2): the pull slot's set band caps the push of the same
@@ -217,32 +216,9 @@ extension Engine {
                     : Level.setsAfterCut(level: viewLevel(.pull), cut: viewCut(.pull))
             } ?? EngineConfig.setsMax
 
-        // v2.22 (spec §33): under the "I was sick" lens the plan is UNIFORM.
-        // The lens is the gentler regime, and a sub-step makes part of the sets
-        // heavier — showing one here would hand back with one hand what the
-        // lens took away with the other. The stored sub-step is untouched: the
-        // lens builds the plan's VIEW (§22.4).
-        func viewSub(_ p: Pattern) -> Int { eased ? 0 : (state.sub[p] ?? 0) }
+        func viewSub(_ p: Pattern) -> Int { state.sub[p] ?? 0 }
 
-        // v2.25 (round 6, fix 4): the lens is a SHARE and it adds to the pain
-        // cut. A flat minus-one-set gave the less the more loaded a person
-        // was: after flu, on a band of five, `4×12 shrimp squats per leg` was
-        // left — minus 20 %, which is no gentle regime at all. And over a set
-        // pain had already taken it gave NOTHING: someone with a bad knee and
-        // the flu pressed the button and saw no difference — the same dead-tap
-        // class §36.5 was fixing elsewhere. The lens now takes the plan to
-        // half the band, rounding up, never past what pain already took and
-        // never below the shared floor.
-        //
-        // ACCEPTED (§36.10 p. 6): if the plan is already on the shared floor
-        // of two sets the lens gives nothing. Letting it reach a single set
-        // would hand the pain floor to a channel that is not the pain channel.
-        func viewCut(_ p: Pattern) -> Int {
-            let stored = state.cutOf(p)
-            guard eased else { return stored }
-            let band = Level.decode(state.levels[p] ?? 0).sets
-            return max(stored, band - max(EngineConfig.setsFloor, (band + 1) / 2))
-        }
+        func viewCut(_ p: Pattern) -> Int { state.cutOf(p) }
 
         // v2.25 (spec §36.6): ONE order of cuts. The level's band → the sets
         // handle (pain channel / descent / lens) → the §20.2 gate → the §28.3
@@ -263,7 +239,7 @@ extension Engine {
             let unit = lib.unit(forTier: d.tier)
             let load = unit == .reps ? d.reps : d.hold
             let ownSets = d.sets - Level.effCut(level: viewLevel(p), cut: viewCut(p),
-                                                floor: EngineConfig.setsFloorPain)
+                                                floor: EngineConfig.setsFloor)
             let floor = min(EngineConfig.setsFloor, ownSets)
             floors.append(floor)
             // v2.24 (spec §35.1): the gate and the exercise's own band both go
@@ -297,27 +273,29 @@ extension Engine {
             )
         }
 
-        // v2.17 (spec §28.3): the budget trims the plan to fit. Warm-up and
-        // cool-down shrink on the short rungs — eight fixed minutes would eat
-        // half of a fifteen-minute session.
-        let budget = state.timeBudgetMin
-        let short = budget > 0 && budget <= EngineConfig.budgetShortEndsAt
-        let warmup = short ? EngineConfig.warmupShortMin : EngineConfig.warmupMin
-        let cooldown = short ? EngineConfig.cooldownShortMin : EngineConfig.cooldownMin
-        let trimmedRaw = budget > 0
-            ? trimToBudget(exercises, floors: floors, budget: budget, ends: warmup + cooldown)
-            : exercises
+        // v2.26 (spec §37.7): there is no time budget. The engine does not fit
+        // itself into the time a person allotted — it ANNOUNCES how long the
+        // session takes, and the person shortens it with the sets handle. The
+        // short warm-up and cool-down went with the budget: they existed only
+        // to keep eight fixed minutes from eating half a fifteen-minute
+        // session, and fifteen-minute sessions are no longer produced.
+        let warmup = EngineConfig.warmupMin
+        let cooldown = EngineConfig.cooldownMin
+        let trimmedRaw = exercises
         // v2.25 (spec §36.8, round 4): the postcondition "a descent never adds
         // load" is checked ON THE RESULT rather than derived from the way the
         // cut is built. It works with no budget at all: the §20.2 band gate can
         // move sets about too.
         //
-        // The position here is the STORED one — the lens does not move it.
         var ordNow: [Pattern: Int] = [:]
         for ex in trimmedRaw { ordNow[ex.pattern] = Level.posOrd(state.position(ex.pattern)) }
+        // v2.26 (spec §37.5): `budgetChanged` is gone. It existed because the
+        // budget moved the plan PAST the position measure, so a person moving
+        // the handle had to be declared a legitimate cause of growth by hand.
+        // The sets handle writes `cut`, a coordinate of the position, so
+        // releasing it IS a rise and the general gate excludes it on its own.
         let trimmed = repairDescent(trimmedRaw, floors: floors, shownWork: state.shownWork,
-                                    shownOrd: state.shownOrd, ordNow: ordNow,
-                                    budgetChanged: state.shownBudget != budget)
+                                    shownOrd: state.shownOrd, ordNow: ordNow)
 
         return Session(
             sessionNumber: state.counter + 1,
@@ -332,10 +310,11 @@ extension Engine {
     /// mechanisms that CUT sets — the budget (§28.3) and the band gate (§20.2)
     /// — go through it, so the floor holds for their composition and not just
     /// for each cut on its own.
-    /// v2.25 (spec §36.6): the floor is a per-exercise number now, and it
-    /// carries NO default — the pain channel's landing of a single set is the
-    /// one place it drops below the shared two, and a caller that forgot to
-    /// say so would silently hand that set back.
+    /// v2.25 (spec §36.6): the floor is a per-exercise number, and it carries
+    /// NO default on purpose. v2.26 (§37.3): every caller now passes the same
+    /// shared floor — the pain channel's single set is gone — but the explicit
+    /// parameter stays. A default here is exactly what let `setsFloorPain`
+    /// leak into all ten call sites of the previous wave.
     static func clampSets(_ n: Int, floor: Int) -> Int { max(floor, n) }
 
     /// v2.17 (spec §28.3): fit the plan into the budget. Levels are never
@@ -433,12 +412,11 @@ extension Engine {
     private static func repairDescent(_ exercises: [SessionExercise], floors: [Int],
                                       shownWork: [Pattern: Int], shownOrd: [Pattern: Int],
                                       ordNow: [Pattern: Int],
-                                      budgetChanged: Bool) -> [SessionExercise] {
+                                      ) -> [SessionExercise] {
         // The person moved the time handle — the last showing says nothing any
         // more. Without this the cap held the plan at the old limit until the
         // first growth event: raising 30 to 60 gave 45.9 minutes instead of
         // 59.1.
-        guard !budgetChanged else { return exercises }
         return exercises.enumerated().map { i, ex in
             let p = ex.pattern
             guard let work = shownWork[p], let ord = shownOrd[p] else { return ex }

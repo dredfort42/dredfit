@@ -67,9 +67,10 @@ extension XCTestCase {
                                 allowSetsBack: (state.setsHold[p] ?? 0) == 0)
         }
         if delta < 0 {
+            // v2.26 (§37.3): ONE floor. The episode-aware exception went with
+            // the episode — and it was the only reader of the pain floor here.
             return Level.fallBy(level: entry.level, sub: entry.sub, cut: entry.cut, by: -delta,
-                                floor: state.sore[p] != nil
-                                    ? EngineConfig.setsFloorPain : EngineConfig.setsFloor)
+                                floor: EngineConfig.setsFloor)
         }
         return entry
     }
@@ -96,7 +97,7 @@ extension XCTestCase {
         let carried = stepped?.cut ?? from.cut
         return Position(level: landed, sub: 0,
                         cut: min(carried, Level.cutMax(level: landed,
-                                                       floor: EngineConfig.setsFloorPain)))
+                                                       floor: EngineConfig.setsFloor)))
     }
 
     /// Assert the pattern stepped exactly `count` sub-steps back from `entry`,

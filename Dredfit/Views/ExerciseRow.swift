@@ -55,8 +55,6 @@ struct ExerciseRow: View {
     /// the same card and must not drift into two different explanations.
     static func note(_ kind: AppStore.SetsNote?) -> String? {
         switch kind {
-        case .painCut:
-            return String(localized: "Fewer sets for now — you said this one hurt. They come back once it passes.")
         case .setBack:
             return String(localized: "A set is back — your body is coping.")
         case nil:

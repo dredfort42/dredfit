@@ -26,6 +26,7 @@ final class BlockPauseUITests: XCTestCase {
     func testAPausedMoveStandsStillAndComesBackWhereItStopped() {
         app.launch()
         app.buttons["Start"].tap()
+        app.buttons["warmup-start"].tap()   // v2.26: the block is offered first
         let move = app.staticTexts["warmup-countdown"]
         XCTAssertTrue(move.waitForExistence(timeout: 15),
                       "the transition must hand over to the first move")
@@ -61,6 +62,7 @@ final class BlockPauseUITests: XCTestCase {
         app.launchArguments.append("--uitest-long-transition")
         app.launch()
         app.buttons["Start"].tap()
+        app.buttons["warmup-start"].tap()   // v2.26: the block is offered first
         XCTAssertTrue(app.staticTexts["getready-countdown"].waitForExistence(timeout: 5),
                       "the warm-up must open on the transition")
 
@@ -102,6 +104,11 @@ final class BlockPauseUITests: XCTestCase {
         }
         XCTAssertTrue(cooldown.waitForExistence(timeout: 5),
                       "the cool-down must follow the last exercise")
+
+        // v2.26 (§37.7a): the header is up as soon as the block is OFFERED —
+        // the block itself runs only once the offer is accepted.
+        let acceptCooldown = app.buttons["cooldown-start"]
+        if acceptCooldown.waitForExistence(timeout: 5) { acceptCooldown.tap() }
 
         // Every screen of the block carries the control, so a tap that lands
         // one stage late still lands on a pause — retried until one takes,

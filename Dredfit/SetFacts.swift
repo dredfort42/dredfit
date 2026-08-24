@@ -91,11 +91,28 @@ nonisolated enum SetFacts {
     /// v2.22 (spec §33): "the plan" is per set now — an uneven plan asks 9-8-8,
     /// and set one is not set three. Reading `ex.load` here would show the
     /// minimum on every set and quietly lose the sub-step.
+    ///
+    /// v2.26 (spec §37.8 p. 1): THE CARRY-FORWARD IS ASYMMETRIC. A number
+    /// BELOW the plan carries onto the sets ahead, as it always did — someone
+    /// who managed six of eight is telling you about the exercise, not about
+    /// one set of it. A number ABOVE the plan applies to its own set and
+    /// stops there.
+    ///
+    /// The symmetric version raised the remaining sets silently: entering 12
+    /// on the first set of 3×8 rewrote sets two and three to 12, up to +50 %,
+    /// and the person had to argue with the screen twice — once to say what
+    /// they did, once to put back what they never asked to change. Nothing
+    /// about doing one good set says the next two will match it.
     static func inForce(_ facts: PerSet, _ ex: SessionExercise, set index: Int) -> Int {
+        let index = max(index, 0)
         guard let values = facts[ex.pattern], !values.isEmpty else {
             return ex.plannedLoad(set: index)
         }
-        return values[min(max(index, 0), values.count - 1)]
+        if index < values.count { return values[index] }
+        // Ahead of everything recorded: carry the last number DOWN only.
+        let last = values[values.count - 1]
+        let planned = ex.plannedLoad(set: index)
+        return min(last, planned)
     }
 
     /// Every set of the exercise, the ones already behind at what they ran at

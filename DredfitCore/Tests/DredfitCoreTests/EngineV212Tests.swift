@@ -107,119 +107,46 @@ final class EngineV212Tests: XCTestCase {
         }
     }
 
-    // MARK: - §22.4 the illness lens
-
-    /// Re-marked for v2.25 (spec §36.6): the lens is a SHARE OF THE BAND, not
-    /// a tier down. Showing every level one tier easier made the plan HEAVIER
-    /// in 84 cells of 480 — rep continuity read a phantom `reps` field on the
-    /// statics, and the v2.21 ladders of tier 3 sit above those of tier 4. The
-    /// expectation gains what the old one could not state at all: the
-    /// variation and the dose per set are untouched, the sets fall to half the
-    /// band rounded up, and the work falls STRICTLY.
-    func testTheLensEasesThePlanWithoutTouchingLevels() {
-        let healthy = Engine.generateSession(seeded(20))
-        let ill = Engine.applyIllness(state: seeded(20))
-        XCTAssertEqual(ill.illness, EngineConfig.illnessSessions)
-        let w = Engine.generateSession(ill)
-        let band = Level.decode(20).sets
-        let lensSets = max(EngineConfig.setsFloor, (band + 1) / 2)
-        for ex in w.exercises {
-            let before = healthy.exercises.first { $0.pattern == ex.pattern }
-            XCTAssertEqual(ex.tier, before?.tier, "\(ex.pattern): the variation is untouched")
-            XCTAssertEqual(ex.load, before?.load, "\(ex.pattern): and the dose per set")
-            XCTAssertEqual(ex.sets, lensSets, "\(ex.pattern): half the band, rounded up")
-            XCTAssertGreaterThanOrEqual(ex.sets, EngineConfig.setsFloor,
-                                        "\(ex.pattern): never below the shared floor")
-            if let before {
-                XCTAssertLessThan(Engine.exerciseWork(ex), Engine.exerciseWork(before),
-                                  "\(ex.pattern): the plan is strictly lighter")
-            }
-        }
-        XCTAssertEqual(ill.levels[.squat], 20, "stored levels stand")
-        XCTAssertEqual(ill.cutOf(.squat), 0, "and the lens stores nothing — it is a VIEW")
-    }
-
-    func testARestorativeSessionCountsButConcludesNothing() {
-        var s = Engine.applyIllness(state: seeded(20))
-        let w = Engine.generateSession(s)
-        s = Engine.applyFeedback(state: s, session: w, result: .more,
-                                 overrides: [.squat: 99])
-        XCTAssertEqual(s.levels[.squat], 20, "facts and taps conclude nothing")
-        XCTAssertEqual(s.illness, EngineConfig.illnessSessions - 1, "the lens ticks")
-        XCTAssertEqual(s.counter, 5, "the session count advances")
-        s = Engine.applyFeedback(state: s, session: Engine.generateSession(s), result: .less)
-        XCTAssertEqual(s.lessRun, 0, "no run of less accumulates under the lens")
-        XCTAssertEqual(s.levels[.squat], 20)
-    }
-
-    func testTheLensExpiresAndTheOrdinaryPlanReturns() {
-        var s = Engine.applyIllness(state: seeded(20))
-        for _ in 0..<EngineConfig.illnessSessions {
-            s = Engine.applyFeedback(state: s, session: Engine.generateSession(s), result: .plan)
-        }
-        XCTAssertEqual(s.illness, 0)
-        XCTAssertEqual(s.levels[.squat], 20, "no level moved in six sessions")
-        let w = Engine.generateSession(s)
-        XCTAssertEqual(w.exercises.first { $0.pattern == .squat }?.tier,
-                       Level.decode(20).tier, "the plan is ordinary again")
-    }
-
-    func testPainStillWorksUnderTheLens() {
-        let ill = Engine.applyIllness(state: seeded(20))
-        let w = Engine.generateSession(ill)
-        let hurt = Engine.applyFeedback(state: ill, session: w, result: .plan,
-                                        discomfort: [.squat])
-        // v2.19 (spec §30.6), re-marked again for v2.25 (§36.5): both steps
-        // are cuts of SETS at a level that stands. The point of the block is
-        // that pain outranks the lens, and it still does — the branch under
-        // the lens must match the main one report for report, which is why the
-        // second step is asserted here too.
-        XCTAssertEqual(hurt.levels[.squat], 20, "the level stands under the lens too")
-        XCTAssertEqual(hurt.cutOf(.squat),
-                       Level.cutMax(level: 20, floor: EngineConfig.setsFloor),
-                       "the unload outranks the lens")
-        XCTAssertEqual(hurt.sore[.squat], Engine.painStair(seen: 1))
-        let again = Engine.applyFeedback(state: hurt, session: Engine.generateSession(hurt),
-                                         result: .plan, discomfort: [.squat])
-        XCTAssertEqual(again.cutOf(.squat),
-                       Level.cutMax(level: 20, floor: EngineConfig.setsFloorPain),
-                       "and the second report takes the second step, lens or no lens")
-    }
-
-    func testTheLensSurvivesBreaksAndRepeatTapsTopUp() {
-        let ill = Engine.applyIllness(state: seeded(20))
-        XCTAssertEqual(Engine.applySilentDecay(state: ill, gapDays: 10).illness,
-                       EngineConfig.illnessSessions)
-        XCTAssertEqual(Engine.applyComeback(state: ill, gapDays: 30).illness,
-                       EngineConfig.illnessSessions)
-        var s = Engine.applyFeedback(state: ill, session: Engine.generateSession(ill),
-                                     result: .plan)
-        s = Engine.applyIllness(state: s)
-        XCTAssertEqual(s.illness, EngineConfig.illnessSessions, "a repeat tap tops up")
-        XCTAssertEqual(Engine.applyIllness(state: ill), ill, "a tap on a fresh lens is a no-op")
-    }
-
     // MARK: - serialization
 
+    /// v2.26 (§37.2): the lens half of this test is gone with the lens. The
+    /// half that stays is the one that mattered for the wire format — a legacy
+    /// file has no `returnRun`, and garbage in it is healed on the way in.
     func testNewFieldsDecodeLenientlyAndRoundtrip() throws {
-        var s = Engine.applyIllness(state: seeded(20))
+        var s = seeded(20)
         s = Engine.applyComeback(state: s, gapDays: 30)
         let data = try JSONEncoder().encode(s)
         XCTAssertEqual(try JSONDecoder().decode(EngineState.self, from: data), s)
 
         var dict = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
         dict.removeValue(forKey: "returnRun")
-        dict.removeValue(forKey: "illness")
         let legacy = try JSONDecoder().decode(EngineState.self,
                                               from: JSONSerialization.data(withJSONObject: dict))
         XCTAssertEqual(legacy.returnRun, 0, "a legacy file has no series")
-        XCTAssertEqual(legacy.illness, 0, "and no lens")
 
         dict["returnRun"] = -3
-        dict["illness"] = 99
         let dirty = try JSONDecoder().decode(EngineState.self,
                                              from: JSONSerialization.data(withJSONObject: dict))
         XCTAssertEqual(dirty.returnRun, 0, "a negative series is garbage")
-        XCTAssertEqual(dirty.illness, EngineConfig.illnessSessions, "the lens clamps to its ceiling")
+
+        // v2.26 (§37.2): the SEVEN removed keys are simply ignored. A file
+        // written by an older build still carries them, and that IS the whole
+        // migration — the decoder never asks for them.
+        for key in ["frozen", "sore", "soreLeft", "painSeen",
+                    "illness", "timeBudgetMin", "shownBudget"] {
+            dict[key] = 99
+        }
+        let old = try JSONDecoder().decode(EngineState.self,
+                                           from: JSONSerialization.data(withJSONObject: dict))
+        XCTAssertEqual(old.levels, dirty.levels, "a legacy file still reads its levels")
+        XCTAssertEqual(old.counter, dirty.counter, "and its counter")
     }
+
+    // SNIPPED v2.26 (§37.0): five tests of §22.4 — the "I was sick" lens.
+    // The lens made the plan HEAVIER in 76 cells out of 480 (finding S6-2, P0)
+    // — the exact opposite of what it promised — and there was nothing to fix:
+    // the mechanism contradicted its own claim.
+    //
+    // §22.1-§22.3 — the comeback landing, the ceiling ladder and the run of
+    // returns — are untouched and stay here: they never belonged to the lens.
 }

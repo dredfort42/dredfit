@@ -12,13 +12,20 @@ final class GetReadyTests: XCTestCase {
 
     // MARK: - The transition itself
 
-    func testTheBaseTransitionIsTheSameLengthAsTheSideSwitchPause() {
-        // One base length: #35 counts the switch inside a position, #52
-        // counts the switch between positions. #83 split the transition in
-        // two, but the base is still the identity — the side-switch pause
-        // never carries the supplement, nobody changes support mid-position.
-        XCTAssertEqual(GetReady.seconds, 5)
-        XCTAssertEqual(GetReady.seconds, Cooldown.sideSwitchPauseSec)
+    /// v2.26 (spec §37.7a): RE-MARKED, and the claim is now the OPPOSITE one.
+    ///
+    /// The two lengths used to be identical, and the test said so: #35 counts
+    /// the switch inside a position, #52 the switch between positions, and one
+    /// base served both. The transition doubled to ten seconds and the pause
+    /// did NOT follow it, because they are not the same thing — travelling to
+    /// another position takes time, turning over inside one does not. So what
+    /// is pinned now is the split, in both directions, and §37.7a's arithmetic
+    /// counts the pause as five.
+    func testTheTransitionAndTheSideSwitchPauseAreNoLongerTheSame() {
+        XCTAssertEqual(GetReady.seconds, 10)
+        XCTAssertEqual(Cooldown.sideSwitchPauseSec, 5)
+        XCTAssertNotEqual(GetReady.seconds, Cooldown.sideSwitchPauseSec,
+                          "the two lengths parted in v2.26 and must stay apart")
         XCTAssertEqual(GetReady.stageSeconds(needsSetup: false), GetReady.seconds)
         XCTAssertEqual(Warmup.stageSeconds(.getReady, index: 0), GetReady.seconds,
                        "marching starts where the user already stands")
@@ -91,8 +98,12 @@ final class GetReadyTests: XCTestCase {
             + cost(of: anyComposition[5])
         let reserved = (EngineConfig.warmupMin + EngineConfig.cooldownMin) * 60
 
-        XCTAssertEqual(warmup, 215)
-        XCTAssertEqual(fixed + worstMapped, 265)
+        // v2.26 (spec §37.7a): 215 → 245 and 265 → 295, because the base
+        // transition doubled. The sum still fills the reserve EXACTLY — the
+        // reserve grew by the same minute (`cooldownMin` 3 → 4), which is why
+        // this was an engine change and not an app one.
+        XCTAssertEqual(warmup, 245)
+        XCTAssertEqual(fixed + worstMapped, 295)
         XCTAssertEqual(warmup + fixed + worstMapped, reserved,
                        "the worst case fills the reserved minutes exactly — "
                          + "any longer supplement is an engine change")
@@ -140,9 +151,12 @@ final class GetReadyTests: XCTestCase {
     }
 
     func testWarmupAdvanceAbsorbsBackgroundedTime() {
-        // 7 s past a move's end: the next transition (5) is consumed whole,
-        // landing 2 s into the move it announced.
-        let landing = Warmup.advance(from: (0, .move), overshoot: 7)
+        // Past a move's end by the whole next transition plus two seconds: the
+        // transition is consumed whole and the landing is 2 s into the move it
+        // announced. v2.26 (§37.7a): written from the constant rather than from
+        // "7", which was the base of five plus two and silently became wrong
+        // when the base doubled.
+        let landing = Warmup.advance(from: (0, .move), overshoot: GetReady.seconds + 2)
         XCTAssertEqual(landing?.index, 1)
         XCTAssertEqual(landing?.stage, .move)
         XCTAssertEqual(landing?.remaining, Warmup.moveSeconds - 2)
@@ -163,12 +177,13 @@ final class GetReadyTests: XCTestCase {
     func testTheSupplementedTransitionStretchesTheWayIntoCatCow() {
         // The one warm-up supplement (issue #83): the transition into cat-cow
         // covers getting down onto all fours, and advance() absorbs it at its
-        // longer length — 12 s past the fifth move's end is the whole 10 s
-        // transition plus 2 s of the move itself.
+        // LONGER length — the overshoot below is that whole transition plus
+        // 2 s of the move itself, and it is written from the constants so the
+        // supplement is what the test is actually about.
         let catCow = Warmup.moves.count - 1
-        XCTAssertEqual(Warmup.stageSeconds(.getReady, index: catCow),
-                       GetReady.seconds + GetReady.setupSupplementSec)
-        let landing = Warmup.advance(from: (catCow - 1, .move), overshoot: 12)
+        let supplemented = GetReady.seconds + GetReady.setupSupplementSec
+        XCTAssertEqual(Warmup.stageSeconds(.getReady, index: catCow), supplemented)
+        let landing = Warmup.advance(from: (catCow - 1, .move), overshoot: supplemented + 2)
         XCTAssertEqual(landing?.index, catCow)
         XCTAssertEqual(landing?.stage, .move)
         XCTAssertEqual(landing?.remaining, Warmup.moveSeconds - 2)

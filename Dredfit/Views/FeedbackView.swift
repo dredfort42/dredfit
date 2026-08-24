@@ -18,7 +18,6 @@ struct FeedbackView: View {
     var skipped: Set<Pattern> = []
     /// Reported as painful: to the engine a skip, to the reader a different
     /// fact — the movement is resting, not merely missed.
-    var discomfort: Set<Pattern> = []
     /// To the engine a skip like the others; the label says "not finished".
     var interrupted: Pattern?
     let onComplete: (FeedbackResult, [Pattern: Int]) -> Void
@@ -102,24 +101,10 @@ struct FeedbackView: View {
                                   reported: overrides[ex.pattern] ?? 0)
                 }
             }
-            if !discomfort.isEmpty {
-                Kicker(text: String(localized: "Discomfort"))
-                    .padding(.top, 8)
-            }
-            ForEach(session.exercises.filter { discomfort.contains($0.pattern) }) { ex in
-                HStack {
-                    Text(ex.name)
-                        .dredfitFont(14, weight: .medium)
-                        // The name carries the state for VoiceOver, so nothing
-                        // is left to the trailing word alone.
-                        .accessibilityLabel(Text("\(ex.name), hurt — resting"))
-                    Spacer()
-                    Text("resting")
-                        .dredfitFont(14, weight: .semibold)
-                        .foregroundStyle(Theme.accentText)
-                        .accessibilityHidden(true)
-                }
-            }
+            // v2.26 (spec §37.0): the "Discomfort" section is gone with the
+            // input that filled it. Nothing is set aside for pain any more —
+            // a movement the person found too hard is either skipped or done
+            // at the number they actually managed.
             if !skipped.isEmpty {
                 Kicker(text: String(localized: "feedback.skipped", defaultValue: "Skipped"))
                     .padding(.top, 8)
@@ -157,7 +142,7 @@ struct FeedbackView: View {
 
     /// Everything the rating does not reach: skipped, painful, or left
     /// unfinished. All three keep their level.
-    private var setAside: Set<Pattern> { skipped.union(discomfort) }
+    private var setAside: Set<Pattern> { skipped }
 
     /// Adjusted exercises follow their actual number, not the rating (see
     /// Engine.applyFeedback), so they are outside the scope too. The

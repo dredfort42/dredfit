@@ -200,7 +200,7 @@ public enum Level {
                         load: unit == .reps ? d.reps : d.hold,
                         sub: s,
                         cut: effCut(level: level, cut: cut,
-                                    floor: EngineConfig.setsFloorPain),
+                                    floor: EngineConfig.setsFloor),
                         subDelta: subDelta(pattern: pattern, level: level))
     }
 

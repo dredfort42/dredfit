@@ -127,26 +127,13 @@ final class EngineV29Tests: XCTestCase {
         XCTAssertEqual(after.lessRun, 0)
     }
 
-    func testADiscomfortReportNamesTheMovementToo() throws {
-        let state = seeded(10)
-        let session = Engine.generateSession(state)
-        let hurt = try XCTUnwrap(session.exercises.first?.pattern)
-        let after = Engine.applyFeedback(state: state, session: session, result: .less,
-                                         discomfort: [hurt])
-        // Re-marked for v2.25 (spec §36.5): the load comes off as a cut of
-        // sets, and the level stands.
-        XCTAssertEqual(after.levels[hurt], 10,
-                       "discomfort voids the session for itself — the level stands")
-        XCTAssertEqual(after.cutOf(hurt),
-                       Level.cutMax(level: 10, floor: EngineConfig.setsFloor),
-                       "and the sets come off down to the shared floor")
-        for ex in session.exercises where ex.pattern != hurt {
-            XCTAssertEqual(after.levels[ex.pattern], 10, "\(ex.pattern) holds")
-        }
-        XCTAssertEqual(after.lessRun, 0)
-    }
-
-    // MARK: - the run and its reset (§19.2)
+    // SNIPPED v2.26 (§37.0): `testADiscomfortReportNamesTheMovementToo`.
+    // Discomfort was one of the two named signals; it is gone. The claim it
+    // made — "a named movement takes the delta alone and the rest are spared"
+    // — is carried word for word by
+    // `testAnExactNumberBelowPlanNamesTheMovementAndSparesTheRest` above, on
+    // the signal that survived. One named signal is left, and saying so is
+    // more honest than keeping a second test that no longer has an input.
 
     func testTheThirdUnnamedLessInARowGoesBackToEveryone() {
         var state = seeded(20)

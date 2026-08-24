@@ -29,6 +29,10 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     var skipped: Set<Pattern>?
     /// Reported as painful mid-workout: to the engine a skip, to the journal
     /// a different fact — and the reason the pattern is resting afterwards.
+    /// LEGACY, read-only (v2.26, spec §37.0). The pain report is gone, and
+    /// nothing writes this any more — but a journal on disk still carries it,
+    /// and a record that loses the fact is a record that lies about what
+    /// happened. Kept so history stays readable; never populated again.
     var discomfort: Set<Pattern>?
     var levelsAfter: [Pattern: Int]?
     var durationSec: Int?
@@ -114,6 +118,10 @@ struct WorkoutSnapshot: Codable, Equatable {
     var skipped: Set<Pattern> = []
     /// Optional, like the fields below: a snapshot written by an older build
     /// must still decode rather than take the whole file down with it.
+    /// LEGACY, read-only (v2.26, spec §37.0). The pain report is gone, and
+    /// nothing writes this any more — but a journal on disk still carries it,
+    /// and a record that loses the fact is a record that lies about what
+    /// happened. Kept so history stays readable; never populated again.
     var discomfort: Set<Pattern>?
     var workoutStart: Date
     var savedAt: Date

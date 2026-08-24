@@ -3,14 +3,16 @@
 ## 1.10.0
 
 The longest release in the project's history, and the one that changed the
-least about what you see. Two multi-agent audits of the engine and its
-golden contour — 2026-08-11 and 2026-08-16 — confirmed findings faster than
-any single wave could carry, so this release is the remediation itself: the
-engine steps from **v2.5 to v2.25** in nineteen waves, each a full pass of
-the reference cycle (spec → reference → verifier → golden → Swift port).
-The verifier grew from 9,367 property checks to **638,696**, the golden
-fixture from 11 scenarios to **28**, and every new field decodes
-tolerantly — the state and journal formats still need no migrations.
+least about what you see. Three multi-agent audits of the engine and its
+golden contour — 2026-08-11, 2026-08-16 and 2026-08-23 — confirmed findings
+faster than any single wave could carry, so this release is the remediation
+itself: the engine steps from **v2.5 to v2.26** in twenty waves, each a full
+pass of the reference cycle (spec → reference → verifier → golden → Swift
+port). The verifier grew from 9,367 property checks to 638,696 and then came
+back to **443,415** when the last wave removed two mechanisms; the golden
+fixture went from 11 scenarios to 28 and back to **24** for the same reason.
+Every new field decodes tolerantly — the state and journal formats still need
+no migrations.
 
 What the waves are about, in the order the priority ladder puts them:
 
@@ -19,20 +21,21 @@ What the waves are about, in the order the priority ladder puts them:
   the engine finally has a way to say *the same exercise, but less of it* —
   sets come off without touching the level, so a plan that has to go lighter
   can (v2.25).
-  Reporting pain takes load off in two steps instead of freezing the
-  movement at a dose you already could not do (v2.19), and "tough" steps
-  back exactly the way it came, one position at a time (v2.23). A comeback
-  lands no heavier than your last workout (v2.12), cross-credit can no
-  longer grow a branch that is resting (v2.11), and the Swift port
-  sanitizes anything a corrupt file hands it (v2.13).
+  "Tough" steps back exactly the way it came, one position at a time
+  (v2.23). A comeback lands no heavier than your last workout (v2.12), and
+  the Swift port sanitizes anything a corrupt file hands it (v2.13). The pain
+  channel was rebuilt three times across v2.19, v2.20 and v2.23 and then
+  **removed** in v2.26, because the 2026-08-23 audit found it broken in four
+  independent places at once — see that entry for what answers "this hurts"
+  now.
 - **Keep the habit.** A steady rhythm stopped being read as a break
-  (v2.13), a pain episode can now be closed without typing any numbers at
-  all (v2.20), and the plan parks on what you can actually do instead of
+  (v2.13), and the plan parks on what you can actually do instead of
   running ahead of it — growth adds one set's worth at a time (v2.22).
-  Workouts fit **45 minutes** unless you say otherwise (v2.24): the handle
-  shipped in v2.17 switched off, and protecting only the people who went
-  looking for it in Settings was the wrong default. A pain episode now ends
-  on its own instead of never (v2.25).
+  In v2.26 the lighter plan of v2.25 became something **you** reach for: two
+  handles on the plan, and a session length the app announces instead of
+  enforcing. The
+  45-minute default of v2.24 went with the enforcing — it is the last thing
+  in this release that was built and taken back.
 - **Improve results.** The aim reaches the weak link instead of the loudest
   movement (v2.15), honest facts are never scored worse than a tap (v2.14),
   the push plan stopped flickering (v2.16), the pull-up ladder gained the
@@ -40,9 +43,134 @@ What the waves are about, in the order the priority ladder puts them:
   a one-second entry corridor, so a single second short costs a single rung
   (v2.21).
 
-"Hold this level" was built and withdrawn inside this same cycle — see its
-entry below. It never reached the App Store, and nothing in a saved file
-carries it forward.
+Three things were built and withdrawn inside this same cycle: **"hold this
+level"** (v2.6, withdrawn v2.22), the **pain channel** in the shape v2.19–v2.23
+gave it, and the **45-minute default** (v2.24, withdrawn v2.26). None of them
+reached the App Store, and nothing in a saved file carries them forward. They
+keep their entries below: a changelog that quietly deletes what it got wrong is
+harder to trust than one that says so.
+
+### Engine v2.26.0 — you decide, not the app (issues #149, #150, #151, #184, #99)
+
+This is a wave of **removal**. Two whole mechanisms come out — the pain channel
+and the time budget — and two handles go in. The reason is not taste. The
+2026-08-23 audit put five P0 findings on the "do no harm" rung, and every one of
+them was inside the machinery this wave takes out:
+
+| What the person did | What v2.25 did about it |
+|---|---|
+| Tapped "it hurt here", honestly, twice | The episode never ended — 480 cells of 480. A rating of "on plan" ended it on the sixth appearance: the honest signal locked, the convenient one released |
+| Tapped "it hurt here" and then "tough" | Dose left **above** where it was before the pain |
+| Used the "I was ill" lens | Plan came out **heavier** in 76 cells of 400 — the exact opposite of the offer |
+| Left the default 45-minute budget alone and answered "tough" | Plan came out **twice** as heavy (×2.00). With the budget off: ×1.00 |
+| Nothing at all, for 7–13 days | The silent decay landed on a plan 2–6× heavier, 18 of those transitions inside a single variation |
+
+Three waves and a half — v2.19, v2.20, v2.23 and half of v2.25 — had gone into
+the pain channel. It was broken in four independent places, and the honest exit
+from its states cost ∞. The budget was newer and no better: the rungs the app
+offered were 10, 15, 20 and 45 minutes, and **10, 15 and 20 produced the same
+plan**, while "20" missed its own target in 100 % of sessions.
+
+**What replaces them is not a smaller version of the same idea.** The app stops
+asking where it hurts and stops fitting the workout into a number you picked
+once and forgot. It **says how long the workout will take** and gives you
+handles. You decide.
+
+- **"Give me an easier variation"** — the same movement, one rung down, and the
+  button shows you the name and the dose you will get before you press it. It
+  always leaves the tier: a handle that answers with the same exercise is a lie
+  on a button.
+- **"Fewer sets" / "more sets"** — one set off or back on a single movement, down
+  to a floor of two. The floor moved from one set to two, and that is what made
+  the first set back cost ×1.50 instead of the ×2.00 it cost by construction
+  before.
+- **"Shorter today"** — the session handle, showing both numbers before you agree:
+  *37 → 26 min*. Sets come off, movements never do.
+- All three live **on the plan**, not inside the workout, so pressing one redraws
+  the plan and the announced duration together. Inside the workout what remains
+  is the honest number — "went differently" — and skipping.
+- **A set comes back when strength does, not on a timer.** Answering "tough" or
+  skipping never returns one.
+
+**Level 0 is now a declared floor, not a hole.** The easiest workout the app can
+build is three sets of eight in the gentlest variation of each of six movements,
+about 34 minutes; the shortest it can build at all, with the handle pulled to the
+floor, is **about 25 minutes**. There is no rung below tier 1 and there will not
+be one. Two things follow, and both are said out loud rather than left to be
+found: the "15-minute session" that Settings used to offer never existed at any
+setting, and someone who has twenty minutes is better served by a different app.
+The App Store description and the landing page now say so.
+
+**What got worse, and by how much.** A wave that only tells you about the
+simplification is an advertisement. Removing the budget removed the thing that
+was keeping sessions short for people who never touched a setting, and the
+person it costs most is the one training six times a week and answering "easy":
+
+| | v2.25 | v2.26 |
+|---|---|---|
+| Median session, training 6×/week | **41 min** | **65 min** |
+| Longest session on that trajectory | 45 min | **99 min** |
+| Levels reached over the year | 423 | 423 — unchanged |
+
+Nothing about their progress changed; the session simply stopped being trimmed
+for them. The new dominant cost of the model is **inaction**: over an honest year
+of three sessions a week from zero, someone who never touches a handle finishes
+at level 34 with a 65-minute session, and someone who pulls it whenever the
+number passes 45 finishes at level 28 with a 51-minute one — three sets given up
+across the year. That is a choice the person now makes instead of the app, which
+is the point of the wave, but it is a real price and it belongs here rather than
+in a footnote.
+
+Two more prices, both named with a number rather than left to be discovered:
+
+- **At the floor of the scale, honest answers stop moving the plan.** Someone on
+  level 0 answering "tough" every time sees the same plan for **124 appearances**
+  (checked out to 200 sessions). Before the wave the worst blocking state cleared
+  in 25. This is the direct consequence of declaring level 0 the bottom: below
+  the bottom there is nowhere to go, and taking a set off down to the floor of
+  two is the one step left.
+- **The pull-up branch still drops to its floor** when a descent changes the unit
+  from reps to seconds, because the library has no rung between the bar hang and
+  negative pull-ups. Adding one requires changing how a level maps to a
+  variation, which would have made this wave's parity unprovable, so it is the
+  next wave's job. The gap is measured: at the tier boundary, level 7 gives 117
+  seconds under load and level 8 gives 45.
+
+**Guided blocks: the run-in doubles.** Five seconds to change posture was a rush
+if the next position means walking to a wall or getting down onto the floor
+(issue #83, reported from a real workout). The run-in before every position is
+now **ten seconds**, fifteen where you have to travel, and the reserve for both
+blocks grows from 8:00 to 9:00 to pay for it — 245 + 295 = 540 seconds into 540,
+which is exact and asserted from the app's own constants rather than from the
+spec's numbers. Both blocks now also **ask before they start**, saying how many
+positions and roughly how many minutes, instead of dropping you into a countdown.
+
+**"Went differently" belongs to the set you tapped it on — the rest of it.** A
+number below the plan carries forward to the sets after it, and a number above
+the plan stays on its own. Entering 40 on the first set of a planned 39 used to
+tell the engine you did 40 three times on the strength of one; now it is
+40/39/39. Everything at or below the plan is bit-for-bit what it was, swept
+across every exercise × every set × every value.
+
+**Everything else is deliberately identical, and that is the claim this wave is
+checked against.** Against v2.25, on the axis's zero: the plan is bit-for-bit
+equal across 96 cells, the shared state fields are equal after a session, and a
+year of levels comes out within ±0.0 % on four different answering styles. The
+one number that moved on purpose is the announced duration — **exactly one
+minute** longer everywhere, which is the longer run-in above.
+
+**Housekeeping.** 653 automated tests: 264 core + 334 app + 55 UI. The verifier
+went from 638,696 property checks to **443,415** — fewer mechanisms, fewer
+things to check — and the golden fixture from 28 scenarios to 24. The JS↔Swift
+differential test was rewritten from trajectories to **12,300 isolated calls**
+over 820 pre-states, and found the porting mistake a trajectory test had missed.
+The engine itself is 2,664 lines where it was 3,142, with 16 state fields where
+it had 23. `accept.js` — twelve checks that a wave kept the promises it was built
+on — joins the verifier as a gate every release must run; `TESTPLAN.md` says what
+each check asserts and why it is there. Saved files written before this wave open
+untouched: the removed fields decode away, and the journal keeps showing the pain
+reports it recorded, because a record that loses a fact is a record that lies
+about the past.
 
 ### Engine v2.25.0 — the sets handle (issues #149, #150, #151)
 

@@ -55,26 +55,23 @@ final class SetsHandleNoticeTests: XCTestCase {
 
     /// One workout, one calendar day apart, so no gap ever reads as a break.
     @discardableResult
-    private func train(_ store: AppStore, discomfort: Set<Pattern> = [],
-                       result: FeedbackResult = .plan) -> Session {
+    private func train(_ store: AppStore, result: FeedbackResult = .plan) -> Session {
         let session = store.nextSession
         trained += 1
         let date = Calendar.current.date(byAdding: .day, value: -400 + trained * 2,
                                          to: Calendar.current.startOfDay(for: .now))!
-        _ = store.completeWorkout(session: session, result: result,
-                                  discomfort: discomfort, date: date)
+        _ = store.completeWorkout(session: session, result: result, date: date)
         return session
     }
 
-    /// Trains clean until the movement is neither frozen nor waiting on an
-    /// open episode — i.e. the rest the engine assigned has been served.
-    private func serveTheRest(_ store: AppStore, _ pattern: Pattern) {
+    /// Trains clean until the engine has handed the set back — v2.26 (§37.6):
+    /// the return is EARNED, so it takes as many appearances as it takes.
+    private func trainUntilTheSetComesBack(_ store: AppStore, _ pattern: Pattern) {
         var guardrail = 0
-        while store.engineState.freezeRemaining(pattern) > 0
-                || store.engineState.sore[pattern] != nil {
+        while store.engineState.cutOf(pattern) > 0 {
             train(store)
             guardrail += 1
-            XCTAssertLessThan(guardrail, 40, "the rest never ended")
+            XCTAssertLessThan(guardrail, 40, "the set never came back")
             if guardrail >= 40 { return }
         }
     }
@@ -83,95 +80,15 @@ final class SetsHandleNoticeTests: XCTestCase {
         try XCTUnwrap(session.exercises.first { $0.pattern == .pull })
     }
 
-    // MARK: - The specialist line (spec §36.5)
-
-    /// The trajectory the line was written for: it hurts, it rests, it comes
-    /// back, it hurts again — three times over. The run of reports is broken
-    /// by the rest EVERY time, which is why the old streak threshold was
-    /// unreachable; the memory of pain is not.
-    func testTheSpecialistLineArrivesOnTheThirdReport() throws {
-        let store = try store()
-
-        train(store, discomfort: [.pull])
-        XCTAssertEqual(store.engineState.painSeen[.pull], 1)
-        XCTAssertNil(store.painNote(.pull), "one report is not a trend")
-
-        serveTheRest(store, .pull)
-        train(store, discomfort: [.pull])
-        XCTAssertEqual(store.engineState.painSeen[.pull], 2)
-        XCTAssertNil(store.painNote(.pull),
-                     "two reports with the assigned rest between them are still not three")
-
-        serveTheRest(store, .pull)
-        train(store, discomfort: [.pull])
-
-        XCTAssertEqual(store.engineState.painSeen[.pull], 3)
-        XCTAssertEqual(store.painNote(.pull), .seeSpecialist)
-        // The evidence that the threshold had to move: the run the old line
-        // read is back at one, because the rest it prescribes ends it.
-        XCTAssertLessThan(store.discomfortStreak(.pull), AppStore.painSpecialistThreshold)
-        // And the sentence reaches the screen: it is drawn under the resting
-        // movements, and after a report the movement is resting.
-        XCTAssertTrue(store.restingPatterns.contains(.pull))
-    }
-
-    /// The softer line is untouched: two reports on two consecutive
-    /// appearances is still "it hurt both times", and it is still the journal
-    /// that says so.
-    func testTwoReportsInARowStillReadAsTheSofterLine() throws {
-        let store = try store()
-        train(store, discomfort: [.pull])
-        train(store, discomfort: [.pull])
-        XCTAssertEqual(store.discomfortStreak(.pull), 2)
-        XCTAssertEqual(store.engineState.painSeen[.pull], 2)
-        XCTAssertEqual(store.painNote(.pull), .hurtAgain)
-    }
-
-    /// The memory outranks the run wherever both could fire — only one
-    /// sentence is ever shown, and three reports is the stronger fact.
-    func testTheMemoryOutranksTheRun() throws {
-        let store = try store()
-        train(store, discomfort: [.pull])
-        train(store, discomfort: [.pull])
-        train(store, discomfort: [.pull])
-        XCTAssertGreaterThanOrEqual(store.discomfortStreak(.pull), 2)
-        XCTAssertEqual(store.painNote(.pull), .seeSpecialist)
-    }
-
-    // MARK: - Why the card shows the number it does (spec §36.2)
-
-    /// A report takes sets off at a level that does not move, so the card
-    /// says why — and says it about the movement that hurt, not about the
-    /// whole plan.
-    func testTheCardExplainsAPlanCutByPain() throws {
-        let store = try store()
-        let before = try pull(train(store, discomfort: [.pull]))
-        let now = try pull(store.nextSession)
-
-        XCTAssertLessThan(now.sets, before.sets, "the handle must have moved")
-        XCTAssertEqual(store.setsNote(for: now), .painCut)
-        for ex in store.nextSession.exercises where ex.pattern != .pull {
-            XCTAssertNil(store.setsNote(for: ex),
-                         "\(ex.pattern.rawValue) was never reported as painful")
-        }
-    }
-
-    /// …and stops saying it once the episode is over: the sentence promises
-    /// the sets back "when it passes", so it may not outlive the passing.
-    func testThePainLineGoesWithTheEpisode() throws {
-        let store = try store()
-        train(store, discomfort: [.pull])
-        serveTheRest(store, .pull)
-        XCTAssertNil(store.engineState.sore[.pull])
-        XCTAssertNotEqual(store.setsNote(for: try pull(store.nextSession)), .painCut)
-    }
-
     /// The other end of the handle: a set comes back, and the card says so
     /// once — the appearance the set actually arrives on.
+    ///
+    /// v2.26 (§37.5): the set is taken off by the PERSON now, not by a pain
+    /// report, which makes the sentence matter more rather than less. They
+    /// know why it went; only the engine knows why it came back.
     func testTheCardSaysWhenASetComesBack() throws {
         let store = try store()
-        train(store, discomfort: [.pull])
-        serveTheRest(store, .pull)
+        store.takeSetOff(.pull)
 
         var announced = 0
         var seenBack = false
@@ -210,9 +127,28 @@ final class SetsHandleNoticeTests: XCTestCase {
         let root = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
         let strings = try XCTUnwrap(root["strings"] as? [String: Any])
 
+        // v2.26: the pain line went with the channel; the handles' own
+        // sentences joined. Every one of them is user-facing on the plan.
         let keys = [
-            "Fewer sets for now — you said this one hurt. They come back once it passes.",
             "A set is back — your body is coping.",
+            "Fewer sets",
+            "More sets",
+            "Full workout",
+            "Make it easier",
+            "Takes one set off every movement. Your levels do not change.",
+            "Enter what you actually did. The plan follows your numbers.",
+            "Shorter today · %lld → %lld min",
+            "Easier · %@",
+            "%lld positions · about %lld min",
+            "Do the plan, and leave your maximum for the last set.",
+            "Cool-down",
+            "Start the cool-down",
+            "Skip the cool-down",
+            "The work is done. A few minutes of stretching helps it settle.",
+            "Warm-up",
+            "Start the warm-up",
+            "Skip the warm-up",
+            "A few easy minutes to get the body ready. Skip it if you are already warm.",
         ]
         for key in keys {
             let entry = try XCTUnwrap(strings[key] as? [String: Any],
@@ -231,16 +167,21 @@ final class SetsHandleNoticeTests: XCTestCase {
     /// thing. Deliberately not compared against the English wording: the test
     /// runs in whatever language the simulator is set to, and a translated
     /// answer is a correct answer.
-    func testBothRungsOfTheNoteSaySomething() {
-        XCTAssertFalse(ExerciseRow.note(.painCut)?.isEmpty ?? true)
+    func testTheNoteSaysSomethingAndOnlyWhenThereIsSomethingToSay() {
         XCTAssertFalse(ExerciseRow.note(.setBack)?.isEmpty ?? true)
-        XCTAssertNotEqual(ExerciseRow.note(.painCut), ExerciseRow.note(.setBack))
         XCTAssertNil(ExerciseRow.note(nil))
     }
 
     /// The general form of the same guard, over the whole app: every plain
-    /// `String(localized: "…")` the sources ask for is a key the catalog
-    /// carries. One key that is not — a rename on one side, a sentence typed
+    /// localized literal the sources ask for is a key the catalog carries.
+    ///
+    /// v2.26: the scan covers `Text("…")` and `Button("…")` as well as
+    /// `String(localized: "…")`. It did not before, and that is precisely the
+    /// hole finding S5-4 came through — a SwiftUI `Text` literal is localized
+    /// through the same catalog, so a sentence typed straight into a view
+    /// looks fine in English and falls back to English everywhere else.
+    ///
+    /// One key that is not there — a rename on one side, a sentence typed
     /// straight into a view — and the string falls back to English in all six
     /// translated languages at once, which is how last release lost them.
     func testEveryPlainLocalizedLiteralIsACatalogKey() throws {
@@ -254,8 +195,11 @@ final class SetsHandleNoticeTests: XCTestCase {
         // The class excludes a backslash on purpose, so an interpolated
         // literal — whose catalog key is the %@/%lld form, not the source
         // text — is skipped rather than wrongly reported.
-        let pattern = try NSRegularExpression(
-            pattern: #"String\(localized:\s*"([^"\\]*)"\s*\)"#)
+        let patterns = try [
+            #"String\(localized:\s*"([^"\\]*)"\s*\)"#,
+            #"\bText\(\s*"([^"\\]*)"\s*\)"#,
+            #"\bButton\(\s*"([^"\\]*)"\s*[,)]"#,
+        ].map { try NSRegularExpression(pattern: $0) }
         let sources = try XCTUnwrap(FileManager.default.enumerator(
             at: root.appendingPathComponent("Dredfit"), includingPropertiesForKeys: nil))
 
@@ -263,13 +207,28 @@ final class SetsHandleNoticeTests: XCTestCase {
         for case let url as URL in sources where url.pathExtension == "swift" {
             let src = try String(contentsOf: url, encoding: .utf8)
             let range = NSRange(src.startIndex..<src.endIndex, in: src)
-            for match in pattern.matches(in: src, range: range) {
-                guard let found = Range(match.range(at: 1), in: src) else { continue }
-                checked += 1
-                XCTAssertTrue(keys.contains(String(src[found])),
-                              "\(url.lastPathComponent): \"\(src[found])\" is not in the catalog")
+            for pattern in patterns {
+                for match in pattern.matches(in: src, range: range) {
+                    guard let found = Range(match.range(at: 1), in: src) else { continue }
+                    let literal = String(src[found])
+                    // An empty literal is a spacer, not a sentence.
+                    guard !literal.isEmpty else { continue }
+                    checked += 1
+                    XCTAssertTrue(keys.contains(literal),
+                                  "\(url.lastPathComponent): \"\(literal)\" is not in the catalog")
+                }
             }
         }
         XCTAssertGreaterThan(checked, 100, "the scan found almost nothing — check the pattern")
     }
+
+    // SNIPPED v2.26 (§37.0): five tests of the pain line and the pain cut.
+    // "Time to see a specialist" counted reports over a movement's history and
+    // the card's "fewer sets for now — you said this one hurt" explained a cut
+    // the pain channel made. Neither has an input any more.
+    //
+    // What stays is the rung the person cannot otherwise account for — a set
+    // coming BACK — and it matters more now, not less: sets are taken off by
+    // the person's own handle, so the card has to say when the engine hands one
+    // back on its own.
 }
