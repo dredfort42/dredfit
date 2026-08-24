@@ -101,7 +101,7 @@ extension Level {
     /// as a breach of "do no harm", citing ACSM 2009's "a 2–10 % increase in
     /// load".
     static func riseBy(level: Int, sub: Int, cut: Int, by count: Int,
-                              allowSetsBack: Bool) -> Position {
+                       allowSetsBack: Bool) -> Position {
         var c = effCut(level: level, cut: cut, floor: EngineConfig.setsFloor)
         var k = max(0, count)
         let back = allowSetsBack ? min(min(c, k), EngineConfig.setsBackPerSession) : 0
@@ -121,7 +121,7 @@ extension Level {
     /// sets; below that a descent has to change the variation, and that is the
     /// one place where a measure across the boundary stops being valid (§30.4).
     static func fallBy(level: Int, sub: Int, cut: Int, by count: Int,
-                              floor: Int) -> Position {
+                       floor: Int) -> Position {
         // v2.25 (Ф5): the same invariant on entry and at every step — a
         // sub-step can never ask for more sets than the cut leaves.
         func fit(_ lv: Int, _ sb: Int, _ ct: Int) -> Int {
@@ -184,7 +184,7 @@ extension Level {
     /// library, the way v2.18 (§29) fixed the pike → handstand gap. Until then
     /// safety outranks a kept level.
     static func landOnUnitChange(pattern: Pattern, fromLevel: Int, fromSub: Int,
-                                        fromCut: Int, toTier: Int) -> Int {
+                                 fromCut: Int, toTier: Int) -> Int {
         let budget = timeUnderLoad(pattern: pattern, level: fromLevel,
                                    sub: fromSub, cut: fromCut)
         let floor = (toTier - 1) * EngineConfig.stepsPerTier
