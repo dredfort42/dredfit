@@ -21,6 +21,10 @@ struct ExerciseRow: View {
     var note: String?
     @Environment(\.displayScale) private var displayScale
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    /// Both feed the cache key: the pill is a bitmap, so what the palette
+    /// resolved to when it was rendered is baked in.
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.colorSchemeContrast) private var colorSchemeContrast
 
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
@@ -65,7 +69,9 @@ struct ExerciseRow: View {
         var name = Text(exercise.name)
         if let badge,
            let pill = BadgePill.image(text: badge, scale: displayScale,
-                                      typeSize: dynamicTypeSize) {
+                                      typeSize: dynamicTypeSize,
+                                      colorScheme: colorScheme,
+                                      contrast: colorSchemeContrast) {
             name = name + Text(verbatim: " ")
                 + Text(Image(uiImage: pill)).baselineOffset(-4)
         }
@@ -98,25 +104,44 @@ struct ExerciseRow: View {
     }
 }
 
-/// Cached per text, display scale and Dynamic Type size. accentText on
-/// accentSoft — accent itself is 2.91:1 on that fill. Not file-private any
-/// more: Today's resting rows draw the same pill, and one renderer means one
-/// cache and one set of metrics for both.
+/// Cached per text, display scale, Dynamic Type size AND appearance.
+/// accentText on accentSoft — accent itself is 2.91:1 on that fill.
+///
+/// The appearance is part of the key because the product here is a BITMAP:
+/// `ImageRenderer` resolves the two tokens once, at render time, and both
+/// have four values in the asset catalog. Keyed on the text alone, the pill
+/// drawn on a light Today survived into dark mode — light accentSoft on the
+/// dark card — until something else evicted it.
+///
+/// The key alone would only guarantee a re-render; the render also has to
+/// land on the appearance it is keyed for, and inside `ImageRenderer` a
+/// `Theme` token would resolve against whatever the renderer inherits. So
+/// the two colours arrive already resolved, from `Theme.badgePillColors`.
+///
+/// Nothing invalidates the cache, and nothing needs to: a stale entry is
+/// unreachable rather than wrong, and one badge text costs at most four
+/// entries per Dynamic Type size.
+///
+/// Not file-private: `BadgePillTests` is the only thing that can tell two
+/// appearances of one bitmap apart, and it needs the entry point.
 @MainActor
 enum BadgePill {
     private static var cache: [String: UIImage] = [:]
 
     static func image(text: String, scale: CGFloat,
-                      typeSize: DynamicTypeSize) -> UIImage? {
-        let key = "\(text)|\(scale)|\(typeSize)"
+                      typeSize: DynamicTypeSize,
+                      colorScheme: ColorScheme,
+                      contrast: ColorSchemeContrast) -> UIImage? {
+        let key = "\(text)|\(scale)|\(typeSize)|\(colorScheme)|\(contrast)"
         if let hit = cache[key] { return hit }
+        let palette = Theme.badgePillColors(colorScheme: colorScheme, contrast: contrast)
         let renderer = ImageRenderer(content:
             Text(text)
                 .dredfitFont(11, weight: .semibold)
-                .foregroundStyle(Theme.accentText)
+                .foregroundStyle(palette.text)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 2)
-                .background(Theme.accentSoft, in: Capsule())
+                .background(palette.fill, in: Capsule())
                 .environment(\.dynamicTypeSize, typeSize)
         )
         renderer.scale = scale
