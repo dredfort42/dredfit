@@ -306,84 +306,16 @@ extension Engine {
         )
     }
 
-    /// v2.24 (spec §35.1): the one and only clamp on a set count. Both
-    /// mechanisms that CUT sets — the budget (§28.3) and the band gate (§20.2)
-    /// — go through it, so the floor holds for their composition and not just
-    /// for each cut on its own.
+    /// v2.24 (spec §35.1): the one and only clamp on a set count. Every
+    /// mechanism that CUTS sets — the band gate (§20.2) among them — goes
+    /// through it, so the floor holds for their composition and not just for
+    /// each cut on its own.
     /// v2.25 (spec §36.6): the floor is a per-exercise number, and it carries
     /// NO default on purpose. v2.26 (§37.3): every caller now passes the same
     /// shared floor — the pain channel's single set is gone — but the explicit
     /// parameter stays. A default here is exactly what let `setsFloorPain`
     /// leak into all ten call sites of the previous wave.
     static func clampSets(_ n: Int, floor: Int) -> Int { max(floor, n) }
-
-    /// v2.17 (spec §28.3): fit the plan into the budget. Levels are never
-    /// touched — the budget trims the PLAN, not the state.
-    ///
-    /// v2.24 (spec §35.2): ONE set per iteration, from the exercise whose
-    /// removal saves the most seconds, repeated until the plan fits or every
-    /// exercise stands on the floor. The old algorithm capped ALL six movements
-    /// at once (4, then 3, then 2), and the gap between rungs was wider than
-    /// the miss it was closing: a 45-minute budget went 45 → 29 → 45, a
-    /// shortfall of up to 36%. One set of one movement is the smallest
-    /// indivisible unit of a plan, so the shortfall falls to its size — 6.9%
-    /// worst case over levels 24–47.
-    ///
-    /// Movements are no longer dropped at all (the old second stage and
-    /// `keepForBudget` are gone). The reason is the arithmetic §28.3 already
-    /// used to justify "sets first": a dropped set costs no progress, a dropped
-    /// movement costs all of it. If the plan is still longer than the budget
-    /// with everything on the floor, the session simply runs a little long —
-    /// honest, and cheaper than dropping a pattern out of the rotation.
-    ///
-    /// Monotonicity in the budget comes for free: the removal sequence does not
-    /// depend on the budget, so the plan for budget B is a prefix of one fixed
-    /// sequence, and every removal strictly shortens the session.
-    /// v2.25 (spec §36.8, round 4): THE SESSION-WIDE CUT IS BACK, and that is
-    /// a deliberate rollback. The per-share scheme — every exercise fitting
-    /// independently into its own slice of the budget — was introduced for the
-    /// invariant "a descent never adds load BY CONSTRUCTION". The invariant
-    /// turned out to be false: it is proven only INSIDE a set band, and a
-    /// descent by a whole level — an honest fact below the plan, a deload, a
-    /// chronic aim — crosses bands, and there the ground under the arithmetic
-    /// falls away with the band. Measured: 1504 violations of 11,520 cells,
-    /// 140 of them inside one variation, worst ×2.50. The price was steep too:
-    /// 8.7–21.0 minutes of the budget thrown away, and the time handle
-    /// distinguishing three positions on a scale from 15 to 95 minutes.
-    ///
-    /// The invariant is now held not by the shape of the cut but by CHECKING
-    /// THE RESULT — see `repairDescent`. Checking it turned out to be both
-    /// simpler and safer than deriving it.
-    ///
-    /// The cut itself is v2.24's in substance, but the victim is chosen
-    /// WITHOUT READING THE DOSE: the set comes off the exercise with the most
-    /// sets, ties by session order. The old greedy choice — "whoever saves the
-    /// most seconds" — read doses, so a small change of dose moved the cut to
-    /// another movement (audit 20.08, P0-2: 418 cells). The new order has no
-    /// such class, and it also removes the churn in set counts (S1-07) and the
-    /// unfairness to the start of the session order.
-    private static func trimToBudget(_ exercises: [SessionExercise], floors: [Int],
-                                     budget: Int, ends: Int) -> [SessionExercise] {
-        var cur = exercises
-        var total = estimatedMin(exercises: cur, ends: ends)
-        while total > Double(budget) {
-            var idx = -1
-            var best = -1
-            for i in cur.indices {
-                let floor = floors[i]
-                if cur[i].sets <= floor { continue }
-                // A strict `>` leaves the win with the FIRST of equals, and the
-                // session order is fixed — so the choice is deterministic.
-                if cur[i].sets > best { best = cur[i].sets; idx = i }
-            }
-            // Everything on its floor: this is the shortest legal plan.
-            // Running a little long is the accepted consequence of §35.2.
-            guard idx >= 0 else { break }
-            cur[idx] = Self.withSets(cur[idx], cur[idx].sets - 1, floor: floors[idx])
-            total = estimatedMin(exercises: cur, ends: ends)
-        }
-        return cur
-    }
 
     /// v2.25 (spec §36.8, round 4): THE POSTCONDITION REPAIR. The invariant the
     /// model promises is "if a pattern's position did not rise, its plan cannot
