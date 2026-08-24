@@ -81,6 +81,20 @@ extension AppStore {
         return (now, after < now ? after : nil)
     }
 
+    /// The same pair, measured inside the movements that are actually going
+    /// to be performed. With the short version chosen, "34 → 26" is a promise
+    /// about a workout nobody is going to do — the handle has to price itself
+    /// against the plan on screen, not against the full session behind it.
+    func sessionLengthPreview(within plan: Set<Pattern>?) -> (now: Int, shorter: Int?) {
+        guard let plan else { return sessionLengthPreview() }
+        let now = ShortWorkout.estimatedMin(session: nextSession, plan: plan)
+        let shortened = Engine.shorterSession(state: engineState, steps: 1)
+        guard shortened != engineState else { return (now, nil) }
+        let after = ShortWorkout.estimatedMin(session: Engine.generateSession(shortened),
+                                              plan: plan)
+        return (now, after < now ? after : nil)
+    }
+
     /// True while any movement in today's plan still has room to lose a set.
     var canMakeSessionShorter: Bool {
         Engine.shorterSession(state: engineState, steps: 1) != engineState

@@ -138,6 +138,10 @@ struct PositionSkipButton: View {
 /// The full-width outline escape at the bottom of a block — "Skip warm-up",
 /// "Skip rest", "Skip cool-down".
 struct BlockSkipButton: View {
+    /// Named because the rest screen lays its pair out by hand and has to
+    /// reserve exactly this much: two definitions of 56 would drift.
+    static let height: CGFloat = 56
+
     let title: String
     var identifier: String?
     let action: () -> Void
@@ -147,7 +151,7 @@ struct BlockSkipButton: View {
             Text(title)
                 .dredfitFont(17, weight: .medium)
                 .foregroundStyle(Theme.ink2)
-                .frame(maxWidth: .infinity, minHeight: 56)
+                .frame(maxWidth: .infinity, minHeight: Self.height)
                 .overlay(RoundedRectangle(cornerRadius: 18).stroke(Theme.hairline, lineWidth: 1.5))
         }
         .accessibilityIdentifier(identifier ?? title)
@@ -230,10 +234,19 @@ struct ExerciseActionsRow: View {
         }
     }
 
+    /// 44 pt of target, not the 18 pt the bare label came to. It sits under
+    /// the primary button, and the primary button on this screen LOGS THE SET
+    /// — a thumb that lands a few points high does not miss, it finishes the
+    /// set at plan. The height is the fix; `contentShape` is what makes the
+    /// whole of it answer.
     private var adjustButton: some View {
-        Button(String(localized: "Went differently"), action: onAdjust)
-            .dredfitFont(14.5, weight: .semibold)
-            .foregroundStyle(Theme.accentText)
+        Button(action: onAdjust) {
+            Text("Went differently")
+                .dredfitFont(14.5, weight: .semibold)
+                .foregroundStyle(Theme.accentText)
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
+        }
             .accessibilityIdentifier("exercise-adjust")
             // One literal, split for width: a concatenation would resolve to
             // the verbatim initializer and never reach the catalog.
@@ -244,21 +257,31 @@ struct ExerciseActionsRow: View {
     }
 
     private var skipButton: some View {
-        Button(String(localized: "Skip exercise"), action: onSkip)
-            .dredfitFont(14.5)
-            .foregroundStyle(Theme.ink2)
+        Button(action: onSkip) {
+            Text("Skip exercise")
+                .dredfitFont(14.5)
+                .foregroundStyle(Theme.ink2)
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
+        }
     }
 
 }
 
 /// The "ⓘ technique" affordance — one look shared by the work screen, the
 /// rest screen and the warm-up/cool-down positions (issue #34).
-/// The rest phase. The ring is the primary element here, which is why the two
-/// controls under it carry equal weight and neither is a filled button:
-/// someone who is not recovered has to be able to ask for more time as easily
-/// as to cut the rest short. The asymmetry it replaces was not a comfort
-/// problem — standing at an expired timer or starting a set you cannot finish
-/// both reach the engine as "tough".
+/// The rest phase. The ring is the primary element here, which is why neither
+/// control under it is a filled button: someone who is not recovered has to be
+/// able to ask for more time about as easily as to cut the rest short. The
+/// asymmetry that idea replaced was not a comfort problem — standing at an
+/// expired timer or starting a set you cannot finish both reach the engine as
+/// "tough".
+///
+/// What went with it, on the owner's read of the audit frames, is EQUAL WIDTH.
+/// The two are not asked for equally often: the rest ends and the thumb comes
+/// down on Skip, and halves put "+15 s" under a good share of those taps. It
+/// keeps the same height, the same outline and the same weight — only a third
+/// of the row instead of half.
 struct RestRing: View {
     let remaining: Int
     let fraction: CGFloat
@@ -335,7 +358,19 @@ struct RestRing: View {
         if dynamicTypeSize.isAccessibilitySize {
             VStack(spacing: 10) { extend; skip }
         } else {
-            HStack(spacing: 12) { extend; skip }
+            // A third and two thirds, not halves. The pair is not a choice
+            // between equals: skipping is what the thumb comes down for, and
+            // extending is the exception — equal widths put the rare button
+            // under half of the taps meant for the common one.
+            GeometryReader { proxy in
+                let gap: CGFloat = 12
+                let unit = max(0, (proxy.size.width - gap) / 3)
+                HStack(spacing: gap) {
+                    extend.frame(width: unit)
+                    skip.frame(width: unit * 2)
+                }
+            }
+            .frame(height: BlockSkipButton.height)
         }
     }
 }

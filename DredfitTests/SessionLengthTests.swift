@@ -127,7 +127,7 @@ final class SessionLengthTests: XCTestCase {
 
     // MARK: - The way back
 
-    /// A handle the person cannot release is a trap. "Full workout" puts every
+    /// A handle the person cannot release is a trap. "All sets back" puts every
     /// set back, on every movement.
     func testTheFullWorkoutIsAlwaysReachableAgain() throws {
         let store = try advancedStore()

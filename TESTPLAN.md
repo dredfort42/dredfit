@@ -454,8 +454,8 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 
 | # | Check | Expected |
 |---|---|---|
-| 29.1 | Today, a training day | Under **Start**, a secondary line: "Short on time? Short version · ≈ N min"; N is noticeably below the full estimate above |
-| 29.2 | Tap it | Warm-up as usual, then "1 / 3" and three capsules — the same exercises, same numbers, as the plan above showed |
+| 29.1 | Today, a training day | Under the duration, beside the sets handle: **"Fewer movements · 3 of 6 · ≈ N min"**; N is noticeably below the full estimate above. It is a handle on the plan, not a second start button |
+| 29.2 | Tap it, then **Start** | The line above becomes "≈ N min · 3 exercises" and the handle turns into **"All movements back"**; the workout then runs the warm-up as usual, then "1 / 3" and three capsules — the same exercises, same numbers, as the plan above showed |
 | 29.3 | The three chosen | The pull slot (or **Bar hang**/pull-up branch with the bar on), the rotation anchor, and the lowest-level of the rest |
 | 29.4 | Finish and rate | Rating screen lists the untouched three under their own **SKIPPED** header — dimmed names, no per-row word, no "ADJUSTED" when nothing was adjusted; scope chip reads "applies to 3 of 6" |
 | 29.5 | Progress after it | The three trained moved; the three skipped are **unchanged**; the workout counter advanced by one |
@@ -724,10 +724,11 @@ change lands by time under load), §43.10 (an old save file opens unchanged) and
 
 | # | Check | Expected |
 |---|---|---|
-| 44.1 | The plan on Today, any level above the floor | Each movement row carries **"Easier"** and **"Fewer"**; a movement with a set already off also carries **"More"**. Under the duration sits **"Shorter today · 37 → 26 min"** — both numbers, before you agree to either |
+| 44.1 | The plan on Today, any level above the floor | Each movement row carries **"Easier"** and **"Fewer"**; a movement with a set already off also carries **"More"**. Under the duration sit the two session handles, each naming the axis it moves: **"Fewer sets in every movement · 37 → 26 min"** — both numbers, before you agree — and **"Fewer movements · 3 of 6 · ≈ N min"** |
 | 44.2 | Tap **Easier** on a movement | The **name and the dose of what you will get** are on the button before you press it, and after the tap the movement is in a genuinely different variation — never the same exercise with smaller numbers. The announced duration redraws in the same beat |
 | 44.3 | Tap **Fewer** down as far as it goes | Stops at **two sets**. There is no third tap and no disabled-looking button that does nothing — when the floor is reached the control is gone |
-| 44.4 | Tap **Shorter today**, then **Full workout** | Shorter only ever shortens; Full restores every set on every movement and then disappears, because with nothing cut there is nothing to restore |
+| 44.4 | Tap **Fewer sets in every movement**, then **All sets back** | Fewer only ever shortens; All sets back restores every set on every movement and then disappears, because with nothing cut there is nothing to restore |
+| 44.4a | Pull BOTH handles | They compose and the screen says so by arithmetic: the plan line counts what Start will run (3 movements at the cut set count), and the sets handle prices itself inside those three rather than inside the full six |
 | 44.5 | A movement at level 0 with two sets | Both handles are **absent**, and the weak-link prompt stays silent. This is §37.1 from the app's side: at the declared bottom there is nothing to offer, and a button that cannot work is worse than no button |
 | 44.6 | Level 0, answer **"tough"** many workouts running | The plan does not move — for **124 appearances** if you keep going. Known, accepted and named: below the declared floor there is nowhere to descend. What the app must not do is pretend otherwise |
 | 44.7 | Start a workout | The **warm-up asks first** — "6 positions · about 5 min", with start and skip — instead of dropping you into a countdown. Same for the cool-down after the last exercise |
@@ -787,7 +788,7 @@ assertions — П7 prints a number and asserts nothing on purpose.
 | П6 | `descendNoHarder` never returns a position the engine's own `noHarder` predicate rejects | The 20.08 audit found "descent never adds load" checked on two of six paths, while the other four produced transitions the exported predicate refused. This asserts the predicate against itself |
 | П7 | *Informational:* the sum of levels over an honest year, and where `squat` lands | Progress is what a safety wave is most likely to quietly destroy. It is printed, not asserted, because there is no right number — П10 does the asserting |
 | П8a/b/c | Against the v2.25 engine, on the axis's zero: the plan is bit-for-bit equal (96 cells), the shared state fields are equal after a session, and the announced duration grew by **exactly** one minute | This is the wave's parity claim, and the reason a refactor can be told from a change. The one minute is §37.7а — the longer run-in before every guided position — and it is asserted as a number so it cannot creep |
-| П9 | "Shorter today" only ever shortens, and stops at the floor | A handle that could lengthen a session, or dig below two sets, is worse than no handle |
+| П9 | The sets handle only ever shortens, and stops at the floor | A handle that could lengthen a session, or dig below two sets, is worse than no handle |
 | П10 | A year of levels stays within ±1 % of v2.25 across four answering styles | Removing two mechanisms must not cost progress. ±1 % is the tolerance; the run gives ±0.0 % on all four |
 | П11 | "Tough" never makes the next shown plan heavier — including on top of an active cut | The composition question. Each mechanism was fine alone in v2.25; the P0s came from the pairs |
 | П12 | The wave added no new cell where a growth event lightens the plan — parity with v2.25, not an absolute | Absolute is unreachable and saying otherwise would be a false guarantee: at a band start the per-set dose resets lower while the set count grows (v2.21, deliberately), and across a variation the measure is invalid at all. So the assertion is that the count did not move: 6 before, 6 after, all at L31/L39 |
