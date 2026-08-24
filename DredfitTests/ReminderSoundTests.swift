@@ -1,7 +1,4 @@
 //
-//  ReminderSoundTests.swift
-//  DredfitTests
-//
 //  The reminder's branded sound file (#84, stage C): written once into
 //  Library/Sounds, never rewritten, and any provisioning failure degrades
 //  to the stock sound rather than a silent notification.

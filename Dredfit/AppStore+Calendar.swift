@@ -1,7 +1,4 @@
 //
-//  AppStore+Calendar.swift
-//  Dredfit
-//
 //  Where the plan lands on a calendar: the next training day, the label the
 //  cards show for it, and the week summary. All read-only — the mutating
 //  decisions stay in AppStore proper. Split out when the class outgrew the

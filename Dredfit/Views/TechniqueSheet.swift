@@ -1,7 +1,4 @@
 //
-//  TechniqueSheet.swift
-//  Dredfit
-//
 //  Technique sheet: name, tier tag, 3 steps, 2 common mistakes.
 //
 

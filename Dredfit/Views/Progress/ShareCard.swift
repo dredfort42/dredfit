@@ -1,7 +1,4 @@
 //
-//  ShareCard.swift
-//  Dredfit
-//
 //  Rendered locally with ImageRenderer, 1080×1350 (4:5). Nothing leaves the
 //  device on its own.
 //

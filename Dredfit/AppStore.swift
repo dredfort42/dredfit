@@ -1,7 +1,4 @@
 //
-//  AppStore.swift
-//  Dredfit
-//
 //  Single source of truth: engine state + workout journal.
 //  Persistence — one JSON file in Application Support.
 //

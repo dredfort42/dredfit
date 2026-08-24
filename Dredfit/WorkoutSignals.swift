@@ -1,7 +1,4 @@
 //
-//  WorkoutSignals.swift
-//  Dredfit
-//
 //  Each signal as a pair: the tone (silenced by the mute switch) and its
 //  haptic counterpart (the silent-mode channel), behind the one sounds
 //  toggle. The pairs live here so WorkoutFlowView's wrappers stay one line

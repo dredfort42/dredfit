@@ -1,7 +1,4 @@
 //
-//  MilestoneView.swift
-//  Dredfit
-//
 //  One screen for everything a workout earned. Calibration can hand a first
 //  workout several tier-ups at once, so the layout holds 2–4 rows: the
 //  headline steps down as rows are added and the whole thing scrolls.

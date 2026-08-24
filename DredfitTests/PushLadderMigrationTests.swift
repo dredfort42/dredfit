@@ -1,7 +1,4 @@
 //
-//  PushLadderMigrationTests.swift
-//  DredfitTests
-//
 //  v2.18 (spec §29, #131): the app half of the ladder change. The library
 //  reshuffle is silent by design — the stored level keeps its number, so the
 //  only thing an existing trainee notices is that the movement at that level

@@ -1,7 +1,4 @@
 //
-//  LiveActivityController.swift
-//  Dredfit
-//
 //  Activity<T> is not Sendable, so all async work looks the activity up by
 //  id inside one task — nothing crosses an isolation boundary. When
 //  activities are unavailable or denied, every call is a silent no-op.

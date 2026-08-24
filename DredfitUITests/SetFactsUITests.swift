@@ -1,7 +1,4 @@
 //
-//  SetFactsUITests.swift
-//  DredfitUITests
-//
 //  "Went differently" end to end, on the set it is actually tapped on. The
 //  arithmetic is unit-tested in SetFactsTests; what only a walk can prove is
 //  that the flow hands the CURRENT set index to it — the bug was that it

@@ -1,7 +1,4 @@
 //
-//  SetsHandle.swift
-//  DredfitCore
-//
 //  v2.25 (spec §36): the sets handle — the second axis of a position. Split
 //  out of Level.swift the way Level itself was split out of Engine.swift: the
 //  arithmetic is Level's, the file is separate only because the lint's ceiling

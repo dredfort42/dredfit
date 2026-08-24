@@ -1,5 +1,4 @@
 //
-//  LibraryPinTests.swift
 //  DredfitCoreTests
 //
 //  The 40 (pattern, tier) → variation identities, pinned by value (#95,

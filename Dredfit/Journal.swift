@@ -1,7 +1,4 @@
 //
-//  Journal.swift
-//  Dredfit
-//
 //  What a finished workout leaves behind, and what an unfinished one holds
 //  on to. Both are read back out of one JSON file, so both are inputs.
 //

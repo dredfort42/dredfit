@@ -1,5 +1,4 @@
 //
-//  EngineV27Tests.swift
 //  DredfitCoreTests
 //
 //  The do-no-harm gate wave (spec §17): calibration bounded by the

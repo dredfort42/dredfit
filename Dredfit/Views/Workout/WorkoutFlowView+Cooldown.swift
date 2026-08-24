@@ -1,7 +1,4 @@
 //
-//  WorkoutFlowView+Cooldown.swift
-//  Dredfit
-//
 //  The cool-down block of the workout flow (issue #28), split out of
 //  WorkoutFlowView when v2.26 pushed that file past the lint's ceiling.
 //  The code moved unchanged; what v2.26 added to it is the intro screen —

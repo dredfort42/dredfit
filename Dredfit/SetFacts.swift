@@ -1,7 +1,4 @@
 //
-//  SetFacts.swift
-//  Dredfit
-//
 //  A fact belongs to the set it happened on.
 //
 

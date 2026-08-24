@@ -1,7 +1,4 @@
 //
-//  GetReadyUITests.swift
-//  DredfitUITests
-//
 //  Deliberately NOT run under --uitest-fast: collapsing the transition to a
 //  second would turn every assertion here into a race.
 //

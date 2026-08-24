@@ -1,7 +1,4 @@
 //
-//  ReleaseSmokeTests.swift
-//  DredfitUITests
-//
 //  The Release smoke block of TESTPLAN.md (S1–S7), automated. Row names are
 //  carried into activity names and failure messages, so a red run says "S3"
 //  and the checklist row is found without translation.

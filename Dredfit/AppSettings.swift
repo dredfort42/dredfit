@@ -1,7 +1,4 @@
 //
-//  AppSettings.swift
-//  Dredfit
-//
 //  The user's own choices, stored beside the engine state and the journal
 //  in the same file. Split out of AppStore.swift, which had grown to within
 //  fifty lines of the lint's hard ceiling; the type is unchanged.

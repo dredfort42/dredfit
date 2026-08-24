@@ -1,7 +1,4 @@
 //
-//  DredfitUITests.swift
-//  DredfitUITests
-//
 //  Run on the English locale with clean state (--uitest-reset), except the
 //  persistence test.
 //

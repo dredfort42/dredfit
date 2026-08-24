@@ -1,7 +1,4 @@
 //
-//  HandlesUITests.swift
-//  DredfitUITests
-//
 //  v2.26 (spec §37.4-§37.5): the athlete's handles, end to end.
 //
 //  This file replaces DiscomfortUITests, which walked "Something hurt" through

@@ -1,7 +1,4 @@
 //
-//  FeedbackView.swift
-//  Dredfit
-//
 //  One tap to rate the workout. The rating applies to all non-adjusted,
 //  non-skipped exercises; an exercise's own facts override it for theirs.
 //

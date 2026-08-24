@@ -1,7 +1,4 @@
 //
-//  FlowChrome.swift
-//  Dredfit
-//
 //  The small pieces every timed block of the workout flow shares: the big
 //  rolling countdown number, the full-width outline escape button, and the
 //  "ⓘ technique" affordance. One look, defined once — the warm-up, rest

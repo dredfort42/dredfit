@@ -1,5 +1,4 @@
 //
-//  PositionAssertions.swift
 //  DredfitCoreTests
 //
 //  v2.22 (spec §33): growth moves by SUB-STEPS, so "grew by one" is a claim

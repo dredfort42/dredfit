@@ -1,7 +1,4 @@
 //
-//  GetReady.swift
-//  Dredfit
-//
 //  The transition before every guided position (issue #52). Ten seconds is
 //  the base since v2.26 (spec §37.7a); a position that has to be walked to or
 //  got down into carries a supplement on top (issue #83). Neither number is a

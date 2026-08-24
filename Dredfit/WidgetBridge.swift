@@ -1,7 +1,4 @@
 //
-//  WidgetBridge.swift
-//  Dredfit
-//
 //  After every persisted change the app rewrites the two-week snapshot and
 //  pokes WidgetKit; the widget never computes rest days itself. Without the
 //  entitlement (or in unit tests) everything degrades silently.

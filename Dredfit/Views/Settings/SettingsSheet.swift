@@ -1,7 +1,4 @@
 //
-//  SettingsSheet.swift
-//  Dredfit
-//
 //  Rest days, equipment, sounds, a reminder, Apple Health, backup.
 //
 

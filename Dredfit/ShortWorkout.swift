@@ -1,7 +1,4 @@
 //
-//  ShortWorkout.swift
-//  Dredfit
-//
 //  The short workout (issue #27): three of the session's six exercises are
 //  performed, the rest go to the engine as honest skips.
 //

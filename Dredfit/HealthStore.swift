@@ -1,7 +1,4 @@
 //
-//  HealthStore.swift
-//  Dredfit
-//
 //  Write-only. Nothing is ever read from Health and nothing leaves the
 //  device — App Privacy stays an honest "Data Not Collected".
 //

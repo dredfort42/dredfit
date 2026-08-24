@@ -1,5 +1,4 @@
 //
-//  EngineTests.swift
 //  Engine invariants (port of the reference verify2.js checks).
 //
 

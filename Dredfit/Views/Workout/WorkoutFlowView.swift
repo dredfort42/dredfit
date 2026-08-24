@@ -1,7 +1,4 @@
 //
-//  WorkoutFlowView.swift
-//  Dredfit
-//
 //  warm-up > work > rest > … > cool-down > feedback. Every countdown is
 //  wall-clock based (an end Date, not a tick count) so locking the phone
 //  loses nothing; the screen stays awake for the whole session.

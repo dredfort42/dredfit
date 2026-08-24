@@ -1,7 +1,4 @@
 //
-//  ShortWorkoutTests.swift
-//  DredfitTests
-//
 //  The short workout's selection rule (issue #27). The rule is a pure
 //  function of (session, counter, levels), so the tests are exhaustive
 //  rather than illustrative: the coverage property — every movement trained

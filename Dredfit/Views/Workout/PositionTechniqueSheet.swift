@@ -1,7 +1,4 @@
 //
-//  PositionTechniqueSheet.swift
-//  Dredfit
-//
 //  The reduced technique sheet for warm-up and cool-down positions: name,
 //  block capsule, 2–3 steps. The flow freezes the countdown while it is open.
 //

@@ -1,7 +1,4 @@
 //
-//  WorkoutDriver.swift
-//  DredfitUITests
-//
 //  The one way the UI tests drive a workout to the rating screen. Two copies
 //  of this walk would drift, and the last time it drifted it cost the nightly
 //  six red runs (I-5).

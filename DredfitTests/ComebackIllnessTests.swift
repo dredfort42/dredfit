@@ -1,7 +1,4 @@
 //
-//  ComebackIllnessTests.swift
-//  DredfitTests
-//
 //  The app half of the v2.12 comeback wave (issues #127, #128): the accept
 //  guard, the sighted decline path and the numbered preview, as the user meets
 //  them through AppStore. The "I was sick" lens the file is half-named after

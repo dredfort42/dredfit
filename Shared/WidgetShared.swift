@@ -1,7 +1,4 @@
 //
-//  WidgetShared.swift
-//  Dredfit (app + DredfitWidgets)
-//
 //  Compiles into DredfitTests too. Keep the Live Activity contract out of
 //  here (see ActivityShared.swift): a type twin in the test module is a
 //  compile error the first time a test hands it to app code.

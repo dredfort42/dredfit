@@ -1,7 +1,4 @@
 //
-//  Breaks.swift
-//  DredfitCore
-//
 //  Time enters the engine here, and only here (issue #98, spec §7). The three
 //  functions below are the whole of the model's date awareness, and two of
 //  them read a single number — the gap since the last workout, from seven days

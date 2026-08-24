@@ -1,7 +1,4 @@
 //
-//  Engine.swift
-//  DredfitCore
-//
 //  Port of the reference adaptive_engine.js. Behavior is verified by golden
 //  tests (Fixtures/golden.json) generated from that reference — any
 //  divergence is a port bug.

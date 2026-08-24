@@ -1,7 +1,4 @@
 //
-//  AppStore+Comeback.swift
-//  Dredfit
-//
 //  The read-only companions of the comeback card (v2.12, issue #127): what
 //  the two offers actually are in numbers, and what accepting would subtract
 //  now. Nothing here mutates state — the mutation (acceptComeback) stays in

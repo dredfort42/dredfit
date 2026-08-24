@@ -1,7 +1,4 @@
 //
-//  AppStore+Signals.swift
-//  Dredfit
-//
 //  Quiet safety signals derived from the journal (issues #100, #98): a run of
 //  training days, and the movement the journal keeps finding under an unnamed
 //  "tough". Nothing here is persisted — the same journal always produces the

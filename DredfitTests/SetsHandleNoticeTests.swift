@@ -1,7 +1,4 @@
 //
-//  SetsHandleNoticeTests.swift
-//  DredfitTests
-//
 //  v2.25 (spec §36.2, §36.5): what the app SAYS about the sets handle.
 //  The handle moves sets and never the level, so a card can go from
 //  `4×4 /side` to `1×4 /side` with nothing else on screen having changed —

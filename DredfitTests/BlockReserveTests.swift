@@ -1,7 +1,4 @@
 //
-//  BlockReserveTests.swift
-//  DredfitTests
-//
 //  v2.26 (spec §37.7a): the warm-up and cool-down reserve, and the arithmetic
 //  that makes the transition length an ENGINE constraint rather than an app
 //  preference.

@@ -1,7 +1,4 @@
 //
-//  Session.swift
-//  DredfitCore
-//
 //  What a workout looks like on the day: the session value types, the
 //  rotation anchor and the duration estimate. Split out of Engine.swift when
 //  that file outgrew the lint's ceiling; the code is unchanged.

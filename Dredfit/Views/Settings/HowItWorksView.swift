@@ -1,7 +1,4 @@
 //
-//  HowItWorksView.swift
-//  Dredfit
-//
 //  Every number here is a fact from DredfitCore, not a marketing round-up:
 //  ±1/+2 are EngineConfig.delta*, three shortfalls and −3 are failsToDeload
 //  and deloadDrop, "five times in eight workouts" falls out of 8 rotating

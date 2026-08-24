@@ -1,7 +1,4 @@
 //
-//  NextWorkoutSheet.swift
-//  Dredfit
-//
 //  Deliberately WITHOUT a Start button — one workout per day.
 //
 

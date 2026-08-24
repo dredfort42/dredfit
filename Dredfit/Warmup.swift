@@ -1,7 +1,4 @@
 //
-//  Warmup.swift
-//  Dredfit
-//
 //  The warm-up block as data: six universal mobility moves, 30 s each.
 //  No levels, no journal entry, no engine involvement.
 //

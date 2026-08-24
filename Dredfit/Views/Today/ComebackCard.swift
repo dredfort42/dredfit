@@ -1,7 +1,4 @@
 //
-//  ComebackCard.swift
-//  Dredfit
-//
 //  Shown on Today after a break of two weeks or more. The engine is
 //  event-driven: without this an old plan waits at the old level.
 //

@@ -1,7 +1,4 @@
 //
-//  WorkoutFlowView+Warmup.swift
-//  Dredfit
-//
 //  The warm-up block of the workout flow, split out of WorkoutFlowView the
 //  way the cool-down already was — one file per guided block, and this one
 //  stays clear of the lint's ceiling. The code moved unchanged.

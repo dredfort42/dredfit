@@ -1,7 +1,4 @@
 //
-//  TodayProvider.swift
-//  DredfitWidgets
-//
 //  Split out of TodayStatusWidget.swift so the unit tests can compile the
 //  mapping without the views' palette.
 //

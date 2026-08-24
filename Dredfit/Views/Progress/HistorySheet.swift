@@ -1,7 +1,4 @@
 //
-//  HistorySheet.swift
-//  Dredfit
-//
 //  A completed workout viewed from the calendar.
 //
 

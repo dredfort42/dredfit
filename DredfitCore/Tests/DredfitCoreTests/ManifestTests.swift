@@ -1,5 +1,4 @@
 //
-//  ManifestTests.swift
 //  DredfitCoreTests
 //
 //  Provenance for the golden fixture (issue #104). The reference contour

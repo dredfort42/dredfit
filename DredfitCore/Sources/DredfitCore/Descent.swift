@@ -1,7 +1,4 @@
 //
-//  Descent.swift
-//  DredfitCore
-//
 //  Where a session RATING takes a pattern, and what the failure streak does
 //  with it. Split out of Engine.swift in v2.23 (spec §34), when the rating
 //  path stopped being a one-line clamp and became a rule of its own.

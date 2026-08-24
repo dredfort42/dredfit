@@ -1,7 +1,4 @@
 //
-//  ExerciseRow.swift
-//  Dredfit
-//
 //  One line of a plan: the movement, its number, and — since v2.25 — the one
 //  sentence that says why the number is what it is. Shared by Today and the
 //  next-workout sheet, so both draw the same card and cannot drift into two

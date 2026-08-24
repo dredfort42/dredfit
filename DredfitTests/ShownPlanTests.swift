@@ -1,7 +1,4 @@
 //
-//  ShownPlanTests.swift
-//  DredfitTests
-//
 //  v2.25 (spec §36.8): the last accepted gap of the wave. The engine wrote
 //  its memory of "what was on screen" only from a COMPLETED session, so a
 //  plan a person looked at and did not train was invisible to it — and the

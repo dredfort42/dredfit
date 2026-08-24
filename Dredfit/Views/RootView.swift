@@ -1,7 +1,4 @@
 //
-//  RootView.swift
-//  Dredfit
-//
 //  The settings icon overlays the TabView so it is reachable from any tab,
 //  not owned by one screen.
 //

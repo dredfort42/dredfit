@@ -1,7 +1,4 @@
 //
-//  Level.swift
-//  DredfitCore
-//
 //  The level encoding and everything derived from it: decoding a level into a
 //  plan, the landings (unload, eased, rep continuity) and the inversion of a
 //  reported fact. Split out of Engine.swift when that file outgrew the lint's

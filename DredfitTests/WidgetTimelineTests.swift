@@ -1,7 +1,4 @@
 //
-//  WidgetTimelineTests.swift
-//  DredfitTests
-//
 //  The widget side of the snapshot contract. The provider's mapping and the
 //  views' word choices compile straight into this test bundle (see the
 //  DredfitTests membership exceptions on the DredfitWidgets and Shared

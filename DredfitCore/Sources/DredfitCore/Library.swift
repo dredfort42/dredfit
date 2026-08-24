@@ -1,7 +1,4 @@
 //
-//  Library.swift
-//  DredfitCore
-//
 //  Exercise catalog: 10 patterns × 4 tiers = 40 positions.
 //  Base language English, translation Russian (Resources/Localizable.xcstrings).
 //  Technique: 3 steps + 2 common mistakes. Mirrors LIBRARY/TECHNIQUE in the

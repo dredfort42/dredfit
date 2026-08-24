@@ -1,7 +1,4 @@
 //
-//  ReminderSoundFile.swift
-//  Dredfit
-//
 //  The reminder's branded sound (#84, stage C). Notification sounds must be
 //  real files in Library/Sounds — the one place the "generated, not shipped"
 //  rule meets the filesystem. The WAV is still generated (SignalTone),

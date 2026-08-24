@@ -1,8 +1,3 @@
-//
-//  DredfitApp.swift
-//  Dredfit
-//
-
 import SwiftUI
 
 @main

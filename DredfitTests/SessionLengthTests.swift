@@ -1,7 +1,4 @@
 //
-//  SessionLengthTests.swift
-//  DredfitTests
-//
 //  v2.26 (spec §37.5, §37.7): how long a session takes, and what the person can
 //  do about it.
 //

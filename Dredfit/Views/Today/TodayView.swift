@@ -1,7 +1,4 @@
 //
-//  TodayView.swift
-//  Dredfit
-//
 //  Three states: plan + Start, rest day, or completed with a preview of the
 //  next workout under its honest date.
 //

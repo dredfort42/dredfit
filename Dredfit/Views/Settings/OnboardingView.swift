@@ -1,7 +1,4 @@
 //
-//  OnboardingView.swift
-//  Dredfit
-//
 //  First-run explainer: three cards. The thermostat idea is the one thing a
 //  new user cannot infer from the UI.
 //

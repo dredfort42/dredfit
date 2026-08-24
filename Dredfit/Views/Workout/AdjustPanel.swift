@@ -1,7 +1,4 @@
 //
-//  AdjustPanel.swift
-//  Dredfit
-//
 //  The inline actual adjuster: −/value/+ and OK.
 //
 

@@ -1,7 +1,4 @@
 //
-//  Cooldown.swift
-//  Dredfit
-//
 //  Six positions × 30 s, materialising the 3 minutes `cooldownMin` has
 //  reserved since 1.0 — so no estimate anywhere changes. Composition is
 //  deterministic from what was actually performed.

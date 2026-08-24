@@ -1,7 +1,4 @@
 //
-//  CadenceTests.swift
-//  DredfitTests
-//
 //  v2.13 (spec §23 / #134, #147): the trainee's own rhythm is not a break,
 //  and the training day changes at 4 a.m., not midnight.
 //

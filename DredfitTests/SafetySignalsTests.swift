@@ -1,7 +1,4 @@
 //
-//  SafetySignalsTests.swift
-//  DredfitTests
-//
 //  The quiet signals of issues #100 and #98: the per-movement pain trend
 //  and the run of consecutive training days. Both are derived from the
 //  journal — nothing is persisted, so the same journal must always produce

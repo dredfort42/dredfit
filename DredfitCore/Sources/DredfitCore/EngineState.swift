@@ -1,7 +1,4 @@
 //
-//  EngineState.swift
-//  DredfitCore
-//
 //  The engine's state: the fields, the tolerant decode of files written by
 //  older builds, and the sanitizer that heals garbage on the way in (spec
 //  §17.4/§24.1). Split out of Engine.swift when that file outgrew the lint's

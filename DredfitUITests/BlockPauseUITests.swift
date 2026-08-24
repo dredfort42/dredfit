@@ -1,7 +1,4 @@
 //
-//  BlockPauseUITests.swift
-//  DredfitUITests
-//
 //  The pause of the guided blocks (issue #61). The warm-up cases run at the
 //  real 30 s of a move on purpose — a countdown collapsed to a second cannot
 //  be shown to stand still. Only the cool-down case takes --uitest-fast,

@@ -1,7 +1,4 @@
 //
-//  AppStore+Cadence.swift
-//  Dredfit
-//
 //  The trainee's own rhythm and the training day (v2.13, spec §23 / #134, #147).
 //  A steady cadence is not a break: when a new gap lands within ±1 day of any
 //  of the last three gaps between workouts, the silent decay and the comeback

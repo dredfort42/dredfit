@@ -1,7 +1,4 @@
 //
-//  SubStep.swift
-//  DredfitCore
-//
 //  v2.22 (spec §33): the sub-step. One rung of a level used to add its dose to
 //  ALL the sets at once — a median of +11 % more work per growth event, up to
 //  +25 % on reps. A sub-step splits that rung across the sets: growth takes one

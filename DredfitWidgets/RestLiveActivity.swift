@@ -1,7 +1,4 @@
 //
-//  RestLiveActivity.swift
-//  DredfitWidgets
-//
 //  During rest the system ticks the countdown itself via
 //  Text(timerInterval:) — no updates needed from the app. All strings
 //  arrive pre-localized in the content state.

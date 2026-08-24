@@ -1,5 +1,4 @@
 //
-//  EdgeCaseTests.swift
 //  Engine edge cases not covered by invariants and golden fixtures.
 //
 

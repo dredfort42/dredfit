@@ -1,7 +1,4 @@
 //
-//  AppStore+Handles.swift
-//  Dredfit
-//
 //  v2.26 (spec §37.4-§37.5): the athlete's handles.
 //
 //  The wave removes two mechanisms that decided FOR the person — the pain

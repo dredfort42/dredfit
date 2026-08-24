@@ -1,7 +1,4 @@
 //
-//  WeakLinkPromptTests.swift
-//  DredfitTests
-//
 //  v2.15 (spec §26.3, #135): the movement the trainee never names. Someone who
 //  only knows the one-tap gesture rates "tough" whenever the pushes come up;
 //  because the pushes are in most sessions, the model reads that as "the whole

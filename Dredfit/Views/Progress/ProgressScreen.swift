@@ -1,7 +1,4 @@
 //
-//  ProgressScreen.swift
-//  Dredfit
-//
 //  One data color (accent) — one metric in several projections.
 //
 
