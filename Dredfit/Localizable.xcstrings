@@ -294,129 +294,6 @@
         }
       }
     },
-    "%@ has hurt both of its recent appearances — a smaller number takes the load down." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ hat bei den letzten beiden Malen wehgetan — eine kleinere Zahl nimmt Last raus."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ ha dolido en sus dos últimas apariciones: un número menor baja la carga."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ a fait mal lors de ses deux dernières apparitions — un nombre plus petit allège la charge."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ ha fatto male nelle ultime due apparizioni — un numero più piccolo riduce il carico."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ doeu nas duas últimas aparições — um número menor reduz a carga."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ болело оба последних появления — меньшее число снизит нагрузку."
-          }
-        }
-      }
-    },
-    "%@ keeps hurting, appearance after appearance. Pain that stays is a reason to see a specialist." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ tut Mal für Mal weh. Schmerz, der bleibt, ist ein Grund, sich einem Spezialisten zu zeigen."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ sigue doliendo aparición tras aparición. Un dolor que persiste es motivo para consultar a un especialista."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ fait mal apparition après apparition. Une douleur qui persiste est une raison de consulter un spécialiste."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ fa male apparizione dopo apparizione. Un dolore che persiste è un motivo per consultare uno specialista."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ continua doendo aparição após aparição. Dor que persiste é motivo para procurar um especialista."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ болит появление за появлением. Сохраняющаяся боль — повод показаться специалисту."
-          }
-        }
-      }
-    },
-    "%@, hurt — resting" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, tat weh – Erholung"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, dolió — en reposo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, a fait mal — au repos"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, ha fatto male – a riposo"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, doeu — em repouso"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, болело — на отдыхе"
-          }
-        }
-      }
-    },
     "%@, not finished" : {
       "localizations" : {
         "de" : {
@@ -459,47 +336,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@, не завершено"
-          }
-        }
-      }
-    },
-    "%@, not getting harder — %@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, wird nicht schwerer – %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, no se pone más difícil — %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, ne devient pas plus difficile — %@"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, non diventa più difficile – %@"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, não fica mais difícil — %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, не усложняется — %@"
           }
         }
       }
@@ -1107,149 +943,6 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "%lld месяца с первой тренировки"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "%lld more times" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "noch %lld Mal"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "noch %lld Mal"
-                }
-              }
-            }
-          }
-        },
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld more time"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld more times"
-                }
-              }
-            }
-          }
-        },
-        "es" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld vez más"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld veces más"
-                }
-              }
-            }
-          }
-        },
-        "fr" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "encore %lld fois"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "encore %lld fois"
-                }
-              }
-            }
-          }
-        },
-        "it" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "ancora %lld volta"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "ancora %lld volte"
-                }
-              }
-            }
-          }
-        },
-        "pt-BR" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "mais %lld vez"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "mais %lld vezes"
-                }
-              }
-            }
-          }
-        },
-        "ru" : {
-          "variations" : {
-            "plural" : {
-              "few" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "ещё %lld раза"
-                }
-              },
-              "many" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "ещё %lld раз"
-                }
-              },
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "ещё %lld раз"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "ещё %lld раза"
                 }
               }
             }
@@ -3049,47 +2742,6 @@
         }
       }
     },
-    "Adjust by exercise" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pro Übung anpassen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajustar por ejercicio"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajuster par exercice"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modifica per esercizio"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajustar por exercício"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Уточнить по упражнениям"
-          }
-        }
-      }
-    },
     "After two weeks away the plan meets you a couple of steps lower — further down the longer the break. Nothing is lost: the levels climb back quickly, and coming back is the only thing that matters." : {
       "localizations" : {
         "de" : {
@@ -3288,47 +2940,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Резервная копия"
-          }
-        }
-      }
-    },
-    "Been sick? Take two gentler weeks" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Krank gewesen? Zwei sanftere Wochen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Una enfermedad? Dos semanas más suaves"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Malade récemment ? Deux semaines plus douces"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Una malattia? Due settimane più leggere"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Uma doença? Duas semanas mais leves"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Болели? Две недели полегче"
           }
         }
       }
@@ -5784,47 +5395,6 @@
         }
       }
     },
-    "Discomfort" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Beschwerden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Molestia"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Douleur"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dolore"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Desconforto"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Болело"
-          }
-        }
-      }
-    },
     "Do the plan, and leave your maximum for the last set." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6602,53 +6172,6 @@
         }
       }
     },
-    "Fewer sets for now — you said this one hurt. They come back once it passes." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vorerst weniger Sätze — hier hat es wehgetan. Sie kommen zurück, wenn es vorbei ist."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fewer sets for now — you said this one hurt. They come back once it passes."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Por ahora, menos series: aquí te dolió. Vuelven cuando pase."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Moins de séries pour l’instant — ça a fait mal ici. Elles reviennent quand ce sera passé."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Per ora meno serie — qui faceva male. Torneranno quando sarà passato."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menos séries por enquanto — aqui doeu. Elas voltam quando passar."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Пока даем меньше подходов — здесь болело. Вернем, когда пройдет."
-          }
-        }
-      }
-    },
     "Finish now" : {
       "localizations" : {
         "de" : {
@@ -6979,47 +6502,6 @@
         }
       }
     },
-    "held" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "gehalten"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "mantenido"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "niveau gardé"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "livello tenuto"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "mantido"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "удержано"
-          }
-        }
-      }
-    },
     "Highlighted days are rest days" : {
       "localizations" : {
         "de" : {
@@ -7302,47 +6784,6 @@
         }
       }
     },
-    "I was sick — two gentler weeks" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nach einer Krankheit — zwei sanftere Wochen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tras una enfermedad: dos semanas más suaves"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Après une maladie — deux semaines plus douces"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dopo una malattia — due settimane più leggere"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Depois de uma doença — duas semanas mais leves"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "После болезни — две недели полегче"
-          }
-        }
-      }
-    },
     "I'm ready" : {
       "comment" : "Starts the position at once, skipping the rest of the transition. Translated by sense: the neutral verb every language already uses for Start, since “ready” takes a gendered adjective in ru/es/pt-BR.",
       "localizations" : {
@@ -7547,53 +6988,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Подстраивается, как термостат."
-          }
-        }
-      }
-    },
-    "It hurts" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Es tut weh"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "It hurts"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Duele"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ça fait mal"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fa male"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dói"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Болит"
           }
         }
       }
@@ -9245,53 +8639,6 @@
         }
       }
     },
-    "No limit" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ohne Limit"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No limit"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sin límite"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sans limite"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Senza limite"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sem limite"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Без ограничения"
-          }
-        }
-      }
-    },
     "No questions about your goal, your level or how much time you have. Open the app and train — the first workout is already waiting. About 33 minutes, no equipment." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9369,53 +8716,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "не завершено"
-          }
-        }
-      }
-    },
-    "Not getting harder" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ohne Steigerung"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Not getting harder"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sin aumentar la dificultad"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sans augmenter la difficulté"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Senza aumentare la difficoltà"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sem aumentar a dificuldade"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Без усложнения"
           }
         }
       }
@@ -10117,47 +9417,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "План, затем твой результат, затем следующий план"
-          }
-        }
-      }
-    },
-    "plan: %@" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Plan: %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "plan: %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "plan : %@"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "piano: %@"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "plano: %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "план: %@"
           }
         }
       }
@@ -10879,149 +10138,6 @@
         }
       }
     },
-    "Recovery: %lld gentler workouts left" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Erholung: noch %lld sanfteres Workout"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Erholung: noch %lld sanftere Workouts"
-                }
-              }
-            }
-          }
-        },
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Recovery: %lld gentler workout left"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Recovery: %lld gentler workouts left"
-                }
-              }
-            }
-          }
-        },
-        "es" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Recuperación: queda %lld entrenamiento más suave"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Recuperación: quedan %lld entrenamientos más suaves"
-                }
-              }
-            }
-          }
-        },
-        "fr" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Récupération : encore %lld séance plus douce"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Récupération : encore %lld séances plus douces"
-                }
-              }
-            }
-          }
-        },
-        "it" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Recupero: resta %lld allenamento più leggero"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Recupero: restano %lld allenamenti più leggeri"
-                }
-              }
-            }
-          }
-        },
-        "pt-BR" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Recuperação: falta %lld treino mais leve"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Recuperação: faltam %lld treinos mais leves"
-                }
-              }
-            }
-          }
-        },
-        "ru" : {
-          "variations" : {
-            "plural" : {
-              "few" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Восстановление: ещё %lld тренировки полегче"
-                }
-              },
-              "many" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Восстановление: ещё %lld тренировок полегче"
-                }
-              },
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Восстановление: ещё %lld тренировка полегче"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Восстановление: ещё %lld тренировки полегче"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "Reminder" : {
       "localizations" : {
         "de" : {
@@ -11418,47 +10534,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Дни отдыха"
-          }
-        }
-      }
-    },
-    "resting" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erholung"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "en reposo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "au repos"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "a riposo"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "em repouso"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "на отдыхе"
           }
         }
       }
@@ -12213,53 +11288,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Сегодня покороче · %lld → %lld мин"
-          }
-        }
-      }
-    },
-    "Shorter workouts drop sets, never movements — down to two per exercise. Your levels do not change." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kürzere Trainings nehmen Sätze weg, nie Bewegungen – bis auf zwei pro Übung. Deine Level ändern sich dabei nicht."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Shorter workouts drop sets, never movements — down to two per exercise. Your levels do not change."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los entrenamientos más cortos quitan series, nunca movimientos — hasta dos por ejercicio. Tus niveles no cambian."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Une séance plus courte enlève des séries, jamais des mouvements — jusqu’à deux par exercice. Tes niveaux ne bougent pas."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gli allenamenti più corti tolgono serie, mai movimenti — fino a due per esercizio. I tuoi livelli non cambiano."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Treinos mais curtos tiram séries, nunca movimentos — até duas por exercício. Seus níveis não mudam."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Короткая тренировка снимает подходы, но не движения — до двух на упражнение. Уровни при этом не меняются."
           }
         }
       }
@@ -13376,47 +12404,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Уровень"
-          }
-        }
-      }
-    },
-    "The movement stays in the plan at this level and stops getting harder for a while." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die Bewegung bleibt im Plan auf diesem Level und wird eine Weile nicht schwerer."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El movimiento sigue en el plan en este nivel y deja de ponerse más difícil por un tiempo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le mouvement reste au programme à ce niveau et cesse de devenir plus difficile pendant un moment."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il movimento resta nel piano a questo livello e per un po’ non diventa più difficile."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O movimento continua no plano neste nível e para de ficar mais difícil por um tempo."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Движение остается в плане на этом уровне и какое-то время не становится тяжелее."
           }
         }
       }
@@ -15565,53 +14552,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Тренировки появляются в приложении «Здоровье». Ничего не читается и никуда не передается."
-          }
-        }
-      }
-    },
-    "Workouts now fit into 45 minutes by default — you can change that in Settings." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ein Training passt jetzt standardmäßig in 45 Minuten – ändern kannst du das in den Einstellungen."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Workouts now fit into 45 minutes by default — you can change that in Settings."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ahora el entrenamiento cabe en 45 minutos por defecto — puedes cambiarlo en los ajustes."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Une séance tient maintenant en 45 minutes par défaut — tu peux changer ça dans les réglages."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ora l’allenamento sta in 45 minuti per impostazione predefinita — puoi cambiarlo nelle impostazioni."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Agora o treino cabe em 45 minutos por padrão — dá para mudar nos ajustes."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Тренировка теперь по умолчанию укладывается в 45 минут — изменить можно в настройках."
           }
         }
       }
