@@ -179,17 +179,6 @@ final class EngineV25Tests: XCTestCase {
         }
     }
 
-    // MARK: - Discomfort and the freeze
-
-    private func report(_ state: EngineState, _ result: FeedbackResult,
-                        skipped: Set<Pattern> = [],
-                        overrides: [Pattern: Int] = [:]) -> EngineState {
-        let base = result == .less ? state.underLessRun : state
-        return Engine.applyFeedback(state: base, session: Engine.generateSession(state),
-                                    result: result, overrides: overrides,
-                                    skipped: skipped)
-    }
-
     // SNIPPED v2.26 (§37.0): eleven tests of §15.2 — the discomfort input and
     // the freeze it armed. `applyFeedback` has no `discomfort` argument and the
     // state has no `frozen`, so none of them has an input any more.

@@ -120,18 +120,6 @@ public enum Level {
             EngineConfig.stepsPerTier - 1)
     }
 
-    /// v2.12 (spec §22.4): the "I was sick" lens — the same level seen one
-    /// tier easier. Tier 1 stays itself; the set bands are tier 4 by encoding
-    /// and ease into tier 3 on base sets. Stored levels never change — this
-    /// builds the plan's VIEW.
-    public static func eased(_ level: Int) -> Int {
-        let s = min(max(level, 0), EngineConfig.levelMax)
-        let d = decode(s)
-        if d.tier <= 1 { return s }
-        let t = d.tier - 1
-        return (t - 1) * EngineConfig.stepsPerTier + rung(tier: t, reps: d.reps)
-    }
-
     /// v2.14 (spec §25.1): the encoding step of a unit — one rep, or as many
     /// seconds as ONE rung costs. The window of "the plan was met" is one step
     /// wide, so for reps it collapses to the old equality.

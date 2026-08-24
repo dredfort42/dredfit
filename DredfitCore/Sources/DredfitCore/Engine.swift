@@ -606,7 +606,6 @@ public enum Engine {
             let oldSub = state.sub[p] ?? 0
             let oldCut = state.cutOf(p)
             let entry = Position(level: oldL, sub: oldSub, cut: oldCut)
-            let oldOrdinal = Level.posOrd(entry)
             // The hold on a returning set: while it ticks, growth goes into
             // the dose (§36.3, round 6 fix 1).
             let setsBackOk = (state.setsHold[p] ?? 0) == 0
