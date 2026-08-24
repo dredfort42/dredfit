@@ -741,6 +741,26 @@ change lands by time under load), §43.10 (an old save file opens unchanged) and
 | 44.14 | "How it works", section 8 | Titled **"Too much today"**, and it describes the two handles. If it still says "Something hurt", the screen is older than the app |
 | 44.15 | The announced duration of workout 1 on a fresh install | **≈ 34 min** — one minute more than v2.25, which is the longer run-in of §44.8 and the only number this wave moved on purpose. Drift here blocks a release: it is the engine's own arithmetic, read from the reference, not copied off the screen |
 
+### 45. Reachable, readable, and spoken with a scale (design re-review R16–R20)
+
+No engine in this one — five app-layer defects the design re-review found,
+four of which a test could not have caught because they are about *reaching*
+and *hearing* rather than about what the plan says.
+
+| # | Check | Expected |
+|---|---|---|
+| 45.1 | Progress, a history with a break of two weeks or more | The **"N days"** label on the grey band is legible against it, in **light, dark and both Increased Contrast variants**. The arithmetic, against the band's own fill (hairline at 55 % over bg): **4.55 : 1** light, **5.99** light HC, **5.94** dark, **6.54** dark HC. Before the wave it was 2.16 and 2.57 — below the 4.5 : 1 floor the wave that drew the band set for itself |
+| 45.2 | The same label, at the largest Dynamic Type sizes | Grows with the setting — it is the one chart label that is not a frozen axis mark. A band too narrow to hold it draws with **no label at all** rather than a label lying across the line it explains. The width fractions are 0.155 and 0.33, a tenth above what they were, because the label went from 10 pt to 11 |
+| 45.3 | Today with a **"new variation"** badge, then switch light ↔ dark in Control Centre | The pill **repaints in the same beat as the rest of the screen**. It is a bitmap, so this is the one thing on Today that can lag a theme change; a light pill on a dark card means the cache lost its appearance key. Same check with Increased Contrast |
+| 45.4 | Every screen of the workout flow: **Exit**, **technique** | Answer to a tap anywhere in a **44 pt** band, not just on the glyphs. Tap deliberately high and low. The header grows about 26 pt for it and the work screen's number sits about 20 pt lower — the exercise name and the primary button do not move |
+| 45.5 | Today: **Easier**, **Fewer sets**, **More sets**, and the two session handles | The same 44 pt. A plan row is about 29.5 pt taller for it, so an iPhone SE shows three of six exercises where it showed four — the list already scrolled at six, and this is the accepted price |
+| 45.6 | Today: tap the **empty strip of a plan row**, beside a handle | **Nothing changes.** Not the announced duration, not the number of handles. This was a real defect: one such tap took a set off and the plan went 35 min to 33. Tapping the card itself still opens the technique sheet |
+| 45.7 | Calendar, any month | `buttons["day-15"]` matches **exactly one** element. Cells of the neighbouring months carry no identifier at all, so they cannot answer to a number that belongs to the month on screen |
+| 45.8 | VoiceOver on Progress | A row reads **"Squat, level 18 of 47, selected"** — the number with the scale the bar draws it against. Selected, the variation and the next milestone follow; the level is not said twice |
+| 45.9 | VoiceOver on the work screen | The big number and its unit arrive as **one element**: "8 reps per side", not "8" and then "reps per side". During a hold the same element **counts down** rather than freezing at the number the hold started on |
+| 45.10 | Dynamic Type XL and the accessibility sizes: Today, work, rest, Progress | Nothing clipped. In particular the "technique" label must not break the column it sits in, and Today's handles must still fit their row |
+
+
 ---
 
 ## Engine gates before a release
