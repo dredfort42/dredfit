@@ -16,7 +16,7 @@ import Foundation
 @MainActor
 struct TodayEntry: TimelineEntry {
     let date: Date
-    let status: WidgetSnapshot.Day.Status?
+    let status: WidgetSnapshot.DayStatus?
     let sessionNumber: Int?
     let week: [WidgetSnapshot.Day]
     let totalLevel: Int?

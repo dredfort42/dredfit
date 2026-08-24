@@ -211,7 +211,7 @@ final class EngineV29Tests: XCTestCase {
         for k in 0..<48 {
             let session = Engine.generateSession(state)
             state = Engine.applyFeedback(state: state, session: session,
-                                         result: k % 2 == 0 ? .more : .less)
+                                         result: k.isMultiple(of: 2) ? .more : .less)
         }
         // v2.22 (spec §33): "left zero" is measured on the POSITION — on the
         // lowest sub-steps the level is still zero while the fixed point is

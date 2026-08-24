@@ -45,20 +45,13 @@ struct ComebackCard: View {
             HStack(spacing: 10) {
                 Button(action: onAccept) {
                     Text("Start easier")
-                        .dredfitFont(15.5, weight: .semibold)
-                        .foregroundStyle(Theme.bg)
-                        .frame(maxWidth: .infinity, minHeight: 46)
-                        .background(Theme.ink, in: RoundedRectangle(cornerRadius: 14))
+                        .pairedPrimaryLabel()
                 }
                 .accessibilityIdentifier("comeback-accept")
 
                 Button(action: onDecline) {
                     Text("Leave as it was")
-                        .dredfitFont(15.5, weight: .medium)
-                        .foregroundStyle(Theme.ink2)
-                        .frame(maxWidth: .infinity, minHeight: 46)
-                        .background(RoundedRectangle(cornerRadius: 14)
-                            .strokeBorder(Theme.hairline, lineWidth: 1.5))
+                        .pairedSecondaryLabel()
                 }
                 .accessibilityIdentifier("comeback-decline")
             }

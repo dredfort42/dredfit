@@ -35,7 +35,7 @@ final class WidgetTimelineTests: XCTestCase {
         Calendar.current.date(byAdding: .day, value: offset, to: monday)!
     }
 
-    private func day(_ offset: Int, _ status: WidgetSnapshot.Day.Status,
+    private func day(_ offset: Int, _ status: WidgetSnapshot.DayStatus,
                      label: String? = nil) -> WidgetSnapshot.Day {
         WidgetSnapshot.Day(date: date(offset), status: status,
                            sessionNumber: nil, nextLabel: label)
@@ -159,7 +159,7 @@ final class WidgetTimelineTests: XCTestCase {
 
     // MARK: - The views' words
 
-    private func entry(_ status: WidgetSnapshot.Day.Status?,
+    private func entry(_ status: WidgetSnapshot.DayStatus?,
                        nextLabel: String? = nil,
                        planSession: Int? = nil,
                        planMinutes: Int? = nil,

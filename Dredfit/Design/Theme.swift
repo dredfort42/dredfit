@@ -136,6 +136,42 @@ struct PrimaryButton: View {
     }
 }
 
+/// The two actions of a side-by-side pair: filled and outlined, 46 pt tall
+/// on a 14 pt radius. Deliberately smaller and squarer than `PrimaryButton`
+/// above, which is the single full-width action of a screen.
+///
+/// Applied to the Button's LABEL, not to the Button, so the call sites keep
+/// their own actions and accessibility identifiers exactly as they were.
+extension View {
+    func pairedPrimaryLabel() -> some View {
+        dredfitFont(15.5, weight: .semibold)
+            .foregroundStyle(Theme.bg)
+            .frame(maxWidth: .infinity, minHeight: 46)
+            .background(Theme.ink, in: RoundedRectangle(cornerRadius: 14))
+    }
+
+    func pairedSecondaryLabel() -> some View {
+        dredfitFont(15.5, weight: .medium)
+            .foregroundStyle(Theme.ink2)
+            .frame(maxWidth: .infinity, minHeight: 46)
+            .background(RoundedRectangle(cornerRadius: 14)
+                .strokeBorder(Theme.hairline, lineWidth: 1.5))
+    }
+}
+
+/// The date line every screen puts above the day's card: weekday, day,
+/// month. One spelling in one place, so Today, the history sheet and the
+/// calendar cannot drift apart.
+///
+/// Deliberately uncapitalised. `Kicker` uppercases whatever it is handed,
+/// and the calendar's accessibility line wants the date spelled the way the
+/// locale spells it.
+extension Date {
+    var screenDateText: String {
+        formatted(.dateTime.weekday(.wide).day().month(.wide))
+    }
+}
+
 struct Kicker: View {
     let text: String
     var body: some View {

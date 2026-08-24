@@ -28,13 +28,14 @@ struct ShareCard: View {
     /// Vertical room the headline, date and curve share.
     static let contentBudget: CGFloat = 940
 
-    /// Measured rather than guessed from a character count: the same 89
-    /// characters are four lines of English and seven of Russian.
-    static func headlineHeight(for headline: String) -> CGFloat {
+    /// The height `text` takes in the card's text column. The two callers
+    /// below differ only in font and line spacing, so the measurement — and
+    /// the column width it depends on — is stated once.
+    private static func measuredHeight(_ text: String, font: UIFont,
+                                       lineSpacing: CGFloat) -> CGFloat {
         let style = NSMutableParagraphStyle()
-        style.lineSpacing = 6
-        let font = UIFont.systemFont(ofSize: headlineSize(for: headline), weight: .heavy)
-        return (headline as NSString).boundingRect(
+        style.lineSpacing = lineSpacing
+        return (text as NSString).boundingRect(
             with: CGSize(width: size.width - 176,   // the 88 pt gutters
                          height: .greatestFiniteMagnitude),
             options: [.usesLineFragmentOrigin, .usesFontLeading],
@@ -42,19 +43,19 @@ struct ShareCard: View {
             context: nil).height
     }
 
+    /// Measured rather than guessed from a character count: the same 89
+    /// characters are four lines of English and seven of Russian.
+    static func headlineHeight(for headline: String) -> CGFloat {
+        measuredHeight(headline,
+                       font: .systemFont(ofSize: headlineSize(for: headline), weight: .heavy),
+                       lineSpacing: 6)
+    }
+
     /// Measured like the headline, so the curve budget stays honest.
     static func sublineHeight(for subline: String?) -> CGFloat {
         guard let subline else { return 0 }
-        let style = NSMutableParagraphStyle()
-        style.lineSpacing = 5
-        let font = UIFont.systemFont(ofSize: 36)
-        let height = (subline as NSString).boundingRect(
-            with: CGSize(width: size.width - 176,
-                         height: .greatestFiniteMagnitude),
-            options: [.usesLineFragmentOrigin, .usesFontLeading],
-            attributes: [.font: font, .paragraphStyle: style],
-            context: nil).height
-        return height + 26   // its own top padding
+        return measuredHeight(subline, font: .systemFont(ofSize: 36), lineSpacing: 5)
+            + 26   // its own top padding
     }
 
     /// Takes what the headline and subline leave, and gives up its place

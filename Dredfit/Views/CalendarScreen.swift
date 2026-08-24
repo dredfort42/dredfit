@@ -189,7 +189,7 @@ struct CalendarScreen: View {
     }
 
     private func accessibilityText(_ day: Day) -> String {
-        let date = day.date.formatted(.dateTime.weekday(.wide).day().month(.wide))
+        let date = day.date.screenDateText
         switch day.state {
         case .done:    return date + ", " + String(localized: "completed")
         case .planned: return date + ", " + String(localized: "planned")
@@ -260,7 +260,7 @@ struct CalendarScreen: View {
         }
         // pad the grid to a full week with days of the next month
         var tail = 1
-        while days.count % 7 != 0 {
+        while !days.count.isMultiple(of: 7) {
             let d = calendar.date(byAdding: .day, value: range.count - 1 + tail, to: first)!
             days.append(Day(date: d, number: calendar.component(.day, from: d), state: .out))
             tail += 1

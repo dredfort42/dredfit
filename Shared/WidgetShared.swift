@@ -25,10 +25,13 @@ nonisolated enum SharedStorage {
 /// Starts on the Monday of the current week, not on today: a timeline entry
 /// days out still has to find its own Monday–Sunday inside the snapshot.
 nonisolated struct WidgetSnapshot: Codable {
+    /// A sibling of `Day` rather than a member of it, so the nesting stays
+    /// one level deep. The raw values are the wire format and do not move.
+    enum DayStatus: String, Codable { case workout, done, rest, unmarked }
+
     struct Day: Codable {
-        enum Status: String, Codable { case workout, done, rest, unmarked }
         let date: Date
-        let status: Status
+        let status: DayStatus
         let sessionNumber: Int?
         /// Per day, not once per snapshot: a relative word baked at write
         /// time reads wrong on every later entry the widget renders.

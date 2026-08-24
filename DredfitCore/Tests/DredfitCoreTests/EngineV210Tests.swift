@@ -151,7 +151,7 @@ final class EngineV210Tests: XCTestCase {
         for k in 0..<96 {
             let before = Level.ordinal(state.position(.pullBar))
             state = Engine.applyFeedback(state: state, session: Engine.generateSession(state),
-                                         result: k % 2 == 0 ? .more : .less)
+                                         result: k.isMultiple(of: 2) ? .more : .less)
             let now = Level.ordinal(state.position(.pullBar))
             if now > before { rises += 1 }
             best = max(best, now)
