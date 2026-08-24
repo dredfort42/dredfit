@@ -1,7 +1,7 @@
 //
 //  DredfitCoreTests
 //
-//  Engine v2.14 (spec §25, issues #139/#140/#138): honest facts. Three ways
+// Engine (issues #139, #140, #138): honest facts. Three ways
 //  the model punished the trainee for reporting the truth, all with the same
 //  root cause — rung arithmetic done in coordinates the fact does not live in:
 //  the 5-second encoding step (#139), the sets the gate had already trimmed
@@ -37,7 +37,7 @@ final class EngineV214Tests: XCTestCase {
         return nil
     }
 
-    // MARK: - §25.1 A hold fact just above the plan (#139)
+    // MARK: - A hold fact just above the plan (#139)
 
     func testHoldFactsJustAboveThePlanCountAsMeetingIt() throws {
         let seed = seeded(0, [.pull: EngineConfig.levelMax])
@@ -45,7 +45,7 @@ final class EngineV214Tests: XCTestCase {
         XCTAssertEqual(ex.unit, .hold)
         let onPlan = Engine.applyFeedback(state: state, session: session, result: .plan,
                                           overrides: [.coreAntiExt: ex.load]).levels[.coreAntiExt]
-        // Re-marked for v2.21 (spec §32.4): the window is one LOCAL rung of
+        // Re-marked: the window is one LOCAL rung of
         // the ladder, not five seconds.
         let window = Level.step(of: ex.unit, tier: ex.tier,
                                 sets: Level.decode(0).sets, load: ex.load)
@@ -68,7 +68,7 @@ final class EngineV214Tests: XCTestCase {
                     : seeded(0, [pattern: level, .pull: EngineConfig.levelMax])
                 guard let (state, session, ex) = exercise(pattern, in: seed) else { continue }
                 var previous = -1
-                // Re-marked for v2.21 (spec §32.4): the old bound was
+                // Re-marked: the old bound was
                 // 2 × holdStepSec = 10; the widest ladder rung is 4 s, so 10
                 // still clears two rungs anywhere on the scale.
                 for actual in 0...(ex.load + 10) {
@@ -97,12 +97,12 @@ final class EngineV214Tests: XCTestCase {
         let above = try XCTUnwrap(Engine.applyFeedback(state: state, session: session,
                                                        result: .plan,
                                                        overrides: [.squat: ex.load + 2]).levels[.squat])
-        // v2.22 (spec §33): both sides move by sub-steps, so the comparison is
+        // Both sides move by sub-steps, so the comparison is
         // on POSITIONS; at the same level the ordering lives in the sub-step.
         XCTAssertGreaterThanOrEqual(above, onPlan, "a real overshoot outscores 'the plan met'")
     }
 
-    // MARK: - §25.2 The set-band gate and a point fact (#140)
+    // MARK: - The set-band gate and a point fact (#140)
 
     func testAGatedPlanInvertsTheSameWayAnUngatedOneDoes() throws {
         for level in [32, 36, 40, 44, 47] {
@@ -133,7 +133,7 @@ final class EngineV214Tests: XCTestCase {
                        "and it is not an underperformance")
     }
 
-    // MARK: - §25.3 A descent may not make the plan heavier (#138)
+    // MARK: - A descent may not make the plan heavier (#138)
 
     func testAnHonestZeroOnASetsBandDoesNotAddReps() throws {
         for level in [32, 33, 40, 41] {
@@ -193,10 +193,10 @@ final class EngineV214Tests: XCTestCase {
         // floor is the only place left, and it is a genuinely easier movement.
         XCTAssertTrue(Level.noHarder(pattern: .pull, from: 8, to: 0, fromCut: 0, toCut: 0))
         XCTAssertFalse(Level.noHarder(pattern: .pull, from: 8, to: 7, fromCut: 0, toCut: 0))
-        // Re-marked for v2.17 (spec §28.1): band 4 now asks 4×6 rather than
+        // Re-marked: band 4 now asks 4×6 rather than
         // 4×4, so the levels that count as "no harder" moved with it. The
         // property is unchanged — these are the boundaries, checked by hand.
-        // Re-marked again for v2.19 (spec §30.2): the gate now also reads the
+        // Re-marked again: the gate now also reads the
         // dose of a single set, so dropping a set to buy reps no longer
         // passes. 3×8 and 4×6 are the same 24 reps in total, but eight in a
         // set against six is harder in the only place the trainee feels it.

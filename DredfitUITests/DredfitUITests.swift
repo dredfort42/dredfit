@@ -521,7 +521,7 @@ final class DredfitUITests: XCTestCase {
         app.buttons["Start"].tap()
         XCTAssertTrue(app.staticTexts["WARM-UP"].waitForExistence(timeout: 3),
                       "the workout must open with the warm-up")
-        // v2.26: the block is offered, not started — say yes before walking it.
+        // The block is offered, not started — say yes before walking it.
         app.buttons["warmup-start"].tap()
         // Since #52 the block opens on the transition announcing the first
         // move; the label is the one VoiceOver reads.
@@ -678,7 +678,7 @@ final class DredfitUITests: XCTestCase {
             let skip = app.buttons["Skip exercise"]
             if skip.waitForExistence(timeout: 3) { coordinateTap(skip) }
         }
-        driver.declineCooldownIfAsked()   // v2.26 (§37.7a): the block asks first
+        driver.declineCooldownIfAsked()   // the block asks first
         XCTAssertTrue(rating.waitForExistence(timeout: 3))
         app.staticTexts["On plan"].tap()
         XCTAssertTrue(app.staticTexts["Workout 2 completed"].waitForExistence(timeout: 5),
@@ -801,7 +801,7 @@ final class DredfitUITests: XCTestCase {
         // text twice (child + combined parent), so an exact count would pin an
         // accessibility artifact rather than the UI: assert presence, and
         // leave "no life line on set bands and jubilees" to the code's switch
-        // and the manual pass (TESTPLAN §27.5).
+        // and the manual pass (TESTPLAN).
         XCTAssertGreaterThanOrEqual(
             app.staticTexts.matching(identifier: "milestone-life").count, 2,
             "each tier-up row should carry its life line")
@@ -931,7 +931,7 @@ extension DredfitUITests {
         XCTAssertTrue(cooldown.waitForExistence(timeout: 5),
                       "the cool-down must follow the last exercise")
 
-        // v2.26 (§37.7a): the header is up as soon as the block is OFFERED —
+        // The header is up as soon as the block is OFFERED —
         // the block itself runs only once the offer is accepted.
         let acceptCooldown = app.buttons["cooldown-start"]
         if acceptCooldown.waitForExistence(timeout: 5) { acceptCooldown.tap() }

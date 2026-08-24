@@ -166,7 +166,7 @@ struct WorkStatusCaption: View {
     /// the plan, so the caption is where the tap confirms itself; an entered
     let setIndex: Int
     let sets: Int
-    /// v2.22 (spec §33): what THIS set is planned to run at, and whether the
+    /// What THIS set is planned to run at, and whether the
     /// exercise is uneven at all. On an uneven plan the caption says the
     /// number, because "set 2 of 3" no longer tells you what to do — the sets
     /// differ. The actual still outranks it: that is today's number.
@@ -197,9 +197,9 @@ struct WorkStatusCaption: View {
 /// What you can say about an exercise instead of doing it as planned
 /// (issues #66, #78).
 ///
-/// v2.22 (spec §33): "hold this level" went with the input it armed.
-/// v2.26 (spec §37.0): "Something hurt" goes the same way, and it is NOT
-/// replaced here. The two handles of §37.4-§37.5 live on the plan, before the
+/// "hold this level" went with the input it armed.
+/// "Something hurt" goes the same way, and it is NOT
+/// replaced here. The two handles of live on the plan, before the
 /// workout starts, where pulling one regenerates the session and the announced
 /// duration along with it — mid-workout they would have to mutate a session
 /// the engine is already going to read the plan from, and a shown plan that
@@ -207,7 +207,7 @@ struct WorkStatusCaption: View {
 /// feature.
 ///
 /// What is left is the answer the wave is actually built around: "Went
-/// differently" — the honest number. §37.0 measures it against the tap it
+/// differently" — the honest number. The engine measures it against the tap it
 /// replaces: honest numbers take someone with a capacity of one rep from
 /// L24/tier 4 to L0/tier 1 in FOUR appearances, while the pain tap stranded
 /// them at L16/tier 3 indefinitely.

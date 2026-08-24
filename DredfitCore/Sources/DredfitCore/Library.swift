@@ -271,7 +271,7 @@ public enum ExerciseLibrary {
                     String(localized: "Hips dropping as the arms bend — keep the V shape.", bundle: .module),
                     String(localized: "Bumping the head on the floor — lower slowly, with control.", bundle: .module),
                 ]),
-            // v2.18 (#131): the rung the ladder was missing. Pike straight to a
+            // The rung the ladder was missing. Pike straight to a
             // handstand was the only step in the library that asked for a new
             // SKILL — a kick-up at near-full bodyweight — rather than more of
             // the same strength. Feet on a chair or a bed is the same movement

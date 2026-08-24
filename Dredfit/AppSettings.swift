@@ -28,11 +28,11 @@ struct AppSettings: Codable, Equatable {
     // workout it is stale and a future break asks again, while the current
     // break never asks twice. Same mechanism for the silent decay below.
     var comebackDecidedFor: Date?
-    /// v2.15 (#135): the session number the weak-link prompt was answered for
+    /// The session number the weak-link prompt was answered for
     /// — one question per session, never a campaign.
     var weakLinkPromptAnsweredFor: Int?
     var silentDecayAppliedFor: Date?
-    // v2.26 (spec §37.0): `pendingDiscomfort` went with the pain channel and
+    // `pendingDiscomfort` went with the pain channel and
     // `timeBudgetChosen` / `budgetDefaultNoticeClosedAt` went with the time
     // budget — the two flags existed only to remember whether a person had
     // ever picked a session length and been told about the default, and there
@@ -66,7 +66,7 @@ struct AppSettings: Codable, Equatable {
         lastReviewRequestAt = try c.decodeIfPresent(Date.self, forKey: .lastReviewRequestAt)
         comebackDecidedFor = try c.decodeIfPresent(Date.self, forKey: .comebackDecidedFor)
         weakLinkPromptAnsweredFor = try c.decodeIfPresent(Int.self, forKey: .weakLinkPromptAnsweredFor)
-        // A settings file written before v2.22 may still carry the cancelled
+        // A settings file written by an older build may still carry the cancelled
         // `pendingPinned`; an unknown key decodes away silently, so nothing to
         // migrate and nothing to clean up.
         silentDecayAppliedFor = try c.decodeIfPresent(Date.self, forKey: .silentDecayAppliedFor)

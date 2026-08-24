@@ -18,7 +18,7 @@ final class EngineV23Tests: XCTestCase {
     /// From zero a pointed fact sets the level exactly, across the whole of
     /// tier 1 and in both units. This is what lets a trained beginner reach
     /// their real load in one workout instead of ten. The bottom row moved
-    /// in v2.8 (spec §18.1): a fact EQUAL to the plan now steps like "on
+    /// in: a fact EQUAL to the plan now steps like "on
     /// plan" — EngineV28Tests pins it — so the exact inversion starts at 1.
     func testFactFromZeroSetsTheLevelExactly() {
         let state = EngineState.initial
@@ -26,7 +26,7 @@ final class EngineV23Tests: XCTestCase {
 
         for ex in session.exercises {
             for level in 1...7 {
-                // Re-marked for v2.21 (spec §32.2): a rung of the tier-1
+                // Re-marked: a rung of the tier-1
                 // ladder instead of "start + 5 s × level". Same property,
                 // input derived from the table rather than written out.
                 let actual = ex.unit == .reps
@@ -53,7 +53,7 @@ final class EngineV23Tests: XCTestCase {
         let second = Engine.applyFeedback(state: first,
                                           session: Engine.generateSession(first),
                                           result: .plan, overrides: [.pull: 99])
-        // v2.22 (spec §33): the cell counts SUB-STEPS.
+        // The cell counts SUB-STEPS.
         assertPosition(second, .pull,
                        Level.rise(level: 12, sub: first.sub[.pull] ?? 0,
                                   by: EngineConfig.maxUp(pattern: .pull, tier: 2)),
@@ -94,7 +94,7 @@ final class EngineV23Tests: XCTestCase {
         let session = Engine.generateSession(state)
         let next = Engine.applyFeedback(state: state, session: session, result: .more)
         for ex in session.exercises {
-            // v2.22 (spec §33): the plain delta is two SUB-STEPS, and at zero
+            // The plain delta is two SUB-STEPS, and at zero
             // they do not yet add up to a level.
             assertPosition(next, ex.pattern,
                            Level.rise(level: 0, sub: 0, by: EngineConfig.deltaMore),
@@ -134,7 +134,7 @@ final class EngineV23Tests: XCTestCase {
     }
 
     func testComebackDropTable() {
-        // v2.12 (spec §22.1-22.2): from L30 the table drop rules inside the
+        // From L30 the table drop rules inside the
         // tier; from 56 days the ceiling ladder (tier bottoms) takes over,
         // and tier crossings land by rep continuity. Expected values are the
         // actual landings.
@@ -150,7 +150,7 @@ final class EngineV23Tests: XCTestCase {
             XCTAssertEqual(after.levels[.pullBar], landed,
                            "\(gap) days: the bar branch drops with everything else")
         }
-        // v2.12 (spec §22.2): the ladder's tail — 119-364 days land no higher
+        // The ladder's tail — 119-364 days land no higher
         // than the bottom of tier 2, a year is a clean slate.
         for (gap, ceil) in [(180, 8), (200, 8), (364, 8), (365, 0), (3650, 0)] {
             let after = Engine.applyComeback(state: seeded(level: 30, streak: 1), gapDays: gap)
@@ -188,7 +188,7 @@ final class EngineV23Tests: XCTestCase {
         }
     }
 
-    /// v2.12 (spec §22.1): a tier crossing lands by rep CONTINUITY — the same
+    /// A tier crossing lands by rep CONTINUITY — the same
     /// dose of reps in an easier variation, never the same mod-8 rung (which
     /// used to land on the lower tier's top with a higher dose, audit A3-1).
     func testEightStepDropIsExactlyOneTierAtTheSameStep() {
@@ -211,8 +211,8 @@ final class EngineV23Tests: XCTestCase {
                                          session: Engine.generateSession(state), result: .more)
         }
         for _ in 0..<2 {
-            // v2.9: the subject is the comeback clearing the streak, so the
-            // "less" is taken under a run — session-wide delta (spec §19.2).
+            // The subject is the comeback clearing the streak, so the
+            // "less" is taken under a run — session-wide delta.
             state = Engine.applyFeedback(state: state.underLessRun,
                                          session: Engine.generateSession(state), result: .less)
         }
@@ -221,7 +221,7 @@ final class EngineV23Tests: XCTestCase {
         let back = Engine.applyComeback(state: state, gapDays: 30)
         XCTAssertEqual(back.failStreak[.pull], 0)
 
-        // v2.23 (spec §34.1): the first shortfall after a comeback is one
+        // The first shortfall after a comeback is one
         // sub-step back, not −1 level. The subject — the old streak is gone,
         // so no deload — is untouched and still visible on the position: a
         // deload would drop `deloadDrop` levels, which no single sub-step can
@@ -268,12 +268,12 @@ final class EngineV23Tests: XCTestCase {
         for level in 0...EngineConfig.levelMax {
             let d = Level.decode(level)
             let step = level % EngineConfig.stepsPerTier
-            // Re-marked for v2.17 (spec §28.1): inside a sets band the start
+            // Re-marked: inside a sets band the start
             // and the step are the band's own — entering a band used to reset
             // the reps to the bottom of tier 4 and halve the actual work.
             let repStart = EngineConfig.repStartBand[d.sets] ?? EngineConfig.repStart[d.tier]!
             XCTAssertEqual(d.reps, repStart + step, "L=\(level) reps")
-            // Re-marked for v2.21 (spec §32.2): a static dose is a rung of the
+            // Re-marked: a static dose is a rung of the
             // ladder, not "start + step × rung".
             XCTAssertEqual(d.hold, Level.ladder(tier: d.tier, sets: d.sets)[step],
                            "L=\(level) hold")
@@ -283,7 +283,7 @@ final class EngineV23Tests: XCTestCase {
     /// Tier 1 keeps the original REP encoding — the per-tier floors only ever
     /// touch the tiers above it.
     ///
-    /// Re-marked for v2.21 (spec §32.2): in seconds it no longer does, and
+    /// Re-marked: in seconds it no longer does, and
     /// deliberately so — tier 1 runs 20-22-24-26-29-32-35-39 instead of
     /// 20 + 5·L. The rung-0 start (20 s) survives; the top shrank to 39 s.
     func testTierOneIsUnchangedFromTheOldEncoding() {

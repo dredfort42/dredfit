@@ -39,7 +39,7 @@ struct WorkoutDriver {
         return true
     }
 
-    /// v2.26: the warm-up opens on its offer screen, so getting past the
+    /// The warm-up opens on its offer screen, so getting past the
     /// block is one tap on the offer's own skip rather than the footer's.
     func startWorkout() {
         app.buttons["Start"].tap()
@@ -47,7 +47,7 @@ struct WorkoutDriver {
         if skipWarmup.waitForExistence(timeout: 3) { skipWarmup.tap() }
     }
 
-    /// v2.26 (§37.7a): the cool-down asks before it runs, and the question
+    /// The cool-down asks before it runs, and the question
     /// stands between the last exercise and the rating. Any walk that ends on
     /// the rating has to answer it — otherwise it waits for a screen that
     /// cannot arrive. Answers only if asked, so it is safe to call on a path
@@ -95,7 +95,7 @@ struct WorkoutDriver {
                 coordinateTap(startHold)
                 _ = startHold.waitForNonExistence(timeout: 3)  // countdown started
             } else if cooldownQuestion.exists {
-                // v2.26 (§37.7a): the block asks first. Skipping answers the
+                // The block asks first. Skipping answers the
                 // question rather than the footer — the block never runs, so
                 // this is deliberately NOT counted as having seen it.
                 coordinateTap(skipsCooldown ? cooldownDeclineButton : cooldownQuestion)

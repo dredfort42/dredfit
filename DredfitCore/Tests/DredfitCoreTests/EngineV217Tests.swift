@@ -1,7 +1,7 @@
 //
 //  DredfitCoreTests
 //
-//  Engine v2.17 (spec §28, issues #136/#129/#142/#144): volume and time.
+// Engine (issues #136, #129, #142, #144): volume and time.
 //  Session length used to be an output of the model with no handle for the
 //  person doing it — the shortest plan anywhere on the scale was 31 minutes,
 //  honest progress rode it past 45 by session 37 and past 75 by 67, and the
@@ -24,7 +24,7 @@ final class EngineV217Tests: XCTestCase {
         return s
     }
 
-    // MARK: - §28.1 Entering a sets band keeps the dose
+    // MARK: - Entering a sets band keeps the dose
 
     func testABandStartsAtItsOwnDoseNotTheTierFloor() {
         XCTAssertEqual(Level.decode(32).reps, EngineConfig.repStartBand[4])
@@ -49,7 +49,7 @@ final class EngineV217Tests: XCTestCase {
         }
     }
 
-    // MARK: - §28.2 Rest reads the tier as well as the band
+    // MARK: - Rest reads the tier as well as the band
 
     func testATierFourMovementInBandThreeRestsLongerThanAMinute() throws {
         let session = Engine.generateSession(seeded(28))
@@ -69,7 +69,7 @@ final class EngineV217Tests: XCTestCase {
         }
     }
 
-    // MARK: - §28.4 The window after a comeback
+    // MARK: - The window after a comeback
 
     func testAComebackOpensAWindowWhereMoreCountsAsPlan() {
         var state = seeded(20)
@@ -104,11 +104,11 @@ final class EngineV217Tests: XCTestCase {
         XCTAssertEqual(state.rampWindow, 0)
     }
 
-    // MARK: - §28.5 The weekly ceiling
+    // MARK: - The weekly ceiling
 
     func testTheWeeklyCeilingIsFreeForAnHonestThreeTimesAWeek() {
         var blind = EngineState.initial, signalled = EngineState.initial
-        let gaps: [Double] = [2, 2, 3]   // v2.19 (§30.8): the gap is fractional now
+        let gaps: [Double] = [2, 2, 3]   // the gap is fractional now
         for k in 0..<36 {
             blind = Engine.applyFeedback(state: blind,
                                          session: Engine.generateSession(blind), result: .plan)
@@ -139,17 +139,17 @@ final class EngineV217Tests: XCTestCase {
                           "full pull-ups no longer arrive after 28 days without a rest day")
     }
 
-    // SNIPPED v2.26 (§37.0 / §37.7): six tests.
-    // Four were §28.3, the time budget: every budget is met, the 35 and 45
+    // SNIPPED: six tests.
+    // Four were, the time budget: every budget is met, the 35 and 45
     // rungs fit, no-budget is the old behaviour, a short budget still shows
     // every movement. The budget is gone — it trimmed the WORKOUT to fit a
     // number, and four composition findings all read zero with it switched off.
     // One was the lens spending the growth window; one was an honest overshoot
     // on a SORE movement. Neither input exists.
     //
-    // §28.1 (a band starts at its own dose), §28.2 (the rest ladder), §28.4
-    // (the ramp window) and §28.5 (the weekly ceiling) are untouched and stay
-    // here in full — they are the part of §28 the wave does not address.
+    // (a band starts at its own dose), (the rest ladder),
+    // (the ramp window) and (the weekly ceiling) are untouched and stay
+    // here in full — they are the part of the wave does not address.
     //
     // What replaces the budget is measured elsewhere: the session handle only
     // ever SHORTENS (EngineV224Tests), and the announced duration is what the

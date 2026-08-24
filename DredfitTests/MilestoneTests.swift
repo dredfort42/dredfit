@@ -92,10 +92,10 @@ final class MilestoneTests: XCTestCase {
         XCTAssertEqual(sets, 4)
     }
 
-    /// v2.23 (spec §34.1): re-marked. A rating on its own can no longer cross
+    /// Re-marked. A rating on its own can no longer cross
     /// a tier — that was the whole point of the wave — so the tier drop this
     /// test needs is produced the way one is still produced: by the deload on
-    /// the third shortfall (§34.3), seeded here with a streak of two. The
+    /// the third shortfall, seeded here with a streak of two. The
     /// subject, "a step down is never announced", is untouched.
     func testDroppingATierIsNotAMilestone() throws {
         let probe = session(atCounter: 0).exercises[0].pattern
@@ -122,8 +122,8 @@ final class MilestoneTests: XCTestCase {
         XCTAssertTrue(earned.isEmpty)
     }
 
-    /// v2.22 (spec §33): re-marked from `testAPinDoesNotSwallowAMilestone`.
-    /// v2.26 (spec §37.0): re-marked again. The property was always "a
+    /// Re-marked from `testAPinDoesNotSwallowAMilestone`.
+    /// Re-marked again. The property was always "a
     /// neighbour that stays put must not swallow this movement's milestone";
     /// what makes a neighbour stay put has changed twice — a pin, then a
     /// freeze, and now a SKIP, which is the signal that survived both.

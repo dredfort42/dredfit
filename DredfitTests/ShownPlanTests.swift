@@ -1,5 +1,5 @@
 //
-//  v2.25 (spec §36.8): the last accepted gap of the wave. The engine wrote
+//  The last accepted gap of the wave. The engine wrote
 //  its memory of "what was on screen" only from a COMPLETED session, so a
 //  plan a person looked at and did not train was invisible to it — and the
 //  guarantee "a descent never adds load" held between finished workouts and
@@ -129,7 +129,7 @@ final class ShownPlanTests: XCTestCase {
         }
     }
 
-    // MARK: - What the showing buys (spec §36.8)
+    // MARK: - What the showing buys
 
     /// The guarantee itself, against a plan that was only LOOKED at: a
     /// movement whose position did not rise may not come back heavier. The
@@ -196,13 +196,13 @@ final class ShownPlanTests: XCTestCase {
                        "the showing must not have pinned the freeze")
     }
 
-    // MARK: - Reset (spec §36.1)
+    // MARK: - Reset
 
     /// A reset is exactly what the sets-handle fields are FOR, and `.initial`
     /// zeroes all of them. What it must NOT take with them: the bar in the
     /// doorway.
     ///
-    /// v2.26 (spec §37.7): the budget half of this test is gone with the
+    /// The budget half of this test is gone with the
     /// budget. What took its place is the handle — and the handle IS one of
     /// the fields a reset clears, deliberately: starting the levels over is
     /// starting the plan over, and a session someone shortened at L40 has no
@@ -225,7 +225,7 @@ final class ShownPlanTests: XCTestCase {
         XCTAssertTrue(store.engineState.hasBar, "the bar did not leave the doorway")
     }
 
-    // SNIPPED v2.26 (§37.0): `testTheIllnessLensShowingIsNotWrittenDown`. The
+    // SNIPPED: `testTheIllnessLensShowingIsNotWrittenDown`. The
     // lens built a VIEW of the plan rather than moving the position, so its
     // showing had to be kept out of the memory the postcondition repair reads.
     // There is no lens, and no view: every plan on screen is the plan.

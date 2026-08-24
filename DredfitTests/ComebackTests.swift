@@ -20,7 +20,7 @@ final class ComebackTests: XCTestCase {
 
     /// A store whose single journal entry is `daysAgo` old, with every pattern
     /// parked at `level`. Seeded in elapsed seconds, not calendar days: gapDays
-    /// counts whole 24h periods (v2.13, spec §7), and a calendar-day seed
+    /// counts whole 24h periods, and a calendar-day seed
     /// across a spring-forward transition would land an hour short of every
     /// exact boundary (14 days − 1h reads as 13).
     private func storeWithLastWorkout(daysAgo: Int, level: Int = 20) throws -> AppStore {
@@ -107,7 +107,7 @@ final class ComebackTests: XCTestCase {
         XCTAssertFalse(store.shouldOfferComeback())
 
         // A workout happens, then another long break of a different length.
-        // Re-marked for v2.13 (spec §23.3): a repeat of the same gap is the
+        // Re-marked: a repeat of the same gap is the
         // trainee's rhythm and stays quiet — CadenceTests cover that side.
         store.completeWorkout(session: store.nextSession, result: .plan,
                               date: Calendar.current.date(byAdding: .day, value: -30, to: .now)!)
@@ -118,7 +118,7 @@ final class ComebackTests: XCTestCase {
     // MARK: - Fresh start
 
     func testFreshStartOnlyOfferedAfterANinetyDayBreak() throws {
-        // v2.12 (#127): from a quarter away, not half a year — after 90 days
+        // From a quarter away, not half a year — after 90 days
         // "as it was" is blind enough that "from scratch" must be on the card.
         XCTAssertFalse(try storeWithLastWorkout(daysAgo: 89).offersFreshStart())
         XCTAssertTrue(try storeWithLastWorkout(daysAgo: 90).offersFreshStart())

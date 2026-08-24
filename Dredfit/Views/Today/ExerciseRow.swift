@@ -1,5 +1,5 @@
 //
-//  One line of a plan: the movement, its number, and — since v2.25 — the one
+// One line of a plan: the movement, its number, and the one
 //  sentence that says why the number is what it is. Shared by Today and the
 //  next-workout sheet, so both draw the same card and cannot drift into two
 //  different explanations of the same plan.
@@ -15,7 +15,7 @@ struct ExerciseRow: View {
     /// itself, so a sibling HStack pill would push the load off screen. Not
     /// an ellipsis either — sibling variations differ at the END of the name.
     var badge: String?
-    /// v2.25 (spec §36.2): one line under the number, saying why it is the
+    /// One line under the number, saying why it is the
     /// number it is. Under the number and not beside it — the sentence is
     /// longer than the column, and the load must keep its place.
     var note: String?
@@ -78,7 +78,7 @@ struct ExerciseRow: View {
 
     private var shortLoad: String {
         let side = exercise.perSide ? String(localized: " /side") : ""
-        // v2.22 (spec §33): an uneven plan spells its sets out — "9-8-8". This
+        // An uneven plan spells its sets out — "9-8-8". This
         // is where the sub-step becomes visible: a third of the sessions used
         // to read as "nothing changed", and the row is what says otherwise.
         // Explicit keys, not the bare "%@%@" a plain interpolation would mint.

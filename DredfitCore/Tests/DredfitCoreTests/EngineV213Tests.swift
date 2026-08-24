@@ -1,8 +1,8 @@
 //
 //  DredfitCoreTests
 //
-//  Engine v2.13 (spec §24, issues #132/#146): the sanitization wave. The
-//  promise of §17.4 — "the plan is valid even with garbage in the state" —
+// Engine (issues #132, #146): the sanitization wave. The
+// promise of — "the plan is valid even with garbage in the state" —
 //  had two holes. The reference still read a few containers raw, and this
 //  port sanitized only on decode, so a corrupt store file produced unearned
 //  deloads, a comeback landing above the scale, and — near Int's edge — a
@@ -27,7 +27,7 @@ final class EngineV213Tests: XCTestCase {
         return s
     }
 
-    // MARK: - The state heals on every entry (§24.1)
+    // MARK: - The state heals on every entry
 
     func testALevelAboveTheScaleDoesNotBuyAnUnearnedDeload() {
         // 999 read as "the old level" made every honest session a shortfall:
@@ -55,7 +55,7 @@ final class EngineV213Tests: XCTestCase {
                                   "level \(l) out of scale for \(p) from \(garbage)")
                 }
             }
-            // v2.26 (§37.4-§37.5): the three HANDLES are deliberately NOT in
+            // The three HANDLES are deliberately NOT in
             // the list above, and this is the difference in kind rather than a
             // gap. The three state builders rebuild every field through the
             // sanitizer; a handle is a NARROW EDITOR of one axis and passes the
@@ -66,7 +66,7 @@ final class EngineV213Tests: XCTestCase {
             // What a handle DOES promise is asserted instead, and in full: it
             // never throws, and the plan built from its result is valid, so
             // the garbage carried through is healed at generation like any
-            // other (§24.1).
+            // other.
             for state in [Engine.setCut(state: s, pattern: .squat, cut: 1),
                           Engine.setCut(state: s, pattern: .squat, cut: garbage),
                           Engine.shorterSession(state: s, steps: 2),
@@ -129,14 +129,14 @@ final class EngineV213Tests: XCTestCase {
         // foreign pattern in it forever.
         var s = seeded(hasBar: true)
         s.creditPaused = [.squat, .calf, .pull]
-        // v2.26 (§37.2): `applyIllness` was the entry point used here purely
+        // `applyIllness` was the entry point used here purely
         // because it healed its input and changed almost nothing else. It is
         // gone; `recordShown` is the surviving entry with the same property.
         let after = Engine.recordShown(state: s, session: Engine.generateSession(s))
         XCTAssertEqual(after.creditPaused, [.pull])
     }
 
-    /// v2.26 (§37.2): re-marked, not weakened. The claim is unchanged — a
+    /// Re-marked, not weakened. The claim is unchanged — a
     /// sparse map keeps only live entries and clamps them — but `frozen` and
     /// `sore` no longer exist. `setsHold` is the surviving counter of the same
     /// SHAPE (sparse, per-pattern, positive-only, clamped to its own ceiling),
@@ -182,7 +182,7 @@ final class EngineV213Tests: XCTestCase {
                        moved, "a mismatched pair returns the state as it came in")
     }
 
-    // MARK: - The gap in days is an input too (§24.2)
+    // MARK: - The gap in days is an input too
 
     func testANegativeOrHugeGapCannotTrapOrOverreach() {
         let s = seeded()
@@ -200,7 +200,7 @@ final class EngineV213Tests: XCTestCase {
     }
 
     func testTheNonStackingIdentityHoldsFromADirtyState() {
-        // Spec §14.2 on a state that needed healing first.
+        // on a state that needed healing first.
         var s = seeded()
         s.levels[.squat] = 999
         s.counter = Int.max
@@ -211,7 +211,7 @@ final class EngineV213Tests: XCTestCase {
                        "peeking mid-break costs no more, garbage or not")
     }
 
-    // MARK: - Facts are inputs too (§24.3)
+    // MARK: - Facts are inputs too
 
     func testAnImpossibleReportedFactSaturatesInsteadOfTrapping() {
         let s = seeded()
@@ -229,10 +229,10 @@ final class EngineV213Tests: XCTestCase {
         XCTAssertEqual(low.levels[p], 0, "a fact below the floor lands on it")
     }
 
-    // MARK: - Decoding a corrupt file (§24.1)
+    // MARK: - Decoding a corrupt file
 
     func testACorruptFileDecodesIntoAStateTheEngineCanRead() throws {
-        // v2.26 (§37.2): the corrupt file still carries the SEVEN removed keys
+        // The corrupt file still carries the SEVEN removed keys
         // — that is what a file written by an older build looks like — and the
         // decoder is expected to ignore them rather than choke. The garbage in
         // the live fields is healed exactly as before.

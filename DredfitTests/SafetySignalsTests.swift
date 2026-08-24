@@ -81,7 +81,7 @@ final class SafetySignalsTests: XCTestCase {
                        "once today is trained the offer is moot")
     }
 
-    // SNIPPED v2.26 (§37.0): the three pain-streak tests. The streak counted
+    // SNIPPED: the three pain-streak tests. The streak counted
     // pain reports over a movement's appearances, and there are none to count.
     //
     // The run-of-days signal, which is the other half of this suite, is

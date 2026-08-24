@@ -51,7 +51,7 @@ final class RetrospectiveTests: XCTestCase {
 
     func testThenLineUsesTheBaseLevelEncoding() throws {
         // Base at level 9 (tier 2): the "then" reps must come from
-        // repStart[2], not from a flat tier-1 floor — the v2.3 recoding is
+        // repStart[2], not from a flat tier-1 floor — the recoding is
         // exactly what this block must never contradict.
         var start = base(0); start[.pushH] = 9
         var current = base(1); current[.pushH] = 17

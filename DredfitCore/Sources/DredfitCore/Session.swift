@@ -23,7 +23,7 @@ public struct SessionExercise: Codable, Equatable, Identifiable, Sendable {
     public let sets: Int
     public let restSetSec: Int
     public let restExerciseSec: Int
-    /// v2.22 (spec §33): per-set doses, descending — `9-8-8`. OPTIONAL on
+    /// Per-set doses, descending — `9-8-8`. OPTIONAL on
     /// purpose, and the optionality is compatibility, not style: a journal
     /// written by build 1.9 carries no such key, and one non-optional field
     /// added to this snapshot would zero that journal on decode. `nil` means a
@@ -76,7 +76,7 @@ public struct SessionExercise: Codable, Equatable, Identifiable, Sendable {
     public var plannedVolume: Int { perSetLoads.reduce(0, +) }
 
     /// "3×12", "3×10 per side", "3×40 sec" — localized via the core catalog.
-    /// v2.22 (spec §33): "9-8-8" when the sets differ, "3×8" when they do not.
+    /// "9-8-8" when the sets differ, "3×8" when they do not.
     public var display: String {
         let side = perSide ? " " + String(localized: "per side", bundle: .module) : ""
         let head = loads.map { $0.map(String.init).joined(separator: "-") } ?? "\(sets)×\(load)"
@@ -115,7 +115,7 @@ extension Engine {
         var workSec = 0.0
         for ex in exercises {
             let sides = ex.perSide ? 2 : 1
-            // v2.22 (spec §33): the volume is read off the PER-SET doses — with
+            // The volume is read off the PER-SET doses — with
             // an uneven plan `load × sets` understates the work by exactly the
             // sub-steps' addition, and the estimate would stop being one.
             let volume = Double(ex.plannedVolume * sides)
@@ -141,7 +141,7 @@ extension Engine {
     ///
     /// The divergence is older than this wave and was simply unreachable: with
     /// static doses at multiples of five seconds no session ever landed on
-    /// either case. v2.21 put odd second counts into the statics and eighteen
+    /// either case. put odd second counts into the statics and eighteen
     /// golden steps lit up at once.
     ///
     /// A tie is exactly a value that is an ODD number of quarters — 10x is a
@@ -160,7 +160,7 @@ extension Engine {
 
     /// A pure function: the only input is the state.
     public static func generateSession(_ dirty: EngineState) -> Session {
-        // v2.13 (spec §24.1): every public entry heals its input first, as the
+        // Every public entry heals its input first, as the
         // reference does on every build. Identity on the valid domain.
         let state = dirty.sanitized()
         let n = rotating.count
@@ -175,10 +175,10 @@ extension Engine {
         let patterns = Pattern.ordered.filter { chosen.contains($0) } // ordering follows Pattern.ordered
             .map { $0 == .pull && useBar ? Pattern.pullBar : $0 }
 
-        // v2.12 (spec §22.4) · v2.25 (spec §36.6): the "I was sick" lens no
+        // The "I was sick" lens no
         // longer moves the LEVEL at all. Showing every level one tier easier
-        // made the plan HEAVIER in 84 cells of 480 (audit 20.08, P0-6): rep
-        // continuity read a phantom `reps` field on the statics, and the v2.21
+        // made the plan HEAVIER in 84 cells of 480: rep
+        // continuity read a phantom `reps` field on the statics, and the
         // ladders of tier 3 sit above those of tier 4 (hinge L24 → 3×4 = 12
         // reps became 3×5 per leg = 30). The one tap a person has for "I need
         // something lighter right now" did the exact opposite of its promise.
@@ -189,18 +189,18 @@ extension Engine {
         // check needed — it follows from the definition of the measure.
         func viewLevel(_ p: Pattern) -> Int { state.levels[p] ?? 0 }
 
-        // v2.10 (spec §20.2): the pull slot's set band caps the push of the same
+        // The pull slot's set band caps the push of the same
         // session. With the bar the pull enters the bands 13-16 sessions after
         // the push, and those windows are exactly where the balance fell to
         // 0.60. The PLAN is clamped, not the state: the push level keeps
         // growing and gets its sets back the moment the pull catches up.
-        // v2.16 (spec §27.2, #141): the ceiling is the WEAKER of the slot's two
+        // The ceiling is the WEAKER of the slot's two
         // branches, not whichever one stands in this session. Reading the
         // in-slot branch made the push plan flip 5×4 ↔ 3×6 every session once
         // the branches diverged — visible churn with no cause on screen. The
         // gate exists so the push does not run ahead of the pull; the weaker
         // branch holds that line more strictly (owner's decision 19.08.2026).
-        // v2.25 (Ф4): the ceiling reads the pull slot's sets AFTER the cut. A
+        // The ceiling reads the pull slot's sets AFTER the cut. A
         // pull that hurts no longer moves its level, so a ceiling reading the
         // level's band stopped reacting at all: one "it hurt" tap on the pull
         // dropped the balance from 0.800 to 0.533, and on band 5 to 0.160.
@@ -216,8 +216,8 @@ extension Engine {
 
         func viewCut(_ p: Pattern) -> Int { state.cutOf(p) }
 
-        // v2.25 (spec §36.6): ONE order of cuts. The level's band → the sets
-        // handle (pain channel / descent / lens) → the §20.2 gate → the §28.3
+        // ONE order of cuts. The level's band → the sets
+        // handle (pain channel / descent / lens) → the gate → the
         // budget. Each next one may only lower, none may raise, and there is
         // one shared floor: two sets, except for a position the pain channel
         // has already taken to one — neither the gate nor the budget has the
@@ -238,11 +238,11 @@ extension Engine {
                                                 floor: EngineConfig.setsFloor)
             let floor = min(EngineConfig.setsFloor, ownSets)
             floors.append(floor)
-            // v2.24 (spec §35.1): the gate and the exercise's own band both go
+            // The gate and the exercise's own band both go
             // through the one clamp.
             let sets = clampSets(Pattern.pushSide.contains(p) ? min(ownSets, pullSets) : ownSets,
                                  floor: floor)
-            // The band is the FINAL one — the §20.2 gate may have trimmed it —
+            // The band is the FINAL one — the gate may have trimmed it —
             // so a sub-step never asks for more sets than are on screen.
             let loads = Level.perSetLoads(pattern: p, level: viewLevel(p),
                                           sub: viewSub(p), sets: sets)
@@ -251,11 +251,11 @@ extension Engine {
                 pattern: p, name: variation.name, tier: d.tier,
                 unit: unit, load: load, perSide: variation.unilateral,
                 sets: sets,
-                // v2.8 (spec §18.2): the rest between sets follows the set
+                // The rest between sets follows the set
                 // band — the field is per-exercise, so the timer needs no
                 // change.
-                // v2.17 (spec §28.2): the (tier, band) cell wins when set.
-                // v2.25 (Ф6, §36.9): the band is the LEVEL'S, not the number of
+                // The (tier, band) cell wins when set.
+                // The band is the LEVEL'S, not the number of
                 // sets shown. The handle takes volume off, not recovery: before
                 // the fix a pain landing on band 5 was handed 90 s instead of
                 // 120 — a REST SHORTER than before the complaint. The budget
@@ -269,7 +269,7 @@ extension Engine {
             )
         }
 
-        // v2.26 (spec §37.7): there is no time budget. The engine does not fit
+        // There is no time budget. The engine does not fit
         // itself into the time a person allotted — it ANNOUNCES how long the
         // session takes, and the person shortens it with the sets handle. The
         // short warm-up and cool-down went with the budget: they existed only
@@ -278,14 +278,14 @@ extension Engine {
         let warmup = EngineConfig.warmupMin
         let cooldown = EngineConfig.cooldownMin
         let trimmedRaw = exercises
-        // v2.25 (spec §36.8, round 4): the postcondition "a descent never adds
+        // The postcondition "a descent never adds
         // load" is checked ON THE RESULT rather than derived from the way the
-        // cut is built. It works with no budget at all: the §20.2 band gate can
+        // cut is built. It works with no budget at all: the band gate can
         // move sets about too.
         //
         var ordNow: [Pattern: Int] = [:]
         for ex in trimmedRaw { ordNow[ex.pattern] = Level.posOrd(state.position(ex.pattern)) }
-        // v2.26 (spec §37.5): `budgetChanged` is gone. It existed because the
+        // `budgetChanged` is gone. It existed because the
         // budget moved the plan PAST the position measure, so a person moving
         // the handle had to be declared a legitimate cause of growth by hand.
         // The sets handle writes `cut`, a coordinate of the position, so
@@ -302,18 +302,18 @@ extension Engine {
         )
     }
 
-    /// v2.24 (spec §35.1): the one and only clamp on a set count. Every
-    /// mechanism that CUTS sets — the band gate (§20.2) among them — goes
+    /// The one and only clamp on a set count. Every
+    /// mechanism that CUTS sets — the band gate among them — goes
     /// through it, so the floor holds for their composition and not just for
     /// each cut on its own.
-    /// v2.25 (spec §36.6): the floor is a per-exercise number, and it carries
-    /// NO default on purpose. v2.26 (§37.3): every caller now passes the same
+    /// The floor is a per-exercise number, and it carries
+    /// NO default on purpose.: every caller now passes the same
     /// shared floor — the pain channel's single set is gone — but the explicit
     /// parameter stays. A default here is exactly what let `setsFloorPain`
     /// leak into all ten call sites of the previous wave.
     static func clampSets(_ n: Int, floor: Int) -> Int { max(floor, n) }
 
-    /// v2.25 (spec §36.8, round 4): THE POSTCONDITION REPAIR. The invariant the
+    /// THE POSTCONDITION REPAIR. The invariant the
     /// model promises is "if a pattern's position did not rise, its plan cannot
     /// get heavier". Deriving it from the shape of the budget did not work —
     /// three rounds of skeptics found a class of violations in every attempt.
@@ -361,13 +361,13 @@ extension Engine {
     /// Rebuild an exercise on a different set count; the rest follows the
     /// RESULTING band (owner's decision 19.08.2026) — two minutes between two
     /// sets would swallow a short budget whole.
-    /// v2.22 (spec §33): the sub-step is rebuilt for the new set count — it
+    /// The sub-step is rebuilt for the new set count — it
     /// cannot ask for more sets than are left. Clamping to `sets-1` keeps the
     /// invariant "`load` is the plan's minimum": dropping a set gives the budget
     /// no right to raise that minimum.
     private static func withSets(_ ex: SessionExercise, _ requested: Int,
                                  floor: Int) -> SessionExercise {
-        // v2.24 (spec §35.1): a rebuild is a cut too, so it goes through the
+        // A rebuild is a cut too, so it goes through the
         // shared clamp — no path can hand back an exercise below the floor.
         let sets = clampSets(requested, floor: floor)
         let high = ex.loads?.first ?? ex.load

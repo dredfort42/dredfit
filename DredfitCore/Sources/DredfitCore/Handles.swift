@@ -1,5 +1,5 @@
 //
-//  v2.26 (spec §37.4-§37.5): the athlete's handles. The wave removes two
+//  The athlete's handles. The wave removes two
 //  mechanisms that decided FOR the person — the pain channel and the time
 //  budget — and gives back three controls that decide WITH them.
 //
@@ -13,12 +13,12 @@ import Foundation
 
 extension Engine {
 
-    /// v2.26 (spec §37.4): where "give me an easier variation" lands, or nil
+    /// Where "give me an easier variation" lands, or nil
     /// when the handle is inactive.
     ///
     /// The target is one tier down and the landing goes through the ORDINARY
     /// gate — the handle has no arithmetic of its own. `descendNoHarder`
-    /// already knows the §22.1 rep-continuity and the change of unit
+    /// already knows the rep-continuity and the change of unit
     /// (`landOnUnitChange`), which is why a landing may sit ABOVE the floor of
     /// the tier below: on `pull_bar` the tier-2 negatives are reps and tier 1
     /// is a hang in seconds, and dropping to the tier's floor there would cut
@@ -42,7 +42,7 @@ extension Engine {
     ///
     /// The sub-step and the sets taken off are ZEROED: the variation changed,
     /// and there is nothing to carry a position of the old one over on — the
-    /// measure across a variation boundary is invalid (spec §30.4).
+    /// measure across a variation boundary is invalid.
     ///
     /// Mirrors the reference field for field: `levels`, `sub` and `cut` are
     /// rebuilt through their sanitizers, everything else is passed through
@@ -67,7 +67,7 @@ extension Engine {
         return next
     }
 
-    /// v2.26 (spec §37.5): "fewer sets" on one movement. The floor is the
+    /// "fewer sets" on one movement. The floor is the
     /// shared one — two sets — and the handle CLAMPS to it rather than
     /// dropping the plan under it. Asking for nine on a band of three gives
     /// the same plan as asking for one.
@@ -85,7 +85,7 @@ extension Engine {
         return next
     }
 
-    /// v2.26 (spec §37.5): "shorter today" — the same cut across every
+    /// "shorter today" — the same cut across every
     /// movement at once.
     ///
     /// NO NEW STATE FIELD is introduced, and that is the point rather than an

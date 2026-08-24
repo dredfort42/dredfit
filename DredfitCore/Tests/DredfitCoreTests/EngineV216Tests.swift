@@ -1,12 +1,12 @@
 //
 //  DredfitCoreTests
 //
-//  Engine v2.16 (spec §27, issue #141): the two branches of the pull slot. The
-//  §20.2 gate read whichever branch stood in the session, so once the branches
+// Engine (issue #141): the two branches of the pull slot. The
+// gate read whichever branch stood in the session, so once the branches
 //  diverged the push plan flipped between two set bands every session, forever
 //  — churn with no cause on screen. It now reads the weaker of the two.
 //
-//  The credit pause itself is deliberately unchanged: see §27.1. Under a
+// The credit pause itself is deliberately unchanged. Under a
 //  period-2 rhythm a branch that only ever gets "tough" sessions stays put,
 //  and that is the price of the protection the pause exists for — measured,
 //  not assumed (owner's decision 19.08.2026).
@@ -26,7 +26,7 @@ final class EngineV216Tests: XCTestCase {
         return s
     }
 
-    // MARK: - §27.2 The gate reads the weaker branch
+    // MARK: - The gate reads the weaker branch
 
     func testThePushBandIsStableOnceTheBranchesDiverge() {
         var state = barState([.pull: 40, .pullBar: 20, .pushH: 40, .pushV: 40])
@@ -71,7 +71,7 @@ final class EngineV216Tests: XCTestCase {
                        "and gets its sets back once the pull is in the same band")
     }
 
-    // MARK: - §27.1 The credit pause is unchanged, and that is a decision
+    // MARK: - The credit pause is unchanged, and that is a decision
 
     func testAPeriodTwoRhythmParksTheBranchThatOnlyEverGetsToughSessions() {
         func run(phase: Int) -> EngineState {
@@ -84,7 +84,7 @@ final class EngineV216Tests: XCTestCase {
             }
             return state
         }
-        // v2.22 (spec §33): "at the ceiling in 96 sessions" rested on a growth
+        // "at the ceiling in 96 sessions" rested on a growth
         // event costing a level. It costs a SUB-STEP now, so 96 sessions carry
         // a branch about 21 levels up the 47 — nobody reaches the ceiling in
         // that time. The subject is not the ceiling but the GAP between the
@@ -104,7 +104,7 @@ final class EngineV216Tests: XCTestCase {
     func testOnASteadyRhythmBothBranchesReachTheCeiling() {
         var state = EngineState.initial
         state.hasBar = true
-        // v2.22 (spec §33): a longer run — the scale is 153 sub-steps tall.
+        // A longer run — the scale is 153 sub-steps tall.
         for _ in 0..<200 {
             state = Engine.applyFeedback(state: state, session: Engine.generateSession(state),
                                          result: .plan)
@@ -115,7 +115,7 @@ final class EngineV216Tests: XCTestCase {
     }
 
     func testTheCreditLoopStopsAtWhatTheTraineeCanActuallyDo() {
-        // The protection the pause exists for (§20.1): the credit must not run
+        // The protection the pause exists for: the credit must not run
         // the branch past a level the trainee keeps calling tough.
         for capacity in [6, 12, 20] {
             var state = EngineState.initial
@@ -127,13 +127,13 @@ final class EngineV216Tests: XCTestCase {
                 state = Engine.applyFeedback(state: state, session: session,
                                              result: tooHard ? .less : .plan)
             }
-            // v2.23 (spec §34.1): the parking spot is "capacity + 1" OR a
+            // The parking spot is "capacity + 1" OR a
             // block floor, when the evaluative descent has run into one.
-            // Measured: at capacity 6 the branch parks on 8 (v2.22: 7). The
-            // cause is not the descent but the §19.1 aim — the healthy
+            // Measured: at capacity 6 the branch parks on 8 (: 7). The
+            // cause is not the descent but the aim — the healthy
             // movements stand higher, the branch is almost never the aim, it
             // is held instead, and holding is not an intent to descend
-            // (§34.2), so no streak builds and the deload, the only way past a
+            // so no streak builds and the deload, the only way past a
             // block floor, never opens. The price is deliberate and bounded to
             // ONE level; what this block is about — the plan does not run away
             // (#90 measured 29 against a capacity of 6) — is intact, and the
@@ -153,7 +153,7 @@ final class EngineV216Tests: XCTestCase {
         let session = Engine.generateSession(state)
         let slot = try XCTUnwrap(session.exercises.first { Pattern.pullSide.contains($0.pattern) })
             .pattern
-        // v2.26 (§37.0): the signal was a discomfort report; it is now an
+        // The signal was a discomfort report; it is now an
         // exact number below the plan. The guard is the same guard, in the
         // same place — only what arms it changed.
         let plan = try XCTUnwrap(session.exercises.first { $0.pattern == slot }).load

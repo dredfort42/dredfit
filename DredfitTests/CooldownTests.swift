@@ -61,7 +61,7 @@ final class CooldownTests: XCTestCase {
                       "a workout of pure skips has nothing to stretch")
     }
 
-    /// v2.26 (spec §37.7a): RE-MARKED. The holds alone used to equal the
+    /// RE-MARKED. The holds alone used to equal the
     /// reserved minutes exactly — 6 × 30 s = 3 min — with the transitions and
     /// the switch pauses riding inside the "≈". `cooldownMin` is 4 now, and
     /// the extra minute is not more stretching: it pays for the longer

@@ -1,20 +1,20 @@
 //
 //  DredfitCoreTests
 //
-//  v2.19 (spec §30, #149): the descent never adds load. Three defects of the
-//  "do no harm" rung, measured on the v2.18 reference:
+//  The descent never adds load. Three defects of the
+// "do no harm" rung, measured on the reference:
 //
 //  1. A pain report could make the plan HEAVIER. The unload dropped straight
 //     to the previous tier's floor, and where that tier is one-sided the work
 //     grew: hinge L24 3×4 = 12 reps → L16 3×5 per leg = 30 (+150%). Taking
-//     the load off is two-step now (§30.6) — the first step never leaves the
+// the load off is two-step now — the first step never leaves the
 //     tier, so one tap can no longer hand anyone an unfamiliar movement.
-//  2. The measure of work ignored sides (§30.1), and the gate read only the
+// 2. The measure of work ignored sides, and the gate read only the
 //     product sets × load, so a descent could buy reps by dropping a set
-//     (§30.2).
+//
 //  3. Two workouts inside one day froze growth forever: the gap rounded to
-//     zero, the §28.5 window never aged, and the weekly budget was spent once
-//     for a lifetime — 48 levels against 423 over 120 sessions (§30.8).
+// zero, the window never aged, and the weekly budget was spent once
+// for a lifetime — 48 levels against 423 over 120 sessions.
 //
 
 import XCTest
@@ -73,7 +73,7 @@ final class EngineV219Tests: XCTestCase {
                        "10 patterns × 48 levels")
     }
 
-    // MARK: - §30.1-30.2 The measure and the gate
+    // MARK: - -30.2 The measure and the gate
 
     func testTheMeasureCountsSides() {
         // hinge tier 4 is the sliding leg curl (both legs), tier 3 the
@@ -87,7 +87,7 @@ final class EngineV219Tests: XCTestCase {
     }
 
     /// Inside a tier the gate reads both the dose of a set and the total, so
-    /// trading a set for reps no longer passes (spec §30.2).
+    /// trading a set for reps no longer passes.
     func testInsideATierTheGateReadsTheDosePerSetToo() {
         XCTAssertFalse(Level.noHarder(pattern: .pushH, from: 32, to: 28, fromCut: 0, toCut: 0),
                        "3×8 asks eight reps a set against the plan's six")
@@ -95,9 +95,9 @@ final class EngineV219Tests: XCTestCase {
                       "3×6 keeps the dose and drops a set")
     }
 
-    /// The tier-floor exemption stays (spec §30.2): across a change of
+    /// The tier-floor exemption stays: across a change of
     /// variation a measure in reps is not valid, and the floor of the lower
-    /// tier IS the "take the load off" step §15.2 provides for.
+    /// tier IS the "take the load off" step provides for.
     func testTheTierFloorExemptionSurvives() {
         XCTAssertTrue(Level.noHarder(pattern: .hinge, from: 24, to: 16, fromCut: 0, toCut: 0),
                       "the second step is allowed: a different, easier movement")
@@ -105,7 +105,7 @@ final class EngineV219Tests: XCTestCase {
                        "but the middle of the lower tier is not")
     }
 
-    // MARK: - §30.8 The weekly window ages by fractions of a day
+    // MARK: - The weekly window ages by fractions of a day
 
     private func run(sessions: Int, gapDays: Double?) -> Int {
         var s = EngineState.initial
@@ -117,11 +117,11 @@ final class EngineV219Tests: XCTestCase {
     }
 
     /// The control run of the wave: 120 sessions of "plan" at 0.4 days apart.
-    /// Under v2.18 the gap rounded to zero and the sum froze at 48 — the whole
+    /// Under the gap rounded to zero and the sum froze at 48 — the whole
     /// weekly budget, spent once and never renewed.
-    /// v2.22 (spec §33): re-marked, 336/423 → 112/226. The numbers are a
+    /// Re-marked, 336/423 → 112/226. The numbers are a
     /// digit-for-digit cross-check against adaptive_engine.js on a path the
-    /// golden fixtures do not cover, and they moved because the §28.5 budget is
+    /// golden fixtures do not cover, and they moved because the budget is
     /// now counted in SUB-STEPS: three sub-steps a week is one level for a slow
     /// tissue where it used to be three. Both were recomputed from the
     /// reference, not adjusted to the port. The subject — a fractional gap ages
@@ -171,7 +171,7 @@ final class EngineV219Tests: XCTestCase {
             s = Engine.applyFeedback(state: s, session: Engine.generateSession(s),
                                      result: .plan, gapDays: gaps[i % 3])
         }
-        // v2.22 (spec §33): recomputed from the reference — 269 → 92, 17 → 5.
+        // Recomputed from the reference — 269 → 92, 17 → 5.
         // Same cause as above: the weekly budget counts sub-steps now.
         let total = Pattern.allCases.reduce(0) { $0 + (s.levels[$1] ?? 0) }
         XCTAssertEqual(total, 92, "reference: Σ levels over 60 sessions")
@@ -196,7 +196,7 @@ final class EngineV219Tests: XCTestCase {
                        "and the budget is fresh — only this session is on it")
     }
 
-    /// No signal, no rule (§28.5): without a gap the engine stays
+    /// No signal, no rule: without a gap the engine stays
     /// calendar-blind and the window never opens.
     func testWithoutASignalTheWindowStaysShut() {
         var s = EngineState.initial
@@ -211,7 +211,7 @@ final class EngineV219Tests: XCTestCase {
     // MARK: - Serialization
 
     /// The window age became fractional; a state file that carries the whole
-    /// number written by v2.17-v2.18 must still decode.
+    /// number written by an older build must still decode.
     func testALegacyWholeDayWindowAgeDecodes() throws {
         let legacy = """
         {"counter":4,"levels":["pull",5],"failStreak":["pull",0],"weekAgeDays":3}
@@ -230,7 +230,7 @@ final class EngineV219Tests: XCTestCase {
         XCTAssertEqual(back.weekAgeDays, 0.4, accuracy: 1e-12)
     }
 
-    /// Garbage in the field is healed, as everywhere else (§17.4).
+    /// Garbage in the field is healed, as everywhere else.
     func testANonsenseWindowAgeIsHealed() {
         var s = EngineState.initial
         s.weekAgeDays = .nan
@@ -241,12 +241,12 @@ final class EngineV219Tests: XCTestCase {
         XCTAssertEqual(s.sanitized().weekAgeDays, 0)
     }
 
-    // SNIPPED v2.26 (§37.0): three tests driven by the discomfort report — the
+    // SNIPPED: three tests driven by the discomfort report — the
     // two-step unload landing on its floors, the third report that doubled the
-    // rest without moving the level, and the §30.6 control run on `hinge`.
+    // rest without moving the level, and the control run on `hinge`.
     // All three needed an input that no longer exists.
     //
-    // The INVARIANT the wave of §30 was written for — a descent never adds work
+    // The INVARIANT the wave was written for — a descent never adds work
     // inside a variation — is not lost with them: it is asserted here by
     // `testTheFirstStepNeverAddsWorkAnywhereOnTheGrid`, by the gate tests
     // below, and swept over every downward path (the handles now included) by

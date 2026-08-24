@@ -1,5 +1,5 @@
 //
-//  v2.18 (spec §29, #131): the app half of the ladder change. The library
+//  The app half of the ladder change. The library
 //  reshuffle is silent by design — the stored level keeps its number, so the
 //  only thing an existing trainee notices is that the movement at that level
 //  is easier than the one they closed with. These tests are the migration:
@@ -26,7 +26,7 @@ final class PushLadderMigrationTests: XCTestCase {
         try await super.tearDown()
     }
 
-    /// A journal written before v2.18, parked at the given push_v level.
+    /// A journal written by an older build, parked at the given push_v level.
     private func storeFromBefore(pushV level: Int) throws -> AppStore {
         let levels = Pattern.allCases
             .map { "\"\($0.rawValue)\",\($0 == .pushV ? level : 12)" }.joined(separator: ",")

@@ -173,7 +173,7 @@ enum Cooldown {
                          ])
     }
 
-    /// The movement → position mapping (spec §4).
+    /// The movement → position mapping.
     private static func position(for pattern: Pattern) -> CooldownPosition {
         switch pattern {
         case .squat, .hinge:            return forwardFold

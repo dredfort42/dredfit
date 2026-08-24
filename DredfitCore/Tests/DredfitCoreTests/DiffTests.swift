@@ -1,7 +1,7 @@
 //
 //  DredfitCoreTests
 //
-//  The JS ↔ Swift differential, REWRITTEN for v2.26 — one call at a time.
+// The JS ↔ Swift differential, REWRITTEN — one call at a time.
 //
 //  It used to run ten thousand random TRAJECTORIES and fold them into a single
 //  fingerprint. Audit 2026-08-23 (zone A2) named both faults of that shape: a
@@ -180,7 +180,7 @@ final class DiffTests: XCTestCase {
                 overrides[try XCTUnwrap(Pattern(rawValue: raw))] = v
             }
             let skipped = Set((call.sk ?? []).compactMap { Pattern(rawValue: $0) })
-            // Every optional passed explicitly — the rule of the v2.25 wave.
+            // Every optional passed explicitly — the rule of the wave.
             return canon(Engine.applyFeedback(
                 state: state, session: w,
                 result: try XCTUnwrap(FeedbackResult(rawValue: try XCTUnwrap(call.r))),

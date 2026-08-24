@@ -22,8 +22,8 @@ final class EngineV25Tests: XCTestCase {
         return state
     }
 
-    /// v2.9: this file is about the growth-cap table and the freeze, so an
-    /// unnamed "less" is taken under a run — session-wide delta (spec §19.2).
+    /// This file is about the growth-cap table and the freeze, so an
+    /// unnamed "less" is taken under a run — session-wide delta.
     private func after(_ state: EngineState, _ result: FeedbackResult,
                        overrides: [Pattern: Int] = [:]) -> EngineState {
         Engine.applyFeedback(state: result == .less ? state.underLessRun : state,
@@ -56,7 +56,7 @@ final class EngineV25Tests: XCTestCase {
     func testTheShippedCeilingMatchesTheDeclaredRule() {
         for p in Pattern.allCases {
             for tier in 1...EngineConfig.tiers {
-                // v2.10 (spec §20.1): the bar branch joins the pull's cells —
+                // The bar branch joins the pull's cells —
                 // the cross-credit gives it the slot's full speed, so the
                 // frequency argument of #76 reaches it too.
                 let slow = p == .calf
@@ -74,7 +74,7 @@ final class EngineV25Tests: XCTestCase {
     /// five, so from the first real row on it is held to a step. Tier 1 is
     /// scapular activation, not a row, and deliberately keeps the default;
     /// the bar branch used to sit at four appearances in eight and went
-    /// uncapped — until v2.10 (spec §20.1) gave the slot back its full speed
+    /// uncapped — until gave the slot back its full speed
     /// through the cross-credit, which makes the same argument apply to it.
     func testThePullIsHeldToAStepFromTierTwo() {
         XCTAssertEqual(EngineConfig.maxUp(pattern: .pull, tier: 1), 2, "tier 1 keeps the default")
@@ -86,7 +86,7 @@ final class EngineV25Tests: XCTestCase {
 
         // "More" at a tier-2 level takes one step, not two; "on plan" is
         // never capped, so the pull still moves every session.
-        // v2.22 (spec §33): the cell counts SUB-STEPS, so all three land on
+        // The cell counts SUB-STEPS, so all three land on
         // positions rather than on levels. The subject is untouched.
         assertPosition(after(seeded(level: 10), .more), .pull,
                        Level.rise(level: 10, sub: 0, by: 1), "the collateral +2 is gone")
@@ -107,7 +107,7 @@ final class EngineV25Tests: XCTestCase {
     // MARK: - The ceiling in applyFeedback
 
     /// "More" climbs by the cell, never past it, at every level.
-    /// v2.22 (spec §33): re-marked. The cell counts SUB-STEPS — a "2" means two
+    /// Re-marked. The cell counts SUB-STEPS — a "2" means two
     /// sub-steps, not two levels — so the expectation is derived from the same
     /// helper the engine uses. The subject (the cell governs the climb) stands.
     func testMoreClimbsByTheCell() {
@@ -126,7 +126,7 @@ final class EngineV25Tests: XCTestCase {
     }
 
     /// A pointed fact far above the plan is clamped by the same cell.
-    /// v2.22 (spec §33): in SUB-STEPS.
+    /// In SUB-STEPS.
     func testAFactIsClampedByTheCell() {
         for level in 1...EngineConfig.levelMax {
             let state = seeded(level: level)
@@ -155,7 +155,7 @@ final class EngineV25Tests: XCTestCase {
             lastEntry = state.position(.pull)
             state = after(state, .less)
         }
-        // v2.23 (spec §34): the subject — the ceiling never bounds a descent,
+        // The subject — the ceiling never bounds a descent,
         // and the deload still fires on the third shortfall — is untouched;
         // both figures changed unit. The old 4 was 10 − 1 − 1 − 1 − 3, three
         // level-wise "less" plus an ungated deload, and it landed `pull` on
@@ -172,17 +172,17 @@ final class EngineV25Tests: XCTestCase {
     func testOnPlanIsAlwaysOneStep() {
         let next = after(seeded(level: 3), .plan)
         for ex in Engine.generateSession(seeded(level: 3)).exercises {
-            // v2.22 (spec §33): one step is one SUB-STEP.
+            // One step is one SUB-STEP.
             assertPosition(next, ex.pattern, Level.rise(level: 3, sub: 0, by: 1),
                            "\(ex.pattern.rawValue)")
         }
     }
 
-    // SNIPPED v2.26 (§37.0): eleven tests of §15.2 — the discomfort input and
+    // SNIPPED: eleven tests of — the discomfort input and
     // the freeze it armed. `applyFeedback` has no `discomfort` argument and the
     // state has no `frozen`, so none of them has an input any more.
     //
-    // §15.3 — the growth-cap table, which is what the rest of this suite is
+    // — the growth-cap table, which is what the rest of this suite is
     // about — is untouched by the wave and stays here in full.
     //
     // NOT LOST: "a skip does not spend an appearance" was the one claim here

@@ -47,7 +47,7 @@ struct FeedbackView: View {
                     // agreeable user would pick it over the honest one.
                     //
                     // Captions promise a DIRECTION, never an amount. "Easy"
-                    // used to promise double speed; since v2.5 that is not
+                    // used to promise double speed; that is no longer
                     // true — EngineConfig.maxUpByPatternTier caps growth per
                     // movement and per variation, so a session made of fourth
                     // variations climbs exactly like "on plan". The size is
@@ -98,7 +98,7 @@ struct FeedbackView: View {
                                   reported: overrides[ex.pattern] ?? 0)
                 }
             }
-            // v2.26 (spec §37.0): the "Discomfort" section is gone with the
+            // The "Discomfort" section is gone with the
             // input that filled it. Nothing is set aside for pain any more —
             // a movement the person found too hard is either skipped or done
             // at the number they actually managed.

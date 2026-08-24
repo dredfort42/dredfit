@@ -1,5 +1,5 @@
 //
-//  The trainee's own rhythm and the training day (v2.13, spec §23 / #134, #147).
+// The trainee's own rhythm and the training day (#134, #147).
 //  A steady cadence is not a break: when a new gap lands within ±1 day of any
 //  of the last three gaps between workouts, the silent decay and the comeback
 //  card both stand down — the plan simply waits as it is. Everything here is
@@ -11,7 +11,7 @@ import DredfitCore
 
 extension AppStore {
 
-    /// v2.24 (spec §35.4, #147): CALENDAR days in the local zone — the number
+    /// CALENDAR days in the local zone — the number
     /// of midnights between the two workouts, not the number of whole 24-hour
     /// periods. Everything about rhythm is calendar-shaped in the trainee's
     /// head: "yesterday", "every Sunday", "two weeks off". Counting elapsed
@@ -25,7 +25,7 @@ extension AppStore {
     /// 2–14 illness) are untouched: this changes what a day IS, not how many
     /// of them mean what.
     ///
-    /// §28.5 keeps its own fractional gap (`gapFraction`, spec §30.8) — the
+    /// The weekly window keeps its own fractional gap (`gapFraction`) — the
     /// engine's weekly window ages in fractions of a day and must not be
     /// rounded to midnights.
     /// The calendar is a parameter only so the DST boundary can be pinned by a
@@ -54,10 +54,10 @@ extension AppStore {
         return Self.trainingDays(from: last.date, to: now ?? Date())
     }
 
-    /// v2.19 (spec §30.8): the same elapsed time, NOT floored — the fraction
+    /// The same elapsed time, NOT floored — the fraction
     /// of a day the engine's weekly window needs. `trainingDays` throws it
     /// away, so two workouts inside one day handed the engine a zero, the
-    /// §28.5 window never aged, and the weekly growth budget was spent once
+    /// window never aged, and the weekly growth budget was spent once
     /// for a lifetime (48 levels against 423 over 120 sessions). This feeds
     /// `applyFeedback` and nothing else: the decay, the comeback and the
     /// cadence keep counting whole training days.
@@ -77,7 +77,7 @@ extension AppStore {
         return zip(dates, dates.dropFirst()).map { Self.trainingDays(from: $0, to: $1) }
     }
 
-    /// Spec §23.2 (owner decisions 16.08.2026): a break is the trainee's own
+    /// (owner decisions 16.08.2026): a break is the trainee's own
     /// rhythm when it lands within ±1 day of any of the last three gaps —
     /// with no upper cap, so any consistent ritual is respected. A real
     /// one-off break falls outside the window and is treated as before.

@@ -1,5 +1,5 @@
 //
-//  v2.25 (spec §36.2, §36.5): what the app SAYS about the sets handle.
+//  What the app SAYS about the sets handle.
 //  The handle moves sets and never the level, so a card can go from
 //  `4×4 /side` to `1×4 /side` with nothing else on screen having changed —
 //  and a plan that quietly got easier reads as a bug exactly the way a plan
@@ -68,7 +68,7 @@ final class SetsHandleNoticeTests: XCTestCase {
     /// The other end of the handle: a set comes back, and the card says so
     /// once — the appearance the set actually arrives on.
     ///
-    /// v2.26 (§37.5): the set is taken off by the PERSON now, not by a pain
+    /// The set is taken off by the PERSON now, not by a pain
     /// report, which makes the sentence matter more rather than less. They
     /// know why it went; only the engine knows why it came back.
     func testTheCardSaysWhenASetComesBack() throws {
@@ -112,7 +112,7 @@ final class SetsHandleNoticeTests: XCTestCase {
         let root = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
         let strings = try XCTUnwrap(root["strings"] as? [String: Any])
 
-        // v2.26: the pain line went with the channel; the handles' own
+        // The pain line went with the channel; the handles' own
         // sentences joined. Every one of them is user-facing on the plan.
         let keys = [
             "A set is back — your body is coping.",
@@ -160,7 +160,7 @@ final class SetsHandleNoticeTests: XCTestCase {
     /// The general form of the same guard, over the whole app: every plain
     /// localized literal the sources ask for is a key the catalog carries.
     ///
-    /// v2.26: the scan covers `Text("…")` and `Button("…")` as well as
+    /// The scan covers `Text("…")` and `Button("…")` as well as
     /// `String(localized: "…")`. It did not before, and that is precisely the
     /// hole finding S5-4 came through — a SwiftUI `Text` literal is localized
     /// through the same catalog, so a sentence typed straight into a view
@@ -207,7 +207,7 @@ final class SetsHandleNoticeTests: XCTestCase {
         XCTAssertGreaterThan(checked, 100, "the scan found almost nothing — check the pattern")
     }
 
-    // SNIPPED v2.26 (§37.0): five tests of the pain line and the pain cut.
+    // SNIPPED: five tests of the pain line and the pain cut.
     // "Time to see a specialist" counted reports over a movement's history and
     // the card's "fewer sets for now — you said this one hurt" explained a cut
     // the pain channel made. Neither has an input any more.

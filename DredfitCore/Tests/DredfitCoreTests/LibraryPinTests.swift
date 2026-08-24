@@ -26,7 +26,7 @@ final class LibraryPinTests: XCTestCase {
                  "Single-leg Romanian deadlift", "Sliding leg curl"],
         .pull: ["Y-T-W raises", "Inverted row (table)",
                 "Feet-elevated inverted row", "Archer inverted row"],
-        // v2.18 (#131): the elevated pike took tier 3 and the wall handstand
+        // The elevated pike took tier 3 and the wall handstand
         // moved up to 4; the chest-to-wall variation left the library. Stored
         // levels keep their numbers (owner's decision 19.08.2026), so anyone
         // above tier 2 meets an easier movement at the same level — never a

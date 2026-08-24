@@ -10,7 +10,7 @@ import StoreKit
 import UIKit
 import DredfitCore
 
-// v2.26: the type is split across files — one per guided block, in
+// The type is split across files — one per guided block, in
 // WorkoutFlowView+Warmup.swift and WorkoutFlowView+Cooldown.swift, because
 // this file crossed the lint's hard ceiling of 1200 lines and a CI error is
 // not a style opinion. Swift's
@@ -29,7 +29,7 @@ struct WorkoutFlowView: View {
     @Environment(\.requestReview) private var requestReview
 
     enum Phase: Equatable {
-        /// v2.26 (spec §37.7a, owner's call): the warm-up no longer starts
+        /// The warm-up no longer starts
         /// itself either. Being dropped straight into a countdown nobody
         /// agreed to is how a block gets skipped by walking away rather than
         /// by saying so — and the answer "I am already warm" is a real one.
@@ -38,7 +38,7 @@ struct WorkoutFlowView: View {
         case warmup
         case work
         case rest(seconds: Int)
-        /// v2.26 (spec §37.7a): the cool-down no longer starts itself. The
+        /// The cool-down no longer starts itself. The
         /// work is behind, and being dropped straight into a stretch nobody
         /// asked for is how a block gets skipped by walking away instead of by
         /// saying so. One screen, two answers, and both are fine.
@@ -85,7 +85,7 @@ struct WorkoutFlowView: View {
     /// Kept apart from `skippedPatterns`: the engine treats both as skips for
     /// the session, but the rating and the history say different things.
     @State private var adjusting = false
-    /// v2.26 (spec §37.8 p. 2): movements this session has already been warned
+    /// Movements this session has already been warned
     /// about. Once per exercise — a second copy of the same advice is nagging.
     @State private var maximumNoted: Set<Pattern> = []
     @State private var maximumWarning: String?
@@ -388,7 +388,7 @@ struct WorkoutFlowView: View {
                 .padding(.bottom, 8)
             }
 
-            // v2.26 (spec §37.8 p. 2): soft, once per exercise per session,
+            // Soft, once per exercise per session,
             // and it never blocks the entry.
             if let warning = maximumWarning {
                 Text(warning)
@@ -558,18 +558,18 @@ struct WorkoutFlowView: View {
         }
     }
 
-    /// Leaving an exercise early. v2.26 (spec §37.0): there used to be two
+    /// Leaving an exercise early.: there used to be two
     /// ways — a skip and a pain report — and the report is gone. A person who
     /// finds the movement too hard now reaches for a handle instead, which
     /// keeps the movement in the plan rather than taking it out for weeks.
-    /// v2.26 (spec §37.8 p. 2): a soft note when the person enters MORE than
+    /// A soft note when the person enters MORE than
     /// the plan on a set that is not the last one. Once per exercise per
     /// session, and the entry stands either way — it is advice about the
     /// workout, never a correction of the number.
     ///
     /// What it must NOT say is that the system measures the last set more
     /// accurately. Under a mean the ORDER OF SETS DOES NOT REACH THE ENGINE at
-    /// all: 12, 8, 8 and 8, 8, 12 both collapse to 9 (§37.8 p. 3). The advice
+    /// all: 12, 8, 8 and 8, 8, 12 both collapse to 9. The advice
     /// is about training — a maximum attempt fatigues what follows it — and
     /// the wording says exactly that and nothing more.
     private func noteMaximumOutOfOrder() {
@@ -782,8 +782,8 @@ extension WorkoutFlowView {
             workoutStart: workoutStart ?? .now, savedAt: .now,
             fingerprint: WorkoutSnapshot.fingerprint(of: session),
             // Process death during the cool-down restores to the rating
-            // (spec §4): the work is fully behind.
-            // v2.26: the intro screen counts as "the work is behind" too —
+            // the work is fully behind.
+            // The intro screen counts as "the work is behind" too —
             // process death there must not resume into the last exercise.
             atFeedback: phase == .feedback || phase == .cooldown
                 || phase == .cooldownIntro ? true : nil,
@@ -851,7 +851,7 @@ extension WorkoutFlowView {
     func finishNow() {
         // Every exercise is already behind. Without this the generic path
         // would call the completed last exercise "not finished".
-        // v2.26: the cool-down QUESTION is behind the work too — leaving from
+        // The cool-down QUESTION is behind the work too — leaving from
         // it must end the same way leaving from the block does.
         if phase == .cooldown || phase == .cooldownIntro {
             finishCooldown()

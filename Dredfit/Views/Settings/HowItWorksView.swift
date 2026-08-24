@@ -77,7 +77,7 @@ struct HowItWorksView: View {
                     A skipped exercise simply doesn't count: its level stays \
                     where it was. No penalty, no rollback.
                     """)),
-            // v2.26 (spec §37.0): this section used to explain the pain
+            // This section used to explain the pain
             // channel — a tap that rested a movement for three appearances.
             // The channel is gone, and the case it served is answered by the
             // two handles instead. The stop rule stays: what was removed is a
@@ -93,7 +93,7 @@ struct HowItWorksView: View {
                     plan in front of you and leaves the other movements \
                     alone. Sharp pain is always a reason to stop.
                     """)),
-            // v2.22 (spec §33): this section used to explain the
+            // This section used to explain the
             // hold-this-level input. The input is cancelled — it was used zero
             // times in 24 real sessions — and the case it served is what the
             // sub-step now handles without being asked.
@@ -113,7 +113,7 @@ struct HowItWorksView: View {
                     Dredfit finds your level from real workouts and keeps the \
                     load right at the edge of what you can manage.
                     """)),
-            // v2.24 (spec §35.5): the interference effect, said once and
+            // The interference effect, said once and
             // statically. It is a scheduling hint, not a rule the engine can
             // act on — Dredfit cannot see the run you went on — so it belongs
             // on the explainer screen and nowhere else: no notification, no

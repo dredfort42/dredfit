@@ -1,5 +1,5 @@
 //
-//  v2.13 (spec §24.1): the journal is an input too. The engine heals the state
+//  The journal is an input too. The engine heals the state
 //  it is handed, but its own snapshots come back out of the store file and go
 //  straight into arithmetic — and in Swift a subtraction or a product on a
 //  hand-edited number traps the process rather than saturating. Found by the

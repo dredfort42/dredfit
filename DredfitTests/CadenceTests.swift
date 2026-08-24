@@ -1,5 +1,5 @@
 //
-//  v2.13 (spec §23 / #134, #147): the trainee's own rhythm is not a break,
+//  The trainee's own rhythm is not a break,
 //  and the training day changes at 4 a.m., not midnight.
 //
 
@@ -61,9 +61,9 @@ final class CadenceTests: XCTestCase {
         return AppStore(storageURL: tempURL)
     }
 
-    // MARK: - The training day (v2.24, spec §35.4 / #147)
+    // MARK: - The training day (#147)
 
-    /// v2.24: RE-MARKED from whole elapsed 24-hour periods to CALENDAR days in
+    /// RE-MARKED from whole elapsed 24-hour periods to CALENDAR days in
     /// the local zone, with the cause. Everything about rhythm is calendar-
     /// shaped in the trainee's head — "yesterday", "every Sunday", "two weeks
     /// off" — and elapsed-hours arithmetic disagreed with all of it: Monday
@@ -137,13 +137,13 @@ final class CadenceTests: XCTestCase {
 
     func testShiftWorkerRitualIsCarriedByTheRhythmNotByTheDayCount() throws {
         // True 6.0-day cadence with the hour drifting 23:00 <-> 01:00 across
-        // midnight. v2.24: RE-MARKED from [5, 6, 5] to [5, 7, 5], with the
+        // midnight.: RE-MARKED from [5, 6, 5] to [5, 7, 5], with the
         // cause. Under calendar days the drift genuinely straddles midnights,
         // so the ritual reads 7/5 rather than 6/5 — and the thing that keeps it
-        // out of the decay is the rhythm detector (§23.2), not the definition
+        // out of the decay is the rhythm detector, not the definition
         // of a day: a 7 that matches an earlier 7 within ±1 is this trainee's
         // own rhythm. The price is one decay on the FIRST such gap, before
-        // there is any rhythm to recognise — named in spec §35.4, not hidden.
+        // there is any rhythm to recognise — named outright, not hidden.
         var dates = [date(day: 0, hour: 23)]
         for i in 0..<4 {
             let drift: TimeInterval = i.isMultiple(of: 2) ? 2 * 3600 : -2 * 3600
@@ -157,12 +157,12 @@ final class CadenceTests: XCTestCase {
                       "a 7 among 7s is the ritual, not a break in it")
     }
 
-    // MARK: - The fractional gap the engine reads (v2.19, spec §30.8)
+    // MARK: - The fractional gap the engine reads
 
     /// `trainingDays` counts midnights, which is right for the decay, the
     /// comeback and the rhythm — and wrong for the one argument the engine's
     /// weekly window reads. `gapFraction` keeps the fraction of real elapsed
-    /// time (spec §30.8); the two must not be confused, and v2.24 did not
+    /// time; the two must not be confused, and did not
     /// touch the second one.
     func testTheFractionalGapKeepsWhatTheTrainingDayThrowsAway() throws {
         let s = try store(workoutsAt: [date(day: 0, hour: 8)])
@@ -298,7 +298,7 @@ final class CadenceTests: XCTestCase {
                        "no silent decay was taken, so the comeback is the full table amount")
     }
 
-    // SNIPPED v2.26 (§37.0): `testIllnessTapStaysForRhythmBreaks`. The quiet
+    // SNIPPED: `testIllnessTapStaysForRhythmBreaks`. The quiet
     // "I was sick" offer is gone with the lens it armed. The rhythm-break rule
     // it leaned on — a 14+ day gap that is the person's own rhythm carries no
     // comeback card — is asserted by the comeback tests in this same file.

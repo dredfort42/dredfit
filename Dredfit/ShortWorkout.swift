@@ -6,7 +6,7 @@
 //  very list Today shows, so the resume fingerprint still matches.
 //
 //  Selection is "pull + anchor + laggard", verified by simulation (spec
-//  §3.1): over 32 short workouts every movement is trained 4–16 times and
+// ): over 32 short workouts every movement is trained 4–16 times and
 //  none waits longer than 8 sessions. The naive "pull + the two lowest" was
 //  rejected — it starves strong movements completely.
 //

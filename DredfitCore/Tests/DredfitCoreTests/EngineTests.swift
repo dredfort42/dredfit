@@ -17,11 +17,11 @@ final class EngineTests: XCTestCase {
             let d = Level.decode(l)
             XCTAssertTrue((1...EngineConfig.tiers).contains(d.tier), "L=\(l) tier")
             XCTAssertTrue((EngineConfig.setsBase...EngineConfig.setsMax).contains(d.sets), "L=\(l) sets")
-            // Re-marked for v2.17 (spec §28.1): the range is per tier below
+            // Re-marked: the range is per tier below
             // the bands and per BAND inside them — 8...15 / 6...13 / 5...12 /
             // 4...11, then 6...13 (band 4) and 8...15 (band 5).
             let repLo = EngineConfig.repStartBand[d.sets] ?? EngineConfig.repStart[d.tier]!
-            // Re-marked for v2.21 (spec §32.2): the static range is the
+            // Re-marked: the static range is the
             // ladder's own two ends, not "start + 7 steps" — the step is
             // relative and is not constant inside a ladder.
             let ladder = Level.ladder(tier: d.tier, sets: d.sets)
@@ -33,7 +33,7 @@ final class EngineTests: XCTestCase {
     }
 
     func testLevelDecodeTierTransitions() {
-        // Re-marked for v2.21 (spec §32.2): the hold column is the ladder now.
+        // Re-marked: the hold column is the ladder now.
         // Tier 1 still starts at 20 s; its top is 39 s instead of 55.
         XCTAssertEqual(Level.decode(7), LevelDecoded(tier: 1, sets: 3, reps: 15, hold: 39))
         // each tier starts lower, so entering a tier is a step down in reps —
@@ -42,7 +42,7 @@ final class EngineTests: XCTestCase {
         XCTAssertEqual(Level.decode(23), LevelDecoded(tier: 3, sets: 3, reps: 12, hold: 31))
         XCTAssertEqual(Level.decode(24), LevelDecoded(tier: 4, sets: 3, reps: 4, hold: 10))
         XCTAssertEqual(Level.decode(31), LevelDecoded(tier: 4, sets: 3, reps: 11, hold: 19))
-        // Set bands above tier 4. Re-marked for v2.17 (spec §28.1): a band
+        // Set bands above tier 4. Re-marked: a band
         // starts at its own dose — the old reset to tier 4's floor cut the
         // actual work by 52-72% at the boundary while the session grew longer.
         XCTAssertEqual(Level.decode(32), LevelDecoded(tier: 4, sets: 4, reps: 6, hold: 20))
@@ -72,7 +72,7 @@ final class EngineTests: XCTestCase {
                                             sets: d.sets, actual: barActual), l, "pullBar L=\(l)")
         }
         // The spec's worked example: an actual below the band's floor drops
-        // back a band. Re-marked for v2.17 (spec §28.1): band 4 now starts at
+        // back a band. Re-marked: band 4 now starts at
         // 6 reps rather than tier 4's 4, so the same fact of 2 lands deeper —
         // the PROPERTY is what matters, so it is computed, not pinned.
         let belowBand = Level.fromActual(pattern: .pull, tier: 4, sets: 4, actual: 2)
@@ -119,7 +119,7 @@ final class EngineTests: XCTestCase {
     // MARK: Regulator scenarios
 
     func testAlwaysPlanReachesCeiling() {
-        // v2.22 (spec §33): 400 sessions, not 80 — the scale is 153 sub-steps
+        // 400 sessions, not 80 — the scale is 153 sub-steps
         // tall now, and a growth event is worth one of them.
         var state = EngineState.initial
         for _ in 0..<400 {
@@ -134,7 +134,7 @@ final class EngineTests: XCTestCase {
         for ex in s.exercises {
             XCTAssertEqual(ex.tier, EngineConfig.tiers, "at the ceiling tier \(EngineConfig.tiers) is expected")
             XCTAssertEqual(ex.sets, EngineConfig.setsMax, "at the ceiling \(EngineConfig.setsMax) sets are expected")
-            // Re-marked for v2.17 (spec §28.1): the ceiling is the top step of
+            // Re-marked: the ceiling is the top step of
             // BAND 5, which now starts at its own dose rather than at the
             // bottom of tier 4.
             let d = Level.decode(EngineConfig.levelMax)
@@ -146,7 +146,7 @@ final class EngineTests: XCTestCase {
     /// The regulator works across set-band boundaries with no special cases.
     func testRegulatorCrossesBandBoundaries() {
         // "more" at 31 crosses into the 4-set band. Tier 4 is capped at a
-        // single step per session (v2.5), so the crossing is 31 → 32.
+        // single step per session, so the crossing is 31 → 32.
         var state = EngineState.initial
         state.levels[.pull] = 31
         var s = Engine.generateSession(state)
@@ -156,16 +156,16 @@ final class EngineTests: XCTestCase {
         s = Engine.generateSession(state)
         let ex = s.exercises.first { $0.pattern == .pull }!
         XCTAssertEqual(ex.sets, 4)
-        // Re-marked for v2.17 (spec §28.1): the band starts at its own dose.
+        // Re-marked: the band starts at its own dose.
         XCTAssertEqual(ex.load, EngineConfig.repStartBand[4],
                        "32 = 4×\(EngineConfig.repStartBand[4]!) — the band's own start")
 
-        // v2.23 (spec §34.1): a "less" no longer walks out of the band one
+        // A "less" no longer walks out of the band one
         // level at a time — 32 → 31 read as 4×4 → 3×11, 16 reps against 33.
         // 32 is a block floor, the position stands, and the streak grows on
-        // INTENT (§34.2); the way out of the band is the deload, and it is
-        // now the first one to pass the "no harder" gate (§34.3).
-        // v2.25 (spec §36.3): on a block floor a "less" is no longer inert —
+        // INTENT; the way out of the band is the deload, and it is
+        // now the first one to pass the "no harder" gate.
+        // On a block floor a "less" is no longer inert —
         // the sets handle gives it a step down there, and the deload that
         // follows reads the ACCUMULATED cut, so the gate compares a trimmed
         // plan with a trimmed one.
@@ -212,12 +212,12 @@ final class EngineTests: XCTestCase {
             let s = Engine.generateSession(state)
             let inSession = s.exercises.contains { $0.pattern == probe }
             let entry = state.position(probe)
-            // v2.9: the subject is the deload, so the run is already going and
-            // the delta is session-wide (spec §19.2).
+            // The subject is the deload, so the run is already going and
+            // the delta is session-wide.
             state = Engine.applyFeedback(state: state.underLessRun, session: s, result: .less)
             guard inSession else { continue }
             drops += 1
-            // v2.23 (spec §34): the subject — a deload on the third
+            // The subject — a deload on the third
             // underperformance — is untouched, but both of its figures changed
             // unit and must be derived from the rule:
             //   • a plain underperformance is ONE sub-step back along the
@@ -253,7 +253,7 @@ final class EngineTests: XCTestCase {
 
         // The cap still applies once the level is non-zero. Uses pull, which is
         // in every session, so the override is guaranteed to land.
-        // v2.22 (spec §33): pull has no fact on the first step here, so "plan"
+        // Pull has no fact on the first step here, so "plan"
         // gives it one SUB-STEP and its level is still zero — the cap is checked
         // from an explicitly seeded non-zero level, and it counts sub-steps.
         var seed = next
@@ -303,8 +303,8 @@ final class EngineTests: XCTestCase {
         for result in [FeedbackResult.less, .plan, .more] {
             for ex in s.exercises {
                 let p = ex.pattern
-                // v2.9: the subject is the skip, so an unnamed "less" is taken
-                // under a run — session-wide delta (spec §19.2).
+                // The subject is the skip, so an unnamed "less" is taken
+                // under a run — session-wide delta.
                 let base = result == .less ? state.underLessRun : state
                 let after = Engine.applyFeedback(state: base, session: s,
                                                  result: result, skipped: [p])
@@ -314,7 +314,7 @@ final class EngineTests: XCTestCase {
                                "\(result)/\(p): a skipped pattern must not change streak")
                 XCTAssertEqual(after.counter, state.counter + 1)
                 // a neighbour still moves by the ordinary delta
-                // v2.22 (spec §33): in SUB-STEPS, derived from the rule.
+                // in SUB-STEPS, derived from the rule.
                 let other = s.exercises.first { $0.pattern != p }!.pattern
                 assertPosition(after, other,
                                expectedPosition(state, other, delta: result.delta),
@@ -363,8 +363,8 @@ final class EngineTests: XCTestCase {
         }
         for _ in 0..<2 {
             let s = Engine.generateSession(state)
-            // v2.9: the streak is built under a run, where the delta is
-            // session-wide (spec §19.2) — the skip is what this test is about.
+            // The streak is built under a run, where the delta is
+            // session-wide — the skip is what this test is about.
             state = Engine.applyFeedback(state: state.underLessRun, session: s, result: .less)
         }
         XCTAssertEqual(state.failStreak[.pull], 2, "setup: pull must be at streak 2")
@@ -378,7 +378,7 @@ final class EngineTests: XCTestCase {
         XCTAssertEqual(frozen.levels[.pull], level, "skip must keep the level")
 
         // the next real underperformance is the 3rd → deload
-        // v2.23 (spec §34.3): the subject — a skip POSTPONES the deload rather
+        // The subject — a skip POSTPONES the deload rather
         // than cancelling it — is untouched; the size of the roll-back is
         // derived from the rule (the old `level − 1 − deloadDrop` added up a
         // level-wise "less" and the deload, and "less" no longer moves a level).
@@ -452,7 +452,7 @@ final class EngineTests: XCTestCase {
         let barStreak = state.failStreak[.pullBar]!
 
         let pullSession = Engine.generateSession(state)
-        // v2.9: branch independence, not targeting — take the session-wide delta.
+        // Branch independence, not targeting — take the session-wide delta.
         let afterPull = Engine.applyFeedback(state: state.underLessRun, session: pullSession, result: .less)
         XCTAssertEqual(afterPull.levels[.pullBar], barLevel, "a pull session moved pullBar")
         XCTAssertEqual(afterPull.failStreak[.pullBar], barStreak)
@@ -573,7 +573,7 @@ final class EngineTests: XCTestCase {
         XCTAssertEqual(twice, once, "the same session must not apply twice")
     }
 
-    // MARK: Silent decay (v2.4, issue #37)
+    // MARK: Silent decay (issue #37)
 
     func testSilentDecayActsOnlyInsideTheBlindZone() {
         var state = warmedUpState()
@@ -587,7 +587,7 @@ final class EngineTests: XCTestCase {
             for p in Pattern.allCases {
                 XCTAssertEqual(after.levels[p], max(0, (state.levels[p] ?? 0) - 1),
                                "gap \(gap): −1 clamped at 0 (\(p))")
-                // v2.7 (spec §17.3): the decay resets the streak like the
+                // The decay resets the streak like the
                 // comeback — the old carry-over inverted the 13/14 boundary.
                 XCTAssertEqual(after.failStreak[p], 0,
                                "gap \(gap): streaks reset (\(p))")
@@ -596,14 +596,14 @@ final class EngineTests: XCTestCase {
         }
     }
 
-    /// The non-stacking property (spec §14.2): a break that got the silent −1
+    /// The non-stacking property: a break that got the silent −1
     /// and then a weakened comeback ends exactly where a plain comeback for
     /// the same gap would — per pattern, clamp included.
-    /// Re-marked for v2.25, and the state of play is named rather than hidden.
-    /// §14.2 states the identity ON LEVELS, and in that form it holds: the
+    /// Re-marked, and the state of play is named rather than hidden.
+    /// Non-stacking states the identity ON LEVELS, and in that form it holds: the
     /// sweep below finds no divergence at all with an empty cut. The whole
     /// TRIPLE does not converge everywhere: `fallBy` spends the dose before
-    /// the sets while `riseBy` returns the sets before the dose (§36.3 makes
+    /// the sets while `riseBy` returns the sets before the dose (the position measure makes
     /// that asymmetry deliberate), so the `alreadyDecayed` compensation
     /// reverses the decay's step exactly only where the decay moved the same
     /// axis. The reference has the same property — a divergence in 920 cells
@@ -638,7 +638,7 @@ final class EngineTests: XCTestCase {
         }
     }
 
-    /// The bound on the §14.2 divergence with a NON-EMPTY cut — the same
+    /// The bound on the divergence with a NON-EMPTY cut — the same
     /// measurement the reference verifier pins, ported here so the two cannot
     /// drift apart. 920 divergent cells of 11,760, worst 6 positions, and not
     /// one of them in the direction that would be a hole.
@@ -665,7 +665,7 @@ final class EngineTests: XCTestCase {
                 }
             }
         }
-        // v2.26 (§37.3): 11 760 → 8 400. The sweep is not narrowed — the STATE
+        // 11 760 → 8 400. The sweep is not narrowed — the STATE
         // SPACE is: the cut's ceiling is read through `cutMax(level:floor:)`
         // with the shared floor, and cuts "down to a single set" stopped being
         // reachable when the pain floor went. Checking the identity on states

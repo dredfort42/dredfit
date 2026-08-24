@@ -40,23 +40,23 @@ private struct Golden: Decodable {
     /// applyComeback invoked before this step's session.
     struct Comeback: Decodable {
         let gapDays: Int
-        let alreadyDecayed: Bool?  // v2.4: silent decay hit this break first
+        let alreadyDecayed: Bool?  // silent decay hit this break first
         let levelsAfter: [Int]
         let failStreakAfter: [Int]
         let counterAfter: Int
         let barLevelAfter: Int?
         let barStreakAfter: Int?
-        let lessRunAfter: Int?     // v2.9: a break does not continue a run of "less"
-        let lessHistAfter: [String: Int]?   // v2.15: the appearance window (§26.1)
-        let returnRunAfter: Int?   // v2.12: consecutive returns deepen the drop
-        // v2.25 (§36.7): a comeback carries the cut across and reclamps it to
+        let lessRunAfter: Int?     // a break does not continue a run of "less"
+        let lessHistAfter: [String: Int]?   // the appearance window
+        let returnRunAfter: Int?   // consecutive returns deepen the drop
+        // A comeback carries the cut across and reclamps it to
         // the new band, and on a long break the memory of pain fades.
         let subAfter: [Int]?
         let cutAfter: [Int]?
         let barCutAfter: Int?
         let setsHoldAfter: [Int]?
     }
-    /// v2.12 (§22.3): one step may carry a SERIES of comebacks — returns in a
+    /// One step may carry a SERIES of comebacks — returns in a
     /// row with no session between, each past the first one deeper. The wire
     /// form is either a single snapshot (the old shape) or {series: [...]}.
     struct ComebackStep: Decodable {
@@ -71,7 +71,7 @@ private struct Golden: Decodable {
             }
         }
     }
-    /// applySilentDecay invoked before this step's session (v2.4) — and
+    /// applySilentDecay invoked before this step's session — and
     /// before the step's comeback, when both are present: the user peeked
     /// mid-break, then came back later.
     struct SilentDecay: Decodable {
@@ -82,8 +82,8 @@ private struct Golden: Decodable {
         let barStreakAfter: Int?
         let lessRunAfter: Int?
         let lessHistAfter: [String: Int]?
-        let returnRunAfter: Int?   // v2.12: a decay is not a return
-        // v2.25 (§36.7): a decay is a DESCENT and walks a step of the growth
+        let returnRunAfter: Int?   // a decay is not a return
+        // A decay is a DESCENT and walks a step of the growth
         // path — on a block floor it takes a SET and leaves the level alone,
         // so `levelsAfter` alone no longer describes where it landed.
         let subAfter: [Int]?
@@ -99,7 +99,7 @@ private struct Golden: Decodable {
         let overrides: [String: Int]
         let skipped: [String]?     // absent in older fixtures
         let levelsAfter: [Int]
-        // v2.22 (§33): the sub-step, by patternOrder. Every scenario writes it —
+        // The sub-step, by patternOrder. Every scenario writes it —
         // growth moves by sub-steps, so without it the fixture would pin almost
         // nothing about the wave.
         let subAfter: [Int]?
@@ -109,13 +109,13 @@ private struct Golden: Decodable {
         let hasBar: Bool?          // effective toggle for this step's session
         let barLevelAfter: Int?
         let barStreakAfter: Int?
-        let lessRunAfter: Int?     // v2.9: run of "less" ratings naming nothing
-        let lessHistAfter: [String: Int]?   // v2.15: the appearance window (§26.1)
-        let creditPausedAfter: [Int]?   // v2.10: [pull, pullBar], 1 = credit paused
-        let returnRunAfter: Int?   // v2.12: 0 after any completed session
+        let lessRunAfter: Int?     // run of "less" ratings naming nothing
+        let lessHistAfter: [String: Int]?   // the appearance window
+        let creditPausedAfter: [Int]?   // [pull, pullBar], 1 = credit paused
+        let returnRunAfter: Int?   // 0 after any completed session
         let silentDecay: SilentDecay?
         let comeback: ComebackStep?
-        // v2.25 (§36): the third coordinate of a position and everything the
+        // The third coordinate of a position and everything the
         // wave added around it. Every scenario writes them — gating them by
         // scenario shape is exactly the hole P0-5 of the last audit came
         // through — so they are asserted on every step.
@@ -133,11 +133,11 @@ private struct Golden: Decodable {
         let weekGainAfter: [Int]?
         let barWeekGainAfter: Int?
         let weekAgeDaysAfter: Double?
-        /// v2.25: the gap. Absent means nil, which pins the calendar-blind
-        /// path of §7 just as a present one pins §28.5/§30.8. v2.26: it is the
+        /// The gap. Absent means nil, which pins the calendar-blind
+        /// path of just as a present one pins.: it is the
         /// SIXTH argument now, not the seventh.
         let gapDays: Double?
-        /// v2.26 (§37.4-§37.5): the handles the person pulled before this
+        /// The handles the person pulled before this
         /// session's plan was generated, and the state they left behind.
         let handles: Handles?
     }
@@ -165,7 +165,7 @@ private struct Golden: Decodable {
         let sets: Int
         let restSetSec: Int
         let restExerciseSec: Int
-        /// v2.22 (§33): per-set doses, present only on an uneven plan — the
+        /// Per-set doses, present only on an uneven plan — the
         /// wire form mirrors `[Int]?` exactly, so its absence is a claim too.
         let loads: [Int]?
     }
@@ -203,11 +203,11 @@ final class GoldenTests: XCTestCase {
         let barLevel: Int?
         let barStreak: Int?
         let lessRun: Int?
-        // v2.25 (§36.7): a break moves the whole TRIPLE.
+        // A break moves the whole TRIPLE.
         let sub: [Int]?
         let cut: [Int]?
         let barCut: Int?
-        // v2.26: the hold on a returning set — the surviving per-pattern
+        // The hold on a returning set — the surviving per-pattern
         // counter, and the one the handles' snapshot carries.
         let setsHold: [Int]?
     }
@@ -221,7 +221,7 @@ final class GoldenTests: XCTestCase {
         if let v = snap.barLevel { XCTAssertEqual(state.levels[.pullBar], v, "\(ctx): bar level") }
         if let v = snap.barStreak { XCTAssertEqual(state.failStreak[.pullBar], v, "\(ctx): bar streak") }
         if let v = snap.lessRun { XCTAssertEqual(state.lessRun, v, "\(ctx): less run") }
-        // v2.25 (§36.7): the decay steps along the growth path, so the
+        // The decay steps along the growth path, so the
         // sub-step and the cut are part of where it landed.
         if let v = snap.sub {
             XCTAssertEqual(order.map { state.sub[Pattern(rawValue: $0)!] ?? 0 }, v,
@@ -257,7 +257,7 @@ final class GoldenTests: XCTestCase {
             for (i, step) in scenario.steps.enumerated() {
                 let ctx = "\(scenario.name)/step \(i + 1)"
                 // The one settings toggle a scenario may flip between sessions
-                // (v2.26: the budget was the second, and it is gone).
+                // (: the budget was the second, and it is gone).
                 state.hasBar = step.hasBar ?? state.hasBar
                 replayBreaks(step, into: &state, order: g.patternOrder, ctx: ctx)
                 replayHandles(step, into: &state, order: g.patternOrder, ctx: ctx)
@@ -278,7 +278,7 @@ final class GoldenTests: XCTestCase {
                     XCTAssertEqual(ex.sets, ref.sets, ctx)
                     XCTAssertEqual(ex.restSetSec, ref.restSetSec, ctx)
                     XCTAssertEqual(ex.restExerciseSec, ref.restExerciseSec, ctx)
-                    // v2.22 (§33): the per-set doses, absence included — a
+                    // The per-set doses, absence included — a
                     // uniform plan must stay nil on both sides.
                     XCTAssertEqual(ex.loads, ref.loads, ctx + " \(ref.pattern) loads")
                 }
@@ -288,8 +288,8 @@ final class GoldenTests: XCTestCase {
                 let overrides = Dictionary(uniqueKeysWithValues:
                     step.overrides.map { (Pattern(rawValue: $0.key)!, $0.value) })
                 let skipped = Set((step.skipped ?? []).map { Pattern(rawValue: $0)! })
-                // v2.26 (§37.2): SIX arguments. Every optional is passed
-                // explicitly — the rule of the v2.25 wave, kept because a
+                // SIX arguments. Every optional is passed
+                // explicitly — the rule of the wave, kept because a
                 // default silently shifting is exactly what broke 480 cells
                 // out of 480 last time, and what the arity change would do
                 // again to a caller that was not updated.
@@ -302,7 +302,7 @@ final class GoldenTests: XCTestCase {
                 let streaks = Pattern.ordered.map { state.failStreak[$0]! }
                 XCTAssertEqual(levels, step.levelsAfter, ctx + " (levels)")
                 XCTAssertEqual(streaks, step.failStreakAfter, ctx + " (failStreak)")
-                // v2.22 (§33): the level is only half the position.
+                // The level is only half the position.
                 if let subs = step.subAfter {
                     XCTAssertEqual(Pattern.ordered.map { state.sub[$0] ?? 0 }, subs,
                                    ctx + " (sub)")
@@ -324,7 +324,7 @@ final class GoldenTests: XCTestCase {
         }
     }
 
-    /// v2.26 (§37.4-§37.5): the handles a step may carry, applied where the
+    /// The handles a step may carry, applied where the
     /// app applies them — after any break, before the plan is generated.
     ///
     /// The ORDER inside a step is part of the contract and is fixed here to
@@ -359,8 +359,8 @@ final class GoldenTests: XCTestCase {
     }
 
     /// The breaks a step may carry, replayed in the app's order: the silent
-    /// decay first, then the comeback (v2.12: possibly a series of them with
-    /// no session between). v2.26: the "I was sick" tap was the third and is
+    /// decay first, then the comeback (: possibly a series of them with
+    /// no session between).: the "I was sick" tap was the third and is
     /// gone with the lens.
     private func replayBreaks(_ step: Golden.Step, into state: inout EngineState,
                               order: [String], ctx: String) {
@@ -406,10 +406,10 @@ final class GoldenTests: XCTestCase {
         }
     }
 
-    /// v2.25 (spec §36): the sets handle and everything the wave put in the
+    /// The sets handle and everything the wave put in the
     /// state around it — the third coordinate of a position, the memory of
     /// pain, the hold on a returning set, the shown-plan memory, and the three
-    /// §28.4-28.5 fields that used to sit outside the golden contract
+    /// -28.5 fields that used to sit outside the golden contract
     /// altogether. Split out of `assertAuxFields` so that function keeps its
     /// complexity budget.
     private func assertSetsHandle(_ step: Golden.Step, _ state: EngineState, ctx: String) {
@@ -438,7 +438,7 @@ final class GoldenTests: XCTestCase {
         if let v = step.barShownOrdAfter {
             XCTAssertEqual(state.shownOrd[.pullBar] ?? 0, v, ctx + " (bar shown position)")
         }
-        // The three fields that were outside the contract until v2.25.
+        // The three fields that were outside the contract until then.
         if let v = step.rampWindowAfter {
             XCTAssertEqual(state.rampWindow, v, ctx + " (ramp window)")
         }
@@ -457,24 +457,24 @@ final class GoldenTests: XCTestCase {
     /// Every optional per-step snapshot past levels and streaks — the fields
     /// each wave added, compared only where the fixture carries them.
     private func assertAuxFields(_ step: Golden.Step, _ state: EngineState, ctx: String) {
-        assertSetsHandle(step, state, ctx: ctx)         // v2.25 (spec §36)
-        // v2.9: the run of unnamed "less" ratings (spec §19.1)
+        assertSetsHandle(step, state, ctx: ctx)         //
+        // The run of unnamed "less" ratings
         if let lessRun = step.lessRunAfter {
             XCTAssertEqual(state.lessRun, lessRun, ctx + " (less run)")
         }
-        // v2.15: the window of recent appearances (spec §26.1)
+        // The window of recent appearances
         if let hist = step.lessHistAfter {
             var actual: [String: Int] = [:]
             for (p, mask) in state.lessHist where mask > 0 { actual[p.rawValue] = mask }
             XCTAssertEqual(actual, hist, ctx + " (appearance window)")
         }
-        // v2.10: the cross-credit pause on the pull slot (spec §20.1)
+        // The cross-credit pause on the pull slot
         if let paused = step.creditPausedAfter {
             XCTAssertEqual([Pattern.pull, .pullBar].map { state.creditPaused.contains($0) ? 1 : 0 },
                            paused, ctx + " (credit paused)")
         }
-        // v2.12: the comeback series (spec §22.3). The lens was the other
-        // half of §22 and is gone (§37.0).
+        // The comeback series. The lens was the other
+        // half of and is gone.
         if let run = step.returnRunAfter {
             XCTAssertEqual(state.returnRun, run, ctx + " (return run)")
         }

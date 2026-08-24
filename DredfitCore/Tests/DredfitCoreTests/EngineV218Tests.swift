@@ -1,7 +1,7 @@
 //
 //  DredfitCoreTests
 //
-//  v2.18 (spec §29, #131): the rung the push-up ladder was missing. Of the
+//  The rung the push-up ladder was missing. Of the
 //  forty transitions in the library exactly one asked for a new SKILL rather
 //  than more strength — pike straight into a wall handstand, entered by
 //  kicking up at near-full bodyweight. The elevated pike now sits between
