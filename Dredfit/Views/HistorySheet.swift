@@ -15,8 +15,7 @@ struct HistorySheet: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 6) {
-                Kicker(text: record.date.formatted(.dateTime.weekday(.wide).day().month(.wide))
-                    .capitalized)
+                Kicker(text: record.date.screenDateText)
                 Text("Workout \(record.sessionNumber)")
                     .dredfitFont(28, weight: .heavy)
                     .tracking(-0.5)

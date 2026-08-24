@@ -190,8 +190,7 @@ struct TodayView: View {
         let debuts = store.debutPatterns
         return VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 6) {
-                Kicker(text: store.today.formatted(.dateTime.weekday(.wide).day().month(.wide))
-                    .capitalized)
+                Kicker(text: store.today.screenDateText)
                 Text("Workout \(session.sessionNumber)")
                     .dredfitFont(32, weight: .heavy)
                     .tracking(-0.5)
@@ -360,10 +359,7 @@ struct TodayView: View {
                                                   shortPlan: snap.shortPlan.map(Set.init))
                 } label: {
                     Text(String(localized: "resume.continue", defaultValue: "Continue"))
-                        .dredfitFont(15.5, weight: .semibold)
-                        .foregroundStyle(Theme.bg)
-                        .frame(maxWidth: .infinity, minHeight: 46)
-                        .background(Theme.ink, in: RoundedRectangle(cornerRadius: 14))
+                        .pairedPrimaryLabel()
                 }
                 .accessibilityIdentifier("resume-continue")
 
@@ -372,11 +368,7 @@ struct TodayView: View {
                     activeWorkout = ActiveWorkout(session: store.nextSession)
                 } label: {
                     Text("Start over")
-                        .dredfitFont(15.5, weight: .medium)
-                        .foregroundStyle(Theme.ink2)
-                        .frame(maxWidth: .infinity, minHeight: 46)
-                        .background(RoundedRectangle(cornerRadius: 14)
-                            .strokeBorder(Theme.hairline, lineWidth: 1.5))
+                        .pairedSecondaryLabel()
                 }
                 .accessibilityIdentifier("resume-restart")
             }
@@ -392,8 +384,7 @@ struct TodayView: View {
     private var restView: some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 6) {
-                Kicker(text: store.today.formatted(.dateTime.weekday(.wide).day().month(.wide))
-                    .capitalized)
+                Kicker(text: store.today.screenDateText)
                 Text("Rest day")
                     .dredfitFont(32, weight: .heavy)
                     .tracking(-0.5)
@@ -440,8 +431,7 @@ struct TodayView: View {
     private var doneView: some View {
         VStack(spacing: 0) {
             HStack {
-                Kicker(text: store.today.formatted(.dateTime.weekday(.wide).day().month(.wide))
-                    .capitalized)
+                Kicker(text: store.today.screenDateText)
                 Spacer()
             }
             .padding(.top, 18)
