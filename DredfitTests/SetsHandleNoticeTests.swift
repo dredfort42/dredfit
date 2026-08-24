@@ -64,18 +64,6 @@ final class SetsHandleNoticeTests: XCTestCase {
         return session
     }
 
-    /// Trains clean until the engine has handed the set back — v2.26 (§37.6):
-    /// the return is EARNED, so it takes as many appearances as it takes.
-    private func trainUntilTheSetComesBack(_ store: AppStore, _ pattern: Pattern) {
-        var guardrail = 0
-        while store.engineState.cutOf(pattern) > 0 {
-            train(store)
-            guardrail += 1
-            XCTAssertLessThan(guardrail, 40, "the set never came back")
-            if guardrail >= 40 { return }
-        }
-    }
-
     private func pull(_ session: Session) throws -> SessionExercise {
         try XCTUnwrap(session.exercises.first { $0.pattern == .pull })
     }
