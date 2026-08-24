@@ -7349,6 +7349,47 @@
         }
       }
     },
+    "level %lld of %lld" : {
+      "comment" : "VoiceOver only, on a Progress row: the level and the scale it sits on. The row shows the number beside a bar; the bar is what this says out loud.",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Level %1$lld von %2$lld"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nivel %1$lld de %2$lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "niveau %1$lld sur %2$lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "livello %1$lld di %2$lld"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nível %1$lld de %2$lld"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "уровень %1$lld из %2$lld"
+          }
+        }
+      }
+    },
     "Levels go back to the beginning. Your history stays." : {
       "localizations" : {
         "de" : {

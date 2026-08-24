@@ -452,6 +452,13 @@ struct ProgressScreen: View {
                         .foregroundStyle(Theme.ink2)
                         .frame(width: 44, alignment: .trailing)
                 }
+                // "Squat, 18" was a number with no scale: the bar carries the
+                // scale visually and carries nothing at all to VoiceOver. The
+                // element is this row only — the selected line below keeps its
+                // own label, and a label on the Button would swallow it.
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(Text(verbatim: p.displayName + ", ")
+                    + Text("level \(level) of \(EngineConfig.levelMax)"))
                 if selected {
                     // Verbatim: the pieces are either core-localized (the
                     // name) or language-neutral (the count).
