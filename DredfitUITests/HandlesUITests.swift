@@ -22,8 +22,8 @@ final class HandlesUITests: XCTestCase {
         app.launchArguments = ["--uitest-reset", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
     }
 
-    /// 's headline: the recalculated duration is on screen BEFORE the tap,
-    /// and the workout the person gets is the one the button promised.
+    /// 's headline: the recalculated duration is on screen BEFORE the tap, and
+    /// the workout the person gets is the one the button promised.
     func testTheSessionHandleShowsBothNumbersAndDeliversTheSecond() {
         app.launch()
         let shorter = app.buttons["session-shorter"]
@@ -105,8 +105,8 @@ final class HandlesUITests: XCTestCase {
                       "declining the warm-up must lead straight to the first exercise")
     }
 
-    /// The cool-down is offered, not started — and the same
-    /// screen lets it be declined.
+    /// The cool-down is offered, not started — and the same screen lets it be
+    /// declined.
     func testTheCoolDownAsksBeforeItStarts() {
         // Five movements skipped and the sixth actually performed: the block
         // is drawn from what was DONE, so a workout of pure skips has nothing

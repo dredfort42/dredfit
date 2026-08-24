@@ -1,9 +1,9 @@
 //
 //  DredfitCoreTests
 //
-// Engine (issue #90): the pull slot keeps its full speed with
-//  the bar enabled (the cross-credit), and the push never shows a wider set
-//  band than the pull of the same session (the band gate).
+// Engine (issue #90): the pull slot keeps its full speed with the bar enabled
+// (the cross-credit), and the push never shows a wider set band than the pull
+// of the same session (the band gate).
 //
 
 import XCTest
@@ -38,8 +38,8 @@ final class EngineV210Tests: XCTestCase {
                 let other: Pattern = trained == .pull ? .pullBar : .pull
                 let after = Engine.applyFeedback(state: state, session: session, result: result)
 
-                // Both the delta and the credit are counted in
-                // SUB-STEPS — a difference of levels would read zero here.
+                // Both the delta and the credit are counted in SUB-STEPS — a
+                // difference of levels would read zero here.
                 let gained = min(delta, EngineConfig.maxUp(pattern: trained, tier: Level.decode(7).tier))
                 let credited = min(gained, EngineConfig.maxUp(pattern: other, tier: Level.decode(7).tier))
                 assertPosition(after, trained, Level.rise(level: 7, sub: 0, by: gained),
@@ -71,10 +71,10 @@ final class EngineV210Tests: XCTestCase {
         let down = Engine.applyFeedback(state: state, session: session, result: .less)
         XCTAssertEqual(down.levels[.pullBar], 7, "a downward move credits nothing")
 
-        // The hold on the slot went with the input it tested.
-        // So did the discomfort report. ONE case is left, and
-        // it carries the claim that mattered: a slot the person did not work
-        // through hands the other branch no credit.
+        // The hold on the slot went with the input it tested. So did the
+        // discomfort report. ONE case is left, and it carries the claim that
+        // mattered: a slot the person did not work through hands the other
+        // branch no credit.
         for (label, skipped) in [("a skip", Set([trained]))] {
             let after = Engine.applyFeedback(state: state, session: session, result: .more,
                                              skipped: skipped)
@@ -115,9 +115,9 @@ final class EngineV210Tests: XCTestCase {
             for _ in 0..<8 {
                 s = Engine.applyFeedback(state: s, session: Engine.generateSession(s), result: .plan)
             }
-            // The gain is counted in SUB-STEPS. The numbers
-            // themselves (8 against 5 appearances) do not move — the asymmetry
-            // of frequency this test guards does not depend on the unit.
+            // The gain is counted in SUB-STEPS. The numbers themselves (8
+            // against 5 appearances) do not move — the asymmetry of frequency
+            // this test guards does not depend on the unit.
             return Pattern.allCases.reduce(into: [:]) { acc, p in
                 acc[p] = Level.ordinal(s.position(p))
                     - Level.ordinal(Position(level: start[p] ?? 0, sub: 0))
@@ -134,16 +134,16 @@ final class EngineV210Tests: XCTestCase {
     /// The period-2 lock inherited from #91: with a rhythm of period two the
     /// bar branch used to land in the same rating forever and never left zero.
     func testThePeriodTwoLockIsOpen() {
-        // Re-marked, and the subject is named more precisely.
-        // On this rhythm the branch is credited exactly ONCE before the
-        // pause latches for good (every one of its appearances is a "less", and
-        // nothing clears the mark — confirms that decision). In that
-        // single credit was worth two levels and "less" took one back, so the
-        // branch parked on level 1; a credit of two SUB-STEPS is taken away
-        // whole by a descent in levels, and it parks on zero instead —
-        // a two-second difference in the hang. The lock this test exists for —
-        // "the branch never moves at all",, before the cross-credit — is
-        // still open, and that is now asserted directly rather than by snapshot.
+        // Re-marked, and the subject is named more precisely. On this rhythm
+        // the branch is credited exactly ONCE before the pause latches for
+        // good (every one of its appearances is a "less", and nothing clears
+        // the mark — confirms that decision). In that single credit was worth
+        // two levels and "less" took one back, so the branch parked on level
+        // 1; a credit of two SUB-STEPS is taken away whole by a descent in
+        // levels, and it parks on zero instead — a two-second difference in
+        // the hang. The lock this test exists for — "the branch never moves at
+        // all",, before the cross-credit — is still open, and that is now
+        // asserted directly rather than by snapshot.
         var state = EngineState.initial
         state.hasBar = true
         var rises = 0, best = 0
@@ -170,15 +170,15 @@ final class EngineV210Tests: XCTestCase {
             for ex in session.exercises where Pattern.pushSide.contains(ex.pattern) {
                 XCTAssertEqual(ex.sets, min(Level.decode(pushL).sets, slot.sets),
                                "pull \(pullL) / push \(pushL): the band is the smaller of the two")
-                // Re-marked: the rest follows the band
-                // AND the tier — a gated tier-4 push rests 90 s, because the
-                // gate trimmed the plan, not the difficulty.
-                // Re-marked again: the band is the LEVEL'S.
-                // The old form read the trimmed set count, so the gate — which
-                // exists to take VOLUME off — also shortened the recovery. The
-                // pair of assertions below is stricter than the single one it
-                // replaces: the pause is pinned to a number, and separately to
-                // never fall below what the trimmed band would have given.
+                // Re-marked: the rest follows the band AND the tier — a gated
+                // tier-4 push rests 90 s, because the gate trimmed the plan,
+                // not the difficulty. Re-marked again: the band is the
+                // LEVEL'S. The old form read the trimmed set count, so the
+                // gate — which exists to take VOLUME off — also shortened the
+                // recovery. The pair of assertions below is stricter than the
+                // single one it replaces: the pause is pinned to a number, and
+                // separately to never fall below what the trimmed band would
+                // have given.
                 let band = Level.decode(pushL).sets
                 XCTAssertEqual(ex.restSetSec,
                                EngineConfig.restSetByTierBand[ex.tier]?[band]
@@ -280,8 +280,8 @@ final class EngineV210Tests: XCTestCase {
         let cases: [(String, EngineState)] = [
             ("a fact below plan", Engine.applyFeedback(state: state, session: session, result: .plan,
                                                        overrides: [.pullBar: bar.load - 2])),
-            // The "pain" case is gone — ONE signal marks the
-            // branch now, and the test says so instead of implying two.
+            // The "pain" case is gone — ONE signal marks the branch now, and
+            // the test says so instead of implying two.
         ]
         for (label, after) in cases {
             XCTAssertTrue(after.creditPaused.contains(.pullBar), "\(label) marks the branch")
@@ -309,18 +309,17 @@ final class EngineV210Tests: XCTestCase {
                 state = Engine.applyFeedback(state: state, session: session,
                                              result: tooHard ? .less : .plan)
             }
-            // The parking spot is "capacity + 1" OR a
-            // block floor, when the evaluative descent has run into one.
-            // Measured: at capacity 6 the branch parks on 8 (: 7). The
-            // cause is not the descent but the aim — the healthy
-            // movements stand higher, the branch is almost never the aim, it
-            // is held instead, and holding is not an intent to descend
-            // so no streak builds and the deload, the only way past a
-            // block floor, never opens. The price is deliberate and bounded to
-            // ONE level; what this block is about — the plan does not run away
-            // (#90 measured 29 against a capacity of 6) — is intact, and the
-            // ceiling below still holds: one block step above capacity, and
-            // standing is only allowed EXACTLY on a floor.
+            // The parking spot is "capacity + 1" OR a block floor, when the
+            // evaluative descent has run into one. Measured: at capacity 6 the
+            // branch parks on 8 (: 7). The cause is not the descent but the
+            // aim — the healthy movements stand higher, the branch is almost
+            // never the aim, it is held instead, and holding is not an intent
+            // to descend so no streak builds and the deload, the only way past
+            // a block floor, never opens. The price is deliberate and bounded
+            // to ONE level; what this block is about — the plan does not run
+            // away (#90 measured 29 against a capacity of 6) — is intact, and
+            // the ceiling below still holds: one block step above capacity,
+            // and standing is only allowed EXACTLY on a floor.
             let park = state.levels[.pullBar] ?? 0
             XCTAssertTrue(park <= ceiling + 1
                           || (park == Level.bandFloor(park) && park <= ceiling + EngineConfig.stepsPerTier),

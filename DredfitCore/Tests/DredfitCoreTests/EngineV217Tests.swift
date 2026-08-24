@@ -1,13 +1,13 @@
 //
 //  DredfitCoreTests
 //
-// Engine (issues #136, #129, #142, #144): volume and time.
-//  Session length used to be an output of the model with no handle for the
-//  person doing it — the shortest plan anywhere on the scale was 31 minutes,
-//  honest progress rode it past 45 by session 37 and past 75 by 67, and the
-//  "short version" bottomed out at 20. Meanwhile daily training walked around
-//  the per-session growth caps by multiplication, entering a sets band halved
-//  the actual work, and a tier-4 movement in band 3 rested a minute.
+// Engine (issues #136, #129, #142, #144): volume and time. Session length used
+// to be an output of the model with no handle for the person doing it — the
+// shortest plan anywhere on the scale was 31 minutes, honest progress rode it
+// past 45 by session 37 and past 75 by 67, and the "short version" bottomed
+// out at 20. Meanwhile daily training walked around the per-session growth
+// caps by multiplication, entering a sets band halved the actual work, and a
+// tier-4 movement in band 3 rested a minute.
 //
 
 import XCTest
@@ -139,17 +139,16 @@ final class EngineV217Tests: XCTestCase {
                           "full pull-ups no longer arrive after 28 days without a rest day")
     }
 
-    // SNIPPED: six tests.
-    // Four were, the time budget: every budget is met, the 35 and 45
-    // rungs fit, no-budget is the old behaviour, a short budget still shows
-    // every movement. The budget is gone — it trimmed the WORKOUT to fit a
-    // number, and four composition findings all read zero with it switched off.
-    // One was the lens spending the growth window; one was an honest overshoot
-    // on a SORE movement. Neither input exists.
+    // SNIPPED: six tests. Four were, the time budget: every budget is met, the
+    // 35 and 45 rungs fit, no-budget is the old behaviour, a short budget
+    // still shows every movement. The budget is gone — it trimmed the WORKOUT
+    // to fit a number, and four composition findings all read zero with it
+    // switched off. One was the lens spending the growth window; one was an
+    // honest overshoot on a SORE movement. Neither input exists.
     //
-    // (a band starts at its own dose), (the rest ladder),
-    // (the ramp window) and (the weekly ceiling) are untouched and stay
-    // here in full — they are the part of the wave does not address.
+    // (a band starts at its own dose), (the rest ladder), (the ramp window)
+    // and (the weekly ceiling) are untouched and stay here in full — they are
+    // the part of the wave does not address.
     //
     // What replaces the budget is measured elsewhere: the session handle only
     // ever SHORTENS (EngineV224Tests), and the announced duration is what the

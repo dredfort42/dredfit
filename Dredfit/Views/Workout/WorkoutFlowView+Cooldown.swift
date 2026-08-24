@@ -1,8 +1,8 @@
 //
 //  The cool-down block of the workout flow (issue #28), split out of
-// WorkoutFlowView when pushed that file past the lint's ceiling.
-// The code moved unchanged; what added to it is the intro screen —
-// the block no longer starts itself.
+// WorkoutFlowView when pushed that file past the lint's ceiling. The code
+// moved unchanged; what added to it is the intro screen — the block no longer
+// starts itself.
 //
 
 import SwiftUI
@@ -108,8 +108,8 @@ extension WorkoutFlowView {
             persistProgress()
             return
         }
-        // Ask first. The positions are already drawn, so
-        // the screen can say how many and how long.
+        // Ask first. The positions are already drawn, so the screen can say
+        // how many and how long.
         phase = .cooldownIntro
         liveActivity.update(.init(phase: .work, title: String(localized: "COOL-DOWN"),
                                   detail: "", restEndDate: nil))

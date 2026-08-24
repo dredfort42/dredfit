@@ -7,10 +7,10 @@ final class SetFactsTests: XCTestCase {
     /// Every pattern at the top of tier 1, so the plan is 3×15 reps and
     /// 3×39 s — level 7 either way, and the whole grid is exact.
     ///
-    /// Re-marked: tier 1 in seconds is the ladder
-    /// 20-22-24-26-29-32-35-39, so its top rung is 39 s and not 55.
-    /// Sessions come from the engine: `SessionExercise` has no public
-    /// initializer, and a hand-built one would be a plan the app never shows.
+    /// Re-marked: tier 1 in seconds is the ladder 20-22-24-26-29-32-35-39, so
+    /// its top rung is 39 s and not 55. Sessions come from the engine:
+    /// `SessionExercise` has no public initializer, and a hand-built one would
+    /// be a plan the app never shows.
     private static let planLevel = 7
 
     private var state = EngineState.initial
@@ -57,8 +57,8 @@ final class SetFactsTests: XCTestCase {
     }
 
     /// The same for a hold stopped early — the path that records itself with
-    /// no tap at all. Re-marked: stopping at 30 s of 39 in the third
-    /// set reports 36, not 30.
+    /// no tap at all. Re-marked: stopping at 30 s of 39 in the third set
+    /// reports 36, not 30.
     func testAHoldStoppedEarlyOnTheLastSetReportsTheMean() {
         let facts = SetFacts.recording(SetFacts.snap(30, unit: .hold),
                                        in: [:], hold, set: 2)
@@ -125,11 +125,10 @@ final class SetFactsTests: XCTestCase {
     }
 
     /// A shortfall must never be reported as MEETING the plan. To the engine
-    /// `actual == load` is both the "on plan" step and the fact that
-    /// confirms a pain episode has recovered — a near miss rounded up
-    /// onto the plan would claim both.
-    /// Re-marked: on the one-second grid the near miss that still
-    /// snaps onto the plan is 38 s of a 3×39 s plan — mean 38.67.
+    /// `actual == load` is both the "on plan" step and the fact that confirms
+    /// a pain episode has recovered — a near miss rounded up onto the plan
+    /// would claim both. Re-marked: on the one-second grid the near miss that
+    /// still snaps onto the plan is 38 s of a 3×39 s plan — mean 38.67.
     func testANearMissIsNeverRoundedUpOntoThePlan() {
         let facts = SetFacts.recording(38, in: [:], hold, set: 2)
         XCTAssertEqual(SetFacts.allSets(facts, hold), [39, 39, 38],
@@ -150,10 +149,10 @@ final class SetFactsTests: XCTestCase {
                        "39.3 s snaps to 39, and the athlete did not fall short")
     }
 
-    /// The safety property this protects, re-marked: there
-    /// is no pain episode to end, so what a shortfall must not do is claim the
-    /// plan. A third set that fell short is not proof the plan was met, and the
-    /// position must not rise off the back of it.
+    /// The safety property this protects, re-marked: there is no pain episode
+    /// to end, so what a shortfall must not do is claim the plan. A third set
+    /// that fell short is not proof the plan was met, and the position must
+    /// not rise off the back of it.
     func testAShortfallCannotClaimThePlan() throws {
         let p = hold.pattern
         let facts = SetFacts.recording(38, in: [:], hold, set: 2)
@@ -176,12 +175,11 @@ final class SetFactsTests: XCTestCase {
 
     // MARK: - The grid
 
-    /// Re-marked: the hold grid is one second, not
-    /// five. The ladder is relative now — a rung costs 1 s at the bottom of
-    /// tier 4 and 4 s at the top of tier 1 — so a five-second grid could
-    /// express only 13 of the scale's 48 rungs, and an honest three seconds
-    /// short of the plan snapped a whole cell away and cost five rungs
-    /// instead of one.
+    /// Re-marked: the hold grid is one second, not five. The ladder is
+    /// relative now — a rung costs 1 s at the bottom of tier 4 and 4 s at the
+    /// top of tier 1 — so a five-second grid could express only 13 of the
+    /// scale's 48 rungs, and an honest three seconds short of the plan snapped
+    /// a whole cell away and cost five rungs instead of one.
     func testHoldsSnapToTheSecondAndRepsToOne() {
         XCTAssertEqual(SetFacts.snap(51.67, unit: .hold), 52)
         XCTAssertEqual(SetFacts.snap(53.0, unit: .hold), 53)
@@ -317,9 +315,9 @@ final class SetFactsTests: XCTestCase {
         }
     }
 
-    /// The order of sets does NOT reach the engine — the fact the
-    /// warning's wording is forbidden from contradicting. 12, 8, 8 and
-    /// 8, 8, 12 collapse to the same number.
+    /// The order of sets does NOT reach the engine — the fact the warning's
+    /// wording is forbidden from contradicting. 12, 8, 8 and 8, 8, 12 collapse
+    /// to the same number.
     func testTheOrderOfSetsDoesNotReachTheEngine() {
         var early: SetFacts.PerSet = [:]
         early = SetFacts.recording(reps.plannedLoad(set: 0) + 4, in: early, reps, set: 0)

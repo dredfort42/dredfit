@@ -75,8 +75,8 @@ final class AppStoreTests: XCTestCase {
                        "a skipped pattern must not level up")
         XCTAssertEqual(store.engineState.sub[skippedPattern] ?? 0, 0,
                        "nor collect a sub-step")
-        // "moves by the rating" is two SUB-STEPS, which at
-        // level zero is not yet a level.
+        // "moves by the rating" is two SUB-STEPS, which at level zero is not
+        // yet a level.
         XCTAssertEqual(store.engineState.sub[session.exercises[0].pattern],
                        EngineConfig.deltaMore,
                        "a trained pattern must still move by the rating")
@@ -455,9 +455,9 @@ final class AppStoreTests: XCTestCase {
 
         // the toggle and the branch snapshot survive a reload
         store.completeWorkout(session: second, result: .more)
-        // The cross-credit moves the branch on pull
-        // sessions too, so the level is read from the engine rather than
-        // spelled out — this test is about the snapshot and the reload.
+        // The cross-credit moves the branch on pull sessions too, so the level
+        // is read from the engine rather than spelled out — this test is about
+        // the snapshot and the reload.
         let barLevel = store.engineState.levels[.pullBar]
         XCTAssertEqual(store.records.last?.levelsAfter?[.pullBar], barLevel,
                        "the journal snapshot must include the pull_bar level")
@@ -611,26 +611,24 @@ final class AppStoreTests: XCTestCase {
     // MARK: - Silent decay for the 7–13 day blind zone (issue #37)
 
     /// A store whose last workout happened `daysAgo` days ago. Several
-    /// sessions, so the levels sit clear of the zero clamp.
-    /// Fifteen sessions, not four. Growth moves by sub-steps
-    /// now — three of them to a level on the base band — so four "plan"
-    /// sessions leave every pattern at level zero, where a drop of one is
-    /// invisible because there is nowhere to drop to. The fixture needs a
-    /// level the break can actually take away.
+    /// sessions, so the levels sit clear of the zero clamp. Fifteen sessions,
+    /// not four. Growth moves by sub-steps now — three of them to a level on
+    /// the base band — so four "plan" sessions leave every pattern at level
+    /// zero, where a drop of one is invisible because there is nowhere to drop
+    /// to. The fixture needs a level the break can actually take away.
     private func storeWithWorkout(daysAgo: Int, at url: URL, sessions: Int = 15) -> AppStore {
         // The date comes first and is seeded in elapsed seconds: gapDays
-        // counts whole 24h periods, so a store created
-        // before its record — or a calendar-day seed across a spring-forward
-        // transition — would sit a hair short of every exact boundary
-        // (14 days − ε reads as 13).
+        // counts whole 24h periods, so a store created before its record — or
+        // a calendar-day seed across a spring-forward transition — would sit a
+        // hair short of every exact boundary (14 days − ε reads as 13).
         let date = Date(timeIntervalSinceNow: -Double(daysAgo) * 86_400)
         let store = AppStore(storageURL: url)
-        // The seeding workouts are a day apart, ending on
-        // `date`. Stacked on one instant they age the window by the
-        // one-hour floor each, and the weekly ceiling — three SUB-STEPS for the
-        // slow tissues — pins every level near zero, where a break has nothing
-        // to take away. The last record still sits exactly `daysAgo` back, so
-        // every gap this fixture is about is unchanged.
+        // The seeding workouts are a day apart, ending on `date`. Stacked on
+        // one instant they age the window by the one-hour floor each, and the
+        // weekly ceiling — three SUB-STEPS for the slow tissues — pins every
+        // level near zero, where a break has nothing to take away. The last
+        // record still sits exactly `daysAgo` back, so every gap this fixture
+        // is about is unchanged.
         for i in 0..<sessions {
             let day = date.addingTimeInterval(-Double(sessions - 1 - i) * 86_400)
             _ = store.completeWorkout(session: store.nextSession, result: .plan, date: day)
@@ -850,27 +848,26 @@ extension AppStoreTests {
 extension AppStoreTests {
 
     /// The sign that flips against discomfort: an exercise actually PERFORMED
-    /// counts toward the debut history, while a painful one does not.
-    /// moved where that shows: the report unloaded the movement to
-    /// the previous tier, so the badge question returned only after a climb
-    /// back.
+    /// counts toward the debut history, while a painful one does not. moved
+    /// where that shows: the report unloaded the movement to the previous
+    /// tier, so the badge question returned only after a climb back.
     ///
-    /// A later wave moves it again, and closer to the point: the first
-    /// report keeps the variation and only drops the dose inside it, so the
-    /// badge is still standing right after the report — the tier really has
-    /// never been performed, because the report voided the session for it.
-    /// It goes the moment the trainee actually performs that tier.
+    /// A later wave moves it again, and closer to the point: the first report
+    /// keeps the variation and only drops the dose inside it, so the badge is
+    /// still standing right after the report — the tier really has never been
+    /// performed, because the report voided the session for it. It goes the
+    /// moment the trainee actually performs that tier.
     ///
-    /// The "performed" side used to be a held exercise. The
-    /// hold is cancelled, so it is now an ordinary rated session — which is the
-    /// same claim with one fewer input involved.
+    /// The "performed" side used to be a held exercise. The hold is cancelled,
+    /// so it is now an ordinary rated session — which is the same claim with
+    /// one fewer input involved.
     func testAPerformedExerciseCountsWhereAPainfulOneDoesNot() {
         let hurtURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-test-\(UUID().uuidString).json")
         defer { try? FileManager.default.removeItem(at: hurtURL) }
-        // The weekly ceiling holds the slow-adapting
-        // patterns to three levels a week, so a walk up the scale can no longer
-        // be a run of same-instant taps — every workout here gets its own day.
+        // The weekly ceiling holds the slow-adapting patterns to three levels
+        // a week, so a walk up the scale can no longer be a run of
+        // same-instant taps — every workout here gets its own day.
         let start = Date()
         for (url, performed) in [(tempURL!, true), (hurtURL, false)] {
             let store = AppStore(storageURL: url)
@@ -892,10 +889,10 @@ extension AppStoreTests {
                 guard day < 60 else { return XCTFail("seeding: pull never reached tier 2") }
                 train(.more)
             }
-            // The movement used to be taken out of the session
-            // by a pain report; a SKIP is the signal that survived, and the
-            // badge's rule is the same either way — it is about what the person
-            // has DONE, not about what was planned for them.
+            // The movement used to be taken out of the session by a pain
+            // report; a SKIP is the signal that survived, and the badge's rule
+            // is the same either way — it is about what the person has DONE,
+            // not about what was planned for them.
             if performed {
                 train(.plan)
                 XCTAssertFalse(store.debutPatterns.contains(.pull),
@@ -912,18 +909,18 @@ extension AppStoreTests {
         }
     }
 
-    // SNIPPED: the two tests of the freeze — that a report rested
-    // the movement and was kept apart from a plain skip in the journal, and that
-    // Today only mentioned a resting movement while it was in the plan.
-    // Nothing rests any more: a movement the person finds too hard stays in the
-    // plan and gets an easier variation or fewer sets.
+    // SNIPPED: the two tests of the freeze — that a report rested the movement
+    // and was kept apart from a plain skip in the journal, and that Today only
+    // mentioned a resting movement while it was in the plan. Nothing rests any
+    // more: a movement the person finds too hard stays in the plan and gets an
+    // easier variation or fewer sets.
     //
     // The handle's own equivalents live in SessionLengthTests (what a handle
     // does to the plan) and WeakLinkPromptTests (that the movement stays in the
     // rotation afterwards).
 
-    // SNIPPED: two more tests of the pain report — that a
-    // reported exercise did not count as performed, and that the report froze
-    // the pattern, stayed apart from a skip in the journal and survived a
-    // reload. The input is gone; the journal field went with it.
+    // SNIPPED: two more tests of the pain report — that a reported exercise
+    // did not count as performed, and that the report froze the pattern,
+    // stayed apart from a skip in the journal and survived a reload. The input
+    // is gone; the journal field went with it.
 }

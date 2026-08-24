@@ -68,9 +68,9 @@ final class SetsHandleNoticeTests: XCTestCase {
     /// The other end of the handle: a set comes back, and the card says so
     /// once — the appearance the set actually arrives on.
     ///
-    /// The set is taken off by the PERSON now, not by a pain
-    /// report, which makes the sentence matter more rather than less. They
-    /// know why it went; only the engine knows why it came back.
+    /// The set is taken off by the PERSON now, not by a pain report, which
+    /// makes the sentence matter more rather than less. They know why it went;
+    /// only the engine knows why it came back.
     func testTheCardSaysWhenASetComesBack() throws {
         let store = try store()
         store.takeSetOff(.pull)
@@ -112,8 +112,8 @@ final class SetsHandleNoticeTests: XCTestCase {
         let root = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
         let strings = try XCTUnwrap(root["strings"] as? [String: Any])
 
-        // The pain line went with the channel; the handles' own
-        // sentences joined. Every one of them is user-facing on the plan.
+        // The pain line went with the channel; the handles' own sentences
+        // joined. Every one of them is user-facing on the plan.
         let keys = [
             "A set is back — your body is coping.",
             "Fewer sets",
@@ -207,10 +207,10 @@ final class SetsHandleNoticeTests: XCTestCase {
         XCTAssertGreaterThan(checked, 100, "the scan found almost nothing — check the pattern")
     }
 
-    // SNIPPED: five tests of the pain line and the pain cut.
-    // "Time to see a specialist" counted reports over a movement's history and
-    // the card's "fewer sets for now — you said this one hurt" explained a cut
-    // the pain channel made. Neither has an input any more.
+    // SNIPPED: five tests of the pain line and the pain cut. "Time to see a
+    // specialist" counted reports over a movement's history and the card's
+    // "fewer sets for now — you said this one hurt" explained a cut the pain
+    // channel made. Neither has an input any more.
     //
     // What stays is the rung the person cannot otherwise account for — a set
     // coming BACK — and it matters more now, not less: sets are taken off by

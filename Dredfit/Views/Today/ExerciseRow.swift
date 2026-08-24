@@ -1,8 +1,8 @@
 //
-// One line of a plan: the movement, its number, and the one
-//  sentence that says why the number is what it is. Shared by Today and the
-//  next-workout sheet, so both draw the same card and cannot drift into two
-//  different explanations of the same plan.
+// One line of a plan: the movement, its number, and the one sentence that says
+// why the number is what it is. Shared by Today and the next-workout sheet, so
+// both draw the same card and cannot drift into two different explanations of
+// the same plan.
 //
 
 import SwiftUI
@@ -15,9 +15,9 @@ struct ExerciseRow: View {
     /// itself, so a sibling HStack pill would push the load off screen. Not
     /// an ellipsis either — sibling variations differ at the END of the name.
     var badge: String?
-    /// One line under the number, saying why it is the
-    /// number it is. Under the number and not beside it — the sentence is
-    /// longer than the column, and the load must keep its place.
+    /// One line under the number, saying why it is the number it is. Under the
+    /// number and not beside it — the sentence is longer than the column, and
+    /// the load must keep its place.
     var note: String?
     @Environment(\.displayScale) private var displayScale
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -78,10 +78,10 @@ struct ExerciseRow: View {
 
     private var shortLoad: String {
         let side = exercise.perSide ? String(localized: " /side") : ""
-        // An uneven plan spells its sets out — "9-8-8". This
-        // is where the sub-step becomes visible: a third of the sessions used
-        // to read as "nothing changed", and the row is what says otherwise.
-        // Explicit keys, not the bare "%@%@" a plain interpolation would mint.
+        // An uneven plan spells its sets out — "9-8-8". This is where the
+        // sub-step becomes visible: a third of the sessions used to read as
+        // "nothing changed", and the row is what says otherwise. Explicit
+        // keys, not the bare "%@%@" a plain interpolation would mint.
         if let loads = exercise.loads {
             let spelled = loads.map(String.init).joined(separator: "-")
             switch exercise.unit {

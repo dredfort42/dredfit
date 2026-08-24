@@ -166,10 +166,10 @@ struct WorkStatusCaption: View {
     /// the plan, so the caption is where the tap confirms itself; an entered
     let setIndex: Int
     let sets: Int
-    /// What THIS set is planned to run at, and whether the
-    /// exercise is uneven at all. On an uneven plan the caption says the
-    /// number, because "set 2 of 3" no longer tells you what to do — the sets
-    /// differ. The actual still outranks it: that is today's number.
+    /// What THIS set is planned to run at, and whether the exercise is uneven
+    /// at all. On an uneven plan the caption says the number, because "set 2
+    /// of 3" no longer tells you what to do — the sets differ. The actual
+    /// still outranks it: that is today's number.
     var planned: Int = 0
     var uneven: Bool = false
 
@@ -197,14 +197,13 @@ struct WorkStatusCaption: View {
 /// What you can say about an exercise instead of doing it as planned
 /// (issues #66, #78).
 ///
-/// "hold this level" went with the input it armed.
-/// "Something hurt" goes the same way, and it is NOT
-/// replaced here. The two handles of live on the plan, before the
-/// workout starts, where pulling one regenerates the session and the announced
-/// duration along with it — mid-workout they would have to mutate a session
-/// the engine is already going to read the plan from, and a shown plan that
-/// disagrees with the one feedback is computed against is a defect, not a
-/// feature.
+/// "hold this level" went with the input it armed. "Something hurt" goes the
+/// same way, and it is NOT replaced here. The two handles of live on the plan,
+/// before the workout starts, where pulling one regenerates the session and
+/// the announced duration along with it — mid-workout they would have to
+/// mutate a session the engine is already going to read the plan from, and a
+/// shown plan that disagrees with the one feedback is computed against is a
+/// defect, not a feature.
 ///
 /// What is left is the answer the wave is actually built around: "Went
 /// differently" — the honest number. The engine measures it against the tap it

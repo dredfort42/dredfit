@@ -54,13 +54,13 @@ struct ComebackCard: View {
             }
             .padding(.top, 16)
 
-            // The "I was sick" path — the easier start plus a
-            // recovery fortnight at one tier gentler, in a single tap.
-            // The "I was sick" tap is gone. The lens it
-            // armed made the plan HEAVIER in 76 cells out of 480, which is the
-            // opposite of what the button offered. Someone coming back short
-            // on strength reaches for the session handle on the plan itself,
-            // where the recalculated duration is visible before they agree.
+            // The "I was sick" path — the easier start plus a recovery
+            // fortnight at one tier gentler, in a single tap. The "I was sick"
+            // tap is gone. The lens it armed made the plan HEAVIER in 76 cells
+            // out of 480, which is the opposite of what the button offered.
+            // Someone coming back short on strength reaches for the session
+            // handle on the plan itself, where the recalculated duration is
+            // visible before they agree.
             .padding(.top, 4)
 
             if offersFreshStart {

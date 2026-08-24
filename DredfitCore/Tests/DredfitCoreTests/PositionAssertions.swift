@@ -24,10 +24,10 @@ extension XCTestCase {
         Level.ordinal(state.position(p))
     }
 
-    /// Assert a pattern landed exactly on the expected position.
-    /// A position is a TRIPLE, so the third coordinate is
-    /// compared too. Every earlier call site keeps reading as it did — a
-    /// `Position` built without a cut carries zero — and now says so.
+    /// Assert a pattern landed exactly on the expected position. A position is
+    /// a TRIPLE, so the third coordinate is compared too. Every earlier call
+    /// site keeps reading as it did — a `Position` built without a cut carries
+    /// zero — and now says so.
     func assertPosition(_ state: EngineState, _ p: DredfitCore.Pattern, _ want: Position,
                         _ message: String = "",
                         file: StaticString = #filePath, line: UInt = #line) {
@@ -39,15 +39,14 @@ extension XCTestCase {
     }
 
     /// The position a session delta lands a pattern on: up in sub-steps under
-    /// the growth cell, and standing still on a zero delta.
-    /// DOWN in sub-steps too — one position back along the
-    /// growth path, never past the floor of its own block. The old line
-    /// (`level + delta, sub: 0`) encoded the level-wise descent that was the
-    /// subject of the wave: it crossed the tier boundary and landed in the
-    /// middle of the tier below, where the dose is higher.
-    /// Both directions walk the shared scale — growth
-    /// gives sets back first, a descent spends the dose before the sets — and
-    /// the descent's floor is the pain one under a live episode.
+    /// the growth cell, and standing still on a zero delta. DOWN in sub-steps
+    /// too — one position back along the growth path, never past the floor of
+    /// its own block. The old line (`level + delta, sub: 0`) encoded the
+    /// level-wise descent that was the subject of the wave: it crossed the
+    /// tier boundary and landed in the middle of the tier below, where the
+    /// dose is higher. Both directions walk the shared scale — growth gives
+    /// sets back first, a descent spends the dose before the sets — and the
+    /// descent's floor is the pain one under a live episode.
     func expectedPosition(_ state: EngineState, _ p: DredfitCore.Pattern, delta: Int) -> Position {
         let entry = state.position(p)
         let cap = EngineConfig.maxUp(pattern: p, tier: Level.decode(entry.level).tier)
@@ -57,27 +56,27 @@ extension XCTestCase {
                                 allowSetsBack: (state.setsHold[p] ?? 0) == 0)
         }
         if delta < 0 {
-            // ONE floor. The episode-aware exception went with
-            // the episode — and it was the only reader of the pain floor here.
+            // ONE floor. The episode-aware exception went with the episode —
+            // and it was the only reader of the pain floor here.
             return Level.fallBy(level: entry.level, sub: entry.sub, cut: entry.cut, by: -delta,
                                 floor: EngineConfig.setsFloor)
         }
         return entry
     }
 
-    /// Where a deload lands — `deloadDrop` levels below
-    /// its base, pulled down by the "no harder" gate. The gate is the point:
-    /// until the deload was a descent with no gate at all.
+    /// Where a deload lands — `deloadDrop` levels below its base, pulled down
+    /// by the "no harder" gate. The gate is the point: until the deload was a
+    /// descent with no gate at all.
     ///
-    /// The base differs by path. On the rating path it is the entry
-    /// level, which the rating never moved; on the exact-fact path it is the
-    /// honest landing, which a deload may not climb back above — pass it as
-    /// `base`. The gate always measures against the plan the session was done
-    /// on, so `from` stays the entry position either way.
-    /// The deload reads the ACCUMULATED cut — it stands
-    /// after the rating's own step, so the gate has to compare a trimmed plan
-    /// with a trimmed one — and the cut it keeps has to fit the NEW band, at
-    /// the pain floor: a deload is a descent and may give nothing back.
+    /// The base differs by path. On the rating path it is the entry level,
+    /// which the rating never moved; on the exact-fact path it is the honest
+    /// landing, which a deload may not climb back above — pass it as `base`.
+    /// The gate always measures against the plan the session was done on, so
+    /// `from` stays the entry position either way. The deload reads the
+    /// ACCUMULATED cut — it stands after the rating's own step, so the gate
+    /// has to compare a trimmed plan with a trimmed one — and the cut it keeps
+    /// has to fit the NEW band, at the pain floor: a deload is a descent and
+    /// may give nothing back.
     func expectedDeload(_ p: DredfitCore.Pattern, from: Position, base: Int? = nil,
                         stepped: Position? = nil) -> Position {
         let target = min(max((base ?? from.level) - EngineConfig.deloadDrop, 0),
@@ -91,9 +90,9 @@ extension XCTestCase {
     }
 
     /// Assert the pattern stepped exactly `count` sub-steps back from `entry`,
-    /// and that the landing does not ask for more work than it came from.
-    /// A step of the descent walks `fallBy` — the dose
-    /// first, and a set on a block floor — and the gate reads the whole triple.
+    /// and that the landing does not ask for more work than it came from. A
+    /// step of the descent walks `fallBy` — the dose first, and a set on a
+    /// block floor — and the gate reads the whole triple.
     func assertDescended(_ state: EngineState, _ p: DredfitCore.Pattern, from entry: Position,
                          by count: Int, _ message: String = "",
                          file: StaticString = #filePath, line: UInt = #line) {

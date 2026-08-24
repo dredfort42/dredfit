@@ -4,11 +4,10 @@
 //
 //  This suite used to be about the TIME BUDGET: that the answer was stored,
 //  survived a relaunch, reached the plan, and bought its minutes out of the
-// sets rather than the levels — and that the answer nobody gave
-//  was 45 minutes rather than "no limit". All thirteen tests went with the
-//  mechanism. The audit measured what its rungs actually did: 10, 15 and 20
-//  produced the SAME plan, and the "20" rung missed its own target in 100 % of
-//  sessions.
+// sets rather than the levels — and that the answer nobody gave was 45 minutes
+// rather than "no limit". All thirteen tests went with the mechanism. The
+// audit measured what its rungs actually did: 10, 15 and 20 produced the SAME
+// plan, and the "20" rung missed its own target in 100 % of sessions.
 //
 //  What replaces it is the other way round. The engine ANNOUNCES the duration
 //  and the person shortens today's workout with a handle — and sees the
@@ -38,8 +37,8 @@ final class SessionLengthTests: XCTestCase {
     }
 
     /// A trainee well up the scale, where a full session runs long — the case
-    /// the handle exists for. measures it: L40 is 79.7 min at full and
-    /// 33.7 at the floor.
+    /// the handle exists for. measures it: L40 is 79.7 min at full and 33.7 at
+    /// the floor.
     private func advancedStore(counter: Int = 0, level: Int = 40) throws -> AppStore {
         let levels = Pattern.allCases
             .map { "\"\($0.rawValue)\",\(level)" }.joined(separator: ",")
@@ -57,9 +56,9 @@ final class SessionLengthTests: XCTestCase {
 
     // MARK: - "37 → 26 min", before agreeing to it
 
-    /// The claim makes about the control: the person sees the
-    /// recalculated duration BEFORE the tap, and both numbers are the engine's
-    /// own `estimatedTotalMin`.
+    /// The claim makes about the control: the person sees the recalculated
+    /// duration BEFORE the tap, and both numbers are the engine's own
+    /// `estimatedTotalMin`.
     func testThePreviewShowsBothNumbersAndTheTapDeliversTheSecond() throws {
         let store = try advancedStore()
         let preview = store.sessionLengthPreview()

@@ -1,15 +1,15 @@
 //
 //  DredfitCoreTests
 //
-// Engine (issue #141): the two branches of the pull slot. The
-// gate read whichever branch stood in the session, so once the branches
-//  diverged the push plan flipped between two set bands every session, forever
-//  — churn with no cause on screen. It now reads the weaker of the two.
+// Engine (issue #141): the two branches of the pull slot. The gate read
+// whichever branch stood in the session, so once the branches diverged the
+// push plan flipped between two set bands every session, forever — churn with
+// no cause on screen. It now reads the weaker of the two.
 //
-// The credit pause itself is deliberately unchanged. Under a
-//  period-2 rhythm a branch that only ever gets "tough" sessions stays put,
-//  and that is the price of the protection the pause exists for — measured,
-//  not assumed (owner's decision 19.08.2026).
+// The credit pause itself is deliberately unchanged. Under a period-2 rhythm a
+// branch that only ever gets "tough" sessions stays put, and that is the price
+// of the protection the pause exists for — measured, not assumed (owner's
+// decision 19.08.2026).
 //
 
 import XCTest
@@ -84,12 +84,11 @@ final class EngineV216Tests: XCTestCase {
             }
             return state
         }
-        // "at the ceiling in 96 sessions" rested on a growth
-        // event costing a level. It costs a SUB-STEP now, so 96 sessions carry
-        // a branch about 21 levels up the 47 — nobody reaches the ceiling in
-        // that time. The subject is not the ceiling but the GAP between the
-        // branches, and that is what gets pinned, from the run rather than from
-        // a constant.
+        // "at the ceiling in 96 sessions" rested on a growth event costing a
+        // level. It costs a SUB-STEP now, so 96 sessions carry a branch about
+        // 21 levels up the 47 — nobody reaches the ceiling in that time. The
+        // subject is not the ceiling but the GAP between the branches, and
+        // that is what gets pinned, from the run rather than from a constant.
         let a = run(phase: 0), b = run(phase: 1)
         XCTAssertGreaterThan(Level.ordinal(a.position(.pull)),
                              20 * Level.ordinal(a.position(.pullBar)) + 20,
@@ -115,8 +114,8 @@ final class EngineV216Tests: XCTestCase {
     }
 
     func testTheCreditLoopStopsAtWhatTheTraineeCanActuallyDo() {
-        // The protection the pause exists for: the credit must not run
-        // the branch past a level the trainee keeps calling tough.
+        // The protection the pause exists for: the credit must not run the
+        // branch past a level the trainee keeps calling tough.
         for capacity in [6, 12, 20] {
             var state = EngineState.initial
             state.hasBar = true
@@ -127,18 +126,17 @@ final class EngineV216Tests: XCTestCase {
                 state = Engine.applyFeedback(state: state, session: session,
                                              result: tooHard ? .less : .plan)
             }
-            // The parking spot is "capacity + 1" OR a
-            // block floor, when the evaluative descent has run into one.
-            // Measured: at capacity 6 the branch parks on 8 (: 7). The
-            // cause is not the descent but the aim — the healthy
-            // movements stand higher, the branch is almost never the aim, it
-            // is held instead, and holding is not an intent to descend
-            // so no streak builds and the deload, the only way past a
-            // block floor, never opens. The price is deliberate and bounded to
-            // ONE level; what this block is about — the plan does not run away
-            // (#90 measured 29 against a capacity of 6) — is intact, and the
-            // ceiling below still holds: one block step above capacity, and
-            // standing is only allowed EXACTLY on a floor.
+            // The parking spot is "capacity + 1" OR a block floor, when the
+            // evaluative descent has run into one. Measured: at capacity 6 the
+            // branch parks on 8 (: 7). The cause is not the descent but the
+            // aim — the healthy movements stand higher, the branch is almost
+            // never the aim, it is held instead, and holding is not an intent
+            // to descend so no streak builds and the deload, the only way past
+            // a block floor, never opens. The price is deliberate and bounded
+            // to ONE level; what this block is about — the plan does not run
+            // away (#90 measured 29 against a capacity of 6) — is intact, and
+            // the ceiling below still holds: one block step above capacity,
+            // and standing is only allowed EXACTLY on a floor.
             let park = state.levels[.pullBar] ?? 0
             XCTAssertTrue(park <= capacity + 1
                           || (park == Level.bandFloor(park) && park <= capacity + EngineConfig.stepsPerTier),
@@ -153,9 +151,9 @@ final class EngineV216Tests: XCTestCase {
         let session = Engine.generateSession(state)
         let slot = try XCTUnwrap(session.exercises.first { Pattern.pullSide.contains($0.pattern) })
             .pattern
-        // The signal was a discomfort report; it is now an
-        // exact number below the plan. The guard is the same guard, in the
-        // same place — only what arms it changed.
+        // The signal was a discomfort report; it is now an exact number below
+        // the plan. The guard is the same guard, in the same place — only what
+        // arms it changed.
         let plan = try XCTUnwrap(session.exercises.first { $0.pattern == slot }).load
         let after = Engine.applyFeedback(state: state, session: session, result: .plan,
                                          overrides: [slot: max(0, plan - 2)])

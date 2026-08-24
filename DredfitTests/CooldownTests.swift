@@ -61,13 +61,13 @@ final class CooldownTests: XCTestCase {
                       "a workout of pure skips has nothing to stretch")
     }
 
-    /// RE-MARKED. The holds alone used to equal the
-    /// reserved minutes exactly — 6 × 30 s = 3 min — with the transitions and
-    /// the switch pauses riding inside the "≈". `cooldownMin` is 4 now, and
-    /// the extra minute is not more stretching: it pays for the longer
-    /// transitions. So the identity moved from "the holds fill the reserve" to
-    /// "the holds plus what carries them do", and the whole-block version of
-    /// it lives in BlockReserveTests where both blocks are counted together.
+    /// RE-MARKED. The holds alone used to equal the reserved minutes exactly —
+    /// 6 × 30 s = 3 min — with the transitions and the switch pauses riding
+    /// inside the "≈". `cooldownMin` is 4 now, and the extra minute is not
+    /// more stretching: it pays for the longer transitions. So the identity
+    /// moved from "the holds fill the reserve" to "the holds plus what carries
+    /// them do", and the whole-block version of it lives in BlockReserveTests
+    /// where both blocks are counted together.
     func testTheHoldsAloneNoLongerFillTheReserve() {
         let holds = Cooldown.positionCount * Cooldown.positionSeconds
         XCTAssertEqual(holds, 180, "six positions of thirty seconds")

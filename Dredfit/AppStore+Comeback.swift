@@ -1,9 +1,9 @@
 //
-// The read-only companions of the comeback card (issue #127): what
-//  the two offers actually are in numbers, and what accepting would subtract
-//  now. Nothing here mutates state — the mutation (acceptComeback) stays in
-//  AppStore proper. The illness lens that shared this file was removed in
-// why, and what covers its window instead, is at the bottom.
+// The read-only companions of the comeback card (issue #127): what the two
+// offers actually are in numbers, and what accepting would subtract now.
+// Nothing here mutates state — the mutation (acceptComeback) stays in AppStore
+// proper. The illness lens that shared this file was removed in why, and what
+// covers its window instead, is at the bottom.
 //
 
 import Foundation
@@ -35,10 +35,10 @@ extension AppStore {
         return (before.levels[.pull] ?? 0) - (after.levels[.pull] ?? 0)
     }
 
-    // The "I was sick" lens is gone, and with it
-    // `illnessSessionsLeft` and the quiet offer that armed it. The lens made
-    // the plan HEAVIER in 76 cells out of 480 — the opposite of
-    // what the offer promised — so there was nothing to keep.
+    // The "I was sick" lens is gone, and with it `illnessSessionsLeft` and the
+    // quiet offer that armed it. The lens made the plan HEAVIER in 76 cells
+    // out of 480 — the opposite of what the offer promised — so there was
+    // nothing to keep.
     //
     // The window it covered (a 2–13 day gap, below the comeback and past a
     // missed beat) is not left empty: a person coming back from a break

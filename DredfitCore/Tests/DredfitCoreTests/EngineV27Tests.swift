@@ -1,11 +1,10 @@
 //
 //  DredfitCoreTests
 //
-// The do-no-harm gate wave: calibration bounded by the
-//  neighboring tier, landing ceilings and the set-band snap on the comeback,
-//  and the silent decay resetting the fail streak. Mirrors the corresponding
-//  blocks in the reference verifier — anything asserted here is asserted
-//  there too.
+// The do-no-harm gate wave: calibration bounded by the neighboring tier,
+// landing ceilings and the set-band snap on the comeback, and the silent decay
+// resetting the fail streak. Mirrors the corresponding blocks in the reference
+// verifier — anything asserted here is asserted there too.
 //
 
 import XCTest
@@ -56,9 +55,9 @@ final class EngineV27Tests: XCTestCase {
                        "a fact of 14 still calibrates precisely to 6")
     }
 
-    /// A slow-tissue pattern (held to a step at every tier by — the
-    /// calf) calibrates no higher than the tier-1 ceiling: the Achilles
-    /// remodels on a slower clock than the fact suggests.
+    /// A slow-tissue pattern (held to a step at every tier by — the calf)
+    /// calibrates no higher than the tier-1 ceiling: the Achilles remodels on
+    /// a slower clock than the fact suggests.
     func testSlowTissueCalibratesNoHigherThanTierOne() {
         XCTAssertTrue(EngineConfig.isSlowTissue(.calf))
         XCTAssertFalse(EngineConfig.isSlowTissue(.squat))
@@ -74,9 +73,9 @@ final class EngineV27Tests: XCTestCase {
 
     // MARK: - Comeback landing ceilings and the set-band snap
 
-    /// The ladder of tier-bottom ceilings — every next
-    /// storey of the break lands a floor lower, and the 179 → 180 cliff of
-    /// the old 15/7 rows is gone.
+    /// The ladder of tier-bottom ceilings — every next storey of the break
+    /// lands a floor lower, and the 179 → 180 cliff of the old 15/7 rows is
+    /// gone.
     func testLandingCeilingsPastTheTableEdge() {
         let top = seeded(level: 47)
         XCTAssertEqual(Engine.applyComeback(state: top, gapDays: 56).levels[.squat], 24,
@@ -97,8 +96,8 @@ final class EngineV27Tests: XCTestCase {
                        "a low level keeps the plain table drop")
     }
 
-    /// Crossing a set band snaps the rung to the band floor — the rule
-    /// keeps its priority over the tier continuity.
+    /// Crossing a set band snaps the rung to the band floor — the rule keeps
+    /// its priority over the tier continuity.
     func testSetBandCrossingSnapsTheRung() {
         let top = seeded(level: 47)
         XCTAssertEqual(Engine.applyComeback(state: top, gapDays: 14).levels[.squat], 45,
@@ -108,9 +107,8 @@ final class EngineV27Tests: XCTestCase {
                        "a −2 across the 32 boundary snaps to the band floor")
     }
 
-    /// A tier crossing below the bands lands by rep
-    /// continuity — the same dose in the easier variation, never the lower
-    /// tier's top.
+    /// A tier crossing below the bands lands by rep continuity — the same dose
+    /// in the easier variation, never the lower tier's top.
     func testTierCrossingBelowTheBandsKeepsTheRung() {
         let mid = seeded(level: 20)
         let landed = Engine.applyComeback(state: mid, gapDays: 77).levels[.squat] ?? -1
@@ -118,8 +116,8 @@ final class EngineV27Tests: XCTestCase {
         XCTAssertEqual(Level.decode(landed).reps, Level.decode(20).reps)
     }
 
-    /// The no-stacking identity of survives the ceilings and the snap:
-    /// peeking mid-break costs exactly nothing, at every level and at the new
+    /// The no-stacking identity of survives the ceilings and the snap: peeking
+    /// mid-break costs exactly nothing, at every level and at the new
     /// boundaries too.
     func testDecayPlusWeakenedComebackStillEqualsThePlainComeback() {
         for gap in [140, 179, 180, 200, 365, 3650] {
@@ -174,11 +172,11 @@ final class EngineV27Tests: XCTestCase {
         // The subject is the 13/14-day boundary, so the delta is taken
         // session-wide.
         paused = Engine.applyFeedback(state: paused.underLessRun, session: session, result: .less)
-        // Re-marked: a decay is a DESCENT and walks one
-        // step of the growth path, not a whole level; the rating is a step too
-        // Two steps down from 12.0 are composed out of the rule
-        // itself rather than written as the level 10, and the subject of the
-        // block — no premature deload — is asserted exactly as before.
+        // Re-marked: a decay is a DESCENT and walks one step of the growth
+        // path, not a whole level; the rating is a step too Two steps down
+        // from 12.0 are composed out of the rule itself rather than written as
+        // the level 10, and the subject of the block — no premature deload —
+        // is asserted exactly as before.
         let first = Level.fallBy(level: 12, sub: 0, cut: 0, by: 1, floor: EngineConfig.setsFloor)
         let want = Level.fallBy(level: first.level, sub: first.sub, cut: first.cut,
                                 by: 1, floor: EngineConfig.setsFloor)

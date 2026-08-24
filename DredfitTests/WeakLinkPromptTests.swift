@@ -31,13 +31,13 @@ final class WeakLinkPromptTests: XCTestCase {
     /// when it carried `culprit` and "on plan" otherwise — the naive persona.
     /// The audit's shoulder persona, and it is seeded UP THE SCALE on purpose.
     ///
-    /// The prompt now routes into the handles, and it stays
-    /// silent when neither of them could do anything — so a persona sitting at
-    /// L0 on the sets floor is not the case this suite is about. It is the
-    /// case accepts: at the declared bottom of the app there is nothing
-    /// left to offer, and `testAMovementWithNoHandleLeftIsNotSuggested` pins
-    /// exactly that. Someone whose shoulder keeps failing is somewhere up the
-    /// scale, with both handles still live, and that is who is seeded here.
+    /// The prompt now routes into the handles, and it stays silent when
+    /// neither of them could do anything — so a persona sitting at L0 on the
+    /// sets floor is not the case this suite is about. It is the case accepts:
+    /// at the declared bottom of the app there is nothing left to offer, and
+    /// `testAMovementWithNoHandleLeftIsNotSuggested` pins exactly that.
+    /// Someone whose shoulder keeps failing is somewhere up the scale, with
+    /// both handles still live, and that is who is seeded here.
     private func naiveStore(sessions count: Int, culprit: Pattern = .pushV,
                             level: Int = 20) -> AppStore {
         let levels = Pattern.allCases
@@ -76,9 +76,9 @@ final class WeakLinkPromptTests: XCTestCase {
     }
 
     func testATraineeWhoAlreadyNamesTheMovementIsNeverAsked() {
-        // Naming the movement used to mean reporting pain on it;
-        // the surviving way to name one is an exact number below the plan, and
-        // that is the answer the prompt is trying to reach.
+        // Naming the movement used to mean reporting pain on it; the surviving
+        // way to name one is an exact number below the plan, and that is the
+        // answer the prompt is trying to reach.
         let store = AppStore(storageURL: tempURL)
         for _ in 0..<12 {
             let session = store.nextSession
@@ -131,12 +131,12 @@ final class WeakLinkPromptTests: XCTestCase {
         XCTAssertTrue(applied)
     }
 
-    // Three tests moved rather than vanished — see the two
-    // below. The prompt used to answer "it hurts" by QUEUEING a pain report
-    // for the movement's next appearance: the answer was sticky, it had to
-    // survive a relaunch, and it took effect an appearance later. The handle
-    // takes effect at once and needs no queue, so "the answer survives a
-    // relaunch" has nothing left to survive.
+    // Three tests moved rather than vanished — see the two below. The prompt
+    // used to answer "it hurts" by QUEUEING a pain report for the movement's
+    // next appearance: the answer was sticky, it had to survive a relaunch,
+    // and it took effect an appearance later. The handle takes effect at once
+    // and needs no queue, so "the answer survives a relaunch" has nothing left
+    // to survive.
 
     // MARK: - The answer is a handle, not a diagnosis
 
@@ -182,8 +182,8 @@ final class WeakLinkPromptTests: XCTestCase {
     /// Nothing to suggest when neither handle would do anything: on tier 1 at
     /// the sets floor the prompt would route into two dead controls.
     ///
-    /// This is 's accepted bottom stated from the app's side — at L0 on
-    /// two sets the app has run out of things to offer, and going quiet is the
+    /// This is 's accepted bottom stated from the app's side — at L0 on two
+    /// sets the app has run out of things to offer, and going quiet is the
     /// honest answer rather than showing a button that cannot fire.
     func testAMovementWithNoHandleLeftIsNotSuggested() throws {
         let store = naiveStore(sessions: 12)

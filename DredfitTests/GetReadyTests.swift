@@ -93,10 +93,10 @@ final class GetReadyTests: XCTestCase {
             + cost(of: anyComposition[5])
         let reserved = (EngineConfig.warmupMin + EngineConfig.cooldownMin) * 60
 
-        // 215 → 245 and 265 → 295, because the base
-        // transition doubled. The sum still fills the reserve EXACTLY — the
-        // reserve grew by the same minute (`cooldownMin` 3 → 4), which is why
-        // this was an engine change and not an app one.
+        // 215 → 245 and 265 → 295, because the base transition doubled. The
+        // sum still fills the reserve EXACTLY — the reserve grew by the same
+        // minute (`cooldownMin` 3 → 4), which is why this was an engine change
+        // and not an app one.
         XCTAssertEqual(warmup, 245)
         XCTAssertEqual(fixed + worstMapped, 295)
         XCTAssertEqual(warmup + fixed + worstMapped, reserved,
@@ -148,9 +148,9 @@ final class GetReadyTests: XCTestCase {
     func testWarmupAdvanceAbsorbsBackgroundedTime() {
         // Past a move's end by the whole next transition plus two seconds: the
         // transition is consumed whole and the landing is 2 s into the move it
-        // announced.: written from the constant rather than from
-        // "7", which was the base of five plus two and silently became wrong
-        // when the base doubled.
+        // announced.: written from the constant rather than from "7", which
+        // was the base of five plus two and silently became wrong when the
+        // base doubled.
         let landing = Warmup.advance(from: (0, .move), overshoot: GetReady.seconds + 2)
         XCTAssertEqual(landing?.index, 1)
         XCTAssertEqual(landing?.stage, .move)

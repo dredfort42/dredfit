@@ -12,8 +12,7 @@ import DredfitCore
 // A same-file extension so the view struct stays within the linter's size for
 // a type body. @State storage stays in the struct; only behaviour here.
 extension WorkoutFlowView {
-    /// The
-    /// warm-up is OFFERED, not started.
+    /// The warm-up is OFFERED, not started.
     ///
     /// Same two answers as the cool-down and the same tone: no consequence
     /// attaches to saying no. The one difference is the reason on offer —

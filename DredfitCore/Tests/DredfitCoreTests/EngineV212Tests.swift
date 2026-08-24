@@ -1,11 +1,11 @@
 //
 //  DredfitCoreTests
 //
-// Engine (issues #126, #133): a comeback lands at a dose no
-//  higher than the last completed session — rep continuity on tier crossings,
-//  a ladder of tier-bottom ceilings, a deepening series of returns — and the
-//  "I was sick" lens makes the plan one tier easier for six restorative
-//  sessions without touching the stored levels.
+// Engine (issues #126, #133): a comeback lands at a dose no higher than the
+// last completed session — rep continuity on tier crossings, a ladder of
+// tier-bottom ceilings, a deepening series of returns — and the "I was sick"
+// lens makes the plan one tier easier for six restorative sessions without
+// touching the stored levels.
 //
 
 import XCTest
@@ -50,8 +50,8 @@ final class EngineV212Tests: XCTestCase {
     }
 
     func testTheBandSnapKeepsItsPriority() {
-        // 33 → 31 crosses the band boundary: the floor snap, not the
-        // tier continuity, decides.
+        // 33 → 31 crosses the band boundary: the floor snap, not the tier
+        // continuity, decides.
         let after = Engine.applyComeback(state: seeded(33), gapDays: 14)
         XCTAssertEqual(after.levels[.squat], 24)
     }
@@ -108,9 +108,9 @@ final class EngineV212Tests: XCTestCase {
 
     // MARK: - serialization
 
-    /// The lens half of this test is gone with the lens. The
-    /// half that stays is the one that mattered for the wire format — a legacy
-    /// file has no `returnRun`, and garbage in it is healed on the way in.
+    /// The lens half of this test is gone with the lens. The half that stays
+    /// is the one that mattered for the wire format — a legacy file has no
+    /// `returnRun`, and garbage in it is healed on the way in.
     func testNewFieldsDecodeLenientlyAndRoundtrip() throws {
         var s = seeded(20)
         s = Engine.applyComeback(state: s, gapDays: 30)
@@ -128,9 +128,9 @@ final class EngineV212Tests: XCTestCase {
                                              from: JSONSerialization.data(withJSONObject: dict))
         XCTAssertEqual(dirty.returnRun, 0, "a negative series is garbage")
 
-        // The SEVEN removed keys are simply ignored. A file
-        // written by an older build still carries them, and that IS the whole
-        // migration — the decoder never asks for them.
+        // The SEVEN removed keys are simply ignored. A file written by an
+        // older build still carries them, and that IS the whole migration —
+        // the decoder never asks for them.
         for key in ["frozen", "sore", "soreLeft", "painSeen",
                     "illness", "timeBudgetMin", "shownBudget"] {
             dict[key] = 99
@@ -141,11 +141,11 @@ final class EngineV212Tests: XCTestCase {
         XCTAssertEqual(old.counter, dirty.counter, "and its counter")
     }
 
-    // SNIPPED: five tests of — the "I was sick" lens.
-    // The lens made the plan HEAVIER in 76 cells out of 480 (finding S6-2, P0)
-    // — the exact opposite of what it promised — and there was nothing to fix:
-    // the mechanism contradicted its own claim.
+    // SNIPPED: five tests of — the "I was sick" lens. The lens made the plan
+    // HEAVIER in 76 cells out of 480 (finding S6-2, P0) — the exact opposite
+    // of what it promised — and there was nothing to fix: the mechanism
+    // contradicted its own claim.
     //
-    // — the comeback landing, the ceiling ladder and the run of
-    // returns — are untouched and stay here: they never belonged to the lens.
+    // — the comeback landing, the ceiling ladder and the run of returns — are
+    // untouched and stay here: they never belonged to the lens.
 }

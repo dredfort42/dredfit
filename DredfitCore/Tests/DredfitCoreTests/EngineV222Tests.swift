@@ -1,8 +1,8 @@
 //
 //  DredfitCoreTests
 //
-// Engine: the sub-step, and the cancellation of the
-//  hold-this-level input. Mirrors block 26 of the reference verifier.
+// Engine: the sub-step, and the cancellation of the hold-this-level input.
+// Mirrors block 26 of the reference verifier.
 //
 //  One rung of a level used to add its dose to ALL the sets at once — a median
 //  of +11 % more work per growth event, up to +25 % on reps. A sub-step splits
@@ -345,13 +345,13 @@ final class EngineV222Tests: XCTestCase {
     func testEveryDescentZeroesTheSubStep() throws {
         var grown = seeded(20)
         grown.sub[.pull] = 2
-        // The RATING is now the one descent that does not
-        // zero the sub-step — it gives back exactly one, walking the growth
-        // path backwards, because that is the whole point of the wave. Every
-        // descent that moves a LEVEL still zeroes it, and the five cases below
-        // are unchanged. The run is already going, so the delta is
-        // session-wide — an unnamed "less" is otherwise targeted and
-        // would simply leave `pull` holding, sub-step included.
+        // The RATING is now the one descent that does not zero the sub-step —
+        // it gives back exactly one, walking the growth path backwards,
+        // because that is the whole point of the wave. Every descent that
+        // moves a LEVEL still zeroes it, and the five cases below are
+        // unchanged. The run is already going, so the delta is session-wide —
+        // an unnamed "less" is otherwise targeted and would simply leave
+        // `pull` holding, sub-step included.
         grown.lessRun = EngineConfig.lessRunToGlobal
         assertDescended(tap(grown, .less), .pull, from: grown.position(.pull), by: 1,
                         "a 'less' gives back one sub-step instead of zeroing it")
@@ -361,21 +361,21 @@ final class EngineV222Tests: XCTestCase {
         let below = Engine.applyFeedback(state: grown, session: session, result: .plan,
                                          overrides: [.pull: max(0, pull.load - 3)])
         XCTAssertEqual(below.sub[.pull] ?? 0, 0, "a fact below the base zeroes it")
-        // The pain report was one of the paths that zeroed the
-        // sub-step; it is gone. The handle "give me an easier variation" now
-        // does it, and for a reason the report never had — the variation
-        // changed, so there is nothing to carry the old position on.
+        // The pain report was one of the paths that zeroed the sub-step; it is
+        // gone. The handle "give me an easier variation" now does it, and for
+        // a reason the report never had — the variation changed, so there is
+        // nothing to carry the old position on.
         XCTAssertEqual(Engine.easierVariation(state: grown, pattern: .pull).sub[.pull] ?? 0, 0,
                        "the easier-variation handle zeroes it")
         // A break, either kind.
         XCTAssertTrue(Engine.applyComeback(state: grown, gapDays: 30).sub.isEmpty,
                       "a comeback zeroes every one")
-        // Re-marked: a decay drops the sub-steps and
-        // THEN walks one step of the growth path from there, so what it leaves
-        // is that step's own sub-step, not an empty map. The subject — every
-        // descent gives up what the trainee did not earn — is asserted as the
-        // composition of the two, which is stricter than "empty": it pins
-        // where the step landed as well.
+        // Re-marked: a decay drops the sub-steps and THEN walks one step of
+        // the growth path from there, so what it leaves is that step's own
+        // sub-step, not an empty map. The subject — every descent gives up
+        // what the trainee did not earn — is asserted as the composition of
+        // the two, which is stricter than "empty": it pins where the step
+        // landed as well.
         let decayed = Engine.applySilentDecay(state: grown, gapDays: 9)
         for p in Pattern.allCases {
             assertPosition(decayed, p,
@@ -388,11 +388,11 @@ final class EngineV222Tests: XCTestCase {
     /// Giving up sub-steps without losing a level is not a shortfall — the
     /// streak must not start counting toward a deload for it.
     func testDroppingSubStepsAloneIsNotAShortfall() throws {
-        // The claim belongs to the EXACT-FACT path, which
-        // is where put it — the streak there reads the level. It used to
-        // be shown on the rating path because both paths read the level then;
-        // now the rating path counts the INTENT (the second half of this test),
-        // and the fact path is the one that still holds the original claim.
+        // The claim belongs to the EXACT-FACT path, which is where put it —
+        // the streak there reads the level. It used to be shown on the rating
+        // path because both paths read the level then; now the rating path
+        // counts the INTENT (the second half of this test), and the fact path
+        // is the one that still holds the original claim.
         var state = seeded(0)
         state.sub[.pull] = 2
         let session = Engine.generateSession(state)
@@ -448,9 +448,9 @@ final class EngineV222Tests: XCTestCase {
 
     // MARK: - The weekly window is free for an honest rhythm
 
-    /// The property was built on survives the change of unit verbatim:
-    /// three "plan" sessions a week are three sub-steps, exactly the slow
-    /// budget, where three sessions used to be three levels.
+    /// The property was built on survives the change of unit verbatim: three
+    /// "plan" sessions a week are three sub-steps, exactly the slow budget,
+    /// where three sessions used to be three levels.
     func testTheHonestThreeAWeekRhythmStillCostsNothing() {
         func run(gapDays: Double?) -> [Pattern: Int] {
             var s = EngineState.initial
@@ -466,9 +466,9 @@ final class EngineV222Tests: XCTestCase {
                        "with the signal and without it — the same positions")
     }
 
-    // SNIPPED: two tests that stood on mechanisms this wave
-    // removes — a legacy freeze expiring on schedule, and the uniform plan the
-    // "I was sick" lens showed. Neither has a field to read any more.
+    // SNIPPED: two tests that stood on mechanisms this wave removes — a legacy
+    // freeze expiring on schedule, and the uniform plan the "I was sick" lens
+    // showed. Neither has a field to read any more.
     //
     // The sub-step itself — what this suite is about — is untouched.
 }

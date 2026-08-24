@@ -194,9 +194,9 @@ final class WorkoutSnapshotTests: XCTestCase {
         XCTAssertNil(reloaded.resumableWorkout()?.discomfort)
     }
 
-    /// Re-marked from `testAPinAloneMakesASnapshotResumable`.
-    /// The hold request is cancelled; a pain report is the remaining per-movement
-    /// mark that is progress worth offering back on its own.
+    /// Re-marked from `testAPinAloneMakesASnapshotResumable`. The hold request
+    /// is cancelled; a pain report is the remaining per-movement mark that is
+    /// progress worth offering back on its own.
     func testAPainReportAloneMakesASnapshotResumable() {
         let store = AppStore(storageURL: tempURL)
         store.saveWorkoutSnapshot(WorkoutSnapshot(

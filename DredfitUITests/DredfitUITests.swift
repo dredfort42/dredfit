@@ -931,8 +931,8 @@ extension DredfitUITests {
         XCTAssertTrue(cooldown.waitForExistence(timeout: 5),
                       "the cool-down must follow the last exercise")
 
-        // The header is up as soon as the block is OFFERED —
-        // the block itself runs only once the offer is accepted.
+        // The header is up as soon as the block is OFFERED — the block itself
+        // runs only once the offer is accepted.
         let acceptCooldown = app.buttons["cooldown-start"]
         if acceptCooldown.waitForExistence(timeout: 5) { acceptCooldown.tap() }
 

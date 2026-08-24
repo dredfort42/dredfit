@@ -202,11 +202,10 @@ final class ShownPlanTests: XCTestCase {
     /// zeroes all of them. What it must NOT take with them: the bar in the
     /// doorway.
     ///
-    /// The budget half of this test is gone with the
-    /// budget. What took its place is the handle — and the handle IS one of
-    /// the fields a reset clears, deliberately: starting the levels over is
-    /// starting the plan over, and a session someone shortened at L40 has no
-    /// meaning at L0.
+    /// The budget half of this test is gone with the budget. What took its
+    /// place is the handle — and the handle IS one of the fields a reset
+    /// clears, deliberately: starting the levels over is starting the plan
+    /// over, and a session someone shortened at L40 has no meaning at L0.
     func testResetClearsTheSetsHandleAndKeepsTheDoorway() throws {
         let store = try advancedStore()
         store.setHasBar(true)
@@ -225,8 +224,8 @@ final class ShownPlanTests: XCTestCase {
         XCTAssertTrue(store.engineState.hasBar, "the bar did not leave the doorway")
     }
 
-    // SNIPPED: `testTheIllnessLensShowingIsNotWrittenDown`. The
-    // lens built a VIEW of the plan rather than moving the position, so its
-    // showing had to be kept out of the memory the postcondition repair reads.
-    // There is no lens, and no view: every plan on screen is the plan.
+    // SNIPPED: `testTheIllnessLensShowingIsNotWrittenDown`. The lens built a
+    // VIEW of the plan rather than moving the position, so its showing had to
+    // be kept out of the memory the postcondition repair reads. There is no
+    // lens, and no view: every plan on screen is the plan.
 }

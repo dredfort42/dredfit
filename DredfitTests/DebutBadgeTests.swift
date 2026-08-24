@@ -4,10 +4,10 @@ import DredfitCore
 
 @MainActor
 final class DebutBadgeTests: XCTestCase {
-    /// Every workout gets its own day. Growth moves one set
-    /// at a time now, so a tier is 24 growth events rather than 8 — and stacked
-    /// on a single instant the weekly ceiling (six sub-steps for the fast
-    /// tissues) would hold the walk short of any tier boundary forever.
+    /// Every workout gets its own day. Growth moves one set at a time now, so
+    /// a tier is 24 growth events rather than 8 — and stacked on a single
+    /// instant the weekly ceiling (six sub-steps for the fast tissues) would
+    /// hold the walk short of any tier boundary forever.
     private var day = 0
     private func train(_ store: AppStore, _ result: FeedbackResult,
                        skipped: Set<Pattern> = []) {
@@ -40,9 +40,9 @@ final class DebutBadgeTests: XCTestCase {
     func testDebutAppearsWhenAPatternCrossesIntoANewTier() {
         let store = AppStore(storageURL: tempURL)
         var sawDebut = false
-        // A tier is 24 growth events now, not 8 — growth
-        // moves one set at a time — so the walk to the first tier boundary
-        // needs room. The subject (a crossing raises the badge) is unchanged.
+        // A tier is 24 growth events now, not 8 — growth moves one set at a
+        // time — so the walk to the first tier boundary needs room. The
+        // subject (a crossing raises the badge) is unchanged.
         for _ in 0..<60 {
             let debuts = store.debutPatterns
             if !debuts.isEmpty {

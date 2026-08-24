@@ -1,14 +1,14 @@
 //
 //  DredfitCoreTests
 //
-// The audit's polish wave: a fact equal to the plan steps like
-//  "on plan" and the rest between sets follows the set band.
-//  Mirrors the corresponding blocks in the reference verifier.
+// The audit's polish wave: a fact equal to the plan steps like "on plan" and
+// the rest between sets follows the set band. Mirrors the corresponding blocks
+// in the reference verifier.
 //
-// — the rule for "discomfort ∧ hold this level" — is
-//  cancelled together with the second input, so the two tests that carried it
-//  are gone and what they also covered (discomfort annuls and unloads at any
-//  rating) is asserted directly below.
+// — the rule for "discomfort ∧ hold this level" — is cancelled together with
+// the second input, so the two tests that carried it are gone and what they
+// also covered (discomfort annuls and unloads at any rating) is asserted
+// directly below.
 //
 
 import XCTest
@@ -51,9 +51,9 @@ final class EngineV28Tests: XCTestCase {
         }
     }
 
-    /// A fact below the plan at zero still calibrates to zero — the
-    /// comparison is against the plan's load, so the fromActual clamp can
-    /// no longer disguise "below plan" as "equal to plan".
+    /// A fact below the plan at zero still calibrates to zero — the comparison
+    /// is against the plan's load, so the fromActual clamp can no longer
+    /// disguise "below plan" as "equal to plan".
     func testFactBelowThePlanAtZeroStillStays() throws {
         let zero = EngineState.initial
         let session = Engine.generateSession(zero)
@@ -76,11 +76,11 @@ final class EngineV28Tests: XCTestCase {
                        "the exact-plan fact overrides the session rating")
     }
 
-    // SNIPPED: `testExactPlanFactStillHoldsUnderAFreeze`.
-    // The freeze went with the pain channel, and with it the only state in
-    // which an exact-plan fact had to clamp instead of growing. The rest of
-    // — "a fact equal to the plan steps exactly like a tap of plan" —
-    // is asserted directly above and is untouched.
+    // SNIPPED: `testExactPlanFactStillHoldsUnderAFreeze`. The freeze went with
+    // the pain channel, and with it the only state in which an exact-plan fact
+    // had to clamp instead of growing. The rest of — "a fact equal to the plan
+    // steps exactly like a tap of plan" — is asserted directly above and is
+    // untouched.
 
     // MARK: - Rest between sets follows the set band
 
@@ -88,23 +88,23 @@ final class EngineV28Tests: XCTestCase {
     /// band's rest across the whole scale — the app timer reads the field
     /// per exercise and needs no change.
     func testRestBetweenSetsFollowsTheSetBand() {
-        // Re-marked: the table gained the 1–2 rungs.
-        // They inherit a triple's pause instead of falling through to the
-        // shared default — before the fix a cut handed back 60 s where band 5
-        // asks for 120, i.e. a REST SHORTER than before the complaint.
+        // Re-marked: the table gained the 1–2 rungs. They inherit a triple's
+        // pause instead of falling through to the shared default — before the
+        // fix a cut handed back 60 s where band 5 asks for 120, i.e. a REST
+        // SHORTER than before the complaint.
         XCTAssertEqual(EngineConfig.restSetByBand, [1: 60, 2: 60, 3: 60, 4: 90, 5: 120])
         for level in 0...EngineConfig.levelMax {
             let session = Engine.generateSession(seeded(level: level))
             for ex in session.exercises {
-                // Re-marked: the rest reads the TIER as
-                // well as the band — a tier-4 movement in band 3 rests 90 s,
-                // because the band was never the whole story about difficulty.
-                // Re-marked again: the BAND IS THE LEVEL'S,
-                // not the number of sets shown. The sets handle and the
-                // gate take volume off, not recovery. The expectation is not
-                // weakened — it is read off the same level the plan was built
-                // from, and the second assertion below pins the direction the
-                // old form could not: a trimmed set may never shorten a pause.
+                // Re-marked: the rest reads the TIER as well as the band — a
+                // tier-4 movement in band 3 rests 90 s, because the band was
+                // never the whole story about difficulty. Re-marked again: the
+                // BAND IS THE LEVEL'S, not the number of sets shown. The sets
+                // handle and the gate take volume off, not recovery. The
+                // expectation is not weakened — it is read off the same level
+                // the plan was built from, and the second assertion below pins
+                // the direction the old form could not: a trimmed set may
+                // never shorten a pause.
                 let band = Level.decode(level).sets
                 let expected = EngineConfig.restSetByTierBand[ex.tier]?[band]
                     ?? EngineConfig.restSetByBand[band]
@@ -122,9 +122,9 @@ final class EngineV28Tests: XCTestCase {
 
     // MARK: - Discomfort is the only way into the freeze
 
-    // SNIPPED: `testDiscomfortAnnulsAndUnloadsAtEveryRating`.
-    // Its subject was the PRIORITY of an input that no longer exists — "a
-    // report annuls the session and takes the load off at any rating".
-    // ("discomfort and hold together") had already been dropped in
-    // when the second entrance went; this is the first one going.
+    // SNIPPED: `testDiscomfortAnnulsAndUnloadsAtEveryRating`. Its subject was
+    // the PRIORITY of an input that no longer exists — "a report annuls the
+    // session and takes the load off at any rating". ("discomfort and hold
+    // together") had already been dropped in when the second entrance went;
+    // this is the first one going.
 }

@@ -1,8 +1,8 @@
 //
 //  DredfitCoreTests
 //
-// Engine: "hard" steps back the way it came. Mirrors block
-//  49 of the reference verifier.
+// Engine: "hard" steps back the way it came. Mirrors block 49 of the reference
+// verifier.
 //
 //  The rating path was the last descent without a gate. It went by whole
 //  levels and crossed a tier boundary freely, landing in the MIDDLE of the
@@ -33,8 +33,8 @@ final class EngineV223Tests: XCTestCase {
     }
 
     /// A run of unnamed "less" ratings is already going, so the session delta
-    /// is handed to everyone — that is how the DESCENT gets
-    /// tested rather than the aim, which has its own suite.
+    /// is handed to everyone — that is how the DESCENT gets tested rather than
+    /// the aim, which has its own suite.
     private var allPositions: [Position] {
         (0...EngineConfig.levelMax).flatMap { level in
             (0..<Level.subSteps(at: level)).map { Position(level: level, sub: $0) }
@@ -45,9 +45,9 @@ final class EngineV223Tests: XCTestCase {
 
     /// Every position on the scale × 10 patterns × both steps (a plain "less"
     /// and the chronic double one). What is asserted is not a number but a
-    /// property: the gate on the result, the tier, band and unit left
-    /// alone, work strictly down everywhere except a block floor, where the
-    /// position is required to stand.
+    /// property: the gate on the result, the tier, band and unit left alone,
+    /// work strictly down everywhere except a block floor, where the position
+    /// is required to stand.
     func testTheEvaluativeDescentNeverAddsWorkAnywhereOnTheScale() {
         for entry in allPositions {
             for count in [-EngineConfig.deltaLess, -EngineConfig.chronicStep] {
@@ -97,8 +97,8 @@ final class EngineV223Tests: XCTestCase {
                 for ex in session.exercises {
                     assertDescended(after, ex.pattern, from: entry, by: -EngineConfig.deltaLess,
                                     "\(ex.pattern) from \(entry.level).\(entry.sub)")
-                    // the streak counts the INTENT — on a block floor
-                    // the position stands and the counter still moves, or the
+                    // the streak counts the INTENT — on a block floor the
+                    // position stands and the counter still moves, or the
                     // deload there would be out of reach.
                     XCTAssertEqual(after.failStreak[ex.pattern], 1,
                                    "\(ex.pattern) at \(entry.level).\(entry.sub): the intent did not count")
@@ -114,14 +114,14 @@ final class EngineV223Tests: XCTestCase {
             var state = seeded(floor, hasBar: true)
             // Counted in APPEARANCES, not sessions: a rotating pattern stands
             // in five sessions out of eight, so "three sessions running" is
-            // not the same thing as three shortfalls (the reason counts
-            // its window in appearances too).
+            // not the same thing as three shortfalls (the reason counts its
+            // window in appearances too).
             var seen = Dictionary(uniqueKeysWithValues: Pattern.allCases.map { ($0, 0) })
-            // On a block floor a "less" takes a SET, so
-            // the expected position is tracked through the run instead of
-            // being pinned to the floor. The subject of the block is untouched
-            // and gains a fact: the level never crosses the block floor even
-            // though the position keeps moving.
+            // On a block floor a "less" takes a SET, so the expected position
+            // is tracked through the run instead of being pinned to the floor.
+            // The subject of the block is untouched and gains a fact: the
+            // level never crosses the block floor even though the position
+            // keeps moving.
             var want = Dictionary(uniqueKeysWithValues:
                 Pattern.allCases.map { ($0, Position(level: floor, sub: 0, cut: 0)) })
             var deloaded: Set<Pattern> = []
@@ -193,10 +193,10 @@ final class EngineV223Tests: XCTestCase {
             guard inSession else { continue }
             hits += 1
             if hits < EngineConfig.failsToDeload {
-                // L24 is a tier floor, so the LEVEL still
-                // does not move — but the sets handle gives the rating a step
-                // there, which is the whole point of the wave: before it, a
-                // "hard" on a block floor was an inert tap.
+                // L24 is a tier floor, so the LEVEL still does not move — but
+                // the sets handle gives the rating a step there, which is the
+                // whole point of the wave: before it, a "hard" on a block
+                // floor was an inert tap.
                 XCTAssertEqual(state.levels[p], top,
                                "L24 is a tier floor: hard #\(hits) must not move the level")
                 // Band 3 has exactly one set to give above the shared floor,
@@ -214,9 +214,9 @@ final class EngineV223Tests: XCTestCase {
         // "No more work" is read by the GATE here, not by a sum of seconds:
         // L16 is the floor of tier 3, the smallest dose an easier variation
         // has, and a measure in seconds across a change of variation is not
-        // valid. The sum does go 30 → 45 s — the same landing the
-        // second step of taking the load off gives, where that price
-        // is named and accepted.
+        // valid. The sum does go 30 → 45 s — the same landing the second step
+        // of taking the load off gives, where that price is named and
+        // accepted.
         XCTAssertTrue(Level.noHarder(pattern: p, from: top, to: state.levels[p]!, fromCut: 0, toCut: 0),
                       "the deload is not heavier by the gate")
         XCTAssertEqual(state.levels[p], Level.tierFloor(state.levels[p]!),
@@ -243,10 +243,9 @@ final class EngineV223Tests: XCTestCase {
 
     // MARK: - (c) The exact-fact path did not move
 
-    /// The formula is written out here in full and swept against the
-    /// engine over (position × fact): the athlete's honesty does not fall
-    /// under, and its path is still invert-to-a-level, pass
-    /// the gate, zero the sub-step.
+    /// The formula is written out here in full and swept against the engine
+    /// over (position × fact): the athlete's honesty does not fall under, and
+    /// its path is still invert-to-a-level, pass the gate, zero the sub-step.
     func testThePointFactPathIsBitForBitV222() throws {
         func factPositionV222(_ p: Pattern, _ ex: SessionExercise, actual: Int,
                               oldL: Int, oldSub: Int) -> Position {
@@ -279,16 +278,16 @@ final class EngineV223Tests: XCTestCase {
             for ex in session.exercises {
                 let p = ex.pattern
                 for actual in [0, max(0, ex.load - 2), ex.load, ex.load + 1, ex.load + 20] {
-                    // One movement per call: the humble group landing
-                    // is a property of a session and is not the subject here.
+                    // One movement per call: the humble group landing is a
+                    // property of a session and is not the subject here.
                     let after = Engine.applyFeedback(state: state, session: session,
                                                      result: .plan, overrides: [p: actual])
                     let want = factPositionV222(p, ex, actual: actual,
                                                 oldL: entry.level, oldSub: entry.sub)
                     assertPosition(after, p, want,
                                    "the fact path moved — \(p) \(entry.level).\(entry.sub), fact \(actual)")
-                    // word for word: on this path the streak reads the
-                    // LEVEL, not the position.
+                    // word for word: on this path the streak reads the LEVEL,
+                    // not the position.
                     XCTAssertEqual(after.failStreak[p], want.level < entry.level ? 1 : 0,
                                    "the streak of \(p) on the fact path changed (\(entry.level).\(entry.sub), fact \(actual))")
                 }

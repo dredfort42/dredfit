@@ -1,13 +1,13 @@
 //
 //  DredfitCoreTests
 //
-// Engine (issues #132, #146): the sanitization wave. The
-// promise of — "the plan is valid even with garbage in the state" —
-//  had two holes. The reference still read a few containers raw, and this
-//  port sanitized only on decode, so a corrupt store file produced unearned
-//  deloads, a comeback landing above the scale, and — near Int's edge — a
-//  process trap on every plan, in a crash loop the file quarantine could not
-//  catch, because the decode itself had succeeded.
+// Engine (issues #132, #146): the sanitization wave. The promise of — "the
+// plan is valid even with garbage in the state" — had two holes. The reference
+// still read a few containers raw, and this port sanitized only on decode, so
+// a corrupt store file produced unearned deloads, a comeback landing above the
+// scale, and — near Int's edge — a process trap on every plan, in a crash loop
+// the file quarantine could not catch, because the decode itself had
+// succeeded.
 //
 //  Every expectation here is the reference's own answer to the same input:
 //  the two implementations were compared on 2,272 dirty cases with zero
@@ -55,13 +55,13 @@ final class EngineV213Tests: XCTestCase {
                                   "level \(l) out of scale for \(p) from \(garbage)")
                 }
             }
-            // The three HANDLES are deliberately NOT in
-            // the list above, and this is the difference in kind rather than a
-            // gap. The three state builders rebuild every field through the
-            // sanitizer; a handle is a NARROW EDITOR of one axis and passes the
-            // rest through as it found them, garbage included. The reference
-            // does exactly the same — verified call for call by the
-            // differential — and a port that "fixed" it here would diverge.
+            // The three HANDLES are deliberately NOT in the list above, and
+            // this is the difference in kind rather than a gap. The three
+            // state builders rebuild every field through the sanitizer; a
+            // handle is a NARROW EDITOR of one axis and passes the rest
+            // through as it found them, garbage included. The reference does
+            // exactly the same — verified call for call by the differential —
+            // and a port that "fixed" it here would diverge.
             //
             // What a handle DOES promise is asserted instead, and in full: it
             // never throws, and the plan built from its result is valid, so
@@ -129,18 +129,18 @@ final class EngineV213Tests: XCTestCase {
         // foreign pattern in it forever.
         var s = seeded(hasBar: true)
         s.creditPaused = [.squat, .calf, .pull]
-        // `applyIllness` was the entry point used here purely
-        // because it healed its input and changed almost nothing else. It is
-        // gone; `recordShown` is the surviving entry with the same property.
+        // `applyIllness` was the entry point used here purely because it
+        // healed its input and changed almost nothing else. It is gone;
+        // `recordShown` is the surviving entry with the same property.
         let after = Engine.recordShown(state: s, session: Engine.generateSession(s))
         XCTAssertEqual(after.creditPaused, [.pull])
     }
 
-    /// Re-marked, not weakened. The claim is unchanged — a
-    /// sparse map keeps only live entries and clamps them — but `frozen` and
-    /// `sore` no longer exist. `setsHold` is the surviving counter of the same
-    /// SHAPE (sparse, per-pattern, positive-only, clamped to its own ceiling),
-    /// so the same three assertions are made on it.
+    /// Re-marked, not weakened. The claim is unchanged — a sparse map keeps
+    /// only live entries and clamps them — but `frozen` and `sore` no longer
+    /// exist. `setsHold` is the surviving counter of the same SHAPE (sparse,
+    /// per-pattern, positive-only, clamped to its own ceiling), so the same
+    /// three assertions are made on it.
     func testSparseMapsKeepOnlyLiveEntries() {
         var s = seeded()
         s.setsHold = [.squat: -3, .hinge: 0, .pull: 2]
@@ -232,10 +232,10 @@ final class EngineV213Tests: XCTestCase {
     // MARK: - Decoding a corrupt file
 
     func testACorruptFileDecodesIntoAStateTheEngineCanRead() throws {
-        // The corrupt file still carries the SEVEN removed keys
-        // — that is what a file written by an older build looks like — and the
-        // decoder is expected to ignore them rather than choke. The garbage in
-        // the live fields is healed exactly as before.
+        // The corrupt file still carries the SEVEN removed keys — that is what
+        // a file written by an older build looks like — and the decoder is
+        // expected to ignore them rather than choke. The garbage in the live
+        // fields is healed exactly as before.
         let json = """
         {"counter":9223372036854775807,
          "levels":["squat",999,"pull",-4,"calf",47],

@@ -1,13 +1,13 @@
 //
 //  DredfitCoreTests
 //
-// Engine (issues #137, #130): the weak link. On a plateau the
-// one-tap trainee failed most of his sessions, and the aim — "the
-//  highest level in the session" — reached the weak link zero times out of 62
-//  failing appearances: the weak link is by definition the LOWER one, so the
-//  delta kept grinding down the movements that were fine. And a from-zero
-//  calibration could put half the body on the neighbouring tier's top in a
-// single session, which then untangled one step at a time.
+// Engine (issues #137, #130): the weak link. On a plateau the one-tap trainee
+// failed most of his sessions, and the aim — "the highest level in the
+// session" — reached the weak link zero times out of 62 failing appearances:
+// the weak link is by definition the LOWER one, so the delta kept grinding
+// down the movements that were fine. And a from-zero calibration could put
+// half the body on the neighbouring tier's top in a single session, which then
+// untangled one step at a time.
 //
 
 import XCTest
@@ -50,10 +50,10 @@ final class EngineV215Tests: XCTestCase {
         let state = seeded(20)
         let session = Engine.generateSession(state)
         let target = try XCTUnwrap(session.exercises.first).pattern
-        // The hold left the "named" list.: so
-        // did the discomfort report, and one signal is left — an exact number
-        // below the plan. The subject of the test is unchanged: a named less
-        // is already addressed, so it writes no chronic window.
+        // The hold left the "named" list.: so did the discomfort report, and
+        // one signal is left — an exact number below the plan. The subject of
+        // the test is unchanged: a named less is already addressed, so it
+        // writes no chronic window.
         let plan = try XCTUnwrap(session.exercises.first).load
         let after = Engine.applyFeedback(state: state, session: session, result: .less,
                                          overrides: [target: max(0, plan - 2)])
@@ -89,32 +89,32 @@ final class EngineV215Tests: XCTestCase {
         XCTAssertGreaterThan(aimHitWeak, 0, "the aim used to reach it 0 times out of 62")
         XCTAssertLessThanOrEqual(state.levels[.pushV] ?? 0, 9,
                                  "the weak link settles at its own capacity")
-        // Re-marked with the measurement and the reason.
-        // On the same run the weak link now settles EXACTLY on its capacity
-        // (8 against 9) and needs fewer hits to get there (13 against 22) — the
-        // aim got sharper. The healthy movements stand lower: 16.9 on average
-        // against 19.4, worst 10 against 16. The cause is structural, the
-        // asymmetry: a "less" takes a whole level and getting it back costs
-        // sets(L) growth events. What the block asserts — "the healthy stop
-        // being the lightning rod" — is measured against the DEFECT fixed
-        // (15.5 on average beforehand), and it holds. So the single pinned
-        // number gives way to the claim itself.
+        // Re-marked with the measurement and the reason. On the same run the
+        // weak link now settles EXACTLY on its capacity (8 against 9) and
+        // needs fewer hits to get there (13 against 22) — the aim got sharper.
+        // The healthy movements stand lower: 16.9 on average against 19.4,
+        // worst 10 against 16. The cause is structural, the asymmetry: a
+        // "less" takes a whole level and getting it back costs sets(L) growth
+        // events. What the block asserts — "the healthy stop being the
+        // lightning rod" — is measured against the DEFECT fixed (15.5 on
+        // average beforehand), and it holds. So the single pinned number gives
+        // way to the claim itself.
         let healthy = Pattern.ordered.filter { $0 != .pushV }
         let worst = healthy.map { state.levels[$0] ?? 0 }.min() ?? 0
         let average = Double(healthy.reduce(0) { $0 + (state.levels[$1] ?? 0) }) / Double(healthy.count)
-        // RE-MARKED, with the reason. Measured on the same
-        // run: the healthy average is 18.0 against 's 16.9 — the property
-        // this block asserts got BETTER — while the worst healthy movement
-        // went to 8 instead of 10, and that is structural. The sub-step made
-        // the aim STICKY: a −1 level used to re-order the session, so the aim
-        // fell to a different movement each time and the damage smeared over
-        // six of them (13, 10, 17, 17 …). A sub-step usually leaves the level
-        // where it was, the tallest movement stays the tallest, and three
-        // appearances in a row take it to a deload — the damage concentrates
-        // on ONE movement while six of the eight healthy ones stand exactly at
-        // capacity. That is the asymmetry the aim was written for: "on a hard
-        // session nobody grows and only one falls". So the claim is pinned in
-        // two figures at once, and both are stricter than the single old one.
+        // RE-MARKED, with the reason. Measured on the same run: the healthy
+        // average is 18.0 against 's 16.9 — the property this block asserts
+        // got BETTER — while the worst healthy movement went to 8 instead of
+        // 10, and that is structural. The sub-step made the aim STICKY: a −1
+        // level used to re-order the session, so the aim fell to a different
+        // movement each time and the damage smeared over six of them (13, 10,
+        // 17, 17 …). A sub-step usually leaves the level where it was, the
+        // tallest movement stays the tallest, and three appearances in a row
+        // take it to a deload — the damage concentrates on ONE movement while
+        // six of the eight healthy ones stand exactly at capacity. That is the
+        // asymmetry the aim was written for: "on a hard session nobody grows
+        // and only one falls". So the claim is pinned in two figures at once,
+        // and both are stricter than the single old one.
         XCTAssertGreaterThan(average, 16.9,
                              "the healthy movements stop being the lightning rod (16.9 in v2.22, 15.5 before v2.15)")
         let dragged = healthy.filter { (state.levels[$0] ?? 0) <= (caps[.pushV] ?? 0) }
@@ -127,10 +127,10 @@ final class EngineV215Tests: XCTestCase {
         let state = seeded(20)
         let session = Engine.generateSession(state)
         let after = Engine.applyFeedback(state: state, session: session, result: .less)
-        // "moved" is read on the POSITION scale — a
-        // descent gives back a sub-step, and the level follows only on every
-        // third one. The subject (a plain aim moves by one, a chronic one by
-        // two) is untouched; the unit is not.
+        // "moved" is read on the POSITION scale — a descent gives back a
+        // sub-step, and the level follows only on every third one. The subject
+        // (a plain aim moves by one, a chronic one by two) is untouched; the
+        // unit is not.
         let moved = session.exercises.filter {
             ordinal(after, $0.pattern) < ordinal(state, $0.pattern)
         }
@@ -142,8 +142,8 @@ final class EngineV215Tests: XCTestCase {
     func testTheDoubleStepLandsOnTheMovementThatKeepsFailing() {
         // The signal lives where the programme as a whole is fine and ONE
         // movement keeps failing: sessions carrying it are rated "less",
-        // sessions without it are rated "plan" — so the run never builds
-        // up and the window fills for that movement alone.
+        // sessions without it are rated "plan" — so the run never builds up
+        // and the window fills for that movement alone.
         var state = seeded(20)
         var doubleSteps = 0, singleSteps = 0
         for _ in 0..<40 {
@@ -152,8 +152,8 @@ final class EngineV215Tests: XCTestCase {
             let before = ordinal(state, .pushV)
             state = Engine.applyFeedback(state: state, session: session,
                                          result: carriesWeak ? .less : .plan)
-            // Both steps are counted in SUB-STEPS now —
-            // the double step is two positions back, not two levels.
+            // Both steps are counted in SUB-STEPS now — the double step is two
+            // positions back, not two levels.
             let drop = before - ordinal(state, .pushV)
             if drop == -EngineConfig.chronicStep { doubleSteps += 1 }
             if drop == -EngineConfig.deltaLess { singleSteps += 1 }
@@ -258,18 +258,18 @@ final class EngineV215Tests: XCTestCase {
                                    to: state.levels[p] ?? 0, fromCut: 0, toCut: 0) { deloadsThatGotHeavier += 1 }
             }
         }
-        // RE-MARKED, with the reason. The novice now pays
-        // TWO deloads where paid none — and the cause is the sticky aim
-        // described in `testTheAimReachesTheWeakLinkEvenThoughItIsTheLowest`:
-        // a sub-step usually leaves the level alone, so the tallest movement
-        // stays the aim for three appearances in a row and reaches the deload
-        // instead of handing the aim on. What the block was written against is
-        // the CASCADE — six deloads on a hangover beforehand — and the price
-        // of the hangover measured the same either way: 13 dirty sessions of
-        // 24 in both waves, and the levels land closer to capacity
-        // (total deviation 24 against 27). Both of the new deloads go through
-        // the gate, which is what the second pin says: a deload can no
-        // longer be the thing that makes the plan heavier.
+        // RE-MARKED, with the reason. The novice now pays TWO deloads where
+        // paid none — and the cause is the sticky aim described in
+        // `testTheAimReachesTheWeakLinkEvenThoughItIsTheLowest`: a sub-step
+        // usually leaves the level alone, so the tallest movement stays the
+        // aim for three appearances in a row and reaches the deload instead of
+        // handing the aim on. What the block was written against is the
+        // CASCADE — six deloads on a hangover beforehand — and the price of
+        // the hangover measured the same either way: 13 dirty sessions of 24
+        // in both waves, and the levels land closer to capacity (total
+        // deviation 24 against 27). Both of the new deloads go through the
+        // gate, which is what the second pin says: a deload can no longer be
+        // the thing that makes the plan heavier.
         XCTAssertLessThanOrEqual(deloads, 2,
                                  "the hangover used to cost six deloads; two is not a cascade")
         XCTAssertEqual(deloadsThatGotHeavier, 0,

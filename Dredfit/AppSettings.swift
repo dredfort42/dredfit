@@ -6,8 +6,8 @@
 
 import Foundation
 
-/// Decoding is field-by-field tolerant — every key optional with a default,
-/// so files written by any older version keep loading losslessly.
+/// Decoding is field-by-field tolerant — every key optional with a default, so
+/// files written by any older version keep loading losslessly.
 struct AppSettings: Codable, Equatable {
     /// Calendar weekday numbers: 1 = Sunday, 4 = Wednesday. Fresh installs
     /// only — the decode below keeps the old single-Sunday value.
@@ -20,25 +20,25 @@ struct AppSettings: Codable, Equatable {
     var healthExportedThrough = 0      // high-water sessionNumber already in Health
     var onboardingCompleted = false
     /// When the care card's checklist was acknowledged (#101). A fact, not a
-    /// gate: nothing else reads it — it records that the one screen naming
-    /// the contraindications was actually confirmed, not skipped past.
+    /// gate: nothing else reads it — it records that the one screen naming the
+    /// contraindications was actually confirmed, not skipped past.
     var careAcknowledgedAt: Date?
     var lastReviewRequestAt: Date?
     // A date rather than a bool so it expires by itself: after the next
     // workout it is stale and a future break asks again, while the current
     // break never asks twice. Same mechanism for the silent decay below.
     var comebackDecidedFor: Date?
-    /// The session number the weak-link prompt was answered for
-    /// — one question per session, never a campaign.
+    /// The session number the weak-link prompt was answered for — one question
+    /// per session, never a campaign.
     var weakLinkPromptAnsweredFor: Int?
     var silentDecayAppliedFor: Date?
-    // `pendingDiscomfort` went with the pain channel and
-    // `timeBudgetChosen` / `budgetDefaultNoticeClosedAt` went with the time
-    // budget — the two flags existed only to remember whether a person had
-    // ever picked a session length and been told about the default, and there
-    // is no length to pick. A settings file written before this wave still
-    // carries all three keys; they decode away silently, because this type
-    // lists what it reads rather than refusing what it does not know.
+    // `pendingDiscomfort` went with the pain channel and `timeBudgetChosen` /
+    // `budgetDefaultNoticeClosedAt` went with the time budget — the two flags
+    // existed only to remember whether a person had ever picked a session
+    // length and been told about the default, and there is no length to pick.
+    // A settings file written before this wave still carries all three keys;
+    // they decode away silently, because this type lists what it reads rather
+    // than refusing what it does not know.
 
     init() {}
 
@@ -66,9 +66,9 @@ struct AppSettings: Codable, Equatable {
         lastReviewRequestAt = try c.decodeIfPresent(Date.self, forKey: .lastReviewRequestAt)
         comebackDecidedFor = try c.decodeIfPresent(Date.self, forKey: .comebackDecidedFor)
         weakLinkPromptAnsweredFor = try c.decodeIfPresent(Int.self, forKey: .weakLinkPromptAnsweredFor)
-        // A settings file written by an older build may still carry the cancelled
-        // `pendingPinned`; an unknown key decodes away silently, so nothing to
-        // migrate and nothing to clean up.
+        // A settings file written by an older build may still carry the
+        // cancelled `pendingPinned`; an unknown key decodes away silently, so
+        // nothing to migrate and nothing to clean up.
         silentDecayAppliedFor = try c.decodeIfPresent(Date.self, forKey: .silentDecayAppliedFor)
     }
 }

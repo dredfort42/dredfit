@@ -1,16 +1,16 @@
 //
-// Time enters the engine here, and only here (issue #98). The three
-//  functions below are the whole of the model's date awareness, and two of
-//  them read a single number — the gap since the last workout, from seven days
-//  up. Below that the engine is blind by contract: `generateSession` and
-//  `applyFeedback` never see a date, which is what makes them pure and the
-//  golden fixture reproducible. Training frequency is therefore an app-layer
-//  concern — seven workouts in seven days are legal here, and the quiet rest
-//  offer that answers them lives in `AppStore+Signals`.
+// Time enters the engine here, and only here (issue #98). The three functions
+// below are the whole of the model's date awareness, and two of them read a
+// single number — the gap since the last workout, from seven days up. Below
+// that the engine is blind by contract: `generateSession` and `applyFeedback`
+// never see a date, which is what makes them pure and the golden fixture
+// reproducible. Training frequency is therefore an app-layer concern — seven
+// workouts in seven days are legal here, and the quiet rest offer that answers
+// them lives in `AppStore+Signals`.
 //
-// Split out of Engine.swift when the silent decay stopped being a
-//  one-line subtraction and became a step of the descent like any other, and
-//  the comeback's compensation had to reverse that step exactly.
+// Split out of Engine.swift when the silent decay stopped being a one-line
+// subtraction and became a step of the descent like any other, and the
+// comeback's compensation had to reverse that step exactly.
 //
 
 import Foundation
@@ -20,11 +20,10 @@ extension Engine {
     /// All patterns drop, `pullBar` included even with `hasBar == false`: a
     /// break detrains the whole body. A freeze survives it untouched — the
     /// error is asymmetric, and a couple of sessions without growth cost less
-    /// than a tendon — and so does a pain episode:
-    /// levels drop as usual, the confirmation stays owed. `failStreak` must
-    /// reset — otherwise the first underperformance after the return would
-    /// ride the old streak into a deload and drop the level twice. `counter`
-    /// does not move.
+    /// than a tendon — and so does a pain episode: levels drop as usual, the
+    /// confirmation stays owed. `failStreak` must reset — otherwise the first
+    /// underperformance after the return would ride the old streak into a
+    /// deload and drop the level twice. `counter` does not move.
     ///
     /// NOT idempotent: every call subtracts the drop again. The caller must
     /// apply it at most once per break (the app keys this on
@@ -37,21 +36,21 @@ extension Engine {
     ///
     /// Past the table's edge an absolute landing ceiling
     /// (`comebackLandingCeil`) — `min` composes with the alreadyDecayed
-    /// weakening untouched, so the no-stacking identity holds by
-    /// construction. And crossing a SET BAND snaps the rung to the band
-    /// floor: preserving `L mod 8` across 40/32 made the first dose
-    /// non-monotonic in the gap (90 days → 5×6, 140 days → 4×11).
+    /// weakening untouched, so the no-stacking identity holds by construction.
+    /// And crossing a SET BAND snaps the rung to the band floor: preserving `L
+    /// mod 8` across 40/32 made the first dose non-monotonic in the gap (90
+    /// days → 5×6, 140 days → 4×11).
     public static func applyComeback(state dirty: EngineState, gapDays rawGap: Int,
                                      alreadyDecayed: Bool = false) -> EngineState {
-        // Heal the state, clamp the gap. A negative
-        // gap already fell through this guard; the clamp also keeps
-        // `gapDays - comebackMinGapDays` off Int.min.
+        // Heal the state, clamp the gap. A negative gap already fell through
+        // this guard; the clamp also keeps `gapDays - comebackMinGapDays` off
+        // Int.min.
         let state = dirty.sanitized()
         let gapDays = Engine.sanitizeGapDays(rawGap)
         guard gapDays >= EngineConfig.comebackMinGapDays else { return dirty }
-        // Consecutive comebacks with no session between
-        // deepen the drop by one each — the plan must slide faster than
-        // fitness decays (A8b-9). The cap is the same table cap.
+        // Consecutive comebacks with no session between deepen the drop by one
+        // each — the plan must slide faster than fitness decays (A8b-9). The
+        // cap is the same table cap.
         let raw = EngineConfig.comebackBase
             + (gapDays - EngineConfig.comebackMinGapDays) / EngineConfig.comebackStepDays
             + state.returnRun
@@ -62,13 +61,13 @@ extension Engine {
         var next = state
         next.lessRun = 0            // a break is not a continued run of "less"
         next.creditPaused = []      // a break clears the strain evidence too
-        // A comeback is a DESCENT, and it takes the sub-steps
-        // off every pattern — a break detrains the whole body, and the heavier
-        // sets belonged to a dose that is gone.
+        // A comeback is a DESCENT, and it takes the sub-steps off every
+        // pattern — a break detrains the whole body, and the heavier sets
+        // belonged to a dose that is gone.
         next.sub = [:]
-        // A comeback rebuilds the levels, which makes the
-        // appearance window a record about DIFFERENT levels — it goes with
-        // them. The silent decay (−1) barely moves the levels and keeps it.
+        // A comeback rebuilds the levels, which makes the appearance window a
+        // record about DIFFERENT levels — it goes with them. The silent decay
+        // (−1) barely moves the levels and keeps it.
         next.lessHist = [:]
         // A comeback opens the limited-growth window.
         next.rampWindow = EngineConfig.rampWindowSessions
@@ -86,12 +85,12 @@ extension Engine {
             // already carries the silent step, and reading the band or the
             // tier from it would break the identity exactly at the boundaries.
             //
-            // The compensation reverses THE DECAY'S REAL STEP
-            // through `riseBy`, instead of adding one to the level. With
-            // a decay walks in `fallBy` steps, and on a block floor it takes a
-            // SET without touching the level — the old `stored + 1` then added
-            // a level that never existed, and the identity broke for the
-            // statics at L16.
+            // The compensation reverses THE DECAY'S REAL STEP through
+            // `riseBy`, instead of adding one to the level. With a decay walks
+            // in `fallBy` steps, and on a block floor it takes a SET without
+            // touching the level — the old `stored + 1` then added a level
+            // that never existed, and the identity broke for the statics at
+            // L16.
             //
             // The hold on a returning set is deliberately NOT passed here:
             // this is not a growth event but the inverse of one step of the
@@ -105,26 +104,25 @@ extension Engine {
             var landed = max(0, stored - drop)
             let post = Level.decode(landed)
             // The snap applies to the DROP's result only; the band keeps its
-            // priority, then rep continuity on a tier crossing:
-            // the same dose in an easier variation, never the top of the lower
-            // tier. The ceiling below is a deliberate
-            // absolute — a tier bottom by construction.
+            // priority, then rep continuity on a tier crossing: the same dose
+            // in an easier variation, never the top of the lower tier. The
+            // ceiling below is a deliberate absolute — a tier bottom by
+            // construction.
             if pre.sets != post.sets {
                 landed = (landed / EngineConfig.stepsPerTier) * EngineConfig.stepsPerTier
             } else if pre.tier != post.tier {
-                // Continuity is computed in the UNIT OF
-                // THE TARGET TIER. Until this fix it read the `reps` field of
-                // a STATIC, where a dose in reps does not exist at all:
-                // core_anti_ext L26 after a 35-day break was handed 3×17 s
-                // instead of 3×12 s, and the `noHarder` gate rejected that
-                // landing in 8 cells of 480 at a 119-day break. Word for word
-                // the defect declared fixed in the lens — the lens was
-                // fixed and the comeback forgotten.
+                // Continuity is computed in the UNIT OF THE TARGET TIER. Until
+                // this fix it read the `reps` field of a STATIC, where a dose
+                // in reps does not exist at all: core_anti_ext L26 after a
+                // 35-day break was handed 3×17 s instead of 3×12 s, and the
+                // `noHarder` gate rejected that landing in 8 cells of 480 at a
+                // 119-day break. Word for word the defect declared fixed in
+                // the lens — the lens was fixed and the comeback forgotten.
                 //
                 // A gate does not cure it: the gate reads `sub`/`cut`, and
                 // those differ between "come back straight away" and "decay
-                // then come back", which tears the identity (measured:
-                // 318 verify2 failures). It is cured at the root.
+                // then come back", which tears the identity (measured: 318
+                // verify2 failures). It is cured at the root.
                 let lib = ExerciseLibrary.entry(for: p)
                 let step: Int
                 if lib.unit(forTier: post.tier) == .reps {
@@ -146,18 +144,17 @@ extension Engine {
         }
         // The levels fell — the cut has to fit the new band.
         next.cut = EngineState.healCut(next.cut, levels: next.levels)
-        // The memory of pain fades only on a LONG break.
-        // Fourteen days was a plain mistake: a break is exactly what a person
-        // in pain takes, so one break per report kept the memory at one for
-        // ever, the "time to see a specialist" threshold became unreachable
+        // The memory of pain fades only on a LONG break. Fourteen days was a
+        // plain mistake: a break is exactly what a person in pain takes, so
+        // one break per report kept the memory at one for ever, the "time to
+        // see a specialist" threshold became unreachable
         return next
     }
 
-    /// `failStreak` resets, same as the comeback. The old
-    /// "deliberately untouched" reading inverted the 13/14-day boundary at a
-    /// streak of 2: a 13-day pause plus the first honest "less" rode into a
-    /// deload (−5 total) while a 14-day break cost −3. `counter` does not
-    /// move.
+    /// `failStreak` resets, same as the comeback. The old "deliberately
+    /// untouched" reading inverted the 13/14-day boundary at a streak of 2: a
+    /// 13-day pause plus the first honest "less" rode into a deload (−5 total)
+    /// while a 14-day break cost −3. `counter` does not move.
     ///
     /// NOT idempotent, same as the comeback: the app layer applies it at most
     /// once per break, keyed to the last workout's date.
@@ -170,16 +167,16 @@ extension Engine {
         next.lessRun = 0            // same as the comeback
         next.creditPaused = []      // and so does the pause
         next.sub = [:]              // a decay is a descent too
-        // The decay belongs to the same break — it is not
-        // a return, so `returnRun` stands.
+        // The decay belongs to the same break — it is not a return, so
+        // `returnRun` stands.
         //
-        // A DECAY IS A DESCENT, and it has to walk the
-        // same steps as every other one. The old `L − 1` failed the "no
-        // harder" gate in 47 transitions of 470, 18 of them INSIDE one block:
-        // squat 32 → 31 asked for 4×6 per side instead of 3×11 (+38 %), hinge
-        // 24 → 23 for 3×4 instead of 3×12 per leg (+500 %). And all of it with
-        // no tap at all, on opening the app after a week away — exactly when
-        // the person is detrained.
+        // A DECAY IS A DESCENT, and it has to walk the same steps as every
+        // other one. The old `L − 1` failed the "no harder" gate in 47
+        // transitions of 470, 18 of them INSIDE one block: squat 32 → 31 asked
+        // for 4×6 per side instead of 3×11 (+38 %), hinge 24 → 23 for 3×4
+        // instead of 3×12 per leg (+500 %). And all of it with no tap at all,
+        // on opening the app after a week away — exactly when the person is
+        // detrained.
         for p in Pattern.allCases {
             let landed = Level.fallBy(level: next.levels[p] ?? 0, sub: 0, cut: next.cutOf(p),
                                       by: 1, floor: EngineConfig.setsFloor)
@@ -191,10 +188,10 @@ extension Engine {
         return next
     }
 
-    /// The "I was sick" one-tap — the sixth API function.
-    /// An illness shorter than seven days is invisible to the time contract
-    /// by construction, so the channel is explicit. The lens makes the
-    /// plan one tier easier for `illnessSessions` restorative sessions
-    /// without touching the stored levels; a repeat tap tops the lens back
-    /// up (a prolongation, not an escalation), and on a fresh lens the call
+    /// The "I was sick" one-tap — the sixth API function. An illness shorter
+    /// than seven days is invisible to the time contract by construction, so
+    /// the channel is explicit. The lens makes the plan one tier easier for
+    /// `illnessSessions` restorative sessions without touching the stored
+    /// levels; a repeat tap tops the lens back up (a prolongation, not an
+    /// escalation), and on a fresh lens the call
 }

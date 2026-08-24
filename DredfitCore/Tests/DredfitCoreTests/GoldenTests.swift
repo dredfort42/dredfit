@@ -49,16 +49,16 @@ private struct Golden: Decodable {
         let lessRunAfter: Int?     // a break does not continue a run of "less"
         let lessHistAfter: [String: Int]?   // the appearance window
         let returnRunAfter: Int?   // consecutive returns deepen the drop
-        // A comeback carries the cut across and reclamps it to
-        // the new band, and on a long break the memory of pain fades.
+        // A comeback carries the cut across and reclamps it to the new band,
+        // and on a long break the memory of pain fades.
         let subAfter: [Int]?
         let cutAfter: [Int]?
         let barCutAfter: Int?
         let setsHoldAfter: [Int]?
     }
-    /// One step may carry a SERIES of comebacks — returns in a
-    /// row with no session between, each past the first one deeper. The wire
-    /// form is either a single snapshot (the old shape) or {series: [...]}.
+    /// One step may carry a SERIES of comebacks — returns in a row with no
+    /// session between, each past the first one deeper. The wire form is
+    /// either a single snapshot (the old shape) or {series: [...]}.
     struct ComebackStep: Decodable {
         let snaps: [Comeback]
         private enum Keys: String, CodingKey { case series }
@@ -71,9 +71,9 @@ private struct Golden: Decodable {
             }
         }
     }
-    /// applySilentDecay invoked before this step's session — and
-    /// before the step's comeback, when both are present: the user peeked
-    /// mid-break, then came back later.
+    /// applySilentDecay invoked before this step's session — and before the
+    /// step's comeback, when both are present: the user peeked mid-break, then
+    /// came back later.
     struct SilentDecay: Decodable {
         let gapDays: Int
         let levelsAfter: [Int]
@@ -83,9 +83,9 @@ private struct Golden: Decodable {
         let lessRunAfter: Int?
         let lessHistAfter: [String: Int]?
         let returnRunAfter: Int?   // a decay is not a return
-        // A decay is a DESCENT and walks a step of the growth
-        // path — on a block floor it takes a SET and leaves the level alone,
-        // so `levelsAfter` alone no longer describes where it landed.
+        // A decay is a DESCENT and walks a step of the growth path — on a
+        // block floor it takes a SET and leaves the level alone, so
+        // `levelsAfter` alone no longer describes where it landed.
         let subAfter: [Int]?
         let cutAfter: [Int]?
         let barCutAfter: Int?
@@ -99,8 +99,8 @@ private struct Golden: Decodable {
         let overrides: [String: Int]
         let skipped: [String]?     // absent in older fixtures
         let levelsAfter: [Int]
-        // The sub-step, by patternOrder. Every scenario writes it —
-        // growth moves by sub-steps, so without it the fixture would pin almost
+        // The sub-step, by patternOrder. Every scenario writes it — growth
+        // moves by sub-steps, so without it the fixture would pin almost
         // nothing about the wave.
         let subAfter: [Int]?
         let barSubAfter: Int?
@@ -115,10 +115,10 @@ private struct Golden: Decodable {
         let returnRunAfter: Int?   // 0 after any completed session
         let silentDecay: SilentDecay?
         let comeback: ComebackStep?
-        // The third coordinate of a position and everything the
-        // wave added around it. Every scenario writes them — gating them by
-        // scenario shape is exactly the hole P0-5 of the last audit came
-        // through — so they are asserted on every step.
+        // The third coordinate of a position and everything the wave added
+        // around it. Every scenario writes them — gating them by scenario
+        // shape is exactly the hole P0-5 of the last audit came through — so
+        // they are asserted on every step.
         let cutAfter: [Int]?
         let barCutAfter: Int?
         let setsHoldAfter: [Int]?
@@ -133,12 +133,12 @@ private struct Golden: Decodable {
         let weekGainAfter: [Int]?
         let barWeekGainAfter: Int?
         let weekAgeDaysAfter: Double?
-        /// The gap. Absent means nil, which pins the calendar-blind
-        /// path of just as a present one pins.: it is the
-        /// SIXTH argument now, not the seventh.
+        /// The gap. Absent means nil, which pins the calendar-blind path of
+        /// just as a present one pins.: it is the SIXTH argument now, not the
+        /// seventh.
         let gapDays: Double?
-        /// The handles the person pulled before this
-        /// session's plan was generated, and the state they left behind.
+        /// The handles the person pulled before this session's plan was
+        /// generated, and the state they left behind.
         let handles: Handles?
     }
     /// A handle pull, recorded exactly as a settings toggle is: what was
@@ -165,8 +165,8 @@ private struct Golden: Decodable {
         let sets: Int
         let restSetSec: Int
         let restExerciseSec: Int
-        /// Per-set doses, present only on an uneven plan — the
-        /// wire form mirrors `[Int]?` exactly, so its absence is a claim too.
+        /// Per-set doses, present only on an uneven plan — the wire form
+        /// mirrors `[Int]?` exactly, so its absence is a claim too.
         let loads: [Int]?
     }
 }
@@ -207,8 +207,8 @@ final class GoldenTests: XCTestCase {
         let sub: [Int]?
         let cut: [Int]?
         let barCut: Int?
-        // The hold on a returning set — the surviving per-pattern
-        // counter, and the one the handles' snapshot carries.
+        // The hold on a returning set — the surviving per-pattern counter, and
+        // the one the handles' snapshot carries.
         let setsHold: [Int]?
     }
 
@@ -221,8 +221,8 @@ final class GoldenTests: XCTestCase {
         if let v = snap.barLevel { XCTAssertEqual(state.levels[.pullBar], v, "\(ctx): bar level") }
         if let v = snap.barStreak { XCTAssertEqual(state.failStreak[.pullBar], v, "\(ctx): bar streak") }
         if let v = snap.lessRun { XCTAssertEqual(state.lessRun, v, "\(ctx): less run") }
-        // The decay steps along the growth path, so the
-        // sub-step and the cut are part of where it landed.
+        // The decay steps along the growth path, so the sub-step and the cut
+        // are part of where it landed.
         if let v = snap.sub {
             XCTAssertEqual(order.map { state.sub[Pattern(rawValue: $0)!] ?? 0 }, v,
                            "\(ctx): sub")
@@ -278,8 +278,8 @@ final class GoldenTests: XCTestCase {
                     XCTAssertEqual(ex.sets, ref.sets, ctx)
                     XCTAssertEqual(ex.restSetSec, ref.restSetSec, ctx)
                     XCTAssertEqual(ex.restExerciseSec, ref.restExerciseSec, ctx)
-                    // The per-set doses, absence included — a
-                    // uniform plan must stay nil on both sides.
+                    // The per-set doses, absence included — a uniform plan
+                    // must stay nil on both sides.
                     XCTAssertEqual(ex.loads, ref.loads, ctx + " \(ref.pattern) loads")
                 }
 
@@ -288,11 +288,11 @@ final class GoldenTests: XCTestCase {
                 let overrides = Dictionary(uniqueKeysWithValues:
                     step.overrides.map { (Pattern(rawValue: $0.key)!, $0.value) })
                 let skipped = Set((step.skipped ?? []).map { Pattern(rawValue: $0)! })
-                // SIX arguments. Every optional is passed
-                // explicitly — the rule of the wave, kept because a
-                // default silently shifting is exactly what broke 480 cells
-                // out of 480 last time, and what the arity change would do
-                // again to a caller that was not updated.
+                // SIX arguments. Every optional is passed explicitly — the
+                // rule of the wave, kept because a default silently shifting
+                // is exactly what broke 480 cells out of 480 last time, and
+                // what the arity change would do again to a caller that was
+                // not updated.
                 state = Engine.applyFeedback(state: state, session: session,
                                              result: result, overrides: overrides,
                                              skipped: skipped,
@@ -324,8 +324,8 @@ final class GoldenTests: XCTestCase {
         }
     }
 
-    /// The handles a step may carry, applied where the
-    /// app applies them — after any break, before the plan is generated.
+    /// The handles a step may carry, applied where the app applies them —
+    /// after any break, before the plan is generated.
     ///
     /// The ORDER inside a step is part of the contract and is fixed here to
     /// match the reference: the easier-variation handle first (it changes the
@@ -359,9 +359,9 @@ final class GoldenTests: XCTestCase {
     }
 
     /// The breaks a step may carry, replayed in the app's order: the silent
-    /// decay first, then the comeback (: possibly a series of them with
-    /// no session between).: the "I was sick" tap was the third and is
-    /// gone with the lens.
+    /// decay first, then the comeback (: possibly a series of them with no
+    /// session between).: the "I was sick" tap was the third and is gone with
+    /// the lens.
     private func replayBreaks(_ step: Golden.Step, into state: inout EngineState,
                               order: [String], ctx: String) {
         if let decay = step.silentDecay {
@@ -406,12 +406,11 @@ final class GoldenTests: XCTestCase {
         }
     }
 
-    /// The sets handle and everything the wave put in the
-    /// state around it — the third coordinate of a position, the memory of
-    /// pain, the hold on a returning set, the shown-plan memory, and the three
-    /// -28.5 fields that used to sit outside the golden contract
-    /// altogether. Split out of `assertAuxFields` so that function keeps its
-    /// complexity budget.
+    /// The sets handle and everything the wave put in the state around it —
+    /// the third coordinate of a position, the memory of pain, the hold on a
+    /// returning set, the shown-plan memory, and the three -28.5 fields that
+    /// used to sit outside the golden contract altogether. Split out of
+    /// `assertAuxFields` so that function keeps its complexity budget.
     private func assertSetsHandle(_ step: Golden.Step, _ state: EngineState, ctx: String) {
         if let cut = step.cutAfter {
             XCTAssertEqual(Pattern.ordered.map { state.cut[$0] ?? 0 }, cut, ctx + " (cut)")
@@ -473,8 +472,7 @@ final class GoldenTests: XCTestCase {
             XCTAssertEqual([Pattern.pull, .pullBar].map { state.creditPaused.contains($0) ? 1 : 0 },
                            paused, ctx + " (credit paused)")
         }
-        // The comeback series. The lens was the other
-        // half of and is gone.
+        // The comeback series. The lens was the other half of and is gone.
         if let run = step.returnRunAfter {
             XCTAssertEqual(state.returnRun, run, ctx + " (return run)")
         }

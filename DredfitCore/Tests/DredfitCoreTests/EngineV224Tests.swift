@@ -3,12 +3,12 @@
 //
 // Engine — RE-MARKED.
 //
-// is removed by this wave EXCEPT, the shared sets floor, which
-// moves into the shared floor and becomes the ONLY floor. So four of the six tests here
-//  are gone with the budget — the shortfall under ten per cent, "shrinking the
-//  budget never lengthens the session", "no limit is identical to no budget",
-//  and "the tightest budget keeps every movement": all four measured the
-//  quality of a trim that no longer exists.
+// is removed by this wave EXCEPT, the shared sets floor, which moves into the
+// shared floor and becomes the ONLY floor. So four of the six tests here are
+// gone with the budget — the shortfall under ten per cent, "shrinking the
+// budget never lengthens the session", "no limit is identical to no budget",
+// and "the tightest budget keeps every movement": all four measured the
+// quality of a trim that no longer exists.
 //
 //  The two that survive did not measure the budget, they measured the FLOOR
 //  and what a cut is allowed to touch. Both are kept word for word with the

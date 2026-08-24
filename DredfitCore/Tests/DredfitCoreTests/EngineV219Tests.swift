@@ -7,14 +7,14 @@
 //  1. A pain report could make the plan HEAVIER. The unload dropped straight
 //     to the previous tier's floor, and where that tier is one-sided the work
 //     grew: hinge L24 3×4 = 12 reps → L16 3×5 per leg = 30 (+150%). Taking
-// the load off is two-step now — the first step never leaves the
-//     tier, so one tap can no longer hand anyone an unfamiliar movement.
-// 2. The measure of work ignored sides, and the gate read only the
-//     product sets × load, so a descent could buy reps by dropping a set
+// the load off is two-step now — the first step never leaves the tier, so one
+// tap can no longer hand anyone an unfamiliar movement. 2. The measure of work
+// ignored sides, and the gate read only the product sets × load, so a descent
+// could buy reps by dropping a set
 //
 //  3. Two workouts inside one day froze growth forever: the gap rounded to
-// zero, the window never aged, and the weekly budget was spent once
-// for a lifetime — 48 levels against 423 over 120 sessions.
+// zero, the window never aged, and the weekly budget was spent once for a
+// lifetime — 48 levels against 423 over 120 sessions.
 //
 
 import XCTest
@@ -95,9 +95,9 @@ final class EngineV219Tests: XCTestCase {
                       "3×6 keeps the dose and drops a set")
     }
 
-    /// The tier-floor exemption stays: across a change of
-    /// variation a measure in reps is not valid, and the floor of the lower
-    /// tier IS the "take the load off" step provides for.
+    /// The tier-floor exemption stays: across a change of variation a measure
+    /// in reps is not valid, and the floor of the lower tier IS the "take the
+    /// load off" step provides for.
     func testTheTierFloorExemptionSurvives() {
         XCTAssertTrue(Level.noHarder(pattern: .hinge, from: 24, to: 16, fromCut: 0, toCut: 0),
                       "the second step is allowed: a different, easier movement")
@@ -118,15 +118,15 @@ final class EngineV219Tests: XCTestCase {
 
     /// The control run of the wave: 120 sessions of "plan" at 0.4 days apart.
     /// Under the gap rounded to zero and the sum froze at 48 — the whole
-    /// weekly budget, spent once and never renewed.
-    /// Re-marked, 336/423 → 112/226. The numbers are a
-    /// digit-for-digit cross-check against adaptive_engine.js on a path the
-    /// golden fixtures do not cover, and they moved because the budget is
-    /// now counted in SUB-STEPS: three sub-steps a week is one level for a slow
-    /// tissue where it used to be three. Both were recomputed from the
-    /// reference, not adjusted to the port. The subject — a fractional gap ages
-    /// the window at all, so growth does not freeze for good — is asserted
-    /// against the one-window budget rather than against a bare constant.
+    /// weekly budget, spent once and never renewed. Re-marked, 336/423 →
+    /// 112/226. The numbers are a digit-for-digit cross-check against
+    /// adaptive_engine.js on a path the golden fixtures do not cover, and they
+    /// moved because the budget is now counted in SUB-STEPS: three sub-steps a
+    /// week is one level for a slow tissue where it used to be three. Both
+    /// were recomputed from the reference, not adjusted to the port. The
+    /// subject — a fractional gap ages the window at all, so growth does not
+    /// freeze for good — is asserted against the one-window budget rather than
+    /// against a bare constant.
     func testTwiceADayNoLongerFreezesGrowthForever() {
         let twiceADay = run(sessions: 120, gapDays: 0.4)
         let daily = run(sessions: 120, gapDays: 1)
@@ -171,8 +171,8 @@ final class EngineV219Tests: XCTestCase {
             s = Engine.applyFeedback(state: s, session: Engine.generateSession(s),
                                      result: .plan, gapDays: gaps[i % 3])
         }
-        // Recomputed from the reference — 269 → 92, 17 → 5.
-        // Same cause as above: the weekly budget counts sub-steps now.
+        // Recomputed from the reference — 269 → 92, 17 → 5. Same cause as
+        // above: the weekly budget counts sub-steps now.
         let total = Pattern.allCases.reduce(0) { $0 + (s.levels[$1] ?? 0) }
         XCTAssertEqual(total, 92, "reference: Σ levels over 60 sessions")
         XCTAssertEqual(s.levels[.pullBar], 5, "reference: the bar branch")
@@ -196,8 +196,8 @@ final class EngineV219Tests: XCTestCase {
                        "and the budget is fresh — only this session is on it")
     }
 
-    /// No signal, no rule: without a gap the engine stays
-    /// calendar-blind and the window never opens.
+    /// No signal, no rule: without a gap the engine stays calendar-blind and
+    /// the window never opens.
     func testWithoutASignalTheWindowStaysShut() {
         var s = EngineState.initial
         for _ in 0..<30 {
@@ -241,10 +241,10 @@ final class EngineV219Tests: XCTestCase {
         XCTAssertEqual(s.sanitized().weekAgeDays, 0)
     }
 
-    // SNIPPED: three tests driven by the discomfort report — the
-    // two-step unload landing on its floors, the third report that doubled the
-    // rest without moving the level, and the control run on `hinge`.
-    // All three needed an input that no longer exists.
+    // SNIPPED: three tests driven by the discomfort report — the two-step
+    // unload landing on its floors, the third report that doubled the rest
+    // without moving the level, and the control run on `hinge`. All three
+    // needed an input that no longer exists.
     //
     // The INVARIANT the wave was written for — a descent never adds work
     // inside a variation — is not lost with them: it is asserted here by

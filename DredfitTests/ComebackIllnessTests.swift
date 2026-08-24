@@ -1,8 +1,8 @@
 //
-// The app half of the comeback wave (issues #127, #128): the accept
-//  guard, the sighted decline path and the numbered preview, as the user meets
-//  them through AppStore. The "I was sick" lens the file is half-named after
-// was removed in — its four tests, and why they went, are at the bottom.
+// The app half of the comeback wave (issues #127, #128): the accept guard, the
+// sighted decline path and the numbered preview, as the user meets them
+// through AppStore. The "I was sick" lens the file is half-named after was
+// removed in — its four tests, and why they went, are at the bottom.
 //
 
 import XCTest
@@ -28,8 +28,8 @@ final class ComebackIllnessTests: XCTestCase {
     /// A store whose only workout was `days` ago, at a uniform level — seeded
     /// through the storage file, the same door the real app loads through.
     /// Elapsed seconds, not calendar days: gapDays counts whole 24h periods
-    /// and a calendar seed across a spring-forward
-    /// transition would land an hour short of the exact 90/2-day boundaries.
+    /// and a calendar seed across a spring-forward transition would land an
+    /// hour short of the exact 90/2-day boundaries.
     private func returned(after days: Int, level: Int = 20) -> AppStore {
         var state = EngineState.initial
         state.counter = 11
@@ -90,11 +90,11 @@ final class ComebackIllnessTests: XCTestCase {
         XCTAssertTrue(preview.easier.contains("×"))
     }
 
-    // SNIPPED: the four tests of the "I was sick" lens.
-    // The lens made the plan HEAVIER in 76 cells out of 480 (finding S6-2, P0)
-    // — the opposite of what the tap offered — so the mechanism went rather
-    // than being fixed. `markIllness`, `illnessSessionsLeft` and the quiet
-    // offer in the blind window went with it.
+    // SNIPPED: the four tests of the "I was sick" lens. The lens made the plan
+    // HEAVIER in 76 cells out of 480 (finding S6-2, P0) — the opposite of what
+    // the tap offered — so the mechanism went rather than being fixed.
+    // `markIllness`, `illnessSessionsLeft` and the quiet offer in the blind
+    // window went with it.
     //
     // The comeback half of this suite is untouched: it never belonged to the
     // lens, and are not part of this wave.

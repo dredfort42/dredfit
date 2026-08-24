@@ -6,8 +6,8 @@
 //  `warmupMin + cooldownMin` is the whole budget the engine sets aside for the
 //  two blocks, and the worst composition spends it TO THE SECOND. That is why
 //  doubling the transition could not be done in this target alone: one second
-// more and the reserve breaks, which is a change to the engine — and is
-//  that change.
+// more and the reserve breaks, which is a change to the engine — and is that
+// change.
 //
 //  Everything below is computed from the app's own constants and from the real
 //  composition rule, never from the spec's numbers restated. The worst case is
@@ -75,10 +75,10 @@ final class BlockReserveTests: XCTestCase {
                        "§37.7a: the reserve is spent exactly, with nothing to spare")
     }
 
-    /// The two halves separately, so a failure says WHICH block moved.
-    /// The warm-up's offer screen names a length before the person
-    /// agrees to it, and the one thing it must never do is under-promise —
-    /// a block that overruns what it said is worse than one that beats it.
+    /// The two halves separately, so a failure says WHICH block moved. The
+    /// warm-up's offer screen names a length before the person agrees to it,
+    /// and the one thing it must never do is under-promise — a block that
+    /// overruns what it said is worse than one that beats it.
     ///
     /// Derived from the same composition the reserve above is, so adding a
     /// move fails here rather than quietly making the screen lie.
@@ -106,8 +106,8 @@ final class BlockReserveTests: XCTestCase {
     }
 
     /// The side-switch pause did NOT follow the transition to ten. It is a
-    /// pause inside one position, not travel to another, and 's own
-    /// arithmetic counts it as five.
+    /// pause inside one position, not travel to another, and 's own arithmetic
+    /// counts it as five.
     func testTheSideSwitchPauseStayedAtFive() {
         XCTAssertEqual(Cooldown.sideSwitchPauseSec, 5)
     }

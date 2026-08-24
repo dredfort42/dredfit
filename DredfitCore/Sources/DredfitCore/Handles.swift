@@ -13,8 +13,8 @@ import Foundation
 
 extension Engine {
 
-    /// Where "give me an easier variation" lands, or nil
-    /// when the handle is inactive.
+    /// Where "give me an easier variation" lands, or nil when the handle is
+    /// inactive.
     ///
     /// The target is one tier down and the landing goes through the ORDINARY
     /// gate — the handle has no arithmetic of its own. `descendNoHarder`
@@ -67,10 +67,10 @@ extension Engine {
         return next
     }
 
-    /// "fewer sets" on one movement. The floor is the
-    /// shared one — two sets — and the handle CLAMPS to it rather than
-    /// dropping the plan under it. Asking for nine on a band of three gives
-    /// the same plan as asking for one.
+    /// "fewer sets" on one movement. The floor is the shared one — two sets —
+    /// and the handle CLAMPS to it rather than dropping the plan under it.
+    /// Asking for nine on a band of three gives the same plan as asking for
+    /// one.
     ///
     /// Levels are NOT written back here (the reference does not either): this
     /// handle touches one axis, `cut`, and nothing else.
@@ -85,8 +85,7 @@ extension Engine {
         return next
     }
 
-    /// "shorter today" — the same cut across every
-    /// movement at once.
+    /// "shorter today" — the same cut across every movement at once.
     ///
     /// NO NEW STATE FIELD is introduced, and that is the point rather than an
     /// implementation detail: this is the same `cut`, written as a list, so a

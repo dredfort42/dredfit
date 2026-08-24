@@ -203,14 +203,14 @@ final class AppStore {
         }
     }
 
-    // There is no default time budget, because there is no
-    // budget. The audit measured what the rungs actually did: 10, 15 and 20
-    // produced the SAME plan, and the "20" rung missed its own target in 100 %
-    // of sessions. The engine now announces how long a session takes and the
-    // person shortens it with the handle. What stood here was `defaultTimeBudgetMin`
-    // and the argument for it (#136): a length nobody chose was 45
-    // minutes rather than "no limit", because the budget shipped switched off and
-    // so protected only the people who went looking for it.
+    // There is no default time budget, because there is no budget. The audit
+    // measured what the rungs actually did: 10, 15 and 20 produced the SAME
+    // plan, and the "20" rung missed its own target in 100 % of sessions. The
+    // engine now announces how long a session takes and the person shortens it
+    // with the handle. What stood here was `defaultTimeBudgetMin` and the
+    // argument for it (#136): a length nobody chose was 45 minutes rather than
+    // "no limit", because the budget shipped switched off and so protected
+    // only the people who went looking for it.
 
     /// Legacy high-water mark → per-record flags. The mark keeps being
     /// written so a downgraded build still sees a sane value. Runs only on a
@@ -286,10 +286,10 @@ final class AppStore {
         if CommandLine.arguments.contains("--uitest-comeback-long") {
             seedLoneWorkout(daysAgo: 95)
         }
-        // `--uitest-illness` seeded a five-day gap so the
-        // quiet "I was sick" offer would appear. The offer is gone, no test
-        // passed the flag any more, and a hook nothing reaches is a branch that
-        // will be trusted by the next reader.
+        // `--uitest-illness` seeded a five-day gap so the quiet "I was sick"
+        // offer would appear. The offer is gone, no test passed the flag any
+        // more, and a hook nothing reaches is a branch that will be trusted by
+        // the next reader.
     }
 
     /// A single workout `daysAgo` at a uniform level 20 — the seed the three
@@ -310,11 +310,11 @@ final class AppStore {
 
     /// Yesterday's workout with the pull handled down to the sets floor.
     ///
-    /// This used to seed a FROZEN pull — an episode, its
-    /// countdown, the memory of pain and the sets the channel took off. None
-    /// of that exists. What the screenshot state needs now is the state a
-    /// person can actually reach with the handle, so it seeds exactly that:
-    /// one movement cut to the floor, which is what the card has to explain.
+    /// This used to seed a FROZEN pull — an episode, its countdown, the memory
+    /// of pain and the sets the channel took off. None of that exists. What
+    /// the screenshot state needs now is the state a person can actually reach
+    /// with the handle, so it seeds exactly that: one movement cut to the
+    /// floor, which is what the card has to explain.
     private func seedHandledPull() {
         var seeded = EngineState.initial
         seeded.counter = 4
@@ -346,9 +346,9 @@ final class AppStore {
         var maxPerformed: [Pattern: Int] = [:]
         for record in records {
             guard let exercises = record.exercises else { continue }
-            // A painful exercise was not performed either.
-            // A record written by an older build keeps its pain reports, and they were
-            // "not performed" exactly as a skip was — so reading history has to
+            // A painful exercise was not performed either. A record written by
+            // an older build keeps its pain reports, and they were "not
+            // performed" exactly as a skip was — so reading history has to
             // count both. Nothing writes `discomfort` any more.
             let skipped = (record.skipped ?? []).union(record.discomfort ?? [])
             for ex in exercises where !skipped.contains(ex.pattern) {
@@ -364,10 +364,10 @@ final class AppStore {
         return debuts
     }
 
-    // `restingPatterns` is gone with the freeze. Nothing
-    // rests any more — a movement the person finds too hard stays in the plan
-    // and gets an easier variation or fewer sets, which is the whole point of
-    // the wave: the channel that removed movements removed them for weeks.
+    // `restingPatterns` is gone with the freeze. Nothing rests any more — a
+    // movement the person finds too hard stays in the plan and gets an easier
+    // variation or fewer sets, which is the whole point of the wave: the
+    // channel that removed movements removed them for weeks.
 
     var totalLevel: Int { engineState.levels.values.reduce(0, +) }
 
@@ -417,16 +417,15 @@ final class AppStore {
         guard session.sessionNumber == engineState.counter + 1 else { return [] }
         pendingWorkout = nil   // the workout is over — nothing to resume
         let before = engineState
-        // The app hands the engine the one aggregate
-        // it needs to stop daily training from multiplying its way around the
-        // per-session growth caps — the gap since the last workout. Nil on the
-        // first workout: there is nothing to measure from.
-        // The FRACTION of a day, not whole days. Floored,
-        // a second workout on the same day reported a zero gap and the weekly
-        // window stopped ageing for good.
-        // SIX arguments. Every optional is passed
-        // explicitly — the wave's rule, kept because the arity shift is
-        // exactly the defect that has now happened twice in the harnesses.
+        // The app hands the engine the one aggregate it needs to stop daily
+        // training from multiplying its way around the per-session growth caps
+        // — the gap since the last workout. Nil on the first workout: there is
+        // nothing to measure from. The FRACTION of a day, not whole days.
+        // Floored, a second workout on the same day reported a zero gap and
+        // the weekly window stopped ageing for good. SIX arguments. Every
+        // optional is passed explicitly — the wave's rule, kept because the
+        // arity shift is exactly the defect that has now happened twice in the
+        // harnesses.
         engineState = Engine.applyFeedback(state: engineState, session: session,
                                            result: result, overrides: overrides,
                                            skipped: skipped,
@@ -457,14 +456,13 @@ final class AppStore {
 
     // MARK: - The shown plan
 
-    /// The plan is on screen — the engine gets to remember it. Until this
-    /// call the "a descent never adds load" guarantee held only BETWEEN
-    /// COMPLETED SESSIONS: a plan a person saw and did not train could be
-    /// beaten by the next one by up to ×1.47, in 16–22 % of the "showed,
-    /// skipped a week, opened again" episodes on budgets of 30–35. That was
-    /// the last accepted gap of the wave and this call
-    /// is the whole of its fix — `recordShown` has been exported since the
-    /// port, waiting for a caller.
+    /// The plan is on screen — the engine gets to remember it. Until this call
+    /// the "a descent never adds load" guarantee held only BETWEEN COMPLETED
+    /// SESSIONS: a plan a person saw and did not train could be beaten by the
+    /// next one by up to ×1.47, in 16–22 % of the "showed, skipped a week,
+    /// opened again" episodes on budgets of 30–35. That was the last accepted
+    /// gap of the wave and this call is the whole of its fix — `recordShown`
+    /// has been exported since the port, waiting for a caller.
     ///
     /// ONE WRITE PER SHOWING, not one per render. The guard is the memory
     /// itself: writing down a plan that is already written down changes
@@ -474,10 +472,10 @@ final class AppStore {
     /// postcondition repair, and the repair only ever trims work STRICTLY
     /// above what was shown, so the second pass has nothing left to trim.
     ///
-    /// The one showing deliberately NOT written down is the illness lens
-    /// Its plan is a VIEW: the base has to stay the last ordinary
-    /// showing, or coming off the lens reads as a rise and the repair takes
-    /// sets off someone who has only just recovered.
+    /// The one showing deliberately NOT written down is the illness lens Its
+    /// plan is a VIEW: the base has to stay the last ordinary showing, or
+    /// coming off the lens reads as a rise and the repair takes sets off
+    /// someone who has only just recovered.
     func recordPlanShown(_ session: Session) {
         // A frozen journal is a launch that could not READ the state file —
         // before first unlock, usually. The plan on screen was drawn from an
@@ -612,9 +610,9 @@ final class AppStore {
     // gapDays and the training-day anchor live in AppStore+Cadence.
 
     /// Asked once per break: the answer is stamped against the last workout's
-    /// date, so it goes stale by itself instead of needing to be cleared.
-    /// A break inside the trainee's own rhythm is not a break at all
-    /// (#134) — no card, and so no comeback either.
+    /// date, so it goes stale by itself instead of needing to be cleared. A
+    /// break inside the trainee's own rhythm is not a break at all (#134) — no
+    /// card, and so no comeback either.
     func shouldOfferComeback(now: Date? = nil) -> Bool {
         guard let last = records.last, let gap = gapDays(now: now) else { return false }
         guard gap >= EngineConfig.comebackMinGapDays, !isRhythmBreak(gap) else { return false }
@@ -626,10 +624,10 @@ final class AppStore {
 
     /// Quiet −1 to every pattern in the 7–13 day gap the comeback does not
     /// reach. Applied at most once per break — the stamp is keyed to the last
-    /// workout's date and goes stale by itself, like the comeback answer.
-    /// A rhythm break leaves no stamp on purpose: the decision is
-    /// re-evaluated on every open, so the same break can still decay later if
-    /// its gap outgrows the rhythm — and non-stacking stays exact.
+    /// workout's date and goes stale by itself, like the comeback answer. A
+    /// rhythm break leaves no stamp on purpose: the decision is re-evaluated
+    /// on every open, so the same break can still decay later if its gap
+    /// outgrows the rhythm — and non-stacking stays exact.
     func applySilentDecayIfNeeded(now: Date? = nil) {
         guard let last = records.last, let gap = gapDays(now: now) else { return }
         guard gap >= EngineConfig.silentDecayGapDays,
@@ -641,8 +639,8 @@ final class AppStore {
     }
 
     /// Drives both the once-per-break guard and the comeback's
-    /// `alreadyDecayed`: the two drops must not stack. Internal
-    /// so the read-only preview in AppStore+Comeback sees the same weakening.
+    /// `alreadyDecayed`: the two drops must not stack. Internal so the
+    /// read-only preview in AppStore+Comeback sees the same weakening.
     var silentDecayAppliedForCurrentBreak: Bool {
         guard let applied = settings.silentDecayAppliedFor,
               let last = records.last?.date else { return false }
@@ -659,8 +657,8 @@ final class AppStore {
     /// Guarded (#128): `Engine.applyComeback` is documented "at most once per
     /// break", and deepens repeated returns via `returnRun` — so card
     /// visibility must not be the only gate. A double tap re-enters with the
-    /// question already closed and leaves silently, mirroring the
-    /// silent-decay guard.
+    /// question already closed and leaves silently, mirroring the silent-decay
+    /// guard.
     func acceptComeback(now: Date? = nil) {
         guard shouldOfferComeback(now: now) else { return }
         guard let gap = gapDays(now: now) else { return }
@@ -691,8 +689,8 @@ final class AppStore {
     }
 
     /// Releasing the handle on one movement. Not "undo": the engine hands sets
-    /// back on its own as the person gets stronger, and this is the
-    /// same axis, moved by the person instead.
+    /// back on its own as the person gets stronger, and this is the same axis,
+    /// moved by the person instead.
     func giveSetBack(_ pattern: Pattern) {
         guard canGiveSetBack(pattern) else { return }
         engineState = Engine.setCut(state: engineState, pattern: pattern,
@@ -726,18 +724,18 @@ final class AppStore {
         closeComebackQuestion()
     }
 
-    // `setTimeBudget`, the "what's new" notice
-    // about its default, and `markIllness` are all gone. The budget trimmed
-    // the WORKOUT to fit a number the person picked once and forgot; the lens
-    // made the plan heavier than it was. What answers "how long will this
-    // take" now is the announced duration, and what shortens it is the
-    // session handle — see `setSessionCut` below.
+    // `setTimeBudget`, the "what's new" notice about its default, and
+    // `markIllness` are all gone. The budget trimmed the WORKOUT to fit a
+    // number the person picked once and forgot; the lens made the plan heavier
+    // than it was. What answers "how long will this take" now is the announced
+    // duration, and what shortens it is the session handle — see
+    // `setSessionCut` below.
 
     /// Only the engine resets; the journal and settings survive. `hasBar` is
-    /// kept — the bar did not disappear from the doorway.
-    /// The fields of the sets handle — the cut, the hold
-    /// and the shown-plan pair — are exactly what a reset is FOR, and
-    /// `.initial` zeroes all of them with no line of their own.
+    /// kept — the bar did not disappear from the doorway. The fields of the
+    /// sets handle — the cut, the hold and the shown-plan pair — are exactly
+    /// what a reset is FOR, and `.initial` zeroes all of them with no line of
+    /// their own.
     func resetProgress() {
         let hadBar = engineState.hasBar
         engineState = .initial
@@ -757,8 +755,8 @@ final class AppStore {
         persist()
     }
 
-    /// From 90 days — a quarter away is long enough that "as it
-    /// was" can be blind and "from scratch" must be reachable. Was 180.
+    /// From 90 days — a quarter away is long enough that "as it was" can be
+    /// blind and "from scratch" must be reachable. Was 180.
     static let comebackFreshStartDays = 90
 
     // MARK: - App Store review
@@ -852,9 +850,9 @@ final class AppStore {
     /// formula; records without a snapshot get a flat 35 min.
     ///
     /// The exercise snapshot comes back out of the journal file, so the whole
-    /// sum runs in Double and lands through one clamp: in Int the
-    /// products would trap on a hand-edited load, and the final conversion
-    /// traps on anything Int cannot hold.
+    /// sum runs in Double and lands through one clamp: in Int the products
+    /// would trap on a hand-edited load, and the final conversion traps on
+    /// anything Int cannot hold.
     private func estimatedDurationSec(for record: WorkoutRecord) -> Int {
         guard let exercises = record.exercises, !exercises.isEmpty else { return 35 * 60 }
         // A record written by an older build keeps its pain reports, and they were
@@ -1020,14 +1018,14 @@ final class AppStore {
 extension AppStore {
 
     /// Records the answer: yes, it is this movement. The engine's contract
-    /// keeps pain reports inside a session, so the answer is held and
-    /// spent on the next session the movement appears in — exactly what the
-    /// mid-workout "Something hurt" button would have done, answered early.
-    /// The answer used to be "it hurts", and it queued a
-    /// pain report for the movement's next appearance. There is no pain
-    /// channel, and the honest replacement is not another diagnosis but the
-    /// control the person would have wanted either way: drop this movement to
-    /// an easier variation, now, and keep it in the plan.
+    /// keeps pain reports inside a session, so the answer is held and spent on
+    /// the next session the movement appears in — exactly what the mid-workout
+    /// "Something hurt" button would have done, answered early. The answer
+    /// used to be "it hurts", and it queued a pain report for the movement's
+    /// next appearance. There is no pain channel, and the honest replacement
+    /// is not another diagnosis but the control the person would have wanted
+    /// either way: drop this movement to an easier variation, now, and keep it
+    /// in the plan.
     ///
     /// It goes through the ENGINE (`easierVariation`), never by writing the
     /// state here: a level written by hand skips the gate that guarantees the
@@ -1038,11 +1036,10 @@ extension AppStore {
         persist()
     }
 
-    /// The third answer — "it is just hard" — is gone. It
-    /// armed a hold, and the hold is cancelled: the case it served (the plan
-    /// ran ahead of what the trainee can do) is what the sub-step fixes, and
-    /// fixes without asking. The prompt is down to the diagnosis and a
-    /// dismissal.
+    /// The third answer — "it is just hard" — is gone. It armed a hold, and
+    /// the hold is cancelled: the case it served (the plan ran ahead of what
+    /// the trainee can do) is what the sub-step fixes, and fixes without
+    /// asking. The prompt is down to the diagnosis and a dismissal.
     ///
     /// Dismisses the prompt for this session without changing the plan.
     func dismissSuspectPrompt() {
@@ -1052,10 +1049,10 @@ extension AppStore {
 
 }
 
-// The pending pain report is gone. It existed to carry a
-// "yes, it hurts" answered on Today into the movement's next appearance; the
-// answer is now applied immediately, because an easier variation needs no
-// appearance to wait for.
+// The pending pain report is gone. It existed to carry a "yes, it hurts"
+// answered on Today into the movement's next appearance; the answer is now
+// applied immediately, because an easier variation needs no appearance to wait
+// for.
 
 // MARK: - UI-test seed for the weak-link prompt (#135)
 

@@ -47,9 +47,9 @@ struct FeedbackView: View {
                     // agreeable user would pick it over the honest one.
                     //
                     // Captions promise a DIRECTION, never an amount. "Easy"
-                    // used to promise double speed; that is no longer
-                    // true — EngineConfig.maxUpByPatternTier caps growth per
-                    // movement and per variation, so a session made of fourth
+                    // used to promise double speed; that is no longer true —
+                    // EngineConfig.maxUpByPatternTier caps growth per movement
+                    // and per variation, so a session made of fourth
                     // variations climbs exactly like "on plan". The size is
                     // knowable only after the feedback is applied, because it
                     // depends on what the session was made of, which is why no
@@ -98,10 +98,10 @@ struct FeedbackView: View {
                                   reported: overrides[ex.pattern] ?? 0)
                 }
             }
-            // The "Discomfort" section is gone with the
-            // input that filled it. Nothing is set aside for pain any more —
-            // a movement the person found too hard is either skipped or done
-            // at the number they actually managed.
+            // The "Discomfort" section is gone with the input that filled it.
+            // Nothing is set aside for pain any more — a movement the person
+            // found too hard is either skipped or done at the number they
+            // actually managed.
             if !skipped.isEmpty {
                 Kicker(text: String(localized: "feedback.skipped", defaultValue: "Skipped"))
                     .padding(.top, 8)

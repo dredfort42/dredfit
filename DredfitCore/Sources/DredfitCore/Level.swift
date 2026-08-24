@@ -14,16 +14,16 @@ public enum Level {
         let step = l % EngineConfig.stepsPerTier
         let tier = min(EngineConfig.tiers, 1 + band)
         let sets = EngineConfig.setsBase + max(0, band - (EngineConfig.tiers - 1))
-        // Inside a sets band the start and the step are
-        // the band's own — otherwise entering a band halves the dose.
+        // Inside a sets band the start and the step are the band's own —
+        // otherwise entering a band halves the dose.
         let repStart = EngineConfig.repStartBand[sets]
             ?? EngineConfig.repStart[tier] ?? EngineConfig.repMin
         return LevelDecoded(
             tier: tier,
             sets: sets,
             reps: repStart + step,
-            // The static dose is read off the ladder — the
-            // increment is relative and does not spell out as start + step.
+            // The static dose is read off the ladder — the increment is
+            // relative and does not spell out as start + step.
             hold: ladder(tier: tier, sets: sets)[step]
         )
     }
@@ -54,14 +54,14 @@ public enum Level {
     ///
     /// Past either edge the ladder is continued by its EDGE interval, and the
     /// rung returned goes freely below zero or above seven — cutting the
-    /// inversion off at a tier's edge is not an option. Measured while building
-    /// the wave: clamping the rung to [0,7] breaks the monotonicity of the
-    /// estimate in the reported fact (#139) at the top rung of EVERY
-    /// tier and EVERY band — plank L7, plan 39 s: a fact of 42 gave level 8 and
-    /// an honest 43 gave level 7. Precisely the defect was written for.
+    /// inversion off at a tier's edge is not an option. Measured while
+    /// building the wave: clamping the rung to [0,7] breaks the monotonicity
+    /// of the estimate in the reported fact (#139) at the top rung of EVERY
+    /// tier and EVERY band — plank L7, plan 39 s: a fact of 42 gave level 8
+    /// and an honest 43 gave level 7. Precisely the defect was written for.
     /// The edge a result settles on is the edge of the SCALE (0...47) in
-    /// `fromActual`, not the edge of a tier; the growth caps and the
-    /// gate apply on top, as they always did.
+    /// `fromActual`, not the edge of a tier; the growth caps and the gate
+    /// apply on top, as they always did.
     static func holdRung(_ ladder: [Int], _ actual: Int) -> Int {
         let top = ladder.count - 1
         if actual < ladder[0] { return halfDown(actual - ladder[0], step: ladder[1] - ladder[0]) }
@@ -73,61 +73,59 @@ public enum Level {
         return best
     }
 
-    /// Where a pain report lands — the bottom of the
-    /// previous tier. A change of variation, not fewer reps of the same one:
-    /// "take the load off, don't trim it". The set bands are tier 4
-    /// by encoding, so they too land at the bottom of tier 3.
+    /// Where a pain report lands — the bottom of the previous tier. A change
+    /// of variation, not fewer reps of the same one: "take the load off, don't
+    /// trim it". The set bands are tier 4 by encoding, so they too land at the
+    /// bottom of tier 3.
     static func unload(_ level: Int) -> Int {
         let tier = decode(level).tier
         return max(0, (tier - 2) * EngineConfig.stepsPerTier)
     }
 
-    /// The floor of the CURRENT tier — the first step of
-    /// taking the load off. The variation does not change; the dose becomes
-    /// the smallest that variation has. The work falls by construction:
-    /// `repStart` is the tier's minimum and the mod-8 rung goes to zero.
-    /// Swept over 10 patterns × 48 levels: 0 cells where the landing asks for
-    /// more work than the level it came from.
+    /// The floor of the CURRENT tier — the first step of taking the load off.
+    /// The variation does not change; the dose becomes the smallest that
+    /// variation has. The work falls by construction: `repStart` is the tier's
+    /// minimum and the mod-8 rung goes to zero. Swept over 10 patterns × 48
+    /// levels: 0 cells where the landing asks for more work than the level it
+    /// came from.
     static func tierFloor(_ level: Int) -> Int {
         let tier = decode(level).tier
         return (tier - 1) * EngineConfig.stepsPerTier
     }
 
-    /// The floor of a TIER OR SET BAND — the bottom of the
-    /// mod-8 block the level sits in. Nothing lighter exists inside one
-    /// variation, and the evaluative descent never steps past it.
+    /// The floor of a TIER OR SET BAND — the bottom of the mod-8 block the
+    /// level sits in. Nothing lighter exists inside one variation, and the
+    /// evaluative descent never steps past it.
     ///
     /// Why a block and not a tier: on the set bands (32–47) the tier is the
     /// same 4 throughout, but a step down across a band boundary changes both
-    /// the set count and the starting dose (`repStartBand`) — `squat`
-    /// 32 → 31 reads as 4×4 → 3×11, 16 reps against 33. For levels 0..31 the
-    /// block and the tier coincide word for word, and this equals `tierFloor`.
+    /// the set count and the starting dose (`repStartBand`) — `squat` 32 → 31
+    /// reads as 4×4 → 3×11, 16 reps against 33. For levels 0..31 the block and
+    /// the tier coincide word for word, and this equals `tierFloor`.
     static func bandFloor(_ level: Int) -> Int {
         let l = min(max(level, 0), EngineConfig.levelMax)
         return l - (l % EngineConfig.stepsPerTier)
     }
 
-    /// The rung of a tier that carries a given rep
-    /// dose — rep continuity. A descent into an easier variation keeps the
-    /// NUMBER of reps, not the mod-8 rung: repStart grows down the tiers, so
-    /// keeping the rung landed on the top of the lower tier with a higher
-    /// dose.
+    /// The rung of a tier that carries a given rep dose — rep continuity. A
+    /// descent into an easier variation keeps the NUMBER of reps, not the
+    /// mod-8 rung: repStart grows down the tiers, so keeping the rung landed
+    /// on the top of the lower tier with a higher dose.
     static func rung(tier: Int, reps: Int) -> Int {
         min(max(reps - (EngineConfig.repStart[tier] ?? EngineConfig.repMin), 0),
             EngineConfig.stepsPerTier - 1)
     }
 
-    /// The encoding step of a unit — one rep, or as many
-    /// seconds as ONE rung costs. The window of "the plan was met" is one step
-    /// wide, so for reps it collapses to the old equality.
+    /// The encoding step of a unit — one rep, or as many seconds as ONE rung
+    /// costs. The window of "the plan was met" is one step wide, so for reps
+    /// it collapses to the old equality.
     ///
-    /// For statics that step is no longer a constant. The
-    /// ladder is relative, so a rung costs anywhere from 1 s (tier 4, bottom)
-    /// to 4 s (tier 1, top), and the window has to equal ONE REAL rung —
-    /// otherwise it drifts apart from the inversion again, exactly as in #139.
-    /// The step is local: the interval to the right of the plan's rung, or on
-    /// the last rung the interval to the left, there being no ladder further
-    /// right.
+    /// For statics that step is no longer a constant. The ladder is relative,
+    /// so a rung costs anywhere from 1 s (tier 4, bottom) to 4 s (tier 1,
+    /// top), and the window has to equal ONE REAL rung — otherwise it drifts
+    /// apart from the inversion again, exactly as in #139. The step is local:
+    /// the interval to the right of the plan's rung, or on the last rung the
+    /// interval to the left, there being no ladder further right.
     static func step(of unit: LoadUnit, tier: Int, sets: Int, load: Int) -> Int {
         guard unit != .reps else { return 1 }
         let l = ladder(tier: tier, sets: sets)
@@ -136,17 +134,16 @@ public enum Level {
         return i < top ? l[i + 1] - l[i] : l[top] - l[top - 1]
     }
 
-    /// How much work the plan of a level asks for. Only
-    /// comparable within one unit.
+    /// How much work the plan of a level asks for. Only comparable within one
+    /// unit.
     ///
-    /// Sides are IN the measure. The old wording — "sides
-    /// are a property of the variation, not of the rung, so they stay out of
-    /// it" — was the reason a descent from a two-sided movement onto a
-    /// one-sided one passed the gate: hinge L24 3×4 with both legs → 3×5 per
-    /// leg is 12 reps against 30.
-    /// The measure takes a PAIR `(level, sub)`. `load` stays
-    /// the BASE (smallest) dose of the plan, and the sub-steps' addition goes
-    /// into `total`:
+    /// Sides are IN the measure. The old wording — "sides are a property of
+    /// the variation, not of the rung, so they stay out of it" — was the
+    /// reason a descent from a two-sided movement onto a one-sided one passed
+    /// the gate: hinge L24 3×4 with both legs → 3×5 per leg is 12 reps against
+    /// 30. The measure takes a PAIR `(level, sub)`. `load` stays the BASE
+    /// (smallest) dose of the plan, and the sub-steps' addition goes into
+    /// `total`:
     ///
     ///     total = (sets·load + sub·(dose(L+1) − dose(L)))·sides
     ///
@@ -164,11 +161,11 @@ public enum Level {
         var total: Int { (sets * load + sub * subDelta) * sides }
     }
 
-    /// The plan's sets are the band's LESS the ones taken
-    /// off. The level fixes the variation and the dose per set; the cut only
-    /// ever touches volume — neither the unit, nor the sides, nor the
-    /// variation move — so the measure stays valid whatever the cut is:
-    /// 3→2 is −33.3 %, 4→3 is −25.0 %, 5→4 is −20.0 %.
+    /// The plan's sets are the band's LESS the ones taken off. The level fixes
+    /// the variation and the dose per set; the cut only ever touches volume —
+    /// neither the unit, nor the sides, nor the variation move — so the
+    /// measure stays valid whatever the cut is: 3→2 is −33.3 %, 4→3 is −25.0
+    /// %, 5→4 is −20.0 %.
     ///
     /// `cut` carries NO default on purpose. Four skeptic rounds in a row found
     /// the same class of defect — an optional argument left out, or left out
@@ -189,41 +186,38 @@ public enum Level {
                         subDelta: subDelta(pattern: pattern, level: level))
     }
 
-    /// "no harder". A descent has no
-    /// right to make the plan heavier — neither per set nor in total work
-    /// across sides. An honest zero on a 4×4 band used to land on 3×8, half
-    /// again as many reps of the same movement ("I said zero and it added
-    /// more"). Same root cause as the landing above: repStart grows DOWN the
-    /// tiers, so
-    /// rung arithmetic done in the planned tier's coordinates means more work
-    /// one tier below.
+    /// "no harder". A descent has no right to make the plan heavier — neither
+    /// per set nor in total work across sides. An honest zero on a 4×4 band
+    /// used to land on 3×8, half again as many reps of the same movement ("I
+    /// said zero and it added more"). Same root cause as the landing above:
+    /// repStart grows DOWN the tiers, so rung arithmetic done in the planned
+    /// tier's coordinates means more work one tier below.
     ///
-    /// The rejected alternative was to drop 's "landing on a tier floor
-    /// is never harder" exemption: `Level.unload` returns exactly a tier
-    /// floor, so on the pain path the gate rests on that one exemption — of
-    /// the 400 pairs where the unload crosses a tier it is what lets 34
-    /// through, and in 41 the total work across sides grows. But fixing that
-    /// here would declare a measure in reps valid across a change of
-    /// variation, which it is not. The
-    /// exemption stays; the pain path is closed by the first step of the descent,
-    /// which never crosses a tier boundary at all.
+    /// The rejected alternative was to drop 's "landing on a tier floor is
+    /// never harder" exemption: `Level.unload` returns exactly a tier floor,
+    /// so on the pain path the gate rests on that one exemption — of the 400
+    /// pairs where the unload crosses a tier it is what lets 34 through, and
+    /// in 41 the total work across sides grows. But fixing that here would
+    /// declare a measure in reps valid across a change of variation, which it
+    /// is not. The exemption stays; the pain path is closed by the first step
+    /// of the descent, which never crosses a tier boundary at all.
     ///
-    /// ACCEPTED GAP: a change of unit (`pullBar` holds seconds at tier
-    /// 1 and counts reps above) does not submit to comparison — 3×4 negative
+    /// ACCEPTED GAP: a change of unit (`pullBar` holds seconds at tier 1 and
+    /// counts reps above) does not submit to comparison — 3×4 negative
     /// pull-ups and 3×50 s of hanging are incommensurable. That break belongs
-    /// to the LADDER and is fixed in the library, the way fixed
-    /// pike → handstand, not in the measure of work.
+    /// to the LADDER and is fixed in the library, the way fixed pike →
+    /// handstand, not in the measure of work.
     ///
-    /// The gate takes PAIRS `(level, sub)`. A descent from
-    /// `(L, sub>0)` to `(L, 0)` is legal and no harder by construction: `load`
-    /// is the same number (it is the base) and `total` falls by exactly the
-    /// sub-steps that were given up. The per-set comparison reads the BASE,
-    /// which is stricter than reading the heaviest set — the safe direction —
-    /// and with `sub == 0` on both sides the gate is bit-for-bit 's.
-    /// The gate takes TRIPLES `(level, sub, cut)`. Taking a
-    /// set off inside one variation is always comparable — the dose per set is
-    /// the same, the sides are the same, only the number of sets falls — so
-    /// neither `load` nor `total` can grow by construction.
+    /// The gate takes PAIRS `(level, sub)`. A descent from `(L, sub>0)` to
+    /// `(L, 0)` is legal and no harder by construction: `load` is the same
+    /// number (it is the base) and `total` falls by exactly the sub-steps that
+    /// were given up. The per-set comparison reads the BASE, which is stricter
+    /// than reading the heaviest set — the safe direction — and with `sub ==
+    /// 0` on both sides the gate is bit-for-bit 's. The gate takes TRIPLES
+    /// `(level, sub, cut)`. Taking a set off inside one variation is always
+    /// comparable — the dose per set is the same, the sides are the same, only
+    /// the number of sets falls — so neither `load` nor `total` can grow by
+    /// construction.
     static func noHarder(pattern: Pattern, from: Int, to: Int,
                          fromSub: Int = 0, toSub: Int = 0,
                          fromCut: Int, toCut: Int) -> Bool {
@@ -236,32 +230,29 @@ public enum Level {
             // comparable and count. Across a tier boundary they are not.
             return b.load <= a.load && b.total <= a.total
         }
-        // A lower tier: rep continuity — never more reps than the plan
-        // asked for, except landing on that tier's own floor, which is the
-        // step provides for taking the load off.
+        // A lower tier: rep continuity — never more reps than the plan asked
+        // for, except landing on that tier's own floor, which is the step
+        // provides for taking the load off.
         if to == (b.tier - 1) * EngineConfig.stepsPerTier { return true }
         guard b.unit == a.unit else { return true }
         return b.load <= a.load
     }
 
-    /// The nearest level at or below the inversion's
-    /// result that does not ask for more work than the current plan. Applies
-    /// to descents only — growth lives under the ceiling, where by
-    /// construction nothing gets heavier.
-    /// "the current plan" is the pair `(from, fromSub)`; the
-    /// target of a descent always carries `sub == 0`, because every descent
-    /// zeroes the sub-step.
-    /// The descent reads the triple, and a landing that
-    /// CHANGES THE UNIT is chosen by time under load rather than by the rung
-    /// next door — see `landOnUnitChange`.
+    /// The nearest level at or below the inversion's result that does not ask
+    /// for more work than the current plan. Applies to descents only — growth
+    /// lives under the ceiling, where by construction nothing gets heavier.
+    /// "the current plan" is the pair `(from, fromSub)`; the target of a
+    /// descent always carries `sub == 0`, because every descent zeroes the
+    /// sub-step. The descent reads the triple, and a landing that CHANGES THE
+    /// UNIT is chosen by time under load rather than by the rung next door —
+    /// see `landOnUnitChange`.
     static func descendNoHarder(pattern: Pattern, from: Int, factLevel: Int,
                                 fromSub: Int = 0, fromCut: Int) -> Int {
         if factLevel >= from { return factLevel }
         if noHarder(pattern: pattern, from: from, to: factLevel,
                     fromSub: fromSub, toSub: 0, fromCut: fromCut, toCut: 0) {
-            // The unit check stands on the EARLY
-            // return too — without it an honest fact walked past it into the
-            // hang.
+            // The unit check stands on the EARLY return too — without it an
+            // honest fact walked past it into the hang.
             let a0 = work(pattern: pattern, level: from, sub: fromSub, cut: fromCut)
             let b0 = work(pattern: pattern, level: factLevel, sub: 0, cut: 0)
             if a0.unit != b0.unit {
@@ -270,10 +261,10 @@ public enum Level {
             }
             return factLevel
         }
-        // The loop covers ZERO as well. The old `while cand > 0`
-        // ended in an unconditional `return 0` — a position the gate might
-        // itself have rejected: 352 triples were handed out around the very
-        // check the gate exists for.
+        // The loop covers ZERO as well. The old `while cand > 0` ended in an
+        // unconditional `return 0` — a position the gate might itself have
+        // rejected: 352 triples were handed out around the very check the gate
+        // exists for.
         var cand = factLevel - 1
         while cand >= 0 {
             if noHarder(pattern: pattern, from: from, to: cand,
@@ -300,8 +291,8 @@ public enum Level {
     /// unit comes from the (pattern, tier) library record.
     static func fromActual(pattern: Pattern, tier: Int, sets: Int, actual: Int) -> Int {
         let lib = ExerciseLibrary.entry(for: pattern)
-        // The inversion reads the same start and step the
-        // render used — the band's own when the plan sits in a band.
+        // The inversion reads the same start and step the render used — the
+        // band's own when the plan sits in a band.
         let repStart = EngineConfig.repStartBand[sets]
             ?? EngineConfig.repStart[tier] ?? EngineConfig.repMin
         let step: Int
@@ -309,10 +300,10 @@ public enum Level {
         case .reps:
             step = actual - repStart
         case .hold:
-            // The static inversion is a lookup of the
-            // nearest rung ON THE TABLE of the same ladder that drew the plan.
-            // A tie settles down, and past the ladder's edge the edge interval
-            // carries on: the caps and the gate apply on top.
+            // The static inversion is a lookup of the nearest rung ON THE
+            // TABLE of the same ladder that drew the plan. A tie settles down,
+            // and past the ladder's edge the edge interval carries on: the
+            // caps and the gate apply on top.
             step = holdRung(ladder(tier: tier, sets: sets), actual)
         }
         let base = sets <= EngineConfig.setsBase
