@@ -134,7 +134,6 @@ final class WeakLinkPromptTests: XCTestCase {
         XCTAssertTrue(applied)
     }
 
-
     // v2.26 (§37.4): three tests moved rather than vanished — see the two
     // below. The prompt used to answer "it hurts" by QUEUEING a pain report
     // for the movement's next appearance: the answer was sticky, it had to

@@ -641,8 +641,8 @@ struct WorkoutFlowView: View {
 
 // MARK: - Holds, signals and session persistence
 
-/// Same file, so the private state stays private.
-// Declared without `private` for the same reason as the state above: Swift's
+// Same file, so the private state stays private. Declared without `private`
+// for the same reason as the state above: Swift's
 // `private` is file-scoped, and the cool-down block was moved to its own file
 // when this one crossed the lint's hard ceiling.
 extension WorkoutFlowView {

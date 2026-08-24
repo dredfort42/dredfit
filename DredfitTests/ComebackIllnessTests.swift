@@ -2,9 +2,10 @@
 //  ComebackIllnessTests.swift
 //  DredfitTests
 //
-//  The app half of the v2.12 comeback wave (issues #127, #128, #133): the
-//  accept guard, the sighted decline path, and the "I was sick" lens as the
-//  user meets them through AppStore.
+//  The app half of the v2.12 comeback wave (issues #127, #128): the accept
+//  guard, the sighted decline path and the numbered preview, as the user meets
+//  them through AppStore. The "I was sick" lens the file is half-named after
+//  was removed in v2.26 — its four tests, and why they went, are at the bottom.
 //
 
 import XCTest
@@ -91,7 +92,6 @@ final class ComebackIllnessTests: XCTestCase {
         XCTAssertTrue(preview.was.contains("×"), "the old plan is numbers, not adjectives")
         XCTAssertTrue(preview.easier.contains("×"))
     }
-
 
     // SNIPPED v2.26 (§37.0): the four tests of the "I was sick" lens.
     // The lens made the plan HEAVIER in 76 cells out of 480 (finding S6-2, P0)

@@ -36,25 +36,14 @@ struct AppSettings: Codable, Equatable {
     /// v2.15 (#135): the session number the weak-link prompt was answered for
     /// — one question per session, never a campaign.
     var weakLinkPromptAnsweredFor: Int?
-    /// v2.15 (#135): movements the trainee answered the prompt about. Pain
-    /// enters the next session they appear in exactly as the mid-workout
-    /// "Something hurt" button would.
-    /// v2.22 (spec §33): the softer answer — "just hard" — is gone with the
-    /// hold-this-level input it armed. It existed because the plan could run
-    /// ahead of what the trainee could do, and the sub-step is the answer to
-    /// that: the plan now parks on their capacity by itself.
     var silentDecayAppliedFor: Date?
-    /// v2.24 (spec §35.3, #136): whether the trainee has ever chosen a session
-    /// length. False means the app hands the engine the default budget —
-    /// `AppStore.defaultTimeBudgetMin` — rather than "no limit". Any choice at
-    /// all sets it, INCLUDING "no limit": picking no limit is a decision, and a
-    /// decision must not be overwritten by a default on the next launch.
-    var timeBudgetChosen = false
-    /// v2.24: when the one-off line about the default was closed — either read
-    /// and dismissed, or never applicable because this install began at the
-    /// default and so has no "new" to be told about. A date rather than a bool
-    /// for the same reason as the two above: it records when.
-    var budgetDefaultNoticeClosedAt: Date?
+    // v2.26 (spec §37.0): `pendingDiscomfort` went with the pain channel and
+    // `timeBudgetChosen` / `budgetDefaultNoticeClosedAt` went with the time
+    // budget — the two flags existed only to remember whether a person had
+    // ever picked a session length and been told about the default, and there
+    // is no length to pick. A settings file written before this wave still
+    // carries all three keys; they decode away silently, because this type
+    // lists what it reads rather than refusing what it does not know.
 
     init() {}
 
@@ -64,7 +53,6 @@ struct AppSettings: Codable, Equatable {
         case onboardingCompleted, careAcknowledgedAt, lastReviewRequestAt
         case comebackDecidedFor, weakLinkPromptAnsweredFor
         case silentDecayAppliedFor
-        case timeBudgetChosen, budgetDefaultNoticeClosedAt
     }
 
     init(from decoder: Decoder) throws {
@@ -87,10 +75,6 @@ struct AppSettings: Codable, Equatable {
         // `pendingPinned`; an unknown key decodes away silently, so nothing to
         // migrate and nothing to clean up.
         silentDecayAppliedFor = try c.decodeIfPresent(Date.self, forKey: .silentDecayAppliedFor)
-        // Absent for every install written before v2.24 — which is exactly the
-        // population the default is for: no flag → never chose → 45 minutes.
-        timeBudgetChosen = try c.decodeIfPresent(Bool.self, forKey: .timeBudgetChosen) ?? false
-        budgetDefaultNoticeClosedAt = try c.decodeIfPresent(Date.self, forKey: .budgetDefaultNoticeClosedAt)
     }
 }
 
@@ -289,6 +273,15 @@ final class AppStore {
         }
     }
 
+    // v2.26 (spec §37.7): there is no default time budget, because there is no
+    // budget. The audit measured what the rungs actually did: 10, 15 and 20
+    // produced the SAME plan, and the "20" rung missed its own target in 100 %
+    // of sessions. The engine now announces how long a session takes and the
+    // person shortens it with the handle. What stood here was `defaultTimeBudgetMin`
+    // and the v2.24 argument for it (§35.3, #136): a length nobody chose was 45
+    // minutes rather than "no limit", because the budget shipped switched off and
+    // so protected only the people who went looking for it.
+
     /// Legacy high-water mark → per-record flags. The mark keeps being
     /// written so a downgraded build still sees a sane value. Runs only on a
     /// journal that carries no flags at all — a pre-flag legacy file. Once
@@ -296,20 +289,6 @@ final class AppStore {
     /// re-applying the mark could stamp workouts it was never about: a
     /// foreign import's records, or a post-reset session 1 sitting under an
     /// old high mark (issue #103).
-    /// v2.24 (spec §35.3, #136): a session length nobody chose is 45 minutes,
-    /// not "no limit". The app never stopped lengthening the workout — a
-    /// diligent 3×/week trainee reached 85–92 minutes at the top of the scale
-    /// and a daily one 549 minutes a week — and the budget that fixes it
-    /// (§28.3) shipped switched off, so it protected only the people who went
-    /// looking for it. 45 is the rung at which all six movements still fit, so
-    /// the default costs no progress at all.
-    ///
-    // v2.26 (spec §37.7): there is no default time budget, because there is no
-    // budget. The audit measured what the rungs actually did: 10, 15 and 20
-    // produced the SAME plan, and the "20" rung missed its own target in 100 %
-    // of sessions. The engine now announces how long a session takes and the
-    // person shortens it with the handle.
-
     private func migrateHealthMarkToFlags() {
         guard settings.healthExportedThrough > 0,
               !records.contains(where: { $0.healthExported != nil }) else { return }
@@ -377,11 +356,10 @@ final class AppStore {
         if CommandLine.arguments.contains("--uitest-comeback-long") {
             seedLoneWorkout(daysAgo: 95)
         }
-        // Only workout 5 days ago → Today carries the quiet "I was sick"
-        // offer (v2.12, #133): the gap the engine cannot see.
-        if CommandLine.arguments.contains("--uitest-illness") {
-            seedLoneWorkout(daysAgo: 5)
-        }
+        // v2.26 (spec §37.0): `--uitest-illness` seeded a five-day gap so the
+        // quiet "I was sick" offer would appear. The offer is gone, no test
+        // passed the flag any more, and a hook nothing reaches is a branch that
+        // will be trusted by the next reader.
     }
 
     /// A single workout `daysAgo` at a uniform level 20 — the seed the three
@@ -456,12 +434,6 @@ final class AppStore {
         return debuts
     }
 
-    /// Patterns in the upcoming plan whose growth is frozen — after a
-    /// discomfort report or a hold-this-level request; the state cannot tell
-    /// the two apart, and must not (#75). Still there, still at their level,
-    /// not climbing. Scoped to the plan on purpose — a line about a movement
-    /// today's workout does not contain would explain nothing.
-    ///
     // v2.26 (spec §37.0): `restingPatterns` is gone with the freeze. Nothing
     // rests any more — a movement the person finds too hard stays in the plan
     // and gets an easier variation or fewer sets, which is the whole point of
@@ -824,11 +796,6 @@ final class AppStore {
         closeComebackQuestion()
     }
 
-    /// The "I was sick" one-tap (v2.12, spec §22.4 / #133): the next
-    /// `EngineConfig.illnessSessions` workouts come one tier easier while the
-    /// stored levels stand. A repeat tap tops the lens back up. The read-only
-    /// company (the offer window, the countdown, the card preview) lives in
-    /// AppStore+Comeback.
     // v2.26 (spec §37.7 / §37.0): `setTimeBudget`, the "what's new" notice
     // about its default, and `markIllness` are all gone. The budget trimmed
     // the WORKOUT to fit a number the person picked once and forgot; the lens

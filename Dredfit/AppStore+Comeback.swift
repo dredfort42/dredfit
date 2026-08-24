@@ -2,11 +2,11 @@
 //  AppStore+Comeback.swift
 //  Dredfit
 //
-//  The read-only companions of the comeback card and the illness lens
-//  (v2.12, issues #127/#133): what the two offers actually are in numbers,
-//  when the quiet "I was sick" tap belongs on Today, and how much of the
-//  recovery fortnight is left. Nothing here mutates state — the mutations
-//  (acceptComeback, markIllness) stay in AppStore proper.
+//  The read-only companions of the comeback card (v2.12, issue #127): what
+//  the two offers actually are in numbers, and what accepting would subtract
+//  now. Nothing here mutates state — the mutation (acceptComeback) stays in
+//  AppStore proper. The illness lens that shared this file was removed in
+//  v2.26; why, and what covers its window instead, is at the bottom.
 //
 
 import Foundation
