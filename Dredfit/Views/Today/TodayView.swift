@@ -110,6 +110,12 @@ struct TodayView: View {
     /// the movement would have after the tap. The engine lands it through the
     /// ordinary gate, so on `pull_bar` the drop from negatives to a hang is a
     /// change of unit and the preview is the only way to see that coming.
+    ///
+    /// All three carry 44 pt of target under a 12.5 pt line. They sit inside a
+    /// List row whose whole width is itself a button into the technique sheet,
+    /// so a near miss here is not a miss — it opens a sheet instead of
+    /// redrawing the plan. The row grows by about 29 pt for it, which is the
+    /// price and is meant to be paid.
     @ViewBuilder
     private func exerciseHandles(_ ex: SessionExercise) -> some View {
         let pattern = ex.pattern
@@ -123,6 +129,8 @@ struct TodayView: View {
                         .foregroundStyle(Theme.accent)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
+                        .frame(minHeight: 44)
+                        .contentShape(Rectangle())
                 }
                 .accessibilityIdentifier("easier-\(pattern.rawValue)")
             }
@@ -134,6 +142,8 @@ struct TodayView: View {
                     Text("Fewer sets")
                         .dredfitFont(12.5)
                         .foregroundStyle(Theme.accent)
+                        .frame(minHeight: 44)
+                        .contentShape(Rectangle())
                 }
                 .accessibilityIdentifier("fewer-sets-\(pattern.rawValue)")
             }
@@ -144,6 +154,8 @@ struct TodayView: View {
                     Text("More sets")
                         .dredfitFont(12.5)
                         .foregroundStyle(Theme.ink2)
+                        .frame(minHeight: 44)
+                        .contentShape(Rectangle())
                 }
                 .accessibilityIdentifier("more-sets-\(pattern.rawValue)")
             }
@@ -498,7 +510,10 @@ private extension TodayView {
         let length = store.sessionLengthPreview(within: shortVersion ? shortPlan : nil)
         let shortMin = shortPlan.map { ShortWorkout.estimatedMin(session: session, plan: $0) } ?? 0
         let total = session.exercises.count
-        VStack(alignment: .leading, spacing: 5) {
+        // 0, not the 5 it was: each line is now a 44 pt box around a 13 pt
+        // label, so the boxes already hold the two apart. Adding the old gap
+        // on top of that read as two unrelated sentences rather than a pair.
+        VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 16) {
                 if let shorter = length.shorter {
                     handle(accented: true, identifier: "session-shorter",
@@ -550,7 +565,8 @@ private extension TodayView {
 
     /// One look for all four: 13pt medium, accent for the direction that
     /// makes today lighter and ink2 for the way back, and a 44pt target
-    /// under a 16pt line of text.
+    /// under a 16pt line of text — the number the comment has always named,
+    /// which the frame said 34 for.
     private func handle<Label: View>(accented: Bool,
                                      identifier: String,
                                      hint: String?,
@@ -561,7 +577,7 @@ private extension TodayView {
                 .dredfitFont(13, weight: .medium)
                 .foregroundStyle(accented ? Theme.accent : Theme.ink2)
                 .fixedSize(horizontal: false, vertical: true)
-                .frame(minHeight: 34)
+                .frame(minHeight: 44)
                 .contentShape(Rectangle())
         }
         .accessibilityIdentifier(identifier)
