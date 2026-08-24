@@ -3,8 +3,7 @@
 //  DredfitCore
 //
 //  What a workout looks like on the day: the session value types, the
-//  rotation anchor, the duration estimate, and the v2.17 budget that trims a
-//  plan to the length the trainee asked for. Split out of Engine.swift when
+//  rotation anchor and the duration estimate. Split out of Engine.swift when
 //  that file outgrew the lint's ceiling; the code is unchanged.
 //
 
