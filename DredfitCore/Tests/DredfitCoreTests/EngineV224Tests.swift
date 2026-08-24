@@ -39,6 +39,21 @@ final class EngineV224Tests: XCTestCase {
         return s
     }
 
+    /// v2.27 (§38.2, rule 3): "skip the remaining sets", the gesture the
+    /// workout screen put in place of the removed session-wide handle. The
+    /// same cut on every movement, but set ONE AT A TIME through `setCut`,
+    /// because there is no other way onto the axis now. Repeats the removed
+    /// `shorterSession` step for step — `max(current, k)` in `allCases` order
+    /// — so the tests written against it keep THEIR numbers. Their subject is
+    /// the floor and the composition, not the gesture that moved the axis.
+    private func cutEveryPattern(_ state: EngineState, _ steps: Int) -> EngineState {
+        var next = state
+        for p in Pattern.allCases {
+            next = Engine.setCut(state: next, pattern: p, cut: max(next.cutOf(p), steps))
+        }
+        return next
+    }
+
     // MARK: - The one floor
 
     /// The sweep the spec asks for, re-marked: no combination of HANDLE and
@@ -62,7 +77,7 @@ final class EngineV224Tests: XCTestCase {
                                   bar: bar, counter: counter),
                         ]
                         for state in states {
-                            let handled = Engine.shorterSession(state: state, steps: steps)
+                            let handled = cutEveryPattern(state, steps)
                             for ex in Engine.generateSession(handled).exercises {
                                 XCTAssertGreaterThanOrEqual(
                                     ex.sets, EngineConfig.setsFloor,
@@ -91,8 +106,7 @@ final class EngineV224Tests: XCTestCase {
         for steps in [1, 2, 3, 9] {
             for level in 0...EngineConfig.levelMax {
                 let full = Engine.generateSession(seeded(level))
-                let cut = Engine.generateSession(
-                    Engine.shorterSession(state: seeded(level), steps: steps))
+                let cut = Engine.generateSession(cutEveryPattern(seeded(level), steps))
                 XCTAssertEqual(cut.exercises.map(\.pattern), full.exercises.map(\.pattern),
                     "L\(level) at handle \(steps): the movement list changed")
                 for (a, b) in zip(full.exercises, cut.exercises) {
