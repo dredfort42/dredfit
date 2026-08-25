@@ -159,22 +159,29 @@ jobs = [
     (f"{RAW}/comeback_de.png",   ["Pausen sind normal"], "Der Plan holt dich ein paar Stufen tiefer ab.", f"{OUT}/de/s9.png"),
     (f"{RAW}/comeback_fr.png", ["Les coupures,", "c’est normal"], "Le plan te retrouve quelques crans plus bas.", f"{OUT}/fr/s9.png"),
     (f"{RAW}/comeback_it.png", ["Le pause sono normali"], "Il piano ti riprende un paio di gradini più in basso.", f"{OUT}/it/s9.png"),
-    (f"{RAW}/handles_en.png", ["Too much today?"], "Fewer sets, or a shorter session. You decide.", f"{OUT}/en/s10.png"),
-    (f"{RAW}/handles_ru.png", ["Сегодня многовато?"], "Меньше подходов или тренировка покороче. Решаешь ты.", f"{OUT}/ru/s10.png"),
-    (f"{RAW}/handles_es.png", ["¿Hoy es demasiado?"], "Menos series o una sesión más corta. Tú decides.", f"{OUT}/es/s10.png"),
-    (f"{RAW}/handles_pt-br.png", ["Hoje é demais?"], "Menos séries ou um treino mais curto. Você decide.", f"{OUT}/pt-br/s10.png"),
-    (f"{RAW}/handles_de.png", ["Heute zu viel?"], "Weniger Sätze oder ein kürzeres Training. Du entscheidest.", f"{OUT}/de/s10.png"),
-    (f"{RAW}/handles_fr.png", ["Trop pour aujourd’hui ?"], "Moins de séries, ou une séance plus courte. À toi de voir.", f"{OUT}/fr/s10.png"),
-    (f"{RAW}/handles_it.png", ["Oggi è troppo?"], "Meno serie o un allenamento più corto. Decidi tu.", f"{OUT}/it/s10.png"),
+    (f"{RAW}/skip_en.png", ["Too much today?"], "Skip a set while you are doing it. The clock follows.", f"{OUT}/en/s10.png"),
+    (f"{RAW}/skip_ru.png", ["Сегодня многовато?"], "Пропусти подход прямо на тренировке. Время пересчитается.", f"{OUT}/ru/s10.png"),
+    (f"{RAW}/skip_es.png", ["¿Hoy es demasiado?"], "Omite una serie durante el entrenamiento. El tiempo se recalcula.", f"{OUT}/es/s10.png"),
+    (f"{RAW}/skip_pt-br.png", ["Hoje é demais?"], "Pule uma série durante o treino. O tempo se recalcula.", f"{OUT}/pt-br/s10.png"),
+    (f"{RAW}/skip_de.png", ["Heute zu viel?"], "Überspring einen Satz mitten im Training. Die Restzeit passt sich an.", f"{OUT}/de/s10.png"),
+    (f"{RAW}/skip_fr.png", ["Trop pour aujourd’hui ?"], "Passe une série en pleine séance. Le temps se recalcule.", f"{OUT}/fr/s10.png"),
+    (f"{RAW}/skip_it.png", ["Oggi è troppo?"], "Salta una serie durante l’allenamento. Il tempo si ricalcola.", f"{OUT}/it/s10.png"),
 ]
 # Partial recaptures are normal — frames without a fresh raw keep their last
 # set. All ten raws come from the current StoreScreenshots.swift.reference.
 #
 # v2.26: s10 was `resting_` — Today with a movement frozen by the pain
-# channel. The channel is gone and so is the screen, so the slot now carries
-# the handles instead, and its raw is named `handles_`. Nothing composes an
-# s10 until that raw exists, which is the intended behaviour: a stale frame
-# advertising a removed feature must not survive a partial recapture.
+# channel. The channel is gone and so is the screen, so the slot carried the
+# handles instead, under the raw name `handles_`.
+#
+# v2.27: the handles are gone the same way — the session-wide one and the
+# per-movement one both left with the wave that moved the decision inside the
+# workout — so the slot now carries the WORK screen: "Skip this set", the
+# escape that names its landing, and the minutes left recalculated as you go.
+# The raw is renamed again, to `skip_`, so nothing composes an s10 until that
+# raw exists. Both renames exist for one reason: the rule "a frame without a
+# fresh raw keeps its last set" would otherwise leave a removed feature
+# advertised in the store through a partial recapture.
 # The s8 caption also moved, nine sections to eleven — the count in that
 # caption is verified against HowItWorksView every release (I-7, I-13).
 import os
