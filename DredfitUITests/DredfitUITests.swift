@@ -777,6 +777,52 @@ extension DredfitUITests {
                        "an answered break does not ask again")
     }
 
+    /// The other half of `testFreshStartIsNotOfferedForAShortBreak`, and the
+    /// only walk that reaches "Start from scratch" at all: after a break long
+    /// enough that the levels are no longer a description of anybody, the card
+    /// offers a way out of them, spells out what it costs, and keeps the
+    /// history either way.
+    func testFreshStartIsOfferedAfterAVeryLongBreak() {
+        app.launchArguments = ["--uitest-reset", "--uitest-comeback-long",
+                               "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launch()
+
+        XCTAssertTrue(app.staticTexts["Welcome back"].waitForExistence(timeout: 5),
+                      "a 95-day break should offer the comeback card")
+        // By the labels inside it, not by the container's identifier: that
+        // sits on a VStack, which XCUITest does not surface as a static text.
+        XCTAssertTrue(app.staticTexts["Easier:"].waitForExistence(timeout: 3),
+                      "the card answers in numbers, not adjectives")
+        XCTAssertTrue(app.staticTexts["As it was:"].exists,
+                      "both offers are named, so the choice is a comparison")
+
+        let fresh = app.buttons["comeback-fresh"]
+        XCTAssertTrue(fresh.waitForExistence(timeout: 3),
+                      "a break this long is exactly when starting over is on offer")
+        fresh.tap()
+
+        // A confirmation, because it is the one irreversible thing on this
+        // screen. Taking it, rather than cancelling: what the offer is FOR is
+        // the reset, and the promise beside it is that the history survives.
+        XCTAssertTrue(app.staticTexts["Start from scratch?"].waitForExistence(timeout: 3),
+                      "the offer must confirm before it resets anything")
+        let reset = app.buttons["Reset levels"]
+        XCTAssertTrue(reset.waitForExistence(timeout: 3),
+                      "the confirmation must carry the destructive choice")
+        reset.tap()
+
+        XCTAssertTrue(app.staticTexts["3 × 8"].waitForExistence(timeout: 5),
+                      "the levels go back to the beginning — level 0 is three eights")
+        XCTAssertFalse(app.staticTexts["Welcome back"].exists,
+                       "the card is answered and gone")
+
+        // "Levels go back to the beginning. Your history stays." — the second
+        // sentence is the one a careless reset would break.
+        app.tabBars.buttons["Progress"].tap()
+        XCTAssertTrue(app.staticTexts["1 workout"].waitForExistence(timeout: 5),
+                      "the workout that was done before the break is still there")
+    }
+
     func testFreshStartIsNotOfferedForAShortBreak() {
         app.launchArguments = ["--uitest-reset", "--uitest-comeback",
                                "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]

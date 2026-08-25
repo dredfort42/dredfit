@@ -119,17 +119,6 @@ struct TodayView: View {
     /// number would be unreachable from a UI test and the pin would quietly
     /// stop guarding anything.
     @ViewBuilder
-    private func planLength(_ length: (floor: Int, full: Int), count: Int) -> some View {
-        if length.floor < length.full {
-            Text("≈ \(length.floor)–\(length.full) min · \(count) exercises")
-                .accessibilityLabel(
-                    Text("about \(length.floor) to \(length.full) minutes · \(count) exercises"))
-                .accessibilityIdentifier("plan-length")
-        } else {
-            Text("≈ \(length.full) min · \(count) exercises")
-                .accessibilityIdentifier("plan-length")
-        }
-    }
 
     /// What makes a showing a showing: the plan on screen.
     ///
@@ -169,7 +158,8 @@ struct TodayView: View {
                     // answered here without asking anyone to decide anything
                     // first. One number only when the plan is already on the
                     // floor and the two ends have met.
-                    planLength(length, count: count)
+                    PlanLength(floor: length.floor, full: length.full, count: count)
+                        .accessibilityIdentifier("plan-length")
                         .dredfitFont(15)
                         .foregroundStyle(Theme.ink2)
                     // A quiet way into the existing explainer for everyone who

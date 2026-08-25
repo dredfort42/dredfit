@@ -824,10 +824,10 @@ final class AppStore {
     /// anything Int cannot hold.
     private func estimatedDurationSec(for record: WorkoutRecord) -> Int {
         guard let exercises = record.exercises, !exercises.isEmpty else { return 35 * 60 }
-            // A record written by an older build keeps its pain reports, and
-            // they were "not performed" exactly as a skip was — so reading
-            // history has to count both. Nothing writes `discomfort` any more.
-            let skipped = (record.skipped ?? []).union(record.discomfort ?? [])
+        // A record written by an older build keeps its pain reports, and they
+        // were "not performed" exactly as a skip was — so reading history has
+        // to count both. Nothing writes `discomfort` any more.
+        let skipped = (record.skipped ?? []).union(record.discomfort ?? [])
         var workSec = 0.0
         for ex in exercises where !skipped.contains(ex.pattern) {
             let sides: Double = ex.perSide ? 2 : 1
@@ -837,7 +837,11 @@ final class AppStore {
             workSec += Double(ex.sets) * perSet
                 + (Double(ex.sets) - 1) * Double(ex.restSetSec) + Double(ex.restExerciseSec)
         }
-        let total = workSec + Double((5 + 3) * 60)   // warm-up + cool-down
+        // Read from the engine rather than spelled out: the two were written
+        // here as 5 and 3, and the cool-down has since grown to 4. A copy of a
+        // config value drifts silently, and nothing pins this number.
+        let total = workSec
+            + Double((EngineConfig.warmupMin + EngineConfig.cooldownMin) * 60)
         guard total.isFinite else { return 35 * 60 }
         return Int(min(max(total, 0), Double(EngineConfig.countMax)))
     }
