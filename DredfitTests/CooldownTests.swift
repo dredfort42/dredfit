@@ -46,8 +46,10 @@ final class CooldownTests: XCTestCase {
         XCTAssertEqual(positions[4].id, "lat-stretch")
     }
 
-    func testShortWorkoutStillGetsSixPositions() {
-        // Three performed movements that all map to distinct positions.
+    func testAWorkoutOfThreePerformedMovementsStillGetsSixPositions() {
+        // Three performed movements that all map to distinct positions —
+        // whatever left the other three out: skipped exercises, or a session
+        // finished early.
         let positions = Cooldown.positions(performed: [.pull, .squat, .coreRot])
         XCTAssertEqual(positions.count, Cooldown.positionCount)
         // And three that collapse to two mapped positions — topped up.

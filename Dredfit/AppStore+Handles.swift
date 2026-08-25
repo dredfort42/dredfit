@@ -1,24 +1,24 @@
 //
 //  The athlete's handles.
 //
-//  The wave removes two mechanisms that decided FOR the person — the pain
-//  channel and the time budget — and gives back three controls that decide
-//  WITH them. Every one of them goes through the ENGINE. The app writing a
-//  level or a cut into the state by hand is the bypass of `applyFeedback` the
-//  audit counts as a finding: it would skip the floor, the sanitizer, and the
-//  position measure the postcondition repair reads.
+//  v2.26 removed the two mechanisms that decided FOR the person — the pain
+//  channel and the time budget — and gave back controls that decide WITH them.
+//  v2.27 removed the last two that still asked for the decision BEFORE the
+//  workout: "shorter today" and "fewer sets" on the plan. Both wanted an
+//  answer to a question the person only knows the answer to standing on the
+//  mat, and both are replaced by the skip on the work screen (§38.2).
 //
-//  This file holds what the handles can be ASKED — availability and previews.
-//  The four actions that WRITE state live in AppStore proper, the same way
-//  `acceptComeback` does: the store owns its own mutations.
+//  What is left on the plan is one handle and one number. The handle changes
+//  the VARIATION, not the volume — a different question, and the only one
+//  worth asking before the first set. The number is the range the session can
+//  land in, so "will this fit today" has an answer without a control at all.
 //
-//  All three live on the plan, before the workout starts. That is not a
-//  layout preference: `nextSession` is generated from the state on every
-//  access, so pulling a handle here redraws the plan AND the announced
-//  duration together. Mid-workout they would have to mutate a session the
-//  engine is already going to read the plan from when feedback lands, and a
-//  shown plan that disagrees with the one the rating is computed against is a
-//  defect rather than a feature.
+//  This file holds what the plan can be ASKED. The one action that WRITES
+//  state lives in AppStore proper, the same way `acceptComeback` does: the
+//  store owns its own mutations. Every handle goes through the ENGINE — the
+//  app writing a level or a cut into the state by hand is the bypass of
+//  `applyFeedback` the audit counts as a finding: it would skip the floor, the
+//  sanitizer, and the position measure the postcondition repair reads.
 //
 
 import Foundation
@@ -46,78 +46,5 @@ extension AppStore {
         return Engine.generateSession(after).exercises
             .first { $0.pattern == pattern }
             .map { "\($0.name) · \($0.display)" }
-    }
-
-    // MARK: - Per-movement: fewer sets
-
-    /// False once the movement is already on the shared floor of two sets.
-    func canTakeSetOff(_ pattern: Pattern) -> Bool {
-        engineState.cutOf(pattern)
-            < Level.cutMax(level: engineState.levels[pattern] ?? 0,
-                           floor: EngineConfig.setsFloor)
-    }
-
-    /// True once anything has been taken off this movement — the control that
-    /// puts it back has to be reachable, or the handle is a one-way door.
-    func canGiveSetBack(_ pattern: Pattern) -> Bool {
-        engineState.cutOf(pattern) > 0
-    }
-
-    // MARK: - The session handle: shorter today
-
-    /// SCAFFOLDING, v2.27 (§38.1) — delete with the four members below.
-    ///
-    /// `Engine.shorterSession` is gone: §38 removed the last handle that asked
-    /// the person to decide BEFORE the workout. The members that called it are
-    /// removed by the app wave, together with their UI and their strings; this
-    /// keeps them compiling until then and does exactly what the removed export
-    /// did — `max(current, k)` in `allCases` order — so nothing about their
-    /// behaviour moves in the meantime. Nothing new may start calling it.
-    private func sessionCut(_ steps: Int) -> EngineState {
-        var next = engineState
-        for pattern in Pattern.allCases {
-            next = Engine.setCut(state: next, pattern: pattern,
-                                 cut: max(next.cutOf(pattern), steps))
-        }
-        return next
-    }
-
-    /// How long today's workout is announced to take, and how long it would
-    /// take one step shorter. Nil for the second when every movement is
-    /// already on the floor.
-    ///
-    /// This is the pair the engine asks to be visible BEFORE the person
-    /// agrees: "37 → 26 min". The number is the engine's own
-    /// `estimatedTotalMin`, not an app-side estimate — the wave's answer to
-    /// "how long will this take" is that the engine announces it.
-    func sessionLengthPreview() -> (now: Int, shorter: Int?) {
-        let now = Int(nextSession.estimatedTotalMin.rounded())
-        let shortened = sessionCut(1)
-        guard shortened != engineState else { return (now, nil) }
-        let after = Int(Engine.generateSession(shortened).estimatedTotalMin.rounded())
-        return (now, after < now ? after : nil)
-    }
-
-    /// The same pair, measured inside the movements that are actually going
-    /// to be performed. With the short version chosen, "34 → 26" is a promise
-    /// about a workout nobody is going to do — the handle has to price itself
-    /// against the plan on screen, not against the full session behind it.
-    func sessionLengthPreview(within plan: Set<Pattern>?) -> (now: Int, shorter: Int?) {
-        guard let plan else { return sessionLengthPreview() }
-        let now = ShortWorkout.estimatedMin(session: nextSession, plan: plan)
-        let shortened = sessionCut(1)
-        guard shortened != engineState else { return (now, nil) }
-        let after = ShortWorkout.estimatedMin(session: Engine.generateSession(shortened),
-                                              plan: plan)
-        return (now, after < now ? after : nil)
-    }
-
-    /// True while any movement in today's plan still has room to lose a set.
-    var canMakeSessionShorter: Bool {
-        sessionCut(1) != engineState
-    }
-
-    var isSessionShortened: Bool {
-        Pattern.allCases.contains { engineState.cutOf($0) > 0 }
     }
 }

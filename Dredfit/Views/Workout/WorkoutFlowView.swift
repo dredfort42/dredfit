@@ -20,10 +20,6 @@ import DredfitCore
 struct WorkoutFlowView: View {
     let session: Session
     var resume: WorkoutSnapshot?
-    /// nil is the full session. The session object is the same either way —
-    /// only the exercises the flow walks differ, and everything left out is
-    /// recorded as an honest skip when the workout ends.
-    var shortPlan: Set<Pattern>?
     @Environment(\.dismiss) private var dismiss
     @Environment(AppStore.self) private var store
     @Environment(\.requestReview) private var requestReview
@@ -121,16 +117,11 @@ struct WorkoutFlowView: View {
 
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
-    /// Every position in the flow (indices, "N / M", the capsules, restore
-    /// clamping) counts in these, not in session.exercises.
-    var exercises: [SessionExercise] {
-        guard let shortPlan else { return session.exercises }
-        return session.exercises.filter { shortPlan.contains($0.pattern) }
-    }
-    private var omitted: Set<Pattern> {
-        guard shortPlan != nil else { return [] }
-        return Set(session.exercises.map(\.pattern)).subtracting(exercises.map(\.pattern))
-    }
+    /// The session's own list. It used to be a SUBSET of it — the short
+    /// version ran three movements of six and recorded the rest as skips — and
+    /// every position in the flow (indices, "N / M", the capsules, restore
+    /// clamping) counts in this, which is why the name stayed.
+    var exercises: [SessionExercise] { session.exercises }
     private var exercise: SessionExercise { exercises[exIndex] }
     private var isLastSet: Bool { setIndex == exercise.sets - 1 }
     private var isLastExercise: Bool { exIndex == exercises.count - 1 }
@@ -171,16 +162,15 @@ struct WorkoutFlowView: View {
                 cooldownView
             case .feedback:
                 FeedbackView(session: session, facts: actuals,
-                             skipped: skippedPatterns.union(omitted),
+                             skipped: skippedPatterns,
                              interrupted: interruptedPattern) { result, overrides in
                     let earned = store.completeWorkout(
                         session: session, result: result,
                         overrides: overrides,
                         setActuals: actuals,
                         // Skips like any other: levels frozen, counter and
-                        // rotation still advance. The engine has no idea the
-                        // workout was short, and that is the point.
-                        skipped: skippedPatterns.union(omitted),
+                        // rotation still advance.
+                        skipped: skippedPatterns,
                         // The sets skipped along the way. The engine settles
                         // them against the rating — after it, never before.
                         setsSkipped: setsSkipped,
@@ -881,10 +871,7 @@ extension WorkoutFlowView {
             // exercise.
             atFeedback: phase == .feedback || phase == .cooldown
                 || phase == .cooldownIntro ? true : nil,
-            interrupted: interruptedPattern,
-            // Without it a short-workout snapshot resumes into the full six
-            // with indices pointing into a list nobody agreed to.
-            shortPlan: shortPlan.map { Array($0) }))
+            interrupted: interruptedPattern))
     }
 
     /// A rest still running resumes inside it; one that ran out lands on the

@@ -1,14 +1,15 @@
 //
-//  What the app SAYS about the sets handle.
-//  The handle moves sets and never the level, so a card can go from
-//  `4×4 /side` to `1×4 /side` with nothing else on screen having changed —
-//  and a plan that quietly got easier reads as a bug exactly the way a plan
-//  that quietly got harder does. Two sentences answer it, in the card.
+//  What the app SAYS about a set count that moved on its own.
 //
-//  And one older line finally works: "time to see a specialist" used to hang
-//  on a RUN of pain reports, which the 3 / 6 / 12 rest is built to break, so
-//  it never reached anybody it was written for. It reads the engine's memory
-//  of pain now.
+//  Sets move without levels: a movement whose sets the person skipped comes
+//  back with fewer of them, and comes back UP again as the engine hands them
+//  over one good session at a time. A plan that quietly got easier reads as a
+//  bug exactly the way a plan that quietly got harder does — so the one moment
+//  the person cannot account for, a set arriving back, gets a sentence on the
+//  card.
+//
+//  The suite also carries the catalog guards, because a sentence nobody
+//  translated is a sentence six languages fall back to English on.
 //
 
 import XCTest
@@ -16,7 +17,7 @@ import DredfitCore
 @testable import Dredfit
 
 @MainActor
-final class SetsHandleNoticeTests: XCTestCase {
+final class SetsNoticeTests: XCTestCase {
 
     nonisolated(unsafe) private var tempURL: URL!
 
@@ -33,8 +34,7 @@ final class SetsHandleNoticeTests: XCTestCase {
 
     /// Seeded through the state file, like the app's own load. The pull slot
     /// is in every session, so it is the movement a trajectory can be walked
-    /// on without waiting for the rotation. No time budget: the budget's own
-    /// cut would confuse what the handle did with what the clock did.
+    /// on without waiting for the rotation.
     private func store(level: Int = 40) throws -> AppStore {
         let levels = Pattern.allCases
             .map { "\"\($0.rawValue)\",\(level)" }.joined(separator: ",")
@@ -52,12 +52,14 @@ final class SetsHandleNoticeTests: XCTestCase {
 
     /// One workout, one calendar day apart, so no gap ever reads as a break.
     @discardableResult
-    private func train(_ store: AppStore, result: FeedbackResult = .plan) -> Session {
+    private func train(_ store: AppStore, result: FeedbackResult = .plan,
+                       setsSkipped: SetFacts.Skips = [:]) -> Session {
         let session = store.nextSession
         trained += 1
         let date = Calendar.current.date(byAdding: .day, value: -400 + trained * 2,
                                          to: Calendar.current.startOfDay(for: .now))!
-        _ = store.completeWorkout(session: session, result: result, date: date)
+        _ = store.completeWorkout(session: session, result: result,
+                                  setsSkipped: setsSkipped, date: date)
         return session
     }
 
@@ -65,15 +67,18 @@ final class SetsHandleNoticeTests: XCTestCase {
         try XCTUnwrap(session.exercises.first { $0.pattern == .pull })
     }
 
-    /// The other end of the handle: a set comes back, and the card says so
+    /// The other end of the axis: a set comes back, and the card says so
     /// once — the appearance the set actually arrives on.
     ///
-    /// The set is taken off by the PERSON now, not by a pain report, which
-    /// makes the sentence matter more rather than less. They know why it went;
-    /// only the engine knows why it came back.
+    /// The set is taken off by the PERSON now, mid-workout, not by a pain
+    /// report, which makes the sentence matter more rather than less. They
+    /// know why it went; only the engine knows why it came back.
     func testTheCardSaysWhenASetComesBack() throws {
         let store = try store()
-        store.takeSetOff(.pull)
+        // The way a set comes off at all now: skipped during the session, and
+        // written by the engine when the rating lands.
+        train(store, setsSkipped: [.pull: 1])
+        XCTAssertGreaterThan(store.engineState.cutOf(.pull), 0, "the seed did not take")
 
         var announced = 0
         var seenBack = false
@@ -101,9 +106,10 @@ final class SetsHandleNoticeTests: XCTestCase {
 
     /// A key the catalog does not carry falls back to English in every
     /// language at once — six locales lost to one missing string, which is
-    /// exactly what happened last release. Both new sentences, all shipping
-    /// languages, checked against the file rather than the bundle.
-    func testBothNewLinesAreInTheCatalogInEveryLanguage() throws {
+    /// exactly what happened last release. Every sentence the wave's screens
+    /// carry, all shipping languages, checked against the file rather than the
+    /// bundle.
+    func testTheWavesLinesAreInTheCatalogInEveryLanguage() throws {
         let catalogURL = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()   // DredfitTests/
             .deletingLastPathComponent()   // repo root
@@ -112,23 +118,18 @@ final class SetsHandleNoticeTests: XCTestCase {
         let root = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
         let strings = try XCTUnwrap(root["strings"] as? [String: Any])
 
-        // The pain line went with the channel; the handles' own sentences
-        // joined. Every one of them is user-facing on the plan.
+        // The pain line went with the channel, and the plan's two session
+        // handles with §38 — the sentences that replaced them are on the work
+        // screen, where the decision is taken now.
         let keys = [
             "A set is back — your body is coping.",
-            "Fewer sets",
-            "More sets",
             "Make it easier",
-            "Takes one set off every movement. Your levels do not change.",
             "Enter what you actually did. The plan follows your numbers.",
-            // The plan's two ways to make today lighter and the way back
-            // from each. They replaced "Shorter today" and the second start
-            // button that used to sit under Start as "Short on time?".
-            "Fewer sets in every movement · %lld → %lld min",
-            "All sets back",
-            "Fewer movements · %lld of %lld · ≈ %lld min",
-            "All movements back",
-            "The rest are recorded as skips. They keep their level.",
+            // The two escapes under the button that logs the set, and what
+            // the set-level one promises about the next plan.
+            "Skip this set",
+            "Skip remaining sets",
+            "The plan keeps this set off next time. Your level does not change.",
             "Easier · %@",
             "%lld positions · about %lld min",
             "Do the plan, and leave your maximum for the last set.",

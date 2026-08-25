@@ -692,60 +692,20 @@ final class AppStore {
 
     // MARK: - The handles
 
-    /// Every handle goes through the ENGINE. Writing a level or a cut into the
+    /// The handle goes through the ENGINE. Writing a level or a cut into the
     /// state here would skip the floor, the sanitizer and the position measure
     /// the postcondition repair reads — the bypass of `applyFeedback` the audit
-    /// counts as a finding. What each handle may do is asked in
+    /// counts as a finding. What the handle may do is asked in
     /// AppStore+Handles; what it does is here.
+    ///
+    /// One handle, singular, since §38: the two that moved VOLUME are gone
+    /// from the plan, and the volume is decided inside the workout instead.
+    /// The `cut` axis they wrote is untouched — `completeWorkout` carries the
+    /// sets skipped along the way, and the engine writes them there.
 
     func makeEasier(_ pattern: Pattern) {
         guard canMakeEasier(pattern) else { return }
         engineState = Engine.easierVariation(state: engineState, pattern: pattern)
-        persist()
-    }
-
-    func takeSetOff(_ pattern: Pattern) {
-        guard canTakeSetOff(pattern) else { return }
-        engineState = Engine.setCut(state: engineState, pattern: pattern,
-                                    cut: engineState.cutOf(pattern) + 1)
-        persist()
-    }
-
-    /// Releasing the handle on one movement. Not "undo": the engine hands sets
-    /// back on its own as the person gets stronger, and this is the same axis,
-    /// moved by the person instead.
-    func giveSetBack(_ pattern: Pattern) {
-        guard canGiveSetBack(pattern) else { return }
-        engineState = Engine.setCut(state: engineState, pattern: pattern,
-                                    cut: engineState.cutOf(pattern) - 1)
-        persist()
-    }
-
-    /// One step shorter for every movement at once. The same `cut` the
-    /// per-movement handle writes — no new state field, so a set earned back
-    /// by growing comes back here exactly as it does there.
-    /// SCAFFOLDING, v2.27 (§38.1): removed with the session handle by the app
-    /// wave — see `sessionCut` in `AppStore+Handles.swift`.
-    func makeSessionShorter() {
-        var shortened = engineState
-        for pattern in Pattern.allCases {
-            shortened = Engine.setCut(state: shortened, pattern: pattern,
-                                      cut: max(shortened.cutOf(pattern), 1))
-        }
-        guard shortened != engineState else { return }
-        engineState = shortened
-        persist()
-    }
-
-    /// Puts every set back, on every movement — the way out of a session the
-    /// person shortened and then found too easy.
-    func restoreFullSession() {
-        var next = engineState
-        for pattern in Pattern.allCases {
-            next = Engine.setCut(state: next, pattern: pattern, cut: 0)
-        }
-        guard next != engineState else { return }
-        engineState = next
         persist()
     }
 

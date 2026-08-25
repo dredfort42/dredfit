@@ -179,21 +179,21 @@ final class WeakLinkPromptTests: XCTestCase {
         XCTAssertTrue(seen, "the movement is still in the rotation")
     }
 
-    /// Nothing to suggest when neither handle would do anything: on tier 1 at
-    /// the sets floor the prompt would route into two dead controls.
+    /// Nothing to suggest when the handle the prompt offers would do nothing:
+    /// on tier 1 the question would route into a dead control.
     ///
-    /// This is 's accepted bottom stated from the app's side — at L0 on two
-    /// sets the app has run out of things to offer, and going quiet is the
-    /// honest answer rather than showing a button that cannot fire.
+    /// This is §37.1's accepted bottom stated from the app's side — at the
+    /// first variation the app has run out of things to offer, and going quiet
+    /// is the honest answer rather than showing a button that cannot fire. The
+    /// sets half of the old guard went with the sets handle: volume is
+    /// answered inside the workout now, and a prompt on the plan cannot offer
+    /// it.
     func testAMovementWithNoHandleLeftIsNotSuggested() throws {
         let store = naiveStore(sessions: 12)
         let suspect = try XCTUnwrap(store.unnamedLessSuspect())
-        // Take it as low as the two handles can go.
         while store.canMakeEasier(suspect) { store.makeEasier(suspect) }
-        while store.canTakeSetOff(suspect) { store.takeSetOff(suspect) }
         XCTAssertFalse(store.canMakeEasier(suspect), "seeding: the easier handle is spent")
-        XCTAssertFalse(store.canTakeSetOff(suspect), "seeding: the sets handle is spent")
         XCTAssertNil(store.unnamedLessSuspect(),
-                     "with both handles spent there is nothing left to offer")
+                     "with the handle spent there is nothing left to offer")
     }
 }

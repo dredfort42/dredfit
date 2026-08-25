@@ -56,11 +56,11 @@ extension AppStore {
 
 extension AppStore {
 
-    /// What an exercise card has to explain about its own set count. The The
-    /// sets handle moves sets, not levels, so `1×4 /side` can appear under a
-    /// name that used to carry `4×4 /side` with nothing on screen having
-    /// changed — and a plan that quietly got easier reads as a bug exactly the
-    /// way a plan that quietly got harder does.
+    /// What an exercise card has to explain about its own set count. Sets
+    /// move without levels — a movement half of whose sets were skipped last
+    /// time comes back as `2×4 /side` under a name that carried `4×4 /side`
+    /// — and a plan that quietly got easier reads as a bug exactly the way a
+    /// plan that quietly got harder does.
     enum SetsNote {
         /// A set has just come back.
         case setBack
@@ -71,8 +71,8 @@ extension AppStore {
     ///
     /// The "pain is holding the volume down" rung is gone with the episode.
     /// What is left is the one the person cannot otherwise account for — a set
-    /// coming BACK — and it matters more now, not less: sets are taken off by
-    /// the person's own handle, so the card has to say when the engine gives
+    /// coming BACK — and it matters more now, not less: sets come off because
+    /// the person skipped them, so the card has to say when the engine gives
     /// one back on its own.
     func setsNote(for exercise: SessionExercise) -> SetsNote? {
         let pattern = exercise.pattern
@@ -119,11 +119,11 @@ extension AppStore {
     /// while the movement that is actually the problem is still in every plan.
     ///
     /// The prompt used to route to "Something hurt", and that button no longer
-    /// exists. It routes to the HANDLES instead, which is the better
+    /// exists. It routes to the easier VARIATION instead, which is the better
     /// destination anyway: the pain report took the movement's volume away and
-    /// gave nothing back for weeks, while "easier variation" and "fewer sets"
-    /// change exactly the thing the person is complaining about, immediately,
-    /// and keep the movement in the plan.
+    /// gave nothing back for weeks, while a lighter variation changes exactly
+    /// the thing the person is complaining about, immediately, and keeps the
+    /// movement in the plan.
     func unnamedLessSuspect() -> Pattern? {
         var best: Pattern?
         var bestHits = 0
@@ -141,20 +141,15 @@ extension AppStore {
             // one the rotation shows first — the same order the engine walks.
             if hits > bestHits { bestHits = hits; best = pattern }
         }
-        // Nothing to suggest when neither handle would do anything: the
-        // movement is already in its easiest variation AND already on the sets
-        // floor, so the prompt would route into a screen with two dead
-        // controls. This is the replacement for "already resting or its pain
-        // is already on record" — the same idea, that the path this prompt
-        // offers is already taken.
+        // Nothing to suggest when the one handle the prompt offers would do
+        // nothing: the movement is already in its easiest variation, so the
+        // question would route into a dead control. The sets half of this
+        // guard went with the handle it named — volume is answered inside the
+        // workout now, and a prompt on the plan cannot offer it.
         guard let best else { return nil }
-        let level = engineState.levels[best] ?? 0
-        let canEase = Engine.easierLevel(pattern: best, level: level,
-                                         sub: engineState.sub[best] ?? 0,
-                                         cut: engineState.cutOf(best)) != nil
-        let canCut = engineState.cutOf(best) < Level.cutMax(level: level,
-                                                            floor: EngineConfig.setsFloor)
-        guard canEase || canCut else { return nil }
+        guard Engine.easierLevel(pattern: best, level: engineState.levels[best] ?? 0,
+                                 sub: engineState.sub[best] ?? 0,
+                                 cut: engineState.cutOf(best)) != nil else { return nil }
         return best
     }
 

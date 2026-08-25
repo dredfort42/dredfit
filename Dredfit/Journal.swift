@@ -145,9 +145,6 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// Restore lands on the rating, not on the set the fields still describe.
     var atFeedback: Bool?
     var interrupted: Pattern?
-    /// Deliberately not part of the fingerprint — the session is the same
-    /// either way; this is which slice of it was under way.
-    var shortPlan: [Pattern]?
 
     /// What the flow restores into. A snapshot from before this shape kept
     /// one number per exercise, and that number was in force from the first

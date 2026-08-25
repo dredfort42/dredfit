@@ -58,8 +58,10 @@ final class ReleaseSmokeTests: XCTestCase {
             XCTAssertTrue(app.staticTexts["≈ 34 min · 6 exercises"].exists,
                           "S1: the plan line must read ≈ 34 min · 6 exercises")
             XCTAssertTrue(app.buttons["Start"].exists, "S1: Start is missing")
-            XCTAssertTrue(app.buttons["start-short"].exists,
-                          "S1: the short-version handle must sit under the plan line")
+            // One Start, and nothing beside it to agree to first: §38 took the
+            // short version and the session handle off this screen.
+            XCTAssertFalse(app.buttons["start-short"].exists,
+                           "S1: the short-version offer is back on the plan")
         }
     }
 
@@ -237,8 +239,6 @@ final class ReleaseSmokeTests: XCTestCase {
             XCTAssertTrue(app.staticTexts["Тренировка 1"].waitForExistence(timeout: 10),
                           "S7/S1: русская сборка должна открыться на «Тренировка 1»")
             XCTAssertTrue(app.buttons["Начать"].exists, "S7/S1: кнопка «Начать» не найдена")
-            XCTAssertTrue(app.buttons["start-short"].exists,
-                          "S7/S1: предложение короткой версии не найдено")
             // The English leak this row exists to catch.
             XCTAssertFalse(app.buttons["Start"].exists,
                            "S7: English «Start» leaked into the Russian build")

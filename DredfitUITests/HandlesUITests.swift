@@ -1,11 +1,12 @@
 //
-//  The athlete's handles, end to end.
+//  The athlete's handle, end to end, and the two blocks that ask before they
+//  run.
 //
-//  This file replaces DiscomfortUITests, which walked "Something hurt" through
-//  the workout, the rating screen and the resting line on Today. None of that
-//  exists: the channel is gone, and what took its place is on the plan rather
-//  than inside the workout — pulling a handle regenerates the session and the
-//  announced duration together, which is exactly what these walk through.
+//  This file replaced DiscomfortUITests, which walked "Something hurt" through
+//  the workout, the rating screen and the resting line on Today. §38 then took
+//  the two handles that moved VOLUME off the plan — the decision they asked
+//  for in advance is taken mid-session now (SetSkipUITests) — and what is left
+//  here is the one that changes the movement itself.
 //
 
 import XCTest
@@ -22,60 +23,42 @@ final class HandlesUITests: XCTestCase {
         app.launchArguments = ["--uitest-reset", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
     }
 
-    /// 's headline: the recalculated duration is on screen BEFORE the tap, and
-    /// the workout the person gets is the one the button promised.
-    func testTheSessionHandleShowsBothNumbersAndDeliversTheSecond() {
+    /// The one handle left on the plan carries its RESULT rather than a
+    /// promise: the name and dose the movement would have after the tap.
+    func testTheEasierHandleNamesTheVariationItWouldGive() {
         app.launch()
-        let shorter = app.buttons["session-shorter"]
-        XCTAssertTrue(shorter.waitForExistence(timeout: 5),
-                      "the session handle is missing from the plan")
-        // "Fewer sets in every movement · 37 → 26 min" — both numbers,
-        // and the axis it moves, before agreeing.
-        let promise = shorter.label
-        XCTAssertTrue(promise.contains("→"),
-                      "the handle must show what the session becomes, not just that it shrinks")
-
-        shorter.tap()
-
-        XCTAssertTrue(app.buttons["session-full"].waitForExistence(timeout: 3),
-                      "a shortened session must offer the way back")
+        let easier = app.buttons.matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", "easier-")).firstMatch
+        XCTAssertTrue(easier.waitForExistence(timeout: 5),
+                      "the per-movement variation handle is missing from the plan")
+        // "Easier · Knee push-ups · 3×8" — the movement, not the promise.
+        XCTAssertTrue(easier.label.contains("·"),
+                      "the handle must name what the tap would deliver")
     }
 
-    /// The way back: "All sets back" restores every set on every movement.
-    func testTheFullWorkoutIsReachableAgain() {
+    /// And the two that used to stand beside it are gone. Not a style
+    /// preference: they asked the person to predict, before the first set, how
+    /// much of the session they had in them — the question §38 moved to the
+    /// work screen, where it is known.
+    func testThePlanNoLongerAsksHowLongTodayWillBe() {
         app.launch()
-        let shorter = app.buttons["session-shorter"]
-        XCTAssertTrue(shorter.waitForExistence(timeout: 5))
-        shorter.tap()
-
-        let full = app.buttons["session-full"]
-        XCTAssertTrue(full.waitForExistence(timeout: 3))
-        full.tap()
-
-        XCTAssertFalse(full.waitForExistence(timeout: 2),
-                       "with every set back there is nothing to restore")
-    }
-
-    /// The per-movement handles sit on the movement they act on, and the
-    /// easier one carries its RESULT rather than a promise.
-    func testTheExerciseHandlesActOnTheirOwnMovement() {
-        app.launch()
-        let fewer = app.buttons.matching(
-            NSPredicate(format: "identifier BEGINSWITH %@", "fewer-sets-")).firstMatch
-        XCTAssertTrue(fewer.waitForExistence(timeout: 5),
-                      "the per-movement sets handle is missing from the plan")
-        fewer.tap()
-
-        let more = app.buttons.matching(
-            NSPredicate(format: "identifier BEGINSWITH %@", "more-sets-")).firstMatch
-        XCTAssertTrue(more.waitForExistence(timeout: 3),
-                      "a movement with a set off must offer to put it back")
+        XCTAssertTrue(app.buttons["Start"].waitForExistence(timeout: 5))
+        for gone in ["session-shorter", "session-full", "start-short", "start-full"] {
+            XCTAssertFalse(app.buttons[gone].exists,
+                           "\(gone) is still on the plan — §38 removed it")
+        }
+        XCTAssertEqual(app.buttons.matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", "fewer-sets-")).count, 0,
+            "the per-movement sets handle is still on the plan")
+        XCTAssertEqual(app.buttons.matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", "more-sets-")).count, 0,
+            "the way back from the sets handle is still on the plan")
     }
 
     /// The trap this asserts is not hypothetical: before `.plain` and
-    /// `.borderless` were set, one tap on the empty strip of a plan row took a
-    /// set off the plan — the announced duration went 35 min to 33 and the
-    /// handle vanished from under the finger. A List row treats several
+    /// `.borderless` were set, one tap on the empty strip of a plan row pulled
+    /// a handle — the announced duration went 35 min to 33 and the control
+    /// vanished from under the finger. A List row treats several
     /// default-styled buttons as one control, and the row itself is a button
     /// into the technique sheet.
     ///
@@ -83,7 +66,7 @@ final class HandlesUITests: XCTestCase {
     /// and the row's own affordance still opens the sheet. By coordinate,
     /// because what is being tested is a place on the screen rather than a
     /// control — a query would find the control wherever it went.
-    func testATapOnAPlanRowDoesNotPullItsHandles() {
+    func testATapOnAPlanRowDoesNotPullItsHandle() {
         app.launch()
         let minutes = app.staticTexts.matching(
             NSPredicate(format: "label CONTAINS %@", "exercises")).firstMatch
@@ -91,9 +74,9 @@ final class HandlesUITests: XCTestCase {
         let announced = minutes.label
 
         let handles = app.buttons.matching(
-            NSPredicate(format: "identifier BEGINSWITH %@", "fewer-sets-"))
+            NSPredicate(format: "identifier BEGINSWITH %@", "easier-"))
         XCTAssertTrue(handles.firstMatch.waitForExistence(timeout: 5))
-        let count = handles.count
+        let promise = handles.firstMatch.label
 
         app.coordinate(withNormalizedOffset: .zero)
             .withOffset(CGVector(dx: 40, dy: handles.firstMatch.frame.midY))
@@ -101,8 +84,8 @@ final class HandlesUITests: XCTestCase {
 
         XCTAssertEqual(minutes.label, announced,
                        "a tap on the row's empty strip rewrote the plan")
-        XCTAssertEqual(handles.count, count,
-                       "a tap on the row's empty strip took a set off a movement")
+        XCTAssertEqual(handles.firstMatch.label, promise,
+                       "a tap on the row's empty strip pulled the handle beside it")
 
         // A row above the handle is the card itself — that one does open.
         app.coordinate(withNormalizedOffset: .zero)
