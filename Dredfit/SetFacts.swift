@@ -30,6 +30,18 @@ nonisolated enum SetFacts {
     /// screen then shows and what the hold then counts down.
     typealias PerSet = [Pattern: [Int]]
 
+    /// Sets SKIPPED during the session, per movement (spec §38.2).
+    ///
+    /// A count, not a set of indices, and deliberately: what the engine is
+    /// handed is how MANY sets went, because that is what `cut` measures.
+    /// Which of the five it was is nobody's business once the workout is over
+    /// — and a count is also what survives a snapshot without a shape of its
+    /// own.
+    ///
+    /// It lives beside the per-set facts because it is the same kind of thing:
+    /// what the set actually ran at, when the answer is "it did not".
+    typealias Skips = [Pattern: Int]
+
     // MARK: - The corridors
 
     /// The grid a reportable number is snapped to: one second for holds, one
@@ -78,6 +90,35 @@ nonisolated enum SetFacts {
                 .map { min(max($0, 0), EngineConfig.countMax) }
             return clean.isEmpty ? nil : Array(clean)
         }
+    }
+
+    /// The same treatment for the skips, and for the same reason: they come
+    /// back off disk. No movement can lose more sets than the scale has bands,
+    /// and a count of none is not a fact about anything.
+    static func sanitized(skips: Skips) -> Skips {
+        skips.compactMapValues { count in
+            let clean = min(max(count, 0), EngineConfig.setsMax)
+            return clean > 0 ? clean : nil
+        }
+    }
+
+    /// Whether `count` more skipped sets can be RECORDED as skipped sets at
+    /// all — §38.2 rule 2, and the one piece of arithmetic both escapes on the
+    /// work screen read.
+    ///
+    /// A movement counts as trained only while the floor's worth of sets
+    /// survives the skips. Below that there is nothing left to record: not a
+    /// cut, because the axis has run out, and never a dose of 0 — that would
+    /// cost a whole tier (eight levels at L24) for work of ordinary quality.
+    /// The tap travels as an ordinary skipped exercise instead: the appearance
+    /// is not spent and nothing moves.
+    ///
+    /// Counted on the PLAN IN FRONT OF THE PERSON, not on the state's own
+    /// ceiling. The two agree wherever the band gate and the postcondition
+    /// repair leave the plan alone; where they do not, what is on screen is
+    /// what the tap is about.
+    static func skipFits(_ count: Int, of sets: Int, alreadySkipped: Int) -> Bool {
+        sets - alreadySkipped - count >= EngineConfig.setsFloor
     }
 
     // MARK: - Reading

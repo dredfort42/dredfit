@@ -75,13 +75,16 @@ struct HowItWorksView: View {
                     title: String(localized: "Skips"),
                     body: String(localized: """
                     A skipped exercise simply doesn't count: its level stays \
-                    where it was. No penalty, no rollback.
+                    where it was. No penalty, no rollback. A skipped SET is a \
+                    different answer: the movement still counts as done, and \
+                    the next plan comes back with one set fewer — until you \
+                    earn it back.
                     """)),
             // This section used to explain the pain channel — a tap that
             // rested a movement for three appearances. The channel is gone,
-            // and the case it served is answered by the two handles instead.
-            // The stop rule stays: what was removed is a state machine, not
-            // the warning.
+            // and the case it served is answered by the easier variation and
+            // by the skip inside the workout. The stop rule stays: what was
+            // removed is a state machine, not the warning.
             Section(id: 8,
                     title: String(localized: "Too much today"),
                     body: String(localized: """
@@ -89,9 +92,11 @@ struct HowItWorksView: View {
                     things, and the app does not ask which. When a movement \
                     is too much today, you answer with the plan and not with \
                     a diagnosis: take the same movement in an easier \
-                    variation, or take one set off. Either one redraws the \
-                    plan in front of you and leaves the other movements \
-                    alone. Sharp pain is always a reason to stop.
+                    variation, or skip a set while you are doing it. Nothing \
+                    has to be decided in advance — the plan says how long the \
+                    full workout takes and how short it can get, and the rest \
+                    you settle set by set. Sharp pain is always a reason to \
+                    stop.
                     """)),
             // This section used to explain the hold-this-level input. The
             // input is cancelled — it was used zero times in 24 real sessions

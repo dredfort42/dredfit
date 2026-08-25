@@ -1873,6 +1873,265 @@
         }
       }
     },
+    "≈ %lld min left" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "noch ≈ %lld Min."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ %lld min left"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "quedan ≈ %lld min"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ %lld min restantes"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ %lld min rimasti"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "faltam ≈ %lld min"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "осталось ≈ %lld мин"
+          }
+        }
+      }
+    },
+    "≈ %lld–%lld min · %lld exercises" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ %lld–%lld min · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 3,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg Übung"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg Übungen"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ %lld–%lld min · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 3,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg exercise"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg exercises"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ %lld–%lld min · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 3,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg ejercicio"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg ejercicios"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ %lld–%lld min · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 3,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg exercice"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg exercices"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ %lld–%lld min · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 3,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg esercizio"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg esercizi"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ %lld–%lld min · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 3,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg exercício"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg exercícios"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "≈ %lld–%lld мин · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 3,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "few" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg упражнения"
+                    }
+                  },
+                  "many" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg упражнений"
+                    }
+                  },
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg упражнение"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg упражнения"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "2–3 rest days a week is the recommended rhythm" : {
       "localizations" : {
         "de" : {
@@ -2359,42 +2618,48 @@
         }
       }
     },
-    "A skipped exercise simply doesn't count: its level stays where it was. No penalty, no rollback." : {
+    "A skipped exercise simply doesn't count: its level stays where it was. No penalty, no rollback. A skipped SET is a different answer: the movement still counts as done, and the next plan comes back with one set fewer — until you earn it back." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Eine übersprungene Übung zählt einfach nicht: Das Level bleibt, wo es war. Keine Strafe, kein Zurückstufen."
+            "value" : "Eine übersprungene Übung zählt einfach nicht: Das Level bleibt, wo es war. Keine Strafe, kein Zurückstufen. Ein übersprungener SATZ ist eine andere Antwort: Die Bewegung zählt weiterhin als gemacht, und der nächste Plan kommt mit einem Satz weniger zurück — bis du ihn dir zurückholst."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A skipped exercise simply doesn't count: its level stays where it was. No penalty, no rollback. A skipped SET is a different answer: the movement still counts as done, and the next plan comes back with one set fewer — until you earn it back."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Un ejercicio omitido simplemente no cuenta: su nivel se queda donde estaba. Ni castigo ni retroceso."
+            "value" : "Un ejercicio omitido simplemente no cuenta: su nivel se queda donde estaba. Ni castigo ni retroceso. Una SERIE omitida es otra respuesta: el movimiento sigue contando como hecho, y el próximo plan vuelve con una serie menos, hasta que te la ganes de nuevo."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Un exercice ignoré ne compte tout simplement pas : son niveau reste où il était. Pas de pénalité, pas de retour en arrière."
+            "value" : "Un exercice ignoré ne compte tout simplement pas : son niveau reste où il était. Pas de pénalité, pas de retour en arrière. Une SÉRIE passée est une autre réponse : le mouvement compte toujours comme fait, et le programme suivant revient avec une série de moins — jusqu’à ce que tu la regagnes."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Un esercizio saltato semplicemente non conta: il suo livello resta dov’era. Niente penalità, nessuna retrocessione."
+            "value" : "Un esercizio saltato semplicemente non conta: il suo livello resta dov’era. Niente penalità, nessuna retrocessione. Una SERIE saltata è un’altra risposta: il movimento conta comunque come fatto, e il piano successivo torna con una serie in meno — finché non te la riprendi."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Um exercício pulado simplesmente não conta: o nível dele fica onde estava. Sem punição, sem retrocesso."
+            "value" : "Um exercício pulado simplesmente não conta: o nível dele fica onde estava. Sem punição, sem retrocesso. Uma SÉRIE pulada é outra resposta: o movimento continua contando como feito, e o próximo plano volta com uma série a menos — até você reconquistá-la."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Пропущенное упражнение просто не считается: его уровень не меняется. Ни штрафа, ни отката."
+            "value" : "Пропущенное упражнение просто не считается: его уровень не меняется. Ни штрафа, ни отката. Пропущенный ПОДХОД — другой ответ: движение по-прежнему считается сделанным, а в следующем плане подходов будет на один меньше — пока ты его не вернёшь."
           }
         }
       }
@@ -2439,100 +2704,6 @@
         }
       }
     },
-    "All movements back" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alle Übungen zurück"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "All movements back"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Recuperar los movimientos"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rétablir les mouvements"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ripristina i movimenti"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Voltar todos os movimentos"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вернуть все движения"
-          }
-        }
-      }
-    },
-    "All sets back" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alle Sätze zurück"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "All sets back"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Recuperar las series"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rétablir les séries"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ripristina le serie"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Voltar todas as séries"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Вернуть все подходы"
-          }
-        }
-      }
-    },
     "About" : {
       "localizations" : {
         "de" : {
@@ -2569,6 +2740,218 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "О приложении"
+          }
+        }
+      }
+    },
+    "about %lld to %lld minutes · %lld exercises" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "etwa %lld bis %lld Minuten · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 3,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg Übung"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg Übungen"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "about %lld to %lld minutes · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 3,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg exercise"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg exercises"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "entre %lld y %lld minutos · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 3,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg ejercicio"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg ejercicios"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "environ %lld à %lld minutes · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 3,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg exercice"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg exercices"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "da %lld a %lld minuti · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 3,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg esercizio"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg esercizi"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "cerca de %lld a %lld minutos · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 3,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg exercício"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg exercícios"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "примерно от %lld до %lld минут · %#@exercises@"
+          },
+          "substitutions" : {
+            "exercises" : {
+              "argNum" : 3,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "few" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg упражнения"
+                    }
+                  },
+                  "many" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg упражнений"
+                    }
+                  },
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg упражнение"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg упражнения"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -6219,147 +6602,6 @@
         }
       }
     },
-    "Fewer movements · %lld of %lld · ≈ %lld min" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Weniger Übungen · %lld von %lld · ≈ %lld Min."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fewer movements · %lld of %lld · ≈ %lld min"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menos movimientos · %lld de %lld · ≈ %lld min"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Moins de mouvements · %lld sur %lld · ≈ %lld min"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Meno movimenti · %lld su %lld · ≈ %lld min"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menos movimentos · %lld de %lld · ≈ %lld min"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Меньше движений · %lld из %lld · ≈ %lld мин"
-          }
-        }
-      }
-    },
-    "Fewer sets" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Weniger Sätze"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fewer sets"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menos series"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Moins de séries"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Meno serie"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menos séries"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Меньше подходов"
-          }
-        }
-      }
-    },
-    "Fewer sets in every movement · %lld → %lld min" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Weniger Sätze in jeder Übung · %lld → %lld Min."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fewer sets in every movement · %lld → %lld min"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menos series en cada movimiento · %lld → %lld min"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Moins de séries à chaque mouvement · %lld → %lld min"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Meno serie in ogni movimento · %lld → %lld min"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Menos séries em cada movimento · %lld → %lld min"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Меньше подходов в каждом движении · %lld → %lld мин"
-          }
-        }
-      }
-    },
     "Finish now" : {
       "localizations" : {
         "de" : {
@@ -8294,89 +8536,48 @@
         }
       }
     },
-    "More sets" : {
-      "extractionState" : "manual",
+    "Muscles giving out and a joint hurting are different things, and the app does not ask which. When a movement is too much today, you answer with the plan and not with a diagnosis: take the same movement in an easier variation, or skip a set while you are doing it. Nothing has to be decided in advance — the plan says how long the full workout takes and how short it can get, and the rest you settle set by set. Sharp pain is always a reason to stop." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mehr Sätze"
+            "value" : "Wenn die Muskeln aufgeben, ist das etwas anderes, als wenn ein Gelenk wehtut – und die App fragt nicht, was davon. Ist eine Bewegung heute zu viel, antwortest du mit dem Plan und nicht mit einer Diagnose: dieselbe Bewegung in einer leichteren Variante, oder ein Satz weniger mitten im Training. Nichts muss vorher entschieden werden – der Plan sagt, wie lange das ganze Training dauert und wie kurz es werden kann, den Rest klärst du Satz für Satz. Scharfer Schmerz heißt immer aufhören."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "More sets"
+            "value" : "Muscles giving out and a joint hurting are different things, and the app does not ask which. When a movement is too much today, you answer with the plan and not with a diagnosis: take the same movement in an easier variation, or skip a set while you are doing it. Nothing has to be decided in advance — the plan says how long the full workout takes and how short it can get, and the rest you settle set by set. Sharp pain is always a reason to stop."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Más series"
+            "value" : "Que los músculos se agoten y que duela una articulación son cosas distintas, y la app no pregunta cuál de las dos es. Si hoy un movimiento es demasiado, respondes con el plan y no con un diagnóstico: el mismo movimiento en una variación más fácil, o una serie omitida mientras entrenas. No hay que decidir nada de antemano: el plan dice cuánto dura el entrenamiento completo y hasta dónde puede acortarse, y el resto lo resuelves serie a serie. Un dolor agudo siempre significa parar."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Plus de séries"
+            "value" : "Des muscles qui lâchent et une articulation qui fait mal, ce n’est pas la même chose — et l’app ne demande pas laquelle. Si un mouvement est trop dur aujourd’hui, tu réponds par le programme et non par un diagnostic : le même mouvement dans une variante plus légère, ou une série passée en cours de séance. Rien ne se décide à l’avance : le programme dit combien de temps prend la séance complète et jusqu’où elle peut être raccourcie, le reste se règle série après série. Une douleur vive, c’est toujours un arrêt."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Più serie"
+            "value" : "Muscoli che cedono e un’articolazione che fa male sono cose diverse, e l’app non chiede quale delle due sia. Se oggi un movimento è troppo, rispondi con il piano e non con una diagnosi: lo stesso movimento in una variante più leggera, oppure una serie saltata mentre ti alleni. Non c’è niente da decidere prima: il piano dice quanto dura l’allenamento completo e quanto può accorciarsi, il resto lo sistemi serie dopo serie. Un dolore acuto è sempre un motivo per fermarsi."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mais séries"
+            "value" : "Músculo que falha e articulação que dói são coisas diferentes, e o app não pergunta qual das duas é. Se um movimento está demais hoje, você responde com o plano e não com um diagnóstico: o mesmo movimento em uma variação mais leve, ou uma série pulada durante o treino. Nada precisa ser decidido antes — o plano diz quanto tempo leva o treino completo e o quanto ele pode encurtar, e o resto você resolve série a série. Dor aguda sempre significa parar."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Больше подходов"
-          }
-        }
-      }
-    },
-    "Muscles giving out and a joint hurting are different things, and the app does not ask which. When a movement is too much today, you answer with the plan and not with a diagnosis: take the same movement in an easier variation, or take one set off. Either one redraws the plan in front of you and leaves the other movements alone. Sharp pain is always a reason to stop." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wenn die Muskeln aufgeben, ist das etwas anderes, als wenn ein Gelenk wehtut – und die App fragt nicht, was davon. Ist eine Bewegung heute zu viel, antwortest du mit dem Plan und nicht mit einer Diagnose: dieselbe Bewegung in einer leichteren Variante, oder ein Satz weniger. Beides zeichnet den Plan vor dir neu und lässt die anderen Bewegungen in Ruhe. Scharfer Schmerz heißt immer aufhören."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Que los músculos se agoten y que duela una articulación son cosas distintas, y la app no pregunta cuál de las dos es. Si hoy un movimiento es demasiado, respondes con el plan y no con un diagnóstico: el mismo movimiento en una variación más fácil, o una serie menos. Cualquiera de las dos redibuja el plan que tienes delante y deja en paz al resto de los movimientos. Un dolor agudo siempre significa parar."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Des muscles qui lâchent et une articulation qui fait mal, ce n’est pas la même chose — et l’app ne demande pas laquelle. Si un mouvement est trop dur aujourd’hui, tu réponds par le programme et non par un diagnostic : le même mouvement dans une variante plus légère, ou une série de moins. L’un comme l’autre redessine le programme sous tes yeux et laisse les autres mouvements tranquilles. Une douleur vive, c’est toujours un arrêt."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Muscoli che cedono e un’articolazione che fa male sono cose diverse, e l’app non chiede quale delle due sia. Se oggi un movimento è troppo, rispondi con il piano e non con una diagnosi: lo stesso movimento in una variante più leggera, oppure una serie in meno. Entrambe ridisegnano il piano che hai davanti e lasciano in pace gli altri movimenti. Un dolore acuto è sempre un motivo per fermarsi."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Músculo que falha e articulação que dói são coisas diferentes, e o app não pergunta qual das duas é. Se um movimento está demais hoje, você responde com o plano e não com um diagnóstico: o mesmo movimento em uma variação mais leve, ou uma série menos. Qualquer uma delas redesenha o plano na sua frente e deixa os outros movimentos em paz. Dor aguda sempre significa parar."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Мышцы кончились и болит сустав — разные вещи, и приложение не спрашивает, что именно. Если движение сегодня непосильно, ты отвечаешь планом, а не диагнозом: то же движение в вариации полегче или на один подход меньше. И то и другое перерисовывает план у тебя на экране и не трогает остальные движения. Острая боль — всегда повод остановиться."
+            "value" : "Мышцы кончились и болит сустав — разные вещи, и приложение не спрашивает, что именно. Если движение сегодня непосильно, ты отвечаешь планом, а не диагнозом: то же движение в вариации полегче или пропущенный подход прямо по ходу. Решать заранее ничего не нужно — план говорит, сколько занимает тренировка целиком и насколько её можно укоротить, а остальное ты решаешь от подхода к подходу. Острая боль — всегда повод остановиться."
           }
         }
       }
@@ -11502,6 +11703,53 @@
         }
       }
     },
+    "Skip remaining sets" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restliche Sätze überspringen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip remaining sets"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Omitir las series que quedan"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passer les séries restantes"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salta le serie rimaste"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pular as séries restantes"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пропустить оставшиеся подходы"
+          }
+        }
+      }
+    },
     "Skip rest" : {
       "localizations" : {
         "de" : {
@@ -11671,6 +11919,53 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Пропустить движение"
+          }
+        }
+      }
+    },
+    "Skip this set" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Satz überspringen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip this set"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Omitir esta serie"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passer cette série"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salta questa serie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pular esta série"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пропустить подход"
           }
         }
       }
@@ -12290,53 +12585,6 @@
         }
       }
     },
-    "Takes one set off every movement. Your levels do not change." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nimmt jeder Übung einen Satz weg. Deine Level ändern sich nicht."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Takes one set off every movement. Your levels do not change."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quita una serie de cada movimiento. Tus niveles no cambian."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Retire une série à chaque mouvement. Vos niveaux ne changent pas."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Toglie una serie a ogni movimento. I tuoi livelli non cambiano."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tira uma série de cada movimento. Seus níveis não mudam."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Снимает по подходу с каждого движения. Уровни не меняются."
-          }
-        }
-      }
-    },
     "technique" : {
       "localizations" : {
         "de" : {
@@ -12577,6 +12825,53 @@
         }
       }
     },
+    "The plan keeps this set off next time. Your level does not change." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Plan lässt diesen Satz beim nächsten Mal weg. Dein Level bleibt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The plan keeps this set off next time. Your level does not change."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El plan deja fuera esta serie la próxima vez. Tu nivel no cambia."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La prochaine fois, le programme retire cette série. Ton niveau ne bouge pas."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La prossima volta il piano toglie questa serie. Il tuo livello non cambia."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na próxima vez o plano deixa esta série de fora. Seu nível não muda."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В следующий раз плана на этот подход не будет. Уровень не меняется."
+          }
+        }
+      }
+    },
     "The plan met you lower." : {
       "localizations" : {
         "de" : {
@@ -12613,53 +12908,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "План встретил тебя ниже."
-          }
-        }
-      }
-    },
-    "The rest are recorded as skips. They keep their level." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der Rest wird als übersprungen erfasst. Diese behalten ihr Level."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The rest are recorded as skips. They keep their level."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El resto se registra como omitido. Mantienen su nivel."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le reste est enregistré comme passé. Ils gardent leur niveau."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il resto viene registrato come saltato. Mantengono il loro livello."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O resto é registrado como pulado. Eles mantêm o nível."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Остальные записываются как пропуск. Они остаются на своем уровне."
           }
         }
       }

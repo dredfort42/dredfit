@@ -23,6 +23,14 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     /// The sets behind that mean, in order. The detail the history line
     /// shows when the sets did not all run the same.
     var setActuals: [Pattern: [Int]]?
+    /// Sets skipped DURING the session, per movement (§38.2) — the count the
+    /// engine turned into a cut. Written because it is part of what happened:
+    /// a plan of 5×8 answered with three sets is not the same session as one
+    /// answered in full, and a journal that keeps only the rating cannot tell
+    /// them apart afterwards. §38.6 asks whether the mid-workout skip becomes
+    /// the dominant price, and this is the only place that question can ever
+    /// be answered from.
+    var setsSkipped: [Pattern: Int]?
     var skipped: Set<Pattern>?
     /// Reported as painful mid-workout: to the engine a skip, to the journal a
     /// different fact — and the reason the pattern is resting afterwards.
@@ -59,6 +67,8 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
         // array is a hand-edited file, not a workout.
         setActuals = try c.decodeIfPresent([Pattern: [Int]].self, forKey: .setActuals)?
             .mapValues { $0.prefix(EngineConfig.setsMax).map { clamp($0, 0, EngineConfig.countMax) } }
+        setsSkipped = try c.decodeIfPresent([Pattern: Int].self, forKey: .setsSkipped)?
+            .mapValues { clamp($0, 0, EngineConfig.setsMax) }
         skipped = try c.decodeIfPresent(Set<Pattern>.self, forKey: .skipped)
         discomfort = try c.decodeIfPresent(Set<Pattern>.self, forKey: .discomfort)
         levelsAfter = try c.decodeIfPresent([Pattern: Int].self, forKey: .levelsAfter)?
@@ -70,7 +80,7 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
 
     init(sessionNumber: Int, date: Date, result: FeedbackResult, totalLevelAfter: Int,
          exercises: [SessionExercise]? = nil, actuals: [Pattern: Int]? = nil,
-         setActuals: [Pattern: [Int]]? = nil,
+         setActuals: [Pattern: [Int]]? = nil, setsSkipped: [Pattern: Int]? = nil,
          skipped: Set<Pattern>? = nil, discomfort: Set<Pattern>? = nil,
          levelsAfter: [Pattern: Int]? = nil,
          durationSec: Int? = nil, healthExported: Bool? = nil) {
@@ -81,6 +91,7 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
         self.exercises = exercises
         self.actuals = actuals
         self.setActuals = setActuals
+        self.setsSkipped = setsSkipped
         self.skipped = skipped
         self.discomfort = discomfort
         self.levelsAfter = levelsAfter
@@ -108,6 +119,9 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// third set's. Optional so a snapshot written before a fact belonged to
     /// its own set still decodes.
     var setActuals: [Pattern: [Int]]?
+    /// Sets skipped so far, per movement (§38.2). Optional like everything
+    /// below it: a snapshot written before the skip existed still decodes.
+    var setsSkipped: [Pattern: Int]?
     /// The shape that came before — one number per exercise. Only ever
     /// DECODED (`facts` folds it into the current one), but it stays a stored
     /// property so an older snapshot round-trips rather than failing the file.
@@ -131,9 +145,6 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// Restore lands on the rating, not on the set the fields still describe.
     var atFeedback: Bool?
     var interrupted: Pattern?
-    /// Deliberately not part of the fingerprint — the session is the same
-    /// either way; this is which slice of it was under way.
-    var shortPlan: [Pattern]?
 
     /// What the flow restores into. A snapshot from before this shape kept
     /// one number per exercise, and that number was in force from the first
@@ -142,6 +153,12 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// no decoder of its own, and everything here comes back off disk.
     var facts: SetFacts.PerSet {
         SetFacts.sanitized(setActuals ?? actuals.mapValues { [$0] })
+    }
+
+    /// Sanitized where it is read, for the same reason as `facts`: this struct
+    /// has no decoder of its own and everything here comes back off disk.
+    var skips: SetFacts.Skips {
+        SetFacts.sanitized(skips: setsSkipped ?? [:])
     }
 
     static func fingerprint(of session: Session) -> String {

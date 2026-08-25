@@ -12,8 +12,6 @@ import DredfitCore
 private struct ActiveWorkout: Identifiable {
     let session: Session
     var resume: WorkoutSnapshot?
-    /// nil is the full session. Resolved at tap time like the session itself.
-    var shortPlan: Set<Pattern>?
     var id: Int { session.sessionNumber }
 }
 
@@ -26,10 +24,6 @@ struct TodayView: View {
     @State private var nextPreviewShown = false
     @State private var freshStartConfirmShown = false
     @State private var howItWorksShown = false
-    /// The short version is a choice about TODAY, not a setting: it lives
-    /// here, never in the store, and it is dropped the moment the session
-    /// number moves. See `handleRow`.
-    @State private var shortVersion = false
 
     var body: some View {
         Group {
@@ -44,8 +38,7 @@ struct TodayView: View {
         }
         .padding(.horizontal, 24)
         .fullScreenCover(item: $activeWorkout) { active in
-            WorkoutFlowView(session: active.session, resume: active.resume,
-                            shortPlan: active.shortPlan)
+            WorkoutFlowView(session: active.session, resume: active.resume)
         }
         .sheet(item: $techniqueFor) { ex in
             TechniqueSheet(exercise: ex)
@@ -75,45 +68,24 @@ struct TodayView: View {
             guard let showing = planShowing else { return }
             store.recordPlanShown(showing.session)
         }
-        // Keyed on the NUMBER, not on the showing: pulling the sets handle
-        // makes a new showing of the same workout, and dropping the movement
-        // choice there would undo a tap the person just made.
-        .onChange(of: store.nextSession.sessionNumber) { _, _ in
-            shortVersion = false
-        }
     }
 
-    /// What makes a showing a showing: the plan on screen.
+    /// The one handle left on the plan, on the movement it acts on.
     ///
-    /// The budget it was drawn under used to be part of the identity, because
-    /// a budget could move WITHOUT moving the plan and still lift the repair's
-    /// cap for one transition. The handle writes `cut`, a coordinate of the
-    /// position, so a handle that moves moves the session — and the session is
-    /// already here. `nil` on the two days the plan is not on screen at all.
-    /// The session handle, and the whole point of it — the person sees the
-    /// recalculated duration BEFORE agreeing to it. The number is the engine's
-    /// own `estimatedTotalMin` on both sides of the arrow, not an app-side
-    /// estimate: "how long will this take" is a question the engine answers
-    /// now, and this is where it says so.
-    ///
-    /// The control disappears at the floor rather than going grey: unlike the
-    /// per-movement handle there is no single movement it could explain itself
-    /// about, and "every exercise is already at two sets" is a sentence nobody
-    /// needs on the screen they are about to start from. The two per-movement
-    /// handles, on the movement they act on. They live here rather than inside
-    /// the workout because `nextSession` is generated from the state on every
-    /// access, so a tap redraws this row, the announced duration and the plan
-    /// together. Inside the workout they would have to mutate a session the
-    /// engine is going to read the plan from when the rating lands.
+    /// It lives here rather than inside the workout because `nextSession` is
+    /// generated from the state on every access, so a tap redraws this row,
+    /// the announced duration and the plan together. Its two neighbours —
+    /// "Fewer sets" and "More sets" — are gone with §38: volume is decided
+    /// inside the workout now, where the person knows the answer.
     ///
     /// "Easier version" carries its RESULT, not its promise: the name and dose
     /// the movement would have after the tap. The engine lands it through the
     /// ordinary gate, so on `pull_bar` the drop from negatives to a hang is a
     /// change of unit and the preview is the only way to see that coming.
     ///
-    /// All three carry 44 pt under a 12.5 pt line, and the row grows ~29 pt
-    /// for it — worth it, because the row around them is itself a button into
-    /// the technique sheet, so a near miss opens a sheet instead of missing.
+    /// 44 pt under a 12.5 pt line, and the row grows ~29 pt for it — worth it,
+    /// because the row around it is itself a button into the technique sheet,
+    /// so a near miss opens a sheet instead of missing.
     @ViewBuilder
     private func exerciseHandles(_ ex: SessionExercise) -> some View {
         let pattern = ex.pattern
@@ -134,36 +106,39 @@ struct TodayView: View {
                 .accessibilityIdentifier("easier-\(pattern.rawValue)")
             }
             Spacer(minLength: 0)
-            if store.canTakeSetOff(pattern) {
-                Button {
-                    store.takeSetOff(pattern)
-                } label: {
-                    Text("Fewer sets")
-                        .dredfitFont(12.5)
-                        .foregroundStyle(Theme.accent)
-                        .frame(minHeight: 44)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.borderless)
-                .accessibilityIdentifier("fewer-sets-\(pattern.rawValue)")
-            }
-            if store.canGiveSetBack(pattern) {
-                Button {
-                    store.giveSetBack(pattern)
-                } label: {
-                    Text("More sets")
-                        .dredfitFont(12.5)
-                        .foregroundStyle(Theme.ink2)
-                        .frame(minHeight: 44)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.borderless)
-                .accessibilityIdentifier("more-sets-\(pattern.rawValue)")
-            }
         }
         .padding(.top, 2)
     }
 
+    /// Spelled out for VoiceOver as well: "26–34" is read as two numbers
+    /// rather than as a range, and the en dash is the whole of what makes it
+    /// one.
+    ///
+    /// The identifier is how a test still finds the line: an accessibility
+    /// label REPLACES the text a query can see, so without it the pinned
+    /// number would be unreachable from a UI test and the pin would quietly
+    /// stop guarding anything.
+    @ViewBuilder
+    private func planLength(_ length: (floor: Int, full: Int), count: Int) -> some View {
+        if length.floor < length.full {
+            Text("≈ \(length.floor)–\(length.full) min · \(count) exercises")
+                .accessibilityLabel(
+                    Text("about \(length.floor) to \(length.full) minutes · \(count) exercises"))
+                .accessibilityIdentifier("plan-length")
+        } else {
+            Text("≈ \(length.full) min · \(count) exercises")
+                .accessibilityIdentifier("plan-length")
+        }
+    }
+
+    /// What makes a showing a showing: the plan on screen.
+    ///
+    /// The budget it was drawn under used to be part of the identity, because
+    /// a budget could move WITHOUT moving the plan and still lift the repair's
+    /// cap for one transition. Nothing on this screen writes `cut` any more,
+    /// and what does — the skip inside the workout — lands with the rating,
+    /// which regenerates the session anyway. `nil` on the two days the plan is
+    /// not on screen at all.
     private var planShowing: PlanShowing? {
         guard !store.doneToday, !store.isRestDay(store.today) else { return nil }
         return PlanShowing(session: store.nextSession)
@@ -178,16 +153,8 @@ struct TodayView: View {
     private var planView: some View {
         let session = store.nextSession
         let debuts = store.debutPatterns
-        let shortPlan = ShortWorkout.plan(session: session,
-                                          counter: store.engineState.counter,
-                                          levels: store.engineState.levels)
-        // What Start is going to run. The line counts THIS, so the handles
-        // under it can each say what they would turn it into instead of
-        // advertising two workouts at once.
-        let chosen = shortVersion ? shortPlan : nil
-        let minutes = chosen.map { ShortWorkout.estimatedMin(session: session, plan: $0) }
-            ?? Int(session.estimatedTotalMin.rounded())
-        let count = chosen?.count ?? session.exercises.count
+        let length = store.sessionLengthRange()
+        let count = session.exercises.count
         return VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 6) {
                 Kicker(text: store.today.screenDateText)
@@ -195,7 +162,14 @@ struct TodayView: View {
                     .dredfitFont(32, weight: .heavy)
                     .tracking(-0.5)
                 HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    Text("≈ \(minutes) min · \(count) exercises")
+                    // A RANGE, and it is the whole of what this screen says
+                    // about length (§38.3): the full plan, and the shortest
+                    // the session can be made from inside it. The question the
+                    // two handles used to answer — "will this fit today" — is
+                    // answered here without asking anyone to decide anything
+                    // first. One number only when the plan is already on the
+                    // floor and the two ends have met.
+                    planLength(length, count: count)
                         .dredfitFont(15)
                         .foregroundStyle(Theme.ink2)
                     // A quiet way into the existing explainer for everyone who
@@ -214,30 +188,18 @@ struct TodayView: View {
                     }
                     .accessibilityIdentifier("why-this-plan")
                 }
-                handleRow(session: session, shortPlan: shortPlan)
             }
             .padding(.top, 18)
 
+            // Six rows, all of them the plan. The dimmed ones came with the
+            // short version — the app choosing three movements of six for the
+            // person — and nothing on this screen sets a movement aside any
+            // more.
             List(session.exercises) { ex in
-                // Set aside by the movements handle: still listed, because
-                // "3 of 6" has to be able to say WHICH three, and dimmed
-                // rather than removed, because the list is the plan and the
-                // plan did not change — these three are recorded as skips and
-                // keep their level. Same treatment the rating card gives them.
-                let setAside = chosen.map { !$0.contains(ex.pattern) } ?? false
                 VStack(alignment: .leading, spacing: 0) {
-                    // Overridden only when set aside: the default label is the
-                    // whole row — name, load and note — and replacing it on
-                    // every row to add one word would cost the other three.
-                    if setAside {
-                        planRow(ex, debuts: debuts)
-                            .accessibilityLabel(Text("\(ex.name), skipped"))
-                    } else {
-                        planRow(ex, debuts: debuts)
-                        exerciseHandles(ex)
-                    }
+                    planRow(ex, debuts: debuts)
+                    exerciseHandles(ex)
                 }
-                .opacity(setAside ? 0.45 : 1)
                 .listRowSeparatorTint(Theme.hairline)
                 .listRowBackground(Color.clear)
             }
@@ -246,9 +208,9 @@ struct TodayView: View {
 
             // The "not getting harder" block is gone with the freeze it
             // described. Nothing rests any more — a movement the person finds
-            // too hard stays in the plan and gets an easier variation or fewer
-            // sets, which is the point of the wave: the channel that took
-            // movements out took them out for weeks.
+            // too hard stays in the plan and gets an easier variation, or
+            // fewer sets inside the workout: the channel that took movements
+            // out took them out for weeks.
 
             // An offer of rest, not a warning (#98) — and never a number to
             // beat: the count appears only here, in the suggestion to break
@@ -307,13 +269,10 @@ struct TodayView: View {
                     .padding(.top, 10)
                     .padding(.bottom, 14)
             } else {
-                // One Start, and it runs whatever the handles left on the
-                // line above. The short version used to be a SECOND start
-                // button down here, which is how the screen came to carry two
-                // offers of "shorter" that never met.
+                // One Start, and it runs the plan above it. There is nothing
+                // left on this screen to agree to first.
                 PrimaryButton(title: String(localized: "Start")) {
-                    activeWorkout = ActiveWorkout(session: store.nextSession,
-                                                  shortPlan: chosen)
+                    activeWorkout = ActiveWorkout(session: store.nextSession)
                 }
                     .padding(.top, 10)
             }
@@ -324,8 +283,7 @@ struct TodayView: View {
     // MARK: - Interrupted workout
 
     private func resumeCard(_ snap: WorkoutSnapshot) -> some View {
-        // The card must count in the list the person was walking through.
-        let total = snap.shortPlan?.count ?? store.nextSession.exercises.count
+        let total = store.nextSession.exercises.count
         let position = min(snap.exIndex + 1, total)
         return VStack(alignment: .leading, spacing: 0) {
             Text("Continue the workout?")
@@ -349,9 +307,7 @@ struct TodayView: View {
 
             HStack(spacing: 10) {
                 Button {
-                    activeWorkout = ActiveWorkout(session: store.nextSession,
-                                                  resume: snap,
-                                                  shortPlan: snap.shortPlan.map(Set.init))
+                    activeWorkout = ActiveWorkout(session: store.nextSession, resume: snap)
                 } label: {
                     Text(String(localized: "resume.continue", defaultValue: "Continue"))
                         .pairedPrimaryLabel()
@@ -490,80 +446,28 @@ struct TodayView: View {
 
 // MARK: - The plan's controls
 //
-// In an extension rather than in the struct body: the two session handles,
-// their shared look and the plan row are one subject, and the type is at the
-// linter's size bound without them.
+// In an extension rather than in the struct body: the plan row and the look of
+// its one handle are one subject, and the type is at the linter's size bound
+// without them.
+//
+// What used to live here was `handleRow` — the two session handles, "fewer
+// sets in every movement" and "fewer movements". Both asked the person to
+// predict, before the workout, how much of it they had in them; §38 moved that
+// answer to the work screen, where it is known.
 
 private extension TodayView {
 
-    /// The two ways to make today lighter, in one place and each naming the
-    /// axis it moves — sets or movements. They used to sit at opposite ends
-    /// of the screen under two anonymous "shorter" labels, with numbers that
-    /// looked like a contradiction (26 against 21) because they price two
-    /// different workouts.
-    ///
-    /// They compose, and the row says so by arithmetic rather than by prose:
-    /// the sets handle measures itself INSIDE the movements that are going to
-    /// be performed, and the line above counts what Start will actually run.
-    /// Neither is remembered past the workout.
-    @ViewBuilder
-    private func handleRow(session: Session, shortPlan: Set<Pattern>?) -> some View {
-        let length = store.sessionLengthPreview(within: shortVersion ? shortPlan : nil)
-        let shortMin = shortPlan.map { ShortWorkout.estimatedMin(session: session, plan: $0) } ?? 0
-        let total = session.exercises.count
-        // 0, not the 5 it was: each line is a 44 pt box now and the boxes
-        // hold the pair apart on their own — the old gap on top of them read
-        // as two unrelated sentences.
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 16) {
-                if let shorter = length.shorter {
-                    handle(accented: true, identifier: "session-shorter",
-                           hint: String(localized: "Takes one set off every movement. Your levels do not change.")) {
-                        store.makeSessionShorter()
-                    } label: {
-                        Text("Fewer sets in every movement · \(length.now) → \(shorter) min")
-                    }
-                }
-                if store.isSessionShortened {
-                    handle(accented: false, identifier: "session-full", hint: nil) {
-                        store.restoreFullSession()
-                    } label: {
-                        Text("All sets back")
-                    }
-                }
-            }
-            if let shortPlan {
-                HStack(spacing: 16) {
-                    if !shortVersion {
-                        handle(accented: true, identifier: "start-short",
-                               hint: String(localized: "The rest are recorded as skips. They keep their level.")) {
-                            shortVersion = true
-                        } label: {
-                            Text("Fewer movements · \(shortPlan.count) of \(total) · ≈ \(shortMin) min")
-                        }
-                    } else {
-                        handle(accented: false, identifier: "start-full", hint: nil) {
-                            shortVersion = false
-                        } label: {
-                            Text("All movements back")
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /// `.plain`, and the handles below `.borderless`, because a List row with
+    /// `.plain`, and the handle below `.borderless`, because a List row with
     /// several default-styled buttons in it is one button as far as the row is
-    /// concerned: measured, a single tap on the empty strip beside "Fewer
-    /// sets" took a set off the plan — 35 min became 33 and the handle
+    /// concerned: measured, a single tap on the empty strip beside a handle
+    /// pulled it — the announced duration went 35 min to 33 and the control
     /// vanished under the finger. Neither style changes how anything looks.
     ///
     /// `contentShape` is the other half of that fix, not decoration: a
     /// `.plain` button answers only where it DRAWS, and this row draws a name
     /// on the left and a load on the right with a wide gap between. Without
     /// the shape a tap into the gap reached nothing — a different bug, no
-    /// better. The card is the target; the handles under it are their own.
+    /// better. The card is the target; the handle under it is its own.
     private func planRow(_ ex: SessionExercise, debuts: Set<Pattern>) -> some View {
         Button {
             techniqueFor = ex
@@ -575,26 +479,5 @@ private extension TodayView {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-    }
-
-    /// One look for all four: 13pt medium, accent for the direction that
-    /// makes today lighter and ink2 for the way back, and a 44pt target
-    /// under a 16pt line of text — the number named here all along, which the
-    /// frame said 34 for.
-    private func handle<Label: View>(accented: Bool,
-                                     identifier: String,
-                                     hint: String?,
-                                     action: @escaping () -> Void,
-                                     @ViewBuilder label: () -> Label) -> some View {
-        Button(action: action) {
-            label()
-                .dredfitFont(13, weight: .medium)
-                .foregroundStyle(accented ? Theme.accent : Theme.ink2)
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(minHeight: 44)
-                .contentShape(Rectangle())
-        }
-        .accessibilityIdentifier(identifier)
-        .accessibilityHint(hint.map { Text($0) } ?? Text(""))
     }
 }

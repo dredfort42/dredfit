@@ -16,6 +16,11 @@ struct FlowHeader: View {
     /// 0 hides the capsule row — the warm-up is not an exercise yet.
     let steps: Int
     let doneIndex: Int
+    /// What is left of the session (§38.3), or nil on the screens that carry a
+    /// countdown of their own. The decision about the length of the workout is
+    /// taken inside it now, so the number has to follow the decision: it drops
+    /// the moment a set is skipped.
+    var minutesLeft: Int?
     var onExit: () -> Void
 
     var body: some View {
@@ -42,6 +47,17 @@ struct FlowHeader: View {
                     }
                 }
                 .frame(width: 200)
+            }
+            if let minutesLeft {
+                // ink2 and 12 pt: an answer to "how much longer", not a
+                // deadline. It is deliberately not a countdown — the clock is
+                // nobody's business here, and what moves this number is what
+                // the person decides to do.
+                Text("≈ \(minutesLeft) min left")
+                    .dredfitFont(12)
+                    .monospacedDigit()
+                    .foregroundStyle(Theme.ink2)
+                    .accessibilityIdentifier("time-left")
             }
         }
         .padding(.top, 12)
@@ -214,35 +230,64 @@ struct WorkStatusCaption: View {
 /// What you can say about an exercise instead of doing it as planned
 /// (issues #66, #78).
 ///
-/// "hold this level" went with the input it armed. "Something hurt" goes the
-/// same way, and it is NOT replaced here. The two handles of live on the plan,
-/// before the workout starts, where pulling one regenerates the session and
-/// the announced duration along with it — mid-workout they would have to
-/// mutate a session the engine is already going to read the plan from, and a
-/// shown plan that disagrees with the one feedback is computed against is a
-/// defect, not a feature.
+/// "hold this level" went with the input it armed, and "Something hurt" with
+/// the channel behind it. What arrived instead is the other half of §38: the
+/// two handles that used to stand on the plan are gone, and the decision they
+/// asked for BEFORE the workout is taken here, mid-set, where the person
+/// actually knows the answer.
 ///
-/// What is left is the answer the wave is actually built around: "Went
-/// differently" — the honest number. The engine measures it against the tap it
+/// So the row carries three things now — the honest number, the set in front
+/// of you, and the movement. The engine measures the first against the tap it
 /// replaces: honest numbers take someone with a capacity of one rep from
 /// L24/tier 4 to L0/tier 1 in FOUR appearances, while the pain tap stranded
 /// them at L16/tier 3 indefinitely.
 struct ExerciseActionsRow: View {
     let onAdjust: () -> Void
-    let onSkip: () -> Void
+    /// The set-level skip. Absent when it would take the whole movement with
+    /// it (§38.2 rule 2) — the escape below then says so in its own label.
+    let onSkipSet: (() -> Void)?
+    /// The exercise-level escape, and the landing its title names. Absent on
+    /// the last set, where "the remaining sets" are the one beside it.
+    let escape: Escape?
+
+    struct Escape {
+        let title: String
+        let identifier: String
+        let action: () -> Void
+    }
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
+    /// One row while the three labels fit it, two when they do not, three
+    /// stacked at the accessibility sizes. Measured rather than assumed: the
+    /// same three words are 313 pt in English and half again in German, and a
+    /// row that truncates the escape is a row that hides the way out.
     var body: some View {
         if dynamicTypeSize.isAccessibilitySize {
             VStack(spacing: 12) {
                 adjustButton
-                skipButton
+                skipSetButton
+                escapeButton
             }
         } else {
-            HStack(spacing: 26) {
-                adjustButton
-                skipButton
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 22) {
+                    adjustButton
+                    skipSetButton
+                    escapeButton
+                }
+                VStack(spacing: 4) {
+                    adjustButton
+                    HStack(spacing: 24) {
+                        skipSetButton
+                        escapeButton
+                    }
+                }
+                VStack(spacing: 4) {
+                    adjustButton
+                    skipSetButton
+                    escapeButton
+                }
             }
         }
     }
@@ -269,16 +314,43 @@ struct ExerciseActionsRow: View {
                 """)))
     }
 
-    private var skipButton: some View {
-        Button(action: onSkip) {
-            Text("Skip exercise")
-                .dredfitFont(14.5)
-                .foregroundStyle(Theme.ink2)
-                .frame(minHeight: 44)
-                .contentShape(Rectangle())
+    /// 44 pt like the two beside it, and ink2 like the escape: skipping a set
+    /// is an ordinary answer, not a failure, and it must not read louder than
+    /// the number that says what was actually done.
+    @ViewBuilder
+    private var skipSetButton: some View {
+        if let onSkipSet {
+            Button(action: onSkipSet) {
+                Text("Skip this set")
+                    .dredfitFont(14.5)
+                    .foregroundStyle(Theme.ink2)
+                    .frame(minHeight: 44)
+                    .contentShape(Rectangle())
+            }
+            .accessibilityIdentifier("exercise-skip-set")
+            .accessibilityHint(Text(String(localized: """
+                The plan keeps this set off next time. \
+                Your level does not change.
+                """)))
         }
     }
 
+    @ViewBuilder
+    private var escapeButton: some View {
+        if let escape {
+            Button(action: escape.action) {
+                Text(verbatim: escape.title)
+                    .dredfitFont(14.5)
+                    .foregroundStyle(Theme.ink2)
+                    .frame(minHeight: 44)
+                    .contentShape(Rectangle())
+            }
+            // The title is one of two sentences and the identifier says which,
+            // so a localized run can tell a movement that was TRAINED SHORT
+            // from one that was not trained at all.
+            .accessibilityIdentifier(escape.identifier)
+        }
+    }
 }
 
 /// The "ⓘ technique" affordance — one look shared by the work screen, the

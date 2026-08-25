@@ -20,10 +20,6 @@ import DredfitCore
 struct WorkoutFlowView: View {
     let session: Session
     var resume: WorkoutSnapshot?
-    /// nil is the full session. The session object is the same either way —
-    /// only the exercises the flow walks differ, and everything left out is
-    /// recorded as an honest skip when the workout ends.
-    var shortPlan: Set<Pattern>?
     @Environment(\.dismiss) private var dismiss
     @Environment(AppStore.self) private var store
     @Environment(\.requestReview) private var requestReview
@@ -81,6 +77,11 @@ struct WorkoutFlowView: View {
     /// A fact belongs to the set it happened on — see SetFacts for the shape
     /// and for what a set of them collapses to.
     @State private var actuals: SetFacts.PerSet = [:]
+    /// Sets skipped along the way, per movement (§38.2). Accumulated here,
+    /// beside the per-set facts and for the same length of time — the session
+    /// — and handed to the engine only when the rating lands: the cut belongs
+    /// on the RESULT of the feedback, never on its input.
+    @State private var setsSkipped: SetFacts.Skips = [:]
     @State var skippedPatterns: Set<Pattern> = []
     /// Kept apart from `skippedPatterns`: the engine treats both as skips for
     /// the session, but the rating and the history say different things.
@@ -116,16 +117,11 @@ struct WorkoutFlowView: View {
 
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
-    /// Every position in the flow (indices, "N / M", the capsules, restore
-    /// clamping) counts in these, not in session.exercises.
-    var exercises: [SessionExercise] {
-        guard let shortPlan else { return session.exercises }
-        return session.exercises.filter { shortPlan.contains($0.pattern) }
-    }
-    private var omitted: Set<Pattern> {
-        guard shortPlan != nil else { return [] }
-        return Set(session.exercises.map(\.pattern)).subtracting(exercises.map(\.pattern))
-    }
+    /// The session's own list. It used to be a SUBSET of it — the short
+    /// version ran three movements of six and recorded the rest as skips — and
+    /// every position in the flow (indices, "N / M", the capsules, restore
+    /// clamping) counts in this, which is why the name stayed.
+    var exercises: [SessionExercise] { session.exercises }
     private var exercise: SessionExercise { exercises[exIndex] }
     private var isLastSet: Bool { setIndex == exercise.sets - 1 }
     private var isLastExercise: Bool { exIndex == exercises.count - 1 }
@@ -166,16 +162,18 @@ struct WorkoutFlowView: View {
                 cooldownView
             case .feedback:
                 FeedbackView(session: session, facts: actuals,
-                             skipped: skippedPatterns.union(omitted),
+                             skipped: skippedPatterns,
                              interrupted: interruptedPattern) { result, overrides in
                     let earned = store.completeWorkout(
                         session: session, result: result,
                         overrides: overrides,
                         setActuals: actuals,
                         // Skips like any other: levels frozen, counter and
-                        // rotation still advance. The engine has no idea the
-                        // workout was short, and that is the point.
-                        skipped: skippedPatterns.union(omitted),
+                        // rotation still advance.
+                        skipped: skippedPatterns,
+                        // The sets skipped along the way. The engine settles
+                        // them against the rating — after it, never before.
+                        setsSkipped: setsSkipped,
                         durationSec: workoutStart.map {
                             // max: the wall clock can move backwards mid-workout
                             max(0, Int(Date.now.timeIntervalSince($0)))
@@ -270,7 +268,8 @@ struct WorkoutFlowView: View {
         if phase != .feedback, !isMilestone {
             FlowHeader(title: headerTitle,
                        steps: isWarmingUp ? 0 : exercises.count,
-                       doneIndex: exIndex) {
+                       doneIndex: exIndex,
+                       minutesLeft: minutesLeft) {
                 if hasProgress {
                     exitConfirmShown = true
                 } else {
@@ -278,6 +277,32 @@ struct WorkoutFlowView: View {
                 }
             }
         }
+    }
+
+    /// What is left of the session, in minutes (§38.3) — recomputed on every
+    /// body pass, so a skipped set takes its minutes off at the moment it is
+    /// skipped rather than at the next screen.
+    ///
+    /// Offered on the work and rest screens only. The guided blocks carry a
+    /// countdown of their own and nothing on them shortens the session, and
+    /// the rating is past the question entirely.
+    private var minutesLeft: Int? {
+        var index = exIndex
+        var behind = setIndex
+        switch phase {
+        case .work:
+            break
+        case .rest:
+            // The set the rest FOLLOWS is done — the flow advances after it.
+            behind += 1
+            if behind >= exercise.sets { index += 1; behind = 0 }
+        default:
+            return nil
+        }
+        // The cool-down is the only fixed block still ahead; the warm-up is
+        // behind by the time the work screen is up.
+        return SessionAhead.minutes(exercises, exIndex: index, setsBehind: behind,
+                                    ends: session.cooldownMin)
     }
 
     private var headerTitle: String {
@@ -421,7 +446,8 @@ struct WorkoutFlowView: View {
             }
 
             ExerciseActionsRow(onAdjust: { startAdjusting() },
-                               onSkip: { leaveExercise() })
+                               onSkipSet: setSkipAction,
+                               escape: exerciseEscape)
             // 18 above, not 14: the row sits directly under the button that
             // LOGS THE SET, and the gap is the only thing between a thumb
             // aimed at "Went differently" and a set finished at plan.
@@ -596,9 +622,18 @@ struct WorkoutFlowView: View {
         firstSideHeld = nil
         holdPauseEndDate = nil
         actuals.removeValue(forKey: exercise.pattern)   // a skip wins over an actual
+        // …and over the sets skipped inside it: the movement was not trained,
+        // so there is no volume to take off it next time (§38.2 rule 2).
+        setsSkipped.removeValue(forKey: exercise.pattern)
         skippedPatterns.insert(exercise.pattern)
+        advancePastExercise()
+    }
+
+    /// Past the exercise in front of us, however it ended — into the next one,
+    /// or into the cool-down when there is none. `startCooldown` degrades to
+    /// the rating when nothing was performed.
+    private func advancePastExercise() {
         if isLastExercise {
-            // startCooldown degrades to the rating when nothing was performed.
             startCooldown()
         } else {
             exIndex += 1
@@ -608,6 +643,73 @@ struct WorkoutFlowView: View {
             liveActivity.update(activityWorkState())
             persistProgress()
         }
+    }
+
+    // MARK: - The skip that happens DURING the workout (spec §38.2)
+
+    /// Rule 2, asked of the plan in front of us — the arithmetic itself is
+    /// `SetFacts.skipFits`, where it can be tested without a screen.
+    private func skipsLeaveAMovement(_ count: Int) -> Bool {
+        SetFacts.skipFits(count, of: exercise.sets,
+                          alreadySkipped: setsSkipped[exercise.pattern] ?? 0)
+    }
+
+    /// Sets of this exercise already behind and actually performed.
+    private var setsPerformedHere: Int {
+        setIndex - (setsSkipped[exercise.pattern] ?? 0)
+    }
+
+    /// "Skip this set": the set is not performed and the next one is up.
+    ///
+    /// No rest on the way out — there is nothing to recover from, and the
+    /// minutes are the whole point of the tap.
+    private func skipSet() {
+        guard skipsLeaveAMovement(1) else { leaveExercise(); return }
+        adjusting = false
+        setsSkipped[exercise.pattern, default: 0] += 1
+        if isLastSet {
+            advancePastExercise()
+        } else {
+            setIndex += 1
+            phase = .work
+            liveActivity.update(activityWorkState())
+            persistProgress()
+        }
+    }
+
+    /// Rule 3 — "skip the remaining sets", one tap for the whole movement.
+    /// Sixteen separate taps to fit a session into 45 minutes is a thing
+    /// nobody does; three to six is.
+    private func skipRestOfExercise() {
+        let left = exercise.sets - setIndex
+        guard skipsLeaveAMovement(left) else { leaveExercise(); return }
+        adjusting = false
+        setsSkipped[exercise.pattern, default: 0] += left
+        advancePastExercise()
+    }
+
+    /// The set-level skip, or nil when it would take the movement with it —
+    /// then the escape beside it says so in its own label instead of doing it
+    /// quietly under a word that promises less.
+    private var setSkipAction: (() -> Void)? {
+        guard skipsLeaveAMovement(1) else { return nil }
+        return { skipSet() }
+    }
+
+    /// The exercise-level escape, and the landing its label names. The two
+    /// controls collapse into one whenever they would do the same thing: on
+    /// the floor both take the movement (rule 2), and on the last set "the
+    /// remaining sets" ARE this set.
+    private var exerciseEscape: ExerciseActionsRow.Escape? {
+        let leave = ExerciseActionsRow.Escape(title: String(localized: "Skip exercise"),
+                                              identifier: "exercise-skip",
+                                              action: { leaveExercise() })
+        guard skipsLeaveAMovement(1) else { return leave }
+        guard !isLastSet else { return nil }
+        guard setsPerformedHere >= EngineConfig.setsFloor else { return leave }
+        return ExerciseActionsRow.Escape(title: String(localized: "Skip remaining sets"),
+                                         identifier: "exercise-skip-rest",
+                                         action: { skipRestOfExercise() })
     }
 
     private func startRest(_ seconds: Int) {
@@ -787,7 +889,7 @@ extension WorkoutFlowView {
             sessionNumber: session.sessionNumber,
             exIndex: exIndex, setIndex: setIndex,
             restEndDate: restEnd, restTotalSec: restTotal, restPlannedSec: restPlan,
-            setActuals: actuals, skipped: skippedPatterns,
+            setActuals: actuals, setsSkipped: setsSkipped, skipped: skippedPatterns,
             workoutStart: workoutStart ?? .now, savedAt: .now,
             fingerprint: WorkoutSnapshot.fingerprint(of: session),
             // Process death during the cool-down restores to the rating the
@@ -796,10 +898,7 @@ extension WorkoutFlowView {
             // exercise.
             atFeedback: phase == .feedback || phase == .cooldown
                 || phase == .cooldownIntro ? true : nil,
-            interrupted: interruptedPattern,
-            // Without it a short-workout snapshot resumes into the full six
-            // with indices pointing into a list nobody agreed to.
-            shortPlan: shortPlan.map { Array($0) }))
+            interrupted: interruptedPattern))
     }
 
     /// A rest still running resumes inside it; one that ran out lands on the
@@ -810,6 +909,7 @@ extension WorkoutFlowView {
         exIndex = min(max(snap.exIndex, 0), exercises.count - 1)
         setIndex = min(max(snap.setIndex, 0), exercises[exIndex].sets - 1)
         actuals = snap.facts
+        setsSkipped = snap.skips
         skippedPatterns = snap.skipped
         workoutStart = snap.workoutStart
         interruptedPattern = snap.interrupted
@@ -828,7 +928,7 @@ extension WorkoutFlowView {
             if snap.restEndDate != nil, !(isLastSet && isLastExercise) {
                 if isLastSet {
                     exIndex += 1
-            maximumWarning = nil   // the note belongs to the exercise it was about
+                    maximumWarning = nil   // the note belongs to its own exercise
                     setIndex = 0
                 } else {
                     setIndex += 1
@@ -888,6 +988,7 @@ extension WorkoutFlowView {
         if firstUnfinished < exercises.count {
             for ex in exercises[firstUnfinished...] {
                 actuals.removeValue(forKey: ex.pattern)   // a skip wins over an actual
+                setsSkipped.removeValue(forKey: ex.pattern)
                 skippedPatterns.insert(ex.pattern)
             }
         }

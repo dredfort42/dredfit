@@ -202,17 +202,18 @@ final class ShownPlanTests: XCTestCase {
     /// zeroes all of them. What it must NOT take with them: the bar in the
     /// doorway.
     ///
-    /// The budget half of this test is gone with the budget. What took its
-    /// place is the handle — and the handle IS one of the fields a reset
-    /// clears, deliberately: starting the levels over is starting the plan
-    /// over, and a session someone shortened at L40 has no meaning at L0.
-    func testResetClearsTheSetsHandleAndKeepsTheDoorway() throws {
+    /// The budget half of this test is gone with the budget, and the handle
+    /// half with the handle: the `cut` axis is written by the skip inside the
+    /// workout now. It IS one of the fields a reset clears, deliberately —
+    /// starting the levels over is starting the plan over, and sets skipped
+    /// at L40 have no meaning at L0.
+    func testResetClearsTheSetsAxisAndKeepsTheDoorway() throws {
         let store = try advancedStore()
         store.setHasBar(true)
         let session = store.nextSession
         store.recordPlanShown(session)
-        store.takeSetOff(.pull)
-        XCTAssertGreaterThan(store.engineState.cutOf(.pull), 0, "the handle moved")
+        store.completeWorkout(session: session, result: .plan, setsSkipped: [.pull: 1])
+        XCTAssertGreaterThan(store.engineState.cutOf(.pull), 0, "the skip landed")
         XCTAssertFalse(store.engineState.shownWork.isEmpty)
 
         store.resetProgress()

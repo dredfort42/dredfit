@@ -1,19 +1,17 @@
 //
-//  How long a session takes, and what the person can
-//  do about it.
+//  How long a session takes, and what the person can do about it.
 //
 //  This suite used to be about the TIME BUDGET: that the answer was stored,
 //  survived a relaunch, reached the plan, and bought its minutes out of the
-// sets rather than the levels — and that the answer nobody gave was 45 minutes
-// rather than "no limit". All thirteen tests went with the mechanism. The
-// audit measured what its rungs actually did: 10, 15 and 20 produced the SAME
-// plan, and the "20" rung missed its own target in 100 % of sessions.
+//  sets rather than the levels. All thirteen tests went with the mechanism —
+//  the audit measured what its rungs actually did: 10, 15 and 20 produced the
+//  SAME plan, and the "20" rung missed its own target in 100 % of sessions.
 //
-//  What replaces it is the other way round. The engine ANNOUNCES the duration
-//  and the person shortens today's workout with a handle — and sees the
-//  recalculated number before agreeing to it. The claims worth keeping from the
-//  old suite are the two that were never about the budget: minutes come out of
-//  the SETS, never the levels, and the floor holds.
+//  What replaced it was a handle on the plan, and §38 has now removed that
+//  too: nobody is asked before the workout how much of it they have in them.
+//  The plan announces its length; the person shortens the session from inside
+//  it (SetSkipTests), and the movement's own VARIATION is the one thing still
+//  worth choosing in advance — which is what is left here.
 //
 
 import XCTest
@@ -37,8 +35,8 @@ final class SessionLengthTests: XCTestCase {
     }
 
     /// A trainee well up the scale, where a full session runs long — the case
-    /// the handle exists for. measures it: L40 is 79.7 min at full and 33.7 at
-    /// the floor.
+    /// §38 exists for. The spec measures it: L40 is 79.7 min at full and 33.7
+    /// with every movement on the sets floor.
     private func advancedStore(counter: Int = 0, level: Int = 40) throws -> AppStore {
         let levels = Pattern.allCases
             .map { "\"\($0.rawValue)\",\(level)" }.joined(separator: ",")
@@ -54,128 +52,74 @@ final class SessionLengthTests: XCTestCase {
         return AppStore(storageURL: tempURL)
     }
 
-    // MARK: - "37 → 26 min", before agreeing to it
+    // MARK: - The range on Today (§38.3)
 
-    /// The claim makes about the control: the person sees the recalculated
-    /// duration BEFORE the tap, and both numbers are the engine's own
-    /// `estimatedTotalMin`.
-    func testThePreviewShowsBothNumbersAndTheTapDeliversTheSecond() throws {
-        let store = try advancedStore()
-        let preview = store.sessionLengthPreview()
-        let shorter = try XCTUnwrap(preview.shorter, "the handle has room at L40")
-        XCTAssertLessThan(shorter, preview.now, "the preview must promise less, not more")
-
-        store.makeSessionShorter()
-        XCTAssertEqual(Int(store.nextSession.estimatedTotalMin.rounded()), shorter,
-                       "the workout the person got is the one the preview promised")
-    }
-
-    /// It ONLY shortens — every step, all the way down. A handle that could
-    /// lengthen a session would make the word on the button a lie.
-    func testTheHandleOnlyEverShortens() throws {
-        let store = try advancedStore()
-        var previous = Int(store.nextSession.estimatedTotalMin.rounded())
-        var steps = 0
-        while store.canMakeSessionShorter, steps < 10 {
-            store.makeSessionShorter()
-            let now = Int(store.nextSession.estimatedTotalMin.rounded())
-            XCTAssertLessThanOrEqual(now, previous, "step \(steps) made the session longer")
-            previous = now
-            steps += 1
-        }
-        XCTAssertGreaterThan(steps, 0, "at L40 there is room to shorten")
-    }
-
-    // MARK: - What the minutes come out of
-
-    /// The one claim worth carrying over from the budget suite: the handle
-    /// buys its minutes out of the SETS, and the levels stand. Everything
-    /// else about a movement — its variation, its dose, its place in the
-    /// session — is the same as in the full plan.
-    func testTheHandleCostsSetsNotLevels() throws {
-        let store = try advancedStore()
-        let before = store.nextSession
-        let levelsBefore = store.engineState.levels
-
-        while store.canMakeSessionShorter { store.makeSessionShorter() }
-
-        let after = store.nextSession
-        XCTAssertEqual(store.engineState.levels, levelsBefore, "the levels must not move")
-        XCTAssertEqual(after.exercises.map(\.pattern), before.exercises.map(\.pattern),
-                       "the movements must not change")
-        for (a, b) in zip(before.exercises, after.exercises) {
-            XCTAssertEqual(a.tier, b.tier, "\(a.pattern): the variation must not change")
-            XCTAssertEqual(a.load, b.load, "\(a.pattern): the dose must not change")
-            XCTAssertLessThanOrEqual(b.sets, a.sets, "\(a.pattern): sets may only come off")
-        }
-    }
-
-    /// And the floor holds however hard the handle is pulled.
-    func testTheFloorHoldsAtTheBottomOfTheHandle() throws {
-        for level in [0, 16, 24, 32, 40, 47] {
+    /// The six rows of §38.3, exactly: the full plan and the shortest the
+    /// session can be made from inside it. These are the numbers the screen
+    /// prints, and drift in either of them is drift in what the app promises.
+    func testTheRangeIsTheOneTheSpecAnnounces() throws {
+        for (level, floor, full) in [(0, 26, 34), (16, 25, 33), (24, 27, 38),
+                                     (32, 29, 52), (40, 34, 80), (47, 40, 94)] {
             let store = try advancedStore(level: level)
-            var guardCount = 0
-            while store.canMakeSessionShorter, guardCount < 10 {
-                store.makeSessionShorter(); guardCount += 1
-            }
-            for ex in store.nextSession.exercises {
-                XCTAssertGreaterThanOrEqual(ex.sets, EngineConfig.setsFloor,
-                                            "L\(level): \(ex.pattern) fell through the floor")
-            }
+            let length = store.sessionLengthRange()
+            XCTAssertEqual([length.floor, length.full], [floor, full],
+                           "L\(level): the announced range moved")
         }
     }
 
-    // MARK: - The way back
-
-    /// A handle the person cannot release is a trap. "All sets back" puts every
-    /// set back, on every movement.
-    func testTheFullWorkoutIsAlwaysReachableAgain() throws {
-        let store = try advancedStore()
-        let full = store.nextSession.estimatedTotalMin
-        XCTAssertFalse(store.isSessionShortened)
-
-        store.makeSessionShorter()
-        XCTAssertTrue(store.isSessionShortened)
-        XCTAssertLessThan(store.nextSession.estimatedTotalMin, full)
-
-        store.restoreFullSession()
-        XCTAssertFalse(store.isSessionShortened)
-        XCTAssertEqual(store.nextSession.estimatedTotalMin, full,
-                       "the full workout is the one the person started from")
-    }
-
-    /// The choice survives a relaunch: it is `cut`, an ordinary state field,
-    /// which is precisely what "no new state field" buys.
-    func testTheShortenedSessionSurvivesARelaunch() throws {
-        let store = try advancedStore()
-        store.makeSessionShorter()
-        let expected = store.nextSession.estimatedTotalMin
-
-        let reloaded = AppStore(storageURL: tempURL)
-        XCTAssertTrue(reloaded.isSessionShortened)
-        XCTAssertEqual(reloaded.nextSession.estimatedTotalMin, expected)
-    }
-
-    // MARK: - The per-movement handles
-
-    /// "Fewer sets" takes one off the movement it is on and leaves the others
-    /// alone — the difference between it and the session handle.
-    func testFewerSetsTouchesOneMovementOnly() throws {
-        let store = try advancedStore()
-        let before = store.nextSession
-        let target = try XCTUnwrap(before.exercises.first).pattern
-
-        store.takeSetOff(target)
-
-        let after = store.nextSession
-        for (a, b) in zip(before.exercises, after.exercises) {
-            if a.pattern == target {
-                XCTAssertEqual(b.sets, a.sets - 1, "the named movement loses exactly one set")
-            } else {
-                XCTAssertEqual(b.sets, a.sets, "\(a.pattern) was not asked and must not move")
-            }
+    /// §37.1's declared bottom, and the first wave that can check it: the
+    /// short workout used to live outside the engine and reach 20.5 minutes
+    /// against an announced 24.8, which is exactly why it was removed.
+    ///
+    /// The claim is about the WHOLE scale, not the six rows above: no level
+    /// anywhere can be squeezed under the number the App Store listing names,
+    /// and one of them reaches it.
+    func testTheShortestSessionOnAnyLevelIsTheAnnouncedFloor() throws {
+        // 24.8 min, as the screen rounds it. The spec's own number is the
+        // tenth; the app never shows tenths.
+        let announced = Int(24.8.rounded())
+        var shortest = Int.max
+        for level in 0...EngineConfig.levelMax {
+            let store = try advancedStore(level: level)
+            let floor = store.sessionLengthRange().floor
+            XCTAssertGreaterThanOrEqual(floor, announced,
+                                        "L\(level) can be squeezed under the announced floor")
+            shortest = min(shortest, floor)
         }
+        XCTAssertEqual(shortest, announced,
+                       "no level reaches the announced floor any more — §37.1 is either "
+                       + "untrue or out of date")
     }
+
+    /// A plan already on the floor has one number, not a range of one: the
+    /// line must not offer a saving that has been taken.
+    func testAPlanOnTheFloorHasNoRangeLeft() throws {
+        let store = try advancedStore(level: 40)
+        // Every movement taken to the floor the way the app takes it: skipped
+        // sets, landed by the engine when the rating comes in.
+        var skips: SetFacts.Skips = [:]
+        for pattern in Pattern.allCases { skips[pattern] = EngineConfig.setsMax }
+        store.completeWorkout(session: store.nextSession, result: .less, setsSkipped: skips)
+
+        let length = store.sessionLengthRange()
+        XCTAssertEqual(length.floor, length.full,
+                       "with every movement on the floor the two ends must meet")
+    }
+
+    /// The range is a QUESTION, not a decision: asking it must not move the
+    /// plan, the levels or the cut.
+    func testAskingForTheRangeChangesNothing() throws {
+        let store = try advancedStore(level: 40)
+        let before = store.engineState
+        let plan = store.nextSession
+
+        _ = store.sessionLengthRange()
+
+        XCTAssertEqual(store.engineState, before, "the question wrote state")
+        XCTAssertEqual(store.nextSession, plan, "the question moved the plan")
+    }
+
+    // MARK: - The handle that is left
 
     /// "Easier version" is inactive on tier 1, and says so rather than
     /// disappearing.

@@ -238,7 +238,7 @@ final class AppStore {
         // The suite must not depend on the weekday it runs on;
         // --uitest-restday is applied last so it wins.
         let seedFlags = ["--uitest-reset", "--uitest-session2", "--uitest-milestone",
-                         "--uitest-handled"]
+                         "--uitest-handled", "--uitest-long-session"]
         if seedFlags.contains(where: CommandLine.arguments.contains) {
             settings.restWeekdays = []
         }
@@ -255,6 +255,38 @@ final class AppStore {
             completeWorkout(session: Engine.generateSession(engineState),
                             result: .plan,
                             date: Calendar.current.date(byAdding: .day, value: -1, to: .now)!)
+        }
+        seedStateIfRequested()
+        // Make today a rest day, whichever weekday that is.
+        seedWeakLinkIfRequested()
+        if CommandLine.arguments.contains("--uitest-restday") {
+            settings.restWeekdays = [Calendar.current.component(.weekday, from: .now)]
+        }
+        // Only workout 95 days ago → the comeback card with all three paths:
+        // the numbered offers, the sick row and "Start from scratch" (#127).
+        if CommandLine.arguments.contains("--uitest-comeback-long") {
+            seedLoneWorkout(daysAgo: 95)
+        }
+        // `--uitest-illness` seeded a five-day gap so the quiet "I was sick"
+        // offer would appear. The offer is gone, no test passed the flag any
+        // more, and a hook nothing reaches is a branch that will be trusted by
+        // the next reader.
+    }
+
+    /// The hooks that only build a STATE — no settings, no journal beyond the
+    /// one record a break needs. Split off so the flag walk above stays inside
+    /// the linter's complexity bound: it grows by one branch every wave, and
+    /// the bound is a CI error rather than a style opinion.
+    private func seedStateIfRequested() {
+        // A trainee well up the scale: band 4, six movements, 55 minutes. The
+        // state the mid-workout skip exists for — a plan of three sets can
+        // only ever give one of them away (§38.2 rule 2), so the escape that
+        // takes the REST of a movement has nothing to show at the bottom of
+        // the scale.
+        if CommandLine.arguments.contains("--uitest-long-session") {
+            var seeded = EngineState.initial
+            for p in Pattern.allCases { seeded.levels[p] = 34 }
+            engineState = seeded
         }
         // One workout away from several milestones. Seeds state only — the
         // milestones and the retrospective still come from the real path.
@@ -276,20 +308,6 @@ final class AppStore {
         if CommandLine.arguments.contains("--uitest-comeback") {
             seedLoneWorkout(daysAgo: 20)
         }
-        // Make today a rest day, whichever weekday that is.
-        seedWeakLinkIfRequested()
-        if CommandLine.arguments.contains("--uitest-restday") {
-            settings.restWeekdays = [Calendar.current.component(.weekday, from: .now)]
-        }
-        // Only workout 95 days ago → the comeback card with all three paths:
-        // the numbered offers, the sick row and "Start from scratch" (#127).
-        if CommandLine.arguments.contains("--uitest-comeback-long") {
-            seedLoneWorkout(daysAgo: 95)
-        }
-        // `--uitest-illness` seeded a five-day gap so the quiet "I was sick"
-        // offer would appear. The offer is gone, no test passed the flag any
-        // more, and a hook nothing reaches is a branch that will be trusted by
-        // the next reader.
     }
 
     /// A single workout `daysAgo` at a uniform level 20 — the seed the three
@@ -410,6 +428,11 @@ final class AppStore {
                          /// is their mean (`SetFacts.override`).
                          setActuals: SetFacts.PerSet = [:],
                          skipped: Set<Pattern> = [],
+                         /// Sets skipped DURING the session, per movement
+                         /// (§38.2). Handed over as what happened — the engine
+                         /// settles when it lands, and it lands AFTER the
+                         /// rating.
+                         setsSkipped: SetFacts.Skips = [:],
                          durationSec: Int? = nil,
                          date: Date = .now) -> [Milestone] {
         // Mirror of the engine's replay guard: a session that does not belong
@@ -422,13 +445,20 @@ final class AppStore {
         // — the gap since the last workout. Nil on the first workout: there is
         // nothing to measure from. The FRACTION of a day, not whole days.
         // Floored, a second workout on the same day reported a zero gap and
-        // the weekly window stopped ageing for good. SIX arguments. Every
+        // the weekly window stopped ageing for good. SEVEN arguments. Every
         // optional is passed explicitly — the wave's rule, kept because the
         // arity shift is exactly the defect that has now happened twice in the
         // harnesses.
+        //
+        // The overload that takes the skipped sets is the ONE that settles
+        // their order against the rating (§38.2 rule 1): the app cannot write
+        // them itself, before or after, and this call is why. A cut written
+        // before the feedback is eaten by `riseBy` handing a set back, and the
+        // skip disappears in silence.
         engineState = Engine.applyFeedback(state: engineState, session: session,
                                            result: result, overrides: overrides,
                                            skipped: skipped,
+                                           setsSkipped: setsSkipped,
                                            gapDays: gapFraction(now: date))
         records.append(WorkoutRecord(
             sessionNumber: session.sessionNumber,
@@ -438,6 +468,7 @@ final class AppStore {
             exercises: session.exercises,
             actuals: overrides.isEmpty ? nil : overrides,
             setActuals: setActuals.isEmpty ? nil : setActuals,
+            setsSkipped: setsSkipped.isEmpty ? nil : setsSkipped,
             skipped: skipped.isEmpty ? nil : skipped,
             levelsAfter: engineState.levels,
             durationSec: durationSec))
@@ -669,60 +700,20 @@ final class AppStore {
 
     // MARK: - The handles
 
-    /// Every handle goes through the ENGINE. Writing a level or a cut into the
+    /// The handle goes through the ENGINE. Writing a level or a cut into the
     /// state here would skip the floor, the sanitizer and the position measure
     /// the postcondition repair reads — the bypass of `applyFeedback` the audit
-    /// counts as a finding. What each handle may do is asked in
+    /// counts as a finding. What the handle may do is asked in
     /// AppStore+Handles; what it does is here.
+    ///
+    /// One handle, singular, since §38: the two that moved VOLUME are gone
+    /// from the plan, and the volume is decided inside the workout instead.
+    /// The `cut` axis they wrote is untouched — `completeWorkout` carries the
+    /// sets skipped along the way, and the engine writes them there.
 
     func makeEasier(_ pattern: Pattern) {
         guard canMakeEasier(pattern) else { return }
         engineState = Engine.easierVariation(state: engineState, pattern: pattern)
-        persist()
-    }
-
-    func takeSetOff(_ pattern: Pattern) {
-        guard canTakeSetOff(pattern) else { return }
-        engineState = Engine.setCut(state: engineState, pattern: pattern,
-                                    cut: engineState.cutOf(pattern) + 1)
-        persist()
-    }
-
-    /// Releasing the handle on one movement. Not "undo": the engine hands sets
-    /// back on its own as the person gets stronger, and this is the same axis,
-    /// moved by the person instead.
-    func giveSetBack(_ pattern: Pattern) {
-        guard canGiveSetBack(pattern) else { return }
-        engineState = Engine.setCut(state: engineState, pattern: pattern,
-                                    cut: engineState.cutOf(pattern) - 1)
-        persist()
-    }
-
-    /// One step shorter for every movement at once. The same `cut` the
-    /// per-movement handle writes — no new state field, so a set earned back
-    /// by growing comes back here exactly as it does there.
-    /// SCAFFOLDING, v2.27 (§38.1): removed with the session handle by the app
-    /// wave — see `sessionCut` in `AppStore+Handles.swift`.
-    func makeSessionShorter() {
-        var shortened = engineState
-        for pattern in Pattern.allCases {
-            shortened = Engine.setCut(state: shortened, pattern: pattern,
-                                      cut: max(shortened.cutOf(pattern), 1))
-        }
-        guard shortened != engineState else { return }
-        engineState = shortened
-        persist()
-    }
-
-    /// Puts every set back, on every movement — the way out of a session the
-    /// person shortened and then found too easy.
-    func restoreFullSession() {
-        var next = engineState
-        for pattern in Pattern.allCases {
-            next = Engine.setCut(state: next, pattern: pattern, cut: 0)
-        }
-        guard next != engineState else { return }
-        engineState = next
         persist()
     }
 
