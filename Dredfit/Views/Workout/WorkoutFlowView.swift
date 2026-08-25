@@ -428,7 +428,6 @@ struct WorkoutFlowView: View {
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.bottom, 8)
-                    .accessibilityIdentifier("maximum-order-note")
             }
 
             if exercise.unit == .hold {

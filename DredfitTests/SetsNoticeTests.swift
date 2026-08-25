@@ -73,7 +73,7 @@ final class SetsNoticeTests: AppStoreTestCase {
         var seenBack = false
         for _ in 0..<12 {
             let plan = store.nextSession
-            if store.setsNote(for: try pull(plan)) == .setBack { announced += 1 }
+            if try store.aSetJustCameBack(in: pull(plan)) { announced += 1 }
             let before = try pull(plan).sets
             train(store)
             if try pull(store.nextSession).sets > before { seenBack = true }
@@ -87,7 +87,7 @@ final class SetsNoticeTests: AppStoreTestCase {
     func testAnUntouchedPlanCarriesNoLine() throws {
         let store = try store()
         for ex in store.nextSession.exercises {
-            XCTAssertNil(store.setsNote(for: ex))
+            XCTAssertFalse(store.aSetJustCameBack(in: ex))
         }
     }
 
@@ -144,13 +144,13 @@ final class SetsNoticeTests: AppStoreTestCase {
         }
     }
 
-    /// Both rungs of the note say something, and they do not say the same
-    /// thing. Deliberately not compared against the English wording: the test
-    /// runs in whatever language the simulator is set to, and a translated
-    /// answer is a correct answer.
+    /// The one rung left says something, and says nothing when there is
+    /// nothing to say. Deliberately not compared against the English wording:
+    /// the test runs in whatever language the simulator is set to, and a
+    /// translated answer is a correct answer.
     func testTheNoteSaysSomethingAndOnlyWhenThereIsSomethingToSay() {
-        XCTAssertFalse(ExerciseRow.note(.setBack)?.isEmpty ?? true)
-        XCTAssertNil(ExerciseRow.note(nil))
+        XCTAssertFalse(ExerciseRow.note(setCameBack: true)?.isEmpty ?? true)
+        XCTAssertNil(ExerciseRow.note(setCameBack: false))
     }
 
     /// The general form of the same guard, over the whole app: every plain

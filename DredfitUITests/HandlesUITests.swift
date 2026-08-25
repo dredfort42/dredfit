@@ -50,7 +50,7 @@ final class HandlesUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Start"].waitForExistence(timeout: 5))
         for gone in ["session-shorter", "session-full", "start-short", "start-full"] {
             XCTAssertFalse(app.buttons[gone].exists,
-                           "\(gone) is still on the plan — §38 removed it")
+                           "\(gone) is still on the plan — it was removed when the decision moved to the work screen")
         }
         XCTAssertEqual(app.buttons.matching(
             NSPredicate(format: "identifier BEGINSWITH %@", "fewer-sets-")).count, 0,

@@ -45,22 +45,22 @@ struct ExerciseRow: View {
                     .foregroundStyle(Theme.ink2)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .accessibilityIdentifier("sets-note")
             }
         }
         .padding(.vertical, 4)
     }
 
-    /// The wording for each rung of `AppStore.SetsNote`. Static and here
-    /// rather than in either screen: Today and the next-workout sheet draw
-    /// the same card and must not drift into two different explanations.
-    static func note(_ kind: AppStore.SetsNote?) -> String? {
-        switch kind {
-        case .setBack:
-            return String(localized: "A set is back — your body is coping.")
-        case nil:
-            return nil
-        }
+    /// The words for the one thing the card explains about its own number.
+    /// Static and here rather than in either screen: Today and the
+    /// next-workout sheet draw the same card and must not drift into two
+    /// different explanations.
+    ///
+    /// The store answers whether there is anything to say
+    /// (`AppStore.aSetJustCameBack(in:)`); the sentence for it lives on this
+    /// side of the line, with the view that draws it.
+    static func note(setCameBack: Bool) -> String? {
+        guard setCameBack else { return nil }
+        return String(localized: "A set is back — your body is coping.")
     }
 
     /// Text concatenation is the only SwiftUI flow that lets the pill follow

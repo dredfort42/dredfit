@@ -105,7 +105,7 @@ CI runs the unit suites on every push — that is the gate for merges and releas
 1. Open the Xcode project (iOS 17+, Xcode 15+).
 2. The `DredfitCore` package is local — add it via *File → Add Package Dependencies → Add Local* if not already linked.
 3. `⌘U` on the package first: golden tests are the gate.
-4. Run on any iPhone simulator. UI tests expect an English locale and drive the app through DEBUG-only launch flags — `--uitest-reset` for a clean slate, `--uitest-fast` to collapse rest countdowns, `--uitest-long-transition` to hold a "Get ready" transition open so the tests that tap it are not racing its ten seconds, and a few that seed a specific state (`--uitest-milestone`, `--uitest-comeback`, `--uitest-comeback-long`, `--uitest-restday`, `--uitest-onboarding`, `--uitest-weak-link`, `--uitest-long-session`).
+4. Run on any iPhone simulator. UI tests expect an English locale and drive the app through DEBUG-only launch flags — `--uitest-reset` for a clean slate, `--uitest-fast` to collapse rest countdowns, `--uitest-long-transition` to hold a "Get ready" transition open so the tests that tap it are not racing its ten seconds, and a few that seed a specific state (`--uitest-milestone`, `--uitest-comeback`, `--uitest-comeback-long`, `--uitest-restday`, `--uitest-onboarding`, `--uitest-session2`, `--uitest-long-session`).
 
 ## Localization
 

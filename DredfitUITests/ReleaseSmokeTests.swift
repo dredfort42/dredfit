@@ -239,7 +239,7 @@ final class ReleaseSmokeTests: XCTestCase {
             XCTAssertEqual(skippedRows.count, 3,
                            "S8: only the three skipped movements may read skipped")
             XCTAssertFalse(app.staticTexts["hurt"].exists,
-                           "S8: the pain mark cannot appear on a record written after v2.26")
+                           "S8: the pain mark cannot appear on a record written after the pain channel was removed")
         }
     }
 

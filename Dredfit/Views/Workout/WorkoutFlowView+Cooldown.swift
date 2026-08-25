@@ -35,7 +35,6 @@ extension WorkoutFlowView {
                 .dredfitFont(13.5)
                 .foregroundStyle(Theme.ink3)
                 .padding(.top, 6)
-                .accessibilityIdentifier("cooldown-intro-length")
             Spacer()
             PrimaryButton(title: String(localized: "Start the cool-down")) { beginCooldown() }
                 .accessibilityIdentifier("cooldown-start")
