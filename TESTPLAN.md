@@ -31,7 +31,7 @@ about pixels, not about strings. Walk those on a device before submitting.
 
 | # | Check | Expected |
 |---|---|---|
-| S1 | Cold start on a fresh install | Opens on **Today** with "Workout 1", **≈34 min**, 6 exercises, a **Start** button with the short-version offer under it, and the handles on the movement rows. The minute is engine arithmetic, not decoration: read it from the reference when it moves, never off the screen |
+| S1 | Cold start on a fresh install | Opens on **Today** with "Workout 1", **≈ 26–34 min**, 6 exercises, one **Start** button with nothing to agree to first, and an **"Easier"** handle on each movement row. Both minutes are engine arithmetic, not decoration — the full plan and the same plan on the sets floor: read them from the reference when they move, never off the screen |
 | S2 | Full workout: Start → warm-up (opens on its "Get ready" transition) → 6 exercises → cool-down → rating | Rating screen appears; tapping an option returns to Today in the done state |
 | S3 | Today after completion | Checkmark, "Workout 1 completed", a rating caption, and a **Next** card (no Start button) |
 | S4 | Relaunch the app | Still in the done state — the record survived the restart |
@@ -763,6 +763,46 @@ and *hearing* rather than about what the plan says.
 
 ---
 
+### 46. The decision moves inside the workout (engine v2.27, spec §38)
+
+The last two mechanisms that asked the person to decide BEFORE the workout are
+gone: the short version, which picked three of six movements for them, and the
+session-wide "fewer sets in every movement". What replaces both is a skip on
+the **work screen** — one set, or the rest of a movement — plus two numbers
+that follow the decision instead of predicting it: a **range** on Today and
+what is **left** of the session on the work screen.
+
+This also makes §37.1 checkable for the first time. The short version lived
+outside the engine and delivered **20.5 min** against an announced 24.8; with
+it gone, no level on the scale can be squeezed under the announced floor.
+
+**Rows this wave voids, so nobody walks them looking for a button that is
+gone.** §29 entirely (the short workout) and §30.8 with it; §44.1, §44.3,
+§44.4, §44.4a and §44.14 (the two session handles, the per-movement "Fewer" /
+"More", and the explainer section that described them); §44.15 (the announced
+duration is a range now — see 46.1); §45.5 and §45.6 as far as they name the
+removed controls — the 44 pt claim and the empty-strip tap still hold for the
+one handle that is left. §43.8's exception clause ("moving the session-length
+handle yourself lifts the cap for one transition") has nothing to move any
+more. They stay in the file as the history of what the app used to promise.
+
+| # | Check | Expected |
+|---|---|---|
+| 46.1 | Today, a training day, fresh install | The plan line is a **range**: "≈ 26–34 min · 6 exercises" — the full plan and the shortest the session can be made from inside it. Nothing under it to agree to; each movement row carries **"Easier"** and nothing else |
+| 46.2 | The same at L34 and L47 | "≈ 31–55 min" and "≈ 40–94 min". A plan already on the sets floor shows **one** number, not a range of one |
+| 46.3 | The work screen | Under the button that logs the set: **"Went differently"**, **"Skip this set"**, and one exercise-level escape. Never two controls that would do the same thing |
+| 46.4 | Tap **Skip this set** | Straight to the next set — **no rest** on the way, because nothing was done to recover from. The header's **"≈ N min left"** drops in the same beat |
+| 46.5 | Two sets of a four-set movement behind, then look at the escape | It reads **"Skip remaining sets"**. With nothing behind it, it reads **"Skip exercise"** — the difference is real: the first is the movement trained short, the second is a movement not trained |
+| 46.6 | A movement showing **two sets** (the floor), or two of four already skipped | **"Skip this set" is absent.** The only way out is "Skip exercise". §38.2 rule 2: below the floor there is nothing to record, and doing it quietly as something else is what the rule prevents |
+| 46.7 | Skip one set of a movement, finish, rate **on plan** | The **next** plan for that movement has one set fewer — 3×4 becomes 2×4 at L24, 5×8 becomes 4×8 at L40. The order matters and is the engine's to keep: a cut written before the rating is eaten by the set the rating hands back |
+| 46.8 | Skip a set on a movement already on the floor, finish, rate | The movement's **level does not move at all** — no tier lost. It reaches the engine as a skipped exercise, never as a dose of 0, which would cost eight levels at L24 |
+| 46.9 | Kill the app mid-workout after skipping sets, relaunch, **Continue** | The skips are still counted: finish and the next plan is short by exactly what was skipped |
+| 46.10 | History for a workout with skipped sets | The record keeps them. Nothing on screen has to show them yet — the journal is the only place §38.6's "has the skip become the dominant price" can ever be answered from |
+| 46.11 | "How it works" | Section 7 says a skipped **set** is not a skipped exercise; section 8 says the answer is an easier variation or a set skipped **while you are doing it**, and that nothing has to be decided in advance. If either still offers a handle on the plan, the screen is older than the app |
+| 46.12 | All seven languages | The three actions fit under the button without truncating — they drop to two rows and then to three as the labels grow. "≈ N min left" and the range fit on Today at default type |
+| 46.13 | VoiceOver on Today | The plan line is read as a range — "about 26 to 34 minutes" — not as two numbers |
+| 46.14 | Dynamic Type XL and the accessibility sizes, work screen | Known, and **worse than before this wave — see I-15**: the column still has no scroll view, and it now carries one more line (the time left) and one more control. At the accessibility sizes the top of the screen is pushed off it |
+
 ## Engine gates before a release
 
 Not a manual row — the six automated gates a release runs from `reference/`,
@@ -841,6 +881,6 @@ Log every failure found while running this plan. Keep entries until they ship fi
 | I-13 | 2026-08-07 | Store screenshots | Frame s8 was captioned "Eight plain facts about how the plan moves" in all seven languages, while the screen inside the frame has read "Nine things worth knowing about the regulator" since the discomfort section was added in the #38 wave. The caption lives in `appstore/tools/compose.py`, not in a String Catalog, so no localization gate could see it — the frame contradicted itself in every locale | low | **fixed in the 1.9.0 wave** — all seven captions now say nine, and the full recapture reissued the frames. Exactly the I-7 failure mode (a count in prose going stale when a section is added) and caught the same way: by recapturing rather than by a test. The standing mitigation is unchanged — any release that adds a "How it works" section must re-read the s8 caption |
 
 | I-14 | 2026-08-23 | Progress | Found by the UI suite, which is **red on `develop`** for this one cause: `testProgressReflectsCompletedWorkout` ("0" is not equal to "12" — the total level after "easy" should be 12) and `ReleaseSmokeTests.testReleaseSmokeEnglish` row S5 ("the history sheet must list the level the workout ended on"). Since v2.22 the first growth steps do not land in the **level** at all — they land in the **sub-step**: one honest "easy" on a fresh install moves all six worked patterns by 2 sub-steps each, and every level stays 0. The Progress screen and the history sheet both read levels, so a person who has just trained and been told the plan will grow is shown a screen that says nothing happened. The tests are not stale markup — they assert the right amount of progress (12 is exactly the sub-step total) against a screen that cannot see it | medium | **open — the screen is the question, not the test.** Verified on `chore/close-v2.25` (develop + docs only), each test run alone: both still fail with the signatures above. Deliberately not fixed inside the closing wave: what Progress should show for a sub-step is a product decision (a fractional level, a second axis, or a different sentence), not a markup change. Backlog: "Прогресс не видит под-ступени" |
-| I-15 | 2026-08-24 | Today, Workout flow | Found running §45.10 for the design re-review wave, and **not caused by it — the frames are pixel-identical to the previous release**. At the accessibility Dynamic Type sizes (checked at `accessibility-extra-extra-extra-large` on an iPhone SE) two things on the app's first and busiest screens come apart. On **Today**, the two session handles are drawn on top of each other and on top of the "≈ N min · N exercises" line above them — three sentences in one place, none of them readable. On the **work screen** the column has no `ScrollView`, so once the type outgrows the height the header, the exercise name and the "technique" affordance are simply pushed off the top of the screen; what is left starts mid-number. Neither is a truncation the layout chose — both are content the layout never accounted for | medium | **open — reported, not fixed in this wave.** Both fixes are layout decisions rather than markup: the handles are long sentences that need to stop sharing a row and start stacking full-width, and the work screen needs to decide what it does when its column no longer fits — scroll, or drop the elements it can afford to lose. Doing either inside an accessibility wave whose other five items are surgical would have hidden them in a diff nobody could review |
+| I-15 | 2026-08-24 | Today, Workout flow | Found running §45.10 for the design re-review wave, and **not caused by it — the frames are pixel-identical to the previous release**. At the accessibility Dynamic Type sizes (checked at `accessibility-extra-extra-extra-large` on an iPhone SE) two things on the app's first and busiest screens come apart. On **Today**, the two session handles are drawn on top of each other and on top of the "≈ N min · N exercises" line above them — three sentences in one place, none of them readable. On the **work screen** the column has no `ScrollView`, so once the type outgrows the height the header, the exercise name and the "technique" affordance are simply pushed off the top of the screen; what is left starts mid-number. Neither is a truncation the layout chose — both are content the layout never accounted for | medium | **half closed by removal, half open and now larger.** The Today half is gone with the controls: v2.27 removed both session handles, so there are no long sentences left to overlap the line above them. The work screen half stands, and this wave adds to it — one more line in the header ("≈ N min left") and a third action under the button, on a column that still has no `ScrollView`. The fix is the same layout decision it always was: scroll, or drop the elements the screen can afford to lose. Deliberately not taken inside a §38 diff, for the reason it was not taken inside the accessibility one — a layout decision hidden in a feature wave is a decision nobody reviewed |
 
 **Severity.** *high* — data loss, crash, or a broken core flow · *medium* — a feature misbehaves but there is a way around it · *low* — cosmetic or a rare edge case.
