@@ -78,8 +78,8 @@ struct WorkoutFlowView: View {
     @State var restPlanned = 0
     // Captured at tap time (not a bool): the rest countdown keeps ticking
     // while the sheet is open and may flip the phase underneath.
-    @State private var techniqueExercise: SessionExercise?
-    // Unlike techniqueExercise, presenting this freezes the countdown.
+    @State private var techniqueTarget: TechniqueTarget?
+    // Unlike techniqueTarget, presenting this freezes the countdown.
     @State private var positionTechnique: PositionTechnique?
     /// A fact belongs to the set it happened on — see SetFacts for the shape
     /// and for what a set of them collapses to.
@@ -89,6 +89,12 @@ struct WorkoutFlowView: View {
     /// handed to the engine only when the rating lands: the cut belongs on the
     /// RESULT of the feedback, never on its input.
     @State var setsSkipped: SetFacts.Skips = [:]
+    /// What the PROBE set showed, per movement (§40.4). Kept apart from
+    /// `actuals` on purpose and for the same reason the engine keeps `probes`
+    /// apart from `overrides`: the probe is a different exercise, and folding
+    /// its number into the mean of the working sets would average two
+    /// variations. It reaches the engine through its own argument.
+    @State var probeActuals: [Pattern: Int] = [:]
     @State var skippedPatterns: Set<Pattern> = []
     /// Kept apart from `skippedPatterns`: the engine treats both as skips for
     /// the session, but the rating and the history say different things.
@@ -130,8 +136,42 @@ struct WorkoutFlowView: View {
     /// clamping) counts in this, which is why the name stayed.
     var exercises: [SessionExercise] { session.exercises }
     var exercise: SessionExercise { exercises[exIndex] }
-    var isLastSet: Bool { setIndex == exercise.sets - 1 }
+
+    /// Working sets plus the probe, when the plan carries one (§40.4). The
+    /// probe REPLACED a working set upstream — the engine handed back one set
+    /// fewer — so the session's volume is unchanged and this count is what the
+    /// person actually walks through.
+    var totalSets: Int { exercise.sets + (exercise.probe == nil ? 0 : 1) }
+    /// The set under way is the probe: one set of the NEXT variation, offered
+    /// instead of the last set of the current one.
+    var onProbeSet: Bool { exercise.probe != nil && setIndex >= exercise.sets }
+    var isLastSet: Bool { setIndex == totalSets - 1 }
     var isLastExercise: Bool { exIndex == exercises.count - 1 }
+
+    /// What the screen is showing right now: the planned exercise, or — on the
+    /// probe set — the movement the probe offers. Everything the work screen
+    /// reads goes through this, which is why the probe needs no second screen
+    /// and no new question (§40.4).
+    struct CurrentMovement {
+        let name: String
+        let unit: LoadUnit
+        let perSide: Bool
+        let planned: Int
+        let isProbe: Bool
+        let target: TechniqueTarget
+    }
+
+    var current: CurrentMovement {
+        if let probe = exercise.probe, onProbeSet {
+            return CurrentMovement(name: probe.name, unit: probe.unit, perSide: probe.perSide,
+                                   planned: probe.load, isProbe: true,
+                                   target: TechniqueTarget(probe: probe, of: exercise.pattern))
+        }
+        return CurrentMovement(name: exercise.name, unit: exercise.unit,
+                               perSide: exercise.perSide,
+                               planned: exercise.plannedLoad(set: setIndex), isProbe: false,
+                               target: TechniqueTarget(exercise))
+    }
     private var holding: Bool { holdEndDate != nil }
     private var holdSwitchPausing: Bool { holdPauseEndDate != nil }
     private var isMilestone: Bool { if case .milestone = phase { return true }; return false }
@@ -181,6 +221,9 @@ struct WorkoutFlowView: View {
                         // The sets skipped along the way. The engine settles
                         // them against the rating — after it, never before.
                         setsSkipped: setsSkipped,
+                        // The probe's own channel (§40.4): a number about one
+                        // set of a movement that is not in the plan yet.
+                        probes: probeActuals,
                         durationSec: workoutStart.map {
                             // max: the wall clock can move backwards mid-workout
                             max(0, Int(Date.now.timeIntervalSince($0)))
@@ -198,10 +241,10 @@ struct WorkoutFlowView: View {
                 }
             case .milestone(let earned):
                 MilestoneView(milestones: earned,
-                              levels: store.levelCurve(through: store.lastRecord?.date),
+                              levels: store.progressCurve(through: store.lastRecord?.date),
                               retrospective: Retrospective.make(
                                   records: store.records,
-                                  currentLevels: store.engineState.levels)) {
+                                  current: store.currentPositions)) {
                     askForReviewIfEarned()
                     dismiss()
                 }
@@ -249,8 +292,8 @@ struct WorkoutFlowView: View {
         .onChange(of: blockPause.isHeld) { _, held in
             UIApplication.shared.isIdleTimerDisabled = !held
         }
-        .sheet(item: $techniqueExercise) { ex in
-            TechniqueSheet(exercise: ex)
+        .sheet(item: $techniqueTarget) { target in
+            TechniqueSheet(target: target)
         }
         .sheet(item: $positionTechnique, onDismiss: resumePositionCountdown) { technique in
             PositionTechniqueSheet(technique: technique)
@@ -359,7 +402,7 @@ struct WorkoutFlowView: View {
                          detail: "", restEndDate: nil)
         }
         return .init(phase: .work, title: exercise.name,
-                     detail: String(localized: "set \(setIndex + 1) of \(exercise.sets)"),
+                     detail: String(localized: "set \(setIndex + 1) of \(totalSets)"),
                      restEndDate: nil)
     }
 
@@ -368,13 +411,32 @@ struct WorkoutFlowView: View {
     private var workView: some View {
         VStack(spacing: 0) {
             Spacer()
-            Text(exercise.name)
+            if current.isProbe {
+                // The badge is the whole announcement: one set of a movement
+                // that is not yet yours, to find out whether it is. It is not
+                // a question and there is nothing to answer — the number goes
+                // in through the same per-set control as every other set.
+                Text("Probe")
+                    .dredfitFont(11, weight: .heavy)
+                    .tracking(0.6)
+                    .textCase(.uppercase)
+                    .foregroundStyle(Theme.accentText)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(Theme.accentSoft, in: Capsule())
+                    .padding(.bottom, 8)
+                    .accessibilityIdentifier("probe-badge")
+            }
+            Text(current.name)
                 .dredfitFont(23, weight: .bold)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 300)
-                .accessibilityLabel(Text(verbatim: exercise.name))
+                .accessibilityLabel(Text(verbatim: current.name))
 
-            TechniqueButton { techniqueExercise = exercise }
+            // On the probe set this opens the technique of the NEW movement:
+            // nobody should be asked to try something they cannot read up on
+            // first.
+            TechniqueButton { techniqueTarget = current.target }
                 .padding(.top, 10)
 
             VStack(spacing: 4) {
@@ -396,30 +458,50 @@ struct WorkoutFlowView: View {
             .accessibilityLabel(Text(verbatim: "\(workNumber) ") + Text(verbatim: loadCaption))
 
             HStack(spacing: 10) {
-                ForEach(0..<exercise.sets, id: \.self) { i in
+                ForEach(0..<totalSets, id: \.self) { i in
+                    // The probe's dot is hollow: it is the same session and
+                    // the same count of sets, but not the same movement.
                     Circle()
-                        .fill(i < setIndex ? Theme.ink : (i == setIndex ? Theme.accent : Theme.hairline))
+                        .strokeBorder(Theme.accent,
+                                      lineWidth: exercise.probe != nil && i == exercise.sets ? 2 : 0)
+                        .background(Circle().fill(
+                            exercise.probe != nil && i == exercise.sets
+                                ? Color.clear
+                                : (i < setIndex ? Theme.ink
+                                   : (i == setIndex ? Theme.accent : Theme.hairline))))
                         .frame(width: 10, height: 10)
                 }
             }
             .padding(.top, 30)
 
-            WorkStatusCaption(switchingSides: holdSwitchPausing,
-                              secondSide: holdSecondSide,
-                              actual: setActual,
-                              setIndex: setIndex, sets: exercise.sets,
-                              planned: exercise.plannedLoad(set: setIndex),
-                              uneven: exercise.loads != nil)
-                .padding(.top, 10)
+            if current.isProbe {
+                probeCaption
+                    .padding(.top, 10)
+            } else {
+                WorkStatusCaption(switchingSides: holdSwitchPausing,
+                                  secondSide: holdSecondSide,
+                                  actual: setActual,
+                                  setIndex: setIndex, sets: exercise.sets,
+                                  planned: exercise.plannedLoad(set: setIndex),
+                                  uneven: exercise.loads != nil)
+                    .padding(.top, 10)
+            }
 
             Spacer()
 
             if adjusting {
-                AdjustPanel(value: $adjustValue, unit: exercise.unit) {
-                    // This set only — the ones behind keep what they ran at.
-                    actuals = SetFacts.recording(adjustValue, in: actuals,
-                                                 exercise, set: setIndex)
-                    noteMaximumOutOfOrder()
+                AdjustPanel(value: $adjustValue, unit: current.unit) {
+                    if current.isProbe {
+                        // The probe's own channel: one number about one set of
+                        // another movement, never folded into the mean of the
+                        // working sets.
+                        probeActuals[exercise.pattern] = adjustValue
+                    } else {
+                        // This set only — the ones behind keep what they ran at.
+                        actuals = SetFacts.recording(adjustValue, in: actuals,
+                                                     exercise, set: setIndex)
+                        noteMaximumOutOfOrder()
+                    }
                     adjusting = false
                     persistProgress()   // an entered actual is worth keeping
                 }
@@ -437,7 +519,7 @@ struct WorkoutFlowView: View {
                     .padding(.bottom, 8)
             }
 
-            if exercise.unit == .hold {
+            if current.unit == .hold {
                 if holding {
                     PrimaryButton(title: String(localized: "Stop")) { stopHoldEarly() }
                 } else if holdSwitchPausing {
@@ -466,7 +548,7 @@ struct WorkoutFlowView: View {
             // Opacity, not `if`: the reserved height keeps the layout still
             // when the hint's job is done mid-exercise.
             if store.records.isEmpty {
-                Text("Did far more than planned? Tap “Went differently” and enter what you actually did — the system will land on your level right away.")
+                Text("Did far more than planned? Tap “Went differently” and enter what you actually did — the plan lands on what you can really do right away.")
                     .dredfitFont(14)
                     .foregroundStyle(Theme.ink2)
                     .multilineTextAlignment(.center)
@@ -483,6 +565,7 @@ struct WorkoutFlowView: View {
     private var workNumber: Int {
         if holdSwitchPausing { return holdPauseRemaining }
         if holding { return holdRemaining }
+        if current.isProbe { return probeActuals[exercise.pattern] ?? current.planned }
         return SetFacts.inForce(actuals, exercise, set: setIndex)
     }
 
@@ -495,8 +578,30 @@ struct WorkoutFlowView: View {
     // MARK: - Inline actual adjuster (the panel itself is AdjustPanel.swift)
 
     private func startAdjusting() {
-        adjustValue = SetFacts.inForce(actuals, exercise, set: setIndex)
+        adjustValue = current.isProbe
+            ? (probeActuals[exercise.pattern] ?? current.planned)
+            : SetFacts.inForce(actuals, exercise, set: setIndex)
         adjusting = true
+    }
+
+    /// What the probe set says under its number. Before a number is entered it
+    /// states the target; afterwards it states the outcome — and the failing
+    /// outcome is NEUTRAL, because honesty is never punished (§40.4): staying
+    /// on a movement you can already do is not a failure, and the copy must
+    /// not read like one.
+    @ViewBuilder
+    private var probeCaption: some View {
+        if let entered = probeActuals[exercise.pattern] {
+            if entered >= current.planned {
+                Text("Next time: \(current.name)")
+                    .accessibilityIdentifier("probe-passed")
+            } else {
+                Text("We’ll stay with the current variation.")
+                    .accessibilityIdentifier("probe-stays")
+            }
+        } else {
+            Text("One set to try it: \(current.planned)")
+        }
     }
 
     private var loadCaption: String {
@@ -506,7 +611,7 @@ struct WorkoutFlowView: View {
         // printing it twice is the kind of noise that makes a screen feel
         // busy. Because the caption no longer agrees with a number, these
         // keys need no ICU plurals — one form per language.
-        switch (exercise.unit, exercise.perSide) {
+        switch (current.unit, current.perSide) {
         case (.reps, false): return String(localized: "reps")
         case (.reps, true):  return String(localized: "reps per side")
         case (.hold, false): return String(localized: "seconds")
@@ -523,7 +628,7 @@ struct WorkoutFlowView: View {
                  nextLabel: nextLabel,
                  extensionSeconds: Self.restExtensionSeconds,
                  canExtend: canExtendRest,
-                 onTechnique: { techniqueExercise = restTargetExercise },
+                 onTechnique: { techniqueTarget = restTechniqueTarget },
                  onExtend: extendRest,
                  onSkip: {
                      restEndDate = nil
@@ -570,16 +675,26 @@ struct WorkoutFlowView: View {
             let next = exercises[exIndex + 1]
             return "\(next.name) · \(next.display)"
         }
-        return String(localized: "\(exercise.name) · set \(setIndex + 2) of \(exercise.sets)")
+        if exercise.probe != nil && setIndex + 1 == exercise.sets, let probe = exercise.probe {
+            return String(localized: "Probe: \(probe.name) · \(probe.display)")
+        }
+        return String(localized: "\(exercise.name) · set \(setIndex + 2) of \(totalSets)")
     }
 
     /// Rest is never entered on the final set of the last exercise (that goes
     /// straight to the cool-down), so the index is always in range.
-    private var restTargetExercise: SessionExercise {
+    ///
+    /// The technique offered during a rest is the technique of what comes
+    /// NEXT, and after the last working set of a probing exercise that is the
+    /// PROBE's movement — the one thing on this screen nobody has done before.
+    private var restTechniqueTarget: TechniqueTarget {
         if isLastSet && !isLastExercise {
-            return exercises[exIndex + 1]
+            return TechniqueTarget(exercises[exIndex + 1])
         }
-        return exercise
+        if let probe = exercise.probe, setIndex + 1 == exercise.sets {
+            return TechniqueTarget(probe: probe, of: exercise.pattern)
+        }
+        return TechniqueTarget(exercise)
     }
 }
 
@@ -639,6 +754,8 @@ extension WorkoutFlowView {
         firstSideHeld = nil
         holdPauseEndDate = nil
         actuals.removeValue(forKey: exercise.pattern)   // a skip wins over an actual
+        // …and over the probe: a movement that was not trained resolves nothing.
+        probeActuals.removeValue(forKey: exercise.pattern)
         // …and over the sets skipped inside it: the movement was not trained,
         // so there is no volume to take off it next time.
         setsSkipped.removeValue(forKey: exercise.pattern)
@@ -682,6 +799,16 @@ extension WorkoutFlowView {
     /// No rest on the way out — there is nothing to recover from, and the
     /// minutes are the whole point of the tap.
     private func skipSet() {
+        // Skipping the PROBE takes no volume off anything: it was never a set
+        // of the planned movement. The outcome is "unresolved" (§40.4) — the
+        // probe simply comes back next time — and the appearance is spent
+        // exactly as it would have been.
+        if onProbeSet {
+            adjusting = false
+            probeActuals.removeValue(forKey: exercise.pattern)
+            advancePastExercise()
+            return
+        }
         guard skipsLeaveAMovement(1) else { leaveExercise(); return }
         adjusting = false
         setsSkipped[exercise.pattern, default: 0] += 1
@@ -699,7 +826,9 @@ extension WorkoutFlowView {
     /// separate taps to fit a session into 45 minutes is a thing nobody does;
     /// three to six is.
     private func skipRestOfExercise() {
-        let left = exercise.sets - setIndex
+        // Only the WORKING sets can be taken off; on the probe set there are
+        // none left, and the probe itself is not volume.
+        let left = max(0, exercise.sets - setIndex)
         guard skipsLeaveAMovement(left) else { leaveExercise(); return }
         adjusting = false
         setsSkipped[exercise.pattern, default: 0] += left
@@ -710,6 +839,11 @@ extension WorkoutFlowView {
     /// then the escape beside it says so in its own label instead of doing it
     /// quietly under a word that promises less.
     private var setSkipAction: (() -> Void)? {
+        // The probe can ALWAYS be skipped (§40.4): it is not a set of the
+        // planned movement, so skipping it takes no volume off anything and
+        // cannot leave the movement untrained. The outcome is "unresolved",
+        // and the probe comes back on the next appearance.
+        if onProbeSet { return { skipSet() } }
         guard skipsLeaveAMovement(1) else { return nil }
         return { skipSet() }
     }
@@ -719,6 +853,10 @@ extension WorkoutFlowView {
     /// the floor both take the movement, and on the last set "the remaining
     /// sets" ARE this set.
     private var exerciseEscape: ExerciseActionsRow.Escape? {
+        // On the probe set the working sets are already behind: "skip the
+        // exercise" would throw away a movement that was in fact trained.
+        // Skipping the probe is the set-level control beside this one.
+        guard !onProbeSet else { return nil }
         let leave = ExerciseActionsRow.Escape(title: String(localized: "Skip exercise"),
                                               identifier: "exercise-skip",
                                               action: { leaveExercise() })

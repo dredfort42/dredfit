@@ -15,9 +15,18 @@ import DredfitCore
 
 final class SessionAheadTests: XCTestCase {
 
-    private func session(level: Int) -> Session {
+    /// A plan with every movement `variation` rungs up its ladder, at the dose
+    /// ceiling — the long end of the scale, where "how much is left" matters.
+    private func session(variation: Int) -> Session {
         var state = EngineState.initial
-        for pattern in Pattern.allCases { state.levels[pattern] = level }
+        for pattern in Pattern.allCases {
+            let v = min(variation, Library.count(pattern))
+            state.vars[pattern] = v
+            state.doses[pattern] = Dose.grid(Library.unit(pattern, v)).max
+            // A journal, so the ceiling does not turn into a probe on every
+            // movement and change what "the sets left" even means here.
+            state.lastHard.insert(pattern)
+        }
         return Engine.generateSession(state)
     }
 
@@ -25,19 +34,19 @@ final class SessionAheadTests: XCTestCase {
     /// so the number is the announced duration itself, minus the warm-up
     /// already behind.
     func testAtTheStartWhatIsLeftIsTheWholeWorkout() {
-        for level in [0, 24, 40, 47] {
-            let plan = session(level: level)
+        for variation in [1, 2, 3, 4] {
+            let plan = session(variation: variation)
             let ahead = SessionAhead.minutes(plan.exercises, exIndex: 0, setsBehind: 0,
                                              ends: plan.warmupMin + plan.cooldownMin)
             XCTAssertEqual(ahead, Int(plan.estimatedTotalMin.rounded()),
-                           "L\(level): the live number disagrees with the announced one")
+                           "variation \(variation): the live number disagrees with the announced one")
         }
     }
 
     /// And it only ever goes down as the session is walked — set by set,
     /// exercise by exercise.
     func testItFallsWithEverySetBehind() {
-        let plan = session(level: 40)
+        let plan = session(variation: 4)
         var previous = Int.max
         for exIndex in plan.exercises.indices {
             for behind in 0...plan.exercises[exIndex].sets {
@@ -55,9 +64,10 @@ final class SessionAheadTests: XCTestCase {
     /// — the person who has done the 9 has two 8s ahead of them, and a list
     /// built from the first sets instead would over-count the work left.
     func testTheSetsLeftAreTheOnesStillToCome() throws {
-        let uneven = SessionExercise(pattern: .squat, name: "Squat", tier: 4, unit: .reps,
+        let uneven = SessionExercise(pattern: .squat, name: "Squat", variation: 1, unit: .reps,
                                      load: 8, perSide: false, sets: 3,
-                                     restSetSec: 60, restExerciseSec: 90, loads: [9, 8, 8])
+                                     restSetSec: 60, restExerciseSec: 90, loads: [9, 8, 8],
+                                     probe: nil)
         let ahead = try XCTUnwrap(
             SessionAhead.remaining([uneven], exIndex: 0, setsBehind: 1).first)
         XCTAssertEqual(ahead.sets, 2)
@@ -68,7 +78,7 @@ final class SessionAheadTests: XCTestCase {
     /// A skipped set is a set behind: the minutes come off at the moment of
     /// the tap, which is the whole promise of a number that recalculates.
     func testASkippedSetTakesItsMinutesOffImmediately() throws {
-        let plan = session(level: 40)
+        let plan = session(variation: 4)
         let full = SessionAhead.minutes(plan.exercises, exIndex: 0, setsBehind: 0,
                                         ends: plan.cooldownMin)
         let afterSkip = SessionAhead.minutes(plan.exercises, exIndex: 0, setsBehind: 1,
@@ -79,7 +89,7 @@ final class SessionAheadTests: XCTestCase {
     /// Past the last exercise there is nothing left but the blocks that are
     /// still to come — and past those, nothing.
     func testPastTheEndOnlyTheBlocksAreLeft() {
-        let plan = session(level: 24)
+        let plan = session(variation: 3)
         let past = plan.exercises.count
         XCTAssertTrue(SessionAhead.remaining(plan.exercises, exIndex: past, setsBehind: 0).isEmpty)
         XCTAssertEqual(SessionAhead.minutes(plan.exercises, exIndex: past, setsBehind: 0,
@@ -92,7 +102,7 @@ final class SessionAheadTests: XCTestCase {
     /// negative block: this is read on every body pass of a live screen, so it
     /// answers rather than traps.
     func testItSurvivesNonsense() {
-        let plan = session(level: 24)
+        let plan = session(variation: 3)
         XCTAssertTrue(SessionAhead.remaining(plan.exercises, exIndex: -1, setsBehind: 0).isEmpty)
         XCTAssertTrue(SessionAhead.remaining([], exIndex: 0, setsBehind: 0).isEmpty)
         XCTAssertEqual(SessionAhead.remaining(plan.exercises, exIndex: 0, setsBehind: -5).first?.sets,

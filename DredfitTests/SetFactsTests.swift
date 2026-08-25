@@ -11,7 +11,9 @@ final class SetFactsTests: XCTestCase {
     /// its top rung is 39 s and not 55. Sessions come from the engine:
     /// `SessionExercise` has no public initializer, and a hand-built one would
     /// be a plan the app never shows.
-    private static let planLevel = 7
+    /// Everything at the ceiling of its first variation: 3×15 reps and
+    /// 3×45 s, the plan the arithmetic below is written against.
+    private static let planDose = 15
 
     private var state = EngineState.initial
     private var session: Session!
@@ -22,7 +24,13 @@ final class SetFactsTests: XCTestCase {
 
     override func setUpWithError() throws {
         try super.setUpWithError()
-        for p in Pattern.allCases { state.levels[p] = Self.planLevel }
+        for p in Pattern.allCases {
+            state.doses[p] = Dose.grid(Library.unit(p, 1)).max
+            // A ceiling offers a PROBE (§40.4), and a probe would change what
+            // "the last set" of these exercises even is. "Hard" was said, so
+            // the plan here is three working sets and nothing else.
+            state.lastHard.insert(p)
+        }
         // The second session, not the first: the rotation puts no hold in
         // session one, and half of what is being tested here is a hold.
         state.counter = 1
@@ -32,8 +40,10 @@ final class SetFactsTests: XCTestCase {
         // The numbers below are read off the encoding, not off the fixture:
         // if the generator ever moves, these fail here rather than silently
         // testing arithmetic about some other plan.
-        XCTAssertEqual([reps.tier, reps.sets, reps.load], [1, 3, 15])
-        XCTAssertEqual([hold.tier, hold.sets, hold.load], [1, 3, 39])
+        XCTAssertEqual([reps.variation, reps.sets, reps.load], [1, 3, Self.planDose])
+        XCTAssertEqual([hold.variation, hold.sets, hold.load], [1, 3, 45])
+        XCTAssertNil(reps.probe)
+        XCTAssertNil(hold.probe)
     }
 
     // MARK: - Nothing said
@@ -57,13 +67,13 @@ final class SetFactsTests: XCTestCase {
     }
 
     /// The same for a hold stopped early — the path that records itself with
-    /// no tap at all. Re-marked: stopping at 30 s of 39 in the third set
-    /// reports 36, not 30.
+    /// no tap at all. Stopping at 30 s of 45 in the third set reports the mean
+    /// of 40, not the 30.
     func testAHoldStoppedEarlyOnTheLastSetReportsTheMean() {
         let facts = SetFacts.recording(SetFacts.snap(30, unit: .hold),
                                        in: [:], hold, set: 2)
-        XCTAssertEqual(SetFacts.allSets(facts, hold), [39, 39, 30])
-        XCTAssertEqual(SetFacts.override(facts, for: hold), 36)
+        XCTAssertEqual(SetFacts.allSets(facts, hold), [45, 45, 30])
+        XCTAssertEqual(SetFacts.override(facts, for: hold), 40)
     }
 
     /// What the fix is worth, stated as the engine sees it: the old shape
@@ -78,8 +88,10 @@ final class SetFactsTests: XCTestCase {
         let old = Engine.applyFeedback(state: state, session: session,
                                        result: .plan, overrides: [p: 10])
 
-        XCTAssertEqual(old.levels[p], 2, "the shape this fix replaces")
-        XCTAssertEqual(fixed.levels[p], 5, "two sets on plan are not a full shortfall")
+        // The mean of 15/15/10 is 13; a flat 10 would have been the shape
+        // this fix replaces. §40.3: the next showing IS the number reported.
+        XCTAssertEqual(old.doses[p], 10, "the shape this fix replaces")
+        XCTAssertEqual(fixed.doses[p], 13, "two sets on plan are not a full shortfall")
         XCTAssertEqual(fixed.failStreak[p], 1)
     }
 
@@ -127,14 +139,14 @@ final class SetFactsTests: XCTestCase {
     /// A shortfall must never be reported as MEETING the plan. To the engine
     /// `actual == load` is both the "on plan" step and the fact that confirms
     /// a pain episode has recovered — a near miss rounded up onto the plan
-    /// would claim both. Re-marked: on the one-second grid the near miss that
-    /// still snaps onto the plan is 38 s of a 3×39 s plan — mean 38.67.
+    /// would claim both. On the one-second reporting grid the near miss that
+    /// still snaps onto the plan is 44 s of a 3×45 s plan — mean 44.67.
     func testANearMissIsNeverRoundedUpOntoThePlan() {
-        let facts = SetFacts.recording(38, in: [:], hold, set: 2)
-        XCTAssertEqual(SetFacts.allSets(facts, hold), [39, 39, 38],
+        let facts = SetFacts.recording(44, in: [:], hold, set: 2)
+        XCTAssertEqual(SetFacts.allSets(facts, hold), [45, 45, 44],
                        "the sets themselves are still recorded and shown")
         XCTAssertNil(SetFacts.override(facts, for: hold),
-                     "38.7 s snaps to 39 — below the plan must not report as on it")
+                     "44.7 s snaps to 45 — below the plan must not report as on it")
 
         let reps = SetFacts.recording(self.reps.load - 1, in: [:], self.reps, set: 2)
         XCTAssertNil(SetFacts.override(reps, for: self.reps), "the same on the reps grid")
@@ -144,9 +156,9 @@ final class SetFactsTests: XCTestCase {
     /// the plan that snaps onto it is an honest "on plan" fact.
     func testAMeanAtOrAboveThePlanStillReportsIt() throws {
         let facts = SetFacts.recording(hold.load + 1, in: [:], hold, set: 2)
-        XCTAssertEqual(SetFacts.allSets(facts, hold), [39, 39, 40])
-        XCTAssertEqual(SetFacts.override(facts, for: hold), 39,
-                       "39.3 s snaps to 39, and the athlete did not fall short")
+        XCTAssertEqual(SetFacts.allSets(facts, hold), [45, 45, 46])
+        XCTAssertEqual(SetFacts.override(facts, for: hold), 45,
+                       "45.3 s snaps to 45, and the athlete did not fall short")
     }
 
     /// The safety property this protects, re-marked: there is no pain episode
@@ -242,18 +254,18 @@ final class SetFactsTests: XCTestCase {
 
     /// RE-MARKED, and the new number is the point.
     ///
-    /// The hold's 40 is ABOVE its plan of 39, entered on the FIRST set. Under
-    /// the old symmetric carry it rewrote sets two and three to 40 as well and
-    /// the mean came back as 40 — the app claiming three sets of 40 on the
-    /// strength of one. The carry is asymmetric now: 40, 39, 39 → 39.33 → 39.
+    /// The hold's 46 is ABOVE its plan of 45, entered on the FIRST set. Under
+    /// the old symmetric carry it rewrote sets two and three to 46 as well and
+    /// the mean came back as 46 — the app claiming three sets of 46 on the
+    /// strength of one. The carry is asymmetric now: 46, 45, 45 → 45.33 → 45.
     ///
     /// The reps side is untouched at 13, and that is the regression boundary
     /// in one line: its 10 is BELOW the plan, so nothing about it moved.
     func testOverridesCoverOnlyWhatWasSaid() {
         var facts = SetFacts.recording(10, in: [:], reps, set: 2)
-        facts = SetFacts.recording(40, in: facts, hold, set: 0)
+        facts = SetFacts.recording(46, in: facts, hold, set: 0)
         XCTAssertEqual(SetFacts.overrides(facts, in: session.exercises),
-                       [reps.pattern: 13, hold.pattern: 39],
+                       [reps.pattern: 13, hold.pattern: 45],
                        "every other exercise of the session ran to plan")
     }
 

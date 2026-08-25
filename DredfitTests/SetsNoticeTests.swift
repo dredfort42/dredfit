@@ -118,7 +118,7 @@ final class SetsNoticeTests: AppStoreTestCase {
             // the set-level one promises about the next plan.
             "Skip this set",
             "Skip remaining sets",
-            "The plan keeps this set off next time. Your level does not change.",
+            "The plan keeps this set off next time. Nothing else about the movement changes.",
             "Easier · %@",
             "%lld positions · about %lld min",
             "Do the plan, and leave your maximum for the last set.",

@@ -42,9 +42,13 @@ extension AppStore {
         }
         let inWeek = records.filter { $0.date >= week.start && $0.date < week.end }
         guard let last = inWeek.last else { return WeekSummary(workouts: 0, levelsDelta: 0) }
-        let baseline = records.last { $0.date < week.start }?.totalLevelAfter ?? 0
+        // Records from before v3 carry no point on this scale, so a week that
+        // straddles the update measures from zero rather than from a number
+        // that meant something else. A clean start reads zero too, so the
+        // first v3 week is honest either way.
+        let baseline = records.last { $0.date < week.start }?.totalProgressAfter ?? 0
         return WeekSummary(workouts: inWeek.count,
-                           levelsDelta: last.totalLevelAfter - baseline)
+                           levelsDelta: (last.totalProgressAfter ?? baseline) - baseline)
     }
 
     var nextTrainingDateLabel: String { nextTrainingDateLabel(from: today) }

@@ -195,7 +195,7 @@ enum ShareCardFactory {
 
     static func headline(for milestone: Milestone) -> String {
         switch milestone {
-        case .tierUp(_, _, let exercise):
+        case .variationUp(_, _, let exercise):
             return String(localized: "Unlocked: \(exercise)")
         case .setBand(_, let sets, _):
             return String(localized: "Now \(sets) sets")
@@ -208,7 +208,7 @@ enum ShareCardFactory {
     /// once. With no unlock at all the first milestone speaks for the card.
     static func headline(for milestones: [Milestone]) -> String {
         let unlocked: [String] = milestones.compactMap { milestone in
-            guard case .tierUp(_, _, let exercise) = milestone else { return nil }
+            guard case .variationUp(_, _, let exercise) = milestone else { return nil }
             return exercise
         }
         guard !unlocked.isEmpty else {
@@ -220,11 +220,11 @@ enum ShareCardFactory {
     }
 
     /// Two strings on purpose: as one it would need a nested plural
-    /// substitution (Russian inflects "workouts" but not the level).
-    static func summaryHeadline(workouts: Int, totalLevel: Int) -> String {
+    /// substitution (Russian inflects both halves, and differently).
+    static func summaryHeadline(workouts: Int, totalSteps: Int) -> String {
         String(localized: "\(workouts) workouts")
             + " · "
-            + String(localized: "level \(totalLevel)")
+            + String(localized: "\(totalSteps) steps")
     }
 
     @MainActor

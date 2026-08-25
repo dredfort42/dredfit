@@ -21,7 +21,11 @@ extension WorkoutFlowView {
 
     func startHold() {
         adjusting = false
-        holdTotal = SetFacts.inForce(actuals, exercise, set: setIndex)
+        // On the probe set the countdown is the PROBE's target — a different
+        // movement, and possibly a different unit (§40.1, `pull_bar` 2→3).
+        holdTotal = current.isProbe
+            ? (probeActuals[exercise.pattern] ?? current.planned)
+            : SetFacts.inForce(actuals, exercise, set: setIndex)
         holdRemaining = holdTotal
         holdEndDate = Date.now.addingTimeInterval(TimeInterval(holdTotal))
     }
@@ -64,7 +68,7 @@ extension WorkoutFlowView {
     /// recorded actual is the smaller of the two sides.
     func finishHold(heldSeconds: Int) {
         holdEndDate = nil
-        if exercise.perSide && !holdSecondSide {
+        if current.perSide && !holdSecondSide {
             firstSideHeld = heldSeconds
             holdSecondSide = true
             startHoldSwitchPause()
@@ -103,8 +107,13 @@ extension WorkoutFlowView {
     /// Onto the grid the manual adjuster steps on, and onto the set actually
     /// held: stopping at 40 s of 55 in the third set is the third set's fact.
     func recordHoldActual(heldSeconds: Int) {
-        actuals = SetFacts.recording(SetFacts.snap(Double(heldSeconds), unit: .hold),
-                                     in: actuals, exercise, set: setIndex)
+        let held = SetFacts.snap(Double(heldSeconds), unit: .hold)
+        // The probe's number goes to the probe's channel — see `probeActuals`.
+        if current.isProbe {
+            probeActuals[exercise.pattern] = held
+            return
+        }
+        actuals = SetFacts.recording(held, in: actuals, exercise, set: setIndex)
     }
 
     // MARK: - Audible countdown of the last rest seconds
@@ -151,7 +160,8 @@ extension WorkoutFlowView {
             sessionNumber: session.sessionNumber,
             exIndex: exIndex, setIndex: setIndex,
             restEndDate: restEnd, restTotalSec: restTotal, restPlannedSec: restPlan,
-            setActuals: actuals, setsSkipped: setsSkipped, skipped: skippedPatterns,
+            setActuals: actuals, setsSkipped: setsSkipped, probes: probeActuals,
+            skipped: skippedPatterns,
             workoutStart: workoutStart ?? .now, savedAt: .now,
             fingerprint: WorkoutSnapshot.fingerprint(of: session),
             // Process death during the cool-down restores to the rating the
@@ -169,9 +179,12 @@ extension WorkoutFlowView {
     /// defensively even though the snapshot was validated.
     func restore(from snap: WorkoutSnapshot) {
         exIndex = min(max(snap.exIndex, 0), exercises.count - 1)
-        setIndex = min(max(snap.setIndex, 0), exercises[exIndex].sets - 1)
+        // The probe is a set of this exercise too, so the clamp counts it:
+        // restoring onto the last working set would silently drop the probe.
+        setIndex = min(max(snap.setIndex, 0), max(0, totalSets - 1))
         actuals = snap.facts
         setsSkipped = snap.skips
+        probeActuals = snap.probeFacts
         skippedPatterns = snap.skipped
         workoutStart = snap.workoutStart
         interruptedPattern = snap.interrupted
@@ -250,6 +263,7 @@ extension WorkoutFlowView {
         if firstUnfinished < exercises.count {
             for ex in exercises[firstUnfinished...] {
                 actuals.removeValue(forKey: ex.pattern)   // a skip wins over an actual
+                probeActuals.removeValue(forKey: ex.pattern)
                 setsSkipped.removeValue(forKey: ex.pattern)
                 skippedPatterns.insert(ex.pattern)
             }

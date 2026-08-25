@@ -16,7 +16,7 @@ struct TodayEntry: TimelineEntry {
     let status: WidgetSnapshot.DayStatus?
     let sessionNumber: Int?
     let week: [WidgetSnapshot.Day]
-    let totalLevel: Int?
+    let totalSteps: Int?
     let summary: WidgetSnapshot.Week?
     let nextLabel: String?
     let planSessionNumber: Int?
@@ -28,7 +28,7 @@ struct TodayEntry: TimelineEntry {
     /// extension process an entry already dated in the past (I-9).
     static var empty: TodayEntry {
         TodayEntry(date: .now, status: nil, sessionNumber: nil, week: [],
-                   totalLevel: nil, summary: nil, nextLabel: nil,
+                   totalSteps: nil, summary: nil, nextLabel: nil,
                    planSessionNumber: nil, planMinutes: nil, plan: [])
     }
 }
@@ -37,7 +37,7 @@ struct TodayEntry: TimelineEntry {
 struct TodayProvider: TimelineProvider {
     func placeholder(in context: Context) -> TodayEntry {
         TodayEntry(date: .now, status: .workout, sessionNumber: 1, week: [],
-                   totalLevel: nil, summary: nil, nextLabel: nil,
+                   totalSteps: nil, summary: nil, nextLabel: nil,
                    planSessionNumber: nil, planMinutes: nil, plan: [])
     }
 
@@ -84,7 +84,7 @@ struct TodayProvider: TimelineProvider {
                         guard let week else { return false }
                         return d.date >= week.start && d.date < week.end
                     },
-                    totalLevel: snapshot.totalLevel,
+                    totalSteps: snapshot.totalSteps,
                     summary: sameWeek ? snapshot.week : nil,
                     nextLabel: day.nextLabel,
                     planSessionNumber: snapshot.planSessionNumber,

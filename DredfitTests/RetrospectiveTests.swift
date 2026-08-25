@@ -5,73 +5,83 @@ import DredfitCore
 @MainActor
 final class RetrospectiveTests: XCTestCase {
 
-    private func record(daysAgo: Int, levelsAfter: [Pattern: Int]?) -> WorkoutRecord {
+    private func record(daysAgo: Int,
+                        positionsAfter: [Pattern: RecordedPosition]?) -> WorkoutRecord {
         WorkoutRecord(
             sessionNumber: 1,
             date: Calendar.current.date(byAdding: .day, value: -daysAgo, to: .now)!,
             result: .plan,
-            totalLevelAfter: levelsAfter?.values.reduce(0, +) ?? 0,
-            levelsAfter: levelsAfter)
+            totalProgressAfter: positionsAfter == nil ? nil : 0,
+            positionsAfter: positionsAfter)
     }
 
     /// A flat baseline for every rotation pattern (no pull_bar by default —
-    /// most journals predate the bar module).
-    private func base(_ level: Int) -> [Pattern: Int] {
-        Dictionary(uniqueKeysWithValues: Pattern.ordered.map { ($0, level) })
+    /// most journals predate the bar module). `variation` and `dose` are what
+    /// a position IS now: a scalar could not name one, because the measure of
+    /// §40.2 has no inverse.
+    private func base(variation: Int = 1, atCeiling: Bool = false) -> [Pattern: RecordedPosition] {
+        Dictionary(uniqueKeysWithValues: Pattern.ordered.map { p in
+            let grid = Dose.grid(Library.unit(p, variation))
+            return (p, RecordedPosition(variation: variation, sets: 3,
+                                        dose: atCeiling ? grid.max : grid.min))
+        })
+    }
+
+    private func at(_ p: Pattern, variation: Int, dose: Int) -> RecordedPosition {
+        RecordedPosition(variation: variation, sets: 3, dose: dose)
     }
 
     // MARK: - Movement choice
 
     func testPicksTheLargestGain() throws {
-        var current = base(3)
-        current[.hinge] = 11   // +8, everything else +3
+        var current = base(variation: 1)
+        current[.squat] = at(.squat, variation: 1, dose: 6)          // a few rungs
+        current[.hinge] = at(.hinge, variation: 3, dose: 8)          // two variations up
         let retro = try XCTUnwrap(Retrospective.make(
-            records: [record(daysAgo: 30, levelsAfter: base(0))],
-            currentLevels: current))
-        // Level 11 → tier 2 of hinge, named by the library, reps by decode.
-        let decoded = Level.decode(11)
-        let name = ExerciseLibrary.entry(for: .hinge).variations[decoded.tier - 1].name
-        XCTAssertTrue(retro.nowLine.contains(name),
+            records: [record(daysAgo: 30, positionsAfter: base())],
+            current: current))
+        XCTAssertTrue(retro.nowLine.contains(Library.name(.hinge, 3)),
                       "\(retro.nowLine) should name the biggest gain (hinge)")
-        XCTAssertTrue(retro.nowLine.contains("\(decoded.sets)×\(decoded.reps)"))
+        XCTAssertTrue(retro.nowLine.contains("3×8"))
     }
 
     func testTieBreaksInRotationOrder() throws {
-        // squat and calf both gain +5; squat comes first in Pattern.ordered.
-        var current = base(2)
-        current[.squat] = 5
-        current[.calf] = 5
+        // squat and calf both gain the same number of rungs; squat comes first
+        // in Pattern.allCases, which is the order the engine itself walks.
+        var current = base()
+        current[.squat] = at(.squat, variation: 1, dose: 8)
+        current[.calf] = at(.calf, variation: 1, dose: 8)
         let retro = try XCTUnwrap(Retrospective.make(
-            records: [record(daysAgo: 30, levelsAfter: base(0))],
-            currentLevels: current))
-        let squatName = ExerciseLibrary.entry(for: .squat).variations[0].name
-        XCTAssertTrue(retro.thenLine.contains(squatName),
+            records: [record(daysAgo: 30, positionsAfter: base())],
+            current: current))
+        XCTAssertTrue(retro.thenLine.contains(Library.name(.squat, 1)),
                       "tie must resolve to the earlier rotation slot")
     }
 
-    func testThenLineUsesTheBaseLevelEncoding() throws {
-        // Base at level 9 (tier 2): the "then" reps must come from
-        // repStart[2], not from a flat tier-1 floor — the recoding is exactly
-        // what this block must never contradict.
-        var start = base(0); start[.pushH] = 9
-        var current = base(1); current[.pushH] = 17
+    /// The "then" line states the movement and the dose the plan actually
+    /// asked for back then — not a number re-derived from a measure, which is
+    /// the thing v3 cannot do.
+    func testThenLineStatesThePositionItWasRecordedAt() throws {
+        var start = base()
+        start[.pushH] = at(.pushH, variation: 2, dose: 9)
+        var current = base()
+        current[.pushH] = at(.pushH, variation: 3, dose: 12)
         let retro = try XCTUnwrap(Retrospective.make(
-            records: [record(daysAgo: 30, levelsAfter: start)],
-            currentLevels: current))
-        let then = Level.decode(9)
-        XCTAssertTrue(retro.thenLine.contains("\(then.sets)×\(then.reps)"),
-                      "\(retro.thenLine) must encode level 9 via the core")
+            records: [record(daysAgo: 30, positionsAfter: start)],
+            current: current))
+        XCTAssertTrue(retro.thenLine.contains(Library.name(.pushH, 2)),
+                      "\(retro.thenLine) must name the movement it was recorded at")
+        XCTAssertTrue(retro.thenLine.contains("3×9"),
+                      "\(retro.thenLine) must state the dose it was recorded at")
     }
 
     func testHoldMovementFormatsAsSeconds() throws {
-        // core_anti_ext is a hold at tier 1: the line must read sets×seconds.
-        var current = base(1)
-        current[.coreAntiExt] = 6
+        var current = base()
+        current[.coreAntiExt] = at(.coreAntiExt, variation: 2, dose: 30)
         let retro = try XCTUnwrap(Retrospective.make(
-            records: [record(daysAgo: 30, levelsAfter: base(0))],
-            currentLevels: current))
-        let now = Level.decode(6)
-        XCTAssertTrue(retro.nowLine.contains("\(now.sets)×\(now.hold) s"),
+            records: [record(daysAgo: 30, positionsAfter: base())],
+            current: current))
+        XCTAssertTrue(retro.nowLine.contains("3×30 s"),
                       "\(retro.nowLine) should carry the hold in seconds")
     }
 
@@ -79,43 +89,42 @@ final class RetrospectiveTests: XCTestCase {
 
     func testNoSnapshotsMeansNoRetrospective() {
         XCTAssertNil(Retrospective.make(
-            records: [record(daysAgo: 30, levelsAfter: nil)],
-            currentLevels: base(5)))
-        XCTAssertNil(Retrospective.make(records: [], currentLevels: base(5)))
+            records: [record(daysAgo: 30, positionsAfter: nil)],
+            current: base(variation: 2)))
+        XCTAssertNil(Retrospective.make(records: [], current: base(variation: 2)))
     }
 
     func testNoGrowthMeansNoRetrospective() {
         XCTAssertNil(Retrospective.make(
-            records: [record(daysAgo: 30, levelsAfter: base(4))],
-            currentLevels: base(4)),
+            records: [record(daysAgo: 30, positionsAfter: base(variation: 2))],
+            current: base(variation: 2)),
             "standing still is not a story")
         XCTAssertNil(Retrospective.make(
-            records: [record(daysAgo: 30, levelsAfter: base(4))],
-            currentLevels: base(2)),
+            records: [record(daysAgo: 30, positionsAfter: base(variation: 2))],
+            current: base(variation: 1)),
             "a net drop must never be celebrated")
     }
 
     func testBaseIsTheFirstSnapshotNotTheFirstRecord() throws {
-        // Record 1 predates snapshots (nil); record 2 carries one. The base
-        // must be record 2 — silently skipping the nil, not failing.
+        // Record 1 predates the snapshot (nil) — which is also every record
+        // written before v3. The base must be record 2, skipped silently.
         let retro = try XCTUnwrap(Retrospective.make(
-            records: [record(daysAgo: 60, levelsAfter: nil),
-                      record(daysAgo: 40, levelsAfter: base(0))],
-            currentLevels: base(3)))
+            records: [record(daysAgo: 60, positionsAfter: nil),
+                      record(daysAgo: 40, positionsAfter: base())],
+            current: base(variation: 2)))
         XCTAssertFalse(retro.thenLine.isEmpty)
     }
 
     func testPullBarAbsentFromBaseIsExcluded() throws {
-        // The bar module joined after the first workout: current levels have
-        // pull_bar, the base snapshot does not. Its +12 must not win.
-        var current = base(1)
-        current[.pullBar] = 12
-        current[.lunge] = 3    // the honest winner: +2
+        // The bar module joined after the first workout: the current positions
+        // have pull_bar, the base snapshot does not. Its big gain must not win.
+        var current = base()
+        current[.pullBar] = at(.pullBar, variation: 5, dose: 10)
+        current[.lunge] = at(.lunge, variation: 2, dose: 5)    // the honest winner
         let retro = try XCTUnwrap(Retrospective.make(
-            records: [record(daysAgo: 30, levelsAfter: base(1))],
-            currentLevels: current))
-        let lungeName = ExerciseLibrary.entry(for: .lunge).variations[0].name
-        XCTAssertTrue(retro.thenLine.contains(lungeName),
+            records: [record(daysAgo: 30, positionsAfter: base())],
+            current: current))
+        XCTAssertTrue(retro.thenLine.contains(Library.name(.lunge, 1)),
                       "\(retro.thenLine): a pattern without a base must not compete")
     }
 
@@ -123,14 +132,14 @@ final class RetrospectiveTests: XCTestCase {
 
     func testSinceLineSwitchesToMonthsAtNineWeeks() throws {
         let atEight = try XCTUnwrap(Retrospective.make(
-            records: [record(daysAgo: 8 * 7, levelsAfter: base(0))],
-            currentLevels: base(3)))
+            records: [record(daysAgo: 8 * 7, positionsAfter: base())],
+            current: base(variation: 2)))
         XCTAssertTrue(atEight.sinceLine.contains("8"),
                       "\(atEight.sinceLine) should still count weeks")
 
         let atNine = try XCTUnwrap(Retrospective.make(
-            records: [record(daysAgo: 9 * 7, levelsAfter: base(0))],
-            currentLevels: base(3)))
+            records: [record(daysAgo: 9 * 7, positionsAfter: base())],
+            current: base(variation: 2)))
         XCTAssertTrue(atNine.sinceLine.contains("2"),
                       "\(atNine.sinceLine) should have switched to months")
     }

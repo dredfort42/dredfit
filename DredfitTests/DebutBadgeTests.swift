@@ -4,17 +4,27 @@ import DredfitCore
 
 @MainActor
 final class DebutBadgeTests: AppStoreTestCase {
-    /// Every workout gets its own day. Growth moves one set at a time now, so
-    /// a tier is 24 growth events rather than 8 — and stacked on a single
-    /// instant the weekly ceiling (six sub-steps for the fast tissues) would
-    /// hold the walk short of any tier boundary forever.
+    /// Every workout gets its own day: stacked on a single instant the weekly
+    /// ceiling would hold the walk short of any ladder boundary forever.
+    ///
+    /// And every probe the plan offers is PASSED. In v3 that is the only door
+    /// into a new movement (§40.4) — a run of "easy" taps alone can no longer
+    /// cross a variation, so a walk that did not answer its probes would never
+    /// produce a debut at all.
     private var day = 0
     private func train(_ store: AppStore, _ result: FeedbackResult,
                        skipped: Set<Pattern> = []) {
         day += 1
-        store.completeWorkout(session: store.nextSession, result: result,
-                              overrides: [:], skipped: skipped,
-                              date: Date(timeIntervalSinceNow: Double(day) * 86_400))
+        let session = store.nextSession
+        var probes: [Pattern: Int] = [:]
+        for ex in session.exercises {
+            guard let probe = ex.probe else { continue }
+            probes[ex.pattern] = Dose.grid(probe.unit).min
+        }
+        _ = store.completeWorkout(session: session, result: result,
+                                  overrides: [:], skipped: skipped,
+                                  probes: probes,
+                                  date: Date(timeIntervalSinceNow: Double(day) * 86_400))
     }
 
     /// Before any workout there is nothing to compare against — the first
@@ -24,13 +34,13 @@ final class DebutBadgeTests: AppStoreTestCase {
         XCTAssertTrue(store.debutPatterns.isEmpty)
     }
 
-    func testDebutAppearsWhenAPatternCrossesIntoANewTier() {
+    func testDebutAppearsWhenAPatternCrossesIntoANewVariation() {
         let store = AppStore(storageURL: tempURL)
         var sawDebut = false
-        // A tier is 24 growth events now, not 8 — growth moves one set at a
-        // time — so the walk to the first tier boundary needs room. The
+        // A variation is a whole grid of doses now — twelve rungs at three
+        // sets each — so the walk to the first boundary needs room. The
         // subject (a crossing raises the badge) is unchanged.
-        for _ in 0..<60 {
+        for _ in 0..<120 {
             let debuts = store.debutPatterns
             if !debuts.isEmpty {
                 sawDebut = true
@@ -43,16 +53,16 @@ final class DebutBadgeTests: AppStoreTestCase {
                             guard !(record.skipped?.contains(p) ?? false) else { return nil }
                             return record.exercises?
                                 .filter { $0.pattern == p }
-                                .map(\.tier).max()
+                                .map(\.variation).max()
                         }
                         .max() ?? 0
-                    XCTAssertGreaterThan(planned?.tier ?? 0, maxPerformed)
+                    XCTAssertGreaterThan(planned?.variation ?? 0, maxPerformed)
                 }
                 break
             }
             train(store, .more)
         }
-        XCTAssertTrue(sawDebut, "the run must cross at least one tier boundary")
+        XCTAssertTrue(sawDebut, "the run must cross at least one variation boundary")
     }
 
     /// Performing the new variation retires its badge: the tier is in the

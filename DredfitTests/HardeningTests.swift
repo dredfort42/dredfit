@@ -32,14 +32,33 @@ final class HardeningTests: AppStoreTestCase {
     /// Seeds a journal whose last workout happened `daysAgo` days ago —
     /// several sessions, so the levels sit clear of the zero clamp. Returns
     /// the levels as seeded.
+    /// Four workouts, then the positions they left behind — the shape a decay
+    /// is measured against now that there is no level to subtract from.
     @discardableResult
-    private func seedWorkout(daysAgo: Int, at url: URL) -> [Pattern: Int] {
+    private func seedWorkout(daysAgo: Int, at url: URL) -> [Pattern: RecordedPosition] {
         let store = AppStore(storageURL: url, notifications: NotificationSpy())
         let date = Calendar.current.date(byAdding: .day, value: -daysAgo, to: .now)!
         for _ in 0..<4 {
-            store.completeWorkout(session: store.nextSession, result: .plan, date: date)
+            _ = store.completeWorkout(session: store.nextSession, result: .plan, date: date)
         }
-        return store.engineState.levels
+        return AppStore.positions(of: store.engineState)
+    }
+
+    /// A decay is one rung of DOSE (§40.3), and on the floor of a grid it takes
+    /// a set instead — so what every assertion below actually claims is "the
+    /// plan moved, and it never moved up".
+    private func assertDecayed(_ store: AppStore, from seeded: [Pattern: RecordedPosition],
+                               _ message: String) {
+        var moved = false
+        for p in Pattern.allCases {
+            guard let was = seeded[p] else { continue }
+            let before = Engine.progress(p, variation: was.variation,
+                                         sets: was.sets, dose: was.dose)
+            let now = Engine.progress(store.engineState, p)
+            XCTAssertLessThanOrEqual(now, before, "\(p): \(message)")
+            if now < before { moved = true }
+        }
+        XCTAssertTrue(moved, message)
     }
 
     /// Regression: a cold launch renders already `.active`, so the phase
@@ -50,19 +69,16 @@ final class HardeningTests: AppStoreTestCase {
 
         let cold = AppStore(storageURL: tempURL, notifications: NotificationSpy())
         cold.activate()
-        for p in Pattern.allCases {
-            XCTAssertEqual(cold.engineState.levels[p], max(0, (seeded[p] ?? 0) - 1),
-                           "\(p): the cold launch must see the −1 decay")
-        }
+        assertDecayed(cold, from: seeded, "the cold launch must see the decay")
 
-        let once = cold.engineState.levels
+        let once = AppStore.positions(of: cold.engineState)
         cold.activate()
-        XCTAssertEqual(cold.engineState.levels, once,
+        XCTAssertEqual(AppStore.positions(of: cold.engineState), once,
                        "a second activation in the same break must not decay again")
 
         let relaunched = AppStore(storageURL: tempURL, notifications: NotificationSpy())
         relaunched.activate()
-        XCTAssertEqual(relaunched.engineState.levels, once,
+        XCTAssertEqual(AppStore.positions(of: relaunched.engineState), once,
                        "the stamp persists — a relaunch inside the break must not decay again")
     }
 
@@ -92,10 +108,8 @@ final class HardeningTests: AppStoreTestCase {
                                               ofItemAtPath: tempURL.path)
 
         frozen.activate()
-        for p in Pattern.allCases {
-            XCTAssertEqual(frozen.engineState.levels[p], max(0, (seeded[p] ?? 0) - 1),
-                           "\(p): one activate() must both reload the journal and decay it")
-        }
+        assertDecayed(frozen, from: seeded,
+                      "one activate() must both reload the journal and decay it")
     }
 
     // MARK: - Reminders (injectable scheduler)

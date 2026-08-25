@@ -29,11 +29,28 @@ struct AppData: Codable {
         case engineState, records, settings, pendingWorkout
     }
 
+    /// True when the engine state on disk could not be read and the engine
+    /// started clean. Not an error and not a corruption: §40.8 says a state
+    /// written before v3 gives the engine `initState`, and this is that.
+    var engineStateReset = false
+
     /// The journal decodes record-by-record — one unreadable entry (e.g.
     /// written by a newer version) must not throw away the whole file.
+    ///
+    /// And the ENGINE STATE decodes leniently for the same reason, since v3:
+    /// a state written by an older build carries `levels` and cannot be read
+    /// (§40.8 — no migration, deliberately), and letting that failure take the
+    /// journal and the settings with it would throw away the person's history
+    /// and every choice they ever made over a progression they were told they
+    /// would have to walk back anyway.
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
-        engineState = try c.decode(EngineState.self, forKey: .engineState)
+        if let state = try? c.decode(EngineState.self, forKey: .engineState) {
+            engineState = state
+        } else {
+            engineState = .initial
+            engineStateReset = true
+        }
         settings = try c.decodeIfPresent(AppSettings.self, forKey: .settings)
         // try?, not try: a snapshot written by a newer version must degrade
         // to "nothing to resume", never to a quarantined journal.
@@ -128,6 +145,13 @@ final class AppStore {
         records = loaded?.records ?? []
         settings = loaded?.settings ?? AppSettings()
         pendingWorkout = loaded?.pendingWorkout
+        if loaded?.engineStateReset == true {
+            // Not a corruption and not quarantined: §40.8 says a state written
+            // before v3 hands the engine `initState`, and the file is rewritten
+            // in the new shape on the next persist. The journal beside it is
+            // whole, which is the half of that decision the person notices.
+            Self.log.notice("engine state predates v3 — started clean, journal kept")
+        }
         if let dropped = loaded?.droppedRecordCount, dropped > 0 {
             // Keep the full original before the next persist() rewrites the
             // file without the unreadable entries.
@@ -286,7 +310,15 @@ final class AppStore {
         // bottom of the scale.
         if CommandLine.arguments.contains("--uitest-long-session") {
             var seeded = EngineState.initial
-            for p in Pattern.allCases { seeded.levels[p] = 34 }
+            for p in Pattern.allCases {
+                // The top variation is the only place bands live (§40.5), so
+                // "four sets" is a position, not a number that can be set on
+                // its own.
+                let top = Library.count(p)
+                seeded.vars[p] = top
+                seeded.doses[p] = Dose.grid(Library.unit(p, top)).max
+                seeded.sets[p] = 4
+            }
             engineState = seeded
         }
         // One workout away from several milestones. Seeds state only — the
@@ -294,16 +326,21 @@ final class AppStore {
         if CommandLine.arguments.contains("--uitest-milestone") {
             var seeded = EngineState.initial
             seeded.counter = 9
+            // One growth event from a new SET BAND — which fires on a plain
+            // "on plan" tap. A new variation would need a probe passed inside
+            // the workout, and a seed cannot promise the driver will pass it.
             for ex in Engine.generateSession(seeded).exercises.prefix(2) {
-                seeded.levels[ex.pattern] = 7
+                let top = Library.count(ex.pattern)
+                seeded.vars[ex.pattern] = top
+                seeded.doses[ex.pattern] = Dose.grid(Library.unit(ex.pattern, top)).max
             }
             engineState = seeded
             records = [WorkoutRecord(
                 sessionNumber: 1,
                 date: Calendar.current.date(byAdding: .day, value: -63, to: .now)!,
                 result: .plan,
-                totalLevelAfter: 0,
-                levelsAfter: EngineState.initial.levels)]
+                totalProgressAfter: 0,
+                positionsAfter: Self.positions(of: .initial))]
         }
         // Only workout 20 days ago → today opens on the comeback card.
         if CommandLine.arguments.contains("--uitest-comeback") {
@@ -311,18 +348,28 @@ final class AppStore {
         }
     }
 
-    /// A single workout `daysAgo` at a uniform level 20 — the seed the three
-    /// break-shaped UI-test states share; only the gap differs.
+    /// A single workout `daysAgo`, every movement a couple of variations up —
+    /// the seed the three break-shaped UI-test states share; only the gap
+    /// differs. The journal is filled in so a descent has somewhere to land
+    /// (§40.6): without it a comeback would land every pattern on 3×4.
     private func seedLoneWorkout(daysAgo: Int) {
         var seeded = EngineState.initial
         seeded.counter = 11
-        for p in Pattern.allCases { seeded.levels[p] = 20 }
+        for p in Pattern.allCases {
+            let target = min(3, Library.count(p))
+            seeded.vars[p] = target
+            seeded.doses[p] = Dose.grid(Library.unit(p, target)).max
+            var journal: [Int: Int] = [:]
+            for v in 1...target { journal[v] = Dose.grid(Library.unit(p, v)).max }
+            seeded.shown[p] = journal
+        }
         engineState = seeded
         records = [WorkoutRecord(
             sessionNumber: 11,
             date: Calendar.current.date(byAdding: .day, value: -daysAgo, to: .now)!,
             result: .plan,
-            totalLevelAfter: 180)]
+            totalProgressAfter: Engine.totalProgress(seeded),
+            positionsAfter: Self.positions(of: seeded))]
         settings.comebackDecidedFor = nil
         settings.restWeekdays = []
     }
@@ -349,12 +396,12 @@ final class AppStore {
             // count both. Nothing writes `discomfort` any more.
             let skipped = (record.skipped ?? []).union(record.discomfort ?? [])
             for ex in exercises where !skipped.contains(ex.pattern) {
-                maxPerformed[ex.pattern] = max(maxPerformed[ex.pattern] ?? 0, ex.tier)
+                maxPerformed[ex.pattern] = max(maxPerformed[ex.pattern] ?? 0, ex.variation)
             }
         }
         var debuts: Set<Pattern> = []
         for ex in nextSession.exercises {
-            if let seen = maxPerformed[ex.pattern], ex.tier > seen {
+            if let seen = maxPerformed[ex.pattern], ex.variation > seen {
                 debuts.insert(ex.pattern)
             }
         }
@@ -366,13 +413,31 @@ final class AppStore {
     // variation or fewer sets, which is the whole point of the wave: the
     // channel that removed movements removed them for weeks.
 
-    var totalLevel: Int { engineState.levels.values.reduce(0, +) }
+    /// How far along their ladders every movement stands, summed — the scale
+    /// §40.2 puts in place of the total level. A clean start reads zero, just
+    /// as the old total did.
+    var totalProgress: Int { Engine.totalProgress(engineState) }
+
+    /// The position of every movement right now, in the form the journal
+    /// records it.
+    var currentPositions: [Pattern: RecordedPosition] { Self.positions(of: engineState) }
+
+    static func positions(of state: EngineState) -> [Pattern: RecordedPosition] {
+        var out: [Pattern: RecordedPosition] = [:]
+        for p in Pattern.allCases {
+            let pos = state.position(p)
+            out[p] = RecordedPosition(variation: pos.variation, sets: pos.sets, dose: pos.dose)
+        }
+        return out
+    }
 
     /// Oldest first. `through` cuts it at a date: a milestone card must not
-    /// draw a curve running past the event it celebrates.
-    func levelCurve(through date: Date? = nil) -> [Int] {
+    /// draw a curve running past the event it celebrates. Records written
+    /// before v3 carry no point on this scale and are left out rather than
+    /// plotted on the wrong one.
+    func progressCurve(through date: Date? = nil) -> [Int] {
         let history = date.map { cut in records.filter { $0.date <= cut } } ?? records
-        return history.map(\.totalLevelAfter)
+        return history.compactMap(\.totalProgressAfter)
     }
 
     var lastRecord: WorkoutRecord? { records.last }
@@ -411,6 +476,11 @@ final class AppStore {
                          /// Handed over as what happened — the engine settles
                          /// when it lands, and it lands AFTER the rating.
                          setsSkipped: SetFacts.Skips = [:],
+                         /// What the PROBE set showed, per movement (§40.4).
+                         /// Its own argument, never folded into `overrides`:
+                         /// the probe is a different exercise, and averaging
+                         /// two variations is exactly what §40 forbids.
+                         probes: [Pattern: Int] = [:],
                          durationSec: Int? = nil,
                          date: Date = .now) -> [Milestone] {
         // Mirror of the engine's replay guard: a session that does not belong
@@ -437,18 +507,19 @@ final class AppStore {
                                            result: result, overrides: overrides,
                                            skipped: skipped,
                                            setsSkipped: setsSkipped,
-                                           gapDays: gapFraction(now: date))
+                                           gapDays: gapFraction(now: date),
+                                           probes: probes)
         records.append(WorkoutRecord(
             sessionNumber: session.sessionNumber,
             date: date,
             result: result,
-            totalLevelAfter: totalLevel,
+            totalProgressAfter: totalProgress,
             exercises: session.exercises,
             actuals: overrides.isEmpty ? nil : overrides,
             setActuals: setActuals.isEmpty ? nil : setActuals,
             setsSkipped: setsSkipped.isEmpty ? nil : setsSkipped,
             skipped: skipped.isEmpty ? nil : skipped,
-            levelsAfter: engineState.levels,
+            positionsAfter: currentPositions,
             durationSec: durationSec))
         persist()
         // A morning workout takes tonight's reminder down with it.

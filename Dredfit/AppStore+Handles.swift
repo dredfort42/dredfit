@@ -28,13 +28,11 @@ extension AppStore {
 
     // MARK: - Per-movement: an easier variation
 
-    /// False on tier 1 — there is no variation below it, and the control says
-    /// so instead of disappearing.
+    /// False on the first variation — there is nothing below it in the
+    /// library, and the control says so instead of disappearing.
     func canMakeEasier(_ pattern: Pattern) -> Bool {
-        Engine.easierLevel(pattern: pattern,
-                           level: engineState.levels[pattern] ?? 0,
-                           sub: engineState.sub[pattern] ?? 0,
-                           cut: engineState.cutOf(pattern)) != nil
+        Engine.easierPosition(pattern: pattern, position: engineState.position(pattern),
+                              shown: engineState.shown) != nil
     }
 
     /// The name this movement would carry after the handle — shown BEFORE the
@@ -56,7 +54,7 @@ extension AppStore {
     ///
     /// This is what replaced the handle. The question the handle answered was
     /// "will this fit today", and a range answers it without asking anyone to
-    /// decide anything: 26–34 min at L0, 40–94 at L47.
+    /// decide anything.
     ///
     /// Both numbers are the engine's own `estimatedTotalMin` — the app owns no
     /// arithmetic about duration. The floor session is a QUESTION put to the
@@ -73,7 +71,7 @@ extension AppStore {
         for pattern in Pattern.allCases {
             floored = Engine.setCut(
                 state: floored, pattern: pattern,
-                cut: Level.cutMax(level: floored.levels[pattern] ?? 0))
+                cut: Engine.cutMax(sets: floored.position(pattern).sets))
         }
         let shortest = min(Engine.generateSession(floored).estimatedTotalMin, full)
         return (Int(shortest.rounded()), Int(full.rounded()))

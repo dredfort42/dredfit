@@ -68,15 +68,20 @@ struct HistorySheet: View {
                 Spacer()
             }
 
-            HStack {
-                Text("Total level after: \(record.totalLevelAfter)")
-                    .dredfitFont(13.5)
-                    .monospacedDigit()
-                    .foregroundStyle(Theme.ink2)
-                Spacer()
+            // A record written before v3 carries a number on a scale that no
+            // longer exists, so the line is simply absent for it rather than
+            // stated in the wrong unit.
+            if let steps = record.totalProgressAfter {
+                HStack {
+                    Text("Total steps after: \(steps)")
+                        .dredfitFont(13.5)
+                        .monospacedDigit()
+                        .foregroundStyle(Theme.ink2)
+                    Spacer()
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 10)
             }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 10)
 
             PrimaryButton(title: String(localized: "Got it")) { dismiss() }
                 .padding(.horizontal, 24)
@@ -110,12 +115,15 @@ struct HistorySheet: View {
     }
 
     /// The snapshot froze `name` in the language active when the session was
-    /// generated; resolve it again so history follows a language switch. The
-    /// stored name stays the fallback for a tier the library no longer has.
+    /// generated; resolve it again so history follows a language switch.
+    ///
+    /// The stored name stays the fallback for a variation the library no
+    /// longer has — and, above all, for a record written before v3, which
+    /// decodes with `variation == 0`: the old tier numbers point at different
+    /// movements now, so those lines keep the names they were written with.
     private func currentName(_ ex: SessionExercise) -> String {
-        let variations = ExerciseLibrary.entry(for: ex.pattern).variations
-        guard (1...variations.count).contains(ex.tier) else { return ex.name }
-        return variations[ex.tier - 1].name
+        guard (1...Library.count(ex.pattern)).contains(ex.variation) else { return ex.name }
+        return Library.name(ex.pattern, ex.variation)
     }
 
     private var resultCaption: String {

@@ -29,7 +29,7 @@ extension TodayView {
     /// better. The card is the target; the handle under it is its own.
     func planRow(_ ex: SessionExercise, debuts: Set<Pattern>) -> some View {
         Button {
-            techniqueFor = ex
+            techniqueFor = TechniqueTarget(ex)
         } label: {
             ExerciseRow(exercise: ex,
                         badge: debuts.contains(ex.pattern)

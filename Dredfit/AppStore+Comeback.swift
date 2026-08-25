@@ -25,15 +25,10 @@ extension AppStore {
         return ("\(was.name) · \(was.display)", "\(easier.name) · \(easier.display)")
     }
 
-    /// After a silent decay for the same break this is the weakened
-    /// remainder — what accepting would actually subtract now.
-    func comebackDrop(now: Date? = nil) -> Int {
-        guard let gap = gapDays(now: now) else { return 0 }
-        let before = engineState
-        let after = Engine.applyComeback(state: before, gapDays: gap,
-                                         alreadyDecayed: silentDecayAppliedForCurrentBreak)
-        return (before.levels[.pull] ?? 0) - (after.levels[.pull] ?? 0)
-    }
+    // `comebackDrop` — "how many levels accepting would subtract" — went with
+    // the level itself (§40.7). Nothing called it: the card shows the two
+    // plans as movements and doses, which is the honest form of the same
+    // answer and the only one v3 can state.
 
     // The "I was sick" lens is gone, and with it `illnessSessionsLeft` and the
     // quiet offer that armed it. The lens made the plan HEAVIER in 76 cells

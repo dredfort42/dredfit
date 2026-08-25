@@ -122,7 +122,7 @@ extension AppStore {
     func unnamedLessSuspect() -> Pattern? {
         var best: Pattern?
         var bestHits = 0
-        for pattern in Pattern.ordered + [.pullBar] {
+        for pattern in Pattern.allCases {
             var hits = 0, seen = 0
             for record in records.reversed() {
                 guard let exercises = record.exercises else { break }
@@ -142,9 +142,8 @@ extension AppStore {
         // guard went with the handle it named — volume is answered inside the
         // workout now, and a prompt on the plan cannot offer it.
         guard let best else { return nil }
-        guard Engine.easierLevel(pattern: best, level: engineState.levels[best] ?? 0,
-                                 sub: engineState.sub[best] ?? 0,
-                                 cut: engineState.cutOf(best)) != nil else { return nil }
+        guard Engine.easierPosition(pattern: best, position: engineState.position(best),
+                                    shown: engineState.shown) != nil else { return nil }
         return best
     }
 

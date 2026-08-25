@@ -44,7 +44,7 @@ struct TodayStatusView: View {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 kicker
                 Spacer(minLength: 0)
-                totalLevelLine
+                totalStepsLine
             }
             Spacer(minLength: 8)
             statusBlock(size: 22)
@@ -150,14 +150,14 @@ struct TodayStatusView: View {
     }
 
     @ViewBuilder
-    private var totalLevelLine: some View {
-        if let level = entry.totalLevel {
+    private var totalStepsLine: some View {
+        if let steps = entry.totalSteps {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Text("\(level)")
+                Text("\(steps)")
                     .font(.system(size: 22, weight: .heavy))
                     .monospacedDigit()
                     .foregroundStyle(Theme.ink)
-                Text("level")
+                Text("steps")
                     .font(.system(size: 10.5))
                     .foregroundStyle(Theme.ink2)
             }
@@ -255,8 +255,8 @@ struct TodayStatusView: View {
             (Text("This week")
                 + Text(verbatim: " · ")
                 + Text("\(week.workouts) workouts")
-                + Text(" · \(sign)", comment: "A separator dot followed by the sign of the level change.")
-                + Text("\(week.levelsDelta) levels"))
+                + Text(" · \(sign)", comment: "A separator dot followed by the sign of the weekly change.")
+                + Text("\(week.levelsDelta) steps"))
                 .font(.system(size: 11.5))
                 .foregroundStyle(Theme.ink2)
                 .lineLimit(1)

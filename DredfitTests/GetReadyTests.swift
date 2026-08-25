@@ -5,6 +5,16 @@ import DredfitCore
 @MainActor
 final class GetReadyTests: XCTestCase {
 
+    /// The block composes six moves out of nine now (§40.1), so a stage
+    /// machine cannot be asked about "the moves" — it has to be asked about a
+    /// COMPOSITION. Session one's, throughout; the reserve tests in
+    /// BlockReserveTests walk all of them.
+    private let warmupMoves = Warmup.moves(sessionNumber: 1)
+
+    /// The index of the one move that pays the transition supplement — the
+    /// trip down to the floor.
+    private var floorIndex: Int { warmupMoves.firstIndex { $0.needsSetup } ?? 0 }
+
     // MARK: - The transition itself
 
     /// RE-MARKED, and the claim is now the OPPOSITE one.
@@ -22,7 +32,8 @@ final class GetReadyTests: XCTestCase {
         XCTAssertNotEqual(GetReady.seconds, Cooldown.sideSwitchPauseSec,
                           "the two lengths parted in v2.26 and must stay apart")
         XCTAssertEqual(GetReady.stageSeconds(needsSetup: false), GetReady.seconds)
-        XCTAssertEqual(Warmup.stageSeconds(.getReady, index: 0), GetReady.seconds,
+        XCTAssertEqual(Warmup.stageSeconds(.getReady, of: Warmup.moves(sessionNumber: 1)[0]),
+                       GetReady.seconds,
                        "marching starts where the user already stands")
     }
 
@@ -44,7 +55,15 @@ final class GetReadyTests: XCTestCase {
         // pinned: in the warm-up only cat-cow leaves standing; in the
         // cool-down only forward fold, the lat stretch and the wrists stay
         // upright with no wall to walk to.
-        XCTAssertEqual(Warmup.moves.filter(\.needsSetup).map(\.id), ["cat-cow"])
+        // The warm-up composes six of nine now (§40.1), and three of the nine
+        // are on the floor — so "who pays the supplement" is a property of the
+        // COMPOSITION, not of a move. Exactly one per session, always the trip
+        // down to the floor, in every composition there is.
+        for session in 1...Warmup.compositionCount {
+            let moves = Warmup.moves(sessionNumber: session)
+            XCTAssertEqual(moves.filter(\.needsSetup).map(\.id), ["cat-cow"],
+                           "session \(session)")
+        }
         let allNine = Cooldown.positions(performed: [.squat, .pull, .pushH])
             + Cooldown.positions(performed: [.coreAntiExt, .calf, .lunge])
         let standing = Set(allNine.filter { !$0.needsSetup }.map(\.id))
@@ -77,7 +96,7 @@ final class GetReadyTests: XCTestCase {
     /// the reserve to the second, which is why the supplement is five and
     /// not six.
     func testBothBlocksFitInsideTheReservedWarmupAndCooldownMinutes() {
-        let warmup = Warmup.moves.reduce(0) { total, move in
+        let warmup = warmupMoves.reduce(0) { total, move in
             total + GetReady.seconds
                 + (move.needsSetup ? GetReady.setupSupplementSec : 0)
                 + Warmup.moveSeconds
@@ -108,7 +127,7 @@ final class GetReadyTests: XCTestCase {
         let performed = Engine.generateSession(.initial).exercises.map(\.pattern)
         let cooldown = Cooldown.positions(performed: performed)
             .reduce(0) { $0 + cost(of: $1) }
-        let warmup = Warmup.moves.reduce(0) { total, move in
+        let warmup = warmupMoves.reduce(0) { total, move in
             total + GetReady.seconds
                 + (move.needsSetup ? GetReady.setupSupplementSec : 0)
                 + Warmup.moveSeconds
@@ -122,24 +141,26 @@ final class GetReadyTests: XCTestCase {
     func testEveryWarmupMoveOpensWithTheTransition() {
         // The first one included: the user has just pressed Start and is
         // still standing by the phone.
-        XCTAssertEqual(Warmup.step(after: (0, .getReady))?.stage, .move)
-        let next = Warmup.step(after: (0, .move))
+        XCTAssertEqual(Warmup.step(after: (0, .getReady), moves: warmupMoves)?.stage, .move)
+        let next = Warmup.step(after: (0, .move), moves: warmupMoves)
         XCTAssertEqual(next?.index, 1)
         XCTAssertEqual(next?.stage, .getReady)
     }
 
     func testTheWarmupEndsAfterTheLastMove() {
-        XCTAssertNil(Warmup.step(after: (Warmup.moves.count - 1, .move)),
+        XCTAssertNil(Warmup.step(after: (warmupMoves.count - 1, .move), moves: warmupMoves),
                      "the last move hands the flow to the first exercise")
-        XCTAssertNotNil(Warmup.step(after: (Warmup.moves.count - 1, .getReady)),
+        XCTAssertNotNil(Warmup.step(after: (warmupMoves.count - 1, .getReady),
+                                    moves: warmupMoves),
                         "...but its own transition still has a move to announce")
     }
 
     func testWarmupAdvanceNamesTheStageItEnters() {
-        let intoMove = Warmup.advance(from: (0, .getReady), overshoot: 0)
+        let intoMove = Warmup.advance(from: (0, .getReady), overshoot: 0, moves: warmupMoves)
         XCTAssertEqual(intoMove?.entered, .move)
         XCTAssertEqual(intoMove?.remaining, Warmup.moveSeconds)
-        let intoTransition = Warmup.advance(from: (0, .move), overshoot: 0)
+        let intoTransition = Warmup.advance(from: (0, .move), overshoot: 0,
+                                            moves: warmupMoves)
         XCTAssertEqual(intoTransition?.entered, .getReady)
         XCTAssertEqual(intoTransition?.index, 1)
         XCTAssertEqual(intoTransition?.remaining, GetReady.seconds)
@@ -151,35 +172,42 @@ final class GetReadyTests: XCTestCase {
         // announced. This is written from the constant rather than from "7",
         // which was the base of five plus two and silently became wrong when
         // the base doubled.
-        let landing = Warmup.advance(from: (0, .move), overshoot: GetReady.seconds + 2)
+        let landing = Warmup.advance(from: (0, .move), overshoot: GetReady.seconds + 2,
+                                     moves: warmupMoves)
         XCTAssertEqual(landing?.index, 1)
         XCTAssertEqual(landing?.stage, .move)
         XCTAssertEqual(landing?.remaining, Warmup.moveSeconds - 2)
         // An absence past the whole block simply ends it.
-        XCTAssertNil(Warmup.advance(from: (0, .move), overshoot: 10_000))
+        XCTAssertNil(Warmup.advance(from: (0, .move), overshoot: 10_000, moves: warmupMoves))
     }
 
     func testWarmupOvershootLandsOnAWholeMoveBoundary() {
         // A full move-plus-transition of absence advances by exactly one move
         // and lands at the top of the next transition, not mid-anything.
         let cycle = GetReady.seconds + Warmup.moveSeconds
-        let landing = Warmup.advance(from: (0, .move), overshoot: cycle)
+        let landing = Warmup.advance(from: (0, .move), overshoot: cycle, moves: warmupMoves)
         XCTAssertEqual(landing?.index, 2)
         XCTAssertEqual(landing?.stage, .getReady)
         XCTAssertEqual(landing?.remaining, GetReady.seconds)
     }
 
-    func testTheSupplementedTransitionStretchesTheWayIntoCatCow() {
-        // The one warm-up supplement (issue #83): the transition into cat-cow
-        // covers getting down onto all fours, and advance() absorbs it at its
-        // LONGER length — the overshoot below is that whole transition plus
-        // 2 s of the move itself, and it is written from the constants so the
-        // supplement is what the test is actually about.
-        let catCow = Warmup.moves.count - 1
+    func testTheSupplementedTransitionStretchesTheWayOntoTheFloor() {
+        // The one warm-up supplement (issue #83): the transition that takes
+        // the person down to the floor, and advance() absorbs it at its LONGER
+        // length — the overshoot below is that whole transition plus 2 s of
+        // the move itself, written from the constants so the supplement is
+        // what the test is actually about.
+        //
+        // The block has three floor moves in its pool now (§40.1) and still
+        // exactly ONE supplement: it is the trip DOWN that is paid for, not
+        // each position on the floor.
+        let onto = floorIndex
+        XCTAssertGreaterThan(onto, 0, "the floor is never the first move")
         let supplemented = GetReady.seconds + GetReady.setupSupplementSec
-        XCTAssertEqual(Warmup.stageSeconds(.getReady, index: catCow), supplemented)
-        let landing = Warmup.advance(from: (catCow - 1, .move), overshoot: supplemented + 2)
-        XCTAssertEqual(landing?.index, catCow)
+        XCTAssertEqual(Warmup.stageSeconds(.getReady, of: warmupMoves[onto]), supplemented)
+        let landing = Warmup.advance(from: (onto - 1, .move), overshoot: supplemented + 2,
+                                     moves: warmupMoves)
+        XCTAssertEqual(landing?.index, onto)
         XCTAssertEqual(landing?.stage, .move)
         XCTAssertEqual(landing?.remaining, Warmup.moveSeconds - 2)
     }
@@ -190,7 +218,8 @@ final class GetReadyTests: XCTestCase {
         // Warm-up: one second past a move's own end, so the run opens on the
         // move and rests inside the next position's transition.
         let warmup = Warmup.advance(from: (0, .getReady),
-                                    overshoot: Warmup.moveSeconds + 1)
+                                    overshoot: Warmup.moveSeconds + 1,
+                                    moves: warmupMoves)
         XCTAssertEqual(warmup?.entered, .move, "the run opened on the move")
         XCTAssertEqual(warmup?.stage, .getReady, "...but came to rest on a transition")
         XCTAssertEqual(warmup?.index, 1)
@@ -245,10 +274,10 @@ final class GetReadyTests: XCTestCase {
             }
         }
         XCTAssertGreaterThan(Cooldown.switchPauseSeconds, 0)
-        for index in Warmup.moves.indices {
+        for move in warmupMoves {
             for stage in [Warmup.Stage.getReady, .move] {
-                XCTAssertGreaterThan(Warmup.stageSeconds(stage, index: index), 0,
-                                     "\(stage) at \(index) has no length")
+                XCTAssertGreaterThan(Warmup.stageSeconds(stage, of: move), 0,
+                                     "\(stage) at \(move.id) has no length")
             }
         }
     }

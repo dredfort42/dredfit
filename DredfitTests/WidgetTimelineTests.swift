@@ -54,7 +54,7 @@ final class WidgetTimelineTests: XCTestCase {
         ]
         let snapshot = WidgetSnapshot(
             days: days,
-            totalLevel: 27,
+            totalSteps: 27,
             week: .init(workouts: 3, levelsDelta: 6),
             weekStart: monday,
             planSessionNumber: 12,
@@ -109,7 +109,7 @@ final class WidgetTimelineTests: XCTestCase {
 
     func testTallyWithoutWeekStartIsShownNowhere() {
         let (snapshot, today) = fixture()
-        let legacy = WidgetSnapshot(days: snapshot.days, totalLevel: snapshot.totalLevel,
+        let legacy = WidgetSnapshot(days: snapshot.days, totalSteps: snapshot.totalSteps,
                                     week: snapshot.week, weekStart: nil,
                                     planSessionNumber: snapshot.planSessionNumber,
                                     planMinutes: snapshot.planMinutes, plan: snapshot.plan)
@@ -162,7 +162,7 @@ final class WidgetTimelineTests: XCTestCase {
                        planMinutes: Int? = nil,
                        plan: [WidgetSnapshot.PlanRow] = []) -> TodayEntry {
         TodayEntry(date: date(2), status: status, sessionNumber: nil, week: [],
-                   totalLevel: nil, summary: nil, nextLabel: nextLabel,
+                   totalSteps: nil, summary: nil, nextLabel: nextLabel,
                    planSessionNumber: planSession, planMinutes: planMinutes, plan: plan)
     }
 

@@ -59,7 +59,7 @@ extension AppStoreTests {
 
         let snap = try JSONDecoder().decode(WidgetSnapshot.self,
                                             from: Data(contentsOf: url))
-        XCTAssertEqual(snap.totalLevel, store.totalLevel)
+        XCTAssertEqual(snap.totalSteps, store.totalProgress)
         XCTAssertEqual(snap.week?.workouts, store.weekSummary().workouts)
         XCTAssertEqual(snap.week?.levelsDelta, store.weekSummary().levelsDelta)
         XCTAssertEqual(snap.planSessionNumber, store.nextSession.sessionNumber)
@@ -123,7 +123,7 @@ extension AppStoreTests {
         XCTAssertEqual(snap.days.count, 1)
         XCTAssertEqual(snap.days[0].status, .workout)
         XCTAssertEqual(snap.days[0].sessionNumber, 3)
-        XCTAssertNil(snap.totalLevel)
+        XCTAssertNil(snap.totalSteps)
         XCTAssertNil(snap.week)
         XCTAssertNil(snap.plan)
         XCTAssertNil(snap.weekStart)

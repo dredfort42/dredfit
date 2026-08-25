@@ -37,30 +37,34 @@ final class LifeBenefitTests: XCTestCase {
     /// library reshuffle moves these variations, this test is the tripwire.
     private struct OverridePin {
         let pattern: Pattern
-        let tier: Int
+        let variation: Int
         let variationName: String
     }
 
+    /// The indices moved with §40.1 — every one of them. The movements did
+    /// not, which is why the pins are written by NAME and cross-checked
+    /// against the library below.
     private let closedList: [OverridePin] = [
-        OverridePin(pattern: .squat, tier: 3, variationName: "Pistol squat"),
-        OverridePin(pattern: .pushH, tier: 2, variationName: "Push-up"),
-        OverridePin(pattern: .pushV, tier: 4, variationName: "Wall handstand push-up"),
-        OverridePin(pattern: .pullBar, tier: 4, variationName: "Pull-up"),
+        OverridePin(pattern: .squat, variation: 5, variationName: "Pistol squat"),
+        OverridePin(pattern: .pushH, variation: 3, variationName: "Push-up"),
+        OverridePin(pattern: .pushV, variation: 7, variationName: "Wall handstand push-up"),
+        OverridePin(pattern: .pullBar, variation: 7, variationName: "Pull-up"),
     ]
 
     func testOverridesExistExactlyForTheClosedList() {
         for pin in closedList {
-            XCTAssertNotNil(LifeBenefit.overrideText(for: pin.pattern, tier: pin.tier),
-                            "missing override for \(pin.pattern.rawValue) tier \(pin.tier)")
-            XCTAssertNotEqual(LifeBenefit.text(for: pin.pattern, tier: pin.tier),
+            XCTAssertNotNil(LifeBenefit.overrideText(for: pin.pattern, variation: pin.variation),
+                            "missing override for \(pin.pattern.rawValue) v\(pin.variation)")
+            XCTAssertNotEqual(LifeBenefit.text(for: pin.pattern, variation: pin.variation),
                               LifeBenefit.baseText(for: pin.pattern),
-                              "override for \(pin.pattern.rawValue) tier \(pin.tier) equals the base line")
+                              "override for \(pin.pattern.rawValue) v\(pin.variation) equals the base line")
         }
         for pattern in Pattern.allCases {
-            for tier in 1...4 where !closedList.contains(where: { $0.pattern == pattern && $0.tier == tier }) {
-                XCTAssertNil(LifeBenefit.overrideText(for: pattern, tier: tier),
-                             "unexpected override for \(pattern.rawValue) tier \(tier)")
-                XCTAssertEqual(LifeBenefit.text(for: pattern, tier: tier),
+            for v in 1...Library.count(pattern)
+            where !closedList.contains(where: { $0.pattern == pattern && $0.variation == v }) {
+                XCTAssertNil(LifeBenefit.overrideText(for: pattern, variation: v),
+                             "unexpected override for \(pattern.rawValue) v\(v)")
+                XCTAssertEqual(LifeBenefit.text(for: pattern, variation: v),
                                LifeBenefit.baseText(for: pattern))
             }
         }
@@ -68,9 +72,10 @@ final class LifeBenefitTests: XCTestCase {
 
     func testClosedListStillMatchesTheLibrary() {
         for pin in closedList {
-            let name = ExerciseLibrary.entry(for: pin.pattern).variations[pin.tier - 1].name
+            let name = Library.name(pin.pattern, pin.variation)
             XCTAssertEqual(name, pin.variationName,
-                           "\(pin.pattern.rawValue) tier \(pin.tier) is no longer \(pin.variationName) — revisit the override list")
+                           "\(pin.pattern.rawValue) v\(pin.variation) is no longer "
+                           + "\(pin.variationName) — revisit the override list")
         }
     }
 

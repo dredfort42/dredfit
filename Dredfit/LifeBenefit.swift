@@ -13,8 +13,8 @@ enum LifeBenefit {
     /// Variation override if the pair is in the closed list, otherwise the
     /// movement's base line. Resolved here so TechniqueSheet and
     /// MilestoneView cannot disagree.
-    static func text(for pattern: Pattern, tier: Int) -> String {
-        overrideText(for: pattern, tier: tier) ?? baseText(for: pattern)
+    static func text(for pattern: Pattern, variation: Int) -> String {
+        overrideText(for: pattern, variation: variation) ?? baseText(for: pattern)
     }
 
     // MARK: - Base lines (one per movement)
@@ -58,21 +58,25 @@ enum LifeBenefit {
 
     // MARK: - Variation overrides (closed list)
 
-    /// Tiers are pinned to the library: a reshuffle of variations must
-    /// revisit these pairs (the unit test cross-checks names).
-    static func overrideText(for pattern: Pattern, tier: Int) -> String? {
-        switch (pattern, tier) {
-        case (.squat, 3):      // Pistol squat
-            return String(localized: "life.override.squat-3",
+    /// The indices are pinned to the library, so a reshuffle of a ladder must
+    /// revisit these pairs — and the KEYS name the movement rather than its
+    /// index, precisely so the next reshuffle moves a case label and not a
+    /// translation. (They used to be `life.override.squat-3` and friends, and
+    /// §40.1 moved every one of those numbers.) LifeBenefitTests cross-checks
+    /// the pairs against the library by name.
+    static func overrideText(for pattern: Pattern, variation: Int) -> String? {
+        switch (pattern, variation) {
+        case (.squat, 5):      // Pistol squat
+            return String(localized: "life.override.pistol-squat",
                           defaultValue: "Standing up from the floor on one leg — no hands, no support.")
-        case (.pushH, 2):      // Push-up
-            return String(localized: "life.override.push_h-2",
+        case (.pushH, 3):      // Push-up
+            return String(localized: "life.override.push-up",
                           defaultValue: "Your own bodyweight — under full control.")
-        case (.pushV, 4):      // Wall handstand push-up (tier 4 since #131)
-            return String(localized: "life.override.push_v-4",
+        case (.pushV, 7):      // Wall handstand push-up
+            return String(localized: "life.override.wall-handstand",
                           defaultValue: "Your whole body above your hands — a rare level of control.")
-        case (.pullBar, 4):    // Pull-up
-            return String(localized: "life.override.pull_bar-4",
+        case (.pullBar, 7):    // Pull-up
+            return String(localized: "life.override.pull-up",
                           defaultValue: "Lifting your own bodyweight — the base for any physical task.")
         default:
             return nil

@@ -172,7 +172,7 @@ struct ExerciseActionsRow: View {
             .accessibilityIdentifier("exercise-skip-set")
             .accessibilityHint(Text(String(localized: """
                 The plan keeps this set off next time. \
-                Your level does not change.
+                Nothing else about the movement changes.
                 """)))
         }
     }
