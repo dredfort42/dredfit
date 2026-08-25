@@ -12,6 +12,7 @@ struct NextWorkoutSheet: View {
 
     var body: some View {
         let session = store.nextSession
+        let length = store.sessionLengthRange()
 
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 6) {
@@ -19,7 +20,8 @@ struct NextWorkoutSheet: View {
                 Text("Workout \(session.sessionNumber)")
                     .dredfitFont(28, weight: .heavy)
                     .tracking(-0.5)
-                Text("≈ \(Int(session.estimatedTotalMin.rounded())) min · \(session.exercises.count) exercises")
+                PlanLength(floor: length.floor, full: length.full,
+                           count: session.exercises.count)
                     .dredfitFont(15)
                     .foregroundStyle(Theme.ink2)
             }

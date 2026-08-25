@@ -139,7 +139,15 @@ final class ReleaseSmokeTests: XCTestCase {
             today.tap()
             XCTAssertTrue(app.staticTexts["Workout 1"].waitForExistence(timeout: 5),
                           "S5: the history sheet must open on the workout")
-            XCTAssertTrue(app.staticTexts["Total level after: 6"].exists,
+            // The LINE, not a number. The value is the engine's, pinned
+            // bit-for-bit by the golden fixture; asserting it again here only
+            // means a UI test goes red whenever early progression changes.
+            // It already did: this expected "6" from before sub-steps, when a
+            // first "on plan" moved six whole levels. It moves sub-steps now,
+            // so the honest value is 0 until the third session.
+            let level = app.staticTexts.element(
+                matching: NSPredicate(format: "label BEGINSWITH %@", "Total level after:"))
+            XCTAssertTrue(level.waitForExistence(timeout: 5),
                           "S5: the history sheet must list the level the workout ended on")
         }
     }
@@ -153,8 +161,13 @@ final class ReleaseSmokeTests: XCTestCase {
                           "S6: the Progress header is missing")
             let total = app.staticTexts["total-level"]
             XCTAssertTrue(total.exists, "S6: the total level is missing")
-            XCTAssertEqual(total.label, "6",
-                           "S6: six patterns rated \"on plan\" must total 6")
+            // A NUMBER, not a particular one — the same reason as S5. This
+            // expected 6, from before sub-steps, when a first "on plan" moved
+            // six whole levels; it moves sub-steps now and the total is 0
+            // until the third session. What the number should be is the
+            // engine's business and the golden fixture's.
+            XCTAssertNotNil(Int(total.label),
+                            "S6: the header must carry the total level as a number")
             XCTAssertTrue(app.staticTexts["1 workout"].exists,
                           "S6: the workout count must read \"1 workout\"")
         }

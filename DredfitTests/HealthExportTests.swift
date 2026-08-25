@@ -61,6 +61,39 @@ final class HealthExportTests: AppStoreTestCase {
         return backfill
     }
 
+    /// A record written before durations were stored has none, so the export
+    /// estimates one — and that estimate carried the warm-up and cool-down as
+    /// literal 5 and 3 while the engine had moved the cool-down to 4. Nothing
+    /// pinned the number, so the minute went to Apple Health unnoticed. This
+    /// reads both ends from `EngineConfig`, so a copy re-introduced here
+    /// disagrees with the engine and fails.
+    func testAnEstimatedDurationUsesTheEngineSBlockLengths() async {
+        let spy = HealthSpy()
+        let store = AppStore(storageURL: tempURL, health: spy)
+        _ = await store.enableHealth()
+
+        let session = store.nextSession
+        store.completeWorkout(session: session, result: .plan)   // no durationSec
+        await store.healthExportTask?.value
+
+        XCTAssertEqual(spy.saved.count, 1, "the workout was exported")
+        let saved = spy.saved[0].end.timeIntervalSince(spy.saved[0].start)
+
+        var work = 0.0
+        for ex in session.exercises {
+            let sides: Double = ex.perSide ? 2 : 1
+            let perSet = ex.unit == .reps
+                ? Double(ex.load) * sides * 2.5
+                : Double(ex.load) * sides
+            work += Double(ex.sets) * perSet
+                + (Double(ex.sets) - 1) * Double(ex.restSetSec)
+                + Double(ex.restExerciseSec)
+        }
+        let blocks = Double((EngineConfig.warmupMin + EngineConfig.cooldownMin) * 60)
+        XCTAssertEqual(saved, (work + blocks).rounded(.down), accuracy: 1,
+                       "the estimate must reserve the engine's own warm-up and cool-down")
+    }
+
     /// A failed save must not flag the workout exported — it stays retriable
     /// until a later export succeeds.
     func testHealthFailedSaveKeepsWorkoutRetriable() async {
