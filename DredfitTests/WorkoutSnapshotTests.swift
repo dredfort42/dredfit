@@ -3,20 +3,9 @@ import DredfitCore
 @testable import Dredfit
 
 @MainActor
-final class WorkoutSnapshotTests: XCTestCase {
+final class WorkoutSnapshotTests: AppStoreTestCase {
 
-    nonisolated(unsafe) private var tempURL: URL!
-
-    override func setUp() async throws {
-        try await super.setUp()
-        tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("dredfit-snapshot-\(UUID().uuidString).json")
-    }
-
-    override func tearDown() async throws {
-        try? FileManager.default.removeItem(at: tempURL)
-        try await super.tearDown()
-    }
+    override var tempURLPrefix: String { "dredfit-snapshot" }
 
     /// A mid-workout snapshot the way the flow would write it: real
     /// progress, and a fingerprint of the session the store would offer.

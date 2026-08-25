@@ -3,20 +3,9 @@ import DredfitCore
 @testable import Dredfit
 
 @MainActor
-final class ComebackTests: XCTestCase {
+final class ComebackTests: AppStoreTestCase {
 
-    nonisolated(unsafe) private var tempURL: URL!
-
-    override func setUp() async throws {
-        try await super.setUp()
-        tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("dredfit-comeback-\(UUID().uuidString).json")
-    }
-
-    override func tearDown() async throws {
-        try? FileManager.default.removeItem(at: tempURL)
-        try await super.tearDown()
-    }
+    override var tempURLPrefix: String { "dredfit-comeback" }
 
     /// A store whose single journal entry is `daysAgo` old, with every pattern
     /// parked at `level`. Seeded in elapsed seconds, not calendar days:

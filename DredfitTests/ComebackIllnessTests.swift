@@ -10,20 +10,7 @@ import DredfitCore
 @testable import Dredfit
 
 @MainActor
-final class ComebackIllnessTests: XCTestCase {
-
-    nonisolated(unsafe) private var tempURL: URL!
-
-    override func setUp() async throws {
-        try await super.setUp()
-        tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("dredfit-test-\(UUID().uuidString).json")
-    }
-
-    override func tearDown() async throws {
-        try? FileManager.default.removeItem(at: tempURL)
-        try await super.tearDown()
-    }
+final class ComebackIllnessTests: AppStoreTestCase {
 
     /// A store whose only workout was `days` ago, at a uniform level — seeded
     /// through the storage file, the same door the real app loads through.

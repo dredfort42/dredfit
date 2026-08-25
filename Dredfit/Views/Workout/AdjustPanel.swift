@@ -38,7 +38,7 @@ struct AdjustPanel: View {
 
     private func bump(_ dir: Int) {
         let range = SetFacts.corridor(for: unit)
-        let stepped = value + dir * SetFacts.step(for: unit)
+        let stepped = value + dir
         value = min(max(stepped, range.lowerBound), range.upperBound)
     }
 

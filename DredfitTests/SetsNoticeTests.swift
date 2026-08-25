@@ -17,20 +17,9 @@ import DredfitCore
 @testable import Dredfit
 
 @MainActor
-final class SetsNoticeTests: XCTestCase {
+final class SetsNoticeTests: AppStoreTestCase {
 
-    nonisolated(unsafe) private var tempURL: URL!
-
-    override func setUp() async throws {
-        try await super.setUp()
-        tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("dredfit-notice-\(UUID().uuidString).json")
-    }
-
-    override func tearDown() async throws {
-        try? FileManager.default.removeItem(at: tempURL)
-        try await super.tearDown()
-    }
+    override var tempURLPrefix: String { "dredfit-notice" }
 
     /// Seeded through the state file, like the app's own load. The pull slot
     /// is in every session, so it is the movement a trajectory can be walked

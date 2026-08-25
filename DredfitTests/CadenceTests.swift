@@ -8,26 +8,15 @@ import DredfitCore
 @testable import Dredfit
 
 @MainActor
-final class CadenceTests: XCTestCase {
+final class CadenceTests: AppStoreTestCase {
 
-    nonisolated(unsafe) private var tempURL: URL!
+    override var tempURLPrefix: String { "dredfit-cadence" }
     private let cal = Calendar.current
 
     /// A fixed Monday noon, so every date in these tests is deterministic
     /// no matter when the suite runs.
     private var base: Date {
         cal.date(from: DateComponents(year: 2026, month: 6, day: 1, hour: 12))!
-    }
-
-    override func setUp() async throws {
-        try await super.setUp()
-        tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("dredfit-cadence-\(UUID().uuidString).json")
-    }
-
-    override func tearDown() async throws {
-        try? FileManager.default.removeItem(at: tempURL)
-        try await super.tearDown()
     }
 
     private func date(day: Int, hour: Int = 12, minute: Int = 0) -> Date {

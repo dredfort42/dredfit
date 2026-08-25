@@ -14,20 +14,9 @@ import DredfitCore
 @testable import Dredfit
 
 @MainActor
-final class ShownPlanTests: XCTestCase {
+final class ShownPlanTests: AppStoreTestCase {
 
-    nonisolated(unsafe) private var tempURL: URL!
-
-    override func setUp() async throws {
-        try await super.setUp()
-        tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("dredfit-shown-\(UUID().uuidString).json")
-    }
-
-    override func tearDown() async throws {
-        try? FileManager.default.removeItem(at: tempURL)
-        try await super.tearDown()
-    }
+    override var tempURLPrefix: String { "dredfit-shown" }
 
     /// A trainee well up the scale, seeded through the state file the way the
     /// app itself loads one. High enough that the plan carries set bands the

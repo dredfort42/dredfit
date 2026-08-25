@@ -19,20 +19,9 @@ import DredfitCore
 @testable import Dredfit
 
 @MainActor
-final class SessionLengthTests: XCTestCase {
+final class SessionLengthTests: AppStoreTestCase {
 
-    nonisolated(unsafe) private var tempURL: URL!
-
-    override func setUp() async throws {
-        try await super.setUp()
-        tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("dredfit-length-\(UUID().uuidString).json")
-    }
-
-    override func tearDown() async throws {
-        try? FileManager.default.removeItem(at: tempURL)
-        try await super.tearDown()
-    }
+    override var tempURLPrefix: String { "dredfit-length" }
 
     /// A trainee well up the scale, where a full session runs long — the case
     /// §38 exists for. The spec measures it: L40 is 79.7 min at full and 33.7
