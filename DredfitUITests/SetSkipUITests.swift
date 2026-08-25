@@ -78,6 +78,34 @@ final class SetSkipUITests: XCTestCase {
                       "the tap must move on to the next movement")
     }
 
+    /// §38.3: the number follows the decision. The work screen carries what is
+    /// LEFT of the session, and a skipped set takes its minutes off at the
+    /// moment of the tap — otherwise the person is skipping sets against a
+    /// number that still describes the workout they decided not to do.
+    func testTheTimeLeftFallsWithASkippedSet() {
+        app.launchArguments.append("--uitest-long-session")
+        app.launch()
+        driver.startWorkout()
+
+        let left = app.staticTexts["time-left"]
+        XCTAssertTrue(left.waitForExistence(timeout: 10),
+                      "the work screen must say what is left of the session")
+        let before = minutes(in: left.label)
+        XCTAssertGreaterThan(before, 40, "a 55-minute session should read as most of one")
+
+        driver.coordinateTap(app.buttons["exercise-skip-set"])
+        XCTAssertTrue(app.staticTexts["set 2 of 4"].waitForExistence(timeout: 5))
+
+        XCTAssertLessThan(minutes(in: app.staticTexts["time-left"].label), before,
+                          "a skipped set bought no minutes on screen")
+    }
+
+    /// The label is localized and abbreviated differently per language — the
+    /// number is the claim, so the number is what is read out of it.
+    private func minutes(in label: String) -> Int {
+        Int(label.filter(\.isNumber)) ?? -1
+    }
+
     /// Rule 2 from the person's side: once the plan is down to the floor the
     /// set-level skip is not offered at all. It cannot be recorded as a
     /// skipped set — and doing it quietly as something else, under a word that

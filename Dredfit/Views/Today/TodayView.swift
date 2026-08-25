@@ -110,6 +110,20 @@ struct TodayView: View {
         .padding(.top, 2)
     }
 
+    /// Spelled out for VoiceOver as well: "26–34" is read as two numbers
+    /// rather than as a range, and the en dash is the whole of what makes it
+    /// one.
+    @ViewBuilder
+    private func planLength(_ length: (floor: Int, full: Int), count: Int) -> some View {
+        if length.floor < length.full {
+            Text("≈ \(length.floor)–\(length.full) min · \(count) exercises")
+                .accessibilityLabel(
+                    Text("about \(length.floor) to \(length.full) minutes · \(count) exercises"))
+        } else {
+            Text("≈ \(length.full) min · \(count) exercises")
+        }
+    }
+
     /// What makes a showing a showing: the plan on screen.
     ///
     /// The budget it was drawn under used to be part of the identity, because
@@ -132,7 +146,7 @@ struct TodayView: View {
     private var planView: some View {
         let session = store.nextSession
         let debuts = store.debutPatterns
-        let minutes = Int(session.estimatedTotalMin.rounded())
+        let length = store.sessionLengthRange()
         let count = session.exercises.count
         return VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 6) {
@@ -141,7 +155,14 @@ struct TodayView: View {
                     .dredfitFont(32, weight: .heavy)
                     .tracking(-0.5)
                 HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    Text("≈ \(minutes) min · \(count) exercises")
+                    // A RANGE, and it is the whole of what this screen says
+                    // about length (§38.3): the full plan, and the shortest
+                    // the session can be made from inside it. The question the
+                    // two handles used to answer — "will this fit today" — is
+                    // answered here without asking anyone to decide anything
+                    // first. One number only when the plan is already on the
+                    // floor and the two ends have met.
+                    planLength(length, count: count)
                         .dredfitFont(15)
                         .foregroundStyle(Theme.ink2)
                     // A quiet way into the existing explainer for everyone who

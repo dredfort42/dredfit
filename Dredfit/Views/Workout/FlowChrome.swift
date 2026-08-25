@@ -16,6 +16,11 @@ struct FlowHeader: View {
     /// 0 hides the capsule row — the warm-up is not an exercise yet.
     let steps: Int
     let doneIndex: Int
+    /// What is left of the session (§38.3), or nil on the screens that carry a
+    /// countdown of their own. The decision about the length of the workout is
+    /// taken inside it now, so the number has to follow the decision: it drops
+    /// the moment a set is skipped.
+    var minutesLeft: Int?
     var onExit: () -> Void
 
     var body: some View {
@@ -42,6 +47,17 @@ struct FlowHeader: View {
                     }
                 }
                 .frame(width: 200)
+            }
+            if let minutesLeft {
+                // ink2 and 12 pt: an answer to "how much longer", not a
+                // deadline. It is deliberately not a countdown — the clock is
+                // nobody's business here, and what moves this number is what
+                // the person decides to do.
+                Text("≈ \(minutesLeft) min left")
+                    .dredfitFont(12)
+                    .monospacedDigit()
+                    .foregroundStyle(Theme.ink2)
+                    .accessibilityIdentifier("time-left")
             }
         }
         .padding(.top, 12)

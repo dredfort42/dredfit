@@ -50,13 +50,14 @@ final class ReleaseSmokeTests: XCTestCase {
             // The engine's own arithmetic surfaced: if this line drifts, a
             // release-blocking number drifted.
             //
-            // 33 → 34, and the minute is accounted for — `cooldownMin` went 3
-            // → 4, the wave's one changed constant. Read back from the
-            // reference engine (`estimatedTotalMin` for session 1), not copied
-            // off the screen: this line is a pin, and a pin taken from the
-            // thing it guards guards nothing.
-            XCTAssertTrue(app.staticTexts["≈ 34 min · 6 exercises"].exists,
-                          "S1: the plan line must read ≈ 34 min · 6 exercises")
+            // A RANGE since v2.27 (§38.3): the full plan and the shortest the
+            // session can be made from inside it. Both read back from the
+            // reference engine (`estimatedTotalMin` for session 1, at the
+            // levels as shipped and with every movement on the sets floor),
+            // not copied off the screen: this line is a pin, and a pin taken
+            // from the thing it guards guards nothing.
+            XCTAssertTrue(app.staticTexts["≈ 26–34 min · 6 exercises"].exists,
+                          "S1: the plan line must read ≈ 26–34 min · 6 exercises")
             XCTAssertTrue(app.buttons["Start"].exists, "S1: Start is missing")
             // One Start, and nothing beside it to agree to first: §38 took the
             // short version and the session handle off this screen.

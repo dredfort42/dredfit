@@ -268,7 +268,8 @@ struct WorkoutFlowView: View {
         if phase != .feedback, !isMilestone {
             FlowHeader(title: headerTitle,
                        steps: isWarmingUp ? 0 : exercises.count,
-                       doneIndex: exIndex) {
+                       doneIndex: exIndex,
+                       minutesLeft: minutesLeft) {
                 if hasProgress {
                     exitConfirmShown = true
                 } else {
@@ -276,6 +277,32 @@ struct WorkoutFlowView: View {
                 }
             }
         }
+    }
+
+    /// What is left of the session, in minutes (§38.3) — recomputed on every
+    /// body pass, so a skipped set takes its minutes off at the moment it is
+    /// skipped rather than at the next screen.
+    ///
+    /// Offered on the work and rest screens only. The guided blocks carry a
+    /// countdown of their own and nothing on them shortens the session, and
+    /// the rating is past the question entirely.
+    private var minutesLeft: Int? {
+        var index = exIndex
+        var behind = setIndex
+        switch phase {
+        case .work:
+            break
+        case .rest:
+            // The set the rest FOLLOWS is done — the flow advances after it.
+            behind += 1
+            if behind >= exercise.sets { index += 1; behind = 0 }
+        default:
+            return nil
+        }
+        // The cool-down is the only fixed block still ahead; the warm-up is
+        // behind by the time the work screen is up.
+        return SessionAhead.minutes(exercises, exIndex: index, setsBehind: behind,
+                                    ends: session.cooldownMin)
     }
 
     private var headerTitle: String {

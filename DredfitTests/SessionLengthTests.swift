@@ -52,6 +52,73 @@ final class SessionLengthTests: XCTestCase {
         return AppStore(storageURL: tempURL)
     }
 
+    // MARK: - The range on Today (§38.3)
+
+    /// The six rows of §38.3, exactly: the full plan and the shortest the
+    /// session can be made from inside it. These are the numbers the screen
+    /// prints, and drift in either of them is drift in what the app promises.
+    func testTheRangeIsTheOneTheSpecAnnounces() throws {
+        for (level, floor, full) in [(0, 26, 34), (16, 25, 33), (24, 27, 38),
+                                     (32, 29, 52), (40, 34, 80), (47, 40, 94)] {
+            let store = try advancedStore(level: level)
+            let length = store.sessionLengthRange()
+            XCTAssertEqual([length.floor, length.full], [floor, full],
+                           "L\(level): the announced range moved")
+        }
+    }
+
+    /// §37.1's declared bottom, and the first wave that can check it: the
+    /// short workout used to live outside the engine and reach 20.5 minutes
+    /// against an announced 24.8, which is exactly why it was removed.
+    ///
+    /// The claim is about the WHOLE scale, not the six rows above: no level
+    /// anywhere can be squeezed under the number the App Store listing names,
+    /// and one of them reaches it.
+    func testTheShortestSessionOnAnyLevelIsTheAnnouncedFloor() throws {
+        // 24.8 min, as the screen rounds it. The spec's own number is the
+        // tenth; the app never shows tenths.
+        let announced = Int(24.8.rounded())
+        var shortest = Int.max
+        for level in 0...EngineConfig.levelMax {
+            let store = try advancedStore(level: level)
+            let floor = store.sessionLengthRange().floor
+            XCTAssertGreaterThanOrEqual(floor, announced,
+                                        "L\(level) can be squeezed under the announced floor")
+            shortest = min(shortest, floor)
+        }
+        XCTAssertEqual(shortest, announced,
+                       "no level reaches the announced floor any more — §37.1 is either "
+                       + "untrue or out of date")
+    }
+
+    /// A plan already on the floor has one number, not a range of one: the
+    /// line must not offer a saving that has been taken.
+    func testAPlanOnTheFloorHasNoRangeLeft() throws {
+        let store = try advancedStore(level: 40)
+        // Every movement taken to the floor the way the app takes it: skipped
+        // sets, landed by the engine when the rating comes in.
+        var skips: SetFacts.Skips = [:]
+        for pattern in Pattern.allCases { skips[pattern] = EngineConfig.setsMax }
+        store.completeWorkout(session: store.nextSession, result: .less, setsSkipped: skips)
+
+        let length = store.sessionLengthRange()
+        XCTAssertEqual(length.floor, length.full,
+                       "with every movement on the floor the two ends must meet")
+    }
+
+    /// The range is a QUESTION, not a decision: asking it must not move the
+    /// plan, the levels or the cut.
+    func testAskingForTheRangeChangesNothing() throws {
+        let store = try advancedStore(level: 40)
+        let before = store.engineState
+        let plan = store.nextSession
+
+        _ = store.sessionLengthRange()
+
+        XCTAssertEqual(store.engineState, before, "the question wrote state")
+        XCTAssertEqual(store.nextSession, plan, "the question moved the plan")
+    }
+
     // MARK: - The handle that is left
 
     /// "Easier version" is inactive on tier 1, and says so rather than

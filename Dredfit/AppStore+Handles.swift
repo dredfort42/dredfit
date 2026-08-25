@@ -47,4 +47,36 @@ extension AppStore {
             .first { $0.pattern == pattern }
             .map { "\($0.name) · \($0.display)" }
     }
+
+    // MARK: - How long today can be
+
+    /// The two ends of today's session (§38.3): the full plan, and the same
+    /// plan with every movement on the sets floor — the shortest the person
+    /// can make it from inside the workout.
+    ///
+    /// This is what replaced the handle. The question the handle answered was
+    /// "will this fit today", and a range answers it without asking anyone to
+    /// decide anything: 26–34 min at L0, 40–94 at L47.
+    ///
+    /// Both numbers are the engine's own `estimatedTotalMin` — the app owns no
+    /// arithmetic about duration. The floor session is a QUESTION put to the
+    /// engine, never a state that is written: nothing here moves the plan, and
+    /// the low end is only reached by actually skipping the sets.
+    ///
+    /// The floor is clamped to the full plan rather than trusted to be below
+    /// it. Taking sets off cannot make a plan heavier by construction, but the
+    /// line would be nonsense if it ever did, and a range is a promise about
+    /// which end is which.
+    func sessionLengthRange() -> (floor: Int, full: Int) {
+        let full = nextSession.estimatedTotalMin
+        var floored = engineState
+        for pattern in Pattern.allCases {
+            floored = Engine.setCut(
+                state: floored, pattern: pattern,
+                cut: Level.cutMax(level: floored.levels[pattern] ?? 0,
+                                  floor: EngineConfig.setsFloor))
+        }
+        let shortest = min(Engine.generateSession(floored).estimatedTotalMin, full)
+        return (Int(shortest.rounded()), Int(full.rounded()))
+    }
 }
