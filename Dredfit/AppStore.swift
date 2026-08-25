@@ -8,7 +8,7 @@ import Observation
 import os
 import DredfitCore
 
-private struct AppData: Codable {
+struct AppData: Codable {
     var engineState: EngineState
     var records: [WorkoutRecord]
     var settings: AppSettings?
@@ -60,11 +60,11 @@ private struct AppData: Codable {
 @Observable
 final class AppStore {
 
-    private(set) var engineState: EngineState
-    private(set) var records: [WorkoutRecord]
-    private(set) var settings: AppSettings
+    var engineState: EngineState
+    var records: [WorkoutRecord]
+    var settings: AppSettings
     /// Read through `resumableWorkout`, which applies the validity checks.
-    private(set) var pendingWorkout: WorkoutSnapshot?
+    var pendingWorkout: WorkoutSnapshot?
 
     /// Views derive "today" from this rather than `Date.now`, so crossing
     /// midnight while suspended invalidates them: mutating it is what
@@ -72,8 +72,8 @@ final class AppStore {
     private(set) var today: Date = .now
 
     private let storageURL: URL
-    private let health: WorkoutHealthWriting
-    private let notifications: NotificationScheduling
+    let health: WorkoutHealthWriting
+    let notifications: NotificationScheduling
     let widgetSnapshotURL: URL?
     /// The state file existed but could not be read (data protection before
     /// first unlock, transient I/O). While set, persist() is a no-op: the
@@ -85,7 +85,7 @@ final class AppStore {
     /// silently, and mid-workout it moves the engine counter under a running
     /// session — so a store that has been used stays frozen until relaunch.
     private var mutatedWhileFrozen = false
-    private var backfillInFlight = false   // guards concurrent Health backfills
+    var backfillInFlight = false   // guards concurrent Health backfills
     /// Held so tests can await the fire-and-forget path instead of sleeping.
     private(set) var healthExportTask: Task<Void, Never>?
     private(set) var reminderAuthTask: Task<Void, Never>?
@@ -219,7 +219,7 @@ final class AppStore {
     /// re-applying the mark could stamp workouts it was never about: a
     /// foreign import's records, or a post-reset session 1 sitting under an
     /// old high mark (issue #103).
-    private func migrateHealthMarkToFlags() {
+    func migrateHealthMarkToFlags() {
         guard settings.healthExportedThrough > 0,
               !records.contains(where: { $0.healthExported != nil }) else { return }
         for i in records.indices
@@ -754,205 +754,11 @@ final class AppStore {
     static let reviewMinWorkouts = 5
     static let reviewMinDaysBetween = 60
 
-    // MARK: - Apple Health
-
-    /// On denial the toggle stays off — reality over wishful state.
-    func enableHealth() async -> Bool {
-        guard health.isAvailable else { return false }
-        let granted = await health.requestWriteAuthorization()
-        if granted {
-            settings.healthEnabled = true
-            persist()
-        }
-        return granted
-    }
-
-    /// Keeps the high-water mark: re-enabling later must not duplicate
-    /// workouts already in Health.
-    func disableHealth() {
-        settings.healthEnabled = false
-        persist()
-    }
-
-    var healthBackfillCount: Int {
-        records.filter { $0.healthExported != true }.count
-    }
-
-    /// Journal order, one flag at a time, only on a confirmed save. Stops at
-    /// the first failure so the tail stays retriable — a failed save is never
-    /// declared exported, and a later success cannot leapfrog it. The
-    /// in-flight guard forbids a second concurrent run; the while-loop
-    /// re-reads the journal (a workout finished mid-run is picked up) and
-    /// re-checks the toggle (switching it off stops at the next boundary).
-    func backfillHealth() async {
-        guard !backfillInFlight else { return }
-        backfillInFlight = true
-        defer { backfillInFlight = false }
-        while settings.healthEnabled,
-              let index = records.firstIndex(where: { $0.healthExported != true }) {
-            let record = records[index]
-            // Clamped: a wall clock moved backwards mid-workout leaves a
-            // negative duration, and an interval that does not move forward
-            // fails the save forever — blocking the whole tail.
-            let duration = max(60, TimeInterval(record.durationSec ?? estimatedDurationSec(for: record)))
-            let ok = await health.saveWorkout(start: record.date.addingTimeInterval(-duration),
-                                              end: record.date)
-            guard ok else { break }   // the tail stays pending for a later retry
-            // The await may have replaced the whole journal (importBackup):
-            // flag by identity, never by the pre-await index.
-            guard let i = records.firstIndex(where: { $0.id == record.id }) else { continue }
-            records[i].healthExported = true
-            settings.healthExportedThrough = max(settings.healthExportedThrough,
-                                                 record.sessionNumber)
-            // Durability per record, yes. Poking WidgetKit per record, no:
-            // the export flags reach nothing the widget shows, so a full
-            // backfill would spend the day's reload budget on identical
-            // content (same reason as saveWorkoutSnapshot).
-            persist(refreshWidget: false)
-        }
-    }
-
-    /// Past workouts are declared handled so they never export later, even
-    /// after toggling off and on.
-    func skipHealthBackfill() {
-        for i in records.indices { records[i].healthExported = true }
-        settings.healthExportedThrough = max(settings.healthExportedThrough,
-                                             records.last?.sessionNumber ?? 0)
-        persist()
-    }
-
-    /// For records that predate duration capture. Mirrors the engine's
-    /// formula; records without a snapshot get a flat 35 min.
-    ///
-    /// The exercise snapshot comes back out of the journal file, so the whole
-    /// sum runs in Double and lands through one clamp: in Int the products
-    /// would trap on a hand-edited load, and the final conversion traps on
-    /// anything Int cannot hold.
-    private func estimatedDurationSec(for record: WorkoutRecord) -> Int {
-        guard let exercises = record.exercises, !exercises.isEmpty else { return 35 * 60 }
-        // A record written by an older build keeps its pain reports, and they
-        // were "not performed" exactly as a skip was — so reading history has
-        // to count both. Nothing writes `discomfort` any more.
-        let skipped = (record.skipped ?? []).union(record.discomfort ?? [])
-        var workSec = 0.0
-        for ex in exercises where !skipped.contains(ex.pattern) {
-            let sides: Double = ex.perSide ? 2 : 1
-            let perSet = ex.unit == .reps
-                ? Double(ex.load) * sides * 2.5
-                : Double(ex.load) * sides
-            workSec += Double(ex.sets) * perSet
-                + (Double(ex.sets) - 1) * Double(ex.restSetSec) + Double(ex.restExerciseSec)
-        }
-        // Read from the engine rather than spelled out: the two were written
-        // here as 5 and 3, and the cool-down has since grown to 4. A copy of a
-        // config value drifts silently, and nothing pins this number.
-        let total = workSec
-            + Double((EngineConfig.warmupMin + EngineConfig.cooldownMin) * 60)
-        guard total.isFinite else { return 35 * 60 }
-        return Int(min(max(total, 0), Double(EngineConfig.countMax)))
-    }
-
-    // MARK: - Local reminders
-
-    /// 28 daily slots stay well under the iOS cap of 64 pending
-    /// notifications per app. The accepted price: reminders run dry if the
-    /// app is not opened for four weeks (BACKLOG №8).
-    static let reminderWindowDays = 28
-
-    /// The older weekly series stays in the removal list so the first
-    /// reschedule after an update clears it.
-    private static let reminderIDs = (1...7).map { "reminder-wd-\($0)" }
-        + (0..<reminderWindowDays).map { "reminder-day-\($0)" }
-
-    /// One one-shot per upcoming training date. Repeating weekly triggers
-    /// cannot skip a single firing, and "trained this morning" needs exactly
-    /// that. Rebuilt from scratch on every settings change, activation and
-    /// completion.
-    func rescheduleReminders(now: Date = .now) {
-        // A frozen launch knows neither the settings nor the journal: leave
-        // what iOS holds rather than clearing a window the user expects.
-        guard !journalFrozen else { return }
-        notifications.removePendingRequests(withIdentifiers: Self.reminderIDs)
-        guard settings.reminderEnabled else { return }
-        let cal = Calendar.current
-        let start = cal.startOfDay(for: now)
-        for offset in 0..<Self.reminderWindowDays {
-            guard let day = cal.date(byAdding: .day, value: offset, to: start),
-                  !isRestDay(day), !isDone(on: day) else { continue }
-            var comps = cal.dateComponents([.year, .month, .day], from: day)
-            comps.hour = settings.reminderHour
-            comps.minute = settings.reminderMinute
-            // A slot whose time already passed would never fire but would
-            // sit in the pending list.
-            guard let fire = cal.date(from: comps), fire > now else { continue }
-            notifications.addReminder(
-                id: "reminder-day-\(offset)",
-                title: "Dredfit",
-                body: String(localized: "Today's workout is ready"),
-                fireDate: comps)
-        }
-    }
-
-    // MARK: - Backup
-
-    enum BackupError: Error {
-        /// The journal could not be read on this launch (see journalFrozen).
-        case journalUnavailable
-    }
-
-    func exportURL() throws -> URL {
-        // Exporting the empty in-memory state would hand the user a file that
-        // looks like a backup and destroys their history when imported.
-        guard !journalFrozen else { throw BackupError.journalUnavailable }
-        let stamp = Date.now.formatted(.iso8601.year().month().day().dateSeparator(.dash))
-        let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("Dredfit-backup-\(stamp).json")
-        let data = try JSONEncoder().encode(
-            AppData(engineState: engineState, records: records, settings: settings))
-        try data.write(to: url, options: .atomic)
-        return url
-    }
-
-    /// Throws when the file is not a Dredfit backup — the caller alerts.
-    func importBackup(from url: URL) throws {
-        // Restoring into a frozen store would look like it worked and be gone
-        // at the next launch.
-        guard !journalFrozen else { throw BackupError.journalUnavailable }
-        let secured = url.startAccessingSecurityScopedResource()
-        defer { if secured { url.stopAccessingSecurityScopedResource() } }
-        let data = try Data(contentsOf: url)
-        let decoded = try JSONDecoder().decode(AppData.self, from: data)
-        // The Health mark tracks an external side effect (HKWorkouts already
-        // written) and must never move backwards on import: an older backup
-        // would re-export samples the write-only design cannot detect. That
-        // holds for THIS journal only — an unrelated one (another device, a
-        // post-reset history) knows nothing about this device's Health store,
-        // and inheriting the local mark would stamp its workouts "already
-        // exported" and hide them from the backfill forever (issue #103).
-        // Same lineage always shares record ids: the journal is append-only
-        // and a backup is its snapshot.
-        let priorHealthMark = settings.healthExportedThrough
-        let currentIDs = Set(records.map(\.id))
-        let sameLineage = decoded.records.contains { currentIDs.contains($0.id) }
-        engineState = decoded.engineState
-        records = decoded.records
-        settings = decoded.settings ?? AppSettings()
-        // A half-finished workout does not travel with a restored history.
-        pendingWorkout = nil
-        if sameLineage {
-            settings.healthExportedThrough = max(priorHealthMark, settings.healthExportedThrough)
-        }
-        // Old backups carry only the mark — turn whichever won into flags.
-        migrateHealthMarkToFlags()
-        persist()
-        if settings.reminderEnabled {
-            // Authorization is per-device: a backup restored onto a new phone
-            // must actually ask, and a denial must flip the toggle off.
-            setReminderEnabled(true)
-        } else {
-            rescheduleReminders()   // clears anything left behind
-        }
-    }
+    // Apple Health, the local reminders and backup import/export moved to
+    // AppStore+Health, +Reminders and +Backup when this class body reached
+    // the linter's ceiling. What they still reach from here is why `persist`,
+    // the property setters, `migrateHealthMarkToFlags` and the two
+    // collaborators are no longer private.
 
     // MARK: - Persistence
 
@@ -963,7 +769,7 @@ final class AppStore {
         return dir.appendingPathComponent("dredfit-state.json")
     }
 
-    private func persist(refreshWidget: Bool = true) {
+    func persist(refreshWidget: Bool = true) {
         // A journal that could not be read must never be overwritten by the
         // empty state that replaced it. The change stays in memory for this
         // launch and pins the freeze, so a later reload cannot swap it out.
