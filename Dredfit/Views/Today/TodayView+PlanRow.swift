@@ -34,7 +34,7 @@ extension TodayView {
             ExerciseRow(exercise: ex,
                         badge: debuts.contains(ex.pattern)
                             ? String(localized: "new variation") : nil,
-                        note: ExerciseRow.note(store.setsNote(for: ex)))
+                        note: ExerciseRow.note(setCameBack: store.aSetJustCameBack(in: ex)))
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

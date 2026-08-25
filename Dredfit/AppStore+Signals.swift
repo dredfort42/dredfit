@@ -56,38 +56,31 @@ extension AppStore {
 
 extension AppStore {
 
-    /// What an exercise card has to explain about its own set count. Sets
-    /// move without levels — a movement half of whose sets were skipped last
-    /// time comes back as `2×4 /side` under a name that carried `4×4 /side`
-    /// — and a plan that quietly got easier reads as a bug exactly the way a
-    /// plan that quietly got harder does.
-    enum SetsNote {
-        /// A set has just come back.
-        case setBack
-    }
-
-    /// One line per card at most, and only while it is true — no notification,
-    /// no card of its own, nothing to dismiss.
+    /// The one thing an exercise card has to explain about its own set count.
+    /// Sets move without levels — a movement half of whose sets were skipped
+    /// last time comes back as `2×4 /side` under a name that carried
+    /// `4×4 /side` — and a plan that quietly got easier reads as a bug exactly
+    /// the way a plan that quietly got harder does.
     ///
-    /// The "pain is holding the volume down" rung is gone with the episode.
-    /// What is left is the one the person cannot otherwise account for — a set
-    /// coming BACK — and it matters more now, not less: sets come off because
-    /// the person skipped them, so the card has to say when the engine gives
-    /// one back on its own.
-    func setsNote(for exercise: SessionExercise) -> SetsNote? {
+    /// A fact, not a line: this says WHETHER there is something to explain,
+    /// and `ExerciseRow` owns the words for it. The "pain is holding the
+    /// volume down" rung is gone with the episode, which is what took the type
+    /// here down from an enum to a Bool — and what is left matters more now,
+    /// not less: sets come off because the person skipped them, so the card
+    /// has to say when the engine gives one back on its own.
+    ///
+    /// The hold is armed by the very transition that handed a set back and
+    /// spends a tick on each appearance after it, so "full" means the returned
+    /// set is in THIS plan. That alone is not enough to say so out loud: the
+    /// gate and the postcondition repair both cut AFTER the handle, and a line
+    /// about a set the card does not show would simply be false. So the
+    /// journal has the last word — what the card carried the last time this
+    /// movement came round.
+    func aSetJustCameBack(in exercise: SessionExercise) -> Bool {
         let pattern = exercise.pattern
-        // The hold is armed by the very transition that handed a set back and
-        // spends a tick on each appearance after it, so "full" means the
-        // returned set is in THIS plan. That alone is not enough to say so out
-        // loud: the gate and the postcondition repair both cut AFTER the
-        // handle, and a line about a set the card does not show would simply
-        // be false. So the journal has the last word — what the card carried
-        // the last time this movement came round.
-        if engineState.setsHold[pattern] == EngineConfig.setsBackHold,
-           let before = lastShownSets(pattern), exercise.sets > before {
-            return .setBack
-        }
-        return nil
+        guard engineState.setsHold[pattern] == EngineConfig.setsBackHold,
+              let before = lastShownSets(pattern) else { return false }
+        return exercise.sets > before
     }
 
     /// The set count this movement's card carried at its last appearance.

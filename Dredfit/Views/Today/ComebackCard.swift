@@ -36,7 +36,6 @@ struct ComebackCard: View {
                     previewRow(label: String(localized: "As it was:"), value: preview.was)
                 }
                 .padding(.top, 12)
-                .accessibilityIdentifier("comeback-preview")
             }
 
             HStack(spacing: 10) {

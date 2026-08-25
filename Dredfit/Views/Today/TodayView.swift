@@ -105,20 +105,18 @@ struct TodayView: View {
                 .buttonStyle(.borderless)
                 .accessibilityIdentifier("easier-\(pattern.rawValue)")
             }
+            // Load-bearing, not leftover scaffolding: the Spacer is what
+            // holds the button's frame to the width of its LABEL and leaves
+            // the rest of the row untappable. Swap it for
+            // `.frame(maxWidth: .infinity)` and a tap anywhere on the row
+            // pulls the handle — measured, the announced duration went 35 min
+            // to 33 and the control vanished under the finger.
+            // `HandlesUITests.testATapOnAPlanRowDoesNotPullItsHandle` exists
+            // to catch exactly that.
             Spacer(minLength: 0)
         }
         .padding(.top, 2)
     }
-
-    /// Spelled out for VoiceOver as well: "26–34" is read as two numbers
-    /// rather than as a range, and the en dash is the whole of what makes it
-    /// one.
-    ///
-    /// The identifier is how a test still finds the line: an accessibility
-    /// label REPLACES the text a query can see, so without it the pinned
-    /// number would be unreachable from a UI test and the pin would quietly
-    /// stop guarding anything.
-    @ViewBuilder
 
     /// What makes a showing a showing: the plan on screen.
     ///
@@ -176,7 +174,6 @@ struct TodayView: View {
                         }
                         .foregroundStyle(Theme.ink2)
                     }
-                    .accessibilityIdentifier("why-this-plan")
                 }
             }
             .padding(.top, 18)
@@ -211,7 +208,6 @@ struct TodayView: View {
                     .foregroundStyle(Theme.ink2)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.top, 6)
-                    .accessibilityIdentifier("long-run-line")
             }
 
             if store.shouldOfferComeback() {
@@ -236,20 +232,17 @@ struct TodayView: View {
                         .fixedSize(horizontal: false, vertical: true)
                     HStack(spacing: 16) {
                         Button("Make it easier") { store.makeSuspectEasier(suspect) }
-                            .accessibilityIdentifier("weak-link-easier")
                         // The third answer — "just hard" — armed a hold, and
                         // the hold is cancelled. The case it served is exactly
                         // what the sub-step fixes without asking anyone
                         // anything.
                         Button("It's fine") { store.dismissSuspectPrompt() }
-                            .accessibilityIdentifier("weak-link-fine")
                     }
                     .dredfitFont(13.5)
                     .foregroundStyle(Theme.accent)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, 6)
-                .accessibilityIdentifier("weak-link-prompt")
             }
 
             // The card replaces Start — its own two actions already are

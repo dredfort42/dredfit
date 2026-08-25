@@ -39,7 +39,6 @@ struct ProgressScreen: View {
                             .overlay(Circle().strokeBorder(Theme.hairline, lineWidth: 1.5))
                     )
             }
-            .accessibilityIdentifier("progress-share")
             .accessibilityLabel(Text("Share progress"))
         }
     }
@@ -269,7 +268,6 @@ struct ProgressScreen: View {
                 .foregroundStyle(Theme.ink2)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 6)
-                .accessibilityIdentifier("break-fact")
         }
     }
 

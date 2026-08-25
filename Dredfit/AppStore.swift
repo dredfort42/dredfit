@@ -235,8 +235,14 @@ final class AppStore {
            !CommandLine.arguments.contains("--uitest-onboarding") {
             settings.onboardingCompleted = true
         }
-        // The suite must not depend on the weekday it runs on;
-        // --uitest-restday is applied last so it wins.
+        // The suite must not depend on the weekday it runs on, so these flags
+        // clear the rest days outright. --uitest-restday puts today back as a
+        // rest day further down, but it does NOT have the last word:
+        // --uitest-comeback-long runs after it and the seedLoneWorkout it
+        // calls ends by clearing restWeekdays again, so the two flags together
+        // leave no rest day at all. No test passes both today — the order is
+        // written down here so the next one that wants to does not have to
+        // find it out from a failure.
         let seedFlags = ["--uitest-reset", "--uitest-session2", "--uitest-milestone",
                          "--uitest-long-session"]
         if seedFlags.contains(where: CommandLine.arguments.contains) {
@@ -252,13 +258,13 @@ final class AppStore {
                             date: Calendar.current.date(byAdding: .day, value: -1, to: .now)!)
         }
         seedStateIfRequested()
-        seedWeakLinkIfRequested()
         // Make today a rest day, whichever weekday that is.
         if CommandLine.arguments.contains("--uitest-restday") {
             settings.restWeekdays = [Calendar.current.component(.weekday, from: .now)]
         }
-        // Only workout 95 days ago → the comeback card with all three paths:
-        // the numbered offers, the sick row and "Start from scratch" (#127).
+        // Only workout 95 days ago → the comeback card with the paths it
+        // still has: the numbered offers and "Start from scratch" (#127). The
+        // sick row went with the illness lens.
         if CommandLine.arguments.contains("--uitest-comeback-long") {
             seedLoneWorkout(daysAgo: 95)
         }
@@ -1027,22 +1033,8 @@ extension AppStore {
 // applied immediately, because an easier variation needs no appearance to wait
 // for.
 
-// MARK: - UI-test seed for the weak-link prompt (#135)
-
-extension AppStore {
-    /// A journal where every "tough" landed on the same movement → Today
-    /// carries the one contextual question. Lives in an extension so the
-    /// store's own body stays inside the lint's ceiling.
-    func seedWeakLinkIfRequested() {
-        guard CommandLine.arguments.contains("--uitest-weak-link") else { return }
-        settings.restWeekdays = []      // the prompt lives on a training day
-        for _ in 0..<12 {
-            let session = nextSession
-            let carries = session.exercises.contains { $0.pattern == .pushV }
-            _ = completeWorkout(session: session, result: carries ? .less : .plan,
-                                date: Calendar.current.date(
-                                    byAdding: .day, value: -(12 - engineState.counter) * 2,
-                                    to: .now)!)
-        }
-    }
-}
+// `--uitest-weak-link` and the journal it seeded are gone. The prompt itself
+// stays — `shouldAskAboutSuspect`, `unnamedLessSuspect` and the two buttons on
+// Today are all live. What went is the hook: no test ever passed the flag, and
+// the flag did not even raise the screen it seeded, so it read as coverage
+// while covering nothing.

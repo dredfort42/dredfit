@@ -56,7 +56,6 @@ struct MilestoneView: View {
                             RoundedRectangle(cornerRadius: 18)
                                 .strokeBorder(Theme.hairline, lineWidth: 1.5))
                 }
-                .accessibilityIdentifier("milestone-share")
                 .padding(.bottom, 10)
             }
 

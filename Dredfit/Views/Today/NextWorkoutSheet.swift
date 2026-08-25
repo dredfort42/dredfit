@@ -35,7 +35,7 @@ struct NextWorkoutSheet: View {
                     // The same card as Today's, so it carries the same one
                     // line about why the set count is what it is.
                     ExerciseRow(exercise: ex,
-                                note: ExerciseRow.note(store.setsNote(for: ex)))
+                                note: ExerciseRow.note(setCameBack: store.aSetJustCameBack(in: ex)))
                 }
                 .listRowSeparatorTint(Theme.hairline)
                 .listRowBackground(Color.clear)

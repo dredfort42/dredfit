@@ -34,7 +34,6 @@ extension WorkoutFlowView {
                 .dredfitFont(13.5)
                 .foregroundStyle(Theme.ink3)
                 .padding(.top, 6)
-                .accessibilityIdentifier("warmup-intro-length")
             Spacer()
             PrimaryButton(title: String(localized: "Start the warm-up")) { beginWarmup() }
                 .accessibilityIdentifier("warmup-start")

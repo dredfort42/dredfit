@@ -225,7 +225,6 @@ struct SettingsSheet: View {
                     .dredfitFont(16, weight: .medium)
             }
             .tint(Theme.accent)
-            .accessibilityIdentifier("health-toggle")
             Text("Workouts appear in the Health app. Nothing is read or shared.")
                 .dredfitFont(12.5)
                 .foregroundStyle(Theme.ink2)
@@ -313,11 +312,9 @@ struct SettingsSheet: View {
             Link(destination: Self.reviewURL) {
                 backupRow(icon: "star", title: String(localized: "Rate on the App Store"))
             }
-            .accessibilityIdentifier("rate-app")
             ShareLink(item: Self.appStoreURL) {
                 backupRow(icon: "heart", title: String(localized: "Recommend Dredfit"))
             }
-            .accessibilityIdentifier("recommend-app")
             Text(versionLine)
                 .dredfitFont(12.5)
                 .foregroundStyle(Theme.ink3)

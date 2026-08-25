@@ -452,6 +452,8 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 
 ### 29. Short workout (1.8.0, issue #27)
 
+> **This whole section is void from v2.27:** the short workout was removed — no picking three of six movements, no rotation anchor to guarantee they cycle. Kept as the history of what the app used to promise; a green row here would mean the mechanism came back. See §46.
+
 | # | Check | Expected |
 |---|---|---|
 | 29.1 | Today, a training day | Under the duration, beside the sets handle: **"Fewer movements · 3 of 6 · ≈ N min"**; N is noticeably below the full estimate above. It is a handle on the plan, not a second start button |
