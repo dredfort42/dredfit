@@ -168,36 +168,54 @@ final class StoreScreenshots: XCTestCase {
         app.terminate()
     }
 
-    // MARK: - The handles: Today with the session shortened (v2.26, §37.5)
+    // MARK: - The decision inside the workout (v2.27, §38.2)
     //
-    // This replaces `restingToday`, which launched with `--uitest-discomfort`
-    // and waited for the freeze block. Neither the flag nor the block exists:
-    // the pain channel was removed in v2.26. The frame the slot needs now is
-    // the one the wave is actually about — the session handle, with BOTH
-    // numbers on screen and the way back offered underneath.
+    // This replaces `handlesToday`, which tapped the session handle under the
+    // plan. Neither handle exists: v2.27 moved the decision off the plan and
+    // into the workout. The frame the slot needs now is the work screen with
+    // both escapes under the button and the minutes left in the header — the
+    // wave's whole claim in one screen.
+    //
+    // Seeded through the app's own hook rather than seed.py: a three-set plan
+    // can only give one set away (§38.2 rule 2), so "Skip remaining sets" has
+    // nothing to show at the bottom of the scale. `--uitest-long-session`
+    // plants level 34 — four sets, 55 minutes.
 
-    private func handlesToday(_ l: L) {
-        let app = launch(["--uitest-reset"], l)
-        let shorter = app.buttons["session-shorter"]
-        XCTAssertTrue(shorter.waitForExistence(timeout: 8),
-                      "no session handle under the plan")
-        // Tapped, not just shown: the shortened plan and the redrawn duration
-        // are the claim, and "Full workout" appearing proves it took effect.
-        shorter.tap()
-        XCTAssertTrue(app.buttons["session-full"].waitForExistence(timeout: 5),
-                      "the shortened session must offer the way back")
+    private func skipInsideWorkout(_ l: L) {
+        let app = launch(["--uitest-reset", "--uitest-long-session"], l)
+        XCTAssertTrue(app.buttons[l.start].waitForExistence(timeout: 8), "no Start on Today")
+        app.buttons[l.start].tap()
+        let skipWarmup = app.buttons[l.skipWarmup]
+        if skipWarmup.waitForExistence(timeout: 5) { skipWarmup.tap() }
+
+        let done = app.buttons[l.done]
+        let skipRest = app.buttons[l.skipRest]
+        XCTAssertTrue(done.waitForExistence(timeout: 8), "set screen did not appear")
+        // One set behind, so the second escape reads "Skip remaining sets"
+        // rather than "Skip exercise": the frame is about a movement trained
+        // short, not about one that was not trained at all.
+        coordinateTap(done)
+        XCTAssertTrue(skipRest.waitForExistence(timeout: 5))
+        coordinateTap(skipRest)
+        XCTAssertTrue(done.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["exercise-skip-set"].exists,
+                      "no per-set escape on a four-set movement")
+        XCTAssertTrue(app.buttons["exercise-skip-rest"].exists,
+                      "the escape must name its landing once a set is behind")
+        XCTAssertTrue(app.staticTexts["time-left"].exists,
+                      "the header must carry what is left of the session")
         Thread.sleep(forTimeInterval: 1)
-        snap("handles_\(l.tag)")
-        app.terminate()
+        snap("skip_\(l.tag)")
+        app.terminate()   // nothing submitted: no record, no level moved
     }
 
-    func testHandlesEnglish() { handlesToday(Self.en) }
-    func testHandlesRussian() { handlesToday(Self.ru) }
-    func testHandlesSpanish() { handlesToday(Self.es) }
-    func testHandlesPortuguese() { handlesToday(Self.ptBR) }
-    func testHandlesGerman() { handlesToday(Self.de) }
-    func testHandlesFrench() { handlesToday(Self.fr) }
-    func testHandlesItalian() { handlesToday(Self.it) }
+    func testSkipEnglish() { skipInsideWorkout(Self.en) }
+    func testSkipRussian() { skipInsideWorkout(Self.ru) }
+    func testSkipSpanish() { skipInsideWorkout(Self.es) }
+    func testSkipPortuguese() { skipInsideWorkout(Self.ptBR) }
+    func testSkipGerman() { skipInsideWorkout(Self.de) }
+    func testSkipFrench() { skipInsideWorkout(Self.fr) }
+    func testSkipItalian() { skipInsideWorkout(Self.it) }
 
     func testProgressEnglish() { progress(Self.en) }
     func testProgressRussian() { progress(Self.ru) }
