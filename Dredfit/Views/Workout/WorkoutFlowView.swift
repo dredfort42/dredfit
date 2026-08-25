@@ -597,8 +597,14 @@ struct WorkoutFlowView: View {
         holdPauseEndDate = nil
         actuals.removeValue(forKey: exercise.pattern)   // a skip wins over an actual
         skippedPatterns.insert(exercise.pattern)
+        advancePastExercise()
+    }
+
+    /// Past the exercise in front of us, however it ended — into the next one,
+    /// or into the cool-down when there is none. `startCooldown` degrades to
+    /// the rating when nothing was performed.
+    private func advancePastExercise() {
         if isLastExercise {
-            // startCooldown degrades to the rating when nothing was performed.
             startCooldown()
         } else {
             exIndex += 1
@@ -828,7 +834,7 @@ extension WorkoutFlowView {
             if snap.restEndDate != nil, !(isLastSet && isLastExercise) {
                 if isLastSet {
                     exIndex += 1
-            maximumWarning = nil   // the note belongs to the exercise it was about
+                    maximumWarning = nil   // the note belongs to its own exercise
                     setIndex = 0
                 } else {
                     setIndex += 1
