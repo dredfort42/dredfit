@@ -256,6 +256,28 @@ final class AppStore {
                             result: .plan,
                             date: Calendar.current.date(byAdding: .day, value: -1, to: .now)!)
         }
+        seedStateIfRequested()
+        // Make today a rest day, whichever weekday that is.
+        seedWeakLinkIfRequested()
+        if CommandLine.arguments.contains("--uitest-restday") {
+            settings.restWeekdays = [Calendar.current.component(.weekday, from: .now)]
+        }
+        // Only workout 95 days ago → the comeback card with all three paths:
+        // the numbered offers, the sick row and "Start from scratch" (#127).
+        if CommandLine.arguments.contains("--uitest-comeback-long") {
+            seedLoneWorkout(daysAgo: 95)
+        }
+        // `--uitest-illness` seeded a five-day gap so the quiet "I was sick"
+        // offer would appear. The offer is gone, no test passed the flag any
+        // more, and a hook nothing reaches is a branch that will be trusted by
+        // the next reader.
+    }
+
+    /// The hooks that only build a STATE — no settings, no journal beyond the
+    /// one record a break needs. Split off so the flag walk above stays inside
+    /// the linter's complexity bound: it grows by one branch every wave, and
+    /// the bound is a CI error rather than a style opinion.
+    private func seedStateIfRequested() {
         // A trainee well up the scale: band 4, six movements, 55 minutes. The
         // state the mid-workout skip exists for — a plan of three sets can
         // only ever give one of them away (§38.2 rule 2), so the escape that
@@ -286,20 +308,6 @@ final class AppStore {
         if CommandLine.arguments.contains("--uitest-comeback") {
             seedLoneWorkout(daysAgo: 20)
         }
-        // Make today a rest day, whichever weekday that is.
-        seedWeakLinkIfRequested()
-        if CommandLine.arguments.contains("--uitest-restday") {
-            settings.restWeekdays = [Calendar.current.component(.weekday, from: .now)]
-        }
-        // Only workout 95 days ago → the comeback card with all three paths:
-        // the numbered offers, the sick row and "Start from scratch" (#127).
-        if CommandLine.arguments.contains("--uitest-comeback-long") {
-            seedLoneWorkout(daysAgo: 95)
-        }
-        // `--uitest-illness` seeded a five-day gap so the quiet "I was sick"
-        // offer would appear. The offer is gone, no test passed the flag any
-        // more, and a hook nothing reaches is a branch that will be trusted by
-        // the next reader.
     }
 
     /// A single workout `daysAgo` at a uniform level 20 — the seed the three
