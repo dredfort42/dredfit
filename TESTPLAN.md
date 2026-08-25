@@ -815,7 +815,7 @@ repository, like `reference/` itself.
 |---|---|
 | `python3 scripts/update_reference_manifest.py --check` | `OK` — the local `reference/` really is the one that produced the fixture. It is not versioned, so it goes stale silently |
 | `node verify2.js` | 0 failures |
-| `node accept.js` | "ПРИЁМКА ЧИСТА" and not one `ПРОВАЛ` line — the twelve wave-acceptance checks below |
+| `node accept.js` | "ПРИЁМКА ЧИСТА" and not one `ПРОВАЛ` line — the thirteen wave-acceptance blocks below. It is the wave's own gate: the copy in `reference/` is replaced by every wave with the one written for it, and the version that ships with v2.27 lives in `reference/model-v2.27/accept.js` |
 | `node audit_static.js` | "НОВЫХ СРАБАТЫВАНИЙ НЕТ" — no new hit of the "fix applied to one branch of two" class |
 | `node audit_local.js` | "ЛОКАЛЬНЫЙ ПЕРЕБОР ЧИСТ" — H1–H8 without failures |
 | `node audit_local2.js` | S2–S6 without failures; S1 reports **zero** invariant violations and **one** cell parked at the set floor — the named residue of item 46. A second at-floor cell, or any violation off the floor, is a finding |
@@ -831,10 +831,13 @@ does.
 the promises it was built on — every check below was put there by a defect that
 shipped, or by a decision the owner made and would otherwise have to take on
 trust. It is deterministic, self-contained and takes seconds; the only thing it
-needs from outside is the previous engine, `adaptive_engine.v2.25-baseline.js`,
-which lives in `reference/model-v2.26/` (point `DREDFIT_V225` at another copy to
-compare against a different baseline). Twelve numbered checks, seventeen
-assertions — П7 prints a number and asserts nothing on purpose.
+needs from outside is the **previous** engine, which for v2.27 is
+`adaptive_engine.v2.26-baseline.js` — it sits next to the script in `reference/`
+and in `reference/model-v2.27/` (point `DREDFIT_V226` at another copy to compare
+against a different baseline). Missing baseline is not a skipped check: the
+script throws, and that is a STOP. Thirteen numbered blocks, eighteen assertions
+— П7 prints a number and asserts nothing on purpose, and П13 asserts that the
+other twelve ran at all.
 
 | Check | What it asserts | Why it is a gate |
 |---|---|---|
@@ -847,16 +850,29 @@ assertions — П7 prints a number and asserts nothing on purpose.
 | П5a/b | `generateSession` is deterministic, and state survives a JSON round-trip | The fixture, the port and the whole audit apparatus stand on both. A single field that does not survive `JSON.parse` turns golden into a coin toss |
 | П6 | `descendNoHarder` never returns a position the engine's own `noHarder` predicate rejects | The 20.08 audit found "descent never adds load" checked on two of six paths, while the other four produced transitions the exported predicate refused. This asserts the predicate against itself |
 | П7 | *Informational:* the sum of levels over an honest year, and where `squat` lands | Progress is what a safety wave is most likely to quietly destroy. It is printed, not asserted, because there is no right number — П10 does the asserting |
-| П8a/b/c | Against the v2.25 engine, on the axis's zero: the plan is bit-for-bit equal (96 cells), the shared state fields are equal after a session, and the announced duration grew by **exactly** one minute | This is the wave's parity claim, and the reason a refactor can be told from a change. The one minute is §37.7а — the longer run-in before every guided position — and it is asserted as a number so it cannot creep |
-| П9 | The sets handle only ever shortens, and stops at the floor | A handle that could lengthen a session, or dig below two sets, is worse than no handle |
-| П10 | A year of levels stays within ±1 % of v2.25 across four answering styles | Removing two mechanisms must not cost progress. ±1 % is the tolerance; the run gives ±0.0 % on all four |
+| П8a/b/c | Against the shipped 2.26.0 engine, on the axis's zero: the plan is bit-for-bit equal (96 cells), the shared state fields are equal after a session, and the announced duration moved by **exactly zero** | This is the wave's parity claim, and the reason a refactor can be told from a change. v2.27 removes an export and nothing else, so unlike v2.26 — which bought its extra minute with a longer run-in and asserted the number — the honest assertion here is that no minute moved at all |
+| П9 | Skipping the remaining sets of every movement only ever shortens the session and never digs below the floor of two — printed as six before/after pairs, L0 34.0 → 25.7 through L47 94.3 → 39.5 | The handle it used to check is gone; the same promise now belongs to the skip inside the workout, one movement at a time (§38.2 rule 3). The six pairs are also the range Today shows, so the screen and the gate quote one arithmetic |
+| П10 | A year of levels stays within ±1 % of 2.26.0 across four answering styles | Moving a decision from the plan into the workout must not cost progress. ±1 % is the tolerance; the run gives ±0.0 % on all four |
 | П11 | "Tough" never makes the next shown plan heavier — including on top of an active cut | The composition question. Each mechanism was fine alone in v2.25; the P0s came from the pairs |
-| П12 | The wave added no new cell where a growth event lightens the plan — parity with v2.25, not an absolute | Absolute is unreachable and saying otherwise would be a false guarantee: at a band start the per-set dose resets lower while the set count grows (v2.21, deliberately), and across a variation the measure is invalid at all. So the assertion is that the count did not move: 6 before, 6 after, all at L31/L39 |
+| П12 | The wave added no new cell where a growth event lightens the plan — parity with 2.26.0, not an absolute | Absolute is unreachable and saying otherwise would be a false guarantee: at a band start the per-set dose resets lower while the set count grows (v2.21, deliberately), and across a variation the measure is invalid at all. So the assertion is that the count did not move: 6 before, 6 after, all at L31/L39 |
+| П13 | All twelve blocks above actually ran | Added because a script that dies halfway prints "15 OK, no failures" and reads as a pass. The block asserts the roll-call, and a `process.on('exit')` hook repeats it in the exit code |
 
 Two things this table deliberately does not claim. П4b and П12 are bounded by
-what v2.25 already accepted, so they detect a *regression*, not a defect that was
-already priced. And П8 compares plans, not durations — the duration moved by
-design, which is why it gets its own line and its own exact number.
+what the previous engine already accepted, so they detect a *regression*, not a
+defect that was already priced. And П8 compares plans, not durations — the
+duration is a separate assertion with its own exact number, which is how the
++1.0 minute of v2.26 and the 0.0 of v2.27 are both nailed down instead of
+tolerated.
+
+**Two residues in the script itself, named rather than quietly fixed.** П1, П3
+and П7 call `applyFeedback` with **seven** arguments where the signature has
+taken six since v2.26 (`state, session, result, overrides, skipped, gapDays`),
+so `gapDays` gets `[]` and the trailing cadence is dropped: those three blocks
+sweep a calendar-blind engine. `gapDays = []` behaves as `null`, so they are
+weaker than they read rather than wrong — and П7 asserts nothing anyway. The
+file header also still says "Приёмка v2.26". Both were found by the v2.27 wave
+and left alone on purpose: editing what a release gate measures is a decision
+for the owner, not a tidy-up inside the wave that gate is judging.
 
 ---
 
