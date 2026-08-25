@@ -73,8 +73,7 @@ extension AppStore {
         for pattern in Pattern.allCases {
             floored = Engine.setCut(
                 state: floored, pattern: pattern,
-                cut: Level.cutMax(level: floored.levels[pattern] ?? 0,
-                                  floor: EngineConfig.setsFloor))
+                cut: Level.cutMax(level: floored.levels[pattern] ?? 0))
         }
         let shortest = min(Engine.generateSession(floored).estimatedTotalMin, full)
         return (Int(shortest.rounded()), Int(full.rounded()))

@@ -211,8 +211,7 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// format is byte-compatible and pinned by
     /// testLegacyStateDecodesWithBarDefaults.
     private static func decodeLenient(
-        _ c: KeyedDecodingContainer<CodingKeys>, forKey key: CodingKeys
-    ) throws -> [Pattern: Int] {
+        _ c: KeyedDecodingContainer<CodingKeys>, forKey key: CodingKeys) throws -> [Pattern: Int] {
         var uc = try c.nestedUnkeyedContainer(forKey: key)
         var out: [Pattern: Int] = [:]
         while !uc.isAtEnd {
@@ -227,8 +226,7 @@ public struct EngineState: Codable, Equatable, Sendable {
         EngineState(
             counter: 0,
             levels: Dictionary(uniqueKeysWithValues: Pattern.allCases.map { ($0, 0) }),
-            failStreak: Dictionary(uniqueKeysWithValues: Pattern.allCases.map { ($0, 0) })
-        )
+            failStreak: Dictionary(uniqueKeysWithValues: Pattern.allCases.map { ($0, 0) }))
     }
 
     /// The state as the engine is willing to read it — the port's mirror of
@@ -282,8 +280,7 @@ public struct EngineState: Codable, Equatable, Sendable {
         var out: [Pattern: Int] = [:]
         for (p, raw) in src {
             let level = clamped(levels[p] ?? 0, 0, EngineConfig.levelMax)
-            let value = Level.effCut(level: level, cut: raw,
-                                     floor: EngineConfig.setsFloor)
+            let value = Level.effCut(level: level, cut: raw)
             if value > 0 { out[p] = value }
         }
         return out

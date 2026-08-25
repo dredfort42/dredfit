@@ -56,8 +56,7 @@ extension XCTestCase {
         if delta < 0 {
             // ONE floor. The episode-aware exception went with the episode —
             // and it was the only reader of the pain floor here.
-            return Level.fallBy(level: entry.level, sub: entry.sub, cut: entry.cut, by: -delta,
-                                floor: EngineConfig.setsFloor)
+            return Level.fallBy(level: entry.level, sub: entry.sub, cut: entry.cut, by: -delta)
         }
         return entry
     }
@@ -83,8 +82,7 @@ extension XCTestCase {
                                            fromSub: from.sub, fromCut: from.cut)
         let carried = stepped?.cut ?? from.cut
         return Position(level: landed, sub: 0,
-                        cut: min(carried, Level.cutMax(level: landed,
-                                                       floor: EngineConfig.setsFloor)))
+                        cut: min(carried, Level.cutMax(level: landed)))
     }
 
     /// Assert the pattern stepped exactly `count` sub-steps back from `entry`,
@@ -96,7 +94,7 @@ extension XCTestCase {
                          file: StaticString = #filePath, line: UInt = #line) {
         assertPosition(state, p,
                        Level.fallBy(level: entry.level, sub: entry.sub, cut: entry.cut,
-                                    by: count, floor: EngineConfig.setsFloor),
+                                    by: count),
                        message, file: file, line: line)
         let got = state.position(p)
         XCTAssertTrue(Level.noHarder(pattern: p, from: entry.level, to: got.level,

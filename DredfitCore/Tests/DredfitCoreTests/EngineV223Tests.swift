@@ -134,8 +134,7 @@ final class EngineV223Tests: XCTestCase {
                     seen[p]! += 1
                     let before = want[p]!
                     let stepped = Level.fallBy(level: before.level, sub: before.sub,
-                                               cut: before.cut, by: 1,
-                                               floor: EngineConfig.setsFloor)
+                                               cut: before.cut, by: 1)
                     if seen[p]! < EngineConfig.failsToDeload {
                         want[p] = stepped
                         assertPosition(state, p, stepped,
@@ -202,7 +201,7 @@ final class EngineV223Tests: XCTestCase {
                 // the position stands — which is what still builds the streak
                 // toward the deload.
                 XCTAssertEqual(state.cutOf(p),
-                               min(hits, Level.cutMax(level: top, floor: EngineConfig.setsFloor)),
+                               min(hits, Level.cutMax(level: top)),
                                "and hard #\(hits) takes a set while the band has one to give")
                 XCTAssertEqual(state.failStreak[p], hits, "the streak is \(hits)")
             }

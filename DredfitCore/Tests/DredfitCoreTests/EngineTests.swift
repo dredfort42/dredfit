@@ -170,7 +170,7 @@ final class EngineTests: XCTestCase {
         state.failStreak[.pull] = EngineConfig.failsToDeload - 1
         let atBandFloor = state.position(.pull)
         let stepped = Level.fallBy(level: atBandFloor.level, sub: atBandFloor.sub,
-                                   cut: atBandFloor.cut, by: 1, floor: EngineConfig.setsFloor)
+                                   cut: atBandFloor.cut, by: 1)
         state = Engine.applyFeedback(state: state, session: s, result: .less)
         assertPosition(state, .pull,
                        expectedDeload(.pull, from: atBandFloor, stepped: stepped),
@@ -642,7 +642,7 @@ final class EngineTests: XCTestCase {
     func testTheFourteenTwoDivergenceWithACutStaysWhereItIs() {
         var cells = 0, harsher = 0, softer = 0, worst = 0
         for level in 0...EngineConfig.levelMax {
-            for cut in 0...Level.cutMax(level: level, floor: EngineConfig.setsFloor) {
+            for cut in 0...Level.cutMax(level: level) {
                 for gap in [14, 20, 35, 56, 90, 140, 365] {
                     var state = EngineState.initial
                     for p in Pattern.allCases {

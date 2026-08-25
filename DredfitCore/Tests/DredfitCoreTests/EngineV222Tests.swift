@@ -26,8 +26,7 @@ final class EngineV222Tests: XCTestCase {
     }
 
     private func tap(_ state: EngineState, _ result: FeedbackResult = .plan,
-                     overrides: [Pattern: Int] = [:], skipped: Set<Pattern> = []
-                     ) -> EngineState {
+                     overrides: [Pattern: Int] = [:], skipped: Set<Pattern> = []) -> EngineState {
         Engine.applyFeedback(state: state, session: Engine.generateSession(state),
                              result: result, overrides: overrides, skipped: skipped)
     }
@@ -377,8 +376,7 @@ final class EngineV222Tests: XCTestCase {
         let decayed = Engine.applySilentDecay(state: grown, gapDays: 9)
         for p in Pattern.allCases {
             assertPosition(decayed, p,
-                           Level.fallBy(level: 20, sub: 0, cut: 0, by: 1,
-                                        floor: EngineConfig.setsFloor),
+                           Level.fallBy(level: 20, sub: 0, cut: 0, by: 1),
                            "a silent decay drops the sub-step and steps back once (\(p))")
         }
     }

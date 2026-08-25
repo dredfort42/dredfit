@@ -39,23 +39,16 @@ extension Engine {
     /// deload, and no way out of a variation that is beyond its owner. Both
     /// directions now walk the SHARED scale — growth gives sets back first, a
     /// descent spends the dose before the sets — so "N up" and "N down" stay
-    /// integral and mutually inverse. `descentFloor` is the pain floor under a
-    /// live episode and the shared one otherwise, and `setsBackOk` is the hold
-    /// on a returning set. Neither carries a default: the whole class of
-    /// defects this wave kept finding was an optional argument left out, or
-    /// left out with the wrong floor. Together they are what bounds this
-    /// pattern's move this session, bundled into one value because two more of
-    /// them were added and nine loose arguments is how a caller ends up
-    /// passing the wrong floor — the very class of defect four rounds of
-    /// skeptics kept finding in this model.
+    /// integral and mutually inverse. `setsBackOk` is the hold on a returning
+    /// set. Together these bound this pattern's move this session, bundled
+    /// into one value because nine loose arguments is how a caller ends up
+    /// passing the wrong one — the class of defect four rounds of skeptics
+    /// kept finding in this model.
     struct RatingLimits {
         /// The cell for (pattern, tier) — how far a rise may go.
         let cap: Int
         /// Sessions left in the window a comeback opened.
         let rampLeft: Int
-        /// The floor a descent may reach: the PAIN one under a live episode,
-        /// the shared one otherwise.
-        let descentFloor: Int
         /// Whether the hold on a returning set has run out.
         let setsBackOk: Bool
     }
@@ -69,8 +62,7 @@ extension Engine {
 
     static func positionFromRating(
         pattern p: Pattern, result: FeedbackResult, from entry: Position,
-        limits: RatingLimits, aim: RatingAim
-    ) -> (position: Position, wantedDown: Bool) {
+        limits: RatingLimits, aim: RatingAim) -> (position: Position, wantedDown: Bool) {
         let effective: FeedbackResult = limits.rampLeft > 0 && result == .more ? .plan : result
         let sessionDelta: Int
         if let targets = aim.targets {
@@ -88,7 +80,7 @@ extension Engine {
         }
         if sessionDelta < 0 {
             return (Level.fallBy(level: entry.level, sub: entry.sub, cut: entry.cut,
-                                 by: -sessionDelta, floor: limits.descentFloor), true)
+                                 by: -sessionDelta), true)
         }
         return (entry, false)   // holds
     }
@@ -116,8 +108,7 @@ extension Engine {
     /// so there it stays as it was.
     static func tickStreak(
         _ next: inout EngineState, pattern p: Pattern, entryStreak: Int,
-        landed: Position, entry: Position, wentDown: Bool, deloadFrom: Int
-    ) -> Position {
+        landed: Position, entry: Position, wentDown: Bool, deloadFrom: Int) -> Position {
         guard wentDown else {
             next.failStreak[p] = 0
             return landed
@@ -142,7 +133,6 @@ extension Engine {
         // (340 cells of 1128, up to ×2.67). A deload is a descent; it may give
         // nothing back.
         return Position(level: target2, sub: 0,
-                        cut: min(landed.cut, Level.cutMax(level: target2,
-                                                          floor: EngineConfig.setsFloor)))
+                        cut: min(landed.cut, Level.cutMax(level: target2)))
     }
 }

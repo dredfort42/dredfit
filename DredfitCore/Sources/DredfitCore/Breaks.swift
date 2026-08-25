@@ -20,8 +20,7 @@ extension Engine {
     /// All patterns drop, `pullBar` included even with `hasBar == false`: a
     /// break detrains the whole body. A freeze survives it untouched — the
     /// error is asymmetric, and a couple of sessions without growth cost less
-    /// than a tendon — and so does a pain episode: levels drop as usual, the
-    /// confirmation stays owed. `failStreak` must reset — otherwise the first
+    /// than a tendon. `failStreak` must reset — otherwise the first
     /// underperformance after the return would ride the old streak into a
     /// deload and drop the level twice. `counter` does not move.
     ///
@@ -144,10 +143,6 @@ extension Engine {
         }
         // The levels fell — the cut has to fit the new band.
         next.cut = EngineState.healCut(next.cut, levels: next.levels)
-        // The memory of pain fades only on a LONG break. Fourteen days was a
-        // plain mistake: a break is exactly what a person in pain takes, so
-        // one break per report kept the memory at one for ever, the "time to
-        // see a specialist" threshold became unreachable
         return next
     }
 
@@ -179,7 +174,7 @@ extension Engine {
         // detrained.
         for p in Pattern.allCases {
             let landed = Level.fallBy(level: next.levels[p] ?? 0, sub: 0, cut: next.cutOf(p),
-                                      by: 1, floor: EngineConfig.setsFloor)
+                                      by: 1)
             Self.setPosition(&next, p, landed)
             next.failStreak[p] = 0
         }

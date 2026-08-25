@@ -152,12 +152,17 @@ public enum EngineConfig {
     /// count goes through `clampSets`, so the floor survives ANY composition
     /// of them, not just one path.
     public static let setsFloor = 2
-    /// `setsFloorPain` is gone. It sat below the shared floor for the pain
-    /// channel, and the audit found the default it was supposed to be an
-    /// exception to was never once taken: all ten calls to `cutMax` and all
-    /// seven to `effCut` passed the pain floor. The honest "hard" sweep put
-    /// 3458 plans out of 18 000 below two sets — reachable without touching a
-    /// handle. One floor now, and `setsFloor` is it.
+    // `setsFloorPain` is gone. It sat below the shared floor for the pain
+    // channel, and the audit found the default it was supposed to be an
+    // exception to was never once taken: all ten calls to `cutMax` and all
+    // seven to `effCut` passed the pain floor. The honest "hard" sweep put
+    // 3458 plans out of 18 000 below two sets — reachable without touching a
+    // handle. One floor now, and `setsFloor` is it — the callers no longer
+    // name it at all, because there is nothing left to choose between.
+    //
+    // Plain `//`: as `///` this attached to `setsBackPerSession` below, so
+    // Xcode offered a note about a removed constant as that one's document.
+
     /// Sets that come back in one session.
     static let setsBackPerSession = 1
     /// HOW MANY APPEARANCES a returned set is held before the next one may
@@ -380,8 +385,7 @@ public enum Engine {
             // by the engine not knowing. Zeroing them here was the last route
             // around "one set per session" (6 cells of 552, up to ×4.13).
             return Position(level: landed, sub: 0,
-                            cut: min(oldCut, Level.cutMax(level: landed,
-                                                          floor: EngineConfig.setsFloor)))
+                            cut: min(oldCut, Level.cutMax(level: landed)))
         }
         // "above or below" is settled by the DOSE, not by the shared measure.
         // The measure is lowered by the cut, so a shortfall read as a rise: an
@@ -408,8 +412,7 @@ public enum Engine {
         let landed = Level.descendNoHarder(pattern: p, from: oldL, factLevel: factL,
                                            fromSub: oldSub, fromCut: oldCut)
         return Position(level: landed, sub: 0,
-                        cut: min(oldCut, Level.cutMax(level: landed,
-                                                      floor: EngineConfig.setsFloor)))
+                        cut: min(oldCut, Level.cutMax(level: landed)))
     }
 
     /// Movements the user pointed at during the workout. The hold request left
@@ -418,8 +421,7 @@ public enum Engine {
     /// that is stated rather than implied: addressing is about who the delta
     /// reaches, not about how many ways there are to name a movement.
     private static func namedMovements(
-        session: Session, overrides: [Pattern: Int]
-    ) -> Set<Pattern> {
+        session: Session, overrides: [Pattern: Int]) -> Set<Pattern> {
         var named: Set<Pattern> = []
         for ex in session.exercises {
             let p = ex.pattern
@@ -442,8 +444,7 @@ public enum Engine {
         state: EngineState, session: Session, result: FeedbackResult,
         named: Set<Pattern>, overrides: [Pattern: Int],
         skipped: Set<Pattern>,
-        chronic: Set<Pattern> = [], window: [Pattern: Int] = [:]
-    ) -> Set<Pattern>? {
+        chronic: Set<Pattern> = [], window: [Pattern: Int] = [:]) -> Set<Pattern>? {
         guard result == .less, state.lessRun < EngineConfig.lessRunToGlobal else { return nil }
         guard named.isEmpty else { return named }
         // The culprit is the pattern whose OWN appearances fail most often —
@@ -533,8 +534,7 @@ public enum Engine {
         /// promises. FRACTIONAL days. Whole days threw away every gap shorter
         /// than one, so two workouts in a day froze growth for good; the app
         /// layer hands over `interval / 86_400`.
-        gapDays: Double? = nil
-    ) -> EngineState {
+        gapDays: Double? = nil) -> EngineState {
         // The state heals on entry, and a reported fact is clamped to the same
         // technical range — `actual - repStart` near Int.min would trap, and
         // past the range every fact already saturates the 0...levelMax result,
@@ -624,7 +624,6 @@ public enum Engine {
                         // sweep put 3458 plans out of 18 000 below two sets,
                         // and now puts none.
                         cap: cap, rampLeft: rampLeft,
-                        descentFloor: EngineConfig.setsFloor,
                         setsBackOk: setsBackOk),
                     aim: RatingAim(targets: lessTargets, chronic: chronic))
             }
@@ -669,8 +668,7 @@ public enum Engine {
     /// Split out of `applyFeedback` for the lint's function-length ceiling;
     /// the arithmetic is unchanged.
     private static func rollWeeklyWindow(
-        state: EngineState, gapDays: Double?
-    ) -> (haveGap: Bool, gain: [Pattern: Int], ageDays: Double) {
+        state: EngineState, gapDays: Double?) -> (haveGap: Bool, gain: [Pattern: Int], ageDays: Double) {
         let haveGap = gapDays?.isFinite ?? false
         let agedDays = haveGap
             ? state.weekAgeDays + max(EngineConfig.minSessionAgeDays, gapDays ?? 0)
@@ -775,8 +773,7 @@ public enum Engine {
         // 1960 steps of a descent out of 5600 moved the plan not at all: every
         // third tap wasted, and on exactly the person who had already had a
         // set taken away.
-        let cut = Level.effCut(level: position.level, cut: position.cut,
-                               floor: EngineConfig.setsFloor)
+        let cut = Level.effCut(level: position.level, cut: position.cut)
         let room = max(0, Level.decode(position.level).sets - cut)
         let sub = Level.effectiveSub(level: position.level, sub: position.sub, sets: room)
         if sub > 0 { next.sub[p] = sub } else { next.sub.removeValue(forKey: p) }
@@ -886,8 +883,7 @@ public enum Engine {
             let capped = min(next.levels[p] ?? 0, EngineConfig.stepsPerTier - 1)
             Self.setPosition(&next, p, Position(
                 level: capped, sub: 0,
-                cut: min(next.cutOf(p), Level.cutMax(level: capped,
-                                                     floor: EngineConfig.setsFloor))))
+                cut: min(next.cutOf(p), Level.cutMax(level: capped))))
         }
     }
 }

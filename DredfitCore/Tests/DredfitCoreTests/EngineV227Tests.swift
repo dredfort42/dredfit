@@ -50,7 +50,7 @@ final class EngineV227Tests: XCTestCase {
     func testTheSkipMustLandAfterTheFeedbackAndIsLostBeforeIt() {
         var cells = 0
         for level in 0...EngineConfig.levelMax {
-            guard Level.cutMax(level: level, floor: EngineConfig.setsFloor) > 0 else { continue }
+            guard Level.cutMax(level: level) > 0 else { continue }
             for bar in [false, true] {
                 for p in Pattern.allCases {
                     let base = seeded(level, bar: bar)
@@ -86,7 +86,7 @@ final class EngineV227Tests: XCTestCase {
         for result in [FeedbackResult.plan, .more, .less] {
             var cells = 0, lost = 0
             for level in 0...EngineConfig.levelMax {
-                guard Level.cutMax(level: level, floor: EngineConfig.setsFloor) > 0 else { continue }
+                guard Level.cutMax(level: level) > 0 else { continue }
                 for p in Pattern.allCases {
                     var base = seeded(level)
                     guard Engine.generateSession(base).exercises.contains(where: { $0.pattern == p })
@@ -141,7 +141,7 @@ final class EngineV227Tests: XCTestCase {
     func testOnTheFloorASkipMovesNeitherLevelNorCut() {
         var cells = 0, worstDrop = 0
         for level in 0...EngineConfig.levelMax {
-            let top = Level.cutMax(level: level, floor: EngineConfig.setsFloor)
+            let top = Level.cutMax(level: level)
             guard top > 0 else { continue }
             for p in Pattern.allCases {
                 var base = seeded(level)
@@ -180,7 +180,7 @@ final class EngineV227Tests: XCTestCase {
     /// levels and a skipped exercise costs nothing.
     func testTheFloorExampleFromTheSpec() throws {
         var base = seeded(24)
-        let top = Level.cutMax(level: 24, floor: EngineConfig.setsFloor)
+        let top = Level.cutMax(level: 24)
         for q in Pattern.allCases { base = Engine.setCut(state: base, pattern: q, cut: top) }
         let w = Engine.generateSession(base)
         let ex = try XCTUnwrap(w.exercises.first(where: { $0.pattern == .squat }))
@@ -216,7 +216,7 @@ final class EngineV227Tests: XCTestCase {
             var state = base, taps = 0
             for p in order {
                 if dur(state) <= target { break }
-                let top = Level.cutMax(level: state.levels[p] ?? 0, floor: EngineConfig.setsFloor)
+                let top = Level.cutMax(level: state.levels[p] ?? 0)
                 if state.cutOf(p) >= top { continue }
                 state = Engine.setCut(state: state, pattern: p, cut: top)
                 taps += 1
@@ -231,8 +231,7 @@ final class EngineV227Tests: XCTestCase {
                 var moved = false
                 for p in order {
                     if dur(one) <= target { break }
-                    let top = Level.cutMax(level: one.levels[p] ?? 0,
-                                           floor: EngineConfig.setsFloor)
+                    let top = Level.cutMax(level: one.levels[p] ?? 0)
                     if one.cutOf(p) >= top { continue }
                     one = Engine.setCut(state: one, pattern: p, cut: one.cutOf(p) + 1)
                     oneTaps += 1; moved = true
@@ -251,8 +250,7 @@ final class EngineV227Tests: XCTestCase {
         var state = seeded(47)
         for p in Pattern.allCases {
             state = Engine.setCut(state: state, pattern: p,
-                                  cut: Level.cutMax(level: state.levels[p] ?? 0,
-                                                    floor: EngineConfig.setsFloor))
+                                  cut: Level.cutMax(level: state.levels[p] ?? 0))
         }
         XCTAssertEqual(Engine.generateSession(state).estimatedTotalMin, 39.5, accuracy: 0.05)
         for ex in Engine.generateSession(state).exercises {
