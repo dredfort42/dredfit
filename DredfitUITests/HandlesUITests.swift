@@ -25,7 +25,12 @@ final class HandlesUITests: XCTestCase {
 
     /// The one handle left on the plan carries its RESULT rather than a
     /// promise: the name and dose the movement would have after the tap.
+    ///
+    /// Seeded above the first tier, because that is the whole of when the
+    /// handle exists: on a fresh install every movement is in its gentlest
+    /// variation and there is nothing below it to offer (§37.1).
     func testTheEasierHandleNamesTheVariationItWouldGive() {
+        app.launchArguments.append("--uitest-long-session")
         app.launch()
         let easier = app.buttons.matching(
             NSPredicate(format: "identifier BEGINSWITH %@", "easier-")).firstMatch
@@ -67,6 +72,7 @@ final class HandlesUITests: XCTestCase {
     /// because what is being tested is a place on the screen rather than a
     /// control — a query would find the control wherever it went.
     func testATapOnAPlanRowDoesNotPullItsHandle() {
+        app.launchArguments.append("--uitest-long-session")
         app.launch()
         let minutes = app.staticTexts.matching(
             NSPredicate(format: "label CONTAINS %@", "exercises")).firstMatch
@@ -76,20 +82,34 @@ final class HandlesUITests: XCTestCase {
         let handles = app.buttons.matching(
             NSPredicate(format: "identifier BEGINSWITH %@", "easier-"))
         XCTAssertTrue(handles.firstMatch.waitForExistence(timeout: 5))
+        let handle = handles.firstMatch.frame
         let promise = handles.firstMatch.label
+        // The row's own right edge, taken from the card above the handle: the
+        // list has insets of its own, and the screen's edge is not the row's.
+        let row = app.buttons.element(boundBy: 0).frame
 
+        // The strip to the RIGHT of the handle, derived from the two frames
+        // rather than from a fixed inset: the handle sits on the left of its
+        // row and its label is a whole sentence, so where the empty part of
+        // the row begins depends on the name of the movement. A button answers
+        // a few points outside the frame it reports, so the tap goes to the
+        // middle of the strip and never to its edge.
+        let empty = (handle.maxX + row.maxX) / 2
+        XCTAssertGreaterThan(row.maxX - handle.maxX, 60,
+                             "no empty strip to tap — the check would prove nothing")
         app.coordinate(withNormalizedOffset: .zero)
-            .withOffset(CGVector(dx: 40, dy: handles.firstMatch.frame.midY))
+            .withOffset(CGVector(dx: empty, dy: handle.midY))
             .tap()
 
         XCTAssertEqual(minutes.label, announced,
                        "a tap on the row's empty strip rewrote the plan")
         XCTAssertEqual(handles.firstMatch.label, promise,
-                       "a tap on the row's empty strip pulled the handle beside it")
+                       "a tap at x=\(empty) on the row's empty strip (handle ends at "
+                       + "\(handle.maxX), row at \(row.maxX)) pulled the handle beside it")
 
         // A row above the handle is the card itself — that one does open.
         app.coordinate(withNormalizedOffset: .zero)
-            .withOffset(CGVector(dx: 60, dy: handles.firstMatch.frame.minY - 34))
+            .withOffset(CGVector(dx: 60, dy: handle.minY - 34))
             .tap()
         XCTAssertTrue(app.staticTexts["technique-life"].waitForExistence(timeout: 5),
                       "the plan row no longer opens the technique sheet")

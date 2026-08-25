@@ -113,14 +113,21 @@ struct TodayView: View {
     /// Spelled out for VoiceOver as well: "26–34" is read as two numbers
     /// rather than as a range, and the en dash is the whole of what makes it
     /// one.
+    ///
+    /// The identifier is how a test still finds the line: an accessibility
+    /// label REPLACES the text a query can see, so without it the pinned
+    /// number would be unreachable from a UI test and the pin would quietly
+    /// stop guarding anything.
     @ViewBuilder
     private func planLength(_ length: (floor: Int, full: Int), count: Int) -> some View {
         if length.floor < length.full {
             Text("≈ \(length.floor)–\(length.full) min · \(count) exercises")
                 .accessibilityLabel(
                     Text("about \(length.floor) to \(length.full) minutes · \(count) exercises"))
+                .accessibilityIdentifier("plan-length")
         } else {
             Text("≈ \(length.full) min · \(count) exercises")
+                .accessibilityIdentifier("plan-length")
         }
     }
 

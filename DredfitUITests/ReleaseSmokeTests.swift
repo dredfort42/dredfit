@@ -56,8 +56,14 @@ final class ReleaseSmokeTests: XCTestCase {
             // levels as shipped and with every movement on the sets floor),
             // not copied off the screen: this line is a pin, and a pin taken
             // from the thing it guards guards nothing.
-            XCTAssertTrue(app.staticTexts["≈ 26–34 min · 6 exercises"].exists,
-                          "S1: the plan line must read ≈ 26–34 min · 6 exercises")
+            // By identifier and then by SPOKEN label: the line carries an
+            // accessibility label (a range read as two numbers is not a
+            // range), and that label is what a query sees. Both numbers are
+            // still pinned, which is the point of the row.
+            let planLine = app.staticTexts["plan-length"]
+            XCTAssertTrue(planLine.exists, "S1: the plan line is missing")
+            XCTAssertEqual(planLine.label, "about 26 to 34 minutes · 6 exercises",
+                           "S1: the plan line must read ≈ 26–34 min · 6 exercises")
             XCTAssertTrue(app.buttons["Start"].exists, "S1: Start is missing")
             // One Start, and nothing beside it to agree to first: §38 took the
             // short version and the session handle off this screen.
