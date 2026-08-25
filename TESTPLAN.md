@@ -825,6 +825,17 @@ previous run. The cell counts move every wave — the sweep walks a lattice that
 grows — and chasing a particular figure hides a regression as well as a red run
 does.
 
+**Two of these six do not run at all on engine 2.27.0**, found closing the wave:
+`audit_local.js` and `audit_local2.js` still call `shorterSession`, the export
+§38.1 removed, and die with a `TypeError` before their first check. `verify2.js`
+and `make_golden.js` were re-pointed by the wave itself — they walk the same cut
+one movement at a time through `setCut` — and the two sweeps were not. Nothing
+else notices: `verify2` and `accept.js` are clean, so a release would meet this
+at its own gate. A verified repair, its output, and the reason it is a proposal
+rather than a fix are in `reference/model-v2.27/GATE-PROPOSAL/` — re-pointing
+what a release gate sweeps is the owner's decision, not a tidy-up inside the
+wave being judged.
+
 ### What `accept.js` checks, and why each check is there
 
 `verify2.js` proves the engine obeys the spec. `accept.js` proves a *wave* kept
