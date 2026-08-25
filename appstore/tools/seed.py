@@ -2,9 +2,23 @@
 """Write a seeded dredfit-state.json into the simulator app container.
 
 Usage: seed.py <udid> A|B
-Seed A: counter 11 (Workout 12 next), varied tier-2 levels — Today + workout flow.
-Seed B: counter 34, levels 20/18/20/25/15/17/14/13/16 (sum 158) — Progress.
+Seed A: counter 11 (Workout 12 next), second variations — Today + workout flow.
+Seed B: counter 34, mostly third variations — Progress.
 Dates encode as seconds since the reference date (Foundation default).
+
+v3.0: the state is a POSITION per movement — variation plus dose — and not a
+level, so the seeds carry `vars`/`doses` instead of `levels`. Those two keys are
+REQUIRED by the decoder: a file with `levels` is a v2 file, the engine refuses
+it and the app starts clean (§40.8), which would have seeded screenshots of a
+first workout instead of a trained one. Every dose below sits on its own grid
+(reps 4…15 step 1, holds 15…45 step 5) — off-grid values are snapped down by
+the sanitizer and the frame would show a number the seed never asked for.
+
+The two ordinal sums (375 and 667) are the engine's own measure of the seeded
+positions, `posOrd` summed over the ten patterns — recomputed on the shipped
+reference, not carried over from the level scale. They matter because the
+Progress screen shows the same number: a hand-picked total would contradict the
+bars drawn next to it.
 """
 import json, subprocess, sys, datetime, os
 
@@ -15,14 +29,36 @@ now = datetime.datetime.now(datetime.timezone.utc)
 PATTERNS = ["squat", "push_h", "hinge", "pull", "push_v",
             "lunge", "core_anti_ext", "core_rot", "calf", "pull_bar"]
 
-def levels_array(d):
+
+def pattern_array(d, default=0):
+    """[Pattern: Int] on the wire: an UNKEYED alternating array. Pattern is a
+    plain String-raw enum on purpose (never CodingKeyRepresentable), and that
+    is what fixes this shape — see CLAUDE.md."""
     out = []
     for p in PATTERNS:
-        out += [p, d.get(p, 0)]
+        out += [p, d.get(p, default)]
     return out
 
-def records(count, totals):
+
+def shown_array(positions):
+    """[Pattern: [Int: Int]] — the outer map is the same alternating array, the
+    inner one is a keyed object, because Swift special-cases integer keys. The
+    journal of what was actually shown is what a descent lands on (§40.6), so a
+    seed without it would let one "hard" throw the frame back to the floor."""
+    out = []
+    for p in PATTERNS:
+        var, dose = positions[p]
+        out += [p, {str(var): dose}]
+    return out
+
+
+def records(count, totals, positions):
     recs = []
+    after = {p: {"variation": v, "sets": 3, "dose": d}
+             for p, (v, d) in positions.items()}
+    flat = []
+    for p in PATTERNS:
+        flat += [p, after[p]]
     for i in range(count):
         # every other day, last one yesterday evening
         date = now - datetime.timedelta(days=2 * (count - 1 - i) + 1)
@@ -30,32 +66,42 @@ def records(count, totals):
             "sessionNumber": i + 1,
             "date": (date - REF).total_seconds(),
             "result": "plan",
-            "totalLevelAfter": totals[i],
+            # The scale has no inverse (§40.2), so the record keeps the position
+            # itself; the scalar beside it is only the sum of the ordinals.
+            "totalProgressAfter": totals[i],
+            "positionsAfter": flat,
         })
     return recs
 
+
 if seed == "A":
-    levels = {"squat": 18, "push_h": 13, "hinge": 12, "pull": 14, "push_v": 10,
-              "lunge": 11, "core_anti_ext": 13, "core_rot": 8, "calf": 12}
-    total = sum(levels.values())
+    positions = {"squat": (2, 9), "push_h": (2, 8), "hinge": (2, 7),
+                 "pull": (2, 8), "push_v": (2, 6), "lunge": (2, 7),
+                 "core_anti_ext": (2, 30), "core_rot": (2, 25),
+                 "calf": (2, 10), "pull_bar": (1, 20)}
+    total = 375
     counter = 11
-    totals = [round(9 + (total - 9) * (i / (counter - 1)) ** 1.1) for i in range(counter)]
+    totals = [round(10 + (total - 10) * (i / (counter - 1)) ** 1.1) for i in range(counter)]
     totals[-1] = total
 else:
-    levels = {"squat": 20, "push_h": 18, "hinge": 20, "pull": 25, "push_v": 15,
-              "lunge": 17, "core_anti_ext": 14, "core_rot": 13, "calf": 16}
-    total = sum(levels.values())
+    positions = {"squat": (3, 11), "push_h": (3, 10), "hinge": (3, 9),
+                 "pull": (3, 12), "push_v": (2, 12), "lunge": (2, 13),
+                 "core_anti_ext": (3, 35), "core_rot": (3, 30),
+                 "calf": (3, 12), "pull_bar": (1, 30)}
+    total = 667
     counter = 34
-    totals = [round(9 + (total - 9) * (i / (counter - 1)) ** 1.4) for i in range(counter)]
+    totals = [round(10 + (total - 10) * (i / (counter - 1)) ** 1.4) for i in range(counter)]
     totals[-1] = total
 
 data = {
     "engineState": {
         "counter": counter,
-        "levels": levels_array(levels),
-        "failStreak": levels_array({}),
+        "vars": pattern_array({p: v for p, (v, _) in positions.items()}, 1),
+        "doses": pattern_array({p: d for p, (_, d) in positions.items()}, 4),
+        "shown": shown_array(positions),
+        "failStreak": pattern_array({}),
     },
-    "records": records(counter, totals),
+    "records": records(counter, totals, positions),
     "settings": {
         "restWeekdays": [],
         "soundsEnabled": True,

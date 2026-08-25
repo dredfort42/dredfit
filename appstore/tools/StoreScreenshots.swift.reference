@@ -179,7 +179,7 @@ final class StoreScreenshots: XCTestCase {
     // Seeded through the app's own hook rather than seed.py: a three-set plan
     // can only give one set away (§38.2 rule 2), so "Skip remaining sets" has
     // nothing to show at the bottom of the scale. `--uitest-long-session`
-    // plants level 34 — four sets, 55 minutes.
+    // plants the top of every ladder at four sets — 67 minutes.
 
     private func skipInsideWorkout(_ l: L) {
         let app = launch(["--uitest-reset", "--uitest-long-session"], l)
@@ -206,7 +206,7 @@ final class StoreScreenshots: XCTestCase {
                       "the header must carry what is left of the session")
         Thread.sleep(forTimeInterval: 1)
         snap("skip_\(l.tag)")
-        app.terminate()   // nothing submitted: no record, no level moved
+        app.terminate()   // nothing submitted: no record, no position moved
     }
 
     func testSkipEnglish() { skipInsideWorkout(Self.en) }
@@ -318,7 +318,7 @@ final class StoreScreenshots: XCTestCase {
             guardCounter += 1
         }
         XCTAssertTrue(rating.waitForExistence(timeout: 5), "did not reach the rating screen")
-        // Answer "On plan" → tier-up milestone coda. The card Button's a11y
+        // Answer "On plan" → new-variation milestone coda. The card Button's a11y
         // label concatenates title + caption, so match on a substring.
         let onPlan = app.buttons.matching(
             NSPredicate(format: "label CONTAINS %@", l.onPlanLabel)).firstMatch

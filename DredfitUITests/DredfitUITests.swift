@@ -115,9 +115,12 @@ final class DredfitUITests: XCTestCase {
             app.buttons["Went differently"].tap()
             let minus = app.buttons["minus"]
             XCTAssertTrue(minus.waitForExistence(timeout: 2), "the stepper did not open")
-            minus.tap(); minus.tap(); minus.tap()   // plan 8 → 5
+            // Plan 4 → 3. A clean start IS the bottom of the grid (§40.8),
+            // so a first-session actual can only be BELOW it — there is no
+            // "lower but still on the ladder" number to type here any more.
+            minus.tap()
             app.buttons["OK"].tap()
-            XCTAssertTrue(app.staticTexts["actual 5"].exists, "the actual marker did not appear")
+            XCTAssertTrue(app.staticTexts["actual 3"].exists, "the actual marker did not appear")
         }
 
         // The cool-down has its own test and the release smoke walks it.
@@ -140,7 +143,7 @@ final class DredfitUITests: XCTestCase {
         // outside it, because it carries its own number.
         XCTAssertTrue(app.staticTexts["Your rating applies to 5 of 6"].exists,
                       "no actuals summary on the rating screen")
-        XCTAssertTrue(app.staticTexts["actual 5"].exists)
+        XCTAssertTrue(app.staticTexts["actual 3"].exists)
 
         app.staticTexts["Easy, could do more"].tap()
 
@@ -356,7 +359,7 @@ final class DredfitUITests: XCTestCase {
         app.buttons["day-\(day)"].tap()
         XCTAssertTrue(app.staticTexts["Workout 1"].waitForExistence(timeout: 3),
                       "history did not open on the day tap")
-        XCTAssertTrue(app.staticTexts["actual 5"].exists, "the actual is not shown in the history")
+        XCTAssertTrue(app.staticTexts["actual 3"].exists, "the actual is not shown in the history")
         app.buttons["Got it"].tap()
     }
 
@@ -389,8 +392,10 @@ final class DredfitUITests: XCTestCase {
         _ = app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5)
 
         app.tabBars.buttons["Progress"].tap()
-        XCTAssertTrue(app.staticTexts["level"].waitForExistence(timeout: 3))
-        // 6 patterns × (+2) = 12, on the identified element.
+        XCTAssertTrue(app.staticTexts["steps"].waitForExistence(timeout: 3))
+        // 6 patterns × (+2) = 12, on the identified element. The scale is
+        // an ordinal along each ladder now (§40.2); the identifier kept
+        // its old name, the CAPTION did not.
         let totalLevel = app.staticTexts["total-level"]
         XCTAssertEqual(totalLevel.label, "12", "the total level after \"easy\" should be 12")
         XCTAssertTrue(app.staticTexts["1 workout"].exists,
@@ -622,10 +627,11 @@ final class DredfitUITests: XCTestCase {
                       "the explainer row should be the first thing in settings")
         app.buttons["how-it-works"].tap()
 
-        XCTAssertTrue(app.staticTexts["The level"].waitForExistence(timeout: 3),
+        XCTAssertTrue(app.staticTexts["Variation and dose"].waitForExistence(timeout: 3),
                       "the explainer did not open")
         for section in ["What your answer does", "Deload", "Rotation",
                         "Weekly rhythm",   // issue #36
+                        "Trying the next movement",   // §40.4
                         "Skips", "Why there are no questionnaires"] {
             XCTAssertTrue(app.staticTexts[section].exists,
                           "section \"\(section)\" is missing")
@@ -747,12 +753,14 @@ extension DredfitUITests {
 
         XCTAssertTrue(app.staticTexts["Welcome back"].waitForExistence(timeout: 5),
                       "a 20-day break should offer the comeback card")
-        // Level 20 is tier 3 step 4 -> 9 reps; -2 gives level 18, tier 3 step 2 -> 7.
-        XCTAssertTrue(app.staticTexts["3 × 9"].exists, "plan before the comeback")
+        // The seed stands on variation 3 at the top of its grid, so the
+        // plan is 2 × 15 and the third set is the probe (§40.4);
+        // the 20-day comeback lands on 3 × 13.
+        XCTAssertTrue(app.staticTexts["2 × 15"].exists, "plan before the comeback")
 
         app.buttons["comeback-accept"].tap()
 
-        XCTAssertTrue(app.staticTexts["3 × 7"].waitForExistence(timeout: 3),
+        XCTAssertTrue(app.staticTexts["3 × 13"].waitForExistence(timeout: 3),
                       "accepting must lower the plan two steps")
         XCTAssertFalse(app.staticTexts["Welcome back"].exists,
                        "the card is answered and gone")
@@ -766,7 +774,7 @@ extension DredfitUITests {
 
         app.buttons["comeback-decline"].tap()
         XCTAssertFalse(app.staticTexts["Welcome back"].exists)
-        XCTAssertTrue(app.staticTexts["3 × 9"].exists, "the plan is unchanged")
+        XCTAssertTrue(app.staticTexts["2 × 15"].exists, "the plan is unchanged")
 
         // Relaunch without the seeding hook: the stored answer is what decides.
         let relaunch = XCUIApplication()
@@ -806,13 +814,13 @@ extension DredfitUITests {
         // the reset, and the promise beside it is that the history survives.
         XCTAssertTrue(app.staticTexts["Start from scratch?"].waitForExistence(timeout: 3),
                       "the offer must confirm before it resets anything")
-        let reset = app.buttons["Reset levels"]
+        let reset = app.buttons["Reset progress"]
         XCTAssertTrue(reset.waitForExistence(timeout: 3),
                       "the confirmation must carry the destructive choice")
         reset.tap()
 
-        XCTAssertTrue(app.staticTexts["3 × 8"].waitForExistence(timeout: 5),
-                      "the levels go back to the beginning — level 0 is three eights")
+        XCTAssertTrue(app.staticTexts["3 × 4"].waitForExistence(timeout: 5),
+                      "the plan goes back to the beginning — the floor is three fours")
         XCTAssertFalse(app.staticTexts["Welcome back"].exists,
                        "the card is answered and gone")
 
@@ -856,15 +864,18 @@ extension DredfitUITests {
         XCTAssertEqual(app.staticTexts.matching(
             NSPredicate(format: "label == %@", "NEW VARIATION")).count, 2,
             "both tier-ups should be listed")
-        // Each unlocked variation reads as an ability (issue #25). The row
-        // combines its children for VoiceOver, and XCUI then exposes the life
-        // text twice (child + combined parent), so an exact count would pin an
-        // accessibility artifact rather than the UI: assert presence, and
-        // leave "no life line on set bands and jubilees" to the code's switch
-        // and the manual pass (TESTPLAN).
-        XCTAssertGreaterThanOrEqual(
-            app.staticTexts.matching(identifier: "milestone-life").count, 2,
-            "each tier-up row should carry its life line")
+        // NO life line here, and that is the rule, not a gap: the line belongs
+        // to a NEW VARIATION (issue #25), and both rows above are SET BANDS —
+        // since v3 the seed can only plant those, because entering a variation
+        // needs a probe passed inside the workout (§40.4) and a seed cannot
+        // promise the driver will pass one. The kicker reads "New variation"
+        // for a set band as well, which is why the count above still matches;
+        // that wording predates this wave and is logged in BACKLOG.
+        // The variation-up row and its life line stay covered by
+        // MilestoneTests and LifeBenefitTests at the unit level.
+        XCTAssertEqual(
+            app.staticTexts.matching(identifier: "milestone-life").count, 0,
+            "a set band is the same ability grown — it carries no life line")
 
         app.buttons["milestone-done"].tap()
         XCTAssertTrue(app.staticTexts["Workout 10 completed"].waitForExistence(timeout: 5),

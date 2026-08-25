@@ -303,7 +303,8 @@ final class AppStore {
     /// the linter's complexity bound: it grows by one branch every wave, and
     /// the bound is a CI error rather than a style opinion.
     private func seedStateIfRequested() {
-        // A trainee well up the scale: band 4, six movements, 55 minutes. The
+        // A trainee at the top of every ladder: band 4, six movements, 67
+        // minutes (the number moved with the v3 ladders). The
         // state the mid-workout skip exists for — a plan of three sets can
         // only ever give one of them away and still count as trained, so the
         // escape that takes the REST of a movement has nothing to show at the

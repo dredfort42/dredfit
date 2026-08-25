@@ -8262,43 +8262,43 @@
         }
       }
     },
-    "No questions about your goal, your level or how much time you have. Open the app and train — the first workout is already waiting. About 33 minutes, no equipment.": {
+    "No questions about your goal, your level or how much time you have. Open the app and train — the first workout is already waiting. About 31 minutes, no equipment.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keine Fragen nach deinem Ziel, deinem Level oder deiner Zeit. Öffne die App und trainiere – das erste Training wartet schon. Rund 33 Minuten, ohne Geräte."
+            "value": "Keine Fragen nach deinem Ziel, deinem Level oder deiner Zeit. Öffne die App und trainiere – das erste Training wartet schon. Rund 31 Minuten, ohne Geräte."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sin preguntas sobre tu objetivo, tu nivel o el tiempo que tienes. Abre la app y entrena: el primer entrenamiento ya te espera. Unos 33 minutos, sin equipamiento."
+            "value": "Sin preguntas sobre tu objetivo, tu nivel o el tiempo que tienes. Abre la app y entrena: el primer entrenamiento ya te espera. Unos 31 minutos, sin equipamiento."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucune question sur ton objectif, ton niveau ou le temps que tu as. Ouvre l’app et entraîne-toi : la première séance t’attend déjà. Environ 33 minutes, sans matériel."
+            "value": "Aucune question sur ton objectif, ton niveau ou le temps que tu as. Ouvre l’app et entraîne-toi : la première séance t’attend déjà. Environ 31 minutes, sans matériel."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Niente domande su obiettivo, livello o quanto tempo hai. Apri l’app e allenati: il primo allenamento ti aspetta già. Circa 33 minuti, senza attrezzi."
+            "value": "Niente domande su obiettivo, livello o quanto tempo hai. Apri l’app e allenati: il primo allenamento ti aspetta già. Circa 31 minuti, senza attrezzi."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sem perguntas sobre seu objetivo, seu nível ou quanto tempo você tem. Abra o app e treine: o primeiro treino já está esperando. Cerca de 33 minutos, sem equipamento."
+            "value": "Sem perguntas sobre seu objetivo, seu nível ou quanto tempo você tem. Abra o app e treine: o primeiro treino já está esperando. Cerca de 31 minutos, sem equipamento."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Никаких вопросов про цель, уровень и свободное время. Открывай и тренируйся: первая тренировка уже готова. Около 33 минут, без инвентаря."
+            "value": "Никаких вопросов про цель, уровень и свободное время. Открывай и тренируйся: первая тренировка уже готова. Около 31 минуты, без инвентаря."
           }
         }
       }
@@ -14047,7 +14047,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "progress.stepsLabel"
+            "value": "steps"
           }
         },
         "ru": {
@@ -14705,7 +14705,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "life.override.pistol-squat"
+            "value": "Standing up from the floor on one leg — no hands, no support."
           }
         },
         "ru": {
@@ -14752,7 +14752,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "life.override.push-up"
+            "value": "Your own bodyweight — under full control."
           }
         },
         "ru": {
@@ -14799,7 +14799,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "life.override.wall-handstand"
+            "value": "Your whole body above your hands — a rare level of control."
           }
         },
         "ru": {
@@ -14846,7 +14846,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "life.override.pull-up"
+            "value": "Lifting your own bodyweight — the base for any physical task."
           }
         },
         "ru": {
