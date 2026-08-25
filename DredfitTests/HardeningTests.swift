@@ -3,20 +3,9 @@ import DredfitCore
 @testable import Dredfit
 
 @MainActor
-final class HardeningTests: XCTestCase {
+final class HardeningTests: AppStoreTestCase {
 
-    nonisolated(unsafe) private var tempURL: URL!
-
-    override func setUp() async throws {
-        try await super.setUp()
-        tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("dredfit-hardening-\(UUID().uuidString).json")
-    }
-
-    override func tearDown() async throws {
-        try? FileManager.default.removeItem(at: tempURL)
-        try await super.tearDown()
-    }
+    override var tempURLPrefix: String { "dredfit-hardening" }
 
     // MARK: - Day anchor
 

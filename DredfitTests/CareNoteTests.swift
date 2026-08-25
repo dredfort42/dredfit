@@ -8,20 +8,9 @@ import XCTest
 @testable import Dredfit
 
 @MainActor
-final class CareNoteTests: XCTestCase {
+final class CareNoteTests: AppStoreTestCase {
 
-    nonisolated(unsafe) private var tempURL: URL!
-
-    override func setUp() async throws {
-        try await super.setUp()
-        tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("dredfit-care-\(UUID().uuidString).json")
-    }
-
-    override func tearDown() async throws {
-        try? FileManager.default.removeItem(at: tempURL)
-        try await super.tearDown()
-    }
+    override var tempURLPrefix: String { "dredfit-care" }
 
     /// Completing the onboarding — reachable only through the care card's
     /// button since #101 — records the acknowledgement, and it survives a

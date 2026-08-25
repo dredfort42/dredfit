@@ -3,7 +3,7 @@ import DredfitCore
 @testable import Dredfit
 
 @MainActor
-final class DebutBadgeTests: XCTestCase {
+final class DebutBadgeTests: AppStoreTestCase {
     /// Every workout gets its own day. Growth moves one set at a time now, so
     /// a tier is 24 growth events rather than 8 — and stacked on a single
     /// instant the weekly ceiling (six sub-steps for the fast tissues) would
@@ -15,19 +15,6 @@ final class DebutBadgeTests: XCTestCase {
         store.completeWorkout(session: store.nextSession, result: result,
                               overrides: [:], skipped: skipped,
                               date: Date(timeIntervalSinceNow: Double(day) * 86_400))
-    }
-
-    nonisolated(unsafe) private var tempURL: URL!
-
-    override func setUp() async throws {
-        try await super.setUp()
-        tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("dredfit-test-\(UUID().uuidString).json")
-    }
-
-    override func tearDown() async throws {
-        try? FileManager.default.removeItem(at: tempURL)
-        try await super.tearDown()
     }
 
     /// Before any workout there is nothing to compare against — the first

@@ -12,20 +12,9 @@ import DredfitCore
 @testable import Dredfit
 
 @MainActor
-final class WeakLinkPromptTests: XCTestCase {
+final class WeakLinkPromptTests: AppStoreTestCase {
 
-    nonisolated(unsafe) private var tempURL: URL!
-
-    override func setUp() async throws {
-        try await super.setUp()
-        tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("dredfit-weaklink-\(UUID().uuidString).json")
-    }
-
-    override func tearDown() async throws {
-        try? FileManager.default.removeItem(at: tempURL)
-        try await super.tearDown()
-    }
+    override var tempURLPrefix: String { "dredfit-weaklink" }
 
     /// A store whose journal is `count` sessions, each one an unnamed "tough"
     /// when it carried `culprit` and "on plan" otherwise — the naive persona.

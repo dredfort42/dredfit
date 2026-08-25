@@ -11,20 +11,9 @@ import DredfitCore
 @testable import Dredfit
 
 @MainActor
-final class PushLadderMigrationTests: XCTestCase {
+final class PushLadderMigrationTests: AppStoreTestCase {
 
-    nonisolated(unsafe) private var tempURL: URL!
-
-    override func setUp() async throws {
-        try await super.setUp()
-        tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("dredfit-ladder-\(UUID().uuidString).json")
-    }
-
-    override func tearDown() async throws {
-        try? FileManager.default.removeItem(at: tempURL)
-        try await super.tearDown()
-    }
+    override var tempURLPrefix: String { "dredfit-ladder" }
 
     /// A journal written by an older build, parked at the given push_v level.
     private func storeFromBefore(pushV level: Int) throws -> AppStore {

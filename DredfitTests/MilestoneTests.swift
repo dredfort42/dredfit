@@ -3,20 +3,9 @@ import DredfitCore
 @testable import Dredfit
 
 @MainActor
-final class MilestoneTests: XCTestCase {
+final class MilestoneTests: AppStoreTestCase {
 
-    nonisolated(unsafe) private var tempURL: URL!
-
-    override func setUp() async throws {
-        try await super.setUp()
-        tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("dredfit-milestone-\(UUID().uuidString).json")
-    }
-
-    override func tearDown() async throws {
-        try? FileManager.default.removeItem(at: tempURL)
-        try await super.tearDown()
-    }
+    override var tempURLPrefix: String { "dredfit-milestone" }
 
     /// A store with a known counter and chosen levels.
     ///

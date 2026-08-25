@@ -3,24 +3,7 @@ import DredfitCore
 @testable import Dredfit
 
 @MainActor
-final class HealthExportTests: XCTestCase {
-
-    nonisolated(unsafe) private var tempURL: URL!
-
-    override func setUp() async throws {
-        try await super.setUp()
-        tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("dredfit-test-\(UUID().uuidString).json")
-    }
-
-    override func tearDown() async throws {
-        try? FileManager.default.removeItem(at: tempURL)
-        try await super.tearDown()
-    }
-
-    private func date(_ y: Int, _ m: Int, _ d: Int) -> Date {
-        Calendar.current.date(from: DateComponents(year: y, month: m, day: d, hour: 10))!
-    }
+final class HealthExportTests: AppStoreTestCase {
 
     /// A Health spy: records saved intervals, grants or denies on demand,
     /// can simulate save failures (all, or from a given 1-based call), and

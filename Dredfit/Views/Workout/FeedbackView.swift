@@ -68,7 +68,7 @@ struct FeedbackView: View {
 
                     Spacer(minLength: 20)
 
-                    if !overrides.isEmpty || !setAside.isEmpty {
+                    if !overrides.isEmpty || !skipped.isEmpty {
                         adjustedSummary
                             .padding(.bottom, 24)
                     }
@@ -126,7 +126,7 @@ struct FeedbackView: View {
                     }
                 }
             }
-            if !setAside.isEmpty {
+            if !skipped.isEmpty {
                 Text("These keep their level either way.")
                     .dredfitFont(12.5)
                     .foregroundStyle(Theme.ink2)
@@ -137,21 +137,17 @@ struct FeedbackView: View {
         .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 16))
     }
 
-    /// Everything the rating does not reach: skipped, painful, or left
-    /// unfinished. All three keep their level.
-    private var setAside: Set<Pattern> { skipped }
-
     /// Adjusted exercises follow their actual number, not the rating (see
     /// Engine.applyFeedback), so they are outside the scope too. The
     /// arithmetic is the banner's, unchanged: the session minus what was set
     /// aside minus what carries its own number.
     private var adjusted: Int {
         session.exercises.filter {
-            overrides[$0.pattern] != nil && !setAside.contains($0.pattern)
+            overrides[$0.pattern] != nil && !skipped.contains($0.pattern)
         }.count
     }
 
-    private var applies: Int { session.exercises.count - setAside.count - adjusted }
+    private var applies: Int { session.exercises.count - skipped.count - adjusted }
 
     private var total: Int { session.exercises.count }
 

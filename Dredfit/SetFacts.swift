@@ -44,21 +44,6 @@ nonisolated enum SetFacts {
 
     // MARK: - The corridors
 
-    /// The grid a reportable number is snapped to: one second for holds, one
-    /// rep for reps.
-    ///
-    /// Holds used to snap to 5 s, matching the engine's old fixed rung. The
-    /// ladder is relative now — a rung costs from 1 s to 4 s depending on
-    /// where you stand — so a five-second grid can express only 13 of the
-    /// scale's 48 rungs. An honest 3 s short of the plan then snapped a full
-    /// grid cell away and cost five rungs instead of one. The corridor itself
-    /// (5...90 s) does not move.
-    static func step(for unit: LoadUnit) -> Int {
-        switch unit {
-        case .hold, .reps: return 1
-        }
-    }
-
     /// The corridor a reportable number lives in.
     static func corridor(for unit: LoadUnit) -> ClosedRange<Int> {
         unit == .hold ? 5...90 : 0...30
@@ -71,7 +56,12 @@ nonisolated enum SetFacts {
     static func snap(_ value: Double, unit: LoadUnit) -> Int {
         let corridor = self.corridor(for: unit)
         guard value.isFinite else { return corridor.lowerBound }
-        let step = Double(self.step(for: unit))
+        // One unit — one second, one rep. Holds used to snap to a 5 s grid,
+        // matching the engine's old fixed rung. The ladder is relative now, so
+        // a five-second cell could express 13 of the scale's 48 rungs, and an
+        // honest 3 s short of the plan snapped a whole cell away and cost five
+        // rungs instead of one. The corridor itself (5...90 s) does not move.
+        let step = 1.0
         // Clamped while still a Double: `Int(_:)` traps on anything past its
         // range, and a snapshot off disk can carry any number at all.
         let stepped = (value / step).rounded() * step

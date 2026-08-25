@@ -3,20 +3,7 @@ import DredfitCore
 @testable import Dredfit
 
 @MainActor
-final class AppStoreTests: XCTestCase {
-
-    nonisolated(unsafe) private var tempURL: URL!
-
-    override func setUp() async throws {
-        try await super.setUp()
-        tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("dredfit-test-\(UUID().uuidString).json")
-    }
-
-    override func tearDown() async throws {
-        try? FileManager.default.removeItem(at: tempURL)
-        try await super.tearDown()
-    }
+final class AppStoreTests: AppStoreTestCase {
 
     // MARK: - Initial state and persistence
 
@@ -473,10 +460,6 @@ final class AppStoreTests: XCTestCase {
     }
 
     // MARK: - Calendar logic
-
-    private func date(_ y: Int, _ m: Int, _ d: Int) -> Date {
-        Calendar.current.date(from: DateComponents(year: y, month: m, day: d, hour: 10))!
-    }
 
     func testIsRestDayOnSundays() {
         let store = AppStore(storageURL: tempURL)
