@@ -796,8 +796,7 @@ public enum Engine {
     /// branch's streak is untouched — it was not trained.
     private static func applyCrossCredit(_ next: inout EngineState, state: EngineState,
                                          session: Session, result: FeedbackResult,
-                                         overrides: [Pattern: Int],
-                                         ) {
+                                         overrides: [Pattern: Int]) {
         guard next.hasBar,
               let trained = session.exercises.first(where: { Pattern.pullSide.contains($0.pattern) })?.pattern
         else { return }

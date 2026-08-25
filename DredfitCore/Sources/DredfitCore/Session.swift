@@ -99,17 +99,6 @@ public struct Session: Codable, Equatable, Sendable {
 
 extension Engine {
 
-    /// The first movement of the rotation window for a counter — the anchor
-    /// of the short workout. The window shifts by 3 over 8 rotating patterns,
-    /// so over any 8 consecutive sessions the anchor visits all 8; the short
-    /// workout depends on that property.
-    public static func rotationAnchor(counter: Int) -> Pattern {
-        let n = rotating.count
-        let start = (((EngineState.clamped(counter, 0, EngineConfig.countMax)
-                       * EngineConfig.rotationStep) % n) + n) % n
-        return rotating[start]
-    }
-
     public static func estimatedMin(exercises: [SessionExercise],
                                     ends: Int = EngineConfig.warmupMin + EngineConfig.cooldownMin) -> Double {
         var workSec = 0.0
@@ -274,19 +263,18 @@ extension Engine {
         // fifteen-minute sessions are no longer produced.
         let warmup = EngineConfig.warmupMin
         let cooldown = EngineConfig.cooldownMin
-        let trimmedRaw = exercises
         // The postcondition "a descent never adds load" is checked ON THE
         // RESULT rather than derived from the way the cut is built. It works
         // with no budget at all: the band gate can move sets about too.
         //
         var ordNow: [Pattern: Int] = [:]
-        for ex in trimmedRaw { ordNow[ex.pattern] = Level.posOrd(state.position(ex.pattern)) }
+        for ex in exercises { ordNow[ex.pattern] = Level.posOrd(state.position(ex.pattern)) }
         // `budgetChanged` is gone. It existed because the budget moved the
         // plan PAST the position measure, so a person moving the handle had to
         // be declared a legitimate cause of growth by hand. The sets handle
         // writes `cut`, a coordinate of the position, so releasing it IS a
         // rise and the general gate excludes it on its own.
-        let trimmed = repairDescent(trimmedRaw, floors: floors, shownWork: state.shownWork,
+        let trimmed = repairDescent(exercises, floors: floors, shownWork: state.shownWork,
                                     shownOrd: state.shownOrd, ordNow: ordNow)
 
         return Session(
@@ -333,8 +321,7 @@ extension Engine {
     /// to it.
     private static func repairDescent(_ exercises: [SessionExercise], floors: [Int],
                                       shownWork: [Pattern: Int], shownOrd: [Pattern: Int],
-                                      ordNow: [Pattern: Int],
-                                      ) -> [SessionExercise] {
+                                      ordNow: [Pattern: Int]) -> [SessionExercise] {
         // The person moved the time handle — the last showing says nothing any
         // more. Without this the cap held the plan at the old limit until the
         // first growth event: raising 30 to 60 gave 45.9 minutes instead of
