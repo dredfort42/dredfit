@@ -140,13 +140,23 @@ private struct Golden: Decodable {
         /// The handles the person pulled before this session's plan was
         /// generated, and the state they left behind.
         let handles: Handles?
+        /// Sets skipped DURING this session, per movement (spec §38.2).
+        /// Landed AFTER the feedback, never before — see `replay`.
+        let skipSets: [String: Int]?
+        /// The cut the feedback left behind, before the skip was added. Its
+        /// only job is to make the ordering visible in the fixture itself: a
+        /// port that skipped first would have to reproduce this number too,
+        /// and it cannot.
+        let cutBeforeSkip: [Int]?
     }
     /// A handle pull, recorded exactly as a settings toggle is: what was
     /// pressed, and the snapshot of the state right after.
     struct Handles: Decodable {
         let easierVariation: [String]?
         let setCut: [String: Int]?
-        let shorterSession: Int?
+        // v2.27 (§38.1): `shorterSession` is gone from the reference, so it is
+        // gone from the wire form. A key the fixture can no longer carry must
+        // not stay decodable: it would read as "supported, never exercised".
         let levelsAfter: [Int]?
         let barLevelAfter: Int?
         let failStreakAfter: [Int]?
@@ -185,7 +195,7 @@ final class GoldenTests: XCTestCase {
     /// re-baseline every number instead of catching a port bug.
     func testGeneratorIsThePinnedReferenceVersion() throws {
         let g = try loadGolden()
-        XCTAssertEqual(g.generator, "adaptive_engine.js v2.26.0",
+        XCTAssertEqual(g.generator, "adaptive_engine.js v2.27.0",
                        "golden.json regenerated from an unexpected reference version")
     }
 
@@ -284,19 +294,7 @@ final class GoldenTests: XCTestCase {
                 }
 
                 // --- feedback yields the same levels ---
-                let result = FeedbackResult(rawValue: step.result)!
-                let overrides = Dictionary(uniqueKeysWithValues:
-                    step.overrides.map { (Pattern(rawValue: $0.key)!, $0.value) })
-                let skipped = Set((step.skipped ?? []).map { Pattern(rawValue: $0)! })
-                // SIX arguments. Every optional is passed explicitly — the
-                // rule of the wave, kept because a default silently shifting
-                // is exactly what broke 480 cells out of 480 last time, and
-                // what the arity change would do again to a caller that was
-                // not updated.
-                state = Engine.applyFeedback(state: state, session: session,
-                                             result: result, overrides: overrides,
-                                             skipped: skipped,
-                                             gapDays: step.gapDays)
+                state = replayFeedback(step, from: state, session: session, ctx: ctx)
 
                 let levels = Pattern.ordered.map { state.levels[$0]! }
                 let streaks = Pattern.ordered.map { state.failStreak[$0]! }
@@ -329,9 +327,9 @@ final class GoldenTests: XCTestCase {
     ///
     /// The ORDER inside a step is part of the contract and is fixed here to
     /// match the reference: the easier-variation handle first (it changes the
-    /// variation and zeroes both other coordinates), then a per-movement cut,
-    /// then the session-wide one. Running them the other way round would let
-    /// the first erase the second's work.
+    /// variation and zeroes both other coordinates), then a per-movement cut.
+    /// Running them the other way round would let the first erase the second's
+    /// work. v2.27 removed a third, session-wide handle from the end.
     ///
     /// `setCut` is walked in sorted key order for the same reason the chronic
     /// aim is walked in session order: a Swift Dictionary has none, and the
@@ -345,9 +343,6 @@ final class GoldenTests: XCTestCase {
         for (raw, value) in (h.setCut ?? [:]).sorted(by: { $0.key < $1.key }) {
             state = Engine.setCut(state: state, pattern: Pattern(rawValue: raw)!, cut: value)
         }
-        if let steps = h.shorterSession {
-            state = Engine.shorterSession(state: state, steps: steps)
-        }
         guard let levels = h.levelsAfter, let streaks = h.failStreakAfter else { return }
         assertBreak(state, BreakSnapshot(
             levels: levels, streaks: streaks,
@@ -356,6 +351,46 @@ final class GoldenTests: XCTestCase {
             sub: h.subAfter, cut: h.cutAfter, barCut: h.barCutAfter,
             setsHold: h.setsHoldAfter),
             order: order, ctx: "\(ctx) handles")
+    }
+
+    /// The feedback of one step, and the sets skipped while doing it.
+    ///
+    /// v2.27 (§38.2, rule 1): a skip lands through the entry point that owns
+    /// the order, so this replay cannot get it wrong even by accident. A step
+    /// without `skipSets` goes through the plain call, so every pre-v2.27 step
+    /// stays byte-for-byte what it was.
+    ///
+    /// SIX arguments on that plain call. Every optional is passed explicitly —
+    /// the rule of the wave, kept because a default silently shifting is
+    /// exactly what broke 480 cells out of 480 last time, and what the arity
+    /// change would do again to a caller that was not updated.
+    private func replayFeedback(_ step: Golden.Step, from state: EngineState,
+                                session: Session, ctx: String) -> EngineState {
+        let result = FeedbackResult(rawValue: step.result)!
+        let overrides = Dictionary(uniqueKeysWithValues:
+            step.overrides.map { (Pattern(rawValue: $0.key)!, $0.value) })
+        let skipped = Set((step.skipped ?? []).map { Pattern(rawValue: $0)! })
+        let setsSkipped = Dictionary(uniqueKeysWithValues:
+            (step.skipSets ?? [:]).map { (Pattern(rawValue: $0.key)!, $0.value) })
+        guard !setsSkipped.isEmpty else {
+            return Engine.applyFeedback(state: state, session: session, result: result,
+                                        overrides: overrides, skipped: skipped,
+                                        gapDays: step.gapDays)
+        }
+        // The cut BEFORE the skip is asserted first: it is the one number that
+        // separates "fed back, then skipped" from "skipped, then fed back",
+        // and without it the fixture would pin the destination while leaving
+        // the road open.
+        if let before = step.cutBeforeSkip {
+            let feedbackOnly = Engine.applyFeedback(
+                state: state, session: session, result: result,
+                overrides: overrides, skipped: skipped, gapDays: step.gapDays)
+            XCTAssertEqual(Pattern.ordered.map { feedbackOnly.cutOf($0) }, before,
+                           ctx + " (cut before the skip)")
+        }
+        return Engine.applyFeedback(state: state, session: session, result: result,
+                                    overrides: overrides, skipped: skipped,
+                                    setsSkipped: setsSkipped, gapDays: step.gapDays)
     }
 
     /// The breaks a step may carry, replayed in the app's order: the silent

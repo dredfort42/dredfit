@@ -67,10 +67,13 @@ final class EngineV213Tests: XCTestCase {
             // never throws, and the plan built from its result is valid, so
             // the garbage carried through is healed at generation like any
             // other.
+            // v2.27 (§38.1): two rows for the session-wide handle are gone
+            // with its export. The claim they carried — a narrow editor never
+            // throws and never drops the plan under the floor on any shape of
+            // garbage — is unchanged, because that handle WAS a loop over the
+            // two `setCut` rows still here.
             for state in [Engine.setCut(state: s, pattern: .squat, cut: 1),
                           Engine.setCut(state: s, pattern: .squat, cut: garbage),
-                          Engine.shorterSession(state: s, steps: 2),
-                          Engine.shorterSession(state: s, steps: garbage),
                           Engine.easierVariation(state: s, pattern: .squat)] {
                 let session = Engine.generateSession(state)
                 XCTAssertEqual(session.exercises.count, EngineConfig.patternsPerSession,

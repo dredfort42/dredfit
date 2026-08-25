@@ -52,6 +52,7 @@ private struct DiffFixture: Decodable {
         let n: Int?             // number
         let ov: [String: Int]?  // overrides
         let sk: [String]?       // skipped
+        let ss: [String: Int]?  // sets skipped during the session (§38.2)
     }
 }
 
@@ -167,6 +168,23 @@ final class DiffTests: XCTestCase {
         return s
     }
 
+    /// v2.27 (§38.2): the feedback of a session together with the sets skipped
+    /// while doing it. Its own function so the switch above stays a switch.
+    private static func feedbackWithSkippedSets(_ state: EngineState,
+                                                _ call: DiffFixture.Call) throws -> String {
+        let session = Engine.generateSession(state)
+        let skippedEx = Set((call.sk ?? []).compactMap { Pattern(rawValue: $0) })
+        var setsSkipped: [Pattern: Int] = [:]
+        for (raw, v) in call.ss ?? [:] where v > 0 {
+            setsSkipped[try XCTUnwrap(Pattern(rawValue: raw))] = v
+        }
+        return canon(Engine.applyFeedback(
+            state: state, session: session,
+            result: try XCTUnwrap(FeedbackResult(rawValue: try XCTUnwrap(call.r))),
+            overrides: [:], skipped: skippedEx,
+            setsSkipped: setsSkipped, gapDays: call.g))
+    }
+
     // MARK: - one isolated call
 
     private static func run(_ state: EngineState, _ call: DiffFixture.Call) throws -> String {
@@ -199,8 +217,13 @@ final class DiffTests: XCTestCase {
             return canon(Engine.setCut(state: state,
                                        pattern: try XCTUnwrap(Pattern(rawValue: try XCTUnwrap(call.p))),
                                        cut: try XCTUnwrap(call.n)))
-        case "shorter":
-            return canon(Engine.shorterSession(state: state, steps: try XCTUnwrap(call.n)))
+        // REPLACED v2.27 (§38.1, §38.2): this was `shorter`, the session-wide
+        // handle. The export is gone, and its slot went to the call that
+        // checks the reason it went: the ORDER. Feedback first, then the cut
+        // on its result — and the port cannot express the other order here,
+        // because the entry point owns it.
+        case "fbSkip":
+            return try feedbackWithSkippedSets(state, call)
         case "easier":
             return canon(Engine.easierVariation(state: state,
                                                 pattern: try XCTUnwrap(Pattern(rawValue: try XCTUnwrap(call.p)))))
@@ -221,7 +244,7 @@ final class DiffTests: XCTestCase {
         let url = try XCTUnwrap(Bundle.module.url(forResource: "difftest",
                                                   withExtension: "json"))
         let fx = try JSONDecoder().decode(DiffFixture.self, from: try Data(contentsOf: url))
-        XCTAssertEqual(fx.generator, "adaptive_engine.js v2.26.0",
+        XCTAssertEqual(fx.generator, "adaptive_engine.js v2.27.0",
                        "the fixture was written by a different engine")
         XCTAssertEqual(fx.method, "isolated-call",
                        "the trajectory method is the one this wave replaced")

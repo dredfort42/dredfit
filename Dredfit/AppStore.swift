@@ -701,8 +701,14 @@ final class AppStore {
     /// One step shorter for every movement at once. The same `cut` the
     /// per-movement handle writes — no new state field, so a set earned back
     /// by growing comes back here exactly as it does there.
+    /// SCAFFOLDING, v2.27 (§38.1): removed with the session handle by the app
+    /// wave — see `sessionCut` in `AppStore+Handles.swift`.
     func makeSessionShorter() {
-        let shortened = Engine.shorterSession(state: engineState, steps: 1)
+        var shortened = engineState
+        for pattern in Pattern.allCases {
+            shortened = Engine.setCut(state: shortened, pattern: pattern,
+                                      cut: max(shortened.cutOf(pattern), 1))
+        }
         guard shortened != engineState else { return }
         engineState = shortened
         persist()

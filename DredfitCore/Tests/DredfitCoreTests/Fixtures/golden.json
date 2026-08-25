@@ -1,5 +1,5 @@
 {
- "generator": "adaptive_engine.js v2.26.0",
+ "generator": "adaptive_engine.js v2.27.0",
  "patternOrder": [
   "squat",
   "push_h",
@@ -44660,7 +44660,18 @@
      "overrides": {},
      "skipped": [],
      "handles": {
-      "shorterSession": 1,
+      "setCut": {
+       "squat": 1,
+       "push_h": 1,
+       "hinge": 1,
+       "pull": 1,
+       "push_v": 1,
+       "lunge": 1,
+       "core_anti_ext": 1,
+       "core_rot": 1,
+       "calf": 1,
+       "pull_bar": 1
+      },
       "subAfter": [
        0,
        0,
@@ -46656,7 +46667,18 @@
      "overrides": {},
      "skipped": [],
      "handles": {
-      "shorterSession": 2,
+      "setCut": {
+       "squat": 2,
+       "push_h": 2,
+       "hinge": 2,
+       "pull": 2,
+       "push_v": 2,
+       "lunge": 2,
+       "core_anti_ext": 2,
+       "core_rot": 2,
+       "calf": 2,
+       "pull_bar": 2
+      },
       "subAfter": [
        2,
        0,
@@ -50994,7 +51016,7 @@
    }
   },
   {
-   "name": "sets_handle",
+   "name": "sets_skip",
    "steps": [
     {
      "sessionNumber": 1,
@@ -51244,96 +51266,21 @@
      "result": "plan",
      "overrides": {},
      "skipped": [],
-     "handles": {
-      "setCut": {
-       "squat": 9
-      },
-      "subAfter": [
-       1,
-       1,
-       1,
-       1,
-       1,
-       1,
-       0,
-       0,
-       0
-      ],
-      "barSubAfter": 0,
-      "cutAfter": [
-       3,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0
-      ],
-      "barCutAfter": 0,
-      "setsHoldAfter": [
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0
-      ],
-      "barSetsHoldAfter": 0,
-      "shownWorkAfter": [
-       120,
-       48,
-       40,
-       24,
-       27,
-       30,
-       0,
-       0,
-       0
-      ],
-      "barShownWorkAfter": 0,
-      "shownOrdAfter": [
-       137,
-       117,
-       104,
-       66,
-       56,
-       44,
-       0,
-       0,
-       0
-      ],
-      "barShownOrdAfter": 0,
-      "rampWindowAfter": 0,
-      "weekGainAfter": [
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0
-      ],
-      "barWeekGainAfter": 0,
-      "weekAgeDaysAfter": 0,
-      "levelsAfter": [
-       44,
-       40,
-       36,
-       24,
-       20,
-       16,
-       12,
-       8,
-       4
-      ]
+     "gapDays": 2.3333333333333335,
+     "skipSets": {
+      "squat": 1
      },
+     "cutBeforeSkip": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
      "levelsAfter": [
       44,
       40,
@@ -51358,7 +51305,7 @@
      ],
      "barSubAfter": 0,
      "cutAfter": [
-      3,
+      1,
       0,
       0,
       0,
@@ -51410,15 +51357,15 @@
       0,
       0,
       0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
      ],
      "barWeekGainAfter": 0,
-     "weekAgeDaysAfter": 0,
+     "weekAgeDaysAfter": 2.3333333333333335,
      "failStreakAfter": [
       0,
       0,
@@ -51433,7 +51380,7 @@
     },
     {
      "sessionNumber": 3,
-     "estimatedTotalMin": 33.1,
+     "estimatedTotalMin": 48.6,
      "exercises": [
       {
        "pattern": "squat",
@@ -51441,846 +51388,10 @@
        "unit": "reps",
        "load": 12,
        "perSide": true,
-       "sets": 2,
+       "sets": 4,
        "restSetSec": 120,
        "restExerciseSec": 60,
        "loads": [
-        13,
-        12
-       ]
-      },
-      {
-       "pattern": "push_h",
-       "tier": 4,
-       "unit": "reps",
-       "load": 8,
-       "perSide": true,
-       "sets": 2,
-       "restSetSec": 120,
-       "restExerciseSec": 60,
-       "loads": [
-        9,
-        8
-       ]
-      },
-      {
-       "pattern": "hinge",
-       "tier": 4,
-       "unit": "reps",
-       "load": 10,
-       "perSide": false,
-       "sets": 3,
-       "restSetSec": 90,
-       "restExerciseSec": 60,
-       "loads": [
-        11,
-        10,
-        10
-       ]
-      },
-      {
-       "pattern": "pull",
-       "tier": 4,
-       "unit": "reps",
-       "load": 4,
-       "perSide": true,
-       "sets": 2,
-       "restSetSec": 90,
-       "restExerciseSec": 60,
-       "loads": [
-        5,
-        4
-       ]
-      },
-      {
-       "pattern": "core_rot",
-       "tier": 2,
-       "unit": "hold",
-       "load": 15,
-       "perSide": true,
-       "sets": 2,
-       "restSetSec": 60,
-       "restExerciseSec": 60,
-       "loads": [
-        17,
-        15
-       ]
-      },
-      {
-       "pattern": "calf",
-       "tier": 1,
-       "unit": "reps",
-       "load": 12,
-       "perSide": false,
-       "sets": 2,
-       "restSetSec": 60,
-       "restExerciseSec": 60,
-       "loads": [
-        13,
-        12
-       ]
-      }
-     ],
-     "result": "plan",
-     "overrides": {},
-     "skipped": [],
-     "handles": {
-      "shorterSession": 1,
-      "subAfter": [
-       1,
-       1,
-       1,
-       2,
-       2,
-       2,
-       1,
-       1,
-       1
-      ],
-      "barSubAfter": 0,
-      "cutAfter": [
-       3,
-       1,
-       1,
-       1,
-       1,
-       1,
-       1,
-       1,
-       1
-      ],
-      "barCutAfter": 1,
-      "setsHoldAfter": [
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0
-      ],
-      "barSetsHoldAfter": 0,
-      "shownWorkAfter": [
-       120,
-       48,
-       40,
-       26,
-       28,
-       32,
-       69,
-       90,
-       36
-      ],
-      "barShownWorkAfter": 0,
-      "shownOrdAfter": [
-       137,
-       117,
-       104,
-       67,
-       57,
-       45,
-       34,
-       22,
-       12
-      ],
-      "barShownOrdAfter": 0,
-      "rampWindowAfter": 0,
-      "weekGainAfter": [
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0
-      ],
-      "barWeekGainAfter": 0,
-      "weekAgeDaysAfter": 0,
-      "levelsAfter": [
-       44,
-       40,
-       36,
-       24,
-       20,
-       16,
-       12,
-       8,
-       4
-      ]
-     },
-     "levelsAfter": [
-      44,
-      40,
-      36,
-      24,
-      20,
-      16,
-      12,
-      8,
-      4
-     ],
-     "subAfter": [
-      1,
-      1,
-      1,
-      2,
-      2,
-      2,
-      1,
-      1,
-      1
-     ],
-     "barSubAfter": 0,
-     "cutAfter": [
-      2,
-      0,
-      0,
-      0,
-      1,
-      1,
-      1,
-      0,
-      0
-     ],
-     "barCutAfter": 1,
-     "setsHoldAfter": [
-      2,
-      2,
-      2,
-      2,
-      0,
-      0,
-      0,
-      2,
-      2
-     ],
-     "barSetsHoldAfter": 0,
-     "shownWorkAfter": [
-      50,
-      34,
-      31,
-      18,
-      28,
-      32,
-      69,
-      64,
-      25
-     ],
-     "barShownWorkAfter": 0,
-     "shownOrdAfter": [
-      135,
-      117,
-      104,
-      67,
-      57,
-      45,
-      34,
-      22,
-      12
-     ],
-     "barShownOrdAfter": 0,
-     "rampWindowAfter": 0,
-     "weekGainAfter": [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-     ],
-     "barWeekGainAfter": 0,
-     "weekAgeDaysAfter": 0,
-     "failStreakAfter": [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-     ]
-    },
-    {
-     "sessionNumber": 4,
-     "estimatedTotalMin": 28.6,
-     "exercises": [
-      {
-       "pattern": "push_h",
-       "tier": 4,
-       "unit": "reps",
-       "load": 8,
-       "perSide": true,
-       "sets": 2,
-       "restSetSec": 120,
-       "restExerciseSec": 60,
-       "loads": [
-        9,
-        8
-       ]
-      },
-      {
-       "pattern": "hinge",
-       "tier": 4,
-       "unit": "reps",
-       "load": 10,
-       "perSide": false,
-       "sets": 2,
-       "restSetSec": 90,
-       "restExerciseSec": 60,
-       "loads": [
-        11,
-        10
-       ]
-      },
-      {
-       "pattern": "pull",
-       "tier": 4,
-       "unit": "reps",
-       "load": 4,
-       "perSide": true,
-       "sets": 2,
-       "restSetSec": 90,
-       "restExerciseSec": 60,
-       "loads": [
-        5,
-        4
-       ]
-      },
-      {
-       "pattern": "push_v",
-       "tier": 3,
-       "unit": "reps",
-       "load": 9,
-       "perSide": false,
-       "sets": 2,
-       "restSetSec": 60,
-       "restExerciseSec": 60,
-       "loads": [
-        10,
-        9
-       ]
-      },
-      {
-       "pattern": "lunge",
-       "tier": 3,
-       "unit": "reps",
-       "load": 5,
-       "perSide": true,
-       "sets": 2,
-       "restSetSec": 60,
-       "restExerciseSec": 60,
-       "loads": [
-        6,
-        5
-       ]
-      },
-      {
-       "pattern": "core_anti_ext",
-       "tier": 2,
-       "unit": "hold",
-       "load": 23,
-       "perSide": false,
-       "sets": 2,
-       "restSetSec": 60,
-       "restExerciseSec": 60,
-       "loads": [
-        25,
-        23
-       ]
-      }
-     ],
-     "result": "plan",
-     "overrides": {},
-     "skipped": [],
-     "handles": {
-      "shorterSession": 9,
-      "subAfter": [
-       1,
-       1,
-       1,
-       2,
-       2,
-       2,
-       1,
-       1,
-       1
-      ],
-      "barSubAfter": 0,
-      "cutAfter": [
-       3,
-       3,
-       2,
-       1,
-       1,
-       1,
-       1,
-       1,
-       1
-      ],
-      "barCutAfter": 1,
-      "setsHoldAfter": [
-       2,
-       2,
-       2,
-       2,
-       0,
-       0,
-       0,
-       2,
-       2
-      ],
-      "barSetsHoldAfter": 0,
-      "shownWorkAfter": [
-       50,
-       34,
-       31,
-       18,
-       28,
-       32,
-       69,
-       64,
-       25
-      ],
-      "barShownWorkAfter": 0,
-      "shownOrdAfter": [
-       135,
-       117,
-       104,
-       67,
-       57,
-       45,
-       34,
-       22,
-       12
-      ],
-      "barShownOrdAfter": 0,
-      "rampWindowAfter": 0,
-      "weekGainAfter": [
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0
-      ],
-      "barWeekGainAfter": 0,
-      "weekAgeDaysAfter": 0,
-      "levelsAfter": [
-       44,
-       40,
-       36,
-       24,
-       20,
-       16,
-       12,
-       8,
-       4
-      ]
-     },
-     "levelsAfter": [
-      44,
-      40,
-      36,
-      25,
-      20,
-      16,
-      12,
-      8,
-      4
-     ],
-     "subAfter": [
-      1,
-      1,
-      1,
-      0,
-      2,
-      2,
-      1,
-      1,
-      1
-     ],
-     "barSubAfter": 0,
-     "cutAfter": [
-      3,
-      3,
-      2,
-      1,
-      0,
-      0,
-      0,
-      1,
-      1
-     ],
-     "barCutAfter": 1,
-     "setsHoldAfter": [
-      2,
-      1,
-      1,
-      1,
-      2,
-      2,
-      2,
-      2,
-      2
-     ],
-     "barSetsHoldAfter": 0,
-     "shownWorkAfter": [
-      50,
-      34,
-      21,
-      18,
-      19,
-      22,
-      48,
-      64,
-      25
-     ],
-     "barShownWorkAfter": 0,
-     "shownOrdAfter": [
-      135,
-      115,
-      103,
-      67,
-      57,
-      45,
-      34,
-      22,
-      12
-     ],
-     "barShownOrdAfter": 0,
-     "rampWindowAfter": 0,
-     "weekGainAfter": [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-     ],
-     "barWeekGainAfter": 0,
-     "weekAgeDaysAfter": 0,
-     "failStreakAfter": [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-     ]
-    },
-    {
-     "sessionNumber": 5,
-     "estimatedTotalMin": 41.1,
-     "exercises": [
-      {
-       "pattern": "squat",
-       "tier": 4,
-       "unit": "reps",
-       "load": 12,
-       "perSide": true,
-       "sets": 5,
-       "restSetSec": 120,
-       "restExerciseSec": 60,
-       "loads": [
-        13,
-        12,
-        12,
-        12,
-        12
-       ]
-      },
-      {
-       "pattern": "pull",
-       "tier": 4,
-       "unit": "reps",
-       "load": 5,
-       "perSide": true,
-       "sets": 2,
-       "restSetSec": 90,
-       "restExerciseSec": 60
-      },
-      {
-       "pattern": "lunge",
-       "tier": 3,
-       "unit": "reps",
-       "load": 5,
-       "perSide": true,
-       "sets": 3,
-       "restSetSec": 60,
-       "restExerciseSec": 60,
-       "loads": [
-        6,
-        6,
-        5
-       ]
-      },
-      {
-       "pattern": "core_anti_ext",
-       "tier": 2,
-       "unit": "hold",
-       "load": 23,
-       "perSide": false,
-       "sets": 3,
-       "restSetSec": 60,
-       "restExerciseSec": 60,
-       "loads": [
-        25,
-        23,
-        23
-       ]
-      },
-      {
-       "pattern": "core_rot",
-       "tier": 2,
-       "unit": "hold",
-       "load": 15,
-       "perSide": true,
-       "sets": 2,
-       "restSetSec": 60,
-       "restExerciseSec": 60,
-       "loads": [
-        17,
-        15
-       ]
-      },
-      {
-       "pattern": "calf",
-       "tier": 1,
-       "unit": "reps",
-       "load": 12,
-       "perSide": false,
-       "sets": 2,
-       "restSetSec": 60,
-       "restExerciseSec": 60,
-       "loads": [
-        13,
-        12
-       ]
-      }
-     ],
-     "result": "plan",
-     "overrides": {},
-     "skipped": [],
-     "handles": {
-      "setCut": {
-       "squat": 0
-      },
-      "subAfter": [
-       1,
-       1,
-       1,
-       0,
-       2,
-       2,
-       1,
-       1,
-       1
-      ],
-      "barSubAfter": 0,
-      "cutAfter": [
-       0,
-       3,
-       2,
-       1,
-       0,
-       0,
-       0,
-       1,
-       1
-      ],
-      "barCutAfter": 1,
-      "setsHoldAfter": [
-       2,
-       1,
-       1,
-       1,
-       2,
-       2,
-       2,
-       2,
-       2
-      ],
-      "barSetsHoldAfter": 0,
-      "shownWorkAfter": [
-       50,
-       34,
-       21,
-       18,
-       19,
-       22,
-       48,
-       64,
-       25
-      ],
-      "barShownWorkAfter": 0,
-      "shownOrdAfter": [
-       135,
-       115,
-       103,
-       67,
-       57,
-       45,
-       34,
-       22,
-       12
-      ],
-      "barShownOrdAfter": 0,
-      "rampWindowAfter": 0,
-      "weekGainAfter": [
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0
-      ],
-      "barWeekGainAfter": 0,
-      "weekAgeDaysAfter": 0,
-      "levelsAfter": [
-       44,
-       40,
-       36,
-       25,
-       20,
-       16,
-       12,
-       8,
-       4
-      ]
-     },
-     "levelsAfter": [
-      44,
-      40,
-      36,
-      25,
-      20,
-      17,
-      12,
-      8,
-      4
-     ],
-     "subAfter": [
-      2,
-      1,
-      1,
-      1,
-      2,
-      0,
-      2,
-      1,
-      1
-     ],
-     "barSubAfter": 0,
-     "cutAfter": [
-      0,
-      3,
-      2,
-      1,
-      0,
-      0,
-      0,
-      1,
-      1
-     ],
-     "barCutAfter": 1,
-     "setsHoldAfter": [
-      1,
-      1,
-      1,
-      0,
-      2,
-      1,
-      1,
-      1,
-      1
-     ],
-     "barSetsHoldAfter": 0,
-     "shownWorkAfter": [
-      122,
-      34,
-      21,
-      20,
-      19,
-      34,
-      71,
-      64,
-      25
-     ],
-     "barShownWorkAfter": 0,
-     "shownOrdAfter": [
-      138,
-      115,
-      103,
-      68,
-      57,
-      46,
-      35,
-      22,
-      12
-     ],
-     "barShownOrdAfter": 0,
-     "rampWindowAfter": 0,
-     "weekGainAfter": [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-     ],
-     "barWeekGainAfter": 0,
-     "weekAgeDaysAfter": 0,
-     "failStreakAfter": [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-     ]
-    },
-    {
-     "sessionNumber": 6,
-     "estimatedTotalMin": 51.5,
-     "exercises": [
-      {
-       "pattern": "squat",
-       "tier": 4,
-       "unit": "reps",
-       "load": 12,
-       "perSide": true,
-       "sets": 5,
-       "restSetSec": 120,
-       "restExerciseSec": 60,
-       "loads": [
-        13,
         13,
         12,
         12,
@@ -52322,30 +51433,30 @@
        "pattern": "pull",
        "tier": 4,
        "unit": "reps",
-       "load": 5,
+       "load": 4,
        "perSide": true,
        "sets": 3,
        "restSetSec": 90,
        "restExerciseSec": 60,
        "loads": [
-        6,
         5,
-        5
+        5,
+        4
        ]
       },
       {
-       "pattern": "push_v",
-       "tier": 3,
-       "unit": "reps",
-       "load": 9,
-       "perSide": false,
+       "pattern": "core_rot",
+       "tier": 2,
+       "unit": "hold",
+       "load": 15,
+       "perSide": true,
        "sets": 3,
        "restSetSec": 60,
        "restExerciseSec": 60,
        "loads": [
-        10,
-        10,
-        9
+        17,
+        15,
+        15
        ]
       },
       {
@@ -52367,104 +51478,234 @@
      "result": "plan",
      "overrides": {},
      "skipped": [],
-     "handles": {
-      "setCut": {
-       "push_h": 0,
-       "hinge": 0,
-       "pull": 0,
-       "push_v": 0,
-       "lunge": 0,
-       "core_anti_ext": 0,
-       "core_rot": 0,
-       "calf": 0
-      },
-      "shorterSession": 0,
-      "subAfter": [
-       2,
-       1,
-       1,
-       1,
-       2,
-       0,
-       2,
-       1,
-       1
-      ],
-      "barSubAfter": 0,
-      "cutAfter": [
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0
-      ],
-      "barCutAfter": 1,
-      "setsHoldAfter": [
-       1,
-       1,
-       1,
-       0,
-       2,
-       1,
-       1,
-       1,
-       1
-      ],
-      "barSetsHoldAfter": 0,
-      "shownWorkAfter": [
-       122,
-       34,
-       21,
-       20,
-       19,
-       34,
-       71,
-       64,
-       25
-      ],
-      "barShownWorkAfter": 0,
-      "shownOrdAfter": [
-       138,
-       115,
-       103,
-       68,
-       57,
-       46,
-       35,
-       22,
-       12
-      ],
-      "barShownOrdAfter": 0,
-      "rampWindowAfter": 0,
-      "weekGainAfter": [
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0
-      ],
-      "barWeekGainAfter": 0,
-      "weekAgeDaysAfter": 0,
-      "levelsAfter": [
-       44,
-       40,
-       36,
-       25,
-       20,
-       17,
-       12,
-       8,
-       4
-      ]
+     "gapDays": 2.3333333333333335,
+     "skipSets": {
+      "push_h": 1,
+      "hinge": 1,
+      "pull": 1
      },
+     "cutBeforeSkip": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "levelsAfter": [
+      44,
+      40,
+      36,
+      25,
+      20,
+      16,
+      12,
+      8,
+      4
+     ],
+     "subAfter": [
+      1,
+      2,
+      2,
+      0,
+      2,
+      2,
+      1,
+      2,
+      2
+     ],
+     "barSubAfter": 0,
+     "cutAfter": [
+      0,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "barCutAfter": 0,
+     "setsHoldAfter": [
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "barSetsHoldAfter": 0,
+     "shownWorkAfter": [
+      98,
+      50,
+      41,
+      28,
+      28,
+      32,
+      69,
+      94,
+      37
+     ],
+     "barShownWorkAfter": 0,
+     "shownOrdAfter": [
+      137,
+      118,
+      105,
+      68,
+      57,
+      45,
+      34,
+      23,
+      13
+     ],
+     "barShownOrdAfter": 0,
+     "rampWindowAfter": 0,
+     "weekGainAfter": [
+      1,
+      1,
+      1,
+      2,
+      1,
+      1,
+      1,
+      2,
+      2
+     ],
+     "barWeekGainAfter": 0,
+     "weekAgeDaysAfter": 4.666666666666667,
+     "failStreakAfter": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "sessionNumber": 4,
+     "estimatedTotalMin": 33.5,
+     "exercises": [
+      {
+       "pattern": "push_h",
+       "tier": 4,
+       "unit": "reps",
+       "load": 8,
+       "perSide": true,
+       "sets": 2,
+       "restSetSec": 120,
+       "restExerciseSec": 60,
+       "loads": [
+        9,
+        8
+       ]
+      },
+      {
+       "pattern": "hinge",
+       "tier": 4,
+       "unit": "reps",
+       "load": 10,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 90,
+       "restExerciseSec": 60,
+       "loads": [
+        11,
+        11,
+        10
+       ]
+      },
+      {
+       "pattern": "pull",
+       "tier": 4,
+       "unit": "reps",
+       "load": 5,
+       "perSide": true,
+       "sets": 2,
+       "restSetSec": 90,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "push_v",
+       "tier": 3,
+       "unit": "reps",
+       "load": 9,
+       "perSide": false,
+       "sets": 2,
+       "restSetSec": 60,
+       "restExerciseSec": 60,
+       "loads": [
+        10,
+        9
+       ]
+      },
+      {
+       "pattern": "lunge",
+       "tier": 3,
+       "unit": "reps",
+       "load": 5,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60,
+       "loads": [
+        6,
+        6,
+        5
+       ]
+      },
+      {
+       "pattern": "core_anti_ext",
+       "tier": 2,
+       "unit": "hold",
+       "load": 23,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60,
+       "loads": [
+        25,
+        23,
+        23
+       ]
+      }
+     ],
+     "result": "plan",
+     "overrides": {},
+     "skipped": [],
+     "gapDays": 2.3333333333333335,
+     "skipSets": {
+      "squat": 9,
+      "push_h": 9,
+      "hinge": 9,
+      "pull": 9,
+      "push_v": 9,
+      "lunge": 9,
+      "core_anti_ext": 9,
+      "core_rot": 9,
+      "calf": 9
+     },
+     "cutBeforeSkip": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
      "levelsAfter": [
       44,
       40,
@@ -52477,74 +51718,74 @@
       4
      ],
      "subAfter": [
-      3,
-      2,
-      2,
-      2,
-      0,
-      0,
-      2,
       1,
+      2,
+      2,
+      0,
+      0,
+      0,
+      2,
+      2,
       2
      ],
      "barSubAfter": 0,
      "cutAfter": [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
+      3,
+      3,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
      ],
-     "barCutAfter": 1,
+     "barCutAfter": 0,
      "setsHoldAfter": [
+      2,
+      2,
+      2,
+      2,
       0,
       0,
       0,
       0,
-      1,
-      1,
-      1,
-      1,
       0
      ],
      "barSetsHoldAfter": 0,
      "shownWorkAfter": [
-      124,
-      50,
-      41,
+      98,
+      34,
       32,
-      29,
+      20,
+      19,
       34,
       71,
-      64,
+      94,
       37
      ],
      "barShownWorkAfter": 0,
      "shownOrdAfter": [
-      139,
+      137,
       118,
       105,
-      70,
+      68,
       58,
       46,
       35,
-      22,
+      23,
       13
      ],
      "barShownOrdAfter": 0,
      "rampWindowAfter": 0,
      "weekGainAfter": [
       0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
       0,
       0
      ],
@@ -52563,22 +51804,232 @@
      ]
     },
     {
-     "sessionNumber": 7,
-     "estimatedTotalMin": 39.2,
+     "sessionNumber": 5,
+     "estimatedTotalMin": 29.3,
      "exercises": [
+      {
+       "pattern": "squat",
+       "tier": 4,
+       "unit": "reps",
+       "load": 12,
+       "perSide": true,
+       "sets": 2,
+       "restSetSec": 120,
+       "restExerciseSec": 60,
+       "loads": [
+        13,
+        12
+       ]
+      },
+      {
+       "pattern": "pull",
+       "tier": 4,
+       "unit": "reps",
+       "load": 5,
+       "perSide": true,
+       "sets": 2,
+       "restSetSec": 90,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "lunge",
+       "tier": 3,
+       "unit": "reps",
+       "load": 6,
+       "perSide": true,
+       "sets": 2,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "core_anti_ext",
+       "tier": 2,
+       "unit": "hold",
+       "load": 23,
+       "perSide": false,
+       "sets": 2,
+       "restSetSec": 60,
+       "restExerciseSec": 60,
+       "loads": [
+        25,
+        23
+       ]
+      },
+      {
+       "pattern": "core_rot",
+       "tier": 2,
+       "unit": "hold",
+       "load": 15,
+       "perSide": true,
+       "sets": 2,
+       "restSetSec": 60,
+       "restExerciseSec": 60,
+       "loads": [
+        17,
+        15
+       ]
+      },
+      {
+       "pattern": "calf",
+       "tier": 1,
+       "unit": "reps",
+       "load": 12,
+       "perSide": false,
+       "sets": 2,
+       "restSetSec": 60,
+       "restExerciseSec": 60,
+       "loads": [
+        13,
+        12
+       ]
+      }
+     ],
+     "result": "plan",
+     "overrides": {},
+     "skipped": [
+      "squat"
+     ],
+     "gapDays": 2.3333333333333335,
+     "levelsAfter": [
+      44,
+      40,
+      36,
+      25,
+      21,
+      17,
+      12,
+      8,
+      4
+     ],
+     "subAfter": [
+      1,
+      2,
+      2,
+      1,
+      0,
+      0,
+      2,
+      2,
+      2
+     ],
+     "barSubAfter": 0,
+     "cutAfter": [
+      3,
+      3,
+      2,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0
+     ],
+     "barCutAfter": 0,
+     "setsHoldAfter": [
+      2,
+      2,
+      2,
+      1,
+      0,
+      2,
+      2,
+      2,
+      2
+     ],
+     "barSetsHoldAfter": 0,
+     "shownWorkAfter": [
+      50,
+      34,
+      32,
+      20,
+      19,
+      24,
+      48,
+      64,
+      25
+     ],
+     "barShownWorkAfter": 0,
+     "shownOrdAfter": [
+      135,
+      118,
+      105,
+      68,
+      58,
+      46,
+      35,
+      23,
+      13
+     ],
+     "barShownOrdAfter": 0,
+     "rampWindowAfter": 0,
+     "weekGainAfter": [
+      0,
+      1,
+      1,
+      2,
+      1,
+      2,
+      2,
+      1,
+      1
+     ],
+     "barWeekGainAfter": 0,
+     "weekAgeDaysAfter": 2.3333333333333335,
+     "failStreakAfter": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "sessionNumber": 6,
+     "estimatedTotalMin": 32.7,
+     "exercises": [
+      {
+       "pattern": "squat",
+       "tier": 4,
+       "unit": "reps",
+       "load": 12,
+       "perSide": true,
+       "sets": 2,
+       "restSetSec": 120,
+       "restExerciseSec": 60,
+       "loads": [
+        13,
+        12
+       ]
+      },
+      {
+       "pattern": "push_h",
+       "tier": 4,
+       "unit": "reps",
+       "load": 8,
+       "perSide": true,
+       "sets": 2,
+       "restSetSec": 120,
+       "restExerciseSec": 60,
+       "loads": [
+        9,
+        8
+       ]
+      },
       {
        "pattern": "hinge",
        "tier": 4,
        "unit": "reps",
        "load": 10,
        "perSide": false,
-       "sets": 4,
+       "sets": 2,
        "restSetSec": 90,
        "restExerciseSec": 60,
        "loads": [
         11,
-        11,
-        10,
         10
        ]
       },
@@ -52588,11 +52039,10 @@
        "unit": "reps",
        "load": 5,
        "perSide": true,
-       "sets": 3,
+       "sets": 2,
        "restSetSec": 90,
        "restExerciseSec": 60,
        "loads": [
-        6,
         6,
         5
        ]
@@ -52603,7 +52053,168 @@
        "unit": "reps",
        "load": 10,
        "perSide": false,
+       "sets": 2,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "calf",
+       "tier": 1,
+       "unit": "reps",
+       "load": 12,
+       "perSide": false,
        "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60,
+       "loads": [
+        13,
+        13,
+        12
+       ]
+      }
+     ],
+     "result": "plan",
+     "overrides": {},
+     "skipped": [
+      "squat"
+     ],
+     "gapDays": 2.3333333333333335,
+     "levelsAfter": [
+      44,
+      40,
+      36,
+      25,
+      21,
+      17,
+      12,
+      8,
+      5
+     ],
+     "subAfter": [
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      2,
+      2,
+      0
+     ],
+     "barSubAfter": 0,
+     "cutAfter": [
+      3,
+      3,
+      2,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "barCutAfter": 0,
+     "setsHoldAfter": [
+      2,
+      1,
+      1,
+      0,
+      2,
+      2,
+      2,
+      2,
+      1
+     ],
+     "barSetsHoldAfter": 0,
+     "shownWorkAfter": [
+      50,
+      34,
+      21,
+      22,
+      20,
+      24,
+      48,
+      64,
+      38
+     ],
+     "barShownWorkAfter": 0,
+     "shownOrdAfter": [
+      135,
+      116,
+      104,
+      69,
+      58,
+      46,
+      35,
+      23,
+      14
+     ],
+     "barShownOrdAfter": 0,
+     "rampWindowAfter": 0,
+     "weekGainAfter": [
+      0,
+      1,
+      1,
+      2,
+      2,
+      2,
+      2,
+      1,
+      2
+     ],
+     "barWeekGainAfter": 0,
+     "weekAgeDaysAfter": 4.666666666666667,
+     "failStreakAfter": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "sessionNumber": 7,
+     "estimatedTotalMin": 32,
+     "exercises": [
+      {
+       "pattern": "hinge",
+       "tier": 4,
+       "unit": "reps",
+       "load": 10,
+       "perSide": false,
+       "sets": 2,
+       "restSetSec": 90,
+       "restExerciseSec": 60,
+       "loads": [
+        11,
+        10
+       ]
+      },
+      {
+       "pattern": "pull",
+       "tier": 4,
+       "unit": "reps",
+       "load": 5,
+       "perSide": true,
+       "sets": 2,
+       "restSetSec": 90,
+       "restExerciseSec": 60,
+       "loads": [
+        6,
+        5
+       ]
+      },
+      {
+       "pattern": "push_v",
+       "tier": 3,
+       "unit": "reps",
+       "load": 10,
+       "perSide": false,
+       "sets": 2,
        "restSetSec": 60,
        "restExerciseSec": 60
       },
@@ -52643,8 +52254,576 @@
        "restExerciseSec": 60,
        "loads": [
         17,
-        15,
+        17,
         15
+       ]
+      }
+     ],
+     "result": "plan",
+     "overrides": {},
+     "skipped": [],
+     "handles": {
+      "setCut": {
+       "squat": 0
+      },
+      "subAfter": [
+       1,
+       1,
+       1,
+       1,
+       0,
+       0,
+       2,
+       2,
+       0
+      ],
+      "barSubAfter": 0,
+      "cutAfter": [
+       0,
+       3,
+       2,
+       1,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "barCutAfter": 0,
+      "setsHoldAfter": [
+       2,
+       1,
+       1,
+       0,
+       2,
+       2,
+       2,
+       2,
+       1
+      ],
+      "barSetsHoldAfter": 0,
+      "shownWorkAfter": [
+       50,
+       34,
+       21,
+       22,
+       20,
+       24,
+       48,
+       64,
+       38
+      ],
+      "barShownWorkAfter": 0,
+      "shownOrdAfter": [
+       135,
+       116,
+       104,
+       69,
+       58,
+       46,
+       35,
+       23,
+       14
+      ],
+      "barShownOrdAfter": 0,
+      "rampWindowAfter": 0,
+      "weekGainAfter": [
+       0,
+       1,
+       1,
+       2,
+       2,
+       2,
+       2,
+       1,
+       2
+      ],
+      "barWeekGainAfter": 0,
+      "weekAgeDaysAfter": 4.666666666666667,
+      "levelsAfter": [
+       44,
+       40,
+       36,
+       25,
+       21,
+       17,
+       12,
+       8,
+       5
+      ]
+     },
+     "gapDays": 2.3333333333333335,
+     "levelsAfter": [
+      44,
+      40,
+      36,
+      25,
+      21,
+      17,
+      13,
+      9,
+      5
+     ],
+     "subAfter": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0
+     ],
+     "barSubAfter": 0,
+     "cutAfter": [
+      0,
+      3,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "barCutAfter": 0,
+     "setsHoldAfter": [
+      2,
+      1,
+      0,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1
+     ],
+     "barSetsHoldAfter": 0,
+     "shownWorkAfter": [
+      50,
+      34,
+      21,
+      22,
+      20,
+      36,
+      73,
+      98,
+      38
+     ],
+     "barShownWorkAfter": 0,
+     "shownOrdAfter": [
+      135,
+      116,
+      103,
+      69,
+      59,
+      47,
+      36,
+      24,
+      14
+     ],
+     "barShownOrdAfter": 0,
+     "rampWindowAfter": 0,
+     "weekGainAfter": [
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0
+     ],
+     "barWeekGainAfter": 0,
+     "weekAgeDaysAfter": 0,
+     "failStreakAfter": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "sessionNumber": 8,
+     "estimatedTotalMin": 49.1,
+     "exercises": [
+      {
+       "pattern": "squat",
+       "tier": 4,
+       "unit": "reps",
+       "load": 12,
+       "perSide": true,
+       "sets": 5,
+       "restSetSec": 120,
+       "restExerciseSec": 60,
+       "loads": [
+        13,
+        12,
+        12,
+        12,
+        12
+       ]
+      },
+      {
+       "pattern": "push_h",
+       "tier": 4,
+       "unit": "reps",
+       "load": 8,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 120,
+       "restExerciseSec": 60,
+       "loads": [
+        9,
+        8,
+        8
+       ]
+      },
+      {
+       "pattern": "pull",
+       "tier": 4,
+       "unit": "reps",
+       "load": 5,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 90,
+       "restExerciseSec": 60,
+       "loads": [
+        6,
+        5,
+        5
+       ]
+      },
+      {
+       "pattern": "core_anti_ext",
+       "tier": 2,
+       "unit": "hold",
+       "load": 25,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "core_rot",
+       "tier": 2,
+       "unit": "hold",
+       "load": 17,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      },
+      {
+       "pattern": "calf",
+       "tier": 1,
+       "unit": "reps",
+       "load": 13,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60
+      }
+     ],
+     "result": "plan",
+     "overrides": {},
+     "skipped": [],
+     "handles": {
+      "setCut": {
+       "push_h": 0,
+       "hinge": 0,
+       "pull": 0,
+       "push_v": 0,
+       "lunge": 0,
+       "core_anti_ext": 0,
+       "core_rot": 0,
+       "calf": 0
+      },
+      "subAfter": [
+       1,
+       1,
+       1,
+       1,
+       1,
+       1,
+       0,
+       0,
+       0
+      ],
+      "barSubAfter": 0,
+      "cutAfter": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ],
+      "barCutAfter": 0,
+      "setsHoldAfter": [
+       2,
+       1,
+       0,
+       2,
+       1,
+       1,
+       1,
+       1,
+       1
+      ],
+      "barSetsHoldAfter": 0,
+      "shownWorkAfter": [
+       50,
+       34,
+       21,
+       22,
+       20,
+       36,
+       73,
+       98,
+       38
+      ],
+      "barShownWorkAfter": 0,
+      "shownOrdAfter": [
+       135,
+       116,
+       103,
+       69,
+       59,
+       47,
+       36,
+       24,
+       14
+      ],
+      "barShownOrdAfter": 0,
+      "rampWindowAfter": 0,
+      "weekGainAfter": [
+       0,
+       0,
+       0,
+       1,
+       1,
+       1,
+       1,
+       1,
+       0
+      ],
+      "barWeekGainAfter": 0,
+      "weekAgeDaysAfter": 0,
+      "levelsAfter": [
+       44,
+       40,
+       36,
+       25,
+       21,
+       17,
+       13,
+       9,
+       5
+      ]
+     },
+     "levelsAfter": [
+      44,
+      40,
+      36,
+      25,
+      21,
+      17,
+      13,
+      9,
+      5
+     ],
+     "subAfter": [
+      2,
+      2,
+      1,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1
+     ],
+     "barSubAfter": 0,
+     "cutAfter": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "barCutAfter": 0,
+     "setsHoldAfter": [
+      1,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0
+     ],
+     "barSetsHoldAfter": 0,
+     "shownWorkAfter": [
+      122,
+      50,
+      21,
+      32,
+      20,
+      36,
+      75,
+      102,
+      39
+     ],
+     "barShownWorkAfter": 0,
+     "shownOrdAfter": [
+      138,
+      118,
+      103,
+      70,
+      59,
+      47,
+      37,
+      25,
+      15
+     ],
+     "barShownOrdAfter": 0,
+     "rampWindowAfter": 0,
+     "weekGainAfter": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "barWeekGainAfter": 0,
+     "weekAgeDaysAfter": 0,
+     "failStreakAfter": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "sessionNumber": 9,
+     "estimatedTotalMin": 51.8,
+     "exercises": [
+      {
+       "pattern": "squat",
+       "tier": 4,
+       "unit": "reps",
+       "load": 12,
+       "perSide": true,
+       "sets": 5,
+       "restSetSec": 120,
+       "restExerciseSec": 60,
+       "loads": [
+        13,
+        13,
+        12,
+        12,
+        12
+       ]
+      },
+      {
+       "pattern": "push_h",
+       "tier": 4,
+       "unit": "reps",
+       "load": 8,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 120,
+       "restExerciseSec": 60,
+       "loads": [
+        9,
+        9,
+        8
+       ]
+      },
+      {
+       "pattern": "hinge",
+       "tier": 4,
+       "unit": "reps",
+       "load": 10,
+       "perSide": false,
+       "sets": 4,
+       "restSetSec": 90,
+       "restExerciseSec": 60,
+       "loads": [
+        11,
+        10,
+        10,
+        10
+       ]
+      },
+      {
+       "pattern": "pull",
+       "tier": 4,
+       "unit": "reps",
+       "load": 5,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 90,
+       "restExerciseSec": 60,
+       "loads": [
+        6,
+        6,
+        5
+       ]
+      },
+      {
+       "pattern": "push_v",
+       "tier": 3,
+       "unit": "reps",
+       "load": 10,
+       "perSide": false,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60,
+       "loads": [
+        11,
+        10,
+        10
+       ]
+      },
+      {
+       "pattern": "lunge",
+       "tier": 3,
+       "unit": "reps",
+       "load": 6,
+       "perSide": true,
+       "sets": 3,
+       "restSetSec": 60,
+       "restExerciseSec": 60,
+       "loads": [
+        7,
+        6,
+        6
        ]
       }
      ],
@@ -52659,19 +52838,19 @@
       21,
       17,
       13,
-      8,
-      4
+      9,
+      5
      ],
      "subAfter": [
       3,
-      2,
       3,
-      0,
-      1,
-      1,
+      2,
       0,
       2,
-      2
+      2,
+      1,
+      1,
+      1
      ],
      "barSubAfter": 0,
      "cutAfter": [
@@ -52685,7 +52864,7 @@
       0,
       0
      ],
-     "barCutAfter": 1,
+     "barCutAfter": 0,
      "setsHoldAfter": [
       0,
       0,
@@ -52700,26 +52879,26 @@
      "barSetsHoldAfter": 0,
      "shownWorkAfter": [
       124,
-      50,
-      42,
+      52,
+      41,
       34,
-      30,
-      36,
-      73,
-      94,
-      37
+      31,
+      38,
+      75,
+      102,
+      39
      ],
      "barShownWorkAfter": 0,
      "shownOrdAfter": [
       139,
-      118,
-      106,
+      119,
+      105,
       71,
-      59,
-      47,
-      36,
-      23,
-      13
+      60,
+      48,
+      37,
+      25,
+      15
      ],
      "barShownOrdAfter": 0,
      "rampWindowAfter": 0,
@@ -52850,7 +53029,18 @@
      "overrides": {},
      "skipped": [],
      "handles": {
-      "shorterSession": 9,
+      "setCut": {
+       "squat": 9,
+       "push_h": 9,
+       "hinge": 9,
+       "pull": 9,
+       "push_v": 9,
+       "lunge": 9,
+       "core_anti_ext": 9,
+       "core_rot": 9,
+       "calf": 9,
+       "pull_bar": 9
+      },
       "subAfter": [
        0,
        0,
