@@ -238,14 +238,9 @@ final class AppStore {
         // The suite must not depend on the weekday it runs on;
         // --uitest-restday is applied last so it wins.
         let seedFlags = ["--uitest-reset", "--uitest-session2", "--uitest-milestone",
-                         "--uitest-handled", "--uitest-long-session"]
+                         "--uitest-long-session"]
         if seedFlags.contains(where: CommandLine.arguments.contains) {
             settings.restWeekdays = []
-        }
-        // A pull the person cut to the sets floor yesterday: today's plan
-        // still has it, and the card owes a sentence about the number.
-        if CommandLine.arguments.contains("--uitest-handled") {
-            seedHandledPull()
         }
         // Session 1 completed yesterday → today offers session 2, the only
         // deterministic way to reach hold exercises.
@@ -324,28 +319,6 @@ final class AppStore {
             totalLevelAfter: 180)]
         settings.comebackDecidedFor = nil
         settings.restWeekdays = []
-    }
-
-    /// Yesterday's workout with the pull handled down to the sets floor.
-    ///
-    /// This used to seed a FROZEN pull — an episode, its countdown, the memory
-    /// of pain and the sets the channel took off. None of that exists. What
-    /// the screenshot state needs now is the state a person can actually reach
-    /// with the handle, so it seeds exactly that: one movement cut to the
-    /// floor, which is what the card has to explain.
-    private func seedHandledPull() {
-        var seeded = EngineState.initial
-        seeded.counter = 4
-        for p in Pattern.allCases { seeded.levels[p] = 6 }
-        seeded = Engine.setCut(state: seeded, pattern: .pull,
-                               cut: Level.cutMax(level: 6, floor: EngineConfig.setsFloor))
-        engineState = seeded
-        records = [WorkoutRecord(
-            sessionNumber: 4,
-            date: Calendar.current.date(byAdding: .day, value: -1, to: .now)!,
-            result: .plan,
-            totalLevelAfter: 60,
-            levelsAfter: seeded.levels)]
     }
     #endif
 

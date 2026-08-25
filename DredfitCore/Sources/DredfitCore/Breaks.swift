@@ -187,11 +187,4 @@ extension Engine {
         next.cut = EngineState.healCut(next.cut, levels: next.levels)
         return next
     }
-
-    /// The "I was sick" one-tap — the sixth API function. An illness shorter
-    /// than seven days is invisible to the time contract by construction, so
-    /// the channel is explicit. The lens makes the plan one tier easier for
-    /// `illnessSessions` restorative sessions without touching the stored
-    /// levels; a repeat tap tops the lens back up (a prolongation, not an
-    /// escalation), and on a fresh lens the call
 }
