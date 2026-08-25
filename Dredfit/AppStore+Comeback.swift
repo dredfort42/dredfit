@@ -2,7 +2,7 @@
 // The read-only companions of the comeback card (issue #127): what the two
 // offers actually are in numbers, and what accepting would subtract now.
 // Nothing here mutates state — the mutation (acceptComeback) stays in AppStore
-// proper. The illness lens that shared this file was removed in why, and what
+// proper. The illness lens that shared this file is gone; why, and what
 // covers its window instead, is at the bottom.
 //
 
@@ -41,7 +41,7 @@ extension AppStore {
     // nothing to keep.
     //
     // The window it covered (a 2–13 day gap, below the comeback and past a
-    // missed beat) is not left empty: a person coming back from a break
-    // reaches for the session handle, which shortens today's workout without
+    // missed beat) is not left empty: a person coming back from a break skips
+    // sets on the work screen as they go, which shortens the session without
     // touching the levels and without a six-session tail.
 }

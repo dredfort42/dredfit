@@ -1,6 +1,4 @@
 //
-//  DredfitCoreTests
-//
 // The do-no-harm gate wave: calibration bounded by the neighboring tier,
 // landing ceilings and the set-band snap on the comeback, and the silent decay
 // resetting the fail streak. Mirrors the corresponding blocks in the reference
@@ -173,7 +171,7 @@ final class EngineV27Tests: XCTestCase {
         // session-wide.
         paused = Engine.applyFeedback(state: paused.underLessRun, session: session, result: .less)
         // Re-marked: a decay is a DESCENT and walks one step of the growth
-        // path, not a whole level; the rating is a step too Two steps down
+        // path, not a whole level; the rating is a step too. Two steps down
         // from 12.0 are composed out of the rule itself rather than written as
         // the level 10, and the subject of the block — no premature deload —
         // is asserted exactly as before.

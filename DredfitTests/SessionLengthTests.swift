@@ -7,7 +7,7 @@
 //  the audit measured what its rungs actually did: 10, 15 and 20 produced the
 //  SAME plan, and the "20" rung missed its own target in 100 % of sessions.
 //
-//  What replaced it was a handle on the plan, and §38 has now removed that
+//  What replaced it was a handle on the plan, and that has now been removed
 //  too: nobody is asked before the workout how much of it they have in them.
 //  The plan announces its length; the person shortens the session from inside
 //  it (SetSkipTests), and the movement's own VARIATION is the one thing still
@@ -24,8 +24,8 @@ final class SessionLengthTests: AppStoreTestCase {
     override var tempURLPrefix: String { "dredfit-length" }
 
     /// A trainee well up the scale, where a full session runs long — the case
-    /// §38 exists for. The spec measures it: L40 is 79.7 min at full and 33.7
-    /// with every movement on the sets floor.
+    /// the range exists for. The spec measures it: L40 is 79.7 min at full and
+    /// 33.7 with every movement on the sets floor.
     private func advancedStore(counter: Int = 0, level: Int = 40) throws -> AppStore {
         let levels = Pattern.allCases
             .map { "\"\($0.rawValue)\",\(level)" }.joined(separator: ",")
@@ -41,9 +41,9 @@ final class SessionLengthTests: AppStoreTestCase {
         return AppStore(storageURL: tempURL)
     }
 
-    // MARK: - The range on Today (§38.3)
+    // MARK: - The range on Today
 
-    /// The six rows of §38.3, exactly: the full plan and the shortest the
+    /// The six rows below, exactly: the full plan and the shortest the
     /// session can be made from inside it. These are the numbers the screen
     /// prints, and drift in either of them is drift in what the app promises.
     func testTheRangeIsTheOneTheSpecAnnounces() throws {
@@ -56,9 +56,10 @@ final class SessionLengthTests: AppStoreTestCase {
         }
     }
 
-    /// §37.1's declared bottom, and the first wave that can check it: the
-    /// short workout used to live outside the engine and reach 20.5 minutes
-    /// against an announced 24.8, which is exactly why it was removed.
+    /// The App Store listing's declared bottom, and the first wave that can
+    /// check it: the short workout used to live outside the engine and reach
+    /// 20.5 minutes against an announced 24.8, which is exactly why it was
+    /// removed.
     ///
     /// The claim is about the WHOLE scale, not the six rows above: no level
     /// anywhere can be squeezed under the number the App Store listing names,

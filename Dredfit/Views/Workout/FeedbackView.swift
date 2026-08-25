@@ -13,8 +13,6 @@ struct FeedbackView: View {
     /// the screen and the engine can never be shown different arithmetic.
     let facts: SetFacts.PerSet
     var skipped: Set<Pattern> = []
-    /// Reported as painful: to the engine a skip, to the reader a different
-    /// fact — the movement is resting, not merely missed.
     /// To the engine a skip like the others; the label says "not finished".
     var interrupted: Pattern?
     let onComplete: (FeedbackResult, [Pattern: Int]) -> Void

@@ -1,7 +1,7 @@
 //
 //  What a workout looks like on the day: the session value types, the
 //  rotation anchor and the duration estimate. Split out of Engine.swift when
-//  that file outgrew the lint's ceiling; the code is unchanged.
+//  that file outgrew the lint's ceiling.
 //
 
 import Foundation
@@ -24,10 +24,10 @@ public struct SessionExercise: Codable, Equatable, Identifiable, Sendable {
     public let restSetSec: Int
     public let restExerciseSec: Int
     /// Per-set doses, descending — `9-8-8`. OPTIONAL on purpose, and the
-    /// optionality is compatibility, not style: a journal written by build 1.9
-    /// carries no such key, and one non-optional field added to this snapshot
-    /// would zero that journal on decode. `nil` means a uniform plan, i.e.
-    /// every set runs at `load`.
+    /// optionality is compatibility, not style: a journal written by an older
+    /// build carries no such key, and one non-optional field added to this
+    /// snapshot would zero that journal on decode. `nil` means a uniform plan,
+    /// i.e. every set runs at `load`.
     public let loads: [Int]?
 
     /// Written out so `loads` can default to nil at every existing call site.
@@ -130,7 +130,7 @@ extension Engine {
     ///
     /// The divergence is older than this wave and was simply unreachable: with
     /// static doses at multiples of five seconds no session ever landed on
-    /// either case. put odd second counts into the statics and eighteen golden
+    /// either case. Odd second counts entered the statics and eighteen golden
     /// steps lit up at once.
     ///
     /// A tie is exactly a value that is an ODD number of quarters — 10x is a
@@ -161,7 +161,7 @@ extension Engine {
         }
         let chosen = Set([Pattern.pull] + five)
         let useBar = state.hasBar && state.counter % 2 == 1
-        let patterns = Pattern.ordered.filter { chosen.contains($0) } // ordering follows Pattern.ordered
+        let patterns = Pattern.ordered.filter { chosen.contains($0) }
             .map { $0 == .pull && useBar ? Pattern.pullBar : $0 }
 
         // The "I was sick" lens no longer moves the LEVEL at all. Showing
@@ -214,7 +214,7 @@ extension Engine {
         // The per-exercise floor is SERVICE data and stays out of the
         // snapshot, exactly as it is a non-enumerable property in the
         // reference: `SessionExercise` gains no field, so a journal written by
-        // build 1.9 still decodes whole. It travels alongside instead.
+        // an older build still decodes whole. It travels alongside instead.
         var floors: [Int] = []
         let exercises: [SessionExercise] = patterns.map { p in
             let lib = ExerciseLibrary.entry(for: p)
@@ -266,7 +266,6 @@ extension Engine {
         // The postcondition "a descent never adds load" is checked ON THE
         // RESULT rather than derived from the way the cut is built. It works
         // with no budget at all: the band gate can move sets about too.
-        //
         var ordNow: [Pattern: Int] = [:]
         for ex in exercises { ordNow[ex.pattern] = Level.posOrd(state.position(ex.pattern)) }
         // `budgetChanged` is gone. It existed because the budget moved the
@@ -289,7 +288,7 @@ extension Engine {
     /// The one and only clamp on a set count. Every mechanism that CUTS sets —
     /// the band gate among them — goes through it, so the floor holds for
     /// their composition and not just for each cut on its own. The floor is a
-    /// per-exercise number, and it carries NO default on purpose.: every
+    /// per-exercise number, and it carries NO default on purpose: every
     /// caller now passes the same shared floor — the pain channel's single set
     /// is gone — but the explicit parameter stays. A default here is exactly
     /// what let `setsFloorPain` leak into all ten call sites of the previous

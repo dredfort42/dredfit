@@ -5,9 +5,9 @@
 //  same lines, backups included — and nothing blocks, colors, or counts toward
 //  an achievement.
 //
-//  The per-movement PAIN TREND is gone with the channel it
-//  read. Both of its rungs — "it hurt again" and "time to see a specialist" —
-//  counted pain reports, and there are none to count.
+//  The per-movement PAIN TREND is gone with the channel it read. Both of its
+//  rungs — "it hurt again" and "time to see a specialist" — counted pain
+//  reports, and there are none to count.
 //
 
 import Foundation
@@ -92,8 +92,10 @@ extension AppStore {
 
     /// The set count this movement's card carried at its last appearance.
     /// Read from the journal rather than the state because it is what the
-    /// person actually saw. A record too old to know its exercises (pre-1.4)
-    /// ends the walk, the same way the pain streak's does.
+    /// person actually saw. A record too old to know its exercises ends the
+    /// walk rather than being skipped over: a gap in the journal is not
+    /// evidence of anything, and reading past it would compare two sessions
+    /// with an unknown number in between.
     private func lastShownSets(_ pattern: Pattern) -> Int? {
         for record in records.reversed() {
             guard let exercises = record.exercises else { return nil }

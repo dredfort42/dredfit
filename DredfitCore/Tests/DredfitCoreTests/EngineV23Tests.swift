@@ -1,6 +1,4 @@
 //
-//  DredfitCoreTests
-//
 //  Zero-level calibration, comeback after a break, and per-tier rep/hold
 //  starts. Mirrors the corresponding blocks in the reference verifier —
 //  anything asserted here is asserted there too.

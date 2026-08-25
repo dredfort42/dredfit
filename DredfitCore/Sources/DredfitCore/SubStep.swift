@@ -19,7 +19,8 @@ import Foundation
 ///
 /// The third coordinate defaults to zero so every earlier construction still
 /// reads as it did: a position that never met the sets handle IS a position
-/// with an empty cut, and the plan it produces is bit-for-bit 's.
+/// with an empty cut, and the plan it produces is bit-for-bit what the
+/// previous version produced.
 public struct Position: Equatable, Sendable {
     public let level: Int
     public let sub: Int

@@ -1,6 +1,4 @@
 //
-//  DredfitCoreTests
-//
 //  The descent never adds load. Three defects of the
 // "do no harm" rung, measured on the reference:
 //
@@ -73,7 +71,7 @@ final class EngineV219Tests: XCTestCase {
                        "10 patterns × 48 levels")
     }
 
-    // MARK: - -30.2 The measure and the gate
+    // MARK: - The measure and the gate
 
     func testTheMeasureCountsSides() {
         // hinge tier 4 is the sliding leg curl (both legs), tier 3 the

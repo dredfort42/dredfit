@@ -23,13 +23,13 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     /// The sets behind that mean, in order. The detail the history line
     /// shows when the sets did not all run the same.
     var setActuals: [Pattern: [Int]]?
-    /// Sets skipped DURING the session, per movement (§38.2) — the count the
-    /// engine turned into a cut. Written because it is part of what happened:
-    /// a plan of 5×8 answered with three sets is not the same session as one
-    /// answered in full, and a journal that keeps only the rating cannot tell
-    /// them apart afterwards. §38.6 asks whether the mid-workout skip becomes
-    /// the dominant price, and this is the only place that question can ever
-    /// be answered from.
+    /// Sets skipped DURING the session, per movement — the count the engine
+    /// turned into a cut. Written because it is part of what happened: a plan
+    /// of 5×8 answered with three sets is not the same session as one answered
+    /// in full, and a journal that keeps only the rating cannot tell
+    /// them apart afterwards. Whether the mid-workout skip becomes the
+    /// dominant price is still an open question, and this is the only place
+    /// it can ever be answered from.
     var setsSkipped: [Pattern: Int]?
     var skipped: Set<Pattern>?
     /// Reported as painful mid-workout: to the engine a skip, to the journal a
@@ -119,7 +119,7 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// third set's. Optional so a snapshot written before a fact belonged to
     /// its own set still decodes.
     var setActuals: [Pattern: [Int]]?
-    /// Sets skipped so far, per movement (§38.2). Optional like everything
+    /// Sets skipped so far, per movement. Optional like everything
     /// below it: a snapshot written before the skip existed still decodes.
     var setsSkipped: [Pattern: Int]?
     /// The shape that came before — one number per exercise. Only ever

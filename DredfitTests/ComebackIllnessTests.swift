@@ -2,7 +2,7 @@
 // The app half of the comeback wave (issues #127, #128): the accept guard, the
 // sighted decline path and the numbered preview, as the user meets them
 // through AppStore. The "I was sick" lens the file is half-named after was
-// removed in — its four tests, and why they went, are at the bottom.
+// removed — its four tests, and why they went, are at the bottom.
 //
 
 import XCTest

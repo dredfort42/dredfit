@@ -160,6 +160,8 @@ final class MilestoneTests: AppStoreTestCase {
     }
 
     /// A jubilee fires on one exact counter value and never again, so it is
+    /// unaffected by how hard that session actually was — a harder result
+    /// earns it exactly the same.
     func testJubileeSurvivesAHardSession() throws {
         let store = try seededStore(counter: 9)
         let session = store.nextSession

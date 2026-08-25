@@ -472,6 +472,8 @@ final class DredfitUITests: XCTestCase {
     }
 
     /// The side-switch pause (issue #35): a per-side hold runs side one,
+    /// pauses on an announced "Switch sides" when it ends, then auto-starts
+    /// side two with no tap and lets it run out into rest on its own.
     func testPerSideHoldPausesBetweenSidesAndAutoStartsTheSecond() {
         launchIntoSession2AndReachPlank()
         // The same skip-until-the-goal loop the helper uses: a dropped tap
@@ -540,6 +542,8 @@ final class DredfitUITests: XCTestCase {
     // GetReadyUITests.swift (issue #52).
 
     /// The position mini-sheet (issue #34): opens from the warm-up move,
+    /// freezes its countdown while it's up, and lets the countdown resume
+    /// once the sheet closes.
     func testPositionTechniqueSheetFreezesTheCountdown() {
         // Past the transition and into the move it announced — the sheet's
         // freeze is what this test is about, so the transition is held open

@@ -15,7 +15,7 @@ struct WorkStatusCaption: View {
     /// nil when the exercise is running to plan.
     let actual: Int?
     /// The hold-this-level mark (issue #78). A pin changes nothing visible in
-    /// the plan, so the caption is where the tap confirms itself; an entered
+    /// the plan, so the caption is where the tap confirms itself.
     let setIndex: Int
     let sets: Int
     /// What THIS set is planned to run at, and whether the exercise is uneven
@@ -46,8 +46,6 @@ struct WorkStatusCaption: View {
     }
 }
 
-/// The "ⓘ technique" affordance — one look shared by the work screen, the
-/// rest screen and the warm-up/cool-down positions (issue #34).
 /// The rest phase. The ring is the primary element here, which is why neither
 /// control under it is a filled button: someone who is not recovered has to be
 /// able to ask for more time about as easily as to cut the rest short. The

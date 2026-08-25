@@ -73,10 +73,10 @@ struct BlockSkipButton: View {
 /// (issues #66, #78).
 ///
 /// "hold this level" went with the input it armed, and "Something hurt" with
-/// the channel behind it. What arrived instead is the other half of §38: the
-/// two handles that used to stand on the plan are gone, and the decision they
-/// asked for BEFORE the workout is taken here, mid-set, where the person
-/// actually knows the answer.
+/// the channel behind it. What arrived instead is the other half of the same
+/// idea: the two handles that used to stand on the plan are gone, and the
+/// decision they asked for BEFORE the workout is taken here, mid-set, where
+/// the person actually knows the answer.
 ///
 /// So the row carries three things now — the honest number, the set in front
 /// of you, and the movement. The engine measures the first against the tap it
@@ -86,7 +86,7 @@ struct BlockSkipButton: View {
 struct ExerciseActionsRow: View {
     let onAdjust: () -> Void
     /// The set-level skip. Absent when it would take the whole movement with
-    /// it (§38.2 rule 2) — the escape below then says so in its own label.
+    /// it — the escape below then says so in its own label.
     let onSkipSet: (() -> Void)?
     /// The exercise-level escape, and the landing its title names. Absent on
     /// the last set, where "the remaining sets" are the one beside it.

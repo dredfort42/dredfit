@@ -30,7 +30,7 @@ nonisolated enum SetFacts {
     /// screen then shows and what the hold then counts down.
     typealias PerSet = [Pattern: [Int]]
 
-    /// Sets SKIPPED during the session, per movement (spec §38.2).
+    /// Sets SKIPPED during the session, per movement.
     ///
     /// A count, not a set of indices, and deliberately: what the engine is
     /// handed is how MANY sets went, because that is what `cut` measures.
@@ -93,8 +93,7 @@ nonisolated enum SetFacts {
     }
 
     /// Whether `count` more skipped sets can be RECORDED as skipped sets at
-    /// all — §38.2 rule 2, and the one piece of arithmetic both escapes on the
-    /// work screen read.
+    /// all — the one piece of arithmetic both escapes on the work screen read.
     ///
     /// A movement counts as trained only while the floor's worth of sets
     /// survives the skips. Below that there is nothing left to record: not a

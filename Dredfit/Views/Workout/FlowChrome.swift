@@ -18,7 +18,7 @@ struct FlowHeader: View {
     /// 0 hides the capsule row — the warm-up is not an exercise yet.
     let steps: Int
     let doneIndex: Int
-    /// What is left of the session (§38.3), or nil on the screens that carry a
+    /// What is left of the session, or nil on the screens that carry a
     /// countdown of their own. The decision about the length of the workout is
     /// taken inside it now, so the number has to follow the decision: it drops
     /// the moment a set is skipped.
@@ -128,6 +128,8 @@ struct BlockDots: View {
     }
 }
 
+/// The "ⓘ technique" affordance — one look shared by the work screen, the
+/// rest screen and the warm-up/cool-down positions (issue #34).
 struct TechniqueButton: View {
     let action: () -> Void
 
@@ -136,11 +138,11 @@ struct TechniqueButton: View {
             Label(String(localized: "technique"), systemImage: "info.circle")
                 .dredfitFont(14, weight: .medium)
                 .foregroundStyle(Theme.ink2)
-                // 44 pt, like the two escapes in FlowChrome+Controls — and for
-                // a harder
-                // reason. This one is offered on five screens, three of them
-                // mid-effort, where the hand that reaches for it is the hand
-                // that just did the set. The bare label came to about 17 pt.
+                // 44 pt, like the two escapes in FlowChrome+Controls — and
+                // for a harder reason. This one is offered on five screens,
+                // three of them mid-effort, where the hand that reaches for it
+                // is the hand that just did the set. The bare label came to
+                // about 17 pt.
                 .frame(minHeight: 44)
                 .contentShape(Rectangle())
         }

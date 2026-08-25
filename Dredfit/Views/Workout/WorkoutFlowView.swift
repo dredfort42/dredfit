@@ -77,10 +77,10 @@ struct WorkoutFlowView: View {
     /// A fact belongs to the set it happened on — see SetFacts for the shape
     /// and for what a set of them collapses to.
     @State private var actuals: SetFacts.PerSet = [:]
-    /// Sets skipped along the way, per movement (§38.2). Accumulated here,
-    /// beside the per-set facts and for the same length of time — the session
-    /// — and handed to the engine only when the rating lands: the cut belongs
-    /// on the RESULT of the feedback, never on its input.
+    /// Sets skipped along the way, per movement. Accumulated here, beside the
+    /// per-set facts and for the same length of time — the session — and
+    /// handed to the engine only when the rating lands: the cut belongs on the
+    /// RESULT of the feedback, never on its input.
     @State private var setsSkipped: SetFacts.Skips = [:]
     @State var skippedPatterns: Set<Pattern> = []
     /// Kept apart from `skippedPatterns`: the engine treats both as skips for
@@ -279,7 +279,7 @@ struct WorkoutFlowView: View {
         }
     }
 
-    /// What is left of the session, in minutes (§38.3) — recomputed on every
+    /// What is left of the session, in minutes — recomputed on every
     /// body pass, so a skipped set takes its minutes off at the moment it is
     /// skipped rather than at the next screen.
     ///
@@ -594,13 +594,10 @@ struct WorkoutFlowView: View {
         }
     }
 
-    /// Leaving an exercise early.: there used to be two ways — a skip and a
-    /// pain report — and the report is gone. A person who finds the movement
-    /// too hard now reaches for a handle instead, which keeps the movement in
-    /// the plan rather than taking it out for weeks. A soft note when the
-    /// person enters MORE than the plan on a set that is not the last one.
-    /// Once per exercise per session, and the entry stands either way — it is
-    /// advice about the workout, never a correction of the number.
+    /// A soft note when the person enters MORE than the plan on a set that
+    /// is not the last one. Once per exercise per session, and the entry
+    /// stands either way — it is advice about the workout, never a correction
+    /// of the number.
     ///
     /// What it must NOT say is that the system measures the last set more
     /// accurately. Under a mean the ORDER OF SETS DOES NOT REACH THE ENGINE at
@@ -616,6 +613,10 @@ struct WorkoutFlowView: View {
         maximumWarning = String(localized: "Do the plan, and leave your maximum for the last set.")
     }
 
+    /// Leaving an exercise early. There used to be two ways — a skip and a
+    /// pain report — and the report is gone. A person who finds the movement
+    /// too hard now reaches for a handle instead, which keeps the movement in
+    /// the plan rather than taking it out for weeks.
     private func leaveExercise() {
         adjusting = false
         holdSecondSide = false
@@ -623,7 +624,7 @@ struct WorkoutFlowView: View {
         holdPauseEndDate = nil
         actuals.removeValue(forKey: exercise.pattern)   // a skip wins over an actual
         // …and over the sets skipped inside it: the movement was not trained,
-        // so there is no volume to take off it next time (§38.2 rule 2).
+        // so there is no volume to take off it next time.
         setsSkipped.removeValue(forKey: exercise.pattern)
         skippedPatterns.insert(exercise.pattern)
         advancePastExercise()
@@ -645,10 +646,11 @@ struct WorkoutFlowView: View {
         }
     }
 
-    // MARK: - The skip that happens DURING the workout (spec §38.2)
+    // MARK: - The skip that happens DURING the workout
 
-    /// Rule 2, asked of the plan in front of us — the arithmetic itself is
-    /// `SetFacts.skipFits`, where it can be tested without a screen.
+    /// Whether a skip still leaves a trained movement behind, asked of the
+    /// plan in front of us — the arithmetic itself is `SetFacts.skipFits`,
+    /// where it can be tested without a screen.
     private func skipsLeaveAMovement(_ count: Int) -> Bool {
         SetFacts.skipFits(count, of: exercise.sets,
                           alreadySkipped: setsSkipped[exercise.pattern] ?? 0)
@@ -677,9 +679,9 @@ struct WorkoutFlowView: View {
         }
     }
 
-    /// Rule 3 — "skip the remaining sets", one tap for the whole movement.
-    /// Sixteen separate taps to fit a session into 45 minutes is a thing
-    /// nobody does; three to six is.
+    /// "Skip the remaining sets": one tap for the whole movement. Sixteen
+    /// separate taps to fit a session into 45 minutes is a thing nobody does;
+    /// three to six is.
     private func skipRestOfExercise() {
         let left = exercise.sets - setIndex
         guard skipsLeaveAMovement(left) else { leaveExercise(); return }
@@ -698,8 +700,8 @@ struct WorkoutFlowView: View {
 
     /// The exercise-level escape, and the landing its label names. The two
     /// controls collapse into one whenever they would do the same thing: on
-    /// the floor both take the movement (rule 2), and on the last set "the
-    /// remaining sets" ARE this set.
+    /// the floor both take the movement, and on the last set "the remaining
+    /// sets" ARE this set.
     private var exerciseEscape: ExerciseActionsRow.Escape? {
         let leave = ExerciseActionsRow.Escape(title: String(localized: "Skip exercise"),
                                               identifier: "exercise-skip",

@@ -1,6 +1,4 @@
 //
-//  DredfitCoreTests
-//
 // Engine: the sub-step, and the cancellation of the hold-this-level input.
 // Mirrors block 26 of the reference verifier.
 //

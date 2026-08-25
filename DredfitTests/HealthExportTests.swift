@@ -62,6 +62,7 @@ final class HealthExportTests: AppStoreTestCase {
     }
 
     /// A failed save must not flag the workout exported — it stays retriable
+    /// until a later export succeeds.
     func testHealthFailedSaveKeepsWorkoutRetriable() async {
         let spy = HealthSpy()
         let store = AppStore(storageURL: tempURL, health: spy)
@@ -81,6 +82,7 @@ final class HealthExportTests: AppStoreTestCase {
 
     /// Regression: a failed live export of workout N followed by a successful
     /// workout N+1 must not advance the high-water mark past N, which would
+    /// leave workout N's failed export stuck with no chance to retry.
     func testHealthLaterSuccessDoesNotLoseEarlierFailedExport() async {
         let spy = HealthSpy()
         let store = AppStore(storageURL: tempURL, health: spy)
@@ -150,6 +152,7 @@ final class HealthExportTests: AppStoreTestCase {
     /// Regression: replacing the journal (importBackup) while a backfill is
     /// suspended inside a save must not flag, by stale index, a record that
     /// was never exported — the flag must land by record identity or not at
+    /// all.
     func testImportDuringInFlightBackfillDoesNotMisflagByStaleIndex() async throws {
         let spy = HealthSpy()
         let store = AppStore(storageURL: tempURL, health: spy)
@@ -217,6 +220,8 @@ final class HealthExportTests: AppStoreTestCase {
     }
 
     /// A record with a corrupt (negative) duration must not poison the
+    /// backfill — it must still export, and its interval must still run
+    /// forward in time.
     func testNegativeDurationDoesNotPoisonHealthBackfill() async {
         let spy = HealthSpy()
         let store = AppStore(storageURL: tempURL, health: spy)

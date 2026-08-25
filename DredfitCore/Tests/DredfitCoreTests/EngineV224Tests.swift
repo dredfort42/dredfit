@@ -1,6 +1,4 @@
 //
-//  DredfitCoreTests
-//
 // Engine — RE-MARKED.
 //
 // is removed by this wave EXCEPT, the shared sets floor, which moves into the
@@ -39,7 +37,7 @@ final class EngineV224Tests: XCTestCase {
         return s
     }
 
-    /// v2.27 (§38.2, rule 3): "skip the remaining sets", the gesture the
+    /// Rule 3: "skip the remaining sets", the gesture the
     /// workout screen put in place of the removed session-wide handle. The
     /// same cut on every movement, but set ONE AT A TIME through `setCut`,
     /// because there is no other way onto the axis now. Repeats the removed

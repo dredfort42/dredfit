@@ -49,7 +49,7 @@ extension Engine {
         let gapDays = Engine.sanitizeGapDays(rawGap)
         guard gapDays >= EngineConfig.comebackMinGapDays else { return dirty }
         // Consecutive comebacks with no session between deepen the drop by one
-        // each — the plan must slide faster than fitness decays (A8b-9). The
+        // each — the plan must slide faster than fitness decays. The
         // cap is the same table cap.
         let raw = EngineConfig.comebackBase
             + (gapDays - EngineConfig.comebackMinGapDays) / EngineConfig.comebackStepDays
@@ -74,7 +74,7 @@ extension Engine {
         // The weekly window is about a week that is now over.
         next.weekGain = [:]
         next.weekAgeDays = 0
-        next.returnRun = state.returnRun + 1   //
+        next.returnRun = state.returnRun + 1
         // The sub-steps of the ENTRY state. `next.sub` is already empty (a
         // comeback is a descent), and reading from it would lose exactly the
         // coordinate the compensation has to reverse.
@@ -86,8 +86,8 @@ extension Engine {
             // tier from it would break the identity exactly at the boundaries.
             //
             // The compensation reverses THE DECAY'S REAL STEP through
-            // `riseBy`, instead of adding one to the level. With a decay walks
-            // in `fallBy` steps, and on a block floor it takes a SET without
+            // `riseBy`, instead of adding one to the level. A decay walks in
+            // `fallBy` steps, and on a block floor it takes a SET without
             // touching the level — the old `stored + 1` then added a level
             // that never existed, and the identity broke for the statics at
             // L16.

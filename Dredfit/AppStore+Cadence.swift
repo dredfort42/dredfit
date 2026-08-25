@@ -76,7 +76,7 @@ extension AppStore {
         return zip(dates, dates.dropFirst()).map { Self.trainingDays(from: $0, to: $1) }
     }
 
-    /// (owner decisions 16.08.2026): a break is the trainee's own rhythm when
+    /// Owner decisions 16.08.2026: a break is the trainee's own rhythm when
     /// it lands within ±1 day of any of the last three gaps — with no upper
     /// cap, so any consistent ritual is respected. A real one-off break falls
     /// outside the window and is treated as before.

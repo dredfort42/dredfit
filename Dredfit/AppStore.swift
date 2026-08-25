@@ -252,8 +252,8 @@ final class AppStore {
                             date: Calendar.current.date(byAdding: .day, value: -1, to: .now)!)
         }
         seedStateIfRequested()
-        // Make today a rest day, whichever weekday that is.
         seedWeakLinkIfRequested()
+        // Make today a rest day, whichever weekday that is.
         if CommandLine.arguments.contains("--uitest-restday") {
             settings.restWeekdays = [Calendar.current.component(.weekday, from: .now)]
         }
@@ -275,9 +275,9 @@ final class AppStore {
     private func seedStateIfRequested() {
         // A trainee well up the scale: band 4, six movements, 55 minutes. The
         // state the mid-workout skip exists for — a plan of three sets can
-        // only ever give one of them away (§38.2 rule 2), so the escape that
-        // takes the REST of a movement has nothing to show at the bottom of
-        // the scale.
+        // only ever give one of them away and still count as trained, so the
+        // escape that takes the REST of a movement has nothing to show at the
+        // bottom of the scale.
         if CommandLine.arguments.contains("--uitest-long-session") {
             var seeded = EngineState.initial
             for p in Pattern.allCases { seeded.levels[p] = 34 }
@@ -401,10 +401,9 @@ final class AppStore {
                          /// is their mean (`SetFacts.override`).
                          setActuals: SetFacts.PerSet = [:],
                          skipped: Set<Pattern> = [],
-                         /// Sets skipped DURING the session, per movement
-                         /// (§38.2). Handed over as what happened — the engine
-                         /// settles when it lands, and it lands AFTER the
-                         /// rating.
+                         /// Sets skipped DURING the session, per movement.
+                         /// Handed over as what happened — the engine settles
+                         /// when it lands, and it lands AFTER the rating.
                          setsSkipped: SetFacts.Skips = [:],
                          durationSec: Int? = nil,
                          date: Date = .now) -> [Milestone] {
@@ -424,10 +423,10 @@ final class AppStore {
         // harnesses.
         //
         // The overload that takes the skipped sets is the ONE that settles
-        // their order against the rating (§38.2 rule 1): the app cannot write
-        // them itself, before or after, and this call is why. A cut written
-        // before the feedback is eaten by `riseBy` handing a set back, and the
-        // skip disappears in silence.
+        // their order against the rating: the app cannot write them itself,
+        // before or after, and this call is why. A cut written before the
+        // feedback is eaten by `riseBy` handing a set back, and the skip
+        // disappears in silence.
         engineState = Engine.applyFeedback(state: engineState, session: session,
                                            result: result, overrides: overrides,
                                            skipped: skipped,
@@ -476,8 +475,8 @@ final class AppStore {
     /// postcondition repair, and the repair only ever trims work STRICTLY
     /// above what was shown, so the second pass has nothing left to trim.
     ///
-    /// The one showing deliberately NOT written down is the illness lens Its
-    /// plan is a VIEW: the base has to stay the last ordinary showing, or
+    /// The one showing deliberately NOT written down is the illness lens.
+    /// Its plan is a VIEW: the base has to stay the last ordinary showing, or
     /// coming off the lens reads as a rise and the repair takes sets off
     /// someone who has only just recovered.
     func recordPlanShown(_ session: Session) {
@@ -679,8 +678,8 @@ final class AppStore {
     /// counts as a finding. What the handle may do is asked in
     /// AppStore+Handles; what it does is here.
     ///
-    /// One handle, singular, since §38: the two that moved VOLUME are gone
-    /// from the plan, and the volume is decided inside the workout instead.
+    /// One handle, singular: the two that moved VOLUME are gone from the
+    /// plan, and the volume is decided inside the workout instead.
     /// The `cut` axis they wrote is untouched — `completeWorkout` carries the
     /// sets skipped along the way, and the engine writes them there.
 
@@ -698,8 +697,8 @@ final class AppStore {
     // `markIllness` are all gone. The budget trimmed the WORKOUT to fit a
     // number the person picked once and forgot; the lens made the plan heavier
     // than it was. What answers "how long will this take" now is the announced
-    // duration, and what shortens it is the session handle — see
-    // `setSessionCut` below.
+    // range, and what shortens a session is the skip on the work screen, taken
+    // one set at a time while the workout is running.
 
     /// Only the engine resets; the journal and settings survive. `hasBar` is
     /// kept — the bar did not disappear from the doorway. The fields of the
@@ -825,9 +824,9 @@ final class AppStore {
     /// anything Int cannot hold.
     private func estimatedDurationSec(for record: WorkoutRecord) -> Int {
         guard let exercises = record.exercises, !exercises.isEmpty else { return 35 * 60 }
-        // A record written by an older build keeps its pain reports, and they were
-            // "not performed" exactly as a skip was — so reading history has to
-            // count both. Nothing writes `discomfort` any more.
+            // A record written by an older build keeps its pain reports, and
+            // they were "not performed" exactly as a skip was — so reading
+            // history has to count both. Nothing writes `discomfort` any more.
             let skipped = (record.skipped ?? []).union(record.discomfort ?? [])
         var workSec = 0.0
         for ex in exercises where !skipped.contains(ex.pattern) {

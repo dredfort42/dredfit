@@ -1,5 +1,5 @@
 //
-//  The skip that happens DURING the workout (spec §38.2), end to end.
+//  The skip that happens DURING the workout, end to end.
 //
 //  The two handles that used to stand on Today are gone: nobody is asked to
 //  decide how long the session will be before standing on the mat. What is
@@ -47,7 +47,7 @@ final class SetSkipUITests: XCTestCase {
     /// The exercise-level escape names its own landing. With nothing behind
     /// it, leaving is a skipped MOVEMENT — level frozen, appearance unspent.
     /// With the floor's worth of sets behind it, the rest of them are a cut:
-    /// the movement was trained, just less of it (§38.2 rule 3).
+    /// the movement was trained, just less of it.
     func testTheExerciseEscapeNamesWhatItTakes() {
         app.launchArguments.append("--uitest-long-session")
         app.launch()
@@ -78,7 +78,7 @@ final class SetSkipUITests: XCTestCase {
                       "the tap must move on to the next movement")
     }
 
-    /// §38.3: the number follows the decision. The work screen carries what is
+    /// The number follows the decision. The work screen carries what is
     /// LEFT of the session, and a skipped set takes its minutes off at the
     /// moment of the tap — otherwise the person is skipping sets against a
     /// number that still describes the workout they decided not to do.

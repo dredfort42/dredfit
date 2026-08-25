@@ -1,5 +1,5 @@
 //
-//  The skip that happens DURING the workout — the app's half of spec §38.2.
+//  The skip that happens DURING the workout — the app's half of the rule.
 //
 //  The engine's half is pinned in EngineV227Tests: the order is a contract,
 //  the floor is not a place to record a dose of 0, and one tap per movement is
@@ -49,7 +49,7 @@ final class SetSkipTests: AppStoreTestCase {
 
     // MARK: - Rule 1: the order, from the app's side
 
-    /// §38.2's two worked examples, walked through the STORE: a session
+    /// The rule's two worked examples, walked through the STORE: a session
     /// completed on plan with one set skipped comes back one set shorter.
     ///
     /// This is the app's half of rule 1 and it is a real guard, not a copy of
@@ -174,7 +174,7 @@ final class SetSkipTests: AppStoreTestCase {
 
     // MARK: - The journal and the interrupted workout
 
-    /// What happened is what the journal keeps. §38.6 asks after the release
+    /// What happened is what the journal keeps. The post-release audit asks
     /// whether the mid-workout skip has become the dominant price, and a
     /// record that kept only the rating could not answer it.
     func testTheJournalRemembersTheSkippedSetsAcrossARelaunch() throws {

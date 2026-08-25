@@ -1,9 +1,9 @@
 //
-//  The athlete's handles. v2.26 removed two mechanisms that decided FOR the
-//  person — the pain channel and the time budget — and gave back controls that
-//  decide WITH them. v2.27 removed the last one that still asked them to decide
-//  BEFORE the workout ("shorter today"); what is left is one variation handle,
-//  one axis entry point, and the order in which a skip has to land on it.
+//  The athlete's handles: controls that decide WITH the person instead of FOR
+//  them. The mechanisms that decided for them — the pain channel, the time
+//  budget, and the "shorter today" question asked BEFORE the workout — are all
+//  gone; what is left is one variation handle, one axis entry point, and the
+//  order in which a skip has to land on it.
 //
 //  All three are engine entry points on purpose. The app layer writing into
 //  the state directly is the very bypass of `applyFeedback` the audit counts
@@ -88,12 +88,12 @@ extension Engine {
     }
 
     /// A session's feedback and the sets skipped while doing it, landed in the
-    /// ONE order that does not lose them (spec §38.2, rule 1).
+    /// ONE order that does not lose them.
     ///
     /// The order is a CONTRACT, not a caller's convention, which is why this
     /// exists at all: a skip written BEFORE the rating disappears in silence.
     /// On a session the person completed, `applyFeedback` calls `riseBy`, and
-    /// `riseBy` hands a set BACK instead of raising the level (§37.6) — so the
+    /// `riseBy` hands a set BACK instead of raising the level — so the
     /// cut recorded in advance is eaten by exactly the event that should have
     /// returned it later. The cut belongs on the RESULT of the feedback, never
     /// on its input. Reproduced on L24 (3×4 stays 3×4 instead of becoming 2×4)
@@ -108,9 +108,9 @@ extension Engine {
     /// is added to whatever cut the feedback left behind — not assigned — and
     /// `setCut` clamps it to `cutMax`, so asking for more than remains is
     /// ordinary, not an error. A movement already at the floor has nothing to
-    /// take: rule 2 says that skip travels as an ordinary skipped EXERCISE, in
-    /// `skipped`, never as a fact of 0 reps, and the caller decides which of
-    /// the two a tap became before it gets here.
+    /// take: that skip travels as an ordinary skipped EXERCISE, in `skipped`,
+    /// never as a fact of 0 reps, and the caller decides which of the two a
+    /// tap became before it gets here.
     public static func applyFeedback(
         state: EngineState,
         session: Session,

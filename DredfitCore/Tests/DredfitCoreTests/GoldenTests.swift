@@ -133,14 +133,14 @@ private struct Golden: Decodable {
         let weekGainAfter: [Int]?
         let barWeekGainAfter: Int?
         let weekAgeDaysAfter: Double?
-        /// The gap. Absent means nil, which pins the calendar-blind path of
-        /// just as a present one pins.: it is the SIXTH argument now, not the
-        /// seventh.
+        /// The gap. Absent means nil, which pins the calendar-blind path just
+        /// as a present one pins the calendar-aware path. It is the SIXTH
+        /// argument now, not the seventh.
         let gapDays: Double?
         /// The handles the person pulled before this session's plan was
         /// generated, and the state they left behind.
         let handles: Handles?
-        /// Sets skipped DURING this session, per movement (spec §38.2).
+        /// Sets skipped DURING this session, per movement.
         /// Landed AFTER the feedback, never before — see `replay`.
         let skipSets: [String: Int]?
         /// The cut the feedback left behind, before the skip was added. Its
@@ -154,7 +154,7 @@ private struct Golden: Decodable {
     struct Handles: Decodable {
         let easierVariation: [String]?
         let setCut: [String: Int]?
-        // v2.27 (§38.1): `shorterSession` is gone from the reference, so it is
+        // `shorterSession` is gone from the reference, so it is
         // gone from the wire form. A key the fixture can no longer carry must
         // not stay decodable: it would read as "supported, never exercised".
         let levelsAfter: [Int]?
@@ -267,7 +267,7 @@ final class GoldenTests: XCTestCase {
             for (i, step) in scenario.steps.enumerated() {
                 let ctx = "\(scenario.name)/step \(i + 1)"
                 // The one settings toggle a scenario may flip between sessions
-                // (: the budget was the second, and it is gone).
+                // (the budget toggle used to be the second one, and it is gone).
                 state.hasBar = step.hasBar ?? state.hasBar
                 replayBreaks(step, into: &state, order: g.patternOrder, ctx: ctx)
                 replayHandles(step, into: &state, order: g.patternOrder, ctx: ctx)
@@ -329,7 +329,7 @@ final class GoldenTests: XCTestCase {
     /// match the reference: the easier-variation handle first (it changes the
     /// variation and zeroes both other coordinates), then a per-movement cut.
     /// Running them the other way round would let the first erase the second's
-    /// work. v2.27 removed a third, session-wide handle from the end.
+    /// work. A later wave removed a third, session-wide handle from the end.
     ///
     /// `setCut` is walked in sorted key order for the same reason the chronic
     /// aim is walked in session order: a Swift Dictionary has none, and the
@@ -355,10 +355,10 @@ final class GoldenTests: XCTestCase {
 
     /// The feedback of one step, and the sets skipped while doing it.
     ///
-    /// v2.27 (§38.2, rule 1): a skip lands through the entry point that owns
-    /// the order, so this replay cannot get it wrong even by accident. A step
-    /// without `skipSets` goes through the plain call, so every pre-v2.27 step
-    /// stays byte-for-byte what it was.
+    /// Rule 1: a skip lands through the entry point that owns the order, so
+    /// this replay cannot get it wrong even by accident. A step without
+    /// `skipSets` goes through the plain call, so every step from before this
+    /// rule stays byte-for-byte what it was.
     ///
     /// SIX arguments on that plain call. Every optional is passed explicitly —
     /// the rule of the wave, kept because a default silently shifting is
@@ -394,8 +394,8 @@ final class GoldenTests: XCTestCase {
     }
 
     /// The breaks a step may carry, replayed in the app's order: the silent
-    /// decay first, then the comeback (: possibly a series of them with no
-    /// session between).: the "I was sick" tap was the third and is gone with
+    /// decay first, then the comeback (possibly a series of them with no
+    /// session between). The "I was sick" tap was the third and is gone with
     /// the lens.
     private func replayBreaks(_ step: Golden.Step, into state: inout EngineState,
                               order: [String], ctx: String) {
@@ -443,8 +443,8 @@ final class GoldenTests: XCTestCase {
 
     /// The sets handle and everything the wave put in the state around it —
     /// the third coordinate of a position, the memory of pain, the hold on a
-    /// returning set, the shown-plan memory, and the three -28.5 fields that
-    /// used to sit outside the golden contract altogether. Split out of
+    /// returning set, the shown-plan memory, and the three fields that used
+    /// to sit outside the golden contract altogether. Split out of
     /// `assertAuxFields` so that function keeps its complexity budget.
     private func assertSetsHandle(_ step: Golden.Step, _ state: EngineState, ctx: String) {
         if let cut = step.cutAfter {
@@ -491,7 +491,7 @@ final class GoldenTests: XCTestCase {
     /// Every optional per-step snapshot past levels and streaks — the fields
     /// each wave added, compared only where the fixture carries them.
     private func assertAuxFields(_ step: Golden.Step, _ state: EngineState, ctx: String) {
-        assertSetsHandle(step, state, ctx: ctx)         //
+        assertSetsHandle(step, state, ctx: ctx)
         // The run of unnamed "less" ratings
         if let lessRun = step.lessRunAfter {
             XCTAssertEqual(state.lessRun, lessRun, ctx + " (less run)")
@@ -507,7 +507,7 @@ final class GoldenTests: XCTestCase {
             XCTAssertEqual([Pattern.pull, .pullBar].map { state.creditPaused.contains($0) ? 1 : 0 },
                            paused, ctx + " (credit paused)")
         }
-        // The comeback series. The lens was the other half of and is gone.
+        // The comeback series. The lens was the other half of that feature and is gone.
         if let run = step.returnRunAfter {
             XCTAssertEqual(state.returnRun, run, ctx + " (return run)")
         }

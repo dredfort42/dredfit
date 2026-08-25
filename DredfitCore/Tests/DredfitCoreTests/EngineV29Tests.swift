@@ -1,6 +1,4 @@
 //
-//  DredfitCoreTests
-//
 // Engine (issue #91): a session-wide "less" reaches the movement the user
 // named, or — when nothing was named — the single highest-level one, until a
 // run of unnamed "less" hands the delta back to everyone.

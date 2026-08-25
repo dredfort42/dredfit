@@ -1,6 +1,4 @@
 //
-//  DredfitCoreTests
-//
 // Engine: "hard" steps back the way it came. Mirrors block 49 of the reference
 // verifier.
 //

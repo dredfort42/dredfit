@@ -1,6 +1,4 @@
 //
-//  DredfitCoreTests
-//
 // The audit's polish wave: a fact equal to the plan steps like "on plan" and
 // the rest between sets follows the set band. Mirrors the corresponding blocks
 // in the reference verifier.

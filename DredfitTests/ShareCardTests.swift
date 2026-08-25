@@ -85,6 +85,7 @@ final class ShareCardTests: XCTestCase {
     }
 
     /// The curve is whatever the words did not need — never the other way
+    /// around: the headline never gives up space to make room for it.
     func testTheCurveOnlyTakesWhatTheHeadlineLeaves() {
         XCTAssertGreaterThan(ShareCard.curveHeight(for: "Unlocked: Pistol squat"), 0)
         // 89 characters still take the full 92 pt, and at that size they fill

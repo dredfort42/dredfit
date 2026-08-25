@@ -7,8 +7,8 @@
 //
 //  What used to live beside this was `handleRow` — the two session handles,
 //  "fewer sets in every movement" and "fewer movements". Both asked the person
-//  to predict, before the workout, how much of it they had in them; §38 moved
-//  that answer to the work screen, where it is known.
+//  to predict, before the workout, how much of it they had in them; that
+//  answer moved to the work screen, where it is known.
 //
 
 import SwiftUI

@@ -374,7 +374,7 @@ final class EngineTests: XCTestCase {
         XCTAssertEqual(frozen.failStreak[.pull], 2, "skip must freeze the streak")
         XCTAssertEqual(frozen.levels[.pull], level, "skip must keep the level")
 
-        // the next real underperformance is the 3rd → deload The subject — a
+        // the next real underperformance is the 3rd → deload. The subject — a
         // skip POSTPONES the deload rather than cancelling it — is untouched;
         // the size of the roll-back is derived from the rule (the old `level −
         // 1 − deloadDrop` added up a level-wise "less" and the deload, and

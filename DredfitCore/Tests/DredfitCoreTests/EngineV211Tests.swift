@@ -1,6 +1,4 @@
 //
-//  DredfitCoreTests
-//
 // Engine — RE-MARKED.
 //
 //  The suite was about the pain report: it took the load off, armed a freeze,
@@ -9,12 +7,12 @@
 //  argument and the state has no `sore`, `soreLeft`, `frozen` or `painSeen`.
 //  Ten of the eleven tests here stood on that and are gone with it.
 //
-// ONE claim survives untouched and stays here: 's encoding, "an unload lands
-// at the bottom of the PREVIOUS tier". `Level.unload` is still part of the
-// contract and still exported — the reference keeps it for the port and the
-// verifier even though nothing inside the model calls it since — so dropping
-// the test with the mechanism would have left an exported function with no
-// coverage at all.
+// ONE claim survives untouched and stays here: the unload rule's encoding,
+// "an unload lands at the bottom of the PREVIOUS tier". `Level.unload` is
+// still part of the contract and still exported — the reference keeps it for
+// the port and the verifier even though nothing inside the model calls it
+// anymore — so dropping the test with the mechanism would have left an
+// exported function with no coverage at all.
 //
 
 import XCTest
