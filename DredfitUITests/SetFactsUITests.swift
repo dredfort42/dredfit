@@ -23,7 +23,7 @@ final class SetFactsUITests: XCTestCase {
                                "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
     }
 
-    /// Workout 1 opens at 3×8 reps. Two sets on plan, the third entered as 5:
+    /// Workout 1 opens at 3×4 reps (§40.8). Two sets on plan, the third at 1:
     /// the rating screen must show the three sets as they were, not one number
     /// standing in for all of them.
     func testAFactOnTheLastSetLeavesTheEarlierSetsOnPlan() {
@@ -45,18 +45,23 @@ final class SetFactsUITests: XCTestCase {
         app.buttons["Went differently"].tap()
         let minus = app.buttons["minus"]
         XCTAssertTrue(minus.waitForExistence(timeout: 3), "the stepper did not open")
-        minus.tap(); minus.tap(); minus.tap()   // plan 8 → 5
+        // Down to the bottom of the corridor, and that is not zeal: on a plan
+        // of 4 a last set of 3 averages 3.67, which snaps back ONTO the plan,
+        // and `SetFacts.override` then says nothing at all rather than
+        // over-penalise a near miss. The exercise would drop off the rating
+        // screen entirely and this test would prove nothing.
+        minus.tap(); minus.tap(); minus.tap()   // plan 4 → 1
         app.buttons["OK"].tap()
-        XCTAssertTrue(app.staticTexts["actual 5"].waitForExistence(timeout: 3),
+        XCTAssertTrue(app.staticTexts["actual 1"].waitForExistence(timeout: 3),
                       "the caption must confirm the number on this set")
 
         WorkoutDriver(app: app).completeWorkout()
         // Matched by accessibility label, which is the comma-separated twin of
-        // the "8 · 8 · 5" on screen — the same list, spoken rather than set.
-        XCTAssertTrue(app.staticTexts["8, 8, 5"].exists,
-                      "the rating screen must show the sets as they ran, not 5 three times")
-        XCTAssertFalse(app.staticTexts["actual 5"].exists,
-                       "5 was one set of three — it must not stand for the exercise")
+        // the "4 · 4 · 1" on screen — the same list, spoken rather than set.
+        XCTAssertTrue(app.staticTexts["4, 4, 1"].exists,
+                      "the rating screen must show the sets as they ran, not 1 three times")
+        XCTAssertFalse(app.staticTexts["actual 1"].exists,
+                       "1 was one set of three — it must not stand for the exercise")
 
         app.staticTexts["On plan"].tap()
         XCTAssertTrue(app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5))
@@ -66,7 +71,7 @@ final class SetFactsUITests: XCTestCase {
         let day = Calendar.current.component(.day, from: .now)
         app.buttons["day-\(day)"].tap()
         XCTAssertTrue(app.staticTexts["Workout 1"].waitForExistence(timeout: 3))
-        XCTAssertTrue(app.staticTexts["8, 8, 5"].exists, "the history row lost the sets")
+        XCTAssertTrue(app.staticTexts["4, 4, 1"].exists, "the history row lost the sets")
         app.buttons["Got it"].tap()
     }
 }

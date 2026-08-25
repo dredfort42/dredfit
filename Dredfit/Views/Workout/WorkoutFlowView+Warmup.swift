@@ -30,7 +30,7 @@ extension WorkoutFlowView {
                 .foregroundStyle(Theme.ink2)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 8)
-            Text("\(Warmup.moves.count) positions · about \(Self.warmupIntroMinutes) min")
+            Text("\(warmupMoves.count) positions · about \(warmupIntroMinutes) min")
                 .dredfitFont(13.5)
                 .foregroundStyle(Theme.ink3)
                 .padding(.top, 6)
@@ -48,17 +48,13 @@ extension WorkoutFlowView {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    /// The block is fixed, so this is a constant — but it is DERIVED, because
-    /// a hand-typed 5 would go stale the first time a move is added. Rounded
-    /// up, like the cool-down's: a promise the block overruns is worse than
-    /// one it beats.
-    static var warmupIntroMinutes: Int {
-        let seconds = Warmup.moves.indices.reduce(0) { total, index in
-            total + Warmup.stageSeconds(.getReady, index: index)
-                  + Warmup.stageSeconds(.move, index: index)
-        }
-        return max(1, Int((Double(seconds) / 60).rounded(.up)))
-    }
+    /// The six moves of THIS session (§40.1: nine in the pool, six on
+    /// screen). A pure function of the session number, so a restored snapshot
+    /// recomputes the same list rather than carrying it.
+    var warmupMoves: [WarmupMove] { Warmup.moves(for: session) }
+
+    /// What the offer screen promises for THIS session's composition.
+    var warmupIntroMinutes: Int { Warmup.introMinutes(warmupMoves) }
 
     /// Both warm-up screens are the same beat as far as the rest of the view
     /// is concerned: not a step of the work, and WARM-UP on the lock screen.
@@ -86,9 +82,9 @@ extension WorkoutFlowView {
     @ViewBuilder
     var warmupView: some View {
         if reentering || warmupStage == .getReady {
-            GetReadyScreen(name: Warmup.moves[warmupIndex].name,
+            GetReadyScreen(name: warmupMove.name,
                            remaining: reentering ? blockPause.reentryRemaining : warmupRemaining,
-                           index: warmupIndex, count: Warmup.moves.count,
+                           index: warmupIndex, count: warmupMoves.count,
                            countdownIdentifier: countdownIdentifier(reentering: reentering),
                            blockSkipTitle: String(localized: "Skip warm-up"),
                            paused: blockPause.isHeld,
@@ -103,9 +99,9 @@ extension WorkoutFlowView {
     }
 
     var warmupMoveView: some View {
-        WarmupMoveScreen(name: Warmup.moves[warmupIndex].name,
+        WarmupMoveScreen(name: warmupMove.name,
                          remaining: warmupRemaining,
-                         index: warmupIndex, count: Warmup.moves.count,
+                         index: warmupIndex, count: warmupMoves.count,
                          paused: blockPause.isHeld,
                          onTechnique: { openWarmupTechnique() },
                          onPauseToggle: { toggleBlockPause() },
@@ -113,13 +109,19 @@ extension WorkoutFlowView {
                          onSkipBlock: { finishWarmup() })
     }
 
+    /// The move on screen. Clamped: the index is state, and a composition
+    /// that changed under a restored snapshot must not index out of bounds.
+    var warmupMove: WarmupMove {
+        warmupMoves[min(max(warmupIndex, 0), warmupMoves.count - 1)]
+    }
+
     func openWarmupTechnique() {
-        openPositionTechnique(PositionTechnique(warmup: Warmup.moves[warmupIndex]))
+        openPositionTechnique(PositionTechnique(warmup: warmupMove))
     }
 
     /// Skipping from the transition skips the move it was announcing.
     func skipWarmupPosition() {
-        if warmupIndex + 1 < Warmup.moves.count {
+        if warmupIndex + 1 < warmupMoves.count {
             startWarmupPosition(warmupIndex + 1)
         } else {
             finishWarmup()
@@ -128,13 +130,13 @@ extension WorkoutFlowView {
 
     func startWarmupPosition(_ index: Int) {
         enterWarmupStage(index: index, stage: .getReady,
-                         remaining: Warmup.stageSeconds(.getReady, index: index))
+                         remaining: Warmup.stageSeconds(.getReady, of: warmupMoves[index]))
     }
 
     /// The transition is a floor on the pause between positions, never a wait.
     func startWarmupMoveNow() {
         enterWarmupStage(index: warmupIndex, stage: .move,
-                         remaining: Warmup.stageSeconds(.move, index: warmupIndex))
+                         remaining: Warmup.stageSeconds(.move, of: warmupMove))
     }
 
     func enterWarmupStage(index: Int, stage: Warmup.Stage, remaining: Int) {
@@ -160,7 +162,8 @@ extension WorkoutFlowView {
         }
         // Warmup.advance absorbs whatever a long absence already covered.
         guard let next = Warmup.advance(from: (warmupIndex, warmupStage),
-                                        overshoot: Int(max(0, -end.timeIntervalSinceNow))) else {
+                                        overshoot: Int(max(0, -end.timeIntervalSinceNow)),
+                                        moves: warmupMoves) else {
             // The block is over: done, not go — a tap starts the first exercise (#186).
             playDone()
             finishWarmup()

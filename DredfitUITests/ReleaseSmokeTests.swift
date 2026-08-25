@@ -62,8 +62,8 @@ final class ReleaseSmokeTests: XCTestCase {
             // still pinned, which is the point of the row.
             let planLine = app.staticTexts["plan-length"]
             XCTAssertTrue(planLine.exists, "S1: the plan line is missing")
-            XCTAssertEqual(planLine.label, "about 26 to 34 minutes · 6 exercises",
-                           "S1: the plan line must read ≈ 26–34 min · 6 exercises")
+            XCTAssertEqual(planLine.label, "about 23 to 31 minutes · 6 exercises",
+                           "S1: the plan line must read ≈ 23–31 min · 6 exercises")
             XCTAssertTrue(app.buttons["Start"].exists, "S1: Start is missing")
             // One Start, and nothing beside it to agree to first: the
             // short version and the session handle came off this screen.
@@ -146,9 +146,9 @@ final class ReleaseSmokeTests: XCTestCase {
             // first "on plan" moved six whole levels. It moves sub-steps now,
             // so the honest value is 0 until the third session.
             let level = app.staticTexts.element(
-                matching: NSPredicate(format: "label BEGINSWITH %@", "Total level after:"))
+                matching: NSPredicate(format: "label BEGINSWITH %@", "Total steps after:"))
             XCTAssertTrue(level.waitForExistence(timeout: 5),
-                          "S5: the history sheet must list the level the workout ended on")
+                          "S5: the history sheet must list the steps the workout ended on")
         }
     }
 
@@ -157,7 +157,7 @@ final class ReleaseSmokeTests: XCTestCase {
             // By its own button, not a swipe.
             app.buttons["Got it"].tap()
             app.tabBars.buttons["Progress"].tap()
-            XCTAssertTrue(app.staticTexts["level"].waitForExistence(timeout: 5),
+            XCTAssertTrue(app.staticTexts["steps"].waitForExistence(timeout: 5),
                           "S6: the Progress header is missing")
             let total = app.staticTexts["total-level"]
             XCTAssertTrue(total.exists, "S6: the total level is missing")

@@ -1,39 +1,111 @@
 //
-//  Exercise catalog: 10 patterns × 4 tiers = 40 positions.
-//  Base language English, translation Russian (Resources/Localizable.xcstrings).
-//  Technique: 3 steps + 2 common mistakes. Mirrors LIBRARY/TECHNIQUE in the
-//  reference adaptive_engine.js.
+//  Exercise catalog: ten patterns, 59 positions along their ladders (§40.1).
+//  Base language English, translations in Resources/Localizable.xcstrings.
+//  Technique: 3 steps + 2 common mistakes per position. Mirrors LIBRARY and
+//  TECHNIQUE in the reference adaptive_engine.js.
+//
+//  The ladder is the ONLY place a difficulty measure lives, and it has exactly
+//  two jobs (§40.0): the ORDER of the rungs, and the density invariant И1
+//  (`w(N+1)/w(N) <= 1.50`). No dose is ever computed from `w` — the engine
+//  measures what the trainee showed and never predicts it.
 //
 
 import Foundation
 
+/// Three steps and two common mistakes — the card a person reads standing on
+/// the mat. An assistance rung (kind `°` in the spec) inherits the technique
+/// of the variation it assists with ONE line replaced, and `assisted` is the
+/// only way to express that: two copies of one text drift exactly the way two
+/// copies of one rule do, and here the drift is read by a human mid-set.
+struct Technique: Equatable, Sendable {
+    let steps: [String]
+    let mistakes: [String]
+
+    func assisted(step index: Int, _ line: String) -> Technique {
+        var replaced = steps
+        replaced[index] = line
+        return Technique(steps: replaced, mistakes: mistakes)
+    }
+}
+
 public struct ExerciseVariation: Equatable, Sendable {
     public let name: String
     public let unilateral: Bool
+    /// The unit is a property of the VARIATION, not of the pattern: a ladder
+    /// may cross from seconds to reps once, and `pull_bar` does.
+    public let unit: LoadUnit
+    /// Share of body weight on the working link, per rep — per second for a
+    /// hold. Orders the ladder and bounds its density; never a dose (§40.0).
+    public let w: Double
     public let steps: [String]
     public let mistakes: [String]
 }
 
 public struct ExerciseEntry: Equatable, Sendable {
     public let pattern: Pattern
-    public let unit: LoadUnit
-    public let variations: [ExerciseVariation]  // index = tier − 1
-    // Per-tier unit override (pullBar: hold at tier 1, reps above).
-    // nil means the scalar `unit` applies to every tier.
-    var units: [LoadUnit]?
+    /// Index = variation − 1. Variations are 1-based everywhere else, because
+    /// the state stores them that way and a person reads "variation 3 of 7".
+    public let variations: [ExerciseVariation]
 
-    /// The unit of the (pattern, tier) record — the load encoding,
-    /// levelFromActual and display all resolve the unit through this.
-    public func unit(forTier tier: Int) -> LoadUnit {
-        units?[tier - 1] ?? unit
+    public var count: Int { variations.count }
+
+    /// Total by construction: reading the library must never trap. A plan
+    /// built from a dirty state has to stay a valid input to `applyFeedback`
+    /// (§17.4), and the sanitizer is not the only door into this type.
+    public func variation(_ v: Int) -> ExerciseVariation {
+        variations[Library.index(pattern: pattern, variation: v) - 1]
+    }
+
+    public func unit(forVariation v: Int) -> LoadUnit { variation(v).unit }
+
+    /// The one boundary the density invariant skips: seconds and reps are not
+    /// commensurable, so `w(N+1)/w(N)` is undefined across it and the only way
+    /// in is a probe (§40.1, §40.10 п. 3).
+    ///
+    /// DERIVED from the units rather than carried as a flag. A stored
+    /// `probeOnly` and the units it describes are two copies of one fact, and
+    /// the fixture pins the derivation, so the copy cannot come back.
+    public func probeOnly(variation v: Int) -> Bool {
+        let i = Library.index(pattern: pattern, variation: v)
+        return i > 1 && variations[i - 1].unit != variations[i - 2].unit
+    }
+}
+
+/// Reading the ladders. The engine asks nothing else of the catalog.
+public enum Library {
+
+    public static func count(_ pattern: Pattern) -> Int {
+        ExerciseLibrary.entry(for: pattern).count
+    }
+
+    /// 1-based and clamped. See `ExerciseEntry.variation` for why it clamps
+    /// rather than traps.
+    public static func index(pattern: Pattern, variation v: Int) -> Int {
+        min(max(v, 1), count(pattern))
+    }
+
+    public static func at(_ pattern: Pattern, _ v: Int) -> ExerciseVariation {
+        ExerciseLibrary.entry(for: pattern).variation(v)
+    }
+
+    public static func unit(_ pattern: Pattern, _ v: Int) -> LoadUnit { at(pattern, v).unit }
+
+    /// 2 for a movement trained one side at a time, 1 otherwise — the factor
+    /// every work measure multiplies by.
+    public static func sides(_ pattern: Pattern, _ v: Int) -> Int {
+        at(pattern, v).unilateral ? 2 : 1
+    }
+
+    public static func name(_ pattern: Pattern, _ v: Int) -> String { at(pattern, v).name }
+
+    public static func isTop(_ pattern: Pattern, _ v: Int) -> Bool {
+        index(pattern: pattern, variation: v) == count(pattern)
     }
 }
 
 public enum ExerciseLibrary {
 
-    public static func entry(for pattern: Pattern) -> ExerciseEntry {
-        entries[pattern]!
-    }
+    public static func entry(for pattern: Pattern) -> ExerciseEntry { entries[pattern]! }
 
     /// The module's resource bundle, exposed for tests: the generated
     /// `Bundle.module` is internal per target, and LibraryPinTests must
@@ -41,522 +113,23 @@ public enum ExerciseLibrary {
     static var localizationBundle: Bundle { .module }
 
     public static let entries: [Pattern: ExerciseEntry] = [
-
-        .squat: ExerciseEntry(pattern: .squat, unit: .reps, variations: [
-            ExerciseVariation(
-                name: String(localized: "Squat", bundle: .module),
-                unilateral: false,
-                steps: [
-                    String(localized: "Feet shoulder-width apart, toes slightly out, weight over the whole foot.", bundle: .module),
-                    String(localized: "Sit back and down for ~2 seconds; knees track over the toes, back straight.", bundle: .module),
-                    String(localized: "Thighs parallel to the floor at the bottom; drive up on an exhale.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Knees caving inward — keep them tracking over your feet.", bundle: .module),
-                    String(localized: "Heels lifting off the floor — depth matters more than speed.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Bulgarian split squat", bundle: .module),
-                unilateral: true,
-                steps: [
-                    String(localized: "Rear foot on a chair or couch behind you, front foot a stride ahead.", bundle: .module),
-                    String(localized: "Lower straight down until the rear knee almost touches the floor.", bundle: .module),
-                    String(localized: "Drive up through the front heel; torso leaning slightly forward.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Stance too short — the front knee travels far past the toes.", bundle: .module),
-                    String(localized: "Loading the rear leg — it is only there for balance.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Pistol squat", bundle: .module),
-                unilateral: true,
-                steps: [
-                    String(localized: "Stand on one leg, the other extended forward, arms out for balance.", bundle: .module),
-                    String(localized: "Lower slowly until the hamstring rests on the calf, heel on the floor.", bundle: .module),
-                    String(localized: "Stand up without your hands; start with a doorframe assist if needed.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Dropping down without control — the descent must be slow.", bundle: .module),
-                    String(localized: "Knee drifting sideways — keep it tracking over the foot.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Shrimp squat", bundle: .module),
-                unilateral: true,
-                steps: [
-                    String(localized: "Stand on one leg; bend the other back and hold its foot with one hand.", bundle: .module),
-                    String(localized: "Lower slowly until the back knee gently touches the floor.", bundle: .module),
-                    String(localized: "Stand up through the heel of the working leg, chest up.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Knee crashing into the floor — the descent stays slow and controlled.", bundle: .module),
-                    String(localized: "Leaning far forward — keep the chest up and the core braced.", bundle: .module),
-                ]),
-        ]),
-
-        .pushH: ExerciseEntry(pattern: .pushH, unit: .reps, variations: [
-            ExerciseVariation(
-                name: String(localized: "Knee push-up", bundle: .module),
-                unilateral: false,
-                steps: [
-                    String(localized: "Hands under the shoulders, knees on the floor; head to knees form a straight line.", bundle: .module),
-                    String(localized: "Lower for ~2 seconds until the chest nearly touches the floor, elbows about 45° from the torso.", bundle: .module),
-                    String(localized: "Press up on an exhale, keeping the belly tight.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Sagging hips — squeeze your glutes and abs.", bundle: .module),
-                    String(localized: "Cutting the range short — the chest should almost touch the floor.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Push-up", bundle: .module),
-                unilateral: false,
-                steps: [
-                    String(localized: "Hands under the shoulders; the body is one straight line from head to heels.", bundle: .module),
-                    String(localized: "Lower for ~2 seconds until the chest nearly touches the floor, elbows about 45° from the torso.", bundle: .module),
-                    String(localized: "Press up on an exhale; don't fully lock the elbows at the top.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Sagging hips or a raised butt — the core stops working.", bundle: .module),
-                    String(localized: "Elbows flared out to 90° — this overloads the shoulders.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Feet-elevated push-up", bundle: .module),
-                unilateral: false,
-                steps: [
-                    String(localized: "Feet on a chair or couch, hands under the shoulders on the floor.", bundle: .module),
-                    String(localized: "Keep the body rigid and lower until the chest nearly touches the floor.", bundle: .module),
-                    String(localized: "The higher the support, the harder it gets — start low.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Lower back arching — don't let the hips sag.", bundle: .module),
-                    String(localized: "Leading with the head — keep the neck in line with the torso.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Archer push-up", bundle: .module),
-                unilateral: true,
-                steps: [
-                    String(localized: "Take a wide hand position; the body stays one straight line.", bundle: .module),
-                    String(localized: "Lower toward one hand, bending that elbow; the other arm stays straight.", bundle: .module),
-                    String(localized: "Press up and repeat to the same side for the whole set, then switch.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Hips rotating — shoulders and hips stay square to the floor.", bundle: .module),
-                    String(localized: "Half range — the chest goes down to the working hand.", bundle: .module),
-                ]),
-        ]),
-
-        .hinge: ExerciseEntry(pattern: .hinge, unit: .reps, variations: [
-            ExerciseVariation(
-                name: String(localized: "Glute bridge", bundle: .module),
-                unilateral: false,
-                steps: [
-                    String(localized: "Lie on your back, feet close to the glutes hip-width apart, arms at your sides.", bundle: .module),
-                    String(localized: "Lift the hips until knees, hips and shoulders form one straight line.", bundle: .module),
-                    String(localized: "Squeeze the glutes for a second at the top, then lower slowly without touching the floor.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Arching the lower back — don't push past the straight line.", bundle: .module),
-                    String(localized: "Pushing through the toes — keep the weight on the heels.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Single-leg glute bridge", bundle: .module),
-                unilateral: true,
-                steps: [
-                    String(localized: "Lie on your back, one foot near the glutes, the other leg extended.", bundle: .module),
-                    String(localized: "Lift the hips with one leg to a straight line, keeping the pelvis level.", bundle: .module),
-                    String(localized: "Pause a second at the top, lower slowly.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Pelvis tilting sideways — keep both hip bones pointing at the ceiling.", bundle: .module),
-                    String(localized: "Helping with the free leg — it stays out of the movement.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Single-leg Romanian deadlift", bundle: .module),
-                unilateral: true,
-                steps: [
-                    String(localized: "Stand on one leg with a soft knee; hinge forward from the hips with a flat back.", bundle: .module),
-                    String(localized: "The free leg extends back; torso and leg form one line, hands reaching toward the floor.", bundle: .module),
-                    String(localized: "Stand back up by squeezing the glute of the standing leg.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Rounding the back — keep the shoulder blades set, hinge from the hips.", bundle: .module),
-                    String(localized: "Pelvis rotating open — keep the hips square to the floor.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Sliding leg curl", bundle: .module),
-                unilateral: false,
-                steps: [
-                    String(localized: "Lie on your back, heels on a towel on a smooth floor, hips lifted.", bundle: .module),
-                    String(localized: "Slide the heels away until the legs are almost straight, hips stay up.", bundle: .module),
-                    String(localized: "Pull the heels back toward the glutes — that's one rep.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Hips dropping as the legs extend — keep the bridge the whole time.", bundle: .module),
-                    String(localized: "Jerky pulls — slide out and back slowly, with control.", bundle: .module),
-                ]),
-        ]),
-
-        .pull: ExerciseEntry(pattern: .pull, unit: .reps, variations: [
-            ExerciseVariation(
-                name: String(localized: "Y-T-W raises", bundle: .module),
-                unilateral: false,
-                steps: [
-                    String(localized: "Lie face down, forehead near the floor, arms extended in a Y shape.", bundle: .module),
-                    String(localized: "Lift the straight arms, hold for 2 seconds squeezing the shoulder blades, then lower.", bundle: .module),
-                    String(localized: "Repeat in a T position and a W position — all three positions together count as one rep.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Jerking the torso up — only the arms and shoulder blades lift.", bundle: .module),
-                    String(localized: "Shoulders creeping toward the ears — pull the blades down and back.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Inverted row (table)", bundle: .module),
-                unilateral: false,
-                steps: [
-                    String(localized: "Lie under a sturdy table and grab the edge with a shoulder-width grip.", bundle: .module),
-                    String(localized: "Body straight from shoulders to heels; pull the chest to the edge, squeezing the shoulder blades.", bundle: .module),
-                    String(localized: "Lower slowly until the arms are straight.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Sagging hips — hold the body like a plank.", bundle: .module),
-                    String(localized: "Pulling only with the arms — start by squeezing the shoulder blades.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Feet-elevated inverted row", bundle: .module),
-                unilateral: false,
-                steps: [
-                    String(localized: "Same setup, but feet up on a chair — the body is parallel to the floor.", bundle: .module),
-                    String(localized: "Pull the chest to the table edge with a rigid torso.", bundle: .module),
-                    String(localized: "Pause a second at the top; lower under control.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Reaching with the chin instead of the chest — lead with the chest.", bundle: .module),
-                    String(localized: "Rushing the reps — control both directions.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Archer inverted row", bundle: .module),
-                unilateral: true,
-                steps: [
-                    String(localized: "Set up under the table with a wide grip, body straight.", bundle: .module),
-                    String(localized: "Pull the chest toward one hand; the other arm stays nearly straight.", bundle: .module),
-                    String(localized: "Lower under control; whole set to one side, then switch.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Hips sagging — hold the plank line through the set.", bundle: .module),
-                    String(localized: "Both arms pulling equally — the working arm does the job.", bundle: .module),
-                ]),
-        ]),
-
-        .pushV: ExerciseEntry(pattern: .pushV, unit: .reps, variations: [
-            ExerciseVariation(
-                name: String(localized: "Wall push-up", bundle: .module),
-                unilateral: false,
-                steps: [
-                    String(localized: "Stand a step away from a wall, palms on it slightly wider than shoulders, at chest height.", bundle: .module),
-                    String(localized: "Bend the elbows, bringing the face toward the wall, body in one line.", bundle: .module),
-                    String(localized: "Push back to straight arms; the farther the feet, the harder.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Hips dropping back — the whole body moves as one line.", bundle: .module),
-                    String(localized: "Elbows flared to 90° — keep them closer to the torso.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Pike push-up", bundle: .module),
-                unilateral: false,
-                steps: [
-                    String(localized: "From a push-up position, lift the hips high — the body forms an inverted V.", bundle: .module),
-                    String(localized: "Bend the elbows, lowering the top of the head toward the floor between the hands.", bundle: .module),
-                    String(localized: "Press back up without dropping the hips.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Hips dropping as the arms bend — keep the V shape.", bundle: .module),
-                    String(localized: "Bumping the head on the floor — lower slowly, with control.", bundle: .module),
-                ]),
-            // The rung the ladder was missing. Pike straight to a handstand
-            // was the only step in the library that asked for a new SKILL — a
-            // kick-up at near-full bodyweight — rather than more of the same
-            // strength. Feet on a chair or a bed is the same movement as the
-            // pike, just steeper, and it can be left at any moment by stepping
-            // down.
-            ExerciseVariation(
-                name: String(localized: "Feet-elevated pike push-up", bundle: .module),
-                unilateral: false,
-                steps: [
-                    String(localized: "Put your feet on a chair or a low bed and walk your hands back into a steep inverted V.", bundle: .module),
-                    String(localized: "Bend the elbows, lowering the top of the head toward the floor between the hands.", bundle: .module),
-                    String(localized: "Press back up; the higher the feet, the closer this gets to a handstand.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Hips sagging toward the floor — keep the V sharp, weight over the hands.", bundle: .module),
-                    String(localized: "Starting too high — if the head cannot reach the floor with control, lower the feet.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Wall handstand push-up", bundle: .module),
-                unilateral: false,
-                steps: [
-                    String(localized: "Getting in: face away from the wall, hands a palm's length from it, and walk your feet up until your heels rest on it.", bundle: .module),
-                    String(localized: "Bend the elbows slowly, lowering the top of the head toward the floor.", bundle: .module),
-                    String(localized: "Getting out: walk the feet back down the wall. If you have to bail mid-rep, turn your head to one side and step over — never collapse straight down.",
-                                    bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Arching the lower back — keep the core and glutes tight.", bundle: .module),
-                    String(localized: "Elbows drifting outward — track them forward and down.", bundle: .module),
-                ]),
-        ]),
-
-        .lunge: ExerciseEntry(pattern: .lunge, unit: .reps, variations: [
-            ExerciseVariation(
-                name: String(localized: "Static lunge", bundle: .module),
-                unilateral: true,
-                steps: [
-                    String(localized: "Step into a lunge stance and stay in it for the whole set.", bundle: .module),
-                    String(localized: "Lower straight down until the rear knee almost touches the floor.", bundle: .module),
-                    String(localized: "Drive up through the front heel, torso upright.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Front knee traveling far past the toes — take a longer stance.", bundle: .module),
-                    String(localized: "Torso tipping forward — keep the chest up.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Reverse lunge", bundle: .module),
-                unilateral: true,
-                steps: [
-                    String(localized: "From standing, step back and lower the rear knee almost to the floor.", bundle: .module),
-                    String(localized: "The front shin stays near vertical; weight on the front heel.", bundle: .module),
-                    String(localized: "Push off and return to standing — that's one rep.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Too short a step back — the front knee gets overloaded.", bundle: .module),
-                    String(localized: "Losing balance — fix your eyes on a point ahead.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Jump lunge", bundle: .module),
-                unilateral: true,
-                steps: [
-                    String(localized: "From a lunge, jump up and switch legs in the air.", bundle: .module),
-                    String(localized: "Land softly in a lunge on the other side, knee almost to the floor.", bundle: .module),
-                    String(localized: "Keep a steady rhythm; use the arms for balance.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Landing stiff on a straight leg — absorb by bending.", bundle: .module),
-                    String(localized: "Knee slamming into the floor — control the depth.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Paused jump lunge", bundle: .module),
-                unilateral: true,
-                steps: [
-                    String(localized: "Jump and switch legs in the air, landing softly in a lunge.", bundle: .module),
-                    String(localized: "Hold the bottom position for a full 2 seconds, knee near the floor.", bundle: .module),
-                    String(localized: "Explode up into the next switch — pause every landing.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Skipping the pause — hold an honest 2 seconds at the bottom.", bundle: .module),
-                    String(localized: "Shallow landings — the knee comes close to the floor each rep.", bundle: .module),
-                ]),
-        ]),
-
-        .coreAntiExt: ExerciseEntry(pattern: .coreAntiExt, unit: .hold, variations: [
-            ExerciseVariation(
-                name: String(localized: "Knee plank", bundle: .module),
-                unilateral: false,
-                steps: [
-                    String(localized: "Forearms on the floor, elbows under the shoulders, knees down.", bundle: .module),
-                    String(localized: "Head to knees — one straight line; belly pulled in.", bundle: .module),
-                    String(localized: "Breathe steadily and hold for the planned time.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Hips sagging — tuck the pelvis slightly.", bundle: .module),
-                    String(localized: "Shoulders at the ears — push the floor away, keep the neck long.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Plank", bundle: .module),
-                unilateral: false,
-                steps: [
-                    String(localized: "Forearms on the floor, elbows under the shoulders, feet hip-width.", bundle: .module),
-                    String(localized: "One straight line from head to heels; glutes and abs braced.", bundle: .module),
-                    String(localized: "Breathe steadily; shaking is fine, a sagging line is not.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Hips hiked up — easier, but pointless.", bundle: .module),
-                    String(localized: "Lower back sagging — that strains the spine; better to stop early.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Hollow hold", bundle: .module),
-                unilateral: false,
-                steps: [
-                    String(localized: "Lie on your back, press the lower back into the floor, arms extended overhead.", bundle: .module),
-                    String(localized: "Lift the shoulder blades and straight legs 15–20 cm off the floor.", bundle: .module),
-                    String(localized: "Hold the hollow shape with the lower back pressed down the whole time.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Lower back lifting off the floor — raise the legs higher or bend the knees.", bundle: .module),
-                    String(localized: "Holding your breath — keep breathing shallow and steady.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Long-lever plank", bundle: .module),
-                unilateral: false,
-                steps: [
-                    String(localized: "Take a plank on the forearms, elbows well ahead of the shoulders.", bundle: .module),
-                    String(localized: "Keep one straight line from head to heels, glutes tight.", bundle: .module),
-                    String(localized: "The farther the elbows, the harder — breathe steadily and hold.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Hips sagging — tuck the pelvis and brace the abs.", bundle: .module),
-                    String(localized: "Elbows too far too soon — increase the lever gradually.", bundle: .module),
-                ]),
-        ]),
-
-        .coreRot: ExerciseEntry(pattern: .coreRot, unit: .hold, variations: [
-            ExerciseVariation(
-                name: String(localized: "Bird dog (hold)", bundle: .module),
-                unilateral: true,
-                steps: [
-                    String(localized: "On all fours: hands under the shoulders, knees under the hips.", bundle: .module),
-                    String(localized: "Extend the opposite arm and leg into one line with the torso.", bundle: .module),
-                    String(localized: "Hold without wobbling; pelvis and shoulders stay level.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Lower back arching as the leg lifts — the leg goes no higher than the torso.", bundle: .module),
-                    String(localized: "Torso rotating — imagine a glass of water on your lower back.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Side plank", bundle: .module),
-                unilateral: true,
-                steps: [
-                    String(localized: "Lie on your side, elbow under the shoulder, feet stacked.", bundle: .module),
-                    String(localized: "Lift the hips until feet–hips–shoulders form a straight line.", bundle: .module),
-                    String(localized: "Hold without letting the hips drop; free hand on the waist or up.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Hips sagging — keep the body line straight.", bundle: .module),
-                    String(localized: "Torso tipping forward — shoulders and hips in one plane.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Side plank with leg raise", bundle: .module),
-                unilateral: true,
-                steps: [
-                    String(localized: "Get into a side plank on the elbow.", bundle: .module),
-                    String(localized: "Raise the top leg 20–30 cm and hold it straight.", bundle: .module),
-                    String(localized: "Hips high, the body in one plane.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Hips dropping when the leg lifts — stabilize the plank first.", bundle: .module),
-                    String(localized: "Leg drifting forward — keep it in line with the torso.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Star side plank", bundle: .module),
-                unilateral: true,
-                steps: [
-                    String(localized: "From a side plank, raise the top leg and the top arm at once.", bundle: .module),
-                    String(localized: "The body forms a star: straight line plus raised limbs.", bundle: .module),
-                    String(localized: "Hips high the whole hold; look straight ahead.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Hips dropping — the base line comes first, the star second.", bundle: .module),
-                    String(localized: "Body folding forward — shoulders, hips and legs in one plane.", bundle: .module),
-                ]),
-        ]),
-
-        .calf: ExerciseEntry(pattern: .calf, unit: .reps, variations: [
-            ExerciseVariation(
-                name: String(localized: "Calf raises", bundle: .module),
-                unilateral: false,
-                steps: [
-                    String(localized: "Stand with feet hip-width; hand on a wall for balance.", bundle: .module),
-                    String(localized: "Rise as high as you can onto the balls of the feet, pause a second at the top.", bundle: .module),
-                    String(localized: "Lower slowly; for more range, stand with the toes on a step edge.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Fast bouncing — move slowly with a pause at the top.", bundle: .module),
-                    String(localized: "Cutting the range — rise all the way up.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Single-leg calf raise", bundle: .module),
-                unilateral: true,
-                steps: [
-                    String(localized: "Stand on one leg, hand on a wall for balance.", bundle: .module),
-                    String(localized: "Rise onto the ball of the foot as high as possible, pause for a second.", bundle: .module),
-                    String(localized: "Lower slowly, heel to the floor (or below step level).", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Helping with the other leg — it stays off the floor.", bundle: .module),
-                    String(localized: "Ankle rolling outward — press through the big toe.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Single-leg calf raise with pause", bundle: .module),
-                unilateral: true,
-                steps: [
-                    String(localized: "Same as the single-leg raise, but with a 3-second pause at the top.", bundle: .module),
-                    String(localized: "Up in 1 second, hold for 3, down for 3.", bundle: .module),
-                    String(localized: "Full range beats rep count.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Skipping the pause — hold an honest 3 seconds at the top.", bundle: .module),
-                    String(localized: "Knee bending — the leg stays straight; only the ankle works.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Single-leg calf raise on a step", bundle: .module),
-                unilateral: true,
-                steps: [
-                    String(localized: "Stand on one leg with the ball of the foot on a step edge.", bundle: .module),
-                    String(localized: "Lower the heel below the step level, feel the stretch.", bundle: .module),
-                    String(localized: "Rise as high as possible, pause a second, lower for 3 seconds.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Short bottom range — the heel must drop below the step.", bundle: .module),
-                    String(localized: "Bouncing out of the stretch — pause briefly at the bottom too.", bundle: .module),
-                ]),
-        ]),
-
-        .pullBar: ExerciseEntry(pattern: .pullBar, unit: .reps, variations: [
-            ExerciseVariation(
-                name: String(localized: "Bar hang", bundle: .module),
-                unilateral: false,
-                steps: [
-                    String(localized: "Grab the bar slightly wider than shoulder width, palms facing away.", bundle: .module),
-                    String(localized: "Hang on straight arms and pull the shoulders slightly down — an active hang, shoulders away from the ears.", bundle: .module),
-                    String(localized: "Keep the body tight, legs together; breathe steadily for the whole hang.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Shoulders at the ears — pull the shoulder blades down; the hang must be active.", bundle: .module),
-                    String(localized: "Swinging — keep the body braced, no pendulum.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Negative pull-up", bundle: .module),
-                unilateral: false,
-                steps: [
-                    String(localized: "Step on a support or jump so the chin ends up above the bar.", bundle: .module),
-                    String(localized: "Lower yourself slowly to straight arms over 3–5 seconds, controlling every inch.", bundle: .module),
-                    String(localized: "Get back on the support and repeat — no pulling up needed.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Dropping instead of lowering — the negative takes at least 3 seconds.", bundle: .module),
-                    String(localized: "Relaxed shoulders at the bottom — keep the shoulder blades engaged to the end.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Partial pull-up", bundle: .module),
-                unilateral: false,
-                steps: [
-                    String(localized: "Hang on straight arms, grip slightly wider than shoulders, palms facing away.", bundle: .module),
-                    String(localized: "Start by squeezing the shoulder blades and pull up to a right angle at the elbows.", bundle: .module),
-                    String(localized: "Lower slowly to straight arms — that's one rep.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Jerking and kicking with the legs — only the back and arms work.", bundle: .module),
-                    String(localized: "Cutting the bottom range — every rep starts from fully straight arms.", bundle: .module),
-                ]),
-            ExerciseVariation(
-                name: String(localized: "Pull-up", bundle: .module),
-                unilateral: false,
-                steps: [
-                    String(localized: "Hang on straight arms, grip slightly wider than shoulders, palms facing away.", bundle: .module),
-                    String(localized: "Pull up, starting by squeezing the shoulder blades, until the chin rises above the bar.", bundle: .module),
-                    String(localized: "Lower under control to fully straight arms, no swinging.", bundle: .module),
-                ],
-                mistakes: [
-                    String(localized: "Swinging and jerking the body — using momentum doesn't count.", bundle: .module),
-                    String(localized: "Half range at the bottom — each rep starts from straight arms.", bundle: .module),
-                ]),
-        ], units: [.hold, .reps, .reps, .reps]),
+        .squat: ExerciseEntry(pattern: .squat, variations: squat),
+        .pushH: ExerciseEntry(pattern: .pushH, variations: pushH),
+        .hinge: ExerciseEntry(pattern: .hinge, variations: hinge),
+        .pull: ExerciseEntry(pattern: .pull, variations: pull),
+        .pushV: ExerciseEntry(pattern: .pushV, variations: pushV),
+        .lunge: ExerciseEntry(pattern: .lunge, variations: lunge),
+        .coreAntiExt: ExerciseEntry(pattern: .coreAntiExt, variations: coreAntiExt),
+        .coreRot: ExerciseEntry(pattern: .coreRot, variations: coreRot),
+        .calf: ExerciseEntry(pattern: .calf, variations: calf),
+        .pullBar: ExerciseEntry(pattern: .pullBar, variations: pullBar),
     ]
+
+    /// One rung of a ladder, spelled out so the ladder files read as the
+    /// spec's tables do: name, difficulty, unit, sides, technique.
+    static func rung(_ name: String, w: Double, unit: LoadUnit, perSide: Bool,
+                     _ technique: Technique) -> ExerciseVariation {
+        ExerciseVariation(name: name, unilateral: perSide, unit: unit, w: w,
+                          steps: technique.steps, mistakes: technique.mistakes)
+    }
 }

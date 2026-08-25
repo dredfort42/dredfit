@@ -1,701 +1,419 @@
 //
-//  Engine invariants (port of the reference verify2.js checks).
+//  Everything §40.7 lists under "not touched": the rotation and the slots, the
+//  bar gate, the counter and the double-feedback guard, the skip, the breaks,
+//  the sanitizer — plus the invariants that outlived the level (И4, И6).
 //
 
 import XCTest
 @testable import DredfitCore
 
-// Disambiguate from the Pattern type introduced in the macOS 26 SDK
 private typealias Pattern = DredfitCore.Pattern
 
 final class EngineTests: XCTestCase {
 
-    // MARK: Level encoding
+    // MARK: - Rotation and slots
 
-    func testLevelDecodeBounds() {
-        for l in 0...EngineConfig.levelMax {
-            let d = Level.decode(l)
-            XCTAssertTrue((1...EngineConfig.tiers).contains(d.tier), "L=\(l) tier")
-            XCTAssertTrue((EngineConfig.setsBase...EngineConfig.setsMax).contains(d.sets), "L=\(l) sets")
-            // Re-marked: the range is per tier below the bands and per BAND
-            // inside them — 8...15 / 6...13 / 5...12 / 4...11, then 6...13
-            // (band 4) and 8...15 (band 5).
-            let repLo = EngineConfig.repStartBand[d.sets] ?? EngineConfig.repStart[d.tier]!
-            // Re-marked: the static range is the ladder's own two ends, not
-            // "start + 7 steps" — the step is relative and is not constant
-            // inside a ladder.
-            let ladder = Level.ladder(tier: d.tier, sets: d.sets)
-            XCTAssertTrue((repLo...(repLo + EngineConfig.stepsPerTier - 1)).contains(d.reps),
-                          "L=\(l) reps \(d.reps) outside the range of tier \(d.tier)/band \(d.sets)")
-            XCTAssertTrue((ladder[0]...ladder[ladder.count - 1]).contains(d.hold),
-                          "L=\(l) hold \(d.hold) outside the range of tier \(d.tier)/band \(d.sets)")
-        }
-    }
-
-    func testLevelDecodeTierTransitions() {
-        // Re-marked: the hold column is the ladder now. Tier 1 still starts at
-        // 20 s; its top is 39 s instead of 55.
-        XCTAssertEqual(Level.decode(7), LevelDecoded(tier: 1, sets: 3, reps: 15, hold: 39))
-        // each tier starts lower, so entering a tier is a step down in reps —
-        // the whole point of the per-tier floors
-        XCTAssertEqual(Level.decode(8), LevelDecoded(tier: 2, sets: 3, reps: 6, hold: 15))
-        XCTAssertEqual(Level.decode(23), LevelDecoded(tier: 3, sets: 3, reps: 12, hold: 31))
-        XCTAssertEqual(Level.decode(24), LevelDecoded(tier: 4, sets: 3, reps: 4, hold: 10))
-        XCTAssertEqual(Level.decode(31), LevelDecoded(tier: 4, sets: 3, reps: 11, hold: 19))
-        // Set bands above tier 4. Re-marked: a band starts at its own dose —
-        // the old reset to tier 4's floor cut the actual work by 52-72% at the
-        // boundary while the session grew longer.
-        XCTAssertEqual(Level.decode(32), LevelDecoded(tier: 4, sets: 4, reps: 6, hold: 20))
-        XCTAssertEqual(Level.decode(39), LevelDecoded(tier: 4, sets: 4, reps: 13, hold: 41))
-        XCTAssertEqual(Level.decode(40), LevelDecoded(tier: 4, sets: 5, reps: 8, hold: 24))
-        XCTAssertEqual(Level.decode(47), LevelDecoded(tier: 4, sets: 5, reps: 15, hold: 45)) // ceiling
-    }
-
-    func testLevelDecodeClamps() {
-        XCTAssertEqual(Level.decode(999).tier, EngineConfig.tiers)
-        XCTAssertEqual(Level.decode(999).sets, EngineConfig.setsMax)
-        XCTAssertEqual(Level.decode(-5), Level.decode(0))
-    }
-
-    /// level → tier/sets/load → level round-trips on the whole 0...47,
-    /// including pullBar whose unit switches from hold (tier 1) to reps.
-    func testLevelEncodingRoundTripsWithSets() {
-        for l in 0...EngineConfig.levelMax {
-            let d = Level.decode(l)
-            XCTAssertEqual(Level.fromActual(pattern: .squat, tier: d.tier,
-                                            sets: d.sets, actual: d.reps), l, "reps L=\(l)")
-            XCTAssertEqual(Level.fromActual(pattern: .coreAntiExt, tier: d.tier,
-                                            sets: d.sets, actual: d.hold), l, "hold L=\(l)")
-            let barActual = ExerciseLibrary.entry(for: .pullBar)
-                .unit(forTier: d.tier) == .hold ? d.hold : d.reps
-            XCTAssertEqual(Level.fromActual(pattern: .pullBar, tier: d.tier,
-                                            sets: d.sets, actual: barActual), l, "pullBar L=\(l)")
-        }
-        // The spec's worked example: an actual below the band's floor drops
-        // back a band. Re-marked: band 4 now starts at 6 reps rather than tier
-        // 4's 4, so the same fact of 2 lands deeper — the PROPERTY is what
-        // matters, so it is computed, not pinned.
-        let belowBand = Level.fromActual(pattern: .pull, tier: 4, sets: 4, actual: 2)
-        XCTAssertEqual(Level.decode(belowBand).sets, EngineConfig.setsBase,
-                       "a fact below band 4's floor returns to the 3-set world")
-    }
-
-    // MARK: Rotation
-
+    /// The pull slot stands in every session; over eight sessions each
+    /// rotating pattern comes up exactly five times.
     func testPullInEverySessionAndRotationCoverage() {
-        var state = EngineState.initial
-        var seen: [Pattern: Int] = [:]
-        for k in 0..<8 {
-            let s = Engine.generateSession(state)
-            XCTAssertEqual(s.exercises.count, EngineConfig.patternsPerSession)
-            let pats = s.exercises.map(\.pattern)
-            XCTAssertEqual(Set(pats).count, pats.count, "duplicate pattern in session \(k)")
-            XCTAssertTrue(pats.contains(.pull), "session \(k): no pull (fixed slot)")
-            pats.forEach { seen[$0, default: 0] += 1 }
-            state = Engine.applyFeedback(state: state, session: s, result: .plan)
-        }
-        XCTAssertEqual(seen[.pull], 8, "pull should be in each of the 8 sessions")
-        for p in Pattern.ordered where p != .pull {
-            XCTAssertEqual(seen[p], 5, "\(p): exactly 5 inclusions over 8 sessions")
-        }
-    }
-
-    func testWeeklyPullPushBalance() {
-        // 6 sessions (a week): pull is at least 0.7× the push volume
-        var state = EngineState.initial
-        var push = 0, pull = 0
-        for _ in 0..<6 {
-            let s = Engine.generateSession(state)
-            for ex in s.exercises {
-                if ex.pattern == .pushH || ex.pattern == .pushV { push += ex.sets }
-                if ex.pattern == .pull { pull += ex.sets }
-            }
-            state = Engine.applyFeedback(state: state, session: s, result: .plan)
-        }
-        XCTAssertGreaterThanOrEqual(Double(pull), Double(push) * 0.7,
-            "push/pull balance broken: pull=\(pull), push=\(push)")
-    }
-
-    // MARK: Regulator scenarios
-
-    func testAlwaysPlanReachesCeiling() {
-        // 400 sessions, not 80 — the scale is 153 sub-steps tall now, and a
-        // growth event is worth one of them.
-        var state = EngineState.initial
-        for _ in 0..<400 {
-            let s = Engine.generateSession(state)
-            state = Engine.applyFeedback(state: state, session: s, result: .plan)
-        }
-        // pull: +400 sub-steps; the rest 5/8 of that — all above the scale
-        for p in Pattern.ordered {
-            XCTAssertEqual(state.levels[p], EngineConfig.levelMax, "\(p) not at the ceiling")
-        }
-        let s = Engine.generateSession(state)
-        for ex in s.exercises {
-            XCTAssertEqual(ex.tier, EngineConfig.tiers, "at the ceiling tier \(EngineConfig.tiers) is expected")
-            XCTAssertEqual(ex.sets, EngineConfig.setsMax, "at the ceiling \(EngineConfig.setsMax) sets are expected")
-            // Re-marked: the ceiling is the top step of BAND 5, which now
-            // starts at its own dose rather than at the bottom of tier 4.
-            let d = Level.decode(EngineConfig.levelMax)
-            XCTAssertEqual(ex.load, ex.unit == .reps ? d.reps : d.hold,
-                           "at the ceiling the load must be the top of band 5")
-        }
-    }
-
-    /// The regulator works across set-band boundaries with no special cases.
-    func testRegulatorCrossesBandBoundaries() {
-        // "more" at 31 crosses into the 4-set band. Tier 4 is capped at a
-        // single step per session, so the crossing is 31 → 32.
-        var state = EngineState.initial
-        state.levels[.pull] = 31
-        var s = Engine.generateSession(state)
-        XCTAssertEqual(s.exercises.first { $0.pattern == .pull }?.sets, 3)
-        state = Engine.applyFeedback(state: state, session: s, result: .more)
-        XCTAssertEqual(state.levels[.pull], 32, "«more» must cross the band boundary 31 → 32")
-        s = Engine.generateSession(state)
-        let ex = s.exercises.first { $0.pattern == .pull }!
-        XCTAssertEqual(ex.sets, 4)
-        // Re-marked: the band starts at its own dose.
-        XCTAssertEqual(ex.load, EngineConfig.repStartBand[4],
-                       "32 = 4×\(EngineConfig.repStartBand[4]!) — the band's own start")
-
-        // A "less" no longer walks out of the band one level at a time — 32 →
-        // 31 read as 4×4 → 3×11, 16 reps against 33. 32 is a block floor, the
-        // position stands, and the streak grows on INTENT; the way out of the
-        // band is the deload, and it is now the first one to pass the "no
-        // harder" gate. On a block floor a "less" is no longer inert — the
-        // sets handle gives it a step down there, and the deload that follows
-        // reads the ACCUMULATED cut, so the gate compares a trimmed plan with
-        // a trimmed one.
-        state.failStreak[.pull] = EngineConfig.failsToDeload - 1
-        let atBandFloor = state.position(.pull)
-        let stepped = Level.fallBy(level: atBandFloor.level, sub: atBandFloor.sub,
-                                   cut: atBandFloor.cut, by: 1)
-        state = Engine.applyFeedback(state: state, session: s, result: .less)
-        assertPosition(state, .pull,
-                       expectedDeload(.pull, from: atBandFloor, stepped: stepped),
-                       "the deload must cross back into the 3-set band through the gate")
-        XCTAssertTrue(Level.noHarder(pattern: .pull, from: atBandFloor.level,
-                                     to: state.levels[.pull]!, fromSub: atBandFloor.sub,
-                                     toSub: state.sub[.pull] ?? 0,
-                                     fromCut: atBandFloor.cut, toCut: state.cutOf(.pull)),
-                      "a deload across a band boundary may not make the plan heavier")
-        XCTAssertEqual(Level.decode(state.levels[.pull]!).sets, EngineConfig.setsBase,
-                       "the deload leaves the 4-set band downwards, not sideways")
-        XCTAssertEqual(state.failStreak[.pull], 0)
-    }
-
-    func testAlwaysLessFloorsAtZero() {
-        var state = EngineState.initial
-        for _ in 0..<20 {
-            let s = Engine.generateSession(state)
-            state = Engine.applyFeedback(state: state, session: s, result: .less)
-            for p in Pattern.ordered {
-                XCTAssertGreaterThanOrEqual(state.levels[p]!, 0)
-            }
-        }
-        for p in Pattern.ordered { XCTAssertEqual(state.levels[p], 0) }
-    }
-
-    func testDeloadFiresOnThirdConsecutiveFail() {
-        var state = EngineState.initial
-        for _ in 0..<15 {
-            let s = Engine.generateSession(state)
-            state = Engine.applyFeedback(state: state, session: s, result: .more)
-        }
-        let probe = Engine.generateSession(state).exercises[0].pattern
-        var drops = 0
-        var deloadSeen = false
-        for _ in 0..<6 {
-            let s = Engine.generateSession(state)
-            let inSession = s.exercises.contains { $0.pattern == probe }
-            let entry = state.position(probe)
-            // The subject is the deload, so the run is already going and the
-            // delta is session-wide.
-            state = Engine.applyFeedback(state: state.underLessRun, session: s, result: .less)
-            guard inSession else { continue }
-            drops += 1
-            // The subject — a deload on the third underperformance — is
-            // untouched, but both of its figures changed unit and must be
-            // derived from the rule: • a plain underperformance is ONE
-            // sub-step back along the growth path (it was −1 level with the
-            // sub-step zeroed); • the deload rolls `deloadDrop` levels back
-            // FROM `oldL` under the gate (it was −1 level and then −3 from
-            // there, which is where the old "rolled back 4" came from).
-            if drops.isMultiple(of: EngineConfig.failsToDeload) {
-                assertPosition(state, probe, expectedDeload(probe, from: entry),
-                               "deload on the 3rd underperformance")
-                XCTAssertTrue(Level.noHarder(pattern: probe, from: entry.level,
-                                             to: state.levels[probe]!, fromSub: entry.sub, fromCut: 0, toCut: 0),
-                              "a deload may not make the plan heavier")
-                deloadSeen = true
-            } else {
-                assertDescended(state, probe, from: entry, by: 1,
-                                "a plain underperformance is one sub-step back")
-            }
-        }
-        XCTAssertTrue(deloadSeen)
-    }
-
-    func testOverrideCapsUpwardGrowth() {
-        let state = EngineState.initial
-        let s = Engine.generateSession(state)
-        guard let ex = s.exercises.first(where: { $0.unit == .reps }) else {
-            return XCTFail("no rep-based exercise in the first session")
-        }
-        // from zero there is no cap — the fact IS the calibration
-        let next = Engine.applyFeedback(state: state, session: s, result: .plan,
-                                        overrides: [ex.pattern: 14])
-        XCTAssertEqual(next.levels[ex.pattern], 6, "a fact from zero sets the level exactly")
-
-        // The cap still applies once the level is non-zero. Uses pull, which
-        // is in every session, so the override is guaranteed to land. Pull has
-        // no fact on the first step here, so "plan" gives it one SUB-STEP and
-        // its level is still zero — the cap is checked from an explicitly
-        // seeded non-zero level, and it counts sub-steps.
-        var seed = next
-        seed.levels[.pull] = 5
-        seed.sub[.pull] = 0
-        let before = seed.levels[.pull] ?? 0
-        XCTAssertGreaterThan(before, 0, "pull must be above zero for the cap to apply")
-        let capped = Engine.applyFeedback(state: seed, session: Engine.generateSession(seed),
-                                          result: .plan, overrides: [.pull: 99])
-        assertPosition(capped, .pull,
-                       Level.rise(level: before, sub: 0, by: EngineConfig.maxUpPerSession),
-                       "above zero the +2 cap is unchanged, now in sub-steps")
-    }
-
-    func testDeterminism() {
-        let a = Engine.generateSession(.initial)
-        let b = Engine.generateSession(.initial)
-        XCTAssertEqual(a, b)
-    }
-
-    func testStateRoundTripsThroughCodable() throws {
-        var state = EngineState.initial
-        for _ in 0..<5 {
-            let s = Engine.generateSession(state)
-            state = Engine.applyFeedback(state: state, session: s, result: .more)
-        }
-        let data = try JSONEncoder().encode(state)
-        let decoded = try JSONDecoder().decode(EngineState.self, from: data)
-        XCTAssertEqual(decoded, state)
-    }
-
-    // MARK: Honest skips
-
-    /// A state with non-zero levels and zero streaks (5 "plan" sessions).
-    private func warmedUpState() -> EngineState {
-        var state = EngineState.initial
-        for _ in 0..<5 {
-            let s = Engine.generateSession(state)
-            state = Engine.applyFeedback(state: state, session: s, result: .plan)
-        }
-        return state
-    }
-
-    func testSkippedPatternKeepsLevelAndStreak() {
-        let state = warmedUpState()
-        let s = Engine.generateSession(state)
-        for result in [FeedbackResult.less, .plan, .more] {
-            for ex in s.exercises {
-                let p = ex.pattern
-                // The subject is the skip, so an unnamed "less" is taken under
-                // a run — session-wide delta.
-                let base = result == .less ? state.underLessRun : state
-                let after = Engine.applyFeedback(state: base, session: s,
-                                                 result: result, skipped: [p])
-                XCTAssertEqual(after.levels[p], state.levels[p],
-                               "\(result)/\(p): a skipped pattern must not change level")
-                XCTAssertEqual(after.failStreak[p], state.failStreak[p],
-                               "\(result)/\(p): a skipped pattern must not change streak")
-                XCTAssertEqual(after.counter, state.counter + 1)
-                // a neighbour still moves by the ordinary delta in SUB-STEPS,
-                // derived from the rule.
-                let other = s.exercises.first { $0.pattern != p }!.pattern
-                assertPosition(after, other,
-                               expectedPosition(state, other, delta: result.delta),
-                               "\(result)/\(p): neighbour \(other) moved wrong")
-            }
-        }
-    }
-
-    func testSkipBeatsOverride() {
-        let state = warmedUpState()
-        let s = Engine.generateSession(state)
-        let p = s.exercises[0].pattern
-        let after = Engine.applyFeedback(state: state, session: s, result: .plan,
-                                         overrides: [p: 14], skipped: [p])
-        XCTAssertEqual(after.levels[p], state.levels[p],
-                       "an override for a skipped pattern must be ignored")
-    }
-
-    func testAllSkippedAdvancesOnlyCounter() {
-        let state = warmedUpState()
-        let s = Engine.generateSession(state)
-        let after = Engine.applyFeedback(state: state, session: s, result: .more,
-                                         skipped: Set(s.exercises.map(\.pattern)))
-        XCTAssertEqual(after.counter, state.counter + 1)
-        XCTAssertEqual(after.levels, state.levels, "all skipped: levels must stay")
-        XCTAssertEqual(after.failStreak, state.failStreak, "all skipped: streaks must stay")
-    }
-
-    func testSkipOutsideSessionIsNoop() {
-        let state = warmedUpState()
-        let s = Engine.generateSession(state)
-        let inSession = Set(s.exercises.map(\.pattern))
-        let outside = Pattern.ordered.first { !inSession.contains($0) }!
-        let a = Engine.applyFeedback(state: state, session: s, result: .plan)
-        let b = Engine.applyFeedback(state: state, session: s, result: .plan,
-                                     skipped: [outside])
-        XCTAssertEqual(a, b, "skipping a pattern outside the session must be a no-op")
-    }
-
-    func testSkipFreezesFailStreakAndPostponesDeload() {
-        // pump pull up, then two real underperformances → streak 2
+        var counts: [Pattern: Int] = [:]
         var state = EngineState.initial
         for _ in 0..<8 {
-            let s = Engine.generateSession(state)
-            state = Engine.applyFeedback(state: state, session: s, result: .more)
+            let session = Engine.generateSession(state)
+            XCTAssertEqual(session.exercises.count, EngineConfig.patternsPerSession)
+            XCTAssertTrue(session.exercises.contains { $0.pattern == .pull },
+                          "the pull slot is fixed")
+            for ex in session.exercises { counts[ex.pattern, default: 0] += 1 }
+            state.counter += 1
         }
-        for _ in 0..<2 {
-            let s = Engine.generateSession(state)
-            // The streak is built under a run, where the delta is session-wide
-            // — the skip is what this test is about.
-            state = Engine.applyFeedback(state: state.underLessRun, session: s, result: .less)
-        }
-        XCTAssertEqual(state.failStreak[.pull], 2, "setup: pull must be at streak 2")
-        let level = state.levels[.pull]!
-
-        // a skipped "less" session: the streak is frozen, not reset
-        let frozen = Engine.applyFeedback(state: state.underLessRun,
-                                          session: Engine.generateSession(state),
-                                          result: .less, skipped: [.pull])
-        XCTAssertEqual(frozen.failStreak[.pull], 2, "skip must freeze the streak")
-        XCTAssertEqual(frozen.levels[.pull], level, "skip must keep the level")
-
-        // the next real underperformance is the 3rd → deload. The subject — a
-        // skip POSTPONES the deload rather than cancelling it — is untouched;
-        // the size of the roll-back is derived from the rule (the old `level −
-        // 1 − deloadDrop` added up a level-wise "less" and the deload, and
-        // "less" no longer moves a level).
-        let deloaded = Engine.applyFeedback(state: frozen.underLessRun,
-                                            session: Engine.generateSession(frozen),
-                                            result: .less)
-        assertPosition(deloaded, .pull, expectedDeload(.pull, from: frozen.position(.pull)),
-                       "the 3rd real fail after a freeze must deload")
-        XCTAssertEqual(deloaded.failStreak[.pull], 0, "deload must reset the streak")
-    }
-
-    // MARK: Pull-up bar module
-
-    /// With hasBar off, generation is fully independent of the pullBar branch
-    /// and the branch stays frozen through feedback.
-    func testHasBarOffIgnoresBarBranch() {
-        var plain = EngineState.initial
-        var loaded = EngineState.initial
-        loaded.levels[.pullBar] = 47
-        loaded.failStreak[.pullBar] = 2
-        for k in 0..<8 {
-            let a = Engine.generateSession(plain)
-            let b = Engine.generateSession(loaded)
-            XCTAssertEqual(a, b, "session \(k) depends on the pullBar branch")
-            XCTAssertFalse(a.exercises.contains { $0.pattern == .pullBar })
-            plain = Engine.applyFeedback(state: plain, session: a, result: .plan)
-            loaded = Engine.applyFeedback(state: loaded, session: b, result: .plan)
-            XCTAssertEqual(loaded.levels[.pullBar], 47, "the frozen branch must keep its level")
-            XCTAssertEqual(loaded.failStreak[.pullBar], 2, "the frozen branch must keep its streak")
+        XCTAssertEqual(counts[.pull], 8)
+        for p in Pattern.ordered where p != .pull {
+            XCTAssertEqual(counts[p], 5, "\(p.rawValue) must appear five times in eight")
         }
     }
 
-    /// With hasBar on, the pull slot alternates deterministically by counter
-    /// parity, and the 8-pattern rotation property is untouched.
-    func testHasBarAlternatesPullSlot() {
+    /// The exercises of a session come out in the canonical order, never in
+    /// the order the rotation happened to pick them.
+    func testSessionExercisesFollowCanonicalOrder() {
+        for counter in 0..<16 {
+            var state = EngineState.initial
+            state.counter = counter
+            let order = Engine.generateSession(state).exercises.map(\.pattern)
+            let ranks = order.map { p -> Int in
+                Pattern.ordered.firstIndex(of: p == .pullBar ? .pull : p) ?? -1
+            }
+            XCTAssertEqual(ranks, ranks.sorted(), "session \(counter + 1) is out of order")
+        }
+    }
+
+    /// With the bar on, the odd sessions hand the pull slot to the vertical
+    /// branch — and with it off, the branch never appears.
+    func testHasBarAlternatesThePullSlot() {
         var state = EngineState.initial
         state.hasBar = true
-        var seen: [Pattern: Int] = [:]
-        for k in 0..<16 {
-            let s = Engine.generateSession(state)
-            let pats = s.exercises.map(\.pattern)
-            XCTAssertEqual(Set(pats).count, pats.count, "duplicate pattern in session \(k)")
-            let hasPull = pats.contains(.pull), hasBar = pats.contains(.pullBar)
-            XCTAssertNotEqual(hasPull, hasBar, "session \(k): exactly one pull slot")
-            XCTAssertEqual(state.counter.isMultiple(of: 2), hasPull,
-                           "session \(k): even counter → pull, odd → pullBar")
-            // pullBar inherits pull's position in the canonical order
-            let indices = pats.map { Pattern.ordered.firstIndex(of: $0 == .pullBar ? .pull : $0)! }
-            XCTAssertEqual(indices, indices.sorted(), "session \(k): order broken")
-            pats.forEach { seen[$0, default: 0] += 1 }
-            state = Engine.applyFeedback(state: state, session: s, result: .plan)
+        for counter in 0..<8 {
+            state.counter = counter
+            let patterns = Engine.generateSession(state).exercises.map(\.pattern)
+            XCTAssertTrue(patterns.contains(counter % 2 == 1 ? .pullBar : .pull),
+                          "session \(counter + 1) took the wrong branch")
+            XCTAssertFalse(patterns.contains(counter % 2 == 1 ? .pull : .pullBar))
         }
-        XCTAssertEqual(seen[.pull], 8, "16 sessions: 8 horizontal")
-        XCTAssertEqual(seen[.pullBar], 8, "16 sessions: 8 vertical")
-        for p in Pattern.ordered where p != .pull {
-            XCTAssertEqual(seen[p], 10, "\(p): 10 inclusions over 16 sessions")
+        state.hasBar = false
+        for counter in 0..<8 {
+            state.counter = counter
+            XCTAssertFalse(Engine.generateSession(state).exercises.contains { $0.pattern == .pullBar },
+                           "with no bar the vertical branch is never planned")
         }
     }
 
-    /// The pull and pullBar branches are fully independent: a session with one
-    /// never moves the other's level or streak.
+    /// The two branches of the pull slot keep their own positions.
     func testPullBranchesAreIndependent() {
         var state = EngineState.initial
         state.hasBar = true
-        for _ in 0..<6 {
-            let s = Engine.generateSession(state)
-            state = Engine.applyFeedback(state: state, session: s, result: .more)
-        }
-        XCTAssertEqual(state.counter % 2, 0, "setup: expected a pull session next")
-        let barLevel = state.levels[.pullBar]!
-        let barStreak = state.failStreak[.pullBar]!
-
-        let pullSession = Engine.generateSession(state)
-        // Branch independence, not targeting — take the session-wide delta.
-        let afterPull = Engine.applyFeedback(state: state.underLessRun, session: pullSession, result: .less)
-        XCTAssertEqual(afterPull.levels[.pullBar], barLevel, "a pull session moved pullBar")
-        XCTAssertEqual(afterPull.failStreak[.pullBar], barStreak)
-        XCTAssertEqual(afterPull.levels[.pull], state.levels[.pull]! - 1)
-
-        let barSession = Engine.generateSession(afterPull)
-        XCTAssertTrue(barSession.exercises.contains { $0.pattern == .pullBar })
-        let afterBar = Engine.applyFeedback(state: afterPull.underLessRun, session: barSession, result: .less)
-        XCTAssertEqual(afterBar.levels[.pull], afterPull.levels[.pull], "a bar session moved pull")
-        XCTAssertEqual(afterBar.failStreak[.pull], afterPull.failStreak[.pull])
-        XCTAssertEqual(afterBar.levels[.pullBar], barLevel - 1)
-    }
-
-    /// The bar ladder starts as a hold (hang) and switches to reps at tier 2;
-    /// the session exercise carries the per-tier unit.
-    func testBarUnitFollowsTier() {
-        var state = EngineState.initial
-        state.hasBar = true
-        state.counter = 1                     // odd → bar session
-        var s = Engine.generateSession(state)
-        var bar = s.exercises.first { $0.pattern == .pullBar }!
-        XCTAssertEqual(bar.unit, .hold)
-        XCTAssertEqual(bar.tier, 1)
-        XCTAssertEqual(bar.load, 20, "the ladder starts with a 20 s hang")
-        XCTAssertFalse(bar.perSide, "bar exercises are bilateral")
-
-        state.levels[.pullBar] = 8            // tier 2 — negatives, reps
-        s = Engine.generateSession(state)
-        bar = s.exercises.first { $0.pattern == .pullBar }!
-        XCTAssertEqual(bar.unit, .reps)
-        XCTAssertEqual(bar.tier, 2)
-        XCTAssertEqual(bar.load, 6, "v2.3: tier 2 starts at 6 reps")
-    }
-
-    /// Skips apply to the bar branch with zero special cases:
-    /// a skipped bar session freezes its non-zero streak.
-    func testSkipFreezesBarStreak() {
-        var state = EngineState.initial
-        state.hasBar = true
+        state.vars[.pullBar] = 5
+        state.doses[.pullBar] = 7
         state.counter = 1
-        state.levels[.pullBar] = 6
-        state.failStreak[.pullBar] = 1
-        let s = Engine.generateSession(state)
-        let after = Engine.applyFeedback(state: state, session: s, result: .less,
-                                         overrides: [.pullBar: 40], skipped: [.pullBar])
-        XCTAssertEqual(after.levels[.pullBar], 6, "skip must keep the bar level")
-        XCTAssertEqual(after.failStreak[.pullBar], 1, "skip must freeze the bar streak")
+        let bar = Engine.generateSession(state).exercises.first { $0.pattern == .pullBar }
+        XCTAssertEqual(bar?.variation, 5)
+        XCTAssertEqual(bar?.load, 7)
+        XCTAssertEqual(state.vars[.pull], 1, "the horizontal branch did not move")
     }
 
-    /// A pre-bar JSON state (9 patterns, no hasBar) decodes with the defaults.
-    func testLegacyStateDecodesWithBarDefaults() throws {
-        let legacy = """
-        {"counter":5,
-         "levels":["squat",2,"push_h",3,"hinge",2,"pull",5,"push_v",2,"lunge",2,
-                   "core_anti_ext",1,"core_rot",1,"calf",1],
-         "failStreak":["squat",0,"push_h",0,"hinge",0,"pull",1,"push_v",0,"lunge",0,
-                       "core_anti_ext",0,"core_rot",0,"calf",0]}
-        """
-        let state = try JSONDecoder().decode(EngineState.self, from: Data(legacy.utf8))
-        XCTAssertFalse(state.hasBar, "old files must decode with hasBar off")
-        XCTAssertEqual(state.levels[.pullBar], 0, "the bar branch must default to level 0")
-        XCTAssertEqual(state.failStreak[.pullBar], 0)
-        XCTAssertEqual(state.levels[.pull], 5, "existing levels must survive")
+    // MARK: - Growth, parking and the floor
+
+    /// Answering "on plan" forever climbs the whole ladder — through probes,
+    /// which are the only door — and ends parked on the top variation's last
+    /// band. Growth never crosses a variation on its own.
+    func testAlwaysPlanClimbsToTheTopAndParks() {
+        var state = EngineState.initial
+        // The longest ladders are seven variations of twelve rungs each, and
+        // the top ones cap growth at one event per appearance — so the walk to
+        // the very top is long by construction, not by accident.
+        for _ in 0..<1500 {
+            let session = Engine.generateSession(state)
+            var probes: [Pattern: Int] = [:]
+            for ex in session.exercises where ex.probe != nil {
+                probes[ex.pattern] = Dose.grid(ex.probe!.unit).min
+            }
+            state = Engine.applyFeedback(state: state, session: session, result: .plan,
+                                         overrides: [:], skipped: [], gapDays: nil,
+                                         probes: probes)
+        }
+        for p in Pattern.ordered {
+            XCTAssertEqual(state.vars[p], Library.count(p), "\(p.rawValue): the top variation")
+            XCTAssertEqual(state.sets[p] ?? EngineConfig.setsBase, EngineConfig.setsMax,
+                           "\(p.rawValue): the last band")
+            XCTAssertEqual(state.doses[p], Dose.grid(Library.unit(p, state.vars[p]!)).max,
+                           "\(p.rawValue): the top of the grid")
+        }
     }
 
-    // MARK: Robust decode and replay safety
-
-    /// A file written by a future version that added a pattern must still
-    /// open after a downgrade: unknown raw values are dropped, known entries
-    /// survive, the rest backfill to 0.
-    func testUnknownPatternDecodesLeniently() throws {
-        let future = """
-        {"counter":5,"hasBar":true,
-         "levels":["squat",2,"front_lever",9,"pull",5],
-         "failStreak":["front_lever",3,"pull",1]}
-        """
-        let state = try JSONDecoder().decode(EngineState.self, from: Data(future.utf8))
-        XCTAssertEqual(state.levels[.squat], 2, "known entries must survive")
-        XCTAssertEqual(state.levels[.pull], 5)
-        XCTAssertEqual(state.failStreak[.pull], 1)
-        XCTAssertEqual(state.levels.count, Pattern.allCases.count,
-                       "the unknown pattern must leave no trace")
-        XCTAssertEqual(state.failStreak.count, Pattern.allCases.count)
-        XCTAssertEqual(state.levels[.hinge], 0, "missing patterns backfill to 0")
-        XCTAssertEqual(state.failStreak[.squat], 0)
-        XCTAssertTrue(state.hasBar)
+    /// Answering "hard" forever lands on the bottom of the whole ladder and
+    /// stops there: first variation, floor of the grid, floor of the sets.
+    func testAlwaysLessFloorsAtTheBottom() {
+        var state = EngineState.initial
+        state.vars[.squat] = 4
+        state.doses[.squat] = 9
+        for _ in 0..<200 {
+            let session = Engine.generateSession(state)
+            state = Engine.applyFeedback(state: state, session: session, result: .less,
+                                         overrides: [:], skipped: [], gapDays: nil, probes: [:])
+        }
+        for p in Pattern.ordered {
+            XCTAssertEqual(state.vars[p], 1, "\(p.rawValue): the bottom variation")
+            XCTAssertEqual(state.doses[p], Dose.grid(Library.unit(p, 1)).min,
+                           "\(p.rawValue): the floor of the grid")
+            XCTAssertEqual(Engine.setsAfterCut(sets: state.sets[p] ?? EngineConfig.setsBase,
+                                               cut: state.cutOf(p)),
+                           EngineConfig.setsFloor, "\(p.rawValue): the floor of the sets")
+        }
     }
 
-    /// A corrupt negative counter clamps to 0 on decode, and the rotation
-    /// math itself tolerates a negative counter without trapping.
-    func testNegativeCounterDecodesAsZero() throws {
-        let corrupt = """
-        {"counter":-1,"levels":["squat",2],"failStreak":[]}
-        """
-        let state = try JSONDecoder().decode(EngineState.self, from: Data(corrupt.utf8))
-        XCTAssertEqual(state.counter, 0, "a negative counter must clamp to 0")
+    /// Three shortfalls in a row deload the movement by whole rungs of dose.
+    func testDeloadFiresOnTheThirdConsecutiveShortfall() {
+        var state = EngineState.initial
+        state.doses[.squat] = 12
+        state.shown[.squat] = [1: 12]
+        for round in 1...3 {
+            // The squat only stands in the odd sessions of the rotation, and a
+            // streak is counted in APPEARANCES — so put it back in every time
+            // rather than letting the rotation silently skip a round.
+            state.counter = 0
+            let session = Engine.generateSession(state)
+            let before = state.doses[.squat]!
+            state = Engine.applyFeedback(state: state, session: session, result: .plan,
+                                         overrides: [.squat: before - 1], skipped: [],
+                                         gapDays: nil, probes: [:])
+            if round < 3 {
+                XCTAssertEqual(state.failStreak[.squat], round)
+            } else {
+                XCTAssertEqual(state.failStreak[.squat], 0, "the streak resets on the deload")
+            }
+        }
+        // Two honest shortfalls take it to 10; the third takes it to 9 and the
+        // deload then drops three more rungs.
+        XCTAssertEqual(state.doses[.squat], 6)
+    }
+
+    // MARK: - The skip (v2.1.1)
+
+    func testSkippedPatternKeepsItsPositionAndStreak() {
+        var state = EngineState.initial
+        state.failStreak[.squat] = 2
         let session = Engine.generateSession(state)
-        XCTAssertEqual(session.sessionNumber, 1)
-        var zero = EngineState.initial
-        zero.levels[.squat] = 2
-        XCTAssertEqual(session, Engine.generateSession(zero), "must behave as counter 0")
-
-        // Defense in depth: even a programmatically negative counter must not
-        // push the rotation index out of bounds.
-        var negative = EngineState.initial
-        negative.counter = -7
-        _ = Engine.generateSession(negative)
+        let after = Engine.applyFeedback(state: state, session: session, result: .more,
+                                         overrides: [:], skipped: [.squat], gapDays: nil,
+                                         probes: [:])
+        XCTAssertEqual(after.doses[.squat], state.doses[.squat], "an untrained pattern does not move")
+        XCTAssertEqual(after.failStreak[.squat], 2, "and its streak is frozen, not reset")
+        XCTAssertNil(after.shown[.squat], "and nothing is written to its journal")
+        XCTAssertGreaterThan(after.doses[.pushH]! + (after.sub[.pushH] ?? 0),
+                             state.doses[.pushH]!, "the rest of the session still moved")
     }
 
-    /// Replayed feedback (a crash between persisting the state and clearing
-    /// the pending session) must be a no-op the second time.
+    func testSkipBeatsAnOverride() {
+        let state = EngineState.initial
+        let session = Engine.generateSession(state)
+        let after = Engine.applyFeedback(state: state, session: session, result: .plan,
+                                         overrides: [.squat: 14], skipped: [.squat],
+                                         gapDays: nil, probes: [:])
+        XCTAssertEqual(after.doses[.squat], 4, "the fact for a skipped movement is ignored")
+        XCTAssertNil(after.shown[.squat])
+    }
+
+    func testAllSkippedAdvancesOnlyTheCounter() {
+        let state = EngineState.initial
+        let session = Engine.generateSession(state)
+        let skipped = Set(session.exercises.map(\.pattern))
+        let after = Engine.applyFeedback(state: state, session: session, result: .more,
+                                         overrides: [:], skipped: skipped, gapDays: nil,
+                                         probes: [:])
+        XCTAssertEqual(after.counter, 1)
+        XCTAssertEqual(after.vars, state.vars)
+        XCTAssertEqual(after.doses, state.doses)
+        XCTAssertTrue(after.shown.isEmpty)
+    }
+
+    /// A fact about a movement that is not in today's session is dropped — the
+    /// trap the fixture's own author-guard exists to catch.
+    func testFactForAMovementOutsideTheSessionIsIgnored() {
+        var state = EngineState.initial
+        state.counter = 0
+        let session = Engine.generateSession(state)
+        XCTAssertFalse(session.exercises.contains { $0.pattern == .calf })
+        let after = Engine.applyFeedback(state: state, session: session, result: .plan,
+                                         overrides: [.calf: 13], skipped: [], gapDays: nil,
+                                         probes: [:])
+        XCTAssertEqual(after.doses[.calf], state.doses[.calf])
+        XCTAssertNil(after.shown[.calf])
+    }
+
+    // MARK: - Determinism and the double-feedback guard (И6)
+
+    func testDeterminism() {
+        var a = EngineState.initial
+        var b = EngineState.initial
+        for _ in 0..<40 {
+            let sa = Engine.generateSession(a)
+            let sb = Engine.generateSession(b)
+            XCTAssertEqual(sa, sb)
+            a = Engine.applyFeedback(state: a, session: sa, result: .more, overrides: [.pull: 7],
+                                     skipped: [], gapDays: 2.0, probes: [:])
+            b = Engine.applyFeedback(state: b, session: sb, result: .more, overrides: [.pull: 7],
+                                     skipped: [], gapDays: 2.0, probes: [:])
+        }
+        XCTAssertEqual(a, b)
+    }
+
+    /// The same (state, session) pair fed back twice is a silent no-op.
     func testReplayedFeedbackIsANoOp() {
-        let state = warmedUpState()
+        let state = EngineState.initial
         let session = Engine.generateSession(state)
-        let once = Engine.applyFeedback(state: state, session: session, result: .more)
-        XCTAssertNotEqual(once, state, "setup: the first application must change the state")
-        let twice = Engine.applyFeedback(state: once, session: session, result: .more)
-        XCTAssertEqual(twice, once, "the same session must not apply twice")
+        let once = Engine.applyFeedback(state: state, session: session, result: .plan,
+                                        overrides: [:], skipped: [], gapDays: nil, probes: [:])
+        let twice = Engine.applyFeedback(state: once, session: session, result: .plan,
+                                         overrides: [:], skipped: [], gapDays: nil, probes: [:])
+        XCTAssertEqual(twice, once)
     }
 
-    // MARK: Silent decay (issue #37)
+    // MARK: - Breaks
 
+    /// The silent decay acts only inside the blind zone of 7…13 days.
     func testSilentDecayActsOnlyInsideTheBlindZone() {
-        var state = warmedUpState()
-        state.failStreak[.pull] = 2
-        for gap in [0, 1, 6, 14, 20, 140] {
-            XCTAssertEqual(Engine.applySilentDecay(state: state, gapDays: gap), state,
-                           "gap \(gap): outside [7, 14) the decay must be a no-op")
+        var state = EngineState.initial
+        state.doses[.squat] = 10
+        for gap in [0, 3, 6, 14, 40] {
+            XCTAssertEqual(Engine.applySilentDecay(state: state, gapDays: gap).doses[.squat], 10,
+                           "gap \(gap) is outside the blind zone")
         }
         for gap in [7, 10, 13] {
-            let after = Engine.applySilentDecay(state: state, gapDays: gap)
-            for p in Pattern.allCases {
-                XCTAssertEqual(after.levels[p], max(0, (state.levels[p] ?? 0) - 1),
-                               "gap \(gap): −1 clamped at 0 (\(p))")
-                // The decay resets the streak like the comeback — the old
-                // carry-over inverted the 13/14 boundary.
-                XCTAssertEqual(after.failStreak[p], 0,
-                               "gap \(gap): streaks reset (\(p))")
-            }
-            XCTAssertEqual(after.counter, state.counter, "gap \(gap): counter still")
+            XCTAssertEqual(Engine.applySilentDecay(state: state, gapDays: gap).doses[.squat], 9,
+                           "gap \(gap) costs exactly one rung")
         }
     }
 
-    /// The non-stacking property: a break that got the silent −1
-    /// and then a weakened comeback ends exactly where a plain comeback for
-    /// the same gap would — per pattern, clamp included.
-    /// Re-marked, and the state of play is named rather than hidden.
-    /// Non-stacking states the identity ON LEVELS, and in that form it holds: the
-    /// sweep below finds no divergence at all with an empty cut. The whole
-    /// TRIPLE does not converge everywhere: `fallBy` spends the dose before
-    /// the sets while `riseBy` returns the sets before the dose (the position measure makes
-    /// that asymmetry deliberate), so the `alreadyDecayed` compensation
-    /// reverses the decay's step exactly only where the decay moved the same
-    /// axis. The reference has the same property — a divergence in 920 cells
-    /// of 11,760, ALL of them one-sided: going through the decay is harsher,
-    /// never softer, by up to 6 positions.
-    ///
-    /// That is a DEFECT, not a guarantee, and it is held by a bound rather
-    /// than blessed by an equality: the one direction that must stay empty is
-    /// asserted empty, and the divergence may not grow. A fix makes this pass
-    /// more easily; a regression turns it red.
+    /// §14.2, and now BY CONSTRUCTION: a decay plus a weakened comeback is the
+    /// plain comeback. Walking one step and then drop−1 steps is walking drop
+    /// steps, because every mechanism walks the same rungs.
     func testDecayPlusWeakenedComebackEqualsPlainComeback() {
-        for level in [0, 1, 2, 12, 47] {
-            var state = EngineState.initial
-            for p in Pattern.allCases { state.levels[p] = level; state.failStreak[p] = 2 }
-            for gap in [14, 35, 140] {
-                let plain = Engine.applyComeback(state: state, gapDays: gap)
-                let decayed = Engine.applyComeback(
-                    state: Engine.applySilentDecay(state: state, gapDays: 10),
-                    gapDays: gap, alreadyDecayed: true)
-                for p in Pattern.allCases {
-                    XCTAssertEqual(decayed.levels[p], plain.levels[p],
-                                   "L=\(level), gap=\(gap), \(p): levels must match the table")
-                    XCTAssertEqual(decayed.sub[p] ?? 0, plain.sub[p] ?? 0,
-                                   "L=\(level), gap=\(gap), \(p): and so must the sub-step")
-                    // The one direction that would be a hole rather than a
-                    // price: peeking during the blind zone may never cost LESS.
-                    XCTAssertLessThanOrEqual(Level.posOrd(decayed.position(p)),
-                                             Level.posOrd(plain.position(p)),
-                                             "L=\(level), gap=\(gap), \(p): the decay path came out CHEAPER")
-                }
-            }
-        }
+        var state = EngineState.initial
+        state.vars[.squat] = 4
+        state.doses[.squat] = 9
+        state.vars[.coreAntiExt] = 3
+        state.doses[.coreAntiExt] = 35
+        state.shown = [.squat: [3: 12, 4: 9], .coreAntiExt: [2: 30, 3: 35]]
+
+        let peeked = Engine.applyComeback(
+            state: Engine.applySilentDecay(state: state, gapDays: 10),
+            gapDays: 30, alreadyDecayed: true)
+        let plain = Engine.applyComeback(state: state, gapDays: 30, alreadyDecayed: false)
+        XCTAssertEqual(peeked.vars, plain.vars)
+        XCTAssertEqual(peeked.doses, plain.doses)
+        XCTAssertEqual(peeked.sub, plain.sub)
+        XCTAssertEqual(peeked.cut, plain.cut)
+        XCTAssertEqual(peeked.sets, plain.sets)
     }
 
-    /// The bound on the divergence with a NON-EMPTY cut — the same measurement
-    /// the reference verifier pins, ported here so the two cannot drift apart.
-    /// 920 divergent cells of 11,760, worst 6 positions, and not one of them
-    /// in the direction that would be a hole.
-    func testTheFourteenTwoDivergenceWithACutStaysWhereItIs() {
-        var cells = 0, harsher = 0, softer = 0, worst = 0
-        for level in 0...EngineConfig.levelMax {
-            for cut in 0...Level.cutMax(level: level) {
-                for gap in [14, 20, 35, 56, 90, 140, 365] {
-                    var state = EngineState.initial
-                    for p in Pattern.allCases {
-                        state.levels[p] = level
-                        if cut > 0 { state.cut[p] = cut }
-                    }
-                    let plain = Engine.applyComeback(state: state, gapDays: gap)
-                    let viaDecay = Engine.applyComeback(
-                        state: Engine.applySilentDecay(state: state, gapDays: 8),
-                        gapDays: gap, alreadyDecayed: true)
-                    for p in Pattern.allCases {
-                        cells += 1
-                        let a = Level.posOrd(plain.position(p))
-                        let b = Level.posOrd(viaDecay.position(p))
-                        if b > a { softer += 1 } else if b < a { harsher += 1; worst = max(worst, a - b) }
-                    }
-                }
-            }
-        }
-        // 11 760 → 8 400. The sweep is not narrowed — the STATE SPACE is: the
-        // cut's ceiling is read through `cutMax(level:floor:)` with the shared
-        // floor, and cuts "down to a single set" stopped being reachable when
-        // the pain floor went. Checking the identity on states the engine
-        // cannot arrive at would be guarding nothing.
-        //
-        // The divergence bound is TIGHTENED to the new measurement rather than
-        // left where it was: 920 over a space of 8 400 cells would be a
-        // formality, not a bound. Mirrors the reference's block 51(e).
-        XCTAssertEqual(cells, 8_400, "the sweep must cover the same domain the reference does")
-        XCTAssertEqual(softer, 0, "the decay path may never come out cheaper than a plain comeback")
-        XCTAssertLessThanOrEqual(harsher, 615, "the known divergence grew")
-        XCTAssertLessThanOrEqual(worst, 6, "the worst known divergence grew")
+    /// A comeback never moves the counter — a break is not a training event.
+    func testComebackLeavesTheCounterAlone() {
+        var state = EngineState.initial
+        state.counter = 11
+        let after = Engine.applyComeback(state: state, gapDays: 40, alreadyDecayed: false)
+        XCTAssertEqual(after.counter, 11)
+        XCTAssertEqual(after.returnRun, 1)
+        XCTAssertEqual(after.rampWindow, EngineConfig.rampWindowSessions)
     }
 
-    // MARK: Library
+    // MARK: - Handles (§37.4 rewritten by §40.6)
 
-    func testLibraryComplete() {
-        var positions = 0
+    /// "Give me something easier" lands in the JOURNAL of the variation below,
+    /// not on a floor — there are no tier floors in v3.
+    func testEasierVariationLandsInTheJournal() {
+        var state = EngineState.initial
+        state.vars[.squat] = 3
+        state.doses[.squat] = 7
+        state.shown = [.squat: [2: 11, 3: 7]]
+        let after = Engine.easierVariation(state: state, pattern: .squat)
+        XCTAssertEqual(after.vars[.squat], 2)
+        XCTAssertEqual(after.doses[.squat], 11, "back to what was actually done there")
+        XCTAssertEqual(after.sets[.squat] ?? EngineConfig.setsBase, EngineConfig.setsBase)
+    }
+
+    /// On the first variation the handle is inert: there is nothing below it.
+    func testEasierVariationIsInertOnTheFirstRung() {
+        let state = EngineState.initial
+        XCTAssertEqual(Engine.easierVariation(state: state, pattern: .squat), state)
+    }
+
+    /// И4: no path of descent may make the plan heavier. Swept over every
+    /// variation and every rung of every ladder, from a journal that remembers
+    /// the ceiling of the variation below.
+    func testNoDescentEverMakesThePlanHeavier() {
         for p in Pattern.allCases {
-            let e = ExerciseLibrary.entry(for: p)
-            XCTAssertEqual(e.variations.count, EngineConfig.tiers, "\(p): \(EngineConfig.tiers) tiers")
-            for (i, v) in e.variations.enumerated() {
-                positions += 1
-                XCTAssertEqual(v.steps.count, 3, "\(v.name): 3 technique steps")
-                XCTAssertEqual(v.mistakes.count, 2, "\(v.name): 2 mistakes")
-                XCTAssertFalse(v.name.isEmpty)
-                XCTAssertTrue([LoadUnit.reps, .hold].contains(e.unit(forTier: i + 1)))
+            var shown: [Int: Int] = [:]
+            for v in 1...Library.count(p) { shown[v] = Dose.grid(Library.unit(p, v)).max }
+            let journal: [Pattern: [Int: Int]] = [p: shown]
+            for v in 1...Library.count(p) {
+                let grid = Dose.grid(Library.unit(p, v))
+                for rung in 0..<Dose.rungCount(Library.unit(p, v)) {
+                    let from = Position(variation: v, sets: EngineConfig.setsBase,
+                                        dose: Dose.dose(Library.unit(p, v), atRung: rung),
+                                        sub: 0, cut: 0)
+                    for steps in 1...4 {
+                        let to = Engine.fallBy(p, from, steps, shown: journal)
+                        XCTAssertTrue(Engine.noHarder(p, from: from, to: to, shown: journal),
+                                      "\(p.rawValue) v\(v) at \(grid.min + rung * grid.step) "
+                                      + "descending \(steps)")
+                    }
+                }
             }
         }
-        XCTAssertEqual(positions, 40, "v2.2 library: 40 positions")
-        // pullBar: hold at tier 1, reps above; all bilateral
-        let bar = ExerciseLibrary.entry(for: .pullBar)
-        XCTAssertEqual((1...4).map { bar.unit(forTier: $0) }, [.hold, .reps, .reps, .reps])
-        XCTAssertTrue(bar.variations.allSatisfy { !$0.unilateral }, "bar exercises are bilateral")
+    }
+
+    // MARK: - The sanitizer
+
+    /// A file written by a future version, opened after a downgrade: entries
+    /// for unknown patterns are dropped rather than failing the whole decode.
+    func testUnknownPatternDecodesLeniently() throws {
+        let json = #"""
+        {"counter":3,"vars":["squat",2,"kettlebell_swing",9],
+         "doses":["squat",7,"kettlebell_swing",99],"failStreak":["squat",1]}
+        """#
+        let state = try JSONDecoder().decode(EngineState.self, from: Data(json.utf8))
+        XCTAssertEqual(state.vars[.squat], 2)
+        XCTAssertEqual(state.doses[.squat], 7)
+        XCTAssertEqual(state.vars.count, 1, "the unknown pattern was dropped")
+        XCTAssertEqual(state.sanitized().vars.count, Pattern.allCases.count,
+                       "and the sanitizer fills the rest in")
+    }
+
+    /// A corrupt counter must not feed the rotation: it would index out of
+    /// bounds, and near Int.max it would trap the process on every plan.
+    func testGarbageCounterIsHealed() throws {
+        let json = #"""
+        {"counter":-5,"vars":["squat",1],"doses":["squat",4],"failStreak":["squat",0]}
+        """#
+        let state = try JSONDecoder().decode(EngineState.self, from: Data(json.utf8))
+        XCTAssertEqual(state.counter, 0)
+        XCTAssertEqual(Engine.generateSession(state).sessionNumber, 1)
+    }
+
+    /// Out-of-range coordinates are healed, not preserved: a variation past
+    /// the ladder, a dose off the grid, a band on a variation that has none.
+    func testOutOfRangePositionsAreHealed() {
+        var state = EngineState.initial
+        state.vars[.squat] = 99
+        state.doses[.squat] = 37
+        state.sets[.lunge] = 5          // not the top variation — no bands there
+        state.sub[.hinge] = 9
+        state.cut[.calf] = 9
+        let clean = state.sanitized()
+        XCTAssertEqual(clean.vars[.squat], Library.count(.squat))
+        XCTAssertEqual(clean.doses[.squat], 15, "clamped to the top of the grid")
+        XCTAssertEqual(clean.sets[.lunge] ?? EngineConfig.setsBase, EngineConfig.setsBase)
+        XCTAssertEqual(clean.sub[.hinge] ?? 0, 2, "at most sets − 1")
+        XCTAssertEqual(clean.cutOf(.calf), EngineConfig.setsBase - EngineConfig.setsFloor)
+    }
+
+    // MARK: - What the plan says
+
+    func testDisplayStringsAreWellFormed() {
+        var state = EngineState.initial
+        state.doses[.squat] = 9
+        state.sub[.squat] = 1
+        state.vars[.coreAntiExt] = 3
+        state.doses[.coreAntiExt] = 30
+        state.vars[.lunge] = 2
+        let session = Engine.generateSession(state)
+        for ex in session.exercises {
+            XCTAssertFalse(ex.display.isEmpty)
+            XCTAssertFalse(ex.name.isEmpty)
+            if ex.loads == nil {
+                XCTAssertTrue(ex.display.contains("\(ex.sets)×\(ex.load)"),
+                              "\(ex.pattern.rawValue): a uniform plan reads N×dose")
+            } else {
+                XCTAssertTrue(ex.display.contains("-"),
+                              "\(ex.pattern.rawValue): an uneven plan reads 9-8-8")
+            }
+        }
+    }
+
+    /// The announced duration is a real number of minutes, and the probe is
+    /// inside it: a session with a probe is not shorter than the same session
+    /// without one.
+    func testDurationCountsTheProbe() throws {
+        var withProbe = EngineState.initial
+        withProbe.doses[.squat] = 15
+        withProbe.shown[.squat] = [1: 15]
+        var noProbe = withProbe
+        noProbe.lastHard = [.squat]
+
+        let a = Engine.generateSession(withProbe)
+        let b = Engine.generateSession(noProbe)
+        XCTAssertNotNil(try XCTUnwrap(a.exercises.first { $0.pattern == .squat }).probe)
+        XCTAssertNil(try XCTUnwrap(b.exercises.first { $0.pattern == .squat }).probe)
+        XCTAssertGreaterThan(a.estimatedTotalMin, 0)
+        XCTAssertEqual(a.estimatedTotalMin, b.estimatedTotalMin, accuracy: 2.0,
+                       "the probe replaces a set, it does not add a block of work")
     }
 }

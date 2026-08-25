@@ -133,7 +133,7 @@ final class ShownPlanTests: AppStoreTestCase {
                                           date: day(-10))
                 let seen = store.nextSession
                 let ordBefore = seen.exercises.reduce(into: [Pattern: Int]()) { acc, ex in
-                    acc[ex.pattern] = Level.posOrd(store.engineState.position(ex.pattern))
+                    acc[ex.pattern] = Engine.progress(store.engineState, ex.pattern)
                 }
                 store.recordPlanShown(seen)
 
@@ -145,7 +145,7 @@ final class ShownPlanTests: AppStoreTestCase {
                 for ex in store.nextSession.exercises {
                     guard let was = seen.exercises.first(where: { $0.pattern == ex.pattern }),
                           let ordBefore = ordBefore[ex.pattern] else { continue }
-                    guard Level.posOrd(store.engineState.position(ex.pattern)) <= ordBefore
+                    guard Engine.progress(store.engineState, ex.pattern) <= ordBefore
                     else { continue }
                     XCTAssertLessThanOrEqual(
                         work(ex), work(was),

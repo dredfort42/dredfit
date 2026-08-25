@@ -50,10 +50,13 @@ nonisolated enum SessionAhead {
     /// what keeps the plan the flow walks and the plan the engine reads the
     /// same object.
     private static func trimmed(_ ex: SessionExercise, to sets: Int) -> SessionExercise {
-        SessionExercise(pattern: ex.pattern, name: ex.name, tier: ex.tier,
+        SessionExercise(pattern: ex.pattern, name: ex.name, variation: ex.variation,
                         unit: ex.unit, load: ex.load, perSide: ex.perSide,
                         sets: sets,
                         restSetSec: ex.restSetSec, restExerciseSec: ex.restExerciseSec,
-                        loads: ((ex.sets - sets)..<ex.sets).map { ex.plannedLoad(set: $0) })
+                        loads: ((ex.sets - sets)..<ex.sets).map { ex.plannedLoad(set: $0) },
+                        // The probe is the LAST set of the exercise, so it is
+                        // still ahead for as long as any of the exercise is.
+                        probe: ex.probe)
     }
 }

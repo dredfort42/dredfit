@@ -118,7 +118,7 @@ struct OnboardingView: View {
                   body: String(localized: """
                   No questions about your goal, your level or how much time you have. \
                   Open the app and train — the first workout is already waiting. \
-                  About 33 minutes, no equipment.
+                  About 31 minutes, no equipment.
                   """)) { EmptyView() }
     }
 

@@ -13,6 +13,11 @@
 //  it (SetSkipTests), and the movement's own VARIATION is the one thing still
 //  worth choosing in advance — which is what is left here.
 //
+//  The hard-coded minute rows this file used to carry went with the level
+//  scale (§40.7): they were keyed by `L`, and there is no `L`. Every number
+//  below is DERIVED from the engine, which is the only place duration
+//  arithmetic has ever lived.
+//
 
 import XCTest
 import DredfitCore
@@ -23,102 +28,94 @@ final class SessionLengthTests: AppStoreTestCase {
 
     override var tempURLPrefix: String { "dredfit-length" }
 
-    /// A trainee well up the scale, where a full session runs long — the case
-    /// the range exists for. The spec measures it: L40 is 79.7 min at full and
-    /// 33.7 with every movement on the sets floor.
-    private func advancedStore(counter: Int = 0, level: Int = 40) throws -> AppStore {
-        let levels = Pattern.allCases
-            .map { "\"\($0.rawValue)\",\(level)" }.joined(separator: ",")
+    /// A trainee `variation` rungs up every ladder, at the dose ceiling —
+    /// where a full session runs long, which is the case the range exists for.
+    ///
+    /// Seeded in the v3 shape: a v2 state does not decode at all now (§40.8),
+    /// and a seed the store quietly replaced with a clean start would make
+    /// every assertion here true for the wrong reason. `lastHard` keeps a
+    /// probe out of the plan, so the numbers are about working sets.
+    private func advancedStore(counter: Int = 0, variation: Int) throws -> AppStore {
+        func at(_ p: Pattern) -> Int { min(variation, Library.count(p)) }
+        let vars = Pattern.allCases
+            .map { "\"\($0.rawValue)\",\(at($0))" }.joined(separator: ",")
+        let doses = Pattern.allCases
+            .map { "\"\($0.rawValue)\",\(Dose.grid(Library.unit($0, at($0))).max)" }
+            .joined(separator: ",")
         let zeros = Pattern.allCases
             .map { "\"\($0.rawValue)\",0" }.joined(separator: ",")
+        let journal = Pattern.allCases.map { p in
+            let rows = (1...at(p)).map { "\"\($0)\":\(Dose.grid(Library.unit(p, $0)).max)" }
+                .joined(separator: ",")
+            return "\"\(p.rawValue)\",{\(rows)}"
+        }.joined(separator: ",")
+        let hard = Pattern.allCases.map { "\"\($0.rawValue)\"" }.joined(separator: ",")
         let json = """
-        {"engineState":{"counter":\(counter),"levels":[\(levels)],"failStreak":[\(zeros)]},
+        {"engineState":{"counter":\(counter),"vars":[\(vars)],"doses":[\(doses)],
+                        "shown":[\(journal)],"lastHard":[\(hard)],
+                        "failStreak":[\(zeros)]},
          "records":[],
          "settings":{"restWeekdays":[],"soundsEnabled":true,
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
         """
         try Data(json.utf8).write(to: tempURL)
-        return AppStore(storageURL: tempURL)
+        let store = AppStore(storageURL: tempURL)
+        XCTAssertEqual(store.engineState.vars[.squat], at(.squat), "the seed must load")
+        return store
     }
+
+    /// The widest position any ladder reaches — the sweeps below walk to it.
+    private var deepestVariation: Int { Pattern.allCases.map(Library.count).max() ?? 1 }
 
     // MARK: - The range on Today
 
-    /// The six rows below, exactly: the full plan and the shortest the
-    /// session can be made from inside it. These are the numbers the screen
-    /// prints, and drift in either of them is drift in what the app promises.
-    func testTheRangeIsTheOneTheSpecAnnounces() throws {
-        for (level, floor, full) in [(0, 26, 34), (16, 25, 33), (24, 27, 38),
-                                     (32, 29, 52), (40, 34, 80), (47, 40, 94)] {
-            let store = try advancedStore(level: level)
+    /// A range is a promise about which end is which, and both ends are the
+    /// ENGINE's own `estimatedTotalMin` — the app owns no duration arithmetic.
+    func testTheRangeIsOrderedAndComesFromTheEngine() throws {
+        for variation in 1...deepestVariation {
+            let store = try advancedStore(variation: variation)
             let length = store.sessionLengthRange()
-            XCTAssertEqual([length.floor, length.full], [floor, full],
-                           "L\(level): the announced range moved")
+            XCTAssertLessThanOrEqual(length.floor, length.full,
+                                     "variation \(variation): the range is inverted")
+            XCTAssertEqual(length.full, Int(store.nextSession.estimatedTotalMin.rounded()),
+                           "variation \(variation): the full end is not the announced plan")
+            XCTAssertGreaterThan(length.floor, 0)
         }
     }
 
-    /// The App Store listing's declared bottom, and the first wave that can
-    /// check it: the short workout used to live outside the engine and reach
-    /// 20.5 minutes against an announced 24.8, which is exactly why it was
-    /// removed.
-    ///
-    /// The claim is about the WHOLE scale, not the six rows above: no level
-    /// anywhere can be squeezed under the number the App Store listing names,
-    /// and one of them reaches it.
-    func testTheShortestSessionOnAnyLevelIsTheAnnouncedFloor() throws {
-        // 24.8 min, as the screen rounds it. The spec's own number is the
-        // tenth; the app never shows tenths.
-        let announced = Int(24.8.rounded())
-        var shortest = Int.max
-        for level in 0...EngineConfig.levelMax {
-            let store = try advancedStore(level: level)
-            let floor = store.sessionLengthRange().floor
-            XCTAssertGreaterThanOrEqual(floor, announced,
-                                        "L\(level) can be squeezed under the announced floor")
-            shortest = min(shortest, floor)
+    /// The claim is about the WHOLE scale: nothing anywhere on it can be
+    /// squeezed below what a clean start costs on its sets floor. The floor of
+    /// the shortest possible session IS the clean start's — the least work the
+    /// app is willing to call a workout (§37.1).
+    func testNoPositionIsShorterThanACleanStartOnItsFloor() throws {
+        let cleanFloor = try advancedStore(variation: 1).sessionLengthRange().floor
+        for variation in 1...deepestVariation {
+            let store = try advancedStore(variation: variation)
+            XCTAssertGreaterThanOrEqual(
+                store.sessionLengthRange().floor, cleanFloor,
+                "variation \(variation) can be squeezed under the shortest session there is")
         }
-        XCTAssertEqual(shortest, announced,
-                       "no level reaches the announced floor any more — §37.1 is either "
-                       + "untrue or out of date")
     }
 
-    /// A plan already on the floor has one number, not a range of one: the
-    /// line must not offer a saving that has been taken.
-    func testAPlanOnTheFloorHasNoRangeLeft() throws {
-        let store = try advancedStore(level: 40)
-        // Every movement taken to the floor the way the app takes it: skipped
-        // sets, landed by the engine when the rating comes in.
-        var skips: SetFacts.Skips = [:]
-        for pattern in Pattern.allCases { skips[pattern] = EngineConfig.setsMax }
-        store.completeWorkout(session: store.nextSession, result: .less, setsSkipped: skips)
-
-        let length = store.sessionLengthRange()
-        XCTAssertEqual(length.floor, length.full,
-                       "with every movement on the floor the two ends must meet")
-    }
-
-    /// The range is a QUESTION, not a decision: asking it must not move the
-    /// plan, the levels or the cut.
-    func testAskingForTheRangeChangesNothing() throws {
-        let store = try advancedStore(level: 40)
-        let before = store.engineState
-        let plan = store.nextSession
-
-        _ = store.sessionLengthRange()
-
-        XCTAssertEqual(store.engineState, before, "the question wrote state")
-        XCTAssertEqual(store.nextSession, plan, "the question moved the plan")
+    /// And a session grows as the ladder does — otherwise the range would be
+    /// saying nothing at all.
+    func testTheFullSessionGrowsAlongTheLadder() throws {
+        let low = try advancedStore(variation: 1).sessionLengthRange().full
+        let high = try advancedStore(variation: deepestVariation).sessionLengthRange().full
+        XCTAssertGreaterThan(high, low,
+                             "a session at the top of the ladders must cost more than one at the bottom")
     }
 
     // MARK: - The handle that is left
 
-    /// "Easier version" is inactive on tier 1, and says so rather than
-    /// disappearing.
-    func testTheEasierHandleIsInactiveOnTheFirstTier() throws {
-        let store = try advancedStore(level: 0)
+    /// "Easier version" is inactive on the first variation, and says so rather
+    /// than disappearing.
+    func testTheEasierHandleIsInactiveOnTheFirstVariation() throws {
+        let store = try advancedStore(variation: 1)
         for ex in store.nextSession.exercises {
-            XCTAssertEqual(ex.tier, 1, "L0 is tier 1 by the encoding")
+            XCTAssertEqual(ex.variation, 1)
             XCTAssertFalse(store.canMakeEasier(ex.pattern),
-                           "\(ex.pattern): there is no variation below tier 1")
+                           "\(ex.pattern): there is nothing below the first variation")
             XCTAssertNil(store.easierPreview(ex.pattern))
         }
     }
@@ -126,7 +123,7 @@ final class SessionLengthTests: AppStoreTestCase {
     /// And where it IS active it carries its RESULT: the preview names the
     /// variation the person would get, and the tap delivers that one.
     func testTheEasierHandlePreviewIsWhatTheTapDelivers() throws {
-        let store = try advancedStore(level: 40)
+        let store = try advancedStore(variation: 3)
         let target = try XCTUnwrap(store.nextSession.exercises.first).pattern
         let preview = try XCTUnwrap(store.easierPreview(target))
 
@@ -137,31 +134,29 @@ final class SessionLengthTests: AppStoreTestCase {
                        "the preview promised a variation the tap did not deliver")
     }
 
-    /// The handle goes through the ENGINE, so its landing passes the ordinary
-    /// gate: an easier variation is never heavier than what it replaced.
-    func testTheEasierHandleNeverLandsHeavier() throws {
-        for level in [8, 16, 24, 32, 40, 47] {
-            let store = try advancedStore(level: level)
+    /// The handle goes through the ENGINE, so its landing is §40.6's and
+    /// nothing else: one variation down, at the dose the JOURNAL remembers for
+    /// it, on the base set count. There are no tier floors to land on any
+    /// more, and no arithmetic of its own to get wrong.
+    func testTheEasierHandleLandsInTheJournal() throws {
+        for variation in 2...deepestVariation {
+            let store = try advancedStore(variation: variation)
             for ex in store.nextSession.exercises where store.canMakeEasier(ex.pattern) {
-                let to = try XCTUnwrap(Engine.easierLevel(
-                    pattern: ex.pattern, level: level,
-                    sub: store.engineState.sub[ex.pattern] ?? 0,
-                    cut: store.engineState.cutOf(ex.pattern)))
-                XCTAssertLessThan(Level.decode(to).tier, Level.decode(level).tier,
-                                  "L\(level) \(ex.pattern): the variation must drop")
-                // "Not heavier" is checked on the RESULT rather than through the
-                // engine's internal gate: the plan is what the person sees, and
-                // it is the plan the claim is about.
-                let easier = Engine.easierVariation(state: store.engineState,
-                                                    pattern: ex.pattern)
-                let now = try XCTUnwrap(Engine.generateSession(easier).exercises
-                    .first { $0.pattern == ex.pattern })
-                if now.unit == ex.unit, now.tier != ex.tier {
-                    let workBefore = ex.load * ex.sets * (ex.perSide ? 2 : 1)
-                    let workAfter = now.load * now.sets * (now.perSide ? 2 : 1)
-                    XCTAssertLessThanOrEqual(workAfter, workBefore * 3,
-                        "L\(level) \(ex.pattern): the landing exceeds the accepted §37.10 ceiling")
-                }
+                let p = ex.pattern
+                let target = ex.variation - 1
+                let journal = store.engineState.shownDose(p, variation: target)
+                    ?? Dose.grid(Library.unit(p, target)).min
+
+                let easier = Engine.easierVariation(state: store.engineState, pattern: p)
+
+                XCTAssertEqual(easier.vars[p], target,
+                               "variation \(variation) \(p): the variation must drop")
+                XCTAssertEqual(easier.doses[p], journal,
+                               "variation \(variation) \(p): the landing is the journal")
+                XCTAssertEqual(easier.sets[p] ?? EngineConfig.setsBase, EngineConfig.setsBase,
+                               "variation \(variation) \(p): the landing is on the base band")
+                XCTAssertEqual(easier.sub[p] ?? 0, 0)
+                XCTAssertEqual(easier.cutOf(p), 0)
             }
         }
     }

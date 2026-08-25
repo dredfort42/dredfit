@@ -12,22 +12,41 @@ final class ComebackTests: AppStoreTestCase {
     /// gapDays counts whole 24h periods, and a calendar-day seed across a
     /// spring-forward transition would land an hour short of every exact
     /// boundary (14 days − 1h reads as 13).
-    private func storeWithLastWorkout(daysAgo: Int, level: Int = 20) throws -> AppStore {
+    /// The dose every seeded movement stands at, and the one a comeback walks
+    /// down from: the ceiling of its second variation. §40.3 measures a return
+    /// in rungs of dose — one old level, one rep per set — so the assertions
+    /// below read the dose and nothing else.
+    static let seededDose = 15
+
+    private func storeWithLastWorkout(daysAgo: Int) throws -> AppStore {
         let date = Date(timeIntervalSinceNow: -Double(daysAgo) * 86_400)
-        let levels = Pattern.allCases
-            .map { "\"\($0.rawValue)\",\(level)" }.joined(separator: ",")
+        let vars = Pattern.allCases
+            .map { "\"\($0.rawValue)\",2" }.joined(separator: ",")
+        let doses = Pattern.allCases
+            .map { "\"\($0.rawValue)\",\(Self.seededDose)" }.joined(separator: ",")
         let zeros = Pattern.allCases
             .map { "\"\($0.rawValue)\",0" }.joined(separator: ",")
+        // The journal of what was shown: a descent lands IN it (§40.6), so a
+        // state without one would send every comeback to 3×4 whatever the gap.
+        let shown = Pattern.allCases
+            .map { "\"\($0.rawValue)\",{\"1\":\(Self.seededDose),\"2\":\(Self.seededDose)}" }
+            .joined(separator: ",")
         // Dates encode as seconds since the reference date by default.
         let stamp = date.timeIntervalSinceReferenceDate
         let json = """
-        {"engineState":{"counter":11,"levels":[\(levels)],"failStreak":[\(zeros)]},
-         "records":[{"sessionNumber":11,"date":\(stamp),"result":"plan","totalLevelAfter":\(level * 9)}],
+        {"engineState":{"counter":11,"vars":[\(vars)],"doses":[\(doses)],
+                        "shown":[\(shown)],"failStreak":[\(zeros)]},
+         "records":[{"sessionNumber":11,"date":\(stamp),"result":"plan",
+                     "totalProgressAfter":100}],
          "settings":{"restWeekdays":[],"soundsEnabled":true,
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
         """
         try Data(json.utf8).write(to: tempURL)
-        return AppStore(storageURL: tempURL)
+        let store = AppStore(storageURL: tempURL)
+        XCTAssertEqual(store.engineState.doses[.pull], Self.seededDose,
+                       "the seed must actually load — a state that failed to decode "
+                       + "would start clean and make every assertion here vacuous")
+        return store
     }
 
     // MARK: - When the card appears
@@ -60,24 +79,26 @@ final class ComebackTests: AppStoreTestCase {
 
     // MARK: - What the answers do
 
-    func testStartEasierLowersLevelsAndClosesTheQuestion() throws {
-        let store = try storeWithLastWorkout(daysAgo: 35, level: 20)
-        XCTAssertEqual(store.comebackDrop(), 3, "35 days is a three-step drop")
+    func testStartEasierLowersThePlanAndClosesTheQuestion() throws {
+        let store = try storeWithLastWorkout(daysAgo: 35)
 
         store.acceptComeback()
 
-        XCTAssertEqual(store.engineState.levels[.pull], 17)
+        // 35 days is a three-rung drop, and `comebackDrop` — which used to say
+        // so in levels — went with the level (§40.7). The claim is unchanged
+        // and is read where it lands.
+        XCTAssertEqual(store.engineState.doses[.pull], Self.seededDose - 3)
         XCTAssertEqual(store.engineState.counter, 11, "a comeback is not a workout")
         XCTAssertEqual(store.records.count, 1, "nothing is written to the journal")
         XCTAssertFalse(store.shouldOfferComeback(), "the question is answered for this break")
     }
 
     func testLeaveAsItWasChangesNothingButStillCloses() throws {
-        let store = try storeWithLastWorkout(daysAgo: 35, level: 20)
+        let store = try storeWithLastWorkout(daysAgo: 35)
 
         store.declineComeback()
 
-        XCTAssertEqual(store.engineState.levels[.pull], 20, "levels untouched")
+        XCTAssertEqual(store.engineState.doses[.pull], Self.seededDose, "the plan is untouched")
         XCTAssertFalse(store.shouldOfferComeback(), "but the card does not come back")
     }
 
@@ -113,13 +134,15 @@ final class ComebackTests: AppStoreTestCase {
         XCTAssertTrue(try storeWithLastWorkout(daysAgo: 90).offersFreshStart())
     }
 
-    func testFreshStartResetsLevelsButKeepsHistoryAndTheBar() throws {
-        let store = try storeWithLastWorkout(daysAgo: 200, level: 30)
+    func testFreshStartResetsProgressButKeepsHistoryAndTheBar() throws {
+        let store = try storeWithLastWorkout(daysAgo: 200)
         store.setHasBar(true)
 
         store.resetProgress()
 
-        XCTAssertEqual(store.engineState.levels[.pull], 0, "levels back to the beginning")
+        XCTAssertEqual(store.engineState.vars[.pull], 1, "back to the first variation")
+        XCTAssertEqual(store.engineState.doses[.pull], Dose.grid(Library.unit(.pull, 1)).min,
+                       "and to the floor of the grid")
         XCTAssertEqual(store.engineState.counter, 0)
         XCTAssertEqual(store.records.count, 1, "the journal survives")
         XCTAssertTrue(store.engineState.hasBar,
@@ -128,7 +151,12 @@ final class ComebackTests: AppStoreTestCase {
 
     // MARK: - Migration
 
-    func testV14FileLoadsWithComebackDefaults() throws {
+    /// The SETTINGS still migrate. Only the engine state does not (§40.8): a
+    /// file this old carries `levels`, so the engine starts clean while
+    /// everything the person actually chose — rest days, reminders, Health —
+    /// comes across untouched. Losing those would be losing decisions, not a
+    /// progression.
+    func testV14FileKeepsItsSettingsAndStartsTheEngineClean() throws {
         let v14 = """
         {"engineState":{"counter":6,
           "levels":["squat",9,"push_h",8,"hinge",7,"pull",6,"push_v",5,"lunge",4,
@@ -151,8 +179,10 @@ final class ComebackTests: AppStoreTestCase {
         XCTAssertTrue(store.settings.healthEnabled)
         XCTAssertEqual(store.settings.healthExportedThrough, 5)
         XCTAssertTrue(store.settings.onboardingCompleted)
-        XCTAssertEqual(store.engineState.levels[.pull], 6)
-        XCTAssertEqual(store.engineState.failStreak[.pull], 1)
+        // …and the engine starts clean, because a v2 state does not decode.
+        XCTAssertEqual(store.engineState.vars[.pull], 1)
+        XCTAssertEqual(store.engineState.failStreak[.pull], 0)
+        XCTAssertEqual(store.engineState.counter, 0)
         // and the new field defaults to "never asked"
         XCTAssertNil(store.settings.comebackDecidedFor)
     }

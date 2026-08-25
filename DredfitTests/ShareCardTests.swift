@@ -100,7 +100,7 @@ final class ShareCardTests: XCTestCase {
 
     func testHeadlineForEachMilestoneKind() {
         XCTAssertEqual(
-            ShareCardFactory.headline(for: .tierUp(pattern: .squat, tier: 3,
+            ShareCardFactory.headline(for: .variationUp(pattern: .squat, variation: 3,
                                                    exercise: "Pistol squat")),
             "Unlocked: Pistol squat")
         XCTAssertEqual(
@@ -114,9 +114,9 @@ final class ShareCardTests: XCTestCase {
 
     func testHeadlineNamesEveryUnlockedVariation() {
         let headline = ShareCardFactory.headline(for: [
-            .tierUp(pattern: .lunge, tier: 2, exercise: "Bulgarian split squat"),
-            .tierUp(pattern: .pushH, tier: 2, exercise: "Push-up"),
-            .tierUp(pattern: .hinge, tier: 2, exercise: "Single-leg glute bridge"),
+            .variationUp(pattern: .lunge, variation: 2, exercise: "Bulgarian split squat"),
+            .variationUp(pattern: .pushH, variation: 2, exercise: "Push-up"),
+            .variationUp(pattern: .hinge, variation: 2, exercise: "Single-leg glute bridge"),
         ])
         XCTAssertEqual(headline,
                        "Unlocked: Bulgarian split squat, Push-up, Single-leg glute bridge",
@@ -125,7 +125,7 @@ final class ShareCardTests: XCTestCase {
 
     func testHeadlineForASingleUnlockIsUnchangedByTheList() {
         XCTAssertEqual(
-            ShareCardFactory.headline(for: [.tierUp(pattern: .squat, tier: 3,
+            ShareCardFactory.headline(for: [.variationUp(pattern: .squat, variation: 3,
                                                     exercise: "Pistol squat")]),
             "Unlocked: Pistol squat")
     }
@@ -141,7 +141,7 @@ final class ShareCardTests: XCTestCase {
 
     func testUnlocksLeadTheHeadlineOverSetBandsAndJubilees() {
         let headline = ShareCardFactory.headline(for: [
-            .tierUp(pattern: .squat, tier: 2, exercise: "Split squat"),
+            .variationUp(pattern: .squat, variation: 2, exercise: "Split squat"),
             .setBand(pattern: .pushH, sets: 4, exercise: "Push-up"),
             .jubilee(workouts: 50),
         ])
@@ -219,8 +219,8 @@ final class ShareCardTests: XCTestCase {
     }
 
     func testSummaryHeadlineCarriesOnlyTotals() {
-        let headline = ShareCardFactory.summaryHeadline(workouts: 42, totalLevel: 137)
+        let headline = ShareCardFactory.summaryHeadline(workouts: 42, totalSteps: 137)
         // "level", the same word the Progress header uses beside the number.
-        XCTAssertEqual(headline, "42 workouts · level 137")
+        XCTAssertEqual(headline, "42 workouts · 137 steps")
     }
 }

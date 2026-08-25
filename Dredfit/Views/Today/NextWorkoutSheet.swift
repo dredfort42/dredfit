@@ -8,7 +8,7 @@ import DredfitCore
 struct NextWorkoutSheet: View {
     @Environment(AppStore.self) private var store
     @Environment(\.dismiss) private var dismiss
-    @State private var techniqueFor: SessionExercise?
+    @State private var techniqueFor: TechniqueTarget?
 
     var body: some View {
         let session = store.nextSession
@@ -30,7 +30,7 @@ struct NextWorkoutSheet: View {
 
             List(session.exercises) { ex in
                 Button {
-                    techniqueFor = ex
+                    techniqueFor = TechniqueTarget(ex)
                 } label: {
                     // The same card as Today's, so it carries the same one
                     // line about why the set count is what it is.
@@ -51,7 +51,7 @@ struct NextWorkoutSheet: View {
         .presentationDragIndicator(.visible)
         .presentationBackground(Theme.bg)
         .sheet(item: $techniqueFor) { ex in
-            TechniqueSheet(exercise: ex)
+            TechniqueSheet(target: ex)
         }
     }
 }

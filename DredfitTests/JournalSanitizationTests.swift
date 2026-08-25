@@ -16,11 +16,13 @@ final class JournalSanitizationTests: AppStoreTestCase {
 
     override var tempURLPrefix: String { "dredfit-journal" }
 
-    private func store(records: String, levels: Int = 20) throws -> AppStore {
-        let lv = Pattern.allCases.map { "\"\($0.rawValue)\",\(levels)" }.joined(separator: ",")
+    private func store(records: String) throws -> AppStore {
+        let vars = Pattern.allCases.map { "\"\($0.rawValue)\",2" }.joined(separator: ",")
+        let doses = Pattern.allCases.map { "\"\($0.rawValue)\",10" }.joined(separator: ",")
         let zeros = Pattern.allCases.map { "\"\($0.rawValue)\",0" }.joined(separator: ",")
         let json = """
-        {"engineState":{"counter":11,"levels":[\(lv)],"failStreak":[\(zeros)]},
+        {"engineState":{"counter":11,"vars":[\(vars)],"doses":[\(doses)],
+                        "failStreak":[\(zeros)]},
          "records":[\(records)],
          "settings":{"restWeekdays":[],"soundsEnabled":true,
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
@@ -31,28 +33,40 @@ final class JournalSanitizationTests: AppStoreTestCase {
 
     // MARK: - Numbers that would trap the arithmetic downstream
 
-    func testAStoredLevelOutsideTheScaleCannotTrapTheRetrospective() throws {
-        // Retrospective subtracts the stored level from the current one.
+    /// A stored POSITION outside any ladder cannot trap the retrospective,
+    /// which measures it and subtracts. The engine's own reader clamps the
+    /// coordinates, so a hand-edited variation of Int.max is a rung of the
+    /// ladder rather than an index into nothing.
+    func testAStoredPositionOutsideTheLaddersCannotTrapTheRetrospective() throws {
         let s = try store(records: """
-        {"sessionNumber":1,"date":0,"result":"plan","totalLevelAfter":180,
-         "levelsAfter":["squat",-9223372036854775808,"pull",9223372036854775807]}
+        {"sessionNumber":1,"date":0,"result":"plan","totalProgressAfter":180,
+         "positionsAfter":["squat",{"variation":-9223372036854775808,"sets":3,"dose":4},
+                           "pull",{"variation":9223372036854775807,"sets":99,"dose":99}]}
         """)
-        XCTAssertEqual(s.records.first?.levelsAfter?[.squat], 0)
-        XCTAssertEqual(s.records.first?.levelsAfter?[.pull], EngineConfig.levelMax)
+        let recorded = try XCTUnwrap(s.records.first?.positionsAfter)
+        XCTAssertNotNil(recorded[.squat])
+        XCTAssertNotNil(recorded[.pull])
+        // Measuring either one answers a number rather than trapping.
+        for (p, position) in recorded {
+            let steps = Engine.progress(p, variation: position.variation,
+                                        sets: position.sets, dose: position.dose)
+            XCTAssertGreaterThanOrEqual(steps, 0)
+            XCTAssertLessThanOrEqual(steps, Engine.ladderSpan(p))
+        }
         // The screen that does the subtraction still renders.
-        XCTAssertNotNil(Retrospective.make(records: s.records,
-                                           currentLevels: s.engineState.levels))
+        _ = Retrospective.make(records: s.records, current: s.currentPositions)
     }
 
     func testATotalOutsideAnyRealHistoryCannotTrapTheWeekSummary() throws {
         let s = try store(records: """
         {"sessionNumber":9223372036854775807,"date":0,"result":"plan",
-         "totalLevelAfter":-9223372036854775808},
-        {"sessionNumber":2,"date":1000,"result":"plan","totalLevelAfter":9223372036854775807}
+         "totalProgressAfter":-9223372036854775808},
+        {"sessionNumber":2,"date":1000,"result":"plan",
+         "totalProgressAfter":9223372036854775807}
         """)
-        XCTAssertEqual(s.records.first?.totalLevelAfter, 0)
+        XCTAssertEqual(s.records.first?.totalProgressAfter, 0)
         XCTAssertEqual(s.records.first?.sessionNumber, EngineConfig.countMax)
-        XCTAssertEqual(s.records.last?.totalLevelAfter, EngineConfig.countMax)
+        XCTAssertEqual(s.records.last?.totalProgressAfter, EngineConfig.countMax)
         XCTAssertNotNil(s.weekSummary(for: .now))
     }
 
@@ -60,7 +74,7 @@ final class JournalSanitizationTests: AppStoreTestCase {
         // Int(elapsed / 86_400) traps when the quotient is past Int's range —
         // it does not saturate. A date of 1e300 seconds decodes cleanly.
         let s = try store(records: """
-        {"sessionNumber":1,"date":1e300,"result":"plan","totalLevelAfter":180}
+        {"sessionNumber":1,"date":1e300,"result":"plan","totalProgressAfter":180}
         """)
         XCTAssertNotNil(s.gapDays(), "a nonsense date yields a number, not a crash")
         XCTAssertEqual(s.gapDays(), 0, "a workout in the far future is not a break")
@@ -68,7 +82,7 @@ final class JournalSanitizationTests: AppStoreTestCase {
         _ = s.shouldOfferComeback()
 
         let past = try store(records: """
-        {"sessionNumber":1,"date":-1e300,"result":"plan","totalLevelAfter":180}
+        {"sessionNumber":1,"date":-1e300,"result":"plan","totalProgressAfter":180}
         """)
         XCTAssertEqual(past.gapDays(), EngineConfig.countMax,
                        "and one in the far past clamps to the technical ceiling")
@@ -119,16 +133,17 @@ final class JournalSanitizationTests: AppStoreTestCase {
 
     func testAnOrdinaryRecordDecodesExactlyAsBefore() throws {
         let s = try store(records: """
-        {"sessionNumber":12,"date":0,"result":"more","totalLevelAfter":180,
-         "levelsAfter":["squat",20,"pull",22],"durationSec":2100,
+        {"sessionNumber":12,"date":0,"result":"more","totalProgressAfter":180,
+         "positionsAfter":["squat",{"variation":3,"sets":3,"dose":11}],
+         "durationSec":2100,
          "actuals":["squat",14],"healthExported":true}
         """)
         let r = try XCTUnwrap(s.records.first)
         XCTAssertEqual(r.sessionNumber, 12)
         XCTAssertEqual(r.result, .more)
-        XCTAssertEqual(r.totalLevelAfter, 180)
-        XCTAssertEqual(r.levelsAfter?[.squat], 20)
-        XCTAssertEqual(r.levelsAfter?[.pull], 22)
+        XCTAssertEqual(r.totalProgressAfter, 180)
+        XCTAssertEqual(r.positionsAfter?[.squat],
+                       RecordedPosition(variation: 3, sets: 3, dose: 11))
         XCTAssertEqual(r.durationSec, 2100)
         XCTAssertEqual(r.actuals?[.squat], 14)
         XCTAssertEqual(r.healthExported, true)
@@ -139,7 +154,7 @@ final class JournalSanitizationTests: AppStoreTestCase {
     /// exercise has sets cut back to one.
     func testPerSetFactsAreSanitizedLikeTheRest() throws {
         let s = try store(records: """
-        {"sessionNumber":3,"date":0,"result":"plan","totalLevelAfter":40,
+        {"sessionNumber":3,"date":0,"result":"plan","totalProgressAfter":40,
          "actuals":["squat",13],
          "setActuals":["squat",[15,15,10,-9223372036854775808,7,7,7,7]]}
         """)
@@ -151,7 +166,7 @@ final class JournalSanitizationTests: AppStoreTestCase {
 
     func testARecordWithoutPerSetFactsStillDecodes() throws {
         let s = try store(records: """
-        {"sessionNumber":4,"date":0,"result":"less","totalLevelAfter":30,
+        {"sessionNumber":4,"date":0,"result":"less","totalProgressAfter":30,
          "actuals":["squat",11]}
         """)
         let r = try XCTUnwrap(s.records.first)
@@ -161,9 +176,11 @@ final class JournalSanitizationTests: AppStoreTestCase {
 
     func testARecordRoundTripsThroughEncodeAndDecode() throws {
         let original = WorkoutRecord(sessionNumber: 7, date: Date(timeIntervalSince1970: 1_000),
-                                     result: .plan, totalLevelAfter: 99,
+                                     result: .plan, totalProgressAfter: 99,
                                      actuals: [.squat: 13], setActuals: [.squat: [15, 15, 10]],
-                                     levelsAfter: [.squat: 11], durationSec: 1800)
+                                     positionsAfter: [.squat: RecordedPosition(
+                                         variation: 3, sets: 3, dose: 11)],
+                                     durationSec: 1800)
         let data = try JSONEncoder().encode(original)
         XCTAssertEqual(try JSONDecoder().decode(WorkoutRecord.self, from: data), original)
     }

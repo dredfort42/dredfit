@@ -20,7 +20,7 @@ struct TodayView: View {
     @Environment(\.displayScale) private var displayScale
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var activeWorkout: ActiveWorkout?
-    @State var techniqueFor: SessionExercise?
+    @State var techniqueFor: TechniqueTarget?
     @State private var nextPreviewShown = false
     @State private var freshStartConfirmShown = false
     @State private var howItWorksShown = false
@@ -41,7 +41,7 @@ struct TodayView: View {
             WorkoutFlowView(session: active.session, resume: active.resume)
         }
         .sheet(item: $techniqueFor) { ex in
-            TechniqueSheet(exercise: ex)
+            TechniqueSheet(target: ex)
         }
         .sheet(isPresented: $nextPreviewShown) {
             NextWorkoutSheet()
@@ -52,12 +52,12 @@ struct TodayView: View {
         .confirmationDialog(String(localized: "Start from scratch?"),
                             isPresented: $freshStartConfirmShown,
                             titleVisibility: .visible) {
-            Button(String(localized: "Reset levels"), role: .destructive) {
+            Button(String(localized: "Reset progress"), role: .destructive) {
                 store.resetProgress()
             }
             Button(String(localized: "Cancel"), role: .cancel) { }
         } message: {
-            Text("Levels go back to the beginning. Your history stays.")
+            Text("Every movement goes back to the beginning. Your history stays.")
         }
         // The plan reached a pair of eyes — the engine is told. Keyed on the
         // showing, so a scroll, a rotation or a Dynamic Type change is the

@@ -1,138 +1,138 @@
 //
-//  Where a session RATING takes a pattern, and what the failure streak does
-// with it. Split out of Engine.swift when the rating path stopped being a
-// one-line clamp and became a rule of its own.
+//  Descent (§40.3, §40.6) and the "no harder" gate (the rewritten §22.1/§30.4).
 //
-// The rating used to be the last descent WITHOUT a gate: it went by whole
-// levels and crossed a tier boundary freely, landing in the middle of the tier
-// below, where the dose is higher. The deload was the second such path. Both
-// are closed here; the exact-fact path (`positionFromPointFact`) is untouched
-// and stays in Engine.swift, where the rest of the fact rules live.
+//  There are no TIER FLOORS in v3. Every descent through a variation boundary
+//  lands in the JOURNAL OF WHAT WAS SHOWN — "exactly what you have already
+//  done in this variation" — which is what closes both findings of
+//  FINDING-tier-entry.md at once: the blind entry (now a probe) and the
+//  rollback through a target (now the journal).
 //
 
 import Foundation
 
 extension Engine {
 
-    /// Where a session-wide RATING lands a pattern.
+    /// A variation's point of return. The grid floor when the trainee has
+    /// never been there — that is the declared beginning, 3×4 (3×15 s).
     ///
-    /// "More" runs through the same ceiling; downward moves never do. A
-    /// targeted "less" reaches its aim only and every other movement holds —
-    /// holding is not underperforming. A chronic aim takes a double step, or
-    /// the descent to a manageable level costs 31 appearances while "less"
-    /// grinds down the healthy movements. And while the comeback window is
-    /// open "more" is credited as "plan": the levels came back, the tissue did
-    /// not.
-    ///
-    /// Up by SUB-STEPS. And down by them too. The evaluative descent steps one
-    /// sub-step back along the growth path and never crosses the floor of its
-    /// own block: until then it went by whole levels and landed in the MIDDLE
-    /// of the tier below, where the dose is higher — `coreAntiExt` 24 → 23
-    /// meant 3×10 s → 3×31 s, `hinge` 24 → 23 meant 3×4 → 3×12 across both
-    /// legs. The gate never saw it: the gate stands on the exact-fact path,
-    /// and the rating path was the one descent without it. `chronicStep` is
-    /// the same descent at a double step — two sub-steps.
-    ///
-    /// The second return value is the INTENT to descend, which is what feeds
-    /// the failure streak: on a block floor the position does not move, and
-    /// without the intent "hard" would be an inert tap there — no streak, no
-    /// deload, and no way out of a variation that is beyond its owner. Both
-    /// directions now walk the SHARED scale — growth gives sets back first, a
-    /// descent spends the dose before the sets — so "N up" and "N down" stay
-    /// integral and mutually inverse. `setsBackOk` is the hold on a returning
-    /// set. Together these bound this pattern's move this session, bundled
-    /// into one value because nine loose arguments is how a caller ends up
-    /// passing the wrong one — the class of defect four rounds of skeptics
-    /// kept finding in this model.
-    struct RatingLimits {
-        /// The cell for (pattern, tier) — how far a rise may go.
-        let cap: Int
-        /// Sessions left in the window a comeback opened.
-        let rampLeft: Int
-        /// Whether the hold on a returning set has run out.
-        let setsBackOk: Bool
+    /// The journal is clamped by the dose FLOOR: "I showed two reps" sends you
+    /// a variation down (§40.3) rather than landing you on a two.
+    static func landingDose(_ p: Pattern, _ v: Int, shown: [Pattern: [Int: Int]]) -> Int {
+        let unit = Library.unit(p, v)
+        guard let recorded = shown[p]?[v] else { return Dose.grid(unit).min }
+        return Dose.clamped(unit, Dose.snap(unit, recorded))
     }
 
-    /// Who the session-wide "less" is aimed at, and who the chronic signal
-    /// fires for.
-    struct RatingAim {
-        let targets: Set<Pattern>?
-        let chronic: Set<Pattern>
+    static func landInVar(_ p: Pattern, _ v: Int, shown: [Pattern: [Int: Int]]) -> Position {
+        Position(variation: Library.index(pattern: p, variation: v),
+                 sets: EngineConfig.setsBase,
+                 dose: landingDose(p, v, shown: shown), sub: 0, cut: 0)
     }
 
-    static func positionFromRating(
-        pattern p: Pattern, result: FeedbackResult, from entry: Position,
-        limits: RatingLimits, aim: RatingAim) -> (position: Position, wantedDown: Bool) {
-        let effective: FeedbackResult = limits.rampLeft > 0 && result == .more ? .plan : result
-        let sessionDelta: Int
-        if let targets = aim.targets {
-            sessionDelta = targets.contains(p)
-                ? (aim.chronic.contains(p) ? EngineConfig.chronicStep : EngineConfig.deltaLess)
-                : 0
-        } else {
-            sessionDelta = effective.delta
+    /// Dose is spent before sets: while there is somewhere to step inside the
+    /// variation along the growth path, step there (exactly the reverse of a
+    /// growth event, §34.1). On the dose floor the step down becomes a set
+    /// taken off. On the floor of the variation — dose floor AND set floor —
+    /// the step down is the variation below, landing in the journal (§40.6).
+    ///
+    /// A descent deliberately does NOT cross a band downward: (4,11) → (3,15)
+    /// would raise the dose per set from 11 to 15, i.e. the descent would make
+    /// the plan HEAVIER — precisely the defect class (A3-1, §36.8) the gate was
+    /// written for. Volume inside a band is taken off by the `cut` axis.
+    static func fallBy(_ p: Pattern, _ pos: Position, _ n: Int,
+                       shown: [Pattern: [Int: Int]]) -> Position {
+        var cur = fit(p, pos)
+        var k = max(0, n)
+        while k > 0 {
+            let g = Dose.grid(Library.unit(p, cur.variation))
+            if cur.sub > 0 {
+                cur = fit(p, Position(variation: cur.variation, sets: cur.sets,
+                                      dose: cur.dose, sub: cur.sub - 1, cut: cur.cut))
+            } else if cur.dose > g.min {
+                // The reverse of a growth event: (dose d, sub 0) → (d−1, band−1).
+                cur = fit(p, Position(variation: cur.variation, sets: cur.sets,
+                                      dose: cur.dose - g.step, sub: cur.sets - 1, cut: cur.cut))
+            } else if setsAfterCut(sets: cur.sets, cut: cur.cut) > EngineConfig.setsFloor {
+                cur = fit(p, Position(variation: cur.variation, sets: cur.sets,
+                                      dose: cur.dose, sub: cur.sub, cut: cur.cut + 1))
+            } else if cur.variation > 1 {
+                cur = landInVar(p, cur.variation - 1, shown: shown)
+            } else {
+                break                       // the bottom of the whole ladder (§37.1)
+            }
+            k -= 1
         }
-        let rampCap = limits.rampLeft > 0 ? min(limits.cap, EngineConfig.deltaPlan) : limits.cap
-        if sessionDelta > 0 {
-            return (Level.riseBy(level: entry.level, sub: entry.sub, cut: entry.cut,
-                                 by: min(sessionDelta, rampCap),
-                                 allowSetsBack: limits.setsBackOk), false)
-        }
-        if sessionDelta < 0 {
-            return (Level.fallBy(level: entry.level, sub: entry.sub, cut: entry.cut,
-                                 by: -sessionDelta), true)
-        }
-        return (entry, false)   // holds
+        return fit(p, cur)
     }
 
-    /// The failure streak and the deload it leads to.
-    ///
-    /// On the exact-fact path the streak reads the LEVEL, not the position.
-    /// Giving up sub-steps without losing a level is not a shortfall —
-    /// otherwise a descent from `(L, 2)` to `(L, 0)` would start the count
-    /// toward a deload, while the work has fallen by exactly what was not
-    /// done. On the rating path the streak is fed by the INTENT instead — on a
-    /// block floor the position cannot move, and a streak that waited for
-    /// movement would leave the deload, the only way out of that variation,
-    /// permanently out of reach. Holding is not an intent and still clears the
-    /// streak.
-    ///
-    /// The deload passes the "no harder" gate for the first time. Until now it
-    /// was the second descent (after the rating) with no gate at all, and it
-    /// dropped `coreAntiExt` from 24 to 21, that is from 3×10 s to 3×31 s. The
-    /// gate pulls the landing down to the floor of the tier below on its own.
-    /// The roll-back starts from a different level on the two paths
-    /// (`deloadFrom`): the rating never moved the level — it moved the
-    /// position — so it counts from the entry level; a fact has already been
-    /// named by the athlete, and a deload may not land above their own number,
-    /// so there it stays as it was.
-    static func tickStreak(
-        _ next: inout EngineState, pattern p: Pattern, entryStreak: Int,
-        landed: Position, entry: Position, wentDown: Bool, deloadFrom: Int) -> Position {
-        guard wentDown else {
-            next.failStreak[p] = 0
-            return landed
+    /// Descent by WHOLE rungs of dose. §40.3: every descent that used to be
+    /// expressed "in levels" (deload −3, comeback −2…−8, silent decay) is
+    /// carried over by the rule "1 old level = 1 rep per set". The sub-step is
+    /// zeroed — a descent takes it — and on the dose floor a set taken off
+    /// becomes the rung, exactly as for a rated descent: without that a
+    /// three-week break could not move anyone off an impossible variation at
+    /// all.
+    static func fallDoses(_ p: Pattern, _ pos: Position, _ n: Int,
+                          shown: [Pattern: [Int: Int]]) -> Position {
+        var cur = fit(p, Position(variation: pos.variation, sets: pos.sets,
+                                  dose: pos.dose, sub: 0, cut: pos.cut))
+        var k = max(0, n)
+        while k > 0 {
+            let g = Dose.grid(Library.unit(p, cur.variation))
+            if cur.dose > g.min {
+                cur = fit(p, Position(variation: cur.variation, sets: cur.sets,
+                                      dose: cur.dose - g.step, sub: 0, cut: cur.cut))
+            } else if setsAfterCut(sets: cur.sets, cut: cur.cut) > EngineConfig.setsFloor {
+                cur = fit(p, Position(variation: cur.variation, sets: cur.sets,
+                                      dose: cur.dose, sub: 0, cut: cur.cut + 1))
+            } else if cur.variation > 1 {
+                cur = landInVar(p, cur.variation - 1, shown: shown)
+            } else {
+                break
+            }
+            k -= 1
         }
-        let streak = entryStreak + 1
-        guard streak >= EngineConfig.failsToDeload else {
-            next.failStreak[p] = streak
-            return landed
-        }
-        next.failStreak[p] = 0
-        let target = min(max(deloadFrom - EngineConfig.deloadDrop, 0), EngineConfig.levelMax)
-        // A deload is a descent, so the sub-step goes with it.
-        let target2 = Level.descendNoHarder(pattern: p, from: entry.level, factLevel: target,
-                                            fromSub: entry.sub, fromCut: entry.cut)
-        // The cut has to fit the NEW band. A deload crosses a band boundary,
-        // and a cut carried across gave ONE set with no pain report at all:
-        // squat L40 after three "hard" showed 1×6 per side instead of 5×8. The
-        // floor of two sets would have stopped being an invariant, and it has
-        // to be one for everything but the pain channel. The floor here is the
-        // PAIN one. The shared floor raised the cut of anyone sitting on a
-        // pain landing — that is, a deload GAVE BACK a set that pain had taken
-        // (340 cells of 1128, up to ×2.67). A deload is a descent; it may give
-        // nothing back.
-        return Position(level: target2, sub: 0,
-                        cut: min(landed.cut, Level.cutMax(level: target2)))
+        return cur
+    }
+
+    /// What a plan weighs, in the units of the measure.
+    struct PlanLoad: Equatable {
+        let sets: Int
+        let load: Int
+        let total: Int
+    }
+
+    static func planLoad(_ p: Pattern, _ pos: Position) -> PlanLoad {
+        let sets = setsAfterCut(sets: pos.sets, cut: pos.cut)
+        let s = effSub(p, pos, sets: sets)
+        let step = Dose.grid(Library.unit(p, pos.variation)).step
+        let sides = Library.sides(p, pos.variation)
+        return PlanLoad(sets: sets, load: pos.dose,
+                        total: (sets * pos.dose + s * step) * sides)
+    }
+
+    /// The gate, which in v3 is a CHECK rather than a filter (invariant И4):
+    /// no path of descent may break it by construction.
+    ///
+    /// In v2 the measure across a variation boundary was declared invalid and
+    /// the gate rested on the exception "a tier floor is always no harder". In
+    /// v3 the measure across the boundary IS A SHOWN FACT — landing in
+    /// `shown[var−1]` means "exactly what you have already done here" — so
+    /// comparing reps of two different variations is no longer required.
+    ///
+    ///   • inside a variation — dose per set and total work with sides both
+    ///     stay put or fall (the quantities are commensurable: same variation,
+    ///     same unit, same sides);
+    ///   • across a boundary downward — the assigned dose is no higher than
+    ///     the target variation's journal (or its floor, if there is none),
+    ///     and the set count is no higher than the base.
+    static func noHarder(_ p: Pattern, from: Position, to: Position,
+                         shown: [Pattern: [Int: Int]]) -> Bool {
+        let a = planLoad(p, fit(p, from))
+        let b = planLoad(p, fit(p, to))
+        if to.variation > from.variation { return false }        // up is not a descent
+        if to.variation == from.variation { return b.load <= a.load && b.total <= a.total }
+        let journal = landingDose(p, to.variation, shown: shown)
+        return b.load <= journal && b.sets <= EngineConfig.setsBase
     }
 }

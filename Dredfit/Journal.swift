@@ -6,6 +6,15 @@
 import Foundation
 import DredfitCore
 
+/// Where a pattern stood, in the terms v3 states a position in. Three numbers
+/// and no measure: the measure is derived from them when it is needed, and
+/// deriving it the other way round is impossible on purpose.
+struct RecordedPosition: Codable, Equatable {
+    let variation: Int
+    let sets: Int
+    let dose: Int
+}
+
 struct WorkoutRecord: Codable, Identifiable, Equatable {
     // sessionNumber alone is NOT unique: resetProgress restarts the counter
     // while the journal survives, so identity needs the date too.
@@ -13,7 +22,12 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     let sessionNumber: Int
     let date: Date
     let result: FeedbackResult
-    let totalLevelAfter: Int
+    /// How far along their ladders every pattern stood after this session,
+    /// summed — what "total level" used to be, in the one scale v3 has
+    /// (§40.2). OPTIONAL: a record written before v3 carries a number on a
+    /// different scale entirely, and pretending otherwise would put a
+    /// meaningless delta on the week card.
+    var totalProgressAfter: Int?
     // Optional so older records still decode.
     var exercises: [SessionExercise]?
     /// The number the ENGINE was given for each adjusted pattern — the mean
@@ -39,7 +53,11 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     /// the fact is a record that lies about what happened. Kept so history
     /// stays readable; never populated again.
     var discomfort: Set<Pattern>?
-    var levelsAfter: [Pattern: Int]?
+    /// The position of every pattern after the session. A scalar can no longer
+    /// stand in for it: the measure of §40.2 has NO INVERSE by construction,
+    /// so "what was I doing then" has to be recorded as the movement and the
+    /// dose it actually was.
+    var positionsAfter: [Pattern: RecordedPosition]?
     var durationSec: Int?
     /// Only `true` is ever written; nil means "not exported yet".
     var healthExported: Bool?
@@ -58,8 +76,8 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
                               0, EngineConfig.countMax)
         date = try c.decode(Date.self, forKey: .date)
         result = try c.decode(FeedbackResult.self, forKey: .result)
-        totalLevelAfter = clamp(try c.decode(Int.self, forKey: .totalLevelAfter),
-                                0, EngineConfig.countMax)
+        totalProgressAfter = try c.decodeIfPresent(Int.self, forKey: .totalProgressAfter)
+            .map { clamp($0, 0, EngineConfig.countMax) }
         exercises = try c.decodeIfPresent([SessionExercise].self, forKey: .exercises)
         actuals = try c.decodeIfPresent([Pattern: Int].self, forKey: .actuals)?
             .mapValues { clamp($0, 0, EngineConfig.countMax) }
@@ -71,30 +89,31 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
             .mapValues { clamp($0, 0, EngineConfig.setsMax) }
         skipped = try c.decodeIfPresent(Set<Pattern>.self, forKey: .skipped)
         discomfort = try c.decodeIfPresent(Set<Pattern>.self, forKey: .discomfort)
-        levelsAfter = try c.decodeIfPresent([Pattern: Int].self, forKey: .levelsAfter)?
-            .mapValues { clamp($0, 0, EngineConfig.levelMax) }
+        positionsAfter = try c.decodeIfPresent([Pattern: RecordedPosition].self,
+                                              forKey: .positionsAfter)
         durationSec = try c.decodeIfPresent(Int.self, forKey: .durationSec)
             .map { clamp($0, 0, EngineConfig.countMax) }
         healthExported = try c.decodeIfPresent(Bool.self, forKey: .healthExported)
     }
 
-    init(sessionNumber: Int, date: Date, result: FeedbackResult, totalLevelAfter: Int,
+    init(sessionNumber: Int, date: Date, result: FeedbackResult,
+         totalProgressAfter: Int? = nil,
          exercises: [SessionExercise]? = nil, actuals: [Pattern: Int]? = nil,
          setActuals: [Pattern: [Int]]? = nil, setsSkipped: [Pattern: Int]? = nil,
          skipped: Set<Pattern>? = nil, discomfort: Set<Pattern>? = nil,
-         levelsAfter: [Pattern: Int]? = nil,
+         positionsAfter: [Pattern: RecordedPosition]? = nil,
          durationSec: Int? = nil, healthExported: Bool? = nil) {
         self.sessionNumber = sessionNumber
         self.date = date
         self.result = result
-        self.totalLevelAfter = totalLevelAfter
+        self.totalProgressAfter = totalProgressAfter
         self.exercises = exercises
         self.actuals = actuals
         self.setActuals = setActuals
         self.setsSkipped = setsSkipped
         self.skipped = skipped
         self.discomfort = discomfort
-        self.levelsAfter = levelsAfter
+        self.positionsAfter = positionsAfter
         self.durationSec = durationSec
         self.healthExported = healthExported
     }
@@ -122,6 +141,12 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// Sets skipped so far, per movement. Optional like everything
     /// below it: a snapshot written before the skip existed still decodes.
     var setsSkipped: [Pattern: Int]?
+    /// What the PROBE set showed, per movement (§40.4). Its own field for the
+    /// same reason it is its own argument to the engine: it is a number about
+    /// a movement that is not in the plan yet, and folding it into the per-set
+    /// facts would average two variations. Optional — a snapshot written
+    /// before the probe existed decodes without it.
+    var probes: [Pattern: Int]?
     /// The shape that came before — one number per exercise. Only ever
     /// DECODED (`facts` folds it into the current one), but it stays a stored
     /// property so an older snapshot round-trips rather than failing the file.
@@ -155,6 +180,15 @@ struct WorkoutSnapshot: Codable, Equatable {
         SetFacts.sanitized(setActuals ?? actuals.mapValues { [$0] })
     }
 
+    /// The probe numbers, sanitized where they are read for the same reason as
+    /// `facts`. A probe target is a dose, so it lives in the same corridor any
+    /// reported number does.
+    var probeFacts: [Pattern: Int] {
+        (probes ?? [:]).compactMapValues { value in
+            min(max(value, 0), EngineConfig.countMax)
+        }
+    }
+
     /// Sanitized where it is read, for the same reason as `facts`: this struct
     /// has no decoder of its own and everything here comes back off disk.
     var skips: SetFacts.Skips {
@@ -164,14 +198,18 @@ struct WorkoutSnapshot: Codable, Equatable {
     static func fingerprint(of session: Session) -> String {
         session.exercises
             .map { ex in
-                let head = "\(ex.pattern.rawValue):\(ex.tier):\(ex.load):\(ex.sets)"
-                // The per-set doses belong in the identity. Without them 3×8
-                // and 9-8-8 share a fingerprint — same tier, same base dose,
-                // same set count — and a snapshot could resume into a plan
-                // that asks different numbers of its sets. Appended only for
-                // an UNEVEN plan, so a uniform one keeps the exact string it
-                // had before and a workout interrupted before the update still
-                // resumes.
+                var head = "\(ex.pattern.rawValue):\(ex.variation):\(ex.load):\(ex.sets)"
+                // The PROBE belongs in the identity too: "2×15 plus one set of
+                // the split squat" and "2×15" are different plans with the
+                // same base dose and set count, and resuming a snapshot into
+                // the wrong one would put a probe on screen that nobody was
+                // offered (§40.4).
+                if let probe = ex.probe { head += ":p\(probe.variation)-\(probe.load)" }
+                // The per-set doses belong in it as well. Without them 3×8
+                // and 9-8-8 share a fingerprint — same variation, same base
+                // dose, same set count — and a snapshot could resume into a
+                // plan that asks different numbers of its sets. Appended only
+                // for an UNEVEN plan, so a uniform one keeps a stable string.
                 guard let loads = ex.loads else { return head }
                 return head + ":" + loads.map(String.init).joined(separator: "-")
             }

@@ -19,12 +19,31 @@ final class SetSkipTests: AppStoreTestCase {
 
     override var tempURLPrefix: String { "dredfit-skip" }
 
-    /// Seeded through the state file, like the app's own load.
-    private func store(level: Int) throws -> AppStore {
-        let levels = Pattern.allCases
-            .map { "\"\($0.rawValue)\",\(level)" }.joined(separator: ",")
+    /// Seeded through the state file, like the app's own load — in the v3
+    /// shape, because a v2 state no longer decodes at all (§40.8) and a seed
+    /// the store quietly replaced with a clean start would make the assertions
+    /// here true for the wrong reason.
+    ///
+    /// `variation` rungs up every ladder, one rung BELOW the dose ceiling —
+    /// a ceiling would offer a PROBE (§40.4), and a probe set is not a working
+    /// set a skip can take, so the plan under test would stop being the plan
+    /// §38.2 describes. `sets` opens a band, which exists only on the top
+    /// variation (§40.5).
+    private func store(variation: Int, sets: Int = EngineConfig.setsBase) throws -> AppStore {
+        func at(_ p: Pattern) -> Int { min(variation, Library.count(p)) }
+        func dose(_ p: Pattern) -> Int {
+            let grid = Dose.grid(Library.unit(p, at(p)))
+            return grid.max - grid.step
+        }
+        let vars = Pattern.allCases
+            .map { "\"\($0.rawValue)\",\(at($0))" }.joined(separator: ",")
+        let doses = Pattern.allCases
+            .map { "\"\($0.rawValue)\",\(dose($0))" }.joined(separator: ",")
+        let bands = Pattern.allCases
+            .map { "\"\($0.rawValue)\",\(sets)" }.joined(separator: ",")
         let json = """
-        {"engineState":{"counter":0,"levels":[\(levels)],"failStreak":[]},
+        {"engineState":{"counter":0,"vars":[\(vars)],"doses":[\(doses)],
+                        "sets":[\(bands)],"failStreak":[]},
          "records":[],
          "settings":{"restWeekdays":[],"soundsEnabled":true,
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
@@ -37,7 +56,7 @@ final class SetSkipTests: AppStoreTestCase {
     /// showing" is the nearest session that contains the movement at all.
     private func nextShown(_ store: AppStore, _ pattern: Pattern) -> SessionExercise? {
         var probe = store.engineState
-        for _ in 0...EngineConfig.stepsPerTier {
+        for _ in 0...8 {   // eight sessions is one full turn of the rotation
             if let ex = Engine.generateSession(probe).exercises
                 .first(where: { $0.pattern == pattern }) {
                 return ex
@@ -60,34 +79,44 @@ final class SetSkipTests: AppStoreTestCase {
     /// comes round unchanged. The second half of the test shows exactly that,
     /// so the first half cannot be read as passing by luck.
     func testASkippedSetReachesTheNextPlanThroughTheRating() throws {
-        for (level, sets, load) in [(24, 3, 4), (40, 5, 8)] {
-            let store = try store(level: level)
+        // The base band and a real band: a movement partway up its ladder,
+        // and one at the very top of it where §40.5 opens the set bands.
+        for (variation, sets) in [(2, EngineConfig.setsBase),
+                                  (Library.count(.squat), EngineConfig.setsMax)] {
+            let store = try store(variation: variation, sets: sets)
             let shown = try XCTUnwrap(nextShown(store, .squat))
-            XCTAssertEqual([shown.sets, shown.load], [sets, load],
-                           "L\(level): the plan is not the one §38.2 describes")
+            XCTAssertEqual(shown.sets, sets,
+                           "v\(variation): the plan is not the one §38.2 describes")
+            XCTAssertNil(shown.probe, "v\(variation): a probe set is not a working set")
 
-            store.completeWorkout(session: store.nextSession, result: .plan,
-                                  setsSkipped: [.squat: 1])
+            _ = store.completeWorkout(session: store.nextSession, result: .plan,
+                                      setsSkipped: [.squat: 1])
 
             XCTAssertEqual(store.engineState.cutOf(.squat), 1,
-                           "L\(level): the skip did not reach the state")
+                           "v\(variation): the skip did not reach the state")
             let after = try XCTUnwrap(nextShown(store, .squat))
-            XCTAssertEqual([after.sets, after.load], [sets - 1, load],
-                           "L\(level): the next showing kept the set that was skipped")
+            XCTAssertEqual(after.sets, shown.sets - 1,
+                           "v\(variation): the next showing kept the set that was skipped")
 
             // The order the store must never take, walked from the same
             // starting point and with the same gap the store had (none — this
             // is the first workout): the skip written in advance is eaten by
             // the very event that would have handed the set back later.
             var base = EngineState.initial
-            for pattern in Pattern.allCases { base.levels[pattern] = level }
+            for pattern in Pattern.allCases {
+                let v = min(variation, Library.count(pattern))
+                let grid = Dose.grid(Library.unit(pattern, v))
+                base.vars[pattern] = v
+                base.doses[pattern] = grid.max - grid.step
+                base.sets[pattern] = sets
+            }
             let early = Engine.setCut(state: base, pattern: .squat, cut: 1)
             let wrong = Engine.applyFeedback(state: early,
                                              session: Engine.generateSession(early),
                                              result: .plan, overrides: [:], skipped: [],
                                              gapDays: nil)
             XCTAssertEqual(wrong.cutOf(.squat), 0,
-                           "L\(level): the wrong order no longer loses the skip — §38.2 "
+                           "v\(variation): the wrong order no longer loses the skip — §38.2 "
                            + "rule 1 has stopped describing the engine")
         }
     }
@@ -96,7 +125,7 @@ final class SetSkipTests: AppStoreTestCase {
     /// time actually does — and the plan that comes back is shorter across the
     /// board rather than in the one place the walk happened to start.
     func testSkipsOnEveryMovementAllLand() throws {
-        let store = try store(level: 40)
+        let store = try store(variation: 3, sets: EngineConfig.setsBase)
         let session = store.nextSession
         let skipped = Dictionary(uniqueKeysWithValues: session.exercises.map { ($0.pattern, 1) })
 
@@ -137,7 +166,7 @@ final class SetSkipTests: AppStoreTestCase {
     /// travels as an ordinary skipped exercise, and NOT as a dose of 0. The
     /// engine costs one of them nothing and the other a whole tier.
     func testOnTheFloorTheMovementTravelsAsASkipAndNotAsAZero() throws {
-        let store = try store(level: 24)
+        let store = try store(variation: 2, sets: EngineConfig.setsBase)
         // On the floor: every movement cut as far as the axis goes.
         let session = store.nextSession
         let onFloor = Dictionary(uniqueKeysWithValues: session.exercises.map { ($0.pattern, 1) })
@@ -145,13 +174,13 @@ final class SetSkipTests: AppStoreTestCase {
         let floored = try XCTUnwrap(nextShown(store, .squat))
         XCTAssertEqual(floored.sets, EngineConfig.setsFloor, "the seed is not on the floor")
 
-        let before = store.engineState.levels[.squat] ?? 0
+        let before = store.engineState.position(.squat)
         let cutBefore = store.engineState.cutOf(.squat)
         store.completeWorkout(session: store.nextSession, result: .plan,
                               skipped: [.squat], setsSkipped: [:])
 
-        XCTAssertEqual(store.engineState.levels[.squat], before,
-                       "a skip on the floor moved the level")
+        XCTAssertEqual(store.engineState.position(.squat), before,
+                       "a skip on the floor moved the position")
         XCTAssertEqual(store.engineState.cutOf(.squat), cutBefore,
                        "a skip on the floor moved the cut")
     }
@@ -161,7 +190,7 @@ final class SetSkipTests: AppStoreTestCase {
     /// drops the tally when it takes the exercise; this is the claim that
     /// makes the drop matter.
     func testASkippedMovementAndSkippedSetsAreNotBothRecorded() throws {
-        let store = try store(level: 40)
+        let store = try store(variation: 3, sets: EngineConfig.setsBase)
         let session = store.nextSession
 
         store.completeWorkout(session: session, result: .plan, skipped: [.squat])
@@ -178,7 +207,7 @@ final class SetSkipTests: AppStoreTestCase {
     /// whether the mid-workout skip has become the dominant price, and a
     /// record that kept only the rating could not answer it.
     func testTheJournalRemembersTheSkippedSetsAcrossARelaunch() throws {
-        let store = try store(level: 40)
+        let store = try store(variation: 3, sets: EngineConfig.setsBase)
         store.completeWorkout(session: store.nextSession, result: .plan,
                               setsSkipped: [.squat: 2])
 

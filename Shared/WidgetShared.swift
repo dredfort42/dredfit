@@ -49,8 +49,11 @@ nonisolated struct WidgetSnapshot: Codable {
 
     // Optional for backward compatibility: right after an update a snapshot
     // written by the previous build is still on disk, and a failed decode
-    // blanks the widget until the app is next opened.
-    let totalLevel: Int?
+    // blanks the widget until the app is next opened. This field was
+    // `totalLevel` until v3; the key changed with the scale, so a snapshot
+    // from the old build carries no number here until the app writes the next
+    // one — which is the correct answer rather than a gap.
+    let totalSteps: Int?
     let week: Week?
     let weekStart: Date?
     let planSessionNumber: Int?

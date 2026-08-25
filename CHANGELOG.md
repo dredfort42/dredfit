@@ -2,9 +2,132 @@
 
 ## Unreleased
 
-Two things so far: the engine steps to **v2.27** and moves the decision about
-the length of a workout inside the workout, and five app-layer fixes from the
-design re-review.
+Three things so far. The engine steps to **v3.0** and stops predicting what you
+can do. Before it, **v2.27** moved the decision about the length of a workout
+inside the workout. And five app-layer fixes came out of the design re-review.
+
+**The v3.0 section rewrites parts of the two below.** They were written against
+the 0–47 level scale, and that scale is gone: the duration table by level, the
+per-level numbers, and the VoiceOver line "Squat, level 18 of 47" all describe
+the engine as it was before this wave. They are left as written rather than
+quietly edited — what they say about *why* each change was made still holds.
+
+### Engine v3.0.0 — the engine stops predicting and starts measuring
+
+The wave before this one gave you the decisions. This one takes away the
+engine's guesses.
+
+**The principle is one sentence: the engine does not predict — the engine
+measures.** Nothing can be assigned that you have not already done. Every number
+in your plan is either something you showed, or that same thing plus one rep in
+one set.
+
+**What made this necessary was a workout, not a theory.** Closing out Bulgarian
+split squats at 3×13 per leg unlocked pistol squats at 3×5 per leg — and not one
+of them was possible. The engine was certain it had done you a favour: by its
+own arithmetic the new plan was **×0.38** of the old one in time under load. It
+was measuring the wrong thing. Thirteen Bulgarian split squats say nothing about
+whether one pistol squat will happen, and **on all thirty variation boundaries
+the old engine thought it had made things easier** — up to six times easier on
+the hinge ladder. The better you had gone through the previous variation, the
+higher you stood when the new one arrived, and the harder you fell. And when you
+answered honestly that it was too much, the fall did not stop at the step that
+failed: the descent landed on the *floor of the tier*, taking back the whole
+tier you had climbed.
+
+**Everything below follows from removing the guess.**
+
+#### One number per movement is gone. Position is a variation and a dose.
+
+The level `L ∈ [0, 47]` encoded the variation, the rep target and the set count
+at once, and every one of those was derived by arithmetic from a single integer.
+That arithmetic is deleted, not deprecated — with it go the rep ladders per
+tier, the tier and band floors, the landing rule for unit changes, the level
+decoder, and the inversion that turned an honest number back into a level.
+
+What replaces it is what you can point at: **which variation you are on, how
+many reps or seconds per set, how many sets** — plus a journal of what you have
+actually shown in each variation. That journal is what a descent lands on now.
+Not a floor: the last dose you really did in that variation.
+
+Progress screens follow. A movement's scale is now its position along **its own**
+ladder, with its own denominator and a tick where each variation begins, because
+the ladders have genuinely different lengths — four variations for lunges, seven
+for the hinge — and one shared 0–47 axis would be a fiction. "Total level" became **"total steps"**, and
+a workout recorded before this wave says it has no number on that scale rather
+than inventing one.
+
+#### The library: 59 positions instead of 40, and no step you cannot reach
+
+Fourteen new exercises and nine assisted steps, so that the gap between
+neighbours is something a person can cross. The rule is written down and checked
+by a number: **the load of one position may not exceed the previous by more than
+×1.5.** Across the 48 comparable boundaries of the shipped library there are now
+**zero gaps**, and the largest step is **×1.49**. The shipped v2.27 library had
+twelve gaps out of thirty.
+
+The old grid had a second problem, quieter and worse: because the dose dropped
+at every boundary, each boundary silently claimed that one rep of the new
+movement was some number of times harder than the old one. That number had a
+median of **×2.60** and a maximum of **×6.00**, and it was written down nowhere —
+it fell out of the encoding. Now the difficulty of every position is stated in
+the spec with its provenance, and the step density is an invariant the reference
+suite checks, not a by-product.
+
+Three movements moved out of the strength ladders into the warm-up — Y-T-W,
+bird-dog and the single-leg Romanian deadlift — and jump lunges with a pause
+left altogether. The warm-up is a **pool of nine now, six per session** (the way
+the cool-down already picks 6 of 9), and each session's warm-up still runs
+exactly 245 seconds, as before.
+
+#### The probe: you try the next movement before it becomes your plan
+
+When your dose reaches the top of the grid, the **last working set of that
+movement is replaced by one set of the next variation**, with a target of 4 reps
+(15 seconds). Not an extra set — a replacement, so the session does not get
+longer for trying. It is not a new question either: you answer it with the same
+per-set number you already use.
+
+- You do 4 or more → the next variation becomes your plan, starting at **3×4**.
+- You do fewer, or skip it → nothing moves. The working sets you did still
+  count, and the probe comes back next time.
+
+**A failed probe is information, not a failure**, and the app says so: under the
+number it reads "We'll stay with the current variation." There is no penalty, no
+lost progress, and no set taken away. The one boundary in the whole library
+where the unit changes — from a hang in seconds to negative pull-ups in reps —
+is now crossed **only** by a probe, because seconds and reps were never
+comparable and the old engine's rule for comparing them is deleted.
+
+#### Updating starts you over — deliberately, and without touching your history
+
+There is no state migration. A saved plan from an older build is not readable by
+this engine, and rather than guess a conversion, **every movement starts at 3×4
+again**. Your **workout journal, settings and history are untouched** — that was
+the one thing this could not cost, and a defect that would have quarantined the
+whole file along with the engine was found and fixed before shipping.
+
+Getting back is not a climb through the old scale, because the rule "facts
+outrank the plan" does it for you: show more than the plan asked, and the next
+plan equals what you showed. In the reference run, going from a clean start back
+to Bulgarian split squats took **four appearances** — the spec had promised
+"around five".
+
+#### What did not change
+
+Rotation and slots, the pull-up bar gate, warm-up and cool-down as the previous
+wave built them, skipping a set or the rest of a movement during the workout,
+per-set numbers, one question a day and one finger. No network, no dependencies,
+no analytics: "Data Not Collected" stays literally true.
+
+#### The numbers this wave was held to
+
+The reference suite runs **71 334 checks with 0 failures**. A separate acceptance
+script sweeps the model rather than the table: **59 264 transitions**, none of
+them assigning more than "what you showed, plus one"; **49 entries into a new
+variation**, every one of them exactly 3×4. The golden fixture — 24 scenarios,
+257 steps — regenerates byte-for-byte, and the Swift port matches it bit for
+bit.
 
 ### Engine v2.27.0 — you decide during the workout, not before it
 

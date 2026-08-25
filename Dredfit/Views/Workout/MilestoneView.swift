@@ -141,7 +141,7 @@ struct MilestoneView: View {
         // Natural case: Kicker uppercases, so the catalog holds text rather
         // than styling and the share card reuses the jubilee key as-is.
         switch milestone {
-        case .tierUp, .setBand:
+        case .variationUp, .setBand:
             return String(localized: "New variation")
         case .jubilee(let workouts):
             return String(localized: "Workout #\(workouts)")
@@ -150,7 +150,7 @@ struct MilestoneView: View {
 
     private func headline(_ milestone: Milestone) -> String {
         switch milestone {
-        case .tierUp(_, _, let exercise):
+        case .variationUp(_, _, let exercise):
             return exercise
         case .setBand(_, let sets, _):
             return String(localized: "Now \(sets) sets")
@@ -163,8 +163,11 @@ struct MilestoneView: View {
 
     private func caption(_ milestone: Milestone) -> String? {
         switch milestone {
-        case .tierUp(let pattern, let tier, _):
-            return "\(pattern.displayName) · " + String(localized: "variation \(tier) of 4")
+        case .variationUp(let pattern, let variation, _):
+            // The ladders are no longer all four rungs long (§40.1: four to
+            // seven), so the total is read from the library rather than typed.
+            return "\(pattern.displayName) · "
+                + String(localized: "variation \(variation) of \(Library.count(pattern))")
         case .setBand(let pattern, _, let exercise):
             return "\(pattern.displayName) · \(exercise)"
         case .jubilee:
@@ -172,12 +175,12 @@ struct MilestoneView: View {
         }
     }
 
-    /// Only tier-ups: a set band is the same ability grown, and a jubilee is
-    /// about the habit, not a movement.
+    /// Only new variations: a set band is the same ability grown, and a
+    /// jubilee is about the habit, not a movement.
     private func lifeLine(_ milestone: Milestone) -> String? {
         switch milestone {
-        case .tierUp(let pattern, let tier, _):
-            return LifeBenefit.text(for: pattern, tier: tier)
+        case .variationUp(let pattern, let variation, _):
+            return LifeBenefit.text(for: pattern, variation: variation)
         case .setBand, .jubilee:
             return nil
         }

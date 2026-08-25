@@ -31,23 +31,46 @@ final class CadenceTests: AppStoreTestCase {
 
     /// A store whose journal holds one workout per given date, with every
     /// pattern parked at `level`.
-    private func store(workoutsAt dates: [Date], level: Int = 20) throws -> AppStore {
-        let levels = Pattern.allCases
-            .map { "\"\($0.rawValue)\",\(level)" }.joined(separator: ",")
+    /// The dose every seeded movement stands at: the ceiling of its second
+    /// variation. One rung below it is what a silent decay costs, and that
+    /// single rung is what every assertion in this file is actually about.
+    static let seededDose = 15
+
+    /// A store seeded through the storage file, the same door the real app
+    /// loads through.
+    ///
+    /// The state is written in the v3 shape — `vars` and `doses`, no `levels`
+    /// — because a v2 state does not decode at all any more (§40.8), and a
+    /// seed the store silently replaced with a clean start would make every
+    /// assertion below true for the wrong reason. The journal of what was
+    /// shown is filled in too: a descent lands in it (§40.6).
+    private func store(workoutsAt dates: [Date]) throws -> AppStore {
+        let vars = Pattern.allCases
+            .map { "\"\($0.rawValue)\",2" }.joined(separator: ",")
+        let doses = Pattern.allCases
+            .map { "\"\($0.rawValue)\",\(Self.seededDose)" }.joined(separator: ",")
         let zeros = Pattern.allCases
             .map { "\"\($0.rawValue)\",0" }.joined(separator: ",")
+        let shown = Pattern.allCases
+            .map { "\"\($0.rawValue)\",{\"1\":\(Self.seededDose),\"2\":\(Self.seededDose)}" }
+            .joined(separator: ",")
         let records = dates.enumerated().map { i, d in
             "{\"sessionNumber\":\(i + 1),\"date\":\(d.timeIntervalSinceReferenceDate)," +
-            "\"result\":\"plan\",\"totalLevelAfter\":\(level * 9)}"
+            "\"result\":\"plan\",\"totalProgressAfter\":100}"
         }.joined(separator: ",")
         let json = """
-        {"engineState":{"counter":\(dates.count),"levels":[\(levels)],"failStreak":[\(zeros)]},
+        {"engineState":{"counter":\(dates.count),"vars":[\(vars)],"doses":[\(doses)],
+                        "shown":[\(shown)],"failStreak":[\(zeros)]},
          "records":[\(records)],
          "settings":{"restWeekdays":[],"soundsEnabled":true,
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
         """
         try Data(json.utf8).write(to: tempURL)
-        return AppStore(storageURL: tempURL)
+        let store = AppStore(storageURL: tempURL)
+        XCTAssertEqual(store.engineState.doses[.pull], Self.seededDose,
+                       "the seed must actually load — a state that failed to decode "
+                       + "would start clean and make every assertion here vacuous")
+        return store
     }
 
     // MARK: - The training day (#147)
@@ -173,9 +196,9 @@ final class CadenceTests: AppStoreTestCase {
     /// a gap of zero, so the weekly window never aged and its growth budget
     /// was spent once for good.
     func testTwoWorkoutsInOneDayStillAgeTheWeeklyWindow() throws {
-        let s = try store(workoutsAt: [date(day: 0, hour: 8)], level: 0)
-        s.completeWorkout(session: s.nextSession, result: .plan,
-                          date: date(day: 0, hour: 20))
+        let s = try store(workoutsAt: [date(day: 0, hour: 8)])
+        _ = s.completeWorkout(session: s.nextSession, result: .plan,
+                              date: date(day: 0, hour: 20))
         XCTAssertEqual(s.engineState.weekAgeDays, 0.5, accuracy: 1e-9,
                        "the window ages by the half day that really passed")
     }
@@ -185,19 +208,19 @@ final class CadenceTests: AppStoreTestCase {
     func testWeeklyRhythmSkipsSilentDecayAndLeavesNoStamp() throws {
         let s = try store(workoutsAt: [0, 7, 14, 21].map { date(day: $0) })
         s.applySilentDecayIfNeeded(now: date(day: 28))
-        XCTAssertEqual(s.engineState.levels[.pull], 20, "a 7-day gap in a 7-day rhythm is not a break")
+        XCTAssertEqual(s.engineState.doses[.pull], Self.seededDose, "a 7-day gap in a 7-day rhythm is not a break")
         XCTAssertNil(s.settings.silentDecayAppliedFor, "a skipped decay leaves no stamp")
     }
 
     func testRhythmToleratesOneDayOfJitter() throws {
         let s = try store(workoutsAt: [0, 7, 14, 21].map { date(day: $0) })
         s.applySilentDecayIfNeeded(now: date(day: 29))
-        XCTAssertEqual(s.engineState.levels[.pull], 20, "8 is within ±1 of the 7-day rhythm")
+        XCTAssertEqual(s.engineState.doses[.pull], Self.seededDose, "8 is within ±1 of the 7-day rhythm")
 
         let jittered = try store(workoutsAt: [0, 6, 14, 21].map { date(day: $0) })
         XCTAssertEqual(jittered.recentGaps, [6, 8, 7])
         jittered.applySilentDecayIfNeeded(now: date(day: 28))
-        XCTAssertEqual(jittered.engineState.levels[.pull], 20, "jitter 6-8 is still one rhythm")
+        XCTAssertEqual(jittered.engineState.doses[.pull], Self.seededDose, "jitter 6-8 is still one rhythm")
     }
 
     func testRhythmIsRememberedThroughAnOutlier() throws {
@@ -206,7 +229,7 @@ final class CadenceTests: AppStoreTestCase {
         let s = try store(workoutsAt: [0, 7, 14, 24].map { date(day: $0) })
         XCTAssertEqual(s.recentGaps, [7, 7, 10])
         s.applySilentDecayIfNeeded(now: date(day: 31))
-        XCTAssertEqual(s.engineState.levels[.pull], 20,
+        XCTAssertEqual(s.engineState.doses[.pull], Self.seededDose,
                        "gap 7 matches the weekly rhythm remembered through the 10-day slip")
     }
 
@@ -218,7 +241,7 @@ final class CadenceTests: AppStoreTestCase {
         for day in [37, 38, 39] {
             s.applySilentDecayIfNeeded(now: date(day: day))
         }
-        XCTAssertEqual(s.engineState.levels[.pull], 20)
+        XCTAssertEqual(s.engineState.doses[.pull], Self.seededDose)
         XCTAssertNil(s.settings.silentDecayAppliedFor)
     }
 
@@ -245,16 +268,16 @@ final class CadenceTests: AppStoreTestCase {
         let s = try store(workoutsAt: [0, 3, 7, 10].map { date(day: $0) })
         XCTAssertEqual(s.recentGaps, [3, 4, 3])
         s.applySilentDecayIfNeeded(now: date(day: 18))
-        XCTAssertEqual(s.engineState.levels[.pull], 19, "an 8-day gap is a real one-off break here")
+        XCTAssertEqual(s.engineState.doses[.pull], Self.seededDose - 1, "an 8-day gap is a real one-off break here")
         XCTAssertNotNil(s.settings.silentDecayAppliedFor)
     }
 
     func testSameBreakCanStillDecayAfterOutgrowingTheRhythm() throws {
         let s = try store(workoutsAt: [0, 7, 14, 21].map { date(day: $0) })
         s.applySilentDecayIfNeeded(now: date(day: 29))
-        XCTAssertEqual(s.engineState.levels[.pull], 20, "gap 8 matched the rhythm")
+        XCTAssertEqual(s.engineState.doses[.pull], Self.seededDose, "gap 8 matched the rhythm")
         s.applySilentDecayIfNeeded(now: date(day: 31))
-        XCTAssertEqual(s.engineState.levels[.pull], 19,
+        XCTAssertEqual(s.engineState.doses[.pull], Self.seededDose - 1,
                        "no stamp was left, so the same break decays once it outgrows the rhythm")
     }
 
@@ -265,7 +288,7 @@ final class CadenceTests: AppStoreTestCase {
         XCTAssertFalse(s.shouldOfferComeback(now: date(day: 42)),
                        "a steady 14-day rhythm gets no card at all")
         s.acceptComeback(now: date(day: 42))
-        XCTAssertEqual(s.engineState.levels[.pull], 20, "and no drop through the guarded accept")
+        XCTAssertEqual(s.engineState.doses[.pull], Self.seededDose, "and no drop through the guarded accept")
         XCTAssertEqual(s.engineState.returnRun, 0)
     }
 
@@ -283,7 +306,13 @@ final class CadenceTests: AppStoreTestCase {
     func testNonStackingSurvivesASkippedDecay() throws {
         let s = try store(workoutsAt: [0, 7, 14, 21].map { date(day: $0) })
         s.applySilentDecayIfNeeded(now: date(day: 29))
-        XCTAssertEqual(s.comebackDrop(now: date(day: 36)), 2,
+        XCTAssertEqual(s.engineState.doses[.pull], Self.seededDose, "the decay was skipped")
+        // `comebackDrop` went with the level it counted (§40.7). The claim it
+        // made is unchanged and is now read where it actually lands: no decay
+        // was taken for this break, so the comeback subtracts the FULL table
+        // amount — two rungs of dose (§40.3: one old level = one rep per set).
+        s.acceptComeback(now: date(day: 36))
+        XCTAssertEqual(s.engineState.doses[.pull], Self.seededDose - 2,
                        "no silent decay was taken, so the comeback is the full table amount")
     }
 

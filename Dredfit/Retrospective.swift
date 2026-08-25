@@ -22,46 +22,49 @@ struct Retrospective: Equatable {
     // MARK: - Builder
 
     /// nil when there is nothing honest to say. Base is the first record
-    /// carrying a levelsAfter snapshot; the movement is the largest gain
-    /// since, ties in rotation order. A gain of zero or less returns nil
-    /// rather than celebrating standing still.
+    /// carrying a position snapshot; the movement is the largest gain since,
+    /// ties in rotation order. A gain of zero or less returns nil rather than
+    /// celebrating standing still.
+    ///
+    /// Records written before v3 carry no `positionsAfter` and are skipped —
+    /// their scale was a different one, and the honest answer to "how far have
+    /// I come" is measured from the first session this engine actually saw.
     static func make(records: [WorkoutRecord],
-                     currentLevels: [Pattern: Int],
+                     current: [Pattern: RecordedPosition],
                      now: Date = .now) -> Retrospective? {
-        guard let base = records.first(where: { $0.levelsAfter != nil }),
-              let baseLevels = base.levelsAfter else { return nil }
+        guard let base = records.first(where: { $0.positionsAfter != nil }),
+              let basePositions = base.positionsAfter else { return nil }
 
-        // pull_bar last — it is outside the rotation.
-        let order = Pattern.ordered + [.pullBar]
         var best: (pattern: Pattern, delta: Int)?
-        for pattern in order {
-            guard let then = baseLevels[pattern],
-                  let current = currentLevels[pattern] else { continue }
-            let delta = current - then
+        for pattern in Pattern.allCases {
+            guard let then = basePositions[pattern], let now = current[pattern] else { continue }
+            let delta = progress(pattern, now) - progress(pattern, then)
             if delta > (best?.delta ?? 0) { best = (pattern, delta) }
         }
-        guard let best else { return nil }
+        guard let best, let then = basePositions[best.pattern],
+              let nowPosition = current[best.pattern] else { return nil }
 
-        let thenLevel = baseLevels[best.pattern] ?? 0
-        let nowLevel = currentLevels[best.pattern] ?? 0
         return Retrospective(
-            thenLine: String(localized: "Then: \(line(best.pattern, thenLevel))"),
-            nowLine: String(localized: "Now: \(line(best.pattern, nowLevel))"),
+            thenLine: String(localized: "Then: \(line(best.pattern, then))"),
+            nowLine: String(localized: "Now: \(line(best.pattern, nowPosition))"),
             sinceLine: since(from: base.date, to: now))
     }
 
     // MARK: - Formatting (core helpers only)
 
-    /// Variation, sets and load exactly as the engine encodes them.
-    private static func line(_ pattern: Pattern, _ level: Int) -> String {
-        let decoded = Level.decode(level)
-        let entry = ExerciseLibrary.entry(for: pattern)
-        let name = entry.variations[decoded.tier - 1].name
-        switch entry.unit(forTier: decoded.tier) {
+    private static func progress(_ pattern: Pattern, _ position: RecordedPosition) -> Int {
+        Engine.progress(pattern, variation: position.variation,
+                        sets: position.sets, dose: position.dose)
+    }
+
+    /// Movement, sets and dose exactly as the plan stated them.
+    private static func line(_ pattern: Pattern, _ position: RecordedPosition) -> String {
+        let name = Library.name(pattern, position.variation)
+        switch Library.unit(pattern, position.variation) {
         case .reps:
-            return String(localized: "\(name) · \(decoded.sets)×\(decoded.reps)")
+            return String(localized: "\(name) · \(position.sets)×\(position.dose)")
         case .hold:
-            return String(localized: "\(name) · \(decoded.sets)×\(decoded.hold) s")
+            return String(localized: "\(name) · \(position.sets)×\(position.dose) s")
         }
     }
 

@@ -45,7 +45,7 @@ struct ProgressScreen: View {
 
     private var summaryHeadline: String {
         ShareCardFactory.summaryHeadline(workouts: store.records.count,
-                                         totalLevel: store.totalLevel)
+                                         totalSteps: store.totalProgress)
     }
 
     /// Both halves keep their intrinsic width: a four-digit total meeting a
@@ -61,7 +61,7 @@ struct ProgressScreen: View {
                     Spacer(minLength: 8)
                     shareButton
                 }
-                levelCaption
+                stepsCaption
             }
         } else {
             HStack(alignment: .center, spacing: 10) {
@@ -69,7 +69,7 @@ struct ProgressScreen: View {
                 // block and the caption keeps the number's baseline.
                 HStack(alignment: .lastTextBaseline, spacing: 10) {
                     totalNumber
-                    levelCaption.fixedSize()
+                    stepsCaption.fixedSize()
                 }
                 Spacer(minLength: 8)
                 shareButton
@@ -79,7 +79,7 @@ struct ProgressScreen: View {
 
     private var totalNumber: some View {
         // A bare staticTexts["0"] query can match a chart axis label.
-        Text("\(store.totalLevel)")
+        Text("\(store.totalProgress)")
             .dredfitFont(56, weight: .heavy, cap: 84)
             .tracking(-2)
             .monospacedDigit()
@@ -88,9 +88,9 @@ struct ProgressScreen: View {
             .accessibilityIdentifier("total-level")
     }
 
-    private var levelCaption: some View {
+    private var stepsCaption: some View {
         VStack(alignment: .leading, spacing: 1) {
-            Text(levelLabel)
+            Text(stepsLabel)
             Text("\(store.records.count) workouts")
         }
         .dredfitFont(14.5)
@@ -99,11 +99,13 @@ struct ProgressScreen: View {
     }
 
     /// One word, in every language: that is what keeps a four-digit total
-    /// and a Russian caption on the same row.
-    private var levelLabel: String {
-        String(localized: "progress.levelLabel",
-               defaultValue: "level",
-               comment: "Caption beside the big total-level number. One word: it shares one row with the number and the share button.")
+    /// and a Russian caption on the same row. The word is "step" because the
+    /// scale counts growth events along the ladders (§40.2), which is exactly
+    /// what the glossary already calls steps.
+    private var stepsLabel: String {
+        String(localized: "progress.stepsLabel",
+               defaultValue: "steps",
+               comment: "Caption beside the big total-steps number. One word: it shares one row with the number and the share button.")
     }
 
     var body: some View {
@@ -159,10 +161,10 @@ struct ProgressScreen: View {
 
                     VStack(spacing: 6) {
                         ForEach(Pattern.ordered, id: \.self) { p in
-                            levelRow(p)
+                            progressRow(p)
                         }
                         if barBranchExists {
-                            levelRow(.pullBar)
+                            progressRow(.pullBar)
                         }
                     }
                     .padding(.top, 16)
@@ -173,7 +175,7 @@ struct ProgressScreen: View {
         }
         .onAppear { refreshCard() }
         .onChange(of: store.records.count) { refreshCard() }
-        .onChange(of: store.totalLevel) { refreshCard() }
+        .onChange(of: store.totalProgress) { refreshCard() }
     }
 
     private func refreshCard() {
@@ -182,15 +184,15 @@ struct ProgressScreen: View {
             renderedCardKey = nil
             return
         }
-        let key = [store.records.count, store.totalLevel]
+        let key = [store.records.count, store.totalProgress]
         guard key != renderedCardKey else { return }
         renderedCardKey = key
         cardURL = ShareCardFactory.fileURL(headline: summaryHeadline, slot: .progress,
-                                           levels: store.levelCurve())
+                                           levels: store.progressCurve())
     }
 
     private var barBranchExists: Bool {
-        store.engineState.hasBar || (store.engineState.levels[.pullBar] ?? 0) > 0
+        store.engineState.hasBar || Engine.progress(store.engineState, .pullBar) > 0
     }
 
     /// If the bar was turned off while its row was selected, fall back to the
@@ -305,29 +307,47 @@ struct ProgressScreen: View {
         return dates
     }
 
-    /// Older records without snapshots are skipped — the line starts where
-    /// history does.
+    /// Records without a position snapshot are skipped, and so are the ones
+    /// written before v3 — their numbers belong to a scale this chart does
+    /// not draw. The line starts where the measured ladder does.
     private var chartPoints: [LevelPoint] {
-        if let p = effectivePattern {
-            return store.records
-                .compactMap { r in
-                    r.levelsAfter?[p].map { (r.date, $0, r.result, r.actuals?[p] != nil) }
-                }
-                .enumerated()
-                .map { LevelPoint(id: $0.offset, date: $0.element.0,
-                                  value: $0.element.1, result: $0.element.2,
-                                  ownNumber: $0.element.3) }
+        let plotted = store.records.compactMap { record in
+            effectivePattern.map { plot(record, $0) } ?? plotTotal(record)
         }
-        return store.records.enumerated()
-            .map { LevelPoint(id: $0.offset, date: $0.element.date,
-                              value: $0.element.totalLevelAfter, result: $0.element.result,
-                              ownNumber: !($0.element.actuals?.isEmpty ?? true)) }
+        return plotted.enumerated().map { index, point in
+            LevelPoint(id: index, date: point.date, value: point.value,
+                       result: point.result, ownNumber: point.ownNumber)
+        }
+    }
+
+    /// One record's contribution to the chart, before it is given an index.
+    /// A struct rather than a tuple because the lint bounds a tuple at two
+    /// members and four of these travel together.
+    private struct Plotted {
+        let date: Date
+        let value: Int
+        let result: FeedbackResult
+        let ownNumber: Bool
+    }
+
+    private func plot(_ record: WorkoutRecord, _ p: Pattern) -> Plotted? {
+        guard let position = record.positionsAfter?[p] else { return nil }
+        return Plotted(date: record.date,
+                       value: Engine.progress(p, variation: position.variation,
+                                              sets: position.sets, dose: position.dose),
+                       result: record.result,
+                       ownNumber: record.actuals?[p] != nil)
+    }
+
+    private func plotTotal(_ record: WorkoutRecord) -> Plotted? {
+        guard let steps = record.totalProgressAfter else { return nil }
+        return Plotted(date: record.date, value: steps, result: record.result,
+                       ownNumber: !(record.actuals?.isEmpty ?? true))
     }
 
     private var chartTitle: String {
-        guard let p = effectivePattern else { return String(localized: "total level") }
-        let decoded = Level.decode(store.engineState.levels[p] ?? 0)
-        let variation = ExerciseLibrary.entry(for: p).variations[decoded.tier - 1].name
+        guard let p = effectivePattern else { return String(localized: "total steps") }
+        let variation = Library.name(p, store.engineState.position(p).variation)
         return "\(p.displayName) — \(variation)"
     }
 
@@ -414,27 +434,32 @@ struct ProgressScreen: View {
         }
     }
 
-    // MARK: - Pattern level bar
+    // MARK: - Per-pattern progress bar
 
-    /// Below tier 4 the next band boundary unlocks a variation; at tier 4 it
-    /// adds a set; at the ceiling there is nothing left to promise.
+    /// What the ladder promises next. Below the top variation the ceiling of
+    /// the current one is where §40.4 starts offering a PROBE — the only door
+    /// into the next movement — so that is what the countdown counts to. On
+    /// the top variation the same ceiling buys a set instead (§40.5), and at
+    /// 5×15 there is nothing left to promise.
     private enum NextMilestone {
-        case variation(in: Int)
+        case probe(in: Int)
         case set(in: Int)
         case ceiling
     }
 
-    private func nextMilestone(level: Int, tier: Int) -> NextMilestone {
-        let boundary = (level / EngineConfig.stepsPerTier + 1) * EngineConfig.stepsPerTier
-        if tier < EngineConfig.tiers { return .variation(in: boundary - level) }
-        if boundary <= EngineConfig.levelMax { return .set(in: boundary - level) }
-        return .ceiling
+    private func nextMilestone(_ p: Pattern) -> NextMilestone {
+        let position = store.engineState.position(p)
+        let steps = Engine.stepsToVariationCeiling(store.engineState, p)
+        guard position.variation == Library.count(p) else { return .probe(in: steps) }
+        guard position.sets < EngineConfig.setsMax else { return .ceiling }
+        return .set(in: steps)
     }
 
-    private func levelRow(_ p: Pattern) -> some View {
-        let level = store.engineState.levels[p] ?? 0
-        let decoded = Level.decode(level)
-        let variation = ExerciseLibrary.entry(for: p).variations[decoded.tier - 1].name
+    private func progressRow(_ p: Pattern) -> some View {
+        let steps = Engine.progress(store.engineState, p)
+        let position = store.engineState.position(p)
+        let variation = Library.name(p, position.variation)
+        let total = Library.count(p)
         let selected = effectivePattern == p
         // The row IS the chart selector. A second tap deselects, back to the
         // total view; "Show all" is the visible way out for anyone who won't
@@ -454,8 +479,8 @@ struct ProgressScreen: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.85)
                         .frame(width: 152, alignment: .leading)
-                    levelBar(level: level)
-                    Text("\(level)")
+                    progressBar(p, steps: steps)
+                    Text("\(steps)")
                         .dredfitFont(13.5, weight: .semibold)
                         .monospacedDigit()
                         .foregroundStyle(Theme.ink2)
@@ -467,16 +492,16 @@ struct ProgressScreen: View {
                 // own label, and a label on the Button would swallow it.
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel(Text(verbatim: p.displayName + ", ")
-                    + Text("level \(level) of \(EngineConfig.levelMax)"))
+                    + Text("step \(steps) of \(Engine.ladderSpan(p))"))
                 if selected {
                     // Verbatim: the pieces are either core-localized (the
-                    // name) or language-neutral (the count).
+                    // name) or language-neutral (the numbers).
                     HStack(alignment: .firstTextBaseline, spacing: 8) {
-                        Text(verbatim: "\(variation) · \(decoded.tier)/\(EngineConfig.tiers)")
+                        Text(verbatim: detailLine(variation, position, of: total))
                             .accessibilityLabel(Text(verbatim: variation + ", ")
-                                                + Text("variation \(decoded.tier) of 4"))
+                                + Text("variation \(position.variation) of \(total)"))
                         Spacer(minLength: 8)
-                        nextMilestoneLabel(nextMilestone(level: level, tier: decoded.tier))
+                        nextMilestoneLabel(nextMilestone(p))
                             .monospacedDigit()
                     }
                     .dredfitFont(11)
@@ -496,21 +521,31 @@ struct ProgressScreen: View {
         .accessibilityAddTraits(selected ? [.isSelected] : [])
     }
 
-    private func levelBar(level: Int) -> some View {
-        GeometryReader { geo in
+    /// "Bulgarian split squat · 3/6 · 3×11" — the movement, where it stands on
+    /// its ladder, and the dose. This is what replaced "level 18": a level
+    /// named neither, and §40.2 has no scalar that could.
+    private func detailLine(_ variation: String, _ position: Position, of total: Int) -> String {
+        "\(variation) · \(position.variation)/\(total) · \(position.sets)×\(position.dose)"
+    }
+
+    /// The scale is the pattern's OWN ladder (§40.2), so the ladders no longer
+    /// share one denominator: seven variations of squats and four of lunges
+    /// are different distances, and a bar that pretended otherwise would put
+    /// two people on the same mark for different work. The ticks stand where
+    /// each variation begins.
+    private func progressBar(_ p: Pattern, steps: Int) -> some View {
+        let span = max(Engine.ladderSpan(p), 1)
+        return GeometryReader { geo in
             ZStack(alignment: .leading) {
                 Capsule().fill(Theme.hairline)
                 Capsule().fill(Theme.accent)
-                    .frame(width: max(geo.size.width
-                        * CGFloat(level) / CGFloat(EngineConfig.levelMax), level > 0 ? 6 : 0))
-                // Same 0...levelMax scale as the fill, so the ticks agree
-                // with the number.
-                ForEach(1..<(EngineConfig.levelMax / EngineConfig.stepsPerTier + 1), id: \.self) { band in
+                    .frame(width: max(geo.size.width * CGFloat(steps) / CGFloat(span),
+                                      steps > 0 ? 6 : 0))
+                ForEach(Engine.variationBoundaries(p), id: \.self) { boundary in
                     Rectangle()
                         .fill(Theme.bg)
                         .frame(width: 2, height: 8)
-                        .offset(x: geo.size.width
-                            * CGFloat(band * EngineConfig.stepsPerTier) / CGFloat(EngineConfig.levelMax))
+                        .offset(x: geo.size.width * CGFloat(boundary) / CGFloat(span))
                 }
             }
         }
@@ -520,7 +555,7 @@ struct ProgressScreen: View {
     @ViewBuilder
     private func nextMilestoneLabel(_ milestone: NextMilestone) -> some View {
         switch milestone {
-        case .variation(let steps): Text("next in \(steps)")
+        case .probe(let steps): Text("next movement in \(steps)")
         case .set(let steps): Text("+1 set in \(steps)")
         case .ceiling: EmptyView()
         }

@@ -28,13 +28,25 @@ final class WeakLinkPromptTests: AppStoreTestCase {
     /// Someone whose shoulder keeps failing is somewhere up the scale, with
     /// both handles still live, and that is who is seeded here.
     private func naiveStore(sessions count: Int, culprit: Pattern = .pushV,
-                            level: Int = 20) -> AppStore {
-        let levels = Pattern.allCases
-            .map { "\"\($0.rawValue)\",\(level)" }.joined(separator: ",")
+                            variation: Int = 3) -> AppStore {
+        func at(_ p: Pattern) -> Int { min(variation, Library.count(p)) }
+        let vars = Pattern.allCases
+            .map { "\"\($0.rawValue)\",\(at($0))" }.joined(separator: ",")
+        let doses = Pattern.allCases
+            .map { "\"\($0.rawValue)\",\(Dose.grid(Library.unit($0, at($0))).min + 2)" }
+            .joined(separator: ",")
         let zeros = Pattern.allCases
             .map { "\"\($0.rawValue)\",0" }.joined(separator: ",")
+        // The journal of what was shown: the handle lands IN it (§40.6), and a
+        // persona without one would find an easier variation that offers 3×4.
+        let shown = Pattern.allCases.map { p in
+            let rows = (1...at(p)).map { "\"\($0)\":\(Dose.grid(Library.unit(p, $0)).max)" }
+                .joined(separator: ",")
+            return "\"\(p.rawValue)\",{\(rows)}"
+        }.joined(separator: ",")
         let json = """
-        {"engineState":{"counter":0,"levels":[\(levels)],"failStreak":[\(zeros)]},
+        {"engineState":{"counter":0,"vars":[\(vars)],"doses":[\(doses)],
+                        "shown":[\(shown)],"failStreak":[\(zeros)]},
          "records":[],
          "settings":{"restWeekdays":[],"soundsEnabled":true,
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
@@ -135,17 +147,21 @@ final class WeakLinkPromptTests: AppStoreTestCase {
     func testMakingItEasierActsAtOnceOnTheNamedMovement() throws {
         let store = naiveStore(sessions: 12)
         let suspect = try XCTUnwrap(store.unnamedLessSuspect())
-        let before = store.engineState.levels[suspect] ?? 0
-        let othersBefore = store.engineState.levels
+        let before = store.engineState.position(suspect)
+        let stepsBefore = Engine.progress(store.engineState, suspect)
+        let othersBefore = Pattern.allCases.reduce(into: [Pattern: Position]()) {
+            $0[$1] = store.engineState.position($1)
+        }
 
         store.makeSuspectEasier(suspect)
 
-        let after = store.engineState.levels[suspect] ?? 0
-        XCTAssertLessThan(after, before, "the named movement drops to an easier variation")
-        XCTAssertLessThan(Level.decode(after).tier, Level.decode(before).tier,
+        let after = store.engineState.position(suspect)
+        XCTAssertLessThan(Engine.progress(store.engineState, suspect), stepsBefore,
+                          "the named movement drops to an easier variation")
+        XCTAssertLessThan(after.variation, before.variation,
                           "and it is the VARIATION that dropped, not just the rung")
-        for (pattern, level) in othersBefore where pattern != suspect {
-            XCTAssertEqual(store.engineState.levels[pattern], level,
+        for (pattern, position) in othersBefore where pattern != suspect {
+            XCTAssertEqual(store.engineState.position(pattern), position,
                            "\(pattern) was not named and must not move")
         }
         XCTAssertFalse(store.shouldAskAboutSuspect(),

@@ -12,20 +12,31 @@ import DredfitCore
 @MainActor
 final class ComebackIllnessTests: AppStoreTestCase {
 
-    /// A store whose only workout was `days` ago, at a uniform level — seeded
-    /// through the storage file, the same door the real app loads through.
-    /// Elapsed seconds, not calendar days: gapDays counts whole 24h periods
-    /// and a calendar seed across a spring-forward transition would land an
-    /// hour short of the exact 90/2-day boundaries.
-    private func returned(after days: Int, level: Int = 20) -> AppStore {
+    /// A store whose only workout was `days` ago, every movement a couple of
+    /// variations up — seeded through the storage file, the same door the real
+    /// app loads through. Elapsed seconds, not calendar days: gapDays counts
+    /// whole 24h periods and a calendar seed across a spring-forward
+    /// transition would land an hour short of the exact 90/2-day boundaries.
+    ///
+    /// The journal of what was shown is seeded too: in v3 a descent lands in
+    /// it (§40.6), and a state without one would send every comeback to 3×4
+    /// whatever the gap.
+    private func returned(after days: Int) -> AppStore {
         var state = EngineState.initial
         state.counter = 11
-        for p in Pattern.allCases { state.levels[p] = level }
+        for p in Pattern.allCases {
+            let target = min(3, Library.count(p))
+            state.vars[p] = target
+            state.doses[p] = Dose.grid(Library.unit(p, target)).max
+            var journal: [Int: Int] = [:]
+            for v in 1...target { journal[v] = Dose.grid(Library.unit(p, v)).max }
+            state.shown[p] = journal
+        }
         let record = WorkoutRecord(
             sessionNumber: 11,
             date: Date(timeIntervalSinceNow: -Double(days) * 86_400),
             result: .plan,
-            totalLevelAfter: level * Pattern.allCases.count)
+            totalProgressAfter: Engine.totalProgress(state))
         struct Seed: Encodable {
             let engineState: EngineState
             let records: [WorkoutRecord]
@@ -44,9 +55,9 @@ final class ComebackIllnessTests: AppStoreTestCase {
     func testADoubleAcceptDropsOnlyOnce() {
         let store = returned(after: 35)
         store.acceptComeback()
-        let once = store.engineState.levels[.pull]
+        let once = Engine.progress(store.engineState, .pull)
         store.acceptComeback()   // a double tap, an assistive-tech repeat…
-        XCTAssertEqual(store.engineState.levels[.pull], once,
+        XCTAssertEqual(Engine.progress(store.engineState, .pull), once,
                        "the second call must be a silent no-op")
         XCTAssertEqual(store.engineState.returnRun, 1,
                        "and must not deepen the v2.12 return series either")
@@ -55,9 +66,9 @@ final class ComebackIllnessTests: AppStoreTestCase {
     func testAcceptAfterDeclineIsANoOpToo() {
         let store = returned(after: 35)
         store.declineComeback()
-        let kept = store.engineState.levels[.pull]
+        let kept = Engine.progress(store.engineState, .pull)
         store.acceptComeback()
-        XCTAssertEqual(store.engineState.levels[.pull], kept,
+        XCTAssertEqual(Engine.progress(store.engineState, .pull), kept,
                        "the question was answered — a stray accept changes nothing")
     }
 

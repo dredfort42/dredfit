@@ -124,13 +124,13 @@ jobs = [
     (f"{RAW}/rating_de.png",     ["Passt sich dir an"], "Ein Tipp – das nächste Training passt sich an.", f"{OUT}/de/s4.png"),
     (f"{RAW}/rating_fr.png", ["Ça s’adapte à toi"], "Une pression — la séance suivante s’ajuste.", f"{OUT}/fr/s4.png"),
     (f"{RAW}/rating_it.png", ["Si adatta a te"], "Un tocco e il prossimo allenamento si adatta.", f"{OUT}/it/s4.png"),
-    (f"{RAW}/progress_en.png",   ["Progress you can see"], "Every movement, level by level.", f"{OUT}/en/s5.png"),
-    (f"{RAW}/progress_ru.png",   ["Прогресс, который", "видно"], "Каждое движение, уровень за уровнем.", f"{OUT}/ru/s5.png"),
-    (f"{RAW}/progress_es.png",   ["Progreso que se ve"], "Cada movimiento, nivel a nivel.", f"{OUT}/es/s5.png"),
-    (f"{RAW}/progress_pt-br.png", ["Progresso que dá", "para ver"], "Cada movimento, nível por nível.", f"{OUT}/pt-br/s5.png"),
-    (f"{RAW}/progress_de.png",   ["Fortschritt,", "den du siehst"], "Jede Bewegung, Level für Level.", f"{OUT}/de/s5.png"),
-    (f"{RAW}/progress_fr.png", ["Un progrès", "qui se voit"], "Chaque mouvement, niveau après niveau.", f"{OUT}/fr/s5.png"),
-    (f"{RAW}/progress_it.png", ["Progressi", "che si vedono"], "Ogni movimento, livello dopo livello.", f"{OUT}/it/s5.png"),
+    (f"{RAW}/progress_en.png",   ["Progress you can see"], "Every movement, step by step.", f"{OUT}/en/s5.png"),
+    (f"{RAW}/progress_ru.png",   ["Прогресс, который", "видно"], "Каждое движение, ступень за ступенью.", f"{OUT}/ru/s5.png"),
+    (f"{RAW}/progress_es.png",   ["Progreso que se ve"], "Cada movimiento, paso a paso.", f"{OUT}/es/s5.png"),
+    (f"{RAW}/progress_pt-br.png", ["Progresso que dá", "para ver"], "Cada movimento, passo a passo.", f"{OUT}/pt-br/s5.png"),
+    (f"{RAW}/progress_de.png",   ["Fortschritt,", "den du siehst"], "Jede Bewegung, Stufe für Stufe.", f"{OUT}/de/s5.png"),
+    (f"{RAW}/progress_fr.png", ["Un progrès", "qui se voit"], "Chaque mouvement, cran après cran.", f"{OUT}/fr/s5.png"),
+    (f"{RAW}/progress_it.png", ["Progressi", "che si vedono"], "Ogni movimento, gradino dopo gradino.", f"{OUT}/it/s5.png"),
     (f"{RAW}/dial_en.png",       ["Life happens —", "adjust"], "Did fewer reps? Record it right at the exercise.", f"{OUT}/en/s6.png"),
     (f"{RAW}/dial_ru.png",       ["Вышло иначе?", "Поправь"], "Факт записывается прямо у упражнения.", f"{OUT}/ru/s6.png"),
     (f"{RAW}/dial_es.png",       ["¿Salió distinto?", "Ajústalo"], "¿Hiciste menos? Regístralo justo en el ejercicio.", f"{OUT}/es/s6.png"),
@@ -145,13 +145,13 @@ jobs = [
     (f"{RAW}/milestone_de.png",  ["Neue Variante"], "Eine schwerere Variante, ganz ruhig. Kein Konfetti.", f"{OUT}/de/s7.png"),
     (f"{RAW}/milestone_fr.png", ["Nouvelle variante"], "Une variante plus dure, un écran calme. Sans confettis.", f"{OUT}/fr/s7.png"),
     (f"{RAW}/milestone_it.png", ["Nuova variante"], "Variante più dura, schermata calma. Niente coriandoli.", f"{OUT}/it/s7.png"),
-    (f"{RAW}/howitworks_en.png", ["No black box"], "Eleven plain facts about how the plan moves.", f"{OUT}/en/s8.png"),
-    (f"{RAW}/howitworks_ru.png", ["Без черного ящика"], "Одиннадцать простых фактов о том, как движется план.", f"{OUT}/ru/s8.png"),
-    (f"{RAW}/howitworks_es.png", ["Sin caja negra"], "Once datos simples sobre cómo se mueve el plan.", f"{OUT}/es/s8.png"),
-    (f"{RAW}/howitworks_pt-br.png", ["Sem caixa-preta"], "Onze fatos simples sobre como o plano se move.", f"{OUT}/pt-br/s8.png"),
-    (f"{RAW}/howitworks_de.png", ["Keine Blackbox"], "Elf einfache Fakten, wie sich der Plan bewegt.", f"{OUT}/de/s8.png"),
-    (f"{RAW}/howitworks_fr.png", ["Pas de boîte noire"], "Onze faits simples sur la façon dont le plan bouge.", f"{OUT}/fr/s8.png"),
-    (f"{RAW}/howitworks_it.png", ["Nessuna scatola nera"], "Undici fatti semplici su come si muove il piano.", f"{OUT}/it/s8.png"),
+    (f"{RAW}/howitworks_en.png", ["No black box"], "Twelve plain facts about how the plan moves.", f"{OUT}/en/s8.png"),
+    (f"{RAW}/howitworks_ru.png", ["Без черного ящика"], "Двенадцать простых фактов о том, как движется план.", f"{OUT}/ru/s8.png"),
+    (f"{RAW}/howitworks_es.png", ["Sin caja negra"], "Doce datos simples sobre cómo se mueve el plan.", f"{OUT}/es/s8.png"),
+    (f"{RAW}/howitworks_pt-br.png", ["Sem caixa-preta"], "Doze fatos simples sobre como o plano se move.", f"{OUT}/pt-br/s8.png"),
+    (f"{RAW}/howitworks_de.png", ["Keine Blackbox"], "Zwölf einfache Fakten, wie sich der Plan bewegt.", f"{OUT}/de/s8.png"),
+    (f"{RAW}/howitworks_fr.png", ["Pas de boîte noire"], "Douze faits simples sur la façon dont le plan bouge.", f"{OUT}/fr/s8.png"),
+    (f"{RAW}/howitworks_it.png", ["Nessuna scatola nera"], "Dodici fatti semplici su come si muove il piano.", f"{OUT}/it/s8.png"),
     (f"{RAW}/comeback_en.png",   ["Breaks are normal"], "The plan meets you a couple of steps lower.", f"{OUT}/en/s9.png"),
     (f"{RAW}/comeback_ru.png",   ["Возвращаться легко"], "План встретит тебя на пару ступеней ниже.", f"{OUT}/ru/s9.png"),
     (f"{RAW}/comeback_es.png",   ["Una pausa es normal"], "El plan te espera un par de pasos más abajo.", f"{OUT}/es/s9.png"),
@@ -182,8 +182,16 @@ jobs = [
 # raw exists. Both renames exist for one reason: the rule "a frame without a
 # fresh raw keeps its last set" would otherwise leave a removed feature
 # advertised in the store through a partial recapture.
-# The s8 caption also moved, nine sections to eleven — the count in that
-# caption is verified against HowItWorksView every release (I-7, I-13).
+# The s8 caption tracks the section count of HowItWorksView — nine, then
+# eleven, and twelve since v3.0 added the probe. Verified against that
+# file every release (I-7, I-13).
+#
+# v3.0: THE WHOLE SET IS STALE, not one slot. The wave replaced the level
+# with a variation and a dose, so every frame that shows a plan, a bar or
+# a total shows a number the app no longer produces — and the seeds behind
+# them were rewritten too (seed.py). The usual "partial recapture is fine"
+# does not apply here: recapture all ten raws, in all seven languages, or
+# the set will mix two engines.
 import os
 for j in jobs:
     if os.path.exists(j[0]):

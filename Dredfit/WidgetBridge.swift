@@ -44,7 +44,7 @@ extension AppStore {
         let summary = weekSummary(for: today)
         let snapshot = WidgetSnapshot(
             days: days,
-            totalLevel: totalLevel,
+            totalSteps: totalProgress,
             week: .init(workouts: summary.workouts, levelsDelta: summary.levelsDelta),
             weekStart: thisWeek.start,
             planSessionNumber: next.sessionNumber,

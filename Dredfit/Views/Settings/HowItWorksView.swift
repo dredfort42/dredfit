@@ -19,32 +19,36 @@ struct HowItWorksView: View {
 
     private var sections: [Section] {
         [
+            // Rewritten for v3: the single number is gone, and with it the
+            // encoding this section used to explain. What a person now has is
+            // two plain facts, which is also all the engine has.
             Section(id: 1,
-                    title: String(localized: "The level"),
+                    title: String(localized: "Variation and dose"),
                     body: String(localized: """
-                    One number per movement: it encodes both the variation and \
-                    the reps. Top out the reps and the variation gets harder \
-                    while the count starts over — and on the harder variations \
-                    the count starts lower, so the change lands softly. The \
-                    fourth variation is the last one — above it the sets grow \
-                    instead, from three to five.
+                    Two facts per movement, not one number: WHICH variation you \
+                    do, and HOW MUCH of it. Every movement has a ladder of four \
+                    to seven variations, and neighbouring rungs stand close \
+                    enough together that the next one is never a leap. The dose \
+                    is reps per set — or seconds for a hold — and it grows only \
+                    to what you have already shown.
                     """)),
             Section(id: 2,
                     title: String(localized: "What your answer does"),
                     body: String(localized: """
                     “On plan” adds a step, “more” adds two, “less” takes one \
                     away. An exact number for a single exercise outweighs the \
-                    overall rating. From a standing start an exact number sets \
-                    the level immediately — the first workout calibrates the \
-                    system. After that the level climbs at most two steps per \
-                    workout — and only one wherever the tissue doing the work \
-                    needs the slower pace: tendons remodel on a longer clock \
-                    than muscle. A step lands on one set, not on all of them.
+                    overall rating — and when it is above the plan, the next \
+                    plan simply IS that number. Nothing is estimated: whatever \
+                    you are given, you have already done. The plan climbs at \
+                    most two steps per workout — and only one wherever the \
+                    tissue doing the work needs the slower pace: tendons \
+                    remodel on a longer clock than muscle. A step lands on one \
+                    set, not on all of them.
                     """)),
             Section(id: 3,
                     title: String(localized: "Deload"),
                     body: String(localized: """
-                    Three shortfalls in a row and the level rolls back three \
+                    Three shortfalls in a row and the dose rolls back three \
                     steps. Not a punishment — a breather, so you come back with \
                     something in reserve.
                     """)),
@@ -67,14 +71,15 @@ struct HowItWorksView: View {
                     title: String(localized: "Breaks"),
                     body: String(localized: """
                     After two weeks away the plan meets you a couple of steps \
-                    lower — further down the longer the break. Nothing is lost: \
-                    the levels climb back quickly, and coming back is the only \
-                    thing that matters.
+                    lower — further down the longer the break. It never drops \
+                    below something you have actually done. Nothing is lost: it \
+                    climbs back quickly, and coming back is the only thing that \
+                    matters.
                     """)),
             Section(id: 7,
                     title: String(localized: "Skips"),
                     body: String(localized: """
-                    A skipped exercise simply doesn't count: its level stays \
+                    A skipped exercise simply doesn't count: it stays exactly \
                     where it was. No penalty, no rollback. A skipped SET is a \
                     different answer: the movement still counts as done, and \
                     the next plan comes back with one set fewer — until you \
@@ -109,14 +114,26 @@ struct HowItWorksView: View {
                     adds a rep to ONE set: 3×8 becomes 9-8-8, then 9-9-8, \
                     then 3×9. The plan settles where you actually are, and \
                     overshooting costs one rep in one set instead of a whole \
-                    level.
+                    variation.
+                    """)),
+            Section(id: 12,
+                    title: String(localized: "Trying the next movement"),
+                    body: String(localized: """
+                    A harder variation is never handed to you on a guess. When \
+                    you top out the reps, the LAST set of that exercise becomes \
+                    a probe: one set of the next movement, four reps or fifteen \
+                    seconds. Manage it and the next workout starts you there, \
+                    at three sets of four. Fall short and nothing moves — you \
+                    stay where you are and the probe comes round again. There \
+                    is no wrong answer to give it, and the volume of the \
+                    workout does not change either way.
                     """)),
             Section(id: 10,
                     title: String(localized: "Why there are no questionnaires"),
                     body: String(localized: """
                     A questionnaire can be wrong; what you actually did cannot. \
-                    Dredfit finds your level from real workouts and keeps the \
-                    load right at the edge of what you can manage.
+                    Dredfit learns what you can do from real workouts and keeps \
+                    the load right at the edge of it.
                     """)),
             // The interference effect, said once and statically. It is a
             // scheduling hint, not a rule the engine can act on — Dredfit

@@ -9,7 +9,7 @@ installed on the simulator (any earlier test run does this):
 
 ```bash
 python3 seed.py <udid> A   # counter 11 → Today, workout flow, rating
-python3 seed.py <udid> B   # counter 34, total level 158 → Progress
+python3 seed.py <udid> B   # counter 34, 667 steps in total → Progress
 ```
 
 Seed A feeds `testSeeded*` and `testRating*`; seed B feeds `testProgress*`.

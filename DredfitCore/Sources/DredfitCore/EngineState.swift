@@ -1,125 +1,112 @@
 //
-//  The engine's state: the fields, the tolerant decode of files written by
-//  older builds, and the sanitizer that heals garbage on the way in. Split out
-//  of Engine.swift when that file outgrew the lint's ceiling.
+//  The engine's state (§40.2): six coordinates per pattern, the journal of
+//  what was shown, and the global counters that survived v2 unchanged.
+//
+//  THERE IS NO MIGRATION FROM v2 — owner's decision, 25.08.2026 (§40.8). A
+//  state written by an older build carries no `vars` and no `doses`, so the
+//  decode below FAILS on it and the app hands the engine `initial`: every
+//  pattern on its first rung at 3×4 (3×15 s). The workout journal — the
+//  history the person has actually lived — is a different file and is not
+//  touched. Code that reads the old shape is deliberately not written: people
+//  walk back to their own level with the honest-numbers rule (§40.3, §40.8),
+//  in about two appearances per variation, and a reader that guessed at old
+//  levels would be predicting exactly what §40.0 forbids.
 //
 
 import Foundation
 
 public struct EngineState: Codable, Equatable, Sendable {
     public var counter: Int
-    public var levels: [Pattern: Int]
-    /// The sub-step — how many of a pattern's sets already carry the next
-    /// rung's dose. Range after sanitizing is `0...sets(L)-1`: at `sets(L)`
-    /// sub-steps the rung is complete and the level rises on its own. Sparse —
-    /// zeros are never stored — so a state file written before this existed
-    /// decodes to all zeros, and the plan it produces is bit-for-bit the plan
-    /// the previous version produced. No migration.
-    ///
-    /// On the top rung of a tier or band (`L mod 8 == 7`) the sub-step is
-    /// DISABLED and the sanitizer forces it to zero: rung `L+1` there belongs
-    /// to another variation, and two variations may never share one exercise.
+    public var hasBar: Bool
+
+    // MARK: - The position, one coordinate per map
+
+    /// Index along the pattern's ladder, 1…N. Dense: every pattern has one.
+    public var vars: [Pattern: Int]
+    /// Reps — or seconds — per set. Dense, in the unit of the CURRENT variation.
+    public var doses: [Pattern: Int]
+    /// Sets. Sparse, and the base of 3 is never stored — so a state that never
+    /// entered a band is byte-identical to one that came back out of it. Bands
+    /// 4 and 5 exist only on the top variation (§40.5).
+    public var sets: [Pattern: Int]
+    /// The sub-step (v2.22): the first `sub` sets carry one rung more. Sparse.
     public var sub: [Pattern: Int]
-    /// Sets taken off the level's plan. Range after sanitizing is `0...band −
-    /// setsFloor`: the ceiling is the SHARED floor, and it is the only one —
-    /// the pain channel's landing of a single set no longer exists, so a state
-    /// carrying one is normalized up to two sets rather than preserved. Sparse
-    /// — zeros are never stored — so a file written before this existed
-    /// decodes to all zeros and the plan it produces is bit-for-bit what the
-    /// previous version produced. No migration.
-    ///
-    /// The second axis of a position: the level fixes the VARIATION and the
-    /// DOSE PER SET, the cut fixes only the VOLUME.
+    /// Sets taken off (v2.25 §36). Sparse.
     public var cut: [Pattern: Int]
+    /// THE JOURNAL OF WHAT WAS SHOWN: per variation touched, the last dose
+    /// actually performed, in that variation's own unit. Written after every
+    /// appearance — by the fact when numbers are entered, by the plan when the
+    /// tap is used (§40.2).
+    ///
+    /// It is both the point of return (§40.6) and the ceiling on any
+    /// assignment (И2). Doubly sparse: a pattern with no entries is not
+    /// stored, a variation with no entry is not stored.
+    public var shown: [Pattern: [Int: Int]]
+
+    // MARK: - Global fields, unchanged in meaning since v2 (§40.7)
+
     /// Appearances left before the next set may come back. While it ticks, a
-    /// growth event goes into the DOSE — the trainee keeps growing, just by a
-    /// smaller step. Sparse, like every other counter here.
+    /// growth event goes into the DOSE.
     public var setsHold: [Pattern: Int]
-    /// The work shown in the last COMPLETED session, and the position it was
-    /// shown AT. Together they are the input to the postcondition repair — "if
-    /// a pattern's position did not rise, its plan may not get heavier".
-    ///
-    /// The third input, `shownBudget`, is gone with the budget. It existed
-    /// because the budget worked PAST the position measure — it trimmed the
-    /// plan without touching level, sub-step or cut, so moving the handle had
-    /// to be declared a legitimate cause of growth by hand. The sets handle
-    /// writes `cut`, a coordinate of the position, so releasing it IS a rise
-    /// and the general gate excludes it on its own.
-    ///
-    /// `shownWork` is sparse on "work > 0", so an absent entry unambiguously
-    /// means "never shown"; `shownOrd` is only meaningful where `shownWork`
-    /// has an entry — the pair is written by one loop and always together.
+    /// The work shown in the last COMPLETED appearance, and the position it
+    /// was shown AT — the two inputs to the postcondition repair.
     public var shownWork: [Pattern: Int]
     public var shownOrd: [Pattern: Int]
     public var failStreak: [Pattern: Int]
-    public var hasBar: Bool
-    /// How many "less" ratings in a row named no movement. The third such
-    /// rating hands the delta back to the whole session — a run of unnamed
-    /// "less" is a statement about the plan, not about one exercise.
+    /// Patterns whose last appearance the person called hard. A NEW field, and
+    /// it cannot be derived from `failStreak`: a deload zeroes the streak,
+    /// while the probe condition of §40.4 ("the last answer was not «hard»")
+    /// has to outlive the deload.
+    public var lastHard: Set<Pattern>
+    /// How many "less" ratings in a row named no movement.
     public var lessRun: Int
-    /// Branches of the pull slot the cross-credit is paused for, because the
-    /// last session they appeared in was reported as hard. The credit lands on
-    /// sessions the branch is not in — the ones you cannot answer — so without
-    /// this the level runs away from what you can do.
+    /// Branches of the pull slot the cross-credit is paused for.
     public var creditPaused: Set<Pattern>
-    /// Comebacks applied in a row with no completed session between them. Each
-    /// one past the first deepens the drop by one — the plan must slide faster
-    /// than fitness decays, or every return in a "come back once, vanish a
-    /// month" series is infeasible.
+    /// Comebacks applied in a row with no completed session between them.
     public var returnRun: Int
     /// The last appearances of each pattern as a bit mask — bit set = that
-    /// appearance fell in a session rated an unnamed "less". Sparse: an empty
-    /// mask is not stored, so a state file written before this existed decodes
-    /// to exactly that.
+    /// appearance fell in a session rated an unnamed "less".
     public var lessHist: [Pattern: Int]
-    /// Sessions left in the limited-growth window a comeback opens — "more" is
-    /// credited as "plan" and every rise is one.
+    /// Sessions left in the limited-growth window a comeback opens.
     public var rampWindow: Int
-    /// Levels gained inside the current weekly window and how old that window
-    /// is in days. Both stay idle until the app supplies the gap signal —
-    /// without it the engine is calendar-blind, as the model says.
+    /// Growth events spent inside the current weekly window, and how old that
+    /// window is in days. Both stay idle until the app supplies the gap.
     public var weekGain: [Pattern: Int]
     /// FRACTIONAL. Rounding it lost the fraction of a day for good, and two
-    /// workouts inside one day left the window standing still forever. States
-    /// written by older builds carry whole days and stay valid without a
-    /// migration.
+    /// workouts inside one day left the window standing still forever.
     public var weekAgeDays: Double
 
-    // Spelled out (same names the compiler would synthesize) so that
-    // decodeLenient can reference the type — synthesized CodingKeys are only
-    // visible inside init(from:)/encode(to:). The wire format is unchanged.
-    // Seven keys are gone — `frozen`, `sore`, `soreLeft`, `painSeen`,
-    // `illness`, `timeBudgetMin`, `shownBudget`. A file written by an older
-    // build still carries them; `decodeIfPresent`/`contains` never ask for
-    // them, so they are simply ignored. That IS the migration.
+    // Spelled out (same names the compiler would synthesize) so decodeLenient
+    // can reference the type — synthesized CodingKeys are only visible inside
+    // init(from:)/encode(to:).
     private enum CodingKeys: String, CodingKey {
-        case counter, levels, failStreak, hasBar, lessRun, creditPaused,
-             returnRun, lessHist, rampWindow, weekGain,
-             weekAgeDays, sub,
-             // Four sparse maps, all additive.
-             cut, setsHold, shownWork, shownOrd
+        case counter, hasBar, vars, doses, sets, sub, cut, shown,
+             setsHold, shownWork, shownOrd, failStreak, lastHard,
+             lessRun, creditPaused, returnRun, lessHist, rampWindow,
+             weekGain, weekAgeDays
     }
 
-    public init(counter: Int, levels: [Pattern: Int],
-                failStreak: [Pattern: Int], hasBar: Bool = false,
-                lessRun: Int = 0,
-                creditPaused: Set<Pattern> = [],
-                returnRun: Int = 0, lessHist: [Pattern: Int] = [:],
-                rampWindow: Int = 0,
-                weekGain: [Pattern: Int] = [:], weekAgeDays: Double = 0,
-                sub: [Pattern: Int] = [:],
-                cut: [Pattern: Int] = [:],
-                setsHold: [Pattern: Int] = [:], shownWork: [Pattern: Int] = [:],
-                shownOrd: [Pattern: Int] = [:]) {
+    public init(counter: Int, vars: [Pattern: Int], doses: [Pattern: Int],
+                failStreak: [Pattern: Int], hasBar: Bool,
+                sets: [Pattern: Int], sub: [Pattern: Int], cut: [Pattern: Int],
+                shown: [Pattern: [Int: Int]], setsHold: [Pattern: Int],
+                shownWork: [Pattern: Int], shownOrd: [Pattern: Int],
+                lastHard: Set<Pattern>, lessRun: Int, creditPaused: Set<Pattern>,
+                returnRun: Int, lessHist: [Pattern: Int], rampWindow: Int,
+                weekGain: [Pattern: Int], weekAgeDays: Double) {
         self.counter = counter
-        self.levels = levels
+        self.vars = vars
+        self.doses = doses
+        self.failStreak = failStreak
+        self.hasBar = hasBar
+        self.sets = sets
         self.sub = sub
         self.cut = cut
+        self.shown = shown
         self.setsHold = setsHold
         self.shownWork = shownWork
         self.shownOrd = shownOrd
-        self.failStreak = failStreak
-        self.hasBar = hasBar
+        self.lastHard = lastHard
         self.lessRun = lessRun
         self.creditPaused = creditPaused
         self.returnRun = returnRun
@@ -129,129 +116,147 @@ public struct EngineState: Codable, Equatable, Sendable {
         self.weekAgeDays = weekAgeDays
     }
 
-    /// Lenient in both directions: files written before hasBar/pull_bar
-    /// existed get the defaults, and entries for unknown patterns (a file
-    /// written by a future version, opened after a downgrade) are dropped
-    /// instead of failing the whole decode and losing the user's history.
+    /// `vars` and `doses` are REQUIRED, and that is the whole of the
+    /// no-migration decision in code: a v2 file has `levels` instead and
+    /// throws here, which is what the app reads as "start clean". Every other
+    /// field is additive and tolerant, exactly as before — a v3 file written
+    /// by a build that predates a later field must keep working.
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
-        // A corrupt or hand-edited file must not feed a negative counter into
-        // the rotation — it would index out of bounds in generateSession. And
-        // not a huge one either — `counter * rotationStep` near Int.max traps
-        // the process on every plan.
-        counter = Self.clamped(try c.decode(Int.self, forKey: .counter), 0, EngineConfig.countMax)
-        var lv = try Self.decodeLenient(c, forKey: .levels)
-        var fs = try Self.decodeLenient(c, forKey: .failStreak)
-        for p in Pattern.allCases {
-            // A level outside the scale used to survive decode and produce an
-            // unearned deload on a successful session (`999` read as an old
-            // level made every new one a shortfall).
-            lv[p] = Self.clamped(lv[p] ?? 0, 0, EngineConfig.levelMax)
-            fs[p] = Self.clamped(fs[p] ?? 0, 0, EngineConfig.countMax)
-        }
-        levels = lv
-        failStreak = fs
+        counter = Self.clamped(try c.decode(Int.self, forKey: .counter),
+                               0, EngineConfig.countMax)
+        vars = try Self.decodeLenient(c, forKey: .vars)
+        doses = try Self.decodeLenient(c, forKey: .doses)
         hasBar = try c.decodeIfPresent(Bool.self, forKey: .hasBar) ?? false
-        // Additive: absent in every file an older build wrote, and a
-        // hand-edited negative can only mean garbage.
+        sets = c.contains(.sets) ? try Self.decodeLenient(c, forKey: .sets) : [:]
+        sub = c.contains(.sub) ? try Self.decodeLenient(c, forKey: .sub) : [:]
+        cut = c.contains(.cut) ? try Self.decodeLenient(c, forKey: .cut) : [:]
+        shown = c.contains(.shown) ? try Self.decodeShown(c, forKey: .shown) : [:]
+        failStreak = c.contains(.failStreak)
+            ? try Self.decodeLenient(c, forKey: .failStreak) : [:]
+        setsHold = c.contains(.setsHold) ? try Self.decodeLenient(c, forKey: .setsHold) : [:]
+        shownWork = c.contains(.shownWork) ? try Self.decodeLenient(c, forKey: .shownWork) : [:]
+        shownOrd = c.contains(.shownOrd) ? try Self.decodeLenient(c, forKey: .shownOrd) : [:]
+        lastHard = Set((try c.decodeIfPresent([String].self, forKey: .lastHard) ?? [])
+            .compactMap(Pattern.init(rawValue:)))
         lessRun = Self.clamped(try c.decodeIfPresent(Int.self, forKey: .lessRun) ?? 0,
                                0, EngineConfig.countMax)
-        // Additive: absent from older files, and unknown patterns are dropped
-        // the same way the level maps drop them. The pause is a map over the
-        // pull slot's two branches — any other pattern is garbage the
-        // reference filters out on every build, and used to live here forever.
         creditPaused = Set((try c.decodeIfPresent([String].self, forKey: .creditPaused) ?? [])
             .compactMap(Pattern.init(rawValue:))).intersection(Pattern.pullSide)
-        // Additive, garbage sanitized as the reference does.
         returnRun = Self.clamped(try c.decodeIfPresent(Int.self, forKey: .returnRun) ?? 0,
                                  0, EngineConfig.countMax)
-        // Additive, sanitized as the reference does: only live masks survive,
-        // each clamped to the window's width.
-        lessHist = c.contains(.lessHist)
-            ? try Self.decodeLenient(c, forKey: .lessHist)
-                .filter { $0.value >= 1 }
-                .mapValues { Self.clamped($0, 1, EngineState.chronicMaskMax) }
-            : [:]
-        // Additive: absent in every file written before this.
+        lessHist = c.contains(.lessHist) ? try Self.decodeLenient(c, forKey: .lessHist) : [:]
         rampWindow = Self.clamped(try c.decodeIfPresent(Int.self, forKey: .rampWindow) ?? 0,
                                   0, EngineConfig.rampWindowSessions)
-        weekGain = c.contains(.weekGain)
-            ? try Self.decodeLenient(c, forKey: .weekGain)
-                .filter { $0.value >= 1 }
-                .mapValues { Self.clamped($0, 1, EngineConfig.countMax) }
-            : [:]
-        // Fractional now. A whole number written by an older build decodes
-        // into a Double unchanged, so old files need no migration.
+        weekGain = c.contains(.weekGain) ? try Self.decodeLenient(c, forKey: .weekGain) : [:]
         weekAgeDays = Self.clamped(try c.decodeIfPresent(Double.self, forKey: .weekAgeDays) ?? 0,
                                    0, Double(EngineConfig.countMax))
-        // Additive; healed against the levels, so it is read last.
-        sub = Self.healSub(c.contains(.sub) ? try Self.decodeLenient(c, forKey: .sub) : [:], levels: lv)
-        // Additive. The cut is healed against the levels too — its ceiling is
-        // a property of the level's band, not a constant.
-        cut = Self.healCut(c.contains(.cut) ? try Self.decodeLenient(c, forKey: .cut) : [:],
-                           levels: lv)
-        setsHold = c.contains(.setsHold)
-            ? try Self.decodeLenient(c, forKey: .setsHold)
-                .filter { $0.value >= 1 }
-                .mapValues { Self.clamped($0, 1, EngineConfig.setsBackHold) }
-            : [:]
-        // Sparse on "work > 0": an absent entry means the plan was never
-        // shown, which is what the repair reads it as.
-        shownWork = c.contains(.shownWork)
-            ? try Self.decodeLenient(c, forKey: .shownWork).filter { $0.value > 0 }
-            : [:]
-        // NOT sparse on zero: a shown position of exactly zero is a real
-        // value, and only the presence of the key carries "was it shown".
-        shownOrd = c.contains(.shownOrd) ? try Self.decodeLenient(c, forKey: .shownOrd) : [:]
     }
 
     /// Manual decode of the exact wire format Swift synthesizes for a
-    /// [Pattern: Int]: an UNKEYED array alternating [rawValue, count, ...]
+    /// `[Pattern: Int]`: an UNKEYED array alternating [rawValue, count, ...]
     /// (see the warning on Pattern). The encode side stays synthesized — the
-    /// format is byte-compatible and pinned by
-    /// testLegacyStateDecodesWithBarDefaults.
+    /// format is byte-compatible. Entries for unknown patterns (a file written
+    /// by a future version, opened after a downgrade) are dropped rather than
+    /// failing the whole decode.
     private static func decodeLenient(
         _ c: KeyedDecodingContainer<CodingKeys>, forKey key: CodingKeys) throws -> [Pattern: Int] {
         var uc = try c.nestedUnkeyedContainer(forKey: key)
         var out: [Pattern: Int] = [:]
         while !uc.isAtEnd {
             let raw = try uc.decode(String.self)
-            let count = try uc.decode(Int.self)   // a malformed pair is still a real error
-            if let p = Pattern(rawValue: raw) { out[p] = count }
+            let value = try uc.decode(Int.self)   // a malformed pair is still a real error
+            if let p = Pattern(rawValue: raw) { out[p] = value }
         }
         return out
     }
 
+    /// The journal, one level deeper: the outer map is the same unkeyed
+    /// alternating form, the inner `[Int: Int]` is a keyed object because
+    /// Swift special-cases integer keys.
+    private static func decodeShown(
+        _ c: KeyedDecodingContainer<CodingKeys>,
+        forKey key: CodingKeys) throws -> [Pattern: [Int: Int]] {
+        var uc = try c.nestedUnkeyedContainer(forKey: key)
+        var out: [Pattern: [Int: Int]] = [:]
+        while !uc.isAtEnd {
+            let raw = try uc.decode(String.self)
+            let row = try uc.decode([Int: Int].self)
+            if let p = Pattern(rawValue: raw) { out[p] = row }
+        }
+        return out
+    }
+
+    /// §40.8: a clean start — every pattern on its first rung, 3×4 (3×15 s).
     public static var initial: EngineState {
-        EngineState(
-            counter: 0,
-            levels: Dictionary(uniqueKeysWithValues: Pattern.allCases.map { ($0, 0) }),
-            failStreak: Dictionary(uniqueKeysWithValues: Pattern.allCases.map { ($0, 0) }))
+        var vars: [Pattern: Int] = [:]
+        var doses: [Pattern: Int] = [:]
+        var streaks: [Pattern: Int] = [:]
+        for p in Pattern.allCases {
+            vars[p] = 1
+            doses[p] = Dose.grid(Library.unit(p, 1)).min
+            streaks[p] = 0
+        }
+        return EngineState(counter: 0, vars: vars, doses: doses, failStreak: streaks,
+                           hasBar: false, sets: [:], sub: [:], cut: [:], shown: [:],
+                           setsHold: [:], shownWork: [:], shownOrd: [:], lastHard: [],
+                           lessRun: 0, creditPaused: [], returnRun: 0, lessHist: [:],
+                           rampWindow: 0, weekGain: [:], weekAgeDays: 0)
     }
 
     /// The state as the engine is willing to read it — the port's mirror of
-    /// the reference's "rebuild every field through a sanitizer on every
-    /// build". Decoding alone was not enough: the memberwise initializer is a
-    /// second door (the app's migrations, a test, a future caller), and the
-    /// reference heals the same garbage on every call. On the valid domain
-    /// this is the identity, which is what keeps the golden fixture
-    /// bit-for-bit.
+    /// "rebuild every field through a sanitizer on every call". Decoding alone
+    /// was never enough: the memberwise initializer is a second door. On the
+    /// valid domain this is the identity, which is what keeps the golden
+    /// fixture bit-for-bit.
+    ///
+    /// The ORDER matters and mirrors `readState`: variations first (they fix
+    /// the unit and the set ceiling), then sets, then doses, then the cut,
+    /// then the sub-step, which needs all four.
     func sanitized() -> EngineState {
-        var lv: [Pattern: Int] = [:]
-        var fs: [Pattern: Int] = [:]
+        var cleanVars: [Pattern: Int] = [:]
+        var cleanStreaks: [Pattern: Int] = [:]
         for p in Pattern.allCases {
-            lv[p] = Self.clamped(levels[p] ?? 0, 0, EngineConfig.levelMax)
-            fs[p] = Self.clamped(failStreak[p] ?? 0, 0, EngineConfig.countMax)
+            cleanVars[p] = Self.clamped(vars[p] ?? 1, 1, Library.count(p))
+            cleanStreaks[p] = Self.clamped(failStreak[p] ?? 0, 0, EngineConfig.countMax)
+        }
+        var cleanSets: [Pattern: Int] = [:]
+        var cleanDoses: [Pattern: Int] = [:]
+        for p in Pattern.allCases {
+            let v = cleanVars[p]!
+            if let raw = sets[p] {
+                let value = Self.clamped(raw, EngineConfig.setsBase, Engine.setsCeil(p, v))
+                if value != EngineConfig.setsBase { cleanSets[p] = value }
+            }
+            let unit = Library.unit(p, v)
+            cleanDoses[p] = doses[p].map { Dose.clamped(unit, Dose.snap(unit, $0)) }
+                ?? Dose.grid(unit).min
+        }
+        var cleanCut: [Pattern: Int] = [:]
+        for (p, raw) in cut {
+            let value = Engine.effCut(sets: cleanSets[p] ?? EngineConfig.setsBase, cut: raw)
+            if value > 0 { cleanCut[p] = value }
+        }
+        var cleanSub: [Pattern: Int] = [:]
+        for (p, raw) in sub {
+            let pos = Position(variation: cleanVars[p] ?? 1,
+                               sets: cleanSets[p] ?? EngineConfig.setsBase,
+                               dose: cleanDoses[p] ?? 0, sub: raw,
+                               cut: cleanCut[p] ?? 0)
+            let value = Engine.effSub(p, pos, sets: nil)
+            if value > 0 { cleanSub[p] = value }
         }
         return EngineState(
             counter: Self.clamped(counter, 0, EngineConfig.countMax),
-            levels: lv,
-            failStreak: fs,
-            hasBar: hasBar,
-            // Sparse maps keep only live entries, exactly as the reference does.
+            vars: cleanVars, doses: cleanDoses, failStreak: cleanStreaks, hasBar: hasBar,
+            sets: cleanSets, sub: cleanSub, cut: cleanCut,
+            shown: Self.healShown(shown),
+            setsHold: setsHold.filter { $0.value >= 1 }
+                .mapValues { Self.clamped($0, 1, EngineConfig.setsBackHold) },
+            shownWork: shownWork.filter { $0.value > 0 },
+            shownOrd: shownOrd,
+            lastHard: lastHard,
             lessRun: Self.clamped(lessRun, 0, EngineConfig.countMax),
-            // The credit pause is a map over the pull slot's two branches; any
-            // other pattern in there is garbage the reference filters out.
             creditPaused: creditPaused.intersection(Pattern.pullSide),
             returnRun: Self.clamped(returnRun, 0, EngineConfig.countMax),
             lessHist: lessHist.filter { $0.value >= 1 }
@@ -259,46 +264,26 @@ public struct EngineState: Codable, Equatable, Sendable {
             rampWindow: Self.clamped(rampWindow, 0, EngineConfig.rampWindowSessions),
             weekGain: weekGain.filter { $0.value >= 1 }
                 .mapValues { Self.clamped($0, 1, EngineConfig.countMax) },
-            weekAgeDays: Self.clamped(weekAgeDays, 0, Double(EngineConfig.countMax)),
-            sub: Self.healSub(sub, levels: lv),
-            cut: Self.healCut(cut, levels: lv),
-            setsHold: setsHold.filter { $0.value >= 1 }
-                .mapValues { Self.clamped($0, 1, EngineConfig.setsBackHold) },
-            shownWork: shownWork.filter { $0.value > 0 },
-            shownOrd: shownOrd)
+            weekAgeDays: Self.clamped(weekAgeDays, 0, Double(EngineConfig.countMax)))
     }
 
-    /// The cut map, healed the way the reference heals it. The ceiling is the
-    /// SHARED floor, and it is now the only one. A state written by an older
-    /// build that sat on the pain channel's single set normalizes UP to two —
-    /// 480 positions out of 480, worst `squat L0: 1×8 → 2×8`. That cost is
-    /// named in the spec and accepted: one set of anything is lighter than two
-    /// of the easiest thing, so no landing of the level could avoid it. Zeros
-    /// are never stored, so a state that gave every set back is byte-identical
-    /// to one that never lost any.
-    static func healCut(_ src: [Pattern: Int], levels: [Pattern: Int]) -> [Pattern: Int] {
-        var out: [Pattern: Int] = [:]
-        for (p, raw) in src {
-            let level = clamped(levels[p] ?? 0, 0, EngineConfig.levelMax)
-            let value = Level.effCut(level: level, cut: raw)
-            if value > 0 { out[p] = value }
-        }
-        return out
-    }
-
-    /// The sub-step map, healed the way the reference heals it. Non-numbers
-    /// and negatives read as zero; anything at or above the level's set band
-    /// clamps to `sets-1`; the top rung of a tier or band is forced to zero,
-    /// which is what makes "the plan on a top rung is always uniform" hold
-    /// structurally rather than by a check inside the plan. Zeros are never
-    /// stored, so a state that descended is byte-identical to one that never
-    /// saw a sub-step at all.
-    static func healSub(_ src: [Pattern: Int], levels: [Pattern: Int]) -> [Pattern: Int] {
-        var out: [Pattern: Int] = [:]
-        for (p, raw) in src {
-            let level = clamped(levels[p] ?? 0, 0, EngineConfig.levelMax)
-            let value = Level.effectiveSub(level: level, sub: raw)
-            if value > 0 { out[p] = value }
+    /// The journal, healed. A value is snapped and capped by the SCALE of the
+    /// variation it belongs to — the journal has no right to promise more than
+    /// the ladder can show. It is NOT clamped from below: "I showed two reps"
+    /// is a fact too, and it is exactly the one that sends a person a
+    /// variation down (§40.3). The dose floor is applied at LANDING.
+    static func healShown(_ src: [Pattern: [Int: Int]]) -> [Pattern: [Int: Int]] {
+        var out: [Pattern: [Int: Int]] = [:]
+        for p in Pattern.allCases {
+            guard let row = src[p] else { continue }
+            var dst: [Int: Int] = [:]
+            for v in 1...Library.count(p) {
+                guard let raw = row[v] else { continue }
+                let unit = Library.unit(p, v)
+                let d = min(Dose.snap(unit, raw), Dose.grid(unit).max)
+                if d > 0 { dst[v] = d }
+            }
+            if !dst.isEmpty { out[p] = dst }
         }
         return out
     }
@@ -306,11 +291,19 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// The sets taken off a pattern, zero when none are.
     public func cutOf(_ pattern: Pattern) -> Int { cut[pattern] ?? 0 }
 
-    /// The pattern's place on the progression — a TRIPLE: the sets taken off
-    /// are a coordinate of the position, and every ceiling that reads a rise
-    /// reads the measure over all three.
+    /// The pattern's place on its ladder — all six coordinates.
     public func position(_ pattern: Pattern) -> Position {
-        Position(level: levels[pattern] ?? 0, sub: sub[pattern] ?? 0, cut: cut[pattern] ?? 0)
+        Position(variation: vars[pattern] ?? 1,
+                 sets: sets[pattern] ?? EngineConfig.setsBase,
+                 dose: doses[pattern] ?? 0,
+                 sub: sub[pattern] ?? 0,
+                 cut: cut[pattern] ?? 0)
+    }
+
+    /// The last dose recorded for a variation, if the trainee has ever been
+    /// there. The app's progress screens read the ladder through this.
+    public func shownDose(_ pattern: Pattern, variation: Int) -> Int? {
+        shown[pattern]?[variation]
     }
 
     static func clamped(_ v: Int, _ lo: Int, _ hi: Int) -> Int { min(max(v, lo), hi) }

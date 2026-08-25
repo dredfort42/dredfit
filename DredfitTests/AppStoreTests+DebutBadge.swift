@@ -38,21 +38,33 @@ extension AppStoreTests {
         for (url, performed) in [(tempURL!, true), (hurtURL, false)] {
             let store = AppStore(storageURL: url)
             var day = 0
+            // Every probe is passed: since §40.4 that is the only door into a
+            // new movement, so a walk that ignored them would never get there.
             func train(_ result: FeedbackResult, overrides: [Pattern: Int] = [:],
                        skipped: Set<Pattern> = []) {
                 day += 1
-                store.completeWorkout(session: store.nextSession, result: result,
-                                      overrides: overrides, skipped: skipped,
-                                      date: start.addingTimeInterval(Double(day) * 86_400))
+                let session = store.nextSession
+                var probes: [Pattern: Int] = [:]
+                for ex in session.exercises {
+                    guard let probe = ex.probe else { continue }
+                    probes[ex.pattern] = Dose.grid(probe.unit).min
+                }
+                _ = store.completeWorkout(session: session, result: result,
+                                          overrides: overrides, skipped: skipped,
+                                          probes: probes,
+                                          date: start.addingTimeInterval(Double(day) * 86_400))
             }
-            func pullTier() -> Int {
-                store.nextSession.exercises.first { $0.pattern == .pull }!.tier
+            func pullVariation() -> Int {
+                store.nextSession.exercises.first { $0.pattern == .pull }!.variation
             }
 
-            // Walk pull to tier 2: it is in every session, and its cells allow
-            // +2 below tier 4 — three levels a week, so the climb takes weeks.
-            while pullTier() < 2 {
-                guard day < 60 else { return XCTFail("seeding: pull never reached tier 2") }
+            // Walk pull to its second variation: it is in every session, and
+            // the weekly ceiling holds the slow tissues to three growth events
+            // a week, so the climb takes weeks.
+            while pullVariation() < 2 {
+                guard day < 200 else {
+                    return XCTFail("seeding: pull never reached its second variation")
+                }
                 train(.more)
             }
             // The movement used to be taken out of the session by a pain
@@ -62,13 +74,13 @@ extension AppStoreTests {
             if performed {
                 train(.plan)
                 XCTAssertFalse(store.debutPatterns.contains(.pull),
-                               "actually performed — tier 2 is no debut")
+                               "actually performed — the second variation is no debut")
                 continue
             }
             train(.plan, skipped: [.pull])
-            XCTAssertEqual(pullTier(), 2, "a skip does not change the variation")
+            XCTAssertEqual(pullVariation(), 2, "a skip does not change the variation")
             XCTAssertTrue(store.debutPatterns.contains(.pull),
-                          "not performed — tier 2 is still a debut")
+                          "not performed — the second variation is still a debut")
             train(.plan)
             XCTAssertFalse(store.debutPatterns.contains(.pull),
                            "performed at last — the badge is spent")

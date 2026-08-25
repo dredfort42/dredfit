@@ -9,7 +9,7 @@ final class AppStoreTests: AppStoreTestCase {
 
     func testFreshStoreStartsEmpty() {
         let store = AppStore(storageURL: tempURL)
-        XCTAssertEqual(store.totalLevel, 0)
+        XCTAssertEqual(store.totalProgress, 0)
         XCTAssertTrue(store.records.isEmpty)
         XCTAssertFalse(store.doneToday)
         XCTAssertEqual(store.nextSession.sessionNumber, 1)
@@ -33,7 +33,7 @@ final class AppStoreTests: AppStoreTestCase {
         XCTAssertEqual(reloaded.records.last?.actuals?[session.exercises[0].pattern], 6)
         // skips and the per-pattern level snapshot survive the reload
         XCTAssertEqual(reloaded.records.last?.skipped, [skippedPattern])
-        XCTAssertEqual(reloaded.records.last?.levelsAfter, store.engineState.levels)
+        XCTAssertEqual(reloaded.records.last?.positionsAfter, store.currentPositions)
     }
 
     /// The journal keeps the sets behind the number, so history can say
@@ -42,7 +42,10 @@ final class AppStoreTests: AppStoreTestCase {
         let store = AppStore(storageURL: tempURL)
         let session = store.nextSession
         let ex = session.exercises[0]
-        let facts = SetFacts.recording(ex.load - 5, in: [:], ex, set: ex.sets - 1)
+        // One rep short on the last set. A clean start plans 3×4, and the
+        // corridor floor is 0 — "minus five" would have been clamped there and
+        // the assertion would have compared two clamps.
+        let facts = SetFacts.recording(ex.load - 1, in: [:], ex, set: ex.sets - 1)
         let overrides = SetFacts.overrides(facts, in: session.exercises)
         store.completeWorkout(session: session, result: .plan,
                               overrides: overrides, setActuals: facts)
@@ -58,7 +61,7 @@ final class AppStoreTests: AppStoreTestCase {
         let session = store.nextSession
         let skippedPattern = session.exercises[2].pattern
         store.completeWorkout(session: session, result: .more, skipped: [skippedPattern])
-        XCTAssertEqual(store.engineState.levels[skippedPattern], 0,
+        XCTAssertEqual(Engine.progress(store.engineState, skippedPattern), 0,
                        "a skipped pattern must not level up")
         XCTAssertEqual(store.engineState.sub[skippedPattern] ?? 0, 0,
                        "nor collect a sub-step")
@@ -74,7 +77,7 @@ final class AppStoreTests: AppStoreTestCase {
         try Data("{not a json".utf8).write(to: tempURL)
         let store = AppStore(storageURL: tempURL)
         XCTAssertTrue(store.records.isEmpty, "a corrupted file should give a clean start, not a crash")
-        XCTAssertEqual(store.totalLevel, 0)
+        XCTAssertEqual(store.totalProgress, 0)
     }
 
     func testCorruptedStorageIsQuarantinedNotOverwritten() throws {
@@ -182,7 +185,8 @@ final class AppStoreTests: AppStoreTestCase {
         let store = AppStore(storageURL: tempURL)
         XCTAssertEqual(store.records.count, 1, "the readable record must survive")
         XCTAssertEqual(store.records.first?.sessionNumber, 1)
-        XCTAssertEqual(store.totalLevel, 12, "engine state must load untouched")
+        XCTAssertEqual(store.totalProgress, 0,
+                       "a v2 engine state does not decode, so the engine starts clean (§40.8)")
         XCTAssertTrue(FileManager.default.fileExists(atPath: corruptURL.path),
                       "the full original must be kept aside when entries are dropped")
     }
@@ -208,12 +212,14 @@ final class AppStoreTests: AppStoreTestCase {
         XCTAssertNil(store.records[0].exercises, "a legacy record should have no snapshot")
         XCTAssertNil(store.records[0].actuals)
         XCTAssertNil(store.records[0].skipped, "v1.0 records have no skips")
-        XCTAssertNil(store.records[0].levelsAfter, "v1.0 records have no level snapshot")
-        XCTAssertEqual(store.totalLevel, 12)
+        XCTAssertNil(store.records[0].positionsAfter, "v1.0 records have no position snapshot")
+        XCTAssertNil(store.records[0].totalProgressAfter,
+                     "and none of them carries a number on the v3 scale")
+        XCTAssertEqual(store.totalProgress, 0, "the engine starts clean (§40.8)")
         XCTAssertEqual(store.settings, AppSettings(), "v1.0 files load with default settings")
         // pre-bar files load with the bar module off and the branch at zero
         XCTAssertFalse(store.engineState.hasBar, "legacy files must decode with hasBar off")
-        XCTAssertEqual(store.engineState.levels[.pullBar], 0)
+        XCTAssertEqual(store.engineState.vars[.pullBar], 1)
         XCTAssertEqual(store.engineState.failStreak[.pullBar], 0)
     }
 
@@ -290,8 +296,12 @@ final class AppStoreTests: AppStoreTestCase {
         XCTAssertEqual(store.settings.reminderMinute, 30)
         XCTAssertTrue(store.settings.healthEnabled)
         XCTAssertEqual(store.settings.healthExportedThrough, 3)
-        XCTAssertTrue(store.engineState.hasBar)
-        XCTAssertEqual(store.engineState.levels[.pullBar], 5)
+        // `hasBar` lives in the ENGINE state, not in the settings, so it goes
+        // with it: a v2 state does not decode (§40.8) and the whole engine —
+        // the toggle included — starts clean. The settings above are a
+        // different object and survive whole.
+        XCTAssertFalse(store.engineState.hasBar)
+        XCTAssertEqual(store.engineState.vars[.pullBar], 1)
         // and the onboarding/review fields arrive at their defaults
         XCTAssertFalse(store.settings.onboardingCompleted)
         XCTAssertNil(store.settings.lastReviewRequestAt)
@@ -383,41 +393,41 @@ final class AppStoreTests: AppStoreTestCase {
 
     // MARK: - Level curve
 
-    func testLevelCurveIsCutAtTheGivenDate() throws {
+    func testProgressCurveIsCutAtTheGivenDate() throws {
         let store = AppStore(storageURL: tempURL, widgetSnapshotURL: nil)
-        store.completeWorkout(session: store.nextSession, result: .plan)
+        _ = store.completeWorkout(session: store.nextSession, result: .plan)
 
-        XCTAssertEqual(store.levelCurve(), store.records.map(\.totalLevelAfter))
-        XCTAssertEqual(store.levelCurve(through: .distantPast), [],
+        XCTAssertEqual(store.progressCurve(), store.records.compactMap(\.totalProgressAfter))
+        XCTAssertEqual(store.progressCurve(through: .distantPast), [],
                        "nothing was recorded before the cut, so there is no curve")
-        XCTAssertEqual(store.levelCurve(through: .distantFuture).count,
+        XCTAssertEqual(store.progressCurve(through: .distantFuture).count,
                        store.records.count)
     }
 
     // MARK: - Week summary
 
-    func testWeekSummaryUsesMondayFirstIsoWeeks() {
+    func testWeekSummaryUsesMondayFirstIsoWeeks() throws {
         let store = AppStore(storageURL: tempURL)
         // Sunday Jul 12, 2026 closes the ISO week Mon Jul 6 – Sun Jul 12.
-        store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 12))
-        let sundayLevel = store.records.last!.totalLevelAfter
+        _ = store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 12))
+        let sundaySteps = try XCTUnwrap(store.records.last?.totalProgressAfter)
         // Monday Jul 13 opens the next ISO week Mon Jul 13 – Sun Jul 19.
-        store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 14))
-        store.completeWorkout(session: store.nextSession, result: .more, date: date(2026, 7, 16))
-        let last = store.records.last!.totalLevelAfter
+        _ = store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 14))
+        _ = store.completeWorkout(session: store.nextSession, result: .more, date: date(2026, 7, 16))
+        let last = try XCTUnwrap(store.records.last?.totalProgressAfter)
 
         // The week of Wed Jul 15 must contain ONLY the two Mon–Sun workouts.
         // A Sunday-first calendar (US default) would wrongly pull in Jul 12.
         let thisWeek = store.weekSummary(for: date(2026, 7, 15))
         XCTAssertEqual(thisWeek.workouts, 2,
                        "the Sunday-Jul-12 workout must fall in the previous ISO week")
-        XCTAssertEqual(thisWeek.levelsDelta, last - sundayLevel,
+        XCTAssertEqual(thisWeek.levelsDelta, last - sundaySteps,
                        "the delta counts from the last record before Monday")
 
         // The Sunday workout belongs to the previous ISO week on its own.
         let prevWeek = store.weekSummary(for: date(2026, 7, 12))
         XCTAssertEqual(prevWeek.workouts, 1, "Sunday closes the previous ISO week")
-        XCTAssertEqual(prevWeek.levelsDelta, sundayLevel, "the first week counts from zero")
+        XCTAssertEqual(prevWeek.levelsDelta, sundaySteps, "the first week counts from zero")
     }
 
     func testWeekSummaryEmptyWeekIsZero() {
@@ -447,17 +457,19 @@ final class AppStoreTests: AppStoreTestCase {
         // The cross-credit moves the branch on pull sessions too, so the level
         // is read from the engine rather than spelled out — this test is about
         // the snapshot and the reload.
-        let barLevel = store.engineState.levels[.pullBar]
-        XCTAssertEqual(store.records.last?.levelsAfter?[.pullBar], barLevel,
-                       "the journal snapshot must include the pull_bar level")
+        let barPosition = store.engineState.position(.pullBar)
+        XCTAssertEqual(store.records.last?.positionsAfter?[.pullBar],
+                       RecordedPosition(variation: barPosition.variation,
+                                        sets: barPosition.sets, dose: barPosition.dose),
+                       "the journal snapshot must include the pull_bar position")
         let reloaded = AppStore(storageURL: tempURL)
         XCTAssertTrue(reloaded.engineState.hasBar)
-        XCTAssertEqual(reloaded.engineState.levels[.pullBar], barLevel)
+        XCTAssertEqual(reloaded.engineState.position(.pullBar), barPosition)
 
         // turning the bar off freezes the branch but keeps its progress
         reloaded.setHasBar(false)
         XCTAssertFalse(reloaded.nextSession.exercises.contains { $0.pattern == .pullBar })
-        XCTAssertEqual(reloaded.engineState.levels[.pullBar], barLevel,
+        XCTAssertEqual(reloaded.engineState.position(.pullBar), barPosition,
                        "turning the bar off keeps the branch where it was")
     }
 
@@ -519,8 +531,8 @@ final class AppStoreTests: AppStoreTestCase {
         }
         XCTAssertEqual(store.records.count, 24)
         XCTAssertEqual(store.records.map(\.sessionNumber), Array(1...24))
-        let chart = store.records.map(\.totalLevelAfter)
-        XCTAssertEqual(chart, chart.sorted(), "the total level must not drop with \"on plan\"")
+        let chart = store.records.compactMap(\.totalProgressAfter)
+        XCTAssertEqual(chart, chart.sorted(), "the total must not drop with \"on plan\"")
         XCTAssertEqual(AppStore(storageURL: tempURL).records.count, 24)
     }
 
@@ -623,19 +635,27 @@ final class AppStoreTests: AppStoreTestCase {
 
     func testSilentDecayAppliesExactlyOncePerBreak() {
         let store = storeWithWorkout(daysAgo: 10, at: tempURL)
-        let before = store.engineState.levels
+        let before = AppStore.positions(of: store.engineState)
         store.applySilentDecayIfNeeded()
         for p in Pattern.allCases {
-            XCTAssertEqual(store.engineState.levels[p], max(0, (before[p] ?? 0) - 1),
-                           "\(p): −1 clamped at 0")
+            // A decay is one rung of DOSE (§40.3), floored by the grid — and
+            // on the floor it takes a set instead, which is why the claim is
+            // "no heavier", not "exactly minus one" for every movement.
+            XCTAssertLessThanOrEqual(Engine.progress(store.engineState, p),
+                                     Engine.progress(p, variation: before[p]!.variation,
+                                                     sets: before[p]!.sets,
+                                                     dose: before[p]!.dose),
+                                     "\(p): a decay never adds")
         }
-        let once = store.engineState.levels
+        let once = AppStore.positions(of: store.engineState)
+        XCTAssertNotEqual(once, before, "the decay did something")
         store.applySilentDecayIfNeeded()
-        XCTAssertEqual(store.engineState.levels, once, "the same break must not decay twice")
+        XCTAssertEqual(AppStore.positions(of: store.engineState), once,
+                       "the same break must not decay twice")
         // The stamp survives a relaunch — persisted, not in-memory.
         let reloaded = AppStore(storageURL: tempURL)
         reloaded.applySilentDecayIfNeeded()
-        XCTAssertEqual(reloaded.engineState.levels, once,
+        XCTAssertEqual(AppStore.positions(of: reloaded.engineState), once,
                        "a relaunch inside the same break must not decay again")
     }
 
@@ -657,15 +677,18 @@ final class AppStoreTests: AppStoreTestCase {
         // Break that got peeked at on day 10: decay, then a weakened comeback.
         let peeked = storeWithWorkout(daysAgo: 10, at: tempURL)
         peeked.applySilentDecayIfNeeded()
-        XCTAssertEqual(peeked.comebackDrop(now: day16), 1,
-                       "the card must show the weakened remainder, not the full table")
         peeked.acceptComeback(now: day16)
         // The same break with the app never opened: one plain comeback.
         let otherURL = tempURL.deletingPathExtension().appendingPathExtension("control.json")
         defer { try? FileManager.default.removeItem(at: otherURL) }
         let control = storeWithWorkout(daysAgo: 10, at: otherURL)
         control.acceptComeback(now: day16)
-        XCTAssertEqual(peeked.engineState.levels, control.engineState.levels,
+        // §14.2, and by construction in v3: a decay plus a weakened comeback
+        // walks the same rungs as one plain comeback. `comebackDrop` used to
+        // say so as a number of levels and went with the level (§40.7); the
+        // identity is read where it lands instead.
+        XCTAssertEqual(AppStore.positions(of: peeked.engineState),
+                       AppStore.positions(of: control.engineState),
                        "peeking mid-break must not cost more than staying away")
     }
 
@@ -674,14 +697,12 @@ final class AppStoreTests: AppStoreTestCase {
         store.applySilentDecayIfNeeded()
         // The break ends: a workout today re-anchors the stamp's reference.
         _ = store.completeWorkout(session: store.nextSession, result: .plan)
-        let after = store.engineState.levels
+        let after = AppStore.positions(of: store.engineState)
         // A fresh 8-day break decays again — the old stamp must not block it.
         let day8 = Calendar.current.date(byAdding: .day, value: 8, to: .now)!
         store.applySilentDecayIfNeeded(now: day8)
-        for p in Pattern.allCases {
-            XCTAssertEqual(store.engineState.levels[p], max(0, (after[p] ?? 0) - 1),
-                           "\(p): a new break must decay independently")
-        }
+        XCTAssertNotEqual(AppStore.positions(of: store.engineState), after,
+                          "a new break must decay independently")
     }
 
 }

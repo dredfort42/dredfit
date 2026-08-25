@@ -38,7 +38,17 @@ final class BlockReserveTests: XCTestCase {
         return GetReady.stageSeconds(needsSetup: position.needsSetup) + hold
     }
 
-    private var warmupSec: Int { Warmup.moves.map(cost).reduce(0, +) }
+    /// One composition of the warm-up.
+    private func warmupSec(session: Int) -> Int {
+        Warmup.moves(sessionNumber: session).map(cost).reduce(0, +)
+    }
+
+    /// The dearest warm-up a session can draw. The block composes six moves
+    /// out of nine now (§40.1), so "what the warm-up costs" is a claim about
+    /// EVERY composition — and the pool was built so they all cost the same.
+    private func worstWarmupSec() -> Int {
+        (1...Warmup.compositionCount).map(warmupSec(session:)).max() ?? 0
+    }
 
     /// The dearest cool-down a session can actually draw. Every subset of the
     /// movements is walked, in both orders — the composition maps `performed`
@@ -61,7 +71,7 @@ final class BlockReserveTests: XCTestCase {
         let reserve = (EngineConfig.warmupMin + EngineConfig.cooldownMin) * 60
         XCTAssertEqual(reserve, 540, "§37.7a: the reserve is 9:00")
         XCTAssertLessThanOrEqual(
-            warmupSec + worstCooldownSec(), reserve,
+            worstWarmupSec() + worstCooldownSec(), reserve,
             "the worst composition of the two blocks overruns the engine's reserve")
     }
 
@@ -71,7 +81,7 @@ final class BlockReserveTests: XCTestCase {
     /// and the announced duration would be quietly wrong the other way.
     func testTheReserveIsSpentToTheSecond() {
         let reserve = (EngineConfig.warmupMin + EngineConfig.cooldownMin) * 60
-        XCTAssertEqual(warmupSec + worstCooldownSec(), reserve,
+        XCTAssertEqual(worstWarmupSec() + worstCooldownSec(), reserve,
                        "§37.7a: the reserve is spent exactly, with nothing to spare")
     }
 
@@ -83,18 +93,45 @@ final class BlockReserveTests: XCTestCase {
     /// Derived from the same composition the reserve above is, so adding a
     /// move fails here rather than quietly making the screen lie.
     func testTheWarmupOfferNeverPromisesLessThanTheBlockTakes() {
-        let announced = WorkoutFlowView.warmupIntroMinutes
-        XCTAssertGreaterThanOrEqual(
-            announced * 60, warmupSec,
-            "the offer promises \(announced) min for a block that takes \(warmupSec) s")
-        // And not absurdly more: rounding up one minute, never two.
-        XCTAssertLessThan(announced * 60, warmupSec + 60,
-                          "the offer overstates the block by a whole minute")
+        for session in 1...Warmup.compositionCount {
+            let moves = Warmup.moves(sessionNumber: session)
+            let announced = Warmup.introMinutes(moves)
+            let actual = warmupSec(session: session)
+            XCTAssertGreaterThanOrEqual(
+                announced * 60, actual,
+                "session \(session): the offer promises \(announced) min "
+                + "for a block that takes \(actual) s")
+            // And not absurdly more: rounding up one minute, never two.
+            XCTAssertLessThan(announced * 60, actual + 60,
+                              "session \(session): the offer overstates the block by a minute")
+        }
     }
 
     func testEachBlockCostsWhatTheSpecSays() {
-        XCTAssertEqual(warmupSec, 245, "§37.7a: the warm-up's composition is 245 s")
+        // EVERY composition, not just one: adding the three movements of §40.1
+        // to the pool must not move the block by a second, because the pair of
+        // blocks has already spent its reserve to the second.
+        for session in 1...Warmup.compositionCount {
+            XCTAssertEqual(warmupSec(session: session), 245,
+                           "§37.7a: warm-up composition \(session) is 245 s")
+        }
         XCTAssertEqual(worstCooldownSec(), 295, "§37.7a: the worst cool-down is 295 s")
+    }
+
+    /// Nine in the pool, six on screen, and every rotating move gets its turn
+    /// — a movement that never appears is a movement that is not in the app.
+    func testEveryMoveInThePoolIsReachable() {
+        var seen: Set<String> = []
+        for session in 1...Warmup.compositionCount {
+            let moves = Warmup.moves(sessionNumber: session)
+            XCTAssertEqual(moves.count, Warmup.moveCount, "session \(session)")
+            XCTAssertEqual(Set(moves.map(\.id)).count, moves.count,
+                           "session \(session): no move twice")
+            seen.formUnion(moves.map(\.id))
+        }
+        XCTAssertEqual(seen.count, 9, "all nine moves of the pool are reachable")
+        XCTAssertTrue(seen.isSuperset(of: ["y-t-w", "bird-dog", "single-leg-rdl"]),
+                      "the three §40.1 sent here are in the block")
     }
 
     /// The transition doubled; the supplement did not.

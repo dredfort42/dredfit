@@ -125,7 +125,7 @@ struct FeedbackView: View {
                 }
             }
             if !skipped.isEmpty {
-                Text("These keep their level either way.")
+                Text("These keep their place either way.")
                     .dredfitFont(12.5)
                     .foregroundStyle(Theme.ink2)
             }
