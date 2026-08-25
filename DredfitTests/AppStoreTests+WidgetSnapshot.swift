@@ -83,6 +83,7 @@ extension AppStoreTests {
 
     /// Relative words are per day, not per write: a rest-day entry rendered
     /// days after the app was last opened must not repeat the write day's
+    /// "on X" phrasing — each entry speaks from its own day instead.
     func testWidgetSnapshotLabelsSpeakFromTheirOwnDay() throws {
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-widget-\(UUID().uuidString).json")
@@ -130,6 +131,8 @@ extension AppStoreTests {
     }
 
     /// The home screen must not be told "nothing done" over a history the
+    /// app cannot currently read — a frozen launch must leave the widget's
+    /// last published snapshot untouched.
     func testFrozenLaunchLeavesTheWidgetSnapshotAlone() throws {
         try XCTSkipIf(getuid() == 0, "root reads through 0o000 permissions")
         let url = FileManager.default.temporaryDirectory

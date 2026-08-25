@@ -23,7 +23,7 @@ final class BlockPauseUITests: XCTestCase {
     func testAPausedMoveStandsStillAndComesBackWhereItStopped() {
         app.launch()
         app.buttons["Start"].tap()
-        app.buttons["warmup-start"].tap()   // the block is offered first
+        app.buttons["warmup-start"].tap()
         let move = app.staticTexts["warmup-countdown"]
         XCTAssertTrue(move.waitForExistence(timeout: 15),
                       "the transition must hand over to the first move")
@@ -59,7 +59,7 @@ final class BlockPauseUITests: XCTestCase {
         app.launchArguments.append("--uitest-long-transition")
         app.launch()
         app.buttons["Start"].tap()
-        app.buttons["warmup-start"].tap()   // the block is offered first
+        app.buttons["warmup-start"].tap()
         XCTAssertTrue(app.staticTexts["getready-countdown"].waitForExistence(timeout: 5),
                       "the warm-up must open on the transition")
 

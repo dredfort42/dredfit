@@ -1,7 +1,7 @@
 //
-//  Six positions × 30 s, materialising the 3 minutes `cooldownMin` has
-//  reserved since 1.0 — so no estimate anywhere changes. Composition is
-//  deterministic from what was actually performed.
+//  Six positions × 30 s, materialising the 3 minutes `cooldownMin` reserves —
+//  so no estimate anywhere changes. Composition is deterministic from what was
+//  actually performed.
 //
 //  No levels, no journal entry, no engine involvement.
 //
@@ -173,7 +173,6 @@ enum Cooldown {
                          ])
     }
 
-    /// The movement → position mapping.
     private static func position(for pattern: Pattern) -> CooldownPosition {
         switch pattern {
         case .squat, .hinge:            return forwardFold
@@ -186,7 +185,10 @@ enum Cooldown {
     }
 
     /// Top-up order when the session's movements map to fewer than three
-    /// distinct positions (a short workout can).
+    /// distinct positions. A session with several movements skipped gets
+    /// there — only what was performed is mapped — and so does one whose
+    /// movements share a position: squat and hinge both fold forward, the two
+    /// pushes both land on the wrists, and both core patterns twist.
     private static var mappedPool: [CooldownPosition] {
         [forwardFold, latStretch, wrists, lyingTwist, calfWall, seatedGlute]
     }

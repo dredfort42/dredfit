@@ -57,6 +57,7 @@ final class DebutBadgeTests: AppStoreTestCase {
 
     /// Performing the new variation retires its badge: the tier is in the
     /// journal now, so the same variation must not announce itself twice —
+    /// once it has been trained, its debut is done.
     func testDebutClearsAfterTheVariationIsPerformed() {
         let store = AppStore(storageURL: tempURL)
         for _ in 0..<60 where store.debutPatterns.isEmpty {

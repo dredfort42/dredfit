@@ -81,7 +81,8 @@ public enum EngineConfig {
     ///
     /// The price is named, not absorbed: every announced duration is one
     /// minute longer, and the reference's acceptance asserts "grew by exactly
-    /// 1.0" rather than "unchanged". The PLAN is bit-for-bit 's.
+    /// 1.0" rather than "unchanged". The PLAN is bit-for-bit what the previous
+    /// version produced.
     public static let cooldownMin = 4
     /// Rest between sets by set band: 60 s was a constant across the whole
     /// scale, including the 4–5-set bands of tier 4 where the literature gives
@@ -156,19 +157,19 @@ public enum EngineConfig {
     /// exception to was never once taken: all ten calls to `cutMax` and all
     /// seven to `effCut` passed the pain floor. The honest "hard" sweep put
     /// 3458 plans out of 18 000 below two sets — reachable without touching a
-    /// handle. One floor now, and `setsFloor` is it. Sets that come back in
-    /// one session.
+    /// handle. One floor now, and `setsFloor` is it.
+    /// Sets that come back in one session.
     static let setsBackPerSession = 1
     /// HOW MANY APPEARANCES a returned set is held before the next one may
     /// come back. The sets axis is an order of magnitude coarser than the dose
     /// axis — a dose step is ×1.033 median and ×1.08 worst, a set coming back
     /// is ×1.500 median and ×2.00 worst, and 41 % of returns give +100 % or
-    /// more. rejected a +50 % dose step as a breach of "do no harm", citing
-    /// ACSM 2009 ("a 2–10 % increase in load"), and rewrote the hold ladder
-    /// into literals for it. The sets axis exceeded that same standard by
-    /// 20–45× — and did so to the person who had only just stopped complaining
-    /// of pain: weekly volume went from 60 to 162. The hold stretches the
-    /// return so the dose has time to grow between additions.
+    /// more. The dose axis rejected a +50 % step as a breach of "do no harm",
+    /// citing ACSM 2009 ("a 2–10 % increase in load"), and rewrote the hold
+    /// ladder into literals for it. The sets axis exceeded that same standard
+    /// by 20–45× — and did so to the person who had only just stopped
+    /// complaining of pain: weekly volume went from 60 to 162. The hold
+    /// stretches the return so the dose has time to grow between additions.
     public static let setsBackHold = 2
     /// The chronic weak-link signal deferred earlier. The window counts a
     /// pattern's own APPEARANCES, not sessions: a rotating pattern shows up in
@@ -231,8 +232,8 @@ public enum EngineConfig {
     /// so at equal feedback it out-climbs everything else unless held to a
     /// step (frequency, not tissue) — and tier 4 everywhere: the archer
     /// variants, the heaviest unilaterals, and the set bands 32...47, which
-    /// are tier 4 by encoding. carries the table cell by cell with a rationale
-    /// each, and the reference verifier compares the two.
+    /// are tier 4 by encoding. The spec carries the table cell by cell with a
+    /// rationale each, and the reference verifier compares the two.
     static let maxUpByPatternTier: [Pattern: [Int: Int]] = [
         .squat: [4: 1],
         .pushH: [4: 1],
@@ -363,10 +364,10 @@ public enum Engine {
                                 allowSetsBack: setsBackOk)
         }
         // Calibration: from a zero level the per-session cap does not apply —
-        // but the reps→level inversion is only valid one tier out (spec ): the
-        // result is bounded by the neighboring tier's ceiling, slow tissues by
-        // tier 1's. That ceiling bounds where a fact may LAND, so it is a
-        // level and stays one; the landing carries a zero sub-step.
+        // but the reps→level inversion is only valid one tier out: the result
+        // is bounded by the neighboring tier's ceiling, slow tissues by tier
+        // 1's. That ceiling bounds where a fact may LAND, so it is a level and
+        // stays one; the landing carries a zero sub-step.
         if oldL == 0 {
             let zeroCeil = EngineConfig.isSlowTissue(p)
                 ? EngineConfig.stepsPerTier - 1
@@ -508,13 +509,13 @@ public enum Engine {
     /// one of the pattern's sets takes the next rung's dose, and the level
     /// rises only once every set carries it. Every ceiling that bounds a RISE
     /// counts sub-steps — the growth cell, the weekly window, the ramp — which
-    /// is what keeps free for an honest three-a-week rhythm: three "plan"
-    /// sessions are three sub-steps, exactly the slow budget, just as three
-    /// sessions used to be three levels. Descents stay in WHOLE levels and
-    /// zero the sub-step, so the guarantee does not stretch.
+    /// is what keeps the weekly window free for an honest three-a-week rhythm:
+    /// three "plan" sessions are three sub-steps, exactly the slow budget, just
+    /// as three sessions used to be three levels. Descents stay in WHOLE levels
+    /// and zero the sub-step, so the guarantee does not stretch.
     ///
-    /// The hold-this-level request was cancelled, and `gapDays` moved into its
-    /// place as the seventh parameter. removes `discomfort` the same way, so
+    /// The hold-this-level request was cancelled and `gapDays` moved into its
+    /// place as the seventh parameter; `discomfort` went the same way, so
     /// `gapDays` is now the SIXTH. The arity is pinned by a test on purpose: a
     /// call written for the old signature does not fail to compile in a
     /// dynamically typed caller — it hands a set of patterns to `gapDays`,
@@ -589,7 +590,7 @@ public enum Engine {
             let oldCut = state.cutOf(p)
             let entry = Position(level: oldL, sub: oldSub, cut: oldCut)
             // The hold on a returning set: while it ticks, growth goes into
-            // the dose (round 6 fix 1).
+            // the dose.
             let setsBackOk = (state.setsHold[p] ?? 0) == 0
             // The tier is read from the level before the update, not from the
             // session — same thing today, and the rule stays true if a session
@@ -600,8 +601,8 @@ public enum Engine {
             let cap = EngineConfig.maxUp(pattern: p, tier: Level.decode(oldL).tier)
             var position: Position
             // An exact fact does NOT fall under the sub-step rule — the
-            // athlete's honesty is never overridden Its path stays word for
-            // word: invert to a level, pass the gate, zero the sub-step.
+            // athlete's honesty is never overridden. Its path is unchanged:
+            // invert to a level, pass the gate, zero the sub-step.
             // Someone who wrote "2 out of 8" is talking about a dose, not
             // about fatigue, and there is nothing to make finer.
             let factPath = overrides[p] != nil
@@ -684,12 +685,12 @@ public enum Engine {
     /// budget: with a bar the branch grows on credit every other session, and
     /// the measurement gave 25 levels over 28 daily sessions instead of
     /// twelve. Slow tissue (both pull branches, calves) may rise three levels
-    /// a week, everything else six. The budget is counted in SUB-STEPS. 's
-    /// property — "the rule costs an honest three-a-week rhythm nothing" —
-    /// survives verbatim: three "plan" sessions are three sub-steps, exactly
-    /// the slow budget, where three sessions used to be three levels. A daily
-    /// rhythm is held harder than before, which is the direction the rule
-    /// exists for.
+    /// a week, everything else six. The budget is counted in SUB-STEPS, and
+    /// the ceiling's own property — "the rule costs an honest three-a-week
+    /// rhythm nothing" — survives verbatim: three "plan" sessions are three
+    /// sub-steps, exactly the slow budget, where three sessions used to be
+    /// three levels. A daily rhythm is held harder than before, which is the
+    /// direction the rule exists for.
     private static func applyWeeklyCeiling(_ next: inout EngineState, state: EngineState,
                                            weekGain: inout [Pattern: Int]) {
         for p in Pattern.allCases {
@@ -791,8 +792,8 @@ public enum Engine {
     /// half the slot's speed and the push entered the set bands 13-16 sessions
     /// earlier. The delta that landed is repeated to the other branch, capped
     /// by ITS OWN growth cell. Upward only: a zero or negative delta credits
-    /// nothing, so a skip, a an exact fact below the plan on the trained
-    /// branch all leave the other one alone without a special case. The other
+    /// nothing, so a skip and an exact fact below the plan on the trained
+    /// branch both leave the other one alone without a special case. The other
     /// branch's streak is untouched — it was not trained.
     private static func applyCrossCredit(_ next: inout EngineState, state: EngineState,
                                          session: Session, result: FeedbackResult,
@@ -847,9 +848,9 @@ public enum Engine {
     ///
     /// The branches of a split pull slot are excluded: with a bar each stands
     /// every other session, so its appearances can line up with "less" through
-    /// no fault of its own — which is exactly why the cross-credit gave the
-    /// slot a cross-credit instead of its own feedback. The period-2 lock
-    /// opened in must not latch again.
+    /// no fault of its own — which is exactly why the slot is given a
+    /// cross-credit instead of its own feedback. The period-2 lock that opened
+    /// with it must not latch again.
     private static func rollChronicWindow(_ next: inout EngineState, session: Session,
                                           unnamedLess: Bool) -> Set<Pattern> {
         for ex in session.exercises {
@@ -863,9 +864,9 @@ public enum Engine {
             .filter { next.chronicFires($0) })
     }
 
-    /// The humble group landing. The group ceiling caps a from-zero
-    /// calibration at the NEIGHBOUR tier's top — per pattern, and half the
-    /// body can go there in one session while untangles it one −1 at a time:
+    /// The humble group landing. The from-zero ceiling caps a calibration at
+    /// the NEIGHBOUR tier's top — per pattern, and half the body can go there
+    /// in one session while a targeted "less" untangles it one −1 at a time:
     /// an overconfident novice spent about a month above his abilities (17
     /// sessions of 24 past capacity+1, six deloads). A session that calibrated
     /// `calibrationGroup` patterns at once is a claim about the DAY, not about

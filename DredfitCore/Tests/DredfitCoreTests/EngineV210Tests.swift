@@ -1,6 +1,4 @@
 //
-//  DredfitCoreTests
-//
 // Engine (issue #90): the pull slot keeps its full speed with the bar enabled
 // (the cross-credit), and the push never shows a wider set band than the pull
 // of the same session (the band gate).
@@ -311,7 +309,7 @@ final class EngineV210Tests: XCTestCase {
             }
             // The parking spot is "capacity + 1" OR a block floor, when the
             // evaluative descent has run into one. Measured: at capacity 6 the
-            // branch parks on 8 (: 7). The cause is not the descent but the
+            // branch parks on 8 (previously 7). The cause is not the descent but the
             // aim — the healthy movements stand higher, the branch is almost
             // never the aim, it is held instead, and holding is not an intent
             // to descend so no streak builds and the deload, the only way past

@@ -1,6 +1,4 @@
 //
-//  DredfitCoreTests
-//
 // Engine (issues #139, #140, #138): honest facts. Three ways the model
 // punished the trainee for reporting the truth, all with the same root cause —
 // rung arithmetic done in coordinates the fact does not live in: the 5-second

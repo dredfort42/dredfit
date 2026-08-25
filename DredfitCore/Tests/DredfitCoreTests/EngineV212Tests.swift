@@ -1,6 +1,4 @@
 //
-//  DredfitCoreTests
-//
 // Engine (issues #126, #133): a comeback lands at a dose no higher than the
 // last completed session — rep continuity on tier crossings, a ladder of
 // tier-bottom ceilings, a deepening series of returns — and the "I was sick"

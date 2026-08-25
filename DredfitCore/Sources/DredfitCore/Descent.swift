@@ -3,7 +3,7 @@
 // with it. Split out of Engine.swift when the rating path stopped being a
 // one-line clamp and became a rule of its own.
 //
-// Until the rating was the last descent WITHOUT a gate: it went by whole
+// The rating used to be the last descent WITHOUT a gate: it went by whole
 // levels and crossed a tier boundary freely, landing in the middle of the tier
 // below, where the dose is higher. The deload was the second such path. Both
 // are closed here; the exact-fact path (`positionFromPointFact`) is untouched
@@ -14,7 +14,7 @@ import Foundation
 
 extension Engine {
 
-    /// Where a session-wide RATING lands a pattern ( ).
+    /// Where a session-wide RATING lands a pattern.
     ///
     /// "More" runs through the same ceiling; downward moves never do. A
     /// targeted "less" reaches its aim only and every other movement holds —
@@ -43,11 +43,11 @@ extension Engine {
     /// live episode and the shared one otherwise, and `setsBackOk` is the hold
     /// on a returning set. Neither carries a default: the whole class of
     /// defects this wave kept finding was an optional argument left out, or
-    /// left out with the wrong floor. What bounds this pattern's move this
-    /// session. Bundled into one value because added two more of them and nine
-    /// loose arguments is how a caller ends up passing the wrong floor — the
-    /// very class of defect four rounds of skeptics kept finding in this
-    /// model.
+    /// left out with the wrong floor. Together they are what bounds this
+    /// pattern's move this session, bundled into one value because two more of
+    /// them were added and nine loose arguments is how a caller ends up
+    /// passing the wrong floor — the very class of defect four rounds of
+    /// skeptics kept finding in this model.
     struct RatingLimits {
         /// The cell for (pattern, tier) — how far a rise may go.
         let cap: Int

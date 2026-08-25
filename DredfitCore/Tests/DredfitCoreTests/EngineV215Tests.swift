@@ -1,6 +1,4 @@
 //
-//  DredfitCoreTests
-//
 // Engine (issues #137, #130): the weak link. On a plateau the one-tap trainee
 // failed most of his sessions, and the aim — "the highest level in the
 // session" — reached the weak link zero times out of 62 failing appearances:
@@ -50,7 +48,7 @@ final class EngineV215Tests: XCTestCase {
         let state = seeded(20)
         let session = Engine.generateSession(state)
         let target = try XCTUnwrap(session.exercises.first).pattern
-        // The hold left the "named" list.: so did the discomfort report, and
+        // The hold left the "named" list. So did the discomfort report, and
         // one signal is left — an exact number below the plan. The subject of
         // the test is unchanged: a named less is already addressed, so it
         // writes no chronic window.

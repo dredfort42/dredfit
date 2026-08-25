@@ -1,6 +1,4 @@
 //
-//  DredfitCoreTests
-//
 //  Provenance for the golden fixture (issue #104). The reference contour
 //  lives outside this repository, so the committed manifest — written by
 //  scripts/update_reference_manifest.py, never by hand — is what ties the

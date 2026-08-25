@@ -1,6 +1,4 @@
 //
-//  DredfitCoreTests
-//
 // Engine (issues #136, #129, #142, #144): volume and time. Session length used
 // to be an output of the model with no handle for the person doing it — the
 // shortest plan anywhere on the scale was 31 minutes, honest progress rode it

@@ -106,7 +106,7 @@ final class BlockReserveTests: XCTestCase {
     }
 
     /// The side-switch pause did NOT follow the transition to ten. It is a
-    /// pause inside one position, not travel to another, and 's own arithmetic
+    /// pause inside one position, not travel to another, and its own arithmetic
     /// counts it as five.
     func testTheSideSwitchPauseStayedAtFive() {
         XCTAssertEqual(Cooldown.sideSwitchPauseSec, 5)

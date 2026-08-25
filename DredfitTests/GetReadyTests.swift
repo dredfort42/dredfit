@@ -14,7 +14,7 @@ final class GetReadyTests: XCTestCase {
     /// base served both. The transition doubled to ten seconds and the pause
     /// did NOT follow it, because they are not the same thing — travelling to
     /// another position takes time, turning over inside one does not. So what
-    /// is pinned now is the split, in both directions, and 's arithmetic
+    /// is pinned now is the split, in both directions, and its arithmetic
     /// counts the pause as five.
     func testTheTransitionAndTheSideSwitchPauseAreNoLongerTheSame() {
         XCTAssertEqual(GetReady.seconds, 10)
@@ -148,9 +148,9 @@ final class GetReadyTests: XCTestCase {
     func testWarmupAdvanceAbsorbsBackgroundedTime() {
         // Past a move's end by the whole next transition plus two seconds: the
         // transition is consumed whole and the landing is 2 s into the move it
-        // announced.: written from the constant rather than from "7", which
-        // was the base of five plus two and silently became wrong when the
-        // base doubled.
+        // announced. This is written from the constant rather than from "7",
+        // which was the base of five plus two and silently became wrong when
+        // the base doubled.
         let landing = Warmup.advance(from: (0, .move), overshoot: GetReady.seconds + 2)
         XCTAssertEqual(landing?.index, 1)
         XCTAssertEqual(landing?.stage, .move)

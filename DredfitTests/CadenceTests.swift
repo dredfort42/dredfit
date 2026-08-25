@@ -126,7 +126,8 @@ final class CadenceTests: AppStoreTestCase {
 
     func testShiftWorkerRitualIsCarriedByTheRhythmNotByTheDayCount() throws {
         // True 6.0-day cadence with the hour drifting 23:00 <-> 01:00 across
-        // midnight.: RE-MARKED from [5, 6, 5] to [5, 7, 5], with the cause.
+        // midnight. The expected gaps were RE-MARKED from [5, 6, 5] to
+        // [5, 7, 5], with the cause below.
         // Under calendar days the drift genuinely straddles midnights, so the
         // ritual reads 7/5 rather than 6/5 — and the thing that keeps it out
         // of the decay is the rhythm detector, not the definition of a day: a

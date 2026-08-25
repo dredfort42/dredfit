@@ -87,9 +87,6 @@ struct HistorySheet: View {
         .presentationBackground(Theme.bg)
     }
 
-    /// The snapshot froze `name` in the language active when the session was
-    /// generated; resolve it again so history follows a language switch. The
-    /// stored name stays the fallback for a tier the library no longer has.
     /// The facts worth printing for one exercise, or nil when it simply ran
     /// to plan. The sets lead: a near miss that stood down rather than claim
     /// the plan hands the engine no number at all, and the record of what was
@@ -112,6 +109,9 @@ struct HistorySheet: View {
         return (values, reported ?? first)
     }
 
+    /// The snapshot froze `name` in the language active when the session was
+    /// generated; resolve it again so history follows a language switch. The
+    /// stored name stays the fallback for a tier the library no longer has.
     private func currentName(_ ex: SessionExercise) -> String {
         let variations = ExerciseLibrary.entry(for: ex.pattern).variations
         guard (1...variations.count).contains(ex.tier) else { return ex.name }

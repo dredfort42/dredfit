@@ -171,7 +171,7 @@ final class WeakLinkPromptTests: AppStoreTestCase {
     /// Nothing to suggest when the handle the prompt offers would do nothing:
     /// on tier 1 the question would route into a dead control.
     ///
-    /// This is §37.1's accepted bottom stated from the app's side — at the
+    /// This is the accepted bottom, stated from the app's side — at the
     /// first variation the app has run out of things to offer, and going quiet
     /// is the honest answer rather than showing a button that cannot fire. The
     /// sets half of the old guard went with the sets handle: volume is

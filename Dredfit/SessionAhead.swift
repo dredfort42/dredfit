@@ -1,6 +1,6 @@
 //
 //  What is still ahead of the person in the session they are in — the live
-//  half of spec §38.3.
+//  half of the announced duration.
 //
 //  The plan announces how long the whole workout takes; once the decision
 //  about its length is taken INSIDE the workout, that number has to follow

@@ -11,6 +11,7 @@ final class HardeningTests: AppStoreTestCase {
 
     /// Regression: crossing midnight while the process stays alive must
     /// re-anchor the UI's "today" — the tab must not stay stuck on
+    /// yesterday's completed state.
     func testRefreshDayReanchorsAcrossMidnight() {
         let store = AppStore(storageURL: tempURL)
         store.completeWorkout(session: store.nextSession, result: .plan)
@@ -291,6 +292,7 @@ final class HardeningTests: AppStoreTestCase {
     }
 
     /// A backup restored onto a device that never granted notifications must
+    /// not let the imported reminderEnabled flag survive a denied authorization.
     func testImportWithRemindersRerunsAuthorization() async throws {
         let sourceSpy = NotificationSpy()
         let source = AppStore(storageURL: tempURL, notifications: sourceSpy)

@@ -1,6 +1,4 @@
 //
-//  DredfitCoreTests
-//
 //  The rung the push-up ladder was missing. Of the
 //  forty transitions in the library exactly one asked for a new SKILL rather
 //  than more strength — pike straight into a wall handstand, entered by

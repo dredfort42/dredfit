@@ -2,7 +2,7 @@
 //  The level encoding and everything derived from it: decoding a level into a
 //  plan, the landings (unload, eased, rep continuity) and the inversion of a
 //  reported fact. Split out of Engine.swift when that file outgrew the lint's
-//  ceiling; the code is unchanged.
+//  ceiling.
 //
 
 import Foundation
@@ -58,7 +58,7 @@ public enum Level {
     /// building the wave: clamping the rung to [0,7] breaks the monotonicity
     /// of the estimate in the reported fact (#139) at the top rung of EVERY
     /// tier and EVERY band — plank L7, plan 39 s: a fact of 42 gave level 8
-    /// and an honest 43 gave level 7. Precisely the defect was written for.
+    /// and an honest 43 gave level 7. Precisely the defect #139 was filed for.
     /// The edge a result settles on is the edge of the SCALE (0...47) in
     /// `fromActual`, not the edge of a tier; the growth caps and the gate
     /// apply on top, as they always did.
@@ -147,7 +147,8 @@ public enum Level {
     ///
     ///     total = (sets·load + sub·(dose(L+1) − dose(L)))·sides
     ///
-    /// At `sub == 0` both numbers are bit-for-bit what gave.
+    /// At `sub == 0` both numbers are bit-for-bit what the previous version
+    /// gave.
     struct PlanWork {
         let tier: Int
         let sets: Int
@@ -193,7 +194,7 @@ public enum Level {
     /// repStart grows DOWN the tiers, so rung arithmetic done in the planned
     /// tier's coordinates means more work one tier below.
     ///
-    /// The rejected alternative was to drop 's "landing on a tier floor is
+    /// The rejected alternative was to drop the "landing on a tier floor is
     /// never harder" exemption: `Level.unload` returns exactly a tier floor,
     /// so on the pain path the gate rests on that one exemption — of the 400
     /// pairs where the unload crosses a tier it is what lets 34 through, and
@@ -205,19 +206,19 @@ public enum Level {
     /// ACCEPTED GAP: a change of unit (`pullBar` holds seconds at tier 1 and
     /// counts reps above) does not submit to comparison — 3×4 negative
     /// pull-ups and 3×50 s of hanging are incommensurable. That break belongs
-    /// to the LADDER and is fixed in the library, the way fixed pike →
-    /// handstand, not in the measure of work.
+    /// to the LADDER and is fixed in the library, the way the pike → handstand
+    /// gap was filled, not in the measure of work.
     ///
     /// The gate takes PAIRS `(level, sub)`. A descent from `(L, sub>0)` to
     /// `(L, 0)` is legal and no harder by construction: `load` is the same
     /// number (it is the base) and `total` falls by exactly the sub-steps that
     /// were given up. The per-set comparison reads the BASE, which is stricter
     /// than reading the heaviest set — the safe direction — and with `sub ==
-    /// 0` on both sides the gate is bit-for-bit 's. The gate takes TRIPLES
-    /// `(level, sub, cut)`. Taking a set off inside one variation is always
-    /// comparable — the dose per set is the same, the sides are the same, only
-    /// the number of sets falls — so neither `load` nor `total` can grow by
-    /// construction.
+    /// 0` on both sides the gate is bit-for-bit the one the previous version
+    /// had. The gate takes TRIPLES `(level, sub, cut)`. Taking a set off inside
+    /// one variation is always comparable — the dose per set is the same, the
+    /// sides are the same, only the number of sets falls — so neither `load`
+    /// nor `total` can grow by construction.
     static func noHarder(pattern: Pattern, from: Int, to: Int,
                          fromSub: Int = 0, toSub: Int = 0,
                          fromCut: Int, toCut: Int) -> Bool {
@@ -231,8 +232,8 @@ public enum Level {
             return b.load <= a.load && b.total <= a.total
         }
         // A lower tier: rep continuity — never more reps than the plan asked
-        // for, except landing on that tier's own floor, which is the step
-        // provides for taking the load off.
+        // for, except landing on that tier's own floor, which is the step the
+        // model provides for taking the load off.
         if to == (b.tier - 1) * EngineConfig.stepsPerTier { return true }
         guard b.unit == a.unit else { return true }
         return b.load <= a.load

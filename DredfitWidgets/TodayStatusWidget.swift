@@ -266,7 +266,8 @@ struct TodayStatusView: View {
 
     // MARK: Words and glyphs
     //
-    // Internal rather than private: the unit tests pin these per status.
+    // headline and subline are internal rather than private: the unit tests
+    // pin these per status. glyph has no such reader and stays private.
     // Resolved Strings rather than Text — two Texts with identical words do
     // not reliably compare equal (I-8).
 

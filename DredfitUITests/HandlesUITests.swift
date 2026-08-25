@@ -3,10 +3,10 @@
 //  run.
 //
 //  This file replaced DiscomfortUITests, which walked "Something hurt" through
-//  the workout, the rating screen and the resting line on Today. §38 then took
-//  the two handles that moved VOLUME off the plan — the decision they asked
-//  for in advance is taken mid-session now (SetSkipUITests) — and what is left
-//  here is the one that changes the movement itself.
+//  the workout, the rating screen and the resting line on Today. That change
+//  then took the two handles that moved VOLUME off the plan — the decision
+//  they asked for in advance is taken mid-session now (SetSkipUITests) — and
+//  what is left here is the one that changes the movement itself.
 //
 
 import XCTest
@@ -28,7 +28,7 @@ final class HandlesUITests: XCTestCase {
     ///
     /// Seeded above the first tier, because that is the whole of when the
     /// handle exists: on a fresh install every movement is in its gentlest
-    /// variation and there is nothing below it to offer (§37.1).
+    /// variation and there is nothing below it to offer.
     func testTheEasierHandleNamesTheVariationItWouldGive() {
         app.launchArguments.append("--uitest-long-session")
         app.launch()
@@ -43,7 +43,7 @@ final class HandlesUITests: XCTestCase {
 
     /// And the two that used to stand beside it are gone. Not a style
     /// preference: they asked the person to predict, before the first set, how
-    /// much of the session they had in them — the question §38 moved to the
+    /// much of the session they had in them — a question that moved to the
     /// work screen, where it is known.
     func testThePlanNoLongerAsksHowLongTodayWillBe() {
         app.launch()

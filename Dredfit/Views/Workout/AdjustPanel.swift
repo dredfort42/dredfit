@@ -7,9 +7,10 @@ import DredfitCore
 
 struct AdjustPanel: View {
     @Binding var value: Int
-    /// Picks the corridor and the step — both defined once, in SetFacts, so
-    /// what this panel offers and what a hold stopped early rounds to are the
-    /// same grid.
+    /// Picks the corridor, which is defined once in `SetFacts.corridor`. The
+    /// step is one unit — one rep, one second — here and in `SetFacts.snap`
+    /// alike, so what this panel offers and what a hold stopped early rounds
+    /// to are the same grid.
     let unit: LoadUnit
     let onConfirm: () -> Void
 

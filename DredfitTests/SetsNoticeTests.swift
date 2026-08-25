@@ -108,8 +108,8 @@ final class SetsNoticeTests: AppStoreTestCase {
         let strings = try XCTUnwrap(root["strings"] as? [String: Any])
 
         // The pain line went with the channel, and the plan's two session
-        // handles with §38 — the sentences that replaced them are on the work
-        // screen, where the decision is taken now.
+        // handles went the same way — the sentences that replaced them are
+        // on the work screen, where the decision is taken now.
         let keys = [
             "A set is back — your body is coping.",
             "Make it easier",

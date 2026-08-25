@@ -50,8 +50,8 @@ final class ReleaseSmokeTests: XCTestCase {
             // The engine's own arithmetic surfaced: if this line drifts, a
             // release-blocking number drifted.
             //
-            // A RANGE since v2.27 (§38.3): the full plan and the shortest the
-            // session can be made from inside it. Both read back from the
+            // A RANGE: the full plan and the shortest the session can be
+            // made from inside it. Both read back from the
             // reference engine (`estimatedTotalMin` for session 1, at the
             // levels as shipped and with every movement on the sets floor),
             // not copied off the screen: this line is a pin, and a pin taken
@@ -65,8 +65,8 @@ final class ReleaseSmokeTests: XCTestCase {
             XCTAssertEqual(planLine.label, "about 26 to 34 minutes · 6 exercises",
                            "S1: the plan line must read ≈ 26–34 min · 6 exercises")
             XCTAssertTrue(app.buttons["Start"].exists, "S1: Start is missing")
-            // One Start, and nothing beside it to agree to first: §38 took the
-            // short version and the session handle off this screen.
+            // One Start, and nothing beside it to agree to first: the
+            // short version and the session handle came off this screen.
             XCTAssertFalse(app.buttons["start-short"].exists,
                            "S1: the short-version offer is back on the plan")
         }

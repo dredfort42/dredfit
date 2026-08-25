@@ -1,6 +1,4 @@
 //
-//  DredfitCoreTests
-//
 // Engine (issues #132, #146): the sanitization wave. The promise of — "the
 // plan is valid even with garbage in the state" — had two holes. The reference
 // still read a few containers raw, and this port sanitized only on decode, so
@@ -67,7 +65,7 @@ final class EngineV213Tests: XCTestCase {
             // never throws, and the plan built from its result is valid, so
             // the garbage carried through is healed at generation like any
             // other.
-            // v2.27 (§38.1): two rows for the session-wide handle are gone
+            // Two rows for the session-wide handle are gone
             // with its export. The claim they carried — a narrow editor never
             // throws and never drops the plan under the floor on any shape of
             // garbage — is unchanged, because that handle WAS a loop over the

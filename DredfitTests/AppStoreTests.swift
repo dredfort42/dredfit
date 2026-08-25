@@ -94,6 +94,7 @@ final class AppStoreTests: AppStoreTestCase {
     /// Regression: a state file that exists but cannot be read (data
     /// protection before the first unlock, a transient I/O failure) must
     /// never be overwritten by the empty state that replaced it — and must
+    /// resume normal persistence once the file becomes readable again.
     func testUnreadableStateFileFreezesPersistenceUntilReloaded() throws {
         try XCTSkipIf(getuid() == 0, "root reads through 0o000 permissions")
         let seed = AppStore(storageURL: tempURL)
@@ -219,6 +220,7 @@ final class AppStoreTests: AppStoreTestCase {
     // MARK: - Legacy settings files
 
     /// A fresh install starts with two spread-out rest days (issue #36): the
+    /// default lands on Sunday and Wednesday, spread apart rather than adjacent.
     func testFreshInstallDefaultsToTwoRestDays() {
         let store = AppStore(storageURL: tempURL)   // no file → fresh install
         XCTAssertEqual(store.settings.restWeekdays, [1, 4],

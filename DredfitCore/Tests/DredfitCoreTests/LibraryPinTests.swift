@@ -1,6 +1,4 @@
 //
-//  DredfitCoreTests
-//
 //  The 40 (pattern, tier) → variation identities, pinned by value (#95,
 //  audit A5-C6/A1-8). Golden deliberately carries no names — localized
 //  strings are locale-fragile, and the trace stays numeric — so before this

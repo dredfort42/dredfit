@@ -1,6 +1,4 @@
 //
-//  DredfitCoreTests
-//
 //  Growth moves by SUB-STEPS, so "grew by one" is a claim
 //  about a POSITION — the pair (level, sub) — not about a level. These helpers
 //  let the suites state the expectation the way the engine computes it, instead

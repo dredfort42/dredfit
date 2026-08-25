@@ -1,6 +1,4 @@
 //
-//  DredfitCoreTests
-//
 // The JS ↔ Swift differential, REWRITTEN — one call at a time.
 //
 //  It used to run ten thousand random TRAJECTORIES and fold them into a single
@@ -52,7 +50,7 @@ private struct DiffFixture: Decodable {
         let n: Int?             // number
         let ov: [String: Int]?  // overrides
         let sk: [String]?       // skipped
-        let ss: [String: Int]?  // sets skipped during the session (§38.2)
+        let ss: [String: Int]?  // sets skipped during the session
     }
 }
 
@@ -168,7 +166,7 @@ final class DiffTests: XCTestCase {
         return s
     }
 
-    /// v2.27 (§38.2): the feedback of a session together with the sets skipped
+    /// The feedback of a session together with the sets skipped
     /// while doing it. Its own function so the switch above stays a switch.
     private static func feedbackWithSkippedSets(_ state: EngineState,
                                                 _ call: DiffFixture.Call) throws -> String {
@@ -217,7 +215,7 @@ final class DiffTests: XCTestCase {
             return canon(Engine.setCut(state: state,
                                        pattern: try XCTUnwrap(Pattern(rawValue: try XCTUnwrap(call.p))),
                                        cut: try XCTUnwrap(call.n)))
-        // REPLACED v2.27 (§38.1, §38.2): this was `shorter`, the session-wide
+        // REPLACED: this was `shorter`, the session-wide
         // handle. The export is gone, and its slot went to the call that
         // checks the reason it went: the ORDER. Feedback first, then the cut
         // on its result — and the port cannot express the other order here,

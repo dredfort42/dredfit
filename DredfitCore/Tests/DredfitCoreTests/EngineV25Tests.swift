@@ -1,6 +1,4 @@
 //
-//  DredfitCoreTests
-//
 //  The safety wave: the per-pattern, per-tier growth ceiling and the
 //  discomfort input that freezes a pattern. Mirrors the corresponding blocks
 //  in the reference verifier — anything asserted here is asserted there too.

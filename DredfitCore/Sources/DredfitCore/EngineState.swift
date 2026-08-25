@@ -1,8 +1,7 @@
 //
 //  The engine's state: the fields, the tolerant decode of files written by
-//  older builds, and the sanitizer that heals garbage on the way in (spec
-// ). Split out of Engine.swift when that file outgrew the lint's ceiling; the
-// code moved unchanged.
+//  older builds, and the sanitizer that heals garbage on the way in. Split out
+//  of Engine.swift when that file outgrew the lint's ceiling.
 //
 
 import Foundation
@@ -15,19 +14,19 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// sub-steps the rung is complete and the level rises on its own. Sparse —
     /// zeros are never stored — so a state file written before this existed
     /// decodes to all zeros, and the plan it produces is bit-for-bit the plan
-    /// produced. No migration.
+    /// the previous version produced. No migration.
     ///
     /// On the top rung of a tier or band (`L mod 8 == 7`) the sub-step is
     /// DISABLED and the sanitizer forces it to zero: rung `L+1` there belongs
     /// to another variation, and two variations may never share one exercise.
     public var sub: [Pattern: Int]
     /// Sets taken off the level's plan. Range after sanitizing is `0...band −
-    /// setsFloor`.: the ceiling is the SHARED floor, and it is the only one —
+    /// setsFloor`: the ceiling is the SHARED floor, and it is the only one —
     /// the pain channel's landing of a single set no longer exists, so a state
     /// carrying one is normalized up to two sets rather than preserved. Sparse
     /// — zeros are never stored — so a file written before this existed
-    /// decodes to all zeros and the plan it produces is bit-for-bit 's. No
-    /// migration.
+    /// decodes to all zeros and the plan it produces is bit-for-bit what the
+    /// previous version produced. No migration.
     ///
     /// The second axis of a position: the level fixes the VARIATION and the
     /// DOSE PER SET, the cut fixes only the VOLUME.
@@ -158,12 +157,12 @@ public struct EngineState: Codable, Equatable, Sendable {
         lessRun = Self.clamped(try c.decodeIfPresent(Int.self, forKey: .lessRun) ?? 0,
                                0, EngineConfig.countMax)
         // Additive: absent from older files, and unknown patterns are dropped
-        // the same way the level maps drop them.: the pause is a map over the
+        // the same way the level maps drop them. The pause is a map over the
         // pull slot's two branches — any other pattern is garbage the
         // reference filters out on every build, and used to live here forever.
         creditPaused = Set((try c.decodeIfPresent([String].self, forKey: .creditPaused) ?? [])
             .compactMap(Pattern.init(rawValue:))).intersection(Pattern.pullSide)
-        // Additive (22.4), garbage sanitized as the reference does.
+        // Additive, garbage sanitized as the reference does.
         returnRun = Self.clamped(try c.decodeIfPresent(Int.self, forKey: .returnRun) ?? 0,
                                  0, EngineConfig.countMax)
         // Additive, sanitized as the reference does: only live masks survive,

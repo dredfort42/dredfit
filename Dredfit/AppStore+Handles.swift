@@ -1,12 +1,12 @@
 //
 //  The athlete's handles.
 //
-//  v2.26 removed the two mechanisms that decided FOR the person — the pain
-//  channel and the time budget — and gave back controls that decide WITH them.
-//  v2.27 removed the last two that still asked for the decision BEFORE the
-//  workout: "shorter today" and "fewer sets" on the plan. Both wanted an
+//  The two mechanisms that decided FOR the person — the pain channel and the
+//  time budget — are gone, and controls that decide WITH them came back in
+//  their place. So are the last two that still asked for the decision BEFORE
+//  the workout: "shorter today" and "fewer sets" on the plan. Both wanted an
 //  answer to a question the person only knows the answer to standing on the
-//  mat, and both are replaced by the skip on the work screen (§38.2).
+//  mat, and both are replaced by the skip on the work screen.
 //
 //  What is left on the plan is one handle and one number. The handle changes
 //  the VARIATION, not the volume — a different question, and the only one
@@ -50,7 +50,7 @@ extension AppStore {
 
     // MARK: - How long today can be
 
-    /// The two ends of today's session (§38.3): the full plan, and the same
+    /// The two ends of today's session: the full plan, and the same
     /// plan with every movement on the sets floor — the shortest the person
     /// can make it from inside the workout.
     ///

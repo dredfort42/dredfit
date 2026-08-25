@@ -1,7 +1,5 @@
 //
-//  DredfitCoreTests
-//
-//  v2.27 (spec §38.2) — the skip that happens DURING the workout.
+//  The skip that happens DURING the workout.
 //
 //  The wave took away both handles that stood BEFORE the session and moved the
 //  decision inside it. The `cut` axis did not move; the gesture that writes it
@@ -42,13 +40,13 @@ final class EngineV227Tests: XCTestCase {
     ///
     /// BOTH directions are asserted, and the second is the point. A test that
     /// only knows the right order stays green when a caller swaps them, which
-    /// is precisely the regression §38.2 exists to prevent: on a session the
-    /// person completed, `applyFeedback` calls `riseBy`, `riseBy` hands a set
-    /// back instead of raising the level, and the cut written in advance is
-    /// eaten by the very event that should have returned it later.
+    /// is precisely the regression this rule exists to prevent: on a session
+    /// the person completed, `applyFeedback` calls `riseBy`, `riseBy` hands a
+    /// set back instead of raising the level, and the cut written in advance
+    /// is eaten by the very event that should have returned it later.
     ///
     /// If the engine ever makes the order irrelevant, this test must go RED
-    /// and force §38.2 to be rewritten — not stay quietly green.
+    /// and force the rule to be rewritten — not stay quietly green.
     func testTheSkipMustLandAfterTheFeedbackAndIsLostBeforeIt() {
         var cells = 0
         for level in 0...EngineConfig.levelMax {
@@ -107,7 +105,7 @@ final class EngineV227Tests: XCTestCase {
         }
     }
 
-    /// The two worked examples of §38.2, plans included.
+    /// The two worked examples from the spec, plans included.
     func testTheSpecsTwoExamplesReproduce() throws {
         for (level, before, after) in [(24, "3×4", "2×4"), (40, "5×8", "4×8")] {
             let base = seeded(level)
@@ -204,7 +202,7 @@ final class EngineV227Tests: XCTestCase {
     ///
     /// The column pinned here is the one the spec's argument rests on and the
     /// one that reproduces — how many MOVEMENTS have to be skipped to fit into
-    /// 45 minutes. The per-set column of §38.2 depends on the order the person
+    /// 45 minutes. The per-set column depends on the order the person
     /// takes sets off in and is not a single number; what IS true under any
     /// order is asserted instead: per-set costs strictly more taps.
     func testSkippingAWholeExerciseIsWhatMakesTheSessionFit() {
@@ -248,7 +246,7 @@ final class EngineV227Tests: XCTestCase {
     }
 
     /// The bottom of the axis: at L47 every movement skipped is 39.5 minutes,
-    /// the number §38.3 announces, and everything stands on the floor.
+    /// the number the spec announces, and everything stands on the floor.
     func testTheFloorOfTheWholeSessionIsTheAnnouncedOne() {
         var state = seeded(47)
         for p in Pattern.allCases {

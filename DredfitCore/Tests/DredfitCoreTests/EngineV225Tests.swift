@@ -1,6 +1,4 @@
 //
-//  DredfitCoreTests
-//
 //  The sets handle.
 //
 //  The engine had no way to say "the same movement, less of it". A level fixes
@@ -139,10 +137,10 @@ final class EngineV225Tests: XCTestCase {
                 }
                 return s
             }),
-            // v2.27 (§38.2): the "shorter session" row went with its export.
+            // The "shorter session" row went with its export.
             // What replaced it is not the row above — that one moves the axis
             // by hand, this one moves it through the feedback, in the order
-            // §38.2 rule 1 fixes. It is a genuinely different way down, so it
+            // rule 1 fixes. It is a genuinely different way down, so it
             // takes the removed row's place rather than leaving the sweep
             // narrower than it was.
             ("skipped sets in the session", {
@@ -428,7 +426,7 @@ final class EngineV225Tests: XCTestCase {
                         // The person moves the handle, down and back up. That is
                         // a move of the position on its third axis, so the
                         // general gate handles it — no carve-out.
-                        // v2.27 (§38.2): the same gesture, one movement at a time.
+                        // The same gesture, one movement at a time.
                         if step == 11 {
                             for p in Pattern.allCases {
                                 s = Engine.setCut(state: s, pattern: p, cut: max(s.cutOf(p), 1))

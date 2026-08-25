@@ -1,5 +1,5 @@
 //
-//  The number on the work screen — spec §38.3.
+//  The number on the work screen.
 //
 //  The plan announces how long the workout takes; the decision about its
 //  length is taken inside the workout now, so the number has to follow the

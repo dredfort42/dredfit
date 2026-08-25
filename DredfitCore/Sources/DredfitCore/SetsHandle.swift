@@ -59,9 +59,10 @@ extension Level {
     /// the plan shows only the sub-steps that fit after the cut while the
     /// measure counts the whole band's, so ONE step of a descent sometimes
     /// moves it by 2–5 (118 triples of 392). Upward the step is exactly +1
-    /// (387 of 392, the rest being the scale's ceiling). The and ceilings
-    /// bound GROWTH, and there the measure is exact; on a descent they do not
-    /// act at all, so the asymmetry is one-sided and in safety's favour.
+    /// (387 of 392, the rest being the scale's ceiling). The per-session and
+    /// weekly ceilings bound GROWTH, and there the measure is exact; on a
+    /// descent they do not act at all, so the asymmetry is one-sided and in
+    /// safety's favour.
     public static func posOrd(level: Int, sub: Int, cut: Int) -> Int {
         ordinal(level: level, sub: sub)
             - effCut(level: level, cut: cut, floor: EngineConfig.setsFloor)
@@ -91,9 +92,9 @@ extension Level {
     /// That is the alternation the axis was missing: set, dose, dose, set —
     /// instead of set, set, set. The sets axis is an order of magnitude
     /// coarser than the dose axis (a dose step is ×1.033 median, ×1.08 worst;
-    /// a set coming back is ×1.500 median and ×2.00 worst), and rejected a +50
-    /// % dose step as a breach of "do no harm", citing ACSM 2009's "a 2–10 %
-    /// increase in load".
+    /// a set coming back is ×1.500 median and ×2.00 worst), and the dose axis
+    /// rejected a +50 % step as a breach of "do no harm", citing ACSM 2009's
+    /// "a 2–10 % increase in load".
     static func riseBy(level: Int, sub: Int, cut: Int, by count: Int,
                        allowSetsBack: Bool) -> Position {
         var c = effCut(level: level, cut: cut, floor: EngineConfig.setsFloor)
@@ -168,13 +169,13 @@ extension Level {
     /// cured the overload but wiped the branch out. A search by time gives
     /// both: no harder, and not the bottom either.
     ///
-    /// ACCEPTED: if even the bottom rung of the target tier
-    /// costs more at the same set count, we sit down on the floor and the
-    /// branch loses what it had. For `pullBar` that is L8 → L0: three sets of
-    /// a 20 s hang (60 s) already cost more than three sets of six negatives
-    /// (45 s), and the library has no rung in between. The accepted gap says it plainly —
-    /// a break in the UNIT is a defect of the LADDER and is fixed in the
-    /// library, the way fixed the pike → handstand gap. Until then
+    /// ACCEPTED: if even the bottom rung of the target tier costs more at the
+    /// same set count, we sit down on the floor and the branch loses what it
+    /// had. For `pullBar` that is L8 → L0: three sets of a 20 s hang (60 s)
+    /// already cost more than three sets of six negatives (45 s), and the
+    /// library has no rung in between. `noHarder`'s accepted gap says it
+    /// plainly — a break in the UNIT is a defect of the LADDER and is fixed in
+    /// the library, the way the pike → handstand gap was filled. Until then
     /// safety outranks a kept level.
     static func landOnUnitChange(pattern: Pattern, fromLevel: Int, fromSub: Int,
                                  fromCut: Int, toTier: Int) -> Int {

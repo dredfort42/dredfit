@@ -1,6 +1,4 @@
 //
-//  DredfitCoreTests
-//
 //  Hold steps go relative.
 //
 //  `holdStepSec = 5` was the same five seconds everywhere on the scale. On a

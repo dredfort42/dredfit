@@ -75,8 +75,8 @@ struct TodayView: View {
     /// It lives here rather than inside the workout because `nextSession` is
     /// generated from the state on every access, so a tap redraws this row,
     /// the announced duration and the plan together. Its two neighbours —
-    /// "Fewer sets" and "More sets" — are gone with §38: volume is decided
-    /// inside the workout now, where the person knows the answer.
+    /// "Fewer sets" and "More sets" — are gone: volume is decided inside the
+    /// workout now, where the person knows the answer.
     ///
     /// "Easier version" carries its RESULT, not its promise: the name and dose
     /// the movement would have after the tap. The engine lands it through the
@@ -163,7 +163,7 @@ struct TodayView: View {
                     .tracking(-0.5)
                 HStack(alignment: .firstTextBaseline, spacing: 12) {
                     // A RANGE, and it is the whole of what this screen says
-                    // about length (§38.3): the full plan, and the shortest
+                    // about length: the full plan, and the shortest
                     // the session can be made from inside it. The question the
                     // two handles used to answer — "will this fit today" — is
                     // answered here without asking anyone to decide anything
@@ -234,10 +234,10 @@ struct TodayView: View {
             }
 
             // The journal keeps finding the same movement under an unnamed
-            // "tough". One contextual question — never a questionnaire.: it
-            // used to route into the pain path; it now routes into the handle,
-            // which changes the thing the person is complaining about instead
-            // of taking it away.
+            // "tough". One contextual question — never a questionnaire — and
+            // where it lands has changed: it used to route into the pain path;
+            // it now routes into the handle, which changes the thing the
+            // person is complaining about instead of taking it away.
             if store.shouldAskAboutSuspect(), let suspect = store.unnamedLessSuspect() {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Tough sessions keep landing on \(suspect.displayName).")
