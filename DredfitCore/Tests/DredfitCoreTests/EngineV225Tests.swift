@@ -30,7 +30,7 @@ final class EngineV225Tests: XCTestCase {
         s.hasBar = bar
         for p in Pattern.allCases {
             s.levels[p] = level
-            let c = min(cut, Level.cutMax(level: level, floor: EngineConfig.setsFloor))
+            let c = min(cut, Level.cutMax(level: level))
             if c > 0 { s.cut[p] = c }
         }
         return s
@@ -216,7 +216,7 @@ final class EngineV225Tests: XCTestCase {
         let ways: [(String, Double?)] = [("with a gap", 7.0 / 3.0), ("with no gap", nil)]
         for (name, gap) in ways {
             for level in 0...EngineConfig.levelMax {
-                let deepest = Level.cutMax(level: level, floor: EngineConfig.setsFloor)
+                let deepest = Level.cutMax(level: level)
                 guard deepest >= 1 else { continue }
                 for p in Pattern.allCases {
                     var s = seeded(level, bar: true)
@@ -252,7 +252,7 @@ final class EngineV225Tests: XCTestCase {
     /// appearances, and in between the growth goes into the dose.
     func testAReturnedSetIsHeldForItsAppearances() {
         for level in [8, 24, 40] {
-            let deepest = Level.cutMax(level: level, floor: EngineConfig.setsFloor)
+            let deepest = Level.cutMax(level: level)
             guard deepest >= 2 else { continue }
             var s = seeded(level)
             s.cut[.pull] = deepest            // `pull` stands in every session

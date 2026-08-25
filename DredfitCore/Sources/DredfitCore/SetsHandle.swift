@@ -29,22 +29,21 @@ import Foundation
 extension Level {
 
     /// How many sets may be taken off a level before it reaches `floor`.
-    public static func cutMax(level: Int, floor: Int) -> Int {
-        max(0, decode(level).sets - floor)
+    public static func cutMax(level: Int) -> Int {
+        max(0, decode(level).sets - EngineConfig.setsFloor)
     }
 
     /// The cut actually in force: garbage and negatives read as none, anything
     /// past the path's own ceiling clamps to it.
-    static func effCut(level: Int, cut: Int, floor: Int) -> Int {
-        min(max(cut, 0), cutMax(level: level, floor: floor))
+    static func effCut(level: Int, cut: Int) -> Int {
+        min(max(cut, 0), cutMax(level: level))
     }
 
     /// The exercise's sets before the band gate. The floor is the shared one:
     /// the pain channel that once landed a movement on a single set is gone,
     /// and there is no second floor left to choose between.
     static func setsAfterCut(level: Int, cut: Int) -> Int {
-        decode(level).sets - effCut(level: level, cut: cut,
-                                    floor: EngineConfig.setsFloor)
+        decode(level).sets - effCut(level: level, cut: cut)
     }
 
     /// The position's MEASURE. One growth event is exactly +1 and one step of
@@ -65,7 +64,7 @@ extension Level {
     /// safety's favour.
     public static func posOrd(level: Int, sub: Int, cut: Int) -> Int {
         ordinal(level: level, sub: sub)
-            - effCut(level: level, cut: cut, floor: EngineConfig.setsFloor)
+            - effCut(level: level, cut: cut)
     }
 
     public static func posOrd(_ position: Position) -> Int {
@@ -97,12 +96,12 @@ extension Level {
     /// "a 2–10 % increase in load".
     static func riseBy(level: Int, sub: Int, cut: Int, by count: Int,
                        allowSetsBack: Bool) -> Position {
-        var c = effCut(level: level, cut: cut, floor: EngineConfig.setsFloor)
+        var c = effCut(level: level, cut: cut)
         var k = max(0, count)
         let back = allowSetsBack ? min(min(c, k), EngineConfig.setsBackPerSession) : 0
         if back > 0 { c -= back; k = 0 }
         let pos = rise(level: level, sub: sub, by: k)
-        let cc = min(c, cutMax(level: pos.level, floor: EngineConfig.setsFloor))
+        let cc = min(c, cutMax(level: pos.level))
         return Position(level: pos.level,
                         sub: min(max(pos.sub, 0),
                                  max(0, decode(pos.level).sets - cc - 1)),
@@ -112,20 +111,19 @@ extension Level {
     /// Descent: THE DOSE GOES BEFORE THE SETS. While there is somewhere to
     /// step inside the block along the growth path we step there — exactly the
     /// reverse of a growth event. On a block floor that path has run out, and
-    /// the step down becomes a set taken off. The bottom is `floor` sets;
+    /// the step down becomes a set taken off. The bottom is the shared floor;
     /// below that a descent has to change the variation, and that is the one
     /// place where a measure across the boundary stops being valid.
-    static func fallBy(level: Int, sub: Int, cut: Int, by count: Int,
-                       floor: Int) -> Position {
+    static func fallBy(level: Int, sub: Int, cut: Int, by count: Int) -> Position {
         // The same invariant on entry and at every step — a sub-step can never
         // ask for more sets than the cut leaves.
         func fit(_ lv: Int, _ sb: Int, _ ct: Int) -> Int {
             min(max(sb, 0),
                 max(0, decode(lv).sets
-                    - effCut(level: lv, cut: ct, floor: EngineConfig.setsFloor) - 1))
+                    - effCut(level: lv, cut: ct) - 1))
         }
         var curLevel = level
-        var c = effCut(level: level, cut: cut, floor: EngineConfig.setsFloor)
+        var c = effCut(level: level, cut: cut)
         var curSub = fit(level, sub, c)
         var k = max(0, count)
         while k > 0 {
@@ -136,7 +134,7 @@ extension Level {
                 k -= 1
                 continue
             }
-            if decode(curLevel).sets - c > floor {
+            if decode(curLevel).sets - c > EngineConfig.setsFloor {
                 c += 1
                 curSub = fit(curLevel, curSub, c)
                 k -= 1

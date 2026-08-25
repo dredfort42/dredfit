@@ -80,7 +80,7 @@ extension Engine {
         let levels = Self.healedLevels(state)
         let cuts = EngineState.healCut(state.cut, levels: levels)
         let value = EngineState.clamped(
-            cut, 0, Level.cutMax(level: levels[p] ?? 0, floor: EngineConfig.setsFloor))
+            cut, 0, Level.cutMax(level: levels[p] ?? 0))
         var next = state
         next.cut = cuts
         if value > 0 { next.cut[p] = value } else { next.cut.removeValue(forKey: p) }
@@ -118,8 +118,7 @@ extension Engine {
         overrides: [Pattern: Int] = [:],
         skipped: Set<Pattern> = [],
         setsSkipped: [Pattern: Int],
-        gapDays: Double? = nil
-    ) -> EngineState {
+        gapDays: Double? = nil) -> EngineState {
         var next = Self.applyFeedback(state: state, session: session, result: result,
                                       overrides: overrides, skipped: skipped,
                                       gapDays: gapDays)

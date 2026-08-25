@@ -205,31 +205,25 @@ extension Engine {
 
         func viewCut(_ p: Pattern) -> Int { state.cutOf(p) }
 
-        // ONE order of cuts. The level's band → the sets handle (pain channel
-        // / descent / lens) → the gate → the budget. Each next one may only
-        // lower, none may raise, and there is one shared floor: two sets,
-        // except for a position the pain channel has already taken to one —
-        // neither the gate nor the budget has the right to lift that back.
+        // ONE order of cuts. The level's band → the sets handle → the gate.
+        // Each next one may only lower, none may raise, and there is a single
+        // floor of two sets that none of them may cross.
         //
-        // The per-exercise floor is SERVICE data and stays out of the
-        // snapshot, exactly as it is a non-enumerable property in the
-        // reference: `SessionExercise` gains no field, so a journal written by
-        // an older build still decodes whole. It travels alongside instead.
-        var floors: [Int] = []
         let exercises: [SessionExercise] = patterns.map { p in
             let lib = ExerciseLibrary.entry(for: p)
             let d = Level.decode(viewLevel(p))
             let variation = lib.variations[d.tier - 1]
             let unit = lib.unit(forTier: d.tier)
             let load = unit == .reps ? d.reps : d.hold
-            let ownSets = d.sets - Level.effCut(level: viewLevel(p), cut: viewCut(p),
-                                                floor: EngineConfig.setsFloor)
-            let floor = min(EngineConfig.setsFloor, ownSets)
-            floors.append(floor)
+            // `ownSets` cannot fall below the shared floor: `effCut` is
+            // bounded by `cutMax`, which is measured from that same floor.
+            // Checked over the whole grid — 48 levels by every cut, garbage
+            // and out-of-range included — the smallest it reaches is exactly
+            // the floor, which is why no per-exercise floor travels here.
+            let ownSets = d.sets - Level.effCut(level: viewLevel(p), cut: viewCut(p))
             // The gate and the exercise's own band both go through the one
             // clamp.
-            let sets = clampSets(Pattern.pushSide.contains(p) ? min(ownSets, pullSets) : ownSets,
-                                 floor: floor)
+            let sets = clampSets(Pattern.pushSide.contains(p) ? min(ownSets, pullSets) : ownSets)
             // The band is the FINAL one — the gate may have trimmed it — so a
             // sub-step never asks for more sets than are on screen.
             let loads = Level.perSetLoads(pattern: p, level: viewLevel(p),
@@ -273,7 +267,7 @@ extension Engine {
         // be declared a legitimate cause of growth by hand. The sets handle
         // writes `cut`, a coordinate of the position, so releasing it IS a
         // rise and the general gate excludes it on its own.
-        let trimmed = repairDescent(exercises, floors: floors, shownWork: state.shownWork,
+        let trimmed = repairDescent(exercises, shownWork: state.shownWork,
                                     shownOrd: state.shownOrd, ordNow: ordNow)
 
         return Session(
@@ -293,7 +287,7 @@ extension Engine {
     /// is gone — but the explicit parameter stays. A default here is exactly
     /// what let `setsFloorPain` leak into all ten call sites of the previous
     /// wave.
-    static func clampSets(_ n: Int, floor: Int) -> Int { max(floor, n) }
+    static func clampSets(_ n: Int) -> Int { max(EngineConfig.setsFloor, n) }
 
     /// THE POSTCONDITION REPAIR. The invariant the model promises is "if a
     /// pattern's position did not rise, its plan cannot get heavier". Deriving
@@ -313,26 +307,19 @@ extension Engine {
     /// "fell" and "stood still". A strict one let through the very class the
     /// repair exists for — the budget can move a cut between movements with
     /// the position standing still (measured: 20 cells of 488). The ratchet
-    /// this might have become is lifted at one point, the moved time handle
-    /// below; and the lens expiring never reaches the repair at all, because
-    /// the branch under the lens does NOT write the memory — the base stays
-    /// the last ordinary showing, and after the lens the work returns exactly
-    /// to it.
-    private static func repairDescent(_ exercises: [SessionExercise], floors: [Int],
+    /// this might have become is never lifted: the two things that once did —
+    /// a moved time handle and an expiring lens — are both gone, and nothing
+    /// else writes a showing the repair would have to forgive.
+    private static func repairDescent(_ exercises: [SessionExercise],
                                       shownWork: [Pattern: Int], shownOrd: [Pattern: Int],
                                       ordNow: [Pattern: Int]) -> [SessionExercise] {
-        // The person moved the time handle — the last showing says nothing any
-        // more. Without this the cap held the plan at the old limit until the
-        // first growth event: raising 30 to 60 gave 45.9 minutes instead of
-        // 59.1.
-        return exercises.enumerated().map { i, ex in
+        return exercises.map { ex in
             let p = ex.pattern
             guard let work = shownWork[p], let ord = shownOrd[p] else { return ex }
             if (ordNow[p] ?? 0) > ord { return ex }
             var cur = ex
-            let floor = floors[i]
-            while cur.sets > floor, Engine.exerciseWork(cur) > work {
-                cur = Self.withSets(cur, cur.sets - 1, floor: floor)
+            while cur.sets > EngineConfig.setsFloor, Engine.exerciseWork(cur) > work {
+                cur = Self.withSets(cur, cur.sets - 1)
             }
             return cur
         }
@@ -344,11 +331,10 @@ extension Engine {
     /// the new set count — it cannot ask for more sets than are left. Clamping
     /// to `sets-1` keeps the invariant "`load` is the plan's minimum":
     /// dropping a set gives the budget no right to raise that minimum.
-    private static func withSets(_ ex: SessionExercise, _ requested: Int,
-                                 floor: Int) -> SessionExercise {
+    private static func withSets(_ ex: SessionExercise, _ requested: Int) -> SessionExercise {
         // A rebuild is a cut too, so it goes through the shared clamp — no
         // path can hand back an exercise below the floor.
-        let sets = clampSets(requested, floor: floor)
+        let sets = clampSets(requested)
         let high = ex.loads?.first ?? ex.load
         let carried = ex.loads?.filter { $0 > ex.load }.count ?? 0
         let sub = min(carried, max(sets - 1, 0))

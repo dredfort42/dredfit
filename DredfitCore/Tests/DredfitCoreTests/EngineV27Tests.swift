@@ -175,9 +175,9 @@ final class EngineV27Tests: XCTestCase {
         // from 12.0 are composed out of the rule itself rather than written as
         // the level 10, and the subject of the block — no premature deload —
         // is asserted exactly as before.
-        let first = Level.fallBy(level: 12, sub: 0, cut: 0, by: 1, floor: EngineConfig.setsFloor)
+        let first = Level.fallBy(level: 12, sub: 0, cut: 0, by: 1)
         let want = Level.fallBy(level: first.level, sub: first.sub, cut: first.cut,
-                                by: 1, floor: EngineConfig.setsFloor)
+                                by: 1)
         for ex in session.exercises {
             assertPosition(paused, ex.pattern, want,
                            "\(ex.pattern.rawValue): one step of decay and one of the rating, no −3")

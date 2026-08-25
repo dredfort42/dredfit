@@ -24,8 +24,7 @@ public enum Level {
             reps: repStart + step,
             // The static dose is read off the ladder — the increment is
             // relative and does not spell out as start + step.
-            hold: ladder(tier: tier, sets: sets)[step]
-        )
+            hold: ladder(tier: tier, sets: sets)[step])
     }
 
     /// The ladder a dose belongs to: the set band outranks the tier — exactly
@@ -182,8 +181,7 @@ public enum Level {
                         sides: entry.variations[d.tier - 1].unilateral ? 2 : 1,
                         load: unit == .reps ? d.reps : d.hold,
                         sub: s,
-                        cut: effCut(level: level, cut: cut,
-                                    floor: EngineConfig.setsFloor),
+                        cut: effCut(level: level, cut: cut),
                         subDelta: subDelta(pattern: pattern, level: level))
     }
 
