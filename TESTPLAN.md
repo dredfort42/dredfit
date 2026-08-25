@@ -825,16 +825,23 @@ previous run. The cell counts move every wave — the sweep walks a lattice that
 grows — and chasing a particular figure hides a regression as well as a red run
 does.
 
-**Two of these six do not run at all on engine 2.27.0**, found closing the wave:
-`audit_local.js` and `audit_local2.js` still call `shorterSession`, the export
-§38.1 removed, and die with a `TypeError` before their first check. `verify2.js`
-and `make_golden.js` were re-pointed by the wave itself — they walk the same cut
-one movement at a time through `setCut` — and the two sweeps were not. Nothing
-else notices: `verify2` and `accept.js` are clean, so a release would meet this
-at its own gate. A verified repair, its output, and the reason it is a proposal
-rather than a fix are in `reference/model-v2.27/GATE-PROPOSAL/` — re-pointing
-what a release gate sweeps is the owner's decision, not a tidy-up inside the
-wave being judged.
+**Two of these six did not run at all on engine 2.27.0**, found and repaired
+closing the wave. `audit_local.js` and `audit_local2.js` still called
+`shorterSession`, the export §38.1 removed, and died with a `TypeError` before
+their first check, while `verify2` and the acceptance stayed clean — a release
+would have met a red gate with no explanation. Both now walk the same cut one
+movement at a time through `setCut`, exactly as the wave itself re-pointed
+`verify2.js` and `make_golden.js`.
+
+The same pass replaced a **dead axis** in `audit_local2`'s S6, outstanding since
+v2.26: its second axis was `for (const budget of [0, 45])` against a model that
+has no `timeBudgetMin` at all, so the block did twice the work at half the
+coverage — the plan was bit-for-bit identical on both. The axis is the sets cut
+now, applied *after* three honest sessions because a cut written before them is
+handed back by growth, and the block **prints how many cells the axis actually
+separates**: 288 of 288, where the old axis separated none. Zero there fails the
+block instead of passing it quietly. Both sweeps, before and after, with their
+runs: `reference/model-v2.27/GATE-REPAIR/`.
 
 ### What `accept.js` checks, and why each check is there
 
@@ -875,15 +882,16 @@ duration is a separate assertion with its own exact number, which is how the
 +1.0 minute of v2.26 and the 0.0 of v2.27 are both nailed down instead of
 tolerated.
 
-**Two residues in the script itself, named rather than quietly fixed.** П1, П3
-and П7 call `applyFeedback` with **seven** arguments where the signature has
+**One residue found closing the wave, and fixed rather than carried.** П1, П3
+and П7 called `applyFeedback` with **seven** arguments where the signature has
 taken six since v2.26 (`state, session, result, overrides, skipped, gapDays`),
-so `gapDays` gets `[]` and the trailing cadence is dropped: those three blocks
-sweep a calendar-blind engine. `gapDays = []` behaves as `null`, so they are
-weaker than they read rather than wrong — and П7 asserts nothing anyway. The
-file header also still says "Приёмка v2.26". Both were found by the v2.27 wave
-and left alone on purpose: editing what a release gate measures is a decision
-for the owner, not a tidy-up inside the wave that gate is judging.
+so `gapDays` got `[]` and the trailing cadence was dropped: three blocks were
+sweeping a calendar-blind engine and reading as if they were not. They pass six
+now. The acceptance stays clean and **not one printed number moved** — П7 is the
+same 25,530 with `squat` at L34, П1 the same 18,000/18,000 — which is what makes
+this a strengthening rather than a change: the blocks now carry a real cadence
+and say the same thing. The file header, which still announced "Приёмка v2.26",
+says v2.27.
 
 ---
 
