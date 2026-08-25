@@ -2,8 +2,110 @@
 
 ## Unreleased
 
-Five app-layer fixes from the design re-review. The engine is untouched:
-`DredfitCore/` has no diff and `golden.json` is the same file.
+Two things so far: the engine steps to **v2.27** and moves the decision about
+the length of a workout inside the workout, and five app-layer fixes from the
+design re-review.
+
+### Engine v2.27.0 — you decide during the workout, not before it
+
+The wave before this one took away everything that decided for you and gave you
+handles instead. Two of those handles still sat **in front of** the workout, on
+the plan — "fewer sets" on a movement, and "a shorter session today" — and both
+asked you to answer a question you cannot answer yet: *how much have I got in
+me today?* You find that out on the third set, not while you are looking at a
+list.
+
+So the decision moves to where the answer is. On the work screen, under the
+button that logs the set, there is now **"Skip this set"** and one escape for
+the movement — **"Skip remaining sets"** when you have already done some of it,
+**"Skip exercise"** when you have not. Skipping goes straight to the next set:
+no rest on the way, because nothing was done to recover from.
+
+**Three rules make that honest, and each of them exists because the obvious
+implementation gets it wrong.**
+
+- The skip reaches the engine **after** the rating, never before it. A session
+  you finished well hands a set back instead of a level (that is how sets
+  return since v2.26), so a cut written in advance is eaten by exactly the event
+  that should have returned it later. Written in the right order, one skipped
+  set at level 24 turns 3×4 into 2×4 next time; written in the wrong one, the
+  skip silently never happened.
+- **On the floor of two sets there is nothing to record**, so the tap travels as
+  an ordinary skipped exercise — never as a dose of 0, which would cost eight
+  levels for work of perfectly ordinary quality. You did the sets you did, at
+  full dose; you did fewer of them.
+- **The escape also works per movement**, because sixteen separate taps is not a
+  thing anyone does. At level 47 fitting a session under 45 minutes takes 16
+  single-set skips — or **6 taps**, one per movement.
+
+**The number follows the decision instead of predicting it.** The work screen
+carries what is **left** of the session and drops it the moment you skip
+something. Today carries a **range** — the full plan, and the shortest that
+session can be made from inside it — so "will this fit today" has an answer
+without pulling anything first:
+
+| Level | Full plan | Shortest | |
+|---|---|---|---|
+| 0 | 34.0 min | 25.7 | −24 % |
+| 16 | 32.6 | 24.8 | −24 % |
+| 24 | 38.0 | 27.3 | −28 % |
+| 32 | 52.0 | 29.0 | −44 % |
+| 40 | 79.7 | 33.7 | −58 % |
+| 47 | 94.3 | 39.5 | −58 % |
+
+Both numbers are the engine's own arithmetic handed a shorter list, not an
+app-side estimate that would drift from the line on the plan by exactly the
+amount nobody could account for.
+
+**What is gone, and what it costs you.** Three things leave with this wave, and
+one of them is a real loss rather than a simplification:
+
+- **The short version is gone.** "Short on time? Three of the six exercises" was
+  the app choosing which three movements you would skip today — the same
+  philosophy as the time budget the previous wave removed, and the last piece of
+  it left. It also lived outside the engine, which is how it quietly broke the
+  promise the store makes: it delivered **20.5 minutes** while the listing and
+  the spec said the shortest possible workout is **24.8**. **So the floor of the
+  app really did move up, from 20.5 minutes to 24.8**, and anyone who was using
+  the short version to fit training into twenty minutes has lost that. There is
+  no smaller version coming: level 0 — three sets of eight in the gentlest
+  variation of six movements — is the declared bottom of the product, and about
+  25 minutes is what it costs. If that is not what you have, this is the wrong
+  app, and we would rather say it here than let you discover it.
+- **The session handle is gone**, and with it the preview it gave: *37 → 26 min*,
+  both numbers on screen before you agreed to anything. If certainty before the
+  start is what you wanted, a range and a live recount are a worse answer than
+  the one you had. It is named here rather than buried: the wave traded
+  certainty in advance for a decision you make when you actually know.
+- **"Fewer sets" / "More sets" on the plan rows are gone.** The axis they wrote
+  is untouched — the same cut, moved by the same person, at the moment they know
+  the answer.
+
+**The journal now counts skipped sets.** Nothing on screen shows them yet. They
+are recorded because the open question this wave leaves — whether a skip that
+costs nothing becomes the thing everyone reaches for, and the plan drifts
+quietly down — can only ever be answered from the journal, and a record that
+kept only the rating could not answer it.
+
+**Everything else is bit-for-bit what it was.** The engine loses one exported
+function and nothing more: across 4,070 cells of pattern × level × cut ×
+sub-step the plans are identical to 2.26.0, all 16 state fields survive a
+session unchanged, a year of levels comes out within ±0.0 % on four different
+answering styles, and the announced duration moved by **exactly zero** minutes —
+asserted as a number, so it cannot creep the way it did (deliberately, by one
+minute) in the previous wave.
+
+**One thing got worse and is not fixed here.** At the accessibility Dynamic Type
+sizes the work screen still has no scroll view, and this wave puts one more line
+in its header and one more control under its button. The Today half of the same
+problem is gone with the handles that caused it. The remaining half is a layout
+decision, and a layout decision hidden inside a feature wave is a decision
+nobody reviewed — it stays on the register as I-15.
+
+### The design re-review
+
+Five app-layer fixes. The engine is untouched by these: `DredfitCore/` has no
+diff and `golden.json` is the same file.
 
 - **The break band says its length legibly.** The "N days" label on the grey
   band of the Progress chart was ink3 on that fill — 2.16 : 1 in light,
