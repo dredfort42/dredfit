@@ -238,7 +238,7 @@ final class AppStore {
         // The suite must not depend on the weekday it runs on;
         // --uitest-restday is applied last so it wins.
         let seedFlags = ["--uitest-reset", "--uitest-session2", "--uitest-milestone",
-                         "--uitest-handled"]
+                         "--uitest-handled", "--uitest-long-session"]
         if seedFlags.contains(where: CommandLine.arguments.contains) {
             settings.restWeekdays = []
         }
@@ -255,6 +255,16 @@ final class AppStore {
             completeWorkout(session: Engine.generateSession(engineState),
                             result: .plan,
                             date: Calendar.current.date(byAdding: .day, value: -1, to: .now)!)
+        }
+        // A trainee well up the scale: band 4, six movements, 55 minutes. The
+        // state the mid-workout skip exists for — a plan of three sets can
+        // only ever give one of them away (§38.2 rule 2), so the escape that
+        // takes the REST of a movement has nothing to show at the bottom of
+        // the scale.
+        if CommandLine.arguments.contains("--uitest-long-session") {
+            var seeded = EngineState.initial
+            for p in Pattern.allCases { seeded.levels[p] = 34 }
+            engineState = seeded
         }
         // One workout away from several milestones. Seeds state only — the
         // milestones and the retrospective still come from the real path.
@@ -410,6 +420,11 @@ final class AppStore {
                          /// is their mean (`SetFacts.override`).
                          setActuals: SetFacts.PerSet = [:],
                          skipped: Set<Pattern> = [],
+                         /// Sets skipped DURING the session, per movement
+                         /// (§38.2). Handed over as what happened — the engine
+                         /// settles when it lands, and it lands AFTER the
+                         /// rating.
+                         setsSkipped: SetFacts.Skips = [:],
                          durationSec: Int? = nil,
                          date: Date = .now) -> [Milestone] {
         // Mirror of the engine's replay guard: a session that does not belong
@@ -422,13 +437,20 @@ final class AppStore {
         // — the gap since the last workout. Nil on the first workout: there is
         // nothing to measure from. The FRACTION of a day, not whole days.
         // Floored, a second workout on the same day reported a zero gap and
-        // the weekly window stopped ageing for good. SIX arguments. Every
+        // the weekly window stopped ageing for good. SEVEN arguments. Every
         // optional is passed explicitly — the wave's rule, kept because the
         // arity shift is exactly the defect that has now happened twice in the
         // harnesses.
+        //
+        // The overload that takes the skipped sets is the ONE that settles
+        // their order against the rating (§38.2 rule 1): the app cannot write
+        // them itself, before or after, and this call is why. A cut written
+        // before the feedback is eaten by `riseBy` handing a set back, and the
+        // skip disappears in silence.
         engineState = Engine.applyFeedback(state: engineState, session: session,
                                            result: result, overrides: overrides,
                                            skipped: skipped,
+                                           setsSkipped: setsSkipped,
                                            gapDays: gapFraction(now: date))
         records.append(WorkoutRecord(
             sessionNumber: session.sessionNumber,
@@ -438,6 +460,7 @@ final class AppStore {
             exercises: session.exercises,
             actuals: overrides.isEmpty ? nil : overrides,
             setActuals: setActuals.isEmpty ? nil : setActuals,
+            setsSkipped: setsSkipped.isEmpty ? nil : setsSkipped,
             skipped: skipped.isEmpty ? nil : skipped,
             levelsAfter: engineState.levels,
             durationSec: durationSec))
