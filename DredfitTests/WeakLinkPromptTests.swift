@@ -84,8 +84,8 @@ final class WeakLinkPromptTests: AppStoreTestCase {
         for _ in 0..<12 {
             let session = store.nextSession
             let carried = session.exercises.first { $0.pattern == .pushV }
-            var overrides: [Pattern: Int] = [:]
-            if let carried { overrides[.pushV] = max(0, carried.load - 2) }
+            var overrides: [Pattern: Double] = [:]
+            if let carried { overrides[.pushV] = Double(max(0, carried.load - 2)) }
             _ = store.completeWorkout(session: session,
                                       result: carried != nil ? .less : .plan,
                                       overrides: overrides)

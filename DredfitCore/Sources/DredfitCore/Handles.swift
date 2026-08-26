@@ -12,18 +12,20 @@ import Foundation
 
 extension Engine {
 
-    /// "Give me an easier variation" (§37.4, rewritten by §40.6): one
-    /// variation down, at the dose from the JOURNAL OF WHAT WAS SHOWN. There
-    /// is no landing arithmetic of its own and there does not need to be —
-    /// tier floors do not exist in v3, and a variation has exactly one point
-    /// of return.
+    /// "Give me an easier variation" (§37.4, rewritten by §40.6, amended by
+    /// §41.1): one variation down, at the dose from the JOURNAL OF WHAT WAS
+    /// SHOWN — but the journal is the CEILING, not the answer. A neighbour
+    /// variation can be trained per side, so the same remembered dose is twice
+    /// the work; `landInVar` steps down from the ceiling until the plan fits
+    /// the work already being done. Without that, "make it easier" made 49
+    /// boundaries out of 49 harder.
     ///
     /// On the first variation the handle is inert: there is nothing below it
     /// in the library, and 3×4 is the accepted minimum base (§37.1).
     public static func easierPosition(pattern p: Pattern, position: Position,
                                       shown: [Pattern: [Int: Int]]) -> Position? {
         guard position.variation > 1 else { return nil }
-        return landInVar(p, position.variation - 1, shown: shown)
+        return landInVar(p, position.variation - 1, shown: shown, from: position)
     }
 
     public static func easierVariation(state dirty: EngineState, pattern p: Pattern) -> EngineState {
@@ -69,7 +71,7 @@ extension Engine {
         state: EngineState,
         session: Session,
         result: FeedbackResult,
-        overrides: [Pattern: Int] = [:],
+        overrides: [Pattern: Double] = [:],
         skipped: Set<Pattern> = [],
         setsSkipped: [Pattern: Int],
         gapDays: Double? = nil,

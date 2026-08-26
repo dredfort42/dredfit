@@ -62,6 +62,20 @@ public enum Dose {
         Swift.min(Swift.max(d, grid(unit).min), grid(unit).max)
     }
 
+    /// §41.3: the same two operations for a FRACTIONAL fact. The reference has
+    /// one function that takes any number; Swift needs the pair spelled out.
+    /// `snapToInt` still floors to the grid — the fraction never becomes an
+    /// assigned dose, it only decides whether the top set was taken.
+    static func clamped(_ unit: LoadUnit, _ d: Double) -> Double {
+        Swift.min(Swift.max(d, Double(grid(unit).min)), Double(grid(unit).max))
+    }
+
+    static func snapToInt(_ unit: LoadUnit, _ x: Double) -> Int {
+        let g = grid(unit)
+        let r = Int(((x - Double(g.min)) / Double(g.step)).rounded(.down))
+        return dose(unit, atRung: r)
+    }
+
     /// Floor division. Swift's `/` truncates toward zero, so `(2 - 4) / 1` is
     /// −2 either way but `(11 - 15) / 5` is 0 where `Math.floor` gives −1 —
     /// and a hold reported as 11 s IS below the floor. Getting this wrong

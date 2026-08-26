@@ -33,6 +33,22 @@ jobs:
         working-directory: DredfitCore
         run: swift test --parallel
 
+  gate-contract:
+    name: Engine gate contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # The gates themselves cannot run here: they live in `reference/`, which
+      # is gitignored and never checked out on a runner. What this catches is
+      # the checklist drifting away from them — a row that names no command, or
+      # names no line that means clean, is how a gate goes quiet. Running them
+      # is a local gate, part of the release procedure in WORKFLOWS.md.
+      - name: Check the gate table still parses
+        run: python3 scripts/check_engine_gates.py --contract
+
   app-tests:
     name: Dredfit app unit tests (iOS Simulator, no UI)
     runs-on: macos-latest

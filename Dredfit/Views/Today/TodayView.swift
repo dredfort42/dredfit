@@ -210,6 +210,14 @@ struct TodayView: View {
                     .padding(.top, 6)
             }
 
+            // Ahead of the comeback card deliberately: that card asks for a
+            // decision about the plan, and this one explains what the plan IS
+            // after an upgrade. Answering before reading is the wrong order.
+            if store.showsMigrationNotice {
+                MigrationCard(onDismiss: { store.dismissMigrationNotice() })
+                    .padding(.top, 10)
+            }
+
             if store.shouldOfferComeback() {
                 ComebackCard(offersFreshStart: store.offersFreshStart(),
                              preview: store.comebackPreview(),

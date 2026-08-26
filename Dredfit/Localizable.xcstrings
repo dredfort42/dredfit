@@ -15498,6 +15498,126 @@
           }
         }
       }
+    },
+    "Your progress came across": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Fortschritt ist mitgekommen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu progreso vino contigo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ta progression est conservée"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I tuoi progressi sono qui"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seu progresso veio junto"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Прогресс перенесён"
+          }
+        }
+      }
+    },
+    "The exercises were rebuilt: every movement now has more variations, and the plan follows what you actually do. You pick up where you left off — same movements, same numbers.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Übungen wurden neu aufgebaut: Jede Bewegung hat jetzt mehr Varianten, und der Plan richtet sich danach, was du tatsächlich schaffst. Du machst da weiter, wo du aufgehört hast – gleiche Bewegungen, gleiche Zahlen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los ejercicios se rehicieron: cada movimiento tiene ahora más variaciones, y el plan sigue lo que realmente haces. Sigues donde lo dejaste: los mismos movimientos, los mismos números."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les exercices ont été refondus : chaque mouvement a maintenant plus de variantes, et le plan suit ce que tu fais vraiment. Tu reprends là où tu t’es arrêté — mêmes mouvements, mêmes chiffres."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gli esercizi sono stati ricostruiti: ogni movimento ora ha più varianti e il piano segue quello che fai davvero. Riprendi da dove ti eri fermato: stessi movimenti, stessi numeri."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os exercícios foram refeitos: cada movimento agora tem mais variações, e o plano segue o que você realmente faz. Você continua de onde parou: os mesmos movimentos, os mesmos números."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Упражнения перестроены: у каждого движения теперь больше вариаций, а план следует за тем, что ты действительно делаешь. Ты продолжаешь с того же места — те же движения, те же числа."
+          }
+        }
+      }
+    },
+    "Your whole history is here. A few exercises go by new names.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein ganzer Verlauf ist da. Ein paar Übungen heißen jetzt anders."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todo tu historial está aquí. Algunos ejercicios ahora se llaman de otra forma."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout ton historique est là. Quelques exercices portent un nouveau nom."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tutto il tuo storico è qui. Qualche esercizio ha un nome nuovo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todo o seu histórico está aqui. Alguns exercícios têm nomes novos."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вся история на месте. Несколько упражнений теперь называются иначе."
+          }
+        }
+      }
     }
   },
   "version": "1.1"

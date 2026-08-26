@@ -31,7 +31,7 @@ final class GoldenTests: XCTestCase {
     /// re-baseline every number instead of catching a port bug.
     func testGeneratorIsThePinnedReferenceVersion() throws {
         let g = try loadGolden()
-        XCTAssertEqual(g.generator, "adaptive_engine.js v3.0.0",
+        XCTAssertEqual(g.generator, "adaptive_engine.js v3.1.0",
                        "golden.json regenerated from an unexpected reference version")
     }
 
@@ -182,7 +182,7 @@ final class GoldenTests: XCTestCase {
                                 session: Session, order: [Pattern],
                                 ctx: String) throws -> EngineState {
         let result = try XCTUnwrap(FeedbackResult(rawValue: step.own.result))
-        let overrides = try patternKeyed(step.own.overrides)
+        let overrides = try patternKeyedDouble(step.own.overrides)
         let probes = try patternKeyed(step.own.probes ?? [:])
         let skipped = Set(try (step.own.skipped ?? []).map { try XCTUnwrap(Pattern(rawValue: $0)) })
         let setsSkipped = try patternKeyed(step.own.skipSets ?? [:])
@@ -312,6 +312,13 @@ final class GoldenTests: XCTestCase {
 
     private func patternKeyed(_ src: [String: Int]) throws -> [Pattern: Int] {
         var out: [Pattern: Int] = [:]
+        for (raw, value) in src { out[try XCTUnwrap(Pattern(rawValue: raw))] = value }
+        return out
+    }
+
+    /// §41.3: the same, for facts that arrive fractional.
+    private func patternKeyedDouble(_ src: [String: Double]) throws -> [Pattern: Double] {
+        var out: [Pattern: Double] = [:]
         for (raw, value) in src { out[try XCTUnwrap(Pattern(rawValue: raw))] = value }
         return out
     }

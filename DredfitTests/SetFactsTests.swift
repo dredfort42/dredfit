@@ -19,7 +19,7 @@ final class SetFactsTests: XCTestCase {
     private var session: Session!
     /// The plan of 3×15 reps.
     private var reps: SessionExercise!
-    /// The plan of 3×39 seconds.
+    /// The plan of 3×45 seconds.
     private var hold: SessionExercise!
 
     override func setUpWithError() throws {
@@ -60,10 +60,20 @@ final class SetFactsTests: XCTestCase {
 
     /// The whole reason this shape exists: 10 entered on the LAST set of
     /// 3×15 must leave the two sets already done at 15.
-    func testAFactOnTheLastSetLeavesTheEarlierOnesAlone() {
+    ///
+    /// RE-MARKED §41.3 (v3.1, 26.08.2026), class: semantics changed. The mean
+    /// of 15-15-10 is 13⅓, and the fraction is what travels now: it is the
+    /// only thing that tells "took the top set of an uneven plan" apart from
+    /// "did not". Rounded here, the engine had to substitute the plan's top
+    /// into the journal instead — a dose that was in none of the sets. The
+    /// integer is still what gets STORED, one step later, so the second assert
+    /// keeps the old 13 where it belongs.
+    func testAFactOnTheLastSetLeavesTheEarlierOnesAlone() throws {
         let facts = SetFacts.recording(10, in: [:], reps, set: 2)
         XCTAssertEqual(SetFacts.allSets(facts, reps), [15, 15, 10])
-        XCTAssertEqual(SetFacts.override(facts, for: reps), 13)
+        let mean = try XCTUnwrap(SetFacts.override(facts, for: reps))
+        XCTAssertEqual(mean, 40.0 / 3.0, accuracy: 1e-9, "the fraction reaches the engine")
+        XCTAssertEqual(SetFacts.snap(mean, unit: reps.unit), 13, "and an integer is stored")
     }
 
     /// The same for a hold stopped early — the path that records itself with
@@ -129,11 +139,18 @@ final class SetFactsTests: XCTestCase {
     }
 
     /// One set corrected back while another still differs is still a fact.
-    func testOnePlanSetAmongOthersIsStillAFact() {
+    ///
+    /// RE-MARKED §41.3 (v3.1, 26.08.2026), class: semantics changed. 10-10-15
+    /// means 11⅔, which the old rounding lifted to 12. What the test is about
+    /// is the DIRECTION — this fell short of the plan — so that is asserted in
+    /// its own right rather than left to be read off the rounded number.
+    func testOnePlanSetAmongOthersIsStillAFact() throws {
         var facts = SetFacts.recording(10, in: [:], reps, set: 0)
         facts = SetFacts.recording(15, in: facts, reps, set: 2)
         XCTAssertEqual(SetFacts.allSets(facts, reps), [10, 10, 15])
-        XCTAssertEqual(SetFacts.override(facts, for: reps), 12)
+        let mean = try XCTUnwrap(SetFacts.override(facts, for: reps))
+        XCTAssertEqual(mean, 35.0 / 3.0, accuracy: 1e-9)
+        XCTAssertLessThan(mean, Double(reps.load), "and it is still short of the plan")
     }
 
     /// A shortfall must never be reported as MEETING the plan. To the engine
@@ -154,11 +171,17 @@ final class SetFactsTests: XCTestCase {
 
     /// The rule is about the DIRECTION, not the landing: a mean at or above
     /// the plan that snaps onto it is an honest "on plan" fact.
+    ///
+    /// RE-MARKED §41.3 (v3.1, 26.08.2026), class: semantics changed. The mean
+    /// is 45⅓ and travels as 45⅓; what the rule is about is that it is not
+    /// BELOW the plan, so that is what the second assert says.
     func testAMeanAtOrAboveThePlanStillReportsIt() throws {
         let facts = SetFacts.recording(hold.load + 1, in: [:], hold, set: 2)
         XCTAssertEqual(SetFacts.allSets(facts, hold), [45, 45, 46])
-        XCTAssertEqual(SetFacts.override(facts, for: hold), 45,
-                       "45.3 s snaps to 45, and the athlete did not fall short")
+        let mean = try XCTUnwrap(SetFacts.override(facts, for: hold))
+        XCTAssertEqual(mean, 136.0 / 3.0, accuracy: 1e-9)
+        XCTAssertGreaterThanOrEqual(mean, Double(hold.load),
+                                    "the athlete did not fall short")
     }
 
     /// The safety property this protects, re-marked: there is no pain episode
@@ -178,10 +201,13 @@ final class SetFactsTests: XCTestCase {
         // the grid cannot hold the mean below the plan without over-penalising
         // a near miss, the collapse stays silent and the session rating speaks
         // instead. What it may never do is come back equal to the plan.
-        XCTAssertNotEqual(overrides[p], hold.load,
+        // ПЕРЕРАЗМЕЧЕНО §41.3 (v3.1): свёртка отдаёт СЫРОЕ среднее (Double) —
+        // приведение к решётке переехало в движок. Утверждение то же, сравнение
+        // в тех же величинах: недобор не может быть отчитан как выполненный план.
+        XCTAssertNotEqual(overrides[p], Double(hold.load),
                           "a short third set must not be reported as the plan")
         if let reported = overrides[p] {
-            XCTAssertLessThan(reported, hold.load, "and never above it either")
+            XCTAssertLessThan(reported, Double(hold.load), "and never above it either")
         }
     }
 
@@ -261,12 +287,49 @@ final class SetFactsTests: XCTestCase {
     ///
     /// The reps side is untouched at 13, and that is the regression boundary
     /// in one line: its 10 is BELOW the plan, so nothing about it moved.
-    func testOverridesCoverOnlyWhatWasSaid() {
+    ///
+    /// RE-MARKED AGAIN §41.3 (v3.1, 26.08.2026), class: semantics changed —
+    /// and the asymmetry is now visible in the number itself. 46 on the first
+    /// set of 3×45 stays on its own set, so the mean is 45⅓; the symmetric
+    /// carry would have made it a flat 46, and rounding used to hide the
+    /// difference by reporting 45 either way.
+    func testOverridesCoverOnlyWhatWasSaid() throws {
         var facts = SetFacts.recording(10, in: [:], reps, set: 2)
         facts = SetFacts.recording(46, in: facts, hold, set: 0)
-        XCTAssertEqual(SetFacts.overrides(facts, in: session.exercises),
-                       [reps.pattern: 13, hold.pattern: 45],
+        let overrides = SetFacts.overrides(facts, in: session.exercises)
+        XCTAssertEqual(Set(overrides.keys), [reps.pattern, hold.pattern],
                        "every other exercise of the session ran to plan")
+        XCTAssertEqual(try XCTUnwrap(overrides[reps.pattern]), 40.0 / 3.0, accuracy: 1e-9)
+        XCTAssertEqual(try XCTUnwrap(overrides[hold.pattern]), 136.0 / 3.0, accuracy: 1e-9)
+    }
+
+    // MARK: - The probe set (§41.2)
+
+    /// The audit of 26.08.2026 found the probe was the only set in the app
+    /// that did not record itself on a plain "Done". A hold's probe was
+    /// written by its timer; a probe in reps could only be resolved through
+    /// the adjust panel, so anyone who simply taps never entered a new
+    /// variation — eight of the ten ladders frozen, seven patterns still on
+    /// variation 1 after 400 sessions.
+    func testTappingThroughAProbeRecordsItsTarget() {
+        let probes = SetFacts.recordingProbe([:], reps.pattern, isProbe: true, target: 5)
+        XCTAssertEqual(probes[reps.pattern], 5, "a tapped probe did the target it asked for")
+    }
+
+    /// The other half, and the one a refactor is likelier to lose: nothing
+    /// ELSE records itself. An ordinary set tapped through says nothing, and
+    /// the session's rating governs the movement.
+    func testAnOrdinarySetStillRecordsNothing() {
+        XCTAssertEqual(SetFacts.recordingProbe([:], reps.pattern, isProbe: false, target: 5), [:],
+                       "only the probe reports itself on a bare tap")
+    }
+
+    /// A number entered by hand is more precise than "as asked" and wins —
+    /// including a shortfall, which is the whole point of the adjust panel.
+    func testANumberEnteredForTheProbeIsNotOverwritten() {
+        let entered: [Pattern: Int] = [reps.pattern: 3]
+        XCTAssertEqual(SetFacts.recordingProbe(entered, reps.pattern, isProbe: true, target: 5),
+                       entered, "the panel's number outranks the target")
     }
 
     /// A set index past the exercise, or below it, must not trap.

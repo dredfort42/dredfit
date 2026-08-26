@@ -232,9 +232,20 @@ extension Engine {
     /// variation is not the top one, and the last answer for the pattern was
     /// not "hard". That last clause does NOT follow from `failStreak`: a
     /// deload zeroes the streak, and "hard" does not stop having been said.
-    static func probeAllowed(_ p: Pattern, _ pos: Position, lastHard: Set<Pattern>) -> Bool {
-        !Library.isTop(p, pos.variation)
-            && pos.dose >= Dose.grid(Library.unit(p, pos.variation)).max
+    /// §41.4 (v3.1): the gate reads the JOURNAL OF WHAT WAS SHOWN, not only the
+    /// dose the plan climbed to. A trainee whose real maximum is 14 against a
+    /// ceiling of 15 was handed the probe eleven times in 75 appearances, did
+    /// it, and had the result thrown away — because in that same session they
+    /// honestly entered 14 for the old movement. Not maxed, no probe, and the
+    /// last set stays a working one. The rule only became possible alongside
+    /// §41.3: before it the journal held the plan's top, and a gate on the
+    /// journal would have been no different from a gate on the dose.
+    static func probeAllowed(_ p: Pattern, _ pos: Position, lastHard: Set<Pattern>,
+                             shown: [Pattern: [Int: Int]]) -> Bool {
+        let ceiling = Dose.grid(Library.unit(p, pos.variation)).max
+        return !Library.isTop(p, pos.variation)
+            && pos.dose >= ceiling
+            && (shown[p]?[pos.variation] ?? 0) >= ceiling
             && !lastHard.contains(p)
     }
 
@@ -282,7 +293,7 @@ extension Engine {
                 : (EngineConfig.restSetByBand[pos.sets] ?? EngineConfig.restSetSec)
 
             // §40.4: the probe replaces the LAST of the remaining sets.
-            let probing = probeAllowed(p, pos, lastHard: state.lastHard)
+            let probing = probeAllowed(p, pos, lastHard: state.lastHard, shown: state.shown)
             let sets = probing ? slotSets - 1 : slotSets
             var probe: SessionProbe?
             if probing {

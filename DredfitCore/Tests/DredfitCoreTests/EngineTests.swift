@@ -11,6 +11,17 @@ private typealias Pattern = DredfitCore.Pattern
 
 final class EngineTests: XCTestCase {
 
+    /// §41.6 item 1. hinge 4→3 and 7→6 cross from a two-sided movement to a
+    /// per-side one (×2.00); pull_bar 3→2 crosses the unit boundary (×1.50).
+    fileprivate static func impossibleLanding(_ p: Pattern, from: Int, to: Int) -> Bool {
+        let closed: [Pattern: Set<Int>] = [.hinge: [4, 7], .pullBar: [3]]
+        guard let rungs = closed[p] else { return false }
+        let lo = Swift.min(from, to) + 1, hi = Swift.max(from, to)
+        guard lo <= hi else { return false }          // не пересекли ни одной границы
+        return (lo ... hi).contains { rungs.contains($0) }
+    }
+
+
     // MARK: - Rotation and slots
 
     /// The pull slot stands in every session; over eight sessions each
@@ -142,7 +153,7 @@ final class EngineTests: XCTestCase {
             let session = Engine.generateSession(state)
             let before = state.doses[.squat]!
             state = Engine.applyFeedback(state: state, session: session, result: .plan,
-                                         overrides: [.squat: before - 1], skipped: [],
+                                         overrides: [.squat: Double(before - 1)], skipped: [],
                                          gapDays: nil, probes: [:])
             if round < 3 {
                 XCTAssertEqual(state.failStreak[.squat], round)
@@ -288,15 +299,27 @@ final class EngineTests: XCTestCase {
 
     /// "Give me something easier" lands in the JOURNAL of the variation below,
     /// not on a floor — there are no tier floors in v3.
-    func testEasierVariationLandsInTheJournal() {
+    ///
+    /// RE-MARKED §41.1 (v3.1, 26.08.2026), class: change of semantics. The old
+    /// expectation was `doses == 11` — the journal's CEILING. That is exactly
+    /// what handed a trainee the largest volume they had ever done right after
+    /// they asked for something easier. The landing now walks the journal DOWN
+    /// until the work stops growing, so the assertion becomes a bound, plus a
+    /// direct check that a button labelled "easier" is in fact easier — which
+    /// nothing asserted before.
+    func testEasierVariationLandsNoHeavier() {
         var state = EngineState.initial
         state.vars[.squat] = 3
         state.doses[.squat] = 7
         state.shown = [.squat: [2: 11, 3: 7]]
+        let before = state.position(.squat)
         let after = Engine.easierVariation(state: state, pattern: .squat)
         XCTAssertEqual(after.vars[.squat], 2)
-        XCTAssertEqual(after.doses[.squat], 11, "back to what was actually done there")
-        XCTAssertEqual(after.sets[.squat] ?? EngineConfig.setsBase, EngineConfig.setsBase)
+        let landed = after.position(.squat)
+        XCTAssertLessThanOrEqual(landed.dose, 11, "never above what was done there")
+        XCTAssertGreaterThanOrEqual(landed.dose, Dose.grid(Library.unit(.squat, 2)).min)
+        XCTAssertTrue(Engine.noHarder(.squat, from: before, to: landed, shown: state.shown),
+                      "the handle says easier, so it must be easier")
     }
 
     /// On the first variation the handle is inert: there is nothing below it.
@@ -321,6 +344,13 @@ final class EngineTests: XCTestCase {
                                         sub: 0, cut: 0)
                     for steps in 1...4 {
                         let to = Engine.fallBy(p, from, steps, shown: journal)
+                        // §41.6 item 1: three boundaries where "no heavier" is
+                        // structurally unreachable — the lower variation is
+                        // per-side, or in other units, and even its lightest
+                        // plan outweighs two sets of the upper one. The list is
+                        // closed and named; widening it silently is not allowed,
+                        // because every line of it is an accepted gap.
+                        if Self.impossibleLanding(p, from: v, to: to.variation) { continue }
                         XCTAssertTrue(Engine.noHarder(p, from: from, to: to, shown: journal),
                                       "\(p.rawValue) v\(v) at \(grid.min + rung * grid.step) "
                                       + "descending \(steps)")

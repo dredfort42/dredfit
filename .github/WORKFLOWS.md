@@ -9,7 +9,7 @@ step-by-step release procedure. All workflows live in
 
 | Workflow | File | Trigger | Gates a merge? | Runtime |
 |---|---|---|---|---|
-| **CI** — unit tests (Core + app) | `ci.yml` | push/PR to `main`, `develop`, `release/**`, `hotfix/**` | ✅ **required** | ~5–15 min |
+| **CI** — unit tests (Core + app) + engine-gate contract | `ci.yml` | push/PR to `main`, `develop`, `release/**`, `hotfix/**` | ✅ **required** | ~5–15 min |
 | **Lint** — SwiftLint | `lint.yml` | same | ✅ **required** | ~30 s |
 | **Localization** — String Catalog completeness | `localization.yml` | same | ✅ **required** | ~10 s |
 | **UI Tests** | `ui-tests.yml` | nightly + manual | ❌ non-gating | ~20–45 min |
@@ -61,10 +61,14 @@ The App Store build itself is produced and uploaded manually from Xcode (Archive
    `CURRENT_PROJECT_VERSION` (build) in the Xcode project — all targets.
 2. **Update `CHANGELOG.md`** with a `## x.y.z` section. These lines become the
    GitHub Release notes verbatim.
-3. **Rebuild the marketing site** if content changed:
+3. **Run the engine gates** — `python3 scripts/check_engine_gates.py`. Five
+   commands out of the local `reference/`; the runner fails on any that dies
+   before its first check, which is how three of six went unnoticed on engine
+   3.0.0. CI cannot do this one: the contour is not in the repository.
+4. **Rebuild the marketing site** if content changed:
    `python3 sitegen/build.py` (writes `docs/`), commit the result. *`sitegen/`
    is a local-only tool — it is not in CI, so this step is manual.*
-4. **Run UI tests locally** — they don't gate CI, so this is the only place the
+5. **Run UI tests locally** — they don't gate CI, so this is the only place the
    full flow is actually checked. Erase the simulator first (an app installed by
    hand makes the runner fail preflight), then:
 
@@ -81,12 +85,12 @@ The App Store build itself is produced and uploaded manually from Xcode (Archive
    and fail to connect, which looks like a test failure but isn't. Judge the run
    by `** TEST SUCCEEDED **` and `Executed N tests, with 0 failures`, not by the
    pipe's exit code.
-5. **Create the `release/x.y.z` branch and push.** Confirm **Release Checks**,
+6. **Create the `release/x.y.z` branch and push.** Confirm **Release Checks**,
    **CI**, **Lint**, and **Localization** are green.
-6. **Merge to `main`** (and back-merge `main` → `develop`).
-7. **Tag `vX.Y.Z` and push the tag.** The **Release** workflow publishes the
+7. **Merge to `main`** (and back-merge `main` → `develop`).
+8. **Tag `vX.Y.Z` and push the tag.** The **Release** workflow publishes the
    GitHub Release.
-8. **Archive & upload the build** from Xcode.
+9. **Archive & upload the build** from Xcode.
 
 Sanity-check the version/changelog before you push:
 
@@ -124,6 +128,7 @@ required, so a third-party action outage can never wedge your merges. Promote an
 |---|---|
 | `check_localization.py` | Fails if any shipping language (de, es, fr, it, pt-BR, ru) is missing a translation. Run with no args to check all tracked `*.xcstrings`. |
 | `check_version.py <release/x.y.z \| x.y.z>` | Verifies marketing version, build-number agreement, and a changelog section. |
+| `check_engine_gates.py` | Runs every engine gate the `TESTPLAN.md` table names and fails on any that did not print its clean line. `--contract` parses the table without running anything — that is what CI does, since `reference/` is gitignored and never on a runner. |
 | `changelog_section.py <version>` | Prints the `CHANGELOG.md` section for a version (used for release notes). |
 | `setup_branch_protection.sh` | Applies branch protection (above). |
 | `localization_config.json` | Required locales + keys intentionally identical to the source (punctuation, brand name). |

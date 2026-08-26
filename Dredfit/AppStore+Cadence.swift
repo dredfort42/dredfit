@@ -67,17 +67,27 @@ extension AppStore {
         return min(max(days, 0), Double(EngineConfig.countMax))
     }
 
-    /// The last up-to-three gaps between consecutive journal entries — the
-    /// memory a new break is compared against. Three is enough to see a
-    /// rhythm through one outlier and cheap enough to recompute on the fly.
+    /// The last up-to-eight gaps between consecutive journal entries — the
+    /// memory a new break is compared against.
+    ///
+    /// Three was too short (§41.5). A life cycle repeats over more than three
+    /// sessions — "three workouts in a week, then ten days of nothing, then
+    /// two, then five" is perfectly regular and never looks it inside a
+    /// three-gap window. The audit measured what that costs: at the SAME mean
+    /// interval, an irregular-looking rhythm took 80 silent decays over 80
+    /// sessions and finished at Σ −4, while a rhythm the window did recognise
+    /// finished at Σ 470. Eight recovers Σ 440–451 and still lets two to four
+    /// decays through, so the mechanism keeps working for real absences;
+    /// twelve was measured too and adds nothing over eight.
     var recentGaps: [Int] {
-        let dates = records.suffix(4).map(\.date)
+        let dates = records.suffix(9).map(\.date)
         guard dates.count >= 2 else { return [] }
         return zip(dates, dates.dropFirst()).map { Self.trainingDays(from: $0, to: $1) }
     }
 
-    /// Owner decisions 16.08.2026: a break is the trainee's own rhythm when
-    /// it lands within ±1 day of any of the last three gaps — with no upper
+    /// Owner decisions 16.08.2026, window widened to eight by §41.5
+    /// (26.08.2026): a break is the trainee's own rhythm when
+    /// it lands within ±1 day of any of the last eight gaps — with no upper
     /// cap, so any consistent ritual is respected. A real one-off break falls
     /// outside the window and is treated as before.
     ///
@@ -85,7 +95,7 @@ extension AppStore {
     /// non-rest day, so a 10-day-cadence trainee routinely opens the app on
     /// day 7 of the cycle — a silence that has not yet outgrown the rhythm is
     /// no break either. That window comes only from gaps that repeat (have a
-    /// ±1 partner among the last three), so one long vacation does not shield
+    /// ±1 partner among the last eight), so one long vacation does not shield
     /// the next absence from the comeback.
     func isRhythmBreak(_ gap: Int) -> Bool {
         let gaps = recentGaps

@@ -122,7 +122,11 @@ struct Golden: Decodable {
         let cooldownMin: Int
         let exercises: [Ex]
         let result: String
-        let overrides: [String: Int]
+        // §41.3: a fact arrives as a FRACTION — the mean of an uneven plan sits
+        // between its base and its top, and that fraction is what says whether the
+        // top set was taken. Decoding it as Int would collapse 7.33 and 7.00 into
+        // the same seven and silently un-test the whole change.
+        let overrides: [String: Double]
         /// The SEVENTH argument of applyFeedback (§40.4). Absent means no
         /// probe number was reported, which pins the unresolved outcome
         /// just as a present one pins the resolved.

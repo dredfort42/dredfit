@@ -151,12 +151,11 @@ final class ComebackTests: AppStoreTestCase {
 
     // MARK: - Migration
 
-    /// The SETTINGS still migrate. Only the engine state does not (§40.8): a
-    /// file this old carries `levels`, so the engine starts clean while
-    /// everything the person actually chose — rest days, reminders, Health —
-    /// comes across untouched. Losing those would be losing decisions, not a
-    /// progression.
-    func testV14FileKeepsItsSettingsAndStartsTheEngineClean() throws {
+    /// RE-MARKED §41.7 (v3.1, 26.08.2026), class: the test pinned the defect.
+    /// It used to assert that a file this old starts the engine clean, which
+    /// §40.8 said and §41.7 reversed. Both halves migrate now: what the person
+    /// chose — rest days, reminders, Health — and what they earned.
+    func testV14FileKeepsItsSettingsAndMigratesTheEngine() throws {
         let v14 = """
         {"engineState":{"counter":6,
           "levels":["squat",9,"push_h",8,"hinge",7,"pull",6,"push_v",5,"lunge",4,
@@ -179,10 +178,18 @@ final class ComebackTests: AppStoreTestCase {
         XCTAssertTrue(store.settings.healthEnabled)
         XCTAssertEqual(store.settings.healthExportedThrough, 5)
         XCTAssertTrue(store.settings.onboardingCompleted)
-        // …and the engine starts clean, because a v2 state does not decode.
+        // …and so does the engine. Old level 6 is tier 1 of the removed
+        // encoding at 3×14, and tier 1 of `pull` maps to variation 1 (§41.7) —
+        // the dose is what makes it a migration and not a reset, which is why
+        // it is asserted beside the variation and not left to speak for it.
         XCTAssertEqual(store.engineState.vars[.pull], 1)
-        XCTAssertEqual(store.engineState.failStreak[.pull], 0)
-        XCTAssertEqual(store.engineState.counter, 0)
+        XCTAssertEqual(store.engineState.doses[.pull], 14)
+        // The streak is EVIDENCE, not progress: dropping it would make the
+        // person say "hard" twice more before the engine takes anything off.
+        XCTAssertEqual(store.engineState.failStreak[.pull], 1)
+        // The counter is where they are in the rotation cycle, and resetting it
+        // would restart the cycle under someone mid-way through it.
+        XCTAssertEqual(store.engineState.counter, 6)
         // and the new field defaults to "never asked"
         XCTAssertNil(store.settings.comebackDecidedFor)
     }

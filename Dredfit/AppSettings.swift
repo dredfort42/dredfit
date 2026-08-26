@@ -32,6 +32,12 @@ struct AppSettings: Codable, Equatable {
     /// per session, never a campaign.
     var weakLinkPromptAnsweredFor: Int?
     var silentDecayAppliedFor: Date?
+    /// Set once, when a state written before v3 is carried over (§41.7), and
+    /// cleared by the tap that closes the card on Today. It lives in the
+    /// SETTINGS rather than in memory on purpose: the migration is announced
+    /// exactly once, and a launch killed before the person read the card must
+    /// not be the launch that spent it.
+    var migrationNoticePending: Bool?
     // `pendingDiscomfort` went with the pain channel and `timeBudgetChosen` /
     // `budgetDefaultNoticeClosedAt` went with the time budget — the two flags
     // existed only to remember whether a person had ever picked a session
@@ -47,7 +53,7 @@ struct AppSettings: Codable, Equatable {
         case healthEnabled, healthExportedThrough
         case onboardingCompleted, careAcknowledgedAt, lastReviewRequestAt
         case comebackDecidedFor, weakLinkPromptAnsweredFor
-        case silentDecayAppliedFor
+        case silentDecayAppliedFor, migrationNoticePending
     }
 
     init(from decoder: Decoder) throws {
@@ -70,5 +76,6 @@ struct AppSettings: Codable, Equatable {
         // cancelled `pendingPinned`; an unknown key decodes away silently, so
         // nothing to migrate and nothing to clean up.
         silentDecayAppliedFor = try c.decodeIfPresent(Date.self, forKey: .silentDecayAppliedFor)
+        migrationNoticePending = try c.decodeIfPresent(Bool.self, forKey: .migrationNoticePending)
     }
 }
