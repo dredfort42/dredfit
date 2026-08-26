@@ -62,34 +62,37 @@ struct TechniqueSheet: View {
                         .padding(.top, 10)
 
                     Kicker(text: String(localized: "Technique"))
-                        .padding(.top, 26)
+                        .padding(.top, 28)
                     ForEach(Array(variation.steps.enumerated()), id: \.offset) { index, step in
-                        HStack(alignment: .top, spacing: 12) {
+                        HStack(alignment: .top, spacing: 14) {
                             Text("\(index + 1)")
-                                .dredfitFont(15, weight: .heavy)
-                                .foregroundStyle(Theme.accent)
-                                .frame(width: 18, alignment: .leading)
+                                .dredfitFont(13, weight: .semibold)
+                                .foregroundStyle(Theme.bg)
+                                .frame(width: 26, height: 26)
+                                .background(Theme.ink, in: Circle())
                             Text(step)
                                 .dredfitFont(16.5)
                                 .lineSpacing(4)
                         }
-                        .padding(.vertical, 11)
+                        .padding(.vertical, 13)
                     }
 
                     Kicker(text: String(localized: "Common mistakes"))
                         .padding(.top, 18)
                     ForEach(Array(variation.mistakes.enumerated()), id: \.offset) { _, mistake in
-                        HStack(alignment: .top, spacing: 12) {
-                            Text(verbatim: "·")
-                                .dredfitFont(15, weight: .heavy)
-                                .foregroundStyle(Theme.ink2)
-                                .frame(width: 18, alignment: .leading)
+                        HStack(alignment: .top, spacing: 14) {
+                            Image(systemName: "xmark")
+                                .dredfitFont(11, weight: .bold)
+                                .foregroundStyle(Theme.accent)
+                                .frame(width: 26, height: 26)
+                                .background(Theme.accentSoft, in: Circle())
+                                .accessibilityHidden(true)   // a bullet, not content
                             Text(mistake)
                                 .dredfitFont(16.5)
                                 .lineSpacing(4)
                                 .foregroundStyle(Theme.ink2)
                         }
-                        .padding(.vertical, 11)
+                        .padding(.vertical, 13)
                     }
 
                     Kicker(text: String(localized: "life.kicker", defaultValue: "In life"))

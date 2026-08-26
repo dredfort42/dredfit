@@ -19,6 +19,9 @@ struct GetReadyScreen: View {
     let blockSkipTitle: String
     var blockSkipIdentifier: String?
     let paused: Bool
+    /// Whether what is counting down is already the count-in — the last
+    /// `GetReady.countInSeconds` of a transition, however it got there.
+    let countingIn: Bool
     let onTechnique: () -> Void
     let onStart: () -> Void
     let onPauseToggle: () -> Void
@@ -51,12 +54,20 @@ struct GetReadyScreen: View {
             PositionSkipButton(action: onSkipPosition)
                 .padding(.top, 8)
         } footer: {
-            // Frozen, the transition has nothing to start early — "I'm ready"
-            // would run a position the user has just stopped. hidden(), not
-            // removed: the escapes must not jump up under the thumb.
-            // (Precedent: "Start hold" during the side-switch pause.)
+            // Two reasons the transition has nothing left to start early.
+            // Frozen, "I'm ready" would run a position the user has just
+            // stopped. Inside the count-in it is simply spent: the cut it
+            // makes is `min(remaining, countInSeconds)`, so once the
+            // countdown is down there the tap can only return the same
+            // number — a control that answers with nothing is worse than no
+            // control, and the last five seconds are the count-in whether a
+            // tap made them so or the transition ran down to them.
+            //
+            // hidden(), not removed: the escapes must not jump up under the
+            // thumb. (Precedent: "Start hold" during the side-switch pause
+            // and during its own count-in.)
             Group {
-                if paused {
+                if paused || countingIn {
                     PrimaryButton(title: String(localized: "I'm ready"), action: { }).hidden()
                 } else {
                     PrimaryButton(title: String(localized: "I'm ready"), action: onStart)

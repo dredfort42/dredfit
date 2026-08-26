@@ -11,7 +11,7 @@ struct ProgressScreen: View {
     /// At accessibility sizes the stat row cannot hold number and caption
     /// side by side without pushing itself off both edges.
     @Environment(\.dynamicTypeSize) private var typeSize
-    @State private var chartPattern: Pattern?   // nil = the total-level view
+    @State private var chartPattern: Pattern?   // nil = the total-steps view
     @State private var cardURL: URL?            // the share card
     /// Rendering is a main-thread 1080×1350 pass plus a PNG write — worth
     /// skipping when nothing moved.
@@ -85,7 +85,7 @@ struct ProgressScreen: View {
             .monospacedDigit()
             .lineLimit(1)
             .fixedSize()
-            .accessibilityIdentifier("total-level")
+            .accessibilityIdentifier("total-steps")
     }
 
     private var stepsCaption: some View {
@@ -153,7 +153,7 @@ struct ProgressScreen: View {
                     let points = chartPoints
                     let bands = breakBands(points)
 
-                    levelChart(points, bands)
+                    stepsChart(points, bands)
                         .frame(height: 134)   // 120 of chart + room for the date axis
                         .padding(.top, 8)
 
@@ -188,7 +188,7 @@ struct ProgressScreen: View {
         guard key != renderedCardKey else { return }
         renderedCardKey = key
         cardURL = ShareCardFactory.fileURL(headline: summaryHeadline, slot: .progress,
-                                           levels: store.progressCurve())
+                                           steps: store.progressCurve())
     }
 
     private var barBranchExists: Bool {
@@ -206,7 +206,7 @@ struct ProgressScreen: View {
 
     /// A gap between two adjacent points wide enough for the silent decay to
     /// have run. Gaps are calendar facts, so the bands are identical in every
-    /// projection; only `costLevels` is read per projection.
+    /// projection; only `costSteps` is read per projection.
     private struct BreakBand: Identifiable {
         let id: Int
         let from: Date
@@ -221,10 +221,10 @@ struct ProgressScreen: View {
         /// "easy" only ever raise a level, so under those a drop across the
         /// gap is the silent decay or an accepted comeback, and saying so is
         /// safe.
-        let costLevels: Bool
+        let costSteps: Bool
     }
 
-    private func breakBands(_ points: [LevelPoint]) -> [BreakBand] {
+    private func breakBands(_ points: [StepPoint]) -> [BreakBand] {
         let cal = Calendar.current
         return zip(points, points.dropFirst()).enumerated().compactMap { index, pair in
             let (before, after) = pair
@@ -237,13 +237,13 @@ struct ProgressScreen: View {
             let ownDoing = after.result == .less || after.ownNumber
             let fell = after.value < before.value && !ownDoing
             return BreakBand(id: index, from: before.date, to: after.date,
-                             days: days, costLevels: fell)
+                             days: days, costSteps: fell)
         }
     }
 
     /// The band is drawn whatever its width; its label is not. A label wider
     /// than its band would spill over the line it is explaining.
-    private func labelFits(_ band: BreakBand, in points: [LevelPoint]) -> Bool {
+    private func labelFits(_ band: BreakBand, in points: [StepPoint]) -> Bool {
         guard let first = points.first?.date, let last = points.last?.date,
               last > first else { return false }
         // The band is a fraction of the axis; the label is not — it grows
@@ -261,7 +261,7 @@ struct ProgressScreen: View {
     }
 
     /// One line, and it must not repeat the mistake the rating caption made:
-    /// the causal half is claimed only where the levels actually fell.
+    /// the causal half is claimed only where the steps actually fell.
     @ViewBuilder
     private func breakFactLine(_ bands: [BreakBand]) -> some View {
         if let longest = bands.max(by: { $0.days < $1.days }) {
@@ -275,14 +275,14 @@ struct ProgressScreen: View {
 
     private func breakFact(_ band: BreakBand, of count: Int) -> String {
         var line = String(localized: "A break of \(band.days) days.")
-        if band.costLevels { line += " " + String(localized: "The plan met you lower.") }
+        if band.costSteps { line += " " + String(localized: "The plan met you lower.") }
         if count > 1 { line += " " + String(localized: "Others are marked too.") }
         return line
     }
 
     // MARK: - Level chart
 
-    private struct LevelPoint: Identifiable {
+    private struct StepPoint: Identifiable {
         let id: Int
         let date: Date
         let value: Int
@@ -298,7 +298,7 @@ struct ProgressScreen: View {
 
     /// Dates can coincide (several workouts in one span), so duplicates
     /// collapse.
-    private func xAxisDates(_ points: [LevelPoint]) -> [Date] {
+    private func xAxisDates(_ points: [StepPoint]) -> [Date] {
         guard let first = points.first?.date, let last = points.last?.date else { return [] }
         let mid = points[points.count / 2].date
         var dates = [first]
@@ -310,12 +310,12 @@ struct ProgressScreen: View {
     /// Records without a position snapshot are skipped, and so are the ones
     /// written before v3 — their numbers belong to a scale this chart does
     /// not draw. The line starts where the measured ladder does.
-    private var chartPoints: [LevelPoint] {
+    private var chartPoints: [StepPoint] {
         let plotted = store.records.compactMap { record in
             effectivePattern.map { plot(record, $0) } ?? plotTotal(record)
         }
         return plotted.enumerated().map { index, point in
-            LevelPoint(id: index, date: point.date, value: point.value,
+            StepPoint(id: index, date: point.date, value: point.value,
                        result: point.result, ownNumber: point.ownNumber)
         }
     }
@@ -355,7 +355,7 @@ struct ProgressScreen: View {
     /// the catalog — so they reuse the key the line marks already use instead
     /// of adding two of their own that no reader will ever see.
     @ChartContentBuilder
-    private func breakBandMark(_ band: BreakBand, in points: [LevelPoint]) -> some ChartContent {
+    private func breakBandMark(_ band: BreakBand, in points: [StepPoint]) -> some ChartContent {
         RectangleMark(xStart: .value("date", band.from),
                       xEnd: .value("date", band.to))
             .foregroundStyle(Theme.hairline.opacity(0.55))
@@ -386,7 +386,7 @@ struct ProgressScreen: View {
     }
 
     @ViewBuilder
-    private func levelChart(_ points: [LevelPoint], _ bands: [BreakBand]) -> some View {
+    private func stepsChart(_ points: [StepPoint], _ bands: [BreakBand]) -> some View {
         if points.count >= 2 {
             Chart {
                 // Behind the line and carrying no meaning of its own: the
@@ -394,12 +394,12 @@ struct ProgressScreen: View {
                 // the drop appears inside a workout the athlete completed.
                 ForEach(bands) { breakBandMark($0, in: points) }
                 ForEach(points) { pt in
-                    LineMark(x: .value("date", pt.date), y: .value("level", pt.value))
+                    LineMark(x: .value("date", pt.date), y: .value("steps", pt.value))
                         .foregroundStyle(Theme.accent)
                         .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
                 }
                 if let last = points.last {
-                    PointMark(x: .value("date", last.date), y: .value("level", last.value))
+                    PointMark(x: .value("date", last.date), y: .value("steps", last.value))
                         .foregroundStyle(Theme.accent)
                         .symbolSize(50)
                 }

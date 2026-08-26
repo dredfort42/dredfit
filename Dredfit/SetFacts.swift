@@ -256,6 +256,32 @@ nonisolated enum SetFacts {
         }
         return result
     }
+
+    /// "The whole plan, or more": nothing set aside, no set dropped, and every
+    /// exercise reaching the volume it was asked for. What the rating screen
+    /// asks before it offers "easy" — the one rating that claims MORE than the
+    /// plan, and so the one the plan has to have been finished for.
+    ///
+    /// Measured as VOLUME per exercise rather than as the mean the engine
+    /// folds to, because `plannedVolume` already carries the shape of an
+    /// uneven plan: 9-8-8 performed as written passes, and 8-8-8 does not —
+    /// the top set is part of the plan, and a mean would let it be traded
+    /// against the two below it.
+    ///
+    /// It lives here and not in the view's body deliberately. A rule stated
+    /// inside a SwiftUI view is a rule no test can reach, which is how the
+    /// last audit found rules that had quietly stopped being true.
+    ///
+    /// A probe is outside this on purpose: it is one set of the NEXT
+    /// variation, offered rather than asked for, and someone who declines it
+    /// has still done every rep of the plan in front of them.
+    static func didFullPlan(_ facts: PerSet, skips: Skips, skipped: Set<Pattern>,
+                            in exercises: [SessionExercise]) -> Bool {
+        guard skipped.isEmpty, skips.values.allSatisfy({ $0 <= 0 }) else { return false }
+        return exercises.allSatisfy { ex in
+            allSets(facts, ex).reduce(0, +) >= ex.plannedVolume
+        }
+    }
 }
 
 // MARK: - How they read

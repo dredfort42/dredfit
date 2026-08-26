@@ -78,6 +78,26 @@ final class AppStoreTests: AppStoreTestCase {
         XCTAssertEqual(store.records.last?.skipped, [skippedPattern])
     }
 
+    /// The claim a UI walk used to make by tapping "easy" on a session where
+    /// nothing was trained. It cannot tap it any more — the card is offered
+    /// only for a plan finished in full (`SetFacts.didFullPlan`) — so the
+    /// invariant is pinned here instead, in the terms the screen stated it in:
+    /// the number on Progress.
+    ///
+    /// The rating is still handed to the engine as `.more`, because the point
+    /// is the ENGINE's guarantee and not the screen's: it must hold for a call
+    /// no button can produce, or the gate would be all that stands behind it.
+    func testEasyOverAFullySkippedSessionLeavesTheTotalAtZero() {
+        let store = AppStore(storageURL: tempURL)
+        let session = store.nextSession
+        let skipped = Set(session.exercises.map(\.pattern))
+        store.completeWorkout(session: session, result: .more, skipped: skipped)
+        XCTAssertEqual(store.totalProgress, 0,
+                       "skipped exercises must not raise the level (honest skips)")
+        XCTAssertEqual(store.engineState.counter, 1,
+                       "the appearance is still spent — the session happened")
+    }
+
     func testCorruptedStorageFallsBackToInitial() throws {
         try Data("{not a json".utf8).write(to: tempURL)
         let store = AppStore(storageURL: tempURL)
@@ -448,20 +468,20 @@ final class AppStoreTests: AppStoreTestCase {
         let thisWeek = store.weekSummary(for: date(2026, 7, 15))
         XCTAssertEqual(thisWeek.workouts, 2,
                        "the Sunday-Jul-12 workout must fall in the previous ISO week")
-        XCTAssertEqual(thisWeek.levelsDelta, last - sundaySteps,
+        XCTAssertEqual(thisWeek.stepsDelta, last - sundaySteps,
                        "the delta counts from the last record before Monday")
 
         // The Sunday workout belongs to the previous ISO week on its own.
         let prevWeek = store.weekSummary(for: date(2026, 7, 12))
         XCTAssertEqual(prevWeek.workouts, 1, "Sunday closes the previous ISO week")
-        XCTAssertEqual(prevWeek.levelsDelta, sundaySteps, "the first week counts from zero")
+        XCTAssertEqual(prevWeek.stepsDelta, sundaySteps, "the first week counts from zero")
     }
 
     func testWeekSummaryEmptyWeekIsZero() {
         let store = AppStore(storageURL: tempURL)
         store.completeWorkout(session: store.nextSession, result: .more, date: date(2026, 7, 10))
         let week = store.weekSummary(for: date(2026, 7, 22))
-        XCTAssertEqual(week, AppStore.WeekSummary(workouts: 0, levelsDelta: 0),
+        XCTAssertEqual(week, AppStore.WeekSummary(workouts: 0, stepsDelta: 0),
                        "a week without workouts must read 0 · +0, not carry old gains")
     }
 

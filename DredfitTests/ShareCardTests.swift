@@ -42,7 +42,7 @@ final class ShareCardTests: XCTestCase {
     /// The card pins its own environment, so even a dark render is light.
     func testACardRenderedInDarkSchemeIsPixelIdenticalToLight() throws {
         let card = ShareCard(headline: "Workout #50", date: Self.pinned,
-                             levels: [12, 18, 26])
+                             steps: [12, 18, 26])
         let dark = try XCTUnwrap(png(of: card.environment(\.colorScheme, .dark)))
         let light = try XCTUnwrap(png(of: card.environment(\.colorScheme, .light)))
         XCTAssertEqual(dark, light,
@@ -66,19 +66,19 @@ final class ShareCardTests: XCTestCase {
         let none = try XCTUnwrap(ShareCardFactory.png(headline: "Workout #1",
                                                       date: Self.pinned))
         let one = try XCTUnwrap(ShareCardFactory.png(headline: "Workout #1",
-                                                     date: Self.pinned, levels: [12]))
+                                                     date: Self.pinned, steps: [12]))
         XCTAssertEqual(none, one, "a single session is a dot, not a history")
         let two = try XCTUnwrap(ShareCardFactory.png(headline: "Workout #1",
-                                                     date: Self.pinned, levels: [12, 26]))
+                                                     date: Self.pinned, steps: [12, 26]))
         XCTAssertNotEqual(none, two, "two sessions are a curve and must show up")
     }
 
     func testAFlatHistoryStillRenders() throws {
         let zeros = try XCTUnwrap(ShareCardFactory.png(headline: "Workout #2",
-                                                       levels: [0, 0, 0]))
+                                                       steps: [0, 0, 0]))
         XCTAssertFalse(zeros.isEmpty)
         let data = try XCTUnwrap(ShareCardFactory.png(headline: "Now 4 sets",
-                                                      levels: [96, 96, 96, 96]))
+                                                      steps: [96, 96, 96, 96]))
         let image = try XCTUnwrap(UIImage(data: data))
         XCTAssertEqual(image.size.width, 1080)
         XCTAssertEqual(image.size.height, 1350)

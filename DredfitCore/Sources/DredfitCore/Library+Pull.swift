@@ -12,10 +12,18 @@ import Foundation
 
 extension ExerciseLibrary {
 
+    // The towel note rides INSIDE the setup step: the card is pinned to three
+    // steps and two mistakes (LibraryPinTests), and a grip that hurts ends the
+    // set before the back does — so it cannot wait for a fourth line that will
+    // never exist. It sits on this rung and not lower because the edge only
+    // starts biting once the body is horizontal; every rung above loads the
+    // same grip harder, and whoever reaches them has read it here.
     private static var invertedRow: Technique {
         Technique(
             steps: [
-                String(localized: "Lie under a sturdy table and grab the edge with a shoulder-width grip.", bundle: .module),
+                String(
+                    localized: "Lie under a sturdy table and grab the edge with a shoulder-width grip; if the edge cuts into the fingers, lay a rolled towel over it.",
+                    bundle: .module),
                 String(localized: "Body straight from shoulders to heels; pull the chest to the edge, squeezing the shoulder blades.", bundle: .module),
                 String(localized: "Lower slowly until the arms are straight.", bundle: .module),
             ],

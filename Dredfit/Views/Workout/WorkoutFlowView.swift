@@ -125,6 +125,12 @@ struct WorkoutFlowView: View {
     // The second side starts itself — no tap, with hands busy in a plank.
     @State var holdPauseEndDate: Date?
     @State var holdPauseRemaining = 0
+    // The count-in "Start hold" earns before the clock runs
+    // (GetReady.countInSeconds). Its own pair rather than a stage flag on the
+    // hold's: the hold's total must already stand while this counts, so that
+    // the go can start it without recomputing anything.
+    @State var holdCountInEndDate: Date?
+    @State var holdCountInRemaining = 0
 
     @ScaledMetric(relativeTo: .largeTitle) private var restRingSize: CGFloat = 240
 
@@ -174,6 +180,7 @@ struct WorkoutFlowView: View {
     }
     private var holding: Bool { holdEndDate != nil }
     private var holdSwitchPausing: Bool { holdPauseEndDate != nil }
+    private var holdCountingIn: Bool { holdCountInEndDate != nil }
     private var isMilestone: Bool { if case .milestone = phase { return true }; return false }
 
     /// The stamp is written whether or not iOS shows the prompt — Apple
@@ -209,6 +216,7 @@ struct WorkoutFlowView: View {
                 cooldownView
             case .feedback:
                 FeedbackView(session: session, facts: actuals,
+                             setsSkipped: setsSkipped,
                              skipped: skippedPatterns,
                              interrupted: interruptedPattern) { result, overrides in
                     let earned = store.completeWorkout(
@@ -241,7 +249,7 @@ struct WorkoutFlowView: View {
                 }
             case .milestone(let earned):
                 MilestoneView(milestones: earned,
-                              levels: store.progressCurve(through: store.lastRecord?.date),
+                              steps: store.progressCurve(through: store.lastRecord?.date),
                               retrospective: Retrospective.make(
                                   records: store.records,
                                   current: store.currentPositions)) {
@@ -260,6 +268,8 @@ struct WorkoutFlowView: View {
                 tickRest()
             case .cooldown:
                 if blockPause.isPaused { tickBlockPause() } else { tickCooldown() }
+            case .work where holdCountingIn:
+                tickHoldCountIn()
             case .work where holdSwitchPausing:
                 tickHoldSwitchPause()
             case .work where holding:
@@ -474,11 +484,15 @@ struct WorkoutFlowView: View {
             }
             .padding(.top, 30)
 
-            if current.isProbe {
+            // The count-in outranks the probe's own caption: the big number
+            // above is five seconds of getting into position, and nothing else
+            // on the screen would say so.
+            if current.isProbe && !holdCountingIn {
                 probeCaption
                     .padding(.top, 10)
             } else {
-                WorkStatusCaption(switchingSides: holdSwitchPausing,
+                WorkStatusCaption(countingIn: holdCountingIn,
+                                  switchingSides: holdSwitchPausing,
                                   secondSide: holdSecondSide,
                                   actual: setActual,
                                   setIndex: setIndex, sets: exercise.sets,
@@ -522,9 +536,11 @@ struct WorkoutFlowView: View {
             if current.unit == .hold {
                 if holding {
                     PrimaryButton(title: String(localized: "Stop")) { stopHoldEarly() }
-                } else if holdSwitchPausing {
+                } else if holdSwitchPausing || holdCountingIn {
                     // hidden, not opacity: the button must leave the
                     // accessibility tree while keeping its reserved space.
+                    // A count-in is armed already — a second tap on the slot
+                    // it left must not land on anything.
                     PrimaryButton(title: String(localized: "Start hold")) { }.hidden()
                 } else {
                     PrimaryButton(title: String(localized: "Start hold")) { startHold() }
@@ -541,9 +557,9 @@ struct WorkoutFlowView: View {
             // aimed at "Went differently" and a set finished at plan.
             .padding(.top, 18)
             .padding(.bottom, 10)
-            // no adjusting/skipping mid-hold or mid-pause
-            .opacity(holding || holdSwitchPausing ? 0 : 1)
-            .disabled(holding || holdSwitchPausing)
+            // no adjusting/skipping mid-hold, mid-count-in or mid-pause
+            .opacity(holding || holdSwitchPausing || holdCountingIn ? 0 : 1)
+            .disabled(holding || holdSwitchPausing || holdCountingIn)
 
             // Opacity, not `if`: the reserved height keeps the layout still
             // when the hint's job is done mid-exercise.
@@ -555,7 +571,7 @@ struct WorkoutFlowView: View {
                     .lineSpacing(2)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.bottom, 10)
-                    .opacity(holding || holdSwitchPausing || adjusting
+                    .opacity(holding || holdSwitchPausing || holdCountingIn || adjusting
                              || actuals[exercise.pattern] != nil ? 0 : 1)
             }
         }
@@ -563,6 +579,7 @@ struct WorkoutFlowView: View {
 
     /// In order of precedence.
     private var workNumber: Int {
+        if holdCountingIn { return holdCountInRemaining }
         if holdSwitchPausing { return holdPauseRemaining }
         if holding { return holdRemaining }
         if current.isProbe { return probeActuals[exercise.pattern] ?? current.planned }
@@ -605,8 +622,9 @@ struct WorkoutFlowView: View {
     }
 
     private var loadCaption: String {
-        // During the switch pause the big number is the pause countdown.
-        if holdSwitchPausing { return String(localized: "sec") }
+        // During the switch pause and the count-in the big number is a
+        // countdown, not the load.
+        if holdSwitchPausing || holdCountingIn { return String(localized: "sec") }
         // The unit only: the 112 pt number above already says how many, and
         // printing it twice is the kind of noise that makes a screen feel
         // busy. Because the caption no longer agrees with a number, these
@@ -762,6 +780,7 @@ extension WorkoutFlowView {
         holdSecondSide = false
         firstSideHeld = nil
         holdPauseEndDate = nil
+        holdCountInEndDate = nil
         actuals.removeValue(forKey: exercise.pattern)   // a skip wins over an actual
         // …and over the probe: a movement that was not trained resolves nothing.
         probeActuals.removeValue(forKey: exercise.pattern)

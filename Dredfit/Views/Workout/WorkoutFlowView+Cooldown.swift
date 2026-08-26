@@ -74,8 +74,10 @@ extension WorkoutFlowView {
                                                   defaultValue: "Skip cool-down"),
                            blockSkipIdentifier: "skip-cooldown",
                            paused: blockPause.isHeld,
+                           countingIn: !reentering
+                               && cooldownRemaining <= GetReady.countInSeconds,
                            onTechnique: { openCooldownTechnique() },
-                           onStart: { reentering ? endBlockReentry() : startCooldownPositionNow() },
+                           onStart: { reentering ? endBlockReentry() : countInCooldownPosition() },
                            onPauseToggle: { toggleBlockPause() },
                            onSkipPosition: { skipCooldownPosition() },
                            onSkipBlock: { finishCooldown() })
@@ -119,6 +121,7 @@ extension WorkoutFlowView {
     func beginCooldown() {
         phase = .cooldown
         startCooldownPosition(0)
+        countInCooldownPosition()   // a start tap opens the count-in — see `beginWarmup`
         persistProgress()
     }
 
@@ -144,10 +147,15 @@ extension WorkoutFlowView {
         enterCooldownStage(index: index, stage: Cooldown.openingStage)
     }
 
-    func startCooldownPositionNow() {
-        guard let next = Cooldown.step(after: (cooldownIndex, .getReady),
-                                       positions: cooldownPositions) else { return }
-        enterCooldownStage(index: next.index, stage: next.stage)
+    /// The warm-up's rule over stretches — see `countInWarmupMove`: the tap
+    /// cuts the transition to a count-in instead of starting the position
+    /// under the thumb. Written out rather than routed through
+    /// `enterCooldownStage`, which owns a stage's FULL length and would hand
+    /// the transition its ten seconds straight back.
+    func countInCooldownPosition() {
+        clearBlockPause()
+        cooldownRemaining = min(cooldownRemaining, GetReady.countInSeconds)
+        cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(cooldownRemaining))
     }
 
     func enterCooldownStage(index: Int, stage: Cooldown.Stage) {

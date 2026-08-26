@@ -62,6 +62,13 @@ final class BlockPauseUITests: XCTestCase {
         app.buttons["warmup-start"].tap()
         XCTAssertTrue(app.staticTexts["getready-countdown"].waitForExistence(timeout: 5),
                       "the warm-up must open on the transition")
+        // …but that one is the offer's count-in, five seconds whatever the
+        // flag says. Onto the next position's, which the flag does hold open.
+        XCTAssertTrue(app.staticTexts["warmup-countdown"].waitForExistence(timeout: 10),
+                      "the count-in must hand the first move over on its own")
+        app.buttons["Skip this move"].tap()
+        XCTAssertTrue(app.buttons["get-ready-start"].waitForExistence(timeout: 5),
+                      "skipping a move lands on the next position's transition")
 
         app.buttons["block-pause"].tap()
         XCTAssertTrue(app.buttons["block-resume"].waitForExistence(timeout: 3))

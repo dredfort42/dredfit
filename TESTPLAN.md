@@ -197,7 +197,7 @@ Simulator HealthKit is unreliable; run this on a device.
 
 ### 12. Widgets and lock-screen accessories
 
-The snapshot contract is unit-tested on every run (the snapshot URL is injected, so these no longer skip on unsigned/CI runs): `testWidgetSnapshotMirrorsWeekStatuses`, `testWidgetSnapshotCarriesTheLevelWeekAndPlan` and `testWidgetSnapshotFromAnOlderBuildStillDecodes`. What these manual checks still own is the WidgetKit side: timeline rendering, reload timing, the real App Group container, and everything that only misbehaves on a real screen.
+The snapshot contract is unit-tested on every run (the snapshot URL is injected, so these no longer skip on unsigned/CI runs): `testWidgetSnapshotMirrorsWeekStatuses`, `testWidgetSnapshotCarriesTheStepsWeekAndPlan`, `testWidgetSnapshotFromAnOlderBuildStillDecodes` and `testWidgetSnapshotWeekFromBeforeTheScaleChangeStillDecodes`. What these manual checks still own is the WidgetKit side: timeline rendering, reload timing, the real App Group container, and everything that only misbehaves on a real screen.
 
 | # | Check | Expected |
 |---|---|---|

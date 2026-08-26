@@ -145,7 +145,14 @@ final class DredfitUITests: XCTestCase {
                       "no actuals summary on the rating screen")
         XCTAssertTrue(app.staticTexts["actual 3"].exists)
 
-        app.staticTexts["Easy, could do more"].tap()
+        // The adjusted exercise finished under its planned volume, so the one
+        // rating that claims MORE than the plan is spent — and says so. The
+        // line is the assertion rather than the card's own state: the cards
+        // are custom labels, and a dimmed one is still in the tree.
+        XCTAssertTrue(app.staticTexts["“Easy, could do more” is for a workout done in full."].exists,
+                      "no reason given for the rating that is not on offer")
+
+        app.staticTexts["On plan"].tap()
 
         XCTAssertTrue(app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.buttons["Start"].exists, "Start must not show after completion")
@@ -331,12 +338,19 @@ final class DredfitUITests: XCTestCase {
             NSPredicate(format: "label ENDSWITH %@", ", skipped")).count, 6,
             "all six skipped exercises must be listed")
 
-        // Even an "easy" rating must not level up untrained patterns. Assert
-        // on the identified element — a bare "0" can match a chart axis label.
-        app.staticTexts["Easy, could do more"].tap()
+        // Nothing was trained, so "easy" is not on offer at all — the purest
+        // case of the gate. The claim this walk used to make by tapping it
+        // ("even an easy rating must not level up untrained patterns") is
+        // pinned in AppStoreTests now, where the card cannot get in the way.
+        XCTAssertTrue(app.staticTexts["“Easy, could do more” is for a workout done in full."].exists,
+                      "a session where nothing was done still offers “easy”")
+
+        // A rating must not level up untrained patterns. Assert on the
+        // identified element — a bare "0" can match a chart axis label.
+        app.staticTexts["On plan"].tap()
         _ = app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5)
         app.tabBars.buttons["Progress"].tap()
-        let totalLevel = app.staticTexts["total-level"]
+        let totalLevel = app.staticTexts["total-steps"]
         XCTAssertTrue(totalLevel.waitForExistence(timeout: 3))
         XCTAssertEqual(totalLevel.label, "0",
                        "skipped exercises must not raise the level (honest skips)")
@@ -396,7 +410,7 @@ final class DredfitUITests: XCTestCase {
         // 6 patterns × (+2) = 12, on the identified element. The scale is
         // an ordinal along each ladder now (§40.2); the identifier kept
         // its old name, the CAPTION did not.
-        let totalLevel = app.staticTexts["total-level"]
+        let totalLevel = app.staticTexts["total-steps"]
         XCTAssertEqual(totalLevel.label, "12", "the total level after \"easy\" should be 12")
         XCTAssertTrue(app.staticTexts["1 workout"].exists,
                       "\"1 workout\" must use the singular (plural variations lost?)")
@@ -441,7 +455,9 @@ final class DredfitUITests: XCTestCase {
         // coordinateTap to sidestep the intermittent hittability quirk.
         coordinateTap(app.buttons["Start hold"])
         let stop = app.buttons["Stop"]
-        XCTAssertTrue(stop.waitForExistence(timeout: 3), "no Stop during the countdown")
+        // Stop belongs to the running hold, so it arrives only past the
+        // count-in the tap buys (GetReady.countInSeconds).
+        XCTAssertTrue(stop.waitForExistence(timeout: 10), "no Stop during the countdown")
 
         // A stop within the first seconds is a mis-tap — the countdown
         // cancels and the set survives instead of recording a 2-second plank.
@@ -451,7 +467,7 @@ final class DredfitUITests: XCTestCase {
 
         // a real early stop (past the grace) records the held seconds
         coordinateTap(app.buttons["Start hold"])
-        XCTAssertTrue(stop.waitForExistence(timeout: 3))
+        XCTAssertTrue(stop.waitForExistence(timeout: 10))
         Thread.sleep(forTimeInterval: 3.5)
         XCTAssertTrue(coordinateTap(stop),
                       "the countdown ended before the stop could be delivered")
@@ -463,16 +479,51 @@ final class DredfitUITests: XCTestCase {
                       "the held seconds were not recorded as the actual")
     }
 
-    func testHoldTimerAutoAdvancesAtZero() {
-        launchIntoSession2AndReachPlank()
-        // shorten the hold to the 5 s minimum: 20 → 15 → 10 → 5
+    /// Down to the corridor's 5 s floor, whatever the plan asks for — the two
+    /// tests below wait out a whole hold, so it has to be the shortest one
+    /// that exists.
+    ///
+    /// Counted taps used to do it ("20 → 15 → 10 → 5") and stopped working
+    /// without saying so: the hold grid is one second wide now, not five
+    /// (`SetFacts.snap`), so three taps bought three seconds and left a hold
+    /// longer than any wait here. Walking to the floor cannot go stale that
+    /// way — the panel clamps, so an extra tap costs nothing.
+    private func shortenHoldToTheFloor() {
         app.buttons["Went differently"].tap()
         let minus = app.buttons["minus"]
         XCTAssertTrue(minus.waitForExistence(timeout: 2), "the stepper did not open")
-        minus.tap(); minus.tap(); minus.tap()
+        let floor = app.staticTexts["5 s"]
+        var taps = 0
+        while !floor.exists && taps < 90 {
+            minus.tap()
+            taps += 1
+        }
+        XCTAssertTrue(floor.exists, "the stepper never reached the 5 s floor")
         app.buttons["OK"].tap()
+    }
+
+    /// The count-in "Start hold" earns (`GetReady.countInSeconds`). The clock
+    /// used to start under the thumb, and the seconds spent getting down into
+    /// the plank came off the number the engine measures.
+    func testStartHoldCountsInBeforeTheClockRuns() {
+        launchIntoSession2AndReachPlank()
         coordinateTap(app.buttons["Start hold"])
-        XCTAssertTrue(app.buttons["Skip rest"].waitForExistence(timeout: 9),
+        let getReady = app.staticTexts["Get ready"]
+        XCTAssertTrue(getReady.waitForExistence(timeout: 3),
+                      "the tap must open a count-in, not the hold itself")
+        XCTAssertFalse(app.buttons["Stop"].exists,
+                       "nothing may be held while the count-in runs")
+        XCTAssertTrue(app.buttons["Stop"].waitForExistence(timeout: 10),
+                      "the count-in must hand over to the hold")
+        XCTAssertFalse(getReady.exists, "the count-in is over once the hold runs")
+    }
+
+    func testHoldTimerAutoAdvancesAtZero() {
+        launchIntoSession2AndReachPlank()
+        shortenHoldToTheFloor()
+        coordinateTap(app.buttons["Start hold"])
+        // Five seconds of count-in ahead of the five the hold was cut to.
+        XCTAssertTrue(app.buttons["Skip rest"].waitForExistence(timeout: 15),
                       "the hold did not auto-advance to rest at zero")
     }
 
@@ -496,16 +547,12 @@ final class DredfitUITests: XCTestCase {
         XCTAssertTrue(perSideCaption.waitForExistence(timeout: 3),
                       "the per-side hold must follow the plank in session 2")
 
-        // shorten the hold to the 5 s minimum: 20 → 15 → 10 → 5
-        app.buttons["Went differently"].tap()
-        let minus = app.buttons["minus"]
-        XCTAssertTrue(minus.waitForExistence(timeout: 2), "the stepper did not open")
-        minus.tap(); minus.tap(); minus.tap()
-        app.buttons["OK"].tap()
+        shortenHoldToTheFloor()
 
         coordinateTap(app.buttons["Start hold"])
-        // side one (5 s) runs out into the pause, which announces itself
-        XCTAssertTrue(app.staticTexts["Switch sides"].waitForExistence(timeout: 9),
+        // side one (5 s, behind its count-in) runs out into the pause, which
+        // announces itself. The second side needs none: the pause is one.
+        XCTAssertTrue(app.staticTexts["Switch sides"].waitForExistence(timeout: 15),
                       "the pause must open when the first side ends")
         // the second side starts itself: Stop reappears with no tap anywhere
         XCTAssertTrue(app.buttons["Stop"].waitForExistence(timeout: 9),
@@ -551,17 +598,16 @@ final class DredfitUITests: XCTestCase {
     /// once the sheet closes.
     func testPositionTechniqueSheetFreezesTheCountdown() {
         // Past the transition and into the move it announced — the sheet's
-        // freeze is what this test is about, so the transition is held open
-        // rather than raced.
-        app.launchArguments.append("--uitest-long-transition")
+        // freeze is what this test is about, so nothing here is raced: the
+        // block opens on the offer's five-second count-in and hands the move
+        // over by itself, with no tap to deliver in a closing window.
         app.launch()
         app.buttons["Start"].tap()
         app.buttons["warmup-start"].tap()
-        XCTAssertTrue(app.buttons["get-ready-start"].waitForExistence(timeout: 5),
+        XCTAssertTrue(app.staticTexts["getready-countdown"].waitForExistence(timeout: 5),
                       "the warm-up must open on the transition")
-        app.buttons["get-ready-start"].tap()
         let countdown = app.staticTexts["warmup-countdown"]
-        XCTAssertTrue(countdown.waitForExistence(timeout: 3),
+        XCTAssertTrue(countdown.waitForExistence(timeout: 10),
                       "the warm-up countdown is missing")
 
         app.buttons["technique"].tap()
@@ -684,7 +730,7 @@ extension DredfitUITests {
         maximiseHold()
         coordinateTap(app.buttons["Start hold"])
         let stop = app.buttons["Stop"]
-        XCTAssertTrue(stop.waitForExistence(timeout: 3), "no Stop during the hang countdown")
+        XCTAssertTrue(stop.waitForExistence(timeout: 10), "no Stop during the hang countdown")
         Thread.sleep(forTimeInterval: 3.5)   // past the mis-tap grace
         XCTAssertTrue(coordinateTap(stop),
                       "the hang ended before the stop could be delivered")
@@ -787,7 +833,7 @@ extension DredfitUITests {
 
     /// The other half of `testFreshStartIsNotOfferedForAShortBreak`, and the
     /// only walk that reaches "Start from scratch" at all: after a break long
-    /// enough that the levels are no longer a description of anybody, the card
+    /// enough that the steps are no longer a description of anybody, the card
     /// offers a way out of them, spells out what it costs, and keeps the
     /// history either way.
     func testFreshStartIsOfferedAfterAVeryLongBreak() {
@@ -824,8 +870,8 @@ extension DredfitUITests {
         XCTAssertFalse(app.staticTexts["Welcome back"].exists,
                        "the card is answered and gone")
 
-        // "Levels go back to the beginning. Your history stays." — the second
-        // sentence is the one a careless reset would break.
+        // "Every movement goes back to the beginning. Your history stays." — the
+        // second sentence is the one a careless reset would break.
         app.tabBars.buttons["Progress"].tap()
         XCTAssertTrue(app.staticTexts["1 workout"].waitForExistence(timeout: 5),
                       "the workout that was done before the break is still there")

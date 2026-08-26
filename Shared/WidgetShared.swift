@@ -42,7 +42,12 @@ nonisolated struct WidgetSnapshot: Codable {
 
     struct Week: Codable {
         let workouts: Int
-        let levelsDelta: Int
+        /// `levelsDelta` until v3, and optional for the same reason as
+        /// `totalSteps`: the key changed with the scale, so a snapshot from
+        /// the old build carries its delta in the retired unit. Absent here,
+        /// it reads as "no number yet" — right — while reusing the old key
+        /// would present a level count as steps.
+        let stepsDelta: Int?
     }
 
     let days: [Day]

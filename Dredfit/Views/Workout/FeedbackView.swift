@@ -2,6 +2,12 @@
 //  One tap to rate the workout. The rating applies to all non-adjusted,
 //  non-skipped exercises; an exercise's own facts override it for theirs.
 //
+//  "Easy, could do more" is the exception: it is offered only for a plan
+//  finished in full. The engine already keeps that rating away from a skipped
+//  exercise and from one carrying its own number, but NOT from a movement that
+//  lost a set — there the tap still buys the full +2 on the dose. The card is
+//  the cheapest place to close that, and the only one that can also say why.
+//
 
 import SwiftUI
 import DredfitCore
@@ -12,6 +18,11 @@ struct FeedbackView: View {
     /// collapses to for the engine is `overrides` below — computed here so
     /// the screen and the engine can never be shown different arithmetic.
     let facts: SetFacts.PerSet
+    /// Sets dropped mid-movement. Never reaches `overrides` — a skipped set
+    /// is a statement about volume, not about the dose — so it is the one
+    /// shortfall the rating still governs at full speed, and the only reason
+    /// this screen needs it (see `didFullPlan`).
+    var setsSkipped: SetFacts.Skips = [:]
     var skipped: Set<Pattern> = []
     /// To the engine a skip like the others; the label says "not finished".
     var interrupted: Pattern?
@@ -19,6 +30,13 @@ struct FeedbackView: View {
 
     private var overrides: [Pattern: Double] {
         SetFacts.overrides(facts, in: session.exercises)
+    }
+
+    /// Whether "easy" is on offer. The rule itself is `SetFacts.didFullPlan`,
+    /// where a test can reach it.
+    private var didFullPlan: Bool {
+        SetFacts.didFullPlan(facts, skips: setsSkipped, skipped: skipped,
+                             in: session.exercises)
     }
 
     var body: some View {
@@ -55,13 +73,43 @@ struct FeedbackView: View {
                     VStack(spacing: 14) {
                         optionCard(title: String(localized: "Tough, did less"),
                                    caption: String(localized: "next workout eases off"),
-                                   result: .less)
+                                   result: .less, enabled: true)
                         optionCard(title: String(localized: "On plan"),
                                    caption: String(localized: "the next one asks a little more"),
-                                   result: .plan)
+                                   result: .plan, enabled: true)
+                        // The one rating that claims MORE than the plan is the
+                        // one the plan has to have been finished for. The other
+                        // two stay live in every state: honesty downward is
+                        // never gated, and "on plan" is the truth about a
+                        // session that fell short of nothing it recorded.
                         optionCard(title: String(localized: "Easy, could do more"),
                                    caption: String(localized: "the next one asks as much more as each movement allows"),
-                                   result: .more)
+                                   result: .more, enabled: didFullPlan)
+                    }
+
+                    // Why the card is spent. A dimmed control on a screen with
+                    // no way out is a riddle otherwise — and the sentence has
+                    // to name the way back, not just the refusal.
+                    //
+                    // CENTRED, and against the rest of this left-aligned
+                    // screen: centred under the three cards it reads as a
+                    // caption for the group, while flush left it read as a
+                    // stray paragraph. An icon was the other candidate and is
+                    // wrong here — `info.circle` already means "tap me for the
+                    // explainer" in this app (TodayView, TechniqueButton), and
+                    // this line opens nothing.
+                    if !didFullPlan {
+                        Text(easyGateReason)
+                            .dredfitFont(13)
+                            .foregroundStyle(Theme.ink2)
+                            .multilineTextAlignment(.center)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            // The cards run to the column's edge; a wrapped
+                            // second line must not, or the caption stops
+                            // reading as one.
+                            .padding(.horizontal, 12)
+                            .padding(.top, 14)
                     }
 
                     Spacer(minLength: 20)
@@ -152,8 +200,18 @@ struct FeedbackView: View {
 
     private var total: Int { session.exercises.count }
 
+    /// One sentence, shared by the line under the cards and by the dimmed
+    /// card's hint: VoiceOver announces "dimmed" and stops, so the reason has
+    /// to travel with the control as well as beside it.
+    private var easyGateReason: String {
+        String(localized: "“Easy, could do more” is for a workout done in full.")
+    }
+
+    /// `enabled` is passed at every call site rather than defaulted: an
+    /// omitted gate argument is the defect class this project has already
+    /// paid for twice, and a compile error is a stronger guard than a grep.
     private func optionCard(title: String, caption: String,
-                            result: FeedbackResult) -> some View {
+                            result: FeedbackResult, enabled: Bool) -> some View {
         Button {
             onComplete(result, overrides)
         } label: {
@@ -185,5 +243,14 @@ struct FeedbackView: View {
                         .stroke(Theme.hairline, lineWidth: 1.5))
             )
         }
+        .disabled(!enabled)
+        // `.disabled` alone changes nothing on a custom label — the same trap
+        // the rest extension records. The card has to LOOK spent while keeping
+        // its place, so the three stay a set of three rather than a gap.
+        .opacity(enabled ? 1 : 0.35)
+        // `verbatim`, not a literal: `Text("")` is a localizable string to the
+        // extractor, and an empty key in the catalog fails the Localization
+        // check for all six languages at once.
+        .accessibilityHint(enabled ? Text(verbatim: "") : Text(easyGateReason))
     }
 }

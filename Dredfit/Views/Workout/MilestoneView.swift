@@ -11,7 +11,7 @@ struct MilestoneView: View {
     let milestones: [Milestone]
     /// Up to the workout that earned these — the card celebrates that
     /// moment, not whatever came after it.
-    let levels: [Int]
+    let steps: [Int]
     var retrospective: Retrospective?
     let onDone: () -> Void
 
@@ -81,7 +81,7 @@ struct MilestoneView: View {
                 cardURL = ShareCardFactory.fileURL(headline: cardHeadline,
                                                    slot: .milestone,
                                                    subline: subline,
-                                                   levels: levels)
+                                                   steps: steps)
             }
         }
     }

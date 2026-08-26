@@ -3667,49 +3667,49 @@
         }
       }
     },
-    "Lie under a sturdy table and grab the edge with a shoulder-width grip.": {
+    "Lie under a sturdy table and grab the edge with a shoulder-width grip; if the edge cuts into the fingers, lay a rolled towel over it.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Leg dich unter einen stabilen Tisch und greif die Kante schulterbreit."
+            "value": "Leg dich unter einen stabilen Tisch und greif die Kante schulterbreit; schneidet dir die Kante in die Finger, leg ein gerolltes Handtuch darüber."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lie under a sturdy table and grab the edge with a shoulder-width grip."
+            "value": "Lie under a sturdy table and grab the edge with a shoulder-width grip; if the edge cuts into the fingers, lay a rolled towel over it."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Acuéstate bajo una mesa firme y agarra el borde con las manos al ancho de los hombros."
+            "value": "Acuéstate bajo una mesa firme y agarra el borde con las manos al ancho de los hombros; si el borde se te clava en los dedos, pon encima una toalla enrollada."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Allonge-toi sous une table solide et attrape le bord, les mains à la largeur des épaules."
+            "value": "Allonge-toi sous une table solide et attrape le bord, les mains à la largeur des épaules ; si le bord te scie les doigts, pose dessus une serviette roulée."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sdraiati sotto un tavolo robusto e afferra il bordo con le mani alla larghezza delle spalle."
+            "value": "Sdraiati sotto un tavolo robusto e afferra il bordo con le mani alla larghezza delle spalle; se il bordo ti taglia le dita, mettici sopra un asciugamano arrotolato."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deite embaixo de uma mesa firme e segure a borda com as mãos na largura dos ombros."
+            "value": "Deite embaixo de uma mesa firme e segure a borda com as mãos na largura dos ombros; se a borda machucar os dedos, ponha uma toalha enrolada por cima."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ляг под прочный стол и возьмись за край хватом на ширине плеч."
+            "value": "Ляг под прочный стол и возьмись за край хватом на ширине плеч; если край врезается в пальцы, положи на него свёрнутое полотенце."
           }
         }
       }
@@ -5101,7 +5101,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Entrée : dos au mur, mains à une paume de distance, puis monte les pieds le long du mur jusqu'à poser les talons."
+            "value": "Entrée : dos au mur, mains à une paume de distance, puis monte les pieds le long du mur jusqu’à poser les talons."
           }
         },
         "it": {
@@ -5195,7 +5195,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sortie : redescends les pieds le long du mur. S'il faut abandonner en pleine répétition, tourne la tête sur le côté et enjambe — ne t'effondre jamais à la verticale."
+            "value": "Sortie : redescends les pieds le long du mur. S’il faut abandonner en pleine répétition, tourne la tête sur le côté et enjambe — ne t’effondre jamais à la verticale."
           }
         },
         "it": {
@@ -5430,7 +5430,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Repousse jusqu'en haut ; plus les pieds sont hauts, plus on se rapproche de l'ATR."
+            "value": "Repousse jusqu’en haut ; plus les pieds sont hauts, plus on se rapproche de l’ATR."
           }
         },
         "it": {
@@ -5477,7 +5477,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les hanches s'affaissent : garde le V bien fermé, le poids au-dessus des mains."
+            "value": "Les hanches s’affaissent : garde le V bien fermé, le poids au-dessus des mains."
           }
         },
         "it": {
@@ -5524,7 +5524,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Départ trop haut : si la tête n'atteint pas le sol sous contrôle, baisse les pieds."
+            "value": "Départ trop haut : si la tête n’atteint pas le sol sous contrôle, baisse les pieds."
           }
         },
         "it": {
@@ -12445,7 +12445,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fais un pas en avant ; les deux pieds restent au sol, le poids sur la jambe avant."
+            "value": "Fais un pas en avant ; les deux pieds restent au sol, le poids sur la jambe avant."
           }
         },
         "it": {
@@ -12492,7 +12492,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Descends à la verticale pendant ~2 secondes jusqu'à ce que le genou arrière frôle le sol."
+            "value": "Descends à la verticale pendant ~2 secondes jusqu’à ce que le genou arrière frôle le sol."
           }
         },
         "it": {
@@ -12539,7 +12539,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Remonte en poussant sur le talon avant ; les pieds ne bougent pas de toute la série."
+            "value": "Remonte en poussant sur le talon avant ; les pieds ne bougent pas de toute la série."
           }
         },
         "it": {
@@ -12586,7 +12586,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le poids passe sur la jambe arrière : elle ne sert qu'à l'équilibre."
+            "value": "Le poids passe sur la jambe arrière : elle ne sert qu’à l’équilibre."
           }
         },
         "it": {
@@ -12633,7 +12633,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Debout sur une jambe, dos à une chaise, l'autre jambe tendue devant et les bras devant toi."
+            "value": "Debout sur une jambe, dos à une chaise, l’autre jambe tendue devant et les bras devant toi."
           }
         },
         "it": {
@@ -12680,7 +12680,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Assieds-toi vers l'arrière pendant ~2 secondes jusqu'à effleurer l'assise, sans t'y poser."
+            "value": "Assieds-toi vers l’arrière pendant ~2 secondes jusqu’à effleurer l’assise, sans t’y poser."
           }
         },
         "it": {
@@ -12727,7 +12727,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Relève-toi en poussant sur le talon de la jambe qui travaille ; plus l'assise est basse, plus c'est dur."
+            "value": "Relève-toi en poussant sur le talon de la jambe qui travaille ; plus l’assise est basse, plus c’est dur."
           }
         },
         "it": {
@@ -12774,7 +12774,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Se laisser tomber sur la chaise : le contact doit rester léger et contrôlé."
+            "value": "Se laisser tomber sur la chaise : le contact doit rester léger et contrôlé."
           }
         },
         "it": {
@@ -12821,7 +12821,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "S'aider de l'autre jambe : elle reste tendue devant tout du long."
+            "value": "S’aider de l’autre jambe : elle reste tendue devant tout du long."
           }
         },
         "it": {
@@ -12868,7 +12868,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Monte le bassin avec la jambe qui travaille, en poussant doucement sur le talon de l'autre : plus c'est facile, moins tu pousses."
+            "value": "Monte le bassin avec la jambe qui travaille, en poussant doucement sur le talon de l’autre : plus c’est facile, moins tu pousses."
           }
         },
         "it": {
@@ -12915,7 +12915,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Allongé sur le dos, un talon sur une serviette et l'autre jambe levée ; le bassin en pont."
+            "value": "Allongé sur le dos, un talon sur une serviette et l’autre jambe levée ; le bassin en pont."
           }
         },
         "it": {
@@ -12962,7 +12962,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fais glisser le talon jusqu'à la jambe presque tendue ; le bassin ne descend pas."
+            "value": "Fais glisser le talon jusqu’à la jambe presque tendue ; le bassin ne descend pas."
           }
         },
         "it": {
@@ -13009,7 +13009,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ramène le talon vers la fesse avec cette seule jambe : c'est une répétition."
+            "value": "Ramène le talon vers la fesse avec cette seule jambe : c’est une répétition."
           }
         },
         "it": {
@@ -13056,7 +13056,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le bassin s'affaisse quand la jambe se tend : garde le pont tout du long."
+            "value": "Le bassin s’affaisse quand la jambe se tend : garde le pont tout du long."
           }
         },
         "it": {
@@ -13103,7 +13103,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reviens avec les DEUX jambes : ici, la moitié difficile de la répétition n'est que la descente."
+            "value": "Reviens avec les DEUX jambes : ici, la moitié difficile de la répétition n’est que la descente."
           }
         },
         "it": {
@@ -13197,7 +13197,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Descends vers l'avant, corps droit, aussi lentement que les ischio-jambiers te retiennent."
+            "value": "Descends vers l’avant, corps droit, aussi lentement que les ischio-jambiers te retiennent."
           }
         },
         "it": {
@@ -13244,7 +13244,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Près du sol, rattrape-toi avec les mains et repousse : inutile de remonter en force."
+            "value": "Près du sol, rattrape-toi avec les mains et repousse : inutile de remonter en force."
           }
         },
         "it": {
@@ -13291,7 +13291,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Se plier au niveau des hanches : des genoux à la tête, une ligne droite."
+            "value": "Se plier au niveau des hanches : des genoux à la tête, une ligne droite."
           }
         },
         "it": {
@@ -13338,7 +13338,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chute libre : si tu ne peux pas retenir, pose les mains plus tôt."
+            "value": "Chute libre : si tu ne peux pas retenir, pose les mains plus tôt."
           }
         },
         "it": {
@@ -13385,7 +13385,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Attrape un montant de porte ou un poteau à hauteur de poitrine, les pieds au pied de l'appui."
+            "value": "Attrape un montant de porte ou un poteau à hauteur de poitrine, les pieds au pied de l’appui."
           }
         },
         "it": {
@@ -13479,7 +13479,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Amène la poitrine vers l'appui en serrant les omoplates, puis reviens lentement bras tendus."
+            "value": "Amène la poitrine vers l’appui en serrant les omoplates, puis reviens lentement bras tendus."
           }
         },
         "it": {
@@ -13526,7 +13526,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "L'appui n'est pas solide : vérifie le montant et la prise avant la première répétition."
+            "value": "L’appui n’est pas solide : vérifie le montant et la prise avant la première répétition."
           }
         },
         "it": {
@@ -13573,7 +13573,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Attrape le bord d'une table et avance les pieds : le corps à environ 70° du sol."
+            "value": "Attrape le bord d’une table et avance les pieds : le corps à environ 70° du sol."
           }
         },
         "it": {
@@ -13667,7 +13667,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Redescends lentement bras tendus ; plus les pieds sont loin, plus c'est dur."
+            "value": "Redescends lentement bras tendus ; plus les pieds sont loin, plus c’est dur."
           }
         },
         "it": {
@@ -13714,7 +13714,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le bassin s'affaisse : garde une ligne des épaules aux talons."
+            "value": "Le bassin s’affaisse : garde une ligne des épaules aux talons."
           }
         },
         "it": {
@@ -13761,7 +13761,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Attrape le bord de la table et écarte-toi jusqu'à environ 50° : cet angle EST la dose d'aide."
+            "value": "Attrape le bord de la table et écarte-toi jusqu’à environ 50° : cet angle EST la dose d’aide."
           }
         },
         "it": {
@@ -13855,7 +13855,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Amène la poitrine vers une main en y transférant le poids ; l'autre aide à tenir la ligne."
+            "value": "Amène la poitrine vers une main en y transférant le poids ; l’autre aide à tenir la ligne."
           }
         },
         "it": {
@@ -13902,7 +13902,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les deux bras tirent pareil : ce n'est plus qu'un rowing ordinaire."
+            "value": "Les deux bras tirent pareil : ce n’est plus qu’un rowing ordinaire."
           }
         },
         "it": {
@@ -13949,7 +13949,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sans plier les coudes, tire les omoplates vers le bas et l'arrière : le corps monte de quelques centimètres."
+            "value": "Sans plier les coudes, tire les omoplates vers le bas et l’arrière : le corps monte de quelques centimètres."
           }
         },
         "it": {
@@ -13996,7 +13996,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Garde cette position toute la série ; les coudes restent tendus."
+            "value": "Garde cette position toute la série ; les coudes restent tendus."
           }
         },
         "it": {
@@ -14043,7 +14043,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Plier les coudes : c'est une traction, pas du travail scapulaire."
+            "value": "Plier les coudes : c’est une traction, pas du travail scapulaire."
           }
         },
         "it": {
@@ -14090,7 +14090,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les épaules remontent vers les oreilles : garde-les basses tout le maintien."
+            "value": "Les épaules remontent vers les oreilles : garde-les basses tout le maintien."
           }
         },
         "it": {
@@ -14137,7 +14137,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Descends en 3–5 secondes en t'aidant des DEUX pieds sur une chaise, juste assez pour rester lent."
+            "value": "Descends en 3–5 secondes en t’aidant des DEUX pieds sur une chaise, juste assez pour rester lent."
           }
         },
         "it": {
@@ -14184,7 +14184,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Descends en 3–5 secondes avec UN seul pied sur la chaise : deux fois moins d'aide."
+            "value": "Descends en 3–5 secondes avec UN seul pied sur la chaise : deux fois moins d’aide."
           }
         },
         "it": {
@@ -14231,7 +14231,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pose les mains sur un appui stable d'environ 45 cm : un rebord de fenêtre, une table, un accoudoir."
+            "value": "Pose les mains sur un appui stable d’environ 45 cm : un rebord de fenêtre, une table, un accoudoir."
           }
         },
         "it": {
@@ -14325,7 +14325,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Descends ~2 secondes jusqu'à toucher l'appui avec la poitrine, remonte en expirant."
+            "value": "Descends ~2 secondes jusqu’à toucher l’appui avec la poitrine, remonte en expirant."
           }
         },
         "it": {
@@ -14372,7 +14372,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "L'appui bouge ou glisse : vérifie-le avant la première répétition."
+            "value": "L’appui bouge ou glisse : vérifie-le avant la première répétition."
           }
         },
         "it": {
@@ -14419,7 +14419,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mains plus larges que les épaules : la main qui travaille sous son épaule, l'autre écartée sur le côté."
+            "value": "Mains plus larges que les épaules : la main qui travaille sous son épaule, l’autre écartée sur le côté."
           }
         },
         "it": {
@@ -14466,7 +14466,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Descends en transférant le poids sur le bras qui travaille ; l'autre ne sert qu'à l'équilibre."
+            "value": "Descends en transférant le poids sur le bras qui travaille ; l’autre ne sert qu’à l’équilibre."
           }
         },
         "it": {
@@ -14513,7 +14513,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Remonte avec le bras qui travaille ; toute la série d'un côté, puis change."
+            "value": "Remonte avec le bras qui travaille ; toute la série d’un côté, puis change."
           }
         },
         "it": {
@@ -14560,7 +14560,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le poids réparti à égalité : ce n'est plus qu'une pompe ordinaire."
+            "value": "Le poids réparti à égalité : ce n’est plus qu’une pompe ordinaire."
           }
         },
         "it": {
@@ -14607,7 +14607,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le tronc tourne : le bassin et les épaules regardent le sol."
+            "value": "Le tronc tourne : le bassin et les épaules regardent le sol."
           }
         },
         "it": {
@@ -14654,7 +14654,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pose les mains sur une table et recule : le corps reste en angle, mais l'appui porte une partie de la charge des épaules."
+            "value": "Pose les mains sur une table et recule : le corps reste en angle, mais l’appui porte une partie de la charge des épaules."
           }
         },
         "it": {
@@ -14701,7 +14701,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pose les mains sur une assise de chaise et recule : plus l'appui est bas, plus le poids arrive aux épaules."
+            "value": "Pose les mains sur une assise de chaise et recule : plus l’appui est bas, plus le poids arrive aux épaules."
           }
         },
         "it": {
@@ -14748,7 +14748,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Monte en poirier au mur : les mains à une paume du mur, les talons posés dessus."
+            "value": "Monte en poirier au mur : les mains à une paume du mur, les talons posés dessus."
           }
         },
         "it": {
@@ -14795,7 +14795,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Descends le sommet du crâne vers le sol en 3–5 secondes, les coudes vers l'avant et le bas."
+            "value": "Descends le sommet du crâne vers le sol en 3–5 secondes, les coudes vers l’avant et le bas."
           }
         },
         "it": {
@@ -14842,7 +14842,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "En bas, sors du poirier, remonte et recommence : inutile de pousser vers le haut."
+            "value": "En bas, sors du poirier, remonte et recommence : inutile de pousser vers le haut."
           }
         },
         "it": {
@@ -14889,7 +14889,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Position de pompe : mains sous les épaules, bras tendus, pieds largeur de hanches."
+            "value": "Position de pompe : mains sous les épaules, bras tendus, pieds largeur de hanches."
           }
         },
         "it": {
@@ -14936,7 +14936,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Respire calmement ; bras tendus, le levier est plus court que sur les avant-bras."
+            "value": "Respire calmement ; bras tendus, le levier est plus court que sur les avant-bras."
           }
         },
         "it": {
@@ -14983,7 +14983,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les épaules dépassent les mains : garde-les juste au-dessus des poignets."
+            "value": "Les épaules dépassent les mains : garde-les juste au-dessus des poignets."
           }
         },
         "it": {
@@ -15030,7 +15030,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Allonge-toi sur le côté, le coude sous l'épaule, les genoux pliés l'un sur l'autre."
+            "value": "Allonge-toi sur le côté, le coude sous l’épaule, les genoux pliés l’un sur l’autre."
           }
         },
         "it": {
@@ -15077,7 +15077,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Monte le bassin jusqu'à ce que genoux, bassin et épaules soient alignés."
+            "value": "Monte le bassin jusqu’à ce que genoux, bassin et épaules soient alignés."
           }
         },
         "it": {
@@ -15124,7 +15124,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tiens sans laisser le bassin descendre ; la main libre à la taille."
+            "value": "Tiens sans laisser le bassin descendre ; la main libre à la taille."
           }
         },
         "it": {
@@ -15171,7 +15171,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tends la jambe du haut vers l'avant et pose ce pied au sol : la base est plus étroite et le tronc travaille plus."
+            "value": "Tends la jambe du haut vers l’avant et pose ce pied au sol : la base est plus étroite et le tronc travaille plus."
           }
         },
         "it": {
@@ -15218,7 +15218,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Debout sur une jambe, appuie-toi d'une main au mur ou à la table pour qu'elle reprenne une partie du poids."
+            "value": "Debout sur une jambe, appuie-toi d’une main au mur ou à la table pour qu’elle reprenne une partie du poids."
           }
         },
         "it": {
@@ -15359,7 +15359,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Relève-toi sur le talon avant et recommence : la pause à chaque répétition."
+            "value": "Relève-toi sur le talon avant et recommence : la pause à chaque répétition."
           }
         },
         "it": {
@@ -15406,7 +15406,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sauter la pause : compte les trois secondes à voix haute."
+            "value": "Sauter la pause : compte les trois secondes à voix haute."
           }
         },
         "it": {
@@ -15453,7 +15453,7 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "S'affaisser en bas : garde le tronc droit pendant les trois secondes."
+            "value": "S’affaisser en bas : garde le tronc droit pendant les trois secondes."
           }
         },
         "it": {
