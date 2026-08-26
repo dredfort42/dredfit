@@ -23,10 +23,44 @@ extension Engine {
         return Dose.clamped(unit, Dose.snap(unit, recorded))
     }
 
-    static func landInVar(_ p: Pattern, _ v: Int, shown: [Pattern: [Int: Int]]) -> Position {
-        Position(variation: Library.index(pattern: p, variation: v),
-                 sets: EngineConfig.setsBase,
-                 dose: landingDose(p, v, shown: shown), sub: 0, cut: 0)
+    /// §41.1: THE LANDING DOES NOT ADD WORK.
+    ///
+    /// The journal gives a CEILING, not the dose itself. By construction of
+    /// §40.4 a variation cannot be entered without showing its grid maximum,
+    /// so `shown[v]` equals that maximum for everyone who passed through — and
+    /// landing on it handed the trainee the LARGEST volume they had ever done
+    /// in that movement, right after they said it was too hard. The audit of
+    /// 26.08.2026 measured it: work rose on 49 boundaries out of 49, worst
+    /// ×11.25 in time under load.
+    ///
+    /// Two axes, in this order: dose first at the full band, then the cut.
+    /// Dose outranks volume — someone who left on two sets would rather have
+    /// three light ones than three heavy ones, and a dropped set comes back in
+    /// a single appearance (§37.6) while dose is walked back a rung at a time.
+    ///
+    /// When no pair fits, the grid floor at the sets they were doing: there is
+    /// nothing lighter to land on, and that is accepted gap §41.6 item 1 —
+    /// two hinge boundaries and one pull_bar unit boundary, ×2.00 at worst.
+    static func landInVar(_ p: Pattern, _ v: Int, shown: [Pattern: [Int: Int]],
+                          from: Position? = nil) -> Position {
+        let vi = Library.index(pattern: p, variation: v)
+        let unit = Library.unit(p, vi)
+        let grid = Dose.grid(unit)
+        let ceiling = landingDose(p, vi, shown: shown)
+        func make(_ dose: Int, _ cut: Int) -> Position {
+            Position(variation: vi, sets: EngineConfig.setsBase, dose: dose, sub: 0, cut: cut)
+        }
+        guard let from else { return make(ceiling, 0) }
+        let budget = planLoad(p, fit(p, from)).total
+        let carried = Engine.effCut(sets: EngineConfig.setsBase, cut: from.cut)
+        for cut in (carried == 0 ? [0] : [0, carried]) {
+            var d = ceiling
+            while d >= grid.min {
+                if planLoad(p, make(d, cut)).total <= budget { return make(d, cut) }
+                d -= grid.step
+            }
+        }
+        return make(grid.min, carried)
     }
 
     /// Dose is spent before sets: while there is somewhere to step inside the
@@ -56,7 +90,7 @@ extension Engine {
                 cur = fit(p, Position(variation: cur.variation, sets: cur.sets,
                                       dose: cur.dose, sub: cur.sub, cut: cur.cut + 1))
             } else if cur.variation > 1 {
-                cur = landInVar(p, cur.variation - 1, shown: shown)
+                cur = landInVar(p, cur.variation - 1, shown: shown, from: cur)
             } else {
                 break                       // the bottom of the whole ladder (§37.1)
             }
@@ -86,7 +120,7 @@ extension Engine {
                 cur = fit(p, Position(variation: cur.variation, sets: cur.sets,
                                       dose: cur.dose, sub: 0, cut: cur.cut + 1))
             } else if cur.variation > 1 {
-                cur = landInVar(p, cur.variation - 1, shown: shown)
+                cur = landInVar(p, cur.variation - 1, shown: shown, from: cur)
             } else {
                 break
             }
@@ -132,7 +166,14 @@ extension Engine {
         let b = planLoad(p, fit(p, to))
         if to.variation > from.variation { return false }        // up is not a descent
         if to.variation == from.variation { return b.load <= a.load && b.total <= a.total }
+        // §41.1: across a boundary this compares the SAME quantity as inside
+        // one. The old branch checked only `b.load <= journal && b.sets <=
+        // setsBase`, and `to` only ever arrives from `landInVar`, which sets
+        // exactly those two equalities — the predicate could not return false
+        // on any of 13 734 cells and guarded §40.6's promise with a tautology.
+        // Writing the spec's literal text into it turned verify2 from 0 to 365
+        // failures, which is how the defect was finally established.
         let journal = landingDose(p, to.variation, shown: shown)
-        return b.load <= journal && b.sets <= EngineConfig.setsBase
+        return b.load <= journal && b.sets <= EngineConfig.setsBase && b.total <= a.total
     }
 }

@@ -135,10 +135,27 @@ final class SessionLengthTests: AppStoreTestCase {
     }
 
     /// The handle goes through the ENGINE, so its landing is §40.6's and
-    /// nothing else: one variation down, at the dose the JOURNAL remembers for
-    /// it, on the base set count. There are no tier floors to land on any
-    /// more, and no arithmetic of its own to get wrong.
-    func testTheEasierHandleLandsInTheJournal() throws {
+    /// nothing else: one variation down, on the base set count.
+    ///
+    /// RE-MARKED §41.1 (v3.1, 26.08.2026), class: the test pinned the defect.
+    /// It used to require the landing dose to EQUAL the journal, and it was
+    /// green the whole time the handle was making things harder. A neighbour
+    /// variation can be per-side: hinge 4 → 3 is a two-legged 3×15 becoming a
+    /// two-sided 3×15, and the journal answered "15" to both — 45 reps became
+    /// 90. Pressing "make it easier" doubled the work, on 49 boundaries out of
+    /// 49 by the audit's count.
+    ///
+    /// So the journal is a CEILING now, and the property the handle exists for
+    /// is asserted in its own right: the work must not go up. The number the
+    /// old line pinned is the ceiling assert below; the number it should have
+    /// pinned is the one after it.
+    func testTheEasierHandleLandsInTheJournalAndNeverHeavier() throws {
+        /// Every set's dose, both sides counted — the same measure §41.1's gate
+        /// uses. Safe as a uniform product here because `sub` and `cut` are
+        /// asserted zero on both sides of the handle.
+        func work(_ p: Pattern, _ v: Int, sets: Int, dose: Int) -> Int {
+            sets * dose * Library.sides(p, v)
+        }
         for variation in 2...deepestVariation {
             let store = try advancedStore(variation: variation)
             for ex in store.nextSession.exercises where store.canMakeEasier(ex.pattern) {
@@ -148,15 +165,22 @@ final class SessionLengthTests: AppStoreTestCase {
                     ?? Dose.grid(Library.unit(p, target)).min
 
                 let easier = Engine.easierVariation(state: store.engineState, pattern: p)
+                let landed = try XCTUnwrap(easier.doses[p])
 
                 XCTAssertEqual(easier.vars[p], target,
                                "variation \(variation) \(p): the variation must drop")
-                XCTAssertEqual(easier.doses[p], journal,
-                               "variation \(variation) \(p): the landing is the journal")
                 XCTAssertEqual(easier.sets[p] ?? EngineConfig.setsBase, EngineConfig.setsBase,
                                "variation \(variation) \(p): the landing is on the base band")
                 XCTAssertEqual(easier.sub[p] ?? 0, 0)
                 XCTAssertEqual(easier.cutOf(p), 0)
+                XCTAssertLessThanOrEqual(landed, journal,
+                                         "variation \(variation) \(p): the journal is the ceiling")
+
+                let before = (ex.loads ?? Array(repeating: ex.load, count: ex.sets))
+                    .reduce(0, +) * Library.sides(p, ex.variation)
+                let after = work(p, target, sets: EngineConfig.setsBase, dose: landed)
+                XCTAssertLessThanOrEqual(after, before,
+                                         "variation \(variation) \(p): easier must be easier")
             }
         }
     }

@@ -713,6 +713,15 @@ extension WorkoutFlowView {
         // All three ways a set ends meet here (#186): the Done tap, the hold
         // reaching zero, an early stop past the mis-tap window. A per-side
         // hold's first side goes to the switch pause instead, not here.
+        //
+        // §41.2: finishing the PROBE set records its target. The rule and the
+        // reason live in `SetFacts.recordingProbe` — it is called rather than
+        // written out here because a policy inside a SwiftUI view body is a
+        // policy no unit test can reach, and this one unfreezes eight ladders
+        // out of ten.
+        probeActuals = SetFacts.recordingProbe(probeActuals, exercise.pattern,
+                                               isProbe: current.isProbe,
+                                               target: current.planned)
         playDone()
         adjusting = false
         if isLastSet && isLastExercise {

@@ -34,19 +34,34 @@ struct AppData: Codable {
     /// written before v3 gives the engine `initState`, and this is that.
     var engineStateReset = false
 
+    /// True when a state written before v3 was read and carried over (§41.7).
+    /// A property of THIS decode, not of the file: the loader turns it into
+    /// `settings.migrationNoticePending`, which is what the file carries and
+    /// what the card on Today is spent against.
+    var engineStateMigrated = false
+
     /// The journal decodes record-by-record — one unreadable entry (e.g.
     /// written by a newer version) must not throw away the whole file.
     ///
     /// And the ENGINE STATE decodes leniently for the same reason, since v3:
-    /// a state written by an older build carries `levels` and cannot be read
-    /// (§40.8 — no migration, deliberately), and letting that failure take the
-    /// journal and the settings with it would throw away the person's history
-    /// and every choice they ever made over a progression they were told they
-    /// would have to walk back anyway.
+    /// a state written by an older build carries `levels` instead of positions.
+    /// It is now READ and carried over (§41.7); the lenient shape stays because
+    /// a state from some future build still must not take the journal and the
+    /// settings down with it.
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         if let state = try? c.decode(EngineState.self, forKey: .engineState) {
             engineState = state
+        } else if let migrated = try? c.decode(V2EngineState.self, forKey: .engineState),
+                  let carried = Engine.migrateFromV2(migrated.asEngineInput) {
+            // §41.7: a state written before v3 is READ and carried over, not
+            // thrown away. §40.8 used to hand the engine `initState` here; the
+            // decision was reversed on 26.08.2026 because the way back it
+            // counted on — entering facts — is explained by exactly one line in
+            // the app, and that line shows only when the journal is empty.
+            // An upgrading trainee's journal is intact, so they never saw it.
+            engineState = carried
+            engineStateMigrated = true
         } else {
             engineState = .initial
             engineStateReset = true
@@ -146,11 +161,17 @@ final class AppStore {
         settings = loaded?.settings ?? AppSettings()
         pendingWorkout = loaded?.pendingWorkout
         if loaded?.engineStateReset == true {
-            // Not a corruption and not quarantined: §40.8 says a state written
-            // before v3 hands the engine `initState`, and the file is rewritten
-            // in the new shape on the next persist. The journal beside it is
-            // whole, which is the half of that decision the person notices.
-            Self.log.notice("engine state predates v3 — started clean, journal kept")
+            // Not a corruption and not quarantined. A v2 state migrates (§41.7),
+            // so reaching here means the state was neither v3 NOR v2 — a file
+            // from a future build, or one damaged past reading. The journal
+            // beside it is whole, and the file is rewritten on the next persist.
+            Self.log.notice("engine state unreadable in both shapes — started clean, journal kept")
+        }
+        // Stamped after the settings are in hand, because that is what carries
+        // it: the card must survive a launch that ends before anyone reads it.
+        if loaded?.engineStateMigrated == true {
+            settings.migrationNoticePending = true
+            Self.log.notice("engine state migrated from v2 — journal, bar and counter carried over")
         }
         if let dropped = loaded?.droppedRecordCount, dropped > 0 {
             // Keep the full original before the next persist() rewrites the
@@ -180,6 +201,9 @@ final class AppStore {
             records = loaded.records
             settings = loaded.settings ?? AppSettings()
             pendingWorkout = loaded.pendingWorkout
+            // Same stamp as the launch path: a frozen launch is exactly the one
+            // that must not swallow the announcement.
+            if loaded.engineStateMigrated { settings.migrationNoticePending = true }
             if loaded.droppedRecordCount > 0 {
                 Self.quarantineStateFile(at: storageURL, keepOriginal: true)
                 Self.log.error("dropped \(loaded.droppedRecordCount) unreadable record(s) on reload, original kept aside")
@@ -467,7 +491,7 @@ final class AppStore {
     @discardableResult
     func completeWorkout(session: Session,
                          result: FeedbackResult,
-                         overrides: [Pattern: Int] = [:],
+                         overrides: [Pattern: Double] = [:],
                          /// The sets behind each override, for the journal.
                          /// The engine never sees them — `overrides` already
                          /// is their mean (`SetFacts.override`).
@@ -516,7 +540,11 @@ final class AppStore {
             result: result,
             totalProgressAfter: totalProgress,
             exercises: session.exercises,
-            actuals: overrides.isEmpty ? nil : overrides,
+            // §41.3: the journal of workouts keeps INTEGERS. The fraction is a
+            // judge for the engine, not a fact for a person to read, and the
+            // record is persisted — changing its wire type would break every
+            // saved file for the sake of a decimal nobody wants to see.
+            actuals: overrides.isEmpty ? nil : overrides.mapValues { Int($0.rounded()) },
             setActuals: setActuals.isEmpty ? nil : setActuals,
             setsSkipped: setsSkipped.isEmpty ? nil : setsSkipped,
             skipped: skipped.isEmpty ? nil : skipped,
@@ -901,6 +929,14 @@ extension AppStore {
     /// Dismisses the prompt for this session without changing the plan.
     func dismissSuspectPrompt() {
         settings.weakLinkPromptAnsweredFor = records.last?.sessionNumber
+        persist()
+    }
+
+    /// The one-shot card on Today explaining what an upgrade did (§41.7).
+    var showsMigrationNotice: Bool { settings.migrationNoticePending == true }
+
+    func dismissMigrationNotice() {
+        settings.migrationNoticePending = false
         persist()
     }
 

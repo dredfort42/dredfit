@@ -46,13 +46,13 @@ extension Engine {
         state dirty: EngineState,
         session: Session,
         result: FeedbackResult,
-        overrides dirtyOverrides: [Pattern: Int] = [:],
+        overrides dirtyOverrides: [Pattern: Double] = [:],
         skipped: Set<Pattern> = [],
         gapDays: Double? = nil,
         probes dirtyProbes: [Pattern: Int] = [:]) -> EngineState {
         let state = dirty.sanitized()
         let overrides = dirtyOverrides.mapValues(sanitizeActual)
-        let probes = dirtyProbes.mapValues(sanitizeActual)
+        let probes = dirtyProbes.mapValues { Engine.sanitizeProbe($0) }
         // A no-op on a stale pair, exactly as the reference (И6): feedback is
         // valid only for a session generated from THIS state.
         guard session.sessionNumber == state.counter + 1 else { return dirty }
@@ -105,7 +105,7 @@ extension Engine {
     // swiftlint:disable:next function_parameter_count
     private static func advance(_ next: inout EngineState, ex: SessionExercise,
                                 old: Position, state: EngineState, result: FeedbackResult,
-                                overrides: [Pattern: Int], probes: [Pattern: Int],
+                                overrides: [Pattern: Double], probes: [Pattern: Int],
                                 targeted: Set<Pattern>?, chronic: [Pattern],
                                 rampLeft: Int) {
         let p = ex.pattern
@@ -121,14 +121,31 @@ extension Engine {
         // plan of 8-7-7 give 3×8 while the journal would hold 7.
         let planTop = ex.load
             + ((ex.loads?.contains { $0 > ex.load } ?? false) ? g.step : 0)
+        // §41.3: the plan's MEAN — what a trainee shows by doing it set for set.
+        // With it, "the plan was met" becomes a threshold reachable on any shape
+        // of plan: on a uniform one the mean equals the dose, on an uneven one it
+        // lands exactly where an honest fold of the fact lands. A threshold at the
+        // top would be unreachable; a threshold at the base credits people who
+        // never took the top set.
+        let planMean: Double = {
+            guard let loads = ex.loads, !loads.isEmpty else { return Double(ex.load) }
+            return Double(loads.reduce(0, +)) / Double(loads.count)
+        }()
 
         var step: Step
-        let actual = overrides[p].map { Dose.snap(unit, $0) }
+        // The fraction judges; the grid-snapped integer assigns. There is
+        // deliberately NO clamp here: a dose outside [min,max] is legal as an
+        // INPUT and its rung has to be allowed to go negative — clipping it at
+        // the edge is exactly what broke monotonicity of the fact-based rating
+        // (#139), and the "fact below the variation floor" branch (§40.3)
+        // stands on it.
+        let actualRaw = overrides[p]
+        let actual = actualRaw.map { Dose.snapToInt(unit, $0) }
         // "the plan was met" is a WINDOW one rung wide: for reps it collapses
         // to equality, for a hold it is five seconds (§25.1, #139). It is
         // measured from the plan's BASE dose — `ex.load` IS the minimum of an
         // uneven plan.
-        let metPlan = actual.map { $0 >= ex.load && $0 < ex.load + g.step } ?? false
+        let metPlan = actualRaw.map { $0 >= planMean && $0 < planMean + Double(g.step) } ?? false
         if let actual {
             step = stepFromFact(p, ex: ex, actual: actual, metPlan: metPlan, old: old,
                                 cap: cap, setsBackOk: setsBackOk, shown: state.shown)
@@ -146,7 +163,11 @@ extension Engine {
         // did". An exercise with a probe writes no journal for the OLD
         // variation — see below.
         if ex.probe == nil {
-            setShown(&next, p, old.variation, actual != nil && !metPlan ? actual! : planTop)
+            // §41.3: the journal records the FOLD when a number was entered and
+            // the plan's top only on a tap — a tap asserts the whole plan was
+            // done, top set included. Storage snaps to the grid, so the journal
+            // itself stays integer; the fraction is only ever a judge.
+            setShown(&next, p, old.variation, actual ?? planTop)
         } else {
             resolveProbe(&next, ex: ex, step: &step, probes: probes)
         }
@@ -202,7 +223,7 @@ extension Engine {
             // A fact below the floor of the variation: a variation down,
             // landing in the journal.
             let pos = old.variation > 1
-                ? landInVar(p, old.variation - 1, shown: shown)
+                ? landInVar(p, old.variation - 1, shown: shown, from: old)
                 : fit(p, Position(variation: old.variation, sets: old.sets,
                                   dose: g.min, sub: 0, cut: old.cut))
             return Step(position: pos, wantedDown: true)
@@ -268,11 +289,11 @@ extension Engine {
     /// Who a point fact NAMED: a number below the plan is the trainee already
     /// pointing at the movement, and the other five have nothing to lose.
     private static func namedMovements(session: Session,
-                                       overrides: [Pattern: Int]) -> Set<Pattern> {
+                                       overrides: [Pattern: Double]) -> Set<Pattern> {
         var named: Set<Pattern> = []
         for ex in session.exercises {
             guard let raw = overrides[ex.pattern] else { continue }
-            if Dose.snap(ex.unit, raw) < ex.load { named.insert(ex.pattern) }
+            if Dose.snapToInt(ex.unit, raw) < ex.load { named.insert(ex.pattern) }
         }
         return named
     }
@@ -303,7 +324,7 @@ extension Engine {
         let session: Session
         let result: FeedbackResult
         let named: Set<Pattern>
-        let overrides: [Pattern: Int]
+        let overrides: [Pattern: Double]
         let skipped: Set<Pattern>
         let chronic: [Pattern]
         let prevLessRun: Int
@@ -358,7 +379,7 @@ extension Engine {
     /// someone else's gain was assigning a dose the person never showed in
     /// that branch, which is exactly what §40.0 forbids.
     private static func crossCredit(_ next: inout EngineState, session: Session,
-                                    result: FeedbackResult, overrides: [Pattern: Int],
+                                    result: FeedbackResult, overrides: [Pattern: Double],
                                     entryPos: [Pattern: Position]) {
         guard next.hasBar,
               let trainedEx = session.exercises.first(where: { Pattern.pullSide.contains($0.pattern) })
@@ -370,7 +391,7 @@ extension Engine {
         // hard" from "that is how the rhythm fell" is impossible from the
         // inside, and the cost of the error is asymmetric.
         let strained = result == .less
-            || overrides[trained].map { Dose.snap(trainedEx.unit, $0) < trainedEx.load } ?? false
+            || overrides[trained].map { Dose.snapToInt(trainedEx.unit, $0) < trainedEx.load } ?? false
         if strained { next.creditPaused.insert(trained) } else { next.creditPaused.remove(trained) }
 
         let gained = max(0, posOrd(trained, next.position(trained))
@@ -406,7 +427,7 @@ extension Engine {
     /// variation and the position would snap back to the old ceiling.
     private static func applyWeeklyCap(_ next: inout EngineState,
                                        entryPos: [Pattern: Position],
-                                       overrides: [Pattern: Int]) {
+                                       overrides: [Pattern: Double]) {
         for p in Pattern.allCases {
             if overrides[p] != nil { continue }
             let entry = entryPos[p]!

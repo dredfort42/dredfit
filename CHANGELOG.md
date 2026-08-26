@@ -2,15 +2,85 @@
 
 ## Unreleased
 
-Three things so far. The engine steps to **v3.0** and stops predicting what you
-can do. Before it, **v2.27** moved the decision about the length of a workout
-inside the workout. And five app-layer fixes came out of the design re-review.
+Four things so far. **v3.1** closes what a full audit of v3.0 found. Before it,
+the engine stepped to **v3.0** and stopped predicting what you can do;
+**v2.27** moved the decision about the length of a workout inside the workout;
+and five app-layer fixes came out of the design re-review.
 
-**The v3.0 section rewrites parts of the two below.** They were written against
+**The v3.0 section rewrites parts of the two below it.** They were written against
 the 0–47 level scale, and that scale is gone: the duration table by level, the
 per-level numbers, and the VoiceOver line "Squat, level 18 of 47" all describe
 the engine as it was before this wave. They are left as written rather than
 quietly edited — what they say about *why* each change was made still holds.
+
+### Engine v3.1.0 — what the audit of v3.0 found
+
+A full audit of the engine that shipped in v3.0 — thirteen independent passes
+over the model, then a round of trying to knock each finding down. Eight
+survived. Every one of them is fixed here, and each fix carries a sweep that
+would have caught it.
+
+**"Make it easier" was making things harder.** Pressing the handle drops you one
+variation, and the engine put you back at the number that variation last showed
+you. But the movement below is often trained *one side at a time*, so the same
+number is twice the work: sliding leg curls at 3×15 became single-leg glute
+bridges at 3×15 **per leg** — 45 reps turning into 90, right after you said it
+was too much. Measured across the whole library, work went **up on 49 boundaries
+out of 49**, by as much as ×11.25 in time under load. The landing now walks down
+from that remembered number until the plan fits the work you were already doing.
+Three boundaries out of 49 still rise, at most ×2.00, because there is nothing
+lighter in the library to land on — they are named in the spec rather than left
+to be discovered.
+
+**Tapping "Done" on a probe did not count as doing it.** The probe is the last
+set of an exercise and the only way into a new movement. Finishing a hold
+recorded itself, because the timer had a number to record; finishing a set of
+reps by tapping the button recorded nothing at all, so the engine concluded the
+probe had not happened. **Eight of the ten ladders were frozen this way** — the
+only people who advanced were the ones who happened to adjust the number by
+hand. A tap now records the target it asked for, exactly as the timer already
+did.
+
+**Your journal recorded the plan, not what you did.** When a plan is uneven —
+8-7-7 — and you did all of it, the app collapsed that to a single rounded 7 and
+the engine, unable to tell "took the top set" from "did not", wrote the plan's
+top into your journal instead. A number that was in none of your sets. Across
+the model that was **2 903 inflated cells out of 28 880**, and the journal is
+what a descent lands on, so an inflated cell put you back on a set you never
+did. What travels now is the honest average with its fraction intact — 7.33 is
+the plan met, 7.00 is not — and the journal stores whole reps as before.
+
+**Two weeks of honest training could leave you below where you started.**
+Between workouts the plan eases off very slightly, which is right after a real
+break and wrong for someone with a long, *regular* cycle: coming every ten days
+was read as ten days off, every time. Someone training that way for two years
+ended up on the first variation of all ten movements. The engine now recognises
+a rhythm from eight intervals instead of three, so a steady cycle is read as a
+cycle.
+
+**Upgrading no longer starts you from zero.** A state written before v3 could
+not be read, so the engine started clean — and your history stayed, which made
+it worse: the one line explaining how to enter your own numbers only appears
+when the journal is empty, so an upgrading trainee never saw it once. Your
+answer about the pull-up bar went too. Every position from the old scale now
+maps onto the new one, with your doses, your rotation and your bar. **470 of the
+480 possible positions land no heavier than they were**; the remaining ten are
+holds that used to go below the shortest hold the app now offers, and they come
+*up* to it. A card on Today says what happened, once.
+
+**Five constants that exist for safety are now pinned twice** — once as a
+number, once as the behaviour they buy. A silently edited "at most ×1.50" is not
+something any sweep would have noticed.
+
+**Three of the six gates a release runs did not run at all.** They called
+functions the v3.0 wave had removed and died before their first check, which
+reads exactly like passing. It was the second wave in a row to lose gates that
+way, so the checklist is now machine-read by a runner
+(`scripts/check_engine_gates.py`) that fails on a gate which did not print its
+clean line. The wave's own acceptance set was rebuilt for v3 — twenty blocks,
+including one that proves the "not heavier" check is no longer comparing the
+plan against itself. It had been doing exactly that: breaking the rule on
+purpose produced **zero** failures.
 
 ### Engine v3.0.0 — the engine stops predicting and starts measuring
 

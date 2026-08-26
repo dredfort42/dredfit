@@ -1,5 +1,5 @@
 //
-//  Port of the reference adaptive_engine.js 3.0.0 ("the measured ladder").
+//  Port of the reference adaptive_engine.js 3.1.0 ("the measured ladder").
 //  Behavior is verified by the golden tests (Fixtures/golden.json) generated
 //  from that reference — any divergence is a port bug.
 //
@@ -181,8 +181,21 @@ public enum Engine {
 
     /// A reported number, clamped to the technical range. Past it every fact
     /// already saturates, so this is identity on anything a person could log.
-    static func sanitizeActual(_ raw: Int) -> Int {
+    /// §41.3: a fact is NOT rounded on the way in. The mean of an uneven plan
+    /// sits strictly between its base and its top (8-7-7 → 7.33), and it is the
+    /// fraction that answers "did they take the top set": [7,7,7] gives 7.00,
+    /// [8,7,7] gives 7.33. Snapping to the integer grid made those two
+    /// indistinguishable, which is exactly why the engine used to substitute
+    /// the plan's top into the journal. The fraction lives only in comparisons;
+    /// every ASSIGNED dose is still an integer on the grid (§40.0).
+    /// A probe's number is one set of one movement — an integer by nature.
+    static func sanitizeProbe(_ raw: Int) -> Int {
         EngineState.clamped(raw, -EngineConfig.countMax, EngineConfig.countMax)
+    }
+
+    static func sanitizeActual(_ raw: Double) -> Double {
+        guard raw.isFinite else { return 0 }
+        return min(max(raw, -Double(EngineConfig.countMax)), Double(EngineConfig.countMax))
     }
 
     // MARK: - Writing a position back

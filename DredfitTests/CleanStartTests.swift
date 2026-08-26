@@ -1,19 +1,21 @@
 //
-//  §40.8: there is no migration from v2, and this is what that means where a
-//  person meets it.
+//  §41.7: a state written before v3 is READ AND CARRIED OVER.
 //
-//  A state written by an older build does not decode — `vars` and `doses` are
-//  required, and a v2 file has `levels` instead — so the store hands the
-//  engine `initial`: every movement on its first rung at 3×4 (3×15 s). The
-//  WORKOUT JOURNAL is a different thing and is not touched: it is what
-//  actually happened, and losing it would be losing the person's history.
+//  RE-MARKED WHOLESALE (v3.1, 26.08.2026), class: reversal of an owner
+//  decision. This file used to pin the opposite — §40.8's "there is no
+//  migration", every movement back to its first rung at 3×4. The decision was
+//  reversed on 26.08.2026 because the way back it counted on never reached
+//  anyone: entering facts is explained by exactly one line in the app, and
+//  that line shows only when the journal is empty — which, by the same
+//  paragraph, an upgrading trainee's journal never is.
 //
-//  This file replaces PushLadderMigrationTests, whose whole subject — "the
-//  stored level keeps its number through a library reshuffle" — stopped
-//  existing with the level itself. The claim being checked is still that
-//  there is no migration code; only the consequence changed.
+//  What did NOT change and is still pinned below: the workout journal survives
+//  untouched, an old exercise line keeps the movement it was written with, and
+//  a state that is neither v2 nor v3 still gives a clean start.
 //
-
+//  The migration's own arithmetic — the tier→variation table, the 480-cell
+//  safety sweep — is pinned in MigrationV2Tests.
+//
 import XCTest
 import DredfitCore
 @testable import Dredfit
@@ -46,25 +48,27 @@ final class CleanStartTests: AppStoreTestCase {
         return AppStore(storageURL: tempURL)
     }
 
-    /// The engine starts clean: first variation, 3×4, nothing shown yet.
-    func testAnIncompatibleStateGivesACleanStart() throws {
+    /// The engine keeps the place the person had earned. L=24 is tier 4 in v2
+    /// at 4 reps, so every pattern lands on its tier-4 variation, not on its
+    /// first — and the journal records the dose, so the very first descent has
+    /// somewhere to land other than the floor.
+    func testAV2StateIsCarriedOverNotReset() throws {
         let store = try storeFromBefore()
         for p in Pattern.allCases {
-            XCTAssertEqual(store.engineState.vars[p], 1, "\(p.rawValue): first rung")
-            XCTAssertEqual(store.engineState.doses[p], Dose.grid(Library.unit(p, 1)).min,
-                           "\(p.rawValue): the floor of the grid")
+            let expected = try XCTUnwrap(Engine.v2TierToVariation[p]?[3])
+            XCTAssertEqual(store.engineState.vars[p], expected, "\(p.rawValue): its own rung")
+            XCTAssertNotNil(store.engineState.shown[p]?[expected],
+                            "\(p.rawValue): what was done there is on record")
         }
-        XCTAssertTrue(store.engineState.shown.isEmpty, "nothing has been shown to this engine")
-        XCTAssertEqual(store.totalProgress, 0)
-        XCTAssertEqual(store.engineState.counter, 0,
-                       "the counter belongs to the state, and the state is new")
+        XCTAssertEqual(store.engineState.counter, 40, "the rotation phase carries over too")
+        XCTAssertTrue(store.engineState.hasBar, "and the answer about the bar")
     }
 
-    /// …and the plan it draws is the declared beginning, for everyone.
-    func testThePlanAfterACleanStartIsThreeByTheFloor() throws {
+    /// …and the plan it draws is the one they were doing, not the beginning.
+    func testThePlanAfterMigrationIsTheirOwn() throws {
         let store = try storeFromBefore()
         let session = store.nextSession
-        XCTAssertEqual(session.sessionNumber, 1)
+        XCTAssertEqual(session.sessionNumber, 41, "the count continues")
         for ex in session.exercises {
             XCTAssertEqual(ex.sets, 3, "\(ex.pattern.rawValue)")
             XCTAssertEqual(ex.load, Dose.grid(ex.unit).min, "\(ex.pattern.rawValue)")
@@ -100,14 +104,25 @@ final class CleanStartTests: AppStoreTestCase {
         XCTAssertNil(squat.probe)
     }
 
-    /// And the store is usable straight away: a workout completed on the clean
-    /// state writes a v3 record beside the old ones.
-    func testTheStoreIsUsableImmediatelyAfterACleanStart() throws {
+    /// And the store is usable straight away: a workout completed on the
+    /// carried-over state writes a v3 record beside the old ones.
+    func testTheStoreIsUsableImmediatelyAfterMigration() throws {
         let store = try storeFromBefore()
-        let earned = store.completeWorkout(session: store.nextSession, result: .plan)
-        XCTAssertTrue(earned.isEmpty)
+        _ = store.completeWorkout(session: store.nextSession, result: .plan)
         XCTAssertEqual(store.records.count, 3)
         XCTAssertNotNil(store.records.last?.positionsAfter)
-        XCTAssertEqual(store.records.last?.sessionNumber, 1)
+        XCTAssertEqual(store.records.last?.sessionNumber, 41)
+    }
+
+    /// A state that is neither v2 nor v3 still gives a clean start — that half
+    /// of §40.8 stands, and it is the only half that ever protected anything.
+    func testGarbageStillGivesACleanStart() throws {
+        try Data(#"{"engineState":{"nonsense":1},"records":[],"settings":null}"#.utf8)
+            .write(to: tempURL)
+        let store = AppStore(storageURL: tempURL)
+        for p in Pattern.allCases {
+            XCTAssertEqual(store.engineState.vars[p], 1, "\(p.rawValue): first rung")
+        }
+        XCTAssertEqual(store.engineState.counter, 0)
     }
 }

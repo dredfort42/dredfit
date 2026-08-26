@@ -40,7 +40,7 @@ extension AppStoreTests {
             var day = 0
             // Every probe is passed: since §40.4 that is the only door into a
             // new movement, so a walk that ignored them would never get there.
-            func train(_ result: FeedbackResult, overrides: [Pattern: Int] = [:],
+            func train(_ result: FeedbackResult, overrides: [Pattern: Double] = [:],
                        skipped: Set<Pattern> = []) {
                 day += 1
                 let session = store.nextSession

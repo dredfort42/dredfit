@@ -15,9 +15,9 @@ struct FeedbackView: View {
     var skipped: Set<Pattern> = []
     /// To the engine a skip like the others; the label says "not finished".
     var interrupted: Pattern?
-    let onComplete: (FeedbackResult, [Pattern: Int]) -> Void
+    let onComplete: (FeedbackResult, [Pattern: Double]) -> Void
 
-    private var overrides: [Pattern: Int] {
+    private var overrides: [Pattern: Double] {
         SetFacts.overrides(facts, in: session.exercises)
     }
 
@@ -92,8 +92,11 @@ struct FeedbackView: View {
                     Text(ex.name)
                         .dredfitFont(14, weight: .medium)
                     Spacer()
+                    // §41.3: the screen shows a whole number. The fraction is
+                    // how the engine decides whether the top set was taken; a
+                    // person reading "you did 7.33" would learn nothing.
                     SetFactsLabel(values: SetFacts.allSets(facts, ex),
-                                  reported: overrides[ex.pattern] ?? 0)
+                                  reported: Int((overrides[ex.pattern] ?? 0).rounded()))
                 }
             }
             // The "Discomfort" section is gone with the input that filled it.

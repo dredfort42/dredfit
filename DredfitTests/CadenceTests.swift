@@ -163,11 +163,48 @@ final class CadenceTests: AppStoreTestCase {
             dates.append(dates[dates.count - 1].addingTimeInterval(6 * 86400 + drift))
         }
         let s = try store(workoutsAt: dates)
-        XCTAssertEqual(s.recentGaps, [5, 7, 5])
+        // RE-MARKED §41.5 (v3.1, 26.08.2026), class: semantics changed. The
+        // window went from three gaps to eight, and this seed lays down five
+        // records — four gaps, not three. The subject here is the 5-7-5 ritual
+        // itself, not how far back the memory reaches, so the last three gaps
+        // are what it checks. `testALifeCycleLongerThanThreeGapsIsARhythm`
+        // below is the one that owns the window's length.
+        XCTAssertEqual(Array(s.recentGaps.suffix(3)), [5, 7, 5])
         let next = try XCTUnwrap(dates.last).addingTimeInterval(6 * 86400 + 2 * 3600)
         XCTAssertEqual(s.gapDays(now: next), 7)
         XCTAssertTrue(s.isRhythmBreak(7),
                       "a 7 among 7s is the ritual, not a break in it")
+    }
+
+    /// The window's length, which nothing used to assert (§41.5).
+    ///
+    /// A life cycle does not have to repeat every three sessions. "Two
+    /// workouts close together, then ten days of nothing" is perfectly
+    /// regular and never looked it inside a three-gap window: the last three
+    /// gaps at the moment of the long silence are the SHORT ones, so the ten
+    /// days matched nothing and every cycle paid a silent decay. The audit of
+    /// 26.08.2026 measured what that cost at the same MEAN interval — 80
+    /// decays over 80 sessions, finishing at Σ posOrd −4, against Σ 470 for a
+    /// rhythm the window did recognise.
+    func testALifeCycleLongerThanThreeGapsIsARhythm() throws {
+        // Gaps, oldest first: 10, 2, 2, 2, 10, 2, 2, 2 — nine records, eight
+        // gaps, and the ten-day silence is in the window twice.
+        var dates = [date(day: 0, hour: 10)]
+        for gap in [10, 2, 2, 2, 10, 2, 2, 2] {
+            dates.append(dates[dates.count - 1].addingTimeInterval(Double(gap) * 86400))
+        }
+        let s = try store(workoutsAt: dates)
+        XCTAssertEqual(s.recentGaps, [10, 2, 2, 2, 10, 2, 2, 2], "eight gaps, not three")
+        XCTAssertEqual(Array(s.recentGaps.suffix(3)), [2, 2, 2],
+                       "and the three the old window saw hold no ten at all")
+
+        XCTAssertTrue(s.isRhythmBreak(10),
+                      "the ten-day leg of the cycle is the rhythm, not a break in it")
+        // The other half of the decision: widening the memory must not turn
+        // the mechanism off. A silence half again as long as anything in the
+        // cycle is still a break.
+        XCTAssertFalse(s.isRhythmBreak(21),
+                       "a real absence must still outgrow the ritual")
     }
 
     // MARK: - The fractional gap the engine reads

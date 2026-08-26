@@ -20,7 +20,7 @@ final class AppStoreTests: AppStoreTestCase {
         let session = store.nextSession
         let skippedPattern = session.exercises[1].pattern
         store.completeWorkout(session: session, result: .more,
-                              overrides: [session.exercises[0].pattern: 6],
+                              overrides: [session.exercises[0].pattern: 6.0],
                               skipped: [skippedPattern])
 
         // a separate store on the same file sees the same state
@@ -52,7 +52,12 @@ final class AppStoreTests: AppStoreTestCase {
 
         let record = try XCTUnwrap(AppStore(storageURL: tempURL).records.last)
         XCTAssertEqual(record.setActuals?[ex.pattern], facts[ex.pattern])
-        XCTAssertEqual(record.actuals?[ex.pattern], overrides[ex.pattern],
+        // ПЕРЕРАЗМЕЧЕНО §41.3 (v3.1): движок получает СЫРОЕ среднее (дробь),
+        // а журнал тренировок хранит целое — он персистится, и менять его тип
+        // ради десятой доли, которую человек не читает, нельзя. Утверждение то
+        // же: записано ровно то число, по которому движок и действовал.
+        XCTAssertEqual(record.actuals?[ex.pattern],
+                       overrides[ex.pattern].map { Int($0.rounded()) },
                        "the stored number is the one the engine acted on")
     }
 
@@ -185,8 +190,13 @@ final class AppStoreTests: AppStoreTestCase {
         let store = AppStore(storageURL: tempURL)
         XCTAssertEqual(store.records.count, 1, "the readable record must survive")
         XCTAssertEqual(store.records.first?.sessionNumber, 1)
-        XCTAssertEqual(store.totalProgress, 0,
-                       "a v2 engine state does not decode, so the engine starts clean (§40.8)")
+        // RE-MARKED §41.7 (v3.1, 26.08.2026), class: the test pinned the defect.
+        // §40.8's "there is no migration" was reversed, so the claim inverts:
+        // an upgrading trainee's work is CARRIED OVER. The number itself is not
+        // pinned here — this test is about the journal surviving a bad entry,
+        // and `MigrationV2Tests` owns what the rungs land on.
+        XCTAssertGreaterThan(store.totalProgress, Engine.totalProgress(.initial),
+                             "the v2 rungs migrate, so progress is above a clean start")
         XCTAssertTrue(FileManager.default.fileExists(atPath: corruptURL.path),
                       "the full original must be kept aside when entries are dropped")
     }
@@ -215,9 +225,20 @@ final class AppStoreTests: AppStoreTestCase {
         XCTAssertNil(store.records[0].positionsAfter, "v1.0 records have no position snapshot")
         XCTAssertNil(store.records[0].totalProgressAfter,
                      "and none of them carries a number on the v3 scale")
-        XCTAssertEqual(store.totalProgress, 0, "the engine starts clean (§40.8)")
-        XCTAssertEqual(store.settings, AppSettings(), "v1.0 files load with default settings")
-        // pre-bar files load with the bar module off and the branch at zero
+        // RE-MARKED §41.7 (v3.1, 26.08.2026), class: the test pinned the defect.
+        // See the twin note in `testOneBadRecordDoesNotDropTheJournal`.
+        XCTAssertGreaterThan(store.totalProgress, Engine.totalProgress(.initial),
+                             "the v2 rungs migrate, so progress is above a clean start")
+        // Every settings key this file never carried comes out at its default.
+        // The one exception is the announcement the migration itself owes the
+        // person (§41.7) — it is not a decoded setting, it is a consequence.
+        var expected = AppSettings()
+        expected.migrationNoticePending = true
+        XCTAssertEqual(store.settings, expected, "v1.0 files load with default settings")
+        // Pre-bar files load with the bar module off and the branch at zero —
+        // because this file predates the pattern and carries no level for it,
+        // NOT because the state was discarded. A file that does carry one keeps
+        // it: `testV13SettingsFileLoadsWithWaveFourDefaults` is that case.
         XCTAssertFalse(store.engineState.hasBar, "legacy files must decode with hasBar off")
         XCTAssertEqual(store.engineState.vars[.pullBar], 1)
         XCTAssertEqual(store.engineState.failStreak[.pullBar], 0)
@@ -296,12 +317,18 @@ final class AppStoreTests: AppStoreTestCase {
         XCTAssertEqual(store.settings.reminderMinute, 30)
         XCTAssertTrue(store.settings.healthEnabled)
         XCTAssertEqual(store.settings.healthExportedThrough, 3)
-        // `hasBar` lives in the ENGINE state, not in the settings, so it goes
-        // with it: a v2 state does not decode (§40.8) and the whole engine —
-        // the toggle included — starts clean. The settings above are a
-        // different object and survive whole.
-        XCTAssertFalse(store.engineState.hasBar)
+        // RE-MARKED §41.7 (v3.1, 26.08.2026), class: the test pinned the defect.
+        // `hasBar` lives in the ENGINE state, not in the settings, and used to
+        // go down with it — the person said they have a bar, the upgrade said
+        // they do not, pull-ups vanished from every plan and the toggle in
+        // settings read "off". §40.8 was reversed for exactly this. The answer
+        // now survives, and this line is its guard.
+        XCTAssertTrue(store.engineState.hasBar, "the answer about the bar is carried over")
+        // Old level 5 is tier 1 of the removed encoding, and tier 1 of pull_bar
+        // maps to variation 1 (§41.7) — a MIGRATED one, not a reset one.
         XCTAssertEqual(store.engineState.vars[.pullBar], 1)
+        XCTAssertEqual(store.engineState.doses[.pullBar], 30,
+                       "and its hold of 32 s floors onto the 5 s grid, never up")
         // and the onboarding/review fields arrive at their defaults
         XCTAssertFalse(store.settings.onboardingCompleted)
         XCTAssertNil(store.settings.lastReviewRequestAt)

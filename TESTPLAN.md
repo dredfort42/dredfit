@@ -807,95 +807,111 @@ more. They stay in the file as the history of what the app used to promise.
 
 ## Engine gates before a release
 
-Not a manual row — the six automated gates a release runs from `reference/`,
-recorded here because "clean" is not the same word for each of them. The full
-definition, and the residues that are known and named, live in phase 0 item 3 of
-`instructions/CORE_AUDIT.md` — a working document that is deliberately not in the
-repository, like `reference/` itself.
+Not a manual row — the five automated gates a release runs from `reference/`,
+recorded here because "clean" is not the same word for each of them. The middle
+column is machine-read by `scripts/check_engine_gates.py`, which runs every row
+and fails on any gate that did not print its line. The full definition, and the
+residues that are known and named, live in phase 0 item 3 of
+`instructions/CORE_AUDIT.md` — a working document that is deliberately not in
+the repository, like `reference/` itself.
 
-| Command | Clean means |
+| Command | Must print | Clean means |
+|---|---|---|
+| `python3 scripts/update_reference_manifest.py --check` | `OK:` | the local `reference/` really is the one that produced the fixture. It is not versioned, so it goes stale silently |
+| `node verify2.js` | `провалов: 0` | every block of the verifier — 74 376 checks on engine 3.1.0 |
+| `node accept.js` | `ПРИЁМКА ЧИСТА` | not one `ПРОВАЛ` line across the twenty wave-acceptance blocks below. It is the wave's own gate: every wave replaces the copy in `reference/` with the one written for it |
+| `node passcheck_v3.js` | `Провалов всего: 0` | П1 and П2 both PASS — the two passability claims of §40, that every variation can be reached and that entering one never lengthens the session |
+| `node audit_static.js` | `НОВЫХ СРАБАТЫВАНИЙ НЕТ` | no new hit of the "fix applied to one branch of two" class |
+
+What `audit_static.js` compares is **not the number but the absence of new
+lines** against the previous run. The cell counts move every wave — the sweep
+walks a lattice that grows — and chasing a particular figure hides a regression
+as well as a red run does.
+
+`audit_local.js` and `audit_local2.js` are **no longer gates**, and are gone
+from this list rather than left in it red. Their sweeps — set floors, the
+consistency of the "easier" handle, the week window, reachability — became
+blocks 8, 9, 17, 18 and 25 of `verify2.js` in the v3.0 wave, and keeping the
+scripts alive beside the verifier would have been a second copy of the same
+rules: the thing an audit calls a finding, not a check. Three of their checks
+had no twin, and the v3.1 wave put all three inside `verify2` rather than
+resurrecting the scripts:
+
+| Was | Is |
 |---|---|
-| `python3 scripts/update_reference_manifest.py --check` | `OK` — the local `reference/` really is the one that produced the fixture. It is not versioned, so it goes stale silently |
-| `node verify2.js` | 0 failures |
-| `node accept.js` | "ПРИЁМКА ЧИСТА" and not one `ПРОВАЛ` line — the thirteen wave-acceptance blocks below. It is the wave's own gate: the copy in `reference/` is replaced by every wave with the one written for it, and the version that ships with v2.27 lives in `reference/model-v2.27/accept.js` |
-| `node audit_static.js` | "НОВЫХ СРАБАТЫВАНИЙ НЕТ" — no new hit of the "fix applied to one branch of two" class |
-| `node audit_local.js` | "ЛОКАЛЬНЫЙ ПЕРЕБОР ЧИСТ" — H1–H8 without failures |
-| `node audit_local2.js` | S2–S6 without failures; S1 reports **zero** invariant violations and **one** cell parked at the set floor — the named residue of item 46. A second at-floor cell, or any violation off the floor, is a finding |
+| `audit_local` H1 — the descent invariant on every path × the whole grid | block 13, extended to descents that **cross a variation boundary**. The old block excluded exactly that case, which is how the boundary defect of the 26.08.2026 audit lived through it |
+| `audit_local2` S4 — the balance envelope on seven rhythms, sliding six-session window | block 6, restored to §20.4's shape. It had regressed to one rhythm and a 24-session sum |
+| `audit_local2` S1 — long random stress with a fixed seed | block 29, seed `20260826`. Every other v3 sweep is deterministic by construction, so nothing else covers the classes only randomness reaches |
 
-What is compared is **not the number but the absence of new lines** against the
-previous run. The cell counts move every wave — the sweep walks a lattice that
-grows — and chasing a particular figure hides a regression as well as a red run
-does.
+### Why the gates have a runner
 
-**Two of these six did not run at all on engine 2.27.0**, found and repaired
-closing the wave. `audit_local.js` and `audit_local2.js` still called
-`shorterSession`, the export §38.1 removed, and died with a `TypeError` before
-their first check, while `verify2` and the acceptance stayed clean — a release
-would have met a red gate with no explanation. Both now walk the same cut one
-movement at a time through `setCut`, exactly as the wave itself re-pointed
-`verify2.js` and `make_golden.js`.
+    python3 scripts/check_engine_gates.py            # locally, before a release
+    python3 scripts/check_engine_gates.py --contract # what CI can do
 
-The same pass replaced a **dead axis** in `audit_local2`'s S6, outstanding since
-v2.26: its second axis was `for (const budget of [0, 45])` against a model that
-has no `timeBudgetMin` at all, so the block did twice the work at half the
-coverage — the plan was bit-for-bit identical on both. The axis is the sets cut
-now, applied *after* three honest sessions because a cut written before them is
-handed back by growth, and the block **prints how many cells the axis actually
-separates**: 288 of 288, where the old axis separated none. Zero there fails the
-block instead of passing it quietly. Both sweeps, before and after, with their
-runs: `reference/model-v2.27/GATE-REPAIR/`.
+Three of the six gates this section used to list **did not run at all** on
+engine 3.0.0: they called `state.levels` and `decodeLevel`, exports that wave
+had removed, and died before their first check. Nothing went red, because a
+gate that is never run is indistinguishable from a gate that passed — and a
+gate named in a tracked checklist is worse than no gate, because it reads as
+done. It was the second wave in a row with that exact failure; v2.27 lost two
+of six the same way, and the rule written down after it ("a wave that removes
+an export must look for it in every gate") did not survive the next wave. So it
+stopped being a rule to remember.
+
+The runner reads the table above, so adding a row is what makes a gate run, and
+a row nobody can run fails instead of reading as done. **Running the gates is a
+LOCAL gate, not a CI one** — a real limit, not an oversight: `reference/` is
+gitignored and never checked out on a runner, so CI has nothing to execute.
+What CI checks is the contract — that the table still parses, and that every
+row names both a command and the line that means clean.
 
 ### What `accept.js` checks, and why each check is there
 
 `verify2.js` proves the engine obeys the spec. `accept.js` proves a *wave* kept
 the promises it was built on — every check below was put there by a defect that
 shipped, or by a decision the owner made and would otherwise have to take on
-trust. It is deterministic, self-contained and takes seconds; the only thing it
-needs from outside is the **previous** engine, which for v2.27 is
-`adaptive_engine.v2.26-baseline.js` — it sits next to the script in `reference/`
-and in `reference/model-v2.27/` (point `DREDFIT_V226` at another copy to compare
-against a different baseline). Missing baseline is not a skipped check: the
-script throws, and that is a STOP. Thirteen numbered blocks, eighteen assertions
-— П7 prints a number and asserts nothing on purpose, and П13 asserts that the
-other twelve ran at all.
+trust. It is deterministic, self-contained and takes seconds, and it calls the
+engine's **exported** predicates rather than keeping its own copies of them
+(rule 16 of the audit protocol), so a rule and its check cannot drift apart.
+
+Twenty blocks. The `Пn` numbers are the ones they carried in the v2.27
+acceptance and keep them on purpose, so a block can be traced back to the
+defect that created it; the `Иn` and `Фn` blocks arrived with v3. There is no
+П13 any more — the roll-call it performed is now an `EXPECTED` list plus a
+`process.on('exit')` hook, which also catches a script that dies before the
+last block instead of printing "no failures" and reading as a pass.
 
 | Check | What it asserts | Why it is a gate |
 |---|---|---|
-| П1 | On the honest "that was tough" path a movement never drops below two sets — every pattern × every level × every cut, 25 taps deep | The set floor is the last thing between the engine and a one-set plan. v2.25 could reach the floor by two different mechanisms at once, and the second one did not know about the first |
-| П2 | Every plan is well-formed: sets within floor and max, a positive dose, a display string, six movements | Cheap, and it catches a whole class of "the handle produced a plan nobody can read" |
-| П3a/b | A set never comes back while the person is answering "tough" or skipping | The set is returned by growing strength, not by a timer. This is the promise the wave replaced the time budget with, and it is invisible unless swept |
-| П3c | When a set does come back, the volume jump is at most ×1.50 | The first set back used to be +100 % by construction (a gap §36.10 п. 5 named and priced). The floor moving 1 → 2 is what bought the ×1.50, and this is the assertion that keeps it bought |
-| П4 | The "give me an easier variation" handle always changes the variation — 400 cells, zero of them staying inside their tier | A handle that answers with the same exercise is a lie on a button. Descending inside a tier is the engine's own job, not the handle's |
-| П4b | Time under load after that handle stays inside the accepted ×2.50 | §30.4 says reps are not comparable across a variation change, so the honest gate is the accepted bound of §36.10 п. 1, not zero. Named, not silently tolerated |
-| П5a/b | `generateSession` is deterministic, and state survives a JSON round-trip | The fixture, the port and the whole audit apparatus stand on both. A single field that does not survive `JSON.parse` turns golden into a coin toss |
-| П6 | `descendNoHarder` never returns a position the engine's own `noHarder` predicate rejects | The 20.08 audit found "descent never adds load" checked on two of six paths, while the other four produced transitions the exported predicate refused. This asserts the predicate against itself |
-| П7 | *Informational:* the sum of levels over an honest year, and where `squat` lands | Progress is what a safety wave is most likely to quietly destroy. It is printed, not asserted, because there is no right number — П10 does the asserting |
-| П8a/b/c | Against the shipped 2.26.0 engine, on the axis's zero: the plan is bit-for-bit equal (96 cells), the shared state fields are equal after a session, and the announced duration moved by **exactly zero** | This is the wave's parity claim, and the reason a refactor can be told from a change. v2.27 removes an export and nothing else, so unlike v2.26 — which bought its extra minute with a longer run-in and asserted the number — the honest assertion here is that no minute moved at all |
-| П9 | Skipping the remaining sets of every movement only ever shortens the session and never digs below the floor of two — printed as six before/after pairs, L0 34.0 → 25.7 through L47 94.3 → 39.5 | The handle it used to check is gone; the same promise now belongs to the skip inside the workout, one movement at a time (§38.2 rule 3). The six pairs are also the range Today shows, so the screen and the gate quote one arithmetic |
-| П10 | A year of levels stays within ±1 % of 2.26.0 across four answering styles | Moving a decision from the plan into the workout must not cost progress. ±1 % is the tolerance; the run gives ±0.0 % on all four |
+| П1 | On the honest "that was tough" path a movement never drops below two working sets — every pattern × every position × every cut, 25 taps deep | The set floor is the last thing between the engine and a one-set plan. v2.25 could reach the floor by two mechanisms at once, and the second did not know about the first |
+| П2 | Every plan is well-formed: sets within floor and max, a positive dose, a display string, six movements | Cheap, and it catches the whole class of "the handle produced a plan nobody can read" |
+| П3a/b | A set never comes back while the person is answering "tough" or skipping | The set is returned by growing strength, not by a timer. Invisible unless swept |
+| П3c | When a set does come back, the volume jump is at most ×1.50 | The first set back used to be +100 % by construction (a gap §36.10 п. 5 named and priced). The floor moving 1 → 2 is what bought the ×1.50, and this is what keeps it bought |
+| П4 | The "give me an easier variation" handle always changes the variation, and the position it lands on satisfies the engine's own `noHarder` | A handle that answers with the same exercise is a lie on a button. The second half is new in v3.1: the handle used to land in the journal unconditionally, which on a per-side neighbour doubled the work |
+| П5a/b | `generateSession` is deterministic, and state survives a JSON round-trip | The fixture, the port and the whole audit apparatus stand on both. One field that does not survive `JSON.parse` turns golden into a coin toss |
+| П6 | No path of descent returns a position heavier than the one it left | The 20.08 audit found "descent never adds load" checked on two of six paths, while the other four produced transitions the exported predicate refused |
+| П7 | An honest year moves the position — Σ posOrd, plus where `squat` lands and what the session costs in minutes | Progress is what a safety wave is most likely to quietly destroy. The numbers are printed; what is asserted is only that the sum is above zero, because there is no right figure |
+| П9 | Skipping sets never digs below the floor of two | The handle this used to check is gone; the promise now belongs to the skip inside the workout, one movement at a time (§38.2 rule 3) |
 | П11 | "Tough" never makes the next shown plan heavier — including on top of an active cut | The composition question. Each mechanism was fine alone in v2.25; the P0s came from the pairs |
-| П12 | The wave added no new cell where a growth event lightens the plan — parity with 2.26.0, not an absolute | Absolute is unreachable and saying otherwise would be a false guarantee: at a band start the per-set dose resets lower while the set count grows (v2.21, deliberately), and across a variation the measure is invalid at all. So the assertion is that the count did not move: 6 before, 6 after, all at L31/L39 |
-| П13 | All twelve blocks above actually ran | Added because a script that dies halfway prints "15 OK, no failures" and reads as a pass. The block asserts the roll-call, and a `process.on('exit')` hook repeats it in the exit code |
+| П12 | A growth event never lightens the plan | The mirror of П11, and the one a sub-step is most likely to break: growth costs one rep in one set, so the arithmetic that spends it has two ways to round |
+| И1 | The ladder's density is at most ×1.50 between neighbouring variations — recomputed independently from `LIBRARY`, not read from the engine | §40.9's first invariant. Computing it from the same table the engine uses would assert the table against itself |
+| И3 | A probe that was not completed does not move the position | The probe is the only entry into a new variation (§40.4), so a failed one that still moved something would promote people through movements they cannot do |
+| И6 | Feeding the same feedback twice is a no-op | `applySilentDecay` is deliberately not idempotent and is keyed on `comebackDecidedFor`; everything else must be, or a retried write moves the person twice |
+| Ф1 | No transition anywhere raises the load by more than ×1.50 | The absolute ceiling on a single step, independent of which mechanism produced it |
+| Ф2 | After "tough", the next plan is not heavier — asked of the engine's own `noHarder` predicate | The 26.08.2026 audit proved by mutation that this had been TAUTOLOGICAL: the predicate compared the plan against itself, and breaking the rule produced zero failures. It now compares against the journal |
+| Ф2w | The same, measured as work weighted by `w` rather than by reps | Reps are not comparable across a variation change (§30.4), so the honest second opinion is a weighted one |
+| Ф3 | A descent that crosses a variation boundary does not raise time under load — with the three structurally impossible boundaries named as a closed list | The headline defect of the 26.08.2026 audit: the landing rose on 49 boundaries out of 49, worst ×11.25. `hinge 4`, `hinge 7` and `pull_bar 3` stay accepted gaps (§41.6 item 1) and are listed by name, so a fourth cannot appear quietly |
 
-Two things this table deliberately does not claim. П4b and П12 are bounded by
-what the previous engine already accepted, so they detect a *regression*, not a
-defect that was already priced. And П8 compares plans, not durations — the
-duration is a separate assertion with its own exact number, which is how the
-+1.0 minute of v2.26 and the 0.0 of v2.27 are both nailed down instead of
-tolerated.
-
-**One residue found closing the wave, and fixed rather than carried.** П1, П3
-and П7 called `applyFeedback` with **seven** arguments where the signature has
-taken six since v2.26 (`state, session, result, overrides, skipped, gapDays`),
-so `gapDays` got `[]` and the trailing cadence was dropped: three blocks were
-sweeping a calendar-blind engine and reading as if they were not. They pass six
-now. The acceptance stays clean and **not one printed number moved** — П7 is the
-same 25,530 with `squat` at L34, П1 the same 18,000/18,000 — which is what makes
-this a strengthening rather than a change: the blocks now carry a real cadence
-and say the same thing. The file header, which still announced "Приёмка v2.26",
-says v2.27.
+Two things this table deliberately does not claim. Ф1 and П12 are bounded by
+what the engine already accepted rather than by zero, so they detect a
+*regression* and not a defect that was already priced. And the parity blocks of
+v2.27 — П8, П10, П4b — are gone with the baseline they compared against: v3
+rewrote the encoding, so there is no cell-for-cell twin of the old engine to
+compare with, and a block that cannot be computed is removed rather than left
+asserting nothing.
 
 ---
+
 
 ## Issue registry
 

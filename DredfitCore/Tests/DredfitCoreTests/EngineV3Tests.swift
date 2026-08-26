@@ -238,14 +238,24 @@ final class EngineV3Tests: XCTestCase {
     /// A fact BELOW the floor of the variation sends the pattern one variation
     /// down, landing in the journal — not on the floor of a tier, because
     /// there are no tier floors.
-    func testFactBelowTheFloorLandsInTheJournal() throws {
+    ///
+    /// RE-MARKED §41.1 (v3.1, 26.08.2026), class: change of semantics. The old
+    /// expectation was `doses == 11`, the journal's CEILING. The trainee is
+    /// leaving "Bulgarian split squats" at 3×8 per side — work 48; landing on
+    /// 3×11 would be 66, a 37 % rise straight after they showed a fact below
+    /// the variation's floor. The landing now walks down and stops at 8: work
+    /// 48, exactly what they were doing.
+    func testFactBelowTheFloorLandsNoHeavier() throws {
         let start = state(.squat, variation: 3, dose: 8, Seed(shown: [2: 11, 3: 8]))
         let session = Engine.generateSession(start)
         let after = Engine.applyFeedback(state: start, session: session, result: .plan,
                                          overrides: [.squat: 2], skipped: [], gapDays: nil,
                                          probes: [:])
         XCTAssertEqual(after.vars[.squat], 2)
-        XCTAssertEqual(after.doses[.squat], 11, "the point of return is what was shown there")
+        XCTAssertEqual(after.doses[.squat], 8, "the point of return, but never heavier (§41.1)")
+        XCTAssertTrue(Engine.noHarder(.squat, from: start.position(.squat),
+                                      to: after.position(.squat), shown: start.shown),
+                      "a descent may not add work")
         XCTAssertEqual(after.sets[.squat] ?? EngineConfig.setsBase, 3)
         XCTAssertTrue(after.lastHard.contains(.squat))
     }
@@ -263,7 +273,7 @@ final class EngineV3Tests: XCTestCase {
                 continue
             }
             appearances += 1
-            var overrides: [Pattern: Int] = [:]
+            var overrides: [Pattern: Double] = [:]
             var probes: [Pattern: Int] = [:]
             if squat.probe != nil {
                 probes[.squat] = 20         // the new variation is comfortably there
@@ -368,7 +378,14 @@ final class EngineV3Tests: XCTestCase {
         XCTAssertEqual(up.shown[.pullBar]?[3], 5)
 
         // Down: an honest zero on the negative sends the branch back to the
-        // hang, at the 45 seconds the journal remembers — not at 4 of anything.
+        // hang — at the seconds the journal remembers, but never at a load
+        // heavier than the one just refused.
+        //
+        // RE-MARKED §41.1 (v3.1, 26.08.2026), class: change of semantics. The
+        // old expectation was 45 s, the journal's ceiling. This is one of the
+        // three boundaries of accepted gap §41.6 item 1 — a unit change, where
+        // reps and seconds have no defined ratio — so the landing takes the
+        // grid floor of the hold, which is the lightest thing that exists.
         var back = up
         back.counter = 1
         let session2 = Engine.generateSession(back)
@@ -376,7 +393,7 @@ final class EngineV3Tests: XCTestCase {
                                         overrides: [.pullBar: 0], skipped: [], gapDays: nil,
                                         probes: [:])
         XCTAssertEqual(down.vars[.pullBar], 2)
-        XCTAssertEqual(down.doses[.pullBar], 45)
+        XCTAssertEqual(down.doses[.pullBar], 15, "the floor of the hold grid, not its ceiling")
         XCTAssertEqual(Library.unit(.pullBar, down.vars[.pullBar]!), .hold)
     }
 }

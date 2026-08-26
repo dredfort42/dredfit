@@ -187,8 +187,9 @@ nonisolated enum SetFacts {
     /// The single number `applyFeedback` receives for this exercise, or nil
     /// when every set ran to plan and the rating should govern.
     ///
-    /// The mean, snapped to the unit's grid: 15 / 15 / 10 against a plan of
-    /// 3×15 reports 13, and 39 / 39 / 30 against 3×39 s reports 36.
+    /// The mean per set: 15 / 15 / 10 against a plan of 3×15 reports 13⅓, and
+    /// 45 / 45 / 30 against 3×45 s reports 40. The snap to the grid is the
+    /// engine's, not this one's — see the §41.3 paragraph below.
     ///
     /// A shortfall is never reported as MEETING the plan, however close the
     /// mean lands. To the engine `actual == load` is two statements at once:
@@ -199,21 +200,57 @@ nonisolated enum SetFacts {
     /// says nothing and never escapes it. So when the grid cannot hold the
     /// mean below the plan without over-penalising a near miss, this says
     /// nothing at all and the session rating speaks instead.
-    static func override(_ facts: PerSet, for ex: SessionExercise) -> Int? {
+    /// §41.3: the RAW mean goes to the engine — snapping to the grid happens
+    /// there, where a dose is actually assigned. The fraction is the whole
+    /// point: the mean of an uneven plan sits strictly between its base and
+    /// its top, and it is that fraction which says whether the top set was
+    /// taken. Doing [8,7,7] gives 7.33 and counts as the plan met; doing
+    /// [7,7,7] gives 7.00 and does not. Rounded here, both became a seven and
+    /// the engine had to substitute the plan's top into the journal instead —
+    /// a dose that was in none of the sets, 2903 inflated cells out of 28880.
+    static func override(_ facts: PerSet, for ex: SessionExercise) -> Double? {
         guard facts[ex.pattern]?.isEmpty == false else { return nil }
         let values = allSets(facts, ex)
         guard !values.isEmpty else { return nil }
         // Summed as Doubles: the values are sanitized, but this is the one
         // place their total is taken and an Int overflow would trap.
         let raw = values.reduce(0.0) { $0 + Double($1) } / Double(values.count)
-        let reported = snap(raw, unit: ex.unit)
-        if raw < Double(ex.load) && reported >= ex.load { return nil }
-        return reported
+        // The guard stays as it was: a mean genuinely below the plan's base
+        // must not be lifted onto it by rounding, and reporting nothing is how
+        // that is said — the pattern falls back to the session's rating.
+        if raw < Double(ex.load) && snap(raw, unit: ex.unit) >= ex.load { return nil }
+        return raw
+    }
+
+    /// What the PROBE set records when it ends: its own target, unless a
+    /// number was entered by hand — that one is more precise than "as asked"
+    /// and wins.
+    ///
+    /// §41.2, and it lives here rather than inline in the flow because it was
+    /// the one policy in `completeSet` that no test could reach. Not new
+    /// trust: an ordinary set records no number either, and "tapped Done"
+    /// means "did the plan" everywhere else in the app, with the session's
+    /// rating carrying the rest. The probe was the only place that opted out
+    /// of that convention — a hold's probe was already recorded by its timer,
+    /// while a probe in reps could only be resolved through the adjust panel.
+    /// The audit of 26.08.2026 measured what the exception cost: EIGHT LADDERS
+    /// OUT OF TEN frozen for anyone who only taps — 400 sessions, seven
+    /// patterns still on variation 1.
+    ///
+    /// `isProbe` is a parameter and not the caller's `if`, deliberately: the
+    /// half of this rule that says "and nothing else records itself" is the
+    /// half a refactor is most likely to lose.
+    static func recordingProbe(_ probes: [Pattern: Int], _ pattern: Pattern,
+                               isProbe: Bool, target: Int) -> [Pattern: Int] {
+        guard isProbe, probes[pattern] == nil else { return probes }
+        var probes = probes
+        probes[pattern] = target
+        return probes
     }
 
     /// The whole session's `overrides`, keyed the way the engine wants them.
-    static func overrides(_ facts: PerSet, in exercises: [SessionExercise]) -> [Pattern: Int] {
-        var result: [Pattern: Int] = [:]
+    static func overrides(_ facts: PerSet, in exercises: [SessionExercise]) -> [Pattern: Double] {
+        var result: [Pattern: Double] = [:]
         for ex in exercises where facts[ex.pattern] != nil {
             result[ex.pattern] = override(facts, for: ex)
         }
