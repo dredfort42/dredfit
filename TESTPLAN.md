@@ -636,6 +636,13 @@ Holds moved from a fixed five-second step to per-tier ladders, and the number pa
 
 ### 40. Sub-steps: the plan parks on your capacity (engine v2.22, spec §33, issues #150, #151)
 
+> **Read this section in v3 vocabulary (§40 of the spec, §47 here).** The mechanism
+> survives — a step of growth still lands on one set — but the words "level", "tier"
+> and "sets band" name things the engine no longer has. Read "a whole level" as "a
+> whole step along the ladder". **Row 40.4 has lost its referent**: there is no tier
+> top, and what happens at the top of a variation's grid is now a probe (§47.6–47.8).
+> Rows 40.7 and 40.8 assert an absence and still stand.
+
 Growth used to move a whole level at a time. Now it adds one set's worth first, so the plan stops overshooting what the body can do.
 
 | # | Check | Expected |
@@ -650,6 +657,12 @@ Growth used to move a whole level at a time. Now it adds one set's worth first, 
 | 40.8 | A state file written by 1.9 with "hold this level" set | Opens without it and plans exactly as 1.9 did — the field is dropped, nothing else moves |
 
 ### 41. "Tough" steps back the way it came (engine v2.23, spec §34, issue #149)
+
+> **Still true in v3, in v3 vocabulary.** "Tough" steps back one step along the ladder
+> and 41.4 is the load-bearing row. What changed underneath: a descent that runs out of
+> dose now takes a **set** off, down to the floor of two, instead of landing on a tier
+> floor — those do not exist. Where a descent does cross into the variation below, the
+> landing comes from your journal and is capped so it is not more work (§48.1).
 
 | # | Check | Expected |
 |---|---|---|
@@ -678,6 +691,12 @@ Growth used to move a whole level at a time. Now it adds one set's worth first, 
 
 ### 43. The sets handle (engine v2.25, spec §36, issues #149, #150, #151)
 
+> **Also read in v3 vocabulary.** The sets axis survives; the framing below — "the only
+> way down was the level, which also picks the variation and the dose" — describes the
+> problem v3.0 removed at the root. The four "a person could get a heavier plan"
+> counts are measured on the 0–47 lattice and **do not reproduce** on this engine; they
+> are kept as the history of what was fixed, not as numbers to re-verify.
+
 > **Rows 43.1–43.7 and 43.12 are void from v2.26** — the pain depth ladder, the illness lens and the 35-minute rung. 43.8–43.11 stand and are the load-bearing half of this section. See §44.
 
 The engine gained a way to say *the same exercise, but less of it*. Until v2.25
@@ -704,6 +723,12 @@ session (all 48 levels locked forever), and "I was ill" (40).
 | 43.12 | The **35-minute** rung with every movement on the floor | Known: 27 of 768 cells run up to 2.5 minutes over. 45 fits everywhere without a caveat |
 
 ### 44. The handles, and what the app stopped asking (engine v2.26, spec §37, issues #184, #99)
+
+> **The handles stand; the floor numbers below do not.** "Level 0 … about 34 minutes,
+> and about 25 minutes at the shortest" was measured on the 0–47 library. On the shipped
+> v3 library a clean start is about **31 minutes**, and about **23** cut to the sets
+> floor from inside the workout. The declared entry boundary in spec §37.1 and the App
+> Store listing still carry the old pair — see I-17.
 
 A wave of removal. The pain channel and the time budget are gone, and two handles
 take their place — on the **plan**, not inside the workout, so pressing one
@@ -804,6 +829,61 @@ more. They stay in the file as the history of what the app used to promise.
 | 46.12 | All seven languages | The three actions fit under the button without truncating — they drop to two rows and then to three as the labels grow. "≈ N min left" and the range fit on Today at default type |
 | 46.13 | VoiceOver on Today | The plan line is read as a range — "about 26 to 34 minutes" — not as two numbers |
 | 46.14 | Dynamic Type XL and the accessibility sizes, work screen | Known, and **worse than before this wave — see I-15**: the column still has no scroll view, and it now carries one more line (the time left) and one more control. At the accessibility sizes the top of the screen is pushed off it |
+
+### 47. The measured ladder (engine v3.0, spec §40)
+
+The engine stopped predicting. A position is no longer one number but **a
+variation and a dose**, and nothing can be assigned that has not already been
+shown. The whole 0–47 scale, its tiers, its per-tier rep ladders and its tier
+floors are gone — so is any screen word that named them. Walk this section on a
+**fresh install** unless a row says otherwise.
+
+| # | Check | Expected |
+|---|---|---|
+| 47.1 | Fresh install → Today | Every one of the six movements reads **3 × 4** (or 3 × 15 s for a hold). The line above says about **31 minutes** for the full plan and about **23** for the shortest it can be cut to from inside |
+| 47.2 | Settings → **How it works** → first section | Titled **"Variation and dose"** — two facts per movement, not one number. No section anywhere in the sheet says "level", "tier" or "band" |
+| 47.3 | Progress, after one workout | The big number is captioned **"total steps"**, never "total level". Each pattern's bar is measured along **its own** ladder — its own denominator, a tick where each variation begins — and VoiceOver reads "*variation N of M*", not a bare number |
+| 47.4 | Progress, on a state that trained before this wave | The pre-wave workouts say they have **no number on this scale** rather than being drawn at some invented height. The chart does not connect across the gap as if it were continuous |
+| 47.5 | Rate **on plan** twice at 3 × 8 | The row goes uneven one set at a time — 9-8-8, then 9-9-8, then 3 × 9. The same behaviour §40 describes, in the new vocabulary |
+| 47.6 | Reach the top of a variation's grid (15 reps / 45 s), then start the workout | The **last working set is replaced** by one set of the next variation, labelled as a try, target **4 reps** (15 s). It is a replacement, not an addition: the minutes on Today do **not** go up for it |
+| 47.7 | Do 4 or more on that probe set | Next workout opens that movement in the **next variation at 3 × 4**. A variation-debut badge fires, and the technique sheet shows the new movement |
+| 47.8 | Do fewer than 4, or skip the probe | Nothing moves. Under the number: **"We'll stay with the current variation."** The working sets you did still count, no set is taken away, and the probe comes round again next time |
+| 47.9 | Answer **tough** at the very bottom of a variation's grid | The plan takes a **set** off rather than dropping you a variation — down to the floor of two, never to a "tier floor", which no longer exists |
+| 47.10 | Pull the **easier variation** handle on any movement | It always lands on a *different* variation, and the plan it lands on is never more work than the one you were doing — including per-side movements, where the same number is twice the work (see §48.1) |
+| 47.11 | Bar on, `pull_bar` at the top of the hang | The hang → negative-pull-up boundary is crossed **only** by a probe. There is no descent, comeback or handle that walks across it by comparing seconds to reps |
+| 47.12 | Every movement's technique sheet, in each of the seven languages | All **59** positions carry a name, three numbered steps and two mistakes. No position shows a raw key, an empty line, or the English string on a translated device |
+| 47.13 | Warm-up and cool-down | Six positions each, drawn from pools of nine. The warm-up still runs **245 s**. Y-T-W, bird-dog and the single-leg Romanian deadlift appear in the **warm-up**, not among the strength movements |
+| 47.14 | A state file written by a pre-v3 build (see §48.5) | Opens with your movements, doses, rotation and bar answer carried across, and a card on Today saying what happened — **once** |
+
+### 48. Measuring honestly (engine v3.1, spec §41)
+
+Eight defects a full audit of v3.0 found, all fixed. Each row here is a defect
+that shipped, so a green row means the fix is still in place.
+
+| # | Check | Expected |
+|---|---|---|
+| 48.1 | **Easier variation** on a movement whose neighbour below is trained one side at a time (sliding leg curls → single-leg glute bridge) | The plan you land on is **not more work**. The old behaviour kept the remembered number and doubled the work with the sides — 3 × 15 became 3 × 15 *per leg*. Where nothing lighter exists in the library the landing may still rise; those boundaries are a closed, named list in the spec, not a surprise |
+| 48.2 | A probe set of **reps**, finished by tapping **Done** rather than typing a number | Counts as done, at the target it asked for. Before this, only holds recorded themselves, so a rep probe finished by tapping recorded nothing and the ladder never moved |
+| 48.3 | An uneven plan (8-7-7) done in full, then Progress → history | The journal shows what you actually did, not the plan's top set. A number that appears in none of your sets must never appear here |
+| 48.4 | Train on a **regular** long cycle — every ten days, many times | The plan is not eased as if each gap were a break. A steady rhythm is read as a rhythm; the engine now decides that from your last **eight** intervals |
+| 48.5 | Update over a build older than v3 with a real history | Movements, doses, rotation and the pull-up-bar answer are all carried across — nobody is started over. Holds that used to sit below the shortest hold the app offers come **up** to it. The journal, settings and history are untouched, and the explainer for typing your own numbers is not swallowed by a non-empty journal |
+| 48.6 | `python3 scripts/check_engine_gates.py` | All five gates run **and print their clean line**. A gate that dies before its first check must fail the runner, not pass silently — three of six once did exactly that |
+
+### 49. The count-in, and "easy" earned (app, 26.08.2026)
+
+| # | Check | Expected |
+|---|---|---|
+| 49.1 | Tap **I'm ready** on any position of the warm-up or cool-down | Five seconds of count-in before the position's clock starts. Nothing jumps under the thumb that just tapped |
+| 49.2 | Tap **Start hold** on a static exercise | The same five seconds first. On a hold this is preparation time that always existed — it used to be spent before the tap and came off the number the engine measures |
+| 49.3 | During any count-in | The escapes are **hidden, not removed** — nothing new appears under your thumb, and the controls come back when the clock starts. A transition's count-in can only shorten what is already running, never extend the block |
+| 49.4 | Finish a workout in full, then the rating screen | All three cards live, **"Easy, could do more"** among them |
+| 49.5 | Skip a set, skip a movement, or type a number below the plan, then the rating screen | The **"Easy, could do more"** card is dimmed, with one line under the three saying why. The same sentence is the card's VoiceOver hint — "dimmed" alone is a riddle |
+| 49.6 | The same screen, **"Hard, did less"** and **"On plan"** | Always live, in every state. Honesty downward is never gated |
+| 49.7 | Any technique card | Three steps in **numbered filled circles**, two mistakes marked **✕**. The two groups are never one undifferentiated bullet list |
+| 49.8 | Table rows → setup step | Says what to do when the edge cuts into the fingers (a folded towel). A grip that hurts ends the set before the back does |
+| 49.9 | French, anywhere with `: ; ! ?` or guillemets | Non-breaking space before `:`, narrow non-breaking space before `; ! ?` and inside `« »`, typographic apostrophe `’` throughout. **No gate checks this** — it is a read-through |
+| 49.10 | Progress chart axis, each language | Says **steps** in that language. It said the retired word "level", which VoiceOver read aloud |
+
 
 ## Engine gates before a release
 
@@ -933,7 +1013,9 @@ Log every failure found while running this plan. Keep entries until they ship fi
 | I-12 | 2026-08-03 | Widgets | Found running §12.21 for I-11: on the large widget in Russian the longest catalog name ended in an ellipsis — «Птица-собака» (удер… — because the plan row carries the load in the long form the snapshot writes ("3×20 сек на сторону"), leaving the name short of the width it needs. Brazilian Portuguese fits; English is nowhere near the edge | low | **fixed in the #55 wave** — the name shrinks like every other line of the widget (`minimumScaleFactor(0.8)`) instead of truncating, which also matters because sibling variations differ at the *end* of the name. Verified on the simulator in all three locales |
 | I-13 | 2026-08-07 | Store screenshots | Frame s8 was captioned "Eight plain facts about how the plan moves" in all seven languages, while the screen inside the frame has read "Nine things worth knowing about the regulator" since the discomfort section was added in the #38 wave. The caption lives in `appstore/tools/compose.py`, not in a String Catalog, so no localization gate could see it — the frame contradicted itself in every locale | low | **fixed in the 1.9.0 wave** — all seven captions now say nine, and the full recapture reissued the frames. Exactly the I-7 failure mode (a count in prose going stale when a section is added) and caught the same way: by recapturing rather than by a test. The standing mitigation is unchanged — any release that adds a "How it works" section must re-read the s8 caption |
 
-| I-14 | 2026-08-23 | Progress | Found by the UI suite, which is **red on `develop`** for this one cause: `testProgressReflectsCompletedWorkout` ("0" is not equal to "12" — the total level after "easy" should be 12) and `ReleaseSmokeTests.testReleaseSmokeEnglish` row S5 ("the history sheet must list the level the workout ended on"). Since v2.22 the first growth steps do not land in the **level** at all — they land in the **sub-step**: one honest "easy" on a fresh install moves all six worked patterns by 2 sub-steps each, and every level stays 0. The Progress screen and the history sheet both read levels, so a person who has just trained and been told the plan will grow is shown a screen that says nothing happened. The tests are not stale markup — they assert the right amount of progress (12 is exactly the sub-step total) against a screen that cannot see it | medium | **open — the screen is the question, not the test.** Verified on `chore/close-v2.25` (develop + docs only), each test run alone: both still fail with the signatures above. Deliberately not fixed inside the closing wave: what Progress should show for a sub-step is a product decision (a fractional level, a second axis, or a different sentence), not a markup change. Backlog: "Прогресс не видит под-ступени" |
-| I-15 | 2026-08-24 | Today, Workout flow | Found running §45.10 for the design re-review wave, and **not caused by it — the frames are pixel-identical to the previous release**. At the accessibility Dynamic Type sizes (checked at `accessibility-extra-extra-extra-large` on an iPhone SE) two things on the app's first and busiest screens come apart. On **Today**, the two session handles are drawn on top of each other and on top of the "≈ N min · N exercises" line above them — three sentences in one place, none of them readable. On the **work screen** the column has no `ScrollView`, so once the type outgrows the height the header, the exercise name and the "technique" affordance are simply pushed off the top of the screen; what is left starts mid-number. Neither is a truncation the layout chose — both are content the layout never accounted for | medium | **half closed by removal, half open and now larger.** The Today half is gone with the controls: v2.27 removed both session handles, so there are no long sentences left to overlap the line above them. The work screen half stands, and this wave adds to it — one more line in the header ("≈ N min left") and a third action under the button, on a column that still has no `ScrollView`. The fix is the same layout decision it always was: scroll, or drop the elements the screen can afford to lose. Deliberately not taken inside a §38 diff, for the reason it was not taken inside the accessibility one — a layout decision hidden in a feature wave is a decision nobody reviewed |
+| I-14 | 2026-08-23 | Progress | Found by the UI suite, which is **red on `develop`** for this one cause: `testProgressReflectsCompletedWorkout` ("0" is not equal to "12" — the total level after "easy" should be 12) and `ReleaseSmokeTests.testReleaseSmokeEnglish` row S5 ("the history sheet must list the level the workout ended on"). Since v2.22 the first growth steps do not land in the **level** at all — they land in the **sub-step**: one honest "easy" on a fresh install moves all six worked patterns by 2 sub-steps each, and every level stays 0. The Progress screen and the history sheet both read levels, so a person who has just trained and been told the plan will grow is shown a screen that says nothing happened. The tests are not stale markup — they assert the right amount of progress (12 is exactly the sub-step total) against a screen that cannot see it | medium | **open — the screen is the question, not the test.** Verified on `chore/close-v2.25` (develop + docs only), each test run alone: both still fail with the signatures above. Deliberately not fixed inside the closing wave: what Progress should show for a sub-step is a product decision (a fractional level, a second axis, or a different sentence), not a markup change. Backlog: "Прогресс не видит под-ступени". **Closed by engine v3.0 (2026-08-26 reconciliation).** The product decision the entry was waiting for was taken by the wave that removed the level: Progress now measures a pattern along its own ladder, and the ordinal it draws (`Engine.totalProgress` → `posOrd`) counts the sub-step — `ordInVar` ends `+ pos.sub`. The screen the entry says "cannot see it" can see it. The two UI tests were re-marked to the new vocabulary in the same wave and are not evidence either way; **§47.3 and §47.5 are the replacement checks** and they are unwalked — this is closed on the code, not on a run |
+| I-15 | 2026-08-24 | Today, Workout flow | Found running §45.10 for the design re-review wave, and **not caused by it — the frames are pixel-identical to the previous release**. At the accessibility Dynamic Type sizes (checked at `accessibility-extra-extra-extra-large` on an iPhone SE) two things on the app's first and busiest screens come apart. On **Today**, the two session handles are drawn on top of each other and on top of the "≈ N min · N exercises" line above them — three sentences in one place, none of them readable. On the **work screen** the column has no `ScrollView`, so once the type outgrows the height the header, the exercise name and the "technique" affordance are simply pushed off the top of the screen; what is left starts mid-number. Neither is a truncation the layout chose — both are content the layout never accounted for | medium | **half closed by removal, half open and now larger.** The Today half is gone with the controls: v2.27 removed both session handles, so there are no long sentences left to overlap the line above them. The work screen half stands, and this wave adds to it — one more line in the header ("≈ N min left") and a third action under the button, on a column that still has no `ScrollView`. The fix is the same layout decision it always was: scroll, or drop the elements the screen can afford to lose. Deliberately not taken inside a §38 diff, for the reason it was not taken inside the accessibility one — a layout decision hidden in a feature wave is a decision nobody reviewed. **Still open at 2026-08-26, and larger again:** the count-in wave puts a fifth thing in the same column (§49.1–49.3) on a screen that still has no `ScrollView`. Unchanged as a decision — it wants its own wave, not a corner of someone else's |
+| I-16 | 2026-08-26 | How it works | Found reconciling the docs with the shipped app, **not by a test — nothing pins either half**. `HowItWorksView.swift` has **twelve** sections while its subtitle still reads "Eleven things worth knowing about the regulator." — the third occurrence of the exact failure mode logged as I-7 and I-13 (a count in prose going stale when a section is added). Worse, the section v3.0 added, "Trying the next movement", was given `id: 12` but placed tenth in the array, and `id` *is* the number drawn in the circle — so the visible numbering reads **1 2 3 4 5 6 7 8 9 12 10 11**. The UI test that opens the sheet asserts seven section titles exist and never counts or orders them | low | **open — deliberately not fixed here.** The subtitle is a user-facing string in seven languages, and editing any `.xcstrings` invalidates the whole App Store frame set (s8 is the frame that caught I-13). Renumbering is a one-line change but belongs with the string. The standing mitigation from I-13 — *any release that adds a section must re-read the s8 caption* — did not fire, because v3.0 added the section without touching the caption. The mitigation that would have fired is a test, and there isn't one |
+| I-17 | 2026-08-26 | Spec, store listing | Found reconciling the docs with the shipped engine. Spec §37.1 declares the app's entry boundary as **24.8 min** (full 34.0 at the bottom of the scale), measured on the v2.27 library at level 0. On the shipped v3 library a clean start is **30.5 min** full and **23.3 min** cut to the sets floor from inside the workout — measured against the reference, `sessionMinutes(generateSession(initState()))`. The declared floor moved and nothing re-measured it; the app's own onboarding string already says "about 31 minutes", so the app and the spec now disagree | medium | **open.** Two separate debts: §37.1 needs the v3 pair, and `appstore/release_texts_1.9.0.md` is still 1.9.0 text that additionally advertises the short workout removed in v2.27 (already tracked as rule 5 of stage Э3 in `RELEASE_PROMPT.md`). Neither is fixable inside a docs pass — one is a spec change, the other a store submission |
 
 **Severity.** *high* — data loss, crash, or a broken core flow · *medium* — a feature misbehaves but there is a way around it · *low* — cosmetic or a rare edge case.
