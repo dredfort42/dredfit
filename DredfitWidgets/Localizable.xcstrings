@@ -2,10 +2,10 @@
   "sourceLanguage": "en",
   "strings": {
     " · %@": {
-      "comment": "A separator dot followed by the sign of the level change."
+      "comment": "A separator dot followed by the sign of the weekly change."
     },
     "%lld": {
-      "comment": "The bare total-level number on the medium family. A numeral: nothing to translate.",
+      "comment": "The bare total-steps number on the medium family. A numeral: nothing to translate.",
       "shouldTranslate": false
     },
     "%lld workouts": {
@@ -881,12 +881,6 @@
               "formatSpecifier": "lld",
               "variations": {
                 "plural": {
-                  "one": {
-                    "stringUnit": {
-                      "state": "translated",
-                      "value": "%arg упражнение"
-                    }
-                  },
                   "few": {
                     "stringUnit": {
                       "state": "translated",
@@ -897,6 +891,12 @@
                     "stringUnit": {
                       "state": "translated",
                       "value": "%arg упражнений"
+                    }
+                  },
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "%arg упражнение"
                     }
                   },
                   "other": {
@@ -915,34 +915,22 @@
     "steps": {
       "extractionState": "manual",
       "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stufen"
+          }
+        },
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "steps"
           }
         },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ступеней"
-          }
-        },
         "es": {
           "stringUnit": {
             "state": "translated",
             "value": "pasos"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "passos"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stufen"
           }
         },
         "fr": {
@@ -956,11 +944,41 @@
             "state": "translated",
             "value": "gradini"
           }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "passos"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ступеней"
+          }
         }
       }
     },
     "%lld steps": {
       "localizations": {
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Stufe"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Stufen"
+                }
+              }
+            }
+          }
+        },
         "en": {
           "variations": {
             "plural": {
@@ -979,36 +997,6 @@
             }
           }
         },
-        "ru": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld ступень"
-                }
-              },
-              "few": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld ступени"
-                }
-              },
-              "many": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld ступеней"
-                }
-              },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld ступени"
-                }
-              }
-            }
-          }
-        },
         "es": {
           "variations": {
             "plural": {
@@ -1022,42 +1010,6 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "%lld pasos"
-                }
-              }
-            }
-          }
-        },
-        "pt-BR": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld passo"
-                }
-              },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld passos"
-                }
-              }
-            }
-          }
-        },
-        "de": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld Stufe"
-                }
-              },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld Stufen"
                 }
               }
             }
@@ -1094,6 +1046,54 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "%lld gradini"
+                }
+              }
+            }
+          }
+        },
+        "pt-BR": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld passo"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld passos"
+                }
+              }
+            }
+          }
+        },
+        "ru": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ступени"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ступеней"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ступень"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld ступени"
                 }
               }
             }

@@ -251,17 +251,27 @@ struct TodayStatusView: View {
     @ViewBuilder
     private var weekSummaryLine: some View {
         if let week = entry.summary {
-            let sign = week.levelsDelta >= 0 ? "+" : ""
-            (Text("This week")
-                + Text(verbatim: " · ")
-                + Text("\(week.workouts) workouts")
-                + Text(" · \(sign)", comment: "A separator dot followed by the sign of the weekly change.")
-                + Text("\(week.levelsDelta) steps"))
+            weekSummaryText(week)
                 .font(.system(size: 11.5))
                 .foregroundStyle(Theme.ink2)
                 .lineLimit(1)
                 .minimumScaleFactor(0.85)
         }
+    }
+
+    /// A snapshot written before the scale changed carries no `stepsDelta`,
+    /// so the line drops that segment instead of reading a level count as
+    /// steps. One `Text` chain, built once: the modifiers above have to land
+    /// on the whole line either way.
+    private func weekSummaryText(_ week: WidgetSnapshot.Week) -> Text {
+        let head = Text("This week")
+            + Text(verbatim: " · ")
+            + Text("\(week.workouts) workouts")
+        guard let delta = week.stepsDelta else { return head }
+        let sign = delta >= 0 ? "+" : ""
+        return head
+            + Text(" · \(sign)", comment: "A separator dot followed by the sign of the weekly change.")
+            + Text("\(delta) steps")
     }
 
     // MARK: Words and glyphs

@@ -2,16 +2,58 @@
 
 ## Unreleased
 
-Four things so far. **v3.1** closes what a full audit of v3.0 found. Before it,
-the engine stepped to **v3.0** and stopped predicting what you can do;
-**v2.27** moved the decision about the length of a workout inside the workout;
-and five app-layer fixes came out of the design re-review.
+Five things so far. The newest is an app-layer wave: a count-in before every
+clock, and one rating that now has to be earned. **v3.1** closes what a full
+audit of v3.0 found. Before it, the engine stepped to **v3.0** and stopped
+predicting what you can do; **v2.27** moved the decision about the length of a
+workout inside the workout; and five app-layer fixes came out of the design
+re-review.
 
 **The v3.0 section rewrites parts of the two below it.** They were written against
 the 0–47 level scale, and that scale is gone: the duration table by level, the
 per-level numbers, and the VoiceOver line "Squat, level 18 of 47" all describe
 the engine as it was before this wave. They are left as written rather than
 quietly edited — what they say about *why* each change was made still holds.
+
+### The clock waits for you, and "easy" is earned
+
+**Five seconds between the tap and the clock.** "I'm ready" and "Start hold"
+used to put the countdown under your thumb: the number jumped from the
+transition's to the position's — or from the plank's target straight into
+running — while your hand was still moving away from the glass. Every start tap
+now buys the same five-second count-in the way back from a pause already got.
+On a hold this is preparation time that always existed, just moved inside the
+app's clock: it used to be spent *before* the tap, and on a hold it came off
+the number the engine measures. On a transition the count-in can only shorten
+what is already running — the two blocks are budgeted to the second. While it
+runs, the escapes are hidden rather than removed, so nothing jumps up under
+your thumb.
+
+**"Easy, could do more" is for a workout done in full.** It is the one rating
+that claims *more* than the plan, so the plan has to have been finished for it.
+Skipping an exercise or typing your own number already kept it away; a movement
+that quietly lost a set did not, and the tap still bought the full two steps on
+the dose. The card now dims when anything fell short, with one line under the
+three saying why — and the same sentence travels as the card's VoiceOver hint,
+because "dimmed" on its own is a riddle. Honesty downward is never gated: "hard,
+did less" and "on plan" stay live in every state.
+
+**The technique card reads as steps and mistakes.** The three steps are
+numbered in filled circles instead of sharing one bullet with the two mistakes,
+which now carry a ✕. Nothing was reworded; the card simply stops asking you to
+work out which line is which.
+
+**A towel over the table edge.** The setup step for table rows now says what to
+do when the edge cuts into your fingers — a grip that hurts ends the set before
+your back does.
+
+**Localization.** The French catalogs are now uniform on the typography French
+actually uses — non-breaking spaces before `: ; ! ?` and inside guillemets, and
+the typographic apostrophe throughout — which is 79 strings that read the same
+and break correctly. Three technique steps in French, Italian and German gained
+the pronoun those languages want for a body part. The progress chart's axis
+label was still the retired word "level", which VoiceOver reads aloud: it now
+says steps, in your language.
 
 ### Engine v3.1.0 — what the audit of v3.0 found
 

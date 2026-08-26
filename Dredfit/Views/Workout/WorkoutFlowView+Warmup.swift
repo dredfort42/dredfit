@@ -66,6 +66,12 @@ extension WorkoutFlowView {
     func beginWarmup() {
         phase = .warmup
         startWarmupPosition(0)
+        // "Start the warm-up" is a start tap like "I'm ready", so the block
+        // opens on the count-in, not on the full travel time between two
+        // positions: the person is standing at their mat with a thumb on the
+        // glass, not walking to the next one. Only the AUTOMATIC transitions
+        // — the ones no tap opened — keep `GetReady.seconds`.
+        countInWarmupMove()
     }
 
     /// …or no. The same ending the footer's "Skip warm-up" already had, and
@@ -88,8 +94,12 @@ extension WorkoutFlowView {
                            countdownIdentifier: countdownIdentifier(reentering: reentering),
                            blockSkipTitle: String(localized: "Skip warm-up"),
                            paused: blockPause.isHeld,
+                           // The way back in is not a transition to cut: its
+                           // "I'm ready" ends it outright, so it keeps one.
+                           countingIn: !reentering
+                               && warmupRemaining <= GetReady.countInSeconds,
                            onTechnique: { openWarmupTechnique() },
-                           onStart: { reentering ? endBlockReentry() : startWarmupMoveNow() },
+                           onStart: { reentering ? endBlockReentry() : countInWarmupMove() },
                            onPauseToggle: { toggleBlockPause() },
                            onSkipPosition: { skipWarmupPosition() },
                            onSkipBlock: { finishWarmup() })
@@ -134,9 +144,19 @@ extension WorkoutFlowView {
     }
 
     /// The transition is a floor on the pause between positions, never a wait.
-    func startWarmupMoveNow() {
-        enterWarmupStage(index: warmupIndex, stage: .move,
-                         remaining: Warmup.stageSeconds(.move, of: warmupMove))
+    ///
+    /// "I'm ready" no longer drops the move under the thumb, though: it cuts
+    /// the transition down to a count-in and lets the SAME screen run that
+    /// out, so the 3-2-1 and the go still arrive. The tap means "I'm in
+    /// position", not "start the clock this instant".
+    ///
+    /// `min`, never a plain five: the reserve the two blocks are budgeted
+    /// against is spent to the second (`GetReady.setupSupplementSec`), so a
+    /// tap may only shorten what is already running. Tapped with less than
+    /// the count-in left, it changes nothing — there was no jump to soften.
+    func countInWarmupMove() {
+        enterWarmupStage(index: warmupIndex, stage: .getReady,
+                         remaining: min(warmupRemaining, GetReady.countInSeconds))
     }
 
     func enterWarmupStage(index: Int, stage: Warmup.Stage, remaining: Int) {

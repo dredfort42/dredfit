@@ -159,7 +159,7 @@ final class ReleaseSmokeTests: XCTestCase {
             app.tabBars.buttons["Progress"].tap()
             XCTAssertTrue(app.staticTexts["steps"].waitForExistence(timeout: 5),
                           "S6: the Progress header is missing")
-            let total = app.staticTexts["total-level"]
+            let total = app.staticTexts["total-steps"]
             XCTAssertTrue(total.exists, "S6: the total level is missing")
             // A NUMBER, not a particular one — the same reason as S5. This
             // expected 6, from before sub-steps, when a first "on plan" moved

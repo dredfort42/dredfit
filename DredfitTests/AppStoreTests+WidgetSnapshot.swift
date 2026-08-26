@@ -50,7 +50,7 @@ extension AppStoreTests {
         }
     }
 
-    func testWidgetSnapshotCarriesTheLevelWeekAndPlan() throws {
+    func testWidgetSnapshotCarriesTheStepsWeekAndPlan() throws {
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-widget-\(UUID().uuidString).json")
         defer { try? FileManager.default.removeItem(at: url) }
@@ -61,7 +61,7 @@ extension AppStoreTests {
                                             from: Data(contentsOf: url))
         XCTAssertEqual(snap.totalSteps, store.totalProgress)
         XCTAssertEqual(snap.week?.workouts, store.weekSummary().workouts)
-        XCTAssertEqual(snap.week?.levelsDelta, store.weekSummary().levelsDelta)
+        XCTAssertEqual(snap.week?.stepsDelta, store.weekSummary().stepsDelta)
         XCTAssertEqual(snap.planSessionNumber, store.nextSession.sessionNumber)
         // The write day's own label is the one the app shows right now; the
         // week tally is stamped with its Monday so the widget can keep it
@@ -128,6 +128,20 @@ extension AppStoreTests {
         XCTAssertNil(snap.plan)
         XCTAssertNil(snap.weekStart)
         XCTAssertNil(snap.days[0].nextLabel)
+    }
+
+    /// The other half of the same promise, for the week: a snapshot written
+    /// before the scale changed carries its delta under the retired key. The
+    /// week itself must survive — a throw inside `Week` fails the whole
+    /// decode and blanks the widget until the app is next opened — while the
+    /// number stays absent rather than being read as a step count.
+    func testWidgetSnapshotWeekFromBeforeTheScaleChangeStillDecodes() throws {
+        let legacy = #"{"days":[],"week":{"workouts":3,"levelsDelta":6}}"#
+        let snap = try JSONDecoder().decode(WidgetSnapshot.self, from: Data(legacy.utf8))
+
+        XCTAssertEqual(snap.week?.workouts, 3, "the week must not be lost with the key")
+        XCTAssertNil(snap.week?.stepsDelta,
+                     "a delta counted in the retired unit must not resurface as steps")
     }
 
     /// The home screen must not be told "nothing done" over a history the

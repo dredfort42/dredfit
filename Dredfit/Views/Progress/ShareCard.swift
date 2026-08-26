@@ -14,7 +14,7 @@ struct ShareCard: View {
     let headline: String
     let date: Date
     /// Oldest first. Fewer than two points draws nothing.
-    let levels: [Int]
+    let steps: [Int]
     /// Nil on every card but the jubilee's.
     var subline: String?
 
@@ -116,8 +116,8 @@ struct ShareCard: View {
             Spacer(minLength: 0)
 
             let curveHeight = Self.curveHeight(for: headline, subline: subline)
-            if levels.count > 1 && curveHeight > 0 {
-                LevelCurve(values: levels)
+            if steps.count > 1 && curveHeight > 0 {
+                StepCurve(values: steps)
                     .frame(height: curveHeight)
                     .padding(.horizontal, -88)
                     .padding(.bottom, Self.curveGap)
@@ -142,7 +142,7 @@ struct ShareCard: View {
 // MARK: - The curve
 
 /// Drawn the way the Progress screen draws it and no other way.
-private struct LevelCurve: View {
+private struct StepCurve: View {
     let values: [Int]
 
     private static let inset: CGFloat = 14
@@ -229,10 +229,10 @@ enum ShareCardFactory {
 
     @MainActor
     static func png(headline: String, date: Date = .now,
-                    subline: String? = nil, levels: [Int] = []) -> Data? {
+                    subline: String? = nil, steps: [Int] = []) -> Data? {
         let renderer = ImageRenderer(
             content: ShareCard(headline: headline, date: date,
-                               levels: levels, subline: subline))
+                               steps: steps, subline: subline))
         // Specified in final pixels, so scale stays at 1 — anything else
         // silently produces a 2160×2700 image.
         renderer.scale = 1
@@ -249,9 +249,9 @@ enum ShareCardFactory {
     /// One fixed name per slot, so the temporary directory never accumulates.
     @MainActor
     static func fileURL(headline: String, slot: Slot, date: Date = .now,
-                        subline: String? = nil, levels: [Int] = []) -> URL? {
+                        subline: String? = nil, steps: [Int] = []) -> URL? {
         guard let data = png(headline: headline, date: date,
-                             subline: subline, levels: levels) else { return nil }
+                             subline: subline, steps: steps) else { return nil }
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("\(slot.rawValue).png")
         do {

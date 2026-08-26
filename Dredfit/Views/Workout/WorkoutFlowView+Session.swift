@@ -19,6 +19,10 @@ extension WorkoutFlowView {
 
     // MARK: - Hold countdown
 
+    /// The tap arms the set; the clock waits out a count-in first
+    /// (`GetReady.countInSeconds`). It used to start the hold under the thumb,
+    /// and on a hold that is not only a jolt: the seconds spent getting down
+    /// into the plank came off the number the engine measures.
     func startHold() {
         adjusting = false
         // On the probe set the countdown is the PROBE's target — a different
@@ -27,7 +31,31 @@ extension WorkoutFlowView {
             ? (probeActuals[exercise.pattern] ?? current.planned)
             : SetFacts.inForce(actuals, exercise, set: setIndex)
         holdRemaining = holdTotal
-        holdEndDate = Date.now.addingTimeInterval(TimeInterval(holdTotal))
+        holdCountInRemaining = GetReady.countInSeconds
+        holdCountInEndDate = Date.now.addingTimeInterval(TimeInterval(holdCountInRemaining))
+    }
+
+    /// 3-2-1 and then the go, like every transition in the guided blocks —
+    /// here the ticks are wanted, unlike inside the switch pause: the count-in
+    /// IS the signal rather than something laid over one.
+    func tickHoldCountIn() {
+        guard let end = holdCountInEndDate else { return }
+        let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
+        guard newRemaining != holdCountInRemaining else { return }
+        if newRemaining == 0 {
+            holdCountInEndDate = nil
+            playGo()
+            // The hold's own total was fixed at the tap, so a long absence
+            // during the count-in still starts a FULL set rather than the
+            // remains of one.
+            holdRemaining = holdTotal
+            holdEndDate = Date.now.addingTimeInterval(TimeInterval(holdTotal))
+        } else {
+            if newRemaining <= Self.countdownSignalSeconds && newRemaining < holdCountInRemaining {
+                playTick()
+            }
+            withAnimation(.linear(duration: 0.3)) { holdCountInRemaining = newRemaining }
+        }
     }
 
     func tickHold() {
@@ -244,6 +272,7 @@ extension WorkoutFlowView {
         adjusting = false
         clearBlockPause()
         holdEndDate = nil
+        holdCountInEndDate = nil
         holdSecondSide = false
         firstSideHeld = nil
         holdPauseEndDate = nil

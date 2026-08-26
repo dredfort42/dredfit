@@ -55,7 +55,7 @@ final class WidgetTimelineTests: XCTestCase {
         let snapshot = WidgetSnapshot(
             days: days,
             totalSteps: 27,
-            week: .init(workouts: 3, levelsDelta: 6),
+            week: .init(workouts: 3, stepsDelta: 6),
             weekStart: monday,
             planSessionNumber: 12,
             planMinutes: 34,

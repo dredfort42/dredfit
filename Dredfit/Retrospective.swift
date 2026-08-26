@@ -1,6 +1,6 @@
 //
 //  The "then → now" block for anniversary milestones (issue #26), built from
-//  the journal's levelsAfter snapshots.
+//  the journal's totalProgressAfter snapshots.
 //
 //  Every number goes through core helpers (Level.decode + the library) so a
 //  future recoding of levels cannot leave this block silently wrong.

@@ -28,7 +28,7 @@ extension AppStore {
     /// The week is Monday–Sunday regardless of locale.
     struct WeekSummary: Equatable {
         let workouts: Int
-        let levelsDelta: Int
+        let stepsDelta: Int
     }
 
     /// Deload weeks can be negative — that is honest, not an error.
@@ -38,17 +38,17 @@ extension AppStore {
         var cal = Calendar(identifier: .iso8601)   // Monday-first weeks
         cal.timeZone = Calendar.current.timeZone
         guard let week = cal.dateInterval(of: .weekOfYear, for: date) else {
-            return WeekSummary(workouts: 0, levelsDelta: 0)
+            return WeekSummary(workouts: 0, stepsDelta: 0)
         }
         let inWeek = records.filter { $0.date >= week.start && $0.date < week.end }
-        guard let last = inWeek.last else { return WeekSummary(workouts: 0, levelsDelta: 0) }
+        guard let last = inWeek.last else { return WeekSummary(workouts: 0, stepsDelta: 0) }
         // Records from before v3 carry no point on this scale, so a week that
         // straddles the update measures from zero rather than from a number
         // that meant something else. A clean start reads zero too, so the
         // first v3 week is honest either way.
         let baseline = records.last { $0.date < week.start }?.totalProgressAfter ?? 0
         return WeekSummary(workouts: inWeek.count,
-                           levelsDelta: (last.totalProgressAfter ?? baseline) - baseline)
+                           stepsDelta: (last.totalProgressAfter ?? baseline) - baseline)
     }
 
     var nextTrainingDateLabel: String { nextTrainingDateLabel(from: today) }

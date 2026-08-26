@@ -10,6 +10,10 @@ import SwiftUI
 /// order of precedence — a side switch, the second side, an entered actual,
 /// or plainly which set is up.
 struct WorkStatusCaption: View {
+    /// The count-in a start tap earns (`GetReady.countInSeconds`). First of
+    /// all of them, because while it runs the big number above is the
+    /// count-in's own seconds and this line is the only thing that says so.
+    let countingIn: Bool
     let switchingSides: Bool
     let secondSide: Bool
     /// nil when the exercise is running to plan.
@@ -26,7 +30,10 @@ struct WorkStatusCaption: View {
     var uneven: Bool = false
 
     var body: some View {
-        if switchingSides {
+        if countingIn {
+            // The transition screens' own word, for the same beat.
+            accented(Text("Get ready"))
+        } else if switchingSides {
             accented(Text("Switch sides"))
         } else if secondSide {
             accented(Text("second side"))

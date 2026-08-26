@@ -44,6 +44,30 @@ enum GetReady {
     /// next second has to be bought from the engine too.
     static let setupSupplementSec = 5
 
+    /// The count-in a START TAP earns before any clock runs.
+    ///
+    /// "I'm ready" and "Start hold" both used to put the countdown under the
+    /// thumb: the number jumped from the transition's to the position's — or
+    /// from the plank's target straight into running — while the hand was
+    /// still moving away from the glass, and on a hold every second of that
+    /// came off the number the engine measures.
+    ///
+    /// Five, not `seconds`: this is a count-in, not travel. The person has
+    /// just said they are ready and needs only the beat between saying it and
+    /// being counted in — the same beat the way back in from a pause gets.
+    ///
+    /// Before a hold it is preparation time that always existed, moved inside
+    /// the app's clock: it used to be spent BEFORE the tap. On a transition it
+    /// may only SHORTEN what is already running (see `countInWarmupMove`) —
+    /// the two blocks are budgeted to the second, so a tap that lengthened one
+    /// would spend a reserve this layer does not own.
+    static var countInSeconds: Int {
+        #if DEBUG
+        if CommandLine.arguments.contains("--uitest-fast") { return 1 }
+        #endif
+        return 5
+    }
+
     /// The two lengths a transition can have. The side-switch pause and the
     /// way back in from a pause (issue #61) stay at the base length: nobody
     /// changes support in the middle of a position, and Resume is tapped by
@@ -67,7 +91,11 @@ enum GetReady {
     ///
     /// It holds the transition of BOTH blocks and BOTH lengths — base and
     /// supplemented route through the same override, so issue #83's split
-    /// changes nothing a test under this flag can see. A driver walking a
+    /// changes nothing a test under this flag can see. What it does NOT hold
+    /// is a transition a START TAP opened or cut: that one is the count-in and
+    /// lasts `countInSeconds` whatever this flag says, so a test that needs to
+    /// tap a control living only on the transition has to reach an automatic
+    /// one first — skip a position, and the next transition is held open. A driver walking a
     /// whole workout must not combine it with completeWorkout: six cool-down
     /// transitions at this length outlast the driver's own deadline. Pass
     /// --uitest-fast instead; it is checked first and wins when both are

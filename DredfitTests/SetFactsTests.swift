@@ -408,4 +408,82 @@ final class SetFactsTests: XCTestCase {
                        SetFacts.overrides(late, in: session.exercises)[reps.pattern],
                        "under a mean the order cannot change what the engine sees")
     }
+
+    // MARK: - "The whole plan, or more" (the gate on the "easy" rating)
+
+    private func didFullPlan(_ facts: SetFacts.PerSet = [:],
+                             skips: SetFacts.Skips = [:],
+                             skipped: Set<Pattern> = []) -> Bool {
+        SetFacts.didFullPlan(facts, skips: skips, skipped: skipped, in: session.exercises)
+    }
+
+    func testSayingNothingIsTheWholePlan() {
+        // The convention the whole app rests on: a tap through means the plan
+        // was done. Nothing recorded is therefore the passing case, not the
+        // failing one — a gate that read silence as a shortfall would dim the
+        // card for everyone who never opens the adjuster.
+        XCTAssertTrue(didFullPlan())
+    }
+
+    func testANumberAbovePlanIsStillTheWholePlan() {
+        let facts = SetFacts.recording(Self.planDose + 3, in: [:], reps, set: 0)
+        XCTAssertTrue(didFullPlan(facts), "“or more” has to mean more")
+    }
+
+    func testOneSetUnderPlanClosesTheGate() {
+        let facts = SetFacts.recording(Self.planDose - 1, in: [:], reps, set: 2)
+        XCTAssertFalse(didFullPlan(facts))
+    }
+
+    func testASurplusOnOneExerciseDoesNotPayForAShortfallOnAnother() {
+        // Volume is judged PER EXERCISE. Fourteen extra reps of one movement
+        // do not buy a missing rep of another: they are different tissues, and
+        // the rating they would unlock speaks about all six at once.
+        var facts = SetFacts.recording(Self.planDose - 1, in: [:], reps, set: 0)
+        facts = SetFacts.recording(hold.plannedLoad(set: 0) + 20, in: facts, hold, set: 0)
+        XCTAssertFalse(didFullPlan(facts))
+    }
+
+    func testASkippedSetClosesTheGateEvenWithNothingElseSaid() {
+        // The one shortfall the engine does NOT already keep the rating away
+        // from: a dropped set never becomes an override, so without this the
+        // tap would buy the full rise on a movement that lost a third of its
+        // volume. This assertion is the whole reason the screen is handed the
+        // skips at all.
+        XCTAssertFalse(didFullPlan(skips: [reps.pattern: 1]))
+        XCTAssertTrue(didFullPlan(skips: [reps.pattern: 0]),
+                      "a count of no skipped sets is not a skip")
+    }
+
+    func testASkippedExerciseClosesTheGate() {
+        XCTAssertFalse(didFullPlan(skipped: [reps.pattern]))
+    }
+
+    func testAnUnevenPlanNeedsItsTopSet() {
+        // §41.3 in the gate's own terms: 9-8-8 done as written passes, and
+        // 8-8-8 does not. The mean would let the top set be traded against the
+        // two below it — volume will not.
+        // Off a CLEAN state, not this suite's: the sub-step is disabled on the
+        // top rung of a grid (§40.1), which is exactly where `setUp` puts
+        // everything, so an uneven plan cannot be built there at all.
+        var uneven = EngineState.initial
+        uneven.counter = 1
+        uneven.sub[reps.pattern] = 1                      // one rung split across sets
+        let session = Engine.generateSession(uneven)
+        guard let ex = session.exercises.first(where: { $0.pattern == reps.pattern }),
+              let loads = ex.loads, Set(loads).count > 1 else {
+            return XCTFail("the sub-step did not produce an uneven plan")
+        }
+        let asWritten = (0..<ex.sets).reduce(SetFacts.PerSet()) {
+            SetFacts.recording(ex.plannedLoad(set: $1), in: $0, ex, set: $1)
+        }
+        XCTAssertTrue(SetFacts.didFullPlan(asWritten, skips: [:], skipped: [],
+                                           in: [ex]))
+        let flattened = (0..<ex.sets).reduce(SetFacts.PerSet()) {
+            SetFacts.recording(loads.min()!, in: $0, ex, set: $1)
+        }
+        XCTAssertFalse(SetFacts.didFullPlan(flattened, skips: [:], skipped: [],
+                                            in: [ex]),
+                       "the top set is part of the plan")
+    }
 }
