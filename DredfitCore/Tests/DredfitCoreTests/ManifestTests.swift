@@ -10,19 +10,23 @@ import CryptoKit
 import XCTest
 @testable import DredfitCore
 
-final class ManifestTests: XCTestCase {
+/// Mirrors reference-manifest.json's shape. Hoisted out of `ManifestTests`
+/// (rather than nested inside it) so its own `CodingKeys` — needed for the
+/// `golden.json` → `goldenSHA256` key rename — stays at nesting depth 1;
+/// nested inside the class it would sit at depth 2, which `nesting` forbids.
+private struct Manifest: Decodable {
+    let generator: String
+    let goldenSHA256: String
+    let reference: [String: String]
 
-    private struct Manifest: Decodable {
-        let generator: String
-        let goldenSHA256: String
-        let reference: [String: String]
-
-        private enum CodingKeys: String, CodingKey {
-            case generator
-            case goldenSHA256 = "golden.json"
-            case reference
-        }
+    private enum CodingKeys: String, CodingKey {
+        case generator
+        case goldenSHA256 = "golden.json"
+        case reference
     }
+}
+
+final class ManifestTests: XCTestCase {
 
     private func load(_ resource: String) throws -> Data {
         let url = try XCTUnwrap(Bundle.module.url(forResource: resource,

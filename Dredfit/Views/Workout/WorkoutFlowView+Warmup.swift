@@ -93,6 +93,14 @@ extension WorkoutFlowView {
                            index: warmupIndex, count: warmupMoves.count,
                            countdownIdentifier: countdownIdentifier(reentering: reentering),
                            blockSkipTitle: String(localized: "Skip warm-up"),
+                           // Stated for the same reason `skip-cooldown` states it
+                           // on the cool-down twin below: the default is
+                           // `identifier ?? title`, and `title` is already
+                           // localized, so an omitted argument makes the
+                           // accessibility identifier move with the display
+                           // language. The warm-up side was the only one of the
+                           // two that never said it.
+                           blockSkipIdentifier: "skip-warmup",
                            paused: blockPause.isHeld,
                            // The way back in is not a transition to cut: its
                            // "I'm ready" ends it outright, so it keeps one.

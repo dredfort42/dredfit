@@ -18,22 +18,65 @@ final class ShownPlanTests: AppStoreTestCase {
 
     override var tempURLPrefix: String { "dredfit-shown" }
 
-    /// A trainee well up the scale, seeded through the state file the way the
-    /// app itself loads one. High enough that the plan carries set bands the
-    /// handle can move at all.
-    private func advancedStore(level: Int = 40, budget: Int = 45) throws -> AppStore {
-        let levels = Pattern.allCases
-            .map { "\"\($0.rawValue)\",\(level)" }.joined(separator: ",")
+    /// A trainee well up the ladders, seeded through the state file the way
+    /// the app itself loads one: every movement `variation` rungs up (capped
+    /// by its own ladder), with the journal of what was shown filled in behind
+    /// it — a descent lands IN that journal (§40.6), and a state without one
+    /// would send every movement to the floor instead.
+    ///
+    /// SEEDED IN THE v3 SHAPE — `vars`/`doses`/`shown`, never `levels`. This
+    /// factory wrote the retired v2 shape for a whole release cycle and
+    /// checked nothing afterwards: the state did not decode (§40.8), the store
+    /// started clean, and both sweeps below ran ONE state 28 and 12 times over
+    /// while their messages named a level and a budget. The guard after the
+    /// load is the other half of that fix, and it is the half that would have
+    /// caught it.
+    ///
+    /// The dose sits one rung BELOW the ceiling deliberately. At the ceiling
+    /// §40.4 offers a probe; a probe takes a working set out of the plan, and
+    /// neither the showing memory nor the postcondition repair speaks about an
+    /// exercise carrying one (`Engine.recordShown`, `repairDescent`). That is
+    /// a different guarantee, and not this suite's.
+    private func advancedStore(variation: Int = 5) throws -> AppStore {
+        func at(_ p: Pattern) -> Int { min(variation, Library.count(p)) }
+        func dose(_ p: Pattern, _ v: Int) -> Int {
+            let grid = Dose.grid(Library.unit(p, v))
+            return grid.max - grid.step
+        }
+        let vars = Pattern.allCases
+            .map { "\"\($0.rawValue)\",\(at($0))" }.joined(separator: ",")
+        let doses = Pattern.allCases
+            .map { "\"\($0.rawValue)\",\(dose($0, at($0)))" }.joined(separator: ",")
+        let zeros = Pattern.allCases
+            .map { "\"\($0.rawValue)\",0" }.joined(separator: ",")
+        let journal = Pattern.allCases.map { p in
+            let rows = (1...at(p)).map { "\"\($0)\":\(dose(p, $0))" }.joined(separator: ",")
+            return "\"\(p.rawValue)\",{\(rows)}"
+        }.joined(separator: ",")
         let json = """
-        {"engineState":{"counter":0,"levels":[\(levels)],"failStreak":[],
-                        "timeBudgetMin":\(budget)},
+        {"engineState":{"counter":0,"vars":[\(vars)],"doses":[\(doses)],
+                        "shown":[\(journal)],"failStreak":[\(zeros)]},
          "records":[],
-         "settings":{"restWeekdays":[],"soundsEnabled":true,"timeBudgetChosen":true,
+         "settings":{"restWeekdays":[],"soundsEnabled":true,
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
         """
         try Data(json.utf8).write(to: tempURL)
-        return AppStore(storageURL: tempURL)
+        let store = AppStore(storageURL: tempURL)
+        // The seed must actually load — a state that failed to decode would
+        // start clean and make every assertion here vacuous. The journal is
+        // checked alongside the position because a clean start carries none at
+        // all, so this still bites at `variation == 1`, where the positions of
+        // a clean start and of the seed agree.
+        XCTAssertEqual(store.engineState.vars[.pull], at(.pull),
+                       "the seed did not load: the pull slot is not where it was written")
+        XCTAssertEqual(store.engineState.shownDose(.pull, variation: at(.pull)),
+                       dose(.pull, at(.pull)),
+                       "the seed did not load: the journal of what was shown is not there")
+        return store
     }
+
+    /// The widest position any ladder reaches — the sweeps below walk to it.
+    private var deepestVariation: Int { Pattern.allCases.map(Library.count).max() ?? 1 }
 
     private func day(_ offset: Int) -> Date {
         Calendar.current.date(byAdding: .day, value: offset,
@@ -47,8 +90,8 @@ final class ShownPlanTests: AppStoreTestCase {
 
     // MARK: - Once per showing
 
-    /// The showing is written down whole: every movement of the plan, the work
-    /// it was shown with, and the budget it was drawn under.
+    /// The showing is written down whole: every movement of the plan, and the
+    /// work it was shown with.
     func testAShowingIsWrittenDown() throws {
         let store = try advancedStore()
         let plan = store.nextSession
@@ -87,18 +130,23 @@ final class ShownPlanTests: AppStoreTestCase {
     /// STRICTLY above what was shown — so the next draw has nothing to trim
     /// and the plan is a fixed point. Without that the card would shrink under
     /// the reader's eyes, one set per render.
+    ///
+    /// RE-MARKED (test revision, 26.08.2026): the outer sweep was over a
+    /// `budget` the state has not carried since the time budget went
+    /// (`AppSettings.swift`). `JSONDecoder` ignores keys it does not know, so
+    /// `timeBudgetMin` and `timeBudgetChosen` landed nowhere and the four
+    /// values ran four IDENTICAL configurations while the message printed a
+    /// number as if the axis were live. What is left is the axis that exists.
     func testWritingAShowingDownDoesNotChangeThePlan() throws {
-        for budget in [0, 30, 45, 90] {
-            for level in [0, 12, 24, 32, 40, 44, 47] {
-                let store = try advancedStore(level: level, budget: budget)
-                let shown = store.nextSession
-                store.recordPlanShown(shown)
-                XCTAssertEqual(store.nextSession, shown,
-                               "budget \(budget), level \(level): the plan moved under the reader")
-                store.recordPlanShown(store.nextSession)
-                XCTAssertEqual(store.nextSession, shown,
-                               "budget \(budget), level \(level): and again on the next redraw")
-            }
+        for variation in 1...deepestVariation {
+            let store = try advancedStore(variation: variation)
+            let shown = store.nextSession
+            store.recordPlanShown(shown)
+            XCTAssertEqual(store.nextSession, shown,
+                           "variation \(variation): the plan moved under the reader")
+            store.recordPlanShown(store.nextSession)
+            XCTAssertEqual(store.nextSession, shown,
+                           "variation \(variation): and again on the next redraw")
         }
     }
 
@@ -125,33 +173,35 @@ final class ShownPlanTests: AppStoreTestCase {
     /// week away is the case the measurement was taken on — showed, skipped a
     /// week, opened again — and the silent decay is what redraws the plan
     /// without a single tap.
+    ///
+    /// RE-MARKED (test revision, 26.08.2026): the dead `budget` sweep is gone
+    /// for the reason given on the test above it — three values, one
+    /// configuration — and the level axis is the ladder axis now.
     func testAPlanThatWasOnlySeenIsNotBeatenAWeekLater() throws {
-        for budget in [30, 35, 45] {
-            for level in [24, 32, 40, 44] {
-                let store = try advancedStore(level: level, budget: budget)
-                _ = store.completeWorkout(session: store.nextSession, result: .plan,
-                                          date: day(-10))
-                let seen = store.nextSession
-                let ordBefore = seen.exercises.reduce(into: [Pattern: Int]()) { acc, ex in
-                    acc[ex.pattern] = Engine.progress(store.engineState, ex.pattern)
-                }
-                store.recordPlanShown(seen)
+        for variation in 1...deepestVariation {
+            let store = try advancedStore(variation: variation)
+            _ = store.completeWorkout(session: store.nextSession, result: .plan,
+                                      date: day(-10))
+            let seen = store.nextSession
+            let ordBefore = seen.exercises.reduce(into: [Pattern: Int]()) { acc, ex in
+                acc[ex.pattern] = Engine.progress(store.engineState, ex.pattern)
+            }
+            store.recordPlanShown(seen)
 
-                // A week goes by with no workout: the blind-zone decay redraws
-                // the plan on the next launch, and nothing else does.
-                store.refreshDay(now: day(0))
-                store.applySilentDecayIfNeeded(now: day(0))
+            // A week goes by with no workout: the blind-zone decay redraws
+            // the plan on the next launch, and nothing else does.
+            store.refreshDay(now: day(0))
+            store.applySilentDecayIfNeeded(now: day(0))
 
-                for ex in store.nextSession.exercises {
-                    guard let was = seen.exercises.first(where: { $0.pattern == ex.pattern }),
-                          let ordBefore = ordBefore[ex.pattern] else { continue }
-                    guard Engine.progress(store.engineState, ex.pattern) <= ordBefore
-                    else { continue }
-                    XCTAssertLessThanOrEqual(
-                        work(ex), work(was),
-                        "budget \(budget), level \(level): \(ex.pattern.rawValue) came back "
-                        + "heavier than the plan that was on screen a week ago")
-                }
+            for ex in store.nextSession.exercises {
+                guard let was = seen.exercises.first(where: { $0.pattern == ex.pattern }),
+                      let ordBefore = ordBefore[ex.pattern] else { continue }
+                guard Engine.progress(store.engineState, ex.pattern) <= ordBefore
+                else { continue }
+                XCTAssertLessThanOrEqual(
+                    work(ex), work(was),
+                    "variation \(variation): \(ex.pattern.rawValue) came back "
+                    + "heavier than the plan that was on screen a week ago")
             }
         }
     }
@@ -194,8 +244,8 @@ final class ShownPlanTests: AppStoreTestCase {
     /// The budget half of this test is gone with the budget, and the handle
     /// half with the handle: the `cut` axis is written by the skip inside the
     /// workout now. It IS one of the fields a reset clears, deliberately —
-    /// starting the levels over is starting the plan over, and sets skipped
-    /// at L40 have no meaning at L0.
+    /// starting the ladders over is starting the plan over, and sets skipped
+    /// five rungs up have no meaning back on the first variation.
     func testResetClearsTheSetsAxisAndKeepsTheDoorway() throws {
         let store = try advancedStore()
         store.setHasBar(true)

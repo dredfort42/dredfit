@@ -38,5 +38,10 @@ extension TodayView {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        // Per pattern, so a row is addressable without reading its rendered
+        // load ("3 ×" is a format and a locale, not an identity) and without
+        // `element(boundBy: 0)`, which also matches the settings overlay
+        // sitting above the tab content.
+        .accessibilityIdentifier("plan-row-\(ex.pattern.rawValue)")
     }
 }

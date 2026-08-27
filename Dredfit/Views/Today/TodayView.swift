@@ -265,6 +265,11 @@ struct TodayView: View {
                 PrimaryButton(title: String(localized: "Start")) {
                     activeWorkout = ActiveWorkout(session: store.nextSession)
                 }
+                    // The most-tapped control in the UI suite. Identified so a
+                    // reworded label costs nothing: the word "Start" moved
+                    // twice in a week (PR #207/#208) and the tests that reach
+                    // for it are in every file.
+                    .accessibilityIdentifier("start-workout")
                     .padding(.top, 10)
             }
             Spacer(minLength: 0).frame(height: 14)   // breathing room above the tab bar

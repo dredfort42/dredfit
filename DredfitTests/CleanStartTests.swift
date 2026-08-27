@@ -13,8 +13,12 @@
 //  untouched, an old exercise line keeps the movement it was written with, and
 //  a state that is neither v2 nor v3 still gives a clean start.
 //
-//  The migration's own arithmetic — the tier→variation table, the 480-cell
-//  safety sweep — is pinned in MigrationV2Tests.
+//  The migration's own arithmetic is pinned elsewhere: the 480-cell safety
+//  sweep in MigrationV2Tests, and the tier→variation table itself in
+//  MigrationV2Tests+Table, against a snapshot that does not come out of the
+//  table. This file reads its own expectations from that same snapshot
+//  (`V2FormatSnapshot`) and never from `Engine.v2TierToVariation`: it used to
+//  do the latter, which made the assertion below unfailable.
 //
 import XCTest
 import DredfitCore
@@ -55,7 +59,13 @@ final class CleanStartTests: AppStoreTestCase {
     func testAV2StateIsCarriedOverNotReset() throws {
         let store = try storeFromBefore()
         for p in Pattern.allCases {
-            let expected = try XCTUnwrap(Engine.v2TierToVariation[p]?[3])
+            // NOT `Engine.v2TierToVariation[p]?[3]`. Reading the expectation
+            // out of the table under test made this assertion a tautology: the
+            // whole mapping could be replaced by `[1, 1, 1, 1]` — every
+            // upgrading trainee thrown back to the first rung — and it stayed
+            // green. `V2FormatSnapshot` is the second, independent copy.
+            let expected = try XCTUnwrap(V2FormatSnapshot.tierToVariation[p]?[3],
+                                         "\(p.rawValue) has no tier-4 landing in the v2 snapshot")
             XCTAssertEqual(store.engineState.vars[p], expected, "\(p.rawValue): its own rung")
             XCTAssertNotNil(store.engineState.shown[p]?[expected],
                             "\(p.rawValue): what was done there is on record")
@@ -64,15 +74,38 @@ final class CleanStartTests: AppStoreTestCase {
         XCTAssertTrue(store.engineState.hasBar, "and the answer about the bar")
     }
 
-    /// …and the plan it draws is the one they were doing, not the beginning.
-    func testThePlanAfterMigrationIsTheirOwn() throws {
+    /// …and the plan it draws stands on the rung they earned.
+    ///
+    /// REWRITTEN: every assertion here used to pin the BEGINNING — base sets,
+    /// the grid floor, no probe — which is exactly what §40.8's clean start
+    /// produced, directly under a sentence claiming the opposite. They survived
+    /// the reversal of §40.8 because L=24 makes them accidentally true, so the
+    /// file said "their own plan" while checking "the beginner's plan".
+    ///
+    /// What carries over is the RUNG. The dose sits at the floor here because
+    /// L=24 is the BOTTOM of v2's tier 4 (4 reps, a 10-second hold): 4 reps is
+    /// already v3's floor, and a hold below it comes UP to it (§41.6 item 4).
+    func test_planAfterMigration_fromTheBottomOfV2sTopTier_standsOnTheEarnedRung() throws {
         let store = try storeFromBefore()
         let session = store.nextSession
-        XCTAssertEqual(session.sessionNumber, 41, "the count continues")
+
+        XCTAssertEqual(session.sessionNumber, 41, "the count continues where v2 left it")
+        XCTAssertFalse(session.exercises.isEmpty,
+                       "a session must carry slots, or the loop below asserts nothing at all")
         for ex in session.exercises {
-            XCTAssertEqual(ex.sets, 3, "\(ex.pattern.rawValue)")
-            XCTAssertEqual(ex.load, Dose.grid(ex.unit).min, "\(ex.pattern.rawValue)")
-            XCTAssertNil(ex.probe, "nothing to probe from the floor")
+            let earned = try XCTUnwrap(V2FormatSnapshot.tierToVariation[ex.pattern]?[3],
+                                       "\(ex.pattern.rawValue) has no tier-4 landing in the v2 snapshot")
+            XCTAssertEqual(ex.variation, earned,
+                           "\(ex.pattern.rawValue): the rung v2's tier 4 was earned on, not the first one")
+            XCTAssertEqual(ex.sets, 3,
+                           "\(ex.pattern.rawValue): v2 planned three sets at L=24, and §40.5 lets no band "
+                           + "ride below the top rung anyway")
+            XCTAssertEqual(ex.load, Dose.grid(ex.unit).min,
+                           "\(ex.pattern.rawValue): the bottom of v2's tier 4 is already v3's grid floor — "
+                           + "this is the dose they were doing, not a reset")
+            XCTAssertNil(ex.probe,
+                         "\(ex.pattern.rawValue): a probe is offered from the dose CEILING (§40.4), and they "
+                         + "stand at the floor")
         }
     }
 

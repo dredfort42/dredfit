@@ -13,11 +13,15 @@ final class RestExtensionUITests: XCTestCase {
     private var app: XCUIApplication!
     private var driver: WorkoutDriver { WorkoutDriver(app: app) }
 
-    override func setUp() {
-        super.setUp()
+    // `async throws`: a synchronous `setUp()` override inherits XCTestCase's
+    // non-isolated declaration whatever the class is annotated with, so
+    // main-actor `XCUIApplication` was reached from a non-isolated context.
+    // Only the async form may add the class's isolation.
+    override func setUp() async throws {
+        try await super.setUp()
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchArguments = ["--uitest-reset", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.seedLaunchArguments()
     }
 
     /// A 60-second rest may be pushed to 120 and no further, and the control
@@ -27,11 +31,11 @@ final class RestExtensionUITests: XCTestCase {
         app.launch()
         driver.startWorkout()
 
-        let done = app.buttons["Done"]
+        let done = app.buttons[AX.exerciseDone]
         XCTAssertTrue(done.waitForExistence(timeout: 5), "the first set never offered Done")
         driver.coordinateTap(done)
 
-        let extend = app.buttons["extend-rest"]
+        let extend = app.buttons[AX.extendRest]
         XCTAssertTrue(extend.waitForExistence(timeout: 5), "the rest screen has no +15 s control")
         XCTAssertTrue(extend.isEnabled, "a rest at its planned length must be extendable")
 
@@ -40,6 +44,6 @@ final class RestExtensionUITests: XCTestCase {
 
         XCTAssertTrue(extend.exists, "the control must stay in the row at the cap")
         XCTAssertFalse(extend.isEnabled, "the cap must disable the control, not hide it")
-        XCTAssertTrue(app.buttons["Skip rest"].exists, "the row lost its other control")
+        XCTAssertTrue(app.buttons[AX.skipRest].exists, "the row lost its other control")
     }
 }

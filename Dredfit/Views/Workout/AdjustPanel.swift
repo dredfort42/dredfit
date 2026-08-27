@@ -31,6 +31,10 @@ struct AdjustPanel: View {
                     .padding(.vertical, 10)
                     .background(Theme.ink, in: Capsule())
             }
+            // Named, like the two steppers beside it: "OK" is also what a
+            // system alert calls its button, so a query for the label alone
+            // can resolve to something this panel does not own.
+            .accessibilityIdentifier("adjust-confirm")
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)

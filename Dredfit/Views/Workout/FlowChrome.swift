@@ -28,7 +28,7 @@ struct FlowHeader: View {
     var body: some View {
         VStack(spacing: 10) {
             HStack {
-                exitButton(action: onExit)
+                exitButton(identifier: "workout-exit", action: onExit)
                 Spacer()
                 Text(title)
                     .dredfitFont(13, weight: .semibold)
@@ -38,7 +38,11 @@ struct FlowHeader: View {
                 Spacer()
                 // Symmetry: the title is centred by two equal ends, so the
                 // right one has to measure the same — including the 44 pt.
-                exitButton(action: { }).hidden()
+                // Its OWN identifier, because it is a second control reading
+                // "Exit": the suite carried `.firstMatch` on every exit tap to
+                // survive that ambiguity, and a name is a stronger guard than
+                // an ordering assumption.
+                exitButton(identifier: "workout-exit-spacer", action: { }).hidden()
             }
             if steps > 0 {
                 HStack(spacing: 5) {
@@ -68,7 +72,7 @@ struct FlowHeader: View {
     /// The way out of a workout in progress, and the hidden twin that keeps
     /// the title centred. 44 pt: a bare 14 pt label is about 17, and this is
     /// the control someone reaches for when a set has gone wrong.
-    private func exitButton(action: @escaping () -> Void) -> some View {
+    private func exitButton(identifier: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             // ink2, not ink3: ink3 (~2.4:1) fails contrast for
             // interactive text.
@@ -78,6 +82,10 @@ struct FlowHeader: View {
                 .frame(minHeight: 44)
                 .contentShape(Rectangle())
         }
+        // No default: both call sites are one screen apart and one of them is
+        // a placeholder, so an omitted argument would silently give the two
+        // the same name.
+        .accessibilityIdentifier(identifier)
     }
 }
 

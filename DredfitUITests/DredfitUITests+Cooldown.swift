@@ -21,47 +21,37 @@ import XCTest
 extension DredfitUITests {
 
     func testCooldownRunsBetweenLastExerciseAndRating() {
-        app.launchArguments.append("--uitest-fast")
+        seed("--uitest-fast")
         app.launch()
         startWorkout()
 
-        let done = app.buttons["Done"]
-        let startHold = app.buttons["Start hold"]
-        let cooldown = app.staticTexts["COOL-DOWN"]
-        let deadline = Date.now.addingTimeInterval(360)
-        while !cooldown.exists && Date.now < deadline {
-            if done.exists {
-                coordinateTap(done)
-                _ = done.waitForNonExistence(timeout: 3)
-            } else if startHold.exists {
-                coordinateTap(startHold)
-                _ = startHold.waitForNonExistence(timeout: 3)
-            } else {
-                _ = cooldown.waitForExistence(timeout: 2)
-            }
-        }
-        XCTAssertTrue(cooldown.waitForExistence(timeout: 5),
+        // The walk to the question is the driver's. It was copied out into
+        // this file, HandlesUITests and BlockPauseUITests at the same time —
+        // three copies of the loop the driver's own header warns about, and
+        // the last drift of it cost the nightly six red runs.
+        XCTAssertTrue(driver.walkToCooldownOffer(),
                       "the cool-down must follow the last exercise")
+        XCTAssertTrue(app.staticTexts["COOL-DOWN"].exists,
+                      "the header is up as soon as the block is offered")
 
-        // The header is up as soon as the block is OFFERED — the block itself
-        // runs only once the offer is accepted.
-        let acceptCooldown = app.buttons["cooldown-start"]
-        if acceptCooldown.waitForExistence(timeout: 5) { acceptCooldown.tap() }
+        // Offered, not running: the block itself starts only once the offer
+        // is accepted.
+        app.buttons[AX.cooldownStart].tap()
 
         // The position mini-sheet (issue #34) opens over the running block
         // and closes back into it — opening freezes the countdown, so the
-        // sequence is stable even on --uitest-fast's 1 s stages.
-        coordinateTap(app.buttons["technique"])
-        let gotIt = app.buttons["Got it"]
+        // sequence is stable even on --uitest-fast's 1 s stages. By its OWN
+        // identifier: four sheets in this app close on a button reading
+        // "Got it", and this one is up over a block that keeps running.
+        coordinateTap(app.buttons[AX.technique])
+        let gotIt = app.buttons[AX.positionTechniqueDone]
         XCTAssertTrue(gotIt.waitForExistence(timeout: 3), "the cool-down mini-sheet did not open")
         gotIt.tap()
         XCTAssertTrue(gotIt.waitForNonExistence(timeout: 3), "the mini-sheet did not close")
 
-        app.buttons["skip-cooldown"].tap()
+        app.buttons[AX.skipCooldown].tap()
         XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 3),
                       "skipping the cool-down lands on the rating")
-        app.staticTexts["On plan"].tap()
-        XCTAssertTrue(app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5),
-                      "the workout is recorded exactly as before")
+        rate()
     }
 }

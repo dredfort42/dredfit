@@ -12,15 +12,19 @@ import XCTest
 final class SetFactsUITests: XCTestCase {
 
     private var app: XCUIApplication!
+    private var driver: WorkoutDriver { WorkoutDriver(app: app) }
 
-    override func setUp() {
-        super.setUp()
+    // `async throws`: a synchronous `setUp()` override inherits XCTestCase's
+    // non-isolated declaration whatever the class is annotated with, so
+    // main-actor `XCUIApplication` was reached from a non-isolated context.
+    // Only the async form may add the class's isolation.
+    override func setUp() async throws {
+        try await super.setUp()
         continueAfterFailure = false
         app = XCUIApplication()
         // --uitest-fast: this test completes real sets, so the rests between
         // them have to collapse.
-        app.launchArguments = ["--uitest-reset", "--uitest-fast",
-                               "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.seedLaunchArguments("--uitest-fast")
     }
 
     /// Workout 1 opens at 3×4 reps (§40.8). Two sets on plan, the third at 1:
@@ -28,11 +32,8 @@ final class SetFactsUITests: XCTestCase {
     /// standing in for all of them.
     func testAFactOnTheLastSetLeavesTheEarlierSetsOnPlan() {
         app.launch()
-        app.buttons["Start"].tap()
-        let skipWarmup = app.buttons["warmup-intro-skip"]
-        if skipWarmup.waitForExistence(timeout: 3) { skipWarmup.tap() }
-
-        let done = app.buttons["Done"]
+        driver.startWorkout()
+        let done = app.buttons[AX.exerciseDone]
         XCTAssertTrue(done.waitForExistence(timeout: 5), "the first work screen never came up")
         // Two sets exactly as planned. The rest collapses to a second and
         // advances itself, so the caption is the thing to wait on.
@@ -42,8 +43,8 @@ final class SetFactsUITests: XCTestCase {
                           "the flow did not reach set \(set)")
         }
 
-        app.buttons["Went differently"].tap()
-        let minus = app.buttons["minus"]
+        app.buttons[AX.exerciseAdjust].tap()
+        let minus = app.buttons[AX.adjustMinus]
         XCTAssertTrue(minus.waitForExistence(timeout: 3), "the stepper did not open")
         // Down to the bottom of the corridor, and that is not zeal: on a plan
         // of 4 a last set of 3 averages 3.67, which snaps back ONTO the plan,
@@ -51,11 +52,11 @@ final class SetFactsUITests: XCTestCase {
         // over-penalise a near miss. The exercise would drop off the rating
         // screen entirely and this test would prove nothing.
         minus.tap(); minus.tap(); minus.tap()   // plan 4 → 1
-        app.buttons["OK"].tap()
+        app.buttons[AX.adjustConfirm].tap()
         XCTAssertTrue(app.staticTexts["actual 1"].waitForExistence(timeout: 3),
                       "the caption must confirm the number on this set")
 
-        WorkoutDriver(app: app).completeWorkout()
+        driver.completeWorkout()
         // Matched by accessibility label, which is the comma-separated twin of
         // the "4 · 4 · 1" on screen — the same list, spoken rather than set.
         XCTAssertTrue(app.staticTexts["4, 4, 1"].exists,
@@ -63,15 +64,15 @@ final class SetFactsUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["actual 1"].exists,
                        "1 was one set of three — it must not stand for the exercise")
 
-        app.staticTexts["On plan"].tap()
+        app.element(withIdentifier: AX.ratingPlan).tap()
         XCTAssertTrue(app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 5))
 
         // History says the same thing the rating screen said.
         app.tabBars.buttons["Calendar"].tap()
         let day = Calendar.current.component(.day, from: .now)
-        app.buttons["day-\(day)"].tap()
+        app.buttons[AX.day(day)].tap()
         XCTAssertTrue(app.staticTexts["Workout 1"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.staticTexts["4, 4, 1"].exists, "the history row lost the sets")
-        app.buttons["Got it"].tap()
+        app.buttons[AX.historyDone].tap()
     }
 }

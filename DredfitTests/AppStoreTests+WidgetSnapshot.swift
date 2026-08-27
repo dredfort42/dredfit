@@ -99,13 +99,21 @@ extension AppStoreTests {
 
         let snap = try JSONDecoder().decode(WidgetSnapshot.self,
                                             from: Data(contentsOf: url))
+        // The word the VIEW produces, not the English literal. `nextLabel` is
+        // `String(localized: "tomorrow")` (AppStore+Calendar), so under
+        // -AppleLanguages (ru) the equality in the loop went red while the
+        // inequality just after this passed for the wrong reason — a Russian
+        // label is never the string "tomorrow" either. The project rule is the
+        // same one: assert on the string the view produces, never on a
+        // base-language literal.
+        let tomorrow = String(localized: "tomorrow")
         let todayEntry = try XCTUnwrap(snap.days.first { $0.date == today })
-        XCTAssertNotEqual(todayEntry.nextLabel, "tomorrow",
+        XCTAssertNotEqual(todayEntry.nextLabel, tomorrow,
                           "from the write day the rest day is in the way — its label is \"on X\"")
         for day in snap.days {
             switch day.status {
             case .rest where day.date > today:
-                XCTAssertEqual(day.nextLabel, "tomorrow",
+                XCTAssertEqual(day.nextLabel, tomorrow,
                                "\(day.date): a rest-day entry must speak from its own day")
             case .workout:
                 XCTAssertNil(day.nextLabel,

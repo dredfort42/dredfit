@@ -43,7 +43,10 @@ struct NextWorkoutSheet: View {
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
 
+            // Its own name — see TechniqueSheet: four sheets close on the same
+            // two words.
             PrimaryButton(title: String(localized: "Got it")) { dismiss() }
+                .accessibilityIdentifier("next-workout-done")
                 .padding(.horizontal, 24)
                 .padding(.bottom, 16)
         }

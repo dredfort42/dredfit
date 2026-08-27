@@ -1,7 +1,11 @@
 //
 //  Everything §40.7 lists under "not touched": the rotation and the slots, the
 //  bar gate, the counter and the double-feedback guard, the skip, the breaks,
-//  the sanitizer — plus the invariants that outlived the level (И4, И6).
+//  the sanitizer — plus the double-feedback invariant И6.
+//
+//  И4 ("no path of descent makes the plan heavier") used to live here as a
+//  sweep that ran over one shape of position only. It now lives in
+//  `DescentSweepTests`, over the whole domain and all four paths down.
 //
 
 import XCTest
@@ -10,17 +14,6 @@ import XCTest
 private typealias Pattern = DredfitCore.Pattern
 
 final class EngineTests: XCTestCase {
-
-    /// §41.6 item 1. hinge 4→3 and 7→6 cross from a two-sided movement to a
-    /// per-side one (×2.00); pull_bar 3→2 crosses the unit boundary (×1.50).
-    fileprivate static func impossibleLanding(_ p: Pattern, from: Int, to: Int) -> Bool {
-        let closed: [Pattern: Set<Int>] = [.hinge: [4, 7], .pullBar: [3]]
-        guard let rungs = closed[p] else { return false }
-        let lo = Swift.min(from, to) + 1, hi = Swift.max(from, to)
-        guard lo <= hi else { return false }          // не пересекли ни одной границы
-        return (lo ... hi).contains { rungs.contains($0) }
-    }
-
 
     // MARK: - Rotation and slots
 
@@ -328,38 +321,6 @@ final class EngineTests: XCTestCase {
         XCTAssertEqual(Engine.easierVariation(state: state, pattern: .squat), state)
     }
 
-    /// И4: no path of descent may make the plan heavier. Swept over every
-    /// variation and every rung of every ladder, from a journal that remembers
-    /// the ceiling of the variation below.
-    func testNoDescentEverMakesThePlanHeavier() {
-        for p in Pattern.allCases {
-            var shown: [Int: Int] = [:]
-            for v in 1...Library.count(p) { shown[v] = Dose.grid(Library.unit(p, v)).max }
-            let journal: [Pattern: [Int: Int]] = [p: shown]
-            for v in 1...Library.count(p) {
-                let grid = Dose.grid(Library.unit(p, v))
-                for rung in 0..<Dose.rungCount(Library.unit(p, v)) {
-                    let from = Position(variation: v, sets: EngineConfig.setsBase,
-                                        dose: Dose.dose(Library.unit(p, v), atRung: rung),
-                                        sub: 0, cut: 0)
-                    for steps in 1...4 {
-                        let to = Engine.fallBy(p, from, steps, shown: journal)
-                        // §41.6 item 1: three boundaries where "no heavier" is
-                        // structurally unreachable — the lower variation is
-                        // per-side, or in other units, and even its lightest
-                        // plan outweighs two sets of the upper one. The list is
-                        // closed and named; widening it silently is not allowed,
-                        // because every line of it is an accepted gap.
-                        if Self.impossibleLanding(p, from: v, to: to.variation) { continue }
-                        XCTAssertTrue(Engine.noHarder(p, from: from, to: to, shown: journal),
-                                      "\(p.rawValue) v\(v) at \(grid.min + rung * grid.step) "
-                                      + "descending \(steps)")
-                    }
-                }
-            }
-        }
-    }
-
     // MARK: - The sanitizer
 
     /// A file written by a future version, opened after a downgrade: entries
@@ -403,6 +364,33 @@ final class EngineTests: XCTestCase {
         XCTAssertEqual(clean.sets[.lunge] ?? EngineConfig.setsBase, EngineConfig.setsBase)
         XCTAssertEqual(clean.sub[.hinge] ?? 0, 2, "at most sets − 1")
         XCTAssertEqual(clean.cutOf(.calf), EngineConfig.setsBase - EngineConfig.setsFloor)
+    }
+
+    /// Reading the library is TOTAL — the rule `ExerciseEntry.variation` is
+    /// written for: "a plan built from a dirty state has to stay a valid input
+    /// to `applyFeedback` (§17.4), and the sanitizer is not the only door into
+    /// this type". Nothing in the suite ever asked the catalog for a variation
+    /// off the end of a ladder, so a `variations[v - 1]` written in place of
+    /// the clamp would have shipped green and trapped on the first dirty state
+    /// that reached a plan.
+    func test_libraryRead_withAVariationOffTheLadder_clampsInsteadOfTrapping() {
+        for p in Pattern.allCases {
+            let entry = ExerciseLibrary.entry(for: p)
+            let last = Library.count(p)
+            for v in [Int.min, -1, 0, last + 1, Int.max] {
+                let clamped = Library.index(pattern: p, variation: v)
+                XCTAssertTrue((1...last).contains(clamped),
+                              "\(p.rawValue): variation \(v) must clamp into the ladder")
+                XCTAssertEqual(entry.variation(v), entry.variation(clamped),
+                               "\(p.rawValue): variation \(v) must read the clamped rung")
+                XCTAssertEqual(entry.unit(forVariation: v), Library.unit(p, clamped),
+                               "\(p.rawValue): the unit of variation \(v) is the clamped rung's")
+                XCTAssertEqual(entry.probeOnly(variation: v), entry.probeOnly(variation: clamped),
+                               "\(p.rawValue): probeOnly of variation \(v) is the clamped rung's")
+                XCTAssertFalse(Library.name(p, v).isEmpty,
+                               "\(p.rawValue): variation \(v) must still name a movement")
+            }
+        }
     }
 
     // MARK: - What the plan says

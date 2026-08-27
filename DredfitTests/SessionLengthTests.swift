@@ -71,15 +71,57 @@ final class SessionLengthTests: AppStoreTestCase {
 
     /// A range is a promise about which end is which, and both ends are the
     /// ENGINE's own `estimatedTotalMin` — the app owns no duration arithmetic.
-    func testTheRangeIsOrderedAndComesFromTheEngine() throws {
+    ///
+    /// RE-MARKED (test revision, 26.08.2026), class: the assert was true by
+    /// construction. `sessionLengthRange` builds its low end as
+    /// `min(flooredSession, full)` (`AppStore+Handles.swift`), so
+    /// `floor <= full` is what the clamp GUARANTEES and no mutation of the
+    /// floor could break it: with `cut: 0` the floor session was the full one,
+    /// Today read "about 31 to 31 minutes", and all three asserts of this
+    /// suite stayed green. The width is asserted STRICTLY now, and the low end
+    /// is pinned against a session counted here rather than against the clamp.
+    func test_sessionLengthRange_onEveryVariation_isStrictlyShorterAtItsFloor() throws {
         for variation in 1...deepestVariation {
             let store = try advancedStore(variation: variation)
             let length = store.sessionLengthRange()
-            XCTAssertLessThanOrEqual(length.floor, length.full,
-                                     "variation \(variation): the range is inverted")
+            // Every movement stands on the base band and the floor is below
+            // it, so at least one set — and its pause — comes off each of the
+            // six. A range whose ends meet is not a range.
+            XCTAssertLessThan(length.floor, length.full,
+                              "variation \(variation): the range must have width — "
+                              + "\(EngineConfig.setsBase) sets can be taken down to "
+                              + "\(EngineConfig.setsFloor) on every movement")
             XCTAssertEqual(length.full, Int(store.nextSession.estimatedTotalMin.rounded()),
                            "variation \(variation): the full end is not the announced plan")
-            XCTAssertGreaterThan(length.floor, 0)
+            XCTAssertGreaterThan(length.floor, 0, "variation \(variation): a session takes time")
+        }
+    }
+
+    /// …and the low end is the session it CLAIMS to be: the same plan with
+    /// every movement on the sets floor.
+    ///
+    /// The expectation is built from `EngineConfig.setsFloor` and checked to
+    /// have landed there before the minutes are compared, so it is an
+    /// expectation and not an echo of `min(…)`. A floor session that quietly
+    /// kept its sets fails on the set count, one line before the arithmetic.
+    func test_sessionLengthRange_floor_isTheSessionWithEveryMovementOnTheSetsFloor() throws {
+        for variation in 1...deepestVariation {
+            let store = try advancedStore(variation: variation)
+            var floored = store.engineState
+            for pattern in Pattern.allCases {
+                floored = Engine.setCut(
+                    state: floored, pattern: pattern,
+                    cut: floored.position(pattern).sets - EngineConfig.setsFloor)
+            }
+            let shortest = Engine.generateSession(floored)
+            for ex in shortest.exercises {
+                XCTAssertEqual(ex.sets, EngineConfig.setsFloor,
+                               "variation \(variation) \(ex.pattern): the expectation itself "
+                               + "did not reach the floor")
+            }
+            XCTAssertEqual(store.sessionLengthRange().floor,
+                           Int(shortest.estimatedTotalMin.rounded()),
+                           "variation \(variation): the low end is not the floored session")
         }
     }
 

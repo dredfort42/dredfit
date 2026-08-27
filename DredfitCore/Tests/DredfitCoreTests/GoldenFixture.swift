@@ -9,6 +9,13 @@
 
 import Foundation
 
+/// Used by `Golden.ComebackStep`, which needs a decoder container keyed on
+/// this single case. Declared at file scope, rather than nested where it is
+/// used, because `Golden.ComebackStep` is already one type-nesting level
+/// inside `Golden` — nesting it a level deeper would exceed the lint's
+/// max-1 type nesting depth.
+private enum ComebackSeriesKey: String, CodingKey { case series }
+
 struct Golden: Decodable {
     let generator: String
     let patternOrder: [String]
@@ -205,11 +212,15 @@ struct Golden: Decodable {
     /// One step may carry a SERIES of comebacks — returns in a row with no
     /// session between, each past the first one deeper. The wire form is
     /// either a single snapshot or `{series: [...]}`.
+    ///
+    /// `ComebackSeriesKey` names the lone `"series"` case this reads. It
+    /// cannot nest inside `ComebackStep` here — `ComebackStep` already sits
+    /// one level inside `Golden`, and a further nested type would put it at
+    /// depth 2, past what `nesting` allows.
     struct ComebackStep: Decodable {
         let snaps: [Comeback]
-        private enum Keys: String, CodingKey { case series }
         init(from decoder: Decoder) throws {
-            if let c = try? decoder.container(keyedBy: Keys.self),
+            if let c = try? decoder.container(keyedBy: ComebackSeriesKey.self),
                let series = try c.decodeIfPresent([Comeback].self, forKey: .series) {
                 snaps = series
             } else {

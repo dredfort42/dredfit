@@ -536,17 +536,25 @@ struct WorkoutFlowView: View {
             if current.unit == .hold {
                 if holding {
                     PrimaryButton(title: String(localized: "Stop")) { stopHoldEarly() }
+                        .accessibilityIdentifier("hold-stop")
                 } else if holdSwitchPausing || holdCountingIn {
                     // hidden, not opacity: the button must leave the
                     // accessibility tree while keeping its reserved space.
                     // A count-in is armed already — a second tap on the slot
                     // it left must not land on anything.
+                    //
+                    // Its own identifier, not the live one's: should `.hidden()`
+                    // ever stop pruning the tree, a query for the real control
+                    // must not resolve to this placeholder.
                     PrimaryButton(title: String(localized: "Start hold")) { }.hidden()
+                        .accessibilityIdentifier("hold-start-spacer")
                 } else {
                     PrimaryButton(title: String(localized: "Start hold")) { startHold() }
+                        .accessibilityIdentifier("hold-start")
                 }
             } else {
                 PrimaryButton(title: String(localized: "Done")) { completeSet() }
+                    .accessibilityIdentifier("exercise-done")
             }
 
             ExerciseActionsRow(onAdjust: { startAdjusting() },

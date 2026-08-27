@@ -7,11 +7,6 @@ final class ComebackTests: AppStoreTestCase {
 
     override var tempURLPrefix: String { "dredfit-comeback" }
 
-    /// A store whose single journal entry is `daysAgo` old, with every pattern
-    /// parked at `level`. Seeded in elapsed seconds, not calendar days:
-    /// gapDays counts whole 24h periods, and a calendar-day seed across a
-    /// spring-forward transition would land an hour short of every exact
-    /// boundary (14 days − 1h reads as 13).
     /// The dose every seeded movement stands at, and the one a comeback walks
     /// down from: the ceiling of its second variation. §40.3 measures a return
     /// in rungs of dose — one old level, one rep per set — so the assertions
@@ -19,7 +14,12 @@ final class ComebackTests: AppStoreTestCase {
     static let seededDose = 15
 
     private func storeWithLastWorkout(daysAgo: Int) throws -> AppStore {
-        let date = Date(timeIntervalSinceNow: -Double(daysAgo) * 86_400)
+        // Midnights, not elapsed seconds — see AppStoreTestCase.daysAgo for
+        // why (#172, DST). 13/14 and 89/90 are precisely the edges this
+        // suite is about, so the seed has to land on the right calendar day.
+        // `self.` is load-bearing: the parameter above shadows the inherited
+        // method of the same name.
+        let date = try self.daysAgo(daysAgo)
         let vars = Pattern.allCases
             .map { "\"\($0.rawValue)\",2" }.joined(separator: ",")
         let doses = Pattern.allCases
@@ -72,9 +72,13 @@ final class ComebackTests: AppStoreTestCase {
         XCTAssertNil(store.gapDays())
     }
 
-    func testGapIsCountedInWholeElapsedDays() throws {
+    /// Renamed with the contract it pins. "Whole elapsed days" is what
+    /// `gapDays` STOPPED counting in #172 — the old name went on advertising
+    /// the semantics the seed below was wrong about.
+    func test_gapDays_afterTwentyCalendarDays_countsTheMidnights() throws {
         let store = try storeWithLastWorkout(daysAgo: 20)
-        XCTAssertEqual(store.gapDays(), 20)
+        XCTAssertEqual(store.gapDays(), 20,
+                       "twenty midnights lie between the last workout and now")
     }
 
     // MARK: - What the answers do
@@ -119,8 +123,11 @@ final class ComebackTests: AppStoreTestCase {
         // A workout happens, then another long break of a different length.
         // Re-marked: a repeat of the same gap is the trainee's rhythm and
         // stays quiet — CadenceTests cover that side.
-        store.completeWorkout(session: store.nextSession, result: .plan,
-                              date: Calendar.current.date(byAdding: .day, value: -30, to: .now)!)
+        // Calendar arithmetic, like the seed: a DST transition inside the
+        // window must not turn this 30-day gap into 29 or 31.
+        let thirtyDaysAgo = try XCTUnwrap(Calendar.current.date(byAdding: .day, value: -30, to: .now),
+                                          "the calendar must be able to step 30 days back")
+        store.completeWorkout(session: store.nextSession, result: .plan, date: thirtyDaysAgo)
         XCTAssertTrue(store.shouldOfferComeback(),
                       "a break off the rhythm is a new question")
     }
@@ -130,8 +137,10 @@ final class ComebackTests: AppStoreTestCase {
     func testFreshStartOnlyOfferedAfterANinetyDayBreak() throws {
         // From a quarter away, not half a year — after 90 days "as it was" is
         // blind enough that "from scratch" must be on the card.
-        XCTAssertFalse(try storeWithLastWorkout(daysAgo: 89).offersFreshStart())
-        XCTAssertTrue(try storeWithLastWorkout(daysAgo: 90).offersFreshStart())
+        XCTAssertFalse(try storeWithLastWorkout(daysAgo: 89).offersFreshStart(),
+                       "89 midnights is one short of the offer")
+        XCTAssertTrue(try storeWithLastWorkout(daysAgo: 90).offersFreshStart(),
+                      "90 midnights is the boundary, and it is inclusive")
     }
 
     func testFreshStartResetsProgressButKeepsHistoryAndTheBar() throws {

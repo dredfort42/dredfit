@@ -244,6 +244,11 @@ struct FeedbackView: View {
             )
         }
         .disabled(!enabled)
+        // Derived from the RESULT rather than passed in, so a fourth card
+        // could not be added with a copied identifier. Every walk that ends a
+        // workout taps one of these three, and until now all of them reached
+        // for the English caption.
+        .accessibilityIdentifier("rating-\(result.rawValue)")
         // `.disabled` alone changes nothing on a custom label — the same trap
         // the rest extension records. The card has to LOOK spent while keeping
         // its place, so the three stay a set of three rather than a gap.

@@ -9,9 +9,18 @@
 //  saw it once. Alongside the rungs, `hasBar` and `counter` were lost too,
 //  and neither carries progress.
 //
-//  Mirrors `migrateFromV2` in the reference engine; the golden fixture pins it
-//  (scenario `migration_v2`), which is what closes the structural gap the audit
-//  named: §40.8 was the one decision of the whole wave with no reference twin.
+//  Mirrors `migrateFromV2` in the reference engine. The golden fixture does NOT
+//  pin it, contrary to what this header used to claim: `make_golden.js` seeds
+//  scenario `migration_v2` with the OUTPUT of the reference migration, and
+//  `GoldenTests.seedState` replays that output field by field instead of
+//  calling this function — so the fixture pins what happens AFTER an upgrade
+//  and never the upgrade itself. The two tables below are pinned by tests
+//  instead: `MigrationV2Tests+Table` compares them cell by cell against a
+//  second, independent transcription of the v2 format, and `MigrationV2Tests`
+//  sweeps all 480 cells for real work (`sets × dose × sides`) on both sides of
+//  the jump. Before those existed, replacing a whole row here with
+//  `[1, 1, 1, 1]` — every upgrading trainee thrown back to the first rung of
+//  every movement — left the entire suite green.
 //
 
 import Foundation

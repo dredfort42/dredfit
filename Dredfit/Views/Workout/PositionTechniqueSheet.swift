@@ -72,7 +72,11 @@ struct PositionTechniqueSheet: View {
                 .padding(.horizontal, 24)
             }
 
+            // Its own name — see TechniqueSheet: four sheets close on the same
+            // two words, and this one opens OVER a running block, so a test
+            // that closed the wrong sheet would leave the block running.
             PrimaryButton(title: String(localized: "Got it")) { dismiss() }
+                .accessibilityIdentifier("position-technique-done")
                 .padding(.horizontal, 24)
                 .padding(.bottom, 16)
         }
