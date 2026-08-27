@@ -141,6 +141,26 @@ nonisolated enum SetFacts {
         return min(last, planned)
     }
 
+    /// The number worth accenting on the work screen: what is in force for
+    /// set `index` when that differs from the SET'S OWN plan, nil when the
+    /// set is simply running to plan. Against the flat base dose the top set
+    /// of an uneven plan showed an accented "actual" nobody entered — and an
+    /// entered shortfall equal to the base showed nothing at all (UI-truth
+    /// audit, 27.08.2026).
+    static func offPlan(_ facts: PerSet, _ ex: SessionExercise, set index: Int) -> Int? {
+        let value = inForce(facts, ex, set: index)
+        return value == ex.plannedLoad(set: index) ? nil : value
+    }
+
+    /// Whether recorded sets differ from THIS plan, set for set. Compared
+    /// against `plannedLoad`, never against the flat base: on an uneven plan
+    /// 9-8-8 a recorded 8-8-8 is a shortfall the engine already acted on, and
+    /// a guard on the base dose read it as "ran to plan" and hid the fact
+    /// (UI-truth audit, 27.08.2026).
+    static func differs(_ values: [Int], from ex: SessionExercise) -> Bool {
+        values.enumerated().contains { $0.element != ex.plannedLoad(set: $0.offset) }
+    }
+
     /// Every set of the exercise, the ones already behind at what they ran at
     /// and the ones ahead at what is in force for them.
     ///
@@ -184,6 +204,53 @@ nonisolated enum SetFacts {
 
     // MARK: - The collapse
 
+    /// How long ONE side of a per-side hold runs.
+    ///
+    /// Both sides of a set carry the same load, so the second runs for what
+    /// the first actually ran rather than for what the plan asked (owner,
+    /// 27.08.2026). Before this, a first side stopped at 20 s of a planned 30
+    /// handed the second the full 30 — and the fact recorded for the set is
+    /// the SMALLER of the two sides, so those ten seconds loaded one side
+    /// harder and could not reach the number at all.
+    ///
+    /// Never longer than the plan: the only way a first side could report
+    /// more would be a plan raised between the sides, and equal load means the
+    /// second side follows the first, not the new plan.
+    ///
+    /// Floored at the hold corridor's own minimum, and that floor is not
+    /// decoration: the mis-tap grace lets a first side end as short as three
+    /// seconds, and a second side of three could neither be STORED (`snap`
+    /// lifts anything under the corridor back to five) nor STOPPED (every tap
+    /// inside three seconds reads as a mis-tap, so Stop would be a dead
+    /// control for the whole run).
+    ///
+    /// It lives here and not in the view for the reason `didFullPlan` and
+    /// `maximumOutOfOrder` do: a rule stated inside a SwiftUI view is a rule
+    /// no gating test can reach — CI runs with `-skip-testing:DredfitUITests`.
+    static func holdSideSeconds(planned: Int, firstSideHeld: Int?) -> Int {
+        guard let firstSideHeld else { return planned }
+        let floor = corridor(for: .hold).lowerBound
+        return max(min(firstSideHeld, planned), min(floor, planned))
+    }
+
+    /// A maximum taken out of order: a number above the plan of THIS set, on
+    /// a set that is not the last one.
+    ///
+    /// It lives here and not in the view's body for the reason `didFullPlan`
+    /// does — a rule stated inside a SwiftUI view is a rule no test can
+    /// reach, and that is how the audit of 27.08.2026 found rules that had
+    /// quietly stopped being true.
+    ///
+    /// What the note built on this must NOT say is that the engine measures
+    /// the last set more closely. It does not measure order at all: the fold
+    /// is the MEAN, so 12-6-6 and 6-6-12 reach it as the same 8.00 and land
+    /// the same next plan. What the advice is actually about is the total —
+    /// a maximum early tends to cost the sets after it, and the whole
+    /// exercise is what the fold is taken over.
+    static func maximumOutOfOrder(_ value: Int, _ ex: SessionExercise, set index: Int) -> Bool {
+        index < ex.sets - 1 && value > ex.plannedLoad(set: index)
+    }
+
     /// The single number `applyFeedback` receives for this exercise, or nil
     /// when every set ran to plan and the rating should govern.
     ///
@@ -220,6 +287,18 @@ nonisolated enum SetFacts {
         // that is said — the pattern falls back to the session's rating.
         if raw < Double(ex.load) && snap(raw, unit: ex.unit) >= ex.load { return nil }
         return raw
+    }
+
+    /// The knowable half of §40.4's "the last answer was not «hard»", read
+    /// at the moment the probe runs: the working sets are all behind by then,
+    /// so a fold below the plan's mean is already the step down the engine
+    /// will take — and a caption promising the new variation would be broken
+    /// by numbers the person has themselves entered (UI-truth audit,
+    /// 27.08.2026). The unnamed "tough" a rating may add later stays
+    /// unknowable here, and no caption should guess at it.
+    static func foldFallsShort(_ facts: PerSet, of ex: SessionExercise) -> Bool {
+        guard let fold = override(facts, for: ex) else { return false }
+        return fold < Double(ex.plannedVolume) / Double(max(ex.sets, 1))
     }
 
     /// What the PROBE set records when it ends: its own target, unless a

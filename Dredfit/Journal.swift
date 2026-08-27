@@ -13,6 +13,22 @@ struct RecordedPosition: Codable, Equatable {
     let variation: Int
     let sets: Int
     let dose: Int
+    /// The two sparse coordinates, recorded since the UI-truth audit
+    /// (27.08.2026): without them the per-pattern chart replotted a snapshot
+    /// up to two steps off the number beside it. Optional with a nil default,
+    /// like every field added to a persisted type — a record written by an
+    /// older build carries neither key, and a nil encodes to nothing, so a
+    /// position that never saw a sub-step stays byte-identical on disk.
+    let sub: Int?
+    let cut: Int?
+
+    init(variation: Int, sets: Int, dose: Int, sub: Int? = nil, cut: Int? = nil) {
+        self.variation = variation
+        self.sets = sets
+        self.dose = dose
+        self.sub = sub
+        self.cut = cut
+    }
 }
 
 struct WorkoutRecord: Codable, Identifiable, Equatable {

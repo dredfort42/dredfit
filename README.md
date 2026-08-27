@@ -67,8 +67,8 @@ the same workout.
 −1 / +1 / +2 steps for the session's patterns. "Easy, could do more" is the one
 rating that claims more than the plan, so it is offered only for a plan done in
 full; honesty downward is never gated. During the workout you can record a
-per-exercise actual that outranks the rating for that pattern — and when it is
-above the plan, the next plan simply *is* that number. Upward moves are capped
+per-exercise actual that outranks the rating for that pattern — and when your
+sets show more than the plan, the next plan starts from what you showed. Upward moves are capped
 at two steps per workout, and at one wherever the tissue doing the work needs
 the slower pace. Three consecutive shortfalls trigger an automatic deload (−3).
 A skipped exercise is neutral: its position and streak are left untouched rather
@@ -105,7 +105,7 @@ what you just trained.
 SwiftUI, iOS 17+, iPhone, portrait. Three tabs, a settings sheet reachable from all of them, and one flow:
 
 - **Today** — the generated plan and one Start button, with nothing to agree to first: the line above says how long the full workout takes and how short it can be made from inside it, and each movement offers an easier variation. A completed state once you're done, with a card for the next workout. If a session was cut short by iOS reclaiming memory or a swipe-kill, this is where it is offered back.
-- **Workout** — warm-up, then one exercise at a time: a big number, set dots, a date-based rest ring with a 3-2-1 audio countdown, a hold timer for static exercises, in-the-moment actual adjustment, and the decision about the length of the session: skip this set, or the rest of a movement's sets — with what is left of the workout on screen, recalculated as you go. Unilateral holds get a counted pause to switch sides. A cool-down closes the session before the rating — six stretches, half of them chosen from what you just trained. Every position of both guided blocks opens with a five-second "Get ready" naming what is coming, skippable by a tap for anyone already in place, and every timed screen of those blocks can be paused — the doorbell is not a reason to pretend a stretch happened, and resuming counts you back in before continuing from the second it stopped on. Every start tap buys a five-second count-in before the clock under your thumb starts moving, so nothing jumps up while your hand is still leaving the glass. Every countdown is wall-clock based, so locking the phone mid-rest loses nothing — and the position is snapshotted on every transition, so neither does losing the process. Leaving asks first, and offers to finish early rather than discard.
+- **Workout** — warm-up, then one exercise at a time: a big number, set dots, a date-based rest ring with a 3-2-1 audio countdown, a hold timer for static exercises, in-the-moment actual adjustment, and the decision about the length of the session: skip this set, or the rest of a movement's sets — with what is left of the workout on screen, recalculated as you go. Unilateral holds get a counted pause to switch sides. A cool-down closes the session before the rating — six stretches, half of them chosen from what you just trained. Every position of both guided blocks opens with a ten-second "Get ready" naming what is coming — fifteen where you have to get down to the floor or reach a wall — skippable by a tap for anyone already in place, and every timed screen of those blocks can be paused — the doorbell is not a reason to pretend a stretch happened, and resuming counts you back in before continuing from the second it stopped on. Every start tap buys a five-second count-in before the clock under your thumb starts moving, so nothing jumps up while your hand is still leaving the glass. Every countdown is wall-clock based, so locking the phone mid-rest loses nothing — and the position is snapshotted on every transition, so neither does losing the process. Leaving asks first, and offers to finish early rather than discard.
 - **Rating** — the one question on three equal cards, with an honest summary of anything you adjusted, skipped or left unfinished. “Easy, could do more” dims when anything fell short, with one line under the three saying why: it is the only rating that claims *more* than the plan, so the plan has to have been finished for it. Honesty downward is never gated.
 - **Calendar** — filled days are tappable history (what you did, with actuals and skips); *upcoming* planned days are outlines; today gets an accent ring; rest days a quiet fill; missed days are left as plain dimmed numbers, deliberately unmarked and unshamed.
 - **Progress** — total steps, a line chart across sessions with per-pattern projections, a weekly summary, and a bar per pattern measured along **its own** ladder, with its own denominator and a tick where each variation begins. Ten ladders of genuinely different lengths share no single axis, because one would be a fiction. A workout recorded before the ladders were rebuilt says it has no number on this scale rather than inventing one.
@@ -169,11 +169,11 @@ docs/                   the dredfit.com site — GitHub Pages, static, no build
 ```
 
 The engine was first written and verified as a JavaScript reference, then ported
-to Swift. The reference suite currently runs **74 555 property checks with 0
+to Swift. The reference suite currently runs **74 772 property checks with 0
 failures**, alongside an acceptance script of 20 blocks and a model sweep that
 walks **59 264 transitions** without once assigning more than "what you showed,
 plus one". `golden.json` is the reference's recorded trace — **28 scenarios, 282
-steps**, stamped `adaptive_engine.js v3.1.0` — and the Swift port must reproduce
+steps**, stamped `adaptive_engine.js v3.3.0` — and the Swift port must reproduce
 it exactly. Changing engine behavior means changing the spec first, then the
 reference, re-verifying, regenerating fixtures, then porting. Plausible-but-
 different is a failing test, not a judgment call. (The JS reference lives

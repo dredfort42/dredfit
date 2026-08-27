@@ -141,8 +141,14 @@ struct MilestoneView: View {
         // Natural case: Kicker uppercases, so the catalog holds text rather
         // than styling and the share card reuses the jubilee key as-is.
         switch milestone {
-        case .variationUp, .setBand:
+        case .variationUp:
             return String(localized: "New variation")
+        case .setBand:
+            // The same movement grown, not a new one — the caption below and
+            // the life-line rule both already said so, and the kicker used to
+            // contradict them both (UI-truth audit, 27.08.2026; the wording
+            // BACKLOG logged).
+            return String(localized: "More volume")
         case .jubilee(let workouts):
             return String(localized: "Workout #\(workouts)")
         }

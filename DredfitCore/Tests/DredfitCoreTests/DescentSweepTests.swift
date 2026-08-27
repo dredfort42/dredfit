@@ -556,6 +556,81 @@ final class DescentSweepTests: XCTestCase {
                              "only \(measured) cells reached the independent measure")
     }
 
+    /// §41.11: the depth of a comeback does not RISE with the length of the
+    /// break. The sweep above is about two points — this plan against the last
+    /// one — and a curve that dips and comes back up satisfies it at every
+    /// step while breaking the card's own sentence, "the longer the break, the
+    /// lower the plan meets you".
+    ///
+    /// It broke exactly here: on a probing appearance the memory was written
+    /// by the working sets, one set below the position, so a descent lost the
+    /// set the probe had borrowed — until the dose fell far enough that three
+    /// sets fitted under the base again, and the plan jumped back UP. Measured
+    /// on the reference before the fix: 84 days met a person higher than 56.
+    func test_comeback_afterAProbingAppearance_neverRisesWithTheLengthOfTheBreak() throws {
+        let gaps = [14, 16, 18, 20, 24, 28, 35, 42, 49, 56, 63, 70, 77, 84, 95, 110, 120]
+        // Every dose at the ceiling of its variation with the journal to prove
+        // it (§41.4) — the one state that offers a probe.
+        var state = EngineState.initial
+        state.counter = 11
+        for p in Pattern.allCases {
+            let grid = Dose.grid(Library.unit(p, 1))
+            state.doses[p] = grid.max
+            state.shown[p] = [1: grid.max]
+        }
+        let shown = Engine.generateSession(state.sanitized())
+        let probing = Set(shown.exercises.filter { $0.probe != nil }.map(\.pattern))
+        // Without this the sweep measures an ordinary descent and goes green
+        // on a state that never exercised the rule.
+        XCTAssertFalse(probing.isEmpty, "the seed produced no probing appearance")
+
+        let played = Engine.applyFeedback(state: state.sanitized(), session: shown,
+                                          result: .plan, overrides: [:], skipped: [],
+                                          setsSkipped: [:], gapDays: 7.0 / 3, probes: [:])
+        for p in Pattern.allCases {
+            var previous = Int.max
+            for gap in gaps {
+                let after = Engine.applyComeback(state: played, gapDays: gap)
+                guard let ex = Engine.generateSession(after).exercises
+                    .first(where: { $0.pattern == p }) else { continue }
+                let work = Engine.exerciseWork(ex)
+                XCTAssertLessThanOrEqual(
+                    work, previous,
+                    "\(p.rawValue): a \(gap)-day break lands on \(work), a shorter one on \(previous)")
+                previous = work
+            }
+        }
+    }
+
+    /// The other half of the same rule, stated on the axis the repair acts on:
+    /// a descent out of a probing appearance keeps the sets the POSITION holds.
+    /// The probe borrowed a set for one session; nothing about coming back
+    /// says it may be kept.
+    func test_comeback_afterAProbingAppearance_keepsTheSetsThePositionHolds() throws {
+        var state = EngineState.initial
+        state.counter = 11
+        for p in Pattern.allCases {
+            let grid = Dose.grid(Library.unit(p, 1))
+            state.doses[p] = grid.max
+            state.shown[p] = [1: grid.max]
+        }
+        let shown = Engine.generateSession(state.sanitized())
+        XCTAssertTrue(shown.exercises.contains { $0.probe != nil },
+                      "the seed produced no probing appearance")
+        let played = Engine.applyFeedback(state: state.sanitized(), session: shown,
+                                          result: .plan, overrides: [:], skipped: [],
+                                          setsSkipped: [:], gapDays: 7.0 / 3, probes: [:])
+        for gap in [14, 20, 35, 56, 84, 120] {
+            let after = Engine.applyComeback(state: played, gapDays: gap).sanitized()
+            for ex in Engine.generateSession(after).exercises where ex.probe == nil {
+                let q = after.position(ex.pattern)
+                XCTAssertEqual(ex.sets, Engine.setsAfterCut(sets: q.sets, cut: q.cut),
+                               "\(ex.pattern.rawValue): \(gap) days gave \(ex.sets) sets "
+                               + "against a position of \(Engine.setsAfterCut(sets: q.sets, cut: q.cut))")
+            }
+        }
+    }
+
     /// The two ends of the ceiling table are fixed points: the deepest return
     /// lands on the first variation, the shallowest may stay on the top one.
     /// Without this the linear stretch in `ceilVar` could drift by one and

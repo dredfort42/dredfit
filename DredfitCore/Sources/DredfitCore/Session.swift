@@ -338,6 +338,23 @@ extension Engine {
         ex.plannedVolume * (ex.perSide ? 2 : 1)
     }
 
+    /// §41.11 (v3.3): the work a SHOWING remembers. It differs from
+    /// `exerciseWork` on exactly one shape — a probing appearance, where the
+    /// probe does not remove a set but OCCUPIES one: the position still holds
+    /// the same `sets`, and the session is no shorter for it, which is why
+    /// `estimatedMin` counts the probe as its own set. The memory is written
+    /// as if the borrowed set were still there.
+    ///
+    /// Counting the probe at its own dose does not save it: the repair below
+    /// can only TAKE SETS OFF, so its base has to be about slots rather than
+    /// about reps. With the working-sets base the depth of a comeback stopped
+    /// being monotone in the length of the break — 84 days met a person higher
+    /// than 56 did — and a descent took away the set the probe had borrowed.
+    static func shownWorkOf(_ ex: SessionExercise) -> Int {
+        guard ex.probe != nil else { return exerciseWork(ex) }
+        return exerciseWork(ex) + ex.load * (ex.perSide ? 2 : 1)
+    }
+
     /// THE POSTCONDITION REPAIR (v2.25 §36.6, round 4). The invariant the
     /// model promises is "if a pattern's position did not rise, its plan
     /// cannot get heavier". Deriving it from the shape of the cut did not
@@ -347,10 +364,20 @@ extension Engine {
     /// finite (taking a set off strictly reduces the work) and bounded below
     /// by the floor.
     ///
-    /// An exercise WITH A PROBE is left alone, and no memory is written for it
-    /// either: it has one working set fewer by construction, and there is
-    /// nothing to compare "2×15 plus a probe" with "3×15" by. The base stays
-    /// the last ordinary showing.
+    /// An exercise WITH A PROBE is left alone: it has one working set fewer by
+    /// construction, so there is nothing to trim inside a probing appearance.
+    ///
+    /// §41.10 (v3.2): its memory IS written now. It used to be skipped —
+    /// "2×15 plus a probe" and "3×15" were called incommensurable — and the
+    /// base stayed a showing two appearances old. What is actually compared is
+    /// the work of one and the same movement: same variation, same unit, same
+    /// sides.
+    ///
+    /// §41.11 (v3.3): and it is written by `shownWorkOf`, which counts the set
+    /// the probe occupied. By the working sets alone the base sat one set
+    /// below the position, so this loop took away a set the probe had only
+    /// borrowed — a 20-day comeback read `2×13` while the position held three
+    /// — and the depth of a comeback stopped being monotone in the break.
     ///
     /// The comparison is NON-STRICT: "the position did not rise" covers both
     /// "fell" and "stood still".

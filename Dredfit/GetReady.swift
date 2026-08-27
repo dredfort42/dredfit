@@ -54,7 +54,8 @@ enum GetReady {
     ///
     /// Five, not `seconds`: this is a count-in, not travel. The person has
     /// just said they are ready and needs only the beat between saying it and
-    /// being counted in — the same beat the way back in from a pause gets.
+    /// being counted in — the same beat the way back in from a pause gets,
+    /// which is literally this constant since 27.08.2026 (`BlockPause`).
     ///
     /// Before a hold it is preparation time that always existed, moved inside
     /// the app's clock: it used to be spent BEFORE the tap. On a transition it
@@ -101,9 +102,10 @@ enum GetReady {
     /// --uitest-fast instead; it is checked first and wins when both are
     /// given.
     ///
-    /// It stretches the way back in from a pause too (issue #61) — that asks
-    /// GetReady for the same length. A test that pauses a running position
-    /// under this flag waits ten minutes to be counted back in.
+    /// It no longer stretches the way back in from a pause (issue #61): since
+    /// 27.08.2026 that asks for `countInSeconds`, which only `--uitest-fast`
+    /// touches. A test that pauses a running position under this flag is
+    /// counted back in at the real five seconds.
     ///
     /// Production is untouched by both; DEBUG builds only.
     static var stageSeconds: Int { stageSeconds(needsSetup: false) }

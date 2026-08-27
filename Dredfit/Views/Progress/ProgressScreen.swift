@@ -231,10 +231,11 @@ struct ProgressScreen: View {
             let days = cal.dateComponents([.day], from: cal.startOfDay(for: before.date),
                                           to: cal.startOfDay(for: after.date)).day ?? 0
             guard days >= EngineConfig.silentDecayGapDays else { return nil }
-            // Two ways the returning session can lower the level by itself —
-            // "tough" and an exact number. Under either, the break gets no
-            // credit for the drop.
-            let ownDoing = after.result == .less || after.ownNumber
+            // Three ways the returning session can lower the level by itself
+            // — "tough", an exact number, and sets skipped mid-workout (they
+            // land as a cut after the rating). Under any of them, the break
+            // gets no credit for the drop.
+            let ownDoing = after.result == .less || after.ownNumber || after.ownSkips
             let fell = after.value < before.value && !ownDoing
             return BreakBand(id: index, from: before.date, to: after.date,
                              days: days, costSteps: fell)
@@ -294,6 +295,12 @@ struct ProgressScreen: View {
         /// its movement, so it is the second way a session can lower a level
         /// without the break having anything to do with it.
         let ownNumber: Bool
+        /// …and the third way: sets skipped mid-workout land as a cut AFTER
+        /// the rating, so even an "on plan" return can lower this point by
+        /// itself. Without this the line under the chart credited the break
+        /// for a drop the session's own skips caused (UI-truth audit,
+        /// 27.08.2026).
+        let ownSkips: Bool
     }
 
     /// Dates can coincide (several workouts in one span), so duplicates
@@ -316,7 +323,8 @@ struct ProgressScreen: View {
         }
         return plotted.enumerated().map { index, point in
             StepPoint(id: index, date: point.date, value: point.value,
-                       result: point.result, ownNumber: point.ownNumber)
+                       result: point.result, ownNumber: point.ownNumber,
+                       ownSkips: point.ownSkips)
         }
     }
 
@@ -328,21 +336,29 @@ struct ProgressScreen: View {
         let value: Int
         let result: FeedbackResult
         let ownNumber: Bool
+        let ownSkips: Bool
     }
 
     private func plot(_ record: WorkoutRecord, _ p: Pattern) -> Plotted? {
         guard let position = record.positionsAfter?[p] else { return nil }
+        // All six coordinates: a snapshot replotted without `sub` and `cut`
+        // sat up to two steps off the number beside the row (UI-truth audit,
+        // 27.08.2026). Older records carry neither key and plot as before.
         return Plotted(date: record.date,
                        value: Engine.progress(p, variation: position.variation,
-                                              sets: position.sets, dose: position.dose),
+                                              sets: position.sets, dose: position.dose,
+                                              sub: position.sub ?? 0,
+                                              cut: position.cut ?? 0),
                        result: record.result,
-                       ownNumber: record.actuals?[p] != nil)
+                       ownNumber: record.actuals?[p] != nil,
+                       ownSkips: record.setsSkipped?[p] != nil)
     }
 
     private func plotTotal(_ record: WorkoutRecord) -> Plotted? {
         guard let steps = record.totalProgressAfter else { return nil }
         return Plotted(date: record.date, value: steps, result: record.result,
-                       ownNumber: !(record.actuals?.isEmpty ?? true))
+                       ownNumber: !(record.actuals?.isEmpty ?? true),
+                       ownSkips: !(record.setsSkipped?.isEmpty ?? true))
     }
 
     private var chartTitle: String {
@@ -447,9 +463,15 @@ struct ProgressScreen: View {
         case ceiling
     }
 
+    /// Distance on the row's own scale to the MILESTONE, not to the ceiling:
+    /// the ceiling costs `steps`, the crossing — the probe, or the band
+    /// transition — is one more point, and every set taken off comes back
+    /// first (§37.6), so it is on the path too. Counting to the ceiling alone
+    /// put the label one point short of the tick the bar draws for the same
+    /// milestone (UI-truth audit, 27.08.2026).
     private func nextMilestone(_ p: Pattern) -> NextMilestone {
         let position = store.engineState.position(p)
-        let steps = Engine.stepsToVariationCeiling(store.engineState, p)
+        let steps = Engine.stepsToVariationCeiling(store.engineState, p) + position.cut + 1
         guard position.variation == Library.count(p) else { return .probe(in: steps) }
         guard position.sets < EngineConfig.setsMax else { return .ceiling }
         return .set(in: steps)
@@ -555,7 +577,7 @@ struct ProgressScreen: View {
     @ViewBuilder
     private func nextMilestoneLabel(_ milestone: NextMilestone) -> some View {
         switch milestone {
-        case .probe(let steps): Text("next movement in \(steps)")
+        case .probe(let steps): Text("next movement in \(steps) — the probe decides")
         case .set(let steps): Text("+1 set in \(steps)")
         case .ceiling: EmptyView()
         }

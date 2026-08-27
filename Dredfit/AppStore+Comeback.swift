@@ -22,7 +22,19 @@ extension AppStore {
             Engine.generateSession(state).exercises.first { Pattern.pullSide.contains($0.pattern) }
         }
         guard let was = slot(engineState), let easier = slot(after) else { return nil }
-        return ("\(was.name) · \(was.display)", "\(easier.name) · \(easier.display)")
+        return (line(was), line(easier))
+    }
+
+    /// The WHOLE plan of that appearance, probe included. A probing appearance
+    /// carries one set of the NEXT movement on top of its working sets
+    /// (§40.4), and `display` prints only the working ones — so a row reading
+    /// "2×15" understated the work and made the two offers look incomparable:
+    /// the card sat next to an "easier" row with a bigger number in it
+    /// (UI-truth audit, 27.08.2026; the arithmetic behind it is §41.10).
+    private func line(_ ex: SessionExercise) -> String {
+        let plan = "\(ex.name) · \(ex.display)"
+        guard let probe = ex.probe else { return plan }
+        return String(localized: "\(plan) + probe: \(probe.name) · \(probe.display)")
     }
 
     // `comebackDrop` — "how many levels accepting would subtract" — went with

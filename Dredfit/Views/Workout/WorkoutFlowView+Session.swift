@@ -27,9 +27,16 @@ extension WorkoutFlowView {
         adjusting = false
         // On the probe set the countdown is the PROBE's target — a different
         // movement, and possibly a different unit (§40.1, `pull_bar` 2→3).
-        holdTotal = current.isProbe
+        let planned = current.isProbe
             ? (probeActuals[exercise.pattern] ?? current.planned)
             : SetFacts.inForce(actuals, exercise, set: setIndex)
+        // The SECOND side is re-armed through here too, not only through the
+        // switch pause: a Stop inside the mis-tap grace leaves every countdown
+        // nil with `holdSecondSide` still true, so "Start hold" comes back and
+        // this is its only call site. Deriving from the plan there handed the
+        // second side the full length again and undid the rule in silence.
+        holdTotal = SetFacts.holdSideSeconds(
+            planned: planned, firstSideHeld: holdSecondSide ? firstSideHeld : nil)
         holdRemaining = holdTotal
         holdCountInRemaining = GetReady.countInSeconds
         holdCountInEndDate = Date.now.addingTimeInterval(TimeInterval(holdCountInRemaining))
@@ -125,6 +132,20 @@ extension WorkoutFlowView {
         if newRemaining == 0 {
             holdPauseEndDate = nil
             playGo()
+            // BOTH SIDES OF ONE SET CARRY THE SAME LOAD (owner, 27.08.2026).
+            // The second side runs for what the first actually ran, not for
+            // what the plan asked. Before this, a first side stopped at 20 s
+            // of a planned 30 handed the second side the full 30 — and the
+            // fact recorded for the set is min(side one, side two), so those
+            // ten seconds loaded one side harder than the other AND counted
+            // for nothing.
+            //
+            // `holdTotal` itself, not just the remaining and the end date:
+            // `stopHoldEarly` measures what was held as `holdTotal -
+            // remaining`, so leaving the old total standing would make an
+            // early stop on the SECOND side report more than was held.
+            holdTotal = SetFacts.holdSideSeconds(planned: holdTotal,
+                                                 firstSideHeld: firstSideHeld)
             holdRemaining = holdTotal
             holdEndDate = Date.now.addingTimeInterval(TimeInterval(holdTotal))
         } else {
