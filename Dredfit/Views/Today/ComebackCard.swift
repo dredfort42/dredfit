@@ -21,7 +21,7 @@ struct ComebackCard: View {
                 .tracking(-0.3)
                 .foregroundStyle(Theme.ink)
 
-            Text("A break is normal. Let's start a couple of steps easier — a gentler way back into the rhythm, and it catches up quickly.")
+            Text("A break is normal. Let's start a few steps easier — the longer the break, the lower the plan meets you, and it catches up quickly.")
                 .dredfitFont(14.5)
                 .foregroundStyle(Theme.ink2)
                 .lineSpacing(2.5)
@@ -67,11 +67,28 @@ struct ComebackCard: View {
                 Button(action: onFreshStart) {
                     // ink2, not ink3: an interactive control has to pass 3:1.
                     Text("Start from scratch")
-                        .dredfitFont(13)
+                        .dredfitFont(13.5, weight: .medium)
                         .foregroundStyle(Theme.ink2)
-                        .frame(maxWidth: .infinity, minHeight: 30)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        // Bordered and set apart, not a third line under the
+                        // pair. It used to sit flush under "Start easier" /
+                        // "Leave as it was" at 13 pt with a 30 pt target, so
+                        // the one control on this card that throws progress
+                        // away read as a quiet extra of that same row. The
+                        // border is the idiom "Train anyway" already uses for
+                        // a whole-width quiet choice, and 44 pt is the floor
+                        // this project set in #193.
+                        //
+                        // ink3 for the stroke, not hairline: the card ground is
+                        // `cardBG`, where hairline comes to ≈1.1:1 and simply
+                        // is not there. ink3 reads ≈2.2:1 — past the 1.5:1 the
+                        // palette holds for quiet graphics, and still quieter
+                        // than the label it surrounds.
+                        .overlay(RoundedRectangle(cornerRadius: 14)
+                            .strokeBorder(Theme.ink3, lineWidth: 1.5))
                 }
                 .accessibilityIdentifier("comeback-fresh")
+                .padding(.top, 14)
             }
         }
         .padding(18)

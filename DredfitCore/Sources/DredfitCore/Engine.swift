@@ -238,9 +238,19 @@ public enum Engine {
     /// The same measure for a position the app recorded earlier. The journal
     /// stores the position rather than the measure because the measure has no
     /// inverse (§40.0) — this is the one direction that exists.
-    public static func progress(_ p: Pattern, variation: Int, sets: Int, dose: Int) -> Int {
+    ///
+    /// All six coordinates: a chart replotting a snapshot without `sub` and
+    /// `cut` sat up to two steps off the number beside it (UI-truth audit,
+    /// 27.08.2026). Additive only — the shorter form below keeps every older
+    /// call site and every older record meaning what it always did.
+    public static func progress(_ p: Pattern, variation: Int, sets: Int, dose: Int,
+                                sub: Int, cut: Int) -> Int {
         posOrd(p, fit(p, Position(variation: variation, sets: sets, dose: dose,
-                                  sub: 0, cut: 0)))
+                                  sub: sub, cut: cut)))
+    }
+
+    public static func progress(_ p: Pattern, variation: Int, sets: Int, dose: Int) -> Int {
+        progress(p, variation: variation, sets: sets, dose: dose, sub: 0, cut: 0)
     }
 
     /// The sum of those ordinals — what "total level" used to be.
@@ -271,12 +281,19 @@ public enum Engine {
     /// v2.25 (round 6): record the plan the person SAW, with no feedback. The
     /// app owns the state and can call this right after showing the plan —
     /// then "a descent never adds load" holds against a plan that was seen and
-    /// not done. Exercises with a probe write nothing (see `repairDescent`).
+    /// not done.
+    ///
+    /// §41.10 (v3.2): an exercise WITH A PROBE writes its memory too, by its
+    /// WORKING sets — `exerciseWork` counts only those, because the probe is a
+    /// set of another movement. It used to write nothing, and the base stayed
+    /// a showing two appearances old: a descent knocked the dose off the
+    /// ceiling, the probe went with it, the third working set came back, and
+    /// the "easier" plan asked +40 % of the work the person had actually seen.
     public static func recordShown(state dirty: EngineState, session: Session) -> EngineState {
         let state = dirty.sanitized()
         var next = state
-        for ex in session.exercises where ex.probe == nil {
-            next.shownWork[ex.pattern] = exerciseWork(ex)
+        for ex in session.exercises {
+            next.shownWork[ex.pattern] = shownWorkOf(ex)
             next.shownOrd[ex.pattern] = posOrd(ex.pattern, state.position(ex.pattern))
         }
         return next

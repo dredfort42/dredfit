@@ -35,10 +35,11 @@ struct HowItWorksView: View {
             Section(id: 2,
                     title: String(localized: "What your answer does"),
                     body: String(localized: """
-                    “On plan” adds a step, “more” adds two, “less” takes one \
-                    away. An exact number for a single exercise outweighs the \
-                    overall rating — and when it is above the plan, the next \
-                    plan simply IS that number. Nothing is estimated: whatever \
+                    “On plan” adds a step, “more” adds two, “less” steps \
+                    back the movement that made it hard. An exact number for \
+                    a single exercise outweighs the overall rating — and when \
+                    your sets show more than the plan, the next plan starts \
+                    from what you showed. Nothing is estimated: whatever \
                     you are given, you have already done. The plan climbs at \
                     most two steps per workout — and only one wherever the \
                     tissue doing the work needs the slower pace: tendons \
@@ -116,7 +117,7 @@ struct HowItWorksView: View {
                     overshooting costs one rep in one set instead of a whole \
                     variation.
                     """)),
-            Section(id: 12,
+            Section(id: 10,
                     title: String(localized: "Trying the next movement"),
                     body: String(localized: """
                     A harder variation is never handed to you on a guess. When \
@@ -128,7 +129,7 @@ struct HowItWorksView: View {
                     is no wrong answer to give it, and the volume of the \
                     workout does not change either way.
                     """)),
-            Section(id: 10,
+            Section(id: 11,
                     title: String(localized: "Why there are no questionnaires"),
                     body: String(localized: """
                     A questionnaire can be wrong; what you actually did cannot. \
@@ -139,7 +140,7 @@ struct HowItWorksView: View {
             // scheduling hint, not a rule the engine can act on — Dredfit
             // cannot see the run you went on — so it belongs on the explainer
             // screen and nowhere else: no notification, no card, no repeat.
-            Section(id: 11,
+            Section(id: 12,
                     title: String(localized: "Cardio and strength"),
                     body: String(localized: """
                     If you also run, swim or cycle, try to put that and your \
@@ -162,7 +163,7 @@ struct HowItWorksView: View {
                         .padding(.top, 30)
                         .fixedSize(horizontal: false, vertical: true)
 
-                    Text("Eleven things worth knowing about the regulator.")
+                    Text("Twelve things worth knowing about the regulator.")
                         .dredfitFont(15)
                         .foregroundStyle(Theme.ink2)
                         .padding(.top, 8)

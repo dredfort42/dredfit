@@ -14,12 +14,22 @@ import Foundation
 
 enum BlockPause {
 
-    /// The way back into a frozen position: the base transition length, so
-    /// the 3-2-1 fits with a beat left to read the name. Deliberately NOT the
-    /// supplemented length of issue #83 even for a position that carries the
-    /// flag — Resume is tapped by someone already back in place, so this is
-    /// a count-in, not travel time.
-    static var reentrySeconds: Int { GetReady.stageSeconds }
+    /// The way back into a frozen position: the COUNT-IN — five seconds, the
+    /// same beat a start tap buys before any clock runs.
+    ///
+    /// It was the base transition length (ten), and the tree carried two
+    /// opposite reasons for that at once: this comment already said "Resume is
+    /// tapped by someone already back in place, so this is a count-in, not
+    /// travel time", while the test pinning it said being counted back into a
+    /// position you walked away from IS travel. Ten seconds is a long wait for
+    /// someone standing on the mat with a thumb on Resume. Owner's decision,
+    /// 27.08.2026: it is a count-in, and it is five.
+    ///
+    /// The 3-2-1 still fits with two beats to spare (`countdownSignalSeconds`
+    /// is 3), and the reserve the two blocks are budgeted to the second
+    /// against is untouched: a pause is not part of the announced duration,
+    /// and this can only make a paused session shorter.
+    static var reentrySeconds: Int { GetReady.countInSeconds }
 
     /// A frozen transition resumes straight into itself: it already IS the way
     /// back in, and a lead-in before a lead-in would count the user down

@@ -451,7 +451,9 @@ final class AppStore {
         var out: [Pattern: RecordedPosition] = [:]
         for p in Pattern.allCases {
             let pos = state.position(p)
-            out[p] = RecordedPosition(variation: pos.variation, sets: pos.sets, dose: pos.dose)
+            out[p] = RecordedPosition(variation: pos.variation, sets: pos.sets, dose: pos.dose,
+                                      sub: pos.sub > 0 ? pos.sub : nil,
+                                      cut: pos.cut > 0 ? pos.cut : nil)
         }
         return out
     }

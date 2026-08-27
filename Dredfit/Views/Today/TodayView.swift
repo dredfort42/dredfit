@@ -23,7 +23,6 @@ struct TodayView: View {
     @State var techniqueFor: TechniqueTarget?
     @State private var nextPreviewShown = false
     @State private var freshStartConfirmShown = false
-    @State private var howItWorksShown = false
 
     var body: some View {
         Group {
@@ -46,16 +45,26 @@ struct TodayView: View {
         .sheet(isPresented: $nextPreviewShown) {
             NextWorkoutSheet()
         }
-        .sheet(isPresented: $howItWorksShown) {
-            HowItWorksView()
-        }
-        .confirmationDialog(String(localized: "Start from scratch?"),
-                            isPresented: $freshStartConfirmShown,
-                            titleVisibility: .visible) {
+        .alert(String(localized: "Start from scratch?"),
+               isPresented: $freshStartConfirmShown) {
+            // An ALERT, not a confirmationDialog: iOS 26 presents the latter
+            // as an anchored popover, so the same question drew a centred card
+            // in the workout and a tailed bubble pointing at a settings row.
+            // An alert has no anchor — every one of these is the same window,
+            // centred, whatever it was raised from.
+            //
+            // And the workaround the popover forced is gone with it. A popover
+            // suppresses its cancel action, because tapping outside IS the
+            // cancel, so the escape had to be a SECOND, role-less button. An
+            // alert does not: measured on iPhone 17 Pro / iOS 26.5, the node is
+            // `Alert` with no `Popover` beside it, and all four buttons stood in
+            // the accessibility tree — the `.cancel` one included. So the escape
+            // is one button again, carrying the role AND the name that says what
+            // it does. "Cancel" answers "cancel what?"; this one does not.
+            Button(String(localized: "Keep my progress"), role: .cancel) { }
             Button(String(localized: "Reset progress"), role: .destructive) {
                 store.resetProgress()
             }
-            Button(String(localized: "Cancel"), role: .cancel) { }
         } message: {
             Text("Every movement goes back to the beginning. Your history stays.")
         }
@@ -148,33 +157,24 @@ struct TodayView: View {
                 Text("Workout \(session.sessionNumber)")
                     .dredfitFont(32, weight: .heavy)
                     .tracking(-0.5)
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    // A RANGE, and it is the whole of what this screen says
-                    // about length: the full plan, and the shortest
-                    // the session can be made from inside it. The question the
-                    // two handles used to answer — "will this fit today" — is
-                    // answered here without asking anyone to decide anything
-                    // first. One number only when the plan is already on the
-                    // floor and the two ends have met.
-                    PlanLength(floor: length.floor, full: length.full, count: count)
-                        .accessibilityIdentifier("plan-length")
-                        .dredfitFont(15)
-                        .foregroundStyle(Theme.ink2)
-                    // A quiet way into the existing explainer for everyone who
-                    // skipped onboarding and can't interpret "+1 step".
-                    Button {
-                        howItWorksShown = true
-                    } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "info.circle")
-                                .dredfitFont(13)
-                            Text("Why this plan?")
-                                .dredfitFont(13, weight: .medium)
-                                .underline(color: Theme.ink3)
-                        }
-                        .foregroundStyle(Theme.ink2)
-                    }
-                }
+                // A RANGE, and it is the whole of what this screen says
+                // about length: the full plan, and the shortest the session
+                // can be made from inside it. The question the two handles
+                // used to answer — "will this fit today" — is answered here
+                // without asking anyone to decide anything first. One number
+                // only when the plan is already on the floor and the two ends
+                // have met.
+                //
+                // "Why this plan?" stood beside it and is gone. It read as an
+                // answer about THIS plan — these six movements, these numbers
+                // — and opened a static explainer that names none of them and
+                // does not know what today's plan is. The explainer itself is
+                // untouched and still reachable, from the one door that
+                // describes it honestly: Settings → "How it works".
+                PlanLength(floor: length.floor, full: length.full, count: count)
+                    .accessibilityIdentifier("plan-length")
+                    .dredfitFont(15)
+                    .foregroundStyle(Theme.ink2)
             }
             .padding(.top, 18)
 
@@ -203,11 +203,25 @@ struct TodayView: View {
             // beat: the count appears only here, in the suggestion to break
             // the run. "Train anyway" and the Start button stay untouched.
             if store.todayWouldExtendALongRun {
+                // The same accent card the work screen gives the maximum note,
+                // and for the same reason: worth reading, blocks nothing. Grey
+                // 13.5 pt under the plan was the one place nobody looks.
+                // accentText on accentSoft, not accent — accent itself is
+                // 2.91:1 on that fill.
                 Text("A workout today would be training day \(store.wouldBeConsecutiveDay) in a row — a rest day lets the load settle.")
-                    .dredfitFont(13.5)
-                    .foregroundStyle(Theme.ink2)
+                    .dredfitFont(14, weight: .medium)
+                    .foregroundStyle(Theme.accentText)
                     .fixedSize(horizontal: false, vertical: true)
-                    .padding(.top, 6)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                    .background(Theme.accentSoft, in: RoundedRectangle(cornerRadius: 14))
+                    .padding(.top, 10)
+                    // 8 here plus the 10 Start carries: 18 to the button, the
+                    // same gap the work screen holds above and below its own
+                    // primary. The two screens were asked to match, and the
+                    // work screen is where the number is load-bearing.
+                    .padding(.bottom, 8)
             }
 
             // Ahead of the comeback card deliberately: that card asks for a
@@ -342,7 +356,7 @@ struct TodayView: View {
             .padding(.top, 18)
 
             // ink2, not ink3: this sentence is the rest day's whole argument.
-            Text("Recovery is part of the plan — the load only sticks if you let it settle.")
+            Text("Recovery is part of the plan — you get stronger between workouts, not during them.")
                 .dredfitFont(15.5)
                 .foregroundStyle(Theme.ink2)
                 .lineSpacing(3)
@@ -433,7 +447,7 @@ struct TodayView: View {
     private var resultCaption: String {
         switch store.lastRecord?.result {
         case .less: return String(localized: "Rating: tough — the next one will be easier")
-        case .plan: return String(localized: "Rating: on plan — the next asks a little more")
+        case .plan: return String(localized: "Rating: on plan — the next adds a step to the movements that have room for one")
         case .more: return String(localized: "Rating: easy — progressing as fast as each movement allows")
         case nil:   return ""
         }

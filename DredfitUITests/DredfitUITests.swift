@@ -236,15 +236,23 @@ final class DredfitUITests: XCTestCase {
     /// asking again and being asked to confirm again, which only a workout
     /// with something in it is.
     ///
-    /// The way out is a tap OUTSIDE the dialog, not a button. `WorkoutFlowView`
-    /// declares `Button("Cancel", role: .cancel)`, but this iOS renders that role
-    /// as the dismissal itself and puts no Cancel element in the tree: an
-    /// accessibility dump taken here lists exactly two buttons inside the sheet,
-    /// "Finish now" and "Discard workout". A test that waited on `buttons["Cancel"]`
-    /// would fail forever, so this walks the affordance that exists.
+    /// The tap OUTSIDE the dialog, which is the affordance nothing on screen
+    /// announces — it stays walked because it stays there.
+    ///
+    /// Its history is worth keeping straight. As a `confirmationDialog` this
+    /// question was presented as an anchored POPOVER, and a popover suppresses
+    /// its cancel action, because tapping outside IS the cancel: the declared
+    /// `Button("Cancel", role: .cancel)` was drawn nowhere and stood nowhere in
+    /// the accessibility tree, so the outside tap was the ONLY way back. That
+    /// is what the role-less "Keep training" was added for on 27.08.2026.
+    ///
+    /// It is an `.alert` now, and an alert does not eat the role — measured the
+    /// same day: the node is `Alert`, there is no `Popover` beside it, and every
+    /// declared button stood in the tree. So "Keep training" carries the role
+    /// itself and there is one escape, not two saying the same thing.
     func test_exitDialog_whenDismissedWithoutAnswering_leavesTheWorkoutExactlyWhereItWas() {
         exitDialogOverOneLoggedSet()
-        let dialog = app.sheets["Leave the workout?"]
+        let dialog = app.alerts["Leave the workout?"]
         XCTAssertTrue(dialog.waitForExistence(timeout: 3),
                       "exiting over a logged set must ask before it throws the set away")
         // Below the sheet, not above it: measured on iPhone 17 Pro, a tap at
@@ -263,6 +271,27 @@ final class DredfitUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Discard workout"].waitForExistence(timeout: 3),
                       "the set logged before the cancel must still be there — an empty "
                         + "workout is not asked to confirm")
+    }
+
+    /// The visible way back out. Before 27.08.2026 the only one was the tap
+    /// outside, which nothing on screen mentions — and both buttons that WERE
+    /// drawn led out of the workout, one of them destructively. It carries the
+    /// `.cancel` role as well now, so the escape gesture and the button people
+    /// can see are the same thing.
+    func test_exitDialog_keepTrainingIsDrawnAndLeavesTheWorkoutStanding() {
+        exitDialogOverOneLoggedSet()
+        let keep = app.buttons["Keep training"]
+        XCTAssertTrue(keep.waitForExistence(timeout: 3),
+                      "the question must offer a VISIBLE way to stay, not only a tap outside")
+        keep.tap()
+
+        XCTAssertTrue(app.alerts["Leave the workout?"].waitForNonExistence(timeout: 3),
+                      "the way to stay must close the question")
+        XCTAssertTrue(app.buttons[AX.skipRest].exists,
+                      "staying must leave the rest screen the dialog covered as it was")
+        app.buttons[AX.workoutExit].tap()
+        XCTAssertTrue(app.buttons["Discard workout"].waitForExistence(timeout: 3),
+                      "the set logged before is still there — an empty workout is not asked")
     }
 
     func testExitCanFinishNowThroughTheRating() {
@@ -520,17 +549,18 @@ extension DredfitUITests {
         XCTAssertTrue(app.staticTexts.matching(identifier: AX.jubileeRetro).firstMatch.exists,
                       "the jubilee should show the then → now line")
         // Match on the rendered label: Kicker uppercases, so the catalog key
-        // ("New variation") and what is on screen deliberately differ.
+        // ("More volume") and what is on screen deliberately differ.
         XCTAssertEqual(app.staticTexts.matching(
-            NSPredicate(format: "label == %@", "NEW VARIATION")).count, 2,
-            "both tier-ups should be listed")
+            NSPredicate(format: "label == %@", "MORE VOLUME")).count, 2,
+            "both set-band rows should be listed")
         // NO life line here, and that is the rule, not a gap: the line belongs
         // to a NEW VARIATION (issue #25), and both rows above are SET BANDS —
         // since v3 a seed can only plant those, because entering a variation
-        // needs a probe passed inside the workout (§40.4). The kicker reads
-        // "New variation" for a set band too, which is why the count above
-        // still matches; that wording is logged in BACKLOG. The variation-up
-        // row and its life line stay covered by MilestoneTests at unit level.
+        // needs a probe passed inside the workout (§40.4). Their kicker says
+        // "More volume" since the UI-truth audit (27.08.2026) — it used to
+        // say "New variation" over more sets of the same movement, which is
+        // the wording BACKLOG had logged. The variation-up row and its life
+        // line stay covered by MilestoneTests at unit level.
         XCTAssertEqual(
             app.staticTexts.matching(identifier: AX.milestoneLife).count, 0,
             "a set band is the same ability grown — it carries no life line")

@@ -90,8 +90,11 @@ extension Engine {
                     overrides: overrides, entryPos: entryPos)
         // Remember what the person SAW and at what position — the position is
         // the ENTRY one, because the plan was shown before the feedback.
-        for ex in session.exercises where ex.probe == nil {
-            next.shownWork[ex.pattern] = exerciseWork(ex)
+        // §41.10: an exercise with a probe writes its memory too. §41.11: and
+        // it writes it with the set the probe OCCUPIED counted in — see
+        // `shownWorkOf` for why the base has to be about slots, not reps.
+        for ex in session.exercises {
+            next.shownWork[ex.pattern] = shownWorkOf(ex)
             next.shownOrd[ex.pattern] = posOrd(ex.pattern, entryPos[ex.pattern]!)
         }
         if window.haveGap {

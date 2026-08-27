@@ -64,11 +64,28 @@ struct SettingsSheet: View {
                 importConfirmShown = true
             }
         }
-        .confirmationDialog(String(localized: "Replace history?"),
-                            isPresented: $importConfirmShown,
-                            titleVisibility: .visible) {
+        .alert(String(localized: "Replace history?"),
+               isPresented: $importConfirmShown) {
+            // An ALERT, not a confirmationDialog: iOS 26 presents the latter
+            // as an anchored popover, so the same question drew a centred card
+            // in the workout and a tailed bubble pointing at a settings row.
+            // An alert has no anchor — every one of these is the same window,
+            // centred, whatever it was raised from.
+            //
+            // And the workaround the popover forced is gone with it. A popover
+            // suppresses its cancel action, because tapping outside IS the
+            // cancel, so the escape had to be a SECOND, role-less button. An
+            // alert does not: measured on iPhone 17 Pro / iOS 26.5, the node is
+            // `Alert` with no `Popover` beside it, and all four buttons stood in
+            // the accessibility tree — the `.cancel` one included. So the escape
+            // is one button again, carrying the role AND the name that says what
+            // it does. "Cancel" answers "cancel what?"; this one does not.
+            // It also carries the cancel action's own cleanup: dismissing by a
+            // tap outside never ran `pendingImportURL = nil`, so the picked
+            // file stayed in state with no way to reach the line that clears
+            // it.
+            Button(String(localized: "Keep my history"), role: .cancel) { pendingImportURL = nil }
             Button(String(localized: "Replace"), role: .destructive) { runImport() }
-            Button(String(localized: "Cancel"), role: .cancel) { pendingImportURL = nil }
         } message: {
             Text("Import replaces your current history and settings.")
         }
@@ -229,9 +246,8 @@ struct SettingsSheet: View {
                 .dredfitFont(12.5)
                 .foregroundStyle(Theme.ink2)
         }
-        .confirmationDialog(String(localized: "Add past workouts to Health?"),
-                            isPresented: $backfillPromptShown,
-                            titleVisibility: .visible) {
+        .alert(String(localized: "Add past workouts to Health?"),
+               isPresented: $backfillPromptShown) {
             Button {
                 Task { await store.backfillHealth() }
             } label: {

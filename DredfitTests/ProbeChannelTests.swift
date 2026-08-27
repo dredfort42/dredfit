@@ -226,34 +226,111 @@ final class ProbeChannelTests: AppStoreTestCase {
                        + "frozen forever for anyone who only taps")
     }
 
-    // MARK: - What a probing exercise must NOT remember
+    // MARK: - What a probing exercise remembers (§41.10, §41.11)
 
-    func test_probingExercise_whenThePlanIsShown_leavesNoMemoryOfShowingForTheRungItLeaves() throws {
+    /// The plan WITHOUT its probe — the set the probe occupied counted back in.
+    private func planWithoutTheProbe(_ ex: SessionExercise) -> Int {
+        (ex.plannedVolume + ex.load) * (ex.perSide ? 2 : 1)
+    }
+
+    func test_probingExercise_whenThePlanIsShown_remembersThePlanWithoutItsProbe() throws {
         let store = try seededStore(maxed: [.pull])
         let session = store.nextSession
+        let pulling = try exercise(.pull, in: session)
+        XCTAssertNotNil(pulling.probe, "the fixture must carry a probe")
 
         store.recordPlanShown(session)
 
-        XCTAssertNil(store.engineState.shownWork[.pull],
-                     "an exercise carrying a probe is one working set short of its own plan — remembering "
-                     + "that as the work shown would make the next ordinary plan read as a rise and be trimmed")
-        XCTAssertNil(store.engineState.shownOrd[.pull],
-                     "and for the same reason no position is remembered for it either")
+        // §41.10 REVERSED the old rule, which wrote nothing here — with no
+        // memory the base stayed a showing two appearances old. §41.11 fixes
+        // what it wrote: the working sets alone are the position MINUS the set
+        // the probe borrowed for one session, so the postcondition read a plan
+        // that came back to three sets as a rise and cut one off. The memory is
+        // the plan the position implies, which is also the one the duration
+        // model already assumes — `estimatedMin` counts the probe as its own
+        // set because the session is no shorter for trying.
+        XCTAssertEqual(store.engineState.shownWork[.pull], planWithoutTheProbe(pulling),
+                       "a probing appearance is remembered as the plan without its probe")
+        XCTAssertGreaterThan(planWithoutTheProbe(pulling),
+                             pulling.plannedVolume * (pulling.perSide ? 2 : 1),
+                             "and that is strictly more than its working sets alone")
+        XCTAssertNotNil(store.engineState.shownOrd[.pull],
+                        "and by the position it was shown at")
         XCTAssertNotNil(store.engineState.shownWork[.hinge],
-                        "while an ordinary exercise in the very same plan is remembered as before")
+                        "an ordinary exercise in the same plan is remembered as before")
     }
 
-    func test_probingExercise_whenTheSessionIsRated_leavesNoMemoryOfShowingForTheRungItLeaves() throws {
+    func test_probingExercise_whenTheSessionIsRated_remembersThePlanWithoutItsProbe() throws {
         let store = try seededStore(maxed: [.pull])
         let session = store.nextSession
+        let pulling = try exercise(.pull, in: session)
 
         store.completeWorkout(session: session, result: .plan, probes: [:])
 
-        XCTAssertNil(store.engineState.shownWork[.pull],
-                     "the rating writes the same memory as the showing does, and skips a probing exercise "
-                     + "for the same reason")
-        XCTAssertNotNil(store.engineState.shownWork[.hinge],
-                        "while its ordinary neighbours in the session are written down")
+        XCTAssertEqual(store.engineState.shownWork[.pull], planWithoutTheProbe(pulling),
+                       "the rating writes the same memory the showing does")
+    }
+
+    /// An ordinary exercise is untouched by §41.11: its memory is its plan.
+    func test_ordinaryExercise_isRememberedByItsPlanExactly() throws {
+        let store = try seededStore(maxed: [.pull])
+        let session = store.nextSession
+        let ordinary = try exercise(.hinge, in: session)
+        XCTAssertNil(ordinary.probe, "the control must not be probing")
+
+        store.recordPlanShown(session)
+
+        XCTAssertEqual(store.engineState.shownWork[.hinge],
+                       ordinary.plannedVolume * (ordinary.perSide ? 2 : 1),
+                       "no probe, no borrowed set, nothing added")
+    }
+
+    /// The case the OLD rule was afraid of, pinned so the fear can be checked
+    /// rather than believed: a probe that is PASSED raises the position, and a
+    /// risen position is never trimmed — `repairDescent` keys on the position
+    /// ordinal, not on the work.
+    func test_aPassedProbe_isNotTrimmedByTheMemoryTheProbingPlanLeft() throws {
+        let store = try seededStore(maxed: [.pull])
+        let session = store.nextSession
+        let pulling = try exercise(.pull, in: session)
+        let probe = try XCTUnwrap(pulling.probe)
+        store.recordPlanShown(session)
+        let remembered = try XCTUnwrap(store.engineState.shownWork[.pull])
+
+        store.completeWorkout(session: session, result: .plan,
+                              probes: [.pull: probe.load])
+
+        let entered = try exercise(.pull, in: store.nextSession)
+        XCTAssertEqual(entered.variation, probe.variation, "the probe was passed")
+        XCTAssertEqual(entered.sets, EngineConfig.setsBase,
+                       "entry is 3×4: the memory of the probing plan must not cut it")
+        XCTAssertGreaterThan(remembered, 0, "the memory it could have been cut by exists")
+    }
+
+    /// And the case §41.10 exists for, restated by §41.11 on the axis the
+    /// repair actually acts on.
+    ///
+    /// "No more than the working sets" is deliberately NOT what is asserted:
+    /// under it a quiet week had to come back as two sets, which is how the
+    /// borrowed set was being kept. What a descent may not do is ask more than
+    /// the plan the POSITION holds, or raise the dose — and it must give the
+    /// slot back, because the probe only borrowed it.
+    func test_aDescentOffTheCeiling_staysUnderThePlanThePositionHolds() throws {
+        let store = try seededStore(maxed: [.pull])
+        let session = store.nextSession
+        let pulling = try exercise(.pull, in: session)
+        let held = planWithoutTheProbe(pulling)
+        store.recordPlanShown(session)
+
+        let decayed = Engine.applySilentDecay(state: store.engineState, gapDays: 10)
+        let after = try exercise(.pull, in: Engine.generateSession(decayed))
+
+        XCTAssertNil(after.probe, "off the ceiling the probe is not offered")
+        XCTAssertLessThanOrEqual(after.plannedVolume * (after.perSide ? 2 : 1), held,
+                                 "a quiet week must not outgrow the plan the position holds")
+        XCTAssertLessThan(after.load, pulling.load, "and the dose is the axis that falls")
+        XCTAssertEqual(after.sets, pulling.sets + 1,
+                       "the slot the probe borrowed comes back — it was never lost")
     }
 
     // MARK: - What the probe puts on screen

@@ -84,10 +84,14 @@ struct BlockSkipButton: View {
 /// L24/tier 4 to L0/tier 1 in FOUR appearances, while the pain tap stranded
 /// them at L16/tier 3 indefinitely.
 struct ExerciseActionsRow: View {
-    let onAdjust: () -> Void
     /// The set-level skip. Absent when it would take the whole movement with
     /// it — the escape below then says so in its own label.
     let onSkipSet: (() -> Void)?
+    /// True when the set under the buttons is the PROBE: skipping it takes no
+    /// volume off anything — the probe just comes back next appearance
+    /// (§40.4) — so the hint that promises "kept off next time" would be
+    /// false there (UI-truth audit, 27.08.2026).
+    let skipsProbe: Bool
     /// The exercise-level escape, and the landing its title names. Absent on
     /// the last set, where "the remaining sets" are the one beside it.
     let escape: Escape?
@@ -100,60 +104,31 @@ struct ExerciseActionsRow: View {
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
-    /// One row while the three labels fit it, two when they do not, three
-    /// stacked at the accessibility sizes. Measured rather than assumed: the
-    /// same three words are 313 pt in English and half again in German, and a
-    /// row that truncates the escape is a row that hides the way out.
+    /// The two escapes. "Went differently" left this row on 27.08.2026 and
+    /// became a control of its own ABOVE the primary button — it answers a
+    /// different question from these two, and it is the one people use.
+    ///
+    /// One row while both labels fit it, stacked when they do not. Measured
+    /// rather than assumed: the same words are half again as long in German,
+    /// and a row that truncates the escape is a row that hides the way out.
     var body: some View {
         if dynamicTypeSize.isAccessibilitySize {
             VStack(spacing: 12) {
-                adjustButton
                 skipSetButton
                 escapeButton
             }
         } else {
             ViewThatFits(in: .horizontal) {
-                HStack(spacing: 22) {
-                    adjustButton
+                HStack(spacing: 24) {
                     skipSetButton
                     escapeButton
                 }
                 VStack(spacing: 4) {
-                    adjustButton
-                    HStack(spacing: 24) {
-                        skipSetButton
-                        escapeButton
-                    }
-                }
-                VStack(spacing: 4) {
-                    adjustButton
                     skipSetButton
                     escapeButton
                 }
             }
         }
-    }
-
-    /// 44 pt of target, not the 18 pt the bare label came to. It sits under
-    /// the primary button, and the primary button on this screen LOGS THE SET
-    /// — a thumb that lands a few points high does not miss, it finishes the
-    /// set at plan. The height is the fix; `contentShape` is what makes the
-    /// whole of it answer.
-    private var adjustButton: some View {
-        Button(action: onAdjust) {
-            Text("Went differently")
-                .dredfitFont(14.5, weight: .semibold)
-                .foregroundStyle(Theme.accentText)
-                .frame(minHeight: 44)
-                .contentShape(Rectangle())
-        }
-            .accessibilityIdentifier("exercise-adjust")
-            // One literal, split for width: a concatenation would resolve to
-            // the verbatim initializer and never reach the catalog.
-            .accessibilityHint(Text(String(localized: """
-                Enter what you actually did. \
-                The plan follows your numbers.
-                """)))
     }
 
     /// 44 pt like the two beside it, and ink2 like the escape: skipping a set
@@ -170,10 +145,15 @@ struct ExerciseActionsRow: View {
                     .contentShape(Rectangle())
             }
             .accessibilityIdentifier("exercise-skip-set")
-            .accessibilityHint(Text(String(localized: """
-                The plan keeps this set off next time. \
-                Nothing else about the movement changes.
-                """)))
+            .accessibilityHint(Text(skipsProbe
+                ? String(localized: """
+                    The probe just comes back next time. \
+                    The working sets lose nothing.
+                    """)
+                : String(localized: """
+                    The plan keeps this set off next time. \
+                    Nothing else about the movement changes.
+                    """)))
         }
     }
 
@@ -192,5 +172,41 @@ struct ExerciseActionsRow: View {
             // from one that was not trained at all.
             .accessibilityIdentifier(escape.identifier)
         }
+    }
+}
+
+
+/// "Went differently" — the SECOND control of the pair, standing above the
+/// primary one rather than under it (owner, 27.08.2026).
+///
+/// Secondary, not accent: it is the alternative to finishing the set at plan,
+/// not a rival to it, and the pair now reads the way every other pair in the
+/// app does — the filled one is what the screen expects, the outlined one is
+/// the other answer.
+///
+/// ink3 for the outline, not hairline. `pairedSecondaryLabel` uses hairline,
+/// but both of its call sites draw on `cardBG`; here the ground is `bg`, where
+/// hairline comes to ≈1.2:1 and the border is simply not there. ink3 reads
+/// ≈2.4:1 — past the 1.5:1 the palette holds for quiet graphics — while the
+/// ink2 label keeps the 4.5:1 small text needs.
+struct WentDifferentlyButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text("Went differently")
+                .dredfitFont(15.5, weight: .medium)
+                .foregroundStyle(Theme.ink2)
+                .frame(maxWidth: .infinity, minHeight: 46)
+                .background(RoundedRectangle(cornerRadius: 14)
+                    .strokeBorder(Theme.ink3, lineWidth: 1.5))
+        }
+        .accessibilityIdentifier("exercise-adjust")
+        // One literal, split for width: a concatenation would resolve to the
+        // verbatim initializer and never reach the catalog.
+        .accessibilityHint(Text(String(localized: """
+            Enter what you actually did. \
+            The plan follows your numbers.
+            """)))
     }
 }

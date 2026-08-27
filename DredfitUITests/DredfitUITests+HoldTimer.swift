@@ -167,6 +167,45 @@ extension DredfitUITests {
                       "the second side did not auto-advance to rest at zero")
     }
 
+    /// Both sides of one set carry the same load: a first side cut short
+    /// hands the second side ITS seconds, not the plan's.
+    ///
+    /// Observed through the clock rather than through the number on screen:
+    /// the big digit has no identifier of its own, and what the rule is about
+    /// is how long the second side actually runs. At the adjuster's 90 s
+    /// ceiling the two answers are ninety seconds apart, so the deadline below
+    /// separates them with room to spare — before the fix the second side ran
+    /// the planned 90 and this timed out.
+    func testTheSecondSideRunsWhatTheFirstSideRan() {
+        launchIntoSession2AndReachPlank()
+        let perSideCaption = app.staticTexts["seconds per side"]
+        skipExercises(until: perSideCaption, limit: 2)
+        XCTAssertTrue(perSideCaption.waitForExistence(timeout: 3),
+                      "the per-side hold must follow the plank in session 2")
+
+        maximiseHold()
+        coordinateTap(app.buttons[AX.holdStart])
+        let stop = app.buttons[AX.holdStop]
+        XCTAssertTrue(stop.waitForExistence(timeout: 10), "no Stop during the count-in")
+        // Past the three-second mis-tap grace, so this is a real early stop.
+        Thread.sleep(forTimeInterval: 5)
+        XCTAssertTrue(coordinateTap(stop), "the first side ended before the stop landed")
+
+        XCTAssertTrue(app.staticTexts["Switch sides"].waitForExistence(timeout: 10),
+                      "an early stop on the first side must still open the switch pause")
+
+        // NOTHING is tapped from here on, deliberately. An earlier version of
+        // this test went on to brush Stop inside the mis-tap grace and press
+        // "Start hold" again, to cover the retake path — and that HEALED the
+        // defect it exists for: `startHold` recomputes the length correctly,
+        // so a broken switch-pause no longer showed. A test that repairs its
+        // own subject on the way to the assertion is worse than no test.
+        // The retake's decision is pinned at unit level instead
+        // (`SetFacts.holdSideSeconds`).
+        XCTAssertTrue(app.buttons[AX.skipRest].waitForExistence(timeout: 30),
+                      "the second side must run the first side's seconds, not the plan's")
+    }
+
     // MARK: - Pull-up bar hang
 
     func testBarWorkoutFlowsToRating() {

@@ -308,14 +308,27 @@ struct WorkoutFlowView: View {
         .sheet(item: $positionTechnique, onDismiss: resumePositionCountdown) { technique in
             PositionTechniqueSheet(technique: technique)
         }
-        .confirmationDialog(String(localized: "Leave the workout?"),
-                            isPresented: $exitConfirmShown,
-                            titleVisibility: .visible) {
+        .alert(String(localized: "Leave the workout?"),
+               isPresented: $exitConfirmShown) {
+            // An ALERT, not a confirmationDialog: iOS 26 presents the latter
+            // as an anchored popover, so the same question drew a centred card
+            // in the workout and a tailed bubble pointing at a settings row.
+            // An alert has no anchor — every one of these is the same window,
+            // centred, whatever it was raised from.
+            //
+            // And the workaround the popover forced is gone with it. A popover
+            // suppresses its cancel action, because tapping outside IS the
+            // cancel, so the escape had to be a SECOND, role-less button. An
+            // alert does not: measured on iPhone 17 Pro / iOS 26.5, the node is
+            // `Alert` with no `Popover` beside it, and all four buttons stood in
+            // the accessibility tree — the `.cancel` one included. So the escape
+            // is one button again, carrying the role AND the name that says what
+            // it does. "Cancel" answers "cancel what?"; this one does not.
+            Button(String(localized: "Keep training"), role: .cancel) { }
             Button(String(localized: "Finish now")) { finishNow() }
             Button(String(localized: "Discard workout"), role: .destructive) {
                 discardWorkout()
             }
-            Button(String(localized: "Cancel"), role: .cancel) { }
         } message: {
             Text("“Finish now” keeps what you've done and goes to the rating — the remaining exercises are marked as skipped.")
         }
@@ -411,6 +424,14 @@ struct WorkoutFlowView: View {
             return .init(phase: .work, title: String(localized: "WARM-UP"),
                          detail: "", restEndDate: nil)
         }
+        // The probe set is one set of the NEXT variation, and the in-app
+        // screen says so — the lock screen and the Dynamic Island must not
+        // call it by the old movement's name while the person is doing the
+        // new one (UI-truth audit, 27.08.2026).
+        if current.isProbe {
+            return .init(phase: .work, title: current.name,
+                         detail: String(localized: "Probe"), restEndDate: nil)
+        }
         return .init(phase: .work, title: exercise.name,
                      detail: String(localized: "set \(setIndex + 1) of \(totalSets)"),
                      restEndDate: nil)
@@ -503,6 +524,56 @@ struct WorkoutFlowView: View {
 
             Spacer()
 
+            // The messages stand down while a number is being entered: one
+            // thing to read at a time.
+            //
+            // The hint FIRST, the note second. Both are reserved height when
+            // hidden, and the order is what keeps that height from sitting
+            // between the note and the button below: the note has to stand the
+            // same 18 pt above the pair that the escapes stand below it, and
+            // that the rest offer stands above Start on Today (owner,
+            // 27.08.2026).
+            if !adjusting {
+                // Opacity, not `if`: the reserved height keeps the layout still
+                // when the hint's job is done mid-exercise.
+                if store.records.isEmpty {
+                    Text("Did far more than planned? Tap “Went differently” and enter what you actually did — the next plan starts from what you showed.")
+                        .dredfitFont(14)
+                        .foregroundStyle(Theme.ink2)
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.bottom, 18)
+                        .opacity(holding || holdSwitchPausing || holdCountingIn
+                                 || actuals[exercise.pattern] != nil ? 0 : 1)
+                }
+
+                // Once per exercise per session, and it never blocks the entry
+                // — the number stands either way. It used to be grey 13 pt in
+                // the fine-print slot directly above the black primary button,
+                // which is the one place on the screen nobody reads (owner,
+                // 27.08.2026). accentText on accentSoft, not accent: accent
+                // itself is 2.91:1 on that fill (see the badge pill on Today).
+                if let warning = maximumWarning {
+                    Text(warning)
+                        .dredfitFont(14, weight: .medium)
+                        .foregroundStyle(Theme.accentText)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 12)
+                        .background(Theme.accentSoft, in: RoundedRectangle(cornerRadius: 14))
+                        .padding(.bottom, 18)
+                        .accessibilityIdentifier("maximum-note")
+                        .transition(.opacity.combined(with: .move(edge: .bottom)))
+                }
+            }
+
+            // The entry opens IN THE SLOT OF THE BUTTON THAT OPENS IT, directly
+            // over the primary one it will hand back to. Nothing below moves:
+            // the block after the Spacer is bottom-aligned as a group, so what
+            // is added or removed above the button changes where the group
+            // starts, never where the button sits.
             if adjusting {
                 AdjustPanel(value: $adjustValue, unit: current.unit) {
                     if current.isProbe {
@@ -519,18 +590,13 @@ struct WorkoutFlowView: View {
                     adjusting = false
                     persistProgress()   // an entered actual is worth keeping
                 }
-                .padding(.bottom, 8)
-            }
-
-            // Soft, once per exercise per session, and it never blocks the
-            // entry.
-            if let warning = maximumWarning {
-                Text(warning)
-                    .dredfitFont(13)
-                    .foregroundStyle(Theme.ink2)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.bottom, 8)
+                .padding(.bottom, 18)
+            } else {
+                WentDifferentlyButton { startAdjusting() }
+                    .padding(.bottom, 18)
+                    // no adjusting mid-hold, mid-count-in or mid-pause
+                    .opacity(holding || holdSwitchPausing || holdCountingIn ? 0 : 1)
+                    .disabled(holding || holdSwitchPausing || holdCountingIn)
             }
 
             if current.unit == .hold {
@@ -557,31 +623,21 @@ struct WorkoutFlowView: View {
                     .accessibilityIdentifier("exercise-done")
             }
 
-            ExerciseActionsRow(onAdjust: { startAdjusting() },
-                               onSkipSet: setSkipAction,
+            ExerciseActionsRow(onSkipSet: setSkipAction,
+                               skipsProbe: onProbeSet,
                                escape: exerciseEscape)
-            // 18 above, not 14: the row sits directly under the button that
-            // LOGS THE SET, and the gap is the only thing between a thumb
-            // aimed at "Went differently" and a set finished at plan.
+            // 18, the measure of this whole stack: the same gap stands between
+            // the note and "Went differently", between it and the button, and
+            // here between the button and the escapes. It was 18 to begin with
+            // for a reason that still holds — the button between them LOGS THE
+            // SET, and a thumb that lands a few points off does not miss, it
+            // finishes the set at plan.
             .padding(.top, 18)
             .padding(.bottom, 10)
             // no adjusting/skipping mid-hold, mid-count-in or mid-pause
             .opacity(holding || holdSwitchPausing || holdCountingIn ? 0 : 1)
             .disabled(holding || holdSwitchPausing || holdCountingIn)
 
-            // Opacity, not `if`: the reserved height keeps the layout still
-            // when the hint's job is done mid-exercise.
-            if store.records.isEmpty {
-                Text("Did far more than planned? Tap “Went differently” and enter what you actually did — the plan lands on what you can really do right away.")
-                    .dredfitFont(14)
-                    .foregroundStyle(Theme.ink2)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(2)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.bottom, 10)
-                    .opacity(holding || holdSwitchPausing || holdCountingIn || adjusting
-                             || actuals[exercise.pattern] != nil ? 0 : 1)
-            }
         }
     }
 
@@ -595,9 +651,10 @@ struct WorkoutFlowView: View {
     }
 
     /// The caption's: this set's own number, nothing when it is the plan.
+    /// The plan of THIS SET — against the flat base an untouched top set of
+    /// an uneven plan read as an entered fact (UI-truth audit, 27.08.2026).
     private var setActual: Int? {
-        let value = SetFacts.inForce(actuals, exercise, set: setIndex)
-        return value == exercise.load ? nil : value
+        SetFacts.offPlan(actuals, exercise, set: setIndex)
     }
 
     // MARK: - Inline actual adjuster (the panel itself is AdjustPanel.swift)
@@ -614,19 +671,45 @@ struct WorkoutFlowView: View {
     /// outcome is NEUTRAL, because honesty is never punished (§40.4): staying
     /// on a movement you can already do is not a failure, and the copy must
     /// not read like one.
+    ///
+    /// The failing line used to read "We'll stay with the current variation",
+    /// and it needed explaining for two reasons (owner, 27.08.2026). It said
+    /// "variation", a word this app's own vocabulary does not use anywhere
+    /// else on screen. And it pointed at something NOT ON SCREEN: at that
+    /// moment the title is the NEXT movement with a "Probe" badge over it, so
+    /// "the current one" is a name the reader has to reconstruct — where the
+    /// passing line names its movement outright. What replaced it states the
+    /// consequence instead, which is the thing the reader will actually see
+    /// tomorrow, and deliberately does NOT promise the probe comes back next
+    /// time: a session later rated "hard" on this pattern suppresses it.
     @ViewBuilder
     private var probeCaption: some View {
         if let entered = probeActuals[exercise.pattern] {
-            if entered >= current.planned {
+            if entered >= current.planned && !workingSetsFellShort {
                 Text("Next time: \(current.name)")
                     .accessibilityIdentifier("probe-passed")
             } else {
-                Text("We’ll stay with the current variation.")
+                // Also the answer for a probe done at target AFTER working
+                // sets that fell short: the engine reads that session as
+                // "hard" for the pattern, and a hard pattern's probe does not
+                // count (§40.4) — a promise here would be broken by numbers
+                // already entered (UI-truth audit, 27.08.2026).
+                Text("Not this time — the plan stays as it is.")
                     .accessibilityIdentifier("probe-stays")
             }
         } else {
-            Text("One set to try it: \(current.planned)")
+            // No number here: the big one above IS this number, and the
+            // caption repeated it (owner, 27.08.2026). On a hold probe the
+            // big number starts counting down once the timer runs, and the
+            // target then shows nowhere — which is exactly what an ORDINARY
+            // hold does too, so the probe simply stops being the exception.
+            Text("One set to try it.")
         }
+    }
+
+    /// The knowable half of the §40.4 gate — see `SetFacts.foldFallsShort`.
+    private var workingSetsFellShort: Bool {
+        SetFacts.foldFallsShort(actuals, of: exercise)
     }
 
     private var loadCaption: String {
@@ -773,10 +856,17 @@ extension WorkoutFlowView {
     private func noteMaximumOutOfOrder() {
         let pattern = exercise.pattern
         guard !maximumNoted.contains(pattern) else { return }
-        guard setIndex < exercise.sets - 1 else { return }          // the last set is fine
-        guard adjustValue > exercise.plannedLoad(set: setIndex) else { return }
+        // The rule itself is `SetFacts.maximumOutOfOrder`, where a test can
+        // reach it — and where the reason it is NOT about the order of sets
+        // is written down.
+        guard SetFacts.maximumOutOfOrder(adjustValue, exercise, set: setIndex) else { return }
         maximumNoted.insert(pattern)
-        maximumWarning = String(localized: "Do the plan, and leave your maximum for the last set.")
+        withAnimation(.easeOut(duration: 0.25)) {
+            maximumWarning = String(localized: """
+                A maximum now takes the strength out of the sets after it. \
+                What counts is the whole exercise, not one set.
+                """)
+        }
     }
 
     /// Leaving an exercise early. There used to be two ways — a skip and a
@@ -799,10 +889,25 @@ extension WorkoutFlowView {
         advancePastExercise()
     }
 
+    /// The pair that makes ONE set of a per-side hold. `finishHold` clears
+    /// them when a set ends normally, and every OTHER way out of a set has to
+    /// clear them too. They used to survive a skip: a Stop inside the mis-tap
+    /// grace is the one moment the actions row is live with `holdSecondSide`
+    /// still true, and skipping from there carried it into the next set —
+    /// where `finishHold` took the second-side branch, so that set ended after
+    /// ONE side, and the smaller-of-the-two-sides rule capped its record with
+    /// a number from the set before. The `min` does not ask whether the
+    /// movement is per-side, so a stale side plank could cap a plain plank.
+    func resetHoldSides() {
+        holdSecondSide = false
+        firstSideHeld = nil
+    }
+
     /// Past the exercise in front of us, however it ended — into the next one,
     /// or into the cool-down when there is none. `startCooldown` degrades to
     /// the rating when nothing was performed.
     private func advancePastExercise() {
+        resetHoldSides()
         if isLastExercise {
             startCooldown()
         } else {
@@ -851,6 +956,7 @@ extension WorkoutFlowView {
         if isLastSet {
             advancePastExercise()
         } else {
+            resetHoldSides()   // see `resetHoldSides`: this path skips it otherwise
             setIndex += 1
             phase = .work
             liveActivity.update(activityWorkState())

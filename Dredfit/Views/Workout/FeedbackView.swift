@@ -75,7 +75,7 @@ struct FeedbackView: View {
                                    caption: String(localized: "next workout eases off"),
                                    result: .less, enabled: true)
                         optionCard(title: String(localized: "On plan"),
-                                   caption: String(localized: "the next one asks a little more"),
+                                   caption: String(localized: "the next one adds a step to the movements that have room for one"),
                                    result: .plan, enabled: true)
                         // The one rating that claims MORE than the plan is the
                         // one the plan has to have been finished for. The other
@@ -176,7 +176,15 @@ struct FeedbackView: View {
                 }
             }
             if !skipped.isEmpty {
-                Text("These keep their place either way.")
+                // Names the RATING, which is the thing the reader is about to
+                // press, and says the outcome. It read "These keep their place
+                // either way" and needed explaining (owner, 27.08.2026): a
+                // bare plural demonstrative over a list that usually holds ONE
+                // movement, "their place" in nothing the screen names, and the
+                // part that matters — whichever of the three cards you choose
+                // — folded into an idiom. "These movements" also covers the
+                // row that says "not finished", which is in this list too.
+                Text("The rating doesn't apply to these — they stay as they were.")
                     .dredfitFont(12.5)
                     .foregroundStyle(Theme.ink2)
             }

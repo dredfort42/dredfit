@@ -7,17 +7,24 @@ final class BlockPauseTests: XCTestCase {
 
     // MARK: - The way back in
 
-    func testTheWayBackInIsTheBaseTransitionLength() {
-        // A third length would be a third thing to learn: the app already
-        // counts you in over five seconds before a position (#52) and between
-        // the sides of one (#35). Deliberately not the supplemented length of
-        // #83 even for a flagged position — Resume is tapped by someone
-        // already back in place. The way back in follows the TRANSITION, which
-        // doubled — being counted back into a position you walked away from is
-        // travel, not a turn inside one. The side-switch pause stayed at five
-        // and the two are no longer the same number.
-        XCTAssertEqual(BlockPause.reentrySeconds, GetReady.seconds)
-        XCTAssertNotEqual(BlockPause.reentrySeconds, Cooldown.sideSwitchPauseSec)
+    func testTheWayBackInIsTheCountIn() {
+        // A third length would be a third thing to learn: the app counts you
+        // in over five seconds before a position (#52), between the sides of
+        // one (#35), and after every start tap. The way back in is the same
+        // beat — Resume is tapped by someone already standing in place, so
+        // there is no travel to pay for. It followed the TRANSITION until
+        // 27.08.2026, which made it ten and put two opposite reasons in the
+        // tree at once; owner's decision settled it on the count-in.
+        //
+        // Pinned twice, per §41.8: once against the constant it is wired to,
+        // and once against the NUMBER — a pin that only says "equals that
+        // other symbol" moves silently when the symbol does.
+        XCTAssertEqual(BlockPause.reentrySeconds, GetReady.countInSeconds)
+        XCTAssertEqual(BlockPause.reentrySeconds, 5)
+        XCTAssertEqual(BlockPause.reentrySeconds, Cooldown.sideSwitchPauseSec,
+                       "the side-switch pause is the same beat, and they are one number again")
+        XCTAssertLessThan(BlockPause.reentrySeconds, GetReady.seconds,
+                          "travel to a position is longer than being counted back into one")
     }
 
     func testTheWayBackInLeavesRoomForTheCountdownItPlays() {

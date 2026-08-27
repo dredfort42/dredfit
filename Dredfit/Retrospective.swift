@@ -69,13 +69,17 @@ struct Retrospective: Equatable {
     }
 
     /// Whole weeks up to 8, months from week 9 — the spec pins the boundary.
+    /// Worded against the BASE record, never "your first workout": for a
+    /// journal carried over from v2 the base is the first v3 session, and a
+    /// jubilee saying "first workout" under "Workout #150" contradicted its
+    /// own headline (UI-truth audit, 27.08.2026).
     private static func since(from start: Date, to now: Date) -> String {
         let days = max(0, Calendar.current.dateComponents([.day], from: start, to: now).day ?? 0)
         let weeks = days / 7
         if weeks < 9 {
-            return String(localized: "\(max(weeks, 1)) weeks since your first workout")
+            return String(localized: "\(max(weeks, 1)) weeks apart")
         }
         let months = max(1, Calendar.current.dateComponents([.month], from: start, to: now).month ?? 1)
-        return String(localized: "\(months) months since your first workout")
+        return String(localized: "\(months) months apart")
     }
 }

@@ -38,6 +38,10 @@ struct AdjustPanel: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
+        // The width of the button it stands over, not the width of its own
+        // contents: a pill floating in the middle of the screen read as a
+        // detached widget rather than as the entry for the set below it.
+        .frame(maxWidth: .infinity)
         .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 18))
     }
 

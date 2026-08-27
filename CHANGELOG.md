@@ -2,8 +2,15 @@
 
 ## Unreleased
 
-Five things so far. The newest is an app-layer wave: a count-in before every
-clock, and one rating that now has to be earned. **v3.1** closes what a full
+Eight things so far. The newest is **v3.3**, found by reading the comeback card
+in the re-shot screens a second time: the "easier" offer after a probing session
+was a set short of the position behind it, and the depth of a comeback stopped
+being monotone in the length of the break. Before it, **v3.2**: the comeback card
+offered an "easier" plan with more work in it than the one it replaced. Before
+it, a truthfulness pass: an audit read every
+screen against the engine and found nineteen places where the words — or the
+numbers — promised something the code does not do. **Before it,** an app-layer
+wave added a count-in before every clock and made one rating earned. **v3.1** closes what a full
 audit of v3.0 found. Before it, the engine stepped to **v3.0** and stopped
 predicting what you can do; **v2.27** moved the decision about the length of a
 workout inside the workout; and five app-layer fixes came out of the design
@@ -14,6 +21,373 @@ the 0–47 level scale, and that scale is gone: the duration table by level, the
 per-level numbers, and the VoiceOver line "Squat, level 18 of 47" all describe
 the engine as it was before this wave. They are left as written rather than
 quietly edited — what they say about *why* each change was made still holds.
+
+### The pair on the work screen reads like every other pair
+
+"Went differently" is a secondary button now, and it stands ABOVE "Done" rather
+than under it. The two read as a pair the way every other pair in the app does:
+the filled one is what the screen expects, the outlined one is the other answer.
+The accent outline is gone with the swap — this is the alternative to finishing
+the set at plan, not a rival to it.
+
+`ink3` for the outline, not `hairline`: the paired-secondary idiom uses hairline,
+but both of its call sites draw on `cardBG`, and here the ground is `bg`, where
+hairline comes to ≈1.2:1 and the border is simply not there. ink3 reads ≈2.4:1,
+past the 1.5:1 the palette holds for quiet graphics, while the ink2 label keeps
+the 4.5:1 small text needs.
+
+The entry now opens IN THE SLOT OF THE BUTTON THAT OPENS IT, directly over the
+primary one, with the informational lines standing down while it is up. And the
+row of three labels is finally gone: the actions row holds the two escapes, and
+"Went differently" is a view of its own.
+
+### One vertical step above the button and below it
+
+The stack read unevenly: 10 pt from the message to "Done", 18 pt from "Done" to
+the row under it. Both are 18 now — levelled UP, not down. The 18 is load-bearing:
+it is the only thing between a thumb aimed at "Went differently" and the button
+that LOGS THE SET, and levelling down to 10 would have spent that guard to buy
+symmetry. It is the measure for the whole stack now rather than an exception in
+it — the entry, the maximum note and the first-run hint all keep it, and the rest
+offer on Today keeps it above Start too.
+
+### The same distance to the button, and the number entry back over it
+
+The maximum note stood further from "Done" than the rest offer stands from
+"Start" — 10 pt plus the height of a HIDDEN first-run hint plus 10, because the
+hint sat between them holding its space open. The same reserved strip left the
+number entry floating as a narrow pill in the middle of the screen.
+
+The hint is declared first in the block now, before the note: its height is still
+reserved, so nothing jumps mid-exercise, but it no longer stands between the note
+and the button. Both screens read the same 10 pt.
+
+The entry itself is the width of the button and sits directly on top of it, and
+while a number is being entered it REPLACES the messages above rather than
+stacking under them — one thing to read at a time, and the panel lands where the
+eye already is. Nothing below moves: the block after the spacer is bottom-aligned,
+so what is added or removed above the button changes where the block starts, never
+where the button sits.
+
+### One window, one way out, and controls that reach the bottom of the screen
+
+**The same question drew two different windows.** iOS 26 presents a
+`confirmationDialog` as an anchored popover, and a popover clings to the view its
+modifier is attached to — so "Leave the workout?" opened centred over the flow
+while "Add past workouts to Health?" grew a tail pointing at the toggle row it
+was declared on. All four are alerts now. An alert has no anchor: one window,
+centred, wherever it was raised from.
+
+**And the workaround the popover forced is gone with it.** A popover suppresses
+its cancel action, because tapping outside IS the cancel — which is why the
+escape had to be added as a second, role-less button. An alert does not:
+measured, the node is `Alert` with no `Popover` beside it and every declared
+button stands in the accessibility tree, `.cancel` included. So the escape is one
+button again, carrying the role AND the name that says what it does. "Cancel"
+answered "cancel what?"; "Keep training", "Keep my progress" and "Keep my
+history" do not. The catalog key went with it, and six translations behind it.
+
+**"Went differently" is a control now.** It was one of three bare labels sharing
+a row, and the most important of the three did not look like a button at all —
+entering what actually happened is the main thing that screen offers besides
+finishing the set. It is a bordered accent button across the width; the two
+escapes moved to the line below, where they answer a different question. The 18 pt
+between it and "Done" stays: "Done" logs the set.
+
+**The first-run hint moved above the button.** It hid itself with `opacity` so the
+layout would not jump mid-exercise, and the height reserved for it left the
+controls floating in the middle of the screen with a hole underneath. It now sits
+beside the maximum note, above the button — the controls are last in the stack, so
+they reach the bottom, and nothing jumps.
+
+**The rest-day run offer is an accent card**, the same one the work screen gives
+the maximum note. Grey 13.5 pt under the plan was the one place nobody looks, and
+both lines carry the same status: worth reading, blocks nothing.
+
+### Today stops asking a question it does not answer
+
+"Why this plan?" sat beside the duration on Today and read as an answer about
+THIS plan — these six movements, these numbers. It opened the static explainer,
+which names none of them and does not know what today's plan is: the same class
+of claim the truthfulness pass above is about, in the one place where the label
+itself made the promise.
+
+It is gone. The explainer is untouched and still reachable from the door that
+describes it honestly — Settings → "How it works" — which is also where anyone
+who skipped onboarding is told to look. The duration row is a single line again,
+the `HStack` around it went with the button, and the catalog key went with the
+six translations behind it: a dead key outlives a control in silence.
+
+Nine frames of the contact sheet moved, not one — the row is drawn by `planView`,
+so it stands on every state of Today that carries a plan.
+
+### Engine v3.3.0 — a comeback stops charging for the set the probe borrowed
+
+A probing appearance replaces the last working set (§40.4), so the plan reads
+`2×15` plus one set of the next movement while the position still holds three.
+§41.10 wrote the memory of that showing by its WORKING sets — 30 — and the
+postcondition then read any plan that came back to three sets as a rise and cut
+one off. A comeback after twenty days landed on `2×13` with `sets = 3` in the
+state: the only place in the engine where the plan and the position disagree.
+
+**The depth of a comeback was not monotone in the length of the break.** The
+trim stops firing exactly when `s × new dose ≤ (s−1) × old dose` — dose ≤ 10 for
+three sets at 15 — so a break long enough to knock the dose that far let the
+third set back in and the plan jumped UP. Measured on the reference: 14–28 days
+gave `2×13` (26), 56–70 days `2×11` (22), and 84–95 days `3×10` (30). Eighty-four
+days met a person **higher than fifty-six did**, while the card on that screen
+promises "the longer the break, the lower the plan meets you". Out of an ordinary
+appearance the same ladder is clean — `3×12 → 3×11 → 3×10 → 3×9` — so the probe
+was the whole of it.
+
+**§41.11:** the memory of a probing appearance counts the set the probe occupied
+— the plan the position implies, `shownWorkOf` rather than `exerciseWork`. The
+probe does not remove a set, it borrows one; `estimatedMin` has always counted it
+as its own set because the session is no shorter for trying. Counting the probe
+at its own dose instead does not help: the repair can only TAKE SETS OFF, so its
+base has to be about slots, not reps.
+
+Named plainly, because it undoes half of what §41.10 claimed: a quiet week after
+a probing session now lands on `3×14`, not `2×14`. The "+40 % of the work the
+person had just seen" that argued for `2×14` was measured against 30, where the
+probe counts as nothing — the session held 15 + 15 + 4 in three slots, and three
+sets of 14 is three slots, each one lighter. The dose axis is still guarded: `3×15`
+is the standing position and the grid goes no higher.
+
+The reference gates stayed clean through the change (74 772 property checks — 217
+of them new — the acceptance script, the model sweep and the static audit), and
+the fixture moved wherever a probe appears. `verify2` block 30 and two sweeps in
+`DescentSweepTests` pin the invariant that did not exist before: for any two
+breaks, the longer one may not land higher. Both go red on the old rule; the four
+tests that pinned §41.10 were rewritten to §41.11 rather than relaxed.
+
+### Every question that can cost you something now shows the way to say no
+
+Three dialogs asked something destructive and drew no way out. "Leave the
+workout?" drew two buttons, both of which leave the workout and one of them
+without saving. "Start from scratch?" drew exactly one button, and it resets
+every movement. "Replace history?" drew one, and it overwrites the journal. In
+each the way to back out was a tap on the dimmed area outside the card, which
+nothing on screen mentions.
+
+Each declares `Button("Cancel", role: .cancel)`, and on this iOS that button
+does not exist: not drawn, and absent from the accessibility tree entirely —
+`descendants(matching: .any).matching(identifier: "Cancel").count` is zero with
+the dialog open, so VoiceOver cannot reach it either. The cause is not ours:
+iOS 26 presents a `confirmationDialog` as an anchored popover — the tree
+carries a `Popover` and a `PopoverDismissRegion` — and UIKit suppresses a
+popover's cancel action, because tapping outside IS the cancel. Measured across
+seven variants at two independent call sites: it is not a cap on the number of
+buttons, not declaration order, and not the title or the message.
+
+A button with NO role renders, is hittable and is reachable. Each dialog now
+declares one FIRST, so it draws furthest from the destructive row, and each
+says what it does rather than "Cancel": "Keep training", "Keep my progress",
+"Keep my history". The `.cancel` button stays beside it — it costs nothing on
+this OS and it is what an OS that does not eat the role would use.
+
+"Keep my history" also carries the cleanup the cancel action never got to run:
+dismissing that dialog by a tap outside left the picked file in state, with no
+way to reach the line that clears it.
+
+The tap outside still works and its test still passes; what changed is that it
+is no longer the only way.
+
+### Both sides of a per-side hold carry the same load
+
+A per-side hold runs one set as side one, a five-second switch pause, side two.
+The second side started from the PLAN — and the first side does not have to
+have reached it. Stop the first side at 20 seconds of a planned 30 and the
+second still asked for 30.
+
+Those ten seconds went nowhere: the fact recorded for the set is
+`min(side one, side two)`, so the extra time on the stronger side could not
+show up in the number, and the two sides of one set were loaded differently.
+The second side now runs for what the first side actually ran.
+
+`holdTotal` itself moves, not just the countdown and its end date —
+`stopHoldEarly` measures what was held as `holdTotal - remaining`, so leaving
+the old total standing would have made an early stop on the SECOND side report
+more than was held. Nothing in the engine is touched: the number it receives is
+the same `min` it always was, and the path that changed only decides how long
+the second side runs.
+
+Pinned by a UI test, since the hold's state lives in the view: at the
+adjuster's 90-second ceiling the old answer and the new one are ninety seconds
+apart, and reverting the one line reddens it.
+
+### The rating screen says which movements it does not touch
+
+Under the list of what was skipped stood "These keep their place either way."
+A bare plural demonstrative over a list that usually holds one movement; a
+"place" the screen names nowhere; and the part that actually matters — that it
+is true whichever of the three cards you press — folded into an idiom. It reads
+"The rating doesn't apply to these — they stay as they were." now: the thing
+the reader is about to press, and what happens to the movements it skips over.
+"These movements" rather than "the skipped ones", because the same list carries
+the row that says "not finished".
+
+### The probe stops printing its own number twice
+
+"One set to try it: 4" put the target in the caption under the dots — and the
+big number directly above it is that same target: on a probe set before a
+number is entered, `workNumber` returns exactly `current.planned`. The caption
+reads "One set to try it." now.
+
+On a hold probe the big number starts counting down once the timer runs, so
+the target then shows nowhere — which is what an ORDINARY hold already does,
+so the probe simply stops being the one screen that repeated itself.
+
+### A probe that fell short says what happens, not where the engine stands
+
+"We'll stay with the current variation" needed explaining, and for two reasons.
+It said *variation* — a word this app's own vocabulary uses nowhere else on
+screen. And it pointed at something that is NOT on screen: on the probe set the
+title is the NEXT movement under a "Probe" badge, so "the current one" is a name
+the reader has to reconstruct, while the passing line names its movement
+outright. It reads "Not this time — the plan stays as it is." now: the
+consequence, which is the thing the reader will actually see tomorrow.
+
+It deliberately does not promise the probe comes back next time. Usually it
+does — but a session later rated "tough" that lands on this pattern suppresses
+it, and that is the same over-promise the passing caption was just fixed for.
+
+### The note about a maximum says the true thing, and says it out loud
+
+Entering more than the plan on a set that is not the last one put a line on
+screen: grey 13 pt, in the fine-print slot directly above the black primary
+button — the one place on that screen nobody reads. It is an accent card now,
+in the fill the app already uses for the variation badge (`accentText` on
+`accentSoft`; the plain accent is 2.91:1 on that fill and would not do). It
+still blocks nothing and still appears once per exercise: the number stands
+either way.
+
+**And it now advises the thing that is actually true.** It used to read "Do the
+plan, and leave your maximum for the last set", which is about the ORDER of the
+sets — and the order does not reach the engine at all. The fold is the mean, so
+12-6-6 and 6-6-12 arrive as the same 8.00 and land the same next plan; what
+moves the plan is the total. Measured on a plan of 3×8: holding the plan and
+adding a maximum (8-8-12) folds to 9.33 and the next plan is 3×9, while trading
+the other two sets for one big one (12-6-6) folds to 8.00 and the next plan is
+9-8-8. The card says that instead — a maximum now takes the strength out of the
+sets after it, and what counts is the whole exercise. It also stopped
+addressing the reader formally in Russian, which was one of the three such
+strings the glossary had on its register.
+
+The rule behind it moved out of the view body into `SetFacts`, where a test can
+reach it — the same reason `didFullPlan` lives there — and is pinned twice: the
+predicate itself, and the measurement that the engine cannot tell the two
+orders apart.
+
+### The way back in from a pause is a count-in, not a walk
+
+Pausing a guided block and tapping Resume put a **ten-second** "Get ready" on
+screen — the length of the transition that walks you to a position. But Resume
+is tapped by someone already standing on the mat, and the tree said so in two
+places and denied it in a third: `BlockPause` called it "a count-in, not travel
+time" while wiring it to the transition, the test pinning it called being
+counted back in "travel, not a turn inside one", and `GetReady.countInSeconds`
+claimed the way back in already got the same five seconds it does. It got ten.
+
+It is five now — the same beat every start tap buys. The 3-2-1 still fits with
+two beats to spare, and the reserve the two blocks are budgeted to the second
+against is untouched: a pause is not part of the announced duration, so this
+can only make a paused session shorter. `--uitest-long-transition` no longer
+stretches it, which is now written where the flag is defined instead of being
+true only by accident.
+
+### Engine v3.2.0 — a descent stops handing a set back
+
+A probing appearance replaces its last working set (§40.4), so the plan on
+screen is `2×15` plus one set of the NEXT movement. The memory of that showing
+was not written at all — `recordShown` and the rating both skipped an exercise
+carrying a probe, on the grounds that "2×15 plus a probe" and "3×15" are
+incommensurable. So the base the postcondition compares against stayed a
+showing two appearances old.
+
+Any descent then knocked the dose off the ceiling, the probe went with it, and
+**the third working set came back**. Measured on the reference: a quiet week
+(the silent decay, which shows nothing at all) turned `2×15` into `3×14` —
+**+40 % of the work the person had just seen**. A comeback of two to four steps
+did the same at +30 %, +20 % and +10 %; holds went `2×45 s` → `3×40 s`, +33 %.
+The comeback card printed the two offers side by side, and the "easier" one
+carried the bigger number.
+
+**§41.10:** a probing appearance writes its memory too, by its WORKING sets —
+`exerciseWork` already counts only those, because the probe is a set of another
+movement. What is compared is not two sets of movements but the work of one
+movement's working sets: same variation, same unit, same sides, commensurable
+by construction. The descent now lands on `2×14` and `2×13` instead of `3×14`
+and `3×13`. `repairDescent` still leaves a probing plan alone — there is
+nothing to trim inside it.
+
+The reference's own gates stayed clean through the change (74 555 property
+checks, the acceptance script, the model sweep and the static audit), and nine
+of the fixture's 28 scenarios moved — every one of them a scenario that reaches
+a variation ceiling. Two tests that pinned the old rule were rewritten to the
+new one, and the case their rationale feared — "the next ordinary plan reads as
+a rise and gets trimmed" — is now pinned as its own test: a PASSED probe raises
+the position, and a risen position is never trimmed, because the repair keys on
+the position ordinal and not on the work.
+
+**The comeback card shows the whole plan.** Its "as it was" row printed only
+the working sets, so the probe on top of them was invisible and the two offers
+could not be compared by eye. It now reads `… · 2×15 + probe: … · 4`.
+
+### The screen stops promising what the engine does not do
+
+An audit walked every UI surface against the engine (the reference document
+first, the code as the arbiter) and nineteen claims did not survive it. All of
+them are fixed; none of them changed what the engine does — only what the
+screen says and shows about it.
+
+**Numbers that lied by a comparison.** The work screen's accented "actual N"
+and the history sheet both compared against an exercise's flat base dose,
+which stopped being the whole plan the day plans became uneven (9-8-8): an
+untouched top set displayed the plan as an entered fact, and a recorded
+shortfall equal to the base displayed as nothing at all. Both now compare set
+for set, through two small policies in `SetFacts` where a test can reach them.
+The per-pattern chart also plots all six coordinates of a position now — a
+snapshot without the sub-step and the cut sat up to two steps off the number
+beside it — and the journal snapshot records those two sparse coordinates,
+optional-with-default like every field ever added to a persisted type.
+
+**Promises the mechanics could break.** "Next time: <the new movement>" after
+a passed probe is now silent when the working sets already fell short — the
+engine reads that session as "hard", and a hard pattern's probe does not count
+(§40.4). The first-workout hint no longer says a big number lands "right
+away" (facts are capped by the variation's own grid; the way up crosses
+variations only by probe). The comeback card says what the drop really is —
+the longer the break, the lower — instead of always "a couple of steps". The
+migration card stops claiming "same movements, same numbers": ten hold cells
+of 480 rise to the new floor, a band above a non-top variation comes off, and
+the card now says a few numbers moved a step. "The next asks a little more"
+gained "where there is room" — the weekly budget and the parked ceiling both
+make quiet sessions, and the caption used to contradict the plan on screen.
+
+**Labels that named the wrong thing.** The Live Activity called the probe set
+by the old movement's name while the person was doing the new one; it now
+names the probe. The "New variation" kicker stood over set-band milestones —
+more sets of the same movement, the opposite of a new one; those rows now say
+"More volume". "Eleven things worth knowing" sat over twelve sections numbered
+1–9, 12, 10, 11; it says twelve, in order. The jubilee's "since your first
+workout" was measured from the first v3 record — for a journal carried over
+from v2 that is not the first workout, so the line now speaks of the interval
+between its own "then" and "now". The progress forecast counted growth events
+to the dose ceiling while the milestone itself — the probe, the band — stands
+one point past it (and a taken-off set returns first), so the countdown now
+lands on the same tick the bar draws, and the probe's label says the probe
+decides. Skipping the probe set carried an accessibility hint promising the
+set would be "kept off next time" — a probe skip keeps nothing off, it just
+comes back; the hint now says so. And the line under the progress chart no
+longer credits a break for a drop that the returning session's own skipped
+sets caused.
+
+Every changed base string was re-translated in all six languages by editing
+the existing catalog entries in place, so the established terminology and the
+French typography survive. The fixes are pinned by `UITruthFixTests` — each
+test fails against the code as it stood — and the set-band kicker's UI test
+now asserts the honest label it used to document as a known wrong one.
 
 ### The clock waits for you, and "easy" is earned
 
