@@ -114,7 +114,12 @@ struct WarmupMoveScreen: View {
             PositionSkipButton(action: onSkipPosition)
                 .padding(.top, 8)
         } footer: {
+            // `identifier:` stated for the same reason `skip-cooldown` states
+            // it below: the default is `identifier ?? title`, and `title` is
+            // already localized — omitting it makes the identifier move with
+            // the display language.
             BlockSkipButton(title: String(localized: "Skip warm-up"),
+                            identifier: "skip-warmup",
                             action: onSkipBlock)
                 .padding(.bottom, 20)
         }

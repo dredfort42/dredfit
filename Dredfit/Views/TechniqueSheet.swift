@@ -107,7 +107,11 @@ struct TechniqueSheet: View {
                 .padding(.horizontal, 24)
             }
 
+            // Four sheets in this app close on a button reading "Got it", and
+            // a workout can have two of them stacked. Each names its own, the
+            // way `how-it-works-done` and `milestone-done` already do.
             PrimaryButton(title: String(localized: "Got it")) { dismiss() }
+                .accessibilityIdentifier("technique-done")
                 .padding(.horizontal, 24)
                 .padding(.bottom, 16)
         }

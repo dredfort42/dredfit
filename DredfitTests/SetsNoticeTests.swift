@@ -21,20 +21,68 @@ final class SetsNoticeTests: AppStoreTestCase {
 
     override var tempURLPrefix: String { "dredfit-notice" }
 
+    /// The checkout root, from this file's own compile-time path. Derived in
+    /// ONE place — same reasoning as `LifeBenefitTests.repoRoot`: the two
+    /// `deletingLastPathComponent()` steps used to be written out twice
+    /// below, so moving this file one directory would have had to be noticed
+    /// twice, and each copy fails with "no such file" rather than a clear
+    /// mis-derived-path error.
+    private var repoRoot: URL {
+        URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()   // DredfitTests/
+            .deletingLastPathComponent()   // repo root
+    }
+
     /// Seeded through the state file, like the app's own load. The pull slot
     /// is in every session, so it is the movement a trajectory can be walked
     /// on without waiting for the rotation.
-    private func store(level: Int = 40) throws -> AppStore {
-        let levels = Pattern.allCases
-            .map { "\"\($0.rawValue)\",\(level)" }.joined(separator: ",")
+    ///
+    /// SEEDED IN THE v3 SHAPE — `vars`/`doses`/`shown`, never `levels`. The v2
+    /// shape this carried decoded into nothing for a whole release cycle
+    /// (§40.8) and nothing here checked: the store started clean and the
+    /// trajectory below was walked from the first rung of every ladder, not
+    /// from the position the seed named. The guard after the load is what
+    /// makes the seed a fact rather than a hope.
+    ///
+    /// The dose is the grid FLOOR of the seeded variation, and that is what
+    /// keeps the twelve appearances below free of probes: §40.4 offers one
+    /// only at the dose ceiling, and one growth event per session cannot walk
+    /// a whole grid in twelve. A probe takes a working set out of the plan,
+    /// which is precisely the number this suite reads.
+    private func store(variation: Int = 4) throws -> AppStore {
+        func at(_ p: Pattern) -> Int { min(variation, Library.count(p)) }
+        func floorDose(_ p: Pattern, _ v: Int) -> Int { Dose.grid(Library.unit(p, v)).min }
+        let vars = Pattern.allCases
+            .map { "\"\($0.rawValue)\",\(at($0))" }.joined(separator: ",")
+        let doses = Pattern.allCases
+            .map { "\"\($0.rawValue)\",\(floorDose($0, at($0)))" }.joined(separator: ",")
+        let zeros = Pattern.allCases
+            .map { "\"\($0.rawValue)\",0" }.joined(separator: ",")
+        // The journal of what was shown: a descent lands IN it (§40.6), so a
+        // state without one would send every movement to the floor of the
+        // first variation whatever the seed said.
+        let journal = Pattern.allCases.map { p in
+            let rows = (1...at(p)).map { "\"\($0)\":\(floorDose(p, $0))" }.joined(separator: ",")
+            return "\"\(p.rawValue)\",{\(rows)}"
+        }.joined(separator: ",")
         let json = """
-        {"engineState":{"counter":0,"levels":[\(levels)],"failStreak":[],"timeBudgetMin":0},
+        {"engineState":{"counter":0,"vars":[\(vars)],"doses":[\(doses)],
+                        "shown":[\(journal)],"failStreak":[\(zeros)]},
          "records":[],
-         "settings":{"restWeekdays":[],"soundsEnabled":true,"timeBudgetChosen":true,
+         "settings":{"restWeekdays":[],"soundsEnabled":true,
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
         """
         try Data(json.utf8).write(to: tempURL)
-        return AppStore(storageURL: tempURL)
+        let store = AppStore(storageURL: tempURL)
+        // The seed must actually load — a state that failed to decode would
+        // start clean and make every assertion here vacuous. Both coordinates
+        // are checked: the position, and the journal a clean start has none of.
+        XCTAssertEqual(store.engineState.vars[.pull], at(.pull),
+                       "the seed did not load: the pull slot is not where it was written")
+        XCTAssertEqual(store.engineState.shownDose(.pull, variation: at(.pull)),
+                       floorDose(.pull, at(.pull)),
+                       "the seed did not load: the journal of what was shown is not there")
+        return store
     }
 
     private var trained = 0
@@ -67,7 +115,8 @@ final class SetsNoticeTests: AppStoreTestCase {
         // The way a set comes off at all now: skipped during the session, and
         // written by the engine when the rating lands.
         train(store, setsSkipped: [.pull: 1])
-        XCTAssertGreaterThan(store.engineState.cutOf(.pull), 0, "the seed did not take")
+        XCTAssertGreaterThan(store.engineState.cutOf(.pull), 0,
+                             "the skipped set did not land as a cut — there is no trajectory")
 
         var announced = 0
         var seenBack = false
@@ -99,10 +148,7 @@ final class SetsNoticeTests: AppStoreTestCase {
     /// carry, all shipping languages, checked against the file rather than the
     /// bundle.
     func testTheWavesLinesAreInTheCatalogInEveryLanguage() throws {
-        let catalogURL = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()   // DredfitTests/
-            .deletingLastPathComponent()   // repo root
-            .appendingPathComponent("Dredfit/Localizable.xcstrings")
+        let catalogURL = repoRoot.appendingPathComponent("Dredfit/Localizable.xcstrings")
         let data = try Data(contentsOf: catalogURL)
         let root = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
         let strings = try XCTUnwrap(root["strings"] as? [String: Any])
@@ -166,10 +212,7 @@ final class SetsNoticeTests: AppStoreTestCase {
     /// straight into a view — and the string falls back to English in all six
     /// translated languages at once, which is how last release lost them.
     func testEveryPlainLocalizedLiteralIsACatalogKey() throws {
-        let root = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()   // DredfitTests/
-            .deletingLastPathComponent()   // repo root
-        let data = try Data(contentsOf: root.appendingPathComponent("Dredfit/Localizable.xcstrings"))
+        let data = try Data(contentsOf: repoRoot.appendingPathComponent("Dredfit/Localizable.xcstrings"))
         let json = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
         let keys = Set(try XCTUnwrap(json["strings"] as? [String: Any]).keys)
 
@@ -182,7 +225,7 @@ final class SetsNoticeTests: AppStoreTestCase {
             #"\bButton\(\s*"([^"\\]*)"\s*[,)]"#,
         ].map { try NSRegularExpression(pattern: $0) }
         let sources = try XCTUnwrap(FileManager.default.enumerator(
-            at: root.appendingPathComponent("Dredfit"), includingPropertiesForKeys: nil))
+            at: repoRoot.appendingPathComponent("Dredfit"), includingPropertiesForKeys: nil))
 
         var checked = 0
         for case let url as URL in sources where url.pathExtension == "swift" {

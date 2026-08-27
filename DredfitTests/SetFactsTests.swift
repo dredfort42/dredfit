@@ -368,23 +368,55 @@ final class SetFactsTests: XCTestCase {
     /// the plan, the number reaching the engine is bit-for-bit what it was.
     /// The asymmetry may only ever touch the above-plan case, so this walks
     /// every set of every exercise at every value from zero to the plan.
-    func testNothingBelowThePlanChangedByOneUnit() {
+    ///
+    /// RE-MARKED (test revision, 26.08.2026), class: the test could not fail.
+    /// Both of its expectations were the code under test. The sets already
+    /// behind were expected to be `SetFacts.inForce` — the very function
+    /// `allSets` is a map over (`SetFacts.swift`) — and the collapse was
+    /// compared against a SECOND CALL of `SetFacts.overrides` with the same
+    /// arguments, which is `f(x) == f(x)`. Dividing by `values.count - 1` in
+    /// `SetFacts.override` left the whole sweep green. Both expectations are
+    /// computed here now, from the trajectory rather than from the collapse.
+    func test_nothingBelowThePlan_atEverySetAndValue_reachesTheEngineUnchanged() throws {
         for ex in session.exercises {
+            // Spelling the expectation out per set is only legitimate on a
+            // UNIFORM plan: `setUp` puts no sub-step in the state, so every set
+            // asks for the same dose. An uneven plan would need the carry's own
+            // fill rule, which is what made reading it back off `inForce`
+            // tempting in the first place.
+            XCTAssertNil(ex.loads, "\(ex.pattern): the sweep assumes a uniform plan")
             for set in 0..<ex.sets {
                 for value in 0...ex.plannedLoad(set: set) {
                     let facts = SetFacts.recording(value, in: [:], ex, set: set)
-                    let overrides = SetFacts.overrides(facts, in: session.exercises)
-                    // The old rule and the new one agree below the plan: the
-                    // carry is `min(last, planned)` and `last <= planned`.
-                    let expected = (0..<ex.sets).map { index -> Int in
-                        index <= set ? SetFacts.inForce(facts, ex, set: index)
-                                     : value
+                    // Below the plan the old rule and the new one agree: the
+                    // sets before ran silently on plan, the set itself ran at
+                    // `value`, and `value <= planned` carries onto every set
+                    // after it (`min(last, planned) == last`).
+                    let expected = (0..<ex.sets).map { index in
+                        index < set ? ex.plannedLoad(set: index) : value
                     }
                     XCTAssertEqual(SetFacts.allSets(facts, ex), expected,
                                    "\(ex.pattern) set \(set) at \(value): the carry moved")
-                    // And the collapse the engine sees is unchanged with it.
-                    XCTAssertEqual(overrides[ex.pattern],
-                                   SetFacts.overrides(facts, in: session.exercises)[ex.pattern])
+
+                    // And the collapse is the mean of exactly those sets —
+                    // counted here, never asked for a second time.
+                    let mean = Double(expected.reduce(0, +)) / Double(expected.count)
+                    let overrides = SetFacts.overrides(facts, in: session.exercises)
+                    // Two ways to report nothing, both correct: every set landed
+                    // on the plan, so there is no fact at all; or the mean falls
+                    // short of the plan yet snaps back onto it, and a shortfall
+                    // must never be reported as MEETING the plan.
+                    let nearMiss = mean < Double(ex.load)
+                        && SetFacts.snap(mean, unit: ex.unit) >= ex.load
+                    if facts[ex.pattern] == nil || nearMiss {
+                        XCTAssertNil(overrides[ex.pattern],
+                                     "\(ex.pattern) set \(set) at \(value): "
+                                     + "nothing was said, so nothing may be reported")
+                    } else {
+                        XCTAssertEqual(try XCTUnwrap(overrides[ex.pattern]), mean, accuracy: 1e-9,
+                                       "\(ex.pattern) set \(set) at \(value): "
+                                       + "the engine is handed the mean of the sets that ran")
+                    }
                 }
             }
         }

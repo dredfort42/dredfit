@@ -42,9 +42,47 @@ struct WorkoutDriver {
     /// The warm-up opens on its offer screen, so getting past the block is one
     /// tap on the offer's own skip rather than the footer's.
     func startWorkout() {
-        app.buttons["Start"].tap()
-        let skipWarmup = app.buttons["warmup-intro-skip"]
+        app.buttons[AX.startWorkout].tap()
+        let skipWarmup = app.buttons[AX.warmupIntroSkip]
         if skipWarmup.waitForExistence(timeout: 3) { skipWarmup.tap() }
+    }
+
+    /// The work, walked until the cool-down is OFFERED — the question that
+    /// stands between the last exercise and the rating — without answering it.
+    ///
+    /// Three copies of this loop stood outside the driver (HandlesUITests,
+    /// BlockPauseUITests, DredfitUITests+Cooldown) at the same time as the
+    /// warning at the top of this file, which the last drift had already cost
+    /// six red nightly runs to earn. It is one loop now; what each caller
+    /// wants from the offer is still the caller's own business.
+    ///
+    /// Returns whether the offer arrived, so a caller can fail with its own
+    /// sentence instead of inheriting the driver's.
+    @discardableResult
+    func walkToCooldownOffer(deadline seconds: TimeInterval = 360,
+                             ratingLabel: String = "How did it go?") -> Bool {
+        let done = app.buttons[AX.exerciseDone]
+        let startHold = app.buttons[AX.holdStart]
+        let offer = app.buttons[AX.cooldownStart]
+        // The rating is the other way this walk can end, and it is a failure
+        // for every caller: a workout that reaches it was never asked. Stopping
+        // on it turns a whole deadline of spinning into an immediate answer.
+        let rating = app.staticTexts[ratingLabel]
+        let deadline = Date.now.addingTimeInterval(seconds)
+        while !offer.exists && !rating.exists && Date.now < deadline {
+            if done.exists {
+                coordinateTap(done)
+                _ = done.waitForNonExistence(timeout: 3)
+            } else if startHold.exists {
+                coordinateTap(startHold)
+                _ = startHold.waitForNonExistence(timeout: 3)
+            } else {
+                // resting or mid-transition — every one of those advances on
+                // its own, so waiting on the goal is also the settle.
+                _ = offer.waitForExistence(timeout: 2)
+            }
+        }
+        return offer.exists
     }
 
     /// The cool-down asks before it runs, and the question stands between the
@@ -55,7 +93,7 @@ struct WorkoutDriver {
     /// asked).
     @discardableResult
     func declineCooldownIfAsked(timeout: TimeInterval = 5) -> Bool {
-        let skip = app.buttons["cooldown-intro-skip"]
+        let skip = app.buttons[AX.cooldownIntroSkip]
         guard skip.waitForExistence(timeout: timeout) else { return false }
         coordinateTap(skip)
         return true
@@ -67,26 +105,34 @@ struct WorkoutDriver {
         let sawCooldown: Bool
     }
 
-    /// Requires --uitest-fast on the launch. Labels default to English
-    /// because every suite but the release smoke's S7 row runs pinned to
-    /// en/US; the cool-down's skip goes by identifier and needs no twin.
+    /// Requires --uitest-fast on the launch. Every control it taps now goes by
+    /// identifier, so the walk is the same in any language and the release
+    /// smoke's S7 row needs no English twins to pass in — only the rating
+    /// HEADLINE is still a label, because that screen carries no identifier of
+    /// its own.
+    ///
+    /// `deadline` is wall-clock and therefore sensitive to how loaded the
+    /// runner is, which is why it is a parameter rather than a constant: the
+    /// longest consumer (`testMilestoneScreenListsEverythingEarned`) spent
+    /// 205 s of the old fixed 420 on a healthy machine, a margin of ×2.05, and
+    /// the next seed that adds a hold would eat the rest of it silently. The
+    /// failure now reports the time actually spent, so a runner that ran out
+    /// of budget cannot be read as a flow that never reached the rating.
     @discardableResult
     func completeWorkout(skipCooldown skipsCooldown: Bool = true,
-                         doneLabel: String = "Done",
-                         startHoldLabel: String = "Start hold",
+                         deadline seconds: TimeInterval = 420,
                          ratingLabel: String = "How did it go?",
                          file: StaticString = #filePath, line: UInt = #line) -> Walk {
-        let done = app.buttons[doneLabel]
-        let startHold = app.buttons[startHoldLabel]
-        let skipCooldownButton = app.buttons["skip-cooldown"]
-        let cooldownQuestion = app.buttons["cooldown-start"]
-        let cooldownDeclineButton = app.buttons["cooldown-intro-skip"]
-        let cooldownCountdown = app.staticTexts["cooldown-countdown"]
+        let done = app.buttons[AX.exerciseDone]
+        let startHold = app.buttons[AX.holdStart]
+        let skipCooldownButton = app.buttons[AX.skipCooldown]
+        let cooldownQuestion = app.buttons[AX.cooldownStart]
+        let cooldownDeclineButton = app.buttons[AX.cooldownIntroSkip]
+        let cooldownCountdown = app.staticTexts[AX.cooldownCountdown]
         let rating = app.staticTexts[ratingLabel]
         var sawCooldown = false
-        // Wall-clock bound, not an iteration count. The seeded milestone
-        // session spends ~330 s in holds alone, so this carries headroom.
-        let deadline = Date.now.addingTimeInterval(420)
+        let startedAt = Date.now
+        let deadline = startedAt.addingTimeInterval(seconds)
         while !rating.exists && Date.now < deadline {
             if done.exists {
                 coordinateTap(done)
@@ -111,8 +157,12 @@ struct WorkoutDriver {
                 _ = rating.waitForExistence(timeout: 2)
             }
         }
+        let spent = Int(Date.now.timeIntervalSince(startedAt))
         XCTAssertTrue(rating.waitForExistence(timeout: 5),
-                      "did not reach the rating screen", file: file, line: line)
+                      "did not reach the rating screen after \(spent) s of a "
+                        + "\(Int(seconds)) s budget — a walk that spent the whole "
+                        + "budget ran out of runner, not out of flow",
+                      file: file, line: line)
         return Walk(sawCooldown: sawCooldown)
     }
 }

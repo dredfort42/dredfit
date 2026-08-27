@@ -83,7 +83,10 @@ struct HistorySheet: View {
                 .padding(.bottom, 10)
             }
 
+            // Its own name — see TechniqueSheet: four sheets close on the same
+            // two words.
             PrimaryButton(title: String(localized: "Got it")) { dismiss() }
+                .accessibilityIdentifier("history-done")
                 .padding(.horizontal, 24)
                 .padding(.bottom, 16)
         }

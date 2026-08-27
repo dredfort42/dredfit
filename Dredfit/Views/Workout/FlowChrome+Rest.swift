@@ -137,7 +137,14 @@ struct RestRing: View {
             .opacity(canExtend ? 1 : 0.35)
             // "+15 s" is read as punctuation; the horizon has to be a phrase.
             .accessibilityLabel(Text("Add \(extensionSeconds) seconds of rest"))
-        let skip = BlockSkipButton(title: String(localized: "Skip rest"), action: onSkip)
+        // `identifier:` stated, not left to default: BlockSkipButton falls back
+        // to `identifier ?? title`, and `title` has already been through
+        // String(localized:) — so an omitted argument makes the accessibility
+        // identifier change with the display language, which is the one thing
+        // an identifier exists not to do. `extend-rest` above always stated it.
+        let skip = BlockSkipButton(title: String(localized: "Skip rest"),
+                                   identifier: "skip-rest",
+                                   action: onSkip)
         if dynamicTypeSize.isAccessibilitySize {
             VStack(spacing: 10) { extend; skip }
         } else {

@@ -16,11 +16,16 @@ final class HandlesUITests: XCTestCase {
 
     private var app: XCUIApplication!
 
-    override func setUp() {
-        super.setUp()
+    // `async throws`, and that is the whole fix: a synchronous `setUp()`
+    // override inherits XCTestCase's non-isolated declaration whatever the
+    // class is annotated with, so touching main-actor `XCUIApplication` from
+    // it warned four times per file. Only the async form may add the class's
+    // isolation (the precedent is DredfitTests/AppStoreTestCase.swift).
+    override func setUp() async throws {
+        try await super.setUp()
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchArguments = ["--uitest-reset", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.seedLaunchArguments()
     }
 
     /// The one handle left on the plan carries its RESULT rather than a
@@ -30,10 +35,10 @@ final class HandlesUITests: XCTestCase {
     /// handle exists: on a fresh install every movement is in its gentlest
     /// variation and there is nothing below it to offer.
     func testTheEasierHandleNamesTheVariationItWouldGive() {
-        app.launchArguments.append("--uitest-long-session")
+        app.seedLaunchArguments("--uitest-long-session")
         app.launch()
         let easier = app.buttons.matching(
-            NSPredicate(format: "identifier BEGINSWITH %@", "easier-")).firstMatch
+            NSPredicate(format: "identifier BEGINSWITH %@", AX.easierHandlePrefix)).firstMatch
         XCTAssertTrue(easier.waitForExistence(timeout: 5),
                       "the per-movement variation handle is missing from the plan")
         // "Easier · Knee push-ups · 3×8" — the movement, not the promise.
@@ -47,7 +52,7 @@ final class HandlesUITests: XCTestCase {
     /// work screen, where it is known.
     func testThePlanNoLongerAsksHowLongTodayWillBe() {
         app.launch()
-        XCTAssertTrue(app.buttons["Start"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons[AX.startWorkout].waitForExistence(timeout: 5))
         for gone in ["session-shorter", "session-full", "start-short", "start-full"] {
             XCTAssertFalse(app.buttons[gone].exists,
                            "\(gone) is still on the plan — it was removed when the decision moved to the work screen")
@@ -72,7 +77,7 @@ final class HandlesUITests: XCTestCase {
     /// because what is being tested is a place on the screen rather than a
     /// control — a query would find the control wherever it went.
     func testATapOnAPlanRowDoesNotPullItsHandle() {
-        app.launchArguments.append("--uitest-long-session")
+        app.seedLaunchArguments("--uitest-long-session")
         app.launch()
         let minutes = app.staticTexts.matching(
             NSPredicate(format: "label CONTAINS %@", "exercises")).firstMatch
@@ -80,13 +85,18 @@ final class HandlesUITests: XCTestCase {
         let announced = minutes.label
 
         let handles = app.buttons.matching(
-            NSPredicate(format: "identifier BEGINSWITH %@", "easier-"))
+            NSPredicate(format: "identifier BEGINSWITH %@", AX.easierHandlePrefix))
         XCTAssertTrue(handles.firstMatch.waitForExistence(timeout: 5))
         let handle = handles.firstMatch.frame
         let promise = handles.firstMatch.label
-        // The row's own right edge, taken from the card above the handle: the
-        // list has insets of its own, and the screen's edge is not the row's.
-        let row = app.buttons.element(boundBy: 0).frame
+        // The row's own right edge, taken from a plan card: the list has
+        // insets of its own, and the screen's edge is not the row's. ANY card
+        // will do — they share a width — but it has to be a card, which is why
+        // this asks by identifier rather than for `element(boundBy: 0)`: the
+        // settings button is an overlay above the tab content, and nothing
+        // orders it against the rows underneath.
+        let row = app.buttons.matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", AX.planRowPrefix)).firstMatch.frame
 
         // The strip to the RIGHT of the handle, derived from the two frames
         // rather than from a fixed inset: the handle sits on the left of its
@@ -111,7 +121,7 @@ final class HandlesUITests: XCTestCase {
         app.coordinate(withNormalizedOffset: .zero)
             .withOffset(CGVector(dx: 60, dy: handle.minY - 34))
             .tap()
-        XCTAssertTrue(app.staticTexts["technique-life"].waitForExistence(timeout: 5),
+        XCTAssertTrue(app.staticTexts[AX.techniqueLife].waitForExistence(timeout: 5),
                       "the plan row no longer opens the technique sheet")
         XCTAssertEqual(minutes.label, announced,
                        "opening the technique sheet rewrote the plan")
@@ -125,16 +135,16 @@ final class HandlesUITests: XCTestCase {
     /// presence check and fail the person.
     func testTheWarmUpAsksBeforeItStarts() {
         app.launch()
-        app.buttons["Start"].tap()
-        let offer = app.buttons["warmup-start"]
+        app.buttons[AX.startWorkout].tap()
+        let offer = app.buttons[AX.warmupStart]
         XCTAssertTrue(offer.waitForExistence(timeout: 5),
                       "the workout must open on the warm-up offer")
-        XCTAssertFalse(app.staticTexts["getready-countdown"].exists,
+        XCTAssertFalse(app.staticTexts[AX.getReadyCountdown].exists,
                        "nothing may be counting down before the block is agreed to")
-        XCTAssertFalse(app.staticTexts["warmup-countdown"].exists,
+        XCTAssertFalse(app.staticTexts[AX.warmupCountdown].exists,
                        "the warm-up must not have started itself")
         offer.tap()
-        XCTAssertTrue(app.staticTexts["getready-countdown"].waitForExistence(timeout: 5),
+        XCTAssertTrue(app.staticTexts[AX.getReadyCountdown].waitForExistence(timeout: 5),
                       "saying yes must open the block on its first transition")
     }
 
@@ -142,12 +152,12 @@ final class HandlesUITests: XCTestCase {
     /// recorded against the person for arriving already warm.
     func testTheWarmUpCanBeDeclined() {
         app.launch()
-        app.buttons["Start"].tap()
-        let skip = app.buttons["warmup-intro-skip"]
+        app.buttons[AX.startWorkout].tap()
+        let skip = app.buttons[AX.warmupIntroSkip]
         XCTAssertTrue(skip.waitForExistence(timeout: 5),
                       "the offer must carry a way past it")
         skip.tap()
-        XCTAssertTrue(app.buttons["Done"].waitForExistence(timeout: 5),
+        XCTAssertTrue(app.buttons[AX.exerciseDone].waitForExistence(timeout: 5),
                       "declining the warm-up must lead straight to the first exercise")
     }
 
@@ -157,42 +167,30 @@ final class HandlesUITests: XCTestCase {
         // Five movements skipped and the sixth actually performed: the block
         // is drawn from what was DONE, so a workout of pure skips has nothing
         // to stretch and is never asked the question at all.
-        app.launchArguments.append("--uitest-fast")
+        app.seedLaunchArguments("--uitest-fast")
         app.launch()
-        app.buttons["Start"].tap()
-        let skipWarmup = app.buttons["warmup-intro-skip"]
+        app.buttons[AX.startWorkout].tap()
+        let skipWarmup = app.buttons[AX.warmupIntroSkip]
         if skipWarmup.waitForExistence(timeout: 5) { skipWarmup.tap() }
         for _ in 0..<5 {
-            let skip = app.buttons["Skip exercise"]
+            let skip = app.buttons[AX.exerciseSkip]
             XCTAssertTrue(skip.waitForExistence(timeout: 10), "the work screen never came up")
             skip.tap()
         }
 
-        // The last movement is walked to its end; the question comes after it.
-        let driver = WorkoutDriver(app: app)
-        let start = app.buttons["cooldown-start"]
+        // The last movement is walked to its end by the driver; the question
+        // comes after it. A private copy of that loop is what this file used
+        // to carry, and the drift it invites had already cost six red nightly
+        // runs once.
         let rating = app.staticTexts["How did it go?"]
-        let done = app.buttons["Done"]
-        let startHold = app.buttons["Start hold"]
-        let deadline = Date.now.addingTimeInterval(180)
-        while !start.exists && !rating.exists && Date.now < deadline {
-            if done.exists {
-                driver.coordinateTap(done)
-                _ = done.waitForNonExistence(timeout: 3)
-            } else if startHold.exists {
-                driver.coordinateTap(startHold)
-                _ = startHold.waitForNonExistence(timeout: 3)
-            } else {
-                _ = start.waitForExistence(timeout: 2)
-            }
-        }
-
-        XCTAssertTrue(start.exists, "the work must end on the cool-down question")
-        XCTAssertTrue(app.buttons["cooldown-intro-skip"].exists,
+        XCTAssertTrue(WorkoutDriver(app: app).walkToCooldownOffer(deadline: 180),
+                      "the work must end on the cool-down question"
+                        + (rating.exists ? " — it reached the rating instead" : ""))
+        XCTAssertTrue(app.buttons[AX.cooldownIntroSkip].exists,
                       "the question must be answerable both ways")
-        XCTAssertFalse(app.staticTexts["cooldown-countdown"].exists,
+        XCTAssertFalse(app.staticTexts[AX.cooldownCountdown].exists,
                        "nothing may be counting down before the block is agreed to")
-        app.buttons["cooldown-intro-skip"].tap()
+        app.buttons[AX.cooldownIntroSkip].tap()
         XCTAssertTrue(rating.waitForExistence(timeout: 5),
                       "declining the cool-down goes to the rating")
     }

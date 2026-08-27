@@ -15,14 +15,17 @@ final class SetSkipUITests: XCTestCase {
     private var app: XCUIApplication!
     private var driver: WorkoutDriver { WorkoutDriver(app: app) }
 
-    override func setUp() {
-        super.setUp()
+    // `async throws`: a synchronous `setUp()` override inherits XCTestCase's
+    // non-isolated declaration whatever the class is annotated with, so
+    // main-actor `XCUIApplication` was reached from a non-isolated context.
+    // Only the async form may add the class's isolation.
+    override func setUp() async throws {
+        try await super.setUp()
         continueAfterFailure = false
         app = XCUIApplication()
         // --uitest-fast collapses the rests, so walking two sets costs
         // seconds rather than minutes.
-        app.launchArguments = ["--uitest-reset", "--uitest-fast",
-                               "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.seedLaunchArguments("--uitest-fast")
     }
 
     /// The set is not performed and the next one is up — with no rest in
@@ -34,13 +37,13 @@ final class SetSkipUITests: XCTestCase {
 
         XCTAssertTrue(app.staticTexts["set 1 of 3"].waitForExistence(timeout: 10),
                       "the work screen did not come up on the first set")
-        let skip = app.buttons["exercise-skip-set"]
+        let skip = app.buttons[AX.exerciseSkipSet]
         XCTAssertTrue(skip.exists, "the set-level skip is missing from the work screen")
         driver.coordinateTap(skip)
 
         XCTAssertTrue(app.staticTexts["set 2 of 3"].waitForExistence(timeout: 5),
                       "the skip did not move on to the next set")
-        XCTAssertFalse(app.buttons["Skip rest"].exists,
+        XCTAssertFalse(app.buttons[AX.skipRest].exists,
                        "a skipped set went through a rest nobody earned")
     }
 
@@ -49,31 +52,31 @@ final class SetSkipUITests: XCTestCase {
     /// With the floor's worth of sets behind it, the rest of them are a cut:
     /// the movement was trained, just less of it.
     func testTheExerciseEscapeNamesWhatItTakes() {
-        app.launchArguments.append("--uitest-long-session")
+        app.seedLaunchArguments("--uitest-fast", "--uitest-long-session")
         app.launch()
         driver.startWorkout()
 
         XCTAssertTrue(app.staticTexts["set 1 of 4"].waitForExistence(timeout: 10),
                       "--uitest-long-session must open on a four-set movement")
-        XCTAssertTrue(app.buttons["exercise-skip"].exists,
+        XCTAssertTrue(app.buttons[AX.exerciseSkip].exists,
                       "with nothing performed the escape must be the movement itself")
-        XCTAssertFalse(app.buttons["exercise-skip-rest"].exists,
+        XCTAssertFalse(app.buttons[AX.exerciseSkipRest].exists,
                        "a movement with nothing behind it has no “rest of the sets”")
 
         // Two sets behind — the floor. The escape changes what it takes.
         for set in 1...2 {
-            let done = app.buttons["Done"]
+            let done = app.buttons[AX.exerciseDone]
             XCTAssertTrue(done.waitForExistence(timeout: 10), "set \(set) never offered Done")
             driver.coordinateTap(done)
             _ = app.staticTexts["set \(set + 1) of 4"].waitForExistence(timeout: 10)
         }
 
-        XCTAssertTrue(app.buttons["exercise-skip-rest"].waitForExistence(timeout: 5),
+        XCTAssertTrue(app.buttons[AX.exerciseSkipRest].waitForExistence(timeout: 5),
                       "two sets in, the escape must offer to take the rest of them")
-        XCTAssertFalse(app.buttons["exercise-skip"].exists,
+        XCTAssertFalse(app.buttons[AX.exerciseSkip].exists,
                        "the two escapes must never both stand for the same tap")
 
-        driver.coordinateTap(app.buttons["exercise-skip-rest"])
+        driver.coordinateTap(app.buttons[AX.exerciseSkipRest])
         XCTAssertTrue(app.staticTexts["2 / 6"].waitForExistence(timeout: 5),
                       "the tap must move on to the next movement")
     }
@@ -83,20 +86,20 @@ final class SetSkipUITests: XCTestCase {
     /// moment of the tap — otherwise the person is skipping sets against a
     /// number that still describes the workout they decided not to do.
     func testTheTimeLeftFallsWithASkippedSet() {
-        app.launchArguments.append("--uitest-long-session")
+        app.seedLaunchArguments("--uitest-fast", "--uitest-long-session")
         app.launch()
         driver.startWorkout()
 
-        let left = app.staticTexts["time-left"]
+        let left = app.staticTexts[AX.timeLeft]
         XCTAssertTrue(left.waitForExistence(timeout: 10),
                       "the work screen must say what is left of the session")
         let before = minutes(in: left.label)
         XCTAssertGreaterThan(before, 40, "a 55-minute session should read as most of one")
 
-        driver.coordinateTap(app.buttons["exercise-skip-set"])
+        driver.coordinateTap(app.buttons[AX.exerciseSkipSet])
         XCTAssertTrue(app.staticTexts["set 2 of 4"].waitForExistence(timeout: 5))
 
-        XCTAssertLessThan(minutes(in: app.staticTexts["time-left"].label), before,
+        XCTAssertLessThan(minutes(in: app.staticTexts[AX.timeLeft].label), before,
                           "a skipped set bought no minutes on screen")
     }
 
@@ -111,11 +114,11 @@ final class SetSkipUITests: XCTestCase {
     /// skipped set — and doing it quietly as something else, under a word that
     /// promises less, is what the rule exists to prevent.
     func testAtTheFloorTheOnlyWayOutIsTheMovement() {
-        app.launchArguments.append("--uitest-long-session")
+        app.seedLaunchArguments("--uitest-fast", "--uitest-long-session")
         app.launch()
         driver.startWorkout()
 
-        let skip = app.buttons["exercise-skip-set"]
+        let skip = app.buttons[AX.exerciseSkipSet]
         XCTAssertTrue(skip.waitForExistence(timeout: 10), "no work screen to skip on")
         // Four sets: two can go, and the third would leave a single one.
         driver.coordinateTap(skip)
@@ -126,7 +129,7 @@ final class SetSkipUITests: XCTestCase {
 
         XCTAssertFalse(skip.exists,
                        "a third skipped set would leave one — it must not be offered")
-        XCTAssertTrue(app.buttons["exercise-skip"].exists,
+        XCTAssertTrue(app.buttons[AX.exerciseSkip].exists,
                       "with the sets spent, the way out is the movement, and it says so")
     }
 }

@@ -157,11 +157,12 @@ final class WidgetTimelineTests: XCTestCase {
     // MARK: - The views' words
 
     private func entry(_ status: WidgetSnapshot.DayStatus?,
+                       sessionNumber: Int? = nil,
                        nextLabel: String? = nil,
                        planSession: Int? = nil,
                        planMinutes: Int? = nil,
                        plan: [WidgetSnapshot.PlanRow] = []) -> TodayEntry {
-        TodayEntry(date: date(2), status: status, sessionNumber: nil, week: [],
+        TodayEntry(date: date(2), status: status, sessionNumber: sessionNumber, week: [],
                    totalSteps: nil, summary: nil, nextLabel: nextLabel,
                    planSessionNumber: planSession, planMinutes: planMinutes, plan: plan)
     }
@@ -191,4 +192,73 @@ final class WidgetTimelineTests: XCTestCase {
         XCTAssertEqual(TodayStatusView(entry: .empty).subline, String(localized: "Dredfit"),
                        "no snapshot yet — the widget signs itself, it does not guess")
     }
+
+    /// The number comes from the snapshot's day, never from the view: a
+    /// snapshot written before the app knew the session number carries none,
+    /// and the widget then has a workout day with no name for it.
+    func test_headline_onAWorkoutDay_namesTheSessionOnlyWhenTheSnapshotCarriedItsNumber() {
+        XCTAssertEqual(TodayStatusView(entry: entry(.workout, sessionNumber: 12)).headline,
+                       String(localized: "Workout \(12)"),
+                       "the day's own number is what the home screen shows")
+        XCTAssertEqual(TodayStatusView(entry: entry(.workout)).headline,
+                       String(localized: "Workout day"),
+                       "and with no number the day is still a workout day, not a blank")
+    }
+
+    /// A snapshot from an older build carries no plan rows. The minutes may
+    /// still be there, and "≈ 34 min · 0 exercises" is the sentence that would
+    /// then be printed — a promise about a workout the widget cannot describe.
+    func test_subline_onAWorkoutDayWhosePlanIsMissing_signsItselfRatherThanCountingZeroExercises() {
+        let view = TodayStatusView(entry: entry(.workout, planMinutes: 34, plan: []))
+
+        XCTAssertEqual(view.subline, String(localized: "Dredfit"),
+                       "with no rows there is nothing to count, and a count of zero is worse than silence")
+    }
+
+    /// Both halves of "Next: Workout 12 · tomorrow" come out of the snapshot,
+    /// and the line exists only when both arrived.
+    func test_nextPlanText_whenEitherHalfOfTheLineIsMissing_isNotShownAtAll() {
+        XCTAssertNotNil(TodayStatusView(entry: entry(.rest, nextLabel: "tomorrow", planSession: 12))
+            .nextPlanText, "the fixture must produce the line when both halves are there")
+        XCTAssertNil(TodayStatusView(entry: entry(.rest, nextLabel: "tomorrow")).nextPlanText,
+                     "without a session number there is no workout to point at")
+        XCTAssertNil(TodayStatusView(entry: entry(.rest, planSession: 12)).nextPlanText,
+                     "and without a day there is no when — a half-line reads as a promise for today")
+    }
+
+    /// The plan rows arrived with v3. A snapshot still on disk from the build
+    /// before it must render as a plain workout day, not blank the widget.
+    func test_entries_fromASnapshotWrittenBeforeThePlanExisted_carryAnEmptyPlan() {
+        let (whole, today) = fixture()
+        let legacy = WidgetSnapshot(days: whole.days, totalSteps: whole.totalSteps,
+                                    week: whole.week, weekStart: whole.weekStart,
+                                    planSessionNumber: whole.planSessionNumber,
+                                    planMinutes: whole.planMinutes, plan: nil)
+        let entries = TodayProvider().entries(from: legacy, today: today)
+
+        XCTAssertFalse(entries.isEmpty, "a snapshot without rows is still a snapshot")
+        XCTAssertTrue(entries.allSatisfy { $0.plan.isEmpty },
+                      "the absent rows read as none rather than reaching the views as an optional "
+                      + "they would each have to unwrap")
+    }
 }
+
+// NOT COVERED HERE, and not coverable as the code stands:
+//
+//  * `TodayStatusView.weekSummaryText(_:)` — "A snapshot written before the
+//    scale changed carries no `stepsDelta`, so the line drops that segment
+//    instead of reading a level count as steps."
+//
+// The DECODE half of that contract is guarded (AppStoreTests+WidgetSnapshot:
+// `testWidgetSnapshotWeekFromBeforeTheScaleChangeStillDecodes`); the RENDER
+// half is not, and cannot be: the function returns a `Text` chain, and two
+// Texts with identical words do not reliably compare equal (I-8) — which is
+// why every other word-builder in that file was turned into a resolved
+// `String` and this one was left behind.
+//
+// The minimal change that would make it testable: finish I-8 here too —
+// `func weekSummaryString(_ week: WidgetSnapshot.Week) -> String` built from
+// `String(localized:)`, with `weekSummaryLine` wrapping it in a single
+// `Text(verbatim:)`. Two assertions then cover the rule: a week WITH a delta
+// prints it with its sign (TESTPLAN §12.12 wants a negative one shown, not
+// hidden), and a week without one prints the two leading segments and stops.

@@ -80,12 +80,19 @@ final class GetReadyTests: XCTestCase {
     // MARK: - Honest numbers
 
     /// What one position costs uninterrupted, supplement and sides included.
+    ///
+    /// Routes through `GetReady.stageSeconds(needsSetup:)` rather than
+    /// re-deriving `seconds + setupSupplementSec` by hand — the hand-rolled
+    /// version here and `BlockReserveTests.cost(_:CooldownPosition)` used to
+    /// state the same formula two different ways, which stays correct only
+    /// as long as nobody changes the production one without noticing the
+    /// copy. Calling the real function makes that impossible instead of
+    /// merely unlikely.
     private func cost(of position: CooldownPosition) -> Int {
-        GetReady.seconds
-            + (position.needsSetup ? GetReady.setupSupplementSec : 0)
-            + (position.perSide
-                ? Cooldown.sideSeconds * 2 + Cooldown.sideSwitchPauseSec
-                : Cooldown.positionSeconds)
+        let hold = position.perSide
+            ? Cooldown.sideSeconds * 2 + Cooldown.sideSwitchPauseSec
+            : Cooldown.positionSeconds
+        return GetReady.stageSeconds(needsSetup: position.needsSetup) + hold
     }
 
     /// The decision this feature rests on: the transitions — supplements

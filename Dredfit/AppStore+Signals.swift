@@ -20,9 +20,14 @@ extension AppStore {
     static let longRunThreshold = 3
 
     /// Consecutive calendar days with a completed workout, counting back from
-    /// (and including) the given day. Local-midnight day math — a display
-    /// place, deliberately unlike `gapDays`, which counts whole elapsed 24h
-    /// periods; two workouts on one day count once.
+    /// (and including) the given day. Local-midnight day math — the SAME day
+    /// math `gapDays` uses. This sentence used to end "deliberately unlike
+    /// `gapDays`, which counts whole elapsed 24h periods", and it outlived the
+    /// change it described: #172 (v2.24) moved `gapDays` onto `startOfDay` too,
+    /// because Monday 23:00 → Tuesday 01:00 was a zero-day gap to the decay and
+    /// the comeback card. Nothing here is "unlike" anything any more, and a
+    /// reader who trusted the old note would seed a test in elapsed seconds.
+    /// Two workouts on one day still count once.
     func consecutiveTrainingDays(endingOn day: Date) -> Int {
         let cal = Calendar.current
         let trained = Set(records.map { cal.startOfDay(for: $0.date) })

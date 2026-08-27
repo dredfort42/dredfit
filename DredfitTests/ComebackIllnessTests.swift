@@ -14,14 +14,16 @@ final class ComebackIllnessTests: AppStoreTestCase {
 
     /// A store whose only workout was `days` ago, every movement a couple of
     /// variations up — seeded through the storage file, the same door the real
-    /// app loads through. Elapsed seconds, not calendar days: gapDays counts
-    /// whole 24h periods and a calendar seed across a spring-forward
-    /// transition would land an hour short of the exact 90/2-day boundaries.
+    /// app loads through.
+    ///
+    /// The seed counts MIDNIGHTS — see `AppStoreTestCase.daysAgo` for why
+    /// (#172, DST); the 89/90 boundary below is exactly the kind of edge an
+    /// elapsed-seconds seed would get wrong.
     ///
     /// The journal of what was shown is seeded too: in v3 a descent lands in
     /// it (§40.6), and a state without one would send every comeback to 3×4
     /// whatever the gap.
-    private func returned(after days: Int) -> AppStore {
+    private func returned(after days: Int) throws -> AppStore {
         var state = EngineState.initial
         state.counter = 11
         for p in Pattern.allCases {
@@ -32,28 +34,28 @@ final class ComebackIllnessTests: AppStoreTestCase {
             for v in 1...target { journal[v] = Dose.grid(Library.unit(p, v)).max }
             state.shown[p] = journal
         }
+        let stamp = try daysAgo(days)
         let record = WorkoutRecord(
             sessionNumber: 11,
-            date: Date(timeIntervalSinceNow: -Double(days) * 86_400),
+            date: stamp,
             result: .plan,
             totalProgressAfter: Engine.totalProgress(state))
         struct Seed: Encodable {
             let engineState: EngineState
             let records: [WorkoutRecord]
         }
-        do {
-            try JSONEncoder().encode(Seed(engineState: state, records: [record]))
-                .write(to: tempURL)
-        } catch {
-            XCTFail("seeding failed: \(error)")
-        }
+        // Thrown, not swallowed into XCTFail: a failed write left the previous
+        // test's file in place and every assertion below then read a store
+        // nobody had seeded.
+        try JSONEncoder().encode(Seed(engineState: state, records: [record]))
+            .write(to: tempURL)
         return AppStore(storageURL: tempURL)
     }
 
     // MARK: - #128 the reentrancy guard
 
-    func testADoubleAcceptDropsOnlyOnce() {
-        let store = returned(after: 35)
+    func testADoubleAcceptDropsOnlyOnce() throws {
+        let store = try returned(after: 35)
         store.acceptComeback()
         let once = Engine.progress(store.engineState, .pull)
         store.acceptComeback()   // a double tap, an assistive-tech repeat…
@@ -63,8 +65,8 @@ final class ComebackIllnessTests: AppStoreTestCase {
                        "and must not deepen the v2.12 return series either")
     }
 
-    func testAcceptAfterDeclineIsANoOpToo() {
-        let store = returned(after: 35)
+    func testAcceptAfterDeclineIsANoOpToo() throws {
+        let store = try returned(after: 35)
         store.declineComeback()
         let kept = Engine.progress(store.engineState, .pull)
         store.acceptComeback()
@@ -74,13 +76,15 @@ final class ComebackIllnessTests: AppStoreTestCase {
 
     // MARK: - #127 the sighted decline path
 
-    func testTheFreshStartIsReachableFromNinetyDays() {
-        XCTAssertFalse(returned(after: 89).offersFreshStart())
-        XCTAssertTrue(returned(after: 90).offersFreshStart())
+    func testTheFreshStartIsReachableFromNinetyDays() throws {
+        XCTAssertFalse(try returned(after: 89).offersFreshStart(),
+                       "89 midnights is one short of the fresh start")
+        XCTAssertTrue(try returned(after: 90).offersFreshStart(),
+                      "90 midnights reaches it, and the boundary is inclusive")
     }
 
     func testThePreviewShowsBothOffersAsNumbers() throws {
-        let store = returned(after: 90)
+        let store = try returned(after: 90)
         let preview = try XCTUnwrap(store.comebackPreview())
         XCTAssertNotEqual(preview.was, preview.easier,
                           "after a long break the two offers must differ")
