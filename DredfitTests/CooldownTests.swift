@@ -1,8 +1,3 @@
-//
-//  CooldownTests.swift
-//  DredfitTests
-//
-
 import XCTest
 import DredfitCore
 @testable import Dredfit
@@ -51,8 +46,10 @@ final class CooldownTests: XCTestCase {
         XCTAssertEqual(positions[4].id, "lat-stretch")
     }
 
-    func testShortWorkoutStillGetsSixPositions() {
-        // Three performed movements that all map to distinct positions.
+    func testAWorkoutOfThreePerformedMovementsStillGetsSixPositions() {
+        // Three performed movements that all map to distinct positions —
+        // whatever left the other three out: skipped exercises, or a session
+        // finished early.
         let positions = Cooldown.positions(performed: [.pull, .squat, .coreRot])
         XCTAssertEqual(positions.count, Cooldown.positionCount)
         // And three that collapse to two mapped positions — topped up.
@@ -66,15 +63,18 @@ final class CooldownTests: XCTestCase {
                       "a workout of pure skips has nothing to stretch")
     }
 
-    func testTheBlockFillsExactlyTheEnginesReservedMinutes() {
-        // 6 × 30 s = the 3 minutes `cooldownMin` has promised since 1.0:
-        // sides and positions sum to the reserved minutes. The side-switch
-        // pauses (issue #35) and the get-ready transitions (issue #52) ride
-        // on top, within the "≈" every estimate has always carried — they are
-        // deliberately not part of this equation. GetReadyTests holds the
-        // whole of both blocks to the reserved warm-up + cool-down minutes.
-        XCTAssertEqual(Cooldown.positionCount * Cooldown.positionSeconds,
-                       EngineConfig.cooldownMin * 60)
+    /// RE-MARKED. The holds alone used to equal the reserved minutes exactly —
+    /// 6 × 30 s = 3 min — with the transitions and the switch pauses riding
+    /// inside the "≈". `cooldownMin` is 4 now, and the extra minute is not
+    /// more stretching: it pays for the longer transitions. So the identity
+    /// moved from "the holds fill the reserve" to "the holds plus what carries
+    /// them do", and the whole-block version of it lives in BlockReserveTests
+    /// where both blocks are counted together.
+    func testTheHoldsAloneNoLongerFillTheReserve() {
+        let holds = Cooldown.positionCount * Cooldown.positionSeconds
+        XCTAssertEqual(holds, 180, "six positions of thirty seconds")
+        XCTAssertLessThan(holds, EngineConfig.cooldownMin * 60,
+                          "the reserve now carries the transitions as well")
     }
 
     func testAPerSidePositionSplitsIntoTwoWholeSidesPlusThePause() {
@@ -147,7 +147,9 @@ final class CooldownTests: XCTestCase {
                                        positions: positions)
         XCTAssertEqual(landing?.index, 1)
         XCTAssertEqual(landing?.stage, .getReady)
-        XCTAssertEqual(landing?.remaining, GetReady.seconds - 2)
+        XCTAssertEqual(landing?.remaining,
+                       GetReady.seconds + GetReady.setupSupplementSec - 2,
+                       "chest wall carries the supplement of issue #83")
         // An overshoot past the whole block is simply over.
         XCTAssertNil(Cooldown.advance(from: (0, .firstSide), overshoot: 10_000,
                                       positions: positions))

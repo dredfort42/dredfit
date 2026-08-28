@@ -1,0 +1,106 @@
+//
+// The app half of the comeback wave (issues #127, #128): the accept guard, the
+// sighted decline path and the numbered preview, as the user meets them
+// through AppStore. The "I was sick" lens the file is half-named after was
+// removed — its four tests, and why they went, are at the bottom.
+//
+
+import XCTest
+import DredfitCore
+@testable import Dredfit
+
+@MainActor
+final class ComebackIllnessTests: AppStoreTestCase {
+
+    /// A store whose only workout was `days` ago, every movement a couple of
+    /// variations up — seeded through the storage file, the same door the real
+    /// app loads through.
+    ///
+    /// The seed counts MIDNIGHTS — see `AppStoreTestCase.daysAgo` for why
+    /// (#172, DST); the 89/90 boundary below is exactly the kind of edge an
+    /// elapsed-seconds seed would get wrong.
+    ///
+    /// The journal of what was shown is seeded too: in v3 a descent lands in
+    /// it (§40.6), and a state without one would send every comeback to 3×4
+    /// whatever the gap.
+    private func returned(after days: Int) throws -> AppStore {
+        var state = EngineState.initial
+        state.counter = 11
+        for p in Pattern.allCases {
+            let target = min(3, Library.count(p))
+            state.vars[p] = target
+            state.doses[p] = Dose.grid(Library.unit(p, target)).max
+            var journal: [Int: Int] = [:]
+            for v in 1...target { journal[v] = Dose.grid(Library.unit(p, v)).max }
+            state.shown[p] = journal
+        }
+        let stamp = try daysAgo(days)
+        let record = WorkoutRecord(
+            sessionNumber: 11,
+            date: stamp,
+            result: .plan,
+            totalProgressAfter: Engine.totalProgress(state))
+        struct Seed: Encodable {
+            let engineState: EngineState
+            let records: [WorkoutRecord]
+        }
+        // Thrown, not swallowed into XCTFail: a failed write left the previous
+        // test's file in place and every assertion below then read a store
+        // nobody had seeded.
+        try JSONEncoder().encode(Seed(engineState: state, records: [record]))
+            .write(to: tempURL)
+        return AppStore(storageURL: tempURL)
+    }
+
+    // MARK: - #128 the reentrancy guard
+
+    func testADoubleAcceptDropsOnlyOnce() throws {
+        let store = try returned(after: 35)
+        store.acceptComeback()
+        let once = Engine.progress(store.engineState, .pull)
+        store.acceptComeback()   // a double tap, an assistive-tech repeat…
+        XCTAssertEqual(Engine.progress(store.engineState, .pull), once,
+                       "the second call must be a silent no-op")
+        XCTAssertEqual(store.engineState.returnRun, 1,
+                       "and must not deepen the v2.12 return series either")
+    }
+
+    func testAcceptAfterDeclineIsANoOpToo() throws {
+        let store = try returned(after: 35)
+        store.declineComeback()
+        let kept = Engine.progress(store.engineState, .pull)
+        store.acceptComeback()
+        XCTAssertEqual(Engine.progress(store.engineState, .pull), kept,
+                       "the question was answered — a stray accept changes nothing")
+    }
+
+    // MARK: - #127 the sighted decline path
+
+    func testTheFreshStartIsReachableFromNinetyDays() throws {
+        XCTAssertFalse(try returned(after: 89).offersFreshStart(),
+                       "89 midnights is one short of the fresh start")
+        XCTAssertTrue(try returned(after: 90).offersFreshStart(),
+                      "90 midnights reaches it, and the boundary is inclusive")
+    }
+
+    func testThePreviewShowsBothOffersAsNumbers() throws {
+        let store = try returned(after: 90)
+        let preview = try XCTUnwrap(store.comebackPreview())
+        XCTAssertNotEqual(preview.was, preview.easier,
+                          "after a long break the two offers must differ")
+        XCTAssertTrue(preview.was.contains("×"), "the old plan is numbers, not adjectives")
+        XCTAssertTrue(preview.easier.contains("×"))
+    }
+
+    // SNIPPED: the four tests of the "I was sick" lens. The lens made the plan
+    // HEAVIER in 76 cells out of 480 (finding S6-2, P0) — the opposite of what
+    // the tap offered — so the mechanism went rather than being fixed.
+    // `markIllness`, `illnessSessionsLeft` and the quiet offer in the blind
+    // window went with it.
+    //
+    // The comeback half of this suite is untouched: it never belonged to the
+    // lens, and are not part of this wave.
+    //
+    // The file keeps its name so the Xcode project does not have to move: the
+    // rename would be a change to project.pbxproj for no behaviour at all.
+}

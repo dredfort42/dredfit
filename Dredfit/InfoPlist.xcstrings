@@ -19,43 +19,43 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dredfit liest deine Health-Daten nie. Diese Berechtigung gehört einfach zur API, über die Trainings gespeichert werden."
+            "value" : "Dredfit liest Gewicht, Größe, Alter und Ruheenergie, um die Kalorien eines Trainings zu schätzen, und deine anderen Trainings, damit dieselbe Einheit nicht doppelt zählt. Nichts verlässt dieses Gerät."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dredfit never reads your Health data — this permission simply comes with the API that saves workouts."
+            "value" : "Dredfit reads your weight, height, age and resting energy to estimate the calories of a workout, and your other workouts so the same session is not counted twice. Nothing leaves this device."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dredfit nunca lee tus datos de Salud. Este permiso es solo parte de la API que guarda los entrenamientos."
+            "value" : "Dredfit lee tu peso, estatura, edad y energía en reposo para estimar las calorías de un entrenamiento, y tus otros entrenamientos para no contar la misma sesión dos veces. Nada sale de este dispositivo."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dredfit ne lit jamais tes données Santé. Cette autorisation fait simplement partie de l’API qui enregistre les séances."
+            "value" : "Dredfit lit ton poids, ta taille, ton âge et ton énergie au repos pour estimer les calories d’une séance, et tes autres séances pour ne pas compter deux fois la même. Rien ne quitte cet appareil."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dredfit non legge mai i tuoi dati di Salute – questo permesso fa semplicemente parte dell’API che salva gli allenamenti."
+            "value" : "Dredfit legge peso, altezza, età ed energia a riposo per stimare le calorie di un allenamento, e i tuoi altri allenamenti per non contare due volte la stessa sessione. Niente esce da questo dispositivo."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "O Dredfit nunca lê seus dados do app Saúde. Esta permissão é apenas parte da API que salva os treinos."
+            "value" : "O Dredfit lê seu peso, altura, idade e energia em repouso para estimar as calorias de um treino, e seus outros treinos para não contar a mesma sessão duas vezes. Nada sai deste dispositivo."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dredfit никогда не читает данные «Здоровья». Это разрешение — лишь часть API, через который сохраняются тренировки."
+            "value" : "Dredfit читает вес, рост, возраст и энергию покоя, чтобы оценить калории тренировки, и другие тренировки — чтобы одна сессия не засчиталась дважды. Ничего не покидает это устройство."
           }
         }
       }
@@ -66,43 +66,43 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dredfit speichert abgeschlossene Trainings in Health. Sonst wird nichts geteilt."
+            "value" : "Dredfit sichert abgeschlossene Trainings mit den geschätzten Kalorien in Health. Sonst wird nichts weitergegeben."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dredfit saves completed workouts to Health. Nothing else is shared."
+            "value" : "Dredfit saves completed workouts, and their estimated calories, to Health. Nothing else is shared."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dredfit guarda en Salud los entrenamientos completados. No se comparte nada más."
+            "value" : "Dredfit guarda los entrenamientos completados, con sus calorías estimadas, en Salud. No se comparte nada más."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dredfit enregistre les séances terminées dans Santé. Rien d’autre n’est partagé."
+            "value" : "Dredfit enregistre les séances terminées, avec leurs calories estimées, dans Santé. Rien d’autre n’est partagé."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dredfit salva in Salute gli allenamenti completati. Nient’altro viene condiviso."
+            "value" : "Dredfit salva gli allenamenti completati, con le calorie stimate, in Salute. Nient’altro viene condiviso."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "O Dredfit salva no app Saúde os treinos concluídos. Nada mais é compartilhado."
+            "value" : "O Dredfit salva os treinos concluídos, com as calorias estimadas, no app Saúde. Nada mais é compartilhado."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dredfit записывает завершенные тренировки в «Здоровье». Больше ничего не передается."
+            "value" : "Dredfit сохраняет завершенные тренировки и их расчетные калории в «Здоровье». Больше ничего не передается."
           }
         }
       }

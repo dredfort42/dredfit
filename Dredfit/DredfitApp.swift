@@ -1,8 +1,3 @@
-//
-//  DredfitApp.swift
-//  Dredfit
-//
-
 import SwiftUI
 
 @main
@@ -14,7 +9,6 @@ struct DredfitApp: App {
         WindowGroup {
             RootView()
                 .environment(store)
-                .preferredColorScheme(.light)
         }
     }
 }

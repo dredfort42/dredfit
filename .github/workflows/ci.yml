@@ -33,10 +33,27 @@ jobs:
         working-directory: DredfitCore
         run: swift test --parallel
 
+  gate-contract:
+    name: Engine gate contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # The gates themselves cannot run here: they live in `reference/`, which
+      # is gitignored and never checked out on a runner. What this catches is
+      # the checklist drifting away from them — a row that names no command, or
+      # names no line that means clean, is how a gate goes quiet. Running them
+      # is a local gate, part of the release procedure in WORKFLOWS.md.
+      - name: Check the gate table still parses
+        run: python3 scripts/check_engine_gates.py --contract
+
   app-tests:
     name: Dredfit app unit tests (iOS Simulator, no UI)
     runs-on: macos-latest
-    timeout-minutes: 30
+    # Serial execution costs wall-clock; the cap is a backstop, not a target.
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -44,25 +61,60 @@ jobs:
       - name: Select Xcode
         uses: ./.github/actions/setup-xcode
 
-      - name: Select iPhone simulator
+      - name: Select and boot iPhone simulator
         id: sim
         run: |
-          device=$(xcrun simctl list devices available | grep -E '^\s+iPhone' | head -1 | sed 's/ (.*//' | xargs)
-          if [ -z "$device" ]; then
+          line=$(xcrun simctl list devices available | grep -E '^\s+iPhone' | head -1)
+          device=$(echo "$line" | sed 's/ (.*//' | xargs)
+          udid=$(echo "$line" | grep -oE '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}' | head -1)
+          if [ -z "$device" ] || [ -z "$udid" ]; then
             echo "No iPhone simulator found on runner" >&2
             exit 1
           fi
-          echo "Using simulator: $device"
+          echo "Using simulator: $device ($udid)"
           echo "device=$device" >> "$GITHUB_OUTPUT"
+          # Pre-boot and wait for readiness, as ui-tests.yml does: the first
+          # test should not race a cold simulator boot under load.
+          xcrun simctl boot "$udid" || true
+          xcrun simctl bootstatus "$udid" || true
 
       - name: Build and test (UI tests excluded)
+        # A wall on the step, not just on the job: a step that runs out fails
+        # the run outright, where the job's own cap cancels it — and a
+        # cancelled run reads as "someone stopped this", not "CI is broken".
+        timeout-minutes: 35
         run: |
           set -o pipefail
+          # Serial, deliberately — the same conclusion ui-tests.yml reached for
+          # the UI suite, applied here at last (#164). The test plan marks its
+          # targets parallelizable, which is right on a developer's machine and
+          # wrong on a shared runner: every clone is another simulator's worth
+          # of memory beside an Xcode build. As the suite grew, the second
+          # clone stopped being able to launch the app at all — "RequestDenied
+          # ... denied by service delegate (SBMainWorkspace)" — and from
+          # 2026-08-17 no CI run finished on any branch.
+          #
+          # The timeouts are the safety net. Without them that denied launch
+          # left xcodebuild waiting with nothing to say for 17 minutes, until
+          # the job hit its own cap: every run since read as "cancelled", with
+          # no failing test named anywhere. A per-test allowance turns the same
+          # event into a red, named test in minutes.
+          #
+          # 300 s is a wall, not a target: with the suite healthy the slowest
+          # test in it runs in 0.1 s and the whole thing takes under half a
+          # minute. The first serial run with these flags spent five minutes in
+          # a single test and was killed by them — which is how the stall in
+          # JournalSanitizationTests was found at all, after three days of runs
+          # that reported nothing.
           xcodebuild test \
             -project Dredfit.xcodeproj \
             -scheme Dredfit \
             -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.device }}" \
             -skip-testing:DredfitUITests \
+            -parallel-testing-enabled NO \
+            -test-timeouts-enabled YES \
+            -default-test-execution-time-allowance 300 \
+            -maximum-test-execution-time-allowance 600 \
             -enableCodeCoverage YES \
             CODE_SIGNING_ALLOWED=NO \
             | xcbeautify --renderer github-actions

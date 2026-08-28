@@ -3667,49 +3667,49 @@
         }
       }
     },
-    "Lie under a sturdy table and grab the edge with a shoulder-width grip.": {
+    "Lie under a sturdy table and grab the edge with a shoulder-width grip; if the edge cuts into the fingers, lay a rolled towel over it.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Leg dich unter einen stabilen Tisch und greif die Kante schulterbreit."
+            "value": "Leg dich unter einen stabilen Tisch und greif die Kante schulterbreit; schneidet dir die Kante in die Finger, leg ein gerolltes Handtuch darüber."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lie under a sturdy table and grab the edge with a shoulder-width grip."
+            "value": "Lie under a sturdy table and grab the edge with a shoulder-width grip; if the edge cuts into the fingers, lay a rolled towel over it."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Acuéstate bajo una mesa firme y agarra el borde con las manos al ancho de los hombros."
+            "value": "Acuéstate bajo una mesa firme y agarra el borde con las manos al ancho de los hombros; si el borde se te clava en los dedos, pon encima una toalla enrollada."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Allonge-toi sous une table solide et attrape le bord, les mains à la largeur des épaules."
+            "value": "Allonge-toi sous une table solide et attrape le bord, les mains à la largeur des épaules ; si le bord te scie les doigts, pose dessus une serviette roulée."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sdraiati sotto un tavolo robusto e afferra il bordo con le mani alla larghezza delle spalle."
+            "value": "Sdraiati sotto un tavolo robusto e afferra il bordo con le mani alla larghezza delle spalle; se il bordo ti taglia le dita, mettici sopra un asciugamano arrotolato."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deite embaixo de uma mesa firme e segure a borda com as mãos na largura dos ombros."
+            "value": "Deite embaixo de uma mesa firme e segure a borda com as mãos na largura dos ombros; se a borda machucar os dedos, ponha uma toalha enrolada por cima."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ляг под прочный стол и возьмись за край хватом на ширине плеч."
+            "value": "Ляг под прочный стол и возьмись за край хватом на ширине плеч; если край врезается в пальцы, положи на него свёрнутое полотенце."
           }
         }
       }
@@ -5077,49 +5077,49 @@
         }
       }
     },
-    "Kick up into a handstand with your back to the wall, heels resting on it.": {
+    "Getting in: face away from the wall, hands a palm's length from it, and walk your feet up until your heels rest on it.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Schwing dich mit dem Rücken zur Wand in den Handstand, die Fersen lehnen an der Wand."
+            "value": "Einstieg: mit dem Rücken zur Wand, Hände eine Handbreit davor, dann mit den Füßen die Wand hochlaufen, bis die Fersen aufliegen."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kick up into a handstand with your back to the wall, heels resting on it."
+            "value": "Getting in: face away from the wall, hands a palm's length from it, and walk your feet up until your heels rest on it."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sube a la parada de manos de espaldas a la pared, con los talones apoyados en ella."
+            "value": "Entrada: de espaldas a la pared, manos a un palmo de ella, y sube caminando con los pies hasta apoyar los talones."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Élance-toi en poirier dos au mur, les talons appuyés dessus."
+            "value": "Entrée : dos au mur, mains à une paume de distance, puis monte les pieds le long du mur jusqu’à poser les talons."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sali in verticale con uno slancio, dando le spalle al muro, talloni appoggiati."
+            "value": "Ingresso: schiena al muro, mani a un palmo da esso, e cammina con i piedi sul muro finché i talloni non si appoggiano."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Suba na parada de mão de costas para a parede, com os calcanhares apoiados nela."
+            "value": "Entrada: de costas para a parede, mãos a um palmo dela, e suba com os pés pela parede até apoiar os calcanhares."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Выйди в стойку на руках спиной к стене, пятки на стене."
+            "value": "Вход: спиной к стене, ладони в ладони от неё, и поднимайся ногами по стене, пока пятки не лягут на неё."
           }
         }
       }
@@ -5171,49 +5171,49 @@
         }
       }
     },
-    "Press back up; know how to exit safely — step down one leg at a time.": {
+    "Getting out: walk the feet back down the wall. If you have to bail mid-rep, turn your head to one side and step over — never collapse straight down.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Drück dich wieder hoch; überleg dir vorher, wie du sicher wieder runterkommst – setz ein Bein nach dem anderen ab."
+            "value": "Ausstieg: die Füße an der Wand wieder hinunterlaufen. Musst du mitten in der Wiederholung abbrechen, dreh den Kopf zur Seite und steig seitlich ab – sacke nie gerade nach unten zusammen."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Press back up; know how to exit safely — step down one leg at a time."
+            "value": "Getting out: walk the feet back down the wall. If you have to bail mid-rep, turn your head to one side and step over — never collapse straight down."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Empuja hacia arriba; ten claro cómo salir con seguridad: baja una pierna y después la otra."
+            "value": "Salida: baja los pies por la pared. Si tienes que abandonar a media repetición, gira la cabeza hacia un lado y pasa por encima; nunca te desplomes en línea recta."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Repousse-toi vers le haut ; prévois comment redescendre en toute sécurité : repose une jambe, puis l’autre."
+            "value": "Sortie : redescends les pieds le long du mur. S’il faut abandonner en pleine répétition, tourne la tête sur le côté et enjambe — ne t’effondre jamais à la verticale."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spingi verso l’alto; pensa prima a come uscire in sicurezza – abbassa una gamba alla volta."
+            "value": "Uscita: riporta i piedi giù lungo il muro. Se devi interrompere a metà ripetizione, gira la testa di lato e scavalca: mai accasciarti in linea retta."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Empurre para cima; saiba sair com segurança: desça uma perna de cada vez."
+            "value": "Saída: desça os pés pela parede. Se precisar abortar no meio da repetição, vire a cabeça para o lado e passe por cima — nunca desabe em linha reta."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Выжмись вверх; заранее знай, как безопасно выйти из стойки — опускай ноги по одной."
+            "value": "Сход: спусти ноги по стене обратно. Если приходится сойти на середине повтора — поверни голову вбок и перешагни, но не складывайся вниз."
           }
         }
       }
@@ -5312,284 +5312,237 @@
         }
       }
     },
-    "Chest-to-wall handstand push-up": {
+    "Feet-elevated pike push-up": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Handstand-Liegestütze mit Brust zur Wand"
+            "value": "Pike-Liegestütz mit erhöhten Füßen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chest-to-wall handstand push-up"
+            "value": "Feet-elevated pike push-up"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Flexión en parada de manos de frente a la pared"
+            "value": "Flexión en pica con pies elevados"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pompes en poirier face au mur"
+            "value": "Pompes en pique, pieds surélevés"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Flessioni in verticale petto al muro"
+            "value": "Piegamenti a pike con piedi rialzati"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Flexão em parada de mão de frente para a parede"
+            "value": "Flexão em pique com pés elevados"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Отжимания в стойке грудью к стене"
+            "value": "Отжимания «щучкой» с ногами на возвышении"
           }
         }
       }
     },
-    "Walk your feet up the wall, chest facing it, body close to vertical.": {
+    "Put your feet on a chair or a low bed and walk your hands back into a steep inverted V.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Geh mit den Füßen die Wand hoch, Brust zur Wand, der Körper fast senkrecht."
+            "value": "Stell die Füße auf einen Stuhl oder ein niedriges Bett und lauf mit den Händen zurück in ein steiles umgekehrtes V."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Walk your feet up the wall, chest facing it, body close to vertical."
+            "value": "Put your feet on a chair or a low bed and walk your hands back into a steep inverted V."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sube caminando con los pies por la pared, el pecho hacia ella y el cuerpo casi vertical."
+            "value": "Apoya los pies en una silla o una cama baja y camina con las manos hasta formar una V invertida pronunciada."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Monte les pieds pas à pas le long du mur, poitrine face au mur, le corps presque à la verticale."
+            "value": "Pose les pieds sur une chaise ou un lit bas et rapproche les mains pour former un V inversé bien marqué."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sali camminando con i piedi sul muro, petto rivolto al muro, corpo quasi verticale."
+            "value": "Appoggia i piedi su una sedia o un letto basso e cammina con le mani fino a formare una V rovesciata ripida."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Suba caminhando com os pés pela parede, o peito voltado para ela e o corpo quase vertical."
+            "value": "Apoie os pés numa cadeira ou cama baixa e caminhe com as mãos até formar um V invertido bem fechado."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Шагай ногами вверх по стене, грудью к ней, тело почти вертикально."
+            "value": "Поставь ноги на стул или низкую кровать и подставь руки ближе — тело в крутой букве V."
           }
         }
       }
     },
-    "Bend the elbows slowly, lowering the head to the floor.": {
+    "Press back up; the higher the feet, the closer this gets to a handstand.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Beug die Ellenbogen langsam und senk den Kopf zum Boden."
+            "value": "Drück dich wieder hoch – je höher die Füße, desto näher am Handstand."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bend the elbows slowly, lowering the head to the floor."
+            "value": "Press back up; the higher the feet, the closer this gets to a handstand."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dobla los codos despacio, bajando la cabeza hacia el suelo."
+            "value": "Empuja hasta arriba; cuanto más altos los pies, más se parece al pino."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Plie lentement les coudes en descendant la tête vers le sol."
+            "value": "Repousse jusqu’en haut ; plus les pieds sont hauts, plus on se rapproche de l’ATR."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Piega i gomiti lentamente, portando la testa verso terra."
+            "value": "Spingi di nuovo su: più alti sono i piedi, più ci si avvicina alla verticale."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dobre os cotovelos devagar, descendo a cabeça em direção ao chão."
+            "value": "Empurre de volta para cima; quanto mais altos os pés, mais perto fica da parada de mão."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Медленно сгибай локти, опуская голову к полу."
+            "value": "Выжми обратно вверх: чем выше ноги, тем ближе это к стойке на руках."
           }
         }
       }
     },
-    "Press back up; keep the body in one tight line.": {
+    "Hips sagging toward the floor — keep the V sharp, weight over the hands.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Drück dich wieder hoch; halte den Körper in einer festen Linie."
+            "value": "Die Hüfte sinkt ab – halte das V spitz, das Gewicht über den Händen."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Press back up; keep the body in one tight line."
+            "value": "Hips sagging toward the floor — keep the V sharp, weight over the hands."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Empuja hacia arriba; mantén el cuerpo en una línea firme."
+            "value": "La cadera se hunde: mantén la V cerrada y el peso sobre las manos."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pousse pour remonter ; garde le corps gainé, en une seule ligne."
+            "value": "Les hanches s’affaissent : garde le V bien fermé, le poids au-dessus des mains."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spingi e risali; tieni il corpo in un’unica linea compatta."
+            "value": "Il bacino scende: tieni la V stretta, il peso sopra le mani."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Empurre para cima; mantenha o corpo em uma linha firme."
+            "value": "O quadril afunda: mantenha o V fechado, com o peso sobre as mãos."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Выжмись вверх; держи тело одной жесткой линией."
+            "value": "Таз проваливается вниз — держи букву V острой, вес над ладонями."
           }
         }
       }
     },
-    "Arching away from the wall — stay close, ribs tucked in.": {
+    "Starting too high — if the head cannot reach the floor with control, lower the feet.": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Der Körper wölbt sich von der Wand weg – bleib nah dran, Rippen eingezogen."
+            "value": "Zu hoch angefangen – wenn der Kopf nicht kontrolliert den Boden erreicht, stell die Füße tiefer."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Arching away from the wall — stay close, ribs tucked in."
+            "value": "Starting too high — if the head cannot reach the floor with control, lower the feet."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Arquearte separándote de la pared: quédate cerca, con las costillas metidas."
+            "value": "Empezar demasiado alto: si la cabeza no llega al suelo con control, baja los pies."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tu te cambres en t’éloignant du mur : reste tout près, les côtes rentrées."
+            "value": "Départ trop haut : si la tête n’atteint pas le sol sous contrôle, baisse les pieds."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Il corpo si inarca allontanandosi dal muro – restaci vicino, costole chiuse."
+            "value": "Partenza troppo alta: se la testa non arriva a terra sotto controllo, abbassa i piedi."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Arquear afastando-se da parede: fique perto, com as costelas encaixadas."
+            "value": "Começar alto demais: se a cabeça não alcança o chão com controle, abaixe os pés."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Прогиб от стены — держись ближе, ребра подобраны."
-          }
-        }
-      }
-    },
-    "Uncontrolled descent — the head must land softly.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Unkontrolliertes Absenken – der Kopf muss weich aufsetzen."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uncontrolled descent — the head must land softly."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Descenso sin control: la cabeza tiene que apoyarse suave en el suelo."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Descente non contrôlée : la tête doit se poser en douceur."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Discesa senza controllo – la testa deve appoggiarsi dolcemente a terra."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Descida sem controle: a cabeça precisa encostar de leve no chão."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Неконтролируемое опускание — голова должна мягко касаться пола."
+            "value": "Слишком высокая опора — если голова не доходит до пола под контролем, опусти ноги ниже."
           }
         }
       }
@@ -6389,288 +6342,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Колено бьется об пол — контролируй глубину."
-          }
-        }
-      }
-    },
-    "Paused jump lunge": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ausfallschritte mit Sprung und Stopp"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Paused jump lunge"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zancada con salto y pausa"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fentes sautées avec temps d’arrêt"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Affondi con salto e fermo"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Afundo com salto e pausa"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Выпады в прыжке с паузой"
-          }
-        }
-      }
-    },
-    "Jump and switch legs in the air, landing softly in a lunge.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Spring hoch, wechsle in der Luft die Beine und lande weich im Ausfallschritt."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Jump and switch legs in the air, landing softly in a lunge."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Salta cambiando de pierna en el aire y cae suave en zancada."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Saute en changeant de jambe en l’air et atterris en douceur en fente."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Salta cambiando gamba in aria e atterra dolcemente in affondo."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Salte trocando as pernas no ar e caia suave em afundo."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Выпрыгни со сменой ног в воздухе, приземлись мягко в выпад."
-          }
-        }
-      }
-    },
-    "Hold the bottom position for a full 2 seconds, knee near the floor.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Halte die untere Position volle 2 Sekunden, das Knie nah am Boden."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hold the bottom position for a full 2 seconds, knee near the floor."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aguanta abajo 2 segundos completos, con la rodilla cerca del suelo."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tiens la position basse pendant 2 bonnes secondes, le genou près du sol."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tieni la posizione bassa per 2 secondi pieni, con il ginocchio vicino a terra."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Segure embaixo por 2 segundos completos, com o joelho perto do chão."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Задержись внизу на честные 2 секунды, колено у пола."
-          }
-        }
-      }
-    },
-    "Explode up into the next switch — pause every landing.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Spring explosiv in den nächsten Beinwechsel – stoppe bei jeder Landung."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Explode up into the next switch — pause every landing."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Salta de forma explosiva cambiando de pierna: pausa en cada aterrizaje."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Saute de façon explosive vers le changement suivant : marque un temps d’arrêt à chaque réception."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Esplodi verso l’alto nel cambio successivo – fermati a ogni atterraggio."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Salte explosivo trocando as pernas: pausa em cada aterrissagem."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Взрывно выпрыгни со сменой ног — пауза на каждом приземлении."
-          }
-        }
-      }
-    },
-    "Skipping the pause — hold an honest 2 seconds at the bottom.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Du lässt den Stopp aus – halte unten ehrliche 2 Sekunden."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Skipping the pause — hold an honest 2 seconds at the bottom."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Saltarte la pausa: aguanta 2 segundos completos abajo."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tu zappes le temps d’arrêt : tiens 2 vraies secondes en bas."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Salti il fermo – tieni 2 secondi veri nella posizione bassa."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pular a pausa: segure 2 segundos completos embaixo."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Пауза пропускается — держи честные 2 секунды внизу."
-          }
-        }
-      }
-    },
-    "Shallow landings — the knee comes close to the floor each rep.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zu flache Landungen – das Knie kommt in jeder Wiederholung nah an den Boden."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shallow landings — the knee comes close to the floor each rep."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aterrizajes cortos: la rodilla baja cerca del suelo en cada repetición."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Réceptions trop hautes : le genou descend près du sol à chaque répétition."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Atterraggi poco profondi – il ginocchio arriva vicino a terra a ogni ripetizione."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aterrissagens curtas: o joelho desce perto do chão em cada repetição."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Неглубокие приземления — колено должно почти касаться пола в каждом повторе."
           }
         }
       }
@@ -11653,6 +11324,4142 @@
           "stringUnit": {
             "state": "translated",
             "value": "Неполное разгибание рук внизу — повтор начинается с прямых рук."
+          }
+        }
+      }
+    },
+    "Split squat": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Split squat"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сплит-присед"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sentadilla split"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agachamento split"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Split Squat"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Squat fendu"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Split squat"
+          }
+        }
+      }
+    },
+    "Single-leg squat to a chair": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Single-leg squat to a chair"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Присед на одной ноге к опоре"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sentadilla a una pierna hasta la silla"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agachamento unilateral até a cadeira"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einbeinige Kniebeuge zum Stuhl"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Squat à une jambe vers la chaise"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Squat a una gamba fino alla sedia"
+          }
+        }
+      }
+    },
+    "Incline push-up": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incline push-up"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отжимания от опоры"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexión inclinada"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexão inclinada"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liegestütze an erhöhter Ablage"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pompes inclinées"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flessioni inclinate"
+          }
+        }
+      }
+    },
+    "Side-shift push-up": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Side-shift push-up"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отжимания со смещением на руку"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexión con carga en un brazo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexão com carga em um braço"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liegestütz mit Gewichtsverlagerung"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pompes avec appui décalé"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flessioni con carico spostato"
+          }
+        }
+      }
+    },
+    "Assisted single-leg glute bridge": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Assisted single-leg glute bridge"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Мостик на одной ноге с помощью"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puente de glúteos a una pierna asistido"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponte de glúteos unilateral assistida"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einbeiniges Beckenheben mit Hilfe"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pont fessier à une jambe assisté"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponte glutei a una gamba assistito"
+          }
+        }
+      }
+    },
+    "Negative single-leg sliding curl": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Negative single-leg sliding curl"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Негативное сгибание на одной ноге"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Curl femoral negativo a una pierna"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Curl femoral negativo unilateral"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Negativer einbeiniger Leg Curl"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leg curl négatif à une jambe"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leg curl negativo a una gamba"
+          }
+        }
+      }
+    },
+    "Single-leg sliding leg curl": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Single-leg sliding leg curl"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сгибание ног скольжением на одной ноге"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Curl femoral deslizante a una pierna"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Curl femoral deslizante unilateral"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einbeiniger Sliding Leg Curl"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leg curl glissé à une jambe"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sliding leg curl a una gamba"
+          }
+        }
+      }
+    },
+    "Assisted Nordic curl": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Assisted Nordic curl"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нордик-кёрл с поддержкой"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Curl nórdico asistido"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Curl nórdico assistido"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Assistierter Nordic Curl"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nordic curl assisté"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nordic curl assistito"
+          }
+        }
+      }
+    },
+    "Standing incline row": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standing incline row"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тяга у высокой опоры стоя"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remo de pie en apoyo alto"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remada em pé em apoio alto"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stehendes Rudern an hoher Stütze"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rowing debout à appui haut"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rematore in piedi su appoggio alto"
+          }
+        }
+      }
+    },
+    "High-bar inverted row": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High-bar inverted row"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тяга под высокой опорой"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remo invertido en apoyo alto"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remada invertida em apoio alto"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rudern unter hoher Stütze"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rowing inversé à appui haut"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rematore sotto appoggio alto"
+          }
+        }
+      }
+    },
+    "Mid-height inverted row": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mid-height inverted row"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тяга под средней опорой"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remo invertido a media altura"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remada invertida a meia altura"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rudern unter mittlerer Stütze"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rowing inversé à mi-hauteur"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rematore a media altezza"
+          }
+        }
+      }
+    },
+    "Side-shift inverted row": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Side-shift inverted row"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тяга со смещением на руку"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remo invertido con carga en un brazo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remada invertida com carga em um braço"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rudern mit Gewichtsverlagerung"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rowing inversé avec appui décalé"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rematore con carico spostato"
+          }
+        }
+      }
+    },
+    "Pike push-up, hands on a table": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pike push-up, hands on a table"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Щучка с руками на столе"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexión pike con manos en la mesa"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexão pique com mãos na mesa"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pike-Liegestütz mit Händen auf dem Tisch"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pompes pike, mains sur la table"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flessioni pike con le mani sul tavolo"
+          }
+        }
+      }
+    },
+    "Pike push-up, hands on a chair": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pike push-up, hands on a chair"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Щучка с руками на стуле"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexión pike con manos en la silla"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flexão pique com mãos na cadeira"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pike-Liegestütz mit Händen auf dem Stuhl"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pompes pike, mains sur la chaise"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flessioni pike con le mani sulla sedia"
+          }
+        }
+      }
+    },
+    "Wall handstand negative": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wall handstand negative"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Негативные в стойке у стены"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Negativa en parada de manos en la pared"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Negativa em parada de mão na parede"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Negative Handstand-Liegestütze an der Wand"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Négatives en poirier au mur"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Negative in verticale al muro"
+          }
+        }
+      }
+    },
+    "Paused lunge": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paused lunge"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выпады с паузой"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zancada con pausa"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afundo com pausa"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausfallschritte mit Pause"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fentes avec pause"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Affondi con pausa"
+          }
+        }
+      }
+    },
+    "High plank": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High plank"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Планка на прямых руках"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plancha alta"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prancha alta"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plank auf gestreckten Armen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Planche bras tendus"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plank sulle braccia tese"
+          }
+        }
+      }
+    },
+    "Kneeling side plank": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kneeling side plank"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Боковая планка с колен"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plancha lateral de rodillas"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prancha lateral de joelhos"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seitliche Plank auf den Knien"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Planche latérale sur les genoux"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plank laterale sulle ginocchia"
+          }
+        }
+      }
+    },
+    "Kneeling side plank, top leg extended": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kneeling side plank, top leg extended"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Боковая планка с колен, верхняя нога вытянута"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plancha lateral de rodillas con la pierna de arriba extendida"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prancha lateral de joelhos com a perna de cima estendida"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seitliche Plank auf den Knien, oberes Bein gestreckt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Planche latérale sur les genoux, jambe du haut tendue"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plank laterale sulle ginocchia, gamba alta distesa"
+          }
+        }
+      }
+    },
+    "Assisted single-leg calf raise": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Assisted single-leg calf raise"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подъем на одной ноге с поддержкой"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elevación de talón a una pierna asistida"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elevação de panturrilha unilateral assistida"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einbeiniges Wadenheben mit Hilfe"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Élévation de mollet à une jambe assistée"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sollevamento sulle punte a una gamba assistito"
+          }
+        }
+      }
+    },
+    "Scapular hang": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scapular hang"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подтягивание лопатками"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suspensión escapular"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suspensão escapular"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skapula-Hang"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suspension scapulaire"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sospensione scapolare"
+          }
+        }
+      }
+    },
+    "Negative pull-up, both feet assisting": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Negative pull-up, both feet assisting"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Негативные с опорой обеих ног"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dominada negativa con ambos pies apoyados"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Barra fixa negativa com os dois pés apoiados"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Negativer Klimmzug mit beiden Füßen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traction négative avec les deux pieds en appui"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trazione negativa con entrambi i piedi in appoggio"
+          }
+        }
+      }
+    },
+    "Negative pull-up, one foot assisting": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Negative pull-up, one foot assisting"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Негативные с опорой одной ноги"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dominada negativa con un pie apoyado"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Barra fixa negativa com um pé apoiado"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Negativer Klimmzug mit einem Fuß"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Traction négative avec un pied en appui"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trazione negativa con un piede in appoggio"
+          }
+        }
+      }
+    },
+    "Step forward one stride; both feet stay on the floor, weight on the front leg.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Step forward one stride; both feet stay on the floor, weight on the front leg."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Шагни вперёд на длину шага; обе стопы на полу, вес на передней ноге."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Da un paso adelante; ambos pies en el suelo, el peso en la pierna delantera."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dê um passo à frente; os dois pés no chão, o peso na perna da frente."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mach einen Schritt nach vorn; beide Füße bleiben am Boden, das Gewicht auf dem vorderen Bein."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fais un pas en avant ; les deux pieds restent au sol, le poids sur la jambe avant."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fai un passo avanti; entrambi i piedi restano a terra, il peso sulla gamba davanti."
+          }
+        }
+      }
+    },
+    "Lower straight down for ~2 seconds until the rear knee almost touches the floor.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower straight down for ~2 seconds until the rear knee almost touches the floor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Опускайся строго вниз ~2 секунды, пока заднее колено почти не коснётся пола."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baja en vertical ~2 segundos hasta que la rodilla trasera casi toque el suelo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desça na vertical ~2 segundos até o joelho de trás quase tocar o chão."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senke dich ~2 Sekunden gerade nach unten, bis das hintere Knie fast den Boden berührt."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descends à la verticale pendant ~2 secondes jusqu’à ce que le genou arrière frôle le sol."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scendi in verticale per ~2 secondi finché il ginocchio dietro sfiora il pavimento."
+          }
+        }
+      }
+    },
+    "Drive up through the front heel; the feet stay put for the whole set.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drive up through the front heel; the feet stay put for the whole set."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вверх через пятку передней ноги; стопы с места не сходят весь подход."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sube empujando con el talón delantero; los pies no se mueven en toda la serie."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suba empurrando pelo calcanhar da frente; os pés não saem do lugar na série toda."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drücke dich über die vordere Ferse hoch; die Füße bleiben den ganzen Satz an Ort und Stelle."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remonte en poussant sur le talon avant ; les pieds ne bougent pas de toute la série."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Risali spingendo sul tallone anteriore; i piedi non si spostano per tutta la serie."
+          }
+        }
+      }
+    },
+    "Weight shifting to the rear leg — it only holds your balance.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weight shifting to the rear leg — it only holds your balance."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вес переносится на заднюю ногу — она только держит равновесие."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El peso se pasa a la pierna trasera: solo sirve para el equilibrio."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O peso vai para a perna de trás: ela só mantém o equilíbrio."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Gewicht wandert aufs hintere Bein — es hält nur das Gleichgewicht."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le poids passe sur la jambe arrière : elle ne sert qu’à l’équilibre."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il peso passa sulla gamba dietro: serve solo per l'equilibrio."
+          }
+        }
+      }
+    },
+    "Stand on one leg with your back to a chair, the other leg extended forward, arms out in front.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stand on one leg with your back to a chair, the other leg extended forward, arms out in front."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Встань спиной к стулу на одной ноге, вторую вытяни вперёд, руки перед собой."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De pie sobre una pierna de espaldas a una silla, la otra pierna estirada al frente y los brazos delante."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em pé sobre uma perna de costas para a cadeira, a outra perna estendida à frente e os braços à frente."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stell dich einbeinig mit dem Rücken zum Stuhl, das andere Bein nach vorn gestreckt, die Arme vor dir."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Debout sur une jambe, dos à une chaise, l’autre jambe tendue devant et les bras devant toi."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In piedi su una gamba con la schiena verso la sedia, l'altra gamba distesa avanti e le braccia davanti."
+          }
+        }
+      }
+    },
+    "Sit back for ~2 seconds until the glutes touch the seat lightly — without sitting down.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sit back for ~2 seconds until the glutes touch the seat lightly — without sitting down."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Садись назад ~2 секунды до лёгкого касания ягодицами сиденья, не садясь весом."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Siéntate atrás ~2 segundos hasta rozar el asiento con los glúteos, sin llegar a sentarte."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sente para trás ~2 segundos até encostar levemente os glúteos no assento, sem sentar de fato."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setz dich ~2 Sekunden zurück, bis das Gesäß die Sitzfläche leicht berührt — ohne dich hinzusetzen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Assieds-toi vers l’arrière pendant ~2 secondes jusqu’à effleurer l’assise, sans t’y poser."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Siediti indietro per ~2 secondi fino a sfiorare la seduta con i glutei, senza sederti davvero."
+          }
+        }
+      }
+    },
+    "Stand up through the heel of the working leg; the lower the seat, the harder.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stand up through the heel of the working leg; the lower the seat, the harder."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вставай через пятку рабочей ноги; чем ниже опора, тем тяжелее."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Levántate empujando con el talón de la pierna que trabaja; cuanto más bajo el asiento, más difícil."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Levante empurrando pelo calcanhar da perna que trabalha; quanto mais baixo o assento, mais difícil."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steh über die Ferse des Arbeitsbeins auf; je niedriger die Sitzfläche, desto schwerer."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Relève-toi en poussant sur le talon de la jambe qui travaille ; plus l’assise est basse, plus c’est dur."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rialzati spingendo sul tallone della gamba che lavora; più bassa è la seduta, più è difficile."
+          }
+        }
+      }
+    },
+    "Dropping onto the chair — the touch stays light and controlled.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dropping onto the chair — the touch stays light and controlled."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Падение на стул — касание должно быть лёгким и подконтрольным."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dejarse caer en la silla: el contacto debe ser ligero y controlado."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cair na cadeira: o toque tem de ser leve e controlado."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf den Stuhl fallen lassen — die Berührung bleibt leicht und kontrolliert."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se laisser tomber sur la chaise : le contact doit rester léger et contrôlé."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lasciarsi cadere sulla sedia: il contatto resta leggero e controllato."
+          }
+        }
+      }
+    },
+    "Helping with the other leg — it hangs forward the whole time.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Helping with the other leg — it hangs forward the whole time."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Помощь второй ногой — она всё время висит впереди."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ayudarse con la otra pierna: se queda estirada al frente todo el rato."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajudar com a outra perna: ela fica estendida à frente o tempo todo."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit dem anderen Bein helfen — es bleibt die ganze Zeit nach vorn gestreckt."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "S’aider de l’autre jambe : elle reste tendue devant tout du long."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aiutarsi con l'altra gamba: resta distesa avanti per tutto il tempo."
+          }
+        }
+      }
+    },
+    "Lift the hips with the working leg, pushing gently through the heel of the other — the easier it goes, the less you push.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lift the hips with the working leg, pushing gently through the heel of the other — the easier it goes, the less you push."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подними таз рабочей ногой, слегка подталкивая пяткой второй ноги, — помощи тем меньше, чем легче идёт."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sube la cadera con la pierna que trabaja, empujando suave con el talón de la otra: cuanto más fácil sea, menos empujas."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suba o quadril com a perna que trabalha, empurrando de leve com o calcanhar da outra: quanto mais fácil, menos você empurra."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hebe die Hüfte mit dem Arbeitsbein und schiebe sanft mit der Ferse des anderen nach — je leichter es geht, desto weniger schiebst du."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monte le bassin avec la jambe qui travaille, en poussant doucement sur le talon de l’autre : plus c’est facile, moins tu pousses."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solleva il bacino con la gamba che lavora, spingendo appena con il tallone dell'altra: più è facile, meno spingi."
+          }
+        }
+      }
+    },
+    "Lie on your back, one heel on a towel, the other leg raised; hips in a bridge.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lie on your back, one heel on a towel, the other leg raised; hips in a bridge."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Лёжа на спине, пятка одной ноги на полотенце, вторая нога поднята; таз в мостике."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tumbado boca arriba, un talón sobre una toalla y la otra pierna levantada; la cadera en puente."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deitado de costas, um calcanhar sobre uma toalha e a outra perna levantada; o quadril em ponte."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf dem Rücken, eine Ferse auf einem Handtuch, das andere Bein angehoben; die Hüfte in der Brücke."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allongé sur le dos, un talon sur une serviette et l’autre jambe levée ; le bassin en pont."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sdraiato sulla schiena, un tallone su un asciugamano e l'altra gamba sollevata; il bacino in ponte."
+          }
+        }
+      }
+    },
+    "Slide the heel away until the leg is almost straight, hips stay up.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slide the heel away until the leg is almost straight, hips stay up."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скользи пяткой от себя почти до прямой ноги, таз не опускается."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desliza el talón hasta casi estirar la pierna; la cadera no baja."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deslize o calcanhar até quase esticar a perna; o quadril não desce."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schiebe die Ferse weg, bis das Bein fast gestreckt ist; die Hüfte bleibt oben."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fais glisser le talon jusqu’à la jambe presque tendue ; le bassin ne descend pas."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fai scivolare il tallone fino quasi a distendere la gamba; il bacino non scende."
+          }
+        }
+      }
+    },
+    "Pull the heel back to the glute with that one leg — that's one rep.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pull the heel back to the glute with that one leg — that's one rep."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подтяни пятку обратно к ягодице одной ногой — это один повтор."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vuelve a llevar el talón al glúteo con esa misma pierna: es una repetición."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puxe o calcanhar de volta ao glúteo com essa mesma perna: é uma repetição."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zieh die Ferse mit diesem einen Bein zurück zum Gesäß — das ist eine Wiederholung."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ramène le talon vers la fesse avec cette seule jambe : c’est une répétition."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riporta il tallone al gluteo con quella sola gamba: è una ripetizione."
+          }
+        }
+      }
+    },
+    "Hips dropping as the leg extends — keep the bridge the whole time.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hips dropping as the leg extends — keep the bridge the whole time."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Таз падает при выпрямлении ноги — держи мостик всё время."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La cadera cae al estirar la pierna: mantén el puente todo el rato."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O quadril cai ao esticar a perna: mantenha a ponte o tempo todo."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Hüfte sackt beim Strecken ab — halte die Brücke die ganze Zeit."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bassin s’affaisse quand la jambe se tend : garde le pont tout du long."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il bacino cede quando la gamba si distende: mantieni il ponte per tutto il tempo."
+          }
+        }
+      }
+    },
+    "Pull back with BOTH legs — here the hard half of the rep is the lowering only.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pull back with BOTH legs — here the hard half of the rep is the lowering only."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обратно подтягивайся ДВУМЯ ногами — тяжёлая половина повтора здесь только опускание."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vuelve con las DOS piernas: aquí la mitad difícil de la repetición es solo la bajada."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volte com as DUAS pernas: aqui a metade difícil da repetição é só a descida."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zieh dich mit BEIDEN Beinen zurück — die schwere Hälfte der Wiederholung ist hier nur das Absenken."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reviens avec les DEUX jambes : ici, la moitié difficile de la répétition n’est que la descente."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Torna con ENTRAMBE le gambe: qui la metà difficile della ripetizione è solo la discesa."
+          }
+        }
+      }
+    },
+    "Kneel down and have someone hold your shins, or hook them under a couch.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kneel down and have someone hold your shins, or hook them under a couch."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Встань на колени, попроси кого-нибудь держать голени или заведи их под диван."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ponte de rodillas y pide que te sujeten las espinillas, o engánchalas bajo un sofá."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fique de joelhos e peça para segurarem suas canelas, ou prenda-as sob um sofá."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Knie dich hin und lass dir die Schienbeine halten oder hake sie unter einem Sofa ein."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mets-toi à genoux et fais-toi tenir les tibias, ou cale-les sous un canapé."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mettiti in ginocchio e fatti tenere gli stinchi, oppure incastrali sotto un divano."
+          }
+        }
+      }
+    },
+    "Lower forward with a straight body as slowly as the hamstrings can hold you.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower forward with a straight body as slowly as the hamstrings can hold you."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Опускайся вперёд с прямым корпусом настолько медленно, насколько держат бёдра."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baja hacia delante con el cuerpo recto tan despacio como los isquiotibiales aguanten."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desça para a frente com o corpo reto o mais devagar que os posteriores aguentarem."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senke dich mit geradem Körper so langsam nach vorn, wie die Beinbeuger dich halten."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descends vers l’avant, corps droit, aussi lentement que les ischio-jambiers te retiennent."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scendi in avanti con il corpo dritto, lentamente quanto i femorali riescono a trattenerti."
+          }
+        }
+      }
+    },
+    "Catch yourself with your hands near the floor and push back up — no need to pull yourself up.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Catch yourself with your hands near the floor and push back up — no need to pull yourself up."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "У пола подставь руки и оттолкнись вверх — подниматься силой бедра не нужно."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerca del suelo, apóyate con las manos y empuja para volver: no hace falta subir con la fuerza del muslo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perto do chão, apoie as mãos e empurre para voltar: não é preciso subir na força da coxa."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fang dich in Bodennähe mit den Händen ab und drück dich hoch — du musst dich nicht hochziehen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Près du sol, rattrape-toi avec les mains et repousse : inutile de remonter en force."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vicino al pavimento appoggia le mani e spingi per risalire: non serve tirarsi su di forza."
+          }
+        }
+      }
+    },
+    "Folding at the hips — one straight line from knees to head.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folding at the hips — one straight line from knees to head."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Складывание в тазу — от колен до макушки одна прямая линия."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Doblarse por la cadera: de las rodillas a la cabeza, una línea recta."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dobrar-se pelo quadril: dos joelhos à cabeça, uma linha reta."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In der Hüfte einknicken — von den Knien bis zum Kopf eine gerade Linie."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se plier au niveau des hanches : des genoux à la tête, une ligne droite."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Piegarsi all'anca: dalle ginocchia alla testa una linea dritta."
+          }
+        }
+      }
+    },
+    "Free fall — if you cannot hold it, put your hands down sooner.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Free fall — if you cannot hold it, put your hands down sooner."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Свободное падение — если удержать не выходит, ставь руки раньше."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caída libre: si no puedes frenarla, apoya las manos antes."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Queda livre: se não conseguir segurar, apoie as mãos mais cedo."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Freier Fall — wenn du es nicht halten kannst, setz die Hände früher auf."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chute libre : si tu ne peux pas retenir, pose les mains plus tôt."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caduta libera: se non riesci a trattenerti, appoggia le mani prima."
+          }
+        }
+      }
+    },
+    "Grab a doorframe or a post at chest height, feet right at its base.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grab a doorframe or a post at chest height, feet right at its base."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Возьмись за дверной косяк или стойку на уровне груди, стопы у самой опоры."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agárrate al marco de una puerta o a un poste a la altura del pecho, con los pies junto a la base."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Segure o batente de uma porta ou um poste na altura do peito, com os pés junto à base."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Greif einen Türrahmen oder Pfosten auf Brusthöhe, die Füße direkt am Fuß der Stütze."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attrape un montant de porte ou un poteau à hauteur de poitrine, les pieds au pied de l’appui."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afferra lo stipite di una porta o un palo all'altezza del petto, i piedi alla sua base."
+          }
+        }
+      }
+    },
+    "Lean back on straight arms, the body about 80° to the floor.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lean back on straight arms, the body about 80° to the floor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отклонись назад на прямых руках, тело под углом около 80° к полу."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inclínate atrás con los brazos estirados; el cuerpo a unos 80° respecto al suelo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incline-se para trás com os braços esticados; o corpo a cerca de 80° em relação ao chão."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lehn dich mit gestreckten Armen zurück, der Körper etwa 80° zum Boden."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Penche-toi en arrière bras tendus, le corps à environ 80° du sol."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inclinati indietro a braccia tese, il corpo a circa 80° rispetto al pavimento."
+          }
+        }
+      }
+    },
+    "Pull the chest to the support, squeezing the shoulder blades, and return slowly to straight arms.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pull the chest to the support, squeezing the shoulder blades, and return slowly to straight arms."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подтяни грудь к опоре, сводя лопатки, и медленно вернись на прямые руки."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lleva el pecho al apoyo juntando los omóplatos y vuelve despacio a brazos estirados."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puxe o peito até o apoio juntando as omoplatas e volte devagar aos braços esticados."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zieh die Brust zur Stütze und die Schulterblätter zusammen, dann langsam zurück in gestreckte Arme."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Amène la poitrine vers l’appui en serrant les omoplates, puis reviens lentement bras tendus."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Porta il petto verso l'appoggio unendo le scapole e torna lentamente a braccia tese."
+          }
+        }
+      }
+    },
+    "The support is not solid — check the frame and your grip before the first rep.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The support is not solid — check the frame and your grip before the first rep."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Опора ненадёжна — проверь косяк и хват до первого повторения."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El apoyo no es firme: comprueba el marco y el agarre antes de la primera repetición."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O apoio não é firme: confira o batente e a pegada antes da primeira repetição."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Stütze ist nicht fest — prüfe Rahmen und Griff vor der ersten Wiederholung."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’appui n’est pas solide : vérifie le montant et la prise avant la première répétition."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'appoggio non è saldo: controlla lo stipite e la presa prima della prima ripetizione."
+          }
+        }
+      }
+    },
+    "Grab a table edge and walk your feet forward: the body at about 70° to the floor.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grab a table edge and walk your feet forward: the body at about 70° to the floor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Возьмись за край стола и отшагни стопами вперёд: тело под углом около 70°."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agárrate al borde de una mesa y camina los pies hacia delante: el cuerpo a unos 70°."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Segure a borda de uma mesa e caminhe com os pés à frente: o corpo a cerca de 70°."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Greif die Tischkante und geh mit den Füßen nach vorn: der Körper etwa 70° zum Boden."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attrape le bord d’une table et avance les pieds : le corps à environ 70° du sol."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afferra il bordo di un tavolo e cammina con i piedi in avanti: il corpo a circa 70°."
+          }
+        }
+      }
+    },
+    "Hold the torso like a plank and pull the chest to the edge, squeezing the shoulder blades.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold the torso like a plank and pull the chest to the edge, squeezing the shoulder blades."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Держи корпус как в планке и подтягивай грудь к краю, сводя лопатки."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén el tronco como en una plancha y lleva el pecho al borde juntando los omóplatos."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantenha o tronco como numa prancha e puxe o peito até a borda juntando as omoplatas."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Halte den Rumpf wie in der Plank und zieh die Brust zur Kante, die Schulterblätter zusammen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garde le tronc comme en planche et amène la poitrine au bord en serrant les omoplates."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tieni il tronco come in plank e porta il petto al bordo unendo le scapole."
+          }
+        }
+      }
+    },
+    "Lower slowly to straight arms; the farther the feet, the harder.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower slowly to straight arms; the farther the feet, the harder."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Медленно опустись на прямые руки; чем дальше стопы, тем тяжелее."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baja despacio hasta brazos estirados; cuanto más lejos los pies, más difícil."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desça devagar até os braços esticados; quanto mais longe os pés, mais difícil."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senke dich langsam in gestreckte Arme; je weiter die Füße, desto schwerer."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redescends lentement bras tendus ; plus les pieds sont loin, plus c’est dur."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scendi lentamente a braccia tese; più lontani i piedi, più è difficile."
+          }
+        }
+      }
+    },
+    "Hips sagging — keep one line from shoulders to heels.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hips sagging — keep one line from shoulders to heels."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Таз провисает — держи одну линию от плеч до пят."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La cadera se hunde: mantén una línea de los hombros a los talones."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O quadril afunda: mantenha uma linha dos ombros aos calcanhares."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Hüfte hängt durch — halte eine Linie von den Schultern bis zu den Fersen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le bassin s’affaisse : garde une ligne des épaules aux talons."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il bacino cede: mantieni una linea dalle spalle ai talloni."
+          }
+        }
+      }
+    },
+    "Grab the table edge and step out so the body sits at about 50° — that angle IS the dose of assistance.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grab the table edge and step out so the body sits at about 50° — that angle IS the dose of assistance."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Возьмись за край стола и отшагни так, чтобы тело шло примерно под 50° — это и есть доза помощи."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agárrate al borde de la mesa y sepárate hasta que el cuerpo quede a unos 50°: ese ángulo ES la dosis de ayuda."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Segure a borda da mesa e afaste-se até o corpo ficar a cerca de 50°: esse ângulo É a dose de ajuda."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Greif die Tischkante und geh so weit heraus, dass der Körper etwa 50° steht — dieser Winkel IST die Dosis der Hilfe."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attrape le bord de la table et écarte-toi jusqu’à environ 50° : cet angle EST la dose d’aide."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afferra il bordo del tavolo e allontanati fino a circa 50°: quell'angolo È la dose di aiuto."
+          }
+        }
+      }
+    },
+    "Lie under the table and grab the edge with a wide grip, body straight.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lie under the table and grab the edge with a wide grip, body straight."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ляг под стол и возьмись за край широким хватом, тело прямое."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Túmbate bajo la mesa y agarra el borde con agarre ancho, el cuerpo recto."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deite-se sob a mesa e segure a borda com pegada aberta, o corpo reto."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leg dich unter den Tisch und greif die Kante weit, der Körper gerade."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allonge-toi sous la table et attrape le bord en prise large, le corps droit."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sdraiati sotto il tavolo e afferra il bordo con presa larga, il corpo dritto."
+          }
+        }
+      }
+    },
+    "Pull the chest toward one hand, shifting the weight onto it; the other one helps hold the line.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pull the chest toward one hand, shifting the weight onto it; the other one helps hold the line."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тяни грудь к одной руке, перенося на неё вес; вторая помогает удержать линию."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lleva el pecho hacia una mano cargando el peso en ella; la otra ayuda a mantener la línea."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puxe o peito na direção de uma das mãos, transferindo o peso para ela; a outra ajuda a manter a linha."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zieh die Brust zu einer Hand und verlagere das Gewicht darauf; die andere hält die Linie mit."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Amène la poitrine vers une main en y transférant le poids ; l’autre aide à tenir la ligne."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Porta il petto verso una mano trasferendoci il peso; l'altra aiuta a tenere la linea."
+          }
+        }
+      }
+    },
+    "Both arms pulling evenly — then it is just a row.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Both arms pulling evenly — then it is just a row."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обе руки тянут поровну — тогда это обычная тяга."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los dos brazos tiran por igual: entonces es un remo normal."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os dois braços puxam igual: aí é uma remada comum."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beide Arme ziehen gleich — dann ist es einfaches Rudern."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les deux bras tirent pareil : ce n’est plus qu’un rowing ordinaire."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entrambe le braccia tirano allo stesso modo: allora è un rematore normale."
+          }
+        }
+      }
+    },
+    "Without bending the elbows, pull the shoulder blades down and back — the body rises a couple of centimetres.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Without bending the elbows, pull the shoulder blades down and back — the body rises a couple of centimetres."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не сгибая локтей, потяни лопатки вниз и назад — корпус поднимется на пару сантиметров."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin doblar los codos, lleva los omóplatos abajo y atrás: el cuerpo sube un par de centímetros."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sem dobrar os cotovelos, leve as omoplatas para baixo e para trás: o corpo sobe uns dois centímetros."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ohne die Ellbogen zu beugen, zieh die Schulterblätter nach unten und hinten — der Körper hebt sich ein paar Zentimeter."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sans plier les coudes, tire les omoplates vers le bas et l’arrière : le corps monte de quelques centimètres."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senza piegare i gomiti, porta le scapole in basso e indietro: il corpo sale di un paio di centimetri."
+          }
+        }
+      }
+    },
+    "Hold that position for the whole set; the elbows stay straight.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold that position for the whole set; the elbows stay straight."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Держи это положение всё время подхода; локти остаются прямыми."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén esa posición toda la serie; los codos siguen estirados."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantenha essa posição durante toda a série; os cotovelos ficam esticados."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Halte diese Position den ganzen Satz; die Ellbogen bleiben gestreckt."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garde cette position toute la série ; les coudes restent tendus."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantieni questa posizione per tutta la serie; i gomiti restano tesi."
+          }
+        }
+      }
+    },
+    "Bending the elbows — that is a pull-up, not shoulder-blade work.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bending the elbows — that is a pull-up, not shoulder-blade work."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сгибание локтей — это уже подтягивание, а не работа лопаток."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Doblar los codos: eso ya es una dominada, no trabajo escapular."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dobrar os cotovelos: isso já é uma barra fixa, não trabalho escapular."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Ellbogen beugen — das ist ein Klimmzug, keine Schulterblattarbeit."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plier les coudes : c’est une traction, pas du travail scapulaire."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Piegare i gomiti: quella è una trazione, non lavoro scapolare."
+          }
+        }
+      }
+    },
+    "Shoulders creeping back to the ears — keep them down for the whole hold.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shoulders creeping back to the ears — keep them down for the whole hold."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Плечи возвращаются к ушам — держи их опущенными всё удержание."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los hombros vuelven a las orejas: mantenlos bajos toda la isometría."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os ombros voltam às orelhas: mantenha-os baixos durante toda a isometria."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Schultern wandern zurück zu den Ohren — halte sie das ganze Halten unten."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les épaules remontent vers les oreilles : garde-les basses tout le maintien."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le spalle risalgono verso le orecchie: tienile basse per tutta l'isometria."
+          }
+        }
+      }
+    },
+    "Lower over 3–5 seconds, helping with BOTH feet on a chair just enough to keep the descent slow.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower over 3–5 seconds, helping with BOTH feet on a chair just enough to keep the descent slow."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Опускайся 3–5 секунд, помогая ОБЕИМИ ногами со стула ровно настолько, чтобы спуск оставался медленным."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baja durante 3–5 segundos ayudándote con LOS DOS pies en una silla, lo justo para que el descenso siga lento."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desça em 3–5 segundos ajudando com OS DOIS pés numa cadeira, o suficiente para a descida seguir lenta."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senke dich 3–5 Sekunden und hilf mit BEIDEN Füßen auf einem Stuhl gerade so viel, dass es langsam bleibt."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descends en 3–5 secondes en t’aidant des DEUX pieds sur une chaise, juste assez pour rester lent."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scendi in 3–5 secondi aiutandoti con ENTRAMBI i piedi su una sedia, quanto basta per restare lento."
+          }
+        }
+      }
+    },
+    "Lower over 3–5 seconds with ONE foot left on the chair — half as much help.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower over 3–5 seconds with ONE foot left on the chair — half as much help."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Опускайся 3–5 секунд, оставив на стуле ОДНУ ногу, — помощи вдвое меньше."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baja durante 3–5 segundos dejando UN pie en la silla: la mitad de ayuda."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desça em 3–5 segundos deixando UM pé na cadeira: metade da ajuda."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senke dich 3–5 Sekunden mit EINEM Fuß auf dem Stuhl — halb so viel Hilfe."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descends en 3–5 secondes avec UN seul pied sur la chaise : deux fois moins d’aide."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scendi in 3–5 secondi lasciando UN piede sulla sedia: metà dell'aiuto."
+          }
+        }
+      }
+    },
+    "Put your hands on a stable support about 45 cm high: a windowsill, a table, the arm of a couch.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Put your hands on a stable support about 45 cm high: a windowsill, a table, the arm of a couch."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поставь ладони на устойчивую опору высотой около 45 см: подоконник, стол, край дивана."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apoya las manos en una superficie estable de unos 45 cm: un alféizar, una mesa, el brazo de un sofá."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apoie as mãos em uma superfície estável de uns 45 cm: um peitoril, uma mesa, o braço de um sofá."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setz die Hände auf eine stabile Ablage von etwa 45 cm Höhe: Fensterbank, Tisch, Sofalehne."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pose les mains sur un appui stable d’environ 45 cm : un rebord de fenêtre, une table, un accoudoir."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appoggia le mani su un supporto stabile alto circa 45 cm: un davanzale, un tavolo, il bracciolo di un divano."
+          }
+        }
+      }
+    },
+    "Body in one line from head to heels, elbows about 45° from the torso.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Body in one line from head to heels, elbows about 45° from the torso."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тело одной линией от макушки до пят, локти под 45° к корпусу."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El cuerpo en una línea de la cabeza a los talones, los codos a unos 45° del tronco."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O corpo em uma linha da cabeça aos calcanhares, os cotovelos a cerca de 45° do tronco."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Körper in einer Linie von Kopf bis Ferse, die Ellbogen etwa 45° zum Rumpf."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le corps en une ligne de la tête aux talons, les coudes à environ 45° du tronc."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il corpo in linea dalla testa ai talloni, i gomiti a circa 45° dal tronco."
+          }
+        }
+      }
+    },
+    "Lower for ~2 seconds until the chest touches the support, press up on an exhale.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower for ~2 seconds until the chest touches the support, press up on an exhale."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Опускайся ~2 секунды до касания грудью опоры, вверх на выдохе."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baja ~2 segundos hasta tocar el apoyo con el pecho y sube al exhalar."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desça ~2 segundos até tocar o apoio com o peito e suba na expiração."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senke dich ~2 Sekunden, bis die Brust die Ablage berührt, und drück dich beim Ausatmen hoch."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descends ~2 secondes jusqu’à toucher l’appui avec la poitrine, remonte en expirant."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scendi ~2 secondi fino a toccare l'appoggio con il petto e risali espirando."
+          }
+        }
+      }
+    },
+    "The support wobbles or slides — check it before the first rep.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The support wobbles or slides — check it before the first rep."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Опора качается или скользит — проверь её до первого повторения."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El apoyo baila o resbala: compruébalo antes de la primera repetición."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O apoio balança ou escorrega: confira antes da primeira repetição."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Ablage wackelt oder rutscht — prüfe sie vor der ersten Wiederholung."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’appui bouge ou glisse : vérifie-le avant la première répétition."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'appoggio traballa o scivola: controllalo prima della prima ripetizione."
+          }
+        }
+      }
+    },
+    "Hands wider than the shoulders: the working hand under its shoulder, the other set out to the side.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hands wider than the shoulders: the working hand under its shoulder, the other set out to the side."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ладони шире плеч: кисть рабочей руки под плечом, вторая отставлена в сторону."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manos más anchas que los hombros: la que trabaja bajo su hombro, la otra apartada al lado."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mãos mais largas que os ombros: a que trabalha sob o próprio ombro, a outra afastada para o lado."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hände weiter als schulterbreit: die Arbeitshand unter ihrer Schulter, die andere seitlich abgesetzt."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mains plus larges que les épaules : la main qui travaille sous son épaule, l’autre écartée sur le côté."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mani più larghe delle spalle: quella che lavora sotto la sua spalla, l'altra spostata di lato."
+          }
+        }
+      }
+    },
+    "Lower while shifting the weight onto the working arm; the other one only keeps you balanced.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower while shifting the weight onto the working arm; the other one only keeps you balanced."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Опускайся, смещая вес на рабочую руку; вторая только удерживает равновесие."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baja cargando el peso en el brazo que trabaja; el otro solo mantiene el equilibrio."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desça transferindo o peso para o braço que trabalha; o outro só mantém o equilíbrio."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senke dich und verlagere das Gewicht auf den Arbeitsarm; der andere hält nur das Gleichgewicht."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descends en transférant le poids sur le bras qui travaille ; l’autre ne sert qu’à l’équilibre."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scendi spostando il peso sul braccio che lavora; l'altro serve solo per l'equilibrio."
+          }
+        }
+      }
+    },
+    "Press up with the working arm; whole set to one side, then switch.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press up with the working arm; whole set to one side, then switch."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выжмись вверх рабочей рукой; весь подход в одну сторону, затем смени руку."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sube empujando con el brazo que trabaja; toda la serie a un lado y luego cambia."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suba empurrando com o braço que trabalha; a série toda de um lado e depois troque."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drück dich mit dem Arbeitsarm hoch; der ganze Satz auf eine Seite, dann wechseln."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remonte avec le bras qui travaille ; toute la série d’un côté, puis change."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Risali con il braccio che lavora; tutta la serie da un lato, poi cambia."
+          }
+        }
+      }
+    },
+    "Weight split evenly — then it is just a push-up.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weight split evenly — then it is just a push-up."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вес распределён поровну — тогда это обычные отжимания."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El peso repartido por igual: entonces es una flexión normal."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O peso dividido por igual: aí é uma flexão comum."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Gewicht gleich verteilt — dann ist es ein normaler Liegestütz."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le poids réparti à égalité : ce n’est plus qu’une pompe ordinaire."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il peso distribuito uguale: allora è una flessione normale."
+          }
+        }
+      }
+    },
+    "Torso turning — keep the hips and shoulders facing the floor.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Torso turning — keep the hips and shoulders facing the floor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Корпус разворачивается — таз и плечи смотрят в пол."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El tronco gira: la cadera y los hombros miran al suelo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O tronco gira: o quadril e os ombros olham para o chão."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Rumpf dreht sich — Hüfte und Schultern zeigen zum Boden."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le tronc tourne : le bassin et les épaules regardent le sol."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il tronco ruota: bacino e spalle guardano il pavimento."
+          }
+        }
+      }
+    },
+    "Put your hands on a table and step back — the body still makes an angle, but the support carries part of the shoulders' load.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Put your hands on a table and step back — the body still makes an angle, but the support carries part of the shoulders' load."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поставь ладони на стол и отшагни назад — тело углом, но часть веса плеч держит опора."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apoya las manos en una mesa y sepárate: el cuerpo sigue en ángulo, pero el apoyo sostiene parte de la carga de los hombros."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apoie as mãos numa mesa e afaste-se: o corpo continua em ângulo, mas o apoio sustenta parte da carga dos ombros."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setz die Hände auf einen Tisch und geh zurück — der Körper bleibt im Winkel, aber die Ablage trägt einen Teil der Schulterlast."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pose les mains sur une table et recule : le corps reste en angle, mais l’appui porte une partie de la charge des épaules."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appoggia le mani su un tavolo e arretra: il corpo resta ad angolo, ma l'appoggio regge parte del carico delle spalle."
+          }
+        }
+      }
+    },
+    "Put your hands on a chair seat and step back — the lower the support, the more weight reaches the shoulders.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Put your hands on a chair seat and step back — the lower the support, the more weight reaches the shoulders."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поставь ладони на сиденье стула и отшагни назад — опора ниже, на плечи приходит больше веса."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apoya las manos en el asiento de una silla y sepárate: cuanto más bajo el apoyo, más peso llega a los hombros."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apoie as mãos no assento de uma cadeira e afaste-se: quanto mais baixo o apoio, mais peso chega aos ombros."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setz die Hände auf eine Sitzfläche und geh zurück — je niedriger die Ablage, desto mehr Gewicht kommt auf die Schultern."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pose les mains sur une assise de chaise et recule : plus l’appui est bas, plus le poids arrive aux épaules."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appoggia le mani sulla seduta di una sedia e arretra: più basso è l'appoggio, più peso arriva alle spalle."
+          }
+        }
+      }
+    },
+    "Walk up into a wall handstand: hands a palm's length from the wall, heels resting on it.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Walk up into a wall handstand: hands a palm's length from the wall, heels resting on it."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выйди спиной к стене в стойку на руках: ладони в ладони от стены, пятки на ней."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sube a una parada de manos en la pared: las manos a un palmo del muro y los talones apoyados en él."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suba para uma parada de mão na parede: as mãos a um palmo do muro e os calcanhares apoiados nele."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lauf in den Handstand an der Wand: die Hände eine Handbreit von der Wand, die Fersen daran."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monte en poirier au mur : les mains à une paume du mur, les talons posés dessus."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sali in verticale al muro: le mani a un palmo dalla parete, i talloni appoggiati a essa."
+          }
+        }
+      }
+    },
+    "Lower the top of the head toward the floor over 3–5 seconds, elbows tracking forward and down.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower the top of the head toward the floor over 3–5 seconds, elbows tracking forward and down."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Медленно опускай макушку к полу 3–5 секунд, локти идут вперёд-вниз."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baja la coronilla hacia el suelo durante 3–5 segundos; los codos van hacia delante y abajo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desça o topo da cabeça em direção ao chão em 3–5 segundos; os cotovelos vão para a frente e para baixo."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senke den Scheitel 3–5 Sekunden zum Boden, die Ellbogen nach vorn-unten."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descends le sommet du crâne vers le sol en 3–5 secondes, les coudes vers l’avant et le bas."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abbassa la sommità del capo verso il pavimento in 3–5 secondi, i gomiti in avanti e in basso."
+          }
+        }
+      }
+    },
+    "Come down at the bottom, get back up and repeat — no need to press up.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Come down at the bottom, get back up and repeat — no need to press up."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Внизу выйди из стойки, вернись наверх и повтори — выжиматься вверх не нужно."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abajo, sal de la parada, vuelve a subir y repite: no hace falta empujar hacia arriba."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Embaixo, saia da parada, suba de novo e repita: não é preciso empurrar para cima."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Komm unten aus dem Handstand, geh wieder hoch und wiederhole — hochdrücken musst du nicht."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En bas, sors du poirier, remonte et recommence : inutile de pousser vers le haut."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In basso esci dalla verticale, risali e ripeti: non serve spingere verso l'alto."
+          }
+        }
+      }
+    },
+    "A push-up position: hands under the shoulders, arms straight, feet hip-width.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A push-up position: hands under the shoulders, arms straight, feet hip-width."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Упор лёжа: ладони под плечами, руки прямые, стопы на ширине таза."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posición de flexión: manos bajo los hombros, brazos estirados, pies al ancho de la cadera."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posição de flexão: mãos sob os ombros, braços esticados, pés na largura do quadril."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liegestützposition: Hände unter den Schultern, Arme gestreckt, Füße hüftbreit."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Position de pompe : mains sous les épaules, bras tendus, pieds largeur de hanches."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Posizione di flessione: mani sotto le spalle, braccia tese, piedi alla larghezza dei fianchi."
+          }
+        }
+      }
+    },
+    "Breathe steadily; on straight arms the lever is shorter than on the forearms.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Breathe steadily; on straight arms the lever is shorter than on the forearms."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дыши ровно; на прямых руках рычаг короче, чем на предплечьях."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Respira con calma; con los brazos estirados la palanca es más corta que sobre los antebrazos."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Respire com calma; com os braços esticados a alavanca é mais curta do que sobre os antebraços."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atme ruhig; auf gestreckten Armen ist der Hebel kürzer als auf den Unterarmen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Respire calmement ; bras tendus, le levier est plus court que sur les avant-bras."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Respira con calma; a braccia tese la leva è più corta che sugli avambracci."
+          }
+        }
+      }
+    },
+    "Shoulders drifting past the hands — keep them right over the wrists.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shoulders drifting past the hands — keep them right over the wrists."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Плечи уезжают за ладони — держи их точно над кистями."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los hombros se van por delante de las manos: mantenlos justo sobre las muñecas."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os ombros passam à frente das mãos: mantenha-os bem sobre os punhos."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Schultern wandern über die Hände hinaus — halte sie genau über den Handgelenken."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les épaules dépassent les mains : garde-les juste au-dessus des poignets."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le spalle superano le mani: tienile esattamente sopra i polsi."
+          }
+        }
+      }
+    },
+    "Lie on your side, elbow under the shoulder, knees bent and stacked.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lie on your side, elbow under the shoulder, knees bent and stacked."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Лёжа на боку, локоть под плечом, колени согнуты и лежат друг на друге."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Túmbate de lado, el codo bajo el hombro, las rodillas dobladas y una sobre otra."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deite-se de lado, o cotovelo sob o ombro, os joelhos dobrados e um sobre o outro."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leg dich auf die Seite, der Ellbogen unter der Schulter, die Knie gebeugt übereinander."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allonge-toi sur le côté, le coude sous l’épaule, les genoux pliés l’un sur l’autre."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sdraiati sul fianco, il gomito sotto la spalla, le ginocchia piegate una sull'altra."
+          }
+        }
+      }
+    },
+    "Lift the hips until knees, hips and shoulders form a straight line.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lift the hips until knees, hips and shoulders form a straight line."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подними таз до прямой линии колени—таз—плечи."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sube la cadera hasta que rodillas, cadera y hombros formen una línea recta."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suba o quadril até que joelhos, quadril e ombros formem uma linha reta."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heb die Hüfte, bis Knie, Hüfte und Schultern eine gerade Linie bilden."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monte le bassin jusqu’à ce que genoux, bassin et épaules soient alignés."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solleva il bacino finché ginocchia, bacino e spalle formano una linea retta."
+          }
+        }
+      }
+    },
+    "Hold without letting the hips drop; free hand on the waist.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold without letting the hips drop; free hand on the waist."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Держи, не позволяя тазу опускаться; свободная рука на поясе."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aguanta sin dejar caer la cadera; la mano libre en la cintura."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Segure sem deixar o quadril cair; a mão livre na cintura."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Halte, ohne die Hüfte absinken zu lassen; die freie Hand an der Taille."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiens sans laisser le bassin descendre ; la main libre à la taille."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tieni senza far scendere il bacino; la mano libera sul fianco."
+          }
+        }
+      }
+    },
+    "Extend the top leg forward and put that foot on the floor — a narrower base, and more work for the torso.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extend the top leg forward and put that foot on the floor — a narrower base, and more work for the torso."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вытяни верхнюю ногу вперёд и поставь её стопой на пол — опора уже, корпусу тяжелее."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estira la pierna de arriba hacia delante y apoya ese pie en el suelo: la base es más estrecha y el tronco trabaja más."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estenda a perna de cima à frente e apoie esse pé no chão: a base fica mais estreita e o tronco trabalha mais."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Streck das obere Bein nach vorn und setz diesen Fuß auf den Boden — die Basis wird schmaler, der Rumpf arbeitet mehr."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tends la jambe du haut vers l’avant et pose ce pied au sol : la base est plus étroite et le tronc travaille plus."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Distendi la gamba alta in avanti e appoggia quel piede a terra: la base è più stretta e il tronco lavora di più."
+          }
+        }
+      }
+    },
+    "Stand on one leg and lean on a wall or a table with one hand so it takes some of your weight.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stand on one leg and lean on a wall or a table with one hand so it takes some of your weight."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стоя на одной ноге, опирайся рукой о стену или стол так, чтобы она сняла часть веса."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De pie sobre una pierna, apóyate con una mano en la pared o la mesa para que te quite parte del peso."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Em pé sobre uma perna, apoie uma das mãos na parede ou na mesa para tirar parte do peso."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steh auf einem Bein und stütz dich mit einer Hand an Wand oder Tisch, damit sie einen Teil des Gewichts nimmt."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Debout sur une jambe, appuie-toi d’une main au mur ou à la table pour qu’elle reprenne une partie du poids."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In piedi su una gamba, appoggiati con una mano al muro o al tavolo perché tolga parte del peso."
+          }
+        }
+      }
+    },
+    "Step back into a lunge, rear knee almost to the floor.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Step back into a lunge, rear knee almost to the floor."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Шагни назад в выпад, заднее колено почти до пола."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Da un paso atrás a la zancada, la rodilla trasera casi al suelo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dê um passo atrás para o afundo, o joelho de trás quase no chão."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tritt zurück in den Ausfallschritt, das hintere Knie fast bis zum Boden."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recule en fente, le genou arrière presque au sol."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fai un passo indietro in affondo, il ginocchio dietro quasi a terra."
+          }
+        }
+      }
+    },
+    "Hold the bottom for a full 3 seconds, weight on the front heel.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold the bottom for a full 3 seconds, weight on the front heel."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Задержись внизу на честные 3 секунды, вес на пятке передней ноги."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aguanta abajo 3 segundos completos, el peso en el talón delantero."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Segure embaixo 3 segundos completos, o peso no calcanhar da frente."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Halte unten volle 3 Sekunden, das Gewicht auf der vorderen Ferse."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiens en bas 3 secondes pleines, le poids sur le talon avant."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tieni in basso 3 secondi pieni, il peso sul tallone anteriore."
+          }
+        }
+      }
+    },
+    "Stand up through the front heel and repeat — every rep gets the pause.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stand up through the front heel and repeat — every rep gets the pause."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вставай через пятку передней ноги и повтори — пауза на каждом повторе."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Levántate empujando con el talón delantero y repite: la pausa va en cada repetición."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Levante empurrando pelo calcanhar da frente e repita: a pausa vai em cada repetição."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steh über die vordere Ferse auf und wiederhole — die Pause gehört zu jeder Wiederholung."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Relève-toi sur le talon avant et recommence : la pause à chaque répétition."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rialzati sul tallone anteriore e ripeti: la pausa a ogni ripetizione."
+          }
+        }
+      }
+    },
+    "Skipping the pause — count the three seconds out loud.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skipping the pause — count the three seconds out loud."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пауза проскакивается — считай три секунды вслух."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saltarse la pausa: cuenta los tres segundos en voz alta."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pular a pausa: conte os três segundos em voz alta."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Pause überspringen — zähl die drei Sekunden laut mit."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sauter la pause : compte les trois secondes à voix haute."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saltare la pausa: conta i tre secondi ad alta voce."
+          }
+        }
+      }
+    },
+    "Slumping at the bottom — keep the torso upright for all three seconds.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slumping at the bottom — keep the torso upright for all three seconds."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Провисание в нижней точке — держи корпус прямым все три секунды."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hundirse abajo: mantén el tronco erguido los tres segundos."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afundar embaixo: mantenha o tronco ereto os três segundos."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unten zusammensacken — halte den Rumpf die vollen drei Sekunden aufrecht."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "S’affaisser en bas : garde le tronc droit pendant les trois secondes."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cedere in basso: tieni il tronco eretto per tutti e tre i secondi."
           }
         }
       }

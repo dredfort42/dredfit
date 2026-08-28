@@ -1,10 +1,15 @@
 //
-//  Engine.swift
-//  DredfitCore
+//  Port of the reference adaptive_engine.js 3.1.0 ("the measured ladder").
+//  Behavior is verified by the golden tests (Fixtures/golden.json) generated
+//  from that reference — any divergence is a port bug.
 //
-//  Port of the reference adaptive_engine.js. Behavior is verified by golden
-//  tests (Fixtures/golden.json) generated from that reference — any
-//  divergence is a port bug.
+//  THE PRINCIPLE (§40.0). The engine does not predict — it measures.
+//  Everything assigned was either already shown by the trainee (assignment =
+//  what was shown + 1 rep in one set) or is being shown right now by a probe.
+//  There are no rep-prediction formulas (Epley or any other). The difficulty
+//  measure `w` lives in the library and has exactly two jobs: the order of the
+//  rungs and the density invariant (a step of at most ×1.50). No dose is
+//  computed from it.
 //
 
 import Foundation
@@ -21,7 +26,15 @@ public enum Pattern: String, Codable, CaseIterable, Sendable {
     case coreAntiExt = "core_anti_ext", coreRot = "core_rot", calf
     case pullBar = "pull_bar"
 
-    /// Fixed order — defines the rotation. Cannot be changed without a migration.
+    /// The two branches of the pull slot and the two push patterns — the sides
+    /// the balance principle weighs against each other.
+    public static let pullSide: Set<Pattern> = [.pull, .pullBar]
+    static let pushSide: Set<Pattern> = [.pushH, .pushV]
+
+    /// Fixed order — defines the rotation. The vertical branch is NOT in it:
+    /// it never rotates, it stands in for `pull` in the fixed slot. Snapshots
+    /// and every ten-element array use `allCases`, which is the reference's
+    /// `ALL_PATTERNS` in the same order.
     public static let ordered: [Pattern] = [
         .squat, .pushH, .hinge, .pull, .pushV, .lunge, .coreAntiExt, .coreRot, .calf
     ]
@@ -45,249 +58,109 @@ public enum Pattern: String, Codable, CaseIterable, Sendable {
 // MARK: - Configuration (all model constants)
 
 public enum EngineConfig {
-    public static let repMin = 8
-    public static let stepsPerTier = 8
-    public static let tiers = 4
-    public static let holdMin = 20
-    public static let holdStepSec = 5
+    /// Sets on any variation but the bands of the top one.
     public static let setsBase = 3
+    /// The ceiling on sets (§40.5: bands 4 and 5 above the top variation).
     public static let setsMax = 5
     public static let restSetSec = 60
     public static let restExerciseSec = 60
-    public static let tempoSecPerRep = 2.5
-    public static let patternsPerSession = 6
-    public static let rotationStep = 3
-    public static let deltaLess = -1
-    public static let deltaPlan = 1
+    static let tempoSecPerRep = 2.5
+    static let patternsPerSession = 6
+    /// Over eight sessions each rotating pattern comes up exactly five times.
+    static let rotationStep = 3
+    /// "less" is counted in growth events — one position back along the very
+    /// path growth took (§34.1, §40.3).
+    static let deltaLess = -1
+    static let deltaPlan = 1
     public static let deltaMore = 2
-    /// Default cell of the growth ceiling below — the scalar this used to be.
-    public static let maxUpPerSession = 2
+    /// Default cell of the growth ceiling below.
+    static let maxUpPerSession = 2
     public static let failsToDeload = 3
-    public static let deloadDrop = 3
+    /// How many "less" ratings in a row that named nothing before the delta
+    /// goes back to the whole session. Measured, not chosen: at 1 the weak
+    /// link suffers, at 3 the descent from an impossible plan costs another
+    /// session.
+    static let lessRunToGlobal = 2
+    /// §40.3: "1 old level = 1 rep per set". The deload was −3 levels and is
+    /// now −3 reps per set (−15 s on a hold).
+    static let deloadDrop = 3
     public static let warmupMin = 5
-    public static let cooldownMin = 3
+    /// The two blocks share a reserve of `warmupMin + cooldownMin`, and the
+    /// worst composition spends it to the second — see GetReady.swift.
+    public static let cooldownMin = 4
+    /// Rest between sets by BAND (the sets in the state, not the sets on
+    /// screen): a cut takes volume off, not recovery.
+    static let restSetByBand = [1: 60, 2: 60, 3: 60, 4: 90, 5: 120]
+    /// v2.17 (§28.2, #144) carried into v3: Grgic 2018 and Schoenfeld 2016 give
+    /// trained users ≥2 min on hard variations. "Tier 4" of the old grid is the
+    /// TOP VARIATION of a ladder; on bands 1–3 it gets 90 s instead of 60.
+    /// Bands 4 and 5 exist only there and read `restSetByBand` as before.
+    static let restSetTopVarSec = 90
     public static let comebackMinGapDays = 14
-    public static let comebackBase = 2
-    public static let comebackStepDays = 21
-    public static let comebackMax = 8
+    static let comebackBase = 2
+    static let comebackStepDays = 21
+    static let comebackMax = 8
     public static let silentDecayGapDays = 7
-    /// How many of a pattern's next APPEARANCES stay frozen after discomfort
-    /// is reported. Counted in appearances, not sessions: a rotating pattern
-    /// shows up in about five sessions out of eight, so "three sessions"
-    /// would make the actual rest unpredictable. Three ≈ a calendar week.
-    public static let freezeAppearances = 3
-    public static let repStart = [1: 8, 2: 6, 3: 5, 4: 4]
-    public static let holdStart = [1: 20, 2: 15, 3: 15, 4: 10]
-    public static var levelMax: Int { (tiers + setsMax - setsBase) * stepsPerTier - 1 } // 47
+    /// The technical ceiling of every counter and of the gap in days. This
+    /// port does its arithmetic on Int64 and `counter * rotationStep` near
+    /// `Int.max` traps the process on every plan. A million is 2700 years of
+    /// daily sessions, so the clamp is identity on the valid domain.
+    public static let countMax = 1_000_000
+    /// The window of limited growth a comeback opens.
+    public static let rampWindowSessions = 10
+    /// The weekly growth budget, in growth events. Slow tissues — the pull
+    /// slot and the calves.
+    static let weeklyRiseSlow = 3
+    static let weeklyRiseFast = 6
+    static let weeklyWindowDays = 7
+    /// The floor on how much a session ages the weekly window. A zero gap is
+    /// always a source error, not a fact; without the floor the engine simply
+    /// freezes for good.
+    static let minSessionAgeDays = 1.0 / 24.0
+    /// v2.24 (§35.1): the SHARED floor on sets. It goes through `clampSets`,
+    /// so it holds for any composition of cuts.
+    public static let setsFloor = 2
+    static let setsBackPerSession = 1
+    /// How many APPEARANCES a returned set is held before the next one may
+    /// come back. The set axis is an order of magnitude coarser than the dose.
+    public static let setsBackHold = 2
+    /// The chronic signal (§26.1, #137): a window of recent appearances.
+    public static let chronicWindow = 4
+    public static let chronicHits = 3
+    static let chronicStep = -2
+    /// Ceilings on where a comeback may land, past the end of the return
+    /// table. Rows are [minimum gap, "floor" of the old grid, 1…4], by
+    /// descending gap; the first match wins.
+    static let comebackLandingCeil = [(365, 1), (119, 2), (77, 3), (56, 4)]
+    static let comebackCeilFloors = 4
 
-    /// How many levels a pattern may climb in one session, by (pattern, tier).
-    /// Tendon and fascia remodel on a slower clock than muscle, and the
-    /// ceiling is the one dial that acts *before* an overload rather than
-    /// after it. A missing cell is `maxUpPerSession`.
+    /// v2.5 (#64, §15.3) carried into v3: the growth ceiling is a table, not a
+    /// scalar. Tendon and fascia remodel more slowly than muscle, and the one
+    /// handle that acts BEFORE an overload is the rate of growth.
     ///
-    /// The rule in three lines: calves are held to a step at every tier
-    /// (everything loads the Achilles), the vertical push from tier 3 (wall
-    /// work bears the shoulder girdle), and tier 4 everywhere — the archer
-    /// variants, the heaviest unilaterals, and the set bands 32...47, which
-    /// are tier 4 by encoding. Spec §15.3 carries the table cell by cell with
-    /// a rationale each, and the reference verifier compares the two.
-    public static let maxUpByPatternTier: [Pattern: [Int: Int]] = [
-        .squat: [4: 1],
-        .pushH: [4: 1],
-        .hinge: [4: 1],
-        .pull: [4: 1],
-        .pushV: [3: 1, 4: 1],
-        .lunge: [4: 1],
-        .coreAntiExt: [4: 1],
-        .coreRot: [4: 1],
-        .calf: [1: 1, 2: 1, 3: 1, 4: 1],
-        .pullBar: [4: 1]
+    /// The old `maxUpByPatternTier` set a ceiling of 1 by TIER; v3 carries it
+    /// over as "how many of a ladder's TOP variations carry a ceiling of 1":
+    /// calves — all of them (everything loads the Achilles), pull and vertical
+    /// pull — the top three (#76: the fixed slot puts the pull in every
+    /// session), vertical push — the top two (wall handstand work loads the
+    /// shoulder girdle), everything else — the top one.
+    static let maxUpTopVars: [Pattern: Int] = [
+        .squat: 1, .pushH: 1, .hinge: 1, .pull: 3, .pushV: 2, .lunge: 1,
+        .coreAntiExt: 1, .coreRot: 1, .calf: 5, .pullBar: 3,
     ]
 
-    /// `tier` comes from the level BEFORE the update: the ceiling governs
-    /// leaving a level, not arriving at one. Levels 32...47 are tier 4 by
-    /// encoding, so the set bands need no special case.
-    public static func maxUp(pattern: Pattern, tier: Int) -> Int {
-        maxUpByPatternTier[pattern]?[tier] ?? maxUpPerSession
+    /// The growth ceiling for a (pattern, variation) cell.
+    static func maxUp(pattern: Pattern, variation: Int) -> Int {
+        let v = Library.index(pattern: pattern, variation: variation)
+        return Library.count(pattern) - v < (maxUpTopVars[pattern] ?? 0) ? 1 : maxUpPerSession
+    }
+
+    /// A "slow tissue" pattern — a ceiling of 1 on EVERY variation (today only
+    /// the calves). Derived from the table rather than duplicated as a list.
+    static func isSlowTissue(_ pattern: Pattern) -> Bool {
+        (maxUpTopVars[pattern] ?? 0) >= Library.count(pattern)
     }
 }
-
-// MARK: - State
-
-public struct EngineState: Codable, Equatable, Sendable {
-    public var counter: Int
-    public var levels: [Pattern: Int]
-    public var failStreak: [Pattern: Int]
-    public var hasBar: Bool
-    /// Appearances a pattern still has to sit out after discomfort was
-    /// reported on it. Only positive counters are kept, so an empty map is
-    /// "nothing is frozen" — and a state file written before this existed
-    /// decodes to exactly that.
-    public var frozen: [Pattern: Int]
-
-    // Spelled out (same names the compiler would synthesize) so that
-    // decodeLenient can reference the type — synthesized CodingKeys are only
-    // visible inside init(from:)/encode(to:). The wire format is unchanged.
-    private enum CodingKeys: String, CodingKey {
-        case counter, levels, failStreak, hasBar, frozen
-    }
-
-    public init(counter: Int, levels: [Pattern: Int],
-                failStreak: [Pattern: Int], hasBar: Bool = false,
-                frozen: [Pattern: Int] = [:]) {
-        self.counter = counter
-        self.levels = levels
-        self.failStreak = failStreak
-        self.hasBar = hasBar
-        self.frozen = frozen
-    }
-
-    /// Lenient in both directions: files written before hasBar/pull_bar
-    /// existed get the defaults, and entries for unknown patterns (a file
-    /// written by a future version, opened after a downgrade) are dropped
-    /// instead of failing the whole decode and losing the user's history.
-    public init(from decoder: Decoder) throws {
-        let c = try decoder.container(keyedBy: CodingKeys.self)
-        // A corrupt or hand-edited file must not feed a negative counter into
-        // the rotation — it would index out of bounds in generateSession.
-        counter = max(0, try c.decode(Int.self, forKey: .counter))
-        var lv = try Self.decodeLenient(c, forKey: .levels)
-        var fs = try Self.decodeLenient(c, forKey: .failStreak)
-        for p in Pattern.allCases {
-            if lv[p] == nil { lv[p] = 0 }
-            if fs[p] == nil { fs[p] = 0 }
-        }
-        levels = lv
-        failStreak = fs
-        hasBar = try c.decodeIfPresent(Bool.self, forKey: .hasBar) ?? false
-        // Additive: absent in every file written before the discomfort input,
-        // and zero counters are never written, so this stays empty until a
-        // pattern is actually frozen.
-        frozen = c.contains(.frozen)
-            ? try Self.decodeLenient(c, forKey: .frozen).filter { $0.value > 0 }
-            : [:]
-    }
-
-    /// Manual decode of the exact wire format Swift synthesizes for a
-    /// [Pattern: Int]: an UNKEYED array alternating [rawValue, count, ...]
-    /// (see the warning on Pattern). The encode side stays synthesized — the
-    /// format is byte-compatible and pinned by
-    /// testLegacyStateDecodesWithBarDefaults.
-    private static func decodeLenient(
-        _ c: KeyedDecodingContainer<CodingKeys>, forKey key: CodingKeys
-    ) throws -> [Pattern: Int] {
-        var uc = try c.nestedUnkeyedContainer(forKey: key)
-        var out: [Pattern: Int] = [:]
-        while !uc.isAtEnd {
-            let raw = try uc.decode(String.self)
-            let count = try uc.decode(Int.self)   // a malformed pair is still a real error
-            if let p = Pattern(rawValue: raw) { out[p] = count }
-        }
-        return out
-    }
-
-    public static var initial: EngineState {
-        EngineState(
-            counter: 0,
-            levels: Dictionary(uniqueKeysWithValues: Pattern.allCases.map { ($0, 0) }),
-            failStreak: Dictionary(uniqueKeysWithValues: Pattern.allCases.map { ($0, 0) })
-        )
-    }
-
-    /// Appearances left before this pattern may grow again; 0 = not frozen.
-    public func freezeRemaining(_ pattern: Pattern) -> Int { frozen[pattern] ?? 0 }
-
-    public var frozenPatterns: Set<Pattern> { Set(frozen.filter { $0.value > 0 }.keys) }
-}
-
-// MARK: - Level encoding
-
-public struct LevelDecoded: Equatable, Sendable {
-    public let tier: Int   // 1...4
-    public let sets: Int   // 3 | 4 | 5
-    public let reps: Int
-    public let hold: Int
-
-    public init(tier: Int, sets: Int, reps: Int, hold: Int) {
-        self.tier = tier
-        self.sets = sets
-        self.reps = reps
-        self.hold = hold
-    }
-}
-
-public enum Level {
-    public static func decode(_ level: Int) -> LevelDecoded {
-        let l = min(max(level, 0), EngineConfig.levelMax)
-        let band = l / EngineConfig.stepsPerTier   // 0...5
-        let step = l % EngineConfig.stepsPerTier
-        let tier = min(EngineConfig.tiers, 1 + band)
-        return LevelDecoded(
-            tier: tier,
-            sets: EngineConfig.setsBase + max(0, band - (EngineConfig.tiers - 1)),
-            reps: (EngineConfig.repStart[tier] ?? EngineConfig.repMin) + step,
-            hold: (EngineConfig.holdStart[tier] ?? EngineConfig.holdMin)
-                + step * EngineConfig.holdStepSec
-        )
-    }
-
-    /// Level from an actual value (reps or seconds) given the planned tier and
-    /// sets. Tier 4 spans three set bands, so the base depends on sets; the
-    /// unit comes from the (pattern, tier) library record.
-    public static func fromActual(pattern: Pattern, tier: Int, sets: Int, actual: Int) -> Int {
-        let lib = ExerciseLibrary.entry(for: pattern)
-        let step: Int
-        switch lib.unit(forTier: tier) {
-        case .reps:
-            step = actual - (EngineConfig.repStart[tier] ?? EngineConfig.repMin)
-        case .hold:
-            let start = EngineConfig.holdStart[tier] ?? EngineConfig.holdMin
-            step = Int((Double(actual - start) / Double(EngineConfig.holdStepSec)).rounded())
-        }
-        let base = sets <= EngineConfig.setsBase
-            ? (tier - 1) * EngineConfig.stepsPerTier
-            : (EngineConfig.tiers + sets - EngineConfig.setsBase - 1) * EngineConfig.stepsPerTier
-        return min(max(base + step, 0), EngineConfig.levelMax)
-    }
-}
-
-// MARK: - Session
-
-public enum LoadUnit: String, Codable, Sendable {
-    case reps, hold
-}
-
-public struct SessionExercise: Codable, Equatable, Identifiable, Sendable {
-    public var id: Pattern { pattern }
-    public let pattern: Pattern
-    public let name: String
-    public let tier: Int
-    public let unit: LoadUnit
-    public let load: Int          // reps or seconds; per side if perSide
-    public let perSide: Bool
-    public let sets: Int
-    public let restSetSec: Int
-    public let restExerciseSec: Int
-
-    /// "3×12", "3×10 per side", "3×40 sec" — localized via the core catalog.
-    public var display: String {
-        let side = perSide ? " " + String(localized: "per side", bundle: .module) : ""
-        switch unit {
-        case .reps: return "\(sets)×\(load)\(side)"
-        case .hold: return "\(sets)×\(load) " + String(localized: "sec", bundle: .module) + side
-        }
-    }
-}
-
-public struct Session: Codable, Equatable, Sendable {
-    public let sessionNumber: Int          // counter + 1
-    public let warmupMin: Int
-    public let cooldownMin: Int
-    public let exercises: [SessionExercise]
-    public let estimatedTotalMin: Double
-}
-
-// MARK: - Feedback
 
 public enum FeedbackResult: String, Codable, Sendable {
     case less, plan, more
@@ -301,211 +174,127 @@ public enum FeedbackResult: String, Codable, Sendable {
     }
 }
 
-// MARK: - Engine
-
 public enum Engine {
 
     /// Rotating patterns (all except pull — it appears in every session).
-    private static let rotating: [Pattern] = Pattern.ordered.filter { $0 != .pull }
+    static let rotating: [Pattern] = Pattern.ordered.filter { $0 != .pull }
 
-    /// The first movement of the rotation window for a counter — the anchor
-    /// of the short workout. The window shifts by 3 over 8 rotating patterns,
-    /// so over any 8 consecutive sessions the anchor visits all 8; the short
-    /// workout depends on that property.
-    public static func rotationAnchor(counter: Int) -> Pattern {
-        let n = rotating.count
-        let start = (((counter * EngineConfig.rotationStep) % n) + n) % n
-        return rotating[start]
+    /// A reported number, clamped to the technical range. Past it every fact
+    /// already saturates, so this is identity on anything a person could log.
+    /// §41.3: a fact is NOT rounded on the way in. The mean of an uneven plan
+    /// sits strictly between its base and its top (8-7-7 → 7.33), and it is the
+    /// fraction that answers "did they take the top set": [7,7,7] gives 7.00,
+    /// [8,7,7] gives 7.33. Snapping to the integer grid made those two
+    /// indistinguishable, which is exactly why the engine used to substitute
+    /// the plan's top into the journal. The fraction lives only in comparisons;
+    /// every ASSIGNED dose is still an integer on the grid (§40.0).
+    /// A probe's number is one set of one movement — an integer by nature.
+    static func sanitizeProbe(_ raw: Int) -> Int {
+        EngineState.clamped(raw, -EngineConfig.countMax, EngineConfig.countMax)
     }
 
-    public static func estimatedMin(exercises: [SessionExercise]) -> Double {
-        var workSec = 0.0
-        for ex in exercises {
-            let sides = ex.perSide ? 2 : 1
-            let workPerSet: Double = ex.unit == .reps
-                ? Double(ex.load * sides) * EngineConfig.tempoSecPerRep
-                : Double(ex.load * sides)
-            workSec += Double(ex.sets) * workPerSet
-                + Double((ex.sets - 1) * ex.restSetSec)
-                + Double(ex.restExerciseSec)
-        }
-        let totalSec = Double(EngineConfig.warmupMin * 60) + workSec
-            + Double(EngineConfig.cooldownMin * 60)
-        // Round to 0.1 min — as in the reference (toFixed(1)).
-        return (totalSec / 60 * 10).rounded() / 10
+    static func sanitizeActual(_ raw: Double) -> Double {
+        guard raw.isFinite else { return 0 }
+        return min(max(raw, -Double(EngineConfig.countMax)), Double(EngineConfig.countMax))
     }
 
-    /// A pure function: the only input is the state.
-    public static func generateSession(_ state: EngineState) -> Session {
-        let n = rotating.count
-        // Nonnegative modulo: Swift's % is a remainder and goes negative with
-        // a negative counter, which would index out of bounds below.
-        let start = (((state.counter * EngineConfig.rotationStep) % n) + n) % n
-        let five = (0..<(EngineConfig.patternsPerSession - 1)).map {
-            rotating[(start + $0) % n]
-        }
-        let chosen = Set([Pattern.pull] + five)
-        let useBar = state.hasBar && state.counter % 2 == 1
-        let patterns = Pattern.ordered.filter { chosen.contains($0) } // ordering follows Pattern.ordered
-            .map { $0 == .pull && useBar ? Pattern.pullBar : $0 }
+    // MARK: - Writing a position back
 
-        let exercises: [SessionExercise] = patterns.map { p in
-            let lib = ExerciseLibrary.entry(for: p)
-            let d = Level.decode(state.levels[p] ?? 0)
-            let variation = lib.variations[d.tier - 1]
-            let unit = lib.unit(forTier: d.tier)
-            let load = unit == .reps ? d.reps : d.hold
-
-            return SessionExercise(
-                pattern: p, name: variation.name, tier: d.tier,
-                unit: unit, load: load, perSide: variation.unilateral,
-                sets: d.sets,
-                restSetSec: EngineConfig.restSetSec,
-                restExerciseSec: EngineConfig.restExerciseSec
-            )
-        }
-
-        let totalMin = estimatedMin(exercises: exercises)
-
-        return Session(
-            sessionNumber: state.counter + 1,
-            warmupMin: EngineConfig.warmupMin,
-            cooldownMin: EngineConfig.cooldownMin,
-            exercises: exercises,
-            estimatedTotalMin: totalMin
-        )
+    /// Sparseness is part of the contract: the base set count, a zero sub-step
+    /// and an empty cut are not stored, so the state after a descent is
+    /// bit-for-bit the state that never saw either.
+    static func setPosition(_ next: inout EngineState, _ p: Pattern, _ raw: Position) {
+        let pos = fit(p, raw)
+        next.vars[p] = pos.variation
+        next.doses[p] = pos.dose
+        if pos.sets != EngineConfig.setsBase { next.sets[p] = pos.sets } else { next.sets[p] = nil }
+        if pos.sub > 0 { next.sub[p] = pos.sub } else { next.sub[p] = nil }
+        if pos.cut > 0 { next.cut[p] = pos.cut } else { next.cut[p] = nil }
     }
 
-    /// Invariant: feedback is only valid for the session generated from this
-    /// exact state (`session.sessionNumber == state.counter + 1`). Anything
-    /// else returns the state untouched, so applying the same (state,
-    /// session) twice is safe.
+    /// The journal of what was shown: ONE point of writing in the whole engine.
+    static func setShown(_ next: inout EngineState, _ p: Pattern, _ v: Int, _ dose: Int) {
+        let unit = Library.unit(p, v)
+        let d = min(Dose.snap(unit, dose), Dose.grid(unit).max)
+        guard d > 0 else { return }
+        next.shown[p, default: [:]][Library.index(pattern: p, variation: v)] = d
+    }
+
+    /// The whole ladder of a pattern as a measure — what the progress scale
+    /// reads. Position zero is the clean start; the top is 5×15 (5×45 s) on
+    /// the last variation.
+    public static func ladderSpan(_ p: Pattern) -> Int {
+        let unit = Library.unit(p, Library.count(p))
+        return posOrd(p, Position(variation: Library.count(p), sets: EngineConfig.setsMax,
+                                  dose: Dose.grid(unit).max, sub: 0, cut: 0))
+    }
+
+    /// How far along its ladder a pattern stands — the ordinal §40.2 puts in
+    /// place of the level for every screen that showed one.
+    public static func progress(_ state: EngineState, _ p: Pattern) -> Int {
+        posOrd(p, state.sanitized().position(p))
+    }
+
+    /// The same measure for a position the app recorded earlier. The journal
+    /// stores the position rather than the measure because the measure has no
+    /// inverse (§40.0) — this is the one direction that exists.
     ///
-    /// Known limitation: `applyComeback` does not advance `counter`, so a
-    /// session generated *before* a comeback still passes this check and its
-    /// feedback lands on the post-comeback levels.
+    /// All six coordinates: a chart replotting a snapshot without `sub` and
+    /// `cut` sat up to two steps off the number beside it (UI-truth audit,
+    /// 27.08.2026). Additive only — the shorter form below keeps every older
+    /// call site and every older record meaning what it always did.
+    public static func progress(_ p: Pattern, variation: Int, sets: Int, dose: Int,
+                                sub: Int, cut: Int) -> Int {
+        posOrd(p, fit(p, Position(variation: variation, sets: sets, dose: dose,
+                                  sub: sub, cut: cut)))
+    }
+
+    public static func progress(_ p: Pattern, variation: Int, sets: Int, dose: Int) -> Int {
+        progress(p, variation: variation, sets: sets, dose: dose, sub: 0, cut: 0)
+    }
+
+    /// The sum of those ordinals — what "total level" used to be.
+    public static func totalProgress(_ state: EngineState) -> Int {
+        let clean = state.sanitized()
+        return Pattern.allCases.reduce(0) { $0 + posOrd($1, clean.position($1)) }
+    }
+
+    /// Where each variation begins on that ordinal — the ticks of the progress
+    /// bar. The first is always 0 and is left out: a scale marks its divisions,
+    /// not its start.
+    public static func variationBoundaries(_ p: Pattern) -> [Int] {
+        (2...Library.count(p)).map { varBase(p, $0) }
+    }
+
+    /// How many growth events still separate a pattern from the top of its
+    /// CURRENT variation — the point where §40.4 starts offering a probe.
+    /// Zero means the probe is on the next plan (unless the last answer was
+    /// "hard", which the plan decides, not this).
+    public static func stepsToVariationCeiling(_ state: EngineState, _ p: Pattern) -> Int {
+        let pos = state.sanitized().position(p)
+        var ceiling = pos
+        ceiling.dose = Dose.grid(Library.unit(p, pos.variation)).max
+        ceiling.sub = 0
+        return max(0, posOrd(p, fit(p, ceiling)) - posOrd(p, pos))
+    }
+
+    /// v2.25 (round 6): record the plan the person SAW, with no feedback. The
+    /// app owns the state and can call this right after showing the plan —
+    /// then "a descent never adds load" holds against a plan that was seen and
+    /// not done.
     ///
-    /// A skipped pattern was not trained: its level, failStreak and freeze
-    /// counter stay untouched (the streak is frozen, not reset), overrides for
-    /// it are ignored. The counter still advances.
-    ///
-    /// `discomfort` is the joint-pain input: the pattern behaves as skipped
-    /// for this session and is then frozen — it keeps appearing at its current
-    /// level but cannot grow for its next `freezeAppearances` appearances.
-    public static func applyFeedback(
-        state: EngineState,
-        session: Session,
-        result: FeedbackResult,
-        overrides: [Pattern: Int] = [:],
-        skipped: Set<Pattern> = [],
-        discomfort: Set<Pattern> = []
-    ) -> EngineState {
-        guard session.sessionNumber == state.counter + 1 else { return state }
+    /// §41.10 (v3.2): an exercise WITH A PROBE writes its memory too, by its
+    /// WORKING sets — `exerciseWork` counts only those, because the probe is a
+    /// set of another movement. It used to write nothing, and the base stayed
+    /// a showing two appearances old: a descent knocked the dose off the
+    /// ceiling, the probe went with it, the third working set came back, and
+    /// the "easier" plan asked +40 % of the work the person had actually seen.
+    public static func recordShown(state dirty: EngineState, session: Session) -> EngineState {
+        let state = dirty.sanitized()
         var next = state
-        next.counter = state.counter + 1
-
         for ex in session.exercises {
-            let p = ex.pattern
-            // Discomfort outranks a skip: both leave the level and the streak
-            // alone, but only one of them carries information.
-            if discomfort.contains(p) {
-                next.frozen[p] = EngineConfig.freezeAppearances   // a repeat report refreshes it
-                continue
-            }
-            if skipped.contains(p) { continue }
-            let frozenLeft = state.freezeRemaining(p)
-            let oldL = state.levels[p] ?? 0
-            // The tier is read from the level before the update, not from the
-            // session — same thing today, and the rule stays true if a session
-            // ever outlives the state it was generated from.
-            let cap = EngineConfig.maxUp(pattern: p, tier: Level.decode(oldL).tier)
-            var newL: Int
-
-            if let actual = overrides[p] {
-                let factL = Level.fromActual(pattern: p, tier: ex.tier,
-                                             sets: ex.sets, actual: actual)
-                // Calibration: from a zero level the cap does not apply.
-                newL = oldL == 0
-                    ? min(max(factL, 0), EngineConfig.levelMax)
-                    : min(max(factL, 0), oldL + cap)
-            } else {
-                // "More" runs through the same ceiling; downward moves never do.
-                newL = min(oldL + result.delta, oldL + cap)
-            }
-            newL = min(max(newL, 0), EngineConfig.levelMax)
-
-            // A frozen pattern keeps its place in the plan at its current
-            // level but cannot grow; a fact may still take it DOWN — the
-            // athlete's honesty is never overridden. The streak neither grows
-            // nor resets, so a deload cannot fire on top of a freeze.
-            if frozenLeft > 0 {
-                next.levels[p] = min(newL, oldL)
-                if frozenLeft > 1 {
-                    next.frozen[p] = frozenLeft - 1
-                } else {
-                    next.frozen.removeValue(forKey: p)
-                }
-                continue
-            }
-
-            if newL < oldL {
-                let streak = (state.failStreak[p] ?? 0) + 1
-                if streak >= EngineConfig.failsToDeload {
-                    newL = min(max(newL - EngineConfig.deloadDrop, 0), EngineConfig.levelMax)
-                    next.failStreak[p] = 0
-                } else {
-                    next.failStreak[p] = streak
-                }
-            } else {
-                next.failStreak[p] = 0
-            }
-            next.levels[p] = newL
-        }
-        return next
-    }
-
-    /// All patterns drop, `pullBar` included even with `hasBar == false`: a
-    /// break detrains the whole body. A freeze survives it untouched — the
-    /// error is asymmetric, and a couple of sessions without growth cost less
-    /// than a tendon. `failStreak` must reset — otherwise the
-    /// first underperformance after the return would ride the old streak into
-    /// a deload and drop the level twice. `counter` does not move.
-    ///
-    /// NOT idempotent: every call subtracts the drop again. The caller must
-    /// apply it at most once per break (the app keys this on
-    /// `comebackDecidedFor`).
-    ///
-    /// `alreadyDecayed`: the silent −1 already hit this same break, so the
-    /// comeback weakens by one and the two drops do not stack. Exact even at
-    /// the clamp: `max(max(L−1,0) − (drop−1), 0) == max(L − drop, 0)` for
-    /// drop ≥ 2.
-    public static func applyComeback(state: EngineState, gapDays: Int,
-                                     alreadyDecayed: Bool = false) -> EngineState {
-        guard gapDays >= EngineConfig.comebackMinGapDays else { return state }
-        let raw = EngineConfig.comebackBase
-            + (gapDays - EngineConfig.comebackMinGapDays) / EngineConfig.comebackStepDays
-        let drop = min(max(raw, 2), EngineConfig.comebackMax) - (alreadyDecayed ? 1 : 0)
-
-        var next = state
-        for p in Pattern.allCases {
-            next.levels[p] = max(0, (state.levels[p] ?? 0) - drop)
-            next.failStreak[p] = 0
-        }
-        return next
-    }
-
-    /// `failStreak` is deliberately untouched, unlike the comeback: −1 is a
-    /// soft plan correction, not a level capitulation. `counter` does not
-    /// move.
-    ///
-    /// NOT idempotent, same as the comeback: the app layer applies it at most
-    /// once per break, keyed to the last workout's date.
-    public static func applySilentDecay(state: EngineState, gapDays: Int) -> EngineState {
-        guard gapDays >= EngineConfig.silentDecayGapDays,
-              gapDays < EngineConfig.comebackMinGapDays else { return state }
-        var next = state
-        for p in Pattern.allCases {
-            next.levels[p] = max(0, (state.levels[p] ?? 0) - 1)
+            next.shownWork[ex.pattern] = shownWorkOf(ex)
+            next.shownOrd[ex.pattern] = posOrd(ex.pattern, state.position(ex.pattern))
         }
         return next
     }

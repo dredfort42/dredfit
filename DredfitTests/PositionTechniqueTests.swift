@@ -1,8 +1,3 @@
-//
-//  PositionTechniqueTests.swift
-//  DredfitTests
-//
-
 import XCTest
 import DredfitCore
 @testable import Dredfit
@@ -20,9 +15,9 @@ final class PositionTechniqueTests: XCTestCase {
     }
 
     func testTheWarmupBlockIsSixDistinctMoves() {
-        XCTAssertEqual(Warmup.moves.count, 6)
-        XCTAssertEqual(Set(Warmup.moves.map(\.id)).count, 6, "ids must be unique")
-        for move in Warmup.moves {
+        XCTAssertEqual(Warmup.moves(sessionNumber: 1).count, 6)
+        XCTAssertEqual(Set(Warmup.moves(sessionNumber: 1).map(\.id)).count, 6, "ids must be unique")
+        for move in Warmup.moves(sessionNumber: 1) {
             XCTAssertFalse(move.name.isEmpty, "\(move.id): empty name")
         }
     }
@@ -36,7 +31,7 @@ final class PositionTechniqueTests: XCTestCase {
             XCTAssertFalse(position.steps.contains(where: \.isEmpty),
                            "\(position.id): an empty step")
         }
-        for move in Warmup.moves {
+        for move in Warmup.moves(sessionNumber: 1) {
             XCTAssertTrue((2...3).contains(move.steps.count),
                           "\(move.id): \(move.steps.count) steps")
             XCTAssertFalse(move.steps.contains(where: \.isEmpty),
@@ -45,7 +40,7 @@ final class PositionTechniqueTests: XCTestCase {
     }
 
     func testSheetModelMirrorsItsSource() {
-        let move = Warmup.moves[0]
+        let move = Warmup.moves(sessionNumber: 1)[0]
         let fromWarmup = PositionTechnique(warmup: move)
         XCTAssertEqual(fromWarmup.id, move.id)
         XCTAssertEqual(fromWarmup.name, move.name)
@@ -59,7 +54,7 @@ final class PositionTechniqueTests: XCTestCase {
     }
 
     func testCapsulesTellTheBlocksAndTheSidesApart() {
-        let warmup = PositionTechnique(warmup: Warmup.moves[0]).capsule
+        let warmup = PositionTechnique(warmup: Warmup.moves(sessionNumber: 1)[0]).capsule
         let positions = allCooldownPositions
         let perSide = PositionTechnique(
             cooldown: positions.first(where: \.perSide)!).capsule

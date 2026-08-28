@@ -1,0 +1,200 @@
+//
+//  First-run explainer: three cards. The thermostat idea is the one thing a
+//  new user cannot infer from the UI.
+//
+
+import SwiftUI
+
+struct OnboardingView: View {
+    /// Reached only through the care card's explicit button (#101): Skip
+    /// jumps TO that card, never past it, so finishing always means the
+    /// checklist was on screen and acknowledged.
+    let onFinish: () -> Void
+
+    @State private var page = 0
+    private let pageCount = 3
+
+    var body: some View {
+        VStack(spacing: 0) {
+            skipRow
+            TabView(selection: $page) {
+                card1.tag(0)
+                card2.tag(1)
+                card3.tag(2)
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            dots
+            // TodayView owns the key "Next" for its next-workout card, and
+            // one key cannot carry two meanings across languages.
+            PrimaryButton(title: page == pageCount - 1
+                          ? String(localized: "I understand — start")
+                          : String(localized: "Continue")) {
+                if page == pageCount - 1 {
+                    onFinish()
+                } else {
+                    withAnimation(.easeInOut(duration: 0.25)) { page += 1 }
+                }
+            }
+            // Today sits behind the cover with its own "Start".
+            .accessibilityIdentifier("onboarding-primary")
+            .padding(.horizontal, 24)
+            .padding(.bottom, 20)
+        }
+        .background(Theme.bg.ignoresSafeArea())
+    }
+
+    // MARK: - Chrome
+
+    private var skipRow: some View {
+        HStack {
+            Spacer()
+            // ink2, not ink3: an interactive control needs ≥3:1 contrast.
+            // The care card cannot be skipped past — the jump IS the whole
+            // shortcut (#101): one extra tap for a skipper, zero questions
+            // asked. Faded rather than removed so the cards do not jump.
+            Button(String(localized: "Skip")) {
+                withAnimation(.easeInOut(duration: 0.25)) { page = pageCount - 1 }
+            }
+                .dredfitFont(15)
+                .foregroundStyle(Theme.ink2)
+                .accessibilityIdentifier("onboarding-skip")
+                .accessibilityHint(Text("Skips ahead to the care note"))
+                .opacity(page < pageCount - 1 ? 1 : 0)
+                .disabled(page >= pageCount - 1)
+                .accessibilityHidden(page >= pageCount - 1)
+        }
+        .padding(.horizontal, 24)
+        .padding(.top, 12)
+    }
+
+    private var dots: some View {
+        HStack(spacing: 7) {
+            ForEach(0..<pageCount, id: \.self) { i in
+                Circle()
+                    .fill(i == page ? Theme.accent : Theme.hairline)
+                    .frame(width: 7, height: 7)
+            }
+        }
+        .padding(.bottom, 26)
+        .accessibilityHidden(true)
+    }
+
+    // MARK: - Cards
+
+    private func cardShell<Content: View>(title: String,
+                                          body text: String,
+                                          @ViewBuilder extra: () -> Content) -> some View {
+        // Built eagerly: GeometryReader's content closure escapes, and the
+        // non-escaping builder parameter cannot be captured inside it.
+        let extraContent = extra()
+        // Centred while it fits, scrollable once it doesn't: at accessibility
+        // sizes a fixed VStack would clip the card instead of scrolling it.
+        return GeometryReader { proxy in
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 0) {
+                    Spacer(minLength: 0)
+                    Text(title)
+                        .dredfitFont(32, weight: .heavy)
+                        .tracking(-0.6)
+                        .foregroundStyle(Theme.ink)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text(text)
+                        .dredfitFont(16.5)
+                        .foregroundStyle(Theme.ink2)
+                        .lineSpacing(3)
+                        .padding(.top, 16)
+                        .fixedSize(horizontal: false, vertical: true)
+                    extraContent
+                    Spacer(minLength: 0)
+                }
+                .frame(maxWidth: .infinity, minHeight: proxy.size.height, alignment: .leading)
+                .padding(.horizontal, 24)
+            }
+        }
+    }
+
+    private var card1: some View {
+        cardShell(title: String(localized: "Training at home. No questionnaires."),
+                  body: String(localized: """
+                  No questions about your goal, your level or how much time you have. \
+                  Open the app and train — the first workout is already waiting. \
+                  About 31 minutes, no equipment.
+                  """)) { EmptyView() }
+    }
+
+    private var card2: some View {
+        cardShell(title: String(localized: "It adjusts like a thermostat."),
+                  body: String(localized: """
+                  Dredfit gives you a plan, you say how it went, and the next plan \
+                  shifts. The first workout is deliberately easy — it is the starting \
+                  point. Answer honestly afterwards and the load becomes yours, \
+                  step by step.
+                  """)) {
+            loopDiagram.padding(.top, 28)
+        }
+    }
+
+    private var card3: some View {
+        cardShell(title: String(localized: "One tap after the workout."),
+                  body: String(localized: """
+                  “Less · On plan · More” — that is enough. If you want to be exact, \
+                  tap “Went differently” right on the exercise and put in your number.
+                  """)) {
+            careBlock.padding(.top, 28)
+        }
+    }
+
+    // MARK: - Card 2 visual: plan → actual → plan
+
+    private var loopDiagram: some View {
+        HStack(spacing: 8) {
+            chip(String(localized: "plan"), filled: false)
+            arrow
+            chip(String(localized: "actual"), filled: true)
+            arrow
+            chip(String(localized: "plan"), filled: false)
+        }
+        // One element for VoiceOver — chips and arrows read as noise.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("Plan, then your actual result, then the next plan"))
+    }
+
+    private func chip(_ text: String, filled: Bool) -> some View {
+        Text(text)
+            .dredfitFont(13, weight: .semibold)
+            .foregroundStyle(filled ? Theme.accentText : Theme.ink2)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 7)
+            .background(filled ? Theme.accentSoft : Theme.cardBG,
+                        in: Capsule())
+    }
+
+    private var arrow: some View {
+        Image(systemName: "arrow.right")
+            .dredfitFont(11, weight: .semibold)
+            .foregroundStyle(Theme.ink3)
+    }
+
+    // MARK: - Card 3: the quiet duty-of-care note (#101)
+
+    /// Statements, not questions: the checklist is read, not filled in, and
+    /// nothing is stored beyond the acknowledgement timestamp — the zero-
+    /// questionnaires principle holds.
+    private var careBlock: some View {
+        Text(String(localized: """
+        All your data stays on your device.
+
+        Talk to a doctor before you start if any of this is you: a heart \
+        condition or chest pain under load; blood pressure that is treated or \
+        runs high; dizziness or fainting; a joint injury that flares under \
+        load; pregnancy or recent childbirth.
+
+        Sharp pain during an exercise always means stop.
+        """))
+        // ink2, not ink3: the safety note is quiet, not unreadable.
+        .dredfitFont(12.5)
+        .foregroundStyle(Theme.ink2)
+        .lineSpacing(2)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+}

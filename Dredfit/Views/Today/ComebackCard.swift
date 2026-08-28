@@ -1,0 +1,109 @@
+//
+//  Shown on Today after a break of two weeks or more. The engine is
+//  event-driven: without this an old plan waits at the old level.
+//
+
+import SwiftUI
+
+struct ComebackCard: View {
+    let offersFreshStart: Bool
+    /// The two offers as the same movement in numbers (#127): what the plan
+    /// holds if left alone, and what "easier" actually is. Nil hides the rows.
+    let preview: (was: String, easier: String)?
+    let onAccept: () -> Void
+    let onDecline: () -> Void
+    let onFreshStart: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("Welcome back")
+                .dredfitFont(20, weight: .heavy)
+                .tracking(-0.3)
+                .foregroundStyle(Theme.ink)
+
+            Text("A break is normal. Let's start a few steps easier — the longer the break, the lower the plan meets you, and it catches up quickly.")
+                .dredfitFont(14.5)
+                .foregroundStyle(Theme.ink2)
+                .lineSpacing(2.5)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 8)
+
+            // The choice in numbers, not adjectives (#127): after a long
+            // break "leave as it was" used to hand out the old plan blind.
+            if let preview {
+                VStack(alignment: .leading, spacing: 5) {
+                    previewRow(label: String(localized: "Easier:"), value: preview.easier)
+                    previewRow(label: String(localized: "As it was:"), value: preview.was)
+                }
+                .padding(.top, 12)
+            }
+
+            HStack(spacing: 10) {
+                Button(action: onAccept) {
+                    Text("Start easier")
+                        .pairedPrimaryLabel()
+                }
+                .accessibilityIdentifier("comeback-accept")
+
+                Button(action: onDecline) {
+                    Text("Leave as it was")
+                        .pairedSecondaryLabel()
+                }
+                .accessibilityIdentifier("comeback-decline")
+            }
+            .padding(.top, 16)
+
+            // The "I was sick" tap is gone. The lens it armed made the plan
+            // HEAVIER in 76 cells out of 480, which is the opposite of what
+            // the button offered. Someone coming back short on strength skips
+            // sets on the work screen instead, where the decision is made with
+            // the movement in front of them rather than before any of it.
+            //
+            // Its `.padding(.top, 4)` outlived it here for a while: a leading
+            // dot on the next line joins the chain above THROUGH a comment, so
+            // the row of buttons quietly carried 20 pt instead of 16.
+
+            if offersFreshStart {
+                Button(action: onFreshStart) {
+                    // ink2, not ink3: an interactive control has to pass 3:1.
+                    Text("Start from scratch")
+                        .dredfitFont(13.5, weight: .medium)
+                        .foregroundStyle(Theme.ink2)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        // Bordered and set apart, not a third line under the
+                        // pair. It used to sit flush under "Start easier" /
+                        // "Leave as it was" at 13 pt with a 30 pt target, so
+                        // the one control on this card that throws progress
+                        // away read as a quiet extra of that same row. The
+                        // border is the idiom "Train anyway" already uses for
+                        // a whole-width quiet choice, and 44 pt is the floor
+                        // this project set in #193.
+                        //
+                        // ink3 for the stroke, not hairline: the card ground is
+                        // `cardBG`, where hairline comes to ≈1.1:1 and simply
+                        // is not there. ink3 reads ≈2.2:1 — past the 1.5:1 the
+                        // palette holds for quiet graphics, and still quieter
+                        // than the label it surrounds.
+                        .overlay(RoundedRectangle(cornerRadius: 14)
+                            .strokeBorder(Theme.ink3, lineWidth: 1.5))
+                }
+                .accessibilityIdentifier("comeback-fresh")
+                .padding(.top, 14)
+            }
+        }
+        .padding(18)
+        .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 18))
+    }
+
+    private func previewRow(label: String, value: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 6) {
+            Text(label)
+                .dredfitFont(13, weight: .semibold)
+                .foregroundStyle(Theme.ink2)
+            Text(value)
+                .dredfitFont(13)
+                .foregroundStyle(Theme.ink)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+}

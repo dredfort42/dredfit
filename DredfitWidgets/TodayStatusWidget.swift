@@ -1,7 +1,4 @@
 //
-//  TodayStatusWidget.swift
-//  DredfitWidgets
-//
 //  The app writes a two-week snapshot into the App Group; the widget only
 //  reads it, one timeline entry per day. The timeline itself lives in
 //  TodayProvider.swift, where the unit tests can reach it.
@@ -39,7 +36,7 @@ struct TodayStatusView: View {
             statusBlock(size: 20)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-        .containerBackground(WidgetTheme.background, for: .widget)
+        .containerBackground(Theme.bg, for: .widget)
     }
 
     private var medium: some View {
@@ -47,19 +44,19 @@ struct TodayStatusView: View {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 kicker
                 Spacer(minLength: 0)
-                totalLevelLine
+                totalStepsLine
             }
             Spacer(minLength: 8)
             statusBlock(size: 22)
             Spacer(minLength: 8)
             Rectangle()
-                .fill(WidgetTheme.hairline)
+                .fill(Theme.hairline)
                 .frame(height: 0.5)
                 .padding(.bottom, 10)
             weekStrip
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-        .containerBackground(WidgetTheme.background, for: .widget)
+        .containerBackground(Theme.bg, for: .widget)
     }
 
     private var large: some View {
@@ -75,7 +72,7 @@ struct TodayStatusView: View {
             weekSummaryLine
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-        .containerBackground(WidgetTheme.background, for: .widget)
+        .containerBackground(Theme.bg, for: .widget)
     }
 
     // MARK: Lock screen
@@ -134,35 +131,35 @@ struct TodayStatusView: View {
             .font(.system(size: 11, weight: .semibold))
             .kerning(1.2)
             .textCase(.uppercase)
-            .foregroundStyle(WidgetTheme.ink2)
+            .foregroundStyle(Theme.ink2)
     }
 
     private func statusBlock(size: CGFloat) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             if entry.status == .workout {
                 Circle()
-                    .fill(WidgetTheme.accent)
+                    .fill(Theme.accent)
                     .frame(width: 10, height: 10)
             }
             Text(headline)
                 .font(.system(size: size, weight: .heavy))
-                .foregroundStyle(entry.status == .rest ? WidgetTheme.ink2 : WidgetTheme.ink)
+                .foregroundStyle(entry.status == .rest ? Theme.ink2 : Theme.ink)
                 .minimumScaleFactor(0.7)
                 .lineLimit(1)
         }
     }
 
     @ViewBuilder
-    private var totalLevelLine: some View {
-        if let level = entry.totalLevel {
+    private var totalStepsLine: some View {
+        if let steps = entry.totalSteps {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Text("\(level)")
+                Text("\(steps)")
                     .font(.system(size: 22, weight: .heavy))
                     .monospacedDigit()
-                    .foregroundStyle(WidgetTheme.ink)
-                Text("level")
+                    .foregroundStyle(Theme.ink)
+                Text("steps")
                     .font(.system(size: 10.5))
-                    .foregroundStyle(WidgetTheme.ink2)
+                    .foregroundStyle(Theme.ink2)
             }
             .lineLimit(1)
             .minimumScaleFactor(0.8)
@@ -178,7 +175,7 @@ struct TodayStatusView: View {
                         // A missed day carries no mark, so without dimming its
                         // letter the column reads as a failed render.
                         .foregroundStyle(day.status == .unmarked
-                                         ? WidgetTheme.ink3 : WidgetTheme.ink2)
+                                         ? Theme.ink3 : Theme.ink2)
                     mark(for: day)
                 }
                 .frame(maxWidth: .infinity)
@@ -192,16 +189,16 @@ struct TodayStatusView: View {
         ZStack {
             switch day.status {
             case .done:
-                Circle().fill(WidgetTheme.accent)
+                Circle().fill(Theme.accent)
             case .rest:
-                Circle().fill(WidgetTheme.restFill)
+                Circle().fill(Theme.restFill)
             case .workout:
-                Circle().strokeBorder(WidgetTheme.planned, lineWidth: 1.5)
+                Circle().strokeBorder(Theme.planned, lineWidth: 1.5)
             case .unmarked:
                 Color.clear
             }
             if isToday && day.status != .done {
-                Circle().strokeBorder(WidgetTheme.accent, lineWidth: 2)
+                Circle().strokeBorder(Theme.accent, lineWidth: 2)
             }
         }
         .frame(width: 14, height: 14)
@@ -212,7 +209,7 @@ struct TodayStatusView: View {
         if let text = nextPlanText {
             Text(text)
                 .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(WidgetTheme.ink2)
+                .foregroundStyle(Theme.ink2)
                 .lineLimit(1)
         }
     }
@@ -228,13 +225,13 @@ struct TodayStatusView: View {
             ForEach(Array(entry.plan.enumerated()), id: \.offset) { index, row in
                 if index > 0 {
                     Rectangle()
-                        .fill(WidgetTheme.hairline)
+                        .fill(Theme.hairline)
                         .frame(height: 0.5)
                 }
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
                     Text(row.name)
                         .font(.system(size: 13.5))
-                        .foregroundStyle(WidgetTheme.ink)
+                        .foregroundStyle(Theme.ink)
                         .lineLimit(1)
                         // Shrink rather than truncate (I-12): sibling
                         // variations differ at the END of the name, which is
@@ -243,7 +240,7 @@ struct TodayStatusView: View {
                     Spacer(minLength: 0)
                     Text(row.detail)
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(WidgetTheme.ink2)
+                        .foregroundStyle(Theme.ink2)
                         .monospacedDigit()
                 }
                 .padding(.vertical, 6)
@@ -254,22 +251,33 @@ struct TodayStatusView: View {
     @ViewBuilder
     private var weekSummaryLine: some View {
         if let week = entry.summary {
-            let sign = week.levelsDelta >= 0 ? "+" : ""
-            (Text("This week")
-                + Text(verbatim: " · ")
-                + Text("\(week.workouts) workouts")
-                + Text(" · \(sign)", comment: "A separator dot followed by the sign of the level change.")
-                + Text("\(week.levelsDelta) levels"))
+            weekSummaryText(week)
                 .font(.system(size: 11.5))
-                .foregroundStyle(WidgetTheme.ink2)
+                .foregroundStyle(Theme.ink2)
                 .lineLimit(1)
                 .minimumScaleFactor(0.85)
         }
     }
 
+    /// A snapshot written before the scale changed carries no `stepsDelta`,
+    /// so the line drops that segment instead of reading a level count as
+    /// steps. One `Text` chain, built once: the modifiers above have to land
+    /// on the whole line either way.
+    private func weekSummaryText(_ week: WidgetSnapshot.Week) -> Text {
+        let head = Text("This week")
+            + Text(verbatim: " · ")
+            + Text("\(week.workouts) workouts")
+        guard let delta = week.stepsDelta else { return head }
+        let sign = delta >= 0 ? "+" : ""
+        return head
+            + Text(" · \(sign)", comment: "A separator dot followed by the sign of the weekly change.")
+            + Text("\(delta) steps")
+    }
+
     // MARK: Words and glyphs
     //
-    // Internal rather than private: the unit tests pin these per status.
+    // headline and subline are internal rather than private: the unit tests
+    // pin these per status. glyph has no such reader and stays private.
     // Resolved Strings rather than Text — two Texts with identical words do
     // not reliably compare equal (I-8).
 

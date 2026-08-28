@@ -1,10 +1,7 @@
 //
-//  Cooldown.swift
-//  Dredfit
-//
-//  Six positions × 30 s, materialising the 3 minutes `cooldownMin` has
-//  reserved since 1.0 — so no estimate anywhere changes. Composition is
-//  deterministic from what was actually performed.
+//  Six positions × 30 s, materialising the 3 minutes `cooldownMin` reserves —
+//  so no estimate anywhere changes. Composition is deterministic from what was
+//  actually performed.
 //
 //  No levels, no journal entry, no engine involvement.
 //
@@ -18,6 +15,11 @@ struct CooldownPosition: Equatable, Identifiable {
     /// One 30 s slot split into 15 s per side — a per-side position does not
     /// get twice the time. The side-switch pause rides on top of the slot.
     let perSide: Bool
+    /// The position starts on the floor or at a wall, so its transition
+    /// carries the supplement of issue #83. The flag travels with the
+    /// position, not the index — the set is composed per session. Only
+    /// forward fold, the lat stretch and the wrists stay standing.
+    let needsSetup: Bool
     let steps: [String]
 }
 
@@ -40,6 +42,7 @@ enum Cooldown {
                          name: String(localized: "cooldown.hipFlexors",
                                       defaultValue: "Hip flexor stretch"),
                          perSide: true,
+                         needsSetup: true,
                          steps: [
                              String(localized: "cooldown.hipFlexors.step1",
                                     defaultValue: "Kneel on one knee, the other foot planted in front."),
@@ -54,6 +57,7 @@ enum Cooldown {
                          name: String(localized: "cooldown.chestWall",
                                       defaultValue: "Chest and shoulders at the wall"),
                          perSide: true,
+                         needsSetup: true,
                          steps: [
                              String(localized: "cooldown.chestWall.step1",
                                     defaultValue: "Forearm on the wall, elbow at shoulder height."),
@@ -68,6 +72,7 @@ enum Cooldown {
                          name: String(localized: "cooldown.restPose",
                                       defaultValue: "Rest pose"),
                          perSide: false,
+                         needsSetup: true,
                          steps: [
                              String(localized: "cooldown.restPose.step1",
                                     defaultValue: "Knees on the floor, sit back onto the heels."),
@@ -82,6 +87,7 @@ enum Cooldown {
                          name: String(localized: "cooldown.forwardFold",
                                       defaultValue: "Forward fold"),
                          perSide: false,
+                         needsSetup: false,
                          steps: [
                              String(localized: "cooldown.forwardFold.step1",
                                     defaultValue: "Feet hip-width; fold forward from the hips, knees soft."),
@@ -96,6 +102,7 @@ enum Cooldown {
                          name: String(localized: "cooldown.latStretch",
                                       defaultValue: "Lat stretch with support"),
                          perSide: false,
+                         needsSetup: false,
                          steps: [
                              String(localized: "cooldown.latStretch.step1",
                                     defaultValue: "Hold a support at hip height with both hands, feet under the hips."),
@@ -110,6 +117,7 @@ enum Cooldown {
                          name: String(localized: "cooldown.wrists",
                                       defaultValue: "Wrists and forearms"),
                          perSide: true,
+                         needsSetup: false,
                          steps: [
                              String(localized: "cooldown.wrists.step1",
                                     defaultValue: "Arm straight, palm down; gently pull the fingers down and toward you."),
@@ -124,6 +132,7 @@ enum Cooldown {
                          name: String(localized: "cooldown.lyingTwist",
                                       defaultValue: "Lying twist"),
                          perSide: true,
+                         needsSetup: true,
                          steps: [
                              String(localized: "cooldown.lyingTwist.step1",
                                     defaultValue: "On your back, knees bent; drop both knees to one side."),
@@ -138,6 +147,7 @@ enum Cooldown {
                          name: String(localized: "cooldown.calfWall",
                                       defaultValue: "Calf stretch at the wall"),
                          perSide: true,
+                         needsSetup: true,
                          steps: [
                              String(localized: "cooldown.calfWall.step1",
                                     defaultValue: "Hands on the wall, one leg stepped back, heel on the floor."),
@@ -152,6 +162,7 @@ enum Cooldown {
                          name: String(localized: "cooldown.seatedGlute",
                                       defaultValue: "Seated glute stretch"),
                          perSide: true,
+                         needsSetup: true,
                          steps: [
                              String(localized: "cooldown.seatedGlute.step1",
                                     defaultValue: "Sit tall; place one ankle over the opposite knee."),
@@ -162,7 +173,6 @@ enum Cooldown {
                          ])
     }
 
-    /// The movement → position mapping (spec §4).
     private static func position(for pattern: Pattern) -> CooldownPosition {
         switch pattern {
         case .squat, .hinge:            return forwardFold
@@ -175,7 +185,10 @@ enum Cooldown {
     }
 
     /// Top-up order when the session's movements map to fewer than three
-    /// distinct positions (a short workout can).
+    /// distinct positions. A session with several movements skipped gets
+    /// there — only what was performed is mapped — and so does one whose
+    /// movements share a position: squat and hinge both fold forward, the two
+    /// pushes both land on the wrists, and both core patterns twist.
     private static var mappedPool: [CooldownPosition] {
         [forwardFold, latStretch, wrists, lyingTwist, calfWall, seatedGlute]
     }
@@ -209,16 +222,27 @@ enum Cooldown {
     /// `.getReady` (issue #52).
     enum Stage { case getReady, single, firstSide, switchPause, secondSide }
 
-    static func stageSeconds(_ stage: Stage) -> Int {
+    /// The transition's length depends on the position it announces (issue
+    /// #83), so a stage alone no longer has one.
+    static func stageSeconds(_ stage: Stage, of position: CooldownPosition) -> Int {
         #if DEBUG
         if CommandLine.arguments.contains("--uitest-fast") { return 1 }
         #endif
         switch stage {
-        case .getReady:               return GetReady.stageSeconds
+        case .getReady:               return GetReady.stageSeconds(needsSetup: position.needsSetup)
         case .single:                 return positionSeconds
         case .firstSide, .secondSide: return sideSeconds
         case .switchPause:            return sideSwitchPauseSec
         }
+    }
+
+    /// The workout's per-side holds play the same pause with no position
+    /// attached — and collapse under --uitest-fast with everything else.
+    static var switchPauseSeconds: Int {
+        #if DEBUG
+        if CommandLine.arguments.contains("--uitest-fast") { return 1 }
+        #endif
+        return sideSwitchPauseSec
     }
 
     static let openingStage = Stage.getReady
@@ -258,12 +282,12 @@ enum Cooldown {
         guard var landing = step(after: current, positions: positions) else { return nil }
         let entered = landing.stage
         var remainder = overshoot
-        while remainder >= stageSeconds(landing.stage) {
-            remainder -= stageSeconds(landing.stage)
+        while remainder >= stageSeconds(landing.stage, of: positions[landing.index]) {
+            remainder -= stageSeconds(landing.stage, of: positions[landing.index])
             guard let next = step(after: landing, positions: positions) else { return nil }
             landing = next
         }
         return Advance(entered: entered, index: landing.index, stage: landing.stage,
-                       remaining: stageSeconds(landing.stage) - remainder)
+                       remaining: stageSeconds(landing.stage, of: positions[landing.index]) - remainder)
     }
 }

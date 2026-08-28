@@ -1,7 +1,4 @@
 //
-//  WidgetBridge.swift
-//  Dredfit
-//
 //  After every persisted change the app rewrites the two-week snapshot and
 //  pokes WidgetKit; the widget never computes rest days itself. Without the
 //  entitlement (or in unit tests) everything degrades silently.
@@ -47,8 +44,8 @@ extension AppStore {
         let summary = weekSummary(for: today)
         let snapshot = WidgetSnapshot(
             days: days,
-            totalLevel: totalLevel,
-            week: .init(workouts: summary.workouts, levelsDelta: summary.levelsDelta),
+            totalSteps: totalProgress,
+            week: .init(workouts: summary.workouts, stepsDelta: summary.stepsDelta),
             weekStart: thisWeek.start,
             planSessionNumber: next.sessionNumber,
             planMinutes: Int(next.estimatedTotalMin.rounded()),
@@ -63,7 +60,7 @@ extension AppStore {
     /// Past days come from the journal, not `isDone(on:)`, which only ever
     /// knows about the latest record. A missed training day stays *unmarked*
     /// — the Calendar leaves those unshamed and the widget follows.
-    private func widgetStatus(of day: Date, today: Date) -> WidgetSnapshot.Day.Status {
+    private func widgetStatus(of day: Date, today: Date) -> WidgetSnapshot.DayStatus {
         if record(on: day) != nil { return .done }
         if isRestDay(day) { return .rest }
         return day < today ? .unmarked : .workout

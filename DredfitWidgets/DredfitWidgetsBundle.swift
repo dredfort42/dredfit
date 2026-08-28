@@ -1,7 +1,4 @@
 //
-//  DredfitWidgetsBundle.swift
-//  DredfitWidgets
-//
 //  Carries @main and stays out of the unit test bundle.
 //
 

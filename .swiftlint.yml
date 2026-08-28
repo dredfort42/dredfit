@@ -3,6 +3,11 @@ included:
   - DredfitCore
   - DredfitTests
   - DredfitUITests
+  # Both were outside the list and so went unlinted in CI and locally —
+  # 623 lines nobody was checking. They were clean when added, so adding
+  # them cost nothing today and stops the next file there going unread.
+  - DredfitWidgets
+  - Shared
 
 excluded:
   - DredfitCore/.build
@@ -29,3 +34,40 @@ type_body_length:
 file_length:
   warning: 600
   error: 1200
+
+# Every rule below was measured against the whole tree before being turned
+# on and found ZERO violations, so adoption changed no existing code and no
+# warning count. They are here to hold that line for code not yet written.
+#
+# Measured and NOT adopted, with their counts at the time: force_unwrapping
+# (115, of which 102 in tests), multiline_parameters (61),
+# implicitly_unwrapped_optional (28, the XCTest `var sut: Foo!` idiom),
+# discouraged_optional_boolean (6, all deliberate three-state flags such as
+# `healthExported`), closure_end_indentation (2), operator_usage_whitespace
+# (1). Each needs a decision and a cleanup pass, not a silent flip.
+opt_in_rules:
+  # Correctness — these catch real defects, not style.
+  - overridden_super_call
+  - prohibited_super_call
+  - unavailable_function
+  - fatal_error_message
+  - legacy_multiple
+
+  # Collection work that is both clearer and cheaper than what it replaces.
+  - empty_count
+  - empty_string
+  - first_where
+  - last_where
+  - sorted_first_last
+  - contains_over_first_not_nil
+  - contains_over_filter_count
+  - contains_over_filter_is_empty
+
+  # Redundancy the compiler accepts and a reader has to step over.
+  - redundant_nil_coalescing
+  - toggle_bool
+  - explicit_init
+  - joined_default_parameter
+  - static_operator
+  - unneeded_parentheses_in_closure_argument
+  - yoda_condition

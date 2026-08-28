@@ -1,9 +1,5 @@
-//
-//  BlockPauseTests.swift
-//  DredfitTests
-//
-
 import XCTest
+import DredfitCore
 @testable import Dredfit
 
 @MainActor
@@ -11,12 +7,24 @@ final class BlockPauseTests: XCTestCase {
 
     // MARK: - The way back in
 
-    func testTheWayBackInIsTheAppsOneTransitionLength() {
-        // A third length would be a third thing to learn: the app already
-        // counts you in over five seconds before a position (#52) and between
-        // the sides of one (#35).
-        XCTAssertEqual(BlockPause.reentrySeconds, GetReady.seconds)
-        XCTAssertEqual(BlockPause.reentrySeconds, Cooldown.sideSwitchPauseSec)
+    func testTheWayBackInIsTheCountIn() {
+        // A third length would be a third thing to learn: the app counts you
+        // in over five seconds before a position (#52), between the sides of
+        // one (#35), and after every start tap. The way back in is the same
+        // beat — Resume is tapped by someone already standing in place, so
+        // there is no travel to pay for. It followed the TRANSITION until
+        // 27.08.2026, which made it ten and put two opposite reasons in the
+        // tree at once; owner's decision settled it on the count-in.
+        //
+        // Pinned twice, per §41.8: once against the constant it is wired to,
+        // and once against the NUMBER — a pin that only says "equals that
+        // other symbol" moves silently when the symbol does.
+        XCTAssertEqual(BlockPause.reentrySeconds, GetReady.countInSeconds)
+        XCTAssertEqual(BlockPause.reentrySeconds, 5)
+        XCTAssertEqual(BlockPause.reentrySeconds, Cooldown.sideSwitchPauseSec,
+                       "the side-switch pause is the same beat, and they are one number again")
+        XCTAssertLessThan(BlockPause.reentrySeconds, GetReady.seconds,
+                          "travel to a position is longer than being counted back into one")
     }
 
     func testTheWayBackInLeavesRoomForTheCountdownItPlays() {
@@ -127,10 +135,15 @@ final class BlockPauseTests: XCTestCase {
         // precedent of #52). What the blocks cost uninterrupted is unchanged
         // by this feature — the stage lengths are the same ones GetReadyTests
         // measures against the reserved minutes.
-        XCTAssertEqual(Warmup.stageSeconds(.move), Warmup.moveSeconds)
-        XCTAssertEqual(Warmup.stageSeconds(.getReady), GetReady.seconds)
-        XCTAssertEqual(Cooldown.stageSeconds(.single), Cooldown.positionSeconds)
-        XCTAssertEqual(Cooldown.stageSeconds(.firstSide), Cooldown.sideSeconds)
-        XCTAssertEqual(Cooldown.stageSeconds(.switchPause), Cooldown.sideSwitchPauseSec)
+        let positions = Cooldown.positions(performed: [.pull])
+        let warmup = Warmup.moves(sessionNumber: 1)
+        XCTAssertEqual(Warmup.stageSeconds(.move, of: warmup[0]), Warmup.moveSeconds)
+        XCTAssertEqual(Warmup.stageSeconds(.getReady, of: warmup[0]), GetReady.seconds)
+        XCTAssertEqual(Cooldown.stageSeconds(.single, of: positions[0]),
+                       Cooldown.positionSeconds)
+        XCTAssertEqual(Cooldown.stageSeconds(.firstSide, of: positions[0]),
+                       Cooldown.sideSeconds)
+        XCTAssertEqual(Cooldown.stageSeconds(.switchPause, of: positions[0]),
+                       Cooldown.sideSwitchPauseSec)
     }
 }

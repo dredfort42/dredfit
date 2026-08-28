@@ -1,9 +1,5 @@
-//
-//  ShareCardTests.swift
-//  DredfitTests
-//
-
 import XCTest
+import SwiftUI
 import DredfitCore
 @testable import Dredfit
 
@@ -39,6 +35,27 @@ final class ShareCardTests: XCTestCase {
                           "one file for both would let a new card overwrite an open share")
     }
 
+    // MARK: - Scheme pinning
+
+    /// The card is an exported graphic: now that the palette is adaptive,
+    /// the viewer's scheme must not leak into what other people receive.
+    /// The card pins its own environment, so even a dark render is light.
+    func testACardRenderedInDarkSchemeIsPixelIdenticalToLight() throws {
+        let card = ShareCard(headline: "Workout #50", date: Self.pinned,
+                             steps: [12, 18, 26])
+        let dark = try XCTUnwrap(png(of: card.environment(\.colorScheme, .dark)))
+        let light = try XCTUnwrap(png(of: card.environment(\.colorScheme, .light)))
+        XCTAssertEqual(dark, light,
+                       "the exported card must not follow the viewer's scheme")
+    }
+
+    /// The factory path, same scale and PNG encoding as ShareCardFactory.
+    private func png(of view: some View) -> Data? {
+        let renderer = ImageRenderer(content: view)
+        renderer.scale = 1
+        return renderer.uiImage?.pngData()
+    }
+
     // MARK: - The level curve
 
     /// A fixed date so two renders differ only by the curve, never by the
@@ -49,25 +66,26 @@ final class ShareCardTests: XCTestCase {
         let none = try XCTUnwrap(ShareCardFactory.png(headline: "Workout #1",
                                                       date: Self.pinned))
         let one = try XCTUnwrap(ShareCardFactory.png(headline: "Workout #1",
-                                                     date: Self.pinned, levels: [12]))
+                                                     date: Self.pinned, steps: [12]))
         XCTAssertEqual(none, one, "a single session is a dot, not a history")
         let two = try XCTUnwrap(ShareCardFactory.png(headline: "Workout #1",
-                                                     date: Self.pinned, levels: [12, 26]))
+                                                     date: Self.pinned, steps: [12, 26]))
         XCTAssertNotEqual(none, two, "two sessions are a curve and must show up")
     }
 
     func testAFlatHistoryStillRenders() throws {
         let zeros = try XCTUnwrap(ShareCardFactory.png(headline: "Workout #2",
-                                                       levels: [0, 0, 0]))
+                                                       steps: [0, 0, 0]))
         XCTAssertFalse(zeros.isEmpty)
         let data = try XCTUnwrap(ShareCardFactory.png(headline: "Now 4 sets",
-                                                      levels: [96, 96, 96, 96]))
+                                                      steps: [96, 96, 96, 96]))
         let image = try XCTUnwrap(UIImage(data: data))
         XCTAssertEqual(image.size.width, 1080)
         XCTAssertEqual(image.size.height, 1350)
     }
 
     /// The curve is whatever the words did not need — never the other way
+    /// around: the headline never gives up space to make room for it.
     func testTheCurveOnlyTakesWhatTheHeadlineLeaves() {
         XCTAssertGreaterThan(ShareCard.curveHeight(for: "Unlocked: Pistol squat"), 0)
         // 89 characters still take the full 92 pt, and at that size they fill
@@ -82,7 +100,7 @@ final class ShareCardTests: XCTestCase {
 
     func testHeadlineForEachMilestoneKind() {
         XCTAssertEqual(
-            ShareCardFactory.headline(for: .tierUp(pattern: .squat, tier: 3,
+            ShareCardFactory.headline(for: .variationUp(pattern: .squat, variation: 3,
                                                    exercise: "Pistol squat")),
             "Unlocked: Pistol squat")
         XCTAssertEqual(
@@ -96,9 +114,9 @@ final class ShareCardTests: XCTestCase {
 
     func testHeadlineNamesEveryUnlockedVariation() {
         let headline = ShareCardFactory.headline(for: [
-            .tierUp(pattern: .lunge, tier: 2, exercise: "Bulgarian split squat"),
-            .tierUp(pattern: .pushH, tier: 2, exercise: "Push-up"),
-            .tierUp(pattern: .hinge, tier: 2, exercise: "Single-leg glute bridge"),
+            .variationUp(pattern: .lunge, variation: 2, exercise: "Bulgarian split squat"),
+            .variationUp(pattern: .pushH, variation: 2, exercise: "Push-up"),
+            .variationUp(pattern: .hinge, variation: 2, exercise: "Single-leg glute bridge"),
         ])
         XCTAssertEqual(headline,
                        "Unlocked: Bulgarian split squat, Push-up, Single-leg glute bridge",
@@ -107,7 +125,7 @@ final class ShareCardTests: XCTestCase {
 
     func testHeadlineForASingleUnlockIsUnchangedByTheList() {
         XCTAssertEqual(
-            ShareCardFactory.headline(for: [.tierUp(pattern: .squat, tier: 3,
+            ShareCardFactory.headline(for: [.variationUp(pattern: .squat, variation: 3,
                                                     exercise: "Pistol squat")]),
             "Unlocked: Pistol squat")
     }
@@ -123,7 +141,7 @@ final class ShareCardTests: XCTestCase {
 
     func testUnlocksLeadTheHeadlineOverSetBandsAndJubilees() {
         let headline = ShareCardFactory.headline(for: [
-            .tierUp(pattern: .squat, tier: 2, exercise: "Split squat"),
+            .variationUp(pattern: .squat, variation: 2, exercise: "Split squat"),
             .setBand(pattern: .pushH, sets: 4, exercise: "Push-up"),
             .jubilee(workouts: 50),
         ])
@@ -201,8 +219,8 @@ final class ShareCardTests: XCTestCase {
     }
 
     func testSummaryHeadlineCarriesOnlyTotals() {
-        let headline = ShareCardFactory.summaryHeadline(workouts: 42, totalLevel: 137)
+        let headline = ShareCardFactory.summaryHeadline(workouts: 42, totalSteps: 137)
         // "level", the same word the Progress header uses beside the number.
-        XCTAssertEqual(headline, "42 workouts · level 137")
+        XCTAssertEqual(headline, "42 workouts · 137 steps")
     }
 }

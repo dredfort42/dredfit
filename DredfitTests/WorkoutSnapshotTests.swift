@@ -1,27 +1,11 @@
-//
-//  WorkoutSnapshotTests.swift
-//  DredfitTests
-//
-
 import XCTest
 import DredfitCore
 @testable import Dredfit
 
 @MainActor
-final class WorkoutSnapshotTests: XCTestCase {
+final class WorkoutSnapshotTests: AppStoreTestCase {
 
-    nonisolated(unsafe) private var tempURL: URL!
-
-    override func setUp() async throws {
-        try await super.setUp()
-        tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("dredfit-snapshot-\(UUID().uuidString).json")
-    }
-
-    override func tearDown() async throws {
-        try? FileManager.default.removeItem(at: tempURL)
-        try await super.tearDown()
-    }
+    override var tempURLPrefix: String { "dredfit-snapshot" }
 
     /// A mid-workout snapshot the way the flow would write it: real
     /// progress, and a fingerprint of the session the store would offer.
@@ -31,7 +15,7 @@ final class WorkoutSnapshotTests: XCTestCase {
         WorkoutSnapshot(sessionNumber: sessionNumber,
                         exIndex: 4, setIndex: 1,
                         restEndDate: nil, restTotalSec: nil,
-                        actuals: [.pushH: 9], skipped: [.coreAntiExt],
+                        setActuals: [.pushH: [12, 9]], skipped: [.coreAntiExt],
                         workoutStart: savedAt.addingTimeInterval(-20 * 60),
                         savedAt: savedAt,
                         fingerprint: WorkoutSnapshot.fingerprint(of: store.nextSession))
@@ -47,8 +31,26 @@ final class WorkoutSnapshotTests: XCTestCase {
         let resumed = relaunched.resumableWorkout()
         XCTAssertNotNil(resumed, "a fresh snapshot must be offered after a cold start")
         XCTAssertEqual(resumed?.exIndex, 4)
-        XCTAssertEqual(resumed?.actuals, [.pushH: 9])
+        XCTAssertEqual(resumed?.facts, [.pushH: [12, 9]],
+                       "which set ran at which number is the progress, not just the last one")
         XCTAssertEqual(resumed?.skipped, [.coreAntiExt])
+    }
+
+    /// A snapshot written before a fact belonged to its own set carried one
+    /// number for the whole exercise. That number was in force from the first
+    /// set on, which is exactly what a one-element array says — and it must
+    /// resume rather than take the file down.
+    func testASnapshotFromTheOneNumberShapeStillResumes() {
+        let store = AppStore(storageURL: tempURL)
+        store.saveWorkoutSnapshot(WorkoutSnapshot(
+            sessionNumber: 1, exIndex: 4, setIndex: 1,
+            actuals: [.pushH: 9],
+            workoutStart: .now.addingTimeInterval(-20 * 60), savedAt: .now,
+            fingerprint: WorkoutSnapshot.fingerprint(of: store.nextSession)))
+
+        let resumed = AppStore(storageURL: tempURL).resumableWorkout()
+        XCTAssertNotNil(resumed, "a lone old-shape fact is still progress worth offering")
+        XCTAssertEqual(resumed?.facts, [.pushH: [9]])
     }
 
     func testClearedSnapshotStaysClearedAcrossRelaunch() {
@@ -179,6 +181,40 @@ final class WorkoutSnapshotTests: XCTestCase {
         let reloaded = AppStore(storageURL: tempURL)
         XCTAssertNotNil(reloaded.resumableWorkout())
         XCTAssertNil(reloaded.resumableWorkout()?.discomfort)
+    }
+
+    /// Re-marked from `testAPinAloneMakesASnapshotResumable`. The hold request
+    /// is cancelled; a pain report is the remaining per-movement mark that is
+    /// progress worth offering back on its own.
+    func testAPainReportAloneMakesASnapshotResumable() {
+        let store = AppStore(storageURL: tempURL)
+        store.saveWorkoutSnapshot(WorkoutSnapshot(
+            sessionNumber: 1, exIndex: 0, setIndex: 0,
+            discomfort: [.squat],
+            workoutStart: .now.addingTimeInterval(-5 * 60), savedAt: .now,
+            fingerprint: WorkoutSnapshot.fingerprint(of: store.nextSession)))
+        let resumed = store.resumableWorkout()
+        XCTAssertNotNil(resumed, "something was said — the card must show")
+        XCTAssertEqual(resumed?.discomfort, [.squat])
+    }
+
+    /// A snapshot carrying the cancelled key still decodes: an unknown field
+    /// is ignored, so a workout interrupted before the update comes back.
+    func testASnapshotWithTheCancelledKeyStillResumes() throws {
+        let store = AppStore(storageURL: tempURL)
+        let fingerprint = WorkoutSnapshot.fingerprint(of: store.nextSession)
+        store.saveWorkoutSnapshot(makeSnapshot(for: store))
+        var raw = try XCTUnwrap(String(data: try Data(contentsOf: tempURL), encoding: .utf8))
+        XCTAssertFalse(raw.contains("\"pinned\""),
+                       "the cancelled key is never written again")
+        // Splice it back in the way an older build would have written it.
+        raw = raw.replacingOccurrences(
+            of: "\"fingerprint\" : \"\(fingerprint)\"",
+            with: "\"pinned\" : [\"squat\"],\n    \"fingerprint\" : \"\(fingerprint)\"")
+        try Data(raw.utf8).write(to: tempURL)
+        let reloaded = AppStore(storageURL: tempURL)
+        XCTAssertNotNil(reloaded.resumableWorkout(),
+                        "an unknown key must not take the snapshot down")
     }
 
     func testSnapshotWithoutFingerprintIsNotOffered() {

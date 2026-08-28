@@ -36,14 +36,14 @@
       }
     },
     {
-      "parallelizable" : true,
-      "testRepetitionMode" : "retryOnFailure",
       "maximumTestRepetitions" : 3,
+      "parallelizable" : true,
       "target" : {
         "containerPath" : "container:Dredfit.xcodeproj",
         "identifier" : "AF2F7BBB3008FD9300249B07",
         "name" : "DredfitUITests"
-      }
+      },
+      "testRepetitionMode" : "retryOnFailure"
     }
   ],
   "version" : 1

@@ -1,32 +1,17 @@
-//
-//  HardeningTests.swift
-//  DredfitTests
-//
-
 import XCTest
 import DredfitCore
 @testable import Dredfit
 
 @MainActor
-final class HardeningTests: XCTestCase {
+final class HardeningTests: AppStoreTestCase {
 
-    nonisolated(unsafe) private var tempURL: URL!
-
-    override func setUp() async throws {
-        try await super.setUp()
-        tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("dredfit-hardening-\(UUID().uuidString).json")
-    }
-
-    override func tearDown() async throws {
-        try? FileManager.default.removeItem(at: tempURL)
-        try await super.tearDown()
-    }
+    override var tempURLPrefix: String { "dredfit-hardening" }
 
     // MARK: - Day anchor
 
     /// Regression: crossing midnight while the process stays alive must
     /// re-anchor the UI's "today" — the tab must not stay stuck on
+    /// yesterday's completed state.
     func testRefreshDayReanchorsAcrossMidnight() {
         let store = AppStore(storageURL: tempURL)
         store.completeWorkout(session: store.nextSession, result: .plan)
@@ -40,6 +25,91 @@ final class HardeningTests: XCTestCase {
         let anchor = store.today
         store.refreshDay(now: anchor.addingTimeInterval(60))
         XCTAssertEqual(store.today, anchor, "a same-day refresh must be a no-op")
+    }
+
+    // MARK: - Cold-launch activation (issue #93)
+
+    /// Seeds a journal whose last workout happened `daysAgo` days ago —
+    /// several sessions, so the levels sit clear of the zero clamp. Returns
+    /// the levels as seeded.
+    /// Four workouts, then the positions they left behind — the shape a decay
+    /// is measured against now that there is no level to subtract from.
+    @discardableResult
+    private func seedWorkout(daysAgo: Int, at url: URL) -> [Pattern: RecordedPosition] {
+        let store = AppStore(storageURL: url, notifications: NotificationSpy())
+        let date = Calendar.current.date(byAdding: .day, value: -daysAgo, to: .now)!
+        for _ in 0..<4 {
+            _ = store.completeWorkout(session: store.nextSession, result: .plan, date: date)
+        }
+        return AppStore.positions(of: store.engineState)
+    }
+
+    /// A decay is one rung of DOSE (§40.3), and on the floor of a grid it takes
+    /// a set instead — so what every assertion below actually claims is "the
+    /// plan moved, and it never moved up".
+    private func assertDecayed(_ store: AppStore, from seeded: [Pattern: RecordedPosition],
+                               _ message: String) {
+        var moved = false
+        for p in Pattern.allCases {
+            guard let was = seeded[p] else { continue }
+            let before = Engine.progress(p, variation: was.variation,
+                                         sets: was.sets, dose: was.dose)
+            let now = Engine.progress(store.engineState, p)
+            XCTAssertLessThanOrEqual(now, before, "\(p): \(message)")
+            if now < before { moved = true }
+        }
+        XCTAssertTrue(moved, message)
+    }
+
+    /// Regression: a cold launch renders already `.active`, so the phase
+    /// transition never fires — `activate()` from `onAppear` must run the
+    /// blind-zone decay, or a 7–13-day comeback trains on pre-break levels.
+    func testColdLaunchActivationAppliesSilentDecay() {
+        let seeded = seedWorkout(daysAgo: 10, at: tempURL)
+
+        let cold = AppStore(storageURL: tempURL, notifications: NotificationSpy())
+        cold.activate()
+        assertDecayed(cold, from: seeded, "the cold launch must see the decay")
+
+        let once = AppStore.positions(of: cold.engineState)
+        cold.activate()
+        XCTAssertEqual(AppStore.positions(of: cold.engineState), once,
+                       "a second activation in the same break must not decay again")
+
+        let relaunched = AppStore(storageURL: tempURL, notifications: NotificationSpy())
+        relaunched.activate()
+        XCTAssertEqual(AppStore.positions(of: relaunched.engineState), once,
+                       "the stamp persists — a relaunch inside the break must not decay again")
+    }
+
+    func testColdLaunchActivationLeavesGapsOutsideTheBlindZoneAlone() {
+        for days in [6, 14] {
+            let url = tempURL.deletingPathExtension().appendingPathExtension("gap\(days).json")
+            defer { try? FileManager.default.removeItem(at: url) }
+            seedWorkout(daysAgo: days, at: url)
+            let cold = AppStore(storageURL: url, notifications: NotificationSpy())
+            let before = cold.engineState
+            cold.activate()
+            XCTAssertEqual(cold.engineState, before,
+                           "gap \(days): outside [7, 14) activation must not touch the engine")
+        }
+    }
+
+    /// The seam's order matters: a launch that could not read its journal
+    /// must reload first and decay after — the other way round the decay
+    /// finds no journal and silently skips the break.
+    func testActivationReloadsBeforeDecaying() throws {
+        try XCTSkipIf(getuid() == 0, "root reads through 0o000 permissions")
+        let seeded = seedWorkout(daysAgo: 10, at: tempURL)
+        try FileManager.default.setAttributes([.posixPermissions: 0o000],
+                                              ofItemAtPath: tempURL.path)
+        let frozen = AppStore(storageURL: tempURL, notifications: NotificationSpy())
+        try FileManager.default.setAttributes([.posixPermissions: 0o644],
+                                              ofItemAtPath: tempURL.path)
+
+        frozen.activate()
+        assertDecayed(frozen, from: seeded,
+                      "one activate() must both reload the journal and decay it")
     }
 
     // MARK: - Reminders (injectable scheduler)
@@ -86,13 +156,13 @@ final class HardeningTests: XCTestCase {
         await store.reminderAuthTask?.value
         store.rescheduleReminders(now: moment(hour: 6))   // before reminder time
 
-        // default rest days are Sunday (1) and Wednesday (4) since issue #36
-        // — any 28-day span holds exactly 4 of each
-        XCTAssertEqual(spy.scheduled.count, 20)
+        // default rest days are Monday (2), Wednesday (4) and Friday (6) —
+        // any 28-day span holds exactly 4 of each, so 28 − 12
+        XCTAssertEqual(spy.scheduled.count, 16)
         XCTAssertLessThan(spy.scheduled.count, 64, "must stay under the iOS pending cap")
         let cal = Calendar.current
         XCTAssertFalse(spy.scheduled.contains {
-            [1, 4].contains(cal.component(.weekday, from: cal.date(from: $0.fireDate)!))
+            [2, 4, 6].contains(cal.component(.weekday, from: cal.date(from: $0.fireDate)!))
         }, "no reminder on a rest day")
         XCTAssertTrue(spy.scheduled.allSatisfy {
             $0.fireDate.year != nil && $0.fireDate.month != nil && $0.fireDate.day != nil
@@ -105,8 +175,10 @@ final class HardeningTests: XCTestCase {
     func testMorningWorkoutRemovesTodaysReminder() async {
         let spy = NotificationSpy()
         let store = AppStore(storageURL: tempURL, notifications: spy)
-        store.toggleRestDay(1)   // every day trains — no rest-day interference
-        store.toggleRestDay(4)
+        // Every day trains — no rest-day interference. Read off the current
+        // default rather than naming weekdays: spelling them out turned this
+        // into a rest-day fixture the moment the default moved.
+        for wd in store.settings.restWeekdays { store.toggleRestDay(wd) }
         store.setReminderTime(hour: 20, minute: 0)
         store.setReminderEnabled(true)
         await store.reminderAuthTask?.value
@@ -127,8 +199,7 @@ final class HardeningTests: XCTestCase {
     func testEveningWorkoutKeepsWindowIntact() async {
         let spy = NotificationSpy()
         let store = AppStore(storageURL: tempURL, notifications: spy)
-        store.toggleRestDay(1)   // every day trains, as above
-        store.toggleRestDay(4)
+        for wd in store.settings.restWeekdays { store.toggleRestDay(wd) }   // as above
         store.setReminderTime(hour: 9, minute: 0)
         store.setReminderEnabled(true)
         await store.reminderAuthTask?.value
@@ -148,13 +219,13 @@ final class HardeningTests: XCTestCase {
         store.setReminderEnabled(true)
         await store.reminderAuthTask?.value
 
-        store.toggleRestDay(2)   // Monday joins the default Sunday+Wednesday
+        store.toggleRestDay(3)   // Tuesday joins the default Mon+Wed+Fri
         store.rescheduleReminders(now: moment(hour: 6))
-        XCTAssertEqual(spy.scheduled.count, 16)   // 28 minus 4 each of Sun, Mon, Wed
+        XCTAssertEqual(spy.scheduled.count, 12)   // 28 minus 4 each of Mon, Tue, Wed, Fri
         let cal = Calendar.current
         XCTAssertFalse(spy.scheduled.contains {
-            cal.component(.weekday, from: cal.date(from: $0.fireDate)!) == 2
-        }, "a stale Monday reminder must not survive the toggle")
+            cal.component(.weekday, from: cal.date(from: $0.fireDate)!) == 3
+        }, "a stale Tuesday reminder must not survive the toggle")
     }
 
     func testLegacyWeeklySeriesIsClearedOnReschedule() {
@@ -177,7 +248,7 @@ final class HardeningTests: XCTestCase {
         let spy = NotificationSpy()
         let relaunched = AppStore(storageURL: tempURL, notifications: spy)
         relaunched.rescheduleReminders(now: moment(hour: 6))   // scenePhase .active path
-        XCTAssertEqual(spy.scheduled.count, 20, "a restart must rebuild the full window")
+        XCTAssertEqual(spy.scheduled.count, 16, "a restart must rebuild the full window")
 
         relaunched.setReminderTime(hour: 7, minute: 45)
         relaunched.rescheduleReminders(now: moment(hour: 6))
@@ -236,6 +307,7 @@ final class HardeningTests: XCTestCase {
     }
 
     /// A backup restored onto a device that never granted notifications must
+    /// not let the imported reminderEnabled flag survive a denied authorization.
     func testImportWithRemindersRerunsAuthorization() async throws {
         let sourceSpy = NotificationSpy()
         let source = AppStore(storageURL: tempURL, notifications: sourceSpy)
