@@ -58,9 +58,15 @@ export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 TEST_RUNNER_SCREENSHOT_DIR=/path/to/raw xcodebuild test \
   -project Dredfit.xcodeproj -scheme Dredfit \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max,OS=26.5' \
-  -only-testing:DredfitUITests/StoreScreenshots \
+  -only-testing:DredfitUITests/StoreScreenshots/testSeededRussian \
   -parallel-testing-enabled NO
 ```
+
+**One test METHOD per invocation — the `-only-testing:` line above names one on
+purpose.** It used to name the whole class, two paragraphs above the sentence
+telling you not to, and a class-wide run is what produced the 2.0.0 language
+defect below: 42 methods in one runner process, each relaunching the app in a
+different language.
 
 `TEST_RUNNER_` env vars must be in xcodebuild's environment, not build
 settings. The six methods are `testSeeded* / testProgress* / testProbe* /
@@ -120,6 +126,65 @@ Captions are checked by NOTHING. `scripts/check_localization.py` and the
 required `Localization` job walk String Catalogs only; an English phrase that
 reaches the German storefront fails no run. Lines still marked `TODO-i18n` in
 `compose.py` are waiting on a translator and must not ship.
+
+One thing about a caption IS checked, since 2.0.0: **its width.** `compose.py`
+centres a line on the 1320 px canvas and silently CLIPS whatever falls outside,
+and the frame around it still looks finished — so seven captions shipped for
+review with a first letter, a final letter or a whole first word cut off, and
+the eye that reviewed the set read the sentence it expected instead of the one
+on the canvas. The script now measures every line with its own fonts and its
+own centring, and refuses to compose anything at all if a line leaves less than
+8 px of background on either side. It also prints a `tight:` note under 24 px,
+which is advice, not a failure — the approved set contains a 1302 px line
+(`es/s3`), and a gate that fails work the owner has signed off is a gate people
+learn to bypass.
+
+The fix for a clipped line is never a smaller font. A **subtitle** is always one
+line, so only the wording can give. A **headline** has a second tool — a break
+into two lines — but that break is a composition decision: two lines push the
+whole device down 117 px, so it is placed where the PHRASE divides (subject |
+predicate, or on the comma of a French dislocation), never merely where the
+pixels ran out.
+
+## The trap that cost 2.0.0 its first review: the wrong language in the frame
+
+Ten of the seventy 2.0.0 frames were English screens filed under a foreign
+locale — six `s5`, three `s2`, one `s7` — and one more (`ru/s1`) was an English
+screen with a Russian *region*, dated "FRIDAY 28 AUGUST" in day-month order.
+Two independent mechanisms, both now closed in `launch(_:_:)`:
+
+**The argument domain pairs tokens, and `--uitest-*` flags shift the pairing.**
+`NSUserDefaults` reads `-key value` left to right, so `["--uitest-reset"] +
+["-AppleLanguages", "(ru)", "-AppleLocale", "ru_RU"]` pairs `-uitest-reset` with
+`-AppleLanguages`, drops `(ru)` on the floor as a token that is not a key, and
+then pairs `-AppleLocale` with `ru_RU` perfectly. Region arrives, language does
+not — which is exactly what `ru/s1` shows. An ODD number of flags in front of
+the locale pair is all it takes. The locale arguments therefore go FIRST now,
+where nothing a caller passes can shift them.
+
+**`-AppleLanguages` is read once, at process start.** A `launch()` that lands on
+an app still alive from the previous test method keeps THAT method's language.
+`terminate()` only requests the kill and returns — the same asynchrony this file
+already documents for seeding, which the 1.9.0 recapture lost four times out of
+seven. `launch(_:_:)` now terminates, waits for `.notRunning`, and only then
+launches.
+
+**And the reason it shipped rather than went red: the driver could not see it.**
+Every control on every route is addressed by `accessibilityIdentifier`, and an
+identifier is the same word in all seven languages — so an app in English walked
+the Russian route to the end and wrote `skip_ru.png` with every assert green.
+Nothing downstream looks either: `compose.py` trusts the tag in the filename and
+the required `Localization` check walks String Catalogs. The one route that
+could not fail this way was `testProgress*`, and only by accident — it taps the
+tab by its localized title, so a wrong language made it go red instead of lying,
+which is why `s6` is the one slot with no bad frame in the set.
+
+`launch(_:_:)` now ends in `assertLanguage`, the file's single deliberate
+localized assert: the Progress tab must read the locale's word, **and** must not
+read the English "Progress". Both halves are needed — the positive one alone
+passes on any fallback that happens to render the same string. Keep it to that
+one tab title: it is the only localized surface `L` carries, and widening it
+would hand a reworded caption the power to break the capture of six locales.
 
 ## 4. Remove the driver
 

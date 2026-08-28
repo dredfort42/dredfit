@@ -116,8 +116,8 @@ jobs = [
     (f"{RAW}/probe_en.png",      ["Nothing unlocks itself"], "One set of the next movement decides — not a calendar.", f"{OUT}/en/s3.png"),
     (f"{RAW}/probe_ru.png",      ["Само ничего", "не откроется"], "Один подход нового движения решает — не календарь.", f"{OUT}/ru/s3.png"),
     (f"{RAW}/probe_es.png",      ["Nada se desbloquea solo."], "Una serie del siguiente movimiento decide — no un calendario.", f"{OUT}/es/s3.png"),
-    (f"{RAW}/probe_pt-br.png",   ["Nada se desbloqueia sozinho"], "Uma série do próximo movimento decide — não um calendário.", f"{OUT}/pt-br/s3.png"),
-    (f"{RAW}/probe_de.png",      ["Nichts schaltet sich", "von selbst frei"], "Eine Probe der nächsten Bewegung entscheidet – nicht der Kalender.", f"{OUT}/de/s3.png"),
+    (f"{RAW}/probe_pt-br.png",   ["Nada se desbloqueia", "sozinho"], "Uma série do próximo movimento decide — não um calendário.", f"{OUT}/pt-br/s3.png"),
+    (f"{RAW}/probe_de.png",      ["Nichts schaltet sich", "von selbst frei"], "Eine Probe der nächsten Bewegung entscheidet – kein Kalender.", f"{OUT}/de/s3.png"),
     (f"{RAW}/probe_fr.png",      ["Rien ne se débloque", "tout seul"], "Une série de la variante suivante décide, pas le calendrier.", f"{OUT}/fr/s3.png"),
     (f"{RAW}/probe_it.png",      ["Niente si sblocca", "da solo"], "Decide una serie del movimento nuovo, non il calendario.", f"{OUT}/it/s3.png"),
     # --- 4. set_ — the first of the seven that confirm.
@@ -127,7 +127,7 @@ jobs = [
     (f"{RAW}/set_pt-br.png",     ["Um foco por vez"], "Números grandes, um toque por série.", f"{OUT}/pt-br/s4.png"),
     (f"{RAW}/set_de.png",        ["Ein Fokus auf einmal"], "Große Zahlen, ein Fingertipp pro Satz.", f"{OUT}/de/s4.png"),
     (f"{RAW}/set_fr.png",        ["Une série à la fois"], "De grands chiffres, une pression par série.", f"{OUT}/fr/s4.png"),
-    (f"{RAW}/set_it.png",        ["Un solo obiettivo alla volta"], "Numeri grandi, un tocco per ogni serie.", f"{OUT}/it/s4.png"),
+    (f"{RAW}/set_it.png",        ["Un obiettivo alla volta"], "Numeri grandi, un tocco per ogni serie.", f"{OUT}/it/s4.png"),
     # --- 5. skip_ — the decision inside the workout (§38.2).
     (f"{RAW}/skip_en.png",       ["Too much today?"], "Skip a set while you are doing it. The clock follows.", f"{OUT}/en/s5.png"),
     (f"{RAW}/skip_ru.png",       ["Сегодня многовато?"], "Пропусти подход прямо на тренировке. Время пересчитается.", f"{OUT}/ru/s5.png"),
@@ -160,13 +160,13 @@ jobs = [
     (f"{RAW}/comeback_es.png",   ["Las pausas son normales"], "Cuanto más larga la pausa, más bajo te recibe el plan.", f"{OUT}/es/s8.png"),
     (f"{RAW}/comeback_pt-br.png", ["Pausas são normais"], "Quanto mais longa a pausa, mais abaixo o plano espera você.", f"{OUT}/pt-br/s8.png"),
     (f"{RAW}/comeback_de.png",   ["Trainingspausen", "sind normal"], "Je länger die Pause, desto tiefer holt dich der Plan ab.", f"{OUT}/de/s8.png"),
-    (f"{RAW}/comeback_fr.png",   ["Les coupures, c’est normal"], "Plus la coupure est longue, plus bas le plan te retrouve.", f"{OUT}/fr/s8.png"),
+    (f"{RAW}/comeback_fr.png",   ["Les coupures,", "c’est normal"], "Plus la coupure est longue, plus bas le plan te retrouve.", f"{OUT}/fr/s8.png"),
     (f"{RAW}/comeback_it.png",   ["Le pause sono normali"], "Più lunga la pausa, più in basso ti aspetta il piano.", f"{OUT}/it/s8.png"),
     # --- 9. rest_ — 60 s is the band-3 pause (EngineConfig.restSetByBand).
     (f"{RAW}/rest_en.png",       ["Rest is timed for you"], "60 seconds, counted down automatically.", f"{OUT}/en/s9.png"),
     (f"{RAW}/rest_ru.png",       ["Отдых отсчитается", "сам"], "60 секунд — таймер уже запущен.", f"{OUT}/ru/s9.png"),
-    (f"{RAW}/rest_es.png",       ["El descanso se cuenta solo."], "60 segundos, con cuenta regresiva automática.", f"{OUT}/es/s9.png"),
-    (f"{RAW}/rest_pt-br.png",    ["O descanso é cronometrado"], "60 segundos, contados automaticamente.", f"{OUT}/pt-br/s9.png"),
+    (f"{RAW}/rest_es.png",       ["El descanso", "se cuenta solo."], "60 segundos, con cuenta regresiva automática.", f"{OUT}/es/s9.png"),
+    (f"{RAW}/rest_pt-br.png",    ["O descanso", "é cronometrado"], "60 segundos, contados automaticamente.", f"{OUT}/pt-br/s9.png"),
     (f"{RAW}/rest_de.png",       ["Die Pause läuft für dich"], "60 Sekunden, automatisch heruntergezählt.", f"{OUT}/de/s9.png"),
     (f"{RAW}/rest_fr.png",       ["Le repos se compte", "tout seul"], "60 secondes — décompte automatique.", f"{OUT}/fr/s9.png"),
     (f"{RAW}/rest_it.png",       ["Il recupero ha", "un timer tutto suo"], "60 secondi, conto alla rovescia automatico.", f"{OUT}/it/s9.png"),
@@ -175,7 +175,7 @@ jobs = [
     (f"{RAW}/dial_ru.png",       ["Вышло иначе?", "Поправь"], "Факт записывается прямо у упражнения.", f"{OUT}/ru/s10.png"),
     (f"{RAW}/dial_es.png",       ["Pasan cosas —", "ajusta."], "¿Hiciste menos repeticiones? Anótalo en el mismo ejercicio.", f"{OUT}/es/s10.png"),
     (f"{RAW}/dial_pt-br.png",    ["Foi diferente?", "Ajuste."], "Fez menos repetições? Registre direto no exercício.", f"{OUT}/pt-br/s10.png"),
-    (f"{RAW}/dial_de.png",       ["Läuft mal anders –", "trag's ein"], "Weniger Wiederholungen gemacht? Trag es direkt bei der Übung ein.", f"{OUT}/de/s10.png"),
+    (f"{RAW}/dial_de.png",       ["Läuft mal anders –", "trag’s ein"], "Weniger Wiederholungen? Trag es direkt bei der Übung ein.", f"{OUT}/de/s10.png"),
     (f"{RAW}/dial_fr.png",       ["Ça s’est passé autrement", "Ajuste"], "Le fait se note directement sur l’exercice.", f"{OUT}/fr/s10.png"),
     (f"{RAW}/dial_it.png",       ["La vita a volte", "cambia i piani"], "Hai fatto meno ripetizioni? Registralo proprio lì, sull’esercizio.", f"{OUT}/it/s10.png"),
 ]
@@ -248,6 +248,55 @@ for locale in LOCALES:
     slots = [os.path.basename(j[3]) for j in jobs if f"/{locale}/" in j[3]]
     assert sorted(slots) == sorted(f"s{i}.png" for i in range(1, 11)), \
         f"{locale} does not carry s1..s10: {slots}"
+
+# --- The caption must fit the canvas. -----------------------------------
+#
+# 2.0.0 shipped seven captions whose glyphs ran off the 1320 px canvas: the
+# composer centres a line and CLIPS whatever falls outside, so a German
+# subtitle lost its first word and an Italian headline lost its first and
+# last letter — with no error, no warning and no gate. Nothing in CI reads
+# this file (check_localization.py walks String Catalogs only), and the raw
+# screen inside the frame looked perfect, so the eye that reviewed the set
+# read the sentence it EXPECTED rather than the one on the canvas.
+#
+# The measurement is the composer's own, not an estimate: same fonts, same
+# `textbbox`, same integer centring as `text_centered` — an approximation
+# here would be a second thing to keep in sync with the first.
+#
+# SAFE_PAD is 8 and not a comfortable 24 on purpose. It is a CLIPPING gate,
+# not a taste gate: the 2.0.0 set the owner approved contains a line 1302 px
+# wide (es/s3), and a stricter number would fail captions that are already
+# signed off — a gate that cries about approved work is a gate people learn
+# to bypass. TIGHT below is the taste half, and it only prints.
+SAFE_PAD, TIGHT_PAD = 8, 24
+
+
+def _placed(text, font):
+    """(left, right) of the ink once `text_centered` has centred it."""
+    b = ImageDraw.Draw(Image.new("RGB", (1, 1))).textbbox((0, 0), text, font=font)
+    x = (W - (b[2] - b[0])) // 2 - b[0]
+    return x + b[0], x + b[2]
+
+
+_over, _tight = [], []
+for _raw, _lines, _sub, _out in jobs:
+    _frame = "/".join(_out.split(os.sep)[-2:])
+    for _text, _font in [(line, HEAD) for line in _lines] + [(_sub, SUB)]:
+        left, right = _placed(_text, _font)
+        pad = min(left, W - right)
+        # A headline has two ways out (shorten, or break it in two by the
+        # sense of the phrase); a subtitle has ONE — it is always a single
+        # line, so only the wording can give. Hence the hint below.
+        if pad < SAFE_PAD:
+            _over.append(f"{_frame} {'sub' if _font is SUB else 'head'} "
+                         f"{right - left} px, {pad} px of margin: {_text!r}")
+        elif pad < TIGHT_PAD:
+            _tight.append(f"{_frame} {pad} px: {_text!r}")
+for _line in _tight:
+    print("tight:", _line)
+assert not _over, ("captions clipped by the 1320 px canvas — shorten the phrase "
+                   "(a subtitle) or break the headline in two by its sense, "
+                   "never shrink the font:\n  " + "\n  ".join(_over))
 
 for j in jobs:
     if os.path.exists(j[0]):

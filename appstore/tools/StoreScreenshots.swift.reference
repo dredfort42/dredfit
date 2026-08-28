@@ -35,6 +35,14 @@
 //  which is the property this file needs most: a caption reworded in a
 //  catalog must not be able to break the capture of the other six locales.
 //
+//  That property has a price, and 2.0.0 paid it: a driver that reads no
+//  localized string cannot see that the app came up in the WRONG language,
+//  and ten frames were captured in English and filed under ru/es/pt-br/de/
+//  fr/it. So there is exactly ONE localized assert, in `assertLanguage`,
+//  run by `launch` on every route — the deliberate exception, kept to a
+//  single tab title so that the six other locales still cannot be broken by
+//  a reworded caption.
+//
 
 import XCTest
 
@@ -83,11 +91,71 @@ final class StoreScreenshots: XCTestCase {
         XCTAssertNoThrow(try png.write(to: url), "could not write \(name)")
     }
 
+    /// The ONE way this file starts the app, and it does three things no
+    /// caller may skip.
+    ///
+    /// 1. THE LOCALE ARGUMENTS COME FIRST, ahead of `args`. They are read by
+    ///    `NSUserDefaults`' argument domain, which pairs tokens as
+    ///    `-key value` left to right — so an ODD number of `--uitest-*`
+    ///    flags in front of them swallows `-AppleLanguages` as the value of
+    ///    the last flag, leaves `(ru)` standing as a token that is not a key,
+    ///    and then pairs `-AppleLocale` with `ru_RU` perfectly well. The
+    ///    result is an app in ENGLISH with a RUSSIAN region — which is
+    ///    literally what 2.0.0's `ru/s1` was: an English Today screen dated
+    ///    "FRIDAY 28 AUGUST" in day-month order. At the head of the list the
+    ///    two pairs cannot be shifted by anything a caller passes.
+    ///
+    /// 2. TERMINATE, AND WAIT FOR THE PROCESS TO BE GONE, before launching.
+    ///    `AppleLanguages` is read once, when the process starts; a `launch()`
+    ///    that lands on the previous method's app leaves it in the previous
+    ///    method's language. `terminate()` only REQUESTS the kill and returns
+    ///    — the same asynchrony README.md documents for seeding, which the
+    ///    1.9.0 recapture lost four times out of seven. `wait(for:)` makes it
+    ///    a fact instead of a hope.
+    ///
+    /// 3. PROVE THE LANGUAGE ARRIVED before any route walks on. Every raw
+    ///    this file writes is named by locale, and NOTHING downstream reads
+    ///    pixels: compose.py trusts the tag in the filename, and
+    ///    check_localization.py walks String Catalogs. An English screen
+    ///    saved as `skip_ru.png` therefore reaches the Russian storefront
+    ///    with no run going red anywhere — which is how ten frames of 2.0.0
+    ///    shipped for review in the wrong language.
     private func launch(_ args: [String], _ l: L) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = args + ["-AppleLanguages", l.langArg, "-AppleLocale", l.locale]
+        app.launchArguments = ["-AppleLanguages", l.langArg, "-AppleLocale", l.locale] + args
+        app.terminate()
+        XCTAssertTrue(app.wait(for: .notRunning, timeout: 15),
+                      "the previous app instance is still alive: a launch on top of it "
+                      + "would keep ITS language, not \(l.tag)")
         app.launch()
+        assertLanguage(app, l)
         return app
+    }
+
+    /// The only assert in this file that reads a localized string, and it is
+    /// the price of the guarantee above: a driver addressed entirely by
+    /// `accessibilityIdentifier` cannot tell German from English, because an
+    /// identifier is the same word in all seven languages.
+    ///
+    /// The Progress tab title is the sentinel because it is already the one
+    /// localized string `L` carries (`.tabItem` takes no identifier), it
+    /// stands on the tab bar of EVERY route — all six launch into RootView,
+    /// the comeback card included, since it is a card inside TodayView and
+    /// not a cover over it — and three words naming a tab are the least
+    /// likely text in the app to be reworded by a wave.
+    ///
+    /// BOTH halves are needed. The positive one alone passes on a fallback
+    /// that happens to render the same word; the negative one is what
+    /// actually caught 2.0.0, where the tab still read the English
+    /// "Progress" under `-AppleLanguages (ru)`.
+    private func assertLanguage(_ app: XCUIApplication, _ l: L) {
+        let tab = app.tabBars.buttons[l.progressTab]
+        XCTAssertTrue(tab.waitForExistence(timeout: 20),
+                      "app did not come up in \(l.tag): no \"\(l.progressTab)\" tab")
+        guard l.tag != Self.en.tag else { return }
+        XCTAssertFalse(app.tabBars.buttons[Self.en.progressTab].exists,
+                       "English leaked into the \(l.tag) capture — the frame would be "
+                       + "an English screen filed under \(l.tag)")
     }
 
     private func coordinateTap(_ element: XCUIElement) {
@@ -225,8 +293,7 @@ final class StoreScreenshots: XCTestCase {
     // MARK: - Seed B: Progress
 
     private func progress(_ l: L) {
-        let app = launch([], l)
-        XCTAssertTrue(app.tabBars.buttons[l.progressTab].waitForExistence(timeout: 10))
+        let app = launch([], l)   // launch() has already proved the tab is there
         app.tabBars.buttons[l.progressTab].tap()
         Thread.sleep(forTimeInterval: 2)            // let the chart draw
         snap("progress_\(l.tag)")
