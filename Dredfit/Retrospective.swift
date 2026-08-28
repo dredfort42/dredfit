@@ -52,9 +52,16 @@ struct Retrospective: Equatable {
 
     // MARK: - Formatting (core helpers only)
 
+    /// All six coordinates, like the chart's `plot`. On the short overload
+    /// this dropped `sub` and `cut`, and it is the DELTA that is picked from
+    /// here: a growth of sub-steps alone measured as zero and lost the block
+    /// entirely, while a `cut` on the current position read one step HIGHER
+    /// than it stands and could celebrate a movement that had gone down.
+    /// Older records carry neither key and measure as they always did.
     private static func progress(_ pattern: Pattern, _ position: RecordedPosition) -> Int {
         Engine.progress(pattern, variation: position.variation,
-                        sets: position.sets, dose: position.dose)
+                        sets: position.sets, dose: position.dose,
+                        sub: position.sub ?? 0, cut: position.cut ?? 0)
     }
 
     /// Movement, sets and dose exactly as the plan stated them.

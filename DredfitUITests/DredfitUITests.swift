@@ -158,9 +158,30 @@ final class DredfitUITests: XCTestCase {
     func testNextWorkoutPreviewHasNoStartButton() {
         walkAWholeWorkout()
 
-        app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Workout 2 ·'"))
-            .firstMatch.tap()
-        XCTAssertTrue(app.staticTexts["Workout 2"].waitForExistence(timeout: 3))
+        // `rate()` returns as soon as "Workout 1 completed" EXISTS, and the
+        // rating is a fullScreenCover: Today's tree is already underneath it
+        // while it animates away, so this card exists before it can be
+        // tapped. A plain `.tap()` here lands on the cover and is lost —
+        // silently, because the card is still there to be found afterwards.
+        // Hence the driver's coordinateTap, which is what the rest of the
+        // suite uses for a control the flow may still be transitioning over.
+        let card = app.staticTexts.matching(
+            NSPredicate(format: "label BEGINSWITH 'Workout 2 ·'")).firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 5), "no next-workout card to open")
+        let title = app.staticTexts["Workout 2"]
+        // On the GOAL rather than counting taps, like `skipExercises`: a tap
+        // the dismissing cover swallowed is retried, and the card cannot be
+        // over-opened — once the sheet is up the loop is done. The wall clock
+        // bounds it as well as the tap count, for that helper's reason: an
+        // iteration that finds no card to tap does not advance the count, so
+        // the count alone would spin forever on a card that went away.
+        var taps = 0
+        let deadline = Date.now.addingTimeInterval(30)
+        while !title.exists && taps < 5 && Date.now < deadline {
+            if card.exists { coordinateTap(card); taps += 1 }
+            _ = title.waitForExistence(timeout: 3)
+        }
+        XCTAssertTrue(title.exists, "the next-workout card did not open its preview")
         XCTAssertFalse(app.buttons[AX.startWorkout].exists, "the preview must not have Start")
         app.buttons[AX.nextWorkoutDone].tap()
     }
@@ -229,48 +250,48 @@ final class DredfitUITests: XCTestCase {
                       "an empty workout should exit without a dialog")
     }
 
-    /// The dialog's third answer, and the one a person reaches for most: they
-    /// changed their mind. Nothing tested it, so a way out that had begun
-    /// discarding progress would have gone unnoticed. The claim is that
-    /// NOTHING happened — same screen, same progress, the latter proved by
-    /// asking again and being asked to confirm again, which only a workout
-    /// with something in it is.
+    /// The stray tap, and what it must NOT cost. A question that can throw a
+    /// workout away has to survive being brushed against.
     ///
-    /// The tap OUTSIDE the dialog, which is the affordance nothing on screen
-    /// announces — it stays walked because it stays there.
+    /// The behaviour asserted here INVERTED on 27.08.2026, so its history is
+    /// worth keeping straight. As a `confirmationDialog` this question was
+    /// presented as an anchored POPOVER, and a popover IS dismissed by the tap
+    /// outside — that was the cancel, and the only way back, because a popover
+    /// suppresses its cancel action and the declared `Button(role: .cancel)`
+    /// was drawn nowhere and stood nowhere in the accessibility tree.
     ///
-    /// Its history is worth keeping straight. As a `confirmationDialog` this
-    /// question was presented as an anchored POPOVER, and a popover suppresses
-    /// its cancel action, because tapping outside IS the cancel: the declared
-    /// `Button("Cancel", role: .cancel)` was drawn nowhere and stood nowhere in
-    /// the accessibility tree, so the outside tap was the ONLY way back. That
-    /// is what the role-less "Keep training" was added for on 27.08.2026.
+    /// It is an `.alert` now, and an alert is modal: the tap outside is
+    /// swallowed whole. It does not answer the question, and it does not reach
+    /// the rest screen underneath. That is the stronger behaviour — the escape
+    /// is a button a person can SEE, pinned by the test below — so what this
+    /// one pins is the other half: the tap that misses costs nothing.
     ///
-    /// It is an `.alert` now, and an alert does not eat the role — measured the
-    /// same day: the node is `Alert`, there is no `Popover` beside it, and every
-    /// declared button stood in the tree. So "Keep training" carries the role
-    /// itself and there is one escape, not two saying the same thing.
-    func test_exitDialog_whenDismissedWithoutAnswering_leavesTheWorkoutExactlyWhereItWas() {
+    /// The old name said "dismissed without answering", which an alert has no
+    /// way to be; the assertion it carried could only go red.
+    func test_exitDialog_aTapOutsideNeitherAnswersItNorReachesTheScreenUnder() {
         exitDialogOverOneLoggedSet()
         let dialog = app.alerts["Leave the workout?"]
         XCTAssertTrue(dialog.waitForExistence(timeout: 3),
                       "exiting over a logged set must ask before it throws the set away")
-        // Below the sheet, not above it: measured on iPhone 17 Pro, a tap at
-        // dy 0.06 leaves the dialog standing (the dimming layer does not take
-        // taps in the safe-area strip) while dy 0.95 dismisses it. Nothing can
-        // leak through to the rest screen while the dimming layer is up, and
-        // the `skip-rest` assertion below would catch it if it did.
+        // dy 0.95 is below the alert and over the rest screen it covers — the
+        // one place a stray tap could both miss the alert and land on
+        // something. Waiting for a non-existence that must NOT arrive, rather
+        // than reading `exists` straight after the tap: a dismissal the tap
+        // wrongly started would be animating, not instant.
         app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.95)).tap()
+        XCTAssertFalse(dialog.waitForNonExistence(timeout: 2),
+                       "a modal question must not be answered by a tap that missed it")
+        app.buttons["Keep training"].tap()
         XCTAssertTrue(dialog.waitForNonExistence(timeout: 3),
-                      "the question must carry a way back out of itself")
+                      "the visible way back must close the question")
         // Today's controls stay in the tree under the workout cover, so the
         // proof of "still inside" is the rest screen, not the absence of Start.
         XCTAssertTrue(app.buttons[AX.skipRest].exists,
-                      "cancelling must leave the rest screen the dialog covered as it was")
+                      "the rest screen the dialog covered must be exactly as it was")
         app.buttons[AX.workoutExit].tap()
         XCTAssertTrue(app.buttons["Discard workout"].waitForExistence(timeout: 3),
-                      "the set logged before the cancel must still be there — an empty "
-                        + "workout is not asked to confirm")
+                      "the set logged before the stray tap must still be there — an "
+                        + "empty workout is not asked to confirm")
     }
 
     /// The visible way back out. Before 27.08.2026 the only one was the tap

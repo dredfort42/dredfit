@@ -37,19 +37,41 @@ final class JournalSanitizationTests: AppStoreTestCase {
     /// which measures it and subtracts. The engine's own reader clamps the
     /// coordinates, so a hand-edited variation of Int.max is a rung of the
     /// ladder rather than an index into nothing.
+    ///
+    /// The DOSE is the coordinate that actually traps, and until 28.08.2026
+    /// this test carried 4 and 99 for it — both perfectly ordinary — so it
+    /// could not go red. `Library.index` clamps a variation and `fit` clamps
+    /// the sets before anything subtracts, but `Dose.snap` runs BEFORE
+    /// `Dose.clamped` and `Dose.rung` opens with `dose - grid.min`: an
+    /// `Int.min` there took the process down with SIGTRAP. Both ends of the
+    /// range are walked below, and `sub`/`cut` with them.
     func testAStoredPositionOutsideTheLaddersCannotTrapTheRetrospective() throws {
         let s = try store(records: """
         {"sessionNumber":1,"date":0,"result":"plan","totalProgressAfter":180,
          "positionsAfter":["squat",{"variation":-9223372036854775808,"sets":3,"dose":4},
-                           "pull",{"variation":9223372036854775807,"sets":99,"dose":99}]}
+                           "pull",{"variation":9223372036854775807,"sets":99,"dose":99},
+                           "hinge",{"variation":1,"sets":3,
+                                    "dose":-9223372036854775808,
+                                    "sub":-9223372036854775808,
+                                    "cut":-9223372036854775808},
+                           "lunge",{"variation":1,"sets":3,
+                                    "dose":9223372036854775807,
+                                    "sub":9223372036854775807,
+                                    "cut":9223372036854775807}]}
         """)
+        XCTAssertNotNil(s.records.first?.positionsAfter?[.hinge])
+        XCTAssertNotNil(s.records.first?.positionsAfter?[.lunge])
         let recorded = try XCTUnwrap(s.records.first?.positionsAfter)
         XCTAssertNotNil(recorded[.squat])
         XCTAssertNotNil(recorded[.pull])
-        // Measuring either one answers a number rather than trapping.
+        // Measuring any of them answers a number rather than trapping — on the
+        // SIX-coordinate form, which is what the chart and the retrospective
+        // both call now. On the short one `sub` and `cut` are never read, so
+        // the two that carry Int.min here would go untouched.
         for (p, position) in recorded {
             let steps = Engine.progress(p, variation: position.variation,
-                                        sets: position.sets, dose: position.dose)
+                                        sets: position.sets, dose: position.dose,
+                                        sub: position.sub ?? 0, cut: position.cut ?? 0)
             XCTAssertGreaterThanOrEqual(steps, 0)
             XCTAssertLessThanOrEqual(steps, Engine.ladderSpan(p))
         }
