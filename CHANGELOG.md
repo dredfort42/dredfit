@@ -1,33 +1,99 @@
 # Changelog
 
-## Unreleased
+## 2.0.0
 
-Twelve things so far. The newest is two defects found by re-reading the diff of
-everything below it: a Health export that could not stop, and a restored backup
-that carried an upgrade over without saying so. Before it, one line of settings: a
-fresh install rests
-three days a week instead of two. Before it, Apple Health gets what a workout
-cost, not only how long it took. Before it, a hardening pass: a position read back out of
-the journal could take the app down, and two tests that stood guard could not
-have caught it. Before it, **v3.3**, found by reading the comeback card
-in the re-shot screens a second time: the "easier" offer after a probing session
-was a set short of the position behind it, and the depth of a comeback stopped
-being monotone in the length of the break. Before it, **v3.2**: the comeback card
-offered an "easier" plan with more work in it than the one it replaced. Before
-it, a truthfulness pass: an audit read every
-screen against the engine and found nineteen places where the words — or the
-numbers — promised something the code does not do. **Before it,** an app-layer
-wave added a count-in before every clock and made one rating earned. **v3.1** closes what a full
-audit of v3.0 found. Before it, the engine stepped to **v3.0** and stopped
-predicting what you can do; **v2.27** moved the decision about the length of a
-workout inside the workout; and five app-layer fixes came out of the design
-re-review.
+The major number moves for one reason: **the scale you measured yourself by is
+gone.** Until this release every movement carried a level between 0 and 47 — on
+the progress chart, on the share card, in the VoiceOver line "Squat, level 18 of
+47" — and a number a person has been reading about themselves for a year is not
+an implementation detail. It was removed because it was a *prediction*: one
+integer per pattern, out of which the app derived a variation, a set count and a
+dose it had never seen anyone do. What stands in its place is a measurement. A
+position is the variation you are on together with the dose you actually did in
+it, and nothing is ever put into a plan that you have not already shown. The
+library grew from 40 exercises to 59 so that could hold; the way into a harder
+variation became a probe you perform rather than an unlock that happens to you;
+and every decision about how long a workout is moved inside the workout, where
+you are the one making it.
 
-**The v3.0 section rewrites parts of the two below it.** They were written against
+**1.9.0 is the last version that reached the App Store.** Everything prepared as
+1.10.0 — twenty engine waves, the dark theme, the adaptive palette — was tagged
+and never submitted, so it is folded into this section rather than left standing
+as a heading for a release nobody can install.
+
+**What this release does not touch.** The rotation is the same: a pull in every
+session, the other patterns coming round five times in every eight workouts, and
+the same six slots in the same order. The guided warm-up and cool-down still
+open and close every session, both pausable, both with a transition before every
+position, and the bar module is still off until you turn it on. There is still
+no account, no analytics, no ads, and no network request of any kind — the app
+has never made one and does not start now.
+
+**Three things inside that shape did change, and the list above would be a lie
+without them.** The warm-up is no longer six fixed movements: it is a pool of
+nine, six of them drawn per session, three of which came down from the strength
+ladders. The cool-down is a minute longer — the reserve the two blocks share had
+to pay for the ten-second transition before every position — so **every announced
+duration in the app is one minute longer than it was**, and the engine's own
+acceptance asserts "grew by 1.0" rather than "unchanged". And the bar ladder went
+from four rungs to seven: a scapular hang between the hang and the negatives, and
+two assisted rungs under the full pull-up, so the vertical pull stopped being the
+one ladder in the library you had to jump. The slot that alternates the two pulls
+now also carries growth across to the branch that did not train, so the ladder you
+were not on that week does not fall behind the one you were.
+
+**And your history carries over.** The state format steps from v2 to v3, and the upgrade is positional: each
+movement lands on the position that matches what it was doing, the journal is
+decoded record by record so one unreadable entry cannot cost you the file, and
+Today says out loud that the carry-over happened. Nobody starts again from zero.
+
+Twelve waves stand above the twenty prepared as 1.10.0, newest first. The
+newest is two defects found by re-reading the diff of everything below it: a
+Health export that could not stop, and a restored backup that carried an
+upgrade over without saying so. Before it, one line of settings: a fresh
+install rests three days a week instead of two. Before it, Apple Health gets
+what a workout cost, not only how long it took. Before it, a hardening pass: a
+position read back out of the journal could take the app down, and two tests
+that stood guard could not have caught it. Before it, **v3.3**, found by
+reading the comeback card in the re-shot screens a second time: the "easier"
+offer after a probing session was a set short of the position behind it, and
+the depth of a comeback stopped being monotone in the length of the break.
+Before it, **v3.2**: the comeback card offered an "easier" plan with more work
+in it than the one it replaced. Before it, a truthfulness pass: an audit read
+every screen against the engine and found nineteen places where the words — or
+the numbers — promised something the code does not do. **Before it,** an
+app-layer wave added a count-in before every clock and made one rating earned.
+**v3.1** closes what a full audit of v3.0 found. Before it, the engine stepped
+to **v3.0** and stopped predicting what you can do; **v2.27** moved the
+decision about the length of a workout inside the workout; and five app-layer
+fixes came out of the design re-review.
+
+**The v3.0 section rewrites parts of everything below it.** They were written against
 the 0–47 level scale, and that scale is gone: the duration table by level, the
 per-level numbers, and the VoiceOver line "Squat, level 18 of 47" all describe
 the engine as it was before this wave. They are left as written rather than
 quietly edited — what they say about *why* each change was made still holds.
+
+**One of those reversals is worth naming here rather than leaving to be found.**
+A heading further down reads "Updating starts you over — deliberately", and when
+it was written that was true: a state from before v3 could not be read, so the
+engine started clean. **It is not true of what ships.** v3.1 gave the upgrade a
+positional carry-over — every movement lands on the position matching what it
+was doing, with your doses, your rotation and your bar answer — and 470 of the
+480 possible positions land no heavier than they were. Nothing about your
+progress is reset by installing this version. If you read that heading below and
+stopped, read this paragraph instead.
+
+**The declared floor below is also a stale number, in both of its halves.** A
+paragraph further down says the easiest workout is "three sets of eight ... about
+34 minutes" and the shortest "about 25 minutes". Those were true of the v2.27
+library on the old scale. On what ships: the app starts you at **three sets of
+four** in the gentlest variation of each of six movements, **about 31 minutes**
+with the warm-up and cool-down — and three sets of four is the entry point, not
+the bottom. `setsFloor` is **two**, so answering "tough" walks a movement down to
+two sets of four, and six movements standing there is the **23 minutes** that the
+range above Start quotes as its low end. The store listing and the site carry
+these numbers; the paragraph below carries the ones they replaced.
 
 ### A Health export that could not stop, and a restore that said nothing
 
@@ -757,6 +823,11 @@ comparable and the old engine's rule for comparing them is deleted.
 
 #### Updating starts you over — deliberately, and without touching your history
 
+> **Reversed later in this same release.** What follows was true of v3.0 and was
+> undone by v3.1: the upgrade carries every position across instead of starting
+> clean. Kept as written because the *reason* below is still why the carry-over
+> had to be positional. See "Upgrading no longer starts you from zero" above.
+
 There is no state migration. A saved plan from an older build is not readable by
 this engine, and rather than guess a conversion, **every movement starts at 3×4
 again**. Your **workout journal, settings and history are untouched** — that was
@@ -913,12 +984,12 @@ diff and `golden.json` is the same file.
   It reads "Squat, level 18 of 47". On the work screen the number and its
   unit are one element, so "8 reps per side" arrives as one fact.
 
-## 1.10.0
+### The twenty waves that were prepared as 1.10.0
 
-The longest release in the project's history, and the one that changed the
-least about what you see. Three multi-agent audits of the engine and its
+The longest stretch of work in the project's history, and the one that changed
+the least about what you see. Three multi-agent audits of the engine and its
 golden contour — 2026-08-11, 2026-08-16 and 2026-08-23 — confirmed findings
-faster than any single wave could carry, so this release is the remediation
+faster than any single wave could carry, so this stretch is the remediation
 itself: the engine steps from **v2.5 to v2.26** in twenty waves, each a full
 pass of the reference cycle (spec → reference → verifier → golden → Swift
 port). The verifier grew from 9,367 property checks to 638,696 and then came
@@ -948,7 +1019,7 @@ What the waves are about, in the order the priority ladder puts them:
   handles on the plan, and a session length the app announces instead of
   enforcing. The
   45-minute default of v2.24 went with the enforcing — it is the last thing
-  in this release that was built and taken back.
+  in this stretch that was built and taken back.
 - **Improve results.** The aim reaches the weak link instead of the loudest
   movement (v2.15), honest facts are never scored worse than a tap (v2.14),
   the push plan stopped flickering (v2.16), the pull-up ladder gained the
@@ -1087,7 +1158,9 @@ year of levels comes out within ±0.0 % on four different answering styles. The
 one number that moved on purpose is the announced duration — **exactly one
 minute** longer everywhere, which is the longer run-in above.
 
-**Housekeeping.** 653 automated tests: 264 core + 334 app + 55 UI. The verifier
+**Housekeeping of these twenty waves.** The suite stood at 264 core + 334 app +
+55 UI when the last of them landed — a waypoint, not this release's count, which
+is at the foot of this section. The verifier
 went from 638,696 property checks to **443,415** — fewer mechanisms, fewer
 things to check — and the golden fixture from 28 scenarios to 24. The JS↔Swift
 differential test was rewritten from trajectories to **12,300 isolated calls**
@@ -2287,6 +2360,36 @@ strings, the system setting is the setting.
   which also stops a reload from stamping a post-reset session 1 under
   the old mark. Restoring an older backup of your own journal keeps
   today's guarantee: nothing re-exports.
+
+### Housekeeping
+
+- **343 → 596 automated tests**, counted across the same three layers 1.9.0
+  counted: **70** in the engine package, **464** in the app, **62** in the UI
+  suite. The engine's share is small on purpose and grew the way the engine did:
+  it is
+  compared against the JavaScript reference rather than against itself, and
+  `GoldenTests` replays the recorded trace of 28 scenarios and 282 steps
+  bit-for-bit, so a port that is plausible-but-different is a red test and not a
+  judgement call. The app's share is where the growth is, and most of it is
+  guards written *after* something was found: the export loop that could not
+  stop, the stored position that took the app down from the Progress screen, the
+  restore that carried an upgrade over in silence, the descent that handed a set
+  back, the comeback whose depth stopped being monotone in the length of the
+  break. Every one of those tests was run against the code as it stood before
+  the fix and observed to fail — a fix pinned by a test that stays green either
+  way is not pinned.
+- **The reference gates are read out of `TESTPLAN.md` by a script now.** Three of
+  them had twice died before their first check, which prints nothing and reads
+  exactly like passing; each row of that table names the clean line its gate must
+  print, and a gate that did not print it fails.
+- **The golden fixture names the reference that generated it**, and a manifest
+  check fails CI on a fixture changed without provenance — a fixture regenerated
+  from a stale local reference used to be indistinguishable from an honest one.
+- **The UI suite gates nothing and is run anyway**, locally, before the tag. It
+  drives the whole flow through one shared walk rather than a copy per test, so
+  what it protects is the sequence — a countdown that survives a locked phone, a
+  workout resumed after the app was killed, a rest day that offers rest — none of
+  which a unit test can see.
 
 ## 1.9.0
 
