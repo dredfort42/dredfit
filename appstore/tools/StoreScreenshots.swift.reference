@@ -5,61 +5,78 @@
 //  Marketing-screenshot driver — NOT part of the suite: copy into
 //  DredfitUITests/ to capture, delete afterwards. See tools/README.md.
 //
+//  It deliberately carries NO `--uitest-*` flag of its own. The live set of
+//  those flags is ten, and every one of them is passed by a test of the suite;
+//  a flag introduced for this file alone would be a flag no suite run can keep
+//  honest. Everything this driver needs is a STATE, and a state is what
+//  tools/seed.py plants.
+//
 //  Seeded tests expect dredfit-state.json planted in the app container from
 //  the host (tools/seed.py) BEFORE the run, and launch WITHOUT --uitest-reset:
-//    seed.py <udid> A  → testSeeded* — en/ru/es/pt-BR/de/fr/it (today, how-it-works,
-//                        set, dial, rest) and testRating*
+//    seed.py <udid> A  → testSeeded*  (today, howitworks, set, dial, rest)
+//                        and testRating*
 //    seed.py <udid> B  → testProgress*
-//  milestone/comeback screens use the app's own --uitest hooks instead
-//  (captureMilestone/captureComeback below — no seeding).
+//    seed.py <udid> C  → testProbe*   (push_h parked on its dose ceiling, so
+//                        the first exercise of session 12 offers the probe)
+//    seed.py <udid> D  → testSkip*    (hinge alone in a four-set band, so
+//                        "Skip remaining sets" has something to show while the
+//                        header still reads an honest half-hour)
+//  The comeback card is the one screen still taken through the app's own hook
+//  (`--uitest-comeback`, passed by the suite as well) — it is a state ABOUT
+//  DATES, and a planted file cannot say "the last workout was 20 days ago"
+//  without the same arithmetic the hook already owns.
+//
+//  EVERY control is addressed by its accessibilityIdentifier. XCUITest matches
+//  `app.buttons["X"]` against the IDENTIFIER first, and the label is only
+//  consulted when no identifier is set — so once TodayView, WorkoutFlowView,
+//  FlowChrome and AdjustPanel pinned theirs, a query for the localized title
+//  ("Start", "Готово", …) stopped resolving at all and the run died on its
+//  first assert. Identifiers are also the same word in all seven languages,
+//  which is the property this file needs most: a caption reworded in a
+//  catalog must not be able to break the capture of the other six locales.
+//
+//  That property has a price, and 2.0.0 paid it: a driver that reads no
+//  localized string cannot see that the app came up in the WRONG language,
+//  and ten frames were captured in English and filed under ru/es/pt-br/de/
+//  fr/it. So there is exactly ONE localized assert, in `assertLanguage`,
+//  run by `launch` on every route — the deliberate exception, kept to a
+//  single tab title so that the six other locales still cannot be broken by
+//  a reworded caption.
 //
 
 import XCTest
 
 final class StoreScreenshots: XCTestCase {
 
+    /// What is left of the localized surface: the tab bar is the one control
+    /// on the route with no identifier of its own (SwiftUI's `.tabItem` does
+    /// not take one), so the Progress tab is still reached by its title.
     fileprivate struct L {
         let langArg: String, locale: String, tag: String
-        let ratingTitle: String, skipWarmup: String, done: String
-        let skipRest: String, start: String
-        let wentDifferently: String, ok: String, progressTab: String
-        let gotIt: String
+        let progressTab: String
     }
     private static let en = L(langArg: "(en)", locale: "en_US", tag: "en",
-                              ratingTitle: "How did it go?", skipWarmup: "Skip warm-up",
-                              done: "Done", skipRest: "Skip rest", start: "Start",
-                              wentDifferently: "Went differently", ok: "OK",
-                              progressTab: "Progress", gotIt: "Got it")
+                              progressTab: "Progress")
     private static let ru = L(langArg: "(ru)", locale: "ru_RU", tag: "ru",
-                              ratingTitle: "Как прошло?", skipWarmup: "Пропустить разминку",
-                              done: "Готово", skipRest: "Пропустить отдых", start: "Начать",
-                              wentDifferently: "Получилось иначе", ok: "ОК",
-                              progressTab: "Прогресс", gotIt: "Понятно")
+                              progressTab: "Прогресс")
     private static let es = L(langArg: "(es)", locale: "es_ES", tag: "es",
-                              ratingTitle: "¿Cómo fue?", skipWarmup: "Omitir calentamiento",
-                              done: "Hecho", skipRest: "Omitir descanso", start: "Empezar",
-                              wentDifferently: "Fue distinto", ok: "OK",
-                              progressTab: "Progreso", gotIt: "Entendido")
+                              progressTab: "Progreso")
     private static let ptBR = L(langArg: "(pt-BR)", locale: "pt_BR", tag: "pt-br",
-                              ratingTitle: "Como foi?", skipWarmup: "Pular o aquecimento",
-                              done: "Feito", skipRest: "Pular o descanso", start: "Começar",
-                              wentDifferently: "Foi diferente", ok: "OK",
-                              progressTab: "Progresso", gotIt: "Entendi")
+                              progressTab: "Progresso")
     private static let de = L(langArg: "(de)", locale: "de_DE", tag: "de",
-                              ratingTitle: "Wie lief es?", skipWarmup: "Aufwärmen überspringen",
-                              done: "Fertig", skipRest: "Pause überspringen", start: "Starten",
-                              wentDifferently: "Lief anders", ok: "OK",
-                              progressTab: "Fortschritt", gotIt: "Verstanden")
+                              progressTab: "Fortschritt")
     private static let fr = L(langArg: "(fr)", locale: "fr_FR", tag: "fr",
-                              ratingTitle: "Comment ça s’est passé ?", skipWarmup: "Passer l’échauffement",
-                              done: "Terminé", skipRest: "Passer le repos", start: "Commencer",
-                              wentDifferently: "Ça s’est passé autrement", ok: "OK",
-                              progressTab: "Progression", gotIt: "Compris")
+                              progressTab: "Progression")
     private static let it = L(langArg: "(it)", locale: "it_IT", tag: "it",
-                              ratingTitle: "Com’è andata?", skipWarmup: "Salta il riscaldamento",
-                              done: "Fatto", skipRest: "Salta il recupero", start: "Inizia",
-                              wentDifferently: "È andata diversamente", ok: "OK",
-                              progressTab: "Progressi", gotIt: "Capito")
+                              progressTab: "Progressi")
+
+    /// A hold runs to zero on its own, and the count-in runs before it: 45 s of
+    /// plank plus the 5 s of GetReady plus a per-side switch pause already
+    /// exceeds the 50 s this used to wait, and an expired wait is not an error
+    /// here — it silently drops the walk into the wrong branch of the loop.
+    /// One constant so no ceiling can be raised in one place and left in
+    /// another.
+    private let holdTimeout: TimeInterval = 90
 
     override func setUpWithError() throws {
         continueAfterFailure = false
@@ -74,22 +91,146 @@ final class StoreScreenshots: XCTestCase {
         XCTAssertNoThrow(try png.write(to: url), "could not write \(name)")
     }
 
+    /// The ONE way this file starts the app, and it does three things no
+    /// caller may skip.
+    ///
+    /// 1. THE LOCALE ARGUMENTS COME FIRST, ahead of `args`. They are read by
+    ///    `NSUserDefaults`' argument domain, which pairs tokens as
+    ///    `-key value` left to right — so an ODD number of `--uitest-*`
+    ///    flags in front of them swallows `-AppleLanguages` as the value of
+    ///    the last flag, leaves `(ru)` standing as a token that is not a key,
+    ///    and then pairs `-AppleLocale` with `ru_RU` perfectly well. The
+    ///    result is an app in ENGLISH with a RUSSIAN region — which is
+    ///    literally what 2.0.0's `ru/s1` was: an English Today screen dated
+    ///    "FRIDAY 28 AUGUST" in day-month order. At the head of the list the
+    ///    two pairs cannot be shifted by anything a caller passes.
+    ///
+    /// 2. TERMINATE, AND WAIT FOR THE PROCESS TO BE GONE, before launching.
+    ///    `AppleLanguages` is read once, when the process starts; a `launch()`
+    ///    that lands on the previous method's app leaves it in the previous
+    ///    method's language. `terminate()` only REQUESTS the kill and returns
+    ///    — the same asynchrony README.md documents for seeding, which the
+    ///    1.9.0 recapture lost four times out of seven. `wait(for:)` makes it
+    ///    a fact instead of a hope.
+    ///
+    /// 3. PROVE THE LANGUAGE ARRIVED before any route walks on. Every raw
+    ///    this file writes is named by locale, and NOTHING downstream reads
+    ///    pixels: compose.py trusts the tag in the filename, and
+    ///    check_localization.py walks String Catalogs. An English screen
+    ///    saved as `skip_ru.png` therefore reaches the Russian storefront
+    ///    with no run going red anywhere — which is how ten frames of 2.0.0
+    ///    shipped for review in the wrong language.
     private func launch(_ args: [String], _ l: L) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = args + ["-AppleLanguages", l.langArg, "-AppleLocale", l.locale]
+        app.launchArguments = ["-AppleLanguages", l.langArg, "-AppleLocale", l.locale] + args
+        app.terminate()
+        XCTAssertTrue(app.wait(for: .notRunning, timeout: 15),
+                      "the previous app instance is still alive: a launch on top of it "
+                      + "would keep ITS language, not \(l.tag)")
         app.launch()
+        assertLanguage(app, l)
         return app
+    }
+
+    /// The only assert in this file that reads a localized string, and it is
+    /// the price of the guarantee above: a driver addressed entirely by
+    /// `accessibilityIdentifier` cannot tell German from English, because an
+    /// identifier is the same word in all seven languages.
+    ///
+    /// The Progress tab title is the sentinel because it is already the one
+    /// localized string `L` carries (`.tabItem` takes no identifier), it
+    /// stands on the tab bar of EVERY route — all six launch into RootView,
+    /// the comeback card included, since it is a card inside TodayView and
+    /// not a cover over it — and three words naming a tab are the least
+    /// likely text in the app to be reworded by a wave.
+    ///
+    /// BOTH halves are needed. The positive one alone passes on a fallback
+    /// that happens to render the same word; the negative one is what
+    /// actually caught 2.0.0, where the tab still read the English
+    /// "Progress" under `-AppleLanguages (ru)`.
+    private func assertLanguage(_ app: XCUIApplication, _ l: L) {
+        let tab = app.tabBars.buttons[l.progressTab]
+        XCTAssertTrue(tab.waitForExistence(timeout: 20),
+                      "app did not come up in \(l.tag): no \"\(l.progressTab)\" tab")
+        guard l.tag != Self.en.tag else { return }
+        XCTAssertFalse(app.tabBars.buttons[Self.en.progressTab].exists,
+                       "English leaked into the \(l.tag) capture — the frame would be "
+                       + "an English screen filed under \(l.tag)")
     }
 
     private func coordinateTap(_ element: XCUIElement) {
         element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
     }
 
+    // MARK: - Route pieces
+
+    /// Start on Today and get past the warm-up.
+    ///
+    /// TWO screens, not one: the workout opens on `.warmupIntro` ("Start the
+    /// warm-up" / "Skip the warm-up"), and only the block itself carries
+    /// `skip-warmup`. A driver that knew about the block button alone sat on
+    /// the offer screen until the set assert timed out.
+    private func startWorkoutPastWarmup(_ app: XCUIApplication) {
+        XCTAssertTrue(app.buttons["start-workout"].waitForExistence(timeout: 10),
+                      "seeded Today should show a plan")
+        app.buttons["start-workout"].tap()
+        let introSkip = app.buttons["warmup-intro-skip"]
+        if introSkip.waitForExistence(timeout: 6) {
+            introSkip.tap()
+        } else if app.buttons["skip-warmup"].waitForExistence(timeout: 3) {
+            app.buttons["skip-warmup"].tap()
+        }
+    }
+
+    /// One set at plan, then out of the rest that follows it.
+    private func doSetAndSkipRest(_ app: XCUIApplication) {
+        let done = app.buttons["exercise-done"]
+        let skipRest = app.buttons["skip-rest"]
+        XCTAssertTrue(done.waitForExistence(timeout: 10), "set screen did not appear")
+        coordinateTap(done)
+        XCTAssertTrue(skipRest.waitForExistence(timeout: 8), "no rest after a completed set")
+        coordinateTap(skipRest)
+    }
+
+    /// Walk the rest of the session at plan until the rating stands.
+    ///
+    /// The sentinel is `rating-plan`, the identifier of the middle card, and
+    /// not the screen title: the title is a localized string and the whole
+    /// point of this rewrite is that no route step depends on one.
+    private func walkToRating(_ app: XCUIApplication) {
+        let done = app.buttons["exercise-done"]
+        let holdStart = app.buttons["hold-start"]
+        let skipRest = app.buttons["skip-rest"]
+        let cooldownIntroSkip = app.buttons["cooldown-intro-skip"]
+        let skipCooldown = app.buttons["skip-cooldown"]
+        let rating = app.buttons["rating-plan"]
+
+        var guardCounter = 0
+        while !rating.waitForExistence(timeout: 1) && guardCounter < 250 {
+            if done.exists {
+                coordinateTap(done)
+            } else if holdStart.exists {
+                coordinateTap(holdStart)
+                // Let the hold run to zero so no shortened fact is recorded;
+                // the app then advances to rest (or past the last set).
+                _ = skipRest.waitForExistence(timeout: holdTimeout)
+            } else if skipRest.exists {
+                coordinateTap(skipRest)
+            } else if cooldownIntroSkip.exists {
+                cooldownIntroSkip.tap()          // the cool-down is OFFERED first
+            } else if skipCooldown.exists {
+                coordinateTap(skipCooldown)
+            }
+            guardCounter += 1
+        }
+        XCTAssertTrue(rating.waitForExistence(timeout: 5), "did not reach the rating screen")
+    }
+
     // MARK: - Seed A: Today, How it works, and the workout flow
 
     private func seededFlow(_ l: L) {
         var app = launch([], l)   // no reset: seeded state must survive
-        XCTAssertTrue(app.buttons[l.start].waitForExistence(timeout: 8),
+        XCTAssertTrue(app.buttons["start-workout"].waitForExistence(timeout: 10),
                       "seeded Today should show a plan")
         Thread.sleep(forTimeInterval: 1)
         snap("today_\(l.tag)")
@@ -107,42 +248,34 @@ final class StoreScreenshots: XCTestCase {
 
         // Workout flow
         app = launch([], l)
-        XCTAssertTrue(app.buttons[l.start].waitForExistence(timeout: 8), "no Start on Today")
-        app.buttons[l.start].tap()
-        let skipWarmup = app.buttons[l.skipWarmup]
-        if skipWarmup.waitForExistence(timeout: 5) { skipWarmup.tap() }
+        startWorkoutPastWarmup(app)
 
-        let done = app.buttons[l.done]
-        let skipRest = app.buttons[l.skipRest]
-        XCTAssertTrue(done.waitForExistence(timeout: 8), "set screen did not appear")
+        let done = app.buttons["exercise-done"]
+        let skipRest = app.buttons["skip-rest"]
 
         // set 1 → skip rest → set 2
-        coordinateTap(done)
-        XCTAssertTrue(skipRest.waitForExistence(timeout: 5))
-        coordinateTap(skipRest)
-        XCTAssertTrue(done.waitForExistence(timeout: 5))
+        doSetAndSkipRest(app)
+        XCTAssertTrue(done.waitForExistence(timeout: 8))
         Thread.sleep(forTimeInterval: 1)
         snap("set_\(l.tag)")                       // "set 2 of 3", clean
 
         // exact-number dial: enter 9, reopen so the marker and dial both show
-        app.buttons[l.wentDifferently].tap()
+        app.buttons["exercise-adjust"].tap()
         let minus = app.buttons["minus"]
         XCTAssertTrue(minus.waitForExistence(timeout: 3))
         minus.tap(); minus.tap()                   // plan 11 → 9
-        app.buttons[l.ok].tap()
-        app.buttons[l.wentDifferently].tap()
+        app.buttons["adjust-confirm"].tap()
+        app.buttons["exercise-adjust"].tap()
         XCTAssertTrue(minus.waitForExistence(timeout: 3))
         Thread.sleep(forTimeInterval: 1)
         snap("dial_\(l.tag)")
-        app.buttons[l.ok].tap()
+        app.buttons["adjust-confirm"].tap()
 
         // finish set 2, skip rest, set 3 → real rest before exercise 2
+        doSetAndSkipRest(app)
+        XCTAssertTrue(done.waitForExistence(timeout: 8))
         coordinateTap(done)
-        XCTAssertTrue(skipRest.waitForExistence(timeout: 5))
-        coordinateTap(skipRest)
-        XCTAssertTrue(done.waitForExistence(timeout: 5))
-        coordinateTap(done)
-        XCTAssertTrue(skipRest.waitForExistence(timeout: 5))
+        XCTAssertTrue(skipRest.waitForExistence(timeout: 8))
         Thread.sleep(forTimeInterval: 16)          // ring at ~43 s looks like the set
         snap("rest_\(l.tag)")
         coordinateTap(skipRest)
@@ -160,48 +293,103 @@ final class StoreScreenshots: XCTestCase {
     // MARK: - Seed B: Progress
 
     private func progress(_ l: L) {
-        let app = launch([], l)
-        XCTAssertTrue(app.tabBars.buttons[l.progressTab].waitForExistence(timeout: 8))
+        let app = launch([], l)   // launch() has already proved the tab is there
         app.tabBars.buttons[l.progressTab].tap()
         Thread.sleep(forTimeInterval: 2)            // let the chart draw
         snap("progress_\(l.tag)")
         app.terminate()
     }
 
-    // MARK: - The decision inside the workout (v2.27, §38.2)
+    func testProgressEnglish() { progress(Self.en) }
+    func testProgressRussian() { progress(Self.ru) }
+    func testProgressSpanish() { progress(Self.es) }
+    func testProgressPortuguese() { progress(Self.ptBR) }
+    func testProgressGerman() { progress(Self.de) }
+    func testProgressFrench() { progress(Self.fr) }
+    func testProgressItalian() { progress(Self.it) }
+
+    // MARK: - Seed C: the probe (v3.0 §40.4)
+    //
+    // The wave's whole claim about growth: in v3 the ONLY door into a harder
+    // variation is a probe the person passed. The screen says it by itself —
+    // the PROBE badge, the name of the NEXT movement, the hollow set dot and
+    // "One set to try it." — so the slot needs no second screen and no coda.
+    //
+    // Seeded, not hooked. The probe condition is a POSITION (§40.4: dose on
+    // the variation's ceiling, the journal of what was shown on that ceiling
+    // too, the variation not the top one, and no "hard" said last time), which
+    // is exactly what a planted state can state and what no new launch flag
+    // should have to.
+    //
+    // Seed C parks push_h alone on 15 reps of "Incline push-up", and session
+    // 12 puts push_h FIRST — so the route is two working sets and the probe,
+    // and the probe offers "Push-up", a reps movement. Reps deliberately: on a
+    // hold probe the big number turns into a countdown the moment the timer
+    // runs, and the frame would then advertise a stopwatch rather than a door.
+
+    private func captureProbe(_ l: L) {
+        let app = launch([], l)   // no reset: seed C must survive
+        startWorkoutPastWarmup(app)
+
+        // Two working sets stand between the start and the probe: with the
+        // probe in it the slot keeps its three dots but only two of them are
+        // sets of the planned movement.
+        doSetAndSkipRest(app)
+        doSetAndSkipRest(app)
+
+        XCTAssertTrue(app.staticTexts["probe-badge"].waitForExistence(timeout: 10),
+                      "the third set of the first exercise should be the probe")
+        XCTAssertTrue(app.buttons["exercise-done"].exists,
+                      "a reps probe must offer Done, not a hold timer")
+        Thread.sleep(forTimeInterval: 1)
+        snap("probe_\(l.tag)")
+        app.terminate()   // nothing submitted: no record, no position moved
+    }
+
+    func testProbeEnglish() { captureProbe(Self.en) }
+    func testProbeRussian() { captureProbe(Self.ru) }
+    func testProbeSpanish() { captureProbe(Self.es) }
+    func testProbePortuguese() { captureProbe(Self.ptBR) }
+    func testProbeGerman() { captureProbe(Self.de) }
+    func testProbeFrench() { captureProbe(Self.fr) }
+    func testProbeItalian() { captureProbe(Self.it) }
+
+    // MARK: - Seed D: the decision inside the workout (v2.27, §38.2)
     //
     // This replaces `handlesToday`, which tapped the session handle under the
     // plan. Neither handle exists: v2.27 moved the decision off the plan and
     // into the workout. The frame the slot needs now is the work screen with
-    // both escapes under the button and the minutes left in the header — the
-    // wave's whole claim in one screen.
+    // both escapes under the button and the minutes left in the header.
     //
-    // Seeded through the app's own hook rather than seed.py: a three-set plan
-    // can only give one set away (§38.2 rule 2), so "Skip remaining sets" has
-    // nothing to show at the bottom of the scale. `--uitest-long-session`
-    // plants the top of every ladder at four sets — 67 minutes.
+    // TWO sets behind, not one. "Skip remaining sets" (`exercise-skip-rest`)
+    // needs `setsPerformedHere >= setsFloor` — two — as well as a set left
+    // after the skip, so on the second set the escape still reads "Skip
+    // exercise" and an assert on `exercise-skip-rest` fails. Standing on the
+    // THIRD set of four is the only place both escapes are what the caption
+    // promises.
+    //
+    // Seeded, not `--uitest-long-session`. That hook plants the top of EVERY
+    // ladder at four sets — a 67-minute session — and this release's listing
+    // promises 30.5 min for a full one. The header would have argued with the
+    // description on the same page of the store. Seed D gives the four-set
+    // band to the movement on screen ALONE (hinge, top variation, §40.5: bands
+    // exist nowhere else), leaves the other five at three, and the header
+    // reads "≈ 30 min left" on the frame. The flag itself stays untouched and
+    // still live — SetSkipUITests and HandlesUITests pass it.
 
     private func skipInsideWorkout(_ l: L) {
-        let app = launch(["--uitest-reset", "--uitest-long-session"], l)
-        XCTAssertTrue(app.buttons[l.start].waitForExistence(timeout: 8), "no Start on Today")
-        app.buttons[l.start].tap()
-        let skipWarmup = app.buttons[l.skipWarmup]
-        if skipWarmup.waitForExistence(timeout: 5) { skipWarmup.tap() }
+        let app = launch([], l)   // no reset: seed D must survive
+        startWorkoutPastWarmup(app)
 
-        let done = app.buttons[l.done]
-        let skipRest = app.buttons[l.skipRest]
-        XCTAssertTrue(done.waitForExistence(timeout: 8), "set screen did not appear")
-        // One set behind, so the second escape reads "Skip remaining sets"
-        // rather than "Skip exercise": the frame is about a movement trained
-        // short, not about one that was not trained at all.
-        coordinateTap(done)
-        XCTAssertTrue(skipRest.waitForExistence(timeout: 5))
-        coordinateTap(skipRest)
-        XCTAssertTrue(done.waitForExistence(timeout: 5))
+        doSetAndSkipRest(app)
+        doSetAndSkipRest(app)
+
+        XCTAssertTrue(app.buttons["exercise-done"].waitForExistence(timeout: 10),
+                      "third set of the four-set movement did not appear")
         XCTAssertTrue(app.buttons["exercise-skip-set"].exists,
                       "no per-set escape on a four-set movement")
         XCTAssertTrue(app.buttons["exercise-skip-rest"].exists,
-                      "the escape must name its landing once a set is behind")
+                      "the escape must name its landing once two sets are behind")
         XCTAssertTrue(app.staticTexts["time-left"].exists,
                       "the header must carry what is left of the session")
         Thread.sleep(forTimeInterval: 1)
@@ -217,56 +405,20 @@ final class StoreScreenshots: XCTestCase {
     func testSkipFrench() { skipInsideWorkout(Self.fr) }
     func testSkipItalian() { skipInsideWorkout(Self.it) }
 
-    func testProgressEnglish() { progress(Self.en) }
-    func testProgressRussian() { progress(Self.ru) }
-    func testProgressSpanish() { progress(Self.es) }
-    func testProgressPortuguese() { progress(Self.ptBR) }
-    func testProgressGerman() { progress(Self.de) }
-    func testProgressFrench() { progress(Self.fr) }
-    func testProgressItalian() { progress(Self.it) }
-
-    // MARK: - Seed A again: the rating screen with one adjustment, so the
-    // summary card and the scope chip show (the 1.6.0 "s4 reads empty" note)
+    // MARK: - Seed A again: the rating screen
+    //
+    // Walked at PLAN the whole way, and no number entered. The 1.6.0 note
+    // "s4 reads empty" is spent: the screen now carries a kicker, the question
+    // and "One tap — the next workout adapts" on its own. Entering one number
+    // below plan — what this method used to do to raise an "Adjusted" card —
+    // costs the frame more than it buys since v2.x: a session that fell short
+    // DIMS "Easy, could do more" and adds two explanatory lines, so the
+    // selling frame would show one of its three answers spent.
 
     private func cleanRating(_ l: L) {
         let app = launch([], l)
-        XCTAssertTrue(app.buttons[l.start].waitForExistence(timeout: 8))
-        app.buttons[l.start].tap()
-        let skipWarmup = app.buttons[l.skipWarmup]
-        if skipWarmup.waitForExistence(timeout: 3) { skipWarmup.tap() }
-
-        let done = app.buttons[l.done]
-        let skipRest = app.buttons[l.skipRest]
-        let startHold = app.buttons[l.startHoldLabel]
-        let skipCooldown = app.buttons[l.skipCooldownLabel]
-        let rating = app.staticTexts[l.ratingTitle]
-
-        // One exact number below plan on the first exercise: the rating then
-        // shows the "Adjusted" card instead of reading empty.
-        XCTAssertTrue(done.waitForExistence(timeout: 8), "set screen did not appear")
-        app.buttons[l.wentDifferently].tap()
-        let minus = app.buttons["minus"]
-        XCTAssertTrue(minus.waitForExistence(timeout: 3))
-        minus.tap(); minus.tap()
-        app.buttons[l.ok].tap()
-
-        var guardCounter = 0
-        while !rating.waitForExistence(timeout: 1) && guardCounter < 200 {
-            if done.exists {
-                coordinateTap(done)
-            } else if startHold.exists {
-                coordinateTap(startHold)
-                // let the hold run to zero so no shortened fact is recorded;
-                // the app then advances to rest (or the rating, on the last set)
-                _ = skipRest.waitForExistence(timeout: 50)
-            } else if skipRest.exists {
-                coordinateTap(skipRest)
-            } else if skipCooldown.exists {
-                coordinateTap(skipCooldown)   // 1.8.0: cool-down before the rating
-            }
-            guardCounter += 1
-        }
-        XCTAssertTrue(rating.waitForExistence(timeout: 5), "did not reach the rating screen")
+        startWorkoutPastWarmup(app)
+        walkToRating(app)
         Thread.sleep(forTimeInterval: 1)
         snap("rating_\(l.tag)")
         app.terminate()
@@ -280,7 +432,7 @@ final class StoreScreenshots: XCTestCase {
     func testRatingFrench() { cleanRating(Self.fr) }
     func testRatingItalian() { cleanRating(Self.it) }
 
-    // MARK: - Milestone & comeback (own --uitest hooks, no seeding)
+    // MARK: - Comeback (the app's own hook, no seeding)
 
     private func captureComeback(_ l: L) {
         let app = launch(["--uitest-reset", "--uitest-comeback"], l)
@@ -291,53 +443,6 @@ final class StoreScreenshots: XCTestCase {
         app.terminate()
     }
 
-    private func captureMilestone(_ l: L) {
-        let app = launch(["--uitest-reset", "--uitest-milestone"], l)
-        XCTAssertTrue(app.buttons[l.start].waitForExistence(timeout: 10), "no Start on Today")
-        app.buttons[l.start].tap()
-        let skipWarmup = app.buttons[l.skipWarmup]
-        if skipWarmup.waitForExistence(timeout: 4) { skipWarmup.tap() }
-
-        let done = app.buttons[l.done]
-        let skipRest = app.buttons[l.skipRest]
-        let startHold = app.buttons[l.startHoldLabel]
-        let skipCooldown = app.buttons[l.skipCooldownLabel]
-        let rating = app.staticTexts[l.ratingTitle]
-        var guardCounter = 0
-        while !rating.waitForExistence(timeout: 1) && guardCounter < 250 {
-            if done.exists {
-                coordinateTap(done)
-            } else if startHold.exists {
-                coordinateTap(startHold)
-                _ = skipRest.waitForExistence(timeout: 55)   // let the hold run out
-            } else if skipRest.exists {
-                coordinateTap(skipRest)
-            } else if skipCooldown.exists {
-                coordinateTap(skipCooldown)   // 1.8.0: cool-down before the rating
-            }
-            guardCounter += 1
-        }
-        XCTAssertTrue(rating.waitForExistence(timeout: 5), "did not reach the rating screen")
-        // Answer "On plan" → new-variation milestone coda. The card Button's a11y
-        // label concatenates title + caption, so match on a substring.
-        let onPlan = app.buttons.matching(
-            NSPredicate(format: "label CONTAINS %@", l.onPlanLabel)).firstMatch
-        XCTAssertTrue(onPlan.waitForExistence(timeout: 5), "no On-plan card")
-        onPlan.tap()
-        XCTAssertTrue(app.buttons["milestone-done"].waitForExistence(timeout: 8),
-                      "milestone screen did not appear")
-        Thread.sleep(forTimeInterval: 2)   // let the accent rule animation settle
-        snap("milestone_\(l.tag)")
-        app.terminate()
-    }
-
-    func testMilestoneEnglish() { captureMilestone(Self.en) }
-    func testMilestoneRussian() { captureMilestone(Self.ru) }
-    func testMilestoneSpanish() { captureMilestone(Self.es) }
-    func testMilestonePortuguese() { captureMilestone(Self.ptBR) }
-    func testMilestoneGerman() { captureMilestone(Self.de) }
-    func testMilestoneFrench() { captureMilestone(Self.fr) }
-    func testMilestoneItalian() { captureMilestone(Self.it) }
     func testComebackEnglish() { captureComeback(Self.en) }
     func testComebackRussian() { captureComeback(Self.ru) }
     func testComebackSpanish() { captureComeback(Self.es) }
@@ -345,50 +450,4 @@ final class StoreScreenshots: XCTestCase {
     func testComebackGerman() { captureComeback(Self.de) }
     func testComebackFrench() { captureComeback(Self.fr) }
     func testComebackItalian() { captureComeback(Self.it) }
-}
-
-private extension StoreScreenshots.L {
-    var startHoldLabel: String {
-        switch tag {
-        case "ru": return "Начать удержание"
-        case "es": return "Empezar la isometría"
-        case "pt-br": return "Começar a isometria"
-        case "de": return "Haltezeit starten"
-        case "fr": return "Commencer le maintien"
-        case "it": return "Inizia l’isometria"
-        default: return "Start hold"
-        }
-    }
-    var skipCooldownLabel: String {
-        switch tag {
-        case "ru": return "Пропустить заминку"
-        case "es": return "Omitir enfriamiento"
-        case "pt-br": return "Pular o desaquecimento"
-        case "de": return "Abwärmen überspringen"
-        case "fr": return "Passer le retour au calme"
-        case "it": return "Salta il defaticamento"
-        default: return "Skip cool-down"
-        }
-    }
-    var stopLabel: String {
-        switch tag {
-        case "ru": return "Стоп"
-        case "es", "pt-br": return "Parar"
-        case "de": return "Stoppen"
-        case "fr": return "Arrêter"
-        case "it": return "Stop"
-        default: return "Stop"
-        }
-    }
-    var onPlanLabel: String {
-        switch tag {
-        case "ru": return "По плану"
-        case "es": return "Según el plan"
-        case "pt-br": return "Como planejado"
-        case "de": return "Nach Plan"
-        case "fr": return "Comme prévu"
-        case "it": return "Come previsto"
-        default: return "On plan"
-        }
-    }
 }
