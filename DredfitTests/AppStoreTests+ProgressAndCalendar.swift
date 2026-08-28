@@ -96,10 +96,13 @@ extension AppStoreTests {
 
     // MARK: - Calendar logic
 
-    func testIsRestDayOnSundays() {
+    func testIsRestDayOnTheDefaultWeekdays() {
         let store = AppStore(storageURL: tempURL)
-        XCTAssertTrue(store.isRestDay(date(2026, 7, 19)), "Sunday should be a rest day")
-        XCTAssertFalse(store.isRestDay(date(2026, 7, 16)), "Thursday is not a rest day")
+        XCTAssertTrue(store.isRestDay(date(2026, 7, 20)), "Monday is a default rest day")
+        XCTAssertTrue(store.isRestDay(date(2026, 7, 15)), "and Wednesday")
+        XCTAssertTrue(store.isRestDay(date(2026, 7, 17)), "and Friday")
+        XCTAssertFalse(store.isRestDay(date(2026, 7, 16)), "Thursday is a training day")
+        XCTAssertFalse(store.isRestDay(date(2026, 7, 19)), "and so is Sunday")
     }
 
     func testNextTrainingDateFromFreeWeekday() {
@@ -109,21 +112,21 @@ extension AppStoreTests {
                        "no workout today and not a rest day → today")
     }
 
-    func testNextTrainingDateSkipsSunday() {
+    func testNextTrainingDateSkipsARestDay() {
         let store = AppStore(storageURL: tempURL)
-        let sunday = date(2026, 7, 19)
-        let next = store.nextTrainingDate(from: sunday)
-        XCTAssertTrue(Calendar.current.isDate(next, inSameDayAs: date(2026, 7, 20)),
-                      "from Sunday the next workout is on Monday")
+        let monday = date(2026, 7, 20)
+        let next = store.nextTrainingDate(from: monday)
+        XCTAssertTrue(Calendar.current.isDate(next, inSameDayAs: date(2026, 7, 21)),
+                      "from Monday the next workout is on Tuesday")
     }
 
-    func testNextTrainingDateAfterDoneSaturdaySkipsToMonday() {
+    func testNextTrainingDateAfterADoneSundaySkipsToTuesday() {
         let store = AppStore(storageURL: tempURL)
-        let saturday = date(2026, 7, 18)
-        store.completeWorkout(session: store.nextSession, result: .plan, date: saturday)
-        let next = store.nextTrainingDate(from: saturday)
-        XCTAssertTrue(Calendar.current.isDate(next, inSameDayAs: date(2026, 7, 20)),
-                      "Saturday completed → next on Monday (Sun is a rest day)")
+        let sunday = date(2026, 7, 19)
+        store.completeWorkout(session: store.nextSession, result: .plan, date: sunday)
+        let next = store.nextTrainingDate(from: sunday)
+        XCTAssertTrue(Calendar.current.isDate(next, inSameDayAs: date(2026, 7, 21)),
+                      "Sunday completed → next on Tuesday (Monday is a rest day)")
     }
 
     func testDoneTodayAndRecordLookup() {

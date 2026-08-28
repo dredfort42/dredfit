@@ -15,12 +15,12 @@ extension AppStoreTests {
 
     func testSettingsPersistAcrossReload() {
         let store = AppStore(storageURL: tempURL)
-        store.toggleRestDay(2)          // Monday joins the Sunday+Wednesday default
+        store.toggleRestDay(3)          // Tuesday joins the Mon+Wed+Fri default
         store.setSounds(false)
         store.setReminderTime(hour: 7, minute: 30)
 
         let reloaded = AppStore(storageURL: tempURL)
-        XCTAssertEqual(reloaded.settings.restWeekdays, [1, 2, 4])
+        XCTAssertEqual(reloaded.settings.restWeekdays, [2, 3, 4, 6])
         XCTAssertFalse(reloaded.settings.soundsEnabled)
         XCTAssertEqual(reloaded.settings.reminderHour, 7)
         XCTAssertEqual(reloaded.settings.reminderMinute, 30)

@@ -56,12 +56,19 @@ extension AppStoreTests {
 
     // MARK: - Legacy settings files
 
-    /// A fresh install starts with two spread-out rest days (issue #36): the
-    /// default lands on Sunday and Wednesday, spread apart rather than adjacent.
-    func testFreshInstallDefaultsToTwoRestDays() {
+    /// A fresh install starts with three spread-out rest days — four workouts
+    /// a week. Issue #36 shipped two, which put the default one workout above
+    /// what the app itself recommends on two screens.
+    func testFreshInstallDefaultsToThreeSpreadRestDays() {
         let store = AppStore(storageURL: tempURL)   // no file → fresh install
-        XCTAssertEqual(store.settings.restWeekdays, [1, 4],
-                       "fresh installs rest on Sunday and Wednesday")
+        let rest = store.settings.restWeekdays
+        XCTAssertEqual(rest, [2, 4, 6],
+                       "fresh installs rest on Monday, Wednesday and Friday")
+        // The spread is the point, not the count: two adjacent rest days would
+        // leave a run of three training days, which is where Today stops
+        // offering the plan and starts offering rest.
+        XCTAssertFalse(rest.contains { rest.contains($0 % 7 + 1) },
+                       "no two default rest days may be adjacent")
     }
 
     /// A stored file WITHOUT the restWeekdays key belongs to an install that
