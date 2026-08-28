@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-Nine things so far. The newest is a hardening pass: a position read back out of
+Eleven things so far. The newest is one line of settings: a fresh install rests
+three days a week instead of two. Before it, Apple Health gets what a workout
+cost, not only how long it took. Before it, a hardening pass: a position read back out of
 the journal could take the app down, and two tests that stood guard could not
 have caught it. Before it, **v3.3**, found by reading the comeback card
 in the re-shot screens a second time: the "easier" offer after a probing session
@@ -23,6 +25,111 @@ the 0–47 level scale, and that scale is gone: the duration table by level, the
 per-level numbers, and the VoiceOver line "Squat, level 18 of 47" all describe
 the engine as it was before this wave. They are left as written rather than
 quietly edited — what they say about *why* each change was made still holds.
+
+### The rhythm the app ships with is four workouts a week
+
+A fresh install rested on Sunday and Wednesday — five workouts a week. The app
+had already written down twice that this is one too many: "3–4 workouts a week is
+the sweet spot" in How it works, "2–3 rest days a week is the recommended rhythm"
+under the chips in Settings. Those two ranges overlap in exactly one place — four
+workouts, three rest days — and the shipped default sat outside it.
+
+The number behind the recommendation is the rotation. Each of the eight rotating
+patterns stands in five of every eight sessions, so N workouts a week are
+0.625 × N appearances of each one: five give 3.1, four give 2.5, and the evidence
+corridor is two to three (ACSM 2011, the source the weekly growth ceiling already
+rests on). The engine says the same thing from its own side — the pull slot
+stands in *every* session against a weekly budget of three sub-steps, so on
+honest "on plan" answers the fourth session of a week is the last one that can
+grow it and a fifth cannot move it at all.
+
+The default is now Monday, Wednesday and Friday: spread rather than adjacent, so
+the gaps between workouts come out 1-2-2-2 and no day is ever the third training
+day in a row — the point where Today stops offering the plan and starts offering
+rest. Nothing changes for anyone already installed. The decode path keeps
+whatever a stored file holds, exactly as it has since #36: an upgrade must not
+add a rest day the person never chose.
+
+**What got worse.** Rest days are weekday-shaped, so the weekday an app is
+installed on can be one of them — and on a rest day Today shows the rest screen,
+with "Train anyway" as a secondary button, rather than the plan and Start. That
+was two installs in seven and is now three. The promise on the box is "open the
+app, your workout is ready", and for those three it is one tap further away than
+it reads.
+
+### Workouts reach Health with what they cost
+
+A finished workout has always arrived in Health as an interval and nothing
+else. iOS does not estimate calories on an app's behalf, so the entry sat there
+with a duration and a blank where the energy goes. It carries an estimate now.
+
+The estimate is built from the plan, not from the clock. The engine already
+knows how a session divides — warm-up, the seconds each set is actually under
+way, the rest between sets and between exercises, the cool-down — and each part
+gets its own rate from the Compendium of Physical Activities. So the same work
+with forty-five seconds of rest is priced differently from the same work with
+ninety, which one figure for "strength training" cannot do. The wall clock is
+only a ceiling: a workout left in the background for twenty minutes bills none
+of them, while a session cut short is scaled down in proportion.
+
+Health means *above rest* by active energy, so the resting cost of those same
+minutes is subtracted — the difference between this estimate and a figure half
+again as large. It uses the best resting rate on hand: the one Apple has
+already computed for you where a watch has been writing it, otherwise the
+Mifflin-St Jeor equation from height, age and sex, otherwise the textbook
+constant everybody shares. Each rung falls through to the next in silence,
+because there is nothing to announce — a Health read that was refused looks
+exactly like data that was never there.
+
+Nothing is written without a weight. It is the factor the whole estimate is
+multiplied by, so a default would not be an approximation; it would be a number
+that reads in Health exactly like a true one. Turning Health on takes the
+weight from it without asking, and the Health section carries a row to type one
+when it is not there.
+
+A session also recorded on an Apple Watch already carries its own measured
+energy, and ours would land on top of it. The app looks for a workout from
+another source over the same minutes and drops the calories — only the
+calories, never the workout — when it finds one. That look can be refused like
+any other read, and a refusal is indistinguishable from finding nothing, so
+there is a switch that says it outright.
+
+The two guided blocks are charged for what they ran, not for what they promised.
+Each of them ends on one tap of a footer button, and the estimate was billing
+their planned nine minutes regardless — 27 % of a median session, to a person
+who may have declined both. The flow measures them now: declined is zero,
+half-done is the half, and a block that ran long bills the plan, because it runs
+long for reasons that are not effort. A session in which nothing at all was
+performed gets no figure: the workout is still a fact and still reaches Health,
+but its cost would be a claim about training that did not happen.
+
+The energy sample carries two labels — which revision of the estimate produced
+it, and the identifier the workout has in Dredfit's own history. Neither is
+visible in ordinary use; both exist so that a number written today stays
+distinguishable from one written after the model next changes. A test pins every
+constant the model is made of and fails, by name, telling you to move the
+revision — a version nobody is obliged to raise is worse than no version at all.
+
+It remains an estimate. Without a heart rate, expect it within about a quarter
+of the truth for a given session, and closer than that across many.
+
+### The promise about Health, corrected everywhere it was made
+
+Reading anything from Health falsified a claim this app had been making
+prominently and in seven languages: that the permission is write-only and that
+nothing is ever read. That sentence was in the privacy policy at all seven filed
+URLs, in the App Store description, in the review notes, in the README and in
+two code comments that gave it as the *reason* for a rule. It has been corrected
+in each of those places, and the privacy page now says plainly what is read,
+what each value does — only body weight scales the figure; height, date of birth
+and sex refine the resting share alone — and what refusing each one costs. It
+also says the thing that is easy to leave out: the workout permission is not a
+narrow one. Health grants workouts as a whole, and refusing that read silently
+disables the double-count check, because Health never tells an app whether a
+read was allowed.
+
+What has not changed is the part that was always the point: nothing leaves the
+device. The reading happens in order to divide by it.
 
 ### A stored position can no longer kill the app, and two guards that could not go red
 

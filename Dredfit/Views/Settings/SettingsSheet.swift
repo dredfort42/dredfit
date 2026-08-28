@@ -16,6 +16,8 @@ struct SettingsSheet: View {
     @State private var importConfirmShown = false
     @State private var importFailed = false
     @State private var backfillPromptShown = false   // Apple Health
+    @State private var bodyMassPromptShown = false
+    @State private var bodyMassField = ""
     @State private var howItWorksShown = false
     /// Optimistic value while authorization is in flight: without it the
     /// switch visibly bounces off before the system sheet appears.
@@ -242,9 +244,13 @@ struct SettingsSheet: View {
                     .dredfitFont(16, weight: .medium)
             }
             .tint(Theme.accent)
-            Text("Workouts appear in the Health app. Nothing is read or shared.")
+            Text("Workouts appear in the Health app. Nothing leaves your device.")
                 .dredfitFont(12.5)
                 .foregroundStyle(Theme.ink2)
+            if store.settings.healthEnabled {
+                bodyMassRow
+                watchToggle
+            }
         }
         .alert(String(localized: "Add past workouts to Health?"),
                isPresented: $backfillPromptShown) {
@@ -259,6 +265,116 @@ struct SettingsSheet: View {
                 Text("Only new ones")
             }
         }
+        .alert(String(localized: "Body weight"), isPresented: $bodyMassPromptShown) {
+            TextField(massUnitLabel, text: $bodyMassField)
+                .keyboardType(.decimalPad)
+            Button(String(localized: "Save")) { commitBodyMass() }
+            Button(String(localized: "Cancel"), role: .cancel) { }
+        } message: {
+            Text("Used only to estimate the calories of each workout. It stays on this device.")
+        }
+    }
+
+    /// Weight is the factor the whole estimate is multiplied by, so an absent
+    /// one is not an empty field — it is the reason no calories are written.
+    private var bodyMassRow: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Button {
+                bodyMassField = editableBodyMass
+                bodyMassPromptShown = true
+            } label: {
+                HStack(spacing: 10) {
+                    Image(systemName: "scalemass")
+                        .dredfitFont(15, weight: .medium)
+                        .accessibilityHidden(true)
+                    Text("Body weight")
+                        .dredfitFont(16, weight: .medium)
+                    Spacer(minLength: 8)
+                    Text(bodyMassDisplay)
+                        .dredfitFont(15)
+                        .foregroundStyle(Theme.ink2)
+                    Image(systemName: "chevron.right")
+                        .dredfitFont(12, weight: .semibold)
+                        .foregroundStyle(Theme.ink2)
+                        .accessibilityHidden(true)
+                }
+                .foregroundStyle(Theme.ink)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 13)
+                .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 14))
+            }
+            .accessibilityIdentifier("body-mass-row")
+            if store.settings.bodyMassKg == nil {
+                Text("Without it, workouts are saved without calories.")
+                    .dredfitFont(12.5)
+                    .foregroundStyle(Theme.ink2)
+            }
+        }
+    }
+
+    /// The manual half of the double-count guard. The automatic half reads the
+    /// other workouts in Health, and HealthKit never says whether that read was
+    /// allowed — a refusal looks exactly like "nothing found there", which is
+    /// the wrong answer for precisely the person wearing a watch.
+    private var watchToggle: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Toggle(isOn: Binding(
+                get: { store.settings.watchRecordsWorkouts },
+                set: { store.setWatchRecordsWorkouts($0) })) {
+                Text("I record workouts on Apple Watch")
+                    .dredfitFont(16, weight: .medium)
+            }
+            .tint(Theme.accent)
+            .accessibilityIdentifier("watch-records-toggle")
+            Text("Calories are left out, so the same workout is not counted twice.")
+                .dredfitFont(12.5)
+                .foregroundStyle(Theme.ink2)
+        }
+    }
+
+    // MARK: - Body weight, shown in the locale's unit and stored in one
+
+    /// Displayed in pounds where the locale uses them; the store keeps
+    /// kilograms always, because a file carrying both cannot be read back.
+    private var massUnit: UnitMass {
+        Locale.current.measurementSystem == .us ? .pounds : .kilograms
+    }
+
+    private var massUnitLabel: String {
+        let formatter = MeasurementFormatter()
+        formatter.unitOptions = .providedUnit
+        formatter.unitStyle = .medium
+        return formatter.string(from: massUnit)
+    }
+
+    private var bodyMassDisplay: String {
+        guard let kg = store.settings.bodyMassKg else { return String(localized: "Not set") }
+        return Measurement(value: kg, unit: UnitMass.kilograms)
+            .converted(to: massUnit)
+            .formatted(.measurement(width: .abbreviated, usage: .asProvided,
+                                    numberFormatStyle: .number.precision(.fractionLength(0...1))))
+    }
+
+    private var editableBodyMass: String {
+        guard let kg = store.settings.bodyMassKg else { return "" }
+        return Measurement(value: kg, unit: UnitMass.kilograms)
+            .converted(to: massUnit).value
+            .formatted(.number.precision(.fractionLength(0...1)).grouping(.never))
+    }
+
+    /// An empty or unreadable field CLEARS the weight rather than keeping the
+    /// old one: "never mind" has to be expressible, and a silently kept number
+    /// would keep feeding calories the person believes they switched off. The
+    /// comma is accepted because half the shipping locales type one.
+    private func commitBodyMass() {
+        let typed = bodyMassField
+            .replacingOccurrences(of: ",", with: ".")
+            .trimmingCharacters(in: .whitespaces)
+        guard let value = Double(typed), value > 0 else {
+            return store.setBodyMass(nil)
+        }
+        store.setBodyMass(Measurement(value: value, unit: massUnit)
+            .converted(to: .kilograms).value)
     }
 
     /// A denial leaves the toggle off. On success, past history is offered

@@ -105,6 +105,16 @@ struct WorkoutFlowView: View {
     @State var maximumWarning: String?
     @State private var adjustValue = 0
     @State var workoutStart: Date?   // actual duration for Health
+    /// The two guided blocks, measured rather than assumed. `*BeganAt` is the
+    /// moment the person said yes; `*Sec` is what the block cost once it
+    /// ended, and it stays nil only while the block has not ended yet. A
+    /// declined block never gets a `BeganAt` and resolves to ZERO — which is
+    /// the whole point: its planned minutes used to be billed to Health
+    /// whether or not anybody stretched.
+    @State var warmupBeganAt: Date?
+    @State var warmupSec: Int?
+    @State var cooldownBeganAt: Date?
+    @State var cooldownSec: Int?
     @State private var lastResult: FeedbackResult?   // gates the review ask
     @State var liveActivity = WorkoutActivityController()
     @State private var exitConfirmShown = false
@@ -235,7 +245,8 @@ struct WorkoutFlowView: View {
                         durationSec: workoutStart.map {
                             // max: the wall clock can move backwards mid-workout
                             max(0, Int(Date.now.timeIntervalSince($0)))
-                        })
+                        },
+                        warmupSec: warmupSec, cooldownSec: cooldownSec)
                     if earned.isEmpty {
                         dismiss()
                     } else {

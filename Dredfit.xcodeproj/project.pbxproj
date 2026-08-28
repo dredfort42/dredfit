@@ -560,8 +560,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "Dredfit never reads your Health data. This permission is only part of the API that saves workouts.";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Dredfit saves completed workouts to Health. Nothing else is shared.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Dredfit reads your weight, height, age and resting energy to estimate the calories of a workout, and your other workouts so the same session is not counted twice. Nothing leaves this device.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Dredfit saves completed workouts, and their estimated calories, to Health. Nothing else is shared.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -604,8 +604,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "Dredfit never reads your Health data. This permission is only part of the API that saves workouts.";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Dredfit saves completed workouts to Health. Nothing else is shared.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Dredfit reads your weight, height, age and resting energy to estimate the calories of a workout, and your other workouts so the same session is not counted twice. Nothing leaves this device.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Dredfit saves completed workouts, and their estimated calories, to Health. Nothing else is shared.";
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;

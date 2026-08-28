@@ -509,6 +509,9 @@ final class AppStore {
                          /// two variations is exactly what §40 forbids.
                          probes: [Pattern: Int] = [:],
                          durationSec: Int? = nil,
+                         /// Seconds the guided blocks actually ran; nil when
+                         /// the flow did not measure them.
+                         warmupSec: Int? = nil, cooldownSec: Int? = nil,
                          date: Date = .now) -> [Milestone] {
         // Mirror of the engine's replay guard: a session that does not belong
         // to this state must not append a duplicate journal entry either.
@@ -551,7 +554,8 @@ final class AppStore {
             setsSkipped: setsSkipped.isEmpty ? nil : setsSkipped,
             skipped: skipped.isEmpty ? nil : skipped,
             positionsAfter: currentPositions,
-            durationSec: durationSec))
+            durationSec: durationSec,
+            warmupSec: warmupSec, cooldownSec: cooldownSec))
         persist()
         // A morning workout takes tonight's reminder down with it.
         rescheduleReminders(now: date)

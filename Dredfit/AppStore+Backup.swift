@@ -41,7 +41,11 @@ extension AppStore {
         let decoded = try JSONDecoder().decode(AppData.self, from: data)
         // The Health mark tracks an external side effect (HKWorkouts already
         // written) and must never move backwards on import: an older backup
-        // would re-export samples the write-only design cannot detect. That
+        // would re-export samples the export has no way to notice are already
+        // there. The app DOES read workouts now — but only to find one another
+        // app recorded over the same minutes, and it filters its own out by
+        // bundle id on purpose, so that read is not a duplicate check and
+        // cannot become one (`HealthKitWorkoutWriter.foreignIntervals`). That
         // holds for THIS journal only — an unrelated one (another device, a
         // post-reset history) knows nothing about this device's Health store,
         // and inheriting the local mark would stamp its workouts "already

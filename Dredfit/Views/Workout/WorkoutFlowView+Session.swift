@@ -219,7 +219,8 @@ extension WorkoutFlowView {
             // exercise.
             atFeedback: phase == .feedback || phase == .cooldown
                 || phase == .cooldownIntro ? true : nil,
-            interrupted: interruptedPattern))
+            interrupted: interruptedPattern,
+            warmupSec: warmupSec, cooldownSec: cooldownSec))
     }
 
     /// A rest still running resumes inside it; one that ran out lands on the
@@ -237,6 +238,12 @@ extension WorkoutFlowView {
         skippedPatterns = snap.skipped
         workoutStart = snap.workoutStart
         interruptedPattern = snap.interrupted
+        // A restore lands past the warm-up either way, so a snapshot that
+        // carries no measurement is a session killed inside a block: the
+        // record falls back to the planned length rather than claiming a
+        // block was declined that may have been half done.
+        warmupSec = snap.warmupSec
+        cooldownSec = snap.cooldownSec
         if snap.atFeedback == true {
             phase = .feedback
             return

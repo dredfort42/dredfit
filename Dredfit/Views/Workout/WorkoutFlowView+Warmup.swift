@@ -65,6 +65,7 @@ extension WorkoutFlowView {
     /// progress yet to survive anything.
     func beginWarmup() {
         phase = .warmup
+        warmupBeganAt = .now
         startWarmupPosition(0)
         // "Start the warm-up" is a start tap like "I'm ready", so the block
         // opens on the count-in, not on the full travel time between two
@@ -213,6 +214,13 @@ extension WorkoutFlowView {
 
     func finishWarmup() {
         clearBlockPause()
+        // Resolved here because every ending arrives here: declined, skipped
+        // from the footer, or every move taken in turn. Written once — this
+        // runs again on a re-entry and a second span would be the whole
+        // detour, not the block.
+        if warmupSec == nil {
+            warmupSec = BlockRun.seconds(began: warmupBeganAt, ended: .now)
+        }
         warmupEndDate = nil
         phase = .work
         liveActivity.update(activityWorkState())

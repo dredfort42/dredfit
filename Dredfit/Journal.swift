@@ -98,6 +98,15 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     /// dose it actually was.
     var positionsAfter: [Pattern: RecordedPosition]?
     var durationSec: Int?
+    /// Seconds the two guided blocks ACTUALLY ran. Both end on one tap of a
+    /// footer button, so their planned lengths are an intention, not a fact —
+    /// and the calorie estimate was charging nine planned minutes to people
+    /// who may have declined both. Optional with a nil default like every
+    /// field added to a persisted type: a record written by an older build
+    /// carries neither key, and nil reads as "never measured", which is not
+    /// the same as the zero a declined block writes.
+    var warmupSec: Int?
+    var cooldownSec: Int?
     /// Only `true` is ever written; nil means "not exported yet".
     var healthExported: Bool?
 
@@ -132,6 +141,10 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
                                               forKey: .positionsAfter)
         durationSec = try c.decodeIfPresent(Int.self, forKey: .durationSec)
             .map { clamp($0, 0, EngineConfig.countMax) }
+        warmupSec = try c.decodeIfPresent(Int.self, forKey: .warmupSec)
+            .map { clamp($0, 0, EngineConfig.countMax) }
+        cooldownSec = try c.decodeIfPresent(Int.self, forKey: .cooldownSec)
+            .map { clamp($0, 0, EngineConfig.countMax) }
         healthExported = try c.decodeIfPresent(Bool.self, forKey: .healthExported)
     }
 
@@ -141,7 +154,9 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
          setActuals: [Pattern: [Int]]? = nil, setsSkipped: [Pattern: Int]? = nil,
          skipped: Set<Pattern>? = nil, discomfort: Set<Pattern>? = nil,
          positionsAfter: [Pattern: RecordedPosition]? = nil,
-         durationSec: Int? = nil, healthExported: Bool? = nil) {
+         durationSec: Int? = nil,
+         warmupSec: Int? = nil, cooldownSec: Int? = nil,
+         healthExported: Bool? = nil) {
         self.sessionNumber = sessionNumber
         self.date = date
         self.result = result
@@ -154,7 +169,24 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
         self.discomfort = discomfort
         self.positionsAfter = positionsAfter
         self.durationSec = durationSec
+        self.warmupSec = warmupSec
+        self.cooldownSec = cooldownSec
         self.healthExported = healthExported
+    }
+}
+
+/// How long one guided block ran, resolved once at its ending.
+///
+/// Pure, and here rather than inline in the flow, because the flow's own call
+/// sites sit inside a SwiftUI view that nothing automated drives — this is the
+/// part of the measurement that can be held to a test.
+nonisolated enum BlockRun {
+    /// No start means the block was DECLINED: zero, not unknown. The whole
+    /// downstream model turns on that difference — unknown falls back to the
+    /// planned length, declined bills nothing at all.
+    static func seconds(began: Date?, ended: Date) -> Int {
+        guard let began else { return 0 }
+        return max(0, Int(ended.timeIntervalSince(began)))
     }
 }
 
@@ -209,6 +241,14 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// Restore lands on the rating, not on the set the fields still describe.
     var atFeedback: Bool?
     var interrupted: Pattern?
+    /// The two blocks as measured so far, carried across a process death so a
+    /// declined warm-up is not silently restored as a performed one. A kill
+    /// DURING a block leaves its field nil — the block never reached its own
+    /// ending — and the record then falls back to the planned length. That is
+    /// the one case this does not rescue, and it is the old behaviour rather
+    /// than a new claim.
+    var warmupSec: Int?
+    var cooldownSec: Int?
 
     /// What the flow restores into. A snapshot from before this shape kept
     /// one number per exercise, and that number was in force from the first

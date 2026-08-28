@@ -9,15 +9,43 @@ import Foundation
 /// Decoding is field-by-field tolerant — every key optional with a default, so
 /// files written by any older version keep loading losslessly.
 struct AppSettings: Codable, Equatable {
-    /// Calendar weekday numbers: 1 = Sunday, 4 = Wednesday. Fresh installs
-    /// only — the decode below keeps the old single-Sunday value.
-    var restWeekdays: Set<Int> = [1, 4]
+    /// Calendar weekday numbers: 2 = Monday, 4 = Wednesday, 6 = Friday — four
+    /// workouts a week, on Sun/Tue/Thu/Sat.
+    ///
+    /// THREE rest days, not two. Each of the eight rotating patterns stands in
+    /// 5 of every 8 sessions, so N workouts a week are 0.625 × N appearances
+    /// per pattern against an evidence corridor of 2–3 (ACSM 2011, the source
+    /// §28.5 already rests on): four workouts land at 2.5, the five the old
+    /// default shipped landed at 3.1. The engine says the same from its own
+    /// side — the pull slot stands in EVERY session against a weekly budget of
+    /// three (`weeklyRiseSlow`), so a fifth session inside one week cannot
+    /// grow it at all. And the app already said it in words on two screens:
+    /// "3–4 workouts a week" in How it works and "2–3 rest days a week" under
+    /// the chips overlap in exactly one place, and this is it.
+    ///
+    /// Spread, never adjacent: the gaps come out 1-2-2-2, so no day is ever
+    /// the third training day in a row — the point where the plan starts
+    /// offering rest instead (`todayWouldExtendALongRun`).
+    ///
+    /// Fresh installs only — the decode below keeps whatever an older file
+    /// holds (#36: an upgrade must not add a rest day the person never chose).
+    var restWeekdays: Set<Int> = [2, 4, 6]
     var soundsEnabled = true
     var reminderEnabled = false
     var reminderHour = 9
     var reminderMinute = 0
     var healthEnabled = false
     var healthExportedThrough = 0      // high-water sessionNumber already in Health
+    /// Always kilograms, whatever unit the field displayed: a file that
+    /// carries pounds one day and kilograms the next cannot be read back.
+    /// Absent means absent — no default stands in, because a calorie count
+    /// built on a guessed 75 kg is indistinguishable in Health from a true one.
+    var bodyMassKg: Double?
+    /// The escape hatch behind the overlap sweep. HealthKit never says whether
+    /// a read was granted, so a refusal looks exactly like "no other workout
+    /// found" — and that is precisely the person whose watch is recording the
+    /// same session. This is how they can say so themselves.
+    var watchRecordsWorkouts = false
     var onboardingCompleted = false
     /// When the care card's checklist was acknowledged (#101). A fact, not a
     /// gate: nothing else reads it — it records that the one screen naming the
@@ -50,7 +78,7 @@ struct AppSettings: Codable, Equatable {
 
     private enum CodingKeys: String, CodingKey {
         case restWeekdays, soundsEnabled, reminderEnabled, reminderHour, reminderMinute
-        case healthEnabled, healthExportedThrough
+        case healthEnabled, healthExportedThrough, bodyMassKg, watchRecordsWorkouts
         case onboardingCompleted, careAcknowledgedAt, lastReviewRequestAt
         case comebackDecidedFor, weakLinkPromptAnsweredFor
         case silentDecayAppliedFor, migrationNoticePending
@@ -67,6 +95,8 @@ struct AppSettings: Codable, Equatable {
         reminderMinute = try c.decodeIfPresent(Int.self, forKey: .reminderMinute) ?? 0
         healthEnabled = try c.decodeIfPresent(Bool.self, forKey: .healthEnabled) ?? false
         healthExportedThrough = try c.decodeIfPresent(Int.self, forKey: .healthExportedThrough) ?? 0
+        bodyMassKg = try c.decodeIfPresent(Double.self, forKey: .bodyMassKg)
+        watchRecordsWorkouts = try c.decodeIfPresent(Bool.self, forKey: .watchRecordsWorkouts) ?? false
         onboardingCompleted = try c.decodeIfPresent(Bool.self, forKey: .onboardingCompleted) ?? false
         careAcknowledgedAt = try c.decodeIfPresent(Date.self, forKey: .careAcknowledgedAt)
         lastReviewRequestAt = try c.decodeIfPresent(Date.self, forKey: .lastReviewRequestAt)

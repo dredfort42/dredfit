@@ -93,8 +93,10 @@ extension AppStoreTests {
         let today = cal.startOfDay(for: .now)
         let tomorrowWD = cal.component(.weekday,
                                        from: try XCTUnwrap(cal.date(byAdding: .day, value: 1, to: today)))
-        for wd in [1, 4] where wd != tomorrowWD { store.toggleRestDay(wd) }
-        if ![1, 4].contains(tomorrowWD) { store.toggleRestDay(tomorrowWD) }
+        // Exactly one rest day, and it is tomorrow: the labels below are read
+        // off a calendar this test owns rather than off whichever weekdays the
+        // shipped default happens to name today.
+        store.settings.restWeekdays = [tomorrowWD]
         store.completeWorkout(session: store.nextSession, result: .plan)
 
         let snap = try JSONDecoder().decode(WidgetSnapshot.self,
