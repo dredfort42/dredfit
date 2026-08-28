@@ -58,6 +58,13 @@ extension AppStore {
         engineState = decoded.engineState
         records = decoded.records
         settings = decoded.settings ?? AppSettings()
+        // The THIRD door into this decode, and the one that used to drop the
+        // announcement: a backup taken before v3 migrates here exactly as it
+        // does on launch (§41.7), and the settings that just overwrote the
+        // flag came from that same pre-v3 file. `AppStore.init` and
+        // `reloadIfNeeded` both stamp it; restoring is not a quieter kind of
+        // upgrade.
+        if decoded.engineStateMigrated { settings.migrationNoticePending = true }
         // A half-finished workout does not travel with a restored history.
         pendingWorkout = nil
         if sameLineage {

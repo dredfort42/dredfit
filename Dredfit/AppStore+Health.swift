@@ -88,7 +88,20 @@ extension AppStore {
             guard ok else { break }   // the tail stays pending for a later retry
             // The await may have replaced the whole journal (importBackup):
             // flag by identity, never by the pre-await index.
-            guard let i = records.firstIndex(where: { $0.id == record.id }) else { continue }
+            //
+            // …and by identity AMONG THE UNEXPORTED, which is what makes the
+            // loop terminate. The selection above asks for an unflagged
+            // record and this asks only for a matching id, so two records
+            // sharing an `id` — one journal, `sessionNumber` restarted by
+            // `resetProgress`, the same `date` to the double — sent every
+            // flag to the FIRST of the pair while the second stayed unflagged
+            // and was picked again. The loop then wrote a duplicate HKWorkout
+            // per turn, forever, into a store the app cannot clean up. Only a
+            // hand-edited journal reaches it, which is exactly the input every
+            // decoder in this project is written against.
+            guard let i = records.firstIndex(where: {
+                $0.id == record.id && $0.healthExported != true
+            }) else { continue }
             records[i].healthExported = true
             settings.healthExportedThrough = max(settings.healthExportedThrough,
                                                  record.sessionNumber)

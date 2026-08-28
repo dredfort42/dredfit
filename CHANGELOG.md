@@ -2,7 +2,10 @@
 
 ## Unreleased
 
-Eleven things so far. The newest is one line of settings: a fresh install rests
+Twelve things so far. The newest is two defects found by re-reading the diff of
+everything below it: a Health export that could not stop, and a restored backup
+that carried an upgrade over without saying so. Before it, one line of settings: a
+fresh install rests
 three days a week instead of two. Before it, Apple Health gets what a workout
 cost, not only how long it took. Before it, a hardening pass: a position read back out of
 the journal could take the app down, and two tests that stood guard could not
@@ -25,6 +28,32 @@ the 0–47 level scale, and that scale is gone: the duration table by level, the
 per-level numbers, and the VoiceOver line "Squat, level 18 of 47" all describe
 the engine as it was before this wave. They are left as written rather than
 quietly edited — what they say about *why* each change was made still holds.
+
+### A Health export that could not stop, and a restore that said nothing
+
+Two entries in one journal can share an identity. `resetProgress` starts the
+session counter again while the history survives, so "session 1" can appear
+twice, and what tells two entries apart is the session number together with the
+date. The Health export chose the next workout to send by *not sent yet* and then
+wrote the mark by identity alone — so with a colliding pair every mark landed on
+the first of the two. The second stayed unsent, was chosen again, and the loop
+put another workout into Health on every turn, without end, into a place the app
+cannot tidy up afterwards. Both questions ask the same thing now, so each turn
+retires exactly one entry. Only a journal edited by hand outside the app gets
+there, which is the input the rest of that file is already written against.
+
+Restoring a backup made before v3 carried the old positions across and then said
+nothing about it. That upgrade is announced by a card on Today, shown once: the
+ordinary launch raises it, and so does the launch that could not read its file
+the first time. Restoring was a third way in, and it not only missed the card but
+overwrote the reminder to show it with the settings out of the very file it had
+just carried over. The announcement exists because the way back to your own
+numbers — entering what you actually did — is explained by one line in the app,
+and that line only appears to someone whose history is empty, which is never true
+of someone upgrading.
+
+Neither had a test. Both do now, and both of them fail against the code as it
+stood.
 
 ### The rhythm the app ships with is four workouts a week
 

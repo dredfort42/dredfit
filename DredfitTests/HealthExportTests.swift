@@ -405,4 +405,36 @@ final class HealthExportTests: AppStoreTestCase {
         XCTAssertEqual(spy.saved[0].end.timeIntervalSince(spy.saved[0].start),
                        40 * 60, accuracy: 1, "the actual duration must be used")
     }
+
+    /// Regression: the loop SELECTS an unexported record and FLAGS one by id,
+    /// and the two predicates have to agree. Two records sharing an `id`
+    /// (`sessionNumber` restarted by `resetProgress`, the same `date` to the
+    /// double) sent every flag to the first of the pair; the second stayed
+    /// unexported, was picked again, and the backfill wrote a duplicate
+    /// HKWorkout per turn without ever terminating.
+    ///
+    /// `failFromCall` is the fail-safe, not the subject: without it the old
+    /// code hangs the suite instead of failing it, and a test that can only
+    /// report by timing out reports nothing (CI runs with
+    /// `-default-test-execution-time-allowance`).
+    func testDuplicateJournalIDsDoNotLoopTheBackfill() async {
+        let spy = HealthSpy()
+        spy.failFromCall = 5
+        let store = AppStore(storageURL: tempURL, health: spy)
+        // Only a hand-edited journal gets here — which is the input every
+        // decoder in this project is written against.
+        let stamp = date(2026, 7, 10)
+        store.records = [
+            WorkoutRecord(sessionNumber: 1, date: stamp, result: .plan),
+            WorkoutRecord(sessionNumber: 1, date: stamp, result: .plan),
+        ]
+        XCTAssertEqual(store.records[0].id, store.records[1].id,
+                       "the fixture is only a fixture if the ids really collide")
+        _ = await store.enableHealth()
+
+        await store.backfillHealth()
+
+        XCTAssertEqual(spy.saved.count, 2, "one export per record, and then it stops")
+        XCTAssertEqual(store.healthBackfillCount, 0, "both records end up flagged")
+    }
 }
