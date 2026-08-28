@@ -32,6 +32,22 @@ def version_from_arg(arg: str) -> str:
     return tail[1:] if tail.startswith("v") else tail
 
 
+RELEASE_BODY_MAX = 125_000
+
+# One extractor, not two: release.yml posts exactly what changelog_section.py
+# prints, so the size checked here has to come from that same function. A second
+# copy of the parsing would drift, and the drift would only show up as an HTTP
+# 422 after the tag was already pushed.
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from changelog_section import section_for  # noqa: E402
+
+
+def release_body_len(changelog: str, version: str) -> int:
+    """Length of the body release.yml would post, trailing newline included."""
+    section = section_for(version, changelog)
+    return 0 if section is None else len(section) + 1  # + the print() newline
+
+
 def main(argv: list) -> int:
     if len(argv) < 2:
         print("usage: check_version.py <release/x.y.z | x.y.z>", file=sys.stderr)
@@ -57,8 +73,23 @@ def main(argv: list) -> int:
             f"CURRENT_PROJECT_VERSION differs across targets: {builds}")
 
     heading = re.compile(rf"^##\s+{re.escape(expected)}\s*$", re.MULTILINE)
-    if not heading.search(CHANGELOG.read_text(encoding="utf-8")):
+    changelog = CHANGELOG.read_text(encoding="utf-8")
+    if not heading.search(changelog):
         errors.append(f"CHANGELOG.md has no '## {expected}' section")
+    else:
+        # The section is posted to the GitHub Release verbatim, and the API
+        # rejects a body over 125 000 characters with HTTP 422. That refusal
+        # lands in release.yml — AFTER the tag is pushed, when the cheapest
+        # recovery is to move a published tag. Checked here instead, because
+        # release-checks.yml runs on the release BRANCH: 2.0.0 absorbed twenty
+        # waves into one section, reached 147 408 characters, and failed that
+        # way for real.
+        size = release_body_len(changelog, expected)
+        if size > RELEASE_BODY_MAX:
+            errors.append(
+                f"the '## {expected}' section is {size:,} characters; "
+                f"the GitHub Release body caps at {RELEASE_BODY_MAX:,} "
+                f"(over by {size - RELEASE_BODY_MAX:,})")
 
     print(f"Expected version: {expected}")
     print(f"MARKETING_VERSION: {marketing or '(none)'}")
