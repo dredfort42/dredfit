@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-Eight things so far. The newest is **v3.3**, found by reading the comeback card
+Nine things so far. The newest is a hardening pass: a position read back out of
+the journal could take the app down, and two tests that stood guard could not
+have caught it. Before it, **v3.3**, found by reading the comeback card
 in the re-shot screens a second time: the "easier" offer after a probing session
 was a set short of the position behind it, and the depth of a comeback stopped
 being monotone in the length of the break. Before it, **v3.2**: the comeback card
@@ -21,6 +23,38 @@ the 0–47 level scale, and that scale is gone: the duration table by level, the
 per-level numbers, and the VoiceOver line "Squat, level 18 of 47" all describe
 the engine as it was before this wave. They are left as written rather than
 quietly edited — what they say about *why* each change was made still holds.
+
+### A stored position can no longer kill the app, and two guards that could not go red
+
+Every number a finished workout leaves behind is clamped as it is read back —
+the journal is an input, and in Swift a subtraction on a hand-edited number
+takes the process down rather than saturating. The position snapshot was the
+one field that was not: its five coordinates went straight into the measure,
+and `Dose.snap` runs *before* the dose is clamped, so the subtraction that
+opens `Dose.rung` met the raw number. A journal carrying an `Int.min` dose
+killed the app on the Progress screen with SIGTRAP.
+
+The test that stood guard over exactly this had been green the whole time. It
+walked a variation of `Int.min` and sets of 99 — but a dose of 4 and 99, both
+perfectly ordinary. The variation is clamped by the library and the sets by the
+engine's own reader before anything subtracts; the dose is the one coordinate
+that traps, and it was the one the test never bent. Both ends of its range are
+walked now, and the sparse coordinates with them.
+
+The anniversary block measured its "then" and "now" without those sparse
+coordinates. Growth that happened entirely in sub-steps came out as zero, no
+movement cleared the bar, and the block vanished for someone who had in fact
+grown; a `cut` on the current position read a step higher than it stands and
+could crown a movement that had gone down. It reads all six coordinates now,
+like the chart beside it.
+
+Two tests are honest again. The question that guards leaving a workout became an
+alert in the last wave, and an alert is modal: the tap outside is swallowed
+whole. The test still performed that tap and waited for the question to close,
+which it never can — it pins what an alert actually guarantees now, that a stray
+tap neither answers the question nor reaches the screen underneath. And the
+next-workout preview tapped its card without waiting, over a rating screen still
+animating away, so the tap was lost silently.
 
 ### The pair on the work screen reads like every other pair
 

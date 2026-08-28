@@ -29,6 +29,29 @@ struct RecordedPosition: Codable, Equatable {
         self.sub = sub
         self.cut = cut
     }
+
+    /// Clamped on the way in, for the reason `WorkoutRecord` states below and
+    /// was the one field here that did not honour: these five go straight into
+    /// `Engine.progress`, and `Dose.rung` SUBTRACTS the grid floor from the
+    /// dose before anything clamps it. A hand-edited `Int.min` trapped there
+    /// (SIGTRAP, confirmed) — the app died opening Progress rather than
+    /// drawing a silly number.
+    ///
+    /// `dose` keeps its sign: a descent legitimately reads BELOW a grid's
+    /// floor and `Dose.rung` documents the negative term. Every real value
+    /// sits far inside these bounds, so no record on disk reads differently.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        func clamp(_ v: Int, _ lo: Int, _ hi: Int) -> Int { min(max(v, lo), hi) }
+        variation = clamp(try c.decode(Int.self, forKey: .variation), 1, EngineConfig.countMax)
+        sets = clamp(try c.decode(Int.self, forKey: .sets), 0, EngineConfig.countMax)
+        dose = clamp(try c.decode(Int.self, forKey: .dose),
+                     -EngineConfig.countMax, EngineConfig.countMax)
+        sub = try c.decodeIfPresent(Int.self, forKey: .sub)
+            .map { clamp($0, 0, EngineConfig.countMax) }
+        cut = try c.decodeIfPresent(Int.self, forKey: .cut)
+            .map { clamp($0, 0, EngineConfig.countMax) }
+    }
 }
 
 struct WorkoutRecord: Codable, Identifiable, Equatable {

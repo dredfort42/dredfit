@@ -143,4 +143,44 @@ final class RetrospectiveTests: XCTestCase {
         XCTAssertTrue(atNine.sinceLine.contains("2"),
                       "\(atNine.sinceLine) should have switched to months")
     }
+
+    // MARK: - The sparse coordinates
+
+    /// The delta that picks the movement is read off ALL SIX coordinates.
+    /// On the short `Engine.progress` overload `sub` and `cut` were dropped,
+    /// and the chart's `plot` was fixed for exactly that while this was not.
+    ///
+    /// Growth that happened ENTIRELY in sub-steps measured as zero, no
+    /// pattern beat the `> 0` bar, and the whole block vanished for someone
+    /// who had in fact grown.
+    func testGrowthInSubStepsAloneIsSeen() throws {
+        let flat = base(variation: 1)
+        var current = flat
+        let was = try XCTUnwrap(flat[.squat])
+        current[.squat] = RecordedPosition(variation: was.variation, sets: was.sets,
+                                           dose: was.dose, sub: 2)
+        let retro = try XCTUnwrap(
+            Retrospective.make(records: [record(daysAgo: 30, positionsAfter: flat)],
+                               current: current),
+            "two sub-steps are a gain — the block must not disappear")
+        XCTAssertTrue(retro.nowLine.contains(Library.name(.squat, 1)),
+                      "\(retro.nowLine): the movement that grew is the one to name")
+    }
+
+    /// The other direction of the same coordinate: a `cut` stands one step
+    /// BELOW the position it was taken from. A base carrying one has grown by
+    /// a step once the cut is gone — dropped, both sides measured the same and
+    /// the gain was invisible.
+    func testACutOnTheBaseCountsAsGrowthOnceItIsGone() throws {
+        var flat = base(variation: 1)
+        let was = try XCTUnwrap(flat[.squat])
+        flat[.squat] = RecordedPosition(variation: was.variation, sets: was.sets,
+                                        dose: was.dose, cut: 1)
+        let retro = try XCTUnwrap(
+            Retrospective.make(records: [record(daysAgo: 30, positionsAfter: flat)],
+                               current: base(variation: 1)),
+            "a set that was cut then and is not now is a step gained")
+        XCTAssertTrue(retro.nowLine.contains(Library.name(.squat, 1)),
+                      "\(retro.nowLine): the movement that grew is the one to name")
+    }
 }
