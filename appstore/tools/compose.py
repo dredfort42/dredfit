@@ -99,85 +99,85 @@ jobs = [
     # --- 1. today_ — the first of the three visible in search results.
     (f"{RAW}/today_en.png",      ["Zero setup."], "Open the app — your workout is ready.", f"{OUT}/en/s1.png"),
     (f"{RAW}/today_ru.png",      ["Ноль настроек."], "Открой приложение — тренировка готова.", f"{OUT}/ru/s1.png"),
-    (f"{RAW}/today_es.png",      ["TODO-i18n: Zero setup."], "TODO-i18n: Open the app — your workout is ready.", f"{OUT}/es/s1.png"),
-    (f"{RAW}/today_pt-br.png",   ["TODO-i18n: Zero setup."], "TODO-i18n: Open the app — your workout is ready.", f"{OUT}/pt-br/s1.png"),
-    (f"{RAW}/today_de.png",      ["TODO-i18n: Zero setup."], "TODO-i18n: Open the app — your workout is ready.", f"{OUT}/de/s1.png"),
-    (f"{RAW}/today_fr.png",      ["TODO-i18n: Zero setup."], "TODO-i18n: Open the app — your workout is ready.", f"{OUT}/fr/s1.png"),
-    (f"{RAW}/today_it.png",      ["TODO-i18n: Zero setup."], "TODO-i18n: Open the app — your workout is ready.", f"{OUT}/it/s1.png"),
+    (f"{RAW}/today_es.png",      ["Cero configuración."], "Abre la app: tu entrenamiento ya está listo.", f"{OUT}/es/s1.png"),
+    (f"{RAW}/today_pt-br.png",   ["Zero configuração."], "Abra o app — seu treino está pronto.", f"{OUT}/pt-br/s1.png"),
+    (f"{RAW}/today_de.png",      ["Nichts einzurichten"], "Öffne die App – dein Training steht bereit.", f"{OUT}/de/s1.png"),
+    (f"{RAW}/today_fr.png",      ["Rien à configurer."], "Ouvre l’app, la séance est prête.", f"{OUT}/fr/s1.png"),
+    (f"{RAW}/today_it.png",      ["Zero configurazioni."], "Apri l’app: l’allenamento è pronto.", f"{OUT}/it/s1.png"),
     # --- 2. rating_ — the differentiator: one question, and the plan moves.
     (f"{RAW}/rating_en.png",     ["It adapts to you"], "One tap after the workout — the next one adapts.", f"{OUT}/en/s2.png"),
     (f"{RAW}/rating_ru.png",     ["Подстраивается", "под тебя"], "Одно касание после тренировки — следующая изменится.", f"{OUT}/ru/s2.png"),
-    (f"{RAW}/rating_es.png",     ["TODO-i18n: It adapts to you"], "TODO-i18n: One tap after the workout — the next one adapts.", f"{OUT}/es/s2.png"),
-    (f"{RAW}/rating_pt-br.png",  ["TODO-i18n: It adapts to you"], "TODO-i18n: One tap after the workout — the next one adapts.", f"{OUT}/pt-br/s2.png"),
-    (f"{RAW}/rating_de.png",     ["TODO-i18n: It adapts to you"], "TODO-i18n: One tap after the workout — the next one adapts.", f"{OUT}/de/s2.png"),
-    (f"{RAW}/rating_fr.png",     ["TODO-i18n: It adapts to you"], "TODO-i18n: One tap after the workout — the next one adapts.", f"{OUT}/fr/s2.png"),
-    (f"{RAW}/rating_it.png",     ["TODO-i18n: It adapts to you"], "TODO-i18n: One tap after the workout — the next one adapts.", f"{OUT}/it/s2.png"),
+    (f"{RAW}/rating_es.png",     ["Se adapta a ti"], "Un toque después del entrenamiento: el siguiente se adapta.", f"{OUT}/es/s2.png"),
+    (f"{RAW}/rating_pt-br.png",  ["Se adapta a você"], "Um toque depois do treino — o próximo se adapta.", f"{OUT}/pt-br/s2.png"),
+    (f"{RAW}/rating_de.png",     ["Es passt sich dir an"], "Ein Fingertipp nach dem Training – das nächste passt sich an.", f"{OUT}/de/s2.png"),
+    (f"{RAW}/rating_fr.png",     ["S’adapte à toi"], "Une pression après la séance, la suivante s’ajuste.", f"{OUT}/fr/s2.png"),
+    (f"{RAW}/rating_it.png",     ["Si adatta a te"], "Un tocco dopo l’allenamento — il prossimo cambia.", f"{OUT}/it/s2.png"),
     # --- 3. probe_ — new in 2.0.0, replaces milestone_ (see the note below).
     (f"{RAW}/probe_en.png",      ["Nothing unlocks itself"], "One set of the next movement decides — not a calendar.", f"{OUT}/en/s3.png"),
     (f"{RAW}/probe_ru.png",      ["Само ничего", "не откроется"], "Один подход нового движения решает — не календарь.", f"{OUT}/ru/s3.png"),
-    (f"{RAW}/probe_es.png",      ["TODO-i18n: Nothing unlocks itself"], "TODO-i18n: One set of the next movement decides — not a calendar.", f"{OUT}/es/s3.png"),
-    (f"{RAW}/probe_pt-br.png",   ["TODO-i18n: Nothing unlocks itself"], "TODO-i18n: One set of the next movement decides — not a calendar.", f"{OUT}/pt-br/s3.png"),
-    (f"{RAW}/probe_de.png",      ["TODO-i18n: Nothing unlocks itself"], "TODO-i18n: One set of the next movement decides — not a calendar.", f"{OUT}/de/s3.png"),
-    (f"{RAW}/probe_fr.png",      ["TODO-i18n: Nothing unlocks itself"], "TODO-i18n: One set of the next movement decides — not a calendar.", f"{OUT}/fr/s3.png"),
-    (f"{RAW}/probe_it.png",      ["TODO-i18n: Nothing unlocks itself"], "TODO-i18n: One set of the next movement decides — not a calendar.", f"{OUT}/it/s3.png"),
+    (f"{RAW}/probe_es.png",      ["Nada se desbloquea solo."], "Una serie del siguiente movimiento decide — no un calendario.", f"{OUT}/es/s3.png"),
+    (f"{RAW}/probe_pt-br.png",   ["Nada se desbloqueia sozinho"], "Uma série do próximo movimento decide — não um calendário.", f"{OUT}/pt-br/s3.png"),
+    (f"{RAW}/probe_de.png",      ["Nichts schaltet sich", "von selbst frei"], "Eine Probe der nächsten Bewegung entscheidet – nicht der Kalender.", f"{OUT}/de/s3.png"),
+    (f"{RAW}/probe_fr.png",      ["Rien ne se débloque", "tout seul"], "Une série de la variante suivante décide, pas le calendrier.", f"{OUT}/fr/s3.png"),
+    (f"{RAW}/probe_it.png",      ["Niente si sblocca", "da solo"], "Decide una serie del movimento nuovo, non il calendario.", f"{OUT}/it/s3.png"),
     # --- 4. set_ — the first of the seven that confirm.
     (f"{RAW}/set_en.png",        ["One focus at a time"], "Big numbers, one tap per set.", f"{OUT}/en/s4.png"),
     (f"{RAW}/set_ru.png",        ["Один фокус за раз"], "Крупные цифры, одно касание на подход.", f"{OUT}/ru/s4.png"),
-    (f"{RAW}/set_es.png",        ["TODO-i18n: One focus at a time"], "TODO-i18n: Big numbers, one tap per set.", f"{OUT}/es/s4.png"),
-    (f"{RAW}/set_pt-br.png",     ["TODO-i18n: One focus at a time"], "TODO-i18n: Big numbers, one tap per set.", f"{OUT}/pt-br/s4.png"),
-    (f"{RAW}/set_de.png",        ["TODO-i18n: One focus at a time"], "TODO-i18n: Big numbers, one tap per set.", f"{OUT}/de/s4.png"),
-    (f"{RAW}/set_fr.png",        ["TODO-i18n: One focus at a time"], "TODO-i18n: Big numbers, one tap per set.", f"{OUT}/fr/s4.png"),
-    (f"{RAW}/set_it.png",        ["TODO-i18n: One focus at a time"], "TODO-i18n: Big numbers, one tap per set.", f"{OUT}/it/s4.png"),
+    (f"{RAW}/set_es.png",        ["Un enfoque a la vez"], "Números grandes, un toque por serie.", f"{OUT}/es/s4.png"),
+    (f"{RAW}/set_pt-br.png",     ["Um foco por vez"], "Números grandes, um toque por série.", f"{OUT}/pt-br/s4.png"),
+    (f"{RAW}/set_de.png",        ["Ein Fokus auf einmal"], "Große Zahlen, ein Fingertipp pro Satz.", f"{OUT}/de/s4.png"),
+    (f"{RAW}/set_fr.png",        ["Une série à la fois"], "De grands chiffres, une pression par série.", f"{OUT}/fr/s4.png"),
+    (f"{RAW}/set_it.png",        ["Un solo obiettivo alla volta"], "Numeri grandi, un tocco per ogni serie.", f"{OUT}/it/s4.png"),
     # --- 5. skip_ — the decision inside the workout (§38.2).
     (f"{RAW}/skip_en.png",       ["Too much today?"], "Skip a set while you are doing it. The clock follows.", f"{OUT}/en/s5.png"),
     (f"{RAW}/skip_ru.png",       ["Сегодня многовато?"], "Пропусти подход прямо на тренировке. Время пересчитается.", f"{OUT}/ru/s5.png"),
-    (f"{RAW}/skip_es.png",       ["TODO-i18n: Too much today?"], "TODO-i18n: Skip a set while you are doing it. The clock follows.", f"{OUT}/es/s5.png"),
-    (f"{RAW}/skip_pt-br.png",    ["TODO-i18n: Too much today?"], "TODO-i18n: Skip a set while you are doing it. The clock follows.", f"{OUT}/pt-br/s5.png"),
-    (f"{RAW}/skip_de.png",       ["TODO-i18n: Too much today?"], "TODO-i18n: Skip a set while you are doing it. The clock follows.", f"{OUT}/de/s5.png"),
-    (f"{RAW}/skip_fr.png",       ["TODO-i18n: Too much today?"], "TODO-i18n: Skip a set while you are doing it. The clock follows.", f"{OUT}/fr/s5.png"),
-    (f"{RAW}/skip_it.png",       ["TODO-i18n: Too much today?"], "TODO-i18n: Skip a set while you are doing it. The clock follows.", f"{OUT}/it/s5.png"),
+    (f"{RAW}/skip_es.png",       ["¿Hoy es demasiado?"], "Omite una serie mientras entrenas. El tiempo se ajusta solo.", f"{OUT}/es/s5.png"),
+    (f"{RAW}/skip_pt-br.png",    ["Hoje é demais?"], "Pule uma série durante o treino. O tempo se recalcula.", f"{OUT}/pt-br/s5.png"),
+    (f"{RAW}/skip_de.png",       ["Heute zu viel?"], "Überspringe einen Satz mitten im Training – die Zeit passt sich an.", f"{OUT}/de/s5.png"),
+    (f"{RAW}/skip_fr.png",       ["Trop pour aujourd’hui ?"], "Passe une série en pleine séance. Le temps se recalcule.", f"{OUT}/fr/s5.png"),
+    (f"{RAW}/skip_it.png",       ["Oggi è troppo?"], "Salta una serie durante l’allenamento: il tempo si ricalcola.", f"{OUT}/it/s5.png"),
     # --- 6. progress_
     (f"{RAW}/progress_en.png",   ["Progress you can see"], "Every movement, step by step.", f"{OUT}/en/s6.png"),
     (f"{RAW}/progress_ru.png",   ["Прогресс, который", "видно"], "Каждое движение, ступень за ступенью.", f"{OUT}/ru/s6.png"),
-    (f"{RAW}/progress_es.png",   ["TODO-i18n: Progress you can see"], "TODO-i18n: Every movement, step by step.", f"{OUT}/es/s6.png"),
-    (f"{RAW}/progress_pt-br.png", ["TODO-i18n: Progress you can see"], "TODO-i18n: Every movement, step by step.", f"{OUT}/pt-br/s6.png"),
-    (f"{RAW}/progress_de.png",   ["TODO-i18n: Progress you can see"], "TODO-i18n: Every movement, step by step.", f"{OUT}/de/s6.png"),
-    (f"{RAW}/progress_fr.png",   ["TODO-i18n: Progress you can see"], "TODO-i18n: Every movement, step by step.", f"{OUT}/fr/s6.png"),
-    (f"{RAW}/progress_it.png",   ["TODO-i18n: Progress you can see"], "TODO-i18n: Every movement, step by step.", f"{OUT}/it/s6.png"),
+    (f"{RAW}/progress_es.png",   ["Progreso que puedes ver"], "Cada movimiento, paso a paso.", f"{OUT}/es/s6.png"),
+    (f"{RAW}/progress_pt-br.png", ["Progresso que você vê"], "Cada movimento, passo a passo.", f"{OUT}/pt-br/s6.png"),
+    (f"{RAW}/progress_de.png",   ["Fortschritt,", "den du siehst"], "Jede Bewegung, Stufe für Stufe.", f"{OUT}/de/s6.png"),
+    (f"{RAW}/progress_fr.png",   ["Une progression visible"], "Chaque mouvement, cran après cran.", f"{OUT}/fr/s6.png"),
+    (f"{RAW}/progress_it.png",   ["Progressi che si", "vedono"], "Ogni movimento, un gradino alla volta.", f"{OUT}/it/s6.png"),
     # --- 7. howitworks_ — the number in the subtitle IS the section count of
     #        HowItWorksView (twelve today). Re-read that file every release.
     (f"{RAW}/howitworks_en.png", ["No black box"], "Twelve plain facts about how the plan moves.", f"{OUT}/en/s7.png"),
     (f"{RAW}/howitworks_ru.png", ["Без черного ящика"], "Двенадцать простых фактов о том, как движется план.", f"{OUT}/ru/s7.png"),
-    (f"{RAW}/howitworks_es.png", ["TODO-i18n: No black box"], "TODO-i18n: Twelve plain facts about how the plan moves.", f"{OUT}/es/s7.png"),
-    (f"{RAW}/howitworks_pt-br.png", ["TODO-i18n: No black box"], "TODO-i18n: Twelve plain facts about how the plan moves.", f"{OUT}/pt-br/s7.png"),
-    (f"{RAW}/howitworks_de.png", ["TODO-i18n: No black box"], "TODO-i18n: Twelve plain facts about how the plan moves.", f"{OUT}/de/s7.png"),
-    (f"{RAW}/howitworks_fr.png", ["TODO-i18n: No black box"], "TODO-i18n: Twelve plain facts about how the plan moves.", f"{OUT}/fr/s7.png"),
-    (f"{RAW}/howitworks_it.png", ["TODO-i18n: No black box"], "TODO-i18n: Twelve plain facts about how the plan moves.", f"{OUT}/it/s7.png"),
+    (f"{RAW}/howitworks_es.png", ["Sin caja negra"], "Doce datos claros sobre cómo se mueve el plan.", f"{OUT}/es/s7.png"),
+    (f"{RAW}/howitworks_pt-br.png", ["Sem caixa preta"], "Doze fatos simples sobre como o plano se move.", f"{OUT}/pt-br/s7.png"),
+    (f"{RAW}/howitworks_de.png", ["Keine Blackbox"], "Zwölf einfache Fakten darüber, wie der Plan sich bewegt.", f"{OUT}/de/s7.png"),
+    (f"{RAW}/howitworks_fr.png", ["Pas de boîte noire"], "Douze faits simples sur le régulateur.", f"{OUT}/fr/s7.png"),
+    (f"{RAW}/howitworks_it.png", ["Niente scatola nera"], "Dodici fatti semplici su come si muove il piano.", f"{OUT}/it/s7.png"),
     # --- 8. comeback_ — the subtitle was rewritten in 2.0.0: the card promises
     #        a depth that GROWS WITH THE BREAK, not a fixed "couple of steps".
     (f"{RAW}/comeback_en.png",   ["Breaks are normal"], "The longer the break, the lower the plan meets you.", f"{OUT}/en/s8.png"),
     (f"{RAW}/comeback_ru.png",   ["Возвращаться легко"], "Чем длиннее перерыв, тем ниже встретит план.", f"{OUT}/ru/s8.png"),
-    (f"{RAW}/comeback_es.png",   ["TODO-i18n: Breaks are normal"], "TODO-i18n: The longer the break, the lower the plan meets you.", f"{OUT}/es/s8.png"),
-    (f"{RAW}/comeback_pt-br.png", ["TODO-i18n: Breaks are normal"], "TODO-i18n: The longer the break, the lower the plan meets you.", f"{OUT}/pt-br/s8.png"),
-    (f"{RAW}/comeback_de.png",   ["TODO-i18n: Breaks are normal"], "TODO-i18n: The longer the break, the lower the plan meets you.", f"{OUT}/de/s8.png"),
-    (f"{RAW}/comeback_fr.png",   ["TODO-i18n: Breaks are normal"], "TODO-i18n: The longer the break, the lower the plan meets you.", f"{OUT}/fr/s8.png"),
-    (f"{RAW}/comeback_it.png",   ["TODO-i18n: Breaks are normal"], "TODO-i18n: The longer the break, the lower the plan meets you.", f"{OUT}/it/s8.png"),
+    (f"{RAW}/comeback_es.png",   ["Las pausas son normales"], "Cuanto más larga la pausa, más bajo te recibe el plan.", f"{OUT}/es/s8.png"),
+    (f"{RAW}/comeback_pt-br.png", ["Pausas são normais"], "Quanto mais longa a pausa, mais abaixo o plano espera você.", f"{OUT}/pt-br/s8.png"),
+    (f"{RAW}/comeback_de.png",   ["Trainingspausen", "sind normal"], "Je länger die Pause, desto tiefer holt dich der Plan ab.", f"{OUT}/de/s8.png"),
+    (f"{RAW}/comeback_fr.png",   ["Les coupures, c’est normal"], "Plus la coupure est longue, plus bas le plan te retrouve.", f"{OUT}/fr/s8.png"),
+    (f"{RAW}/comeback_it.png",   ["Le pause sono normali"], "Più lunga la pausa, più in basso ti aspetta il piano.", f"{OUT}/it/s8.png"),
     # --- 9. rest_ — 60 s is the band-3 pause (EngineConfig.restSetByBand).
     (f"{RAW}/rest_en.png",       ["Rest is timed for you"], "60 seconds, counted down automatically.", f"{OUT}/en/s9.png"),
     (f"{RAW}/rest_ru.png",       ["Отдых отсчитается", "сам"], "60 секунд — таймер уже запущен.", f"{OUT}/ru/s9.png"),
-    (f"{RAW}/rest_es.png",       ["TODO-i18n: Rest is timed for you"], "TODO-i18n: 60 seconds, counted down automatically.", f"{OUT}/es/s9.png"),
-    (f"{RAW}/rest_pt-br.png",    ["TODO-i18n: Rest is timed for you"], "TODO-i18n: 60 seconds, counted down automatically.", f"{OUT}/pt-br/s9.png"),
-    (f"{RAW}/rest_de.png",       ["TODO-i18n: Rest is timed for you"], "TODO-i18n: 60 seconds, counted down automatically.", f"{OUT}/de/s9.png"),
-    (f"{RAW}/rest_fr.png",       ["TODO-i18n: Rest is timed for you"], "TODO-i18n: 60 seconds, counted down automatically.", f"{OUT}/fr/s9.png"),
-    (f"{RAW}/rest_it.png",       ["TODO-i18n: Rest is timed for you"], "TODO-i18n: 60 seconds, counted down automatically.", f"{OUT}/it/s9.png"),
+    (f"{RAW}/rest_es.png",       ["El descanso se cuenta solo."], "60 segundos, con cuenta regresiva automática.", f"{OUT}/es/s9.png"),
+    (f"{RAW}/rest_pt-br.png",    ["O descanso é cronometrado"], "60 segundos, contados automaticamente.", f"{OUT}/pt-br/s9.png"),
+    (f"{RAW}/rest_de.png",       ["Die Pause läuft für dich"], "60 Sekunden, automatisch heruntergezählt.", f"{OUT}/de/s9.png"),
+    (f"{RAW}/rest_fr.png",       ["Le repos se compte", "tout seul"], "60 secondes — décompte automatique.", f"{OUT}/fr/s9.png"),
+    (f"{RAW}/rest_it.png",       ["Il recupero ha", "un timer tutto suo"], "60 secondi, conto alla rovescia automatico.", f"{OUT}/it/s9.png"),
     # --- 10. dial_
     (f"{RAW}/dial_en.png",       ["Life happens —", "adjust"], "Did fewer reps? Record it right at the exercise.", f"{OUT}/en/s10.png"),
     (f"{RAW}/dial_ru.png",       ["Вышло иначе?", "Поправь"], "Факт записывается прямо у упражнения.", f"{OUT}/ru/s10.png"),
-    (f"{RAW}/dial_es.png",       ["TODO-i18n: Life happens —", "adjust"], "TODO-i18n: Did fewer reps? Record it right at the exercise.", f"{OUT}/es/s10.png"),
-    (f"{RAW}/dial_pt-br.png",    ["TODO-i18n: Life happens —", "adjust"], "TODO-i18n: Did fewer reps? Record it right at the exercise.", f"{OUT}/pt-br/s10.png"),
-    (f"{RAW}/dial_de.png",       ["TODO-i18n: Life happens —", "adjust"], "TODO-i18n: Did fewer reps? Record it right at the exercise.", f"{OUT}/de/s10.png"),
-    (f"{RAW}/dial_fr.png",       ["TODO-i18n: Life happens —", "adjust"], "TODO-i18n: Did fewer reps? Record it right at the exercise.", f"{OUT}/fr/s10.png"),
-    (f"{RAW}/dial_it.png",       ["TODO-i18n: Life happens —", "adjust"], "TODO-i18n: Did fewer reps? Record it right at the exercise.", f"{OUT}/it/s10.png"),
+    (f"{RAW}/dial_es.png",       ["Pasan cosas —", "ajusta."], "¿Hiciste menos repeticiones? Anótalo en el mismo ejercicio.", f"{OUT}/es/s10.png"),
+    (f"{RAW}/dial_pt-br.png",    ["Foi diferente?", "Ajuste."], "Fez menos repetições? Registre direto no exercício.", f"{OUT}/pt-br/s10.png"),
+    (f"{RAW}/dial_de.png",       ["Läuft mal anders –", "trag's ein"], "Weniger Wiederholungen gemacht? Trag es direkt bei der Übung ein.", f"{OUT}/de/s10.png"),
+    (f"{RAW}/dial_fr.png",       ["Ça s’est passé autrement", "Ajuste"], "Le fait se note directement sur l’exercice.", f"{OUT}/fr/s10.png"),
+    (f"{RAW}/dial_it.png",       ["La vita a volte", "cambia i piani"], "Hai fatto meno ripetizioni? Registralo proprio lì, sull’esercizio.", f"{OUT}/it/s10.png"),
 ]
 # Partial recaptures are normal — frames without a fresh raw keep their last
 # set. All ten raws come from the current StoreScreenshots.swift.reference.
@@ -220,13 +220,18 @@ jobs = [
 # that really carries it (the PROBE badge, the next movement's name, "One set
 # to try it."), and reachable from a planted state alone (seed.py mode C).
 #
-# The es/pt-BR/de/fr/it lines are deliberately marked `TODO-i18n` rather than
-# left carrying their 1.9.0 text: five of the ten slots changed their caption
-# or their neighbour, and NOTHING IN CI READS THIS FILE — check_localization.py
-# and the required Localization check walk String Catalogs only. An English
-# phrase that reaches the German storefront fails no run, so the placeholder
-# has to fail the EYE instead. Translators close them per
-# instructions/TRANSLATOR_PROMPT.md and GLOSSARY.md, one agent per language.
+# All 70 captions are translated as of 2.0.0. The es/pt-BR/de/fr/it lines were
+# staged as `TODO-i18n` first rather than left carrying their 1.9.0 text: five
+# of the ten slots changed their caption or their neighbour, and NOTHING IN CI
+# READS THIS FILE — check_localization.py and the required Localization check
+# walk String Catalogs only. An English phrase that reaches the German
+# storefront fails no run, so a placeholder has to fail the EYE instead. Keep
+# that staging habit for the next slot change: write the marker, then close it
+# per instructions/TRANSLATOR_PROMPT.md and GLOSSARY.md, one agent per language.
+#
+# The fr captions carry U+202F before `?` on purpose. It is a real character
+# and it survives an edit only if you write it as chr(0x202F) — a literal typed
+# into a heredoc collapses to a plain space, silently, and no gate sees it.
 
 # Ten slots, seven locales, and the language inside a frame must match the
 # folder it is written to. Both were checked by hand until the wave that
