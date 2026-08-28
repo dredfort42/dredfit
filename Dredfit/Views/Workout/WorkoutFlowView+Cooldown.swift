@@ -120,6 +120,7 @@ extension WorkoutFlowView {
     /// The person said yes on the intro screen.
     func beginCooldown() {
         phase = .cooldown
+        cooldownBeganAt = .now
         startCooldownPosition(0)
         countInCooldownPosition()   // a start tap opens the count-in — see `beginWarmup`
         persistProgress()
@@ -212,6 +213,10 @@ extension WorkoutFlowView {
 
     func finishCooldown() {
         clearBlockPause()
+        // Written once, for the reason `finishWarmup` states.
+        if cooldownSec == nil {
+            cooldownSec = BlockRun.seconds(began: cooldownBeganAt, ended: .now)
+        }
         cooldownEndDate = nil
         phase = .feedback
         liveActivity.end()

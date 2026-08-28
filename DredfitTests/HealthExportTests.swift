@@ -5,48 +5,6 @@ import DredfitCore
 @MainActor
 final class HealthExportTests: AppStoreTestCase {
 
-    /// A Health spy: records saved intervals, grants or denies on demand,
-    /// can simulate save failures (all, or from a given 1-based call), and
-    /// can hold one save mid-flight on `gate` so a test can interleave store
-    /// mutations with a suspended backfill.
-    private final class HealthSpy: WorkoutHealthWriting, @unchecked Sendable {
-        var available = true
-        var grant = true
-        var allFail = false
-        var failFromCall: Int?
-        var gate: Gate?
-        var gateAtCall: Int?
-        var saved: [(start: Date, end: Date)] = []
-        private(set) var callCount = 0
-        var isAvailable: Bool { available }
-        func requestWriteAuthorization() async -> Bool { grant }
-        func saveWorkout(start: Date, end: Date) async -> Bool {
-            callCount += 1
-            if callCount == gateAtCall { await gate?.wait() }
-            saved.append((start, end))
-            if start >= end { return false }   // HealthKit rejects such intervals
-            if allFail { return false }
-            if let f = failFromCall, callCount >= f { return false }
-            return true
-        }
-    }
-
-    /// A one-shot async gate: `wait()` suspends until `open()`.
-    @MainActor
-    private final class Gate {
-        private var continuation: CheckedContinuation<Void, Never>?
-        private var opened = false
-        func wait() async {
-            guard !opened else { return }
-            await withCheckedContinuation { continuation = $0 }
-        }
-        func open() {
-            opened = true
-            continuation?.resume()
-            continuation = nil
-        }
-    }
-
     /// Runs `backfillHealth` in a child task and returns once the spy's gated
     /// save is actually in flight (suspended inside the gate).
     private func startBackfillAndWaitForGatedSave(
@@ -213,7 +171,7 @@ final class HealthExportTests: AppStoreTestCase {
 
         // Hold the third save mid-flight (the loop sits past index 2), then
         // replace the journal under it and let the save finish.
-        let gate = Gate()
+        let gate = HealthGate()
         spy.gate = gate
         spy.gateAtCall = 3
         let backfill = await startBackfillAndWaitForGatedSave(store, spy)
@@ -238,7 +196,7 @@ final class HealthExportTests: AppStoreTestCase {
         }
         _ = await store.enableHealth()
 
-        let gate = Gate()
+        let gate = HealthGate()
         spy.gate = gate
         spy.gateAtCall = 2
         let backfill = await startBackfillAndWaitForGatedSave(store, spy)
@@ -272,7 +230,8 @@ final class HealthExportTests: AppStoreTestCase {
 
     /// Importing an older backup of the SAME journal (no Health mark) must
     /// not move the mark backwards — otherwise re-enabling would re-export
-    /// samples already in Health, which the write-only design cannot detect.
+    /// samples already in Health, which nothing here can notice: the workout
+    /// read exists to spot ANOTHER app's session and filters our own out.
     /// Same lineage means shared record ids, so the fixture's dates are the
     /// journal's real dates — a real old backup keeps them.
     func testImportKeepsHealthMarkMonotonic() async throws {

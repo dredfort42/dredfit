@@ -18,6 +18,16 @@ struct AppSettings: Codable, Equatable {
     var reminderMinute = 0
     var healthEnabled = false
     var healthExportedThrough = 0      // high-water sessionNumber already in Health
+    /// Always kilograms, whatever unit the field displayed: a file that
+    /// carries pounds one day and kilograms the next cannot be read back.
+    /// Absent means absent — no default stands in, because a calorie count
+    /// built on a guessed 75 kg is indistinguishable in Health from a true one.
+    var bodyMassKg: Double?
+    /// The escape hatch behind the overlap sweep. HealthKit never says whether
+    /// a read was granted, so a refusal looks exactly like "no other workout
+    /// found" — and that is precisely the person whose watch is recording the
+    /// same session. This is how they can say so themselves.
+    var watchRecordsWorkouts = false
     var onboardingCompleted = false
     /// When the care card's checklist was acknowledged (#101). A fact, not a
     /// gate: nothing else reads it — it records that the one screen naming the
@@ -50,7 +60,7 @@ struct AppSettings: Codable, Equatable {
 
     private enum CodingKeys: String, CodingKey {
         case restWeekdays, soundsEnabled, reminderEnabled, reminderHour, reminderMinute
-        case healthEnabled, healthExportedThrough
+        case healthEnabled, healthExportedThrough, bodyMassKg, watchRecordsWorkouts
         case onboardingCompleted, careAcknowledgedAt, lastReviewRequestAt
         case comebackDecidedFor, weakLinkPromptAnsweredFor
         case silentDecayAppliedFor, migrationNoticePending
@@ -67,6 +77,8 @@ struct AppSettings: Codable, Equatable {
         reminderMinute = try c.decodeIfPresent(Int.self, forKey: .reminderMinute) ?? 0
         healthEnabled = try c.decodeIfPresent(Bool.self, forKey: .healthEnabled) ?? false
         healthExportedThrough = try c.decodeIfPresent(Int.self, forKey: .healthExportedThrough) ?? 0
+        bodyMassKg = try c.decodeIfPresent(Double.self, forKey: .bodyMassKg)
+        watchRecordsWorkouts = try c.decodeIfPresent(Bool.self, forKey: .watchRecordsWorkouts) ?? false
         onboardingCompleted = try c.decodeIfPresent(Bool.self, forKey: .onboardingCompleted) ?? false
         careAcknowledgedAt = try c.decodeIfPresent(Date.self, forKey: .careAcknowledgedAt)
         lastReviewRequestAt = try c.decodeIfPresent(Date.self, forKey: .lastReviewRequestAt)

@@ -133,8 +133,15 @@ final class JournalSanitizationTests: AppStoreTestCase {
     /// under test is the estimate the backfill computes before it calls this.
     private struct AcceptingHealth: WorkoutHealthWriting {
         var isAvailable: Bool { true }
-        func requestWriteAuthorization() async -> Bool { true }
-        func saveWorkout(start: Date, end: Date) async -> Bool { start < end }
+        func requestAuthorization() async -> Bool { true }
+        func latestBodyMassKg() async -> Double? { nil }
+        func profile() async -> BodyProfile { BodyProfile() }
+        func restingKcal(start: Date, end: Date) async -> Double? { nil }
+        func foreignWorkoutIntervals(start: Date, end: Date) async -> [DateInterval] { [] }
+        func saveWorkout(start: Date, end: Date, activeKcal: Double?,
+                         journalID: String) async -> Bool {
+            start < end
+        }
     }
 
     func testACorruptExerciseSnapshotCannotTrapTheDurationEstimate() async throws {

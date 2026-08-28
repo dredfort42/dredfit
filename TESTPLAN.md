@@ -123,7 +123,7 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 
 | # | Check | Expected |
 |---|---|---|
-| 6.1 | Settings → **REST DAYS**, fresh install | Sunday **and Wednesday** highlighted (issue #36); captions "Highlighted days are rest days" and "2–3 rest days a week is the recommended rhythm". An install upgrading from a file without the key keeps Sunday only |
+| 6.1 | Settings → **REST DAYS**, fresh install | Monday, **Wednesday and Friday** highlighted — four workouts a week, the rhythm both captions name; captions "Highlighted days are rest days" and "2–3 rest days a week is the recommended rhythm". An install upgrading from a file without the key keeps Sunday only (issue #36) |
 | 6.2 | Chip order | Starts at the locale's first weekday (Monday for ru and de, Sunday for en-US) |
 | 6.3 | Select a second rest day | Both highlighted; Calendar marks both |
 | 6.4 | Try to select a **7th** rest day | Refused — six is the maximum |
@@ -137,7 +137,7 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 |---|---|---|
 | 7.1 | Enable **Reminder** | iOS permission prompt appears (alert + sound, no badge) |
 | 7.2 | Deny the permission | The toggle flips back **off** — it reflects the system's answer |
-| 7.3 | Allow, then keep the default rest days | A 28-day window of **one-shot** notifications, one per training date (**20** with the two default rest days — 28 days less four Sundays and four Wednesdays); none on rest days. The window refills every time the app becomes active |
+| 7.3 | Allow, then keep the default rest days | A 28-day window of **one-shot** notifications, one per training date (**16** with the three default rest days — 28 days less four Mondays, four Wednesdays and four Fridays); none on rest days. The window refills every time the app becomes active |
 | 7.4 | Change **Time** | Every pending slot moves to the new time |
 | 7.5 | Add a rest day while the reminder is on | That weekday's dates disappear from the window |
 | 7.6 | Disable the reminder | All pending reminders are removed |
@@ -169,19 +169,33 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 | 9.6 | Turn the bar back **off** | Sessions return to floor pull only; the Vertical pull row **stays visible** because progress exists; its level is preserved |
 | 9.7 | Re-enable the bar | Resumes at the preserved level, not from zero |
 
-### 10. Apple Health ⌚ (write-only)
+### 10. Apple Health ⌚
 
-Simulator HealthKit is unreliable; run this on a device.
+Simulator HealthKit is unreliable; run this on a device. Rows 10.13 and 10.14
+need a paired Apple Watch to mean anything.
 
 | # | Check | Expected |
 |---|---|---|
-| 10.1 | Settings → **HEALTH** → enable | Permission sheet asks only to **write** workouts; purpose string mentions nothing is read |
+| 10.1 | Settings → **HEALTH** → enable | Permission sheet asks to **write** workouts and active energy, and to **read** weight, height, date of birth, sex, resting energy and workouts; each purpose string says what it is for |
 | 10.2 | With existing history, on enabling | Offered a backfill; choosing "Only new ones" exports nothing historical |
 | 10.3 | Complete a workout | It appears in the Health app as *Functional Strength Training* with the real duration |
 | 10.4 | Run a backfill with history present | Each past workout appears **once** |
 | 10.5 | Run the backfill **again** | **No duplicates** are created |
 | 10.6 | Turn Health off, complete a workout, turn it on again | The workout done while off is not silently lost — it backfills, and still no duplicates |
 | 10.7 | Deny the Health permission | The toggle reflects the denial; nothing is written |
+| 10.8 | With a weight already recorded in Health, enable the toggle | The **Body weight** row fills itself in — nothing to type |
+| 10.9 | Type a weight, disable Health, enable it again | The typed weight survives; the Health record does not overwrite it |
+| 10.10 | Clear the weight (empty field → Save), complete a workout | The workout still reaches Health, with **no** calories, and the row under it says why |
+| 10.11 | With a weight set, complete a workout | The entry carries active energy — **80–115 kcal** for a 35-minute session at 80 kg, and 60–210 across the whole span of plans. Never a four-digit number. The band is the model replayed over all 282 plans in `golden.json`, not a guess: the median session is 33 min and 84 kcal, so a wider band would pass a broken build |
+| 10.12 | The Move ring for that day | Rises by that amount, once |
+| 10.13 | Record the same session on an Apple Watch too ⌚ | The Dredfit entry appears **without** calories, and the day's active energy counts the watch's figure once |
+| 10.14 | Turn on "I record workouts on Apple Watch", complete a workout | No calories, whatever Health happens to contain |
+| 10.15 | Refuse the **read** permissions, complete a workout | Calories are still written — the app cannot tell a refusal from an empty Health — and 10.14 is the way out |
+| 10.16 | Backfill with history and a weight set | Past days gain calories as well, and each past workout still appears once |
+| 10.17 | Pause mid-workout for ten minutes, then finish | The duration in Health grows by the pause; the calories do not — they are priced from the plan |
+| 10.18 | Decline **both** the warm-up and the cool-down, complete the workout ⌚ | The calories come out roughly a quarter lower than the same plan with both blocks done (≈82 vs ≈107 kcal on a 35-minute plan at 80 kg). The flow's stamping of the two blocks is reachable only through the view — **no automated test covers it**, so this row is the only guard |
+| 10.19 | Start the warm-up, then tap "Skip warm-up" halfway | Charged for the part that ran: the figure lands between 10.18's and a full session's |
+| 10.20 | Skip every exercise, then finish the workout | The entry appears in Health with its duration and **no calories at all** — nothing was performed |
 
 ### 11. Live Activity ⌚
 
