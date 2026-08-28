@@ -158,4 +158,30 @@ final class MigrationV2Tests: AppStoreTestCase {
         XCTAssertFalse(AppStore(storageURL: tempURL).showsMigrationNotice,
                        "there is nothing to announce to someone with no history")
     }
+
+    /// The THIRD door into the same decode. `AppStore.init` and
+    /// `reloadIfNeeded` both stamp the card; `importBackup` did not — and it
+    /// then overwrote the flag with the settings out of the very pre-v3 file
+    /// it had just migrated. Someone who backs up on 1.9.x, updates, resets
+    /// and restores gets their positions carried over and is told nothing —
+    /// exactly the silence §41.7 reversed §40.8 to end.
+    func testRestoringAPreV3BackupAnnouncesTheMigrationToo() throws {
+        let backup = FileManager.default.temporaryDirectory
+            .appendingPathComponent("dredfit-v2-backup-\(UUID().uuidString).json")
+        defer { try? FileManager.default.removeItem(at: backup) }
+        try v2Payload(levels: ["squat": 20, "pull": 8], counter: 4, hasBar: true)
+            .write(to: backup)
+
+        let store = AppStore(storageURL: tempURL)
+        XCTAssertFalse(store.showsMigrationNotice, "nothing to announce before the restore")
+
+        try store.importBackup(from: backup)
+
+        XCTAssertEqual(store.engineState.vars[.squat], 5,
+                       "the restore really did carry the positions over")
+        XCTAssertTrue(store.showsMigrationNotice,
+                      "restoring a pre-v3 backup is an upgrade too, and has to say so")
+        XCTAssertTrue(AppStore(storageURL: tempURL).showsMigrationNotice,
+                      "and the card outlives the launch that owed it, like the other two doors")
+    }
 }
