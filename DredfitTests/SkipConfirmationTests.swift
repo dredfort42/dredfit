@@ -1,0 +1,87 @@
+//
+//  The question a skip asks. Pinned here rather than only in the UI suite
+//  because the two rules worth breaking are both about STRINGS, and a walk
+//  that taps by label would report either break as "the control did nothing".
+//
+
+import XCTest
+@testable import Dredfit
+
+@MainActor
+final class SkipConfirmationTests: XCTestCase {
+
+    private let all: [SkipConfirmation.Kind] = [.probeSet, .workingSet, .restOfSets, .exercise]
+
+    private func make(_ kind: SkipConfirmation.Kind) -> SkipConfirmation {
+        SkipConfirmation(kind: kind) { }
+    }
+
+    /// Every question says something, and nothing says its own key back.
+    func testEveryKindCarriesATitleAMessageAndAConfirmLabel() {
+        for kind in all {
+            let skip = make(kind)
+            XCTAssertFalse(skip.title.isEmpty, "\(kind) asks nothing")
+            XCTAssertFalse(skip.message.isEmpty, "\(kind) says nothing about what is lost")
+            XCTAssertFalse(skip.confirmTitle.isEmpty, "\(kind) offers no way to say yes")
+        }
+    }
+
+    /// The confirm label must not be the label of the control that raised the
+    /// question. Two buttons reading the same words are one button to a test
+    /// query and to VoiceOver's rotor — and the one that matters is the one
+    /// inside the alert.
+    func testTheConfirmLabelIsNeverTheLabelOfTheControlThatRaisedIt() {
+        let controls = [String(localized: "Skip this set"),
+                        String(localized: "Skip remaining sets"),
+                        String(localized: "Skip exercise")]
+        for kind in all {
+            XCTAssertFalse(controls.contains(make(kind).confirmTitle),
+                           "\(kind) answers itself with the words already on screen")
+        }
+    }
+
+    /// Red is reserved for the one skip that actually destroys something: the
+    /// movement-level escape drops the facts already entered for that pattern.
+    /// Skipping a set is an ordinary answer and must not be dressed as a
+    /// failure — the row that offers it draws in ink2 for the same reason.
+    func testOnlyLeavingTheMovementIsDestructive() {
+        XCTAssertTrue(make(.exercise).isDestructive)
+        for kind in [SkipConfirmation.Kind.probeSet, .workingSet, .restOfSets] {
+            XCTAssertFalse(make(kind).isDestructive,
+                           "\(kind) is an ordinary answer, not a failure")
+        }
+    }
+
+    /// The set-level questions say exactly what the controls' accessibility
+    /// hints say, because they are the same promise about the same rule. A
+    /// second wording is a second promise, and only one of them gets updated.
+    func testTheSetLevelMessagesAreTheHintsThemselves() {
+        XCTAssertEqual(make(.workingSet).message,
+                       String(localized: """
+                           The plan keeps this set off next time. \
+                           Nothing else about the movement changes.
+                           """))
+        XCTAssertEqual(make(.probeSet).message,
+                       String(localized: """
+                           The probe just comes back next time. \
+                           The working sets lose nothing.
+                           """))
+    }
+
+    /// The probe takes no volume off anything (§40.4), so its question must
+    /// not borrow the working set's sentence — which promises a set kept off
+    /// the next plan.
+    func testTheProbeIsNotToldTheWorkingSetsPromise() {
+        XCTAssertNotEqual(make(.probeSet).message, make(.workingSet).message)
+    }
+
+    /// The action is held by the question, not resolved by the alert: the tap
+    /// that raised it is the tap that runs.
+    func testConfirmingRunsTheActionTheQuestionWasRaisedWith() {
+        var ran = 0
+        let skip = SkipConfirmation(kind: .exercise) { ran += 1 }
+        XCTAssertEqual(ran, 0, "building the question must not perform it")
+        skip.perform()
+        XCTAssertEqual(ran, 1)
+    }
+}

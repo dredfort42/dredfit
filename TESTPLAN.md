@@ -89,11 +89,14 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 | # | Check | Expected |
 |---|---|---|
 | 3.1 | Tap **Start hold** | Countdown runs down from the planned seconds |
-| 3.2 | Let it finish | 3-2-1 signals, then the two-tone finale; rest begins automatically |
-| 3.3 | **Stop the hold early** | The recorded actual is rounded to the **nearest multiple of 5** and clamped to 5…90 s |
-| 3.4 | Verify 3.3 on the rating screen | The summary shows "actual N" where N is a multiple of 5 |
+| 3.2 | Let it finish | 3-2-1 signals, then the two-tone finale at the moment the effort stops — and the screen **stays**. The seconds held stand under a **Held** caption, **Went differently** is live again, and the primary button reads **Done**. The set is logged, and the rest starts, on that tap |
+| 3.3 | **Stop the hold early** | The recorded actual is snapped to the **1 s** grid and clamped to 5…90 s, and the set is handed back exactly as in 3.2. Re-marked 30.08.2026: the row said "nearest multiple of 5", which the engine stopped doing in v2.21 — `SetFacts.snap` steps by one for both units (see 4.2) |
+| 3.4 | Verify 3.3 on the rating screen | The summary shows "actual N", N being the seconds actually held |
 | 3.5 | A per-side hold | Side one runs, then a 5 s "Switch sides" pause opens with its own falling tone, then the second side **starts itself** on the usual go, marked "second side"; the recorded actual is the **smaller** of the two sides |
 | 3.6 | While a hold is counting down | **Went differently** and **Skip exercise** are hidden and unresponsive |
+| 3.7 | After the hold ends, tap **Went differently** | The number the hold just recorded opens in the stepper; confirming replaces it and **Done** logs the corrected one. On the **last** set of a movement this is the only place the correction can be made — before 30.08.2026 the flow left the screen in the same frame the number was produced in, and nothing about that movement ever came back |
+| 3.8 | The same screen, before **Done** | **Skip this set** and the exercise escape are unresponsive: the set was performed, and its number is on screen |
+| 3.9 | Kill the app on that screen and relaunch | **Continue the workout?** comes back on the same set with the recorded seconds standing. A hold never restores mid-count, so the set is offered again rather than resumed |
 
 ### 4. Adjusting and skipping
 
@@ -103,7 +106,9 @@ Reach a hold exercise — plank (core · plank) appears in the rotation; with th
 | 4.2 | Same on a hold exercise | Steps by 1 within 5…90; value shows a trailing "s". Re-marked for engine v2.21 (spec §32.6): the hold ladder is relative, so a five-second grid could express only 13 of the scale's 48 rungs |
 | 4.3 | Enter a value **equal to the plan** and confirm | The override is dropped entirely — the rating screen shows no adjustment for it |
 | 4.4 | Enter a different value and finish the workout | Rating screen summary shows "actual N" in accent; history later shows the same |
-| 4.5 | **Skip exercise** | The flow advances; that exercise is marked skipped |
+| 4.5 | **Skip exercise** | Asks first — **Skip this exercise?**, with the sentence that says what is lost. **Keep going** leaves everything standing; **Skip the exercise** advances and marks it skipped |
+| 4.5a | **Skip this set** / **Skip remaining sets** | Both ask too, each in its own words. **Keep going** on either must leave the set, the minutes left and any number already entered exactly as they were |
+| 4.5b | Tap **outside** any of the three questions | Nothing happens. An alert has no anchor and swallows the tap, so the question stands until a button answers it — which is the whole point: these three controls are 44 pt targets 18 pt under the button that logs the set, and a workout has no undo |
 | 4.6 | Record an actual, then skip the same exercise | The actual is discarded — a skip wins; only "skipped" is shown |
 | 4.7 | Skip an exercise, complete the workout, check Progress | That pattern's level is **unchanged** (skips are neutral) |
 | 4.8 | Open history for that day | The skipped exercise shows the grey "skipped" label |

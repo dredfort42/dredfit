@@ -77,9 +77,17 @@ extension DredfitUITests {
         Thread.sleep(forTimeInterval: 3.5)
         XCTAssertTrue(coordinateTap(stop),
                       "the countdown ended before the stop could be delivered")
+        // A stopped hold no longer leaves the screen under the thumb: the
+        // seconds it recorded stay up, editable, until the set is logged.
+        let done = app.buttons[AX.exerciseDone]
+        XCTAssertTrue(done.waitForExistence(timeout: 5),
+                      "a stopped hold must hand the set back, not close it")
+        XCTAssertTrue(app.buttons[AX.exerciseAdjust].exists,
+                      "the recorded seconds must still be correctable")
+        coordinateTap(done)
         let skipRest = app.buttons[AX.skipRest]
-        XCTAssertTrue(skipRest.waitForExistence(timeout: 3),
-                      "an early stop should flow into rest")
+        XCTAssertTrue(skipRest.waitForExistence(timeout: 5),
+                      "the logged set should flow into rest")
         coordinateTap(skipRest)
         XCTAssertTrue(app.staticTexts["actual 5"].waitForExistence(timeout: 5),
                       "the held seconds were not recorded as the actual")
@@ -129,13 +137,34 @@ extension DredfitUITests {
         XCTAssertFalse(getReady.exists, "the count-in is over once the hold runs")
     }
 
-    func testHoldTimerAutoAdvancesAtZero() {
+    /// A hold ends itself — and until 30.08.2026 the flow left the work screen
+    /// in the same frame, so the seconds it had just recorded could never be
+    /// corrected: on the last set of a movement no screen about that movement
+    /// ever came back. What the clock owns now is the END OF THE EFFORT; the
+    /// set is logged by the same tap that logs a set of reps.
+    func testAFinishedHoldHandsTheSetBackBeforeClosingIt() {
         launchIntoSession2AndReachPlank()
         shortenHoldToTheFloor()
         coordinateTap(app.buttons[AX.holdStart])
         // Five seconds of count-in ahead of the five the hold was cut to.
-        XCTAssertTrue(app.buttons[AX.skipRest].waitForExistence(timeout: 15),
-                      "the hold did not auto-advance to rest at zero")
+        let done = app.buttons[AX.exerciseDone]
+        XCTAssertTrue(done.waitForExistence(timeout: 15),
+                      "the hold did not hand the set back at zero")
+        XCTAssertTrue(app.staticTexts["Held"].exists,
+                      "nothing on screen says the hold is behind")
+        XCTAssertTrue(app.buttons[AX.exerciseAdjust].exists,
+                      "“Went differently” must be reachable once the hold is over")
+        // `exists` is the wrong question: the row is `.opacity(0).disabled()`
+        // so its reserved height keeps the layout still, and whether a fully
+        // transparent view stays in the accessibility tree is SwiftUI's
+        // business, not the rule's. What the rule says is that the control
+        // cannot act.
+        let skipSet = app.buttons[AX.exerciseSkipSet]
+        XCTAssertFalse(skipSet.exists && skipSet.isEnabled,
+                       "a performed set must not still offer to be skipped")
+        coordinateTap(done)
+        XCTAssertTrue(app.buttons[AX.skipRest].waitForExistence(timeout: 5),
+                      "the logged hold did not advance to rest")
     }
 
     /// The side-switch pause (issue #35): a per-side hold runs side one, pauses
@@ -162,9 +191,10 @@ extension DredfitUITests {
                       "the second side must start without a tap")
         XCTAssertTrue(app.staticTexts["second side"].exists,
                       "the second side must be labelled")
-        // and runs out on its own into rest, like any completed set
-        XCTAssertTrue(app.buttons[AX.skipRest].waitForExistence(timeout: 9),
-                      "the second side did not auto-advance to rest at zero")
+        // and runs out on its own — into the set's own last word, like any
+        // other finished hold
+        XCTAssertTrue(app.buttons[AX.exerciseDone].waitForExistence(timeout: 9),
+                      "the second side did not hand the set back at zero")
     }
 
     /// Both sides of one set carry the same load: a first side cut short
@@ -202,7 +232,7 @@ extension DredfitUITests {
         // own subject on the way to the assertion is worse than no test.
         // The retake's decision is pinned at unit level instead
         // (`SetFacts.holdSideSeconds`).
-        XCTAssertTrue(app.buttons[AX.skipRest].waitForExistence(timeout: 30),
+        XCTAssertTrue(app.buttons[AX.exerciseDone].waitForExistence(timeout: 30),
                       "the second side must run the first side's seconds, not the plan's")
     }
 
@@ -243,8 +273,12 @@ extension DredfitUITests {
         Thread.sleep(forTimeInterval: 3.5)   // past the mis-tap grace
         XCTAssertTrue(coordinateTap(stop),
                       "the hang ended before the stop could be delivered")
-        XCTAssertTrue(app.buttons[AX.skipRest].waitForExistence(timeout: 3),
-                      "the stopped hang must flow into rest")
+        let done = app.buttons[AX.exerciseDone]
+        XCTAssertTrue(done.waitForExistence(timeout: 5),
+                      "the stopped hang must hand the set back")
+        coordinateTap(done)
+        XCTAssertTrue(app.buttons[AX.skipRest].waitForExistence(timeout: 5),
+                      "the logged hang must flow into rest")
         coordinateTap(app.buttons[AX.skipRest])
 
         // the rest of the workout is not the point of this smoke — skip through

@@ -173,9 +173,11 @@ final class HandlesUITests: XCTestCase {
         let skipWarmup = app.buttons[AX.warmupIntroSkip]
         if skipWarmup.waitForExistence(timeout: 5) { skipWarmup.tap() }
         for _ in 0..<5 {
-            let skip = app.buttons[AX.exerciseSkip]
-            XCTAssertTrue(skip.waitForExistence(timeout: 10), "the work screen never came up")
-            skip.tap()
+            // The escape asks before it acts (SkipConfirmation.swift), so the
+            // helper is what walks it: control tap, then the answer.
+            XCTAssertTrue(WorkoutDriver(app: app).skip(.exercise, control: AX.exerciseSkip,
+                                                       timeout: 10),
+                          "the work screen never came up")
         }
 
         // The last movement is walked to its end by the driver; the question

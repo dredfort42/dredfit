@@ -81,7 +81,15 @@ final class DredfitUITests: XCTestCase {
         let deadline = Date.now.addingTimeInterval(TimeInterval(limit) * 15)
         var skips = 0
         while !goal.exists && skips < limit && Date.now < deadline {
-            if skip.exists { coordinateTap(skip); skips += 1 }
+            // The escape asks before it acts (SkipConfirmation.swift), and it
+            // is the ANSWER that advances the flow — so the answer, not the
+            // escape, is what counts as a skip here. A question left standing
+            // by a dropped tap is answered on the next pass instead.
+            if driver.confirmSkip(.exercise, timeout: 0) {
+                skips += 1
+            } else if skip.exists {
+                coordinateTap(skip)
+            }
             _ = goal.waitForExistence(timeout: 1)   // settle + goal check
         }
     }

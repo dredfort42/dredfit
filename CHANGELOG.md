@@ -1,5 +1,26 @@
 # Changelog
 
+## 2.0.1
+
+Two ways the workout screen could take a decision you did not make.
+
+**A finished hold now hands the set back before it closes it.** A hold ends
+itself, and the flow used to leave the screen in the same frame the number was
+produced in — so the seconds a plank had just recorded could never be corrected,
+and on the last set of a movement no screen about that movement ever came back.
+The clock still owns the end of the effort: the finale sounds the moment you
+stop, because your eyes may be shut. What it no longer owns is the record. The
+seconds stay on screen under "Held", "Went differently" is live beside them, and
+the set is logged by the same **Done** that logs a set of reps.
+
+**Skipping a set or an exercise asks first.** Both escapes are 44 pt targets
+sitting 18 pt under the button that logs the set, and they used to fire on
+contact. A workout has no undo, so a brushed thumb took a set — or a whole
+movement together with every number already entered for it — and nothing
+anywhere could put it back. Each one now states what is actually lost and waits
+for an answer; the question can only be answered by a button, so the stray tap
+that raised it cannot also confirm it.
+
 ## 2.0.0
 
 The major number moves for one reason: **the scale you measured yourself by is
