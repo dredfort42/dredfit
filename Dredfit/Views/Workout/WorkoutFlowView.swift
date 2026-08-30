@@ -141,6 +141,16 @@ struct WorkoutFlowView: View {
     // the go can start it without recomputing anything.
     @State var holdCountInEndDate: Date?
     @State var holdCountInRemaining = 0
+    /// The hold is over and its seconds are recorded, but the set is NOT
+    /// closed yet — `finishHold` stops here and the primary button finishes
+    /// the job. A hold ends itself, so before this flag the number it produced
+    /// left the screen in the same frame it was produced in, and "Went
+    /// differently" never got a moment to exist: on the last set of a movement
+    /// nothing about it ever came back.
+    @State var holdSettled = false
+    /// The skip a thumb has asked for and not confirmed yet — see
+    /// SkipConfirmation.swift for why one is asked for at all.
+    @State private var pendingSkip: SkipConfirmation?
 
     @ScaledMetric(relativeTo: .largeTitle) private var restRingSize: CGFloat = 240
 
@@ -343,6 +353,11 @@ struct WorkoutFlowView: View {
         } message: {
             Text("“Finish now” keeps what you've done and goes to the rating — the remaining exercises are marked as skipped.")
         }
+        // Beside the exit alert rather than on the work screen itself: a
+        // confirmed skip can retire that screen (into the next exercise, or
+        // into the cool-down), and an alert dismissing together with the view
+        // it hangs on is how a presentation gets stuck.
+        .skipConfirmation($pendingSkip)
     }
 
     // MARK: - Header with progress segments
@@ -526,6 +541,7 @@ struct WorkoutFlowView: View {
                 WorkStatusCaption(countingIn: holdCountingIn,
                                   switchingSides: holdSwitchPausing,
                                   secondSide: holdSecondSide,
+                                  settled: holdSettled,
                                   actual: setActual,
                                   setIndex: setIndex, sets: exercise.sets,
                                   planned: exercise.plannedLoad(set: setIndex),
@@ -625,6 +641,14 @@ struct WorkoutFlowView: View {
                     // must not resolve to this placeholder.
                     PrimaryButton(title: String(localized: "Start hold")) { }.hidden()
                         .accessibilityIdentifier("hold-start-spacer")
+                } else if holdSettled {
+                    // The hold is behind; this tap only logs it. Same title
+                    // and same identifier as the reps button, because it is
+                    // the same act — the set ends when the person says the
+                    // number is right, not when a clock says the effort is
+                    // over.
+                    PrimaryButton(title: String(localized: "Done")) { completeSet() }
+                        .accessibilityIdentifier("exercise-done")
                 } else {
                     PrimaryButton(title: String(localized: "Start hold")) { startHold() }
                         .accessibilityIdentifier("hold-start")
@@ -645,9 +669,12 @@ struct WorkoutFlowView: View {
             // finishes the set at plan.
             .padding(.top, 18)
             .padding(.bottom, 10)
-            // no adjusting/skipping mid-hold, mid-count-in or mid-pause
-            .opacity(holding || holdSwitchPausing || holdCountingIn ? 0 : 1)
-            .disabled(holding || holdSwitchPausing || holdCountingIn)
+            // No adjusting/skipping mid-hold, mid-count-in or mid-pause —
+            // and none once the hold is behind either: the set was performed
+            // and its number is on the screen, so a skip there would contradict
+            // the very fact the person is being shown.
+            .opacity(holding || holdSwitchPausing || holdCountingIn || holdSettled ? 0 : 1)
+            .disabled(holding || holdSwitchPausing || holdCountingIn || holdSettled)
 
         }
     }
@@ -842,7 +869,12 @@ extension WorkoutFlowView {
         probeActuals = SetFacts.recordingProbe(probeActuals, exercise.pattern,
                                                isProbe: current.isProbe,
                                                target: current.planned)
-        playDone()
+        // A hold has already sounded its own ending, at the moment the effort
+        // actually stopped (see `finishHold`). The tap that lands here after
+        // one confirms a number; sounding "done" again would announce an end
+        // that happened seconds ago.
+        if !holdSettled { playDone() }
+        holdSettled = false
         adjusting = false
         if isLastSet && isLastExercise {
             // "Finish now" deliberately does not run the cool-down.
@@ -912,6 +944,10 @@ extension WorkoutFlowView {
     func resetHoldSides() {
         holdSecondSide = false
         firstSideHeld = nil
+        // The settled hold belongs to the set it was held in for exactly the
+        // same reason and for exactly as long: carried into the next set it
+        // would offer "Done" for an effort nobody made.
+        holdSettled = false
     }
 
     /// Past the exercise in front of us, however it ended — into the next one,
@@ -996,9 +1032,11 @@ extension WorkoutFlowView {
         // planned movement, so skipping it takes no volume off anything and
         // cannot leave the movement untrained. The outcome is "unresolved",
         // and the probe comes back on the next appearance.
-        if onProbeSet { return { skipSet() } }
+        if onProbeSet {
+            return { pendingSkip = SkipConfirmation(kind: .probeSet) { skipSet() } }
+        }
         guard skipsLeaveAMovement(1) else { return nil }
-        return { skipSet() }
+        return { pendingSkip = SkipConfirmation(kind: .workingSet) { skipSet() } }
     }
 
     /// The exercise-level escape, and the landing its label names. The two
@@ -1010,15 +1048,17 @@ extension WorkoutFlowView {
         // exercise" would throw away a movement that was in fact trained.
         // Skipping the probe is the set-level control beside this one.
         guard !onProbeSet else { return nil }
-        let leave = ExerciseActionsRow.Escape(title: String(localized: "Skip exercise"),
-                                              identifier: "exercise-skip",
-                                              action: { leaveExercise() })
+        let leave = ExerciseActionsRow.Escape(
+            title: String(localized: "Skip exercise"),
+            identifier: "exercise-skip",
+            action: { pendingSkip = SkipConfirmation(kind: .exercise) { leaveExercise() } })
         guard skipsLeaveAMovement(1) else { return leave }
         guard !isLastSet else { return nil }
         guard setsPerformedHere >= EngineConfig.setsFloor else { return leave }
-        return ExerciseActionsRow.Escape(title: String(localized: "Skip remaining sets"),
-                                         identifier: "exercise-skip-rest",
-                                         action: { skipRestOfExercise() })
+        return ExerciseActionsRow.Escape(
+            title: String(localized: "Skip remaining sets"),
+            identifier: "exercise-skip-rest",
+            action: { pendingSkip = SkipConfirmation(kind: .restOfSets) { skipRestOfExercise() } })
     }
 
     private func startRest(_ seconds: Int) {

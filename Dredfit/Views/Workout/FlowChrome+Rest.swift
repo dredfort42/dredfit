@@ -16,6 +16,13 @@ struct WorkStatusCaption: View {
     let countingIn: Bool
     let switchingSides: Bool
     let secondSide: Bool
+    /// The hold is BEHIND and its seconds are recorded, but the set is not
+    /// closed yet (`WorkoutFlowView.holdSettled`). It outranks the actual
+    /// below deliberately: in this state the big number above IS what was
+    /// held, so "actual 25" would repeat it while saying less — and what the
+    /// screen has to say instead is that the effort is over and the number is
+    /// still editable.
+    var settled: Bool = false
     /// nil when the exercise is running to plan.
     let actual: Int?
     /// The hold-this-level mark (issue #78). A pin changes nothing visible in
@@ -37,6 +44,8 @@ struct WorkStatusCaption: View {
             accented(Text("Switch sides"))
         } else if secondSide {
             accented(Text("second side"))
+        } else if settled {
+            accented(Text("Held"))
         } else if let actual {
             accented(Text("actual \(actual)"))
         } else if uneven {

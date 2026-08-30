@@ -39,7 +39,8 @@ final class SetSkipUITests: XCTestCase {
                       "the work screen did not come up on the first set")
         let skip = app.buttons[AX.exerciseSkipSet]
         XCTAssertTrue(skip.exists, "the set-level skip is missing from the work screen")
-        driver.coordinateTap(skip)
+        XCTAssertTrue(driver.skip(.set, control: AX.exerciseSkipSet),
+                      "the set-level skip never asked its question")
 
         XCTAssertTrue(app.staticTexts["set 2 of 3"].waitForExistence(timeout: 5),
                       "the skip did not move on to the next set")
@@ -76,7 +77,8 @@ final class SetSkipUITests: XCTestCase {
         XCTAssertFalse(app.buttons[AX.exerciseSkip].exists,
                        "the two escapes must never both stand for the same tap")
 
-        driver.coordinateTap(app.buttons[AX.exerciseSkipRest])
+        XCTAssertTrue(driver.skip(.remainingSets, control: AX.exerciseSkipRest),
+                      "the rest-of-the-sets escape never asked its question")
         XCTAssertTrue(app.staticTexts["2 / 6"].waitForExistence(timeout: 5),
                       "the tap must move on to the next movement")
     }
@@ -96,7 +98,7 @@ final class SetSkipUITests: XCTestCase {
         let before = minutes(in: left.label)
         XCTAssertGreaterThan(before, 40, "a 55-minute session should read as most of one")
 
-        driver.coordinateTap(app.buttons[AX.exerciseSkipSet])
+        driver.skip(.set, control: AX.exerciseSkipSet)
         XCTAssertTrue(app.staticTexts["set 2 of 4"].waitForExistence(timeout: 5))
 
         XCTAssertLessThan(minutes(in: app.staticTexts[AX.timeLeft].label), before,
@@ -121,9 +123,9 @@ final class SetSkipUITests: XCTestCase {
         let skip = app.buttons[AX.exerciseSkipSet]
         XCTAssertTrue(skip.waitForExistence(timeout: 10), "no work screen to skip on")
         // Four sets: two can go, and the third would leave a single one.
-        driver.coordinateTap(skip)
+        driver.skip(.set, control: AX.exerciseSkipSet)
         _ = app.staticTexts["set 2 of 4"].waitForExistence(timeout: 5)
-        driver.coordinateTap(skip)
+        driver.skip(.set, control: AX.exerciseSkipSet)
         XCTAssertTrue(app.staticTexts["set 3 of 4"].waitForExistence(timeout: 5),
                       "the second skip did not land")
 
@@ -131,5 +133,43 @@ final class SetSkipUITests: XCTestCase {
                        "a third skipped set would leave one — it must not be offered")
         XCTAssertTrue(app.buttons[AX.exerciseSkip].exists,
                       "with the sets spent, the way out is the movement, and it says so")
+    }
+
+    /// The defect this pair of guards exists for: both escapes are 44 pt
+    /// targets 18 pt under the button that LOGS the set, they used to fire on
+    /// contact, and a workout has no undo. A brushed thumb took a set — or a
+    /// whole movement with every number entered for it — and nothing anywhere
+    /// could put it back (owner, 30.08.2026).
+    ///
+    /// Both halves are asserted, because a confirmation that cannot be
+    /// declined is not a confirmation: the question has to stand, and saying
+    /// no has to leave the set exactly where it was.
+    func testAStraySkipTapAsksBeforeItTakesAnything() {
+        app.launch()
+        driver.startWorkout()
+
+        let firstSet = app.staticTexts["set 1 of 3"]
+        XCTAssertTrue(firstSet.waitForExistence(timeout: 10),
+                      "the work screen did not come up on the first set")
+
+        driver.coordinateTap(app.buttons[AX.exerciseSkipSet])
+        XCTAssertTrue(app.staticTexts["Skip this set?"].waitForExistence(timeout: 5),
+                      "the set-level skip took the set without asking")
+        app.buttons["Keep going"].tap()
+        XCTAssertTrue(firstSet.waitForExistence(timeout: 5),
+                      "declining the question still took the set")
+
+        driver.coordinateTap(app.buttons[AX.exerciseSkip])
+        XCTAssertTrue(app.staticTexts["Skip this exercise?"].waitForExistence(timeout: 5),
+                      "the movement-level escape took the movement without asking")
+        app.buttons["Keep going"].tap()
+        XCTAssertTrue(firstSet.waitForExistence(timeout: 5),
+                      "declining the question still left the movement")
+
+        // …and confirming still works, so the guard did not simply disable
+        // the way out.
+        XCTAssertTrue(driver.skip(.set, control: AX.exerciseSkipSet))
+        XCTAssertTrue(app.staticTexts["set 2 of 3"].waitForExistence(timeout: 5),
+                      "a confirmed skip must still move on to the next set")
     }
 }

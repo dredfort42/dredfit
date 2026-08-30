@@ -26,7 +26,8 @@ extension DredfitUITests {
     func testResumeLandsOnRatingWhenKilledThere() {
         app.launch()
         startWorkout()
-        for _ in 0..<6 { app.buttons[AX.exerciseSkip].tap() }
+        // Each escape asks before it acts (SkipConfirmation.swift).
+        for _ in 0..<6 { driver.skip(.exercise, control: AX.exerciseSkip) }
         XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 3))
         app.terminate()
 
@@ -67,7 +68,8 @@ extension DredfitUITests {
     func testSkipAllExercisesStillReachesRating() {
         app.launch()
         startWorkout()
-        for _ in 0..<6 { app.buttons[AX.exerciseSkip].tap() }
+        // Each escape asks before it acts (SkipConfirmation.swift).
+        for _ in 0..<6 { driver.skip(.exercise, control: AX.exerciseSkip) }
         XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 3),
                       "skipping all exercises should lead to the rating")
         // The state lives once in the section header; each row's dimmed name

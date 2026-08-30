@@ -113,7 +113,20 @@ extension WorkoutFlowView {
         holdSecondSide = false
         firstSideHeld = nil
         recordHoldActual(heldSeconds: held)
-        completeSet()
+        // The set is NOT closed here. A hold ends itself, and until this the
+        // flow left the work screen in the same frame — so the seconds it had
+        // just recorded could never be corrected, and on the last set of a
+        // movement no screen about that movement ever came back. The number
+        // stays on screen with "Went differently" beside it, and the primary
+        // button closes the set (owner, 30.08.2026).
+        //
+        // The signal fires HERE, where the effort actually stopped, not on
+        // that tap: the person may have their eyes shut in a plank, and the
+        // sound is the only thing that says the hold is over. `completeSet`
+        // reads `holdSettled` and does not repeat it.
+        playDone()
+        holdSettled = true
+        persistProgress()   // a recorded hold is worth keeping before the tap
     }
 
     // MARK: - The side-switch pause (issue #35)
@@ -304,6 +317,7 @@ extension WorkoutFlowView {
         holdSecondSide = false
         firstSideHeld = nil
         holdPauseEndDate = nil
+        holdSettled = false
         var firstUnfinished = exIndex
         if case .rest = phase, isLastSet { firstUnfinished = exIndex + 1 }
         // "not finished", not "skipped": the engine still freezes the level
