@@ -141,12 +141,16 @@ struct WorkoutFlowView: View {
     // the go can start it without recomputing anything.
     @State var holdCountInEndDate: Date?
     @State var holdCountInRemaining = 0
-    /// The hold is over and its seconds are recorded, but the set is NOT
-    /// closed yet — `finishHold` stops here and the primary button finishes
-    /// the job. A hold ends itself, so before this flag the number it produced
-    /// left the screen in the same frame it was produced in, and "Went
-    /// differently" never got a moment to exist: on the last set of a movement
-    /// nothing about it ever came back.
+    /// The LAST hold of a movement is over and its seconds are recorded, but
+    /// the set is not closed yet — `finishHold` stops there and the primary
+    /// button finishes the job. A hold ends itself, so before this flag the
+    /// number it produced left the screen in the same frame it was produced
+    /// in, and "Went differently" never got a moment to exist.
+    ///
+    /// Only the last set: every earlier one still flows into its rest by
+    /// itself, because the movement comes back and a tap between the effort
+    /// and the recovery would be pure friction. After the last set nothing
+    /// about the movement returns, so its seconds would stand uncorrectable.
     @State var holdSettled = false
     /// The skip a thumb has asked for and not confirmed yet — see
     /// SkipConfirmation.swift for why one is asked for at all.
@@ -642,9 +646,9 @@ struct WorkoutFlowView: View {
                     PrimaryButton(title: String(localized: "Start hold")) { }.hidden()
                         .accessibilityIdentifier("hold-start-spacer")
                 } else if holdSettled {
-                    // The hold is behind; this tap only logs it. Same title
-                    // and same identifier as the reps button, because it is
-                    // the same act — the set ends when the person says the
+                    // The last hold is behind; this tap only logs it. Same
+                    // title and same identifier as the reps button, because it
+                    // is the same act — the set ends when the person says the
                     // number is right, not when a clock says the effort is
                     // over.
                     PrimaryButton(title: String(localized: "Done")) { completeSet() }
@@ -670,9 +674,9 @@ struct WorkoutFlowView: View {
             .padding(.top, 18)
             .padding(.bottom, 10)
             // No adjusting/skipping mid-hold, mid-count-in or mid-pause —
-            // and none once the hold is behind either: the set was performed
-            // and its number is on the screen, so a skip there would contradict
-            // the very fact the person is being shown.
+            // and none once a settled hold is behind either: the set was
+            // performed and its number is on the screen, so a skip there would
+            // contradict the very fact the person is being shown.
             .opacity(holding || holdSwitchPausing || holdCountingIn || holdSettled ? 0 : 1)
             .disabled(holding || holdSwitchPausing || holdCountingIn || holdSettled)
 

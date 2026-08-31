@@ -73,11 +73,20 @@ struct SkipConfirmation: Identifiable {
         }
     }
 
-    /// Red only where something is actually destroyed. Skipping a set is an
-    /// ordinary answer — the row that offers it says so in ink2, and a red
-    /// button here would call it a failure. Leaving the movement discards the
-    /// facts already entered for it, so that one is red.
-    var isDestructive: Bool { kind == .exercise }
+    // NO `.destructive` ROLE ON ANY OF THE FOUR, and the exercise-level one is
+    // where that was decided (owner, 31.08.2026). It carried red for a while
+    // because `leaveExercise` really does discard the facts entered for the
+    // pattern — but red says "danger", and this app's position on a skip is
+    // the opposite: a skipped movement stays exactly where it was, no penalty
+    // and no rollback, which is what the sentence above the button says in so
+    // many words. A button shouting at a message that reassures is one screen
+    // arguing with itself.
+    //
+    // What is destroyed is the numbers, not the movement, and the message
+    // names them. The warning belongs in the sentence; the colour only
+    // duplicated it, and duplicated it wrong. The two escapes also stand at
+    // equal weight in the row that raises them — diverging here is the
+    // arbitrariness that gave this away.
 }
 
 extension View {
@@ -96,8 +105,7 @@ extension View {
                      isPresented: shown,
                      presenting: pending.wrappedValue) { skip in
             Button(String(localized: "Keep going"), role: .cancel) { }
-            Button(skip.confirmTitle,
-                   role: skip.isDestructive ? .destructive : nil) { skip.perform() }
+            Button(skip.confirmTitle) { skip.perform() }
         } message: { skip in
             Text(verbatim: skip.message)
         }

@@ -77,17 +77,12 @@ extension DredfitUITests {
         Thread.sleep(forTimeInterval: 3.5)
         XCTAssertTrue(coordinateTap(stop),
                       "the countdown ended before the stop could be delivered")
-        // A stopped hold no longer leaves the screen under the thumb: the
-        // seconds it recorded stay up, editable, until the set is logged.
-        let done = app.buttons[AX.exerciseDone]
-        XCTAssertTrue(done.waitForExistence(timeout: 5),
-                      "a stopped hold must hand the set back, not close it")
-        XCTAssertTrue(app.buttons[AX.exerciseAdjust].exists,
-                      "the recorded seconds must still be correctable")
-        coordinateTap(done)
+        // Set one of several: the stop closes it and the rest starts itself,
+        // with no tap in between. Only the movement's LAST hold waits to be
+        // logged — see `testOnlyTheLastHoldOfAMovementHandsTheSetBack`.
         let skipRest = app.buttons[AX.skipRest]
         XCTAssertTrue(skipRest.waitForExistence(timeout: 5),
-                      "the logged set should flow into rest")
+                      "an early stop with sets behind it should flow into rest")
         coordinateTap(skipRest)
         XCTAssertTrue(app.staticTexts["actual 5"].waitForExistence(timeout: 5),
                       "the held seconds were not recorded as the actual")
@@ -137,19 +132,66 @@ extension DredfitUITests {
         XCTAssertFalse(getReady.exists, "the count-in is over once the hold runs")
     }
 
+    /// Walks a hold exercise from wherever it stands to its LAST set, skipping
+    /// the rests each finished set opens by itself. The goal is the settled
+    /// screen, not a set count: what "last" means belongs to the plan, and a
+    /// walk that counted sets would go stale the first time the plan changed.
+    private func reachTheLastHoldSet(deadline seconds: TimeInterval = 150) {
+        let done = app.buttons[AX.exerciseDone]
+        let start = app.buttons[AX.holdStart]
+        let skipRest = app.buttons[AX.skipRest]
+        let deadline = Date.now.addingTimeInterval(seconds)
+        while !done.exists && Date.now < deadline {
+            if skipRest.exists {
+                coordinateTap(skipRest)
+                _ = start.waitForExistence(timeout: 10)
+            } else if start.exists {
+                coordinateTap(start)
+                // Either the set settles (the last one) or a rest opens (any
+                // earlier one). No wait covers both, so poll for whichever
+                // arrives rather than burn a full timeout on the wrong one.
+                let inner = Date.now.addingTimeInterval(30)
+                while !done.exists && !skipRest.exists && Date.now < inner {
+                    _ = done.waitForExistence(timeout: 1)
+                }
+            } else {
+                _ = done.waitForExistence(timeout: 2)   // counting in, or held
+            }
+        }
+    }
+
     /// A hold ends itself — and until 30.08.2026 the flow left the work screen
     /// in the same frame, so the seconds it had just recorded could never be
-    /// corrected: on the last set of a movement no screen about that movement
-    /// ever came back. What the clock owns now is the END OF THE EFFORT; the
-    /// set is logged by the same tap that logs a set of reps.
-    func testAFinishedHoldHandsTheSetBackBeforeClosingIt() {
+    /// corrected: after the last set of a movement no screen about that
+    /// movement ever came back.
+    ///
+    /// Both halves of the rule are here, because the fix went too wide first:
+    /// an EARLIER set still runs itself into its rest, and a tap between the
+    /// effort and the recovery on every hold was friction the movement does
+    /// not need — it comes back. It is the LAST set that is terminal, and
+    /// there the clock owns only the end of the effort; the set is logged by
+    /// the same tap that logs a set of reps (owner, 31.08.2026).
+    func testOnlyTheLastHoldOfAMovementHandsTheSetBack() {
         launchIntoSession2AndReachPlank()
         shortenHoldToTheFloor()
+        XCTAssertFalse(app.staticTexts["set 1 of 1"].exists,
+                       "this walk needs a hold with more than one set to say anything")
+
+        // Set one: five seconds of count-in ahead of the five the hold was
+        // cut to, and then the rest — no tap anywhere in between.
         coordinateTap(app.buttons[AX.holdStart])
-        // Five seconds of count-in ahead of the five the hold was cut to.
+        let skipRest = app.buttons[AX.skipRest]
+        XCTAssertTrue(skipRest.waitForExistence(timeout: 20),
+                      "a hold with sets behind it must start its rest by itself")
+        XCTAssertFalse(app.buttons[AX.exerciseDone].exists,
+                       "an earlier set must not stop to be logged")
+        coordinateTap(skipRest)
+
+        // …and the last one hands the set back instead.
+        reachTheLastHoldSet()
         let done = app.buttons[AX.exerciseDone]
-        XCTAssertTrue(done.waitForExistence(timeout: 15),
-                      "the hold did not hand the set back at zero")
+        XCTAssertTrue(done.waitForExistence(timeout: 30),
+                      "the last hold did not hand the set back at zero")
         XCTAssertTrue(app.staticTexts["Held"].exists,
                       "nothing on screen says the hold is behind")
         XCTAssertTrue(app.buttons[AX.exerciseAdjust].exists,
@@ -163,8 +205,8 @@ extension DredfitUITests {
         XCTAssertFalse(skipSet.exists && skipSet.isEnabled,
                        "a performed set must not still offer to be skipped")
         coordinateTap(done)
-        XCTAssertTrue(app.buttons[AX.skipRest].waitForExistence(timeout: 5),
-                      "the logged hold did not advance to rest")
+        XCTAssertTrue(app.staticTexts["Held"].waitForNonExistence(timeout: 10),
+                      "the logged hold did not leave the work screen")
     }
 
     /// The side-switch pause (issue #35): a per-side hold runs side one, pauses
@@ -191,10 +233,10 @@ extension DredfitUITests {
                       "the second side must start without a tap")
         XCTAssertTrue(app.staticTexts["second side"].exists,
                       "the second side must be labelled")
-        // and runs out on its own — into the set's own last word, like any
-        // other finished hold
-        XCTAssertTrue(app.buttons[AX.exerciseDone].waitForExistence(timeout: 9),
-                      "the second side did not hand the set back at zero")
+        // and runs out on its own into rest, like any completed set that is
+        // not the movement's last
+        XCTAssertTrue(app.buttons[AX.skipRest].waitForExistence(timeout: 9),
+                      "the second side did not auto-advance to rest at zero")
     }
 
     /// Both sides of one set carry the same load: a first side cut short
@@ -232,7 +274,7 @@ extension DredfitUITests {
         // own subject on the way to the assertion is worse than no test.
         // The retake's decision is pinned at unit level instead
         // (`SetFacts.holdSideSeconds`).
-        XCTAssertTrue(app.buttons[AX.exerciseDone].waitForExistence(timeout: 30),
+        XCTAssertTrue(app.buttons[AX.skipRest].waitForExistence(timeout: 30),
                       "the second side must run the first side's seconds, not the plan's")
     }
 
@@ -273,12 +315,8 @@ extension DredfitUITests {
         Thread.sleep(forTimeInterval: 3.5)   // past the mis-tap grace
         XCTAssertTrue(coordinateTap(stop),
                       "the hang ended before the stop could be delivered")
-        let done = app.buttons[AX.exerciseDone]
-        XCTAssertTrue(done.waitForExistence(timeout: 5),
-                      "the stopped hang must hand the set back")
-        coordinateTap(done)
         XCTAssertTrue(app.buttons[AX.skipRest].waitForExistence(timeout: 5),
-                      "the logged hang must flow into rest")
+                      "the stopped hang must flow into rest")
         coordinateTap(app.buttons[AX.skipRest])
 
         // the rest of the workout is not the point of this smoke — skip through

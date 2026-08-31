@@ -4,14 +4,17 @@
 
 Two ways the workout screen could take a decision you did not make.
 
-**A finished hold now hands the set back before it closes it.** A hold ends
-itself, and the flow used to leave the screen in the same frame the number was
-produced in — so the seconds a plank had just recorded could never be corrected,
-and on the last set of a movement no screen about that movement ever came back.
-The clock still owns the end of the effort: the finale sounds the moment you
-stop, because your eyes may be shut. What it no longer owns is the record. The
-seconds stay on screen under "Held", "Went differently" is live beside them, and
-the set is logged by the same **Done** that logs a set of reps.
+**The last hold of a movement now hands the set back before it closes it.** A
+hold ends itself, and the flow used to leave the screen in the same frame the
+number was produced in — so the seconds a plank had just recorded could never be
+corrected, and after the last set of a movement no screen about that movement
+ever came back. The clock still owns the end of the effort: the finale sounds
+the moment you stop, because your eyes may be shut. What it no longer owns is
+the record on the set that closes a movement — the seconds stay on screen under
+"Held", "Went differently" is live beside them, and the set is logged by the
+same **Done** that logs a set of reps. Every earlier set is untouched: it runs
+into its rest by itself, with no tap between the effort and the recovery,
+because the movement comes back.
 
 **Skipping a set or an exercise asks first.** Both escapes are 44 pt targets
 sitting 18 pt under the button that logs the set, and they used to fire on
@@ -19,7 +22,11 @@ contact. A workout has no undo, so a brushed thumb took a set — or a whole
 movement together with every number already entered for it — and nothing
 anywhere could put it back. Each one now states what is actually lost and waits
 for an answer; the question can only be answered by a button, so the stray tap
-that raised it cannot also confirm it.
+that raised it cannot also confirm it. All four questions look the same on
+purpose — none of them is red. What leaving a movement destroys is the numbers
+you entered for it, and the sentence says so; the movement itself stays exactly
+where it was, no penalty and no rollback, which is not something to paint as a
+danger.
 
 ## 2.0.0
 

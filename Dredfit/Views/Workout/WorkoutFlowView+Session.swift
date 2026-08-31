@@ -113,17 +113,21 @@ extension WorkoutFlowView {
         holdSecondSide = false
         firstSideHeld = nil
         recordHoldActual(heldSeconds: held)
-        // The set is NOT closed here. A hold ends itself, and until this the
-        // flow left the work screen in the same frame — so the seconds it had
-        // just recorded could never be corrected, and on the last set of a
-        // movement no screen about that movement ever came back. The number
-        // stays on screen with "Went differently" beside it, and the primary
-        // button closes the set (owner, 30.08.2026).
-        //
-        // The signal fires HERE, where the effort actually stopped, not on
-        // that tap: the person may have their eyes shut in a plank, and the
-        // sound is the only thing that says the hold is over. `completeSet`
-        // reads `holdSettled` and does not repeat it.
+        // Only the LAST set stops here. A hold ends itself, and the flow used
+        // to leave the work screen in the same frame the number was produced
+        // in — but a set with another one behind it is not lost: the movement
+        // comes back, and until it does the rest is what the person wants. It
+        // is the last set that is terminal, because after it no screen about
+        // this movement ever returns, and the seconds it recorded would stand
+        // uncorrectable (owner, 30–31.08.2026).
+        guard isLastSet else {
+            completeSet()   // rest starts itself, exactly as it always did
+            return
+        }
+        // The signal fires HERE, where the effort actually stopped, not on the
+        // tap that follows: the person may have their eyes shut in a plank,
+        // and the sound is the only thing that says the hold is over.
+        // `completeSet` reads `holdSettled` and does not repeat it.
         playDone()
         holdSettled = true
         persistProgress()   // a recorded hold is worth keeping before the tap
