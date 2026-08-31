@@ -40,6 +40,22 @@ final class SkipConfirmationTests: XCTestCase {
         }
     }
 
+    /// ONE label for all four, because `UIAlertController` picks its layout
+    /// from the button widths: per-kind labels made two controls that sit at
+    /// equal weight in the same row stack differently — in Russian "Пропустить
+    /// этот подход" fit beside the cancel and "Пропустить это упражнение",
+    /// three characters longer, did not (owner, 31.08.2026).
+    ///
+    /// Identical strings cannot diverge in any language or at any text size,
+    /// which is what makes this the fix rather than a shorter wording. Which
+    /// question is up is read off the TITLE, and the titles are all different.
+    func testAllFourAnswerToTheSameButton() {
+        XCTAssertEqual(Set(all.map { make($0).confirmTitle }).count, 1,
+                       "a per-kind confirm label lets the alert's layout differ")
+        XCTAssertEqual(Set(all.map { make($0).title }).count, 3,
+                       "the two set-level skips share a question; the other two do not")
+    }
+
     /// All four questions have the SAME shape — the movement-level one carried
     /// a red `.destructive` button for a while and lost it (owner,
     /// 31.08.2026): red says "danger", and this app's position on a skip is
@@ -55,8 +71,8 @@ final class SkipConfirmationTests: XCTestCase {
         for skip in shapes {
             XCTAssertTrue(skip.title.hasSuffix("?"),
                           "\(skip.kind) does not read as a question")
-            XCTAssertTrue(skip.confirmTitle.hasPrefix("Skip"),
-                          "\(skip.kind) does not name the act it confirms")
+            XCTAssertFalse(skip.confirmTitle.isEmpty,
+                           "\(skip.kind) offers nothing to confirm with")
         }
         // …and no two of them are the same question.
         XCTAssertEqual(Set(shapes.map(\.message)).count, shapes.count,

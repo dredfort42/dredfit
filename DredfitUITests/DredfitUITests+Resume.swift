@@ -27,7 +27,7 @@ extension DredfitUITests {
         app.launch()
         startWorkout()
         // Each escape asks before it acts (SkipConfirmation.swift).
-        for _ in 0..<6 { driver.skip(.exercise, control: AX.exerciseSkip) }
+        for _ in 0..<6 { driver.skip(control: AX.exerciseSkip) }
         XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 3))
         app.terminate()
 
@@ -69,7 +69,7 @@ extension DredfitUITests {
         app.launch()
         startWorkout()
         // Each escape asks before it acts (SkipConfirmation.swift).
-        for _ in 0..<6 { driver.skip(.exercise, control: AX.exerciseSkip) }
+        for _ in 0..<6 { driver.skip(control: AX.exerciseSkip) }
         XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 3),
                       "skipping all exercises should lead to the rating")
         // The state lives once in the section header; each row's dimmed name

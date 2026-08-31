@@ -39,21 +39,23 @@ struct WorkoutDriver {
         return true
     }
 
-    /// The three in-workout skips ask before they act (SkipConfirmation.swift).
-    /// The raw value IS the alert button's label, and that label is
-    /// deliberately not the label on the control that raised the question — a
-    /// query for one must never resolve to the other.
+    /// All four in-workout skips ask before they act (SkipConfirmation.swift),
+    /// and all four answer to the same short button — deliberately, because
+    /// the alert's layout follows its label widths and per-kind labels made
+    /// two neighbouring controls stack differently. Which question is up is
+    /// read off the TITLE, never off this; a test that needs to know asserts
+    /// the title.
     ///
     /// ENGLISH ONLY, unlike everything else this driver taps. An alert button
     /// carries no identifier that survives into the accessibility tree, so a
     /// label is what there is — which means a localized walk (S7) must not
     /// route a skip through here. It does not today: `completeWorkout` never
     /// skips, it finishes every set.
-    enum Skip: String {
-        case set = "Skip the set"
-        case remainingSets = "Skip the remaining sets"
-        case exercise = "Skip the exercise"
-    }
+    ///
+    /// The onboarding cards carry a "Skip" of their own. It is a different
+    /// screen and never up at the same time, and no control inside the workout
+    /// reads exactly this word.
+    static let skipConfirmLabel = "Skip"
 
     /// Answers a skip's question. One place for it, because a confirmation
     /// added to a control is exactly the change that leaves half a dozen call
@@ -63,8 +65,8 @@ struct WorkoutDriver {
     /// presentation, outside the workout's fullScreenCover, so the hittability
     /// quirk that forces coordinates inside the cover does not apply here.
     @discardableResult
-    func confirmSkip(_ kind: Skip, timeout: TimeInterval = 5) -> Bool {
-        let confirm = app.buttons[kind.rawValue]
+    func confirmSkip(timeout: TimeInterval = 5) -> Bool {
+        let confirm = app.buttons[Self.skipConfirmLabel]
         guard confirm.waitForExistence(timeout: timeout) else { return false }
         confirm.tap()
         return true
@@ -73,12 +75,11 @@ struct WorkoutDriver {
     /// The escape and its answer as one act — what every caller that just
     /// wants the skip to happen should reach for.
     @discardableResult
-    func skip(_ kind: Skip, control identifier: String,
-              timeout: TimeInterval = 5) -> Bool {
+    func skip(control identifier: String, timeout: TimeInterval = 5) -> Bool {
         let control = app.buttons[identifier]
         guard control.waitForExistence(timeout: timeout) else { return false }
         coordinateTap(control)
-        return confirmSkip(kind, timeout: timeout)
+        return confirmSkip(timeout: timeout)
     }
 
     /// The warm-up opens on its offer screen, so getting past the block is one

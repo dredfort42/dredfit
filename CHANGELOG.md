@@ -23,8 +23,9 @@ movement together with every number already entered for it — and nothing
 anywhere could put it back. Each one now states what is actually lost and waits
 for an answer; the question can only be answered by a button, so the stray tap
 that raised it cannot also confirm it. All four questions look the same on
-purpose — none of them is red. What leaving a movement destroys is the numbers
-you entered for it, and the sentence says so; the movement itself stays exactly
+purpose, down to the buttons: none of them is red, and all of them answer to
+the same short **Skip**. What leaving a movement destroys is the numbers you
+entered for it, and the sentence says so; the movement itself stays exactly
 where it was, no penalty and no rollback, which is not something to paint as a
 danger.
 
