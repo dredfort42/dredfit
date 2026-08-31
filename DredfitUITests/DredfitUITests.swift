@@ -85,7 +85,7 @@ final class DredfitUITests: XCTestCase {
             // is the ANSWER that advances the flow — so the answer, not the
             // escape, is what counts as a skip here. A question left standing
             // by a dropped tap is answered on the next pass instead.
-            if driver.confirmSkip(.exercise, timeout: 0) {
+            if driver.confirmSkip(timeout: 0) {
                 skips += 1
             } else if skip.exists {
                 coordinateTap(skip)

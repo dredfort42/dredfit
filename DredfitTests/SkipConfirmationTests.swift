@@ -40,16 +40,43 @@ final class SkipConfirmationTests: XCTestCase {
         }
     }
 
-    /// Red is reserved for the one skip that actually destroys something: the
-    /// movement-level escape drops the facts already entered for that pattern.
-    /// Skipping a set is an ordinary answer and must not be dressed as a
-    /// failure — the row that offers it draws in ink2 for the same reason.
-    func testOnlyLeavingTheMovementIsDestructive() {
-        XCTAssertTrue(make(.exercise).isDestructive)
-        for kind in [SkipConfirmation.Kind.probeSet, .workingSet, .restOfSets] {
-            XCTAssertFalse(make(kind).isDestructive,
-                           "\(kind) is an ordinary answer, not a failure")
+    /// ONE label for all four, because `UIAlertController` picks its layout
+    /// from the button widths: per-kind labels made two controls that sit at
+    /// equal weight in the same row stack differently — in Russian "Пропустить
+    /// этот подход" fit beside the cancel and "Пропустить это упражнение",
+    /// three characters longer, did not (owner, 31.08.2026).
+    ///
+    /// Identical strings cannot diverge in any language or at any text size,
+    /// which is what makes this the fix rather than a shorter wording. Which
+    /// question is up is read off the TITLE, and the titles are all different.
+    func testAllFourAnswerToTheSameButton() {
+        XCTAssertEqual(Set(all.map { make($0).confirmTitle }).count, 1,
+                       "a per-kind confirm label lets the alert's layout differ")
+        XCTAssertEqual(Set(all.map { make($0).title }).count, 3,
+                       "the two set-level skips share a question; the other two do not")
+    }
+
+    /// All four questions have the SAME shape — the movement-level one carried
+    /// a red `.destructive` button for a while and lost it (owner,
+    /// 31.08.2026): red says "danger", and this app's position on a skip is
+    /// that a skipped movement stays exactly where it was, no penalty and no
+    /// rollback. What is destroyed is the numbers, and the message says so;
+    /// the colour argued with the sentence above it.
+    ///
+    /// Asserted through the strings rather than through a role, because the
+    /// role is gone — what a test can still hold is that no question is told
+    /// apart from the others by anything but its words.
+    func testTheFourQuestionsDifferOnlyInWhatTheySay() {
+        let shapes = all.map { make($0) }
+        for skip in shapes {
+            XCTAssertTrue(skip.title.hasSuffix("?"),
+                          "\(skip.kind) does not read as a question")
+            XCTAssertFalse(skip.confirmTitle.isEmpty,
+                           "\(skip.kind) offers nothing to confirm with")
         }
+        // …and no two of them are the same question.
+        XCTAssertEqual(Set(shapes.map(\.message)).count, shapes.count,
+                       "two skips promise the same thing about different acts")
     }
 
     /// The set-level questions say exactly what the controls' accessibility

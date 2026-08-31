@@ -201,7 +201,7 @@ final class ReleaseSmokeTests: XCTestCase {
             // the same way.
             for _ in 0..<3 {
                 // The escape asks before it acts (SkipConfirmation.swift).
-                XCTAssertTrue(driver.skip(.exercise, control: AX.exerciseSkip, timeout: 10),
+                XCTAssertTrue(driver.skip(control: AX.exerciseSkip, timeout: 10),
                               "S8: no work screen to skip")
             }
             let adjust = app.buttons[AX.exerciseAdjust]

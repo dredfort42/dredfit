@@ -60,24 +60,38 @@ struct SkipConfirmation: Identifiable {
         }
     }
 
-    /// Names the action instead of agreeing with the question — the same rule
-    /// the exit alert's buttons follow, where "Cancel" would have answered
-    /// "cancel what?". Deliberately NOT the words on the control that raised
-    /// it: two buttons with one label are indistinguishable to a test and to
-    /// VoiceOver's rotor.
-    var confirmTitle: String {
-        switch kind {
-        case .probeSet, .workingSet: return String(localized: "Skip the set")
-        case .restOfSets:            return String(localized: "Skip the remaining sets")
-        case .exercise:              return String(localized: "Skip the exercise")
-        }
-    }
+    /// ONE SHORT VERB FOR ALL FOUR, and the length is the point (owner,
+    /// 31.08.2026). `UIAlertController` lays two actions side by side only
+    /// while both titles fit on one line and stacks them otherwise, so
+    /// per-kind labels made the layout itself differ between two controls that
+    /// sit at equal weight in the same row: in Russian "Пропустить этот
+    /// подход" fit beside the cancel and "Пропустить это упражнение", three
+    /// characters longer, did not. Nobody chose that; the width did. Identical
+    /// labels cannot diverge, in any language or at any text size.
+    ///
+    /// It does not answer the question with "OK" either. The rule the exit
+    /// alert set is that a button must not answer "cancel WHAT?" — and there
+    /// four buttons made the referent genuinely ambiguous. Here the question
+    /// stands directly above two, and it names the thing being skipped.
+    ///
+    /// The key is the onboarding cards' own "Skip": a different screen, never
+    /// up at the same time, and no control in the workout reads exactly this.
+    var confirmTitle: String { String(localized: "Skip") }
 
-    /// Red only where something is actually destroyed. Skipping a set is an
-    /// ordinary answer — the row that offers it says so in ink2, and a red
-    /// button here would call it a failure. Leaving the movement discards the
-    /// facts already entered for it, so that one is red.
-    var isDestructive: Bool { kind == .exercise }
+    // NO `.destructive` ROLE ON ANY OF THE FOUR, and the exercise-level one is
+    // where that was decided (owner, 31.08.2026). It carried red for a while
+    // because `leaveExercise` really does discard the facts entered for the
+    // pattern — but red says "danger", and this app's position on a skip is
+    // the opposite: a skipped movement stays exactly where it was, no penalty
+    // and no rollback, which is what the sentence above the button says in so
+    // many words. A button shouting at a message that reassures is one screen
+    // arguing with itself.
+    //
+    // What is destroyed is the numbers, not the movement, and the message
+    // names them. The warning belongs in the sentence; the colour only
+    // duplicated it, and duplicated it wrong. The two escapes also stand at
+    // equal weight in the row that raises them — diverging here is the
+    // arbitrariness that gave this away.
 }
 
 extension View {
@@ -96,8 +110,7 @@ extension View {
                      isPresented: shown,
                      presenting: pending.wrappedValue) { skip in
             Button(String(localized: "Keep going"), role: .cancel) { }
-            Button(skip.confirmTitle,
-                   role: skip.isDestructive ? .destructive : nil) { skip.perform() }
+            Button(skip.confirmTitle) { skip.perform() }
         } message: { skip in
             Text(verbatim: skip.message)
         }

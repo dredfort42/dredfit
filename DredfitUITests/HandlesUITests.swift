@@ -175,8 +175,7 @@ final class HandlesUITests: XCTestCase {
         for _ in 0..<5 {
             // The escape asks before it acts (SkipConfirmation.swift), so the
             // helper is what walks it: control tap, then the answer.
-            XCTAssertTrue(WorkoutDriver(app: app).skip(.exercise, control: AX.exerciseSkip,
-                                                       timeout: 10),
+            XCTAssertTrue(WorkoutDriver(app: app).skip(control: AX.exerciseSkip, timeout: 10),
                           "the work screen never came up")
         }
 

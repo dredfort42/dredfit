@@ -39,7 +39,7 @@ final class SetSkipUITests: XCTestCase {
                       "the work screen did not come up on the first set")
         let skip = app.buttons[AX.exerciseSkipSet]
         XCTAssertTrue(skip.exists, "the set-level skip is missing from the work screen")
-        XCTAssertTrue(driver.skip(.set, control: AX.exerciseSkipSet),
+        XCTAssertTrue(driver.skip(control: AX.exerciseSkipSet),
                       "the set-level skip never asked its question")
 
         XCTAssertTrue(app.staticTexts["set 2 of 3"].waitForExistence(timeout: 5),
@@ -77,7 +77,7 @@ final class SetSkipUITests: XCTestCase {
         XCTAssertFalse(app.buttons[AX.exerciseSkip].exists,
                        "the two escapes must never both stand for the same tap")
 
-        XCTAssertTrue(driver.skip(.remainingSets, control: AX.exerciseSkipRest),
+        XCTAssertTrue(driver.skip(control: AX.exerciseSkipRest),
                       "the rest-of-the-sets escape never asked its question")
         XCTAssertTrue(app.staticTexts["2 / 6"].waitForExistence(timeout: 5),
                       "the tap must move on to the next movement")
@@ -98,7 +98,7 @@ final class SetSkipUITests: XCTestCase {
         let before = minutes(in: left.label)
         XCTAssertGreaterThan(before, 40, "a 55-minute session should read as most of one")
 
-        driver.skip(.set, control: AX.exerciseSkipSet)
+        driver.skip(control: AX.exerciseSkipSet)
         XCTAssertTrue(app.staticTexts["set 2 of 4"].waitForExistence(timeout: 5))
 
         XCTAssertLessThan(minutes(in: app.staticTexts[AX.timeLeft].label), before,
@@ -123,9 +123,9 @@ final class SetSkipUITests: XCTestCase {
         let skip = app.buttons[AX.exerciseSkipSet]
         XCTAssertTrue(skip.waitForExistence(timeout: 10), "no work screen to skip on")
         // Four sets: two can go, and the third would leave a single one.
-        driver.skip(.set, control: AX.exerciseSkipSet)
+        driver.skip(control: AX.exerciseSkipSet)
         _ = app.staticTexts["set 2 of 4"].waitForExistence(timeout: 5)
-        driver.skip(.set, control: AX.exerciseSkipSet)
+        driver.skip(control: AX.exerciseSkipSet)
         XCTAssertTrue(app.staticTexts["set 3 of 4"].waitForExistence(timeout: 5),
                       "the second skip did not land")
 
@@ -168,7 +168,7 @@ final class SetSkipUITests: XCTestCase {
 
         // …and confirming still works, so the guard did not simply disable
         // the way out.
-        XCTAssertTrue(driver.skip(.set, control: AX.exerciseSkipSet))
+        XCTAssertTrue(driver.skip(control: AX.exerciseSkipSet))
         XCTAssertTrue(app.staticTexts["set 2 of 3"].waitForExistence(timeout: 5),
                       "a confirmed skip must still move on to the next set")
     }
