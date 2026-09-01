@@ -88,7 +88,21 @@ extension WorkoutFlowView {
             // The count-in outranks the probe's own caption: the big number
             // above is five seconds of getting into position, and nothing else
             // on the screen would say so.
-            if holdExerciseIntro && exercise.sets > 1 {
+            if holdTailing {
+                // The one new element on this screen (R25): how far past the
+                // plan the clock has banked, and where the next step lands.
+                // The ladder is the shape of it, the line is the numbers.
+                VStack(spacing: 8) {
+                    HoldTailSteps(banked: holdTailBanked, planned: holdTotal,
+                                  cap: SetFacts.holdTailCap(planned: holdTotal),
+                                  step: SetFacts.holdTailStepSeconds)
+                    Text("+\(holdTailBanked - holdTotal) banked · next step at \(holdTailNextStep)")
+                        .dredfitFont(14, weight: .semibold)
+                        .monospacedDigit()
+                        .foregroundStyle(Theme.accentText)
+                }
+                .padding(.top, 10)
+            } else if holdExerciseIntro && exercise.sets > 1 {
                 // "set 1 of 3" is not the question on this screen any more.
                 // ONE tap buys the whole exercise, so what the person is
                 // deciding about is the whole exercise: how many sets it is
@@ -206,7 +220,21 @@ extension WorkoutFlowView {
                 // nothing about it ever comes back (#220, 31.08.2026). The
                 // exercise summary takes the job over, and this exception goes
                 // with the settled state when it does.
-                if holdExerciseIntro {
+                if holdTailing {
+                    // Why the clock and the button disagree, said once: the
+                    // big number is the seconds actually running, the button
+                    // is the seconds already earned. Without this the gap
+                    // reads as a bug rather than as the rule that makes
+                    // reaching for the phone free.
+                    Text("Each step is banked when the tone sounds. Stop whenever you like — the number is already earned.")
+                        .dredfitFont(14)
+                        .foregroundStyle(Theme.ink2)
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.bottom, 18)
+                        .accessibilityIdentifier("hold-tail-note")
+                } else if holdExerciseIntro {
                     // What the one tap actually buys, said before it is
                     // taken. Deliberately without a numeral — the count is on
                     // the line above, and a second one here would need an ICU
@@ -234,7 +262,13 @@ extension WorkoutFlowView {
             }
 
             if current.unit == .hold {
-                if holding {
+                if holdTailing {
+                    // It names the BANK, not the clock: what a tap stores is
+                    // the last completed step, and the two to four seconds
+                    // between deciding to stop and reaching the glass cannot
+                    // change it.
+                    HoldStopButton(records: holdTailBanked) { endHoldTail(measured: true) }
+                } else if holding {
                     // The control names the figure it will write (R29): two to
                     // four seconds are spent reaching for the phone, and a
                     // person who cannot see what the tap records has no way to
@@ -298,8 +332,10 @@ extension WorkoutFlowView {
             // and none once a settled hold is behind either: the set was
             // performed and its number is on the screen, so a skip there would
             // contradict the very fact the person is being shown.
-            .opacity(holding || holdSwitchPausing || holdCountingIn || holdSettled ? 0 : 1)
-            .disabled(holding || holdSwitchPausing || holdCountingIn || holdSettled)
+            .opacity(holding || holdSwitchPausing || holdCountingIn
+                     || holdSettled || holdTailing ? 0 : 1)
+            .disabled(holding || holdSwitchPausing || holdCountingIn
+                      || holdSettled || holdTailing)
 
         }
     }
@@ -312,6 +348,13 @@ extension WorkoutFlowView {
         current.unit == .hold && !current.isProbe && !holdAutoRun
             && setIndex == 0 && !holdSettled
             && !holding && !holdCountingIn && !holdSwitchPausing
+    }
+
+    /// Where the next step of the tail lands — never past the cap, which is
+    /// where the tail closes itself.
+    var holdTailNextStep: Int {
+        min(holdTailBanked + SetFacts.holdTailStepSeconds,
+            SetFacts.holdTailCap(planned: holdTotal))
     }
 
     /// What a Stop right now would RECORD — nil inside the mis-tap grace,
@@ -331,6 +374,11 @@ extension WorkoutFlowView {
     /// In order of precedence.
     private var workNumber: Int {
         if holdCountingIn { return holdCountInRemaining }
+        // The seconds ACTUALLY RUNNING, which is deliberately not the number
+        // on the button: 62 held, 60 banked. Both are true and the note under
+        // the ladder says why — collapsing them into one would either claim
+        // seconds that are not earned or hide seconds that are being held.
+        if holdTailing { return holdTailSeconds }
         if holdSwitchPausing { return holdPauseRemaining }
         if holding { return holdRemaining }
         if current.isProbe { return probeActuals[exercise.pattern] ?? current.planned }

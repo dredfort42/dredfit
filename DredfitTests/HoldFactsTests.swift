@@ -167,6 +167,17 @@ final class HoldFactsTests: XCTestCase {
         XCTAssertEqual(SetFacts.holdTailBanked(planned: 20, heldSeconds: 300), 40)
     }
 
+    /// A plan already at the top of the corridor has no tail to give: its cap
+    /// IS its plan. The flow reads exactly this to decide whether to open one
+    /// — a tail that opened and closed on the same tick would record an
+    /// estimate for a set the clock measured to the second.
+    func testAPlanAtTheCorridorTopHasNoRoomForATail() {
+        let ceiling = SetFacts.corridor(for: .hold).upperBound
+        XCTAssertEqual(SetFacts.holdTailCap(planned: ceiling), ceiling)
+        XCTAssertEqual(SetFacts.holdTailBanked(planned: ceiling,
+                                               heldSeconds: ceiling + 30), ceiling)
+    }
+
     /// Nothing under the plan is a tail at all: the tail begins where the
     /// plan is met, and a hold that fell short is an ordinary early stop.
     func testABelowPlanHoldHasNoTail() {

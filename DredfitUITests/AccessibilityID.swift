@@ -64,6 +64,17 @@ enum AX {
     static let holdStop = "hold-stop"
     static let holdSetsAndRest = "hold-sets-and-rest"
     static let holdAutorunPromise = "hold-autorun-promise"
+    static let holdTailSteps = "hold-tail-steps"
+    static let holdTailNote = "hold-tail-note"
+
+    // MARK: - Exercise summary
+
+    /// The cards are 1-based, like the captions they carry.
+    static func summarySet(_ number: Int) -> String { "summary-set-\(number)" }
+    static let summaryStartsFrom = "summary-starts-from"
+    /// The kicker. Named because `.textCase(.uppercase)` folds the string the
+    /// tree carries — a query for "Held" as written matches nothing.
+    static let summaryHeld = "summary-held"
     static let exerciseAdjust = "exercise-adjust"
     static let exerciseSkip = "exercise-skip"
     static let exerciseSkipSet = "exercise-skip-set"
@@ -170,9 +181,13 @@ extension XCUIApplication {
     /// first: `launch()` alone relaunches a running app, and the callers that
     /// spelled the terminate out were asserting about a COLD start.
     @MainActor
-    static func launchedOnStoredState(locale: UILocale = .english) -> XCUIApplication {
+    static func launchedOnStoredState(_ seeds: String...,
+                                      locale: UILocale = .english) -> XCUIApplication {
         let relaunch = XCUIApplication()
-        relaunch.storedStateLaunchArguments(locale: locale)
+        // The seeds are forwarded, the RESET is still not: these launches read
+        // back what a walk has just written, and a reset would erase the
+        // subject. A flag that shortens a countdown is not state.
+        relaunch.launchArguments = seeds + locale.arguments
         relaunch.terminate()
         relaunch.launch()
         return relaunch

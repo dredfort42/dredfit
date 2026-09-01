@@ -71,19 +71,19 @@ extension DredfitUITests {
         let done = app.buttons[AX.exerciseDone]
         XCTAssertTrue(done.waitForExistence(timeout: 90),
                       "the exercise did not run itself to its last set")
-        XCTAssertTrue(app.staticTexts["Held"].exists,
+        XCTAssertTrue(app.element(withIdentifier: AX.summaryHeld).exists,
                       "nothing on screen says the hold is behind")
         XCTAssertFalse(app.buttons[AX.holdStartExercise].exists,
                        "the exercise was started once — it must not ask again")
-        // R23 removed the entry from BEFORE the effort, never from after it:
-        // this is the movement's last set, and nothing about it comes back
-        // (#220). The half of the rule that is easiest to lose is the half
-        // that keeps something.
-        XCTAssertTrue(app.buttons[AX.exerciseAdjust].exists,
-                      "the seconds a finished hold recorded must still be correctable")
+        // R23 removed the entry from BEFORE the effort, never from after it —
+        // and what it left in its place says more: EVERY set of the movement
+        // is on this screen and correctable, not only the last one (#220).
+        XCTAssertTrue(app.buttons[AX.summarySet(1)].exists,
+                      "the first set must be correctable too — that is the "
+                        + "whole reason this screen replaced the settled hold")
         coordinateTap(done)
-        XCTAssertTrue(app.staticTexts["Held"].waitForNonExistence(timeout: 10),
-                      "the logged hold did not leave the work screen")
+        XCTAssertTrue(app.buttons[AX.summarySet(1)].waitForNonExistence(timeout: 10),
+                      "the logged movement did not leave the summary")
     }
 
     /// The count-in before an AUTO-CONTINUED set is longer than the one a tap
@@ -161,11 +161,16 @@ extension DredfitUITests {
         let done = app.buttons[AX.exerciseDone]
         XCTAssertTrue(done.waitForExistence(timeout: 60),
                       "an early stop must not stop the exercise it happened in")
-        // Read off the entry the settled last set still offers: it opens on
-        // the number in force, which is the number the stop recorded.
-        app.buttons[AX.exerciseAdjust].tap()
-        XCTAssertTrue(app.staticTexts["5 s"].waitForExistence(timeout: 3),
-                      "the held seconds were not recorded and carried forward")
+        // Read off the movement's own summary, which is where the numbers
+        // stand once the exercise is behind. The stopped set is marked as an
+        // ESTIMATE as well: it ended under a thumb, and the reach allowance
+        // that produced its number is a guess about a walk to the phone.
+        let firstCard = app.buttons[AX.summarySet(1)]
+        XCTAssertTrue(firstCard.waitForExistence(timeout: 10),
+                      "the finished movement did not reach its summary")
+        XCTAssertTrue(firstCard.label.contains("approximately 5 seconds"),
+                      "the early-stopped seconds were not recorded as an "
+                        + "estimate of five — got “\(firstCard.label)”")
     }
 
     /// R29: the control names the figure it will write, so the two to four
@@ -313,5 +318,136 @@ extension DredfitUITests {
         driver.declineCooldownIfAsked()   // the block asks first
         XCTAssertTrue(rating.waitForExistence(timeout: 3))
         rate(landsOn: "Workout 2 completed")
+    }
+}
+
+// MARK: - The bonus tail and the exercise summary (R25, R26)
+extension DredfitUITests {
+
+    /// R25: on the last set of a hold the clock does not stop at the plan.
+    /// The done tone marks the plan, and from there each five seconds is
+    /// banked when its own tone sounds — so the walk to the phone costs
+    /// nothing, and the button says what it will write.
+    func testTheLastHoldBanksPastThePlanAndTheSummaryKeepsIt() {
+        // The plank's own plan, not a seeded one: the tail is measured in
+        // steps of five and a five-second plan is a tail exactly one step
+        // long, which cannot tell "stopped by hand" from "hit the cap".
+        launchIntoSession2AndReachPlank("--uitest-fast")
+        coordinateTap(app.buttons[AX.holdStartExercise])
+
+        let steps = app.element(withIdentifier: AX.holdTailSteps)
+        XCTAssertTrue(steps.waitForExistence(timeout: 180),
+                      "the last set must keep running past the plan")
+        XCTAssertTrue(app.element(withIdentifier: AX.holdTailNote).exists,
+                      "the gap between the clock and the button has to be explained")
+        let stop = app.buttons[AX.holdStop]
+        XCTAssertTrue(stop.exists, "the tail must be stoppable at any moment")
+
+        // One step banked, then stopped by hand. The bank rounds DOWN to the
+        // last completed step, so the seconds spent reaching for the glass
+        // cannot inflate it — and for the same reason they are not charged a
+        // second time as a reach allowance.
+        Thread.sleep(forTimeInterval: 7)
+        XCTAssertTrue(coordinateTap(stop), "the tail's Stop never landed")
+
+        let lastCard = app.buttons[AX.summarySet(3)]
+        XCTAssertTrue(lastCard.waitForExistence(timeout: 10),
+                      "a finished hold must land on the movement's summary")
+        XCTAssertFalse(lastCard.label.contains("approximately"),
+                       "a banked step is earned in full — it is not an estimate")
+        XCTAssertTrue(app.element(withIdentifier: AX.summaryStartsFrom).exists,
+                      "the summary must say what the numbers are for")
+    }
+
+    /// The cap closes the tail by itself — twice the plan, never past the top
+    /// of the corridor — and what it stores says it is an estimate: this is
+    /// exactly the case where nobody came back to the phone, so the app knows
+    /// the hold lasted AT LEAST this long and must not claim to know more.
+    func testTheTailStopsItselfAtItsCapAndCallsTheNumberApproximate() {
+        // A five-second plan caps at ten: one step, reached without a tap.
+        launchIntoSession2AndReachPlank("--uitest-fast", "--uitest-hold-short")
+        coordinateTap(app.buttons[AX.holdStartExercise])
+
+        let lastCard = app.buttons[AX.summarySet(3)]
+        XCTAssertTrue(lastCard.waitForExistence(timeout: 90),
+                      "the tail must close itself at the cap, with no tap")
+        XCTAssertTrue(lastCard.label.contains("approximately"),
+                      "a hold nobody came back to is an estimate, not a measurement")
+    }
+
+    /// R26: the summary is the first screen on which sets 1…n−1 can be
+    /// corrected at all. The work screen's writer records the set UNDER WAY
+    /// and truncates what follows — correct as it stands, since those sets
+    /// have not happened — so before this there was no writer that could
+    /// touch set one without deleting sets two and three.
+    func testCorrectingOneSetOnTheSummaryLeavesTheOthersStanding() {
+        launchIntoSession2AndReachPlank("--uitest-fast", "--uitest-hold-short")
+        coordinateTap(app.buttons[AX.holdStartExercise])
+
+        let first = app.buttons[AX.summarySet(1)]
+        XCTAssertTrue(first.waitForExistence(timeout: 90),
+                      "the movement did not reach its summary")
+        let secondBefore = app.buttons[AX.summarySet(2)].label
+        let thirdBefore = app.buttons[AX.summarySet(3)].label
+        let firstBefore = first.label
+
+        coordinateTap(first)
+        let plus = app.buttons[AX.adjustPlus]
+        XCTAssertTrue(plus.waitForExistence(timeout: 5), "the card did not open the stepper")
+        for _ in 0..<3 { plus.tap() }
+        app.buttons[AX.adjustConfirm].tap()
+
+        XCTAssertTrue(app.buttons[AX.summarySet(1)].waitForExistence(timeout: 5))
+        XCTAssertNotEqual(app.buttons[AX.summarySet(1)].label, firstBefore,
+                          "the tapped card must take the new number")
+        XCTAssertEqual(app.buttons[AX.summarySet(2)].label, secondBefore,
+                       "correcting set one must not touch set two")
+        XCTAssertEqual(app.buttons[AX.summarySet(3)].label, thirdBefore,
+                       "…nor set three, which is the defect this screen exists for")
+    }
+
+    /// No tail on a per-side hold, and the reason is arithmetic rather than
+    /// taste: the set records min(side one, side two) and the second side runs
+    /// for exactly what the first ran, so nothing a tail added could reach the
+    /// number. Their channel for "more than the plan" is the summary itself.
+    func testAPerSideHoldEndsOnItsPlanAndGoesStraightToTheSummary() {
+        launchIntoSession2AndReachPlank("--uitest-fast", "--uitest-hold-short")
+        let perSideCaption = app.staticTexts["seconds per side"]
+        skipExercises(until: perSideCaption, limit: 2)
+        XCTAssertTrue(perSideCaption.waitForExistence(timeout: 3),
+                      "the per-side hold must follow the plank in session 2")
+
+        coordinateTap(app.buttons[AX.holdStartExercise])
+        XCTAssertTrue(app.buttons[AX.summarySet(3)].waitForExistence(timeout: 120),
+                      "a per-side hold must reach the summary like any other")
+        XCTAssertFalse(app.element(withIdentifier: AX.holdTailSteps).exists,
+                       "a tail on a per-side hold could not raise the number it "
+                        + "is recorded by — it must not be offered")
+    }
+
+    /// The tail is wall-clock, like every other countdown in the flow, so it
+    /// survives the process dying inside it: the person is still in the plank,
+    /// and coming back to an offer to start the set again would throw away an
+    /// effort that is still happening.
+    func testATailSurvivesTheAppBeingKilledInsideIt() {
+        launchIntoSession2AndReachPlank("--uitest-fast")
+        coordinateTap(app.buttons[AX.holdStartExercise])
+        XCTAssertTrue(app.element(withIdentifier: AX.holdTailSteps)
+                        .waitForExistence(timeout: 180),
+                      "the last set must keep running past the plan")
+        app.terminate()
+
+        let relaunch = XCUIApplication.launchedOnStoredState("--uitest-fast")
+        XCTAssertTrue(relaunch.buttons[AX.resumeContinue].waitForExistence(timeout: 10),
+                      "an interrupted workout must offer to be continued")
+        relaunch.buttons[AX.resumeContinue].tap()
+        XCTAssertTrue(relaunch.element(withIdentifier: AX.holdTailSteps)
+                        .waitForExistence(timeout: 10),
+                      "the tail must come back running, not as an offer to "
+                        + "start a set whose effort is still happening")
+        // …and it is still the same clock: the bank is arithmetic on the
+        // start date, so nothing about it had to be stored or replayed.
+        XCTAssertTrue(relaunch.buttons[AX.holdStop].exists,
+                      "the restored tail must be stoppable")
     }
 }
