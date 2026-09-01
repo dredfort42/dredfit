@@ -75,6 +75,27 @@ final class BrandPaletteTests: XCTestCase {
         Floor(ink: "cardBG", ground: "bg", ratio: 1.2),
     ]
 
+    /// accentText ON accentSoft is NOT in the floors above, and that is the
+    /// finding rather than an oversight (I-21, 01.09.2026): it measures
+    /// 4.20:1 in the dark scheme, under the 4.5 small text needs. The pair
+    /// carries the probe badge and the out-of-order-maximum note, so the
+    /// value is pinned here — a gate on the number that HOLDS, since a floor
+    /// on the number that ought to hold would just be a red test nobody in
+    /// this wave is authorised to make green (the tokens are the owner's, and
+    /// moving one invalidates the whole store screenshot set).
+    ///
+    /// Anything that raises it is welcome and will fail this; anything that
+    /// LOWERS it fails it too, which is the half that matters. New text on
+    /// that fill uses `ink`, which is gated at 4.5 dark and 7 in Increased
+    /// Contrast one block above.
+    func testTheAccentedPillIsPinnedWhereItActuallyStands() throws {
+        let ink = components(of: try resolved("accentText", style: .dark, contrast: .normal))
+        let ground = components(of: try resolved("accentSoft", style: .dark, contrast: .normal))
+        XCTAssertEqual(contrast(ink, on: ground), 4.20, accuracy: 0.01,
+                       "accentText on accentSoft moved — re-read I-21 before "
+                        + "deciding whether that is a fix or a regression")
+    }
+
     /// One tier up for Increased Contrast (#119), both schemes. The one
     /// deliberate exception: ink2-on-cardBG holds ≥ 5.5, because pushing it
     /// to 7 would either erase the ink/ink2 hierarchy or the card/bg

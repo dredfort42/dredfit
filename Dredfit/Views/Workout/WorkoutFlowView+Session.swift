@@ -106,6 +106,10 @@ extension WorkoutFlowView {
         let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
         guard newRemaining != holdRemaining else { return }
         if newRemaining == 0 {
+            if holdTailApplies {
+                beginHoldTail()
+                return
+            }
             // Silent: completeSet() owns the end-of-set signal now, whatever
             // ended it (#186). Sounding a done here would double it.
             finishHold(heldSeconds: holdTotal)
@@ -115,6 +119,100 @@ extension WorkoutFlowView {
             }
             withAnimation(.linear(duration: 0.3)) { holdRemaining = newRemaining }
         }
+    }
+
+    // MARK: - The bonus tail of the last hold (R25)
+
+    /// Where the clock does NOT stop at the plan.
+    ///
+    /// The LAST set only: an earlier one is followed by a rest and by the
+    /// movement coming back, so there is nothing terminal about it and a tail
+    /// would just be unbudgeted work in the middle of an exercise.
+    ///
+    /// NOT on a per-side hold, and the reason is arithmetic rather than
+    /// taste: the set is recorded as min(side one, side two), and the second
+    /// side runs for exactly what the first one ran
+    /// (`SetFacts.holdSideSeconds`), so no amount of tail on side two can
+    /// raise the number. Their channel for "more than the plan" is the
+    /// summary's own correction. Do not "finish the job" by adding it here.
+    ///
+    /// NOT on the probe either: a probe is one set offered to find out
+    /// whether a variation passes (§40.4), not an attempt at a maximum.
+    /// …and not where there is no step left to bank. A set already running at
+    /// the top of the corridor has a cap equal to its own plan, so a tail
+    /// there would open and close on the same tick — and close as an
+    /// ESTIMATE, which would be a lie about a set the clock measured exactly.
+    var holdTailApplies: Bool {
+        current.unit == .hold && isLastSet && !current.perSide && !current.isProbe
+            && SetFacts.holdTailCap(planned: holdTotal) > holdTotal
+    }
+
+    /// The plan has been met and the clock keeps going. The tone here is the
+    /// one that used to END the set — it still means exactly what it meant,
+    /// "that is the plan" — and what follows it is extra.
+    func beginHoldTail() {
+        holdEndDate = nil
+        holdRemaining = 0
+        holdTailSeconds = holdTotal
+        holdTailBanked = holdTotal
+        holdTailStartDate = .now
+        playDone()
+        persistProgress()   // the tail is wall-clock; it survives being killed
+    }
+
+    /// A step is banked when its tone sounds, and never before: half a step is
+    /// worth nothing, the same way half a pull-up is.
+    ///
+    /// The signal needs no "already played" flag to survive a restore — it
+    /// fires on the bank RISING, and the bank is recomputed from the start
+    /// date, so an app that comes back after two minutes away re-arms at the
+    /// right step instead of replaying the ones it missed. Same scheme as the
+    /// rest extension's last-seconds tick.
+    func tickHoldTail() {
+        guard let start = holdTailStartDate else { return }
+        let held = holdTotal + max(0, Int(Date.now.timeIntervalSince(start)))
+        guard held != holdTailSeconds else { return }
+        let banked = SetFacts.holdTailBanked(planned: holdTotal, heldSeconds: held)
+        withAnimation(.linear(duration: 0.3)) { holdTailSeconds = held }
+        if banked > holdTailBanked {
+            holdTailBanked = banked
+            playTick()
+        }
+        // At the cap the tail closes ITSELF, and what it stores is marked as
+        // an estimate: this is precisely the case where nobody came back to
+        // the phone, so the app knows the hold lasted AT LEAST this long and
+        // must not claim to know it lasted exactly this long.
+        if banked >= SetFacts.holdTailCap(planned: holdTotal) {
+            endHoldTail(measured: false)
+        }
+    }
+
+    /// Closes the tail and hands the movement to its summary.
+    ///
+    /// The reach allowance (`SetFacts.holdEndedByTap`) is deliberately NOT
+    /// applied. Both corrections point the same way — down — and the tail has
+    /// already paid one: the bank rounds DOWN to the last completed step, so
+    /// the seconds spent walking to the phone are discarded by construction.
+    /// Charging the allowance on top would take a second step off a number
+    /// that was earned in full.
+    func endHoldTail(measured: Bool) {
+        guard holdTailing else { return }
+        let banked = holdTailBanked
+        holdTailStartDate = nil
+        holdTailSeconds = 0
+        holdTailBanked = 0
+        if !measured {
+            holdApproxSets.insert(setIndex)
+            // The CAP ends the set with nobody at the phone, so the only way
+            // to learn it is over is to hear it. A tap needs no such answer —
+            // the person who made it already knows — and a second tone there
+            // would be an announcement of something they just did.
+            playDone()
+        }
+        holdSecondSide = false
+        firstSideHeld = nil
+        recordHoldActual(heldSeconds: banked)
+        startExerciseSummary()
     }
 
     static let holdMistapSeconds = 3.0
@@ -137,6 +235,11 @@ extension WorkoutFlowView {
             holdRemaining = holdTotal
             return
         }
+        // A set that ended under a thumb is an ESTIMATE and says so on the
+        // summary: the allowance below is a guess about a walk to the phone,
+        // not a measurement, and a number the app guessed at must not be
+        // printed with the same confidence as one the clock produced.
+        holdApproxSets.insert(setIndex)
         finishHold(heldSeconds: SetFacts.holdEndedByTap(heldSeconds: Int(held.rounded())))
     }
 
@@ -169,8 +272,33 @@ extension WorkoutFlowView {
         // tap that follows: the person may have their eyes shut in a plank,
         // and the sound is the only thing that says the hold is over.
         playDone()
-        holdSettled = true
-        persistProgress()   // a recorded hold is worth keeping before the tap
+        // The PROBE keeps the settled screen it always had: its caption states
+        // the outcome of the trial ("Next time: …"), which is a sentence about
+        // a movement the summary below deliberately says nothing about — the
+        // probe's number is its own channel and is never folded in (§40.4).
+        // Every other last set of a hold lands on the summary instead, where
+        // the whole movement is in front of the person and any set of it can
+        // be corrected, not only this one.
+        if current.isProbe {
+            holdSettled = true
+            persistProgress()   // a recorded hold is worth keeping before the tap
+            return
+        }
+        startExerciseSummary()
+    }
+
+    // MARK: - The exercise summary
+
+    /// Every set of the finished hold movement, on one screen.
+    func startExerciseSummary() {
+        adjusting = false
+        summarySet = nil
+        holdSettled = false
+        holdAutoRun = false
+        phase = .exerciseSummary
+        liveActivity.update(.init(phase: .work, title: exercise.name,
+                                  detail: String(localized: "Held"), restEndDate: nil))
+        persistProgress()
     }
 
     // MARK: - The side-switch pause (issue #35)
@@ -237,6 +365,15 @@ extension WorkoutFlowView {
     func playWorkoutDone() { WorkoutSignals.workoutDone(store.settings.soundsEnabled) }
     func playMilestone() { WorkoutSignals.milestone(store.settings.soundsEnabled) }
 
+    /// What the summary's own primary control does. It is `completeSet` and
+    /// not a path of its own deliberately: the summary REPLACED the tap that
+    /// logged the set, so the flow past it has to be the same flow — the rest
+    /// this movement earns, or the cool-down when it was the last one.
+    func leaveExerciseSummary() {
+        holdApproxSets.removeAll()
+        completeSet()
+    }
+
     func advanceAfterRest() {
         if isLastSet {
             exIndex += 1
@@ -288,6 +425,9 @@ extension WorkoutFlowView {
             // exercise.
             atFeedback: phase == .feedback || phase == .cooldown
                 || phase == .cooldownIntro ? true : nil,
+            atExerciseSummary: phase == .exerciseSummary ? true : nil,
+            holdTailStart: holdTailStartDate,
+            approxSets: holdApproxSets.isEmpty ? nil : Array(holdApproxSets).sorted(),
             interrupted: interruptedPattern,
             warmupSec: warmupSec, cooldownSec: cooldownSec))
     }
@@ -313,8 +453,27 @@ extension WorkoutFlowView {
         // block was declined that may have been half done.
         warmupSec = snap.warmupSec
         cooldownSec = snap.cooldownSec
+        holdApproxSets = snap.approximateSets
         if snap.atFeedback == true {
             phase = .feedback
+            return
+        }
+        if snap.atExerciseSummary == true {
+            phase = .exerciseSummary
+            return
+        }
+        // A TAIL is the one hold state that restores mid-count, and it has to:
+        // the seconds are wall-clock, the person is still in the plank, and
+        // coming back to an offer to start the set again would throw away an
+        // effort that is still happening. The bank is arithmetic on the date,
+        // so nothing about how many tones have played needs storing.
+        if let start = snap.holdTailStart {
+            holdTotal = SetFacts.inForce(actuals, exercise, set: setIndex)
+            holdTailStartDate = start
+            holdTailSeconds = holdTotal + max(0, Int(Date.now.timeIntervalSince(start)))
+            holdTailBanked = SetFacts.holdTailBanked(planned: holdTotal,
+                                                     heldSeconds: holdTailSeconds)
+            phase = .work
             return
         }
         if let end = snap.restEndDate, let total = snap.restTotalSec, end > .now {
@@ -341,6 +500,10 @@ extension WorkoutFlowView {
     /// What a fresh Live Activity opens with — a resumed workout can start
     /// mid-rest.
     func currentActivityState() -> RestActivityAttributes.ContentState {
+        if phase == .exerciseSummary {
+            return .init(phase: .work, title: exercise.name,
+                         detail: String(localized: "Held"), restEndDate: nil)
+        }
         if case .rest = phase {
             return .init(phase: .rest, title: nextLabel,
                          detail: String(localized: "Next up"),
@@ -351,6 +514,7 @@ extension WorkoutFlowView {
 
     var hasProgress: Bool {
         if case .rest = phase { return true }
+        if phase == .exerciseSummary { return true }
         return exIndex > 0 || setIndex > 0
             || !actuals.isEmpty || !skippedPatterns.isEmpty
     }
@@ -375,6 +539,11 @@ extension WorkoutFlowView {
         holdPauseEndDate = nil
         holdSettled = false
         holdAutoRun = false
+        holdTailStartDate = nil
+        holdTailSeconds = 0
+        holdTailBanked = 0
+        holdApproxSets.removeAll()
+        summarySet = nil
         var firstUnfinished = exIndex
         if case .rest = phase, isLastSet { firstUnfinished = exIndex + 1 }
         // "not finished", not "skipped": the engine still freezes the level
