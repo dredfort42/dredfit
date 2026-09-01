@@ -29,21 +29,48 @@ extension AppStore {
     // MARK: - Per-movement: an easier variation
 
     /// False on the first variation — there is nothing below it in the
-    /// library, and the control says so instead of disappearing.
+    /// library, and the block that carries the handle is ABSENT there rather
+    /// than standing disabled. This comment used to claim the opposite ("the
+    /// control says so instead of disappearing") while the code had always
+    /// hidden it; a rule stated backwards is worse than none, because the next
+    /// reader implements the comment.
     func canMakeEasier(_ pattern: Pattern) -> Bool {
         Engine.easierPosition(pattern: pattern, position: engineState.position(pattern),
                               shown: engineState.shown) != nil
     }
 
-    /// The name this movement would carry after the handle — shown BEFORE the
-    /// tap, so the choice is made on the thing itself rather than on a
-    /// promise. Nil when the handle is inactive.
-    func easierPreview(_ pattern: Pattern) -> String? {
+    /// The movement one step down the ladder, in the pieces the technique
+    /// sheet draws (R30). It replaced `easierPreview`, which glued the same
+    /// facts into one string for a 12.5 pt line on the plan — the block has
+    /// room to say them apart, and one of them could not be said at all in a
+    /// glued string: on `pull_bar` 3 → 2 the UNIT changes, and "3×15" turning
+    /// into "3×15 sec" is not a difference anyone reads off a preview.
+    ///
+    /// Nil when the handle is inactive, which is the same question
+    /// `canMakeEasier` answers — asked through it, so the block cannot appear
+    /// on a movement the engine would refuse to move.
+    struct EasierStep {
+        let name: String
+        let dose: String
+        /// Reps → hold, or hold → reps. The one fact a name and a number
+        /// cannot carry between them.
+        let unitChanged: Bool
+        /// The variation AFTER the step, for the sheet that redraws onto it.
+        let variation: Int
+    }
+
+    /// Asks the engine and writes nothing: `easierVariation` on a COPY of the
+    /// state, then the ordinary session generator, so what is shown is what the
+    /// tap would deliver rather than a second arithmetic that could disagree
+    /// with it.
+    func easierStep(_ pattern: Pattern) -> EasierStep? {
         guard canMakeEasier(pattern) else { return nil }
+        let before = Library.unit(pattern, engineState.position(pattern).variation)
         let after = Engine.easierVariation(state: engineState, pattern: pattern)
         return Engine.generateSession(after).exercises
             .first { $0.pattern == pattern }
-            .map { "\($0.name) · \($0.display)" }
+            .map { EasierStep(name: $0.name, dose: $0.display,
+                              unitChanged: $0.unit != before, variation: $0.variation) }
     }
 
     // MARK: - How long today can be

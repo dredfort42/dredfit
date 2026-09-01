@@ -945,6 +945,35 @@ Sets of **reps** are untouched too — walk one exercise of each and compare.
 | 50.21 | VoiceOver on the summary and the running hold | A card reads "set 2, approximately 48 seconds, planned 55" — one sentence with the comparison in it. The Stop button reads "Stop, records 60 seconds". **Set the time** carries a hint saying what it governs and that Stop ends a set early |
 | 50.22 | Skip a set of a hold, then finish the movement | **Known limitation, walk it and log what you see.** The summary prints a card for every set, including the skipped one, at the number in force for it — the app keeps skips as a COUNT per movement, not as indices (`SetFacts.Skips`), so it cannot tell which card that was. The number shown is the one the next plan starts from, which is what the line under the cards says, and the card is correctable like any other. Deliberately not fixed in this wave: per-index skips are a change to what the flow records, not to what a screen draws |
 
+### 51. The easier variation moves into the technique sheet (app, R30)
+
+App-only: the engine diff is empty and `golden.json` is untouched. What moved is
+where the handle is CALLED from — it still goes through `Engine.easierVariation`.
+Walk it seeded above the first variation (`--uitest-long-session` reaches every
+ladder's top), because on a fresh install there is nothing below any movement and
+the block is absent by design.
+
+| # | Check | Expected |
+|---|---|---|
+| 51.1 | Today, with six movements in the plan | Six rows, six movements, and nothing under any of them. No accent line, no second control |
+| 51.2 | The line above **Start** | One grey sentence saying a row opens the technique, and that the version one step below is in there |
+| 51.3 | Open any technique sheet, close it, return to Today | The line is gone. Kill the app and relaunch: still gone — it is spent by the first visit, from ANY of the three doors, not by the plan row in particular |
+| 51.4 | Tap a plan row | The sheet opens on that movement, and under the variation tag — before the technique steps, without scrolling — a block naming the movement one rung below and its dose |
+| 51.5 | Tap **Switch** | It asks first: "Switch to <name>?", with what the step costs, and the two answers **Keep going** / **Switch**. Nothing has changed yet |
+| 51.6 | Answer **Keep going** | The sheet stays on the movement it was describing, and the plan row behind it is unchanged |
+| 51.7 | Answer **Switch** | The sheet redraws in place onto the new movement — name, tag, technique, mistakes, "in life" — with no blink of a re-presented sheet, and the block now offers the rung below THAT one. Close it: the plan row carries the new movement and the announced duration has moved with it |
+| 51.8 | Keep switching to the first variation | The block disappears rather than standing disabled: there is nothing below the bottom rung |
+| 51.9 | Tap the descriptive part of the block, and drag from it to scroll | Neither changes the plan. Only the capsule acts |
+| 51.10 | Inside a workout: the ⓘ on the work screen, and the one on the rest screen | The sheet opens with technique, mistakes and "in life" as always, and carries **no** block. The session is fixed at Start; a switch taken here would move the state under a plan already in flight, and the rating at the end lands on both at once — measured on the engine, squat v6 3×15 switched to v5 and rated "on plan" writes 15 into the journal of v5 where the person had shown 4, and a probe passed later in the same session promotes straight past the rung just chosen |
+| 51.11 | The next-workout preview (the card after a finished workout) | No block either. It is a look at a future session, not a decision about one |
+| 51.12 | An exercise that carries a probe, on Today and in the next-workout sheet | Under the row: *Then a probe: one set of <movement> · <dose>*. The number on the right counts the WORKING sets only — the probe replaces the last of them — so without this line a three-set plan whose third set is a probe read "2 × 15" and said nothing about the set standing after it, while the announced duration counted it |
+| 51.13 | An exercise with no probe | No such line. And on a movement that has both a returned set and a probe, two lines, not one sentence |
+| 51.14 | Dynamic Type XL and an accessibility size, smallest screen | The capsule drops below the text instead of shrinking; the name wraps; nothing is clipped |
+| 51.15 | VoiceOver on the block | One sentence — "One step below: Bar hang, 3×20 sec, holds instead of reps" — and the button reads "Switch to Bar hang", naming the movement out of context |
+| 51.16 | All seven languages | The kicker, the capsule, the unit note, the alert's title and body, and the line on Today read naturally and do not clip. `python3 scripts/check_localization.py` is green |
+| 51.17 | On the pull-up ladder, a step from the negatives down to a hang | The dose line says the unit changes ("holds instead of reps"). Nowhere else in the library does it, and nowhere else may it say so |
+
+
 ## Engine gates before a release
 
 Not a manual row — the five automated gates a release runs from `reference/`,

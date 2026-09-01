@@ -2,6 +2,42 @@
 
 ## Unreleased
 
+**The easier variation moved off the plan and into the movement's own card.**
+Every row of the plan carried a line under it offering a gentler version of that
+movement — and since 2.0 that meant six of them, one under every row, because
+the carry-over from the old format put every movement above the first rung of
+its ladder. The plan has been cleared of controls like this twice already, both
+times for the same reason: they ask for a decision before the person can know
+the answer. This one now lives behind the card the row already opened, directly
+under the line that says **variation 3 of 7** — the one place in the app that
+can show a movement which is not in today's plan, which is exactly what the rung
+below is. The block has room for what a 12.5 pt line could not say: the
+movement, the dose it comes with, and — on the pull-up ladder — that the rung
+below counts seconds instead of reps.
+
+**It is offered before the workout, never during one.** The same card opens from
+the work screen and carries no switch there. A session is fixed when you press
+Start, so a movement changed halfway through would move the plan out from under
+the workout you are in the middle of — and the rating at the end lands on both
+at once.
+
+**And it asks before it acts.** A plan has no undo, and the way back up a ladder
+is not a tap: it is a probe, which arrives only once the dose has climbed to the
+ceiling again. So the switch puts the same question the four skips put, in the
+same words and with the same two answers.
+
+**The plan says when a set is a probe.** An exercise that ends in one is
+planned with a working set fewer — the probe takes the last of them — so a
+three-set plan whose third set was a probe printed "2 × 15" and said nothing
+about the set standing after it, while the minutes above the plan counted it.
+The row now carries the line the number could not: *then a probe: one set of
+Bar hang · 15 sec.*
+
+**One grey line pays for the handle that is no longer visible.** Above the Start
+button: *tap a movement for how it's done — and for the version one step below
+it.* It stands until the first time somebody opens one of those cards, from any
+screen, and never again.
+
 **A hold exercise costs one tap.** Three sets of a plank took four touches, and
 three of them were taken between sets by somebody lying on the floor — which is
 the one moment the phone is furthest away and the effort has just ended.

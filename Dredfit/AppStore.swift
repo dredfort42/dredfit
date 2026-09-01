@@ -938,6 +938,27 @@ extension AppStore {
         persist()
     }
 
+    /// The one line on Today that says a plan row is a door (R30). It is the
+    /// whole price the plan pays for the handle that left it: the variation one
+    /// step below now lives behind the technique sheet, and a control nobody
+    /// knows about is a control nobody has.
+    ///
+    /// Gated on having been through the door, never on `records.isEmpty`: the
+    /// person carried over from v2 has a full journal and is exactly the person
+    /// the sentence is for — every one of their movements sits above the first
+    /// variation, so every one of them has a step below it.
+    var showsTechniqueHint: Bool { !settings.hasOpenedTechnique }
+
+    /// Spent by the first technique sheet opened from ANY of its three doors —
+    /// the plan row, the work screen and the rest screen. `persist` only on the
+    /// transition: the sheet is opened many times over a life of the app and
+    /// this is a one-way flag.
+    func markTechniqueOpened() {
+        guard !settings.hasOpenedTechnique else { return }
+        settings.hasOpenedTechnique = true
+        persist()
+    }
+
     /// The one-shot card on Today explaining what an upgrade did (§41.7).
     var showsMigrationNotice: Bool { settings.migrationNoticePending == true }
 
