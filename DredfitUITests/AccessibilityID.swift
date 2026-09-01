@@ -54,8 +54,16 @@ enum AX {
     static let workoutExit = "workout-exit"
     static let workoutExitSpacer = "workout-exit-spacer"
     static let exerciseDone = "exercise-done"
+    /// The tap that buys the WHOLE hold exercise — the control a hold opens
+    /// on. `holdStart` below re-arms ONE set and is a different screen state:
+    /// a Stop inside the mis-tap grace, or the probe, which the auto-run
+    /// deliberately does not start for you. Two names because they are two
+    /// controls; a query that resolved either would hide the difference.
+    static let holdStartExercise = "hold-start-exercise"
     static let holdStart = "hold-start"
     static let holdStop = "hold-stop"
+    static let holdSetsAndRest = "hold-sets-and-rest"
+    static let holdAutorunPromise = "hold-autorun-promise"
     static let exerciseAdjust = "exercise-adjust"
     static let exerciseSkip = "exercise-skip"
     static let exerciseSkipSet = "exercise-skip-set"
@@ -140,6 +148,14 @@ extension XCUIApplication {
     /// and the journal), which is exactly the kind of accident that survives
     /// until the day somebody touches settings.
     func seedLaunchArguments(_ seeds: String..., locale: UILocale = .english) {
+        seedLaunchArguments(seeds, locale: locale)
+    }
+
+    /// The same thing for a caller that BUILDS its seed list — an arrange
+    /// helper that takes extra flags from its own caller cannot splat a
+    /// variadic. One body, so the reset cannot be present in one form and
+    /// missing from the other.
+    func seedLaunchArguments(_ seeds: [String], locale: UILocale = .english) {
         launchArguments = ["--uitest-reset"] + seeds + locale.arguments
     }
 

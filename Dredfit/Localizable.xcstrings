@@ -1156,6 +1156,46 @@
         }
       }
     },
+    "%lld sets · %lld s rest between": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Sätze · %lld s Pause dazwischen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld series · %lld s de descanso entre ellas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld séries · %lld s de repos entre elles"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld serie · %lld s di recupero tra una e l’altra"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld séries · %lld s de descanso entre elas"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "подходов: %lld · отдых %lld с"
+          }
+        }
+      }
+    },
     "%lld weeks apart": {
       "localizations": {
         "de": {
@@ -10119,6 +10159,46 @@
         }
       }
     },
+    "Runs on its own from here — sound counts you in and out. Put the phone down.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Läuft ab hier von allein – der Ton zählt dich rein und raus. Leg das Handy weg."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A partir de aquí va solo: el sonido marca el inicio y el final. Deja el teléfono."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À partir d’ici, ça se déroule tout seul — le son marque le début et la fin. Pose le téléphone."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Da qui va da solo – il suono segna l’inizio e la fine. Appoggia il telefono."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daqui em diante corre sozinho: o som marca o início e o fim. Pode largar o telefone."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дальше идет само — звук отсчитает вход и выход. Положи телефон."
+          }
+        }
+      }
+    },
     "Resume": {
       "comment": "Back into the frozen position: the countdown continues from the seconds it stopped on, never from the top. Same word the interrupted-workout card uses.",
       "localizations": {
@@ -11403,6 +11483,46 @@
         }
       }
     },
+    "Start exercise": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Übung starten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empezar el ejercicio"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commencer l’exercice"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inizia l’esercizio"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Começar o exercício"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Начать упражнение"
+          }
+        }
+      }
+    },
     "Start from scratch": {
       "localizations": {
         "de": {
@@ -11692,6 +11812,86 @@
           "stringUnit": {
             "state": "translated",
             "value": "Стоп"
+          }
+        }
+      }
+    },
+    "Stop · %lld s": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stoppen · %lld s"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parar · %lld s"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrêter · %lld s"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop · %lld s"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parar · %lld s"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стоп · %lld с"
+          }
+        }
+      }
+    },
+    "Stop, records %lld seconds": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stoppen, erfasst %lld Sekunden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parar, registra %lld segundos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrêter, enregistre %lld secondes"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop, registra %lld secondi"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parar, registra %lld segundos"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стоп, запись: %lld сек"
           }
         }
       }
