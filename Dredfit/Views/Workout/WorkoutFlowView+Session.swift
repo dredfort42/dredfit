@@ -294,6 +294,12 @@ extension WorkoutFlowView {
             // its own, and starting it under a thumb that agreed to something
             // else is exactly what R23 is against.
             holdAutoRun = false
+            // …and so is the time that tap was given. This is the ORDINARY way
+            // out of an exercise — the last set rests, and the rest ends here —
+            // and it went through no reset at all, so a declaration made for
+            // the plank arrived at the side plank and set its clock to a
+            // number nobody had asked of that movement.
+            resetHoldExercise()
         } else {
             setIndex += 1
         }

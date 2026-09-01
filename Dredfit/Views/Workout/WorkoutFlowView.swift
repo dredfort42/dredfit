@@ -733,13 +733,6 @@ extension WorkoutFlowView {
     func resetHoldSides() {
         holdSecondSide = false
         firstSideHeld = nil
-        // The declaration and the estimate marks belong to the exercise in
-        // front of us for exactly as long as it is in front of us: carried
-        // into the next movement they would set a clock nobody asked for and
-        // print "tapped" beside a set that was not.
-        holdDeclared = nil
-        holdDeclaring = false
-        holdApproxSets.removeAll()
         summarySet = nil
         // The settled hold belongs to the set it was held in for exactly the
         // same reason and for exactly as long: carried into the next set it
@@ -754,11 +747,32 @@ extension WorkoutFlowView {
         holdAutoRun = false
     }
 
+    /// What belongs to the EXERCISE rather than to the set: the time its clock
+    /// was set to, and which of its sets were ended by a thumb. Cleared where a
+    /// movement is left behind, and only there.
+    ///
+    /// It was folded into `resetHoldSides` and that was wrong in both
+    /// directions at once. A SET SKIP calls that reset — a stale second side
+    /// must not cross into the next set — and took the declaration down with
+    /// it: saying "hold 60" and then skipping one set silently put the sets
+    /// after it back on the plan, and dropped the "≈" marks off numbers the
+    /// app had guessed at. Meanwhile the ordinary way out of an exercise does
+    /// NOT go through that reset at all — the last set rests and
+    /// `advanceAfterRest` walks to the next movement — so a declaration made
+    /// for the plank set the side plank's clock to 60 s, a movement whose own
+    /// plan is 15. Two lifetimes, two functions.
+    func resetHoldExercise() {
+        holdDeclared = nil
+        holdDeclaring = false
+        holdApproxSets.removeAll()
+    }
+
     /// Past the exercise in front of us, however it ended — into the next one,
     /// or into the cool-down when there is none. `startCooldown` degrades to
     /// the rating when nothing was performed.
     private func advancePastExercise() {
         resetHoldSides()
+        resetHoldExercise()
         if isLastExercise {
             startCooldown()
         } else {
