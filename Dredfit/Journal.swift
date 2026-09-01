@@ -240,6 +240,19 @@ struct WorkoutSnapshot: Codable, Equatable {
     var fingerprint: String?
     /// Restore lands on the rating, not on the set the fields still describe.
     var atFeedback: Bool?
+    /// Restore lands on the finished movement's SUMMARY. Without it a kill on
+    /// that screen would come back on the last set and offer to run it again —
+    /// an effort that is behind, with its seconds already recorded.
+    var atExerciseSummary: Bool?
+    /// How long the athlete DECLARED the hold in front of them would run,
+    /// before doing it. Restored so that coming back after a process death
+    /// does not quietly put the plan's number back on the clock.
+    var holdDeclaredSec: Int?
+    /// Sets of the exercise in front of us whose number is an ESTIMATE — the
+    /// set ended under a thumb, so it carries a guessed reach allowance. An
+    /// array
+    /// because a `Set<Int>` is one on the wire anyway; read back as a set.
+    var approxSets: [Int]?
     var interrupted: Pattern?
     /// The two blocks as measured so far, carried across a process death so a
     /// declined warm-up is not silently restored as a performed one. A kill
@@ -272,6 +285,12 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// has no decoder of its own and everything here comes back off disk.
     var skips: SetFacts.Skips {
         SetFacts.sanitized(skips: setsSkipped ?? [:])
+    }
+
+    /// The estimate marks, bounded by what an exercise can hold. Sanitized
+    /// where it is read for the same reason as everything above it.
+    var approximateSets: Set<Int> {
+        Set((approxSets ?? []).filter { (0..<EngineConfig.setsMax).contains($0) })
     }
 
     static func fingerprint(of session: Session) -> String {

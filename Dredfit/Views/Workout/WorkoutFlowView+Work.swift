@@ -175,7 +175,14 @@ extension WorkoutFlowView {
             // starts, never where the button sits.
             if adjusting {
                 AdjustPanel(value: $adjustValue, unit: current.unit) {
-                    if current.isProbe {
+                    if holdDeclaring {
+                        // A TARGET, not a record: it sets what the clock runs
+                        // from for this exercise and writes nothing about a
+                        // set. What is stored for each set is still whatever
+                        // that set's clock produced.
+                        holdDeclared = adjustValue
+                        holdDeclaring = false
+                    } else if current.isProbe {
                         // The probe's own channel: one number about one set of
                         // another movement, never folded into the mean of the
                         // working sets.
@@ -191,21 +198,18 @@ extension WorkoutFlowView {
                 }
                 .padding(.bottom, 18)
             } else if current.unit == .hold && !holdSettled {
-                // R23: NOTHING is entered BEFORE the effort on a hold. The
-                // control that used to stand here asked for a number about a
-                // set nobody had performed yet, and the one moment it was
-                // genuinely needed — a hold that ran long — is the moment both
-                // hands are on the floor. No reserved height either: the block
-                // under the Spacer is bottom-aligned as a group, so what
-                // leaves it moves nothing below.
+                // No "Went differently" on a hold, and the reason is the
+                // TENSE rather than the slot. Before the effort it would ask
+                // how a set went that nobody has performed; what belongs here
+                // is a target, and that is the control above. Afterwards the
+                // exercise summary asks the question properly, about every
+                // set of the movement at once. No reserved height either: the
+                // block under the Spacer is bottom-aligned as a group, so
+                // what leaves it moves nothing below.
                 //
                 // A SETTLED hold keeps it, and the exception is the whole
-                // point rather than a leftover. There the effort is behind and
-                // its seconds are on the screen, which is the correction R23
-                // is arguing FOR — and it is the last set of the movement, so
-                // nothing about it ever comes back (#220, 31.08.2026). The
-                // exercise summary takes the job over, and this exception goes
-                // with the settled state when it does.
+                // point rather than a leftover: that is the PROBE's screen,
+                // which the summary deliberately says nothing about (§40.4).
                 if holdExerciseIntro {
                     // What the one tap actually buys, said before it is
                     // taken. Deliberately without a numeral — the count is on
@@ -224,6 +228,19 @@ extension WorkoutFlowView {
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.bottom, 18)
                         .accessibilityIdentifier("hold-autorun-promise")
+
+                    // The one thing that IS entered before a hold, and the
+                    // only one that can be: how long it is going to run. It
+                    // is a target, not a report — nothing here claims a set
+                    // was performed — which is what makes it a different
+                    // control from "Went differently" rather than the same
+                    // one under a kinder name. Stop takes it back down;
+                    // together the two are the whole channel, and they work
+                    // the same on a per-side hold, where a clock that ran
+                    // past the plan could never have reached the number
+                    // (the set records the smaller side).
+                    SetHoldTimeButton { startDeclaringHoldTime() }
+                        .padding(.bottom, 18)
                 }
             } else {
                 WentDifferentlyButton { startAdjusting() }
@@ -331,6 +348,10 @@ extension WorkoutFlowView {
     /// In order of precedence.
     private var workNumber: Int {
         if holdCountingIn { return holdCountInRemaining }
+        // Before the effort a DECLARED time is what the clock will run from,
+        // so it is what the screen shows: the number the person is about to
+        // agree to, not the plan they have already decided against.
+        if holdExerciseIntro, let holdDeclared { return holdDeclared }
         if holdSwitchPausing { return holdPauseRemaining }
         if holding { return holdRemaining }
         if current.isProbe { return probeActuals[exercise.pattern] ?? current.planned }
@@ -345,6 +366,16 @@ extension WorkoutFlowView {
     }
 
     // MARK: - Inline actual adjuster (the panel itself is AdjustPanel.swift)
+
+    /// Opens the adjuster on the DECLARATION — how long this hold will run —
+    /// rather than on a set's record. Seeded with what the clock would use
+    /// right now, so the person is nudging a real number, not typing one.
+    func startDeclaringHoldTime() {
+        adjustValue = SetFacts.holdTarget(actuals, exercise, set: setIndex,
+                                          declared: holdDeclared)
+        holdDeclaring = true
+        adjusting = true
+    }
 
     private func startAdjusting() {
         adjustValue = current.isProbe

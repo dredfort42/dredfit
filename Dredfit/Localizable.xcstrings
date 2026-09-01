@@ -5800,6 +5800,46 @@
         }
       }
     },
+    "Change this number": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Zahl ändern"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambiar este número"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifier ce nombre"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifica questo numero"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alterar este número"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изменить это число"
+          }
+        }
+      }
+    },
     "%@ + probe: %@ · %@": {
       "localizations": {
         "en": {
@@ -9261,6 +9301,46 @@
         }
       }
     },
+    "planned %lld s each": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "geplant %lld s pro Satz"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "previsto %lld s por serie"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "prévu %lld s par série"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "previsto %lld s per serie"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "previsto %lld s por série"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "по плану %lld с в подходе"
+          }
+        }
+      }
+    },
     "positionSheet.cooldown": {
       "localizations": {
         "de": {
@@ -10647,6 +10727,246 @@
         }
       }
     },
+    "set %lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Satz %lld"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série %lld"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie %lld"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série %lld"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "подход %lld"
+          }
+        }
+      }
+    },
+    "set %lld · +%lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Satz %lld · +%lld"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie %lld · +%lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série %lld · +%lld"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie %lld · +%lld"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série %lld · +%lld"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "подход %lld · +%lld"
+          }
+        }
+      }
+    },
+    "set %lld · planned %lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Satz %lld · geplant %lld"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie %lld · previsto %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série %lld · prévu %lld"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie %lld · previsto %lld"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série %lld · previsto %lld"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "подход %lld · по плану %lld"
+          }
+        }
+      }
+    },
+    "set %lld · tapped": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Satz %lld · manuell gestoppt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie %lld · parada manual"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série %lld · arrêt manuel"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie %lld · stop manuale"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série %lld · parada manual"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "подход %lld · остановлен вручную"
+          }
+        }
+      }
+    },
+    "set %lld, %lld seconds, planned %lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Satz %lld, %lld Sekunden, geplant %lld"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie %lld, %lld segundos, previsto %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série %lld, %lld secondes, prévu %lld"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie %lld, %lld secondi, previsto %lld"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série %lld, %lld segundos, previsto %lld"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "подход %lld, секунд: %lld, по плану %lld"
+          }
+        }
+      }
+    },
+    "set %lld, approximately %lld seconds, planned %lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Satz %lld, etwa %lld Sekunden, geplant %lld"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie %lld, unos %lld segundos, previsto %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série %lld, environ %lld secondes, prévu %lld"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie %lld, circa %lld secondi, previsto %lld"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série %lld, cerca de %lld segundos, previsto %lld"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "подход %lld, примерно секунд: %lld, по плану %lld"
+          }
+        }
+      }
+    },
     "Settings": {
       "localizations": {
         "de": {
@@ -10683,6 +11003,86 @@
           "stringUnit": {
             "state": "translated",
             "value": "Настройки"
+          }
+        }
+      }
+    },
+    "Set the time": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeit einstellen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustar el tiempo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Régler le temps"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imposta il tempo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustar o tempo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Задать время"
+          }
+        }
+      }
+    },
+    "How long every set of this exercise runs. Stop ends one early and records what you held.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wie lange jeder Satz dieser Übung läuft. Stoppen beendet einen früher und erfasst, was du gehalten hast."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuánto dura cada serie de este ejercicio. Parar termina una antes y registra lo que aguantaste."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La durée de chaque série de cet exercice. Arrêter en termine une plus tôt et enregistre ce que tu as tenu."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quanto dura ogni serie di questo esercizio. Stop ne chiude una prima e registra quanto hai tenuto."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quanto dura cada série deste exercício. Parar encerra uma antes e registra o que você sustentou."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сколько идет каждый подход этого упражнения. Стоп заканчивает подход раньше и записывает удержанное."
           }
         }
       }
@@ -10729,6 +11129,46 @@
           "stringUnit": {
             "state": "translated",
             "value": "Готово"
+          }
+        }
+      }
+    },
+    "tap a number to change it": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe eine Zahl an, um sie zu ändern"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "toca un número para cambiarlo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "touche un nombre pour le modifier"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "tocca un numero per cambiarlo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "toque em um número para alterá-lo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "нажми на число, чтобы изменить"
           }
         }
       }
@@ -12172,6 +12612,46 @@
           "stringUnit": {
             "state": "translated",
             "value": "План встретил тебя ниже."
+          }
+        }
+      }
+    },
+    "These are the numbers the next plan starts from.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Von diesen Zahlen startet der nächste Plan."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El próximo plan empieza desde estos números."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C’est de ces nombres que part le prochain plan."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il prossimo piano parte da questi numeri."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O próximo plano começa a partir destes números."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Следующий план начнется от этих чисел."
           }
         }
       }

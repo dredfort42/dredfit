@@ -43,6 +43,17 @@ struct WorkoutFlowView: View {
         case warmup
         case work
         case rest(seconds: Int)
+        /// Every set of a hold movement on one screen, with any number one
+        /// tap from being corrected. It REPLACES the settled hold that stood
+        /// on the work screen: that showed one number, the last one, and the
+        /// sets before it had never been correctable at all — a number
+        /// entered on the work screen writes the set under way and truncates
+        /// what follows, so there was no writer that could touch set one.
+        ///
+        /// Only after a hold, and only when the movement is behind. Sets of
+        /// reps are logged by the tap that ends them and nothing about that
+        /// screen changed.
+        case exerciseSummary
         /// The cool-down no longer starts itself. The work is behind, and
         /// being dropped straight into a stretch nobody asked for is how a
         /// block gets skipped by walking away instead of by saying so. One
@@ -153,7 +164,40 @@ struct WorkoutFlowView: View {
     /// itself, because the movement comes back and a tap between the effort
     /// and the recovery would be pure friction. After the last set nothing
     /// about the movement returns, so its seconds would stand uncorrectable.
+    /// The PROBE set of a hold movement is over and its seconds are
+    /// recorded, but the set is not closed yet — the probe's own caption
+    /// states its outcome ("Next time: …"), and that sentence has to survive
+    /// the moment the clock stops. Narrowed to the probe by this wave: every
+    /// other last set of a hold now lands on `exerciseSummary`, which is a
+    /// better version of the same idea and speaks about the whole movement.
     @State var holdSettled = false
+    /// How long the athlete SAID this hold would run, before doing it.
+    ///
+    /// A target, not a report, and the difference is the whole reason it may
+    /// be entered before the effort at all: nothing here claims a set was
+    /// performed. It stands in for the plan while the exercise lasts — the
+    /// clock counts down from it and Stop cuts it short — so what the engine
+    /// finally reads is still measured, never declared.
+    ///
+    /// Per exercise, not per set: one tap buys the whole movement, and the
+    /// sets after the first run with nobody at the phone. Cleared with the
+    /// exercise, and carried across a process death, because coming back to
+    /// the plan's number after declaring more would silently undo the
+    /// decision.
+    @State var holdDeclared: Int?
+    /// The adjuster is open on the DECLARATION rather than on a set's record.
+    /// A flag rather than a condition derived from the screen, for the same
+    /// reason `summarySet` is one: what the panel writes must not depend on
+    /// what the screen happens to look like when OK is tapped.
+    @State var holdDeclaring = false
+    /// Sets of the exercise in front of us whose number is an ESTIMATE rather
+    /// than a measurement: the set ended under a thumb, which pays a guessed
+    /// three-second reach allowance. Indices, because that is what the summary
+    /// prints beside; cleared with the exercise it describes.
+    @State var holdApproxSets: Set<Int> = []
+    /// Which card of the summary the adjuster is editing, so the panel writes
+    /// to the set that was tapped rather than to the set the flow is on.
+    @State var summarySet: Int?
     /// The exercise was started by ONE tap and continues itself: the rest
     /// after each set opens the next set's count-in with nobody touching the
     /// phone (R23). It belongs to the exercise it was started for, so it is
@@ -249,6 +293,8 @@ struct WorkoutFlowView: View {
                 warmupView
             case .work:
                 workView
+            case .exerciseSummary:
+                exerciseSummaryView
             case .rest:
                 restView
             case .cooldownIntro:
@@ -412,8 +458,11 @@ struct WorkoutFlowView: View {
         switch phase {
         case .work:
             break
-        case .rest:
+        case .rest, .exerciseSummary:
             // The set the rest FOLLOWS is done — the flow advances after it.
+            // The summary stands past a finished set for the same reason, so
+            // counting its set as still ahead would quietly add a set's worth
+            // of minutes to a movement that is over.
             behind += 1
             if behind >= exercise.sets { index += 1; behind = 0 }
         default:
@@ -427,7 +476,8 @@ struct WorkoutFlowView: View {
 
     private var headerTitle: String {
         switch phase {
-        case .work:     return String(localized: "\(exIndex + 1) / \(exercises.count)")
+        case .work, .exerciseSummary:
+            return String(localized: "\(exIndex + 1) / \(exercises.count)")
         case .warmup, .warmupIntro: return String(localized: "WARM-UP")
         case .cooldownIntro, .cooldown: return String(localized: "COOL-DOWN")
         default:        return String(localized: "REST")
@@ -587,11 +637,22 @@ extension WorkoutFlowView {
         probeActuals = SetFacts.recordingProbe(probeActuals, exercise.pattern,
                                                isProbe: current.isProbe,
                                                target: current.planned)
+        // A hold's LAST set gets its summary first, and the probe's Done is
+        // the one tap that can arrive here still owing one: the probe keeps a
+        // settled screen of its own, so the movement it belongs to has not
+        // been shown yet. Guarded on the phase rather than on a flag, because
+        // this is also the summary's own exit and that pass must fall through.
+        if phase != .exerciseSummary && isLastSet && exercise.unit == .hold
+            && !skippedPatterns.contains(exercise.pattern) {
+            startExerciseSummary()
+            return
+        }
         // A hold has already sounded its own ending, at the moment the effort
         // actually stopped (see `finishHold`). The tap that lands here after
         // one confirms a number; sounding "done" again would announce an end
-        // that happened seconds ago.
-        if !holdSettled { playDone() }
+        // that happened seconds ago — and neither does the summary's exit,
+        // which is a screen past the effort, not the end of one.
+        if !holdSettled && phase != .exerciseSummary { playDone() }
         holdSettled = false
         adjusting = false
         if isLastSet && isLastExercise {
@@ -662,6 +723,14 @@ extension WorkoutFlowView {
     func resetHoldSides() {
         holdSecondSide = false
         firstSideHeld = nil
+        // The declaration and the estimate marks belong to the exercise in
+        // front of us for exactly as long as it is in front of us: carried
+        // into the next movement they would set a clock nobody asked for and
+        // print "tapped" beside a set that was not.
+        holdDeclared = nil
+        holdDeclaring = false
+        holdApproxSets.removeAll()
+        summarySet = nil
         // The settled hold belongs to the set it was held in for exactly the
         // same reason and for exactly as long: carried into the next set it
         // would offer "Done" for an effort nobody made.

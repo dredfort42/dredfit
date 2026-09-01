@@ -31,13 +31,40 @@ the phone, and the timestamp of the tap is not the timestamp of the last second
 held. The correction only ever goes down, never below the five seconds a hold
 can be stored as, and it is what the button already named.
 
+**You say how long a hold will run, before it runs.** The one thing a hold
+screen takes before the effort is the time on the clock — a target, not a
+report, which is what makes it a fair question to ask of somebody who has not
+done the set yet. **Set the time** raises it (or lowers it, on a day when the
+plan is too much), the clock counts down from that number on every set of the
+exercise, and **Stop** cuts a set short and records what was actually held. So
+the number the engine reads is still measured, never declared.
+
+A set that was cut short still speaks: the sets after it follow what was shown,
+capped by what was declared. Aiming at 60 and managing 50 does not put 60 back
+on the clock.
+
+This is what the per-side holds needed. Such a set is recorded as the smaller
+of its two sides, and the second side runs for exactly what the first one ran —
+so nothing that happens after the plan is met can raise its number, and half
+the hold movements had no way to show more at all. Both sides now run from the
+declared time, with no exception for the shape.
+
+**A finished hold movement now shows every set on one screen, and any of them
+can be corrected.** Until now only the last one could: a number entered on the
+work screen writes the set under way and clears the sets after it, which is
+right while they have not happened and wrong once they have. Set one of three
+had never been correctable at all. Tap a card, change the number, and the other
+sets keep what they ran at. Sets that ended under a thumb are marked "≈", so a
+figure the app estimated is never shown with the confidence of one the clock
+produced. There are no escapes on this screen — the movement is behind, and
+there is nothing left to skip.
+
 **"Went differently" is gone from the hold screen.** It asked for a number
 about a set nobody had performed yet, and the one moment it was genuinely
 needed — a hold that ran long — is the moment both hands are on the floor. The
-It stays on the movement's LAST set, once the hold is behind and its seconds
-are on the screen — nothing about that movement comes back, so that is the one
-moment they can be corrected. The first-workout hint that pointed at the
-control on a hold went with it: it named something that could not be reached. The screen for sets of reps is untouched,
+**Set the time** answers that moment before the effort and the summary answers
+the correction after it. The first-workout hint that pointed at the control on
+a hold went with it: it named something that could not be reached. The screen for sets of reps is untouched,
 button for button.
 
 ## 2.0.1
