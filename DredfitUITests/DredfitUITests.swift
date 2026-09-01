@@ -87,7 +87,13 @@ final class DredfitUITests: XCTestCase {
             // by a dropped tap is answered on the next pass instead.
             if driver.confirmSkip(timeout: 0) {
                 skips += 1
-            } else if skip.exists {
+            } else if skip.exists && skip.isEnabled {
+                // `isEnabled`, not `exists` alone. The escapes stand down
+                // during a count-in, a hold and a side switch as
+                // `.opacity(0).disabled()` — reserved height keeps the layout
+                // still — so they stay in the tree with a degenerate frame,
+                // and since a hold exercise runs itself now, a skip-through
+                // meets that state on the way past every hold.
                 coordinateTap(skip)
             }
             _ = goal.waitForExistence(timeout: 1)   // settle + goal check

@@ -86,15 +86,22 @@ about pixels, not about strings. Walk those on a device before submitting.
 
 Reach a hold exercise — plank (core · plank) appears in the rotation; with the bar on, "Bar hang" is a hold at tier 1.
 
+Re-marked for the hands-free wave: the hold screen has ONE start, and it buys
+the whole exercise. **Start hold** still exists, but only where a set has to be
+re-armed on its own — a Stop inside the mis-tap grace, and the probe set.
+
 | # | Check | Expected |
 |---|---|---|
-| 3.1 | Tap **Start hold** | Countdown runs down from the planned seconds |
+| 3.1 | Tap **Start exercise** | Countdown runs down from the planned seconds. The screen before the tap says how many sets and how long the rest between them, and promises the exercise runs itself |
+| 3.1a | Do not touch the phone again | Every set after the first counts itself in when its rest ends — its **Get ready** is longer than the tapped one (travel to the position, not a beat), and it needs no tap |
 | 3.2 | Let it finish on a set that is **not** the movement's last | 3-2-1 signals, then the two-tone finale, and the rest begins automatically — no tap between the effort and the recovery. The movement comes back, so there is nothing to correct here |
 | 3.2a | Let it finish on the movement's **last** set | The same finale at the moment the effort stops — and then the screen **stays**. The seconds held stand under a **Held** caption, **Went differently** is live again, and the primary button reads **Done**. The set is logged, and the flow moves on, on that tap. Nothing about this movement comes back, so this is the only moment its seconds can be corrected |
-| 3.3 | **Stop the hold early** | The recorded actual is snapped to the **1 s** grid and clamped to 5…90 s, and the set then behaves as 3.2 / 3.2a for its position. Re-marked 30.08.2026: the row said "nearest multiple of 5", which the engine stopped doing in v2.21 — `SetFacts.snap` steps by one for both units (see 4.2) |
+| 3.2b | While a hold runs, read the primary button | It says **Stop · N s** — N being what the tap would record right now, updating each second. Inside the first three seconds it says plain **Stop**: that tap cancels the set and stores nothing |
+| 3.3 | **Stop the hold early** | The recorded actual is the seconds held LESS a three-second reach allowance (the tap lands after the effort stopped), snapped to the **1 s** grid and clamped to 5…90 s — exactly the figure the button named. The set then behaves as 3.2 / 3.2a for its position. Re-marked 30.08.2026: the row said "nearest multiple of 5", which the engine stopped doing in v2.21 — `SetFacts.snap` steps by one for both units (see 4.2) |
 | 3.4 | Verify 3.3 on the rating screen | The summary shows "actual N", N being the seconds actually held |
 | 3.5 | A per-side hold | Side one runs, then a 5 s "Switch sides" pause opens with its own falling tone, then the second side **starts itself** on the usual go, marked "second side"; the recorded actual is the **smaller** of the two sides |
-| 3.6 | While a hold is counting down | **Went differently** and **Skip exercise** are hidden and unresponsive |
+| 3.6 | Before the effort, on a hold | **Went differently** is not on the screen at all, and neither is the first-workout hint that names it — nothing is entered about a set nobody has performed. The screen for sets of **reps** is unchanged, button for button |
+| 3.6a | While a hold is counting down | **Skip this set** and **Skip exercise** are hidden and unresponsive |
 | 3.7 | On the last set, after the hold ends, tap **Went differently** | The number the hold just recorded opens in the stepper; confirming replaces it and **Done** logs the corrected one. Before 30.08.2026 the flow left the screen in the same frame the number was produced in, and nothing about that movement ever came back |
 | 3.8 | The same screen, before **Done** | **Skip this set** and the exercise escape are unresponsive: the set was performed, and its number is on screen |
 | 3.9 | Kill the app on that screen and relaunch | **Continue the workout?** comes back on the same set with the recorded seconds standing. A hold never restores mid-count, so the set is offered again rather than resumed |
@@ -906,6 +913,25 @@ that shipped, so a green row means the fix is still in place.
 | 49.9 | French, anywhere with `: ; ! ?` or guillemets | Non-breaking space before `:`, narrow non-breaking space before `; ! ?` and inside `« »`, typographic apostrophe `’` throughout. **No gate checks this** — it is a read-through |
 | 49.10 | Progress chart axis, each language | Says **steps** in that language. It said the retired word "level", which VoiceOver read aloud |
 
+
+### 50. Hands-free holds (app, R23–R29)
+
+The wave is app-only: the engine diff is empty and `golden.json` is untouched.
+Sets of **reps** are untouched too — walk one exercise of each and compare.
+
+| # | Check | Expected |
+|---|---|---|
+| 50.1 | Reach a hold exercise | One primary control, reading **Start exercise**. Under the set dots: how many sets and how long the rest between them. Above the button: a promise that the exercise runs itself and you can put the phone down |
+| 50.2 | Tap it once and put the phone down | The whole exercise runs: count-in, hold, finale, rest, and the next set counts itself in. The phone is not touched again until the movement's last set hands itself back |
+| 50.3 | Time the two count-ins | The one a tap earns is five seconds; the one an auto-continued set gets is fifteen. A set the run opened was agreed to sets ago by somebody lying on the floor — that is travel, not a beat |
+| 50.4 | Read the primary button during a hold | **Stop · N s**, N updating every second, and N is exactly what the tap records. Inside the first three seconds it reads plain **Stop** — that tap cancels the set and stores nothing |
+| 50.5 | Stop a hold past the grace, then check the number | Three seconds lower than the clock showed. The tap lands after the effort stopped — the walk to the phone is not training |
+| 50.6 | The hold screen before any effort | No **Went differently**, and no reserved gap where it stood. On the movement's LAST set, once the hold is behind, it is live again: nothing about that movement comes back |
+| 50.7 | The same walk on an exercise of **reps** | Identical to before the wave — **Done**, **Went differently**, and the first-workout hint about entering more than planned |
+| 50.8 | Skip a set or the exercise mid-run, then reach the next hold | The next exercise asks again: one tap buys one exercise, never the next one |
+| 50.9 | A per-side hold | Both sides of every set run themselves, exactly as in 3.5, and the auto-run carries the sets between them |
+| 50.10 | A probe set that is a hold | Waits for a tap of its own (**Start hold**). It is one set of a movement nobody has done, possibly in another unit |
+| 50.11 | Every new string in each of the seven languages | Reads naturally and does not clip: **Start exercise**, **Stop · N s**, the sets-and-rest line, the promise. `python3 scripts/check_localization.py` is green |
 
 ## Engine gates before a release
 

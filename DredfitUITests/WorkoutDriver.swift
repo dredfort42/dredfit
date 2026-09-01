@@ -31,10 +31,25 @@ struct WorkoutDriver {
     /// tap some time after the check, and on a degraded runner that gap has
     /// been ten seconds (nightly 2026-08-04, run 30875292377). A test whose
     /// target can expire on the app's own timer must widen its margin too —
-    /// see `maximiseHold()`.
+    /// launch it with `--uitest-hold-long`.
+    /// An INFINITE frame is refused as well, and that is not belt and braces:
+    /// a control standing down as `.opacity(0).disabled()` keeps its place in
+    /// the tree and can report `CGRect.null`, whose origin is infinite —
+    /// `coordinate(withNormalizedOffset:)` then raises
+    /// NSInternalInconsistencyException and takes the whole test down with a
+    /// message about a point, which says nothing about the screen.
+    ///
+    /// FINITENESS ONLY: an empty frame is still tapped. Inside the workout's
+    /// fullScreenCover this simulator reports zero-sized frames for controls
+    /// that are plainly on screen — the same quirk that forces coordinates
+    /// here in the first place — so refusing those would refuse half the
+    /// flow's own buttons.
     @discardableResult
     func coordinateTap(_ element: XCUIElement) -> Bool {
         guard element.exists else { return false }
+        let frame = element.frame
+        guard frame.origin.x.isFinite, frame.origin.y.isFinite,
+              frame.width.isFinite, frame.height.isFinite else { return false }
         element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         return true
     }
@@ -105,7 +120,12 @@ struct WorkoutDriver {
     func walkToCooldownOffer(deadline seconds: TimeInterval = 360,
                              ratingLabel: String = "How did it go?") -> Bool {
         let done = app.buttons[AX.exerciseDone]
-        let startHold = app.buttons[AX.holdStart]
+        // ONE tap per hold exercise since R23: the sets after the first count
+        // themselves in and this control does not come back. `holdStart` is
+        // still tapped when it does — the probe set, which the auto-run leaves
+        // to the person — so both stay in the loop.
+        let startHold = app.buttons[AX.holdStartExercise]
+        let startOneHold = app.buttons[AX.holdStart]
         let offer = app.buttons[AX.cooldownStart]
         // The rating is the other way this walk can end, and it is a failure
         // for every caller: a workout that reaches it was never asked. Stopping
@@ -119,6 +139,9 @@ struct WorkoutDriver {
             } else if startHold.exists {
                 coordinateTap(startHold)
                 _ = startHold.waitForNonExistence(timeout: 3)
+            } else if startOneHold.exists {
+                coordinateTap(startOneHold)
+                _ = startOneHold.waitForNonExistence(timeout: 3)
             } else {
                 // resting or mid-transition — every one of those advances on
                 // its own, so waiting on the goal is also the settle.
@@ -167,7 +190,8 @@ struct WorkoutDriver {
                          ratingLabel: String = "How did it go?",
                          file: StaticString = #filePath, line: UInt = #line) -> Walk {
         let done = app.buttons[AX.exerciseDone]
-        let startHold = app.buttons[AX.holdStart]
+        let startHold = app.buttons[AX.holdStartExercise]
+        let startOneHold = app.buttons[AX.holdStart]
         let skipCooldownButton = app.buttons[AX.skipCooldown]
         let cooldownQuestion = app.buttons[AX.cooldownStart]
         let cooldownDeclineButton = app.buttons[AX.cooldownIntroSkip]
@@ -183,6 +207,9 @@ struct WorkoutDriver {
             } else if startHold.exists {
                 coordinateTap(startHold)
                 _ = startHold.waitForNonExistence(timeout: 3)  // countdown started
+            } else if startOneHold.exists {
+                coordinateTap(startOneHold)
+                _ = startOneHold.waitForNonExistence(timeout: 3)
             } else if cooldownQuestion.exists {
                 // The block asks first. Skipping answers the question rather
                 // than the footer — the block never runs, so this is

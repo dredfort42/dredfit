@@ -10,14 +10,16 @@ import StoreKit
 import UIKit
 import DredfitCore
 
-// The type is split across four sibling files: the two guided blocks
-// (+Warmup, +Cooldown), the holds and session persistence (+Session), and the
-// pause of a guided block (+BlockPause). The reason is a CI error rather than
-// a style opinion — the lint's hard ceiling on a file is 1200 lines.
+// The type is split across five sibling files: the two guided blocks
+// (+Warmup, +Cooldown), the screen a set is performed on (+Work), the holds
+// and session persistence (+Session), and the pause of a guided block
+// (+BlockPause). The reason is a CI error rather than a style opinion — the
+// lint's hard ceiling on a file is 1200 lines, and this file stood at 1101
+// when the hands-free hold wave arrived with a phase to add.
 //
 // Swift's `private` is FILE-scoped, so the state and helpers those siblings
 // reach for are declared without it. They are internal to the module and to
-// this type, not API: nothing outside these five files touches them.
+// this type, not API: nothing outside these six files touches them.
 //
 // The extension at the bottom of THIS file is a different matter. It is here
 // rather than in a sibling because the second ceiling — 600 lines for the
@@ -78,7 +80,7 @@ struct WorkoutFlowView: View {
     @State var restPlanned = 0
     // Captured at tap time (not a bool): the rest countdown keeps ticking
     // while the sheet is open and may flip the phase underneath.
-    @State private var techniqueTarget: TechniqueTarget?
+    @State var techniqueTarget: TechniqueTarget?
     // Unlike techniqueTarget, presenting this freezes the countdown.
     @State private var positionTechnique: PositionTechnique?
     /// A fact belongs to the set it happened on — see SetFacts for the shape
@@ -103,7 +105,7 @@ struct WorkoutFlowView: View {
     /// — a second copy of the same advice is nagging.
     @State private var maximumNoted: Set<Pattern> = []
     @State var maximumWarning: String?
-    @State private var adjustValue = 0
+    @State var adjustValue = 0
     @State var workoutStart: Date?   // actual duration for Health
     /// The two guided blocks, measured rather than assumed. `*BeganAt` is the
     /// moment the person said yes; `*Sec` is what the block cost once it
@@ -152,6 +154,21 @@ struct WorkoutFlowView: View {
     /// and the recovery would be pure friction. After the last set nothing
     /// about the movement returns, so its seconds would stand uncorrectable.
     @State var holdSettled = false
+    /// The exercise was started by ONE tap and continues itself: the rest
+    /// after each set opens the next set's count-in with nobody touching the
+    /// phone (R23). It belongs to the exercise it was started for, so it is
+    /// cleared on the way out of one — `resetHoldSides` for every skip,
+    /// `advanceAfterRest` for the ordinary advance, `finishNow` for the exit.
+    ///
+    /// A PAUSED guided block deliberately does not clear it: the pause is a
+    /// block's own control, it cannot be reached from a work screen at all,
+    /// and Resume has to come back to the run the person started.
+    ///
+    /// Not in the snapshot, and that is a decision rather than an omission:
+    /// process death drops the run, the work screen comes back with its own
+    /// start button, and one tap buys the sets that are left. A restored flag
+    /// would arm a countdown for someone who is holding a cold phone.
+    @State var holdAutoRun = false
     /// The skip a thumb has asked for and not confirmed yet — see
     /// SkipConfirmation.swift for why one is asked for at all.
     @State private var pendingSkip: SkipConfirmation?
@@ -202,9 +219,9 @@ struct WorkoutFlowView: View {
                                planned: exercise.plannedLoad(set: setIndex), isProbe: false,
                                target: TechniqueTarget(exercise))
     }
-    private var holding: Bool { holdEndDate != nil }
-    private var holdSwitchPausing: Bool { holdPauseEndDate != nil }
-    private var holdCountingIn: Bool { holdCountInEndDate != nil }
+    var holding: Bool { holdEndDate != nil }
+    var holdSwitchPausing: Bool { holdPauseEndDate != nil }
+    var holdCountingIn: Bool { holdCountInEndDate != nil }
     private var isMilestone: Bool { if case .milestone = phase { return true }; return false }
 
     /// The stamp is written whether or not iOS shows the prompt — Apple
@@ -467,309 +484,6 @@ struct WorkoutFlowView: View {
                      restEndDate: nil)
     }
 
-    // MARK: - Work
-
-    private var workView: some View {
-        VStack(spacing: 0) {
-            Spacer()
-            if current.isProbe {
-                // The badge is the whole announcement: one set of a movement
-                // that is not yet yours, to find out whether it is. It is not
-                // a question and there is nothing to answer — the number goes
-                // in through the same per-set control as every other set.
-                Text("Probe")
-                    .dredfitFont(11, weight: .heavy)
-                    .tracking(0.6)
-                    .textCase(.uppercase)
-                    .foregroundStyle(Theme.accentText)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(Theme.accentSoft, in: Capsule())
-                    .padding(.bottom, 8)
-                    .accessibilityIdentifier("probe-badge")
-            }
-            Text(current.name)
-                .dredfitFont(23, weight: .bold)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: 300)
-                .accessibilityLabel(Text(verbatim: current.name))
-
-            // On the probe set this opens the technique of the NEW movement:
-            // nobody should be asked to try something they cannot read up on
-            // first.
-            TechniqueButton { techniqueTarget = current.target }
-                .padding(.top, 10)
-
-            VStack(spacing: 4) {
-                Text("\(workNumber)")
-                    .dredfitFont(112, weight: .heavy, cap: 150)
-                    .tracking(-4)
-                    .monospacedDigit()
-                    .contentTransition(.numericText(countsDown: true))
-                Text(loadCaption)
-                    .dredfitFont(17, weight: .medium)
-                    .foregroundStyle(Theme.ink2)
-            }
-            .padding(.top, 20)
-            // One element, like the rest ring below: two made VoiceOver read
-            // "8" and then "reps per side" as if they were separate facts, and
-            // the number alone is meaningless. Both halves are recomputed on
-            // every body pass, so the label follows a hold's countdown down.
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Text(verbatim: "\(workNumber) ") + Text(verbatim: loadCaption))
-
-            HStack(spacing: 10) {
-                ForEach(0..<totalSets, id: \.self) { i in
-                    // The probe's dot is hollow: it is the same session and
-                    // the same count of sets, but not the same movement.
-                    Circle()
-                        .strokeBorder(Theme.accent,
-                                      lineWidth: exercise.probe != nil && i == exercise.sets ? 2 : 0)
-                        .background(Circle().fill(
-                            exercise.probe != nil && i == exercise.sets
-                                ? Color.clear
-                                : (i < setIndex ? Theme.ink
-                                   : (i == setIndex ? Theme.accent : Theme.hairline))))
-                        .frame(width: 10, height: 10)
-                }
-            }
-            .padding(.top, 30)
-
-            // The count-in outranks the probe's own caption: the big number
-            // above is five seconds of getting into position, and nothing else
-            // on the screen would say so.
-            if current.isProbe && !holdCountingIn {
-                probeCaption
-                    .padding(.top, 10)
-            } else {
-                WorkStatusCaption(countingIn: holdCountingIn,
-                                  switchingSides: holdSwitchPausing,
-                                  secondSide: holdSecondSide,
-                                  settled: holdSettled,
-                                  actual: setActual,
-                                  setIndex: setIndex, sets: exercise.sets,
-                                  planned: exercise.plannedLoad(set: setIndex),
-                                  uneven: exercise.loads != nil)
-                    .padding(.top, 10)
-            }
-
-            Spacer()
-
-            // The messages stand down while a number is being entered: one
-            // thing to read at a time.
-            //
-            // The hint FIRST, the note second. Both are reserved height when
-            // hidden, and the order is what keeps that height from sitting
-            // between the note and the button below: the note has to stand the
-            // same 18 pt above the pair that the escapes stand below it, and
-            // that the rest offer stands above Start on Today (owner,
-            // 27.08.2026).
-            if !adjusting {
-                // Opacity, not `if`: the reserved height keeps the layout still
-                // when the hint's job is done mid-exercise.
-                if store.records.isEmpty {
-                    Text("Did far more than planned? Tap “Went differently” and enter what you actually did — the next plan starts from what you showed.")
-                        .dredfitFont(14)
-                        .foregroundStyle(Theme.ink2)
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(2)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(.bottom, 18)
-                        .opacity(holding || holdSwitchPausing || holdCountingIn
-                                 || actuals[exercise.pattern] != nil ? 0 : 1)
-                }
-
-                // Once per exercise per session, and it never blocks the entry
-                // — the number stands either way. It used to be grey 13 pt in
-                // the fine-print slot directly above the black primary button,
-                // which is the one place on the screen nobody reads (owner,
-                // 27.08.2026). accentText on accentSoft, not accent: accent
-                // itself is 2.91:1 on that fill (see the badge pill on Today).
-                if let warning = maximumWarning {
-                    Text(warning)
-                        .dredfitFont(14, weight: .medium)
-                        .foregroundStyle(Theme.accentText)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 12)
-                        .background(Theme.accentSoft, in: RoundedRectangle(cornerRadius: 14))
-                        .padding(.bottom, 18)
-                        .accessibilityIdentifier("maximum-note")
-                        .transition(.opacity.combined(with: .move(edge: .bottom)))
-                }
-            }
-
-            // The entry opens IN THE SLOT OF THE BUTTON THAT OPENS IT, directly
-            // over the primary one it will hand back to. Nothing below moves:
-            // the block after the Spacer is bottom-aligned as a group, so what
-            // is added or removed above the button changes where the group
-            // starts, never where the button sits.
-            if adjusting {
-                AdjustPanel(value: $adjustValue, unit: current.unit) {
-                    if current.isProbe {
-                        // The probe's own channel: one number about one set of
-                        // another movement, never folded into the mean of the
-                        // working sets.
-                        probeActuals[exercise.pattern] = adjustValue
-                    } else {
-                        // This set only — the ones behind keep what they ran at.
-                        actuals = SetFacts.recording(adjustValue, in: actuals,
-                                                     exercise, set: setIndex)
-                        noteMaximumOutOfOrder()
-                    }
-                    adjusting = false
-                    persistProgress()   // an entered actual is worth keeping
-                }
-                .padding(.bottom, 18)
-            } else {
-                WentDifferentlyButton { startAdjusting() }
-                    .padding(.bottom, 18)
-                    // no adjusting mid-hold, mid-count-in or mid-pause
-                    .opacity(holding || holdSwitchPausing || holdCountingIn ? 0 : 1)
-                    .disabled(holding || holdSwitchPausing || holdCountingIn)
-            }
-
-            if current.unit == .hold {
-                if holding {
-                    PrimaryButton(title: String(localized: "Stop")) { stopHoldEarly() }
-                        .accessibilityIdentifier("hold-stop")
-                } else if holdSwitchPausing || holdCountingIn {
-                    // hidden, not opacity: the button must leave the
-                    // accessibility tree while keeping its reserved space.
-                    // A count-in is armed already — a second tap on the slot
-                    // it left must not land on anything.
-                    //
-                    // Its own identifier, not the live one's: should `.hidden()`
-                    // ever stop pruning the tree, a query for the real control
-                    // must not resolve to this placeholder.
-                    PrimaryButton(title: String(localized: "Start hold")) { }.hidden()
-                        .accessibilityIdentifier("hold-start-spacer")
-                } else if holdSettled {
-                    // The last hold is behind; this tap only logs it. Same
-                    // title and same identifier as the reps button, because it
-                    // is the same act — the set ends when the person says the
-                    // number is right, not when a clock says the effort is
-                    // over.
-                    PrimaryButton(title: String(localized: "Done")) { completeSet() }
-                        .accessibilityIdentifier("exercise-done")
-                } else {
-                    PrimaryButton(title: String(localized: "Start hold")) { startHold() }
-                        .accessibilityIdentifier("hold-start")
-                }
-            } else {
-                PrimaryButton(title: String(localized: "Done")) { completeSet() }
-                    .accessibilityIdentifier("exercise-done")
-            }
-
-            ExerciseActionsRow(onSkipSet: setSkipAction,
-                               skipsProbe: onProbeSet,
-                               escape: exerciseEscape)
-            // 18, the measure of this whole stack: the same gap stands between
-            // the note and "Went differently", between it and the button, and
-            // here between the button and the escapes. It was 18 to begin with
-            // for a reason that still holds — the button between them LOGS THE
-            // SET, and a thumb that lands a few points off does not miss, it
-            // finishes the set at plan.
-            .padding(.top, 18)
-            .padding(.bottom, 10)
-            // No adjusting/skipping mid-hold, mid-count-in or mid-pause —
-            // and none once a settled hold is behind either: the set was
-            // performed and its number is on the screen, so a skip there would
-            // contradict the very fact the person is being shown.
-            .opacity(holding || holdSwitchPausing || holdCountingIn || holdSettled ? 0 : 1)
-            .disabled(holding || holdSwitchPausing || holdCountingIn || holdSettled)
-
-        }
-    }
-
-    /// In order of precedence.
-    private var workNumber: Int {
-        if holdCountingIn { return holdCountInRemaining }
-        if holdSwitchPausing { return holdPauseRemaining }
-        if holding { return holdRemaining }
-        if current.isProbe { return probeActuals[exercise.pattern] ?? current.planned }
-        return SetFacts.inForce(actuals, exercise, set: setIndex)
-    }
-
-    /// The caption's: this set's own number, nothing when it is the plan.
-    /// The plan of THIS SET — against the flat base an untouched top set of
-    /// an uneven plan read as an entered fact (UI-truth audit, 27.08.2026).
-    private var setActual: Int? {
-        SetFacts.offPlan(actuals, exercise, set: setIndex)
-    }
-
-    // MARK: - Inline actual adjuster (the panel itself is AdjustPanel.swift)
-
-    private func startAdjusting() {
-        adjustValue = current.isProbe
-            ? (probeActuals[exercise.pattern] ?? current.planned)
-            : SetFacts.inForce(actuals, exercise, set: setIndex)
-        adjusting = true
-    }
-
-    /// What the probe set says under its number. Before a number is entered it
-    /// states the target; afterwards it states the outcome — and the failing
-    /// outcome is NEUTRAL, because honesty is never punished (§40.4): staying
-    /// on a movement you can already do is not a failure, and the copy must
-    /// not read like one.
-    ///
-    /// The failing line used to read "We'll stay with the current variation",
-    /// and it needed explaining for two reasons (owner, 27.08.2026). It said
-    /// "variation", a word this app's own vocabulary does not use anywhere
-    /// else on screen. And it pointed at something NOT ON SCREEN: at that
-    /// moment the title is the NEXT movement with a "Probe" badge over it, so
-    /// "the current one" is a name the reader has to reconstruct — where the
-    /// passing line names its movement outright. What replaced it states the
-    /// consequence instead, which is the thing the reader will actually see
-    /// tomorrow, and deliberately does NOT promise the probe comes back next
-    /// time: a session later rated "hard" on this pattern suppresses it.
-    @ViewBuilder
-    private var probeCaption: some View {
-        if let entered = probeActuals[exercise.pattern] {
-            if entered >= current.planned && !workingSetsFellShort {
-                Text("Next time: \(current.name)")
-                    .accessibilityIdentifier("probe-passed")
-            } else {
-                // Also the answer for a probe done at target AFTER working
-                // sets that fell short: the engine reads that session as
-                // "hard" for the pattern, and a hard pattern's probe does not
-                // count (§40.4) — a promise here would be broken by numbers
-                // already entered (UI-truth audit, 27.08.2026).
-                Text("Not this time — the plan stays as it is.")
-                    .accessibilityIdentifier("probe-stays")
-            }
-        } else {
-            // No number here: the big one above IS this number, and the
-            // caption repeated it (owner, 27.08.2026). On a hold probe the
-            // big number starts counting down once the timer runs, and the
-            // target then shows nowhere — which is exactly what an ORDINARY
-            // hold does too, so the probe simply stops being the exception.
-            Text("One set to try it.")
-        }
-    }
-
-    /// The knowable half of the §40.4 gate — see `SetFacts.foldFallsShort`.
-    private var workingSetsFellShort: Bool {
-        SetFacts.foldFallsShort(actuals, of: exercise)
-    }
-
-    private var loadCaption: String {
-        // During the switch pause and the count-in the big number is a
-        // countdown, not the load.
-        if holdSwitchPausing || holdCountingIn { return String(localized: "sec") }
-        // The unit only: the 112 pt number above already says how many, and
-        // printing it twice is the kind of noise that makes a screen feel
-        // busy. Because the caption no longer agrees with a number, these
-        // keys need no ICU plurals — one form per language.
-        switch (current.unit, current.perSide) {
-        case (.reps, false): return String(localized: "reps")
-        case (.reps, true):  return String(localized: "reps per side")
-        case (.hold, false): return String(localized: "seconds")
-        case (.hold, true):  return String(localized: "seconds per side")
-        }
-    }
-
     // MARK: - Rest
 
     private var restView: some View {
@@ -900,7 +614,7 @@ extension WorkoutFlowView {
     /// all: 12, 8, 8 and 8, 8, 12 both collapse to 9. The advice is about
     /// training — a maximum attempt fatigues what follows it — and the wording
     /// says exactly that and nothing more.
-    private func noteMaximumOutOfOrder() {
+    func noteMaximumOutOfOrder() {
         let pattern = exercise.pattern
         guard !maximumNoted.contains(pattern) else { return }
         // The rule itself is `SetFacts.maximumOutOfOrder`, where a test can
@@ -952,6 +666,13 @@ extension WorkoutFlowView {
         // same reason and for exactly as long: carried into the next set it
         // would offer "Done" for an effort nobody made.
         holdSettled = false
+        // And the auto-run belongs to the exercise. Both call sites of this
+        // are a departure — a skipped set, or the walk past an exercise — and
+        // a skip is a person saying they want the phone, which is the one
+        // thing an auto-run takes away. Resetting it here rather than at the
+        // four skip paths is deliberate: an omitted reset was the defect
+        // class this function was written for.
+        holdAutoRun = false
     }
 
     /// Past the exercise in front of us, however it ended — into the next one,
@@ -1031,7 +752,7 @@ extension WorkoutFlowView {
     /// The set-level skip, or nil when it would take the movement with it —
     /// then the escape beside it says so in its own label instead of doing it
     /// quietly under a word that promises less.
-    private var setSkipAction: (() -> Void)? {
+    var setSkipAction: (() -> Void)? {
         // The probe can ALWAYS be skipped (§40.4): it is not a set of the
         // planned movement, so skipping it takes no volume off anything and
         // cannot leave the movement untrained. The outcome is "unresolved",
@@ -1047,7 +768,7 @@ extension WorkoutFlowView {
     /// controls collapse into one whenever they would do the same thing: on
     /// the floor both take the movement, and on the last set "the remaining
     /// sets" ARE this set.
-    private var exerciseEscape: ExerciseActionsRow.Escape? {
+    var exerciseEscape: ExerciseActionsRow.Escape? {
         // On the probe set the working sets are already behind: "skip the
         // exercise" would throw away a movement that was in fact trained.
         // Skipping the probe is the set-level control beside this one.

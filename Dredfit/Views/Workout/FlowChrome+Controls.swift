@@ -210,3 +210,54 @@ struct WentDifferentlyButton: View {
             """)))
     }
 }
+
+/// "Stop · 60 s" — the primary control of a running hold, naming the figure it
+/// will write (R29).
+///
+/// A hold ends with the phone out of reach, so the number the tap records has
+/// to be legible from the floor: without it the only way to learn what a Stop
+/// was worth was to take it. It is `PrimaryButton`'s look, restated rather
+/// than wrapped, because the label needs `monospacedDigit` and a numeric
+/// transition — a figure that changes every second must not make the whole
+/// button breathe.
+///
+/// ONE localized string per state, never a concatenation. The mock paints the
+/// separator and the figure a step quieter than the word, and that is what a
+/// concatenation would buy: three `Text`s resolve to the verbatim initializer
+/// and never reach the catalog, which is the warning already standing on
+/// `WentDifferentlyButton`. The figure is the point of the control, so it
+/// keeps the label's own contrast (`Theme.bg` on `Theme.ink`) instead.
+struct HoldStopButton: View {
+    /// What a tap right now records — nil inside the mis-tap grace, where the
+    /// tap cancels the set and writes nothing at all. A figure there would be
+    /// a lie about a number that is never stored.
+    let records: Int?
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            label
+                .dredfitFont(17, weight: .semibold)
+                .foregroundStyle(Theme.bg)
+                .monospacedDigit()
+                .contentTransition(.numericText(countsDown: true))
+                .frame(maxWidth: .infinity, minHeight: 56)
+                .background(Theme.ink, in: RoundedRectangle(cornerRadius: 18))
+        }
+        .accessibilityIdentifier("hold-stop")
+        // Spelled out: "Stop · 60 s" read aloud is a middle dot and a unit
+        // nobody asked about, and what the listener needs is the consequence.
+        .accessibilityLabel(records.map {
+            Text(String(localized: "Stop, records \($0) seconds"))
+        } ?? Text(String(localized: "Stop")))
+    }
+
+    @ViewBuilder
+    private var label: some View {
+        if let records {
+            Text("Stop · \(records) s")
+        } else {
+            Text("Stop")
+        }
+    }
+}

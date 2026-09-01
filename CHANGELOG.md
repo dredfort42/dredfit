@@ -1,5 +1,45 @@
 # Changelog
 
+## Unreleased
+
+**A hold exercise costs one tap.** Three sets of a plank took four touches, and
+three of them were taken between sets by somebody lying on the floor — which is
+the one moment the phone is furthest away and the effort has just ended.
+**Start exercise** now buys the whole movement: the rest ends, the next set
+counts itself in, and nothing has to be picked up until the exercise is over.
+The screen before the tap says what is being bought — how many sets and how
+long the rest between them — and promises only what the app can keep: put the
+phone down, not lock the screen, because a suspended app runs no timers and
+plays no tones.
+
+**The count-in before a set the run opened is longer than the one a tap earns.**
+A tap is somebody saying "I am ready" and needs only the beat between saying it
+and being counted in. A set the run opened was agreed to sets ago by somebody
+who has since been lying through a rest, so it is priced as travel to the
+position — the same length the warm-up and cool-down give a position you have
+to get down into.
+
+**Stop names the number it will write.** "Stop · 60 s" instead of "Stop": the
+figure on the button is what the set records if the tap lands now, so ending a
+hold early is a decision rather than a surprise. Inside the first three seconds
+it stays plain **Stop**, because that tap cancels the set and stores nothing at
+all — a figure there would be a lie.
+
+**A hold ended by tap is written down by three seconds.** The thumb arrives
+after the effort has stopped: the person comes off the floor and reaches for
+the phone, and the timestamp of the tap is not the timestamp of the last second
+held. The correction only ever goes down, never below the five seconds a hold
+can be stored as, and it is what the button already named.
+
+**"Went differently" is gone from the hold screen.** It asked for a number
+about a set nobody had performed yet, and the one moment it was genuinely
+needed — a hold that ran long — is the moment both hands are on the floor. The
+It stays on the movement's LAST set, once the hold is behind and its seconds
+are on the screen — nothing about that movement comes back, so that is the one
+moment they can be corrected. The first-workout hint that pointed at the
+control on a hold went with it: it named something that could not be reached. The screen for sets of reps is untouched,
+button for button.
+
 ## 2.0.1
 
 Two ways the workout screen could take a decision you did not make.

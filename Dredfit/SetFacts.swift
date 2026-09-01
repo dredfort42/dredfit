@@ -202,6 +202,98 @@ nonisolated enum SetFacts {
         return facts
     }
 
+    /// Records ONE set and leaves every other set of the exercise standing.
+    ///
+    /// The writer of the exercise summary, where every set is already behind
+    /// and any one of them can be corrected. `recording` above cannot do this
+    /// and must not learn to: it writes THE SET UNDER WAY, and truncating
+    /// what follows is exactly how a shortfall stops carrying a number nobody
+    /// entered onto sets that have not happened. On the summary the sets after
+    /// the one being corrected are facts, and the same truncation would delete
+    /// them — set 1 fixed on the summary took sets 2 and 3 with it.
+    ///
+    /// Everything else is the rule `recording` follows. Gaps before `index`
+    /// are filled with THIS set's plan (never the flat base — an uneven plan
+    /// asks 9-8-8), and a record that has landed back on the plan set for set
+    /// is nothing said at all: the entry is dropped and the session rating
+    /// governs the pattern again. That is what "put it back" does.
+    ///
+    /// Bounded by the exercise's own length, like `allSets` and for the same
+    /// reason: `sets` comes back out of the journal unclamped, and the probe
+    /// is not in here at all — it records to `probeActuals`, its own channel.
+    static func recordingSet(_ value: Int, in facts: PerSet,
+                             _ ex: SessionExercise, set index: Int) -> PerSet {
+        var facts = facts
+        let index = max(index, 0)
+        let sets = min(max(ex.sets, 1), EngineConfig.setsMax)
+        guard index < sets else { return facts }
+        // The whole exercise is frozen AS THE SCREEN READS IT, and then one
+        // value changes. `inForce` is what every card of the summary prints,
+        // so filling with anything else would move a set nobody touched: a
+        // record of [40] against a 3×45 s plan prints 40-40-40, and padding
+        // with the plan would turn the two untouched cards into 45 the moment
+        // set one was corrected. Where nothing has been said `inForce` IS the
+        // plan, so the ordinary case reads exactly as it looks.
+        var values = (0..<sets).map { inForce(facts, ex, set: $0) }
+        values[index] = value
+        let onPlan = values.enumerated().allSatisfy { $0.element == ex.plannedLoad(set: $0.offset) }
+        facts[ex.pattern] = onPlan ? nil : values
+        return facts
+    }
+
+    // MARK: - What a hold is worth when a thumb ends it
+
+    /// Seconds taken off a hold that ended by TAP.
+    ///
+    /// The tap happens AFTER the effort has stopped: the person comes off the
+    /// floor and reaches for the phone, and the timestamp of the thumb is not
+    /// the timestamp of the last second held. A relative of
+    /// `WorkoutFlowView.holdMistapSeconds`, which exists for the other half of
+    /// the same fact — a tap is evidence about a hand, not about a plank.
+    ///
+    /// Three rather than a measurement: the honest direction is DOWN, because
+    /// a number the athlete did not earn is the one the engine then plans
+    /// from. Reading the lift of the phone off CoreMotion would be the real
+    /// answer and is not this wave's.
+    static let holdReachSeconds = 3
+
+    /// What a hold ended by tap records. Never below the corridor's own floor
+    /// — five seconds is the least a hold can be STORED as — and never more
+    /// than the thumb's own allowance below what the clock saw.
+    static func holdEndedByTap(heldSeconds: Int) -> Int {
+        max(corridor(for: .hold).lowerBound, heldSeconds - holdReachSeconds)
+    }
+
+    // MARK: - The tail of the last hold
+
+    /// The grain of the bonus tail. The clock banks a step at a time, and the
+    /// tone is what says a step has been banked.
+    static let holdTailStepSeconds = 5
+
+    /// The hard ceiling of a tail: twice the plan, and never past the top of
+    /// the hold corridor. The doubling is the idiom the rest extension
+    /// already uses (`restPlanned` × 2) — one dial cannot turn a workout into
+    /// an evening — and the corridor is what a reported number can even be.
+    ///
+    /// `planned` is clamped before it is doubled: it can arrive from a
+    /// restored snapshot, and `Int` multiplication traps on overflow.
+    static func holdTailCap(planned: Int) -> Int {
+        let corridor = self.corridor(for: .hold)
+        let planned = min(max(planned, 0), corridor.upperBound)
+        return min(planned * 2, corridor.upperBound)
+    }
+
+    /// The plan plus the steps ACTUALLY COMPLETED. A step under way banks
+    /// nothing — half a pull-up is not half a rep — so the number the button
+    /// names is always a number already earned, and the two to four seconds
+    /// spent reaching for the phone cannot inflate it.
+    static func holdTailBanked(planned: Int, heldSeconds: Int) -> Int {
+        let planned = min(max(planned, 0), corridor(for: .hold).upperBound)
+        guard heldSeconds > planned else { return planned }
+        let steps = (heldSeconds - planned) / holdTailStepSeconds
+        return min(planned + steps * holdTailStepSeconds, holdTailCap(planned: planned))
+    }
+
     // MARK: - The collapse
 
     /// How long ONE side of a per-side hold runs.
