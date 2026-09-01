@@ -385,6 +385,79 @@ extension DredfitUITests {
                         + "against what was declared")
     }
 
+    /// The declaration belongs to the MOVEMENT, and a skipped set is not the
+    /// end of a movement.
+    ///
+    /// It was taken down by one: `skipSet` clears the per-side pair so a stale
+    /// second side cannot cross into the next set, and that reset used to
+    /// carry the declaration off with it — so "hold 20" followed by one
+    /// skipped set silently put the sets after it back on the plan, with
+    /// nothing on screen to say the decision had been undone.
+    ///
+    /// Asserted on the SUMMARY rather than on a running clock: what the sets
+    /// ran at is what they recorded, and a card is a number that has stopped
+    /// moving.
+    func testADeclaredTimeSurvivesASkippedSet() {
+        launchIntoSession2AndReachPlank("--uitest-fast", "--uitest-hold-short")
+        declareHoldTime(20)
+
+        XCTAssertTrue(driver.skip(control: AX.exerciseSkipSet),
+                      "a three-set hold must let one set go and still count as trained")
+        // The skip hands the exercise back un-run: one tap buys it again.
+        let start = app.buttons[AX.holdStartExercise]
+        XCTAssertTrue(start.waitForExistence(timeout: 5),
+                      "the skip must leave the exercise startable")
+        coordinateTap(start)
+
+        let lastCard = app.buttons[AX.summarySet(3)]
+        XCTAssertTrue(lastCard.waitForExistence(timeout: 150),
+                      "the exercise did not run itself out after the skipped set")
+        // Set one was never performed and stands at its plan; the two behind
+        // it are the ones the declaration governs.
+        for set in 2...3 {
+            let label = app.buttons[AX.summarySet(set)].label
+            XCTAssertTrue(label.contains("20 seconds"),
+                          "set \(set) lost the declared time to the skip — got “\(label)”")
+        }
+    }
+
+    /// …and it does not outlive the movement either. The ordinary way out of
+    /// an exercise is the last set's rest, which walks to the next movement
+    /// without passing the skip's reset at all — so a time set for the plank
+    /// arrived at the side plank and set its clock to a number nobody had
+    /// asked of that movement (the side plank's own plan is the corridor's
+    /// floor, 15 s per side).
+    ///
+    /// The observation is the pre-effort entry, which opens on exactly the
+    /// number the clock would run from — no waiting on a countdown to read a
+    /// value that is already decided.
+    func testADeclaredTimeDoesNotFollowTheMovementItWasSetFor() {
+        launchIntoSession2AndReachPlank("--uitest-fast", "--uitest-hold-short")
+        declareHoldTime(20)
+        coordinateTap(app.buttons[AX.holdStartExercise])
+
+        let lastCard = app.buttons[AX.summarySet(3)]
+        XCTAssertTrue(lastCard.waitForExistence(timeout: 180),
+                      "the plank did not run itself out at the declared time")
+        coordinateTap(app.buttons[AX.exerciseDone])
+
+        // The side plank follows the plank in session 2, and it is a hold of
+        // its own with a plan of its own.
+        let perSideCaption = app.staticTexts["seconds per side"]
+        XCTAssertTrue(perSideCaption.waitForExistence(timeout: 60),
+                      "the per-side hold must follow the plank in session 2")
+        XCTAssertTrue(app.buttons[AX.holdSetTime].waitForExistence(timeout: 10),
+                      "the next hold must open on its own intro screen")
+        coordinateTap(app.buttons[AX.holdSetTime])
+        let value = app.staticTexts.matching(
+            NSPredicate(format: "label MATCHES %@", "^[0-9]+ s$")).firstMatch
+        XCTAssertTrue(value.waitForExistence(timeout: 5),
+                      "the entry did not open its stepper")
+        XCTAssertEqual(value.label, "15 s",
+                       "the side plank's clock opened on the time declared for the "
+                         + "PLANK — its own plan is 15 s")
+    }
+
     /// The case nothing after the plan could ever serve: a per-side hold records the
     /// SMALLER of its two sides, so nothing that happens after the plan is met
     /// can raise its number. A declared time can, because both sides run from

@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+**A time set for one movement stays with that movement.** Saying "hold 20" and
+then skipping a set of the same exercise put the sets after it silently back on
+the plan — the skip cleared the declaration along with the state that really
+does belong to one set — and it dropped the "≈" marks off numbers the app had
+guessed at, so a figure it had estimated was printed with the confidence of one
+the clock produced. In the other direction the same time outlived the exercise
+entirely: finish the plank at 20 s and the side plank, whose own plan is 15,
+opened its clock on 20. The declaration now begins and ends with the movement it
+was set for.
+
 **History remembers the probe.** A workout whose last set was a probe was
 recorded as though it never happened: the sheet printed the working sets beside
 the movement's name — "2 × 15" for a session that also had somebody trying a
