@@ -194,12 +194,7 @@ struct WentDifferentlyButton: View {
 
     var body: some View {
         Button(action: action) {
-            Text("Went differently")
-                .dredfitFont(15.5, weight: .medium)
-                .foregroundStyle(Theme.ink2)
-                .frame(maxWidth: .infinity, minHeight: 46)
-                .background(RoundedRectangle(cornerRadius: 14)
-                    .strokeBorder(Theme.ink3, lineWidth: 1.5))
+            Text("Went differently").flowSecondaryLabel()
         }
         .accessibilityIdentifier("exercise-adjust")
         // One literal, split for width: a concatenation would resolve to the
@@ -259,5 +254,49 @@ struct HoldStopButton: View {
         } else {
             Text("Stop")
         }
+    }
+}
+
+/// The look the two secondary controls above the primary button share — the
+/// alternative answer, never a rival to it. Extracted rather than restated
+/// because a second copy of an outline that has a measured reason for every
+/// value in it is a second copy that drifts.
+extension View {
+    func flowSecondaryLabel() -> some View {
+        dredfitFont(15.5, weight: .medium)
+            .foregroundStyle(Theme.ink2)
+            .frame(maxWidth: .infinity, minHeight: 46)
+            .background(RoundedRectangle(cornerRadius: 14)
+                .strokeBorder(Theme.ink3, lineWidth: 1.5))
+    }
+}
+
+/// "Set the time" — the ONE thing a hold takes before the effort: how long it
+/// is going to run.
+///
+/// It is not "Went differently" under a kinder name, and the difference is
+/// the tense. That control asks how a set WENT, which before the effort is a
+/// question about something that has not happened — the objection that took
+/// it off this screen. This one asks what the clock should be set to, which
+/// is the only question a person standing in front of a plank can actually
+/// answer, and the answer is a target: what reaches the engine is still
+/// whatever the clock then measured, cut down by Stop if the hold ends early.
+///
+/// Neutral by name, and deliberately: the same control lowers the time on a
+/// day when the plan is too much. Naming it "hold longer" would have made the
+/// downward answer look like a failure of the button rather than an ordinary
+/// decision.
+struct SetHoldTimeButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text("Set the time").flowSecondaryLabel()
+        }
+        .accessibilityIdentifier("hold-set-time")
+        .accessibilityHint(Text(String(localized: """
+            How long every set of this exercise runs. \
+            Stop ends one early and records what you held.
+            """)))
     }
 }

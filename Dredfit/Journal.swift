@@ -244,13 +244,13 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// that screen would come back on the last set and offer to run it again —
     /// an effort that is behind, with its seconds already recorded.
     var atExerciseSummary: Bool?
-    /// The moment the plan was met on a hold whose clock kept running (R25).
-    /// Wall-clock like `restEndDate`, and restored the same way: the bank is
-    /// recomputed from it rather than stored, so the app comes back to the
-    /// step it is actually on.
-    var holdTailStart: Date?
+    /// How long the athlete DECLARED the hold in front of them would run,
+    /// before doing it. Restored so that coming back after a process death
+    /// does not quietly put the plan's number back on the clock.
+    var holdDeclaredSec: Int?
     /// Sets of the exercise in front of us whose number is an ESTIMATE — the
-    /// set ended under a thumb, or the tail ran into its cap. An array
+    /// set ended under a thumb, so it carries a guessed reach allowance. An
+    /// array
     /// because a `Set<Int>` is one on the wire anyway; read back as a set.
     var approxSets: [Int]?
     var interrupted: Pattern?

@@ -1,7 +1,7 @@
 //
 //  The arithmetic of a hands-free hold: the writer the exercise summary needs,
-//  the allowance a hold ended by thumb pays, and the bonus tail of the last
-//  set. A file of its own beside SetFactsTests, which is about the per-set
+//  the allowance a hold ended by thumb pays, and the time a declared hold runs
+//  for. A file of its own beside SetFactsTests, which is about the per-set
 //  fact in general and already stands at 521 lines against a 600-line lint.
 //
 //  Every rule here is a pure function on purpose. A rule stated inside a
@@ -140,69 +140,51 @@ final class HoldFactsTests: XCTestCase {
         XCTAssertEqual(SetFacts.holdEndedByTap(heldSeconds: 4), floor)
     }
 
-    // MARK: - The tail of the last set
+    // MARK: - The time a hold is set to run
 
-    /// The plan plus the steps ACTUALLY COMPLETED. A step under way banks
-    /// nothing, which is the whole reason the figure on the button cannot be
-    /// inflated by the seconds spent reaching for the phone.
-    func testOnlyCompletedStepsAreBanked() {
-        let plan = 55
-        XCTAssertEqual(SetFacts.holdTailBanked(planned: plan, heldSeconds: 55), 55)
-        XCTAssertEqual(SetFacts.holdTailBanked(planned: plan, heldSeconds: 59), 55)
-        XCTAssertEqual(SetFacts.holdTailBanked(planned: plan, heldSeconds: 60), 60)
-        XCTAssertEqual(SetFacts.holdTailBanked(planned: plan, heldSeconds: 64), 60)
-        XCTAssertEqual(SetFacts.holdTailBanked(planned: plan, heldSeconds: 70), 70)
+    /// Without a declaration nothing changes: the clock runs on the plan, and
+    /// on whatever an earlier set reported.
+    func testWithoutADeclarationTheClockIsThePlan() {
+        XCTAssertEqual(SetFacts.holdTarget([:], hold, set: 0, declared: nil), 45)
+        let short = SetFacts.recording(30, in: [:], hold, set: 0)
+        XCTAssertEqual(SetFacts.holdTarget(short, hold, set: 1, declared: nil), 30,
+                       "a shortfall carries forward, as it always did")
     }
 
-    /// The cap: twice the plan, cut by the top of the hold corridor. At a plan
-    /// of 55 the corridor bites first, which is why both halves are asserted.
-    func testTheTailIsCappedByTwiceThePlanAndByTheCorridor() {
-        let ceiling = SetFacts.corridor(for: .hold).upperBound
-        XCTAssertEqual(SetFacts.holdTailCap(planned: 55), ceiling)
-        XCTAssertEqual(SetFacts.holdTailBanked(planned: 55, heldSeconds: 111), ceiling)
-        XCTAssertEqual(SetFacts.holdTailBanked(planned: 55, heldSeconds: 200), ceiling)
-
-        // …and where the plan is short enough, the doubling is what bites.
-        XCTAssertEqual(SetFacts.holdTailCap(planned: 20), 40)
-        XCTAssertEqual(SetFacts.holdTailBanked(planned: 20, heldSeconds: 300), 40)
+    /// A declaration stands in for the plan, on every set of the exercise —
+    /// one tap buys the whole movement, and the sets after the first run with
+    /// nobody at the phone to re-enter anything.
+    func testADeclarationGovernsEverySetOfTheExercise() {
+        for set in 0..<hold.sets {
+            XCTAssertEqual(SetFacts.holdTarget([:], hold, set: set, declared: 60), 60)
+        }
     }
 
-    /// A plan already at the top of the corridor has no tail to give: its cap
-    /// IS its plan. The flow reads exactly this to decide whether to open one
-    /// — a tail that opened and closed on the same tick would record an
-    /// estimate for a set the clock measured to the second.
-    func testAPlanAtTheCorridorTopHasNoRoomForATail() {
-        let ceiling = SetFacts.corridor(for: .hold).upperBound
-        XCTAssertEqual(SetFacts.holdTailCap(planned: ceiling), ceiling)
-        XCTAssertEqual(SetFacts.holdTailBanked(planned: ceiling,
-                                               heldSeconds: ceiling + 30), ceiling)
+    /// …but a set that was CUT SHORT still speaks: the sets after it follow
+    /// what was shown, capped by what was declared. Aiming at 60 and managing
+    /// 50 does not put 60 back on the clock.
+    func testASetCutShortGovernsTheSetsAfterIt() {
+        let facts = SetFacts.recording(50, in: [:], hold, set: 0)
+        XCTAssertEqual(SetFacts.holdTarget(facts, hold, set: 1, declared: 60), 50)
+        XCTAssertEqual(SetFacts.holdTarget(facts, hold, set: 0, declared: 60), 60,
+                       "the set that was cut short is not re-shortened by itself")
     }
 
-    /// Nothing under the plan is a tail at all: the tail begins where the
-    /// plan is met, and a hold that fell short is an ordinary early stop.
-    func testABelowPlanHoldHasNoTail() {
-        XCTAssertEqual(SetFacts.holdTailBanked(planned: 45, heldSeconds: 30), 45)
+    /// A declaration BELOW the plan means what it says. Doing less than
+    /// planned is a decision somebody is entitled to take, and it must not be
+    /// quietly lifted back onto the plan.
+    func testADeclarationBelowThePlanIsHonoured() {
+        XCTAssertEqual(SetFacts.holdTarget([:], hold, set: 0, declared: 20), 20)
     }
 
-    /// A restored snapshot can carry any number at all, and `planned × 2` is
-    /// an Int multiplication that traps on overflow.
-    func testNoStoredPlanCanTrapTheCap() {
-        XCTAssertEqual(SetFacts.holdTailCap(planned: .max),
-                       SetFacts.corridor(for: .hold).upperBound)
-        XCTAssertEqual(SetFacts.holdTailCap(planned: .min), 0)
-        XCTAssertEqual(SetFacts.holdTailBanked(planned: .max, heldSeconds: .max),
-                       SetFacts.corridor(for: .hold).upperBound)
-    }
-
-    /// The banked figure never claims the seconds the reach allowance takes
-    /// off an ordinary early stop. Both corrections point the same way — down
-    /// — and applying both to one number would charge the athlete twice for
-    /// one walk to the phone.
-    func testTheTailIsNotChargedTheReachAllowanceOnTopOfItsRounding() {
-        let banked = SetFacts.holdTailBanked(planned: 45, heldSeconds: 52)
-        XCTAssertEqual(banked, 50)
-        XCTAssertLessThan(SetFacts.holdEndedByTap(heldSeconds: banked), banked,
-                          "the two are different corrections; only one applies")
+    /// It is carried in the workout snapshot, so it is clamped where it is
+    /// read — like every other number that comes back off disk.
+    func testADeclarationOffDiskIsHeldInsideTheCorridor() {
+        let corridor = SetFacts.corridor(for: .hold)
+        XCTAssertEqual(SetFacts.holdTarget([:], hold, set: 0, declared: 9_000),
+                       corridor.upperBound)
+        XCTAssertEqual(SetFacts.holdTarget([:], hold, set: 0, declared: -5),
+                       corridor.lowerBound)
     }
 
     // MARK: - Helpers

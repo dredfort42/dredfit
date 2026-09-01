@@ -171,29 +171,29 @@ struct WorkoutFlowView: View {
     /// other last set of a hold now lands on `exerciseSummary`, which is a
     /// better version of the same idea and speaks about the whole movement.
     @State var holdSettled = false
-    /// The moment the plan was met on the last set of a hold, after which the
-    /// clock keeps running and banks a step every five seconds (R25). Nil
-    /// whenever no tail is under way.
+    /// How long the athlete SAID this hold would run, before doing it.
     ///
-    /// A wall-clock date like every other countdown in the flow, and in the
-    /// snapshot for the same reason: a killed app must come back to the tail
-    /// it left, with the same bank. Nothing records how many tones have
-    /// already played — the bank is recomputed from the date, and the signal
-    /// re-arms on `banked > holdTailBanked`, which is the scheme the rest
-    /// extension already uses. A flag would have to be right after a restore;
-    /// arithmetic cannot be wrong.
-    @State var holdTailStartDate: Date?
-    /// The seconds actually on the clock during a tail — what the big number
-    /// shows. It deliberately runs AHEAD of the bank below: 62 seconds held,
-    /// 60 banked. The screen says both because they are both true, and the
-    /// button names the one that gets written.
-    @State var holdTailSeconds = 0
-    /// The plan plus the steps completed — `SetFacts.holdTailBanked`.
-    @State var holdTailBanked = 0
+    /// A target, not a report, and the difference is the whole reason it may
+    /// be entered before the effort at all: nothing here claims a set was
+    /// performed. It stands in for the plan while the exercise lasts — the
+    /// clock counts down from it and Stop cuts it short — so what the engine
+    /// finally reads is still measured, never declared.
+    ///
+    /// Per exercise, not per set: one tap buys the whole movement, and the
+    /// sets after the first run with nobody at the phone. Cleared with the
+    /// exercise, and carried across a process death, because coming back to
+    /// the plan's number after declaring more would silently undo the
+    /// decision.
+    @State var holdDeclared: Int?
+    /// The adjuster is open on the DECLARATION rather than on a set's record.
+    /// A flag rather than a condition derived from the screen, for the same
+    /// reason `summarySet` is one: what the panel writes must not depend on
+    /// what the screen happens to look like when OK is tapped.
+    @State var holdDeclaring = false
     /// Sets of the exercise in front of us whose number is an ESTIMATE rather
-    /// than a measurement: the set ended under a thumb, or the tail ran into
-    /// its cap with nobody there to stop it. Indices, because that is what the
-    /// summary prints beside; cleared with the exercise it describes.
+    /// than a measurement: the set ended under a thumb, which pays a guessed
+    /// three-second reach allowance. Indices, because that is what the summary
+    /// prints beside; cleared with the exercise it describes.
     @State var holdApproxSets: Set<Int> = []
     /// Which card of the summary the adjuster is editing, so the panel writes
     /// to the set that was tapped rather than to the set the flow is on.
@@ -264,8 +264,6 @@ struct WorkoutFlowView: View {
                                target: TechniqueTarget(exercise))
     }
     var holding: Bool { holdEndDate != nil }
-    /// The plan is behind and the clock is still running (R25).
-    var holdTailing: Bool { holdTailStartDate != nil }
     var holdSwitchPausing: Bool { holdPauseEndDate != nil }
     var holdCountingIn: Bool { holdCountInEndDate != nil }
     private var isMilestone: Bool { if case .milestone = phase { return true }; return false }
@@ -364,8 +362,6 @@ struct WorkoutFlowView: View {
                 tickHoldSwitchPause()
             case .work where holding:
                 tickHold()
-            case .work where holdTailing:
-                tickHoldTail()
             default:
                 break
             }
@@ -727,13 +723,12 @@ extension WorkoutFlowView {
     func resetHoldSides() {
         holdSecondSide = false
         firstSideHeld = nil
-        // The tail and the estimate marks belong to the exercise in front of
-        // us for exactly as long as it is in front of us: carried into the
-        // next movement they would bank seconds nobody held and print "tapped"
-        // beside a set that was not.
-        holdTailStartDate = nil
-        holdTailSeconds = 0
-        holdTailBanked = 0
+        // The declaration and the estimate marks belong to the exercise in
+        // front of us for exactly as long as it is in front of us: carried
+        // into the next movement they would set a clock nobody asked for and
+        // print "tapped" beside a set that was not.
+        holdDeclared = nil
+        holdDeclaring = false
         holdApproxSets.removeAll()
         summarySet = nil
         // The settled hold belongs to the set it was held in for exactly the
