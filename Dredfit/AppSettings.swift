@@ -66,6 +66,15 @@ struct AppSettings: Codable, Equatable {
     /// exactly once, and a launch killed before the person read the card must
     /// not be the launch that spent it.
     var migrationNoticePending: Bool?
+    /// Whether a technique sheet has ever been opened, from any of the three
+    /// doors that lead to one. It gates ONE line on Today — the sentence that
+    /// says a plan row opens the sheet, and that the variation one step below
+    /// lives in there (R30). A flag rather than `records.isEmpty`, because the
+    /// person who most needs the sentence is the one carried over from v2:
+    /// their journal is full, and a gate on history would never show it to
+    /// them at all. Once they have been through the door, the sentence has no
+    /// job left.
+    var hasOpenedTechnique = false
     // `pendingDiscomfort` went with the pain channel and `timeBudgetChosen` /
     // `budgetDefaultNoticeClosedAt` went with the time budget — the two flags
     // existed only to remember whether a person had ever picked a session
@@ -81,7 +90,7 @@ struct AppSettings: Codable, Equatable {
         case healthEnabled, healthExportedThrough, bodyMassKg, watchRecordsWorkouts
         case onboardingCompleted, careAcknowledgedAt, lastReviewRequestAt
         case comebackDecidedFor, weakLinkPromptAnsweredFor
-        case silentDecayAppliedFor, migrationNoticePending
+        case silentDecayAppliedFor, migrationNoticePending, hasOpenedTechnique
     }
 
     init(from decoder: Decoder) throws {
@@ -107,5 +116,9 @@ struct AppSettings: Codable, Equatable {
         // nothing to migrate and nothing to clean up.
         silentDecayAppliedFor = try c.decodeIfPresent(Date.self, forKey: .silentDecayAppliedFor)
         migrationNoticePending = try c.decodeIfPresent(Bool.self, forKey: .migrationNoticePending)
+        // Absent means "never opened one", which is exactly right for a file
+        // written before this key existed: the sentence is shown once and
+        // spent by the first visit to the sheet.
+        hasOpenedTechnique = try c.decodeIfPresent(Bool.self, forKey: .hasOpenedTechnique) ?? false
     }
 }

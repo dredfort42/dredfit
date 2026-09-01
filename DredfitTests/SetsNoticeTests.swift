@@ -155,7 +155,9 @@ final class SetsNoticeTests: AppStoreTestCase {
 
         // The pain line went with the channel, and the plan's two session
         // handles went the same way — the sentences that replaced them are
-        // on the work screen, where the decision is taken now.
+        // on the work screen, where the decision is taken now. `Easier · %@`
+        // went with the third: R30 moved the variation handle into the
+        // technique sheet, and the six keys below are what it says there.
         let keys = [
             "A set is back — your body is coping.",
             "Make it easier",
@@ -166,7 +168,18 @@ final class SetsNoticeTests: AppStoreTestCase {
             "Skip remaining sets",
             "The plan keeps this set off next time. Nothing else about the movement changes.",
             "The probe just comes back next time. The working sets lose nothing.",
-            "Easier · %@",
+            // The handle's own line left the plan with the handle (R30). What
+            // stands in its place is the block in the technique sheet and the
+            // one line that says the sheet is there.
+            "technique.stepDown.kicker",
+            "technique.stepDown.switch",
+            "technique.stepDown.unitToHold",
+            "technique.stepDown.unitToReps",
+            "technique.stepDown.a11ySwitch",
+            "technique.stepDown.confirmTitle",
+            "technique.stepDown.confirmBody",
+            "plan.techniqueHint",
+            "plan.probeNote",
             "%lld positions · about %lld min",
             "A maximum now takes the strength out of the sets after it. What counts is the whole exercise, not one set.",
             "Cool-down",
@@ -198,6 +211,37 @@ final class SetsNoticeTests: AppStoreTestCase {
     func testTheNoteSaysSomethingAndOnlyWhenThereIsSomethingToSay() {
         XCTAssertFalse(ExerciseRow.note(setCameBack: true)?.isEmpty ?? true)
         XCTAssertNil(ExerciseRow.note(setCameBack: false))
+    }
+
+    /// The row's number does not count the probe — `sets` is already one lower,
+    /// because the probe replaces the last of them (§40.4). So a plan of three
+    /// sets whose third is a probe read "2 × 15" and said nothing about the set
+    /// standing after it, while the announced duration counted it.
+    ///
+    /// Both halves asserted: the line names the movement the probe offers, and
+    /// an exercise without a probe says nothing at all — a note that always
+    /// appears is not a note.
+    func testAnExerciseWithAProbeSaysSoOnThePlan() throws {
+        let probe = SessionProbe(variation: 3, name: "Bar hang", unit: .hold,
+                                 load: 15, perSide: false)
+        let withProbe = SessionExercise(
+            pattern: .pull, name: "Inverted row", variation: 2, unit: .reps,
+            load: 15, perSide: false, sets: 2, restSetSec: 60, restExerciseSec: 90,
+            loads: nil, probe: probe)
+        let line = try XCTUnwrap(ExerciseRow.probeNote(withProbe))
+        XCTAssertTrue(line.contains("Bar hang"),
+                      "the note must name the movement the probe offers: \(line)")
+        XCTAssertTrue(line.contains(probe.display),
+                      "the note must carry the probe's own dose: \(line)")
+
+        let plain = SessionExercise(
+            pattern: .pull, name: "Inverted row", variation: 2, unit: .reps,
+            load: 15, perSide: false, sets: 3, restSetSec: 60, restExerciseSec: 90,
+            loads: nil, probe: nil)
+        XCTAssertNil(ExerciseRow.probeNote(plain))
+        XCTAssertEqual(ExerciseRow.notes(plain, setCameBack: false), [])
+        XCTAssertEqual(ExerciseRow.notes(withProbe, setCameBack: true).count, 2,
+                       "a set coming back and a probe are two facts, not one sentence")
     }
 
     /// The general form of the same guard, over the whole app: every plain

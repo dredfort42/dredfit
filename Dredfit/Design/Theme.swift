@@ -208,10 +208,14 @@ extension Date {
 
 struct Kicker: View {
     let text: String
+    /// ink3 labels a SECTION — a heading over content that speaks for itself.
+    /// A kicker that labels the one actionable thing on its screen takes ink2
+    /// instead: 4.96:1 against 3.02:1, and the R16–R21 floor for text is 4.5.
+    var color: Color = Theme.ink3
     var body: some View {
         Text(text.uppercased())
             .dredfitFont(12, weight: .semibold)
             .kerning(0.8)
-            .foregroundStyle(Theme.ink3)
+            .foregroundStyle(color)
     }
 }

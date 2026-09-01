@@ -33,7 +33,12 @@ enum AX {
     /// The row is per pattern (`plan-row-squat`, `plan-row-push_h`, …); the
     /// prefix is what a test that does not care WHICH movement asks for.
     static let planRowPrefix = "plan-row-"
+    /// The ONE name here that matches nothing in production, and deliberately:
+    /// the per-movement handle left the plan for the technique sheet (R30), and
+    /// the test that proves it asks for this prefix precisely so a handle that
+    /// comes back is a red test rather than a silently restored row.
     static let easierHandlePrefix = "easier-"
+    static let techniqueHint = "technique-hint"
     static let nextWorkoutDone = "next-workout-done"
 
     // MARK: - Onboarding, resume and the comeback card
@@ -82,6 +87,12 @@ enum AX {
     static let technique = "technique"
     static let techniqueDone = "technique-done"
     static let techniqueLife = "technique-life"
+    /// The sheet's own headline, and the block under the variation tag that
+    /// offers the rung below it (R30). The headline is identified because the
+    /// step-down test reads it: what the block promises is that this title
+    /// becomes the movement it named.
+    static let techniqueTitle = "technique-title"
+    static let techniqueStepDown = "technique-step-down"
     static let timeLeft = "time-left"
     static let adjustMinus = "minus"
     static let adjustPlus = "plus"

@@ -390,6 +390,16 @@ struct WorkoutFlowView: View {
         .onChange(of: blockPause.isHeld) { _, held in
             UIApplication.shared.isIdleTimerDisabled = !held
         }
+        // WITHOUT `planned:` — the step-below block belongs to the screen that
+        // shows the UPCOMING workout, never to one that is running (owner,
+        // 01.09.2026). The session is snapshotted at Start, so a switch taken
+        // here would move the state under a plan already in flight, and the
+        // rating lands on the pair: measured, squat v6 3×15 switched to v5 and
+        // rated "on plan" writes 15 into the journal of v5, where the person
+        // had shown 4 — and a probe passed later in the same session promotes
+        // straight past the rung they just chose, undoing the decision without
+        // saying so. The engine is right; the two states simply must not move
+        // at once.
         .sheet(item: $techniqueTarget) { target in
             TechniqueSheet(target: target)
         }
