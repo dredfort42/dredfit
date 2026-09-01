@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+**History remembers the probe.** A workout whose last set was a probe was
+recorded as though it never happened: the sheet printed the working sets beside
+the movement's name — "2 × 15" for a session that also had somebody trying a
+pull-up they had never done — and said nothing about the set that followed. What
+the probe showed was worse off than unprinted: the number reached the engine and
+was never written down, so the moment the rating landed it was gone for good.
+It is kept now, and the line under the movement reads *Probe: Inverted row
+(table) · 5 — passed*, or *— not this time*, which is the same neutral sentence
+the workout itself gives a probe that did not land. Records written before this
+keep their verdict — that much can still be read off the position the session
+ended on — and simply have no number to show.
+
 **The easier variation moved off the plan and into the movement's own card.**
 Every row of the plan carried a line under it offering a gentler version of that
 movement — and since 2.0 that meant six of them, one under every row, because

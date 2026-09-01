@@ -25,36 +25,10 @@ struct HistorySheet: View {
 
             if let exercises = record.exercises, !exercises.isEmpty {
                 List(exercises) { ex in
-                    HStack(alignment: .firstTextBaseline) {
-                        Text(currentName(ex))
-                            .dredfitFont(16, weight: .medium)
-                            .foregroundStyle(Theme.ink)
-                        Spacer()
-                        VStack(alignment: .trailing, spacing: 2) {
-                            Text(ex.display)
-                                .dredfitFont(15)
-                                .monospacedDigit()
-                                .foregroundStyle(Theme.ink2)
-                            // Only a record written before the wave can carry
-                            // this. History says what happened, and what
-                            // happened is that the person reported it.
-                            if record.discomfort?.contains(ex.pattern) == true {
-                                Text("hurt")
-                                    .dredfitFont(12.5)
-                                    .foregroundStyle(Theme.accentText)
-                            } else if record.skipped?.contains(ex.pattern) == true {
-                                Text("skipped")
-                                    .dredfitFont(12.5)
-                                    .foregroundStyle(Theme.ink2)
-                            } else if let fact = setFacts(ex) {
-                                SetFactsLabel(values: fact.values,
-                                              reported: fact.reported, size: 12.5)
-                            }
-                        }
-                    }
-                    .padding(.vertical, 3)
-                    .listRowSeparatorTint(Theme.hairline)
-                .listRowBackground(Color.clear)
+                    row(ex)
+                        .padding(.vertical, 3)
+                        .listRowSeparatorTint(Theme.hairline)
+                        .listRowBackground(Color.clear)
                 }
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
@@ -95,6 +69,52 @@ struct HistorySheet: View {
         .presentationBackground(Theme.bg)
     }
 
+    /// The movement, what it cost, and — under both, at full width — what its
+    /// last set was when that set was not a working one.
+    ///
+    /// The probe line goes UNDER rather than into the column on the right: the
+    /// sentence is longer than that column, and the load has to keep its place.
+    /// The same shape the plan gives its own probe line.
+    private func row(_ ex: SessionExercise) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(currentName(ex))
+                    .dredfitFont(16, weight: .medium)
+                    .foregroundStyle(Theme.ink)
+                Spacer()
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(ex.display)
+                        .dredfitFont(15)
+                        .monospacedDigit()
+                        .foregroundStyle(Theme.ink2)
+                    // Only a record written before the wave can carry this.
+                    // History says what happened, and what happened is that
+                    // the person reported it.
+                    if record.discomfort?.contains(ex.pattern) == true {
+                        Text("hurt")
+                            .dredfitFont(12.5)
+                            .foregroundStyle(Theme.accentText)
+                    } else if record.skipped?.contains(ex.pattern) == true {
+                        Text("skipped")
+                            .dredfitFont(12.5)
+                            .foregroundStyle(Theme.ink2)
+                    } else if let fact = setFacts(ex) {
+                        SetFactsLabel(values: fact.values,
+                                      reported: fact.reported, size: 12.5)
+                    }
+                }
+            }
+            if let probe = Self.probeLine(ex, in: record) {
+                Text(probe)
+                    .dredfitFont(12.5)
+                    .foregroundStyle(Theme.ink2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityIdentifier("history-probe-\(ex.pattern.rawValue)")
+            }
+        }
+    }
+
     /// The facts worth printing for one exercise, or nil when it simply ran
     /// to plan. The sets lead: a near miss that stood down rather than claim
     /// the plan hands the engine no number at all, and the record of what was
@@ -115,6 +135,53 @@ struct HistorySheet: View {
         guard let first = values.first,
               SetFacts.differs(values, from: ex) else { return nil }
         return (values, reported ?? first)
+    }
+
+    /// What the last set of this exercise was, when it was not a working set.
+    ///
+    /// The plan carried the probe all along — `SessionExercise.probe` is in the
+    /// record's own CodingKeys — and this screen printed nothing about it, so a
+    /// session of "2 × 15 plus a probe" read in history exactly like a session
+    /// of two sets. What it could not say until now is the OUTCOME, and half of
+    /// that is still an inference rather than a fact: the number comes from
+    /// `record.probes`, which only exists from this wave on.
+    ///
+    /// The verdict does not re-implement §40.4. It is read off what actually
+    /// happened — the position the session ended on, against the variation the
+    /// probe offered — because a second copy of the pass rule in the app is a
+    /// copy that can disagree with the engine.
+    ///
+    /// A missing number is deliberately NOT read as "skipped". A record written
+    /// before this wave has no numbers either, and the two are indistinguishable
+    /// from the file; "not this time" is true of both, and it is the sentence
+    /// the work screen already gives an unresolved probe.
+    /// Static, and taking the record rather than reading `self`, for the one
+    /// reason the two rules named at the bottom of `ProbeChannelTests` are NOT
+    /// covered: a policy written as a `private` member of a SwiftUI view is a
+    /// policy no unit test can reach. This one is a pure function of a record
+    /// and an exercise, so it is written as one.
+    static func probeLine(_ ex: SessionExercise, in record: WorkoutRecord) -> String? {
+        guard let probe = ex.probe,
+              let after = record.positionsAfter?[ex.pattern] else { return nil }
+        let name = (1...Library.count(ex.pattern)).contains(probe.variation)
+            ? Library.name(ex.pattern, probe.variation)
+            : probe.name
+        let landed = after.variation >= probe.variation
+        guard let shown = record.probes?[ex.pattern] else {
+            return landed
+                ? String(localized: "history.probePassedPlain",
+                         defaultValue: "Probe: \(name) — passed")
+                : String(localized: "history.probeUnresolved",
+                         defaultValue: "Probe: \(name) — not this time")
+        }
+        // The probe's own unit, which is not always the exercise's (§40.1).
+        let did = SessionProbe(variation: probe.variation, name: name, unit: probe.unit,
+                               load: shown, perSide: probe.perSide).display
+        return landed
+            ? String(localized: "history.probePassed",
+                     defaultValue: "Probe: \(name) · \(did) — passed")
+            : String(localized: "history.probeShort",
+                     defaultValue: "Probe: \(name) · \(did) — not this time")
     }
 
     /// The snapshot froze `name` in the language active when the session was
