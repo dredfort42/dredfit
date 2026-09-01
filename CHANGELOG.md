@@ -31,21 +31,23 @@ the phone, and the timestamp of the tap is not the timestamp of the last second
 held. The correction only ever goes down, never below the five seconds a hold
 can be stored as, and it is what the button already named.
 
-**The last set of a hold does not stop at the plan.** The tone still marks the
-plan — that is what it always meant — and then the clock keeps going: every
-five seconds past it is **banked** when its own tone sounds, and the button
-says the figure it will write ("Stop · 60 s"). A step under way banks nothing,
-so the two to four seconds spent reaching for the phone can never inflate the
-record, and nothing is lost by taking them. The screen shows both numbers on
-purpose: the big one is the seconds actually running, the button is the seconds
-already earned. It stops itself at twice the plan, and what it stores there is
-marked as an estimate — that is precisely the case where nobody came back.
+**You say how long a hold will run, before it runs.** The one thing a hold
+screen takes before the effort is the time on the clock — a target, not a
+report, which is what makes it a fair question to ask of somebody who has not
+done the set yet. **Set the time** raises it (or lowers it, on a day when the
+plan is too much), the clock counts down from that number on every set of the
+exercise, and **Stop** cuts a set short and records what was actually held. So
+the number the engine reads is still measured, never declared.
 
-Not on a per-side hold, and not because it was forgotten: such a set is
-recorded as the smaller of the two sides, and the second side runs for exactly
-what the first one ran, so no amount of extra time could reach the number. Not
-on a probe either — a probe is one set offered to find out whether a variation
-passes, not an attempt at a maximum.
+A set that was cut short still speaks: the sets after it follow what was shown,
+capped by what was declared. Aiming at 60 and managing 50 does not put 60 back
+on the clock.
+
+This is what the per-side holds needed. Such a set is recorded as the smaller
+of its two sides, and the second side runs for exactly what the first one ran —
+so nothing that happens after the plan is met can raise its number, and half
+the hold movements had no way to show more at all. Both sides now run from the
+declared time, with no exception for the shape.
 
 **A finished hold movement now shows every set on one screen, and any of them
 can be corrected.** Until now only the last one could: a number entered on the
@@ -60,9 +62,9 @@ there is nothing left to skip.
 **"Went differently" is gone from the hold screen.** It asked for a number
 about a set nobody had performed yet, and the one moment it was genuinely
 needed — a hold that ran long — is the moment both hands are on the floor. The
-tail above answers that moment, and the summary answers the correction. The
-first-workout hint that pointed at the control on a hold went with it: it named
-something that could not be reached. The screen for sets of reps is untouched,
+**Set the time** answers that moment before the effort and the summary answers
+the correction after it. The first-workout hint that pointed at the control on
+a hold went with it: it named something that could not be reached. The screen for sets of reps is untouched,
 button for button.
 
 ## 2.0.1

@@ -64,8 +64,8 @@ enum AX {
     static let holdStop = "hold-stop"
     static let holdSetsAndRest = "hold-sets-and-rest"
     static let holdAutorunPromise = "hold-autorun-promise"
-    static let holdTailSteps = "hold-tail-steps"
-    static let holdTailNote = "hold-tail-note"
+    /// The one entry a hold takes BEFORE the effort: how long it will run.
+    static let holdSetTime = "hold-set-time"
 
     // MARK: - Exercise summary
 

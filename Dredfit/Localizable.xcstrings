@@ -1662,46 +1662,6 @@
         }
       }
     },
-    "+%lld banked · next step at %lld": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "+%lld gesichert · nächste Stufe bei %lld"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "+%lld asegurado · siguiente paso en %lld"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "+%lld acquis · prochain cran à %lld"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "+%lld acquisito · prossimo gradino a %lld"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "+%lld garantido · próximo passo em %lld"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "+%lld засчитано · следующая ступень на %lld"
-          }
-        }
-      }
-    },
     "+1 set in %lld": {
       "localizations": {
         "de": {
@@ -5966,46 +5926,6 @@
         }
       }
     },
-    "Each step is banked when the tone sounds. Stop whenever you like — the number is already earned.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Jede Stufe zählt, sobald der Ton kommt. Hör auf, wann du willst – die Zahl ist schon verdient."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cada paso se asegura cuando suena el tono. Para cuando quieras: el número ya está ganado."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chaque cran est acquis au moment du son. Arrête quand tu veux — le nombre est déjà gagné."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ogni gradino è acquisito quando suona il tono. Fermati quando vuoi – il numero è già guadagnato."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cada passo é garantido quando o som toca. Pare quando quiser: o número já está ganho."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Каждая ступень засчитывается в момент сигнала. Останавливайся когда захочешь — число уже заработано."
-          }
-        }
-      }
-    },
     "Twelve things worth knowing about the regulator.": {
       "localizations": {
         "de": {
@@ -8307,46 +8227,6 @@
         }
       }
     },
-    "Next exercise": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nächste Übung"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Siguiente ejercicio"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Exercice suivant"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Esercizio successivo"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Próximo exercício"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Следующее упражнение"
-          }
-        }
-      }
-    },
     "Next up": {
       "localizations": {
         "de": {
@@ -9377,46 +9257,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "%1$@ с%2$@"
-          }
-        }
-      }
-    },
-    "plan met, %lld seconds banked, next step at %lld": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Plan geschafft, %lld Sekunden gesichert, nächste Stufe bei %lld"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "plan cumplido, %lld segundos asegurados, siguiente paso en %lld"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "plan atteint, %lld secondes acquises, prochain cran à %lld"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "piano raggiunto, %lld secondi acquisiti, prossimo gradino a %lld"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "plano cumprido, %lld segundos garantidos, próximo passo em %lld"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "план выполнен, засчитано секунд: %lld, следующая ступень на %lld"
           }
         }
       }
@@ -11163,6 +11003,86 @@
           "stringUnit": {
             "state": "translated",
             "value": "Настройки"
+          }
+        }
+      }
+    },
+    "Set the time": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeit einstellen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustar el tiempo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Régler le temps"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imposta il tempo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustar o tempo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Задать время"
+          }
+        }
+      }
+    },
+    "How long every set of this exercise runs. Stop ends one early and records what you held.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wie lange jeder Satz dieser Übung läuft. Stoppen beendet einen früher und erfasst, was du gehalten hast."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuánto dura cada serie de este ejercicio. Parar termina una antes y registra lo que aguantaste."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La durée de chaque série de cet exercice. Arrêter en termine une plus tôt et enregistre ce que tu as tenu."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quanto dura ogni serie di questo esercizio. Stop ne chiude una prima e registra quanto hai tenuto."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quanto dura cada série deste exercício. Parar encerra uma antes e registra o que você sustentou."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сколько идет каждый подход этого упражнения. Стоп заканчивает подход раньше и записывает удержанное."
           }
         }
       }

@@ -24,46 +24,14 @@ struct HeldSet: Identifiable {
     let seconds: Int
     let planned: Int
     /// The number is an ESTIMATE rather than a measurement: the set ended
-    /// under a thumb (which pays a guessed reach allowance), or the bonus tail
-    /// ran into its cap with nobody there to stop it. Printed as "≈", because
-    /// a number the app guessed at must not be shown with the confidence of
-    /// one the clock produced.
+    /// under a thumb, which pays a guessed three-second reach allowance.
+    /// Printed as "≈", because a number the app guessed at must not be shown
+    /// with the confidence of one the clock produced.
     let approximate: Bool
 
     var id: Int { index }
     /// How far past this set's own plan it landed, or nil when it did not.
     var over: Int? { seconds > planned ? seconds - planned : nil }
-}
-
-/// The steps of the bonus tail: banked behind, still to come ahead (R25).
-///
-/// One accessibility element with one sentence, like the rest ring and the
-/// big number: seven separate capsules would be read out as seven facts,
-/// none of which means anything on its own.
-struct HoldTailSteps: View {
-    let banked: Int
-    let planned: Int
-    let cap: Int
-    let step: Int
-
-    private var total: Int { max(0, (cap - planned) / max(step, 1)) }
-    private var done: Int { max(0, (banked - planned) / max(step, 1)) }
-
-    var body: some View {
-        HStack(spacing: 5) {
-            ForEach(0..<total, id: \.self) { i in
-                Capsule()
-                    .fill(i < done ? Theme.accent : Theme.hairline)
-                    .frame(width: 16, height: 4)
-            }
-        }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text(String(localized: """
-            plan met, \(banked - planned) seconds banked, \
-            next step at \(min(banked + step, cap))
-            """)))
-        .accessibilityIdentifier("hold-tail-steps")
-    }
 }
 
 /// One tappable number. 44 pt is the floor for the target, not for the card:

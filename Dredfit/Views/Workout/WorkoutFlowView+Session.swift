@@ -38,9 +38,15 @@ extension WorkoutFlowView {
         adjusting = false
         // On the probe set the countdown is the PROBE's target — a different
         // movement, and possibly a different unit (§40.1, `pull_bar` 2→3).
+        // The declaration stands in for the plan while this exercise lasts —
+        // `SetFacts.holdTarget` says how, and why a set cut short still
+        // governs the sets after it. The PROBE is outside it: it is one set of
+        // another movement, and a time declared for this one says nothing
+        // about that one (§40.4).
         var planned = current.isProbe
             ? (probeActuals[exercise.pattern] ?? current.planned)
-            : SetFacts.inForce(actuals, exercise, set: setIndex)
+            : SetFacts.holdTarget(actuals, exercise, set: setIndex,
+                                  declared: holdDeclared)
         #if DEBUG
         // The UI suite used to set a hold's length through the adjuster on
         // this screen, which R23 removed: nothing is entered before the
@@ -50,13 +56,15 @@ extension WorkoutFlowView {
         // runner can eat (the nightly of 2026-08-04 spent 20 s delivering
         // one tap).
         //
-        // A SEED OF THE PLAN, never of the number in force: once the athlete
-        // has reported something for this movement, that is what the set runs
-        // at. Otherwise the scaffolding would overwrite the very thing the
-        // test that set it is about — a hold stopped early carries its
-        // seconds onto the sets after it, and a flag that re-imposed 90 s
-        // would have hidden exactly that. Production untouched; DEBUG only.
-        if actuals[exercise.pattern] == nil && !current.isProbe {
+        // A SEED OF THE PLAN, never of the number in force and never of a
+        // DECLARED time: once the athlete has said something about this
+        // movement — by reporting a set or by setting the clock — that is what
+        // it runs at. Otherwise the scaffolding would overwrite the very thing
+        // the test that set it is about: a hold stopped early carries its
+        // seconds onto the sets after it, and a declared time governs every
+        // set, and a flag that re-imposed 90 s would hide both.
+        // Production untouched; DEBUG builds only.
+        if actuals[exercise.pattern] == nil && holdDeclared == nil && !current.isProbe {
             if CommandLine.arguments.contains("--uitest-hold-short") {
                 planned = SetFacts.corridor(for: .hold).lowerBound
             } else if CommandLine.arguments.contains("--uitest-hold-long") {
@@ -106,10 +114,6 @@ extension WorkoutFlowView {
         let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
         guard newRemaining != holdRemaining else { return }
         if newRemaining == 0 {
-            if holdTailApplies {
-                beginHoldTail()
-                return
-            }
             // Silent: completeSet() owns the end-of-set signal now, whatever
             // ended it (#186). Sounding a done here would double it.
             finishHold(heldSeconds: holdTotal)
@@ -119,100 +123,6 @@ extension WorkoutFlowView {
             }
             withAnimation(.linear(duration: 0.3)) { holdRemaining = newRemaining }
         }
-    }
-
-    // MARK: - The bonus tail of the last hold (R25)
-
-    /// Where the clock does NOT stop at the plan.
-    ///
-    /// The LAST set only: an earlier one is followed by a rest and by the
-    /// movement coming back, so there is nothing terminal about it and a tail
-    /// would just be unbudgeted work in the middle of an exercise.
-    ///
-    /// NOT on a per-side hold, and the reason is arithmetic rather than
-    /// taste: the set is recorded as min(side one, side two), and the second
-    /// side runs for exactly what the first one ran
-    /// (`SetFacts.holdSideSeconds`), so no amount of tail on side two can
-    /// raise the number. Their channel for "more than the plan" is the
-    /// summary's own correction. Do not "finish the job" by adding it here.
-    ///
-    /// NOT on the probe either: a probe is one set offered to find out
-    /// whether a variation passes (§40.4), not an attempt at a maximum.
-    /// …and not where there is no step left to bank. A set already running at
-    /// the top of the corridor has a cap equal to its own plan, so a tail
-    /// there would open and close on the same tick — and close as an
-    /// ESTIMATE, which would be a lie about a set the clock measured exactly.
-    var holdTailApplies: Bool {
-        current.unit == .hold && isLastSet && !current.perSide && !current.isProbe
-            && SetFacts.holdTailCap(planned: holdTotal) > holdTotal
-    }
-
-    /// The plan has been met and the clock keeps going. The tone here is the
-    /// one that used to END the set — it still means exactly what it meant,
-    /// "that is the plan" — and what follows it is extra.
-    func beginHoldTail() {
-        holdEndDate = nil
-        holdRemaining = 0
-        holdTailSeconds = holdTotal
-        holdTailBanked = holdTotal
-        holdTailStartDate = .now
-        playDone()
-        persistProgress()   // the tail is wall-clock; it survives being killed
-    }
-
-    /// A step is banked when its tone sounds, and never before: half a step is
-    /// worth nothing, the same way half a pull-up is.
-    ///
-    /// The signal needs no "already played" flag to survive a restore — it
-    /// fires on the bank RISING, and the bank is recomputed from the start
-    /// date, so an app that comes back after two minutes away re-arms at the
-    /// right step instead of replaying the ones it missed. Same scheme as the
-    /// rest extension's last-seconds tick.
-    func tickHoldTail() {
-        guard let start = holdTailStartDate else { return }
-        let held = holdTotal + max(0, Int(Date.now.timeIntervalSince(start)))
-        guard held != holdTailSeconds else { return }
-        let banked = SetFacts.holdTailBanked(planned: holdTotal, heldSeconds: held)
-        withAnimation(.linear(duration: 0.3)) { holdTailSeconds = held }
-        if banked > holdTailBanked {
-            holdTailBanked = banked
-            playTick()
-        }
-        // At the cap the tail closes ITSELF, and what it stores is marked as
-        // an estimate: this is precisely the case where nobody came back to
-        // the phone, so the app knows the hold lasted AT LEAST this long and
-        // must not claim to know it lasted exactly this long.
-        if banked >= SetFacts.holdTailCap(planned: holdTotal) {
-            endHoldTail(measured: false)
-        }
-    }
-
-    /// Closes the tail and hands the movement to its summary.
-    ///
-    /// The reach allowance (`SetFacts.holdEndedByTap`) is deliberately NOT
-    /// applied. Both corrections point the same way — down — and the tail has
-    /// already paid one: the bank rounds DOWN to the last completed step, so
-    /// the seconds spent walking to the phone are discarded by construction.
-    /// Charging the allowance on top would take a second step off a number
-    /// that was earned in full.
-    func endHoldTail(measured: Bool) {
-        guard holdTailing else { return }
-        let banked = holdTailBanked
-        holdTailStartDate = nil
-        holdTailSeconds = 0
-        holdTailBanked = 0
-        if !measured {
-            holdApproxSets.insert(setIndex)
-            // The CAP ends the set with nobody at the phone, so the only way
-            // to learn it is over is to hear it. A tap needs no such answer —
-            // the person who made it already knows — and a second tone there
-            // would be an announcement of something they just did.
-            playDone()
-        }
-        holdSecondSide = false
-        firstSideHeld = nil
-        recordHoldActual(heldSeconds: banked)
-        startExerciseSummary()
     }
 
     static let holdMistapSeconds = 3.0
@@ -292,6 +202,7 @@ extension WorkoutFlowView {
     /// Every set of the finished hold movement, on one screen.
     func startExerciseSummary() {
         adjusting = false
+        holdDeclaring = false
         summarySet = nil
         holdSettled = false
         holdAutoRun = false
@@ -426,7 +337,7 @@ extension WorkoutFlowView {
             atFeedback: phase == .feedback || phase == .cooldown
                 || phase == .cooldownIntro ? true : nil,
             atExerciseSummary: phase == .exerciseSummary ? true : nil,
-            holdTailStart: holdTailStartDate,
+            holdDeclaredSec: holdDeclared,
             approxSets: holdApproxSets.isEmpty ? nil : Array(holdApproxSets).sorted(),
             interrupted: interruptedPattern,
             warmupSec: warmupSec, cooldownSec: cooldownSec))
@@ -454,26 +365,17 @@ extension WorkoutFlowView {
         warmupSec = snap.warmupSec
         cooldownSec = snap.cooldownSec
         holdApproxSets = snap.approximateSets
+        // A declared time outlives a process death, and it has to: coming back
+        // to the plan's number after saying you would hold longer would undo
+        // the decision without saying so, and the sets already recorded would
+        // then be followed by a shorter one for no reason anybody could see.
+        holdDeclared = snap.holdDeclaredSec
         if snap.atFeedback == true {
             phase = .feedback
             return
         }
         if snap.atExerciseSummary == true {
             phase = .exerciseSummary
-            return
-        }
-        // A TAIL is the one hold state that restores mid-count, and it has to:
-        // the seconds are wall-clock, the person is still in the plank, and
-        // coming back to an offer to start the set again would throw away an
-        // effort that is still happening. The bank is arithmetic on the date,
-        // so nothing about how many tones have played needs storing.
-        if let start = snap.holdTailStart {
-            holdTotal = SetFacts.inForce(actuals, exercise, set: setIndex)
-            holdTailStartDate = start
-            holdTailSeconds = holdTotal + max(0, Int(Date.now.timeIntervalSince(start)))
-            holdTailBanked = SetFacts.holdTailBanked(planned: holdTotal,
-                                                     heldSeconds: holdTailSeconds)
-            phase = .work
             return
         }
         if let end = snap.restEndDate, let total = snap.restTotalSec, end > .now {
@@ -539,9 +441,8 @@ extension WorkoutFlowView {
         holdPauseEndDate = nil
         holdSettled = false
         holdAutoRun = false
-        holdTailStartDate = nil
-        holdTailSeconds = 0
-        holdTailBanked = 0
+        holdDeclared = nil
+        holdDeclaring = false
         holdApproxSets.removeAll()
         summarySet = nil
         var firstUnfinished = exIndex

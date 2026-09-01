@@ -83,12 +83,14 @@ extension WorkoutFlowView {
                 .padding(.bottom, 18)
             }
 
-            // Same identifier as the tap that logs a set of reps, because it
-            // is the same act: the movement is finished when the person says
-            // its numbers are right.
-            PrimaryButton(title: isLastExercise
-                          ? String(localized: "Done")
-                          : String(localized: "Next exercise")) {
+            // "Done", like every other tap that logs work in this app, and
+            // the same identifier: it IS the same act — the movement is
+            // finished when the person says its numbers are right. It briefly
+            // read "Next exercise" off the last set, which named the LANDING
+            // rather than the act and so renamed a control people have already
+            // learned; what comes next is the flow's business, not the
+            // button's (owner, 01.09.2026).
+            PrimaryButton(title: String(localized: "Done")) {
                 leaveExerciseSummary()
             }
             .accessibilityIdentifier("exercise-done")

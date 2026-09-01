@@ -264,34 +264,37 @@ nonisolated enum SetFacts {
         max(corridor(for: .hold).lowerBound, heldSeconds - holdReachSeconds)
     }
 
-    // MARK: - The tail of the last hold
+    // MARK: - The time a hold is set to run
 
-    /// The grain of the bonus tail. The clock banks a step at a time, and the
-    /// tone is what says a step has been banked.
-    static let holdTailStepSeconds = 5
-
-    /// The hard ceiling of a tail: twice the plan, and never past the top of
-    /// the hold corridor. The doubling is the idiom the rest extension
-    /// already uses (`restPlanned` × 2) — one dial cannot turn a workout into
-    /// an evening — and the corridor is what a reported number can even be.
+    /// The seconds set `index` of a hold counts down from.
     ///
-    /// `planned` is clamped before it is doubled: it can arrive from a
-    /// restored snapshot, and `Int` multiplication traps on overflow.
-    static func holdTailCap(planned: Int) -> Int {
-        let corridor = self.corridor(for: .hold)
-        let planned = min(max(planned, 0), corridor.upperBound)
-        return min(planned * 2, corridor.upperBound)
-    }
-
-    /// The plan plus the steps ACTUALLY COMPLETED. A step under way banks
-    /// nothing — half a pull-up is not half a rep — so the number the button
-    /// names is always a number already earned, and the two to four seconds
-    /// spent reaching for the phone cannot inflate it.
-    static func holdTailBanked(planned: Int, heldSeconds: Int) -> Int {
-        let planned = min(max(planned, 0), corridor(for: .hold).upperBound)
-        guard heldSeconds > planned else { return planned }
-        let steps = (heldSeconds - planned) / holdTailStepSeconds
-        return min(planned + steps * holdTailStepSeconds, holdTailCap(planned: planned))
+    /// Without a declaration this is `inForce` and nothing has changed. With
+    /// one, THE DECLARATION STANDS IN FOR THE PLAN: the athlete said before
+    /// the effort how long they mean to hold, and that is what the clock is
+    /// set to for every set of the exercise.
+    ///
+    /// It is not simply the declared number on every set, because a set that
+    /// was cut short has already said something: the sets after it follow what
+    /// was actually shown, capped by what was declared. That is the same
+    /// asymmetry `inForce` applies against the plan — a shortfall carries
+    /// forward, a surplus does not — with the declaration as the ceiling
+    /// instead of the plan, and the same rule `holdSideSeconds` applies
+    /// between the two sides of one set.
+    ///
+    /// A declaration BELOW the plan is allowed and means what it says. Doing
+    /// less than planned is a decision the person is entitled to take, and it
+    /// reaches the engine as the honest number it is.
+    static func holdTarget(_ facts: PerSet, _ ex: SessionExercise,
+                           set index: Int, declared: Int?) -> Int {
+        guard let declared else { return inForce(facts, ex, set: index) }
+        // Clamped where it is READ, like everything else that can come back
+        // off disk: the declaration is carried in the workout snapshot.
+        let ceiling = min(max(declared, corridor(for: .hold).lowerBound),
+                          corridor(for: .hold).upperBound)
+        let values = facts[ex.pattern] ?? []
+        let index = max(index, 0)
+        guard index > 0, !values.isEmpty else { return ceiling }
+        return min(values[min(index, values.count) - 1], ceiling)
     }
 
     // MARK: - The collapse
