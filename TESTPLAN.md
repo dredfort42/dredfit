@@ -974,6 +974,23 @@ the block is absent by design.
 | 51.17 | On the pull-up ladder, a step from the negatives down to a hang | The dose line says the unit changes ("holds instead of reps"). Nowhere else in the library does it, and nowhere else may it say so |
 
 
+### 52. History remembers the probe (app, R31)
+
+App-only; the engine diff is empty. Needs a workout whose plan carried a probe —
+a movement at the ceiling of its variation with the journal to match (§40.4) —
+walked to the rating, then opened from the calendar.
+
+| # | Check | Expected |
+|---|---|---|
+| 52.1 | Finish a workout whose last set of some movement was a probe, doing the probe | Calendar → that day: under the movement, *Probe: <movement> · <number> — passed*. The number is what the probe set recorded, in the PROBE's unit — seconds where the rung below counts reps |
+| 52.2 | The same, with a number below the probe's target | *— not this time*. The same words the work screen gives an unresolved probe; nothing scolds |
+| 52.3 | Skip the probe set and finish the workout | The line still names the probe and reads *— not this time*: the app cannot tell a skipped probe from an older record, and this sentence is true of both |
+| 52.4 | A movement with no probe in that session | No line at all. The row is exactly what it was |
+| 52.5 | A workout recorded before this wave (an existing journal) | The line appears with the verdict and WITHOUT a number — the outcome is read off the position the session ended on, which every v3 record carries. Nothing is invented |
+| 52.6 | Export the backup, read `dredfit-state.json` | The record carries a `probes` key only when a probe actually reported a number. A session where none did carries no key — a zero would read as "did the probe and showed nothing" |
+| 52.7 | All seven languages, and a language switch after the fact | The line reads naturally, and the movement's name follows the switch like the name above it. `python3 scripts/check_localization.py` is green |
+
+
 ## Engine gates before a release
 
 Not a manual row — the five automated gates a release runs from `reference/`,

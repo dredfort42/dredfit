@@ -191,6 +191,37 @@ final class ProbeChannelTests: AppStoreTestCase {
                        "and a short probe is not a \"hard\", or the gate would withhold the next probe too")
     }
 
+    /// The number reaches the JOURNAL too, and until this wave it did not: it
+    /// was handed to `applyFeedback` and dropped, so what a probe showed was
+    /// unrecoverable the moment the rating landed — and the history sheet,
+    /// reading a record that carried the probe in its own plan, could say
+    /// nothing about the outcome.
+    ///
+    /// Both halves: the number that came back is written, and a session where
+    /// none did writes no key at all rather than a zero that would read as
+    /// "showed nothing".
+    func test_probe_whateverNumberCameBack_isWrittenIntoTheJournalOfWorkouts() throws {
+        let store = try seededStore(maxed: [.pull])
+        let session = store.nextSession
+        let probe = try XCTUnwrap(try exercise(.pull, in: session).probe, "the fixture must carry a probe")
+
+        store.completeWorkout(session: session, result: .plan, probes: [.pull: probe.load])
+
+        let record = try XCTUnwrap(store.records.last)
+        XCTAssertEqual(record.probes?[.pull], probe.load,
+                       "the record keeps what the probe showed, not only what the engine did with it")
+        XCTAssertNotNil(try XCTUnwrap(record.exercises).first { $0.pattern == .pull }?.probe,
+                        "and the plan it was offered in, which is what names the movement")
+    }
+
+    func test_probe_whenNothingCameBack_theRecordCarriesNoProbeKeyAtAll() throws {
+        let store = try seededStore(maxed: [.pull])
+        store.completeWorkout(session: store.nextSession, result: .plan, probes: [:])
+
+        XCTAssertNil(try XCTUnwrap(store.records.last).probes,
+                     "an absent number is absent — a zero would read as a probe done and failed")
+    }
+
     func test_probe_whenNoNumberComesBackAtAll_leavesTheOfferStandingForNextTime() throws {
         let store = try seededStore(maxed: [.pull])
         let session = store.nextSession

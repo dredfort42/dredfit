@@ -207,10 +207,35 @@ final class JournalSanitizationTests: AppStoreTestCase {
         let original = WorkoutRecord(sessionNumber: 7, date: Date(timeIntervalSince1970: 1_000),
                                      result: .plan, totalProgressAfter: 99,
                                      actuals: [.squat: 13], setActuals: [.squat: [15, 15, 10]],
+                                     probes: [.pull: 4],
                                      positionsAfter: [.squat: RecordedPosition(
                                          variation: 3, sets: 3, dose: 11)],
                                      durationSec: 1800)
         let data = try JSONEncoder().encode(original)
         XCTAssertEqual(try JSONDecoder().decode(WorkoutRecord.self, from: data), original)
+    }
+
+    /// The field the wave added, from both sides. A file written before it
+    /// carries no key at all and must keep reading true — the whole reason
+    /// every field added to a persisted type is optional with a nil default —
+    /// and a hand-edited number is clamped like every other one in this file,
+    /// because the journal is an input too.
+    func testAProbeNumberIsReadBackAndAHandEditedOneIsClamped() throws {
+        let s = try store(records: """
+        {"sessionNumber":4,"date":0,"result":"plan","probes":["pull",5]}
+        """)
+        XCTAssertEqual(try XCTUnwrap(s.records.first).probes?[.pull], 5)
+
+        let older = try store(records: """
+        {"sessionNumber":4,"date":0,"result":"plan","actuals":["squat",11]}
+        """)
+        XCTAssertNil(try XCTUnwrap(older.records.first).probes,
+                     "a record written before the field must not invent one")
+
+        let absurd = try store(records: """
+        {"sessionNumber":4,"date":0,"result":"plan","probes":["pull",-9223372036854775808]}
+        """)
+        XCTAssertEqual(try XCTUnwrap(absurd.records.first).probes?[.pull], 0,
+                       "a number out of range is clamped, not carried into arithmetic")
     }
 }

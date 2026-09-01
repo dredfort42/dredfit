@@ -551,6 +551,11 @@ final class AppStore {
             // saved file for the sake of a decimal nobody wants to see.
             actuals: overrides.isEmpty ? nil : overrides.mapValues { Int($0.rounded()) },
             setActuals: setActuals.isEmpty ? nil : setActuals,
+            // The same argument the engine was already given. It used to stop
+            // here: the number reached `applyFeedback` and nothing wrote it
+            // down, so what a probe showed was unrecoverable the moment the
+            // rating landed.
+            probes: probes.isEmpty ? nil : probes,
             setsSkipped: setsSkipped.isEmpty ? nil : setsSkipped,
             skipped: skipped.isEmpty ? nil : skipped,
             positionsAfter: currentPositions,
