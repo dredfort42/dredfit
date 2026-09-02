@@ -50,7 +50,11 @@ extension DredfitUITests {
         XCTAssertTrue(gotIt.waitForNonExistence(timeout: 3), "the mini-sheet did not close")
 
         app.buttons[AX.skipCooldown].tap()
-        XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 3),
+        // 15 s, not 3: the rating is the screen a whole workout ends on, and
+        // every wait for it stands at the end of a chain of taps. Three
+        // seconds is not a check on a loaded runner, it is a coin toss —
+        // I-22, and the nightly has now lost this transition twice.
+        XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 15),
                       "skipping the cool-down lands on the rating")
         rate()
     }
