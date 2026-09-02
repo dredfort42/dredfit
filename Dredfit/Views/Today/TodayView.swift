@@ -227,12 +227,19 @@ struct TodayView: View {
             // any screen. Not per row: six copies of this sentence would be
             // the very pattern the handle was moved off the plan to end.
             if store.showsTechniqueHint {
+                // Set exactly like the hints above "Went differently" and
+                // "Set the time" on the work screen: the three lines that
+                // stand above a primary control are one voice, and a
+                // left-set 13.5 pt here read as a different kind of text
+                // (owner, 02.09.2026).
                 Text(String(localized: "plan.techniqueHint",
                             defaultValue: "Tap a movement for how it's done — and for the version one step below it."))
-                    .dredfitFont(13.5)
+                    .dredfitFont(14)
                     .foregroundStyle(Theme.ink2)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(2)
                     .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .frame(maxWidth: .infinity)
                     .accessibilityIdentifier("technique-hint")
                     .padding(.top, 10)
                     .padding(.bottom, 16)
