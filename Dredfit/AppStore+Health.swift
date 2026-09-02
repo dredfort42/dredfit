@@ -27,13 +27,9 @@ extension AppStore {
         let granted = await health.requestAuthorization()
         if granted {
             settings.healthEnabled = true
-            // Silently, and only into an empty field: a weight the person
-            // typed is theirs, and a Health record that disagrees does not get
-            // to overwrite it behind their back.
-            if settings.bodyMassKg == nil, let kg = await health.latestBodyMassKg() {
-                settings.bodyMassKg = Self.sanitizedBodyMass(kg)
-            }
             persist()
+            // The weight follows Health from here on, this reading included.
+            await refreshBodyMassFromHealth()
         }
         return granted
     }
@@ -50,7 +46,44 @@ extension AppStore {
     /// answer: no weight means no calories, not calories from a default.
     func setBodyMass(_ kg: Double?) {
         settings.bodyMassKg = kg.flatMap(Self.sanitizedBodyMass)
+        // Typed, so it is not Health's — until the next activation finds a
+        // reading, which takes the row back. This flag is what the settings
+        // row reads to decide whether it may be edited at all.
+        settings.bodyMassFromHealth = false
         persist()
+    }
+
+    /// Health is the owner's weight and the phone has one owner, so the number
+    /// the app shows — and multiplies every calorie by — follows Health rather
+    /// than being a copy taken once when the toggle went on. Called on every
+    /// activation and at the head of every export run.
+    ///
+    /// A `nil` reading NEVER clears anything: an empty Health and a refused
+    /// read are the same nil (HealthKit does not distinguish them), and
+    /// erasing on it would silently switch a person's calories off. It only
+    /// hands the field back, so the weight stays typeable.
+    ///
+    /// Writes only on a real change: this runs on every foreground, and an
+    /// unconditional `persist()` would rewrite the journal file for a number
+    /// that did not move.
+    func refreshBodyMassFromHealth() async {
+        guard settings.healthEnabled, health.isAvailable else { return }
+        let reading = await health.latestBodyMassKg().flatMap(Self.sanitizedBodyMass)
+        // Both re-checks are about that await, not about the guard above. The
+        // toggle can go down while the query hangs — the backfill loop below
+        // re-reads it at every boundary for exactly this reason — and a newer
+        // activation may have cancelled this run, in which case its reading is
+        // the older of the two and must not land on top of the newer one.
+        guard settings.healthEnabled, !Task.isCancelled else { return }
+        let mass = reading ?? settings.bodyMassKg
+        let fromHealth = reading != nil
+        guard settings.bodyMassKg != mass || settings.bodyMassFromHealth != fromHealth
+        else { return }
+        settings.bodyMassKg = mass
+        settings.bodyMassFromHealth = fromHealth
+        // The weight reaches nothing the widget shows (same argument as the
+        // export flags below).
+        persist(refreshWidget: false)
     }
 
     func setWatchRecordsWorkouts(_ on: Bool) {
@@ -139,6 +172,10 @@ extension AppStore {
     /// without one there is no calorie to compute, and the queries would be
     /// two questions asked for no answer.
     private func energyContext() async -> EnergyContext {
+        // Before the guard, not after: the weight the calories are multiplied
+        // by has to be today's, and an export can run hours after the
+        // activation that last refreshed it.
+        await refreshBodyMassFromHealth()
         guard let kg = settings.bodyMassKg, !settings.watchRecordsWorkouts else {
             return EnergyContext()
         }
@@ -151,8 +188,8 @@ extension AppStore {
         // journal, so a workout finished seconds into the run is exported by
         // this same pass and has to be inside the swept window. One finished
         // AFTER the sweep is not, and its calories go out unchecked — the same
-        // fail-open as a refused read, and the watch switch is the way out of
-        // both.
+        // fail-open as a refused read, and the calories-off switch is the way
+        // out of both.
         if let from = spans.map(\.start).min() {
             let to = max(spans.map(\.end).max() ?? .now, .now)
             if from < to {

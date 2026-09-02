@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+**Your weight follows Health.** It used to be copied once — the day the Health
+toggle went on, and only into a field you had left empty — and then never looked
+at again. Weigh yourself a month later and the calories written for every
+workout were still priced from the number you had on the day you switched it on.
+It is re-read now at every launch, at every return from the background, and once
+more at the head of every export, so the figure that reaches Health is the one
+your scales gave. The **Body weight** row says where the number came from and
+stops offering an editor while Health supplies it: a field that took a number
+the next foreground would silently replace was a lie. It comes back the moment
+Health has nothing to say — no record there, or the read refused, which look
+identical from the outside — and a reading that is not there never erases the
+one you typed. A restored backup brings the number but not the claim about where
+it came from; this phone's Health answers for itself.
+
+**"Leave calories out" says what it does.** The switch that keeps the estimate
+out of Health was named for one of the two reasons to want it — a watch already
+recording the same session. The other reason used to live in the weight field:
+clearing it switched the estimate off. Now that the weight follows Health, that
+answer cannot be said there any more, so the switch carries the name of its
+effect and its caption names both reasons.
+
 **A time set for one movement stays with that movement.** Saying "hold 20" and
 then skipping a set of the same exercise put the sets after it silently back on
 the plan — the skip cleared the declaration along with the state that really

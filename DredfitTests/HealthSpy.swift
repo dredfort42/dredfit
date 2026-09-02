@@ -34,12 +34,23 @@ final class HealthSpy: WorkoutHealthWriting, @unchecked Sendable {
     var foreign: [DateInterval] = []
     private(set) var foreignQueries = 0
     private(set) var restingQueries: [DateInterval] = []
+    /// Counted because the weight is now read on every activation, and a test
+    /// that cannot see the read cannot tell "not asked" from "asked and
+    /// ignored". Gated for the same reason `saveWorkout` is: a test that moves
+    /// the world BEFORE the read starts proves nothing — the early guard
+    /// catches it and the assertion passes for the wrong reason.
+    private(set) var massQueries = 0
+    var massGate: HealthGate?
 
     var isAvailable: Bool { available }
 
     func requestAuthorization() async -> Bool { grant }
 
-    func latestBodyMassKg() async -> Double? { bodyMassKg }
+    func latestBodyMassKg() async -> Double? {
+        massQueries += 1
+        await massGate?.wait()
+        return bodyMassKg
+    }
 
     func profile() async -> BodyProfile { profile }
 

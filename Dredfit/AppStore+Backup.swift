@@ -70,6 +70,13 @@ extension AppStore {
         if sameLineage {
             settings.healthExportedThrough = max(priorHealthMark, settings.healthExportedThrough)
         }
+        // Whose weight it is, is a fact about THIS DEVICE — same class as the
+        // export mark above and as the reminder authorization below, and a
+        // backup cannot prove any of them. Left inherited, a restore onto a
+        // new phone showed an imported number under "Taken from Health" while
+        // this device's Health had never been asked, and the row would not
+        // open to be corrected. The first activation re-earns the flag.
+        settings.bodyMassFromHealth = false
         // Old backups carry only the mark — turn whichever won into flags.
         migrateHealthMarkToFlags()
         persist()

@@ -121,6 +121,7 @@ final class AppStore {
     /// Held so tests can await the fire-and-forget path instead of sleeping.
     private(set) var healthExportTask: Task<Void, Never>?
     private(set) var reminderAuthTask: Task<Void, Never>?
+    private(set) var bodyMassTask: Task<Void, Never>?
 
     private static let log = Logger(subsystem: "app.dredfit", category: "store")
 
@@ -236,6 +237,17 @@ final class AppStore {
         reloadIfNeeded()
         refreshDay(now: now)
         rescheduleReminders(now: now)
+        // Off the sequence, because it is the only step that leaves the
+        // device: a HealthKit query must not hold the plan's re-anchoring
+        // behind it. The weight is the owner's, and the owner may have
+        // weighed themselves since the last foreground.
+        if settings.healthEnabled {
+            // Cancelled, not just replaced: two foregrounds in a row leave two
+            // queries in flight, and HealthKit decides which returns first —
+            // without this the older reading could land last and stick.
+            bodyMassTask?.cancel()
+            bodyMassTask = Task { await self.refreshBodyMassFromHealth() }
+        }
     }
 
     /// Moves (or copies, when the readable part is kept) the state file to

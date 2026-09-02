@@ -7174,6 +7174,46 @@
         }
       }
     },
+    "Leave calories out": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kalorien weglassen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omitir las calorías"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne pas inclure les calories"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ometti le calorie"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deixar as calorias de fora"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не записывать калории"
+          }
+        }
+      }
+    },
     "Leave the workout?": {
       "localizations": {
         "de": {
@@ -12329,6 +12369,46 @@
         }
       }
     },
+    "Taken from Health, and kept up to date.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kommt aus der Health-App und bleibt aktuell."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se toma de Salud y se mantiene actualizado."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repris de l’app Santé et tenu à jour."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preso dall’app Salute e sempre aggiornato."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vem do app Saúde e fica sempre atualizado."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Берется из «Здоровья» и обновляется."
+          }
+        }
+      }
+    },
     "technique": {
       "localizations": {
         "de": {
@@ -13229,6 +13309,46 @@
           "stringUnit": {
             "state": "translated",
             "value": "Тренировки дома. Без анкет."
+          }
+        }
+      }
+    },
+    "Turn it on if an Apple Watch records the same workouts — otherwise the session counts twice — or if you simply want no estimate written.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktiviere es, wenn eine Apple Watch dieselben Trainings aufzeichnet — sonst zählt die Einheit doppelt — oder wenn du einfach keine Schätzung geschrieben haben willst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actívalo si un Apple Watch registra los mismos entrenamientos — así la sesión no se cuenta dos veces — o si simplemente no quieres que se escriba ninguna estimación."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active-le si une Apple Watch enregistre les mêmes séances — sinon la séance compte deux fois — ou si tu préfères qu’aucune estimation ne soit écrite."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attivalo se un Apple Watch registra gli stessi allenamenti — altrimenti la sessione conta due volte — o se semplicemente non vuoi che venga scritta alcuna stima."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ative se um Apple Watch registra os mesmos treinos — assim o treino não conta duas vezes — ou se você simplesmente não quer nenhuma estimativa escrita."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Включи, если те же тренировки пишет Apple Watch — иначе тренировка засчитается дважды — или если оценка тебе просто не нужна."
           }
         }
       }
@@ -16752,86 +16872,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Без него тренировки сохраняются без калорий."
-          }
-        }
-      }
-    },
-    "I record workouts on Apple Watch": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ich zeichne Trainings mit der Apple Watch auf"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Registro los entrenamientos en el Apple Watch"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "J’enregistre mes séances sur l’Apple Watch"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Registro gli allenamenti su Apple Watch"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Eu registro os treinos no Apple Watch"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Я записываю тренировки на Apple Watch"
-          }
-        }
-      }
-    },
-    "Calories are left out, so the same workout is not counted twice.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kalorien bleiben weg, damit dasselbe Training nicht doppelt zählt."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Las calorías se omiten para que el mismo entrenamiento no se cuente dos veces."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Les calories sont omises pour que la même séance ne compte pas deux fois."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Le calorie vengono omesse, così lo stesso allenamento non conta due volte."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "As calorias ficam de fora para o mesmo treino não contar duas vezes."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Калории не записываются, чтобы одна тренировка не засчиталась дважды."
           }
         }
       }

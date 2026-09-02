@@ -27,9 +27,13 @@ extension HealthExportTests {
         XCTAssertEqual(store.healthBackfillCount, 0, "and the record is done, not stuck")
     }
 
-    /// Nothing is read from Health while there is no weight to divide by: the
-    /// queries would be two questions asked for an answer nobody uses.
-    func testWithoutABodyMassNothingIsReadFromHealth() async {
+    /// The two sweeps are not run while there is no weight to divide by: they
+    /// would be questions asked for an answer nobody uses. The WEIGHT read is
+    /// not one of them — it happens every run, because the number is on the
+    /// settings screen whether or not a calorie is ever computed from it. The
+    /// test used to claim "nothing is read" and could not have noticed the
+    /// difference: the spy did not count that read at all.
+    func testWithoutABodyMassTheTwoSweepsAreSkipped() async {
         let spy = HealthSpy()
         let store = AppStore(storageURL: tempURL, health: spy)
         _ = await store.enableHealth()
@@ -38,6 +42,7 @@ extension HealthExportTests {
 
         XCTAssertEqual(spy.foreignQueries, 0)
         XCTAssertTrue(spy.restingQueries.isEmpty)
+        XCTAssertGreaterThan(spy.massQueries, 0, "the weight is read even so")
     }
 
     func testABodyMassProducesCalories() async throws {
@@ -151,15 +156,222 @@ extension HealthExportTests {
         XCTAssertEqual(store.settings.bodyMassKg, 72.5)
     }
 
-    /// A weight the person typed is theirs. A Health record that disagrees
-    /// does not get to overwrite it behind their back.
-    func testAnEnteredBodyMassSurvivesEnablingHealth() async {
+    /// The phone has one owner, so Health is the truth about their weight:
+    /// a number typed before the toggle went on does not outrank the scale.
+    func testHealthOverridesAnEnteredBodyMassOnEnabling() async {
         let spy = HealthSpy()
         spy.bodyMassKg = 72.5
         let store = AppStore(storageURL: tempURL, health: spy)
         store.setBodyMass(90)
         _ = await store.enableHealth()
+        XCTAssertEqual(store.settings.bodyMassKg, 72.5)
+        XCTAssertTrue(store.settings.bodyMassFromHealth, "and the row goes read-only")
+    }
+
+    /// The defect this whole change exists for: the weight used to be copied
+    /// once and then frozen, so a person who weighed themselves again kept
+    /// getting calories computed from the number they had on the day they
+    /// switched Health on.
+    func testANewHealthWeightIsPickedUpOnActivation() async {
+        let spy = HealthSpy()
+        spy.bodyMassKg = 72.5
+        let store = AppStore(storageURL: tempURL, health: spy)
+        _ = await store.enableHealth()
+
+        spy.bodyMassKg = 68
+        store.activate()
+        await store.bodyMassTask?.value
+        XCTAssertEqual(store.settings.bodyMassKg, 68)
+    }
+
+    /// A refused read and an empty Health are the same `nil` — and neither may
+    /// erase the weight, because an erased weight is calories switched off.
+    /// It hands the field back instead.
+    func testAnAbsentHealthWeightKeepsTheTypedOneAndTheField() async {
+        let spy = HealthSpy()
+        let store = AppStore(storageURL: tempURL, health: spy)
+        _ = await store.enableHealth()
+        store.setBodyMass(90)
+
+        store.activate()
+        await store.bodyMassTask?.value
         XCTAssertEqual(store.settings.bodyMassKg, 90)
+        XCTAssertFalse(store.settings.bodyMassFromHealth, "so the row stays editable")
+    }
+
+    /// Health going quiet later — the record deleted, the read revoked — hands
+    /// the field back too, keeping the last known number until it is retyped.
+    func testHealthGoingQuietHandsTheFieldBack() async {
+        let spy = HealthSpy()
+        spy.bodyMassKg = 72.5
+        let store = AppStore(storageURL: tempURL, health: spy)
+        _ = await store.enableHealth()
+
+        spy.bodyMassKg = nil
+        store.activate()
+        await store.bodyMassTask?.value
+        XCTAssertEqual(store.settings.bodyMassKg, 72.5, "the last reading stands")
+        XCTAssertFalse(store.settings.bodyMassFromHealth)
+    }
+
+    /// Nothing is read while the integration is off — the toggle is the whole
+    /// permission, and a store with Health off must not query it at all.
+    func testTheWeightIsNotReadWhileHealthIsOff() async {
+        let spy = HealthSpy()
+        spy.bodyMassKg = 72.5
+        let store = AppStore(storageURL: tempURL, health: spy)
+        store.activate()
+        await store.bodyMassTask?.value
+        XCTAssertNil(store.settings.bodyMassKg)
+        XCTAssertFalse(store.settings.bodyMassFromHealth)
+    }
+
+    /// The export multiplies by the weight, so it takes its own reading rather
+    /// than trusting whatever the last foreground left behind — an app open
+    /// since morning would otherwise export against a stale number.
+    func testTheExportRunRefreshesTheWeightFirst() async throws {
+        // The baseline is MEASURED, not guessed: the same session exported
+        // while Health still says 60. A hand-picked threshold would have
+        // passed on the stale weight too, and proved nothing about the read.
+        let stale = HealthSpy()
+        stale.bodyMassKg = 60
+        let staleStore = AppStore(storageURL: tempURL.appendingPathExtension("stale"),
+                                  health: stale)
+        _ = await staleStore.enableHealth()
+        staleStore.completeWorkout(session: staleStore.nextSession, result: .plan,
+                                   durationSec: 35 * 60)
+        await staleStore.healthExportTask?.value
+        let atSixty = try XCTUnwrap(stale.saved.first?.kcal)
+
+        let spy = HealthSpy()
+        spy.bodyMassKg = 60
+        let store = AppStore(storageURL: tempURL, health: spy)
+        _ = await store.enableHealth()
+
+        spy.bodyMassKg = 120   // weighed again, after the toggle went on
+        store.completeWorkout(session: store.nextSession, result: .plan,
+                              durationSec: 35 * 60)
+        await store.healthExportTask?.value
+
+        XCTAssertEqual(store.settings.bodyMassKg, 120)
+        let kcal = try XCTUnwrap(spy.saved.first?.kcal)
+        XCTAssertGreaterThan(kcal, atSixty,
+                             "the export multiplied by the new weight, not the enabled-day one")
+    }
+
+    /// Kicks an activation and returns once the spy's gated weight read is
+    /// actually in flight. Same shape, and same reason, as the class's gated
+    /// save helper: a test that moves the world before the read starts is
+    /// caught by the guard at the top of the refresh and passes vacuously.
+    private func activateAndWaitForGatedRead(_ store: AppStore,
+                                             _ spy: HealthSpy) async {
+        let before = spy.massQueries
+        store.activate()
+        var spins = 0
+        while spy.massQueries == before && spins < 10_000 {
+            spins += 1
+            await Task.yield()
+        }
+        XCTAssertEqual(spy.massQueries, before + 1, "the gated read must be in flight")
+    }
+
+    /// The toggle is checked again AFTER the read, not only before it: the
+    /// backfill loop re-reads it at every boundary for the same reason, and a
+    /// reading that lands on a switched-off integration writes a weight the
+    /// person believes they stopped sharing.
+    func testTheToggleGoingDownMidReadStopsTheWrite() async {
+        let spy = HealthSpy()
+        spy.bodyMassKg = 72.5
+        let store = AppStore(storageURL: tempURL, health: spy)
+        _ = await store.enableHealth()
+        store.setBodyMass(90)
+
+        let gate = HealthGate()
+        spy.massGate = gate
+        await activateAndWaitForGatedRead(store, spy)
+        store.disableHealth()
+        gate.open()
+        await store.bodyMassTask?.value
+
+        XCTAssertEqual(store.settings.bodyMassKg, 90,
+                       "a reading may not land after the toggle went down")
+        XCTAssertFalse(store.settings.bodyMassFromHealth)
+    }
+
+    /// Two foregrounds leave two queries in flight and HealthKit decides which
+    /// returns first. The superseded one is cancelled, and a cancelled run
+    /// must not write — otherwise the older reading lands last and sticks.
+    func testACancelledRefreshDoesNotWrite() async {
+        let spy = HealthSpy()
+        spy.bodyMassKg = 68
+        let store = AppStore(storageURL: tempURL, health: spy)
+        _ = await store.enableHealth()
+        store.setBodyMass(90)
+
+        let gate = HealthGate()
+        spy.massGate = gate
+        await activateAndWaitForGatedRead(store, spy)
+        let superseded = store.bodyMassTask
+        superseded?.cancel()
+        gate.open()
+        await superseded?.value
+
+        XCTAssertEqual(store.settings.bodyMassKg, 90, "the superseded run wrote nothing")
+    }
+
+    /// A backup cannot prove that THIS device's Health supplied the weight —
+    /// the same rule the export mark lives by. Inherited, a restore onto a new
+    /// phone showed an imported number under "Taken from Health" in a row that
+    /// would not open to be corrected.
+    func testARestoredBackupDoesNotInheritTheHealthOrigin() async throws {
+        let spy = HealthSpy()
+        spy.bodyMassKg = 72.5
+        let donor = AppStore(storageURL: tempURL, health: spy)
+        _ = await donor.enableHealth()
+        XCTAssertTrue(donor.settings.bodyMassFromHealth)
+        let backup = try donor.exportURL()
+        defer { try? FileManager.default.removeItem(at: backup) }
+
+        let restoredURL = tempURL.appendingPathExtension("restored")
+        defer { try? FileManager.default.removeItem(at: restoredURL) }
+        // This device's Health answers nothing — as it would before the
+        // permission sheet has ever been shown here.
+        let fresh = AppStore(storageURL: restoredURL, health: HealthSpy())
+        try fresh.importBackup(from: backup)
+
+        XCTAssertEqual(fresh.settings.bodyMassKg, 72.5, "the number travels")
+        XCTAssertFalse(fresh.settings.bodyMassFromHealth,
+                       "the claim about where it came from does not")
+    }
+
+    /// "From Health" is a claim about a number, so without the number it is a
+    /// lie the file can tell: the row went read-only at "Not set" — calories
+    /// off, and no field left to turn them back on.
+    func testAFileClaimingHealthWithoutAWeightDecodesAsTyped() throws {
+        let seed = AppStore(storageURL: tempURL, health: HealthSpy())
+        var settings = seed.settings
+        settings.healthEnabled = true
+        settings.bodyMassFromHealth = true          // and no bodyMassKg
+        let data = try JSONEncoder().encode(AppData(engineState: seed.engineState,
+                                                    records: [], settings: settings))
+        try data.write(to: tempURL, options: .atomic)
+
+        let store = AppStore(storageURL: tempURL, health: HealthSpy())
+        XCTAssertNil(store.settings.bodyMassKg)
+        XCTAssertFalse(store.settings.bodyMassFromHealth, "no number, no claim about it")
+    }
+
+    /// Where the number came from survives a relaunch: the row must not come
+    /// up editable for a moment on every launch, before the async read lands.
+    func testTheHealthOriginOfTheWeightPersists() async {
+        let spy = HealthSpy()
+        spy.bodyMassKg = 72.5
+        let store = AppStore(storageURL: tempURL, health: spy)
+        _ = await store.enableHealth()
+
+        let reloaded = AppStore(storageURL: tempURL, health: HealthSpy())
+        XCTAssertEqual(reloaded.settings.bodyMassKg, 72.5)
+        XCTAssertTrue(reloaded.settings.bodyMassFromHealth)
     }
 
     /// A denied read looks exactly like an empty Health profile, and both must
