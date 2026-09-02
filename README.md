@@ -187,7 +187,7 @@ outside this repository; the recorded fixture is what ships.)
 
 ## Testing
 
-Three layers, 654 automated tests: 70 core + 510 app units + 74 UI tests, all confirmed green on this wave's run (`** TEST SUCCEEDED **`, no `Failing tests:`, zero retries).
+Three layers, 654 automated tests: 70 core + 510 app units, both confirmed green on this wave's run (CI run `33656957189` on `7df4873`: `[70/70]`, `Executed 510 tests, with 0 failures`), plus 74 UI tests whose run on this tree is still pending — see the Issue registry for its result.
 
 | Layer | Count | What it covers |
 | --- | --- | --- |
@@ -223,7 +223,7 @@ locally before cutting a release branch instead.
 
 ## Localization
 
-English is the source language; Russian, Spanish, Brazilian Portuguese, German, French and Italian each ship complete — 723 of 728 keys translated across four String Catalogs (378 app + 329 core + 18 widgets + 3 InfoPlist) — five keys are intentionally identical in every language (two `%lld` placeholders marked `shouldTranslate: false`, `on %@`, `CFBundleName`, and ` · %@`); `check_localization.py`'s own exception list only names three of the five, so the gate is green without seeing all of them. All exercise technique is translated. English base strings live inline at each call site; translations live in the catalogs. Every translation is idiomatic rather than literal: Russian avoids anglicisms and calques and uses `е` rather than `ё` throughout; Spanish, Brazilian Portuguese, German, French and Italian address the reader informally (`tú` / `você` / lowercase `du` / `tu`) and take their exercise and pattern vocabulary from the same glossary as the [marketing site](https://dredfit.com/), which ships in the same seven languages.
+English is the source language; Russian, Spanish, Brazilian Portuguese, German, French and Italian each ship complete — 723 of 728 keys translated across four String Catalogs (378 app + 329 core + 18 widgets + 3 InfoPlist) — five keys are exempt from the check, not identical across languages: two `%lld` placeholders marked `shouldTranslate: false`, `CFBundleName` and ` · %@` genuinely are identical everywhere, but `on %@` is translated in four languages (`de: "am %@"`, `es: "el %@"`, `fr: "le %@"`, `it: "%@"`) and only missing in ru and pt-BR, where `AppStore.nextTrainingDateLabel` composes the phrase in code instead of the catalog; `check_localization.py`'s own exception list only names three of the five, so the gate is green without seeing all of them. All exercise technique is translated. English base strings live inline at each call site; translations live in the catalogs. Every translation is idiomatic rather than literal: Russian avoids anglicisms and calques and uses `е` rather than `ё` throughout; Spanish, Brazilian Portuguese, German, French and Italian address the reader informally (`tú` / `você` / lowercase `du` / `tu`) and take their exercise and pattern vocabulary from the same glossary as the [marketing site](https://dredfit.com/), which ships in the same seven languages.
 
 ## Design principles
 
