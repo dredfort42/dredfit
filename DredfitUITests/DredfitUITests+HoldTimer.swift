@@ -319,7 +319,15 @@ extension DredfitUITests {
         let rating = app.staticTexts["How did it go?"]
         skipExercises(until: rating, limit: 6)
         driver.declineCooldownIfAsked()   // the block asks first
-        XCTAssertTrue(rating.waitForExistence(timeout: 3))
+        // 15 s and a sentence, where this stood at a bare 3 with neither. It
+        // is the last screen transition of a walk through six exercises, so it
+        // is the assertion a loaded runner reaches with the least margin left
+        // — and when it failed on the nightly of 2026-09-02 the whole report
+        // was "XCTAssertTrue failed", which says nothing about what was being
+        // waited for.
+        XCTAssertTrue(rating.waitForExistence(timeout: 15),
+                      "the rating did not arrive after the skip-through and the "
+                        + "cool-down question")
         rate(landsOn: "Workout 2 completed")
     }
 }
