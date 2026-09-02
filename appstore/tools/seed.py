@@ -159,11 +159,24 @@ data = {
     "records": records(counter, totals, positions, sets),
     "settings": {
         "restWeekdays": [],
+        # True, and the frame that sells the hold intro depends on it: the
+        # screen's promise says "sound counts you in and out", which is a lie
+        # on a silent state.
         "soundsEnabled": True,
         "reminderEnabled": False,
         "reminderHour": 9,
         "reminderMinute": 0,
         "onboardingCompleted": True,
+        # SPENT UP FRONT, deliberately. The technique sheet spends this flag
+        # itself (`markTechniqueOpened`, called from the sheet's `.task`), and
+        # the capture opens that sheet — so on a seed carrying `false` the grey
+        # `technique-hint` line above Start would stand on the Today frame of
+        # whichever locale ran first and on none of the other six, from one
+        # planted file. Seven frames off one state is the invariant; a flag the
+        # driver itself flips breaks it in silence, and nothing downstream
+        # reads pixels. Spent here, the sheet's guard returns early, the state
+        # file is never rewritten, and every `today_` is the same screen.
+        "hasOpenedTechnique": True,
     },
 }
 

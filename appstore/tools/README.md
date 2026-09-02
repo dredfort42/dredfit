@@ -15,7 +15,7 @@ The marketing screens run on a real app with a planted history. With the app
 installed on the simulator (any earlier test run does this):
 
 ```bash
-python3 seed.py <udid> A   # counter 11 → Today, How it works, set, dial, rest, rating
+python3 seed.py <udid> A   # counter 11 → Today, technique, How it works, set, rating, handsfree
 python3 seed.py <udid> B   # counter 34, 667 steps in total → Progress
 python3 seed.py <udid> C   # counter 11, push_h parked on its dose ceiling → the probe
 python3 seed.py <udid> D   # counter 14, hinge alone in a four-set band → the skip
@@ -30,9 +30,9 @@ python3 seed.py <udid> D   # counter 14, hinge alone in a four-set band → the 
 | — | `testComeback*` | no seeding: `--uitest-comeback` owns the date arithmetic a file cannot state |
 
 **The driver carries no `--uitest-*` flag of its own, and must never gain one.**
-The live set of those flags is ten and every one of them is passed by a test of
-the suite; this file is not part of the suite, so a flag added for it would be
-a flag no suite run can keep honest. What the driver needs is a STATE, and
+The live set of those flags is twelve and every one of them is passed by a test
+of the suite; this file is not part of the suite, so a flag added for it would
+be a flag no suite run can keep honest. What the driver needs is a STATE, and
 `seed.py` plants states.
 
 `seed.py` also owns the `counter`, and that is not a convenience: which six
@@ -124,8 +124,12 @@ half-renumbered one is not.
 
 Captions are checked by NOTHING. `scripts/check_localization.py` and the
 required `Localization` job walk String Catalogs only; an English phrase that
-reaches the German storefront fails no run. Lines still marked `TODO-i18n` in
-`compose.py` are waiting on a translator and must not ship.
+reaches the German storefront fails no run. A caption still waiting on a
+translator is staged as `TRANSLATOR:<lang>` (2.0.0's `TODO-i18n` was a comment
+the composer drew right past): the composer REFUSES to write a frame whose
+headline or subtitle carries the marker, and exits non-zero naming those frames
+once their raws exist — so an unfinished locale is a missing file, and a missing
+file cannot be dragged into ASC.
 
 One thing about a caption IS checked, since 2.0.0: **its width.** `compose.py`
 centres a line on the 1320 px canvas and silently CLIPS whatever falls outside,
