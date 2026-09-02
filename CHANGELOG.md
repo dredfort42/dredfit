@@ -94,13 +94,22 @@ figure the app estimated is never shown with the confidence of one the clock
 produced. There are no escapes on this screen — the movement is behind, and
 there is nothing left to skip.
 
-**"Went differently" is gone from the hold screen.** It asked for a number
-about a set nobody had performed yet, and the one moment it was genuinely
-needed — a hold that ran long — is the moment both hands are on the floor. The
-**Set the time** answers that moment before the effort and the summary answers
-the correction after it. The first-workout hint that pointed at the control on
-a hold went with it: it named something that could not be reached. The screen
-for sets of reps is untouched, button for button.
+**"Went differently" is gone from the planned sets of a hold.** It asked for a
+number about a set nobody had performed yet, and the one moment it was
+genuinely needed — a hold that ran long — is the moment both hands are on the
+floor. The **Set the time** answers that moment before the effort and the
+summary answers the correction after it. The first-workout hint that pointed at
+the control on a hold went with it: it named something that could not be
+reached. The screen for sets of reps is untouched, button for button.
+
+**One hold keeps it, and the exception is the reason rather than a leftover.**
+A probe is measured on its own: its number is a separate answer about a
+variation you are not on yet, and the summary of a hold movement says nothing
+about it deliberately, because folding it in with that movement's sets would
+report it as work you did in the variation you are in. So a probing hold does
+not hand the screen over to a summary at all — it settles in place, with the
+seconds it produced and the control that corrects them, which is the one hold
+whose record would otherwise have nowhere to be put right.
 
 **A time set for one movement stays with that movement.** Saying "hold 20" and
 then skipping a set of the same exercise put the sets after it silently back on
@@ -223,12 +232,16 @@ effect and its caption names both reasons.
   the "≈" that separates an estimate from a measurement, the snapshot round-trip
   in both directions, all four skip questions, and the weight being re-read at
   launch, at foreground and at the head of an export.
-- **The kicker is legible.** The small line above a heading was drawn in `ink3`,
-  which measures 3.02:1 against the surface behind it — under the 4.5:1 floor
-  this project holds itself to, and set in the smallest type in the app. It is
-  `ink2` now, at 4.96:1. It was a readability defect dressed as a colour choice,
-  and the palette test says so out loud rather than leaving the ratio to be
-  re-derived.
+- **The one kicker that labels a control is darker than the ones that label
+  sections.** `Kicker` carried `ink3` as a constant, which is the right ink for
+  a heading standing over content that speaks for itself — the palette pins it
+  at 3:1, a section's ratio and not a label's. The line this release adds,
+  **One step below**, is not that kind of line: it labels the only thing on the
+  technique sheet that does anything, and at 12 pt semibold it is small text,
+  where the floor this project holds itself to is 4.5:1. That kicker is `ink2`,
+  and the component takes its colour as an argument now instead of deciding for
+  every screen at once. Every kicker that was already on a screen keeps `ink3`
+  and is unchanged.
 - **The work screen moved into a file of its own** and the hold summary into
   two more, with no change in behaviour: the screen that grew this release was
   already the tallest file in the app, and the size ceiling is a CI error here
