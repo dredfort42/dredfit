@@ -198,13 +198,16 @@ need a paired Apple Watch to mean anything.
 | 10.5 | Run the backfill **again** | **No duplicates** are created |
 | 10.6 | Turn Health off, complete a workout, turn it on again | The workout done while off is not silently lost — it backfills, and still no duplicates |
 | 10.7 | Deny the Health permission | The toggle reflects the denial; nothing is written |
-| 10.8 | With a weight already recorded in Health, enable the toggle | The **Body weight** row fills itself in — nothing to type |
-| 10.9 | Type a weight, disable Health, enable it again | The typed weight survives; the Health record does not overwrite it |
-| 10.10 | Clear the weight (empty field → Save), complete a workout | The workout still reaches Health, with **no** calories, and the row under it says why |
+| 10.8 | With a weight already recorded in Health, enable the toggle | The **Body weight** row fills itself in — nothing to type — and says **Taken from Health, and kept up to date**; it no longer opens an editor |
+| 10.9 | Type a weight, disable Health, enable it again | Health wins: the row shows the **recorded** weight, not the typed one. The phone has one owner, and their weight lives in Health — the field is for the case Health cannot answer |
+| 10.9a | Weigh yourself again in Health, then background Dredfit and reopen it | The row shows the **new** number. It is re-read on every activation, not copied once when the toggle went on |
+| 10.9b | Restore a backup taken on another phone | The weight travels, but the row is **editable** again and drops the "Taken from Health" line until this device's Health answers for itself |
+| 10.10 | With **no** weight in Health (or the read refused): clear the weight (empty field → Save), complete a workout | The row is editable, clearing it works, the workout still reaches Health with **no** calories, and the row under it says why |
 | 10.11 | With a weight set, complete a workout | The entry carries active energy — **80–115 kcal** for a 35-minute session at 80 kg, and 60–210 across the whole span of plans. Never a four-digit number. The band is the model replayed over all 282 plans in `golden.json`, not a guess: the median session is 33 min and 84 kcal, so a wider band would pass a broken build |
 | 10.12 | The Move ring for that day | Rises by that amount, once |
 | 10.13 | Record the same session on an Apple Watch too ⌚ | The Dredfit entry appears **without** calories, and the day's active energy counts the watch's figure once |
-| 10.14 | Turn on "I record workouts on Apple Watch", complete a workout | No calories, whatever Health happens to contain |
+| 10.14 | Turn on **Leave calories out**, complete a workout | No calories, whatever Health happens to contain. The switch is the one way to say it for **either** reason its caption names — a watch recording the same session, or simply not wanting an estimate |
+| 10.14a | With a weight in Health, try to switch calories off by clearing the weight | Not possible, and that is the point: the row is read-only while Health supplies the number. **Leave calories out** is where that answer lives now |
 | 10.15 | Refuse the **read** permissions, complete a workout | Calories are still written — the app cannot tell a refusal from an empty Health — and 10.14 is the way out |
 | 10.16 | Backfill with history and a weight set | Past days gain calories as well, and each past workout still appears once |
 | 10.17 | Pause mid-workout for ten minutes, then finish | The duration in Health grows by the pause; the calories do not — they are priced from the plan |

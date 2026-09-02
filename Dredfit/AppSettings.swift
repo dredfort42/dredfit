@@ -41,10 +41,27 @@ struct AppSettings: Codable, Equatable {
     /// Absent means absent — no default stands in, because a calorie count
     /// built on a guessed 75 kg is indistinguishable in Health from a true one.
     var bodyMassKg: Double?
+    /// True while the weight above came from Health rather than from the
+    /// field. The phone has ONE owner, so Health is the truth about their
+    /// weight and it is re-read on every activation — which makes an editable
+    /// row a lie: a number typed into it would be silently replaced by the
+    /// next foreground. So the row goes read-only exactly while this is set,
+    /// and the field comes back for the case that needs it — Health holding no
+    /// weight, or the read refused (HealthKit will not say which).
+    ///
+    /// Persisted rather than held in memory because the async read lands
+    /// AFTER the first render: without a remembered answer the row would come
+    /// up editable on every launch and turn read-only a moment later.
+    var bodyMassFromHealth = false
     /// The escape hatch behind the overlap sweep. HealthKit never says whether
     /// a read was granted, so a refusal looks exactly like "no other workout
     /// found" — and that is precisely the person whose watch is recording the
     /// same session. This is how they can say so themselves.
+    ///
+    /// A second job since the weight started following Health: this is the one
+    /// switch that says "write no estimate at all", because clearing the
+    /// weight can no longer say it. The NAME is the wire key in every saved
+    /// file and does not move; the label on screen names the effect.
     var watchRecordsWorkouts = false
     var onboardingCompleted = false
     /// When the care card's checklist was acknowledged (#101). A fact, not a
@@ -88,6 +105,7 @@ struct AppSettings: Codable, Equatable {
     private enum CodingKeys: String, CodingKey {
         case restWeekdays, soundsEnabled, reminderEnabled, reminderHour, reminderMinute
         case healthEnabled, healthExportedThrough, bodyMassKg, watchRecordsWorkouts
+        case bodyMassFromHealth
         case onboardingCompleted, careAcknowledgedAt, lastReviewRequestAt
         case comebackDecidedFor, weakLinkPromptAnsweredFor
         case silentDecayAppliedFor, migrationNoticePending, hasOpenedTechnique
@@ -105,6 +123,15 @@ struct AppSettings: Codable, Equatable {
         healthEnabled = try c.decodeIfPresent(Bool.self, forKey: .healthEnabled) ?? false
         healthExportedThrough = try c.decodeIfPresent(Int.self, forKey: .healthExportedThrough) ?? 0
         bodyMassKg = try c.decodeIfPresent(Double.self, forKey: .bodyMassKg)
+        // Absent reads as "typed by hand", which is what every file written
+        // before this key holds: the row stays editable until Health answers.
+        //
+        // AND never true without a weight to be true ABOUT. The pair is an
+        // invariant of the code that writes it, not of the file: a backup is
+        // a JSON a person can edit, and `true` with no weight left the row
+        // read-only at "Not set" — calories off, no field to fix it in.
+        bodyMassFromHealth = (try c.decodeIfPresent(Bool.self, forKey: .bodyMassFromHealth) ?? false)
+            && bodyMassKg != nil
         watchRecordsWorkouts = try c.decodeIfPresent(Bool.self, forKey: .watchRecordsWorkouts) ?? false
         onboardingCompleted = try c.decodeIfPresent(Bool.self, forKey: .onboardingCompleted) ?? false
         careAcknowledgedAt = try c.decodeIfPresent(Date.self, forKey: .careAcknowledgedAt)
