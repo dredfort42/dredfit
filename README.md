@@ -187,7 +187,7 @@ outside this repository; the recorded fixture is what ships.)
 
 ## Testing
 
-Three layers, 657 automated tests: 70 core + 513 app units, both confirmed green on this wave's run (`[70/70]` on the package; `Executed 513 tests, with 0 failures` locally on this tree, 03.09), plus 74 UI tests whose run on this tree is still pending — see the Issue registry for its result.
+Three layers, 657 automated tests: 70 core + 513 app units + 74 UI tests, all confirmed green on this wave's run — core `[70/70]`, app units `Executed 513 tests, with 0 failures`, and UI a single `** TEST SUCCEEDED **` with no `Failing tests:` section and zero runner relaunches, so the closing tally belongs to the one session that ran (`Executed 74 tests, with 0 failures (0 unexpected) in 2670.6s`, simulator erased before the run).
 
 | Layer | Count | What it covers |
 | --- | --- | --- |
