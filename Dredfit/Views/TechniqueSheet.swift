@@ -335,7 +335,15 @@ struct TechniqueSheet: View {
             ? String(localized: "4–15 reps")
             : String(localized: "15–45 sec")
         let total = Library.count(target.pattern)
-        let movement = target.pattern.displayName.lowercased()
+        // The catalog value verbatim, NEVER lowercased. German capitalises
+        // every noun as grammar, not as style, so `.lowercased()` turned the
+        // catalog's correct "Horizontales Drücken" into a misspelling —
+        // harmless in the other six languages and wrong in the seventh
+        // (App Store frame review, de/s9 against de/s8, which prints the same
+        // pattern correctly). The catalog is the terminology fixed by the
+        // glossary and is right in every language by definition; no
+        // locale-aware lowering can help German here.
+        let movement = target.pattern.displayName
         return String(localized: "variation \(shownVariation) of \(total) · \(movement) · \(range)")
     }
 }
