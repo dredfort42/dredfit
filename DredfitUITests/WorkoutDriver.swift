@@ -165,6 +165,51 @@ struct WorkoutDriver {
         return true
     }
 
+    /// Answers the cool-down's footer escape and proves the rating followed.
+    ///
+    /// CONFIRMED and retried once, because a single unconfirmed `.tap()` on a
+    /// control inside the workout's fullScreenCover GETS LOST, and a lost tap
+    /// leaves the button standing. Measured on the local full run of
+    /// 02.09.2026 (I-22): the tap was synthesized dead centre of an enabled
+    /// `skip-cooldown` ({{24, 764}, {354, 56}}, so (201, 792)) with no
+    /// interrupting elements, and the app never acted on it — the block ran on
+    /// through all seven positions with the escape still on screen. So the
+    /// confirmation is the button's disappearance and the recovery is a second
+    /// tap: the rule at the top of this file, and the same retry
+    /// `BlockPauseUITests` already carries for its own resumed block.
+    ///
+    /// THE BUDGET IS THE CHECK — DO NOT RAISE THESE SECONDS. Under
+    /// `--uitest-fast` the block also ends by itself, ~17 s after the escape is
+    /// first offered on position 1 of 7. 4 s + one retry + 5 s holds the whole
+    /// wait under 9 s, so a rating that arrives in time can only be the skip.
+    /// Widened to 20 s the test goes green on the block merely running out,
+    /// having stopped checking the skip at all: I-22's first fix already moved
+    /// this wait 3 s → 15 s and the transition was lost anyway, so the next
+    /// reader's instinct — more seconds — turns a red test into a silent one.
+    ///
+    /// The retry is refused once the rating is up, and `coordinateTap` refuses
+    /// a control that has vanished. Both matter: the rating's cards stand in
+    /// the same bottom slot, so a blind second tap would answer the question
+    /// this walk exists to ask.
+    @discardableResult
+    func skipCooldownBlock(ratingLabel: String = "How did it go?",
+                           file: StaticString = #filePath, line: UInt = #line) -> Bool {
+        let skip = app.buttons[AX.skipCooldown]
+        let rating = app.staticTexts[ratingLabel]
+        guard coordinateTap(skip) else {
+            XCTFail("the running cool-down must offer a way out of the block",
+                    file: file, line: line)
+            return false
+        }
+        if !skip.waitForNonExistence(timeout: 4), !rating.exists {
+            coordinateTap(skip)
+        }
+        XCTAssertTrue(rating.waitForExistence(timeout: 5),
+                      "skipping the cool-down lands on the rating",
+                      file: file, line: line)
+        return rating.exists
+    }
+
     /// Returned rather than asserted: whether the cool-down had to run is
     /// the caller's rule, not the driver's.
     struct Walk {
