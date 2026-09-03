@@ -29,6 +29,28 @@ python3 seed.py <udid> D   # counter 14, hinge alone in a four-set band → the 
 | D | `testSkip*` | `--uitest-long-session` gives every ladder four sets and a 67-minute session; the listing promises 30.5 |
 | — | `testComeback*` | no seeding: `--uitest-comeback` owns the date arithmetic a file cannot state |
 
+**Order, and it is not a preference (I-26).** The seed is a file inside the
+app's data container, so it needs the app to be there and the device to be up:
+
+1. **install first** — the app has to exist before a byte is planted, and the
+   simulator has to be **Booted**. `seed.py` now refuses both cases by name
+   instead of dying on a `SimError 405` traceback;
+2. **seed, then run** — and if the binary CHANGED since the last install,
+   `xcodebuild` reinstalls it, and the reinstall **wipes the container** along
+   with the seed. So after a rebuild, spend one throwaway capture method to
+   install, then seed, then run for real;
+3. **attribute a failure before re-running it** —
+   `python3 seed.py <udid> --check` says whether the seed is still in place.
+   Exit 0 names the seed, counter and total; exit 1 means the container was
+   wiped, and the test that failed after it failed for that reason and no
+   other.
+
+What this costs when skipped, measured on the 2.1.0 wave: a `simctl shutdown
+all` plus a fresh build ahead of the capture wiped every seed, 28 of 42 methods
+failed on "seeded Today should show a plan" — and seven `today_` frames were
+written anyway, off an unseeded plan. A partial set of the wrong screens is the
+failure to fear here, because nothing downstream reads pixels.
+
 **The driver carries no `--uitest-*` flag of its own, and must never gain one.**
 The live set of those flags is twelve and every one of them is passed by a test
 of the suite; this file is not part of the suite, so a flag added for it would

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Write a seeded dredfit-state.json into the simulator app container.
 
-Usage: seed.py <udid> A|B|C|D
+Usage: seed.py <udid> A|B|C|D   |   seed.py <udid> --check
 Seed A: counter 11 (Workout 12 next), second variations — Today + workout flow.
 Seed B: counter 34, mostly third variations — Progress.
 Seed C: seed A with push_h parked on its dose ceiling — the probe (§40.4).
@@ -34,6 +34,78 @@ Change a counter and the frame changes movement without a word of warning.
 import json, subprocess, sys, datetime, os
 
 udid, seed = sys.argv[1], sys.argv[2]
+
+# The marker lives in Caches and not beside the state file for two reasons:
+# it exists in order to be wiped TOGETHER WITH the container, and Application
+# Support is the directory the app itself reads.
+MARKER = ("Library", "Caches", "dredfit-seed-marker.json")
+
+
+def device_state(udid):
+    """State of one simulator, read from `-j` rather than the text listing:
+    the text form groups by runtime and the same udid can appear twice."""
+    listing = json.loads(subprocess.check_output(
+        ["xcrun", "simctl", "list", "devices", "-j"], text=True))
+    for devices in listing.get("devices", {}).values():
+        for dev in devices:
+            if dev.get("udid") == udid:
+                return dev.get("state", "Unknown")
+    return None
+
+
+def container(udid):
+    """The data container to seed, or a named exit — BOTH conditions below
+    have to hold before a byte is written, and neither was checked (I-26).
+
+    A shut-down device answers `get_app_container` with SimError 405 and a
+    Python traceback, which reads like a broken script rather than "boot the
+    simulator", and the capture driver went on to run the test anyway. What
+    that produced was worse than a crash: 28 of 42 methods failed on "seeded
+    Today should show a plan", while seven `today_` frames WERE written, off
+    an unseeded plan — a partial set plausible enough to ship.
+    """
+    state = device_state(udid)
+    if state is None:
+        sys.exit(f"seed: no simulator with udid {udid}")
+    if state != "Booted":
+        sys.exit(f"seed: simulator {udid} is {state}, not Booted. The seed is "
+                 f"written into the app container, and a shut-down device has "
+                 f"none.\n       xcrun simctl boot {udid}")
+    try:
+        return subprocess.check_output(
+            ["xcrun", "simctl", "get_app_container", udid,
+             "com.dredfit.Dredfit", "data"],
+            text=True, stderr=subprocess.DEVNULL).strip()
+    except subprocess.CalledProcessError:
+        sys.exit("seed: com.dredfit.Dredfit is not installed here. The FIRST "
+                 "capture run installs it, so the seed comes after the app "
+                 "exists, never before.")
+
+
+if seed == "--check":
+    # Run this after a capture method to tell the two failures apart: a seed
+    # that never survived, and a test that walked the wrong way. `xcodebuild`
+    # REINSTALLS the app whenever the binary changed, and the reinstall wipes
+    # the container — seed, marker and all — so a missing marker is proof of
+    # a wipe rather than a guess about one.
+    cont = container(udid)
+    state_file = os.path.join(cont, "Library", "Application Support",
+                              "dredfit-state.json")
+    marker_file = os.path.join(cont, *MARKER)
+    if not (os.path.exists(state_file) and os.path.exists(marker_file)):
+        sys.exit("seed --check: the seed did NOT survive. The app was "
+                 "reinstalled between the seed and the run, which wipes the "
+                 "container; re-seed and run again (I-26).")
+    mark = json.load(open(marker_file))
+    print(f"seed --check: {mark['seed']} still in place "
+          f"(counter {mark['counter']}, total {mark['total']}, "
+          f"written {mark['written']})")
+    sys.exit(0)
+
+if seed not in ("A", "B", "C", "D"):
+    sys.exit(f"seed: unknown seed {seed!r} — expected A, B, C or D, or "
+             f"--check. A typo used to reach the payload and die on a "
+             f"KeyError halfway through.")
 REF = datetime.datetime(2001, 1, 1, tzinfo=datetime.timezone.utc)
 now = datetime.datetime.now(datetime.timezone.utc)
 
@@ -180,11 +252,18 @@ data = {
     },
 }
 
-cont = subprocess.check_output(
-    ["xcrun", "simctl", "get_app_container", udid, "com.dredfit.Dredfit", "data"],
-    text=True).strip()
+cont = container(udid)
 target = os.path.join(cont, "Library", "Application Support", "dredfit-state.json")
 os.makedirs(os.path.dirname(target), exist_ok=True)
 with open(target, "w") as f:
     json.dump(data, f)
+
+marker = os.path.join(cont, *MARKER)
+os.makedirs(os.path.dirname(marker), exist_ok=True)
+with open(marker, "w") as f:
+    json.dump({"seed": seed, "counter": counter, "total": total,
+               "written": now.isoformat(timespec="seconds")}, f)
+
+# The container UUID is part of the path on purpose: it CHANGES on reinstall,
+# so a seed line and a later `--check` that disagree on it name the wipe.
 print("seeded", seed, "->", target, f"(counter {counter}, total {total})")
