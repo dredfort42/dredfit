@@ -220,18 +220,50 @@ clearing it switched the estimate off. Now that the weight follows Health, that
 answer cannot be said there any more, so the switch carries the name of its
 effect and its caption names both reasons.
 
+### Two screens were read against the App Store frames, and both were wrong
+
+**The progress chart was losing the date its line ends on.** The axis asks for
+three dates — the first workout, the middle of the history and the last one —
+and drew two. Swift Charts anchors a date label at its own date and grows it to
+the right; the last date sits on the right edge of the plot, so its label ran
+into the column of numbers on the y-axis, and a label that does not fit is
+neither nudged nor clipped but dropped. The line therefore ran up to yesterday
+while the axis stopped on a date in the middle of the history: the one screen
+that exists to show progress you can see was printing a third less history than
+it had just drawn, and the person reading it was reading their own record
+short. Only the last label is anchored by its trailing edge now, so it grows
+leftwards, clear of the digits; the other two are on exactly the pixels they
+were on before. The cause was measured off rendered frames rather than
+reasoned about, and the new test fails on the old code as well as on three
+mutations of the fix.
+
+**A German movement name was losing its capital letter.** The line under the
+title of the technique sheet was assembled through `.lowercased()`, and in
+German that broke all ten movement names — "horizontales drücken" where the
+catalog says **Horizontales Drücken**, while the progress screen one tap away
+printed the same word correctly. In six of the seven languages lowering the
+case is harmless; in the seventh it is a grammatical error, because German
+capitalises nouns as grammar and not as decoration. Nothing was in a position
+to catch it: the sentence is assembled at run time, the catalog itself is
+right, and the localization check asks whether a translation exists, not what
+case it is in. The catalog value is now printed as it stands — the terminology
+that the glossary fixes for all seven languages is correct in every one of them
+by definition, and no screen should be re-typing it.
+
 ### Housekeeping
 
-- **596 → 654 automated tests**, counted across the same three layers 2.0.0
-  counted: **70** in the engine package, **510** in the app, **74** in the UI
+- **596 → 657 automated tests**, counted across the same three layers 2.0.0
+  counted: **70** in the engine package, **513** in the app, **74** in the UI
   suite. The engine's 70 did not move, and that is the honest reading of this
   release — nothing in `DredfitCore` was touched, so nothing there needed a new
   guard. All of the growth is in the app, and it sits on the things this wave
   could have got wrong quietly: which sets a declared time belongs to and when
   it expires, a correction on the summary that must leave the other sets alone,
   the "≈" that separates an estimate from a measurement, the snapshot round-trip
-  in both directions, all four skip questions, and the weight being re-read at
-  launch, at foreground and at the head of an export.
+  in both directions, all four skip questions, the weight being re-read at
+  launch, at foreground and at the head of an export, and — last to arrive — the
+  three cases that pin the date axis: which dates it asks for, and that the
+  label at the end of the line is anchored so that it is drawn at all.
 - **The one kicker that labels a control is darker than the ones that label
   sections.** `Kicker` carried `ink3` as a constant, which is the right ink for
   a heading standing over content that speaks for itself — the palette pins it
