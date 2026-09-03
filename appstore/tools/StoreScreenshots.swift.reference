@@ -6,15 +6,15 @@
 //  DredfitUITests/ to capture, delete afterwards. See tools/README.md.
 //
 //  It deliberately carries NO `--uitest-*` flag of its own. The live set of
-//  those flags is ten, and every one of them is passed by a test of the suite;
-//  a flag introduced for this file alone would be a flag no suite run can keep
-//  honest. Everything this driver needs is a STATE, and a state is what
-//  tools/seed.py plants.
+//  those flags is twelve, and every one of them is passed by a test of the
+//  suite; a flag introduced for this file alone would be a flag no suite run
+//  can keep honest. Everything this driver needs is a STATE, and a state is
+//  what tools/seed.py plants.
 //
 //  Seeded tests expect dredfit-state.json planted in the app container from
 //  the host (tools/seed.py) BEFORE the run, and launch WITHOUT --uitest-reset:
-//    seed.py <udid> A  → testSeeded*  (today, howitworks, set, dial, rest)
-//                        and testRating*
+//    seed.py <udid> A  → testSeeded*  (today, technique, howitworks, set)
+//                        and testRating*  (rating, and handsfree on the way)
 //    seed.py <udid> B  → testProgress*
 //    seed.py <udid> C  → testProbe*   (push_h parked on its dose ceiling, so
 //                        the first exercise of session 12 offers the probe)
@@ -192,13 +192,32 @@ final class StoreScreenshots: XCTestCase {
         coordinateTap(skipRest)
     }
 
-    /// Walk the rest of the session at plan until the rating stands.
+    /// Walk the rest of the session at plan until the rating stands, and take
+    /// slot 3 on the way.
     ///
     /// The sentinel is `rating-plan`, the identifier of the middle card, and
     /// not the screen title: the title is a localized string and the whole
     /// point of this rewrite is that no route step depends on one.
-    private func walkToRating(_ app: XCUIApplication) {
+    ///
+    /// `holdIntroRaw` has no default. The hold intro is ON this walk and
+    /// nowhere else a driver reaches without a second `xcodebuild` invocation,
+    /// so the name of the frame it writes is stated by the caller rather than
+    /// silently omitted — the same reason `SetsHandle` refuses default
+    /// arguments in the engine.
+    private func walkToRating(_ app: XCUIApplication, holdIntroRaw: String) {
         let done = app.buttons["exercise-done"]
+        // TWO anchors for a hold, and which of them stands is a STATE, not a
+        // choice (`WorkoutFlowView+Work.swift:279`):
+        //   `hold-start-exercise` — "Start exercise", the screen a hold OPENS
+        //                           on: one tap runs the whole exercise (R23);
+        //   `hold-start`          — "Start hold", ONE set, and only under
+        //                           `holdAutoRun || current.isProbe`.
+        // This walk knew the second alone, so on the sixth exercise of seed A
+        // ("High plank", 3 x 30 s) it matched nothing, spun the guard 250
+        // times and died on the rating assert — slot 2 was not captured at
+        // all. Swapping one identifier for the other would only move the same
+        // failure to the auto-run screen behind it; the loop needs both.
+        let holdStartExercise = app.buttons["hold-start-exercise"]
         let holdStart = app.buttons["hold-start"]
         let skipRest = app.buttons["skip-rest"]
         let cooldownIntroSkip = app.buttons["cooldown-intro-skip"]
@@ -206,9 +225,27 @@ final class StoreScreenshots: XCTestCase {
         let rating = app.buttons["rating-plan"]
 
         var guardCounter = 0
+        var holdIntroTaken = false
         while !rating.waitForExistence(timeout: 1) && guardCounter < 250 {
             if done.exists {
                 coordinateTap(done)
+            } else if holdStartExercise.exists {
+                if !holdIntroTaken {
+                    // Slot 3 can be taken HERE and only here: the promise is
+                    // drawn by `holdExerciseIntro` — set 0, nothing running,
+                    // no auto-run yet — and the tap below is what ends that
+                    // state for the rest of the exercise.
+                    XCTAssertTrue(app.staticTexts["hold-autorun-promise"].exists,
+                                  "the hold intro must carry the promise the frame sells")
+                    Thread.sleep(forTimeInterval: 1)
+                    snap(holdIntroRaw)
+                    holdIntroTaken = true
+                }
+                coordinateTap(holdStartExercise)
+                // One tap runs the WHOLE exercise, sets and rests included, so
+                // the next thing this loop can act on is the rest that follows
+                // the last set of it.
+                _ = skipRest.waitForExistence(timeout: holdTimeout)
             } else if holdStart.exists {
                 coordinateTap(holdStart)
                 // Let the hold run to zero so no shortened fact is recorded;
@@ -224,9 +261,19 @@ final class StoreScreenshots: XCTestCase {
             guardCounter += 1
         }
         XCTAssertTrue(rating.waitForExistence(timeout: 5), "did not reach the rating screen")
+        // A walk that met no hold exercise leaves ONE locale short of a raw,
+        // and a missing raw composes nothing at all while the other six
+        // locales compose fine — a hole nobody sees until the set is in ASC.
+        XCTAssertTrue(holdIntroTaken,
+                      "no hold exercise on this route: \(holdIntroRaw) was never written")
     }
 
-    // MARK: - Seed A: Today, How it works, and the workout flow
+    // MARK: - Seed A: Today, the technique sheet, How it works, one set
+    //
+    // Four raws from one seed and two launches, in this order for a reason
+    // stated at each step. `dial_` and `rest_` used to be taken here too; they
+    // left the set in 2.1.0 BY VALUE, not because their screens died — see the
+    // slot history at the bottom of compose.py before putting either back.
 
     private func seededFlow(_ l: L) {
         var app = launch([], l)   // no reset: seeded state must survive
@@ -234,6 +281,30 @@ final class StoreScreenshots: XCTestCase {
                       "seeded Today should show a plan")
         Thread.sleep(forTimeInterval: 1)
         snap("today_\(l.tag)")
+
+        // The technique sheet, FROM THE PLAN ROW. `TodayView.swift:46` is the
+        // only place in the project that passes `planned: true`, and the step
+        // below is drawn under `if planned` alone (`TechniqueSheet.swift:123`)
+        // — deliberately, because moving a position mid-session would move the
+        // plan in flight. The same sheet raised from the work screen or from
+        // the next-workout preview carries technique and nothing else, so a
+        // frame taken there would sell a block that is not on it: the
+        // `milestone_` mistake from the other side.
+        //
+        // AFTER `today_`, always. The sheet's `.task` spends
+        // `hasOpenedTechnique`, and on a seed that had not spent it already
+        // the grey `technique-hint` line above Start would stand on the first
+        // locale's Today and on nobody else's. seed.py spends it up front now,
+        // so the order here is the second guard rather than the only one.
+        app.buttons["plan-row-push_h"].tap()
+        XCTAssertTrue(app.buttons["technique-step-down"].waitForExistence(timeout: 5),
+                      "the plan's sheet must carry the step below: without that block "
+                      + "the frame is technique alone and its caption is a lie")
+        XCTAssertTrue(app.staticTexts["technique-title"].exists,
+                      "the sheet must name the movement it describes")
+        Thread.sleep(forTimeInterval: 1)
+        snap("technique_\(l.tag)")
+        app.buttons["technique-done"].tap()
 
         // How it works (any state)
         app.buttons["settings"].tap()
@@ -243,42 +314,22 @@ final class StoreScreenshots: XCTestCase {
         Thread.sleep(forTimeInterval: 1)
         snap("howitworks_\(l.tag)")
         app.buttons["how-it-works-done"].tap()
-        app.terminate()   // seed A is untouched; relaunch straight to Today for
-                          // the workout, sidestepping the settings sheet entirely
+        app.terminate()   // seed A is untouched — the technique sheet writes
+                          // nothing because the seed already carries the flag
+                          // — so this relaunch goes straight to Today for the
+                          // workout, sidestepping the settings sheet entirely
 
         // Workout flow
         app = launch([], l)
         startWorkoutPastWarmup(app)
 
         let done = app.buttons["exercise-done"]
-        let skipRest = app.buttons["skip-rest"]
 
         // set 1 → skip rest → set 2
         doSetAndSkipRest(app)
         XCTAssertTrue(done.waitForExistence(timeout: 8))
         Thread.sleep(forTimeInterval: 1)
         snap("set_\(l.tag)")                       // "set 2 of 3", clean
-
-        // exact-number dial: enter 9, reopen so the marker and dial both show
-        app.buttons["exercise-adjust"].tap()
-        let minus = app.buttons["minus"]
-        XCTAssertTrue(minus.waitForExistence(timeout: 3))
-        minus.tap(); minus.tap()                   // plan 11 → 9
-        app.buttons["adjust-confirm"].tap()
-        app.buttons["exercise-adjust"].tap()
-        XCTAssertTrue(minus.waitForExistence(timeout: 3))
-        Thread.sleep(forTimeInterval: 1)
-        snap("dial_\(l.tag)")
-        app.buttons["adjust-confirm"].tap()
-
-        // finish set 2, skip rest, set 3 → real rest before exercise 2
-        doSetAndSkipRest(app)
-        XCTAssertTrue(done.waitForExistence(timeout: 8))
-        coordinateTap(done)
-        XCTAssertTrue(skipRest.waitForExistence(timeout: 8))
-        Thread.sleep(forTimeInterval: 16)          // ring at ~43 s looks like the set
-        snap("rest_\(l.tag)")
-        coordinateTap(skipRest)
         app.terminate()                             // nothing submitted: seed intact
     }
 
@@ -405,7 +456,15 @@ final class StoreScreenshots: XCTestCase {
     func testSkipFrench() { skipInsideWorkout(Self.fr) }
     func testSkipItalian() { skipInsideWorkout(Self.it) }
 
-    // MARK: - Seed A again: the rating screen
+    // MARK: - Seed A again: the rating screen — and slot 3 on the way
+    //
+    // TWO raws per locale, and the second one is free: the sixth exercise of
+    // seed A is a hold ("High plank"), so this walk has to cross the hold
+    // intro whatever it does — `handsfree_` is taken there rather than paid
+    // for with a seventh `xcodebuild` invocation. It cannot be taken earlier
+    // in the session either: `generateSession` sorts the six by
+    // `Pattern.ordered`, and the only hold that could stand first is the dead
+    // hang, which would advertise a pull-up bar.
     //
     // Walked at PLAN the whole way, and no number entered. The 1.6.0 note
     // "s4 reads empty" is spent: the screen now carries a kicker, the question
@@ -418,7 +477,7 @@ final class StoreScreenshots: XCTestCase {
     private func cleanRating(_ l: L) {
         let app = launch([], l)
         startWorkoutPastWarmup(app)
-        walkToRating(app)
+        walkToRating(app, holdIntroRaw: "handsfree_\(l.tag)")
         Thread.sleep(forTimeInterval: 1)
         snap("rating_\(l.tag)")
         app.terminate()

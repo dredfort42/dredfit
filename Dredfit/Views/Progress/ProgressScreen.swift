@@ -207,7 +207,7 @@ struct ProgressScreen: View {
     /// A gap between two adjacent points wide enough for the silent decay to
     /// have run. Gaps are calendar facts, so the bands are identical in every
     /// projection; only `costSteps` is read per projection.
-    private struct BreakBand: Identifiable {
+    struct BreakBand: Identifiable {
         let id: Int
         let from: Date
         let to: Date
@@ -283,7 +283,7 @@ struct ProgressScreen: View {
 
     // MARK: - Level chart
 
-    private struct StepPoint: Identifiable {
+    struct StepPoint: Identifiable {
         let id: Int
         let date: Date
         let value: Int
@@ -301,17 +301,6 @@ struct ProgressScreen: View {
         /// for a drop the session's own skips caused (UI-truth audit,
         /// 27.08.2026).
         let ownSkips: Bool
-    }
-
-    /// Dates can coincide (several workouts in one span), so duplicates
-    /// collapse.
-    private func xAxisDates(_ points: [StepPoint]) -> [Date] {
-        guard let first = points.first?.date, let last = points.last?.date else { return [] }
-        let mid = points[points.count / 2].date
-        var dates = [first]
-        if mid > first && mid < last { dates.append(mid) }
-        if last > first { dates.append(last) }
-        return dates
     }
 
     /// Records without a position snapshot are skipped, and so are the ones
@@ -401,8 +390,12 @@ struct ProgressScreen: View {
             }
     }
 
+    /// Internal, along with StepPoint and BreakBand: whether the date axis
+    /// it configures actually DRAWS every label it asks for is only provable
+    /// by rendering this view, which ProgressChartAxisTests does — and a
+    /// private view is out of a test's reach.
     @ViewBuilder
-    private func stepsChart(_ points: [StepPoint], _ bands: [BreakBand]) -> some View {
+    func stepsChart(_ points: [StepPoint], _ bands: [BreakBand]) -> some View {
         if points.count >= 2 {
             Chart {
                 // Behind the line and carrying no meaning of its own: the
@@ -422,8 +415,10 @@ struct ProgressScreen: View {
             }
             .chartYScale(domain: 0...max(points.map(\.value).max() ?? 1, 8))
             .chartXAxis {
-                AxisMarks(values: xAxisDates(points)) { _ in
-                    AxisValueLabel(format: .dateTime.month(.abbreviated).day())
+                AxisMarks(values: xAxisDates(points)) { value in
+                    AxisValueLabel(format: .dateTime.month(.abbreviated).day(),
+                                   anchor: Self.xLabelAnchor(index: value.index,
+                                                             count: value.count))
                         .font(.system(size: 10))
                         .foregroundStyle(Theme.ink3)
                 }
