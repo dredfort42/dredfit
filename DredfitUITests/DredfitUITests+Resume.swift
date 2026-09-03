@@ -26,8 +26,14 @@ extension DredfitUITests {
     func testResumeLandsOnRatingWhenKilledThere() {
         app.launch()
         startWorkout()
-        for _ in 0..<6 { app.buttons[AX.exerciseSkip].tap() }
-        XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 3))
+        // Each escape asks before it acts (SkipConfirmation.swift).
+        for _ in 0..<6 { driver.skip(control: AX.exerciseSkip) }
+        // 15 s, not 3: the rating is the screen a whole workout ends on, and
+        // every wait for it stands at the end of a chain of taps. Three
+        // seconds is not a check on a loaded runner, it is a coin toss —
+        // I-22, and the nightly has now lost this transition twice.
+        XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 15),
+                      "six skips must land on the rating before it can be killed there")
         app.terminate()
 
         let relaunch = XCUIApplication.launchedOnStoredState()
@@ -67,8 +73,13 @@ extension DredfitUITests {
     func testSkipAllExercisesStillReachesRating() {
         app.launch()
         startWorkout()
-        for _ in 0..<6 { app.buttons[AX.exerciseSkip].tap() }
-        XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 3),
+        // Each escape asks before it acts (SkipConfirmation.swift).
+        for _ in 0..<6 { driver.skip(control: AX.exerciseSkip) }
+        // 15 s, not 3: the rating is the screen a whole workout ends on, and
+        // every wait for it stands at the end of a chain of taps. Three
+        // seconds is not a check on a loaded runner, it is a coin toss —
+        // I-22, and the nightly has now lost this transition twice.
+        XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 15),
                       "skipping all exercises should lead to the rating")
         // The state lives once in the section header; each row's dimmed name
         // still announces it through its accessibility label.

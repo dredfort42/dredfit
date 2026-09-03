@@ -15,7 +15,7 @@ The marketing screens run on a real app with a planted history. With the app
 installed on the simulator (any earlier test run does this):
 
 ```bash
-python3 seed.py <udid> A   # counter 11 → Today, How it works, set, dial, rest, rating
+python3 seed.py <udid> A   # counter 11 → Today, technique, How it works, set, rating, handsfree
 python3 seed.py <udid> B   # counter 34, 667 steps in total → Progress
 python3 seed.py <udid> C   # counter 11, push_h parked on its dose ceiling → the probe
 python3 seed.py <udid> D   # counter 14, hinge alone in a four-set band → the skip
@@ -29,10 +29,32 @@ python3 seed.py <udid> D   # counter 14, hinge alone in a four-set band → the 
 | D | `testSkip*` | `--uitest-long-session` gives every ladder four sets and a 67-minute session; the listing promises 30.5 |
 | — | `testComeback*` | no seeding: `--uitest-comeback` owns the date arithmetic a file cannot state |
 
+**Order, and it is not a preference (I-26).** The seed is a file inside the
+app's data container, so it needs the app to be there and the device to be up:
+
+1. **install first** — the app has to exist before a byte is planted, and the
+   simulator has to be **Booted**. `seed.py` now refuses both cases by name
+   instead of dying on a `SimError 405` traceback;
+2. **seed, then run** — and if the binary CHANGED since the last install,
+   `xcodebuild` reinstalls it, and the reinstall **wipes the container** along
+   with the seed. So after a rebuild, spend one throwaway capture method to
+   install, then seed, then run for real;
+3. **attribute a failure before re-running it** —
+   `python3 seed.py <udid> --check` says whether the seed is still in place.
+   Exit 0 names the seed, counter and total; exit 1 means the container was
+   wiped, and the test that failed after it failed for that reason and no
+   other.
+
+What this costs when skipped, measured on the 2.1.0 wave: a `simctl shutdown
+all` plus a fresh build ahead of the capture wiped every seed, 28 of 42 methods
+failed on "seeded Today should show a plan" — and seven `today_` frames were
+written anyway, off an unseeded plan. A partial set of the wrong screens is the
+failure to fear here, because nothing downstream reads pixels.
+
 **The driver carries no `--uitest-*` flag of its own, and must never gain one.**
-The live set of those flags is ten and every one of them is passed by a test of
-the suite; this file is not part of the suite, so a flag added for it would be
-a flag no suite run can keep honest. What the driver needs is a STATE, and
+The live set of those flags is twelve and every one of them is passed by a test
+of the suite; this file is not part of the suite, so a flag added for it would
+be a flag no suite run can keep honest. What the driver needs is a STATE, and
 `seed.py` plants states.
 
 `seed.py` also owns the `counter`, and that is not a convenience: which six
@@ -124,8 +146,12 @@ half-renumbered one is not.
 
 Captions are checked by NOTHING. `scripts/check_localization.py` and the
 required `Localization` job walk String Catalogs only; an English phrase that
-reaches the German storefront fails no run. Lines still marked `TODO-i18n` in
-`compose.py` are waiting on a translator and must not ship.
+reaches the German storefront fails no run. A caption still waiting on a
+translator is staged as `TRANSLATOR:<lang>` (2.0.0's `TODO-i18n` was a comment
+the composer drew right past): the composer REFUSES to write a frame whose
+headline or subtitle carries the marker, and exits non-zero naming those frames
+once their raws exist — so an unfinished locale is a missing file, and a missing
+file cannot be dragged into ASC.
 
 One thing about a caption IS checked, since 2.0.0: **its width.** `compose.py`
 centres a line on the 1320 px canvas and silently CLIPS whatever falls outside,

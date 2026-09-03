@@ -8,6 +8,13 @@
 //  they asked for in advance is taken mid-session now (SetSkipUITests) — and
 //  what is left here is the one that changes the movement itself.
 //
+//  R30 moved that last one off the plan as well, into the technique sheet the
+//  plan row already opened. So the tests below no longer look for a control
+//  under a row: they check that there is none, that the sheet carries it
+//  instead — from Today AND from the work screen, which is the door the plan
+//  never had — and that the one grey line paying for its discoverability is
+//  spent by the first visit and stays spent across a relaunch.
+//
 
 import XCTest
 
@@ -15,6 +22,15 @@ import XCTest
 final class HandlesUITests: XCTestCase {
 
     private var app: XCUIApplication!
+
+    /// The two answers to the step-down question, BY LABEL and therefore in
+    /// English — an alert's buttons carry no identifier into the accessibility
+    /// tree, which is the same constraint `WorkoutDriver.skipConfirmLabel`
+    /// lives under. Both queries are scoped to `app.alerts`: the confirm
+    /// repeats the verb of the capsule that raised it, so an unscoped query
+    /// would match two controls and resolve by tree order.
+    private static let confirmSwitch = "Switch"
+    private static let keepGoing = "Keep going"
 
     // `async throws`, and that is the whole fix: a synchronous `setUp()`
     // override inherits XCTestCase's non-isolated declaration whatever the
@@ -28,22 +44,31 @@ final class HandlesUITests: XCTestCase {
         app.seedLaunchArguments()
     }
 
-    /// The one handle left on the plan carries its RESULT rather than a
-    /// promise: the name and dose the movement would have after the tap.
+    // MARK: - The plan carries no handles at all
+
+    /// The whole claim of R30 in one screen: six rows, six movements, and
+    /// nothing under any of them. Asked by PREFIX rather than for one movement,
+    /// so a handle that comes back on a single pattern is caught too — and the
+    /// row's own affordance is asserted in the same test, because "no control"
+    /// is only the right answer while the row is still a door.
     ///
-    /// Seeded above the first tier, because that is the whole of when the
-    /// handle exists: on a fresh install every movement is in its gentlest
-    /// variation and there is nothing below it to offer.
-    func testTheEasierHandleNamesTheVariationItWouldGive() {
+    /// Seeded above the first variation. On a fresh install every movement is
+    /// in its gentlest one and there is nothing below it to offer, so the
+    /// absence would prove nothing.
+    func testThePlanCarriesNoPerMovementHandles() {
         app.seedLaunchArguments("--uitest-long-session")
         app.launch()
-        let easier = app.buttons.matching(
-            NSPredicate(format: "identifier BEGINSWITH %@", AX.easierHandlePrefix)).firstMatch
-        XCTAssertTrue(easier.waitForExistence(timeout: 5),
-                      "the per-movement variation handle is missing from the plan")
-        // "Easier · Knee push-ups · 3×8" — the movement, not the promise.
-        XCTAssertTrue(easier.label.contains("·"),
-                      "the handle must name what the tap would deliver")
+        let rows = app.buttons.matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", AX.planRowPrefix))
+        XCTAssertTrue(rows.firstMatch.waitForExistence(timeout: 5))
+        XCTAssertEqual(app.buttons.matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", AX.easierHandlePrefix)).count, 0,
+            "the per-movement variation handle is back on the plan — it lives in the "
+              + "technique sheet now (R30)")
+
+        rows.firstMatch.tap()
+        XCTAssertTrue(app.buttons[AX.techniqueStepDown].waitForExistence(timeout: 5),
+                      "the row must open the sheet the handle moved into")
     }
 
     /// And the two that used to stand beside it are gone. Not a style
@@ -65,66 +90,150 @@ final class HandlesUITests: XCTestCase {
             "the way back from the sets handle is still on the plan")
     }
 
-    /// The trap this asserts is not hypothetical: before `.plain` and
-    /// `.borderless` were set, one tap on the empty strip of a plan row pulled
-    /// a handle — the announced duration went 35 min to 33 and the control
-    /// vanished from under the finger. A List row treats several
-    /// default-styled buttons as one control, and the row itself is a button
-    /// into the technique sheet.
-    ///
-    /// Two claims, in this order: an aimless tap on the row changes nothing,
-    /// and the row's own affordance still opens the sheet. By coordinate,
-    /// because what is being tested is a place on the screen rather than a
-    /// control — a query would find the control wherever it went.
-    func testATapOnAPlanRowDoesNotPullItsHandle() {
+    // MARK: - The handle, where it lives now
+
+    /// What the block promises is that this sheet becomes the movement it
+    /// names, and that the plan follows. Both halves are asserted without
+    /// reading a catalog string: the title before, the title after, and the
+    /// row's own label — a name the test never has to know.
+    func testTheStepBelowSwitchesTheSheetAndThePlanWithIt() {
         app.seedLaunchArguments("--uitest-long-session")
         app.launch()
-        let minutes = app.staticTexts.matching(
-            NSPredicate(format: "label CONTAINS %@", "exercises")).firstMatch
-        XCTAssertTrue(minutes.waitForExistence(timeout: 5))
-        let announced = minutes.label
-
-        let handles = app.buttons.matching(
-            NSPredicate(format: "identifier BEGINSWITH %@", AX.easierHandlePrefix))
-        XCTAssertTrue(handles.firstMatch.waitForExistence(timeout: 5))
-        let handle = handles.firstMatch.frame
-        let promise = handles.firstMatch.label
-        // The row's own right edge, taken from a plan card: the list has
-        // insets of its own, and the screen's edge is not the row's. ANY card
-        // will do — they share a width — but it has to be a card, which is why
-        // this asks by identifier rather than for `element(boundBy: 0)`: the
-        // settings button is an overlay above the tab content, and nothing
-        // orders it against the rows underneath.
         let row = app.buttons.matching(
-            NSPredicate(format: "identifier BEGINSWITH %@", AX.planRowPrefix)).firstMatch.frame
+            NSPredicate(format: "identifier BEGINSWITH %@", AX.planRowPrefix)).firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        let rowBefore = row.label
+        row.tap()
 
-        // The strip to the RIGHT of the handle, derived from the two frames
-        // rather than from a fixed inset: the handle sits on the left of its
-        // row and its label is a whole sentence, so where the empty part of
-        // the row begins depends on the name of the movement. A button answers
-        // a few points outside the frame it reports, so the tap goes to the
-        // middle of the strip and never to its edge.
-        let empty = (handle.maxX + row.maxX) / 2
-        XCTAssertGreaterThan(row.maxX - handle.maxX, 60,
-                             "no empty strip to tap — the check would prove nothing")
-        app.coordinate(withNormalizedOffset: .zero)
-            .withOffset(CGVector(dx: empty, dy: handle.midY))
-            .tap()
+        let title = app.element(withIdentifier: AX.techniqueTitle)
+        XCTAssertTrue(title.waitForExistence(timeout: 5), "the sheet did not open")
+        let before = title.label
+        let switchDown = app.buttons[AX.techniqueStepDown]
+        XCTAssertTrue(switchDown.exists,
+                      "no step below on a movement seeded at the top of its ladder")
+        // "Switch to Bar hang" — the control names the movement, so a
+        // VoiceOver user meeting it out of context knows what it does.
+        let promise = switchDown.label
+        switchDown.tap()
 
-        XCTAssertEqual(minutes.label, announced,
-                       "a tap on the row's empty strip rewrote the plan")
-        XCTAssertEqual(handles.firstMatch.label, promise,
-                       "a tap at x=\(empty) on the row's empty strip (handle ends at "
-                       + "\(handle.maxX), row at \(row.maxX)) pulled the handle beside it")
+        // It asks first (owner, 01.09.2026): the plan has no undo, and the way
+        // back up a ladder is a probe several appearances away.
+        let confirm = app.alerts.firstMatch.buttons[Self.confirmSwitch]
+        XCTAssertTrue(confirm.waitForExistence(timeout: 5),
+                      "the step down acted without asking")
+        confirm.tap()
 
-        // A row above the handle is the card itself — that one does open.
-        app.coordinate(withNormalizedOffset: .zero)
-            .withOffset(CGVector(dx: 60, dy: handle.minY - 34))
-            .tap()
+        let after = title.label
+        XCTAssertNotEqual(after, before, "the sheet did not move to the movement below")
+        XCTAssertTrue(promise.contains(after),
+                      "the button promised \"\(promise)\" and delivered \"\(after)\"")
+
+        app.buttons[AX.techniqueDone].tap()
+        XCTAssertTrue(app.buttons[AX.startWorkout].waitForExistence(timeout: 5))
+        XCTAssertNotEqual(row.label, rowBefore, "the plan kept the movement that was switched away")
+        XCTAssertTrue(row.label.contains(after),
+                      "the plan row does not carry the movement the sheet delivered")
+    }
+
+    /// And the question is a real one: answered with "keep going", the sheet
+    /// stays on the movement it was describing and the plan is untouched.
+    ///
+    /// This is the half that can rot silently. A confirmation whose cancel
+    /// still performs the action looks exactly like one that works, because
+    /// nobody taps the cancel twice to check.
+    func testTheStepBelowCanBeDeclinedAndChangesNothing() {
+        app.seedLaunchArguments("--uitest-long-session")
+        app.launch()
+        let row = app.buttons.matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", AX.planRowPrefix)).firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        let rowBefore = row.label
+        row.tap()
+
+        let title = app.element(withIdentifier: AX.techniqueTitle)
+        XCTAssertTrue(title.waitForExistence(timeout: 5))
+        let before = title.label
+        app.buttons[AX.techniqueStepDown].tap()
+
+        let keep = app.alerts.firstMatch.buttons[Self.keepGoing]
+        XCTAssertTrue(keep.waitForExistence(timeout: 5), "the step down did not ask")
+        keep.tap()
+
+        XCTAssertEqual(title.label, before, "declining moved the sheet")
+        app.buttons[AX.techniqueDone].tap()
+        XCTAssertTrue(app.buttons[AX.startWorkout].waitForExistence(timeout: 5))
+        XCTAssertEqual(row.label, rowBefore, "declining rewrote the plan anyway")
+    }
+
+    /// On the first variation there is nothing below, and the block is ABSENT
+    /// rather than present and disabled: a control that cannot act is a control
+    /// that has to be read and dismissed every time the sheet is opened.
+    func testTheFirstVariationCarriesNoStepBelow() {
+        app.launch()
+        let row = app.buttons.matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", AX.planRowPrefix)).firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        row.tap()
         XCTAssertTrue(app.staticTexts[AX.techniqueLife].waitForExistence(timeout: 5),
-                      "the plan row no longer opens the technique sheet")
-        XCTAssertEqual(minutes.label, announced,
-                       "opening the technique sheet rewrote the plan")
+                      "the sheet did not open")
+        XCTAssertFalse(app.buttons[AX.techniqueStepDown].exists,
+                       "a fresh install is on the bottom rung of every ladder — "
+                         + "there is nothing below it to offer")
+    }
+
+    /// And it is offered on the screen that shows the UPCOMING workout, never
+    /// inside a running one (owner, 01.09.2026).
+    ///
+    /// Not a matter of taste: the session is snapshotted at Start, so a switch
+    /// taken mid-workout moves the state under a plan already in flight, and
+    /// the rating is applied to the pair. Measured on the engine — squat v6
+    /// 3×15 switched to v5 and rated "on plan" writes 15 into the journal of
+    /// v5, where the person had shown 4, and a probe passed later in the same
+    /// session promotes straight past the rung they had just chosen. Neither is
+    /// an engine defect; the two states simply must not move at once.
+    func testTheStepBelowIsNotOfferedInsideAWorkout() {
+        app.seedLaunchArguments("--uitest-long-session")
+        app.launch()
+        WorkoutDriver(app: app).startWorkout()
+        XCTAssertTrue(app.buttons[AX.exerciseDone].waitForExistence(timeout: 10),
+                      "the work screen never came up")
+        app.buttons[AX.technique].tap()
+        XCTAssertTrue(app.element(withIdentifier: AX.techniqueTitle).waitForExistence(timeout: 5),
+                      "the sheet did not open mid-exercise")
+        XCTAssertFalse(app.buttons[AX.techniqueStepDown].exists,
+                       "the sheet offers a switch while a session generated from the "
+                         + "state it would move is in flight")
+    }
+
+    // MARK: - The line that pays for it
+
+    /// One grey line is the whole price the plan pays for a handle that is no
+    /// longer visible on it, and it is spent by going through the door once —
+    /// from any screen. Gated on that rather than on an empty journal, because
+    /// the person carried over from v2 has a full one and is exactly who the
+    /// sentence is for.
+    ///
+    /// The relaunch is half the test: a flag kept in memory would read as
+    /// "spent" for the rest of the session and come back on the next launch,
+    /// which is the same sentence shown twice.
+    func testTheTechniqueHintIsSpentByTheFirstSheetAndStaysSpent() {
+        app.launch()
+        XCTAssertTrue(app.staticTexts[AX.techniqueHint].waitForExistence(timeout: 5),
+                      "the plan says nothing about what a row opens")
+
+        app.buttons.matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", AX.planRowPrefix)).firstMatch.tap()
+        XCTAssertTrue(app.buttons[AX.techniqueDone].waitForExistence(timeout: 5))
+        app.buttons[AX.techniqueDone].tap()
+
+        XCTAssertTrue(app.buttons[AX.startWorkout].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.staticTexts[AX.techniqueHint].exists,
+                       "the hint is still up after the door it describes was used")
+
+        let relaunched = XCUIApplication.launchedOnStoredState()
+        XCTAssertTrue(relaunched.buttons[AX.startWorkout].waitForExistence(timeout: 10))
+        XCTAssertFalse(relaunched.staticTexts[AX.techniqueHint].exists,
+                       "the hint came back on the next launch — the flag never reached the file")
     }
 
     // MARK: - Offered, not required (both blocks)
@@ -173,9 +282,10 @@ final class HandlesUITests: XCTestCase {
         let skipWarmup = app.buttons[AX.warmupIntroSkip]
         if skipWarmup.waitForExistence(timeout: 5) { skipWarmup.tap() }
         for _ in 0..<5 {
-            let skip = app.buttons[AX.exerciseSkip]
-            XCTAssertTrue(skip.waitForExistence(timeout: 10), "the work screen never came up")
-            skip.tap()
+            // The escape asks before it acts (SkipConfirmation.swift), so the
+            // helper is what walks it: control tap, then the answer.
+            XCTAssertTrue(WorkoutDriver(app: app).skip(control: AX.exerciseSkip, timeout: 10),
+                          "the work screen never came up")
         }
 
         // The last movement is walked to its end by the driver; the question

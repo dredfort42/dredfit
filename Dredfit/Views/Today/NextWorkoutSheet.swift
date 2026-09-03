@@ -35,7 +35,7 @@ struct NextWorkoutSheet: View {
                     // The same card as Today's, so it carries the same one
                     // line about why the set count is what it is.
                     ExerciseRow(exercise: ex,
-                                note: ExerciseRow.note(setCameBack: store.aSetJustCameBack(in: ex)))
+                                notes: ExerciseRow.notes(ex, setCameBack: store.aSetJustCameBack(in: ex)))
                 }
                 .listRowSeparatorTint(Theme.hairline)
                 .listRowBackground(Color.clear)
@@ -53,6 +53,9 @@ struct NextWorkoutSheet: View {
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .presentationBackground(Theme.bg)
+        // Without `planned:` — this preview looks at a session rather than
+        // deciding about one, so the step below stays off it (owner, R30). One
+        // boolean if that is ever reconsidered.
         .sheet(item: $techniqueFor) { ex in
             TechniqueSheet(target: ex)
         }

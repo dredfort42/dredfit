@@ -1156,6 +1156,46 @@
         }
       }
     },
+    "%lld sets · %lld s rest between": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Sätze · %lld s Pause dazwischen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld series · %lld s de descanso entre ellas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld séries · %lld s de repos entre elles"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld serie · %lld s di recupero tra una e l’altra"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld séries · %lld s de descanso entre elas"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "подходов: %lld · отдых %lld с"
+          }
+        }
+      }
+    },
     "%lld weeks apart": {
       "localizations": {
         "de": {
@@ -5673,53 +5713,6 @@
         }
       }
     },
-    "Easier · %@": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Leichter · %@"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Easier · %@"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Más fácil · %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Plus facile · %@"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Più facile · %@"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mais fácil · %@"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Полегче · %@"
-          }
-        }
-      }
-    },
     "Easier:": {
       "localizations": {
         "de": {
@@ -5756,6 +5749,46 @@
           "stringUnit": {
             "state": "translated",
             "value": "Полегче:"
+          }
+        }
+      }
+    },
+    "Change this number": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Zahl ändern"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambiar este número"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifier ce nombre"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifica questo numero"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alterar este número"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изменить это число"
           }
         }
       }
@@ -7137,6 +7170,46 @@
           "stringUnit": {
             "state": "translated",
             "value": "Как было"
+          }
+        }
+      }
+    },
+    "Leave calories out": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kalorien weglassen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omitir las calorías"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne pas inclure les calories"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ometti le calorie"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deixar as calorias de fora"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не записывать калории"
           }
         }
       }
@@ -9221,6 +9294,46 @@
         }
       }
     },
+    "planned %lld s each": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "geplant %lld s pro Satz"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "previsto %lld s por serie"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "prévu %lld s par série"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "previsto %lld s per serie"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "previsto %lld s por série"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "по плану %lld с в подходе"
+          }
+        }
+      }
+    },
     "positionSheet.cooldown": {
       "localizations": {
         "de": {
@@ -10119,6 +10232,46 @@
         }
       }
     },
+    "Runs on its own from here — sound counts you in and out. Put the phone down.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Läuft ab hier von allein – der Ton zählt dich rein und raus. Leg das Handy weg."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A partir de aquí va solo: el sonido marca el inicio y el final. Deja el teléfono."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À partir d’ici, ça se déroule tout seul — le son marque le début et la fin. Pose le téléphone."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Da qui va da solo – il suono segna l’inizio e la fine. Appoggia il telefono."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daqui em diante corre sozinho: o som marca o início e o fim. Pode largar o telefone."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дальше идет само — звук отсчитает вход и выход. Положи телефон."
+          }
+        }
+      }
+    },
     "Resume": {
       "comment": "Back into the frozen position: the countdown continues from the seconds it stopped on, never from the top. Same word the interrupted-workout card uses.",
       "localizations": {
@@ -10567,6 +10720,246 @@
         }
       }
     },
+    "set %lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Satz %lld"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série %lld"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie %lld"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série %lld"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "подход %lld"
+          }
+        }
+      }
+    },
+    "set %lld · +%lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Satz %lld · +%lld"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie %lld · +%lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série %lld · +%lld"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie %lld · +%lld"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série %lld · +%lld"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "подход %lld · +%lld"
+          }
+        }
+      }
+    },
+    "set %lld · planned %lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Satz %lld · geplant %lld"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie %lld · previsto %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série %lld · prévu %lld"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie %lld · previsto %lld"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série %lld · previsto %lld"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "подход %lld · по плану %lld"
+          }
+        }
+      }
+    },
+    "set %lld · tapped": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Satz %lld · manuell gestoppt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie %lld · parada manual"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série %lld · arrêt manuel"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie %lld · stop manuale"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série %lld · parada manual"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "подход %lld · остановлен вручную"
+          }
+        }
+      }
+    },
+    "set %lld, %lld seconds, planned %lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Satz %lld, %lld Sekunden, geplant %lld"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie %lld, %lld segundos, previsto %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série %lld, %lld secondes, prévu %lld"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie %lld, %lld secondi, previsto %lld"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série %lld, %lld segundos, previsto %lld"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "подход %lld, секунд: %lld, по плану %lld"
+          }
+        }
+      }
+    },
+    "set %lld, approximately %lld seconds, planned %lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Satz %lld, etwa %lld Sekunden, geplant %lld"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie %lld, unos %lld segundos, previsto %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série %lld, environ %lld secondes, prévu %lld"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "serie %lld, circa %lld secondi, previsto %lld"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "série %lld, cerca de %lld segundos, previsto %lld"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "подход %lld, примерно секунд: %lld, по плану %lld"
+          }
+        }
+      }
+    },
     "Settings": {
       "localizations": {
         "de": {
@@ -10603,6 +10996,86 @@
           "stringUnit": {
             "state": "translated",
             "value": "Настройки"
+          }
+        }
+      }
+    },
+    "Set the time": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeit einstellen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustar el tiempo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Régler le temps"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imposta il tempo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustar o tempo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Задать время"
+          }
+        }
+      }
+    },
+    "How long every set of this exercise runs. Stop ends one early and records what you held.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wie lange jeder Satz dieser Übung läuft. Stoppen beendet einen früher und erfasst, was du gehalten hast."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuánto dura cada serie de este ejercicio. Parar termina una antes y registra lo que aguantaste."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La durée de chaque série de cet exercice. Arrêter en termine une plus tôt et enregistre ce que tu as tenu."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quanto dura ogni serie di questo esercizio. Stop ne chiude una prima e registra quanto hai tenuto."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quanto dura cada série deste exercício. Parar encerra uma antes e registra o que você sustentou."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сколько идет каждый подход этого упражнения. Стоп заканчивает подход раньше и записывает удержанное."
           }
         }
       }
@@ -10649,6 +11122,46 @@
           "stringUnit": {
             "state": "translated",
             "value": "Готово"
+          }
+        }
+      }
+    },
+    "tap a number to change it": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe eine Zahl an, um sie zu ändern"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "toca un número para cambiarlo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "touche un nombre pour le modifier"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "tocca un numero per cambiarlo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "toque em um número para alterá-lo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "нажми на число, чтобы изменить"
           }
         }
       }
@@ -11403,6 +11916,46 @@
         }
       }
     },
+    "Start exercise": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Übung starten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empezar el ejercicio"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commencer l’exercice"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inizia l’esercizio"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Começar o exercício"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Начать упражнение"
+          }
+        }
+      }
+    },
     "Start from scratch": {
       "localizations": {
         "de": {
@@ -11696,6 +12249,86 @@
         }
       }
     },
+    "Stop · %lld s": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stoppen · %lld s"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parar · %lld s"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrêter · %lld s"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop · %lld s"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parar · %lld s"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стоп · %lld с"
+          }
+        }
+      }
+    },
+    "Stop, records %lld seconds": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stoppen, erfasst %lld Sekunden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parar, registra %lld segundos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrêter, enregistre %lld secondes"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop, registra %lld secondi"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parar, registra %lld segundos"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стоп, запись: %lld сек"
+          }
+        }
+      }
+    },
     "Switch sides": {
       "localizations": {
         "de": {
@@ -11732,6 +12365,46 @@
           "stringUnit": {
             "state": "translated",
             "value": "Смени сторону"
+          }
+        }
+      }
+    },
+    "Taken from Health, and kept up to date.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kommt aus der Health-App und bleibt aktuell."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se toma de Salud y se mantiene actualizado."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repris de l’app Santé et tenu à jour."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preso dall’app Salute e sempre aggiornato."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vem do app Saúde e fica sempre atualizado."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Берется из «Здоровья» и обновляется."
           }
         }
       }
@@ -11972,6 +12645,46 @@
           "stringUnit": {
             "state": "translated",
             "value": "План встретил тебя ниже."
+          }
+        }
+      }
+    },
+    "These are the numbers the next plan starts from.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Von diesen Zahlen startet der nächste Plan."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El próximo plan empieza desde estos números."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "C’est de ces nombres que part le prochain plan."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il prossimo piano parte da questi numeri."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O próximo plano começa a partir destes números."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Следующий план начнется от этих чисел."
           }
         }
       }
@@ -12596,6 +13309,46 @@
           "stringUnit": {
             "state": "translated",
             "value": "Тренировки дома. Без анкет."
+          }
+        }
+      }
+    },
+    "Turn it on if an Apple Watch records the same workouts — otherwise the session counts twice — or if you simply want no estimate written.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktiviere es, wenn eine Apple Watch dieselben Trainings aufzeichnet — sonst zählt die Einheit doppelt — oder wenn du einfach keine Schätzung geschrieben haben willst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actívalo si un Apple Watch registra los mismos entrenamientos — así la sesión no se cuenta dos veces — o si simplemente no quieres que se escriba ninguna estimación."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active-le si une Apple Watch enregistre les mêmes séances — sinon la séance compte deux fois — ou si tu préfères qu’aucune estimation ne soit écrite."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attivalo se un Apple Watch registra gli stessi allenamenti — altrimenti la sessione conta due volte — o se semplicemente non vuoi che venga scritta alcuna stima."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ative se um Apple Watch registra os mesmos treinos — assim o treino não conta duas vezes — ou se você simplesmente não quer nenhuma estimativa escrita."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Включи, если те же тренировки пишет Apple Watch — иначе тренировка засчитается дважды — или если оценка тебе просто не нужна."
           }
         }
       }
@@ -16123,82 +16876,922 @@
         }
       }
     },
-    "I record workouts on Apple Watch": {
+    "Skip this set?": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ich zeichne Trainings mit der Apple Watch auf"
+            "value": "Diesen Satz überspringen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip this set?"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Registro los entrenamientos en el Apple Watch"
+            "value": "¿Omitir esta serie?"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "J’enregistre mes séances sur l’Apple Watch"
+            "value": "Passer cette série ?"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Registro gli allenamenti su Apple Watch"
+            "value": "Saltare questa serie?"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Eu registro os treinos no Apple Watch"
+            "value": "Pular esta série?"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Я записываю тренировки на Apple Watch"
+            "value": "Пропустить этот подход?"
           }
         }
       }
     },
-    "Calories are left out, so the same workout is not counted twice.": {
+    "Skip the remaining sets?": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kalorien bleiben weg, damit dasselbe Training nicht doppelt zählt."
+            "value": "Restliche Sätze überspringen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip the remaining sets?"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Las calorías se omiten para que el mismo entrenamiento no se cuente dos veces."
+            "value": "¿Omitir las series que quedan?"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les calories sont omises pour que la même séance ne compte pas deux fois."
+            "value": "Passer les séries restantes ?"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le calorie vengono omesse, così lo stesso allenamento non conta due volte."
+            "value": "Saltare le serie rimaste?"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "As calorias ficam de fora para o mesmo treino não contar duas vezes."
+            "value": "Pular as séries restantes?"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Калории не записываются, чтобы одна тренировка не засчиталась дважды."
+            "value": "Пропустить оставшиеся подходы?"
+          }
+        }
+      }
+    },
+    "Skip this exercise?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Übung überspringen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip this exercise?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Omitir este ejercicio?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passer cet exercice ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saltare questo esercizio?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pular este exercício?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пропустить это упражнение?"
+          }
+        }
+      }
+    },
+    "Keep going": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weitermachen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep going"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seguir"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continua"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuar"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Продолжить"
+          }
+        }
+      }
+    },
+    "The movement still counts as trained — the plan keeps those sets off next time.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Bewegung gilt weiterhin als trainiert — der Plan lässt diese Sätze beim nächsten Mal weg."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The movement still counts as trained — the plan keeps those sets off next time."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El movimiento sigue contando como entrenado: la próxima vez el plan deja fuera esas series."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le mouvement compte toujours comme entraîné : la prochaine fois, le programme retire ces séries."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il movimento conta comunque come allenato: la prossima volta il piano toglie quelle serie."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O movimento continua contando como treinado — na próxima vez o plano deixa essas séries de fora."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Движение все равно считается сделанным — в следующий раз плана на эти подходы не будет."
+          }
+        }
+      }
+    },
+    "The movement counts as not trained, and any number you entered for it is not kept. Its plan stays exactly as it is.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Bewegung gilt als nicht trainiert, und eingegebene Zahlen dazu werden nicht behalten. Ihr Plan bleibt genau so, wie er ist."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The movement counts as not trained, and any number you entered for it is not kept. Its plan stays exactly as it is."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El movimiento cuenta como no entrenado y no se guarda ningún número que hayas introducido para él. Su plan se queda exactamente igual."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le mouvement compte comme non entraîné, et aucun nombre saisi pour lui n’est conservé. Son programme reste exactement tel quel."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il movimento conta come non allenato e nessun numero inserito per esso viene conservato. Il suo piano resta esattamente com’è."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O movimento conta como não treinado, e nenhum número que você tenha inserido para ele é guardado. O plano dele fica exatamente como está."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Движение считается несделанным, и введенные по нему числа не сохранятся. План по нему останется ровно таким же."
+          }
+        }
+      }
+    },
+    "Held": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gehalten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Held"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aguantado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maintenu"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tenuto"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sustentado"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удержано"
+          }
+        }
+      }
+    },
+    "technique.stepDown.kicker": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leichtere Variante"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One step below"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Variación más fácil"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Variante plus facile"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Variante più facile"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Variação mais fácil"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вариация полегче"
+          }
+        }
+      }
+    },
+    "technique.stepDown.switch": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wechseln"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambiar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambia"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trocar"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перейти"
+          }
+        }
+      }
+    },
+    "technique.stepDown.unitToHold": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haltezeit statt Wiederholungen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "holds instead of reps"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "isometría en vez de reps"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "maintien au lieu de reps"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "isometria invece di reps"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "isometria em vez de reps"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "удержание вместо повторов"
+          }
+        }
+      }
+    },
+    "technique.stepDown.unitToReps": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wiederholungen statt Haltezeit"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "reps instead of holds"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "reps en vez de isometría"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "reps au lieu de maintien"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "reps invece di isometria"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "reps em vez de isometria"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "повторы вместо удержания"
+          }
+        }
+      }
+    },
+    "technique.stepDown.a11ySwitch": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zu %@ wechseln"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch to %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambiar a %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passer à %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passa a %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trocar para %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перейти на «%@»"
+          }
+        }
+      }
+    },
+    "plan.techniqueHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe auf eine Bewegung – dort stehen die Technik und die leichtere Variante."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap a movement for how it's done — and for the version one step below it."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca un movimiento: ahí están la técnica y la variación más fácil."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touche un mouvement : la technique s’y trouve, et la variante plus facile aussi."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocca un movimento: lì trovi la tecnica e la variante più facile."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toque em um movimento: ali estão a técnica e a variação mais fácil."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажми на движение — там техника и вариация полегче."
+          }
+        }
+      }
+    },
+    "technique.stepDown.confirmTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zu %@ wechseln?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch to %@?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Cambiar a %@?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passer à %@ ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passare a %@?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trocar para %@?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перейти на «%@»?"
+          }
+        }
+      }
+    },
+    "technique.stepDown.confirmBody": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Bewegung geht eine Variante nach unten. Zurück nach oben führt eine Probe – der Plan bietet sie an, sobald die Dosis wieder am oberen Ende ist."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This movement drops to the variation below. The way back up is a probe, which the plan offers once the dose is at the ceiling again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El movimiento baja a la variación anterior. Para volver a subir está la prueba: el plan la ofrece cuando la dosis llega otra vez al tope."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le mouvement descend d’une variante. Pour remonter, il y a l’essai : le programme le propose quand la dose atteint de nouveau le plafond."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il movimento scende alla variante precedente. Per risalire c’è la prova: il piano la propone quando la dose torna al massimo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O movimento desce para a variação anterior. Para voltar a subir existe o teste: o plano o oferece quando a dose chega de novo ao topo."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Движение опустится на вариацию ниже. Обратно наверх ведет проба — план предложит ее, когда доза снова дойдет до потолка."
+          }
+        }
+      }
+    },
+    "plan.probeNote": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Danach eine Probe: ein Satz %1$@ · %2$@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Then a probe: one set of %1$@ · %2$@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Después una prueba: una serie de %1$@ · %2$@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ensuite un essai : une série de %1$@ · %2$@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poi una prova: una serie di %1$@ · %2$@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Depois um teste: uma série de %1$@ · %2$@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Потом проба: один подход %1$@ · %2$@"
+          }
+        }
+      }
+    },
+    "history.probePassed": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Probe: %1$@ · %2$@ – geschafft"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Probe: %1$@ · %2$@ — passed"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prueba: %1$@ · %2$@ — superada"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Essai : %1$@ · %2$@ — réussi"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prova: %1$@ · %2$@ – superata"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teste: %1$@ · %2$@ — passou"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проба: %1$@ · %2$@ — засчитана"
+          }
+        }
+      }
+    },
+    "history.probeShort": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Probe: %1$@ · %2$@ – diesmal nicht"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Probe: %1$@ · %2$@ — not this time"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prueba: %1$@ · %2$@ — esta vez no"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Essai : %1$@ · %2$@ — pas cette fois"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prova: %1$@ · %2$@ – non stavolta"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teste: %1$@ · %2$@ — desta vez não"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проба: %1$@ · %2$@ — не в этот раз"
+          }
+        }
+      }
+    },
+    "history.probePassedPlain": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Probe: %@ – geschafft"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Probe: %@ — passed"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prueba: %@ — superada"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Essai : %@ — réussi"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prova: %@ – superata"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teste: %@ — passou"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проба: %@ — засчитана"
+          }
+        }
+      }
+    },
+    "history.probeUnresolved": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Probe: %@ – diesmal nicht"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Probe: %@ — not this time"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prueba: %@ — esta vez no"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Essai : %@ — pas cette fois"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prova: %@ – non stavolta"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teste: %@ — desta vez não"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проба: %@ — не в этот раз"
           }
         }
       }

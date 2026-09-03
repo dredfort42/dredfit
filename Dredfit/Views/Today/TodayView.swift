@@ -39,8 +39,11 @@ struct TodayView: View {
         .fullScreenCover(item: $activeWorkout) { active in
             WorkoutFlowView(session: active.session, resume: active.resume)
         }
+        // `planned: true` — these six movements are the workout about to be
+        // done, so the sheet carries the step below each of them. It is the
+        // handle that used to stand under this very row (R30).
         .sheet(item: $techniqueFor) { ex in
-            TechniqueSheet(target: ex)
+            TechniqueSheet(target: ex, planned: true)
         }
         .sheet(isPresented: $nextPreviewShown) {
             NextWorkoutSheet()
@@ -77,54 +80,6 @@ struct TodayView: View {
             guard let showing = planShowing else { return }
             store.recordPlanShown(showing.session)
         }
-    }
-
-    /// The one handle left on the plan, on the movement it acts on.
-    ///
-    /// It lives here rather than inside the workout because `nextSession` is
-    /// generated from the state on every access, so a tap redraws this row,
-    /// the announced duration and the plan together. Its two neighbours —
-    /// "Fewer sets" and "More sets" — are gone: volume is decided inside the
-    /// workout now, where the person knows the answer.
-    ///
-    /// "Easier version" carries its RESULT, not its promise: the name and dose
-    /// the movement would have after the tap. The engine lands it through the
-    /// ordinary gate, so on `pull_bar` the drop from negatives to a hang is a
-    /// change of unit and the preview is the only way to see that coming.
-    ///
-    /// 44 pt under a 12.5 pt line, and the row grows ~29 pt for it — worth it,
-    /// because the row around it is itself a button into the technique sheet,
-    /// so a near miss opens a sheet instead of missing.
-    @ViewBuilder
-    private func exerciseHandles(_ ex: SessionExercise) -> some View {
-        let pattern = ex.pattern
-        HStack(spacing: 16) {
-            if let preview = store.easierPreview(pattern) {
-                Button {
-                    store.makeEasier(pattern)
-                } label: {
-                    Text("Easier · \(preview)")
-                        .dredfitFont(12.5)
-                        .foregroundStyle(Theme.accent)
-                        .lineLimit(2)
-                        .multilineTextAlignment(.leading)
-                        .frame(minHeight: 44)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.borderless)
-                .accessibilityIdentifier("easier-\(pattern.rawValue)")
-            }
-            // Load-bearing, not leftover scaffolding: the Spacer is what
-            // holds the button's frame to the width of its LABEL and leaves
-            // the rest of the row untappable. Swap it for
-            // `.frame(maxWidth: .infinity)` and a tap anywhere on the row
-            // pulls the handle — measured, the announced duration went 35 min
-            // to 33 and the control vanished under the finger.
-            // `HandlesUITests.testATapOnAPlanRowDoesNotPullItsHandle` exists
-            // to catch exactly that.
-            Spacer(minLength: 0)
-        }
-        .padding(.top, 2)
     }
 
     /// What makes a showing a showing: the plan on screen.
@@ -183,12 +138,9 @@ struct TodayView: View {
             // person — and nothing on this screen sets a movement aside any
             // more.
             List(session.exercises) { ex in
-                VStack(alignment: .leading, spacing: 0) {
-                    planRow(ex, debuts: debuts)
-                    exerciseHandles(ex)
-                }
-                .listRowSeparatorTint(Theme.hairline)
-                .listRowBackground(Color.clear)
+                planRow(ex, debuts: debuts)
+                    .listRowSeparatorTint(Theme.hairline)
+                    .listRowBackground(Color.clear)
             }
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
@@ -265,6 +217,32 @@ struct TodayView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, 6)
+            }
+
+            // The price the plan pays for the handle that left it (R30): the
+            // variation one step below now lives behind the technique sheet,
+            // and a row that opens one is not self-evidently a door. One grey
+            // line, above the primary control and below the rows it is about
+            // — and spent the first time anybody goes through that door, from
+            // any screen. Not per row: six copies of this sentence would be
+            // the very pattern the handle was moved off the plan to end.
+            if store.showsTechniqueHint {
+                // Set exactly like the hints above "Went differently" and
+                // "Set the time" on the work screen: the three lines that
+                // stand above a primary control are one voice, and a
+                // left-set 13.5 pt here read as a different kind of text
+                // (owner, 02.09.2026).
+                Text(String(localized: "plan.techniqueHint",
+                            defaultValue: "Tap a movement for how it's done — and for the version one step below it."))
+                    .dredfitFont(14)
+                    .foregroundStyle(Theme.ink2)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity)
+                    .accessibilityIdentifier("technique-hint")
+                    .padding(.top, 10)
+                    .padding(.bottom, 16)
             }
 
             // The card replaces Start — its own two actions already are

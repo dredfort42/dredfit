@@ -76,6 +76,20 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     /// The sets behind that mean, in order. The detail the history line
     /// shows when the sets did not all run the same.
     var setActuals: [Pattern: [Int]]?
+    /// What the PROBE set showed, per movement (§40.4) — and the fact that it
+    /// was performed at all: a probe that was skipped, or whose movement was,
+    /// leaves no entry (`WorkoutFlowView` clears it on both paths).
+    ///
+    /// Its own key rather than a fold into `actuals`, for the reason the
+    /// engine keeps the two apart: the probe is a DIFFERENT exercise, and one
+    /// number covering two variations is exactly what §40 forbids.
+    ///
+    /// It was not written at all before this wave. The engine was handed the
+    /// number and the journal dropped it, so the one question nobody could
+    /// answer afterwards was how often a probe is actually passed — and the
+    /// history sheet, reading a record that carried the probe in its plan and
+    /// nothing about the outcome, said nothing about either.
+    var probes: [Pattern: Int]?
     /// Sets skipped DURING the session, per movement — the count the engine
     /// turned into a cut. Written because it is part of what happened: a plan
     /// of 5×8 answered with three sets is not the same session as one answered
@@ -133,6 +147,9 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
         // array is a hand-edited file, not a workout.
         setActuals = try c.decodeIfPresent([Pattern: [Int]].self, forKey: .setActuals)?
             .mapValues { $0.prefix(EngineConfig.setsMax).map { clamp($0, 0, EngineConfig.countMax) } }
+        // One set of one movement: the same range a reported actual gets.
+        probes = try c.decodeIfPresent([Pattern: Int].self, forKey: .probes)?
+            .mapValues { clamp($0, 0, EngineConfig.countMax) }
         setsSkipped = try c.decodeIfPresent([Pattern: Int].self, forKey: .setsSkipped)?
             .mapValues { clamp($0, 0, EngineConfig.setsMax) }
         skipped = try c.decodeIfPresent(Set<Pattern>.self, forKey: .skipped)
@@ -151,7 +168,8 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     init(sessionNumber: Int, date: Date, result: FeedbackResult,
          totalProgressAfter: Int? = nil,
          exercises: [SessionExercise]? = nil, actuals: [Pattern: Int]? = nil,
-         setActuals: [Pattern: [Int]]? = nil, setsSkipped: [Pattern: Int]? = nil,
+         setActuals: [Pattern: [Int]]? = nil, probes: [Pattern: Int]? = nil,
+         setsSkipped: [Pattern: Int]? = nil,
          skipped: Set<Pattern>? = nil, discomfort: Set<Pattern>? = nil,
          positionsAfter: [Pattern: RecordedPosition]? = nil,
          durationSec: Int? = nil,
@@ -164,6 +182,7 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
         self.exercises = exercises
         self.actuals = actuals
         self.setActuals = setActuals
+        self.probes = probes
         self.setsSkipped = setsSkipped
         self.skipped = skipped
         self.discomfort = discomfort
@@ -240,6 +259,19 @@ struct WorkoutSnapshot: Codable, Equatable {
     var fingerprint: String?
     /// Restore lands on the rating, not on the set the fields still describe.
     var atFeedback: Bool?
+    /// Restore lands on the finished movement's SUMMARY. Without it a kill on
+    /// that screen would come back on the last set and offer to run it again —
+    /// an effort that is behind, with its seconds already recorded.
+    var atExerciseSummary: Bool?
+    /// How long the athlete DECLARED the hold in front of them would run,
+    /// before doing it. Restored so that coming back after a process death
+    /// does not quietly put the plan's number back on the clock.
+    var holdDeclaredSec: Int?
+    /// Sets of the exercise in front of us whose number is an ESTIMATE — the
+    /// set ended under a thumb, so it carries a guessed reach allowance. An
+    /// array
+    /// because a `Set<Int>` is one on the wire anyway; read back as a set.
+    var approxSets: [Int]?
     var interrupted: Pattern?
     /// The two blocks as measured so far, carried across a process death so a
     /// declined warm-up is not silently restored as a performed one. A kill
@@ -272,6 +304,12 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// has no decoder of its own and everything here comes back off disk.
     var skips: SetFacts.Skips {
         SetFacts.sanitized(skips: setsSkipped ?? [:])
+    }
+
+    /// The estimate marks, bounded by what an exercise can hold. Sanitized
+    /// where it is read for the same reason as everything above it.
+    var approximateSets: Set<Int> {
+        Set((approxSets ?? []).filter { (0..<EngineConfig.setsMax).contains($0) })
     }
 
     static func fingerprint(of session: Session) -> String {

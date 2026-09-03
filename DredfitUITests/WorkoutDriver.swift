@@ -31,12 +31,70 @@ struct WorkoutDriver {
     /// tap some time after the check, and on a degraded runner that gap has
     /// been ten seconds (nightly 2026-08-04, run 30875292377). A test whose
     /// target can expire on the app's own timer must widen its margin too —
-    /// see `maximiseHold()`.
+    /// launch it with `--uitest-hold-long`.
+    /// An INFINITE frame is refused as well, and that is not belt and braces:
+    /// a control standing down as `.opacity(0).disabled()` keeps its place in
+    /// the tree and can report `CGRect.null`, whose origin is infinite —
+    /// `coordinate(withNormalizedOffset:)` then raises
+    /// NSInternalInconsistencyException and takes the whole test down with a
+    /// message about a point, which says nothing about the screen.
+    ///
+    /// FINITENESS ONLY: an empty frame is still tapped. Inside the workout's
+    /// fullScreenCover this simulator reports zero-sized frames for controls
+    /// that are plainly on screen — the same quirk that forces coordinates
+    /// here in the first place — so refusing those would refuse half the
+    /// flow's own buttons.
     @discardableResult
     func coordinateTap(_ element: XCUIElement) -> Bool {
         guard element.exists else { return false }
+        let frame = element.frame
+        guard frame.origin.x.isFinite, frame.origin.y.isFinite,
+              frame.width.isFinite, frame.height.isFinite else { return false }
         element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         return true
+    }
+
+    /// All four in-workout skips ask before they act (SkipConfirmation.swift),
+    /// and all four answer to the same short button — deliberately, because
+    /// the alert's layout follows its label widths and per-kind labels made
+    /// two neighbouring controls stack differently. Which question is up is
+    /// read off the TITLE, never off this; a test that needs to know asserts
+    /// the title.
+    ///
+    /// ENGLISH ONLY, unlike everything else this driver taps. An alert button
+    /// carries no identifier that survives into the accessibility tree, so a
+    /// label is what there is — which means a localized walk (S7) must not
+    /// route a skip through here. It does not today: `completeWorkout` never
+    /// skips, it finishes every set.
+    ///
+    /// The onboarding cards carry a "Skip" of their own. It is a different
+    /// screen and never up at the same time, and no control inside the workout
+    /// reads exactly this word.
+    static let skipConfirmLabel = "Skip"
+
+    /// Answers a skip's question. One place for it, because a confirmation
+    /// added to a control is exactly the change that leaves half a dozen call
+    /// sites tapping into a flow that no longer moves.
+    ///
+    /// A plain `.tap()`, not `coordinateTap`: the alert is its own
+    /// presentation, outside the workout's fullScreenCover, so the hittability
+    /// quirk that forces coordinates inside the cover does not apply here.
+    @discardableResult
+    func confirmSkip(timeout: TimeInterval = 5) -> Bool {
+        let confirm = app.buttons[Self.skipConfirmLabel]
+        guard confirm.waitForExistence(timeout: timeout) else { return false }
+        confirm.tap()
+        return true
+    }
+
+    /// The escape and its answer as one act — what every caller that just
+    /// wants the skip to happen should reach for.
+    @discardableResult
+    func skip(control identifier: String, timeout: TimeInterval = 5) -> Bool {
+        let control = app.buttons[identifier]
+        guard control.waitForExistence(timeout: timeout) else { return false }
+        coordinateTap(control)
+        return confirmSkip(timeout: timeout)
     }
 
     /// The warm-up opens on its offer screen, so getting past the block is one
@@ -62,7 +120,12 @@ struct WorkoutDriver {
     func walkToCooldownOffer(deadline seconds: TimeInterval = 360,
                              ratingLabel: String = "How did it go?") -> Bool {
         let done = app.buttons[AX.exerciseDone]
-        let startHold = app.buttons[AX.holdStart]
+        // ONE tap per hold exercise since R23: the sets after the first count
+        // themselves in and this control does not come back. `holdStart` is
+        // still tapped when it does — the probe set, which the auto-run leaves
+        // to the person — so both stay in the loop.
+        let startHold = app.buttons[AX.holdStartExercise]
+        let startOneHold = app.buttons[AX.holdStart]
         let offer = app.buttons[AX.cooldownStart]
         // The rating is the other way this walk can end, and it is a failure
         // for every caller: a workout that reaches it was never asked. Stopping
@@ -76,6 +139,9 @@ struct WorkoutDriver {
             } else if startHold.exists {
                 coordinateTap(startHold)
                 _ = startHold.waitForNonExistence(timeout: 3)
+            } else if startOneHold.exists {
+                coordinateTap(startOneHold)
+                _ = startOneHold.waitForNonExistence(timeout: 3)
             } else {
                 // resting or mid-transition — every one of those advances on
                 // its own, so waiting on the goal is also the settle.
@@ -97,6 +163,51 @@ struct WorkoutDriver {
         guard skip.waitForExistence(timeout: timeout) else { return false }
         coordinateTap(skip)
         return true
+    }
+
+    /// Answers the cool-down's footer escape and proves the rating followed.
+    ///
+    /// CONFIRMED and retried once, because a single unconfirmed `.tap()` on a
+    /// control inside the workout's fullScreenCover GETS LOST, and a lost tap
+    /// leaves the button standing. Measured on the local full run of
+    /// 02.09.2026 (I-22): the tap was synthesized dead centre of an enabled
+    /// `skip-cooldown` ({{24, 764}, {354, 56}}, so (201, 792)) with no
+    /// interrupting elements, and the app never acted on it — the block ran on
+    /// through all seven positions with the escape still on screen. So the
+    /// confirmation is the button's disappearance and the recovery is a second
+    /// tap: the rule at the top of this file, and the same retry
+    /// `BlockPauseUITests` already carries for its own resumed block.
+    ///
+    /// THE BUDGET IS THE CHECK — DO NOT RAISE THESE SECONDS. Under
+    /// `--uitest-fast` the block also ends by itself, ~17 s after the escape is
+    /// first offered on position 1 of 7. 4 s + one retry + 5 s holds the whole
+    /// wait under 9 s, so a rating that arrives in time can only be the skip.
+    /// Widened to 20 s the test goes green on the block merely running out,
+    /// having stopped checking the skip at all: I-22's first fix already moved
+    /// this wait 3 s → 15 s and the transition was lost anyway, so the next
+    /// reader's instinct — more seconds — turns a red test into a silent one.
+    ///
+    /// The retry is refused once the rating is up, and `coordinateTap` refuses
+    /// a control that has vanished. Both matter: the rating's cards stand in
+    /// the same bottom slot, so a blind second tap would answer the question
+    /// this walk exists to ask.
+    @discardableResult
+    func skipCooldownBlock(ratingLabel: String = "How did it go?",
+                           file: StaticString = #filePath, line: UInt = #line) -> Bool {
+        let skip = app.buttons[AX.skipCooldown]
+        let rating = app.staticTexts[ratingLabel]
+        guard coordinateTap(skip) else {
+            XCTFail("the running cool-down must offer a way out of the block",
+                    file: file, line: line)
+            return false
+        }
+        if !skip.waitForNonExistence(timeout: 4), !rating.exists {
+            coordinateTap(skip)
+        }
+        XCTAssertTrue(rating.waitForExistence(timeout: 5),
+                      "skipping the cool-down lands on the rating",
+                      file: file, line: line)
+        return rating.exists
     }
 
     /// Returned rather than asserted: whether the cool-down had to run is
@@ -124,7 +235,8 @@ struct WorkoutDriver {
                          ratingLabel: String = "How did it go?",
                          file: StaticString = #filePath, line: UInt = #line) -> Walk {
         let done = app.buttons[AX.exerciseDone]
-        let startHold = app.buttons[AX.holdStart]
+        let startHold = app.buttons[AX.holdStartExercise]
+        let startOneHold = app.buttons[AX.holdStart]
         let skipCooldownButton = app.buttons[AX.skipCooldown]
         let cooldownQuestion = app.buttons[AX.cooldownStart]
         let cooldownDeclineButton = app.buttons[AX.cooldownIntroSkip]
@@ -140,6 +252,9 @@ struct WorkoutDriver {
             } else if startHold.exists {
                 coordinateTap(startHold)
                 _ = startHold.waitForNonExistence(timeout: 3)  // countdown started
+            } else if startOneHold.exists {
+                coordinateTap(startOneHold)
+                _ = startOneHold.waitForNonExistence(timeout: 3)
             } else if cooldownQuestion.exists {
                 // The block asks first. Skipping answers the question rather
                 // than the footer — the block never runs, so this is

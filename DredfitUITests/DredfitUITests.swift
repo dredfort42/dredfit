@@ -78,10 +78,41 @@ final class DredfitUITests: XCTestCase {
     /// finds no skip to tap does not advance the count.
     func skipExercises(until goal: XCUIElement, limit: Int) {
         let skip = app.buttons[AX.exerciseSkip]
-        let deadline = Date.now.addingTimeInterval(TimeInterval(limit) * 15)
+        // 30 s per exercise, not 15. One skip is a tap, an answer and two
+        // queries of the tree, and on the nightly runner a single query has
+        // taken seconds — the walk was running out of budget before it ran out
+        // of exercises, and what failed then was the assertion AFTER this
+        // helper (nightly 2026-09-02, `testBarWorkoutFlowsToRating`). The
+        // widening costs nothing in the ordinary case because of the exit
+        // below: the loop now leaves as soon as there is nothing left to skip,
+        // instead of spinning out whatever budget it was given.
+        let deadline = Date.now.addingTimeInterval(TimeInterval(limit) * 30)
+        // The block the work ends on. Reached with every exercise behind, and
+        // it is the CALLER's question to answer (`declineCooldownIfAsked`) —
+        // so arriving here is this loop's exit, not a state to wait out. It
+        // used to spin against it until the deadline whenever `limit` was
+        // generous, which is most call sites: `limit: 6` on a session of six
+        // with one exercise already done burned forty seconds doing nothing,
+        // in a suite whose whole problem is that it runs out of runner.
+        let cooldownAsks = app.buttons[AX.cooldownIntroSkip]
         var skips = 0
         while !goal.exists && skips < limit && Date.now < deadline {
-            if skip.exists { coordinateTap(skip); skips += 1 }
+            if cooldownAsks.exists { return }
+            // The escape asks before it acts (SkipConfirmation.swift), and it
+            // is the ANSWER that advances the flow — so the answer, not the
+            // escape, is what counts as a skip here. A question left standing
+            // by a dropped tap is answered on the next pass instead.
+            if driver.confirmSkip(timeout: 0) {
+                skips += 1
+            } else if skip.exists && skip.isEnabled {
+                // `isEnabled`, not `exists` alone. The escapes stand down
+                // during a count-in, a hold and a side switch as
+                // `.opacity(0).disabled()` — reserved height keeps the layout
+                // still — so they stay in the tree with a degenerate frame,
+                // and since a hold exercise runs itself now, a skip-through
+                // meets that state on the way past every hold.
+                coordinateTap(skip)
+            }
             _ = goal.waitForExistence(timeout: 1)   // settle + goal check
         }
     }
@@ -321,7 +352,11 @@ final class DredfitUITests: XCTestCase {
         XCTAssertTrue(finishNow.waitForExistence(timeout: 3))
         finishNow.tap()
 
-        XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 3),
+        // 15 s, not 3: the rating is the screen a whole workout ends on, and
+        // every wait for it stands at the end of a chain of taps. Three
+        // seconds is not a check on a loaded runner, it is a coin toss —
+        // I-22, and the nightly has now lost this transition twice.
+        XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 15),
                       "Finish now must lead to the rating screen")
         // "not finished" is the one per-row word that differs from the section
         // header and therefore stays visible.

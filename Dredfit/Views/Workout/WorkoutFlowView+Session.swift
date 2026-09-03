@@ -19,17 +19,59 @@ extension WorkoutFlowView {
 
     // MARK: - Hold countdown
 
-    /// The tap arms the set; the clock waits out a count-in first
-    /// (`GetReady.countInSeconds`). It used to start the hold under the thumb,
-    /// and on a hold that is not only a jolt: the seconds spent getting down
-    /// into the plank came off the number the engine measures.
-    func startHold() {
+    /// The tap arms the set; the clock waits out a count-in first. It used to
+    /// start the hold under the thumb, and on a hold that is not only a jolt:
+    /// the seconds spent getting down into the plank came off the number the
+    /// engine measures.
+    ///
+    /// THE TWO COUNT-INS ARE DIFFERENT LENGTHS, and the reason is already
+    /// written down in `GetReady.countInSeconds`: a tap is somebody saying
+    /// "I am ready", and all they need is the beat between saying it and
+    /// being counted in. A set the auto-run opened was agreed to once, sets
+    /// ago, by someone who has since been lying on the floor through a rest —
+    /// that is travel, not a beat, so it is priced as travel
+    /// (`GetReady.stageSeconds`). The supplement is taken because
+    /// `SessionExercise` carries no `needsSetup` of its own and a hold is a
+    /// position you get DOWN into; erring long costs seconds, erring short
+    /// costs the seconds off the number the engine measures.
+    func startHold(autoContinued: Bool = false) {
         adjusting = false
         // On the probe set the countdown is the PROBE's target — a different
         // movement, and possibly a different unit (§40.1, `pull_bar` 2→3).
-        let planned = current.isProbe
+        // The declaration stands in for the plan while this exercise lasts —
+        // `SetFacts.holdTarget` says how, and why a set cut short still
+        // governs the sets after it. The PROBE is outside it: it is one set of
+        // another movement, and a time declared for this one says nothing
+        // about that one (§40.4).
+        var planned = current.isProbe
             ? (probeActuals[exercise.pattern] ?? current.planned)
-            : SetFacts.inForce(actuals, exercise, set: setIndex)
+            : SetFacts.holdTarget(actuals, exercise, set: setIndex,
+                                  declared: holdDeclared)
+        #if DEBUG
+        // The UI suite used to set a hold's length through the adjuster on
+        // this screen, which R23 removed: nothing is entered before the
+        // effort. What the suite actually needed were the two ENDS of the
+        // corridor — the floor, to walk a whole hold exercise inside a test's
+        // budget, and the ceiling, to give a mid-hold Stop a margin no loaded
+        // runner can eat (the nightly of 2026-08-04 spent 20 s delivering
+        // one tap).
+        //
+        // A SEED OF THE PLAN, never of the number in force and never of a
+        // DECLARED time: once the athlete has said something about this
+        // movement — by reporting a set or by setting the clock — that is what
+        // it runs at. Otherwise the scaffolding would overwrite the very thing
+        // the test that set it is about: a hold stopped early carries its
+        // seconds onto the sets after it, and a declared time governs every
+        // set, and a flag that re-imposed 90 s would hide both.
+        // Production untouched; DEBUG builds only.
+        if actuals[exercise.pattern] == nil && holdDeclared == nil && !current.isProbe {
+            if CommandLine.arguments.contains("--uitest-hold-short") {
+                planned = SetFacts.corridor(for: .hold).lowerBound
+            } else if CommandLine.arguments.contains("--uitest-hold-long") {
+                planned = SetFacts.corridor(for: .hold).upperBound
+            }
+        }
+        #endif
         // The SECOND side is re-armed through here too, not only through the
         // switch pause: a Stop inside the mis-tap grace leaves every countdown
         // nil with `holdSecondSide` still true, so "Start hold" comes back and
@@ -38,7 +80,9 @@ extension WorkoutFlowView {
         holdTotal = SetFacts.holdSideSeconds(
             planned: planned, firstSideHeld: holdSecondSide ? firstSideHeld : nil)
         holdRemaining = holdTotal
-        holdCountInRemaining = GetReady.countInSeconds
+        holdCountInRemaining = autoContinued
+            ? GetReady.stageSeconds(needsSetup: true)
+            : GetReady.countInSeconds
         holdCountInEndDate = Date.now.addingTimeInterval(TimeInterval(holdCountInRemaining))
     }
 
@@ -87,6 +131,11 @@ extension WorkoutFlowView {
     /// seconds is an accidental double-tap: the set stays available.
     /// Otherwise one mis-tap consumes the set and records a bogus actual —
     /// which on the first workout also feeds the zero-level calibration.
+    ///
+    /// Past the grace the seconds are written down by the thumb's own
+    /// allowance (`SetFacts.holdEndedByTap`): the tap lands after the effort
+    /// has stopped, and the number the button already named is the number
+    /// this records.
     func stopHoldEarly() {
         guard let end = holdEndDate else { return }
         let remaining = max(0, end.timeIntervalSinceNow)
@@ -96,7 +145,12 @@ extension WorkoutFlowView {
             holdRemaining = holdTotal
             return
         }
-        finishHold(heldSeconds: Int(held.rounded()))
+        // A set that ended under a thumb is an ESTIMATE and says so on the
+        // summary: the allowance below is a guess about a walk to the phone,
+        // not a measurement, and a number the app guessed at must not be
+        // printed with the same confidence as one the clock produced.
+        holdApproxSets.insert(setIndex)
+        finishHold(heldSeconds: SetFacts.holdEndedByTap(heldSeconds: Int(held.rounded())))
     }
 
     /// Per-side holds run the pause and the second side by themselves; the
@@ -113,7 +167,49 @@ extension WorkoutFlowView {
         holdSecondSide = false
         firstSideHeld = nil
         recordHoldActual(heldSeconds: held)
-        completeSet()
+        // Only the LAST set stops here. A hold ends itself, and the flow used
+        // to leave the work screen in the same frame the number was produced
+        // in — but a set with another one behind it is not lost: the movement
+        // comes back, and until it does the rest is what the person wants. It
+        // is the last set that is terminal, because after it no screen about
+        // this movement ever returns, and the seconds it recorded would stand
+        // uncorrectable (owner, 30–31.08.2026).
+        guard isLastSet else {
+            completeSet()   // rest starts itself, exactly as it always did
+            return
+        }
+        // The signal fires HERE, where the effort actually stopped, not on the
+        // tap that follows: the person may have their eyes shut in a plank,
+        // and the sound is the only thing that says the hold is over.
+        playDone()
+        // The PROBE keeps the settled screen it always had: its caption states
+        // the outcome of the trial ("Next time: …"), which is a sentence about
+        // a movement the summary below deliberately says nothing about — the
+        // probe's number is its own channel and is never folded in (§40.4).
+        // Every other last set of a hold lands on the summary instead, where
+        // the whole movement is in front of the person and any set of it can
+        // be corrected, not only this one.
+        if current.isProbe {
+            holdSettled = true
+            persistProgress()   // a recorded hold is worth keeping before the tap
+            return
+        }
+        startExerciseSummary()
+    }
+
+    // MARK: - The exercise summary
+
+    /// Every set of the finished hold movement, on one screen.
+    func startExerciseSummary() {
+        adjusting = false
+        holdDeclaring = false
+        summarySet = nil
+        holdSettled = false
+        holdAutoRun = false
+        phase = .exerciseSummary
+        liveActivity.update(.init(phase: .work, title: exercise.name,
+                                  detail: String(localized: "Held"), restEndDate: nil))
+        persistProgress()
     }
 
     // MARK: - The side-switch pause (issue #35)
@@ -180,17 +276,44 @@ extension WorkoutFlowView {
     func playWorkoutDone() { WorkoutSignals.workoutDone(store.settings.soundsEnabled) }
     func playMilestone() { WorkoutSignals.milestone(store.settings.soundsEnabled) }
 
+    /// What the summary's own primary control does. It is `completeSet` and
+    /// not a path of its own deliberately: the summary REPLACED the tap that
+    /// logged the set, so the flow past it has to be the same flow — the rest
+    /// this movement earns, or the cool-down when it was the last one.
+    func leaveExerciseSummary() {
+        holdApproxSets.removeAll()
+        completeSet()
+    }
+
     func advanceAfterRest() {
         if isLastSet {
             exIndex += 1
             maximumWarning = nil   // the note belongs to the exercise it was about
             setIndex = 0
+            // One tap bought ONE exercise. The next movement is a decision of
+            // its own, and starting it under a thumb that agreed to something
+            // else is exactly what R23 is against.
+            holdAutoRun = false
+            // …and so is the time that tap was given. This is the ORDINARY way
+            // out of an exercise — the last set rests, and the rest ends here —
+            // and it went through no reset at all, so a declaration made for
+            // the plank arrived at the side plank and set its clock to a
+            // number nobody had asked of that movement.
+            resetHoldExercise()
         } else {
             setIndex += 1
         }
         phase = .work
         liveActivity.update(activityWorkState())
         persistProgress()
+        // …and inside the exercise nothing is asked for again: the rest ends
+        // and the next set counts itself in. The PROBE is deliberately left
+        // out — it is one set of a movement nobody has done, possibly in
+        // another unit (§40.1), and being dropped into a countdown for it is
+        // the surprise §40.4 spends a whole screen avoiding.
+        if holdAutoRun && current.unit == .hold && !current.isProbe {
+            startHold(autoContinued: true)
+        }
     }
 
     // MARK: - Surviving process death
@@ -219,6 +342,9 @@ extension WorkoutFlowView {
             // exercise.
             atFeedback: phase == .feedback || phase == .cooldown
                 || phase == .cooldownIntro ? true : nil,
+            atExerciseSummary: phase == .exerciseSummary ? true : nil,
+            holdDeclaredSec: holdDeclared,
+            approxSets: holdApproxSets.isEmpty ? nil : Array(holdApproxSets).sorted(),
             interrupted: interruptedPattern,
             warmupSec: warmupSec, cooldownSec: cooldownSec))
     }
@@ -244,8 +370,18 @@ extension WorkoutFlowView {
         // block was declined that may have been half done.
         warmupSec = snap.warmupSec
         cooldownSec = snap.cooldownSec
+        holdApproxSets = snap.approximateSets
+        // A declared time outlives a process death, and it has to: coming back
+        // to the plan's number after saying you would hold longer would undo
+        // the decision without saying so, and the sets already recorded would
+        // then be followed by a shorter one for no reason anybody could see.
+        holdDeclared = snap.holdDeclaredSec
         if snap.atFeedback == true {
             phase = .feedback
+            return
+        }
+        if snap.atExerciseSummary == true {
+            phase = .exerciseSummary
             return
         }
         if let end = snap.restEndDate, let total = snap.restTotalSec, end > .now {
@@ -272,6 +408,10 @@ extension WorkoutFlowView {
     /// What a fresh Live Activity opens with — a resumed workout can start
     /// mid-rest.
     func currentActivityState() -> RestActivityAttributes.ContentState {
+        if phase == .exerciseSummary {
+            return .init(phase: .work, title: exercise.name,
+                         detail: String(localized: "Held"), restEndDate: nil)
+        }
         if case .rest = phase {
             return .init(phase: .rest, title: nextLabel,
                          detail: String(localized: "Next up"),
@@ -282,6 +422,7 @@ extension WorkoutFlowView {
 
     var hasProgress: Bool {
         if case .rest = phase { return true }
+        if phase == .exerciseSummary { return true }
         return exIndex > 0 || setIndex > 0
             || !actuals.isEmpty || !skippedPatterns.isEmpty
     }
@@ -304,6 +445,12 @@ extension WorkoutFlowView {
         holdSecondSide = false
         firstSideHeld = nil
         holdPauseEndDate = nil
+        holdSettled = false
+        holdAutoRun = false
+        holdDeclared = nil
+        holdDeclaring = false
+        holdApproxSets.removeAll()
+        summarySet = nil
         var firstUnfinished = exIndex
         if case .rest = phase, isLastSet { firstUnfinished = exIndex + 1 }
         // "not finished", not "skipped": the engine still freezes the level

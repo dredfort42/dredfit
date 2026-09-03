@@ -1,5 +1,292 @@
 # Changelog
 
+## 2.1.0
+
+**Holds are hands-free now, and two screens stopped asking for a decision at
+the one moment it cannot be given.** A hold movement is bought with a single tap
+and the phone can stay where you put it until the movement is over; the time on
+its clock is agreed before the effort instead of reported after it; and the
+seconds are put right on a screen that comes back once the work is behind you.
+The other half of the release is the same idea from the other side. The two
+escapes on the work screen used to fire on contact, and the offer of a gentler
+variation sat under every row of the plan — a question asked mid-set, and a
+question asked before the workout has told you anything at all. Each now asks
+first, or asks somewhere else.
+
+**What this release does not touch.** The engine is not changed by a single
+line. The ladders, the rotation, the probe, the comeback after a break and the
+entry point — three sets of four in the gentlest variation of each of six
+movements, which is the entry point and not the bottom — are exactly what 2.0.0
+shipped, and `GoldenTests` still replays the same recorded trace of the
+JavaScript reference, bit for bit, out of the same unedited fixture. The state
+format stays v3 and the journal format stays as it is, so **there is no
+migration in this release** and nothing about your history is touched by
+installing it. No new kind of Health data is read or written and no permission
+text changed, so the App Store privacy answer stands where it was: **Data Not
+Collected** — no account, no analytics, no ads and no network request of any
+kind.
+
+### Holds run without the phone in your hand
+
+**A hold exercise costs one tap.** Three sets of a plank took four touches, and
+three of them were taken between sets by somebody lying on the floor — which is
+the one moment the phone is furthest away and the effort has just ended.
+**Start exercise** now buys the whole movement: the rest ends, the next set
+counts itself in, and nothing has to be picked up until the exercise is over.
+The screen before the tap says what is being bought — how many sets and how
+long the rest between them — and promises only what the app can keep: put the
+phone down, not lock the screen, because a suspended app runs no timers and
+plays no tones.
+
+**The count-in before a set the run opened is longer than the one a tap earns.**
+A tap is somebody saying "I am ready" and needs only the beat between saying it
+and being counted in. A set the run opened was agreed to sets ago by somebody
+who has since been lying through a rest, so it is priced as travel to the
+position — the same length the warm-up and cool-down give a position you have
+to get down into.
+
+**You say how long a hold will run, before it runs.** The one thing a hold
+screen takes before the effort is the time on the clock — a target, not a
+report, which is what makes it a fair question to ask of somebody who has not
+done the set yet. **Set the time** raises it (or lowers it, on a day when the
+plan is too much), the clock counts down from that number on every set of the
+exercise, and **Stop** cuts a set short and records what was actually held. So
+the number the engine reads is still measured, never declared.
+
+A set that was cut short still speaks: the sets after it follow what was shown,
+capped by what was declared. Aiming at 60 and managing 50 does not put 60 back
+on the clock.
+
+This is what the per-side holds needed. Such a set is recorded as the smaller
+of its two sides, and the second side runs for exactly what the first one ran —
+so nothing that happens after the plan is met can raise its number, and half
+the hold movements had no way to show more at all. Both sides now run from the
+declared time, with no exception for the shape.
+
+**Stop names the number it will write.** "Stop · 60 s" instead of "Stop": the
+figure on the button is what the set records if the tap lands now, so ending a
+hold early is a decision rather than a surprise. Inside the first three seconds
+it stays plain **Stop**, because that tap cancels the set and stores nothing at
+all — a figure there would be a lie.
+
+**A hold ended by tap is written down by three seconds.** The thumb arrives
+after the effort has stopped: the person comes off the floor and reaches for
+the phone, and the timestamp of the tap is not the timestamp of the last second
+held. The correction only ever goes down, never below the five seconds a hold
+can be stored as, and it is what the button already named.
+
+**A hold that ends itself no longer takes the screen with it.** The flow used to
+leave in the same frame the number was produced in, so the seconds a plank had
+just recorded could not be looked at, and after the last set of a movement no
+screen about that movement ever came back. The clock still owns the end of the
+effort — the finale sounds the moment you stop, because your eyes may be shut —
+but it no longer owns the record: the movement closes on a summary of its own,
+and that is where a number is put right. Every set before the last one still
+runs into its rest by itself, with no tap between the effort and the recovery.
+
+**A finished hold movement now shows every set on one screen, and any of them
+can be corrected.** Until now only the last one could: a number entered on the
+work screen writes the set under way and clears the sets after it, which is
+right while they have not happened and wrong once they have. Set one of three
+had never been correctable at all. Tap a card, change the number, and the other
+sets keep what they ran at. Sets that ended under a thumb are marked "≈", so a
+figure the app estimated is never shown with the confidence of one the clock
+produced. There are no escapes on this screen — the movement is behind, and
+there is nothing left to skip.
+
+**"Went differently" is gone from the planned sets of a hold.** It asked for a
+number about a set nobody had performed yet, and the one moment it was
+genuinely needed — a hold that ran long — is the moment both hands are on the
+floor. The **Set the time** answers that moment before the effort and the
+summary answers the correction after it. The first-workout hint that pointed at
+the control on a hold went with it: it named something that could not be
+reached. The screen for sets of reps is untouched, button for button.
+
+**One hold keeps it, and the exception is the reason rather than a leftover.**
+A probe is measured on its own: its number is a separate answer about a
+variation you are not on yet, and the summary of a hold movement says nothing
+about it deliberately, because folding it in with that movement's sets would
+report it as work you did in the variation you are in. So a probing hold does
+not hand the screen over to a summary at all — it settles in place, with the
+seconds it produced and the control that corrects them, which is the one hold
+whose record would otherwise have nowhere to be put right.
+
+**A time set for one movement stays with that movement.** Saying "hold 20" and
+then skipping a set of the same exercise put the sets after it silently back on
+the plan — the skip cleared the declaration along with the state that really
+does belong to one set — and it dropped the "≈" marks off numbers the app had
+guessed at, so a figure it had estimated was printed with the confidence of one
+the clock produced. In the other direction the same time outlived the exercise
+entirely: finish the plank at 20 s and the side plank, whose own plan is 15,
+opened its clock on 20. The declaration now begins and ends with the movement it
+was set for.
+
+**A declared time survives the app being killed.** The snapshot that lets an
+interrupted workout be resumed carries the hold fields now, so a session picked
+up after the app was force-quit or evicted comes back on the number you
+announced, not on the one the plan started with — the declaration is the part of
+that screen you would have to be told twice to re-enter. A snapshot written by
+an earlier build has none of those fields and is read anyway rather than thrown
+away: an upgrade must not cost somebody the workout they were in the middle
+of.
+
+### Nothing is skipped on contact
+
+**Skipping a set or an exercise asks first.** Both escapes are 44 pt targets
+sitting 18 pt under the button that logs the set, and they used to fire on
+contact. A workout has no undo, so a brushed thumb took a set — or a whole
+movement together with every number already entered for it — and nothing
+anywhere could put it back. Each one now states what is actually lost and waits
+for an answer; the question can only be answered by a button, so the stray tap
+that raised it cannot also confirm it. All four questions look the same on
+purpose, down to the buttons: none of them is red, and all of them answer to
+the same short **Skip**. What leaving a movement destroys is the numbers you
+entered for it, and the sentence says so; the movement itself stays exactly
+where it was, no penalty and no rollback, which is not something to paint as a
+danger.
+
+### The easier variation moved into the movement's own card
+
+**The easier variation moved off the plan and into the movement's own card.**
+Every row of the plan carried a line under it offering a gentler version of that
+movement — and since 2.0 that meant six of them, one under every row, because
+the carry-over from the old format put every movement above the first rung of
+its ladder. The plan has been cleared of controls like this twice already, both
+times for the same reason: they ask for a decision before the person can know
+the answer. This one now lives behind the card the row already opened, directly
+under the line that says **variation 3 of 7** — the one place in the app that
+can show a movement which is not in today's plan, which is exactly what the rung
+below is. The block has room for what a 12.5 pt line could not say: the
+movement, the dose it comes with, and — on the pull-up ladder — that the rung
+below counts seconds instead of reps.
+
+**It is offered before the workout, never during one.** The same card opens from
+the work screen and carries no switch there. A session is fixed when you press
+Start, so a movement changed halfway through would move the plan out from under
+the workout you are in the middle of — and the rating at the end lands on both
+at once.
+
+**And it asks before it acts.** A plan has no undo, and the way back up a ladder
+is not a tap: it is a probe, which arrives only once the dose has climbed to the
+ceiling again. So the switch puts the same question the four skips put, in the
+same words and with the same two answers.
+
+**One grey line pays for the handle that is no longer visible.** Above the Start
+button: *tap a movement for how it's done — and for the version one step below
+it.* It stands until the first time somebody opens one of those cards, from any
+screen, and never again.
+
+### The probe is written down, and the plan says one is coming
+
+**History remembers the probe.** A workout whose last set was a probe was
+recorded as though it never happened: the sheet printed the working sets beside
+the movement's name — "2 × 15" for a session that also had somebody trying a
+pull-up they had never done — and said nothing about the set that followed. What
+the probe showed was worse off than unprinted: the number reached the engine and
+was never written down, so the moment the rating landed it was gone for good.
+It is kept now, and the line under the movement reads *Probe: Inverted row
+(table) · 5 — passed*, or *— not this time*, which is the same neutral sentence
+the workout itself gives a probe that did not land. Records written before this
+keep their verdict — that much can still be read off the position the session
+ended on — and simply have no number to show.
+
+**The plan says when a set is a probe.** An exercise that ends in one is
+planned with a working set fewer — the probe takes the last of them — so a
+three-set plan whose third set was a probe printed "2 × 15" and said nothing
+about the set standing after it, while the minutes above the plan counted it.
+The row now carries the line the number could not: *then a probe: one set of
+Bar hang · 15 sec.*
+
+### Your weight follows Health
+
+**Your weight follows Health.** It used to be copied once — the day the Health
+toggle went on, and only into a field you had left empty — and then never looked
+at again. Weigh yourself a month later and the calories written for every
+workout were still priced from the number you had on the day you switched it on.
+It is re-read now at every launch, at every return from the background, and once
+more at the head of every export, so the figure that reaches Health is the one
+your scales gave. The **Body weight** row says where the number came from and
+stops offering an editor while Health supplies it: a field that took a number
+the next foreground would silently replace was a lie. It comes back the moment
+Health has nothing to say — no record there, or the read refused, which look
+identical from the outside — and a reading that is not there never erases the
+one you typed. A restored backup brings the number but not the claim about where
+it came from; this phone's Health answers for itself.
+
+**"Leave calories out" says what it does.** The switch that keeps the estimate
+out of Health was named for one of the two reasons to want it — a watch already
+recording the same session. The other reason used to live in the weight field:
+clearing it switched the estimate off. Now that the weight follows Health, that
+answer cannot be said there any more, so the switch carries the name of its
+effect and its caption names both reasons.
+
+### Two screens were read against the App Store frames, and both were wrong
+
+**The progress chart was losing the date its line ends on.** The axis asks for
+three dates — the first workout, the middle of the history and the last one —
+and drew two. Swift Charts anchors a date label at its own date and grows it to
+the right; the last date sits on the right edge of the plot, so its label ran
+into the column of numbers on the y-axis, and a label that does not fit is
+neither nudged nor clipped but dropped. The line therefore ran up to yesterday
+while the axis stopped on a date in the middle of the history: the one screen
+that exists to show progress you can see was printing a third less history than
+it had just drawn, and the person reading it was reading their own record
+short. Only the last label is anchored by its trailing edge now, so it grows
+leftwards, clear of the digits; the other two are on exactly the pixels they
+were on before. The cause was measured off rendered frames rather than
+reasoned about, and the new test fails on the old code as well as on three
+mutations of the fix.
+
+**A German movement name was losing its capital letter.** The line under the
+title of the technique sheet was assembled through `.lowercased()`, and in
+German that broke all ten movement names — "horizontales drücken" where the
+catalog says **Horizontales Drücken**, while the progress screen one tap away
+printed the same word correctly. In six of the seven languages lowering the
+case is harmless; in the seventh it is a grammatical error, because German
+capitalises nouns as grammar and not as decoration. Nothing was in a position
+to catch it: the sentence is assembled at run time, the catalog itself is
+right, and the localization check asks whether a translation exists, not what
+case it is in. The catalog value is now printed as it stands — the terminology
+that the glossary fixes for all seven languages is correct in every one of them
+by definition, and no screen should be re-typing it.
+
+### Housekeeping
+
+- **596 → 657 automated tests**, counted across the same three layers 2.0.0
+  counted: **70** in the engine package, **513** in the app, **74** in the UI
+  suite. The engine's 70 did not move, and that is the honest reading of this
+  release — nothing in `DredfitCore` was touched, so nothing there needed a new
+  guard. All of the growth is in the app, and it sits on the things this wave
+  could have got wrong quietly: which sets a declared time belongs to and when
+  it expires, a correction on the summary that must leave the other sets alone,
+  the "≈" that separates an estimate from a measurement, the snapshot round-trip
+  in both directions, all four skip questions, the weight being re-read at
+  launch, at foreground and at the head of an export, and — last to arrive — the
+  three cases that pin the date axis: which dates it asks for, and that the
+  label at the end of the line is anchored so that it is drawn at all.
+- **The one kicker that labels a control is darker than the ones that label
+  sections.** `Kicker` carried `ink3` as a constant, which is the right ink for
+  a heading standing over content that speaks for itself — the palette pins it
+  at 3:1, a section's ratio and not a label's. The line this release adds,
+  **One step below**, is not that kind of line: it labels the only thing on the
+  technique sheet that does anything, and at 12 pt semibold it is small text,
+  where the floor this project holds itself to is 4.5:1. That kicker is `ink2`,
+  and the component takes its colour as an argument now instead of deciding for
+  every screen at once. Every kicker that was already on a screen keeps `ink3`
+  and is unchanged.
+- **The work screen moved into a file of its own** and the hold summary into
+  two more, with no change in behaviour: the screen that grew this release was
+  already the tallest file in the app, and the size ceiling is a CI error here
+  rather than a warning, so it is split before it is grown.
+- **All forty new strings ship complete in all six translations**, and no
+  existing translation moved. Three strings were retired with the controls they
+  belonged to — the plan's "Easier · …" line and the old name and caption of the
+  calorie switch — so nothing outside the app may quote them any more.
+- **The plan's one-off technique hint is centred.** A one-line aside that does
+  not line up with the block it belongs to reads as a stray label rather than a
+  hint, and this one stands above **Start**, where nothing should look like a
+  control that is not one.
+
 ## 2.0.0
 
 The major number moves for one reason: **the scale you measured yourself by is

@@ -121,6 +121,7 @@ final class AppStore {
     /// Held so tests can await the fire-and-forget path instead of sleeping.
     private(set) var healthExportTask: Task<Void, Never>?
     private(set) var reminderAuthTask: Task<Void, Never>?
+    private(set) var bodyMassTask: Task<Void, Never>?
 
     private static let log = Logger(subsystem: "app.dredfit", category: "store")
 
@@ -236,6 +237,17 @@ final class AppStore {
         reloadIfNeeded()
         refreshDay(now: now)
         rescheduleReminders(now: now)
+        // Off the sequence, because it is the only step that leaves the
+        // device: a HealthKit query must not hold the plan's re-anchoring
+        // behind it. The weight is the owner's, and the owner may have
+        // weighed themselves since the last foreground.
+        if settings.healthEnabled {
+            // Cancelled, not just replaced: two foregrounds in a row leave two
+            // queries in flight, and HealthKit decides which returns first —
+            // without this the older reading could land last and stick.
+            bodyMassTask?.cancel()
+            bodyMassTask = Task { await self.refreshBodyMassFromHealth() }
+        }
     }
 
     /// Moves (or copies, when the readable part is kept) the state file to
@@ -551,6 +563,11 @@ final class AppStore {
             // saved file for the sake of a decimal nobody wants to see.
             actuals: overrides.isEmpty ? nil : overrides.mapValues { Int($0.rounded()) },
             setActuals: setActuals.isEmpty ? nil : setActuals,
+            // The same argument the engine was already given. It used to stop
+            // here: the number reached `applyFeedback` and nothing wrote it
+            // down, so what a probe showed was unrecoverable the moment the
+            // rating landed.
+            probes: probes.isEmpty ? nil : probes,
             setsSkipped: setsSkipped.isEmpty ? nil : setsSkipped,
             skipped: skipped.isEmpty ? nil : skipped,
             positionsAfter: currentPositions,
@@ -935,6 +952,27 @@ extension AppStore {
     /// Dismisses the prompt for this session without changing the plan.
     func dismissSuspectPrompt() {
         settings.weakLinkPromptAnsweredFor = records.last?.sessionNumber
+        persist()
+    }
+
+    /// The one line on Today that says a plan row is a door (R30). It is the
+    /// whole price the plan pays for the handle that left it: the variation one
+    /// step below now lives behind the technique sheet, and a control nobody
+    /// knows about is a control nobody has.
+    ///
+    /// Gated on having been through the door, never on `records.isEmpty`: the
+    /// person carried over from v2 has a full journal and is exactly the person
+    /// the sentence is for — every one of their movements sits above the first
+    /// variation, so every one of them has a step below it.
+    var showsTechniqueHint: Bool { !settings.hasOpenedTechnique }
+
+    /// Spent by the first technique sheet opened from ANY of its three doors —
+    /// the plan row, the work screen and the rest screen. `persist` only on the
+    /// transition: the sheet is opened many times over a life of the app and
+    /// this is a one-way flag.
+    func markTechniqueOpened() {
+        guard !settings.hasOpenedTechnique else { return }
+        settings.hasOpenedTechnique = true
         persist()
     }
 

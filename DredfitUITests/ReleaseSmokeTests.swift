@@ -200,9 +200,9 @@ final class ReleaseSmokeTests: XCTestCase {
             // replaced it — the honest number — and it has to reach the rating
             // the same way.
             for _ in 0..<3 {
-                let skip = app.buttons[AX.exerciseSkip]
-                XCTAssertTrue(skip.waitForExistence(timeout: 10), "S8: no work screen to skip")
-                skip.tap()
+                // The escape asks before it acts (SkipConfirmation.swift).
+                XCTAssertTrue(driver.skip(control: AX.exerciseSkip, timeout: 10),
+                              "S8: no work screen to skip")
             }
             let adjust = app.buttons[AX.exerciseAdjust]
             XCTAssertTrue(adjust.waitForExistence(timeout: 5),

@@ -277,56 +277,91 @@ struct SettingsSheet: View {
 
     /// Weight is the factor the whole estimate is multiplied by, so an absent
     /// one is not an empty field — it is the reason no calories are written.
+    ///
+    /// Two rows, one look. While Health supplies the weight the row does not
+    /// open an editor: the phone has one owner, their weight is re-read on
+    /// every activation, and a field that accepted a number only to have the
+    /// next foreground replace it would be a lie. The field comes back the
+    /// moment Health stops answering — no record there, or the read refused.
     private var bodyMassRow: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Button {
-                bodyMassField = editableBodyMass
-                bodyMassPromptShown = true
-            } label: {
-                HStack(spacing: 10) {
-                    Image(systemName: "scalemass")
-                        .dredfitFont(15, weight: .medium)
-                        .accessibilityHidden(true)
-                    Text("Body weight")
-                        .dredfitFont(16, weight: .medium)
-                    Spacer(minLength: 8)
-                    Text(bodyMassDisplay)
-                        .dredfitFont(15)
-                        .foregroundStyle(Theme.ink2)
-                    Image(systemName: "chevron.right")
-                        .dredfitFont(12, weight: .semibold)
-                        .foregroundStyle(Theme.ink2)
-                        .accessibilityHidden(true)
-                }
-                .foregroundStyle(Theme.ink)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 13)
-                .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 14))
-            }
-            .accessibilityIdentifier("body-mass-row")
-            if store.settings.bodyMassKg == nil {
-                Text("Without it, workouts are saved without calories.")
+            if store.settings.bodyMassFromHealth {
+                bodyMassContent(chevron: false)
+                    .accessibilityIdentifier("body-mass-row")
+                    .accessibilityElement(children: .combine)
+                Text("Taken from Health, and kept up to date.")
                     .dredfitFont(12.5)
                     .foregroundStyle(Theme.ink2)
+            } else {
+                Button {
+                    bodyMassField = editableBodyMass
+                    bodyMassPromptShown = true
+                } label: {
+                    bodyMassContent(chevron: true)
+                }
+                .accessibilityIdentifier("body-mass-row")
+                if store.settings.bodyMassKg == nil {
+                    Text("Without it, workouts are saved without calories.")
+                        .dredfitFont(12.5)
+                        .foregroundStyle(Theme.ink2)
+                }
             }
         }
+    }
+
+    private func bodyMassContent(chevron: Bool) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: "scalemass")
+                .dredfitFont(15, weight: .medium)
+                .accessibilityHidden(true)
+            Text("Body weight")
+                .dredfitFont(16, weight: .medium)
+            Spacer(minLength: 8)
+            Text(bodyMassDisplay)
+                .dredfitFont(15)
+                .foregroundStyle(Theme.ink2)
+            if chevron {
+                Image(systemName: "chevron.right")
+                    .dredfitFont(12, weight: .semibold)
+                    .foregroundStyle(Theme.ink2)
+                    .accessibilityHidden(true)
+            }
+        }
+        .foregroundStyle(Theme.ink)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 13)
+        // The read-only row keeps the tappable row's height, so switching
+        // between them does not move the toggle underneath.
+        .frame(minHeight: 44)
+        .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 14))
     }
 
     /// The manual half of the double-count guard. The automatic half reads the
     /// other workouts in Health, and HealthKit never says whether that read was
     /// allowed — a refusal looks exactly like "nothing found there", which is
     /// the wrong answer for precisely the person wearing a watch.
+    ///
+    /// And, since the weight started following Health, the ONLY way left to
+    /// say "write no estimate at all": clearing the weight used to say it, and
+    /// the field is not even reachable for the person whose Health holds a
+    /// weight. So the label names the EFFECT and the caption names both
+    /// reasons. The stored key stays `watchRecordsWorkouts` — it is the wire
+    /// name in every saved file, and a label is not a reason to move it.
     private var watchToggle: some View {
         VStack(alignment: .leading, spacing: 6) {
             Toggle(isOn: Binding(
                 get: { store.settings.watchRecordsWorkouts },
                 set: { store.setWatchRecordsWorkouts($0) })) {
-                Text("I record workouts on Apple Watch")
+                Text("Leave calories out")
                     .dredfitFont(16, weight: .medium)
             }
             .tint(Theme.accent)
             .accessibilityIdentifier("watch-records-toggle")
-            Text("Calories are left out, so the same workout is not counted twice.")
+            Text("""
+                 Turn it on if an Apple Watch records the same workouts — \
+                 otherwise the session counts twice — or if you simply want \
+                 no estimate written.
+                 """)
                 .dredfitFont(12.5)
                 .foregroundStyle(Theme.ink2)
         }
@@ -363,8 +398,10 @@ struct SettingsSheet: View {
     }
 
     /// An empty or unreadable field CLEARS the weight rather than keeping the
-    /// old one: "never mind" has to be expressible, and a silently kept number
-    /// would keep feeding calories the person believes they switched off. The
+    /// old one. What it no longer does is switch the calories off: Health
+    /// re-supplies the number on the next activation, and while it does, this
+    /// field is not even reachable. "Write no estimate" is said with the
+    /// toggle below instead — that promise moved, it did not disappear. The
     /// comma is accepted because half the shipping locales type one.
     private func commitBodyMass() {
         let typed = bodyMassField

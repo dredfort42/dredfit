@@ -35,7 +35,8 @@ final class SessionLengthTests: AppStoreTestCase {
     /// and a seed the store quietly replaced with a clean start would make
     /// every assertion here true for the wrong reason. `lastHard` keeps a
     /// probe out of the plan, so the numbers are about working sets.
-    private func advancedStore(counter: Int = 0, variation: Int) throws -> AppStore {
+    private func advancedStore(counter: Int = 0, variation: Int,
+                               hasBar: Bool = false) throws -> AppStore {
         func at(_ p: Pattern) -> Int { min(variation, Library.count(p)) }
         let vars = Pattern.allCases
             .map { "\"\($0.rawValue)\",\(at($0))" }.joined(separator: ",")
@@ -51,7 +52,8 @@ final class SessionLengthTests: AppStoreTestCase {
         }.joined(separator: ",")
         let hard = Pattern.allCases.map { "\"\($0.rawValue)\"" }.joined(separator: ",")
         let json = """
-        {"engineState":{"counter":\(counter),"vars":[\(vars)],"doses":[\(doses)],
+        {"engineState":{"counter":\(counter),"hasBar":\(hasBar),
+                        "vars":[\(vars)],"doses":[\(doses)],
                         "shown":[\(journal)],"lastHard":[\(hard)],
                         "failStreak":[\(zeros)]},
          "records":[],
@@ -150,30 +152,77 @@ final class SessionLengthTests: AppStoreTestCase {
 
     // MARK: - The handle that is left
 
-    /// "Easier version" is inactive on the first variation, and says so rather
-    /// than disappearing.
+    /// The step below is absent on the first variation — there is nothing under
+    /// it in the library — and the block that carries the handle is absent with
+    /// it, rather than standing disabled beside a name it cannot deliver.
     func testTheEasierHandleIsInactiveOnTheFirstVariation() throws {
         let store = try advancedStore(variation: 1)
         for ex in store.nextSession.exercises {
             XCTAssertEqual(ex.variation, 1)
             XCTAssertFalse(store.canMakeEasier(ex.pattern),
                            "\(ex.pattern): there is nothing below the first variation")
-            XCTAssertNil(store.easierPreview(ex.pattern))
+            XCTAssertNil(store.easierStep(ex.pattern))
         }
     }
 
-    /// And where it IS active it carries its RESULT: the preview names the
+    /// And where it IS active it carries its RESULT: the block names the
     /// variation the person would get, and the tap delivers that one.
     func testTheEasierHandlePreviewIsWhatTheTapDelivers() throws {
         let store = try advancedStore(variation: 3)
         let target = try XCTUnwrap(store.nextSession.exercises.first).pattern
-        let preview = try XCTUnwrap(store.easierPreview(target))
+        let step = try XCTUnwrap(store.easierStep(target))
 
         store.makeEasier(target)
 
         let now = try XCTUnwrap(store.nextSession.exercises.first { $0.pattern == target })
-        XCTAssertEqual("\(now.name) · \(now.display)", preview,
-                       "the preview promised a variation the tap did not deliver")
+        XCTAssertEqual(step.name, now.name,
+                       "the block promised a variation the tap did not deliver")
+        XCTAssertEqual(step.dose, now.display,
+                       "the block promised a dose the tap did not deliver")
+        XCTAssertEqual(step.variation, now.variation,
+                       "the block promised a rung the tap did not land on")
+    }
+
+    /// The block asks a QUESTION of the engine: everything it shows comes back
+    /// from `easierVariation` on a copy, and the state the person is standing
+    /// on is untouched until they tap. A preview that wrote would move the plan
+    /// of anybody who merely opened a technique sheet.
+    func testTheEasierStepWritesNothing() throws {
+        let store = try advancedStore(variation: 3)
+        let before = store.engineState
+        for ex in store.nextSession.exercises {
+            _ = store.easierStep(ex.pattern)
+        }
+        XCTAssertEqual(store.engineState, before,
+                       "reading the step below moved the state")
+    }
+
+    /// The one fact the old glued preview could not carry, and the reason the
+    /// block takes the pieces apart.
+    ///
+    /// `pull_bar` 3 → 2 is the ONLY boundary in the library where the unit
+    /// changes (§40.1): the negatives are reps and the scapular hang below them
+    /// is seconds. Pinned by its two ends rather than re-derived from
+    /// `Library.unit` on both sides — that comparison is the implementation,
+    /// and a test that restates it would stay green if the flag were wired to
+    /// the wrong pair.
+    ///
+    /// The bar branch needs `hasBar` AND an odd counter, or the pull slot deals
+    /// `pull` and the pattern is not in the session at all.
+    func testTheUnitChangeIsFlaggedOnTheOneBoundaryThatHasOne() throws {
+        let crossing = try advancedStore(counter: 1, variation: 3, hasBar: true)
+        let down = try XCTUnwrap(crossing.easierStep(.pullBar))
+        XCTAssertEqual(down.variation, 2)
+        XCTAssertTrue(down.unitChanged,
+                      "negatives → a hang is reps → seconds, and the block has to say so")
+
+        // One rung higher the neighbours are both reps, and the note must not
+        // appear — a flag that is always true says nothing.
+        let inside = try advancedStore(counter: 1, variation: 4, hasBar: true)
+        let quiet = try XCTUnwrap(inside.easierStep(.pullBar))
+        XCTAssertEqual(quiet.variation, 3)
+        XCTAssertFalse(quiet.unitChanged,
+                       "4 → 3 stays in reps; the unit note would be a lie")
     }
 
     /// The handle goes through the ENGINE, so its landing is §40.6's and

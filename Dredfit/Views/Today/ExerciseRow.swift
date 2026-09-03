@@ -1,8 +1,9 @@
 //
-// One line of a plan: the movement, its number, and the one sentence that says
-// why the number is what it is. Shared by Today and the next-workout sheet, so
-// both draw the same card and cannot drift into two different explanations of
-// the same plan.
+// One line of a plan: the movement, its number, and the sentences that say why
+// the number is what it is — including the one that says the number does not
+// count the last set at all, because that set is a probe. Shared by Today and
+// the next-workout sheet, so both draw the same card and cannot drift into two
+// different explanations of the same plan.
 //
 
 import SwiftUI
@@ -15,10 +16,15 @@ struct ExerciseRow: View {
     /// itself, so a sibling HStack pill would push the load off screen. Not
     /// an ellipsis either — sibling variations differ at the END of the name.
     var badge: String?
-    /// One line under the number, saying why it is the number it is. Under the
+    /// Lines under the number, saying why it is the number it is. Under the
     /// number and not beside it — the sentence is longer than the column, and
     /// the load must keep its place.
-    var note: String?
+    ///
+    /// A LIST because two of them can be true at once: a set that came back is
+    /// about the number on the right, and a probe is about a set the number
+    /// does not count at all. Joined into one sentence they would read as one
+    /// fact with two halves.
+    var notes: [String] = []
     @Environment(\.displayScale) private var displayScale
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     /// Both feed the cache key: the pill is a bitmap, so what the palette
@@ -39,7 +45,7 @@ struct ExerciseRow: View {
                     .dredfitFont(12, weight: .semibold)
                     .foregroundStyle(Theme.ink3.opacity(0.7))
             }
-            if let note {
+            ForEach(notes, id: \.self) { note in
                 Text(note)
                     .dredfitFont(12.5)
                     .foregroundStyle(Theme.ink2)
@@ -61,6 +67,28 @@ struct ExerciseRow: View {
     static func note(setCameBack: Bool) -> String? {
         guard setCameBack else { return nil }
         return String(localized: "A set is back — your body is coping.")
+    }
+
+    /// The other one, and it exists because the row was quietly lying without
+    /// it: `sets` on an exercise that carries a probe is already one LOWER —
+    /// the probe replaces the last of them (§40.4) — so a plan of three sets
+    /// where the third is a probe rendered as "2 × 15" and said nothing about
+    /// the third at all. The announced duration counts that set; the row did
+    /// not mention it.
+    ///
+    /// It names the movement, because the whole point of the probe is that the
+    /// last set is a DIFFERENT exercise — one nobody has done before.
+    static func probeNote(_ exercise: SessionExercise) -> String? {
+        guard let probe = exercise.probe else { return nil }
+        return String(localized: "plan.probeNote",
+                      defaultValue: "Then a probe: one set of \(probe.name) · \(probe.display)")
+    }
+
+    /// Both, in the order they are read: what happened to the number on the
+    /// right, then what is standing after it. One place, so Today and the
+    /// next-workout sheet cannot drift into two explanations of one plan.
+    static func notes(_ exercise: SessionExercise, setCameBack: Bool) -> [String] {
+        [note(setCameBack: setCameBack), probeNote(exercise)].compactMap { $0 }
     }
 
     /// Text concatenation is the only SwiftUI flow that lets the pill follow

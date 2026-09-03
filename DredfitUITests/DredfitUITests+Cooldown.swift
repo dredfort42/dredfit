@@ -49,9 +49,15 @@ extension DredfitUITests {
         gotIt.tap()
         XCTAssertTrue(gotIt.waitForNonExistence(timeout: 3), "the mini-sheet did not close")
 
-        app.buttons[AX.skipCooldown].tap()
-        XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 3),
-                      "skipping the cool-down lands on the rating")
+        // Through the driver, and not as a bare tap of its own: an unconfirmed
+        // `.tap()` inside the workout's cover gets LOST, and a lost tap leaves
+        // the button standing, so this line read a screen the app had never
+        // been asked to leave (I-22, 31.08 and 02.09). The driver confirms the
+        // tap by the button going away and retries it once — inside a budget
+        // the block running out on its own cannot satisfy. The seconds are the
+        // check, not the margin: see `skipCooldownBlock`, and do not raise
+        // them.
+        driver.skipCooldownBlock()
         rate()
     }
 }

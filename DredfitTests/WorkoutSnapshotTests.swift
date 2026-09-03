@@ -183,6 +183,58 @@ final class WorkoutSnapshotTests: AppStoreTestCase {
         XCTAssertNil(reloaded.resumableWorkout()?.discomfort)
     }
 
+    /// The three fields the hands-free hold wave added, round-tripped — the
+    /// declared time, the estimate marks and the landing on the summary.
+    ///
+    /// Nothing gated them when they shipped, which is exactly the class of
+    /// hole this file exists to close: they are optional, so a decode could
+    /// not fail, and a silent `nil` after a relaunch would put the plan's
+    /// number back on the clock without saying so.
+    func testTheHoldFieldsSurviveARelaunch() throws {
+        let store = AppStore(storageURL: tempURL)
+        var snapshot = makeSnapshot(for: store)
+        snapshot.holdDeclaredSec = 60
+        snapshot.approxSets = [0, 2]
+        snapshot.atExerciseSummary = true
+        store.saveWorkoutSnapshot(snapshot)
+
+        let resumed = try XCTUnwrap(AppStore(storageURL: tempURL).resumableWorkout())
+        XCTAssertEqual(resumed.holdDeclaredSec, 60,
+                       "a declared time must not be forgotten across a kill")
+        XCTAssertEqual(resumed.approximateSets, [0, 2])
+        XCTAssertEqual(resumed.atExerciseSummary, true)
+    }
+
+    /// …and the estimate marks are held inside what an exercise can hold, like
+    /// everything else that comes back off disk with no decoder of its own.
+    func testEstimateMarksOffDiskAreBounded() throws {
+        let store = AppStore(storageURL: tempURL)
+        var snapshot = makeSnapshot(for: store)
+        snapshot.approxSets = [-1, 0, 99]
+        store.saveWorkoutSnapshot(snapshot)
+
+        let resumed = try XCTUnwrap(AppStore(storageURL: tempURL).resumableWorkout())
+        XCTAssertEqual(resumed.approximateSets, [0],
+                       "an index no exercise can have is not a mark about anything")
+    }
+
+    /// A snapshot written BEFORE the wave still decodes and resumes: the three
+    /// keys are simply absent, and absent must mean "nothing was declared,
+    /// nothing was estimated, and the work screen is where this lands".
+    func testASnapshotWithoutTheHoldFieldsStillResumes() throws {
+        let store = AppStore(storageURL: tempURL)
+        store.saveWorkoutSnapshot(makeSnapshot(for: store))
+        let raw = try XCTUnwrap(String(data: try Data(contentsOf: tempURL), encoding: .utf8))
+        for key in ["holdDeclaredSec", "approxSets", "atExerciseSummary"] {
+            XCTAssertFalse(raw.contains("\"\(key)\""),
+                           "\(key) must not be written when there is nothing to say")
+        }
+        let resumed = try XCTUnwrap(AppStore(storageURL: tempURL).resumableWorkout())
+        XCTAssertNil(resumed.holdDeclaredSec)
+        XCTAssertNil(resumed.atExerciseSummary)
+        XCTAssertTrue(resumed.approximateSets.isEmpty)
+    }
+
     /// Re-marked from `testAPinAloneMakesASnapshotResumable`. The hold request
     /// is cancelled; a pain report is the remaining per-movement mark that is
     /// progress worth offering back on its own.

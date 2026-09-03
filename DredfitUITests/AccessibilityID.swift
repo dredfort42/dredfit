@@ -33,7 +33,12 @@ enum AX {
     /// The row is per pattern (`plan-row-squat`, `plan-row-push_h`, …); the
     /// prefix is what a test that does not care WHICH movement asks for.
     static let planRowPrefix = "plan-row-"
+    /// The ONE name here that matches nothing in production, and deliberately:
+    /// the per-movement handle left the plan for the technique sheet (R30), and
+    /// the test that proves it asks for this prefix precisely so a handle that
+    /// comes back is a red test rather than a silently restored row.
     static let easierHandlePrefix = "easier-"
+    static let techniqueHint = "technique-hint"
     static let nextWorkoutDone = "next-workout-done"
 
     // MARK: - Onboarding, resume and the comeback card
@@ -54,8 +59,27 @@ enum AX {
     static let workoutExit = "workout-exit"
     static let workoutExitSpacer = "workout-exit-spacer"
     static let exerciseDone = "exercise-done"
+    /// The tap that buys the WHOLE hold exercise — the control a hold opens
+    /// on. `holdStart` below re-arms ONE set and is a different screen state:
+    /// a Stop inside the mis-tap grace, or the probe, which the auto-run
+    /// deliberately does not start for you. Two names because they are two
+    /// controls; a query that resolved either would hide the difference.
+    static let holdStartExercise = "hold-start-exercise"
     static let holdStart = "hold-start"
     static let holdStop = "hold-stop"
+    static let holdSetsAndRest = "hold-sets-and-rest"
+    static let holdAutorunPromise = "hold-autorun-promise"
+    /// The one entry a hold takes BEFORE the effort: how long it will run.
+    static let holdSetTime = "hold-set-time"
+
+    // MARK: - Exercise summary
+
+    /// The cards are 1-based, like the captions they carry.
+    static func summarySet(_ number: Int) -> String { "summary-set-\(number)" }
+    static let summaryStartsFrom = "summary-starts-from"
+    /// The kicker. Named because `.textCase(.uppercase)` folds the string the
+    /// tree carries — a query for "Held" as written matches nothing.
+    static let summaryHeld = "summary-held"
     static let exerciseAdjust = "exercise-adjust"
     static let exerciseSkip = "exercise-skip"
     static let exerciseSkipSet = "exercise-skip-set"
@@ -63,6 +87,12 @@ enum AX {
     static let technique = "technique"
     static let techniqueDone = "technique-done"
     static let techniqueLife = "technique-life"
+    /// The sheet's own headline, and the block under the variation tag that
+    /// offers the rung below it (R30). The headline is identified because the
+    /// step-down test reads it: what the block promises is that this title
+    /// becomes the movement it named.
+    static let techniqueTitle = "technique-title"
+    static let techniqueStepDown = "technique-step-down"
     static let timeLeft = "time-left"
     static let adjustMinus = "minus"
     static let adjustPlus = "plus"
@@ -140,6 +170,14 @@ extension XCUIApplication {
     /// and the journal), which is exactly the kind of accident that survives
     /// until the day somebody touches settings.
     func seedLaunchArguments(_ seeds: String..., locale: UILocale = .english) {
+        seedLaunchArguments(seeds, locale: locale)
+    }
+
+    /// The same thing for a caller that BUILDS its seed list — an arrange
+    /// helper that takes extra flags from its own caller cannot splat a
+    /// variadic. One body, so the reset cannot be present in one form and
+    /// missing from the other.
+    func seedLaunchArguments(_ seeds: [String], locale: UILocale = .english) {
         launchArguments = ["--uitest-reset"] + seeds + locale.arguments
     }
 
@@ -154,9 +192,13 @@ extension XCUIApplication {
     /// first: `launch()` alone relaunches a running app, and the callers that
     /// spelled the terminate out were asserting about a COLD start.
     @MainActor
-    static func launchedOnStoredState(locale: UILocale = .english) -> XCUIApplication {
+    static func launchedOnStoredState(_ seeds: String...,
+                                      locale: UILocale = .english) -> XCUIApplication {
         let relaunch = XCUIApplication()
-        relaunch.storedStateLaunchArguments(locale: locale)
+        // The seeds are forwarded, the RESET is still not: these launches read
+        // back what a walk has just written, and a reset would erase the
+        // subject. A flag that shortens a countdown is not state.
+        relaunch.launchArguments = seeds + locale.arguments
         relaunch.terminate()
         relaunch.launch()
         return relaunch
