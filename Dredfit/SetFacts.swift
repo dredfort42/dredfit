@@ -264,6 +264,51 @@ nonisolated enum SetFacts {
         max(corridor(for: .hold).lowerBound, heldSeconds - holdReachSeconds)
     }
 
+    // MARK: - The set the run opens by itself
+
+    /// Whether the hands-free run (R23) opens the set at `index` BY ITSELF.
+    ///
+    /// One question, two callers, because they have to agree: the rest's end
+    /// starts that set, and the rest's screen offers a pause precisely because
+    /// it will. A rest whose clock starts nothing needs no pause — nothing
+    /// happens without the person — and a rest that does start something and
+    /// offers no way to stop it is how a set goes by while somebody answers
+    /// the door (R32).
+    ///
+    /// `running` is the run's own flag: one tap bought THIS exercise, so the
+    /// next movement is a decision of its own. The probe is excluded for the
+    /// reason §40.4 spends a whole screen on — it is one set of a movement
+    /// nobody has done, possibly in another unit, and being dropped into a
+    /// countdown for it is exactly the surprise that screen exists to avoid.
+    static func runOpensSet(_ index: Int, of exercise: SessionExercise,
+                            running: Bool) -> Bool {
+        guard running, exercise.unit == .hold else { return false }
+        let total = exercise.sets + (exercise.probe == nil ? 0 : 1)
+        guard index >= 0, index < total else { return false }
+        return !(exercise.probe != nil && index >= exercise.sets)
+    }
+
+    /// The last seconds of a rest are counted out loud, and this is how much
+    /// of that the app is allowed to have missed before the go it played
+    /// stops counting as heard. One second is the tick's own period; three is
+    /// the 3-2-1 itself.
+    static let restGoHeardWithinSec = 3.0
+
+    /// Whether the set a rest hands over to still needs counting in (R32).
+    ///
+    /// A rest that ran out under the person's eyes has already done it — its
+    /// own 3-2-1 ends on the go that starts the hold, and a second window on
+    /// top of that was the defect. Two cases still need the beat:
+    ///
+    /// - the rest was CUT SHORT BY A TAP. A tap is somebody saying "I am
+    ///   ready", and the hold must not land under the thumb that said it.
+    /// - the app was SUSPENDED across the end of the rest and comes back to
+    ///   find it over. The go was played to a locked phone or to nobody at
+    ///   all, and a signal nobody could hear cannot be what started a plank.
+    static func restHandsOverWithCountIn(endedByTap: Bool, overshootSec: Double) -> Bool {
+        endedByTap || overshootSec > restGoHeardWithinSec
+    }
+
     // MARK: - The time a hold is set to run
 
     /// The seconds set `index` of a hold counts down from.

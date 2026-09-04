@@ -34,6 +34,26 @@ final class BlockPauseTests: XCTestCase {
         XCTAssertGreaterThan(BlockPause.reentrySeconds, 3)
     }
 
+    /// R32: a REST resumes into itself — no lead-in, because a rest is time
+    /// being given rather than a position to be counted back into, and its own
+    /// 3-2-1 is still ahead of it. What it takes instead is a floor: on a
+    /// hands-free hold run the rest STARTS the next set, and resuming with two
+    /// seconds left would drop someone who has just walked back in into a
+    /// plank.
+    func testAResumedRestKeepsItsSecondsAndNeverEndsUnderTheCountIn() {
+        XCTAssertEqual(BlockPause.restAfterPause(remaining: 40, total: 60), 40,
+                       "a pause must not lengthen a rest that has time left")
+        XCTAssertEqual(BlockPause.restAfterPause(remaining: 60, total: 60), 60)
+        XCTAssertEqual(BlockPause.restAfterPause(remaining: 1, total: 60),
+                       BlockPause.reentrySeconds)
+        XCTAssertEqual(BlockPause.restAfterPause(remaining: 0, total: 60),
+                       BlockPause.reentrySeconds)
+        // …and the floor is capped by the rest itself, so a one-second rest
+        // (--uitest-fast collapses them) is not stretched to five.
+        XCTAssertEqual(BlockPause.restAfterPause(remaining: 0, total: 1), 1)
+        XCTAssertEqual(BlockPause.restAfterPause(remaining: 1, total: 1), 1)
+    }
+
     // MARK: - Which stages need one
 
     func testAFrozenTransitionIsItsOwnWayBackIn() {

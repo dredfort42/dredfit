@@ -31,6 +31,20 @@ the doses and the probe are what 2.1.0 generated, bit for bit, out of the same
 recorded trace of the JavaScript reference, and there is no migration: the state
 and journal formats are untouched.
 
+**A hold's rest stops counting you in twice, and can now be paused.** A hold
+exercise you start once runs itself, and every set after the first begins when
+its rest ends. On top of that rest the app used to lay another fifteen seconds
+— its own 3-2-1, its own go — so a minute between sets actually took a minute
+and a quarter and announced the same set twice. The rest IS the time to get
+back into position: it counts its own last seconds down and the set begins on
+its go. Cutting a rest short with **Skip rest** still buys the five-second
+count-in every start tap earns, because that tap is somebody saying they are
+ready and nothing should land under the thumb that made it. And that rest is
+the one clock in a workout that acts on its own, which made it the one place
+where answering the door cost you a set: **Pause** freezes it, **Resume** hands
+the clock back, and a rest resumed with a second left still gives you five
+before the hold starts.
+
 ## 2.1.0
 
 **Holds are hands-free now, and two screens stopped asking for a decision at
