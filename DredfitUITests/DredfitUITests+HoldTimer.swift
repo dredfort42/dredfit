@@ -89,38 +89,86 @@ extension DredfitUITests {
                       "the logged movement did not leave the summary")
     }
 
-    /// The count-in before an AUTO-CONTINUED set is longer than the one a tap
-    /// earns, and `GetReady.countInSeconds` already says why: a tap is somebody
-    /// saying "I am ready" and needs only the beat between saying it and being
-    /// counted in, while a set the run opened was agreed to sets ago by
-    /// somebody who has since been lying on the floor.
+    /// R32: A SET THE RUN OPENS HAS NO COUNT-IN OF ITS OWN. The rest before it
+    /// counts its own last seconds down and ends on the go, and that go is the
+    /// hold's start signal — one signal, not two.
     ///
-    /// Measured as a LOWER BOUND on the second count-in, which a slow runner
-    /// cannot break — only an app that spent the short one there can.
-    /// Deliberately without --uitest-fast: that flag collapses both lengths to
-    /// a second and the difference would be invisible.
-    func testAnAutoContinuedSetIsCountedInAsTravelNotAsABeat() {
+    /// It used to lay fifteen seconds of "travel" on top of the rest, with a
+    /// second 3-2-1 and a second go: a minute between sets ran a minute and a
+    /// quarter, and one set was announced twice. The minute IS the travel time.
+    ///
+    /// Without --uitest-fast, which collapses the rest to a second, and the
+    /// rest is let RUN OUT rather than skipped: a skip is a tap, and a tap
+    /// still earns its beat — the other half of the rule, below.
+    func testASetTheRunOpensStartsOnTheRestsOwnGo() {
         launchIntoSession2AndReachPlank("--uitest-hold-short")
         let stop = app.buttons[AX.holdStop]
         coordinateTap(app.buttons[AX.holdStartExercise])
         XCTAssertTrue(stop.waitForExistence(timeout: 12),
                       "the tapped count-in never handed over to the hold")
 
-        // Set one runs itself out into its rest; skipping it puts the auto
-        // count-in under the clock immediately.
         let skipRest = app.buttons[AX.skipRest]
-        XCTAssertTrue(skipRest.waitForExistence(timeout: 20),
+        XCTAssertTrue(skipRest.waitForExistence(timeout: 25),
+                      "a hold with sets behind it must start its rest by itself")
+        XCTAssertTrue(skipRest.waitForNonExistence(timeout: 120), "the rest never ended")
+        // A second count-in would hold "Get ready" on the screen for fifteen
+        // seconds, which is what this catches the moment the rest is over.
+        XCTAssertFalse(app.staticTexts["Get ready"].exists,
+                       "the set the run opened was counted in a second time")
+        XCTAssertTrue(stop.waitForExistence(timeout: 5),
+                      "the hold did not start on the rest's own go")
+    }
+
+    /// The other half of the same rule: a rest CUT SHORT by Skip is somebody
+    /// saying they are ready, and that tap earns the beat every start tap
+    /// earns (`GetReady.countInSeconds`) — the hold must not land under the
+    /// thumb that skipped the rest.
+    func testARestCutShortByATapStillCountsThePersonIn() {
+        launchIntoSession2AndReachPlank("--uitest-hold-short")
+        let stop = app.buttons[AX.holdStop]
+        coordinateTap(app.buttons[AX.holdStartExercise])
+        XCTAssertTrue(stop.waitForExistence(timeout: 12),
+                      "the tapped count-in never handed over to the hold")
+
+        let skipRest = app.buttons[AX.skipRest]
+        XCTAssertTrue(skipRest.waitForExistence(timeout: 25),
                       "a hold with sets behind it must start its rest by itself")
         coordinateTap(skipRest)
-
-        let openedAt = Date.now
         XCTAssertTrue(app.staticTexts["Get ready"].waitForExistence(timeout: 5),
-                      "the set after the rest must count itself in, with no tap")
-        XCTAssertTrue(stop.waitForExistence(timeout: 30),
-                      "the auto-continued count-in never handed over to the hold")
-        XCTAssertGreaterThan(Date.now.timeIntervalSince(openedAt), 8,
-                             "the auto-continued set was counted in as a beat "
-                                + "(5 s), not as travel to the position")
+                      "a tap earns the beat between saying it and being counted in")
+        XCTAssertTrue(stop.waitForExistence(timeout: 15),
+                      "the count-in never handed over to the hold")
+    }
+
+    /// R32: the rest of a hands-free run is the one screen of the work phase
+    /// whose clock acts on its own, so it is the one that can be frozen.
+    /// Before this there was no way to stop it: answer the door during a hold
+    /// exercise and the next set ran without you.
+    ///
+    /// The window is longer than the whole rest on purpose. A shorter one
+    /// would pass whether the pause worked or not — the set was never due
+    /// inside it.
+    func testTheRestOfAHandsFreeRunCanBeFrozen() {
+        launchIntoSession2AndReachPlank("--uitest-hold-short")
+        let stop = app.buttons[AX.holdStop]
+        coordinateTap(app.buttons[AX.holdStartExercise])
+        XCTAssertTrue(stop.waitForExistence(timeout: 12),
+                      "the tapped count-in never handed over to the hold")
+
+        let pause = app.buttons[AX.blockPause]
+        XCTAssertTrue(pause.waitForExistence(timeout: 25),
+                      "a rest that starts the next set must offer a way to stop it")
+        coordinateTap(pause)
+        let resume = app.buttons[AX.blockResume]
+        XCTAssertTrue(resume.waitForExistence(timeout: 5), "the pause did not take")
+
+        XCTAssertFalse(stop.waitForExistence(timeout: 75),
+                       "a frozen rest started the next set anyway")
+        XCTAssertTrue(app.buttons[AX.skipRest].exists, "the rest left the screen while frozen")
+
+        coordinateTap(resume)
+        XCTAssertTrue(pause.waitForExistence(timeout: 5),
+                      "Resume did not hand the clock back")
     }
 
     // MARK: - Stopping a hold

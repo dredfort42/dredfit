@@ -187,7 +187,94 @@ final class HoldFactsTests: XCTestCase {
                        corridor.lowerBound)
     }
 
+    // MARK: - The set the run opens by itself (R32)
+
+    /// One tap buys the exercise, and every working set of it after the first
+    /// starts on the go of the rest before it. The predicate is asked by TWO
+    /// callers that have to agree — the advance that starts the set, and the
+    /// rest screen that offers a pause because it will.
+    func testTheRunOpensEveryWorkingSetOfTheHoldItIsRunning() {
+        for index in 0..<hold.sets {
+            XCTAssertTrue(SetFacts.runOpensSet(index, of: hold, running: true),
+                          "set \(index) of a running hold")
+        }
+    }
+
+    func testNothingIsOpenedWhileNoRunIsOn() {
+        // The flag is the tap: without it every set waits to be started, and
+        // the next MOVEMENT is a decision of its own either way.
+        for index in 0..<hold.sets {
+            XCTAssertFalse(SetFacts.runOpensSet(index, of: hold, running: false))
+        }
+    }
+
+    func testARepsExerciseIsNeverOpenedByAClock() {
+        // Reps are counted by the person, so the clock has nothing to start:
+        // "Done" is what ends a set of them.
+        for index in 0..<reps.sets {
+            XCTAssertFalse(SetFacts.runOpensSet(index, of: reps, running: true))
+        }
+    }
+
+    /// §40.4: the probe is one set of a movement nobody has done, possibly in
+    /// another unit — the run never drops anyone into it.
+    func testTheProbeIsNeverOpenedByTheRun() {
+        let probing = holdWithProbe()
+        for index in 0..<probing.sets {
+            XCTAssertTrue(SetFacts.runOpensSet(index, of: probing, running: true),
+                          "the working sets before a probe still run themselves")
+        }
+        XCTAssertFalse(SetFacts.runOpensSet(probing.sets, of: probing, running: true),
+                       "the probe is the one set that waits for a tap")
+    }
+
+    /// Indices come off `setIndex + 1` on the rest screen, so the set past the
+    /// last one is asked about on every last rest of every hold exercise.
+    func testASetOutsideTheExerciseOpensNothing() {
+        XCTAssertFalse(SetFacts.runOpensSet(hold.sets, of: hold, running: true))
+        XCTAssertFalse(SetFacts.runOpensSet(-1, of: hold, running: true))
+    }
+
+    // MARK: - Who still owes the count-in (R32)
+
+    /// The rule the wave turns on: a rest that ran out under the person's eyes
+    /// IS the count-in, and laying a second one on top of it was the defect.
+    func testARestThatRanOutHandsOverWithNoCountIn() {
+        XCTAssertFalse(SetFacts.restHandsOverWithCountIn(endedByTap: false, overshootSec: 0))
+        XCTAssertFalse(SetFacts.restHandsOverWithCountIn(endedByTap: false, overshootSec: 1))
+    }
+
+    func testATapStillEarnsTheBeat() {
+        // Skip rest is somebody saying they are ready; the hold must not land
+        // under the thumb that said it.
+        XCTAssertTrue(SetFacts.restHandsOverWithCountIn(endedByTap: true, overshootSec: 0))
+    }
+
+    /// A go played to a locked phone cannot be what started a plank. The app
+    /// is suspended across the end of the rest, comes back to find it over,
+    /// and owes the beat it never sounded.
+    func testAGoTheAppCouldNotSoundStillOwesTheBeat() {
+        XCTAssertFalse(SetFacts.restHandsOverWithCountIn(
+            endedByTap: false, overshootSec: SetFacts.restGoHeardWithinSec))
+        XCTAssertTrue(SetFacts.restHandsOverWithCountIn(
+            endedByTap: false, overshootSec: SetFacts.restGoHeardWithinSec + 0.5))
+        XCTAssertTrue(SetFacts.restHandsOverWithCountIn(endedByTap: false, overshootSec: 600))
+    }
+
     // MARK: - Helpers
+
+    /// The same hold with a probe on the end. BUILT rather than generated: the
+    /// rule reads the shape — the sets, the unit and whether a probe hangs off
+    /// it — and building it says exactly which of those this is about.
+    private func holdWithProbe() -> SessionExercise {
+        SessionExercise(pattern: hold.pattern, name: hold.name, variation: hold.variation,
+                        unit: hold.unit, load: hold.load, perSide: hold.perSide,
+                        sets: hold.sets, restSetSec: hold.restSetSec,
+                        restExerciseSec: hold.restExerciseSec, loads: hold.loads,
+                        probe: SessionProbe(variation: hold.variation + 1,
+                                            name: "the rung above",
+                                            unit: .hold, load: hold.load, perSide: false))
+    }
 
     /// An uneven plan, built the way the engine builds one: a sub-step is one
     /// rung split across the sets, so the top set stands one above the rest.

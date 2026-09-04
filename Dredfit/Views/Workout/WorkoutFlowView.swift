@@ -353,7 +353,9 @@ struct WorkoutFlowView: View {
             case .warmup:
                 if blockPause.isPaused { tickBlockPause() } else { tickWarmup() }
             case .rest:
-                tickRest()
+                // Paused, the rest has no end date to run out — the way back
+                // in owns the clock, exactly as it does in the two blocks.
+                if blockPause.isPaused { tickBlockPause() } else { tickRest() }
             case .cooldown:
                 if blockPause.isPaused { tickBlockPause() } else { tickCooldown() }
             case .work where holdCountingIn:
@@ -552,13 +554,23 @@ struct WorkoutFlowView: View {
                  ringSize: restRingSize,
                  nextLabel: nextLabel,
                  extensionSeconds: Self.restExtensionSeconds,
-                 canExtend: canExtendRest,
+                 // Frozen, "+N s" would add to a clock that is not moving:
+                 // the same reason "I'm ready" hides on a paused transition.
+                 // Skip stays live — an escape must always be reachable.
+                 canExtend: canExtendRest && !blockPause.isHeld,
+                 paused: blockPause.isHeld,
+                 // Offered only where the clock acts on its own (R32). On
+                 // every other rest nothing happens without the person, and a
+                 // control that promises to stop something that is not moving
+                 // is worse than no control.
+                 onPauseToggle: restStartsTheNextSet ? { toggleBlockPause() } : nil,
                  onTechnique: { techniqueTarget = restTechniqueTarget },
                  onExtend: extendRest,
                  onSkip: {
+                     clearBlockPause()
                      restEndDate = nil
                      restRemaining = 0
-                     advanceAfterRest()
+                     advanceAfterRest(countIn: true)
                  })
     }
 
@@ -903,7 +915,10 @@ extension WorkoutFlowView {
             restEndDate = nil
             restRemaining = 0
             playGo()
-            advanceAfterRest()
+            // A suspended app comes back to a rest that ended while it could
+            // sound nothing; the beat is still owed then (R32).
+            advanceAfterRest(countIn: SetFacts.restHandsOverWithCountIn(
+                endedByTap: false, overshootSec: -end.timeIntervalSinceNow))
         } else {
             // no tick spam after backgrounding
             if newRemaining <= Self.countdownSignalSeconds && newRemaining < restRemaining {

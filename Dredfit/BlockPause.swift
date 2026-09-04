@@ -31,6 +31,19 @@ enum BlockPause {
     /// and this can only make a paused session shorter.
     static var reentrySeconds: Int { GetReady.countInSeconds }
 
+    /// The seconds a REST picks up when the pause ends (R32).
+    ///
+    /// A rest is not a position to be counted back into — it is time being
+    /// given — so it resumes into itself with no lead-in of its own. What it
+    /// does need is a floor: on a hands-free hold run the rest STARTS the next
+    /// set when it ends, and resuming with two seconds left would drop someone
+    /// who has just walked back in straight into a plank. The floor is the
+    /// count-in every start tap earns, and it is capped by the rest's own
+    /// total so a one-second rest under `--uitest-fast` stays one second.
+    static func restAfterPause(remaining: Int, total: Int) -> Int {
+        max(remaining, min(reentrySeconds, total))
+    }
+
     /// A frozen transition resumes straight into itself: it already IS the way
     /// back in, and a lead-in before a lead-in would count the user down
     /// twice. Only what drops the user into a position — a move, a stretch,
