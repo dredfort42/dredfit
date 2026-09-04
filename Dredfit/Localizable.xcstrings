@@ -15256,49 +15256,49 @@
         }
       }
     },
-    "next movement in %lld — the probe decides": {
+    "next movement in %lld": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "next movement in %lld — the probe decides"
+            "value": "next movement in %lld"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "neue Bewegung in %lld – die Probe entscheidet"
+            "value": "neue Bewegung in %lld"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "nuevo movimiento en %lld — lo decide la prueba"
+            "value": "nuevo movimiento en %lld"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "nouveau mouvement dans %lld — l’essai décide"
+            "value": "nouveau mouvement dans %lld"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "nuovo movimento tra %lld — decide la prova"
+            "value": "nuovo movimento tra %lld"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "novo movimento em %lld — o teste decide"
+            "value": "novo movimento em %lld"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "новое движение через %lld — решит проба"
+            "value": "новое движение через %lld"
           }
         }
       }

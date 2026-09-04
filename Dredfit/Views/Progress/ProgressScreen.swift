@@ -572,7 +572,7 @@ struct ProgressScreen: View {
     @ViewBuilder
     private func nextMilestoneLabel(_ milestone: NextMilestone) -> some View {
         switch milestone {
-        case .probe(let steps): Text("next movement in \(steps) — the probe decides")
+        case .probe(let steps): Text("next movement in \(steps)")
         case .set(let steps): Text("+1 set in \(steps)")
         case .ceiling: EmptyView()
         }

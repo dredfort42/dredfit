@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+**The progress row counts down without explaining itself.** Under every pattern
+the line beside the step count told you how far the next movement is and then
+added why — "the probe decides". That clause named a mechanism nothing else on
+the screen names, on the smallest type the screen sets, and it said nothing
+about the distance it was appended to. It is gone. The line now reads "next
+movement in 9", the same shape as the "+1 set in 9" that takes its place at the
+top of a ladder. The number, and what it counts to, are unchanged.
+
 ## 2.2.0
 
 **The warm-up counts the switch.** Four of its moves have a middle their own
