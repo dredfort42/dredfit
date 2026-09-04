@@ -24,16 +24,24 @@ extension WorkoutFlowView {
     /// the seconds spent getting down into the plank came off the number the
     /// engine measures.
     ///
-    /// THE TWO COUNT-INS ARE DIFFERENT LENGTHS, and the reason is already
-    /// written down in `GetReady.countInSeconds`: a tap is somebody saying
-    /// "I am ready", and all they need is the beat between saying it and
-    /// being counted in. A set the auto-run opened was agreed to once, sets
-    /// ago, by someone who has since been lying on the floor through a rest —
-    /// that is travel, not a beat, so it is priced as travel
-    /// (`GetReady.stageSeconds`). The supplement is taken because
-    /// `SessionExercise` carries no `needsSetup` of its own and a hold is a
-    /// position you get DOWN into; erring long costs seconds, erring short
-    /// costs the seconds off the number the engine measures.
+    /// A SET THE RUN OPENS HAS NO COUNT-IN OF ITS OWN (R32). The rest before
+    /// it is the lead-in: it counts its own last three seconds down and ends
+    /// on the go, and that go is this hold's start signal — the same shape the
+    /// side-switch pause has always had.
+    ///
+    /// It used to lay a second window on top of that: fifteen seconds priced
+    /// as travel, with its own 3-2-1 and its own go, so a minute of rest
+    /// actually ran a minute and a quarter and sounded the start twice. The
+    /// minute IS the travel time; a person who has spent it lying beside the
+    /// mat does not need a quarter of one more, and the second go said
+    /// "begin" about a set that had already been announced. It also spent
+    /// seconds no estimate anywhere counts — `restSetSec` is what the engine
+    /// budgets between sets.
+    ///
+    /// A TAP still earns its beat, and that asymmetry is the point:
+    /// `GetReady.countInSeconds` is the pause between somebody saying "I am
+    /// ready" and being counted in. That is why a rest cut short by Skip
+    /// arrives here with `autoContinued: false`.
     func startHold(autoContinued: Bool = false) {
         adjusting = false
         // On the probe set the countdown is the PROBE's target — a different
@@ -80,9 +88,15 @@ extension WorkoutFlowView {
         holdTotal = SetFacts.holdSideSeconds(
             planned: planned, firstSideHeld: holdSecondSide ? firstSideHeld : nil)
         holdRemaining = holdTotal
-        holdCountInRemaining = autoContinued
-            ? GetReady.stageSeconds(needsSetup: true)
-            : GetReady.countInSeconds
+        guard !autoContinued else {
+            // Straight into the hold on the rest's own go, exactly as the
+            // second side starts on the switch pause's (`tickHoldSwitchPause`).
+            holdCountInRemaining = 0
+            holdCountInEndDate = nil
+            holdEndDate = Date.now.addingTimeInterval(TimeInterval(holdTotal))
+            return
+        }
+        holdCountInRemaining = GetReady.countInSeconds
         holdCountInEndDate = Date.now.addingTimeInterval(TimeInterval(holdCountInRemaining))
     }
 
@@ -285,7 +299,11 @@ extension WorkoutFlowView {
         completeSet()
     }
 
-    func advanceAfterRest() {
+    /// `countIn` is what `SetFacts.restHandsOverWithCountIn` decided: a rest
+    /// that ran out under the person's eyes has already counted them in with
+    /// its own 3-2-1, and only a tap or a go the app could not sound leaves
+    /// the beat still owed.
+    func advanceAfterRest(countIn: Bool) {
         if isLastSet {
             exIndex += 1
             maximumWarning = nil   // the note belongs to the exercise it was about
@@ -307,13 +325,25 @@ extension WorkoutFlowView {
         liveActivity.update(activityWorkState())
         persistProgress()
         // …and inside the exercise nothing is asked for again: the rest ends
-        // and the next set counts itself in. The PROBE is deliberately left
-        // out — it is one set of a movement nobody has done, possibly in
-        // another unit (§40.1), and being dropped into a countdown for it is
-        // the surprise §40.4 spends a whole screen avoiding.
-        if holdAutoRun && current.unit == .hold && !current.isProbe {
-            startHold(autoContinued: true)
+        // and the next set begins on its go. Which sets those are is one
+        // question with one answer (`SetFacts.runOpensSet`) — the rest screen
+        // asks it too, to decide whether to offer a pause.
+        if runOpensSet(setIndex) {
+            startHold(autoContinued: !countIn)
         }
+    }
+
+    /// The run opens this set by itself — asked of the rule, not restated.
+    func runOpensSet(_ index: Int) -> Bool {
+        SetFacts.runOpensSet(index, of: exercise, running: holdAutoRun)
+    }
+
+    /// The rest on screen will START the next set when it runs out, which is
+    /// the only rest a pause has anything to stop. On the last set the rest
+    /// leads out of the exercise, and the run is cleared on the way.
+    var restStartsTheNextSet: Bool {
+        guard case .rest = phase, !isLastSet else { return false }
+        return runOpensSet(setIndex + 1)
     }
 
     // MARK: - Surviving process death
@@ -324,7 +354,14 @@ extension WorkoutFlowView {
         var restTotal: Int?
         var restPlan: Int?
         if case .rest(let total) = phase {
+            // A PAUSED rest has no end date, and the snapshot cannot carry the
+            // pause: written as nil it reads back as "no rest was running",
+            // and `restore` would then hand the person the set they had just
+            // finished a second time. What is persisted instead is the rest
+            // this will be the moment the pause ends — the seconds it froze
+            // with, counted from now. A process death outlives no pause.
             restEnd = restEndDate
+                ?? Date.now.addingTimeInterval(TimeInterval(max(restRemaining, 1)))
             restTotal = total
             restPlan = restPlanned
         }

@@ -1,5 +1,50 @@
 # Changelog
 
+## 2.2.0
+
+**The warm-up counts the switch.** Four of its moves have a middle their own
+instructions name — the single-leg Romanian deadlift and the bird dog are done
+one side at a time, and the arm and hip circles say to reverse direction halfway
+— and every one of them ran its thirty seconds in silence, so the side or the
+direction you started on was usually the one you finished on unless you counted
+for yourself. They now run the way the cool-down's stretches have run since
+1.8.0: fifteen seconds a half, a five-second pause between them with its own
+falling tone and its own line on the screen, and a technique sheet that names the
+length of one half instead of of both. The words follow what is actually
+switched — **Switch sides** and "second side" for the two that have sides,
+**Switch direction** and "the other way" for the two that reverse — because a
+circle is not a side. Torso rotations and cat-cow keep their single countdown:
+they alternate continuously, so there is no one moment to announce. The pause can
+be paused like everything else in the block, and a phone locked across the whole
+move comes back where the clock says it should, with no signal sounded for a
+switch that is already over.
+
+**Every announced session is one minute longer, and the minute is real.** The
+warm-up and the cool-down share a reserve inside every duration the app
+announces, and that reserve was spent to the second. The switch pauses cost
+fifteen seconds in the composition that draws three of them, so the reserve had
+to grow —
+an engine change, made through the same reference chain the ladders go through,
+and priced out loud rather than absorbed: a clean start now reads ≈ 32 minutes
+where it read 31. Nothing else about the plan moves. The exercises, the sets,
+the doses and the probe are what 2.1.0 generated, bit for bit, out of the same
+recorded trace of the JavaScript reference, and there is no migration: the state
+and journal formats are untouched.
+
+**A hold's rest stops counting you in twice, and can now be paused.** A hold
+exercise you start once runs itself, and every set after the first begins when
+its rest ends. On top of that rest the app used to lay another fifteen seconds
+— its own 3-2-1, its own go — so a minute between sets actually took a minute
+and a quarter and announced the same set twice. The rest IS the time to get
+back into position: it counts its own last seconds down and the set begins on
+its go. Cutting a rest short with **Skip rest** still buys the five-second
+count-in every start tap earns, because that tap is somebody saying they are
+ready and nothing should land under the thumb that made it. And that rest is
+the one clock in a workout that acts on its own, which made it the one place
+where answering the door cost you a set: **Pause** freezes it, **Resume** hands
+the clock back, and a rest resumed with a second left still gives you five
+before the hold starts.
+
 ## 2.1.0
 
 **Holds are hands-free now, and two screens stopped asking for a decision at

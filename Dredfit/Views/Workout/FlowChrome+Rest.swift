@@ -83,6 +83,14 @@ struct RestRing: View {
     /// False at the cap. The button greys out instead of disappearing, so the
     /// row never jumps out from under the finger.
     let canExtend: Bool
+    /// Frozen: the ring stands still and the button offers the way back in.
+    var paused: Bool = false
+    /// nil on a rest whose clock starts nothing (R32). Only the rest of a
+    /// hands-free hold run hands the next set to a timer, and that is the only
+    /// rest where stepping away costs a set — everywhere else the person is
+    /// what the flow is waiting for, and a Pause would promise to stop
+    /// something that is not moving.
+    var onPauseToggle: (() -> Void)?
     var onTechnique: () -> Void
     var onExtend: () -> Void
     var onSkip: () -> Void
@@ -106,9 +114,19 @@ struct RestRing: View {
                         .tracking(-2)
                         .monospacedDigit()
                         .contentTransition(.numericText(countsDown: true))
-                    Text("sec")
-                        .dredfitFont(15)
-                        .foregroundStyle(Theme.ink2)
+                        // Dimmed while frozen, and the unit gives way to the
+                        // state: `CountdownNumber` says it this way in both
+                        // guided blocks, and a paused rest is the same fact.
+                        .foregroundStyle(paused ? Theme.ink2 : Theme.ink)
+                    if paused {
+                        Text("Paused")
+                            .dredfitFont(15, weight: .semibold)
+                            .foregroundStyle(Theme.accentText)
+                    } else {
+                        Text("sec")
+                            .dredfitFont(15)
+                            .foregroundStyle(Theme.ink2)
+                    }
                 }
             }
             // Capped to still fit the narrowest screen with its 24pt margins.
@@ -125,6 +143,11 @@ struct RestRing: View {
 
             TechniqueButton(action: onTechnique)
                 .padding(.top, 16)
+
+            if let onPauseToggle {
+                BlockPauseButton(paused: paused, action: onPauseToggle)
+                    .padding(.top, 12)
+            }
 
             Spacer()
 

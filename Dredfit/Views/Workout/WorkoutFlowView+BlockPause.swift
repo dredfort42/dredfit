@@ -7,12 +7,18 @@
 import SwiftUI
 import DredfitCore
 
-// MARK: - The pause of the guided blocks (issue #61)
+// MARK: - The pause of the guided blocks (issue #61) and of a hands-free rest (R32)
 //
-// The state machine is BlockPause.State; this is the flow's half — the block's
-// own end dates, the tones, and the screen. The snapshot is untouched: the
-// warm-up writes none by design, the cool-down keeps writing at position
-// boundaries, and process death while paused restores by the rules it had.
+// The state machine is BlockPause.State; this is the flow's half — the frozen
+// screen's own end dates, the tones, and the way back in. Two blocks and one
+// rest share it: the rest of a hands-free hold run STARTS the next set when it
+// ends, so it is the one screen of the work phase where stepping away costs a
+// set.
+//
+// The snapshot: the warm-up writes none by design, the cool-down keeps writing
+// at position boundaries, and a paused rest is persisted as the rest it will
+// be when the pause ends (`persistProgress`) — a process death outlives no
+// pause, and writing nil there would read back as "no rest was running".
 extension WorkoutFlowView {
 
     var reentering: Bool { blockPause.isReentering }
@@ -33,6 +39,16 @@ extension WorkoutFlowView {
         blockPause.hold()
         warmupEndDate = nil
         cooldownEndDate = nil
+        if case .rest = phase {
+            restEndDate = nil
+            // The lock screen counts down to a date, so a frozen rest has to
+            // take the date away — otherwise it keeps counting to zero and
+            // then shows a rest that ended while the app is holding it.
+            liveActivity.update(.init(phase: .rest, title: nextLabel,
+                                      detail: String(localized: "Paused"),
+                                      restEndDate: nil))
+            persistProgress()
+        }
         announce(String(localized: "Paused"))
     }
 
@@ -53,6 +69,11 @@ extension WorkoutFlowView {
         switch phase {
         case .warmup:   return BlockPause.needsReentry(warmupStage)
         case .cooldown: return BlockPause.needsReentry(cooldownStage)
+        // A rest is not a position to be counted back into — it is time being
+        // given, and its own 3-2-1 is still ahead of it. What it takes instead
+        // is a floor on what is left (`BlockPause.restAfterPause`), so nobody
+        // is dropped into a plank two seconds after walking back in.
+        case .rest:     return false
         default:        return false
         }
     }
@@ -86,6 +107,13 @@ extension WorkoutFlowView {
             warmupEndDate = Date.now.addingTimeInterval(TimeInterval(warmupRemaining))
         case .cooldown:
             cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(cooldownRemaining))
+        case .rest(let total):
+            restRemaining = BlockPause.restAfterPause(remaining: restRemaining, total: total)
+            restEndDate = Date.now.addingTimeInterval(TimeInterval(restRemaining))
+            liveActivity.update(.init(phase: .rest, title: nextLabel,
+                                      detail: String(localized: "Next up"),
+                                      restEndDate: restEndDate))
+            persistProgress()
         default:
             break
         }
