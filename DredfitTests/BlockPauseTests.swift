@@ -44,10 +44,19 @@ final class BlockPauseTests: XCTestCase {
         XCTAssertFalse(BlockPause.needsReentry(Cooldown.Stage.getReady))
         XCTAssertFalse(BlockPause.needsReentry(Cooldown.Stage.switchPause),
                        "the side-switch beat is a transition like any other")
+        // And in the warm-up too since §41.12. Asked of BOTH blocks on
+        // purpose: the rule lived in one of two identical stage machines, and
+        // "applied to one branch of two" is the defect class the whole
+        // reference audit is built around.
+        XCTAssertFalse(BlockPause.needsReentry(Warmup.Stage.switchPause),
+                       "the warm-up's side-switch beat is a transition too")
     }
 
     func testEveryStageThatIsAPositionGetsTheWayBackIn() {
-        XCTAssertTrue(BlockPause.needsReentry(Warmup.Stage.move))
+        for stage in [Warmup.Stage.move, .firstHalf, .secondHalf] {
+            XCTAssertTrue(BlockPause.needsReentry(stage),
+                          "\(stage) drops the user into a move, so it has to count them in")
+        }
         for stage in [Cooldown.Stage.single, .firstSide, .secondSide] {
             XCTAssertTrue(BlockPause.needsReentry(stage),
                           "\(stage) drops the user into a position, so it has to count them in")
@@ -139,6 +148,10 @@ final class BlockPauseTests: XCTestCase {
         let warmup = Warmup.moves(sessionNumber: 1)
         XCTAssertEqual(Warmup.stageSeconds(.move, of: warmup[0]), Warmup.moveSeconds)
         XCTAssertEqual(Warmup.stageSeconds(.getReady, of: warmup[0]), GetReady.seconds)
+        XCTAssertEqual(Warmup.stageSeconds(.firstHalf, of: warmup[0]), Warmup.halfSeconds)
+        XCTAssertEqual(Warmup.stageSeconds(.switchPause, of: warmup[0]),
+                       Cooldown.sideSwitchPauseSec,
+                       "§41.12: one gesture, one length — the cool-down's constant")
         XCTAssertEqual(Cooldown.stageSeconds(.single, of: positions[0]),
                        Cooldown.positionSeconds)
         XCTAssertEqual(Cooldown.stageSeconds(.firstSide, of: positions[0]),

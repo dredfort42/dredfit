@@ -118,7 +118,8 @@ extension WorkoutFlowView {
     }
 
     var warmupMoveView: some View {
-        WarmupMoveScreen(name: warmupMove.name,
+        WarmupMoveScreen(move: warmupMove,
+                         stage: warmupStage,
                          remaining: warmupRemaining,
                          index: warmupIndex, count: warmupMoves.count,
                          paused: blockPause.isHeld,
@@ -181,7 +182,10 @@ extension WorkoutFlowView {
         let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
         guard newRemaining != warmupRemaining else { return }
         if newRemaining > 0 {
-            if newRemaining <= Self.countdownSignalSeconds && newRemaining < warmupRemaining {
+            // No 3-2-1 inside the switch pause, for the reason `tickCooldown`
+            // gives: the ticks would bury the tone the pause opened with.
+            if warmupStage != .switchPause,
+               newRemaining <= Self.countdownSignalSeconds && newRemaining < warmupRemaining {
                 playTick()
             }
             // Animated so contentTransition(.numericText) rolls the digits —
@@ -198,16 +202,21 @@ extension WorkoutFlowView {
             finishWarmup()
             return
         }
-        // A transition opening is the done of the position before it; the go
-        // marks where a movement starts, the end of the transition. `entered`
-        // names the first boundary crossed and `stage` where the overshoot
-        // landed: a long absence crosses several, so anything but a landing on
-        // the boundary that opened the run stays silent — the signal belongs
-        // to what is on screen.
-        if next.entered == .getReady, next.stage == .getReady {
-            playDone()
-        } else if next.entered != .getReady, next.stage != .getReady {
-            playGo()
+        // A transition opening is the done of the move before it; the go marks
+        // where a movement starts, the end of the transition. `entered` names
+        // the first boundary crossed and `stage` where the overshoot landed: a
+        // long absence crosses several, so anything but a landing on the
+        // boundary that opened the run stays silent — the signal belongs to
+        // what is on screen.
+        //
+        // The switch of §41.12 is its own tone, and it is chosen the way the
+        // cool-down chooses it (`tickCooldown`): a done only where a whole
+        // move ended, never at the halfway point of a unilateral one.
+        switch (next.entered, next.stage) {
+        case (.getReady, .getReady):         playDone()
+        case (.getReady, _), (_, .getReady): break
+        case (.switchPause, _):              playSwitch()
+        default:                             playGo()
         }
         enterWarmupStage(index: next.index, stage: next.stage, remaining: next.remaining)
     }

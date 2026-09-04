@@ -65,8 +65,8 @@ final class ReleaseSmokeTests: XCTestCase {
             // still pinned, which is the point of the row.
             let planLine = app.staticTexts[AX.planLength]
             XCTAssertTrue(planLine.exists, "S1: the plan line is missing")
-            XCTAssertEqual(planLine.label, "about 23 to 31 minutes · 6 exercises",
-                           "S1: the plan line must read ≈ 23–31 min · 6 exercises")
+            XCTAssertEqual(planLine.label, "about 24 to 32 minutes · 6 exercises",
+                           "S1: the plan line must read ≈ 24–32 min · 6 exercises")
             XCTAssertTrue(app.buttons[AX.startWorkout].exists, "S1: Start is missing")
             // One Start, and nothing beside it to agree to first: the
             // short version and the session handle came off this screen.

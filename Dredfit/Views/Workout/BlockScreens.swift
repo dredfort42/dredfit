@@ -85,7 +85,10 @@ struct GetReadyScreen: View {
 }
 
 struct WarmupMoveScreen: View {
-    let name: String
+    let move: WarmupMove
+    /// Which half of a split move is running (§41.12). A move with no halfway
+    /// boundary has one stage and shows no line at all.
+    let stage: Warmup.Stage
     let remaining: Int
     let index: Int
     let count: Int
@@ -97,7 +100,10 @@ struct WarmupMoveScreen: View {
 
     var body: some View {
         BlockLayout {
-            BlockPositionName(name: name)
+            BlockPositionName(name: move.name)
+            if let halves = move.halves {
+                SplitStageLine(stage, halves: halves).padding(.top, 6)
+            }
 
             TechniqueButton(action: onTechnique)
                 .padding(.top, 10)
@@ -142,7 +148,7 @@ struct CooldownPositionScreen: View {
         BlockLayout {
             BlockPositionName(name: position.name)
             if position.perSide {
-                stageLine.padding(.top, 6)
+                SplitStageLine(stage).padding(.top, 6)
             }
 
             // Freezes the countdown mid-pause too: the switch waits.
@@ -168,22 +174,106 @@ struct CooldownPositionScreen: View {
                 .padding(.bottom, 20)
         }
     }
+}
 
-    @ViewBuilder
-    private var stageLine: some View {
+/// The line a split position shows over its countdown.
+///
+/// ONE view, not a copy per block: the two stage machines differ (`.single`
+/// against `.move`), the three lines they show do not, and §41.12 — which gave
+/// the warm-up the cool-down's counted switch — would otherwise have written
+/// the second copy that drifts. Each block hands over its own stage; the
+/// mapping lives here, so a new stage on either side is a compile error here
+/// rather than a screen that quietly says nothing.
+///
+/// The words come from what is switched, and only the words do: sides and
+/// directions run the same 15 + 5 + 15. Telling someone to switch SIDES on a
+/// circle they are about to reverse would be a lie of the same size as the
+/// silence §41.12 replaced.
+private struct SplitStageLine: View {
+    private enum Phase { case beforeTheSwitch, switching, secondHalf }
+    private let phase: Phase
+    private let halves: WarmupHalves
+
+    init(_ stage: Warmup.Stage, halves: WarmupHalves) {
+        self.halves = halves
         switch stage {
-        case .switchPause:
-            Text("Switch sides")
-                .dredfitFont(14, weight: .semibold)
-                .foregroundStyle(Theme.accentText)
-        case .secondSide:
-            Text("second side")
-                .dredfitFont(14, weight: .semibold)
-                .foregroundStyle(Theme.accentText)
-        case .getReady, .single, .firstSide:
-            Text(String(localized: "cooldown.perSide", defaultValue: "15 s per side"))
-                .dredfitFont(14)
-                .foregroundStyle(Theme.ink2)
+        case .switchPause: phase = .switching
+        case .secondHalf:  phase = .secondHalf
+        case .getReady, .move, .firstHalf: phase = .beforeTheSwitch
+        }
+    }
+
+    /// The cool-down splits by side and by nothing else — its nine positions
+    /// are stretches, and no stretch of the pool reverses.
+    init(_ stage: Cooldown.Stage) {
+        self.halves = .sides
+        switch stage {
+        case .switchPause: phase = .switching
+        case .secondSide:  phase = .secondHalf
+        case .getReady, .single, .firstSide: phase = .beforeTheSwitch
+        }
+    }
+
+    private var words: SplitStageWords { SplitStageWords(halves: halves) }
+
+    var body: some View {
+        switch phase {
+        case .switching:       accent(words.switching)
+        case .secondHalf:      accent(words.secondHalf)
+        case .beforeTheSwitch: quiet(words.everyHalf)
+        }
+    }
+
+    private func accent(_ text: String) -> some View {
+        Text(text)
+            .dredfitFont(14, weight: .semibold)
+            .foregroundStyle(Theme.accentText)
+    }
+
+    private func quiet(_ text: String) -> some View {
+        Text(text)
+            .dredfitFont(14)
+            .foregroundStyle(Theme.ink2)
+    }
+}
+
+/// What a split position says at each of its three moments, given what the
+/// person switches.
+///
+/// Its own type, and internal rather than private, for one reason: "Switch
+/// sides" over a circle about to be reversed is the defect this whole
+/// distinction exists to prevent, and a test cannot compare a SwiftUI `Text`
+/// (it is not reliably equatable — the flake that rule came from). Words that
+/// nothing can ask about are words nothing can pin.
+struct SplitStageWords {
+    let halves: WarmupHalves
+
+    var switching: String {
+        switch halves {
+        case .sides:      return String(localized: "Switch sides")
+        case .directions: return String(localized: "warmup.switchDirection",
+                                        defaultValue: "Switch direction")
+        }
+    }
+
+    var secondHalf: String {
+        switch halves {
+        case .sides:      return String(localized: "second side")
+        case .directions: return String(localized: "warmup.otherWay",
+                                        defaultValue: "the other way")
+        }
+    }
+
+    var everyHalf: String {
+        switch halves {
+        // A `cooldown.` key read by the warm-up too: the key is older than the
+        // warm-up's switch, the STRING is the same 15 s per side in both
+        // blocks, and renaming it would cost six translations and the whole
+        // screenshot set to say exactly what it says now.
+        case .sides:      return String(localized: "cooldown.perSide",
+                                        defaultValue: "15 s per side")
+        case .directions: return String(localized: "warmup.perDirection",
+                                        defaultValue: "15 s each way")
         }
     }
 }
