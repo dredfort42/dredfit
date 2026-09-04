@@ -53,7 +53,7 @@ final class BlockPauseTests: XCTestCase {
     }
 
     func testEveryStageThatIsAPositionGetsTheWayBackIn() {
-        for stage in [Warmup.Stage.move, .firstSide, .secondSide] {
+        for stage in [Warmup.Stage.move, .firstHalf, .secondHalf] {
             XCTAssertTrue(BlockPause.needsReentry(stage),
                           "\(stage) drops the user into a move, so it has to count them in")
         }
@@ -148,7 +148,7 @@ final class BlockPauseTests: XCTestCase {
         let warmup = Warmup.moves(sessionNumber: 1)
         XCTAssertEqual(Warmup.stageSeconds(.move, of: warmup[0]), Warmup.moveSeconds)
         XCTAssertEqual(Warmup.stageSeconds(.getReady, of: warmup[0]), GetReady.seconds)
-        XCTAssertEqual(Warmup.stageSeconds(.firstSide, of: warmup[0]), Warmup.sideSeconds)
+        XCTAssertEqual(Warmup.stageSeconds(.firstHalf, of: warmup[0]), Warmup.halfSeconds)
         XCTAssertEqual(Warmup.stageSeconds(.switchPause, of: warmup[0]),
                        Cooldown.sideSwitchPauseSec,
                        "§41.12: one gesture, one length — the cool-down's constant")

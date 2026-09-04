@@ -52,8 +52,9 @@ final class BlockReserveTests: XCTestCase {
     /// The dearest warm-up a session can draw. The block composes six moves
     /// out of nine now (§40.1), so "what the warm-up costs" is a claim about
     /// EVERY composition — and since §41.12 they no longer all cost the same:
-    /// the rotation's window of three draws none, one or both of the unilateral
-    /// moves, and each of those pays a switch pause.
+    /// four moves of the pool have a halfway boundary, the rotation's window of
+    /// three draws one or two of them on top of the permanent arm circles, and
+    /// each pays a switch pause.
     private func worstWarmupSec() -> Int {
         (1...Warmup.compositionCount).map(warmupSec(session:)).max() ?? 0
     }
@@ -86,9 +87,9 @@ final class BlockReserveTests: XCTestCase {
     /// RE-MARKED by §41.12, and deliberately not deleted.
     ///
     /// The claim used to be equality — the reserve spent to the second, which
-    /// is what made the next second an ENGINE change. The warm-up's side switch
-    /// cost 10 s, and a reserve is whole minutes: 9:00 no longer fits, 10:00
-    /// fits with 50 s to spare, and equality became unreachable. An unreachable
+    /// is what made the next second an ENGINE change. The warm-up's counted
+    /// switch cost 15 s, and a reserve is whole minutes: 9:00 no longer fits,
+    /// 10:00 fits with 45 s to spare, and equality became unreachable. An unreachable
     /// assert gets deleted, and then nothing watches the two numbers at all —
     /// so what is pinned is the property that IS still exact: the reserve is
     /// the SMALLEST whole minute that fits. Drift in either direction breaks
@@ -97,7 +98,7 @@ final class BlockReserveTests: XCTestCase {
     func testTheReserveIsTheSmallestWholeMinuteThatFits() {
         let reserve = (EngineConfig.warmupMin + EngineConfig.cooldownMin) * 60
         let worst = worstWarmupSec() + worstCooldownSec()
-        XCTAssertEqual(worst, 550, "§41.12: the worst pair of blocks is 550 s")
+        XCTAssertEqual(worst, 555, "§41.12: the worst pair of blocks is 555 s")
         XCTAssertGreaterThanOrEqual(reserve - worst, 0,
                                     "the blocks overrun what the engine reserves")
         XCTAssertLessThan(reserve - worst, 60,
@@ -128,33 +129,36 @@ final class BlockReserveTests: XCTestCase {
 
     func testEachBlockCostsWhatTheSpecSays() {
         // EVERY composition, not just one. A composition costs the 245 s of
-        // §37.7a plus one switch pause per unilateral move it draws (§41.12) —
+        // §37.7a plus one switch pause per SPLIT move it draws (§41.12) —
         // written as arithmetic over the composition rather than as a table of
         // six numbers, because a table says nothing about WHY they differ.
         for session in 1...Warmup.compositionCount {
-            let unilateral = Warmup.moves(sessionNumber: session).filter(\.perSide).count
+            let split = Warmup.moves(sessionNumber: session).filter(\.isSplit).count
             XCTAssertEqual(warmupSec(session: session),
-                           245 + unilateral * Cooldown.sideSwitchPauseSec,
-                           "§41.12: composition \(session) draws \(unilateral) unilateral moves")
+                           245 + split * Cooldown.sideSwitchPauseSec,
+                           "§41.12: composition \(session) draws \(split) split moves")
+            XCTAssertGreaterThanOrEqual(split, 2,
+                                        "arm circles are permanent and cat-cow is not split, "
+                                        + "so every composition pays at least the circles")
         }
-        XCTAssertEqual(worstWarmupSec(), 255, "§41.12: the dearest warm-up is 255 s")
+        XCTAssertEqual(worstWarmupSec(), 260, "§41.12: the dearest warm-up is 260 s")
         XCTAssertEqual(worstCooldownSec(), 295, "§37.7a: the worst cool-down is 295 s")
     }
 
-    /// Two of the nine, and the rotation can put both in one block — which is
-    /// why the reserve moved by 10 s and not by 5. Named by id: "how many are
-    /// unilateral" is a fact about WHICH movements they are.
-    func testTheUnilateralMovesAreTheTwoThePoolNames() {
+    /// Four of the nine, and a composition can hold three of them — which is
+    /// why the reserve moved by 15 s and not by 5. Named by id: "how many
+    /// split" is a fact about WHICH movements they are.
+    func testTheSplitMovesAreTheFourThePoolNames() {
         var seen: Set<String> = []
         var worstInOneComposition = 0
         for session in 1...Warmup.compositionCount {
-            let unilateral = Warmup.moves(sessionNumber: session).filter(\.perSide)
-            seen.formUnion(unilateral.map(\.id))
-            worstInOneComposition = max(worstInOneComposition, unilateral.count)
+            let split = Warmup.moves(sessionNumber: session).filter(\.isSplit)
+            seen.formUnion(split.map(\.id))
+            worstInOneComposition = max(worstInOneComposition, split.count)
         }
-        XCTAssertEqual(seen, ["single-leg-rdl", "bird-dog"])
-        XCTAssertEqual(worstInOneComposition, 2,
-                       "the rotation's window of three draws both, and pays two pauses")
+        XCTAssertEqual(seen, ["single-leg-rdl", "bird-dog", "arm-circles", "hip-circles"])
+        XCTAssertEqual(worstInOneComposition, 3,
+                       "the permanent circles plus the window of three, and three pauses")
     }
 
     /// Nine in the pool, six on screen, and every rotating move gets its turn
@@ -190,8 +194,8 @@ final class BlockReserveTests: XCTestCase {
         // one (§41.12): it is the same gesture in both blocks, and two
         // constants for it would part company the first time either moved.
         XCTAssertEqual(Warmup.switchPauseSeconds, Cooldown.sideSwitchPauseSec)
-        XCTAssertEqual(Warmup.sideSeconds, Warmup.moveSeconds / 2)
-        XCTAssertEqual(Warmup.sideSeconds, Cooldown.sideSeconds,
+        XCTAssertEqual(Warmup.halfSeconds, Warmup.moveSeconds / 2)
+        XCTAssertEqual(Warmup.halfSeconds, Cooldown.sideSeconds,
                        "both blocks split a 30 s slot the same way")
     }
 }
