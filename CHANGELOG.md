@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.2.0
 
 **The warm-up counts the switch.** Four of its moves have a middle their own
 instructions name — the single-leg Romanian deadlift and the bird dog are done
