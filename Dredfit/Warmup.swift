@@ -8,11 +8,16 @@
 //  and inside a ladder each stood as a gap in the density.
 //
 //  Nine moves of 30 s DO NOT FIT the reserve of §37.7а: nine transitions plus
-//  nine moves is 360 s against a `warmupMin` of 300, before any supplement,
-//  and `warmupMin` is an engine constant this wave cannot move. So the block
-//  keeps its six slots and composes them from nine — exactly as the cool-down
-//  has always composed six positions from a pool of nine (owner's decision,
-//  25.08.2026). The duration is unchanged to the second: 245 s.
+//  nine moves is 360 s against a `warmupMin` of 300, before any supplement. So
+//  the block keeps its six slots and composes them from nine — exactly as the
+//  cool-down has always composed six positions from a pool of nine (owner's
+//  decision, 25.08.2026).
+//
+//  §41.12 then gave the two unilateral moves the cool-down's side-switch pause,
+//  which is the only thing that has ever moved this block's length: 245 s, or
+//  255 s in the two compositions that draw both of them. `warmupMin` grew from
+//  5 to 6 to pay for it — an ENGINE change, made through the reference chain,
+//  because the pair of blocks had spent the old reserve to the second.
 //
 
 import Foundation
@@ -26,6 +31,12 @@ struct WarmupMove: Equatable, Identifiable {
     /// not — so the flag on the move says where it is, and the composition
     /// below decides who pays.
     let onFloor: Bool
+    /// The move is done on one side at a time (§41.12): the slot splits in
+    /// half with the switch pause between the halves. Two of the nine —
+    /// single-leg RDL and bird dog — and the flag says which, because
+    /// "unilateral" is a property of the movement, not of where it sits in
+    /// the composition.
+    let perSide: Bool
     /// The move changes the starting position or needs a prop, so its
     /// transition carries the supplement of issue #83. COMPUTED by the
     /// composition, never written by hand: with three floor moves in the pool,
@@ -41,38 +52,58 @@ enum Warmup {
     /// Six on screen, as always. The pool behind them is nine.
     static let moveCount = 6
 
+    /// One 30 s slot split into 15 s per side — a unilateral move does not get
+    /// twice the time. The switch pause rides on TOP of the slot, exactly as
+    /// it does in the cool-down (§41.12), which is what the tenth second of
+    /// `warmupMin` was bought for.
+    static var sideSeconds: Int { moveSeconds / 2 }
+
+    /// The pause between the sides. `Cooldown.sideSwitchPauseSec`, not a
+    /// number of its own: one gesture, one length, and that constant is
+    /// already shared with the workout's per-side holds.
+    ///
+    /// The RAW constant, not `Cooldown.switchPauseSeconds`: the warm-up's own
+    /// lengths ignore `--uitest-fast` (`moveSeconds` does), and a pause that
+    /// collapsed while the two halves it separates did not would give the
+    /// block a shape under the flag that it never has in production.
+    static var switchPauseSeconds: Int { Cooldown.sideSwitchPauseSec }
+
     // MARK: - The pool of nine
 
     /// In DISPLAY order: standing work first, floor work last, so a session
     /// goes down to the floor once and stays there.
     private static var pool: [WarmupMove] {
         [
-            move(id: "marching", name: String(localized: "Marching in place"), onFloor: false, steps: [
+            move(id: "marching", name: String(localized: "Marching in place"),
+                 onFloor: false, perSide: false, steps: [
                 String(localized: "warmup.marching.step1",
                        defaultValue: "March at an easy pace, lifting the knees to hip height."),
                 String(localized: "warmup.marching.step2",
                        defaultValue: "Swing the arms freely and keep the shoulders relaxed."),
             ]),
-            move(id: "arm-circles", name: String(localized: "Arm circles"), onFloor: false, steps: [
+            move(id: "arm-circles", name: String(localized: "Arm circles"),
+                 onFloor: false, perSide: false, steps: [
                 String(localized: "warmup.armCircles.step1",
                        defaultValue: "Circle straight arms forward — big, slow circles."),
                 String(localized: "warmup.armCircles.step2",
                        defaultValue: "Halfway through, switch direction and circle backward."),
             ]),
             move(id: "torso-rotations", name: String(localized: "Torso rotations"),
-                 onFloor: false, steps: [
+                 onFloor: false, perSide: false, steps: [
                 String(localized: "warmup.torsoRotations.step1",
                        defaultValue: "Feet planted, hips facing forward; turn the torso side to side."),
                 String(localized: "warmup.torsoRotations.step2",
                        defaultValue: "Let the arms swing loose — momentum, not force."),
             ]),
-            move(id: "hip-circles", name: String(localized: "Hip circles"), onFloor: false, steps: [
+            move(id: "hip-circles", name: String(localized: "Hip circles"),
+                 onFloor: false, perSide: false, steps: [
                 String(localized: "warmup.hipCircles.step1",
                        defaultValue: "Hands on the hips, feet shoulder-width; draw slow circles with the hips."),
                 String(localized: "warmup.hipCircles.step2",
                        defaultValue: "Keep the knees soft and switch direction halfway."),
             ]),
-            move(id: "half-squats", name: String(localized: "Half squats"), onFloor: false, steps: [
+            move(id: "half-squats", name: String(localized: "Half squats"),
+                 onFloor: false, perSide: false, steps: [
                 String(localized: "warmup.halfSquats.step1",
                        defaultValue: "Sit back to half depth, arms reaching forward for balance."),
                 String(localized: "warmup.halfSquats.step2",
@@ -81,26 +112,33 @@ enum Warmup {
             // The three that came out of the ladders. Their names and steps
             // stay in the CORE catalog, where they already had six languages —
             // nothing was retranslated, only re-homed (§40.1).
-            fromLibrary(WarmupTechnique.singleLegDeadlift, onFloor: false),
-            move(id: "cat-cow", name: String(localized: "Cat-cow"), onFloor: true, steps: [
+            fromLibrary(WarmupTechnique.singleLegDeadlift, onFloor: false, perSide: true),
+            move(id: "cat-cow", name: String(localized: "Cat-cow"),
+                 onFloor: true, perSide: false, steps: [
                 String(localized: "warmup.catCow.step1",
                        defaultValue: "On all fours: exhale, round the back and tuck the chin."),
                 String(localized: "warmup.catCow.step2",
                        defaultValue: "Inhale, arch gently and look slightly up — one slow wave per breath."),
             ]),
-            fromLibrary(WarmupTechnique.birdDog, onFloor: true),
-            fromLibrary(WarmupTechnique.ytw, onFloor: true),
+            fromLibrary(WarmupTechnique.birdDog, onFloor: true, perSide: true),
+            fromLibrary(WarmupTechnique.ytw, onFloor: true, perSide: false),
         ]
     }
 
-    private static func move(id: String, name: String, onFloor: Bool,
+    /// No default for `perSide`, deliberately: an omitted flag would be a
+    /// unilateral move running thirty seconds on one leg, and that is exactly
+    /// the silence §41.12 came to end. A compile error is a stronger guard
+    /// than a grep (the rule `SetsHandle` keeps for the same reason).
+    private static func move(id: String, name: String, onFloor: Bool, perSide: Bool,
                              steps: [String]) -> WarmupMove {
-        WarmupMove(id: id, name: name, onFloor: onFloor, needsSetup: false, steps: steps)
+        WarmupMove(id: id, name: name, onFloor: onFloor, perSide: perSide,
+                   needsSetup: false, steps: steps)
     }
 
-    private static func fromLibrary(_ movement: WarmupMovement, onFloor: Bool) -> WarmupMove {
+    private static func fromLibrary(_ movement: WarmupMovement, onFloor: Bool,
+                                    perSide: Bool) -> WarmupMove {
         WarmupMove(id: movement.id, name: movement.name, onFloor: onFloor,
-                   needsSetup: false, steps: movement.steps)
+                   perSide: perSide, needsSetup: false, steps: movement.steps)
     }
 
     /// Always in the block: the two that open it cold and the one that takes
@@ -151,7 +189,7 @@ enum Warmup {
     /// a promise the block overruns is worse than one it beats.
     static func introMinutes(_ moves: [WarmupMove]) -> Int {
         let seconds = moves.reduce(0) { total, move in
-            total + stageSeconds(.getReady, of: move) + stageSeconds(.move, of: move)
+            total + stageSeconds(.getReady, of: move) + slotSeconds(of: move)
         }
         return max(1, Int((Double(seconds) / 60).rounded(.up)))
     }
@@ -161,7 +199,11 @@ enum Warmup {
 
 extension Warmup {
 
-    enum Stage { case getReady, move }
+    /// `.move` is the whole slot of a bilateral move; a unilateral one runs
+    /// `.firstSide` → `.switchPause` → `.secondSide` instead — 15 + 5 + 15,
+    /// the cool-down's stages under the cool-down's rules (§41.12). Both open
+    /// with `.getReady` (issue #52).
+    enum Stage { case getReady, move, firstSide, switchPause, secondSide }
 
     /// The transition's length depends on the move it announces (issue #83),
     /// so a stage alone no longer has one. The move is passed rather than an
@@ -170,9 +212,20 @@ extension Warmup {
     /// anything on its own.
     static func stageSeconds(_ stage: Stage, of move: WarmupMove) -> Int {
         switch stage {
-        case .getReady: return GetReady.stageSeconds(needsSetup: move.needsSetup)
-        case .move:     return moveSeconds
+        case .getReady:               return GetReady.stageSeconds(needsSetup: move.needsSetup)
+        case .move:                   return moveSeconds
+        case .firstSide, .secondSide: return sideSeconds
+        case .switchPause:            return switchPauseSeconds
         }
+    }
+
+    /// What the move itself takes, its transition excluded: the slot, plus the
+    /// switch pause when there are two sides. ONE function rather than the
+    /// formula spelled out at each caller — the offer screen, the reserve test
+    /// and §41.12's arithmetic have to agree, and three copies of a formula
+    /// agree only until one of them is edited.
+    static func slotSeconds(of move: WarmupMove) -> Int {
+        move.perSide ? sideSeconds * 2 + switchPauseSeconds : moveSeconds
     }
 
     /// nil when the block is over.
@@ -181,8 +234,10 @@ extension Warmup {
         guard step.index < moves.count else { return nil }
         switch step.stage {
         case .getReady:
-            return (step.index, .move)
-        case .move:
+            return (step.index, moves[step.index].perSide ? .firstSide : .move)
+        case .firstSide:   return (step.index, .switchPause)
+        case .switchPause: return (step.index, .secondSide)
+        case .move, .secondSide:
             let next = step.index + 1
             guard next < moves.count else { return nil }
             return (next, .getReady)

@@ -35,7 +35,15 @@ enum BlockPause {
     /// back in, and a lead-in before a lead-in would count the user down
     /// twice. Only what drops the user into a position — a move, a stretch,
     /// either side — hands its frozen seconds to a re-entry first.
-    static func needsReentry(_ stage: Warmup.Stage) -> Bool { stage != .getReady }
+    ///
+    /// The side-switch pause is excluded for the reason the cool-down twin
+    /// below states, and it is excluded HERE too since §41.12: the warm-up has
+    /// that pause now, and a rule that lived in one of two identical stage
+    /// machines would be the "applied to one branch of two" defect written out
+    /// by hand.
+    static func needsReentry(_ stage: Warmup.Stage) -> Bool {
+        stage != .getReady && stage != .switchPause
+    }
 
     /// The cool-down has two transitions, and the side-switch is one of them:
     /// its go into the second side is still ahead of it, and a re-entry ending

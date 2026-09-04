@@ -1,5 +1,29 @@
 # Changelog
 
+## Unreleased
+
+**The warm-up says when to switch sides.** Two of its moves are done one side at
+a time — the single-leg Romanian deadlift and the bird dog — and each of them
+ran its thirty seconds in silence, so the side you started on was usually the
+side you finished on unless you counted for yourself. They now run the way the
+cool-down's stretches have run since 1.8.0: fifteen seconds a side, a
+five-second pause between them with its own falling tone and its own line on the
+screen, "second side" over the second half, and a technique sheet that names the
+length of one side instead of of both. The pause can be paused like everything
+else in the block, and a phone locked across the whole move comes back where the
+clock says it should, with no signal sounded for a switch that is already over.
+
+**Every announced session is one minute longer, and the minute is real.** The
+warm-up and the cool-down share a reserve inside every duration the app
+announces, and that reserve was spent to the second. The switch pause costs ten
+seconds in the composition that draws both moves, so the reserve had to grow —
+an engine change, made through the same reference chain the ladders go through,
+and priced out loud rather than absorbed: a clean start now reads ≈ 32 minutes
+where it read 31. Nothing else about the plan moves. The exercises, the sets,
+the doses and the probe are what 2.1.0 generated, bit for bit, out of the same
+recorded trace of the JavaScript reference, and there is no migration: the state
+and journal formats are untouched.
+
 ## 2.1.0
 
 **Holds are hands-free now, and two screens stopped asking for a decision at

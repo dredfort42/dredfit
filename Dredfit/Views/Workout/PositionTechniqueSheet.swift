@@ -16,10 +16,16 @@ struct PositionTechnique: Identifiable, Equatable {
 
 extension PositionTechnique {
     init(warmup move: WarmupMove) {
-        self.init(id: move.id, name: move.name,
-                  capsule: String(localized: "positionSheet.warmup",
-                                  defaultValue: "warm-up · \(Warmup.moveSeconds) s"),
-                  steps: move.steps)
+        // A unilateral move says the length of ONE side, the way the cool-down
+        // twin below always has: since §41.12 its slot is two halves with the
+        // switch pause between them, and "warm-up · 30 s" would be the number
+        // of neither half.
+        let capsule = move.perSide
+            ? String(localized: "positionSheet.warmupPerSide",
+                     defaultValue: "warm-up · \(Warmup.sideSeconds) s per side")
+            : String(localized: "positionSheet.warmup",
+                     defaultValue: "warm-up · \(Warmup.moveSeconds) s")
+        self.init(id: move.id, name: move.name, capsule: capsule, steps: move.steps)
     }
 
     init(cooldown position: CooldownPosition) {

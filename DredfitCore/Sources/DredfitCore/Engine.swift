@@ -84,9 +84,14 @@ public enum EngineConfig {
     /// §40.3: "1 old level = 1 rep per set". The deload was −3 levels and is
     /// now −3 reps per set (−15 s on a hold).
     static let deloadDrop = 3
-    public static let warmupMin = 5
-    /// The two blocks share a reserve of `warmupMin + cooldownMin`, and the
-    /// worst composition spends it to the second — see GetReady.swift.
+    /// v3.4 (§41.12): 5 → 6. The warm-up gained the cool-down's side-switch
+    /// pause, so its worst composition costs 255 s rather than 245 and the
+    /// pair of blocks 550 — past a reserve of 9:00 that was already spent to
+    /// the second. A reserve is whole minutes, so 10:00 is the nearest that
+    /// fits: 50 s of slack, less than a minute, with nothing to give back.
+    public static let warmupMin = 6
+    /// The two blocks share a reserve of `warmupMin + cooldownMin` — see
+    /// GetReady.swift for the arithmetic it is spent by.
     public static let cooldownMin = 4
     /// Rest between sets by BAND (the sets in the state, not the sets on
     /// screen): a cut takes volume off, not recovery.

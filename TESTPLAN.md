@@ -31,7 +31,7 @@ about pixels, not about strings. Walk those on a device before submitting.
 
 | # | Check | Expected |
 |---|---|---|
-| S1 | Cold start on a fresh install | Opens on **Today** with "Workout 1", **≈ 23–31 min**, 6 exercises, one **Start** button with nothing to agree to first, and an **"Easier"** handle on each movement row. Both minutes are engine arithmetic, not decoration — the full plan and the same plan on the sets floor: read them from the reference when they move, never off the screen |
+| S1 | Cold start on a fresh install | Opens on **Today** with "Workout 1", **≈ 24–32 min**, 6 exercises, one **Start** button with nothing to agree to first, and an **"Easier"** handle on each movement row. Both minutes are engine arithmetic, not decoration — the full plan and the same plan on the sets floor: read them from the reference when they move, never off the screen |
 | S2 | Full workout: Start → warm-up (opens on its "Get ready" transition) → 6 exercises → cool-down → rating | Rating screen appears; tapping an option returns to Today in the done state |
 | S3 | Today after completion | Checkmark, "Workout 1 completed", a rating caption, and a **Next** card (no Start button) |
 | S4 | Relaunch the app | Still in the done state — the record survived the restart |
@@ -847,7 +847,7 @@ more. They stay in the file as the history of what the app used to promise.
 
 | # | Check | Expected |
 |---|---|---|
-| 46.1 | Today, a training day, fresh install | The plan line is a **range**: "≈ 23–31 min · 6 exercises" (30.5/23.3 on the 3.3.0 reference, matching `ReleaseSmokeTests.swift`'s "about 23 to 31 minutes · 6 exercises") — the full plan and the shortest the session can be made from inside it. Nothing under it to agree to; each movement row carries **"Easier"** and nothing else |
+| 46.1 | Today, a training day, fresh install | The plan line is a **range**: "≈ 24–32 min · 6 exercises" (31.5/24.3 on the 3.4.0 reference — §41.12 put a minute on every announced duration, matching `ReleaseSmokeTests.swift`'s "about 24 to 32 minutes · 6 exercises") — the full plan and the shortest the session can be made from inside it. Nothing under it to agree to; each movement row carries **"Easier"** and nothing else |
 | 46.2 | The same, once the plan is on the sets floor | A plan already on the sets floor shows **one** number, not a range of one. (This row is written in the pre-v3 level scale — "L34"/"L47" no longer exist; see I-18) |
 | 46.3 | The work screen | Under the button that logs the set: **"Went differently"**, **"Skip this set"**, and one exercise-level escape. Never two controls that would do the same thing |
 | 46.4 | Tap **Skip this set** | Straight to the next set — **no rest** on the way, because nothing was done to recover from. The header's **"≈ N min left"** drops in the same beat |
@@ -995,6 +995,25 @@ walked to the rating, then opened from the calendar.
 | 52.6 | Export the backup, read `dredfit-state.json` | The record carries a `probes` key only when a probe actually reported a number. A session where none did carries no key — a zero would read as "did the probe and showed nothing" |
 | 52.7 | All seven languages, and a language switch after the fact | The line reads naturally, and the movement's name follows the switch like the name above it. `python3 scripts/check_localization.py` is green |
 
+### 53. The warm-up switches sides (app + engine §41.12)
+
+Two moves of the warm-up pool are unilateral — the single-leg Romanian deadlift
+and the bird dog — and the block composes six moves out of nine, so a session
+draws none, one or both of them. Sessions 2 to 5 of the six compositions draw at
+least one; session 1 draws neither, which is what makes a fresh install the
+wrong place to test this.
+
+| # | Check | Expected |
+|---|---|---|
+| 53.1 | A unilateral warm-up move | 15 s first side → **"Switch sides"** in accent with a 5→1 countdown → 15 s marked **"second side"** → the next transition. The bilateral moves still run one 30 s countdown with no line above it |
+| 53.2 | Listen at each boundary | The pause opens with the **falling** two-tone and the second side starts on the rising go — the cool-down's signals exactly (31.2). 3-2-1 ticks precede the end of each side and **none** sound inside the pause |
+| 53.3 | Its technique sheet | The capsule reads **"warm-up · 15 s per side"**; a bilateral move still reads "warm-up · 30 s". Opening it freezes the countdown mid-pause too |
+| 53.4 | Pause during the switch, then Resume | Freezes and carries the pause on from where it stopped, handing over to the second side on its own single go — no lead-in, for the reason 35.5 gives about the cool-down twin |
+| 53.5 | Lock the phone across a whole unilateral move | The block lands where the wall clock says. Nothing sounds a switch that is already over: the tone belongs to what is on screen |
+| 53.6 | The warm-up offer screen for such a session | "6 positions · about 5 min", and the block does not overrun what it promised (255 s in the composition that draws both) |
+| 53.7 | All seven languages | "Switch sides", "second side", "15 s per side" and the capsule read naturally; nothing clips |
+| 53.8 | Today, on a fresh install | The plan line is **one minute longer than 2.1.0** — ≈ 24–32 min. The reserve for the two blocks grew to 10:00 to pay for the switch pause, and the price is on every announced duration |
+
 
 ## Engine gates before a release
 
@@ -1137,4 +1156,5 @@ Log every failure found while running this plan. Keep entries until they ship fi
 | I-24 | 2026-09-02 | Progress chart, Store frames | Found by sweeping App Store capture frames against the live screens: the progress chart's axis dropped its last date label — Charts discards a tick that does not fit rather than repositioning it, so the rightmost date silently vanished | medium | **fixed, this wave (commit 4501479).** Pinned by `DredfitTests/ProgressChartAxisTests.swift`, which was red on the prior code and stays red on three independent mutations of the axis logic. No gate had ever looked at chart axis content before this test existed |
 | I-25 | 2026-09-02 | Technique sheet, l10n (de) | Found by the same App Store frame sweep: `.lowercased()` in the technique sheet's pattern capsule broke the capitalization of all ten German pattern names — a defect that only shows up in a correctly-populated catalog at runtime, so no static localization gate could have caught it | medium | **fixed, this wave (commit 4501479).** No gate watches rendered capsule casing; recorded so the class (`.lowercased()`/`.uppercased()` applied to a localized noun) is named for the next sweep |
 | I-26 | 2026-09-02 | Store capture tooling | Operational, not a product defect. `appstore/tools/seed.py` writes into the app's container and its seed only takes if the simulator is already BOOTED, with no rebinary between seed and run; a `simctl shutdown all` plus a fresh build ahead of this wave's capture wiped the seed silently — 28 of 42 capture methods failed on "seeded Today should show a plan", while seven `today_` frames were written anyway against an unseeded plan, i.e. a partial set that would have looked plausible enough to ship. Separately, `assertLanguage` flaked ("app did not come up in de: no 'Fortschritt' tab") and survived three retries on one method although the app does come up in that locale, confirmed by a direct run with a screenshot | low | **seed half fixed 03.09.2026, language half open.** `seed.py` no longer writes blind: it refuses a device that is not `Booted` and an app that is not installed, each by name instead of a `SimError 405` traceback, and it plants a marker in `Library/Caches` whose absence is proof that the container was wiped rather than a guess about it. `seed.py <udid> --check` tells the two failures apart — a seed that never survived, and a test that walked the wrong way — for the price of a second instead of a capture run. The order that makes the seed hold (install, then seed, then run; one throwaway method after any rebuild) is written into `appstore/tools/README.md` and the release regulation, because it was never a preference. All six paths exercised, wipe detection included. **What stays open is the `assertLanguage` flake:** "app did not come up in de: no 'Fortschritt' tab" survived three retries on one method while the app demonstrably comes up in that locale — confirmed by a direct `simctl launch` and a screenshot showing the tab. That is a harness timing question, unrelated to the seed, and it still costs a retry per capture run |
+| I-27 | 2026-09-04 | Warm-up | The same class as I-10, in the other block: the single-leg Romanian deadlift and the bird dog are done one side at a time, and the warm-up ran each of them as one 30 s countdown with no switch — the person either spent thirty seconds on one leg or changed sides by their own count. The cool-down has counted the switch since #35 and the work screen since the hold wave; the warm-up was never re-audited when §40.1 moved these two movements into it out of the strength ladders | medium | **fixed, this wave.** Both flagged `perSide`, so they run 15 + 5 + 15 with the switch tone, the "second side" marker and a technique capsule that names one side. The pause cost 10 s in the dearest composition, which the reserve of §37.7а had no room for, so `warmupMin` went 5 → 6 through the reference chain and every announced duration grew by a minute — priced out loud, as in §37.7а. `BlockReserveTests` pins the two blocks against the reserve, and the classification is asserted by id so the two cannot drift apart again |
 **Severity.** *high* — data loss, crash, or a broken core flow · *medium* — a feature misbehaves but there is a way around it · *low* — cosmetic or a rare edge case.

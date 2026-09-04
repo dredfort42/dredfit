@@ -53,6 +53,16 @@ final class PositionTechniqueTests: XCTestCase {
         XCTAssertEqual(fromCooldown.steps, position.steps)
     }
 
+    /// A move from the composition that draws both unilateral moves. Found
+    /// rather than named by session number: the rotation is what decides who
+    /// appears, and a hard-coded 4 would go stale the first time the pool
+    /// changes.
+    private var unilateralWarmupMove: WarmupMove? {
+        (1...Warmup.compositionCount)
+            .flatMap(Warmup.moves(sessionNumber:))
+            .first(where: \.perSide)
+    }
+
     func testCapsulesTellTheBlocksAndTheSidesApart() {
         let warmup = PositionTechnique(warmup: Warmup.moves(sessionNumber: 1)[0]).capsule
         let positions = allCooldownPositions
@@ -67,5 +77,21 @@ final class PositionTechniqueTests: XCTestCase {
         XCTAssertTrue(warmup.contains("\(Warmup.moveSeconds)"))
         XCTAssertTrue(perSide.contains("\(Cooldown.sideSeconds)"))
         XCTAssertTrue(bilateral.contains("\(Cooldown.positionSeconds)"))
+    }
+
+    /// §41.12: the warm-up has two sides now, and the sheet says the length of
+    /// ONE of them. "warm-up · 30 s" on a move that runs 15 + 15 would be the
+    /// number of neither half — the sheet is read while the countdown is
+    /// frozen, precisely to check what is being asked.
+    func testAUnilateralWarmupMoveNamesTheLengthOfOneSide() throws {
+        let move = try XCTUnwrap(unilateralWarmupMove, "the pool must draw a unilateral move")
+        let capsule = PositionTechnique(warmup: move).capsule
+        XCTAssertTrue(capsule.contains("\(Warmup.sideSeconds)"),
+                      "the capsule must name one side: \(capsule)")
+        XCTAssertFalse(capsule.contains("\(Warmup.moveSeconds)"),
+                       "the whole slot is not what the person is asked for: \(capsule)")
+        let bilateral = try XCTUnwrap(Warmup.moves(sessionNumber: 1).first { !$0.perSide })
+        XCTAssertNotEqual(capsule, PositionTechnique(warmup: bilateral).capsule,
+                          "a unilateral move must not read like a bilateral one")
     }
 }

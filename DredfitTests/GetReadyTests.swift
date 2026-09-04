@@ -15,6 +15,30 @@ final class GetReadyTests: XCTestCase {
     /// trip down to the floor.
     private var floorIndex: Int { warmupMoves.firstIndex { $0.needsSetup } ?? 0 }
 
+    /// The dearest composition: the one the rotation fills with BOTH unilateral
+    /// moves (§41.12). Found, not named by session number — the rotation
+    /// decides who appears, and a hard-coded 4 goes stale the first time the
+    /// pool changes. Session one draws neither, which is why the stage-machine
+    /// tests below cannot all run on `warmupMoves`.
+    private var unilateralComposition: [WarmupMove] {
+        (1...Warmup.compositionCount)
+            .map(Warmup.moves(sessionNumber:))
+            .max { $0.filter(\.perSide).count < $1.filter(\.perSide).count } ?? []
+    }
+
+    /// What one warm-up move costs uninterrupted: the transition, then the
+    /// slot — two halves and the switch pause when the move has sides.
+    /// Hand-rolled on purpose, like the cool-down twin above: this file's job
+    /// is to state the arithmetic independently of the production formula.
+    private func cost(of move: WarmupMove) -> Int {
+        let slot = move.perSide
+            ? Warmup.sideSeconds * 2 + Cooldown.sideSwitchPauseSec
+            : Warmup.moveSeconds
+        return GetReady.seconds
+            + (move.needsSetup ? GetReady.setupSupplementSec : 0)
+            + slot
+    }
+
     // MARK: - The transition itself
 
     /// RE-MARKED, and the claim is now the OPPOSITE one.
@@ -96,18 +120,17 @@ final class GetReadyTests: XCTestCase {
     }
 
     /// The decision this feature rests on: the transitions — supplements
-    /// included since #83 — ride on top of the minutes the engine already
-    /// reserves for the two blocks, so no estimate moves and `golden.json`
-    /// stays untouched. The worst case is exact, not a bound: the fixed
-    /// three positions plus the costliest three the mapping can draw land on
-    /// the reserve to the second, which is why the supplement is five and
-    /// not six.
+    /// included since #83 — ride on top of the minutes the engine reserves for
+    /// the two blocks. The worst case is exact: the dearest warm-up plus the
+    /// fixed three positions plus the costliest three the mapping can draw.
+    ///
+    /// What is no longer exact is the FIT. §41.12 gave the warm-up the
+    /// side-switch pause, the pair went from 540 s to 550, and a reserve is
+    /// whole minutes — so 10:00 carries 50 s of slack. Under a minute, which
+    /// is the property that replaced the equality: one minute of slack and the
+    /// engine would be holding a minute the blocks do not use.
     func testBothBlocksFitInsideTheReservedWarmupAndCooldownMinutes() {
-        let warmup = warmupMoves.reduce(0) { total, move in
-            total + GetReady.seconds
-                + (move.needsSetup ? GetReady.setupSupplementSec : 0)
-                + Warmup.moveSeconds
-        }
+        let warmup = unilateralComposition.map(cost(of:)).reduce(0, +)
 
         // One pattern per pool position; index 2 of a one-pattern composition
         // is the position that pattern maps to.
@@ -119,26 +142,23 @@ final class GetReadyTests: XCTestCase {
             + cost(of: anyComposition[5])
         let reserved = (EngineConfig.warmupMin + EngineConfig.cooldownMin) * 60
 
-        // 215 → 245 and 265 → 295, because the base transition doubled. The
-        // sum still fills the reserve EXACTLY — the reserve grew by the same
-        // minute (`cooldownMin` 3 → 4), which is why this was an engine change
-        // and not an app one.
-        XCTAssertEqual(warmup, 245)
+        // 215 → 245 → 255, because the base transition doubled (§37.7а) and
+        // then the dearest composition took two switch pauses (§41.12); 265 →
+        // 295 on the cool-down side. Both times the reserve had to grow with
+        // it, which is what makes either an engine change and not an app one.
+        XCTAssertEqual(warmup, 255)
         XCTAssertEqual(fixed + worstMapped, 295)
-        XCTAssertEqual(warmup + fixed + worstMapped, reserved,
-                       "the worst case fills the reserved minutes exactly — "
-                         + "any longer supplement is an engine change")
+        XCTAssertLessThanOrEqual(warmup + fixed + worstMapped, reserved,
+                                 "the worst case overruns the reserved minutes")
+        XCTAssertLessThan(reserved - (warmup + fixed + worstMapped), 60,
+                          "a whole minute of slack: the reserve could be given back")
     }
 
     func testARealCompositionLeavesRoom() {
         let performed = Engine.generateSession(.initial).exercises.map(\.pattern)
         let cooldown = Cooldown.positions(performed: performed)
             .reduce(0) { $0 + cost(of: $1) }
-        let warmup = warmupMoves.reduce(0) { total, move in
-            total + GetReady.seconds
-                + (move.needsSetup ? GetReady.setupSupplementSec : 0)
-                + Warmup.moveSeconds
-        }
+        let warmup = warmupMoves.map(cost(of:)).reduce(0, +)
         XCTAssertLessThan(warmup + cooldown,
                           (EngineConfig.warmupMin + EngineConfig.cooldownMin) * 60)
     }
@@ -219,6 +239,78 @@ final class GetReadyTests: XCTestCase {
         XCTAssertEqual(landing?.remaining, Warmup.moveSeconds - 2)
     }
 
+    // MARK: - The warm-up's two sides (§41.12)
+
+    func testAUnilateralWarmupMoveWalksTheTwoSidesAroundThePause() throws {
+        let moves = unilateralComposition
+        let index = try XCTUnwrap(moves.firstIndex(where: \.perSide),
+                                  "the dearest composition must draw a unilateral move")
+        XCTAssertEqual(Warmup.step(after: (index, .getReady), moves: moves)?.stage, .firstSide)
+        XCTAssertEqual(Warmup.step(after: (index, .firstSide), moves: moves)?.stage, .switchPause)
+        XCTAssertEqual(Warmup.step(after: (index, .switchPause), moves: moves)?.stage, .secondSide)
+        // All three stay on the same move: the switch is inside one position,
+        // not travel to another, and an index that walked would show the next
+        // move's name over the wrong countdown.
+        for stage in [Warmup.Stage.getReady, .firstSide, .switchPause] {
+            XCTAssertEqual(Warmup.step(after: (index, stage), moves: moves)?.index, index,
+                           "\(stage) must not walk off the move it belongs to")
+        }
+        let next = Warmup.step(after: (index, .secondSide), moves: moves)
+        XCTAssertEqual(next?.index, index + 1, "the far side hands over to the next move")
+        XCTAssertEqual(next?.stage, .getReady)
+    }
+
+    func testABilateralWarmupMoveNeverSeesASide() throws {
+        let moves = unilateralComposition
+        let index = try XCTUnwrap(moves.firstIndex(where: { !$0.perSide }))
+        XCTAssertEqual(Warmup.step(after: (index, .getReady), moves: moves)?.stage, .move,
+                       "a bilateral move runs the whole slot in one stage")
+    }
+
+    func testTheTwoSidesSplitTheSlotAndThePauseRidesOnTop() throws {
+        let move = try XCTUnwrap(unilateralComposition.first(where: \.perSide))
+        XCTAssertEqual(Warmup.stageSeconds(.firstSide, of: move), Warmup.sideSeconds)
+        XCTAssertEqual(Warmup.stageSeconds(.secondSide, of: move), Warmup.sideSeconds)
+        XCTAssertEqual(Warmup.stageSeconds(.switchPause, of: move), Cooldown.sideSwitchPauseSec)
+        XCTAssertEqual(Warmup.slotSeconds(of: move),
+                       Warmup.moveSeconds + Cooldown.sideSwitchPauseSec,
+                       "the two halves ARE the slot; only the pause is added to it")
+        let bilateral = try XCTUnwrap(unilateralComposition.first { !$0.perSide })
+        XCTAssertEqual(Warmup.slotSeconds(of: bilateral), Warmup.moveSeconds)
+    }
+
+    func testTheWarmupEndsAfterTheFarSideOfAUnilateralLastMove() throws {
+        // A composition can end on a unilateral move, and then `.move` is a
+        // stage that never runs: the block has to end on `.secondSide` instead.
+        let moves = try XCTUnwrap((1...Warmup.compositionCount)
+            .map(Warmup.moves(sessionNumber:))
+            .first { $0.last?.perSide == true },
+            "some composition must end on a unilateral move")
+        XCTAssertNil(Warmup.step(after: (moves.count - 1, .secondSide), moves: moves),
+                     "the far side of the last move hands the flow to the work")
+    }
+
+    func testTheWarmupSwitchIsABoundaryTheFlowCanSound() throws {
+        // The tone is chosen from `entered` (see `tickWarmup`), so the pause
+        // has to be NAMED when the first side runs out. And a long absence
+        // across the whole move must not report a switch nobody is standing
+        // at: `entered` and `stage` disagree, and the flow stays silent.
+        let moves = unilateralComposition
+        let index = try XCTUnwrap(moves.firstIndex(where: \.perSide))
+        let intoPause = Warmup.advance(from: (index, .firstSide), overshoot: 0, moves: moves)
+        XCTAssertEqual(intoPause?.entered, .switchPause)
+        XCTAssertEqual(intoPause?.remaining, Cooldown.sideSwitchPauseSec)
+        let intoSecond = Warmup.advance(from: (index, .switchPause), overshoot: 0, moves: moves)
+        XCTAssertEqual(intoSecond?.entered, .secondSide)
+        XCTAssertEqual(intoSecond?.remaining, Warmup.sideSeconds)
+        let landing = Warmup.advance(from: (index, .getReady),
+                                     overshoot: Warmup.slotSeconds(of: moves[index]) + 1,
+                                     moves: moves)
+        XCTAssertEqual(landing?.entered, .firstSide, "the run opened on the first side")
+        XCTAssertEqual(landing?.index, index + 1, "...and came to rest past the whole move")
+        XCTAssertEqual(landing?.stage, .getReady)
+    }
+
     // MARK: - What the signal has to be chosen from
 
     func testAdvanceCanLandOnATransitionItDidNotEnter() {
@@ -281,8 +373,8 @@ final class GetReadyTests: XCTestCase {
             }
         }
         XCTAssertGreaterThan(Cooldown.switchPauseSeconds, 0)
-        for move in warmupMoves {
-            for stage in [Warmup.Stage.getReady, .move] {
+        for move in warmupMoves + unilateralComposition {
+            for stage in [Warmup.Stage.getReady, .move, .firstSide, .switchPause, .secondSide] {
                 XCTAssertGreaterThan(Warmup.stageSeconds(stage, of: move), 0,
                                      "\(stage) at \(move.id) has no length")
             }

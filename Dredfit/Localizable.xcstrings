@@ -9472,6 +9472,52 @@
         }
       }
     },
+    "positionSheet.warmupPerSide": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aufwärmen · %lld s pro Seite"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "warm-up · %lld s per side"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "calentamiento · %lld s por lado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "échauffement · %lld s par côté"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "riscaldamento · %lld s per lato"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "aquecimento · %lld s de cada lado"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "разминка · по %lld сек на сторону"
+          }
+        }
+      }
+    },
     "Previous month": {
       "localizations": {
         "de": {

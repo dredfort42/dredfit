@@ -4,10 +4,12 @@
 //  preference.
 //
 //  `warmupMin + cooldownMin` is the whole budget the engine sets aside for the
-//  two blocks, and the worst composition spends it TO THE SECOND. That is why
-//  doubling the transition could not be done in this target alone: one second
-// more and the reserve breaks, which is a change to the engine — and is that
-// change.
+//  two blocks, and the worst composition spent it TO THE SECOND until §41.12
+//  gave the warm-up its side switch. That is why neither the doubled transition
+//  nor that switch could be done in this target alone: ten seconds more and the
+//  reserve breaks, which is a change to the engine — and both times it was one.
+//  What the reserve is now is the SMALLEST whole minute that fits, which is the
+//  exact property the equality became.
 //
 //  Everything below is computed from the app's own constants and from the real
 //  composition rule, never from the spec's numbers restated. The worst case is
@@ -24,9 +26,13 @@ import DredfitCore
 @MainActor
 final class BlockReserveTests: XCTestCase {
 
-    /// One warm-up move: its transition plus the move itself.
+    /// One warm-up move: its transition plus the slot. A unilateral move is two
+    /// halves with the switch pause between them (§41.12), which is what
+    /// `slotSeconds` answers — asked of the production function rather than
+    /// restated here, for the reason GetReadyTests gives about its cool-down
+    /// twin: two spellings of one formula agree only until one is edited.
     private func cost(_ move: WarmupMove) -> Int {
-        GetReady.stageSeconds(needsSetup: move.needsSetup) + Warmup.moveSeconds
+        GetReady.stageSeconds(needsSetup: move.needsSetup) + Warmup.slotSeconds(of: move)
     }
 
     /// One cool-down position: its transition plus the hold. A per-side hold is
@@ -45,7 +51,9 @@ final class BlockReserveTests: XCTestCase {
 
     /// The dearest warm-up a session can draw. The block composes six moves
     /// out of nine now (§40.1), so "what the warm-up costs" is a claim about
-    /// EVERY composition — and the pool was built so they all cost the same.
+    /// EVERY composition — and since §41.12 they no longer all cost the same:
+    /// the rotation's window of three draws none, one or both of the unilateral
+    /// moves, and each of those pays a switch pause.
     private func worstWarmupSec() -> Int {
         (1...Warmup.compositionCount).map(warmupSec(session:)).max() ?? 0
     }
@@ -69,20 +77,31 @@ final class BlockReserveTests: XCTestCase {
 
     func testTheWorstCompositionFitsTheEngineReserve() {
         let reserve = (EngineConfig.warmupMin + EngineConfig.cooldownMin) * 60
-        XCTAssertEqual(reserve, 540, "§37.7a: the reserve is 9:00")
+        XCTAssertEqual(reserve, 600, "§41.12: the reserve is 10:00")
         XCTAssertLessThanOrEqual(
             worstWarmupSec() + worstCooldownSec(), reserve,
             "the worst composition of the two blocks overruns the engine's reserve")
     }
 
-    /// And it is spent EXACTLY — the property that makes the next second a
-    /// change to the engine rather than to this target. Were this ever to pass
-    /// with room to spare, the reserve and the blocks would have drifted apart
-    /// and the announced duration would be quietly wrong the other way.
-    func testTheReserveIsSpentToTheSecond() {
+    /// RE-MARKED by §41.12, and deliberately not deleted.
+    ///
+    /// The claim used to be equality — the reserve spent to the second, which
+    /// is what made the next second an ENGINE change. The warm-up's side switch
+    /// cost 10 s, and a reserve is whole minutes: 9:00 no longer fits, 10:00
+    /// fits with 50 s to spare, and equality became unreachable. An unreachable
+    /// assert gets deleted, and then nothing watches the two numbers at all —
+    /// so what is pinned is the property that IS still exact: the reserve is
+    /// the SMALLEST whole minute that fits. Drift in either direction breaks
+    /// it, and a whole minute of slack would mean the engine is holding a
+    /// minute the blocks no longer need.
+    func testTheReserveIsTheSmallestWholeMinuteThatFits() {
         let reserve = (EngineConfig.warmupMin + EngineConfig.cooldownMin) * 60
-        XCTAssertEqual(worstWarmupSec() + worstCooldownSec(), reserve,
-                       "§37.7a: the reserve is spent exactly, with nothing to spare")
+        let worst = worstWarmupSec() + worstCooldownSec()
+        XCTAssertEqual(worst, 550, "§41.12: the worst pair of blocks is 550 s")
+        XCTAssertGreaterThanOrEqual(reserve - worst, 0,
+                                    "the blocks overrun what the engine reserves")
+        XCTAssertLessThan(reserve - worst, 60,
+                          "a whole minute of slack: the reserve could be given back")
     }
 
     /// The two halves separately, so a failure says WHICH block moved. The
@@ -108,14 +127,34 @@ final class BlockReserveTests: XCTestCase {
     }
 
     func testEachBlockCostsWhatTheSpecSays() {
-        // EVERY composition, not just one: adding the three movements of §40.1
-        // to the pool must not move the block by a second, because the pair of
-        // blocks has already spent its reserve to the second.
+        // EVERY composition, not just one. A composition costs the 245 s of
+        // §37.7a plus one switch pause per unilateral move it draws (§41.12) —
+        // written as arithmetic over the composition rather than as a table of
+        // six numbers, because a table says nothing about WHY they differ.
         for session in 1...Warmup.compositionCount {
-            XCTAssertEqual(warmupSec(session: session), 245,
-                           "§37.7a: warm-up composition \(session) is 245 s")
+            let unilateral = Warmup.moves(sessionNumber: session).filter(\.perSide).count
+            XCTAssertEqual(warmupSec(session: session),
+                           245 + unilateral * Cooldown.sideSwitchPauseSec,
+                           "§41.12: composition \(session) draws \(unilateral) unilateral moves")
         }
+        XCTAssertEqual(worstWarmupSec(), 255, "§41.12: the dearest warm-up is 255 s")
         XCTAssertEqual(worstCooldownSec(), 295, "§37.7a: the worst cool-down is 295 s")
+    }
+
+    /// Two of the nine, and the rotation can put both in one block — which is
+    /// why the reserve moved by 10 s and not by 5. Named by id: "how many are
+    /// unilateral" is a fact about WHICH movements they are.
+    func testTheUnilateralMovesAreTheTwoThePoolNames() {
+        var seen: Set<String> = []
+        var worstInOneComposition = 0
+        for session in 1...Warmup.compositionCount {
+            let unilateral = Warmup.moves(sessionNumber: session).filter(\.perSide)
+            seen.formUnion(unilateral.map(\.id))
+            worstInOneComposition = max(worstInOneComposition, unilateral.count)
+        }
+        XCTAssertEqual(seen, ["single-leg-rdl", "bird-dog"])
+        XCTAssertEqual(worstInOneComposition, 2,
+                       "the rotation's window of three draws both, and pays two pauses")
     }
 
     /// Nine in the pool, six on screen, and every rotating move gets its turn
@@ -147,5 +186,12 @@ final class BlockReserveTests: XCTestCase {
     /// counts it as five.
     func testTheSideSwitchPauseStayedAtFive() {
         XCTAssertEqual(Cooldown.sideSwitchPauseSec, 5)
+        // And the warm-up reads that same constant rather than owning a second
+        // one (§41.12): it is the same gesture in both blocks, and two
+        // constants for it would part company the first time either moved.
+        XCTAssertEqual(Warmup.switchPauseSeconds, Cooldown.sideSwitchPauseSec)
+        XCTAssertEqual(Warmup.sideSeconds, Warmup.moveSeconds / 2)
+        XCTAssertEqual(Warmup.sideSeconds, Cooldown.sideSeconds,
+                       "both blocks split a 30 s slot the same way")
     }
 }
