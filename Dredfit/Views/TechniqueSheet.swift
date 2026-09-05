@@ -333,7 +333,7 @@ struct TechniqueSheet: View {
     private var variationTag: String {
         let range = unit == .reps
             ? String(localized: "4–15 reps")
-            : String(localized: "15–45 sec")
+            : String(localized: "15–45 s")
         let total = Library.count(target.pattern)
         // The catalog value verbatim, NEVER lowercased. German capitalises
         // every noun as grammar, not as style, so `.lowercased()` turned the

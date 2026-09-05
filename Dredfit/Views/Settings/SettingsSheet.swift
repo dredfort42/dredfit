@@ -127,7 +127,7 @@ struct SettingsSheet: View {
             Text("Highlighted days are rest days")
                 .dredfitFont(12.5)
                 .foregroundStyle(Theme.ink2)
-            Text("2–3 rest days a week is the recommended rhythm")
+            Text("3–4 rest days a week is the recommended rhythm")
                 .dredfitFont(12.5)
                 .foregroundStyle(Theme.ink2)
         }
@@ -172,7 +172,7 @@ struct SettingsSheet: View {
             }
             .tint(Theme.accent)
             .accessibilityIdentifier("hasbar-toggle")
-            Text("Every other workout swaps the row for a vertical pull")
+            Text("Every other workout swaps the horizontal pull for a vertical one")
                 .dredfitFont(12.5)
                 .foregroundStyle(Theme.ink2)
         }
@@ -301,7 +301,7 @@ struct SettingsSheet: View {
                 }
                 .accessibilityIdentifier("body-mass-row")
                 if store.settings.bodyMassKg == nil {
-                    Text("Without it, workouts are saved without calories.")
+                    Text("Without it, workouts are saved with no calorie estimate.")
                         .dredfitFont(12.5)
                         .foregroundStyle(Theme.ink2)
                 }

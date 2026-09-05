@@ -38,7 +38,7 @@ struct PositionSkipButton: View {
 
     var body: some View {
         Button(action: action) {
-            Text("Skip this move")
+            Text("Skip this position")
                 .dredfitFont(14, weight: .medium)
                 .foregroundStyle(Theme.ink2)
                 .frame(minHeight: 44)

@@ -20,7 +20,7 @@ struct AppSettings: Codable, Equatable {
     /// side — the pull slot stands in EVERY session against a weekly budget of
     /// three (`weeklyRiseSlow`), so a fifth session inside one week cannot
     /// grow it at all. And the app already said it in words on two screens:
-    /// "3–4 workouts a week" in How it works and "2–3 rest days a week" under
+    /// "3–4 workouts a week" in How it works and "3–4 rest days a week" under
     /// the chips overlap in exactly one place, and this is it.
     ///
     /// Spread, never adjacent: the gaps come out 1-2-2-2, so no day is ever

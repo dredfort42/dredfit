@@ -159,7 +159,7 @@ final class SetsNoticeTests: AppStoreTestCase {
         // went with the third: R30 moved the variation handle into the
         // technique sheet, and the six keys below are what it says there.
         let keys = [
-            "A set is back — your body is coping.",
+            "A set is back — your body is keeping up.",
             "Make it easier",
             "Enter what you actually did. The plan follows your numbers.",
             // The two escapes under the button that logs the set, and what

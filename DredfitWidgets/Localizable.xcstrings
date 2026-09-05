@@ -249,13 +249,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nächstes Training %@"
+            "value": "Training %@"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Siguiente entrenamiento %@"
+            "value": "Entrenas %@"
           }
         },
         "fr": {
@@ -326,7 +326,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Далее: тренировка %lld · %@"
+            "value": "Следующая: тренировка %lld · %@"
           }
         }
       }
@@ -577,19 +577,19 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Día de entrenamiento"
+            "value": "Entrenamiento"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jour d’entraînement"
+            "value": "Jour de séance"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Giorno di allenamento"
+            "value": "Allenamento"
           }
         },
         "pt-BR": {
@@ -606,7 +606,7 @@
         }
       }
     },
-    "Workout, done or a rest day at a glance.": {
+    "Workout, done, or rest day — at a glance.": {
       "extractionState": "manual",
       "localizations": {
         "de": {

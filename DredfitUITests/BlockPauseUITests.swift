@@ -70,7 +70,7 @@ final class BlockPauseUITests: XCTestCase {
         // flag says. Onto the next position's, which the flag does hold open.
         XCTAssertTrue(app.staticTexts[AX.warmupCountdown].waitForExistence(timeout: 10),
                       "the count-in must hand the first move over on its own")
-        app.buttons["Skip this move"].tap()
+        app.buttons["Skip this position"].tap()
         XCTAssertTrue(app.buttons[AX.getReadyStart].waitForExistence(timeout: 5),
                       "skipping a move lands on the next position's transition")
 

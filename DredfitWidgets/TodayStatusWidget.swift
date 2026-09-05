@@ -324,7 +324,7 @@ struct TodayStatusWidget: Widget {
             TodayStatusView(entry: entry)
         }
         .configurationDisplayName(String(localized: "Today's status"))
-        .description(String(localized: "Workout, done or a rest day at a glance."))
+        .description(String(localized: "Workout, done, or rest day — at a glance."))
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge,
                             .accessoryCircular, .accessoryRectangular, .accessoryInline])
     }

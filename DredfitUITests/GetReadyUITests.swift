@@ -44,7 +44,7 @@ final class GetReadyUITests: XCTestCase {
         XCTAssertTrue(move.waitForExistence(timeout: 10),
                       "the count-in must hand the first move over on its own")
 
-        app.buttons["Skip this move"].tap()
+        app.buttons["Skip this position"].tap()
         XCTAssertTrue(transition.waitForExistence(timeout: 3),
                       "every position gets its own transition")
         // The label VoiceOver reads: kicker and name are one phrase.
@@ -102,7 +102,7 @@ final class GetReadyUITests: XCTestCase {
         app.buttons[AX.warmupStart].tap()
         XCTAssertTrue(app.staticTexts[AX.warmupCountdown].waitForExistence(timeout: 10),
                       "the count-in must hand the first move over on its own")
-        app.buttons["Skip this move"].tap()
+        app.buttons["Skip this position"].tap()
         XCTAssertTrue(app.buttons[AX.getReadyStart].waitForExistence(timeout: 5))
         app.buttons[AX.skipWarmup].tap()
         XCTAssertTrue(app.buttons[AX.exerciseDone].waitForExistence(timeout: 3),

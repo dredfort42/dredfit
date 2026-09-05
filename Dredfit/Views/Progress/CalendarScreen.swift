@@ -199,7 +199,7 @@ struct CalendarScreen: View {
         case .done:    return date + ", " + String(localized: "completed")
         case .planned: return date + ", " + String(localized: "planned")
         case .today:   return date + ", " + String(localized: "today")
-        case .rest:    return date + ", " + String(localized: "rest")
+        case .rest:    return date + ", " + String(localized: "rest day")
         // Just the date: VoiceOver gets the same silence about a missed day.
         case .missed, .out: return date
         }
@@ -279,7 +279,7 @@ struct CalendarScreen: View {
         HStack(spacing: 16) {
             legendItem(AnyView(Circle().fill(Theme.ink)), label: String(localized: "completed"))
             legendItem(AnyView(Circle().stroke(Theme.planned, lineWidth: 1.5)), label: String(localized: "planned"))
-            legendItem(AnyView(Circle().fill(Theme.restFill)), label: String(localized: "rest"))
+            legendItem(AnyView(Circle().fill(Theme.restFill)), label: String(localized: "rest day"))
             legendItem(AnyView(Circle().stroke(Theme.accent, lineWidth: 2)), label: String(localized: "today"))
         }
         .frame(maxWidth: .infinity)

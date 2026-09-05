@@ -84,7 +84,7 @@ struct HeldSetCard: View {
     /// estimate says so first — it is a statement about how much the number
     /// can be trusted, which outranks anything it can be compared against.
     private var caption: Text {
-        if held.approximate { return Text("set \(held.index + 1) · tapped") }
+        if held.approximate { return Text("set \(held.index + 1) · stopped by hand") }
         if let over = held.over { return Text("set \(held.index + 1) · +\(over)") }
         if unevenPlan { return Text("set \(held.index + 1) · planned \(held.planned)") }
         return Text("set \(held.index + 1)")
