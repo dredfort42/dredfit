@@ -184,7 +184,7 @@ struct FeedbackView: View {
                 // part that matters — whichever of the three cards you choose
                 // — folded into an idiom. "These movements" also covers the
                 // row that says "not finished", which is in this list too.
-                Text("The rating doesn't apply to these — they stay as they were.")
+                Text("The rating doesn't apply to these movements — they stay as they were.")
                     .dredfitFont(12.5)
                     .foregroundStyle(Theme.ink2)
             }

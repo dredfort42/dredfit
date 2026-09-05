@@ -200,7 +200,7 @@ struct TodayView: View {
             // person is complaining about instead of taking it away.
             if store.shouldAskAboutSuspect(), let suspect = store.unnamedLessSuspect() {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Tough sessions keep landing on \(suspect.displayName).")
+                    Text("Tough workouts keep landing on \(suspect.displayName).")
                         .dredfitFont(13.5)
                         .foregroundStyle(Theme.ink2)
                         .fixedSize(horizontal: false, vertical: true)
@@ -425,7 +425,7 @@ struct TodayView: View {
     private var resultCaption: String {
         switch store.lastRecord?.result {
         case .less: return String(localized: "Rating: tough — the next one will be easier")
-        case .plan: return String(localized: "Rating: on plan — the next adds a step to the movements that have room for one")
+        case .plan: return String(localized: "Rating: on plan — the next one adds a step to the movements that have room for one")
         case .more: return String(localized: "Rating: easy — progressing as fast as each movement allows")
         case nil:   return ""
         }

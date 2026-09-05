@@ -1,6 +1,53 @@
 # Changelog
 
-## Unreleased
+## 2.2.1
+
+**Seven languages read against the canon, and the canon wins.** A review of
+every string a person can read — the four String Catalogs in six languages and
+their English source, the website, the App Store copy and the screenshot
+captions — was run through the translator's own rules and then through one
+skeptic per language, who had to refute each finding against the stored text
+and the code before it counted. About five hundred confirmed corrections land
+here, and most of them are one rule applied everywhere it had drifted: the
+letter «е» instead of «ё» across the Russian technique prose, one Russian word
+for seconds instead of two, the short German dash and «min» in the thirty-odd
+strings that still carried the long one, «Abwärmen», «enfriamiento» and
+«desaquecimento» wherever the cool-down had been named a second way, «omitir»
+and «pulado» wherever a skip had a third verb, the pike push-up and calf-raise
+families named the same way on every rung, the straight apostrophe gone from
+the Italian technique steps, and a warm-up line that addressed the reader as
+«vous» now on «tu». The rest-day legend in the calendar says a rest day in
+German and Italian instead of the pause between sets, and the technique sheet's
+easier step is called what it is — a variation — in the English source as well
+as in the six translations that already said so.
+
+**The English source stops misleading its translators.** «Skip this move» skips
+a warm-up or cool-down position and is now named after it; the hold summary's
+«tapped» caption says the hold was stopped by hand; «Tough sessions» are
+workouts, like everywhere else; the migration card's progress «carried over»
+rather than «came across»; the Health permission string names biological sex
+among the values the app reads, because it does; the settings footer's «2–3
+rest days a week» now agrees with the «3–4 workouts a week» the app recommends
+in How it works; and seven keys whose meaning every translator had to guess —
+the step counters on the progress row, «Held», «Skips», the « /side» suffix,
+the rating shorthand — carry a translator comment that says what they mean.
+
+**The store copy and the site say what the app does.** The English What to
+Test bullet had the count-in the wrong way round against R32 — a set the run
+opens rolls straight in on the rest's own 3-2-1, and only a set bought with a
+tap gets its own count-in — and the Spanish and Russian versions of it are
+corrected with it; the Description no longer promises that a failed probe
+«comes back next time», which the engine does not guarantee after a hard
+rating; the Russian promotional text no longer opens with a «floor» the listing
+was told not to name; and thirteen screenshot captions break on the sense of
+the phrase, or drop a calque a native reader would hear.
+
+**Deliberately left as they are.** The masculine past tense that addresses the
+reader in the Russian How-it-works cards («Справился», «ты показал») waits for
+a way to address the athlete by the sex Health already reports rather than a
+neutral rewrite; the unit «sec» under the big countdown number, the «step 0 of
+47» VoiceOver count, the store copy's use of «position» for variation-plus-dose
+and the Health export button's verb are owner decisions and unchanged.
 
 **The progress row counts down without explaining itself.** Under every pattern
 the line beside the step count told you how far the next movement is and then

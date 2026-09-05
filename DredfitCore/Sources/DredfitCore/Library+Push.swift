@@ -147,7 +147,7 @@ extension ExerciseLibrary {
                      steps: [
                          String(localized: "Getting in: face away from the wall, hands a palm's length from it, and walk your feet up until your heels rest on it.", bundle: .module),
                          String(localized: "Bend the elbows slowly, lowering the top of the head toward the floor.", bundle: .module),
-                         String(localized: "Getting out: walk the feet back down the wall. If you have to bail mid-rep, turn your head to one side and step over — never collapse straight down.",
+                         String(localized: "Getting out: walk the feet back down the wall. If you have to come down mid-rep, turn your head to one side and step over — never collapse straight down.",
                                 bundle: .module),
                      ],
                      mistakes: [

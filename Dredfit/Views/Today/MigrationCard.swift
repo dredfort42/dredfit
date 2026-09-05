@@ -17,7 +17,7 @@ struct MigrationCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Your progress came across")
+            Text("Your progress carried over")
                 .dredfitFont(20, weight: .heavy)
                 .tracking(-0.3)
                 .foregroundStyle(Theme.ink)

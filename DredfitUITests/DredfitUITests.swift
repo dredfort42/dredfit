@@ -417,7 +417,7 @@ final class DredfitUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Get ready: Marching in place"].exists,
                       "the first warm-up move is missing")
         // one impossible move must not cost the other five
-        app.buttons["Skip this move"].tap()
+        app.buttons["Skip this position"].tap()
         XCTAssertTrue(app.staticTexts["Get ready: Arm circles"].waitForExistence(timeout: 3),
                       "skipping one move must advance to the next, not exit")
         app.buttons[AX.skipWarmup].tap()

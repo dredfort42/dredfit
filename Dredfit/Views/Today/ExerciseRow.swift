@@ -66,7 +66,7 @@ struct ExerciseRow: View {
     /// side of the line, with the view that draws it.
     static func note(setCameBack: Bool) -> String? {
         guard setCameBack else { return nil }
-        return String(localized: "A set is back — your body is coping.")
+        return String(localized: "A set is back — your body is keeping up.")
     }
 
     /// The other one, and it exists because the row was quietly lying without

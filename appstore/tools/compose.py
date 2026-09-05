@@ -116,17 +116,17 @@ jobs = [
     #        intro, said by the screen that says it in words (R23/R28).
     #        Taken on the walk to the rating, not on a route of its own.
     (f"{RAW}/handsfree_en.png",   ["Put the phone down"], "One tap runs the whole exercise. Sound counts you in and out.", f"{OUT}/en/s3.png"),
-    (f"{RAW}/handsfree_ru.png",   ["Телефон можно", "положить"], "Одно касание — и упражнение идет само. Звук ведет счет.", f"{OUT}/ru/s3.png"),
-    (f"{RAW}/handsfree_es.png",   ["Suelta el teléfono", "en el suelo"], "Un toque hace todo el ejercicio. El sonido cuenta por ti.", f"{OUT}/es/s3.png"),
-    (f"{RAW}/handsfree_pt-br.png", ["Solte o celular", "no chão"], "Um toque comanda todo o exercício. O som marca início e fim.", f"{OUT}/pt-br/s3.png"),
-    (f"{RAW}/handsfree_de.png",   ["Leg das Handy weg"], "Ein Tipp startet die Übung – der Ton zählt dich rein und raus.", f"{OUT}/de/s3.png"),
+    (f"{RAW}/handsfree_ru.png",   ["Телефон", "можно положить"], "Одно касание — и упражнение идет само. Звук ведет счет.", f"{OUT}/ru/s3.png"),
+    (f"{RAW}/handsfree_es.png",   ["Deja el teléfono", "en el suelo"], "Un toque hace todo el ejercicio. El sonido cuenta por ti.", f"{OUT}/es/s3.png"),
+    (f"{RAW}/handsfree_pt-br.png", ["Largue o celular", "no chão"], "Um toque comanda todo o exercício. O som marca início e fim.", f"{OUT}/pt-br/s3.png"),
+    (f"{RAW}/handsfree_de.png",   ["Leg das Handy weg"], "Ein Tipp für die ganze Übung – der Ton zählt dich rein und raus.", f"{OUT}/de/s3.png"),
     (f"{RAW}/handsfree_fr.png",   ["Pose le téléphone"], "Une pression lance tout l’exercice. Le son marque le début et la fin.", f"{OUT}/fr/s3.png"),
     (f"{RAW}/handsfree_it.png",   ["Appoggia il telefono"], "Un tocco avvia tutto l’esercizio. Il suono segna inizio e fine.", f"{OUT}/it/s3.png"),
     # --- 4. probe_ — new in 2.0.0, replaces milestone_ (see the note below),
     #        and the first of the seven slots that only have to confirm.
     (f"{RAW}/probe_en.png",      ["Nothing unlocks itself"], "One set of the next movement decides — not a calendar.", f"{OUT}/en/s4.png"),
-    (f"{RAW}/probe_ru.png",      ["Само ничего", "не откроется"], "Один подход нового движения решает — не календарь.", f"{OUT}/ru/s4.png"),
-    (f"{RAW}/probe_es.png",      ["Nada se desbloquea solo."], "Una serie del siguiente movimiento decide — no un calendario.", f"{OUT}/es/s4.png"),
+    (f"{RAW}/probe_ru.png",      ["Само ничего", "не откроется"], "Один подход следующего движения решает — не календарь.", f"{OUT}/ru/s4.png"),
+    (f"{RAW}/probe_es.png",      ["Nada se desbloquea solo"], "Una serie del siguiente movimiento decide — no un calendario.", f"{OUT}/es/s4.png"),
     (f"{RAW}/probe_pt-br.png",   ["Nada se desbloqueia", "sozinho"], "Uma série do próximo movimento decide — não um calendário.", f"{OUT}/pt-br/s4.png"),
     (f"{RAW}/probe_de.png",      ["Nichts schaltet sich", "von selbst frei"], "Eine Probe der nächsten Bewegung entscheidet – kein Kalender.", f"{OUT}/de/s4.png"),
     (f"{RAW}/probe_fr.png",      ["Rien ne se débloque", "tout seul"], "Une série de la variante suivante décide, pas le calendrier.", f"{OUT}/fr/s4.png"),
@@ -136,22 +136,22 @@ jobs = [
     #        is what draws the step below, so no other door composes this.
     (f"{RAW}/technique_en.png",   ["Always a version", "you can do"], "Technique for every movement — and the easier version.", f"{OUT}/en/s5.png"),
     (f"{RAW}/technique_ru.png",   ["Всегда есть", "вариация полегче"], "У каждого движения — техника и вариация полегче.", f"{OUT}/ru/s5.png"),
-    (f"{RAW}/technique_es.png",   ["Siempre hay una", "variación más fácil"], "Técnica para cada movimiento — y la variación más fácil.", f"{OUT}/es/s5.png"),
+    (f"{RAW}/technique_es.png",   ["Siempre hay una versión", "que puedes hacer"], "Técnica para cada movimiento — y la variación más fácil.", f"{OUT}/es/s5.png"),
     (f"{RAW}/technique_pt-br.png", ["Sempre existe uma", "variação possível"], "Técnica para cada movimento — e a variação mais fácil.", f"{OUT}/pt-br/s5.png"),
     (f"{RAW}/technique_de.png",   ["Immer eine", "leichtere Variante"], "Technik zu jeder Bewegung – und die leichtere Variante.", f"{OUT}/de/s5.png"),
     (f"{RAW}/technique_fr.png",   ["Toujours une", "variante plus facile"], "La technique de chaque mouvement — et la variante plus facile.", f"{OUT}/fr/s5.png"),
     (f"{RAW}/technique_it.png",   ["Sempre c’è una", "variante che puoi fare"], "Tecnica per ogni movimento — e la variante più facile.", f"{OUT}/it/s5.png"),
     # --- 6. set_
     (f"{RAW}/set_en.png",        ["One focus at a time"], "Big numbers, one tap per set.", f"{OUT}/en/s6.png"),
-    (f"{RAW}/set_ru.png",        ["Один фокус за раз"], "Крупные цифры, одно касание на подход.", f"{OUT}/ru/s6.png"),
-    (f"{RAW}/set_es.png",        ["Un enfoque a la vez"], "Números grandes, un toque por serie.", f"{OUT}/es/s6.png"),
+    (f"{RAW}/set_ru.png",        ["Одно дело за раз"], "Крупные цифры, одно касание на подход.", f"{OUT}/ru/s6.png"),
+    (f"{RAW}/set_es.png",        ["Una cosa a la vez"], "Números grandes, un toque por serie.", f"{OUT}/es/s6.png"),
     (f"{RAW}/set_pt-br.png",     ["Um foco por vez"], "Números grandes, um toque por série.", f"{OUT}/pt-br/s6.png"),
     (f"{RAW}/set_de.png",        ["Ein Fokus auf einmal"], "Große Zahlen, ein Fingertipp pro Satz.", f"{OUT}/de/s6.png"),
     (f"{RAW}/set_fr.png",        ["Une série à la fois"], "De grands chiffres, une pression par série.", f"{OUT}/fr/s6.png"),
     (f"{RAW}/set_it.png",        ["Un obiettivo alla volta"], "Numeri grandi, un tocco per ogni serie.", f"{OUT}/it/s6.png"),
     # --- 7. skip_ — the decision inside the workout (§38.2).
     (f"{RAW}/skip_en.png",       ["Too much today?"], "Skip a set while you are doing it. The clock follows.", f"{OUT}/en/s7.png"),
-    (f"{RAW}/skip_ru.png",       ["Сегодня многовато?"], "Пропусти подход прямо на тренировке. Время пересчитается.", f"{OUT}/ru/s7.png"),
+    (f"{RAW}/skip_ru.png",       ["Сегодня многовато?"], "Пропусти подход прямо по ходу. Время пересчитается.", f"{OUT}/ru/s7.png"),
     (f"{RAW}/skip_es.png",       ["¿Hoy es demasiado?"], "Omite una serie mientras entrenas. El tiempo se ajusta solo.", f"{OUT}/es/s7.png"),
     (f"{RAW}/skip_pt-br.png",    ["Hoje é demais?"], "Pule uma série durante o treino. O tempo se recalcula.", f"{OUT}/pt-br/s7.png"),
     (f"{RAW}/skip_de.png",       ["Heute zu viel?"], "Überspringe einen Satz mitten im Training – die Zeit passt sich an.", f"{OUT}/de/s7.png"),
@@ -159,12 +159,12 @@ jobs = [
     (f"{RAW}/skip_it.png",       ["Oggi è troppo?"], "Salta una serie durante l’allenamento: il tempo si ricalcola.", f"{OUT}/it/s7.png"),
     # --- 8. progress_
     (f"{RAW}/progress_en.png",   ["Progress you can see"], "Every movement, step by step.", f"{OUT}/en/s8.png"),
-    (f"{RAW}/progress_ru.png",   ["Прогресс, который", "видно"], "Каждое движение, ступень за ступенью.", f"{OUT}/ru/s8.png"),
+    (f"{RAW}/progress_ru.png",   ["Прогресс,", "который видно"], "Каждое движение, ступень за ступенью.", f"{OUT}/ru/s8.png"),
     (f"{RAW}/progress_es.png",   ["Progreso que puedes ver"], "Cada movimiento, paso a paso.", f"{OUT}/es/s8.png"),
     (f"{RAW}/progress_pt-br.png", ["Progresso que você vê"], "Cada movimento, passo a passo.", f"{OUT}/pt-br/s8.png"),
     (f"{RAW}/progress_de.png",   ["Fortschritt,", "den du siehst"], "Jede Bewegung, Stufe für Stufe.", f"{OUT}/de/s8.png"),
     (f"{RAW}/progress_fr.png",   ["Une progression visible"], "Chaque mouvement, cran après cran.", f"{OUT}/fr/s8.png"),
-    (f"{RAW}/progress_it.png",   ["Progressi che si", "vedono"], "Ogni movimento, un gradino alla volta.", f"{OUT}/it/s8.png"),
+    (f"{RAW}/progress_it.png",   ["Progressi che", "si vedono"], "Ogni movimento, un gradino alla volta.", f"{OUT}/it/s8.png"),
     # --- 9. howitworks_ — the number in the subtitle IS the section count of
     #        HowItWorksView (twelve today). Re-read that file every release;
     #        the checklist names this frame by RAW, never by slot number.
@@ -179,7 +179,7 @@ jobs = [
     #         a depth that GROWS WITH THE BREAK, not a fixed "couple of steps".
     (f"{RAW}/comeback_en.png",   ["Breaks are normal"], "The longer the break, the lower the plan meets you.", f"{OUT}/en/s10.png"),
     (f"{RAW}/comeback_ru.png",   ["Возвращаться легко"], "Чем длиннее перерыв, тем ниже встретит план.", f"{OUT}/ru/s10.png"),
-    (f"{RAW}/comeback_es.png",   ["Las pausas son normales"], "Cuanto más larga la pausa, más bajo te recibe el plan.", f"{OUT}/es/s10.png"),
+    (f"{RAW}/comeback_es.png",   ["Las pausas son normales"], "Cuanto más larga la pausa, más abajo te espera el plan.", f"{OUT}/es/s10.png"),
     (f"{RAW}/comeback_pt-br.png", ["Pausas são normais"], "Quanto mais longa a pausa, mais abaixo o plano espera você.", f"{OUT}/pt-br/s10.png"),
     (f"{RAW}/comeback_de.png",   ["Trainingspausen", "sind normal"], "Je länger die Pause, desto tiefer holt dich der Plan ab.", f"{OUT}/de/s10.png"),
     (f"{RAW}/comeback_fr.png",   ["Les coupures,", "c’est normal"], "Plus la coupure est longue, plus bas le plan te retrouve.", f"{OUT}/fr/s10.png"),

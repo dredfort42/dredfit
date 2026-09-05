@@ -25,7 +25,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dredfit reads your weight, height, age and resting energy to estimate the calories of a workout, and your other workouts so the same session is not counted twice. Nothing leaves this device."
+            "value" : "Dredfit reads your weight, height, age, biological sex and resting energy to estimate the calories of a workout, and your other workouts so the same session is not counted twice. Nothing leaves this device."
           }
         },
         "es" : {
@@ -37,7 +37,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dredfit lit ton poids, ta taille, ton âge et ton énergie au repos pour estimer les calories d’une séance, et tes autres séances pour ne pas compter deux fois la même. Rien ne quitte cet appareil."
+            "value" : "Dredfit lit ton poids, ta taille, ton âge, ton sexe et ton énergie au repos pour estimer les calories d’une séance, et tes autres séances pour ne pas compter deux fois la même. Rien ne quitte cet appareil."
           }
         },
         "it" : {
@@ -49,13 +49,13 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "O Dredfit lê seu peso, altura, idade e energia em repouso para estimar as calorias de um treino, e seus outros treinos para não contar a mesma sessão duas vezes. Nada sai deste dispositivo."
+            "value" : "O Dredfit lê seu peso, altura, idade, sexo biológico e energia em repouso para estimar as calorias de um treino, e seus outros treinos para não contar a mesma sessão duas vezes. Nada sai deste dispositivo."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dredfit читает вес, рост, возраст и энергию покоя, чтобы оценить калории тренировки, и другие тренировки — чтобы одна сессия не засчиталась дважды. Ничего не покидает это устройство."
+            "value" : "Dredfit читает вес, рост, возраст и энергию покоя, чтобы оценить калории тренировки, и другие тренировки — чтобы не засчитать одну и ту же дважды. Ничего не покидает это устройство."
           }
         }
       }
@@ -66,7 +66,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dredfit sichert abgeschlossene Trainings mit den geschätzten Kalorien in Health. Sonst wird nichts weitergegeben."
+            "value" : "Dredfit speichert abgeschlossene Trainings mit den geschätzten Kalorien in Health. Sonst wird nichts weitergegeben."
           }
         },
         "en" : {
