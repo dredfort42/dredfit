@@ -23,12 +23,13 @@ enum BlockPause {
     /// travel time", while the test pinning it said being counted back into a
     /// position you walked away from IS travel. Ten seconds is a long wait for
     /// someone standing on the mat with a thumb on Resume. Owner's decision,
-    /// 27.08.2026: it is a count-in, and it is five.
+    /// 27.08.2026: it is a count-in — and it is whatever the count-in is,
+    /// which went 5 → 4 on 06.09.2026.
     ///
-    /// The 3-2-1 still fits with two beats to spare (`countdownSignalSeconds`
-    /// is 3), and the reserve the two blocks are budgeted to the second
-    /// against is untouched: a pause is not part of the announced duration,
-    /// and this can only make a paused session shorter.
+    /// The 3-2-1 still fits, now with ONE beat to spare rather than two
+    /// (`countdownSignalSeconds` is 3), and the reserve the two blocks are
+    /// budgeted against is untouched: a pause is not part of the announced
+    /// duration, and this can only make a paused session shorter.
     static var reentrySeconds: Int { GetReady.countInSeconds }
 
     /// How far past a stage boundary a block may run and still just carry on.

@@ -11,10 +11,11 @@ import Foundation
 
 enum GetReady {
 
-    /// 5 → 10. Five seconds to change posture is a rush, and it is what people
-    /// said about it. The reserve this is spent against was raised to match by
-    /// the engine, not here — see `setupSupplementSec`.
-    static let seconds = 10
+    /// 5 → 10 → 8. Five seconds to change posture was a rush and people said
+    /// so; ten turned out to be longer than the change takes, and the block
+    /// spent the difference on standing still (owner, 06.09.2026). The reserve
+    /// this is spent against is the engine's — see `setupSupplementSec`.
+    static let seconds = 8
 
     /// The supplement of issue #83, on top of `seconds`, for a position that
     /// changes the starting position (standing → the floor) or needs a prop
@@ -31,18 +32,25 @@ enum GetReady {
     ///     warm-up   6 moves, one supplemented   5×(base+30) + (base+5+30)
     ///     cool-down 6 poses, five supplemented  5×(base+5+35) + (base+35)
     ///
-    /// At a 5-second base that is 215 + 265 = 480 s = 8:00; at a 10-second
-    /// base it is 245 + 295 = 540 s = 9:00. Buying one more second is an
-    /// ENGINE change, not an app one, and the engine has already made it
-    /// once: the base transition doubled to 10 s — five seconds is not enough
-    /// to change posture without hurrying — and `cooldownMin` rose from 3 to
-    /// 4 to pay for it. The price is named rather than absorbed: every
-    /// announced session duration grew by exactly one minute, and the
-    /// engine's own acceptance asserts "grew by 1.0", not "unchanged".
+    /// Buying one more second is an ENGINE change, not an app one, and the
+    /// engine has already made it once: the base transition doubled to 10 s —
+    /// five seconds is not enough to change posture without hurrying — and
+    /// `cooldownMin` rose from 3 to 4 to pay for it. The price was named
+    /// rather than absorbed: every announced session duration grew by exactly
+    /// one minute, and the engine's own acceptance asserts "grew by 1.0".
     ///
-    /// The reserve is again spent to the second, so the warning stands: the
-    /// next second has to be bought from the engine too.
-    static let setupSupplementSec = 5
+    /// SHORTENING is the safe direction, and on 06.09.2026 the base went to 8
+    /// (supplemented stage 12). The worst pair is now 520 s against a reserve
+    /// of 600, so ten minutes is no longer the smallest whole minute that
+    /// fits — nine would hold it. **The owner kept ten** (06.09.2026): giving
+    /// the minute back is the same engine wave in reverse and would take a
+    /// minute off every announced duration, the onboarding line and the store
+    /// listing, to reclaim slack nobody is short of.
+    ///
+    /// So the warning is now one-sided and still stands: seconds may be given
+    /// back here freely, but the next second SPENT has to be bought from the
+    /// engine. `BlockReserveTests` holds the floor and the ceiling.
+    static let setupSupplementSec = 4
 
     /// The count-in a START TAP earns before any clock runs.
     ///
@@ -62,11 +70,21 @@ enum GetReady {
     /// may only SHORTEN what is already running (see `countInWarmupMove`) —
     /// the two blocks are budgeted to the second, so a tap that lengthened one
     /// would spend a reserve this layer does not own.
+    /// 5 → 4 (owner, 06.09.2026), with the transition and the side-switch
+    /// pause. It stays the SHORTEST of the three — travel to a position is
+    /// eight seconds, turning over inside one is four, and being counted in
+    /// after saying "ready" is four as well: the last two are the same act
+    /// from the athlete's side, and they are one number again.
+    ///
+    /// Four still holds the 3-2-1 (`countdownSignalSeconds` is 3) with one
+    /// beat to spare rather than two. Three would put the first tick under
+    /// the thumb that asked for it, which is the whole reason this beat
+    /// exists — so four is the floor, not a waypoint.
     static var countInSeconds: Int {
         #if DEBUG
         if CommandLine.arguments.contains("--uitest-fast") { return 1 }
         #endif
-        return 5
+        return 4
     }
 
     /// The two lengths a transition can have. The side-switch pause and the

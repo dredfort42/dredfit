@@ -20,9 +20,14 @@ final class BlockPauseTests: XCTestCase {
         // and once against the NUMBER — a pin that only says "equals that
         // other symbol" moves silently when the symbol does.
         XCTAssertEqual(BlockPause.reentrySeconds, GetReady.countInSeconds)
-        XCTAssertEqual(BlockPause.reentrySeconds, 5)
+        XCTAssertEqual(BlockPause.reentrySeconds, 4)
+        // Five together, then four together (owner, 06.09.2026): the switch
+        // pause went on trial and the count-in followed it down, so the two
+        // are one number again. Pinned as an equality AND by value above, per
+        // §41.8 — a pin that only says "equals that other symbol" moves
+        // silently when the symbol does, and one of these two is under trial.
         XCTAssertEqual(BlockPause.reentrySeconds, Cooldown.sideSwitchPauseSec,
-                       "the side-switch pause is the same beat, and they are one number again")
+                       "the way back in and the switch are the same beat")
         XCTAssertLessThan(BlockPause.reentrySeconds, GetReady.seconds,
                           "travel to a position is longer than being counted back into one")
     }
