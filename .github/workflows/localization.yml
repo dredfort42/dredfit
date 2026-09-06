@@ -1,11 +1,20 @@
 name: Localization
 
-# Fails if any shipping language (de, es, fr, it, pt-BR, ru) is missing a translation in a
-# String Catalog. English is the source language. Fast (~10s, ubuntu) and runs
-# on every push/PR, so it is a required check — see .github/WORKFLOWS.md.
+# Two checks over the String Catalogs, in one required job (see .github/WORKFLOWS.md).
+# English is the source language. Fast (~10s, ubuntu) and runs on every push/PR.
 #
-# Intentional same-as-source keys (punctuation, brand name) are declared in
-# scripts/localization_config.json.
+# 1. COMPLETENESS — is every key translated into de, es, fr, it, pt-BR, ru.
+#    Intentional same-as-source keys (punctuation, brand name) are declared in
+#    scripts/localization_config.json.
+# 2. RULES — is the translation still the one the canon asked for: the Russian
+#    е, the French U+00A0/U+202F and apostrophe, the German dash and units, the
+#    forms of address, the placeholders. The seven-language review of 2026-09
+#    found 41 Russian strings drifted back to "ё" and 36 German ones to the long
+#    dash, all of them under a green completeness check — a gate of completeness
+#    is not a gate of truthfulness, so both run here. Exceptions, with reasons,
+#    go in scripts/translation_rules_config.json.
+#
+# Both steps run even if the first fails, so one push shows both answers.
 
 on:
   push:
@@ -27,4 +36,9 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Check String Catalog completeness
+        id: completeness
         run: python3 scripts/check_localization.py
+
+      - name: Check translation rules the completeness check cannot see
+        if: always() && steps.completeness.outcome != 'skipped'
+        run: python3 scripts/check_translation_rules.py
