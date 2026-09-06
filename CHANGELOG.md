@@ -126,18 +126,19 @@ the rating shorthand — carry a translator comment that says what they mean.
 Test bullet had the count-in the wrong way round against R32 — a set the run
 opens rolls straight in on the rest's own 3-2-1, and only a set bought with a
 tap gets its own count-in — and the Spanish and Russian versions of it are
-corrected with it; the Description no longer promises that a failed probe
-«comes back next time», which the engine does not guarantee after a hard
-rating; the Russian promotional text no longer opens with a «floor» the listing
+corrected with it; the English Description no longer promises that a failed
+probe «comes back next time», which the engine does not guarantee after a hard
+rating — the six other listings still carry that sentence and are corrected
+with the next showcase; the Russian promotional text no longer opens with a «floor» the listing
 was told not to name; and thirteen screenshot captions break on the sense of
 the phrase, or drop a calque a native reader would hear.
 
 **Deliberately left as they are.** The masculine past tense that addresses the
 reader in the Russian How-it-works cards («Справился», «ты показал») waits for
 a way to address the athlete by the sex Health already reports rather than a
-neutral rewrite; the unit «sec» under the big countdown number, the «step 0 of
-47» VoiceOver count, the store copy's use of «position» for variation-plus-dose
-and the Health export button's verb are owner decisions and unchanged.
+neutral rewrite; the unit «sec» under the big countdown number, the store
+copy's use of «position» for variation-plus-dose and the Health export button's
+verb are owner decisions and unchanged.
 
 **The progress row counts down without explaining itself.** Under every pattern
 the line beside the step count told you how far the next movement is and then
@@ -152,10 +153,12 @@ moved: `golden.json` is byte-for-byte the fixture 2.2.0 shipped, and the
 reference's own verifier still reports 74 772 property checks with zero
 failures. What did change inside `DredfitCore` is text — one technique
 instruction reworded in English, and the translations the language review
-above brought back to the canon. There is no migration either: the state and
-journal formats are the same, with one optional field added to each in the way
-every added field is added — absent from anything an older build wrote, and
-read as "not measured" rather than as zero.
+above brought back to the canon. There is no migration either. The engine's
+own persisted state gained nothing at all — `EngineState.swift` is byte-for-byte
+what 2.2.0 shipped. The journal gained one optional field, and so did the
+settings and the in-progress snapshot, each in the way every added field is
+added: absent from anything an older build wrote, and read as "not measured"
+rather than as zero.
 
 ## 2.2.0
 
