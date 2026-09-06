@@ -74,6 +74,20 @@ struct HeldSetCard: View {
             .padding(.horizontal, 10)
             .background(accented ? Theme.accentSoft : Theme.cardBG,
                         in: RoundedRectangle(cornerRadius: 16))
+            // The outline is the affordance. Dressed in fill and radius alone
+            // the card was identical to the flow's NON-tappable information
+            // panel (FeedbackView), and the only thing saying these numbers
+            // can be corrected was one 13 pt grey line under the row — the
+            // slot the owner has already called the one place nobody reads.
+            //
+            // `targetStroke` at 1.5, the same token every outlined control of
+            // the flow now wears (`flowSecondaryLabel`, the block escapes, the
+            // adjuster's steppers). Wave 2 put ink3 here, which is 2.35:1 in
+            // the light scheme: the affordance existed but sat under the 3:1
+            // 1.4.11 asks of it, so on the accented card it was quieter than
+            // the fill it was drawn on (finding 31, UX review 05.09.2026).
+            .overlay(RoundedRectangle(cornerRadius: 16)
+                .strokeBorder(Theme.targetStroke, lineWidth: 1.5))
         }
         .accessibilityIdentifier("summary-set-\(held.index + 1)")
         .accessibilityLabel(Text(spoken))

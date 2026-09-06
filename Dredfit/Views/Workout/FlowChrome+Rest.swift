@@ -7,14 +7,17 @@
 import SwiftUI
 
 /// The one line under the set dots: what the screen is doing right now, in
-/// order of precedence — a side switch, the second side, an entered actual,
-/// or plainly which set is up.
+/// order of precedence — the second side, an entered actual, or plainly which
+/// set is up.
+///
+/// The count-in and the side switch used to open this list, and they moved to
+/// the caption directly under the big number (`WorkoutFlowView.loadCaption`).
+/// Both are read from 1.5-2 m away, off a phone the screen itself told the
+/// person to put on the floor, and at that distance a 14 pt word under the
+/// dots is about 2.6 arc minutes — under the 5' it takes to recognise a
+/// letter at all. Repeating them here as well would only be the same
+/// unreadable word twice (UX review, 05.09.2026).
 struct WorkStatusCaption: View {
-    /// The count-in a start tap earns (`GetReady.countInSeconds`). First of
-    /// all of them, because while it runs the big number above is the
-    /// count-in's own seconds and this line is the only thing that says so.
-    let countingIn: Bool
-    let switchingSides: Bool
     let secondSide: Bool
     /// The movement's LAST hold is behind and its seconds are recorded, but
     /// the set is not closed yet (`WorkoutFlowView.holdSettled`). It outranks
@@ -29,20 +32,17 @@ struct WorkStatusCaption: View {
     /// the plan, so the caption is where the tap confirms itself.
     let setIndex: Int
     let sets: Int
-    /// What THIS set is planned to run at, and whether the exercise is uneven
-    /// at all. On an uneven plan the caption says the number, because "set 2
-    /// of 3" no longer tells you what to do — the sets differ. The actual
-    /// still outranks it: that is today's number.
+    /// What THIS set will run at, and whether that is worth printing. On an
+    /// uneven plan the caption says the number, because "set 2 of 3" no longer
+    /// tells you what to do — the sets differ. So does a set whose number was
+    /// carried DOWN by a shortfall behind it: that is a plan the person did
+    /// not choose and never saw named. The actual still outranks both: that is
+    /// a set already performed.
     var planned: Int = 0
     var uneven: Bool = false
 
     var body: some View {
-        if countingIn {
-            // The transition screens' own word, for the same beat.
-            accented(Text("Get ready"))
-        } else if switchingSides {
-            accented(Text("Switch sides"))
-        } else if secondSide {
+        if secondSide {
             accented(Text("second side"))
         } else if settled {
             accented(Text("Held"))
@@ -133,9 +133,27 @@ struct RestRing: View {
             .frame(width: min(ringSize, 330), height: min(ringSize, 330))
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(Text("\(remaining) seconds of rest left"))
+            // The label changes every second on an element a VoiceOver user is
+            // very likely to be sitting on — this is exactly the trait for it:
+            // the reader stops interrupting itself with the new number and the
+            // number stays there to be asked for. Without it the only way to
+            // hear the end of the rest was to hear all sixty seconds of it
+            // (UX review, 05.09.2026).
+            .accessibilityAddTraits(.updatesFrequently)
 
             VStack(spacing: 6) {
-                Kicker(text: String(localized: "Next up"))
+                // Two rests look identical and end differently: an ordinary
+                // one hands the screen back and WAITS for a tap, while the
+                // rest inside a hands-free hold run starts the next set on its
+                // own go. Only the Pause capsule below said so, and it says it
+                // by existing — the kicker is where the eye lands after the
+                // ring, so it is where the difference belongs. Keyed off the
+                // pause itself rather than a new flag: `onPauseToggle` is
+                // non-nil on exactly the rest whose clock starts something
+                // (R32, the doc comment above) (UX review, 05.09.2026).
+                Kicker(text: onPauseToggle == nil
+                       ? String(localized: "Next up")
+                       : String(localized: "Starts by itself"))
                 Text(nextLabel)
                     .dredfitFont(17, weight: .semibold)
             }

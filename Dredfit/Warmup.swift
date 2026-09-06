@@ -17,7 +17,12 @@
 //  switch — the only thing that has ever moved this block's length. Four of the
 //  nine have one: two are unilateral (single-leg RDL, bird dog) and two are
 //  circles whose own steps say to reverse direction halfway (arm circles, hip
-//  circles). A composition costs 245 s plus 5 s per such move, so 255 to 260.
+//  circles). A composition costs 240 s for its six slots and their transitions,
+//  plus the 5 s trip down to the floor when it draws a floor move, plus 5 s per
+//  split move: 255 to 260 with nothing set aside, and 250 to 265 once a move can
+//  be (finding 49 widened the rotation's window, and a widened window draws all
+//  four split moves — review 06.09.2026, which found `BlockReserveTests` still
+//  walking the no-hiding overload and so pinning 260 as the worst).
 //  `warmupMin` grew from 5 to 6 to pay for it — an ENGINE change, made through
 //  the reference chain, because the pair of blocks had spent the old reserve to
 //  the second.
@@ -164,25 +169,48 @@ enum Warmup {
 
     /// Always in the block: the two that open it cold and the one that takes
     /// the spine through its range.
+    ///
+    /// "Permanent" is about the ROTATION, not about the athlete: since finding
+    /// 49 a permanent move can be set aside like any other, and it then gives
+    /// its slot to a rotating one rather than shortening the block.
     private static let permanentIDs: Set<String> = ["marching", "arm-circles", "cat-cow"]
 
     // MARK: - Composition
 
-    /// The six moves of session `sessionNumber`.
+    /// The six moves of session `sessionNumber`, drawn from the pool of nine
+    /// with `hidden` set aside.
     ///
     /// Three are fixed; the other three step through the remaining six by one
     /// per session, so each rotating move appears in three sessions out of six
     /// and the block never repeats itself two weeks running. Deterministic in
-    /// the session number alone, which is what lets a restored snapshot
-    /// recompute the same list instead of carrying it.
-    static func moves(sessionNumber: Int) -> [WarmupMove] {
-        let all = pool
+    /// the session number and the hidden set alone, which is what lets a
+    /// restored snapshot recompute the same list instead of carrying it.
+    ///
+    /// Cat-cow used to fall in 100 % of sessions and the only way to say "not
+    /// this one" was the same tap, every workout, forever — for a sore wrist
+    /// that is the cost that makes people drop the whole block instead
+    /// (UX review 05.09.2026, finding 49).
+    static func moves(sessionNumber: Int, hiding hidden: Set<String>) -> [WarmupMove] {
+        // `pool` is a computed property that builds nine localized moves, so
+        // it is read ONCE here and everything below works off the array.
+        let whole = pool
+        let setAside = honoured(hidden, of: whole)
+        let all = whole.filter { !setAside.contains($0.id) }
+        let permanent = all.filter { permanentIDs.contains($0.id) }
         let rotating = all.filter { !permanentIDs.contains($0.id) }
-        let slots = moveCount - (all.count - rotating.count)
-        // Nonnegative modulo: a hand-edited session number can be anything,
-        // and Swift's % is a remainder.
-        let start = ((sessionNumber - 1) % rotating.count + rotating.count) % rotating.count
-        let chosen = Set((0..<slots).map { rotating[(start + $0) % rotating.count].id })
+        // A hidden permanent move widens the rotation's window instead of
+        // leaving a hole: nine in the pool against six on screen is exactly
+        // the slack `honoured` spends, so the block is always six.
+        let slots = min(max(moveCount - permanent.count, 0), rotating.count)
+        var chosen: Set<String> = []
+        if slots > 0 {
+            // Nonnegative modulo: a hand-edited session number can be
+            // anything, and Swift's % is a remainder. `rotating` is non-empty
+            // here — `slots > 0` cannot hold otherwise — but the guard is what
+            // says so out loud, because a % 0 is a crash, not a wrong list.
+            let start = ((sessionNumber - 1) % rotating.count + rotating.count) % rotating.count
+            chosen = Set((0..<slots).map { rotating[(start + $0) % rotating.count].id })
+        }
         var composed = all.filter { permanentIDs.contains($0.id) || chosen.contains($0.id) }
         // Only the FIRST floor move pays the supplement of issue #83: the trip
         // that changes the starting position is the trip down to the floor.
@@ -194,10 +222,49 @@ enum Warmup {
         return composed
     }
 
+    /// The block's own rule with nothing set aside — what the pool composes
+    /// before any athlete has said anything. The app never calls it.
+    ///
+    /// Nor does the reserve gate any more, except for the claims that are
+    /// explicitly about "before anything was set aside": `BlockReserveTests`
+    /// walked this overload for the WORST case and so measured a block the app
+    /// cannot draw — 260 s against the 265 the widened window costs (review
+    /// 06.09.2026). A convenience overload is a fine thing; a convenience
+    /// overload that a gate reaches for is how the gate stops watching.
+    static func moves(sessionNumber: Int) -> [WarmupMove] {
+        moves(sessionNumber: sessionNumber, hiding: [])
+    }
+
+    /// As many of `hidden` as the block can afford, in pool order.
+    ///
+    /// The guarantee that a block never empties lives HERE and not in the
+    /// settings that hold the list (finding 49): `AppStore.maxHiddenBlockMoves`
+    /// caps what the control can add, but a state file written by an older
+    /// build, an imported backup or a future cap must not be able to compose a
+    /// warm-up of two moves — or of none, which would index out of bounds on
+    /// the first screen. Six of nine are shown, so at most three can go.
+    private static func honoured(_ hidden: Set<String>, of whole: [WarmupMove]) -> Set<String> {
+        let affordable = max(whole.count - moveCount, 0)
+        guard hidden.count > affordable else { return hidden }
+        return Set(whole.map(\.id).filter(hidden.contains).prefix(affordable))
+    }
+
     /// The composition of the session in front of the person — the block
     /// screens read this and nothing else.
-    static func moves(for session: Session) -> [WarmupMove] {
-        moves(sessionNumber: session.sessionNumber)
+    ///
+    /// No default for `hiding`, deliberately, and for the reason `move(id:...)`
+    /// below gives about `halves`: an omitted argument here is a control the
+    /// athlete used that the block ignores, which is worse than not offering
+    /// it. One caller, and a compile error is a stronger guard than a grep.
+    static func moves(for session: Session, hiding hidden: Set<String>) -> [WarmupMove] {
+        moves(sessionNumber: session.sessionNumber, hiding: hidden)
+    }
+
+    /// The name behind an id, for the sheet's list of what has been set aside:
+    /// it holds ids and no moves. nil for an id from the cool-down's pool —
+    /// one list covers both, and the caller asks both pools.
+    static func name(ofMove id: String) -> String? {
+        pool.first { $0.id == id }?.name
     }
 
     /// How many distinct compositions there are before they repeat. The

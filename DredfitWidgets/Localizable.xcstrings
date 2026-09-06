@@ -1100,6 +1100,126 @@
           }
         }
       }
+    },
+    "about %lld to %lld minutes · %lld exercises": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "etwa %1$lld bis %2$lld Minuten · %3$lld Übungen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "entre %1$lld y %2$lld minutos · %3$lld ejercicios"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "environ %1$lld à %2$lld minutes · %3$lld exercices"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "da %1$lld a %2$lld minuti circa · %3$lld esercizi"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "cerca de %1$lld a %2$lld minutos · %3$lld exercícios"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "примерно от %1$lld до %2$lld минут · упражнений: %3$lld"
+          }
+        }
+      }
+    },
+    "≈ %lld–%lld min": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "≈ %1$lld–%2$lld min"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "≈ %1$lld–%2$lld min"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "≈ %1$lld–%2$lld min"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "≈ %1$lld–%2$lld min"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "≈ %1$lld–%2$lld min"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "≈ %1$lld–%2$lld мин"
+          }
+        }
+      }
+    },
+    "≈ %lld–%lld min · %lld exercises": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "≈ %1$lld–%2$lld min · %3$lld Übungen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "≈ %1$lld–%2$lld min · %3$lld ejercicios"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "≈ %1$lld–%2$lld min · %3$lld exercices"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "≈ %1$lld–%2$lld min · %3$lld esercizi"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "≈ %1$lld–%2$lld min · %3$lld exercícios"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "≈ %1$lld–%2$lld мин · %3$lld упр."
+          }
+        }
+      }
     }
   },
   "version": "1.1"

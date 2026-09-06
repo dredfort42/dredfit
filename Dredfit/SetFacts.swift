@@ -501,6 +501,91 @@ nonisolated enum SetFacts {
             allSets(facts, ex).reduce(0, +) >= ex.plannedVolume
         }
     }
+
+    // MARK: - Time the athlete was away
+
+    /// Seconds to charge to an ABSENCE rather than to the workout, for one
+    /// resume: everything past the moment the session stopped owing time.
+    ///
+    /// A rest running on schedule is training whether or not the process
+    /// survived it. Measured from `savedAt` alone — the last phase transition,
+    /// which for a rest is its START — a phone locked at the top of a 90 s
+    /// rest and opened at its end reported a workout a minute and a half
+    /// SHORTER than it was, the exact mirror of the inflation the away time
+    /// was introduced to remove (review 06.09.2026).
+    ///
+    /// The work screen carries no end date, so a kill inside a hold still
+    /// charges the set to the absence. That is a known floor, not a claim:
+    /// closing it needs the moment of leaving stamped on the snapshot, which
+    /// nothing writes yet.
+    ///
+    /// Here rather than in the flow because it is arithmetic over three dates,
+    /// and a rule stated inside a SwiftUI view is a rule no test can reach.
+    static func awayGained(savedAt: Date, restEndDate: Date?, now: Date) -> Int {
+        let owedUntil = max(savedAt, restEndDate ?? .distantPast)
+        return max(0, Int(now.timeIntervalSince(owedUntil)))
+    }
+
+    // MARK: - An interrupted workout
+
+    /// What an interruption amounts to: which movements were never trained,
+    /// how many sets of the one in progress are missing, and which movement —
+    /// if any — was left half-done.
+    ///
+    /// ONE place, because two callers describe the same interruption: the
+    /// flow's "finish now" and the settlement of a workout that was trained
+    /// and never rated. While each carried its own copy, the same abandoned
+    /// session reached the journal two different ways depending on whether
+    /// the app happened to stay alive (UX review 05.09.2026).
+    struct Settlement: Equatable {
+        /// Never reached. A skip to the engine: the ladder freezes.
+        var skipped: Set<Pattern> = []
+        /// Sets taken off a movement that WAS trained — its numbers stay.
+        var setsSkipped: Skips = [:]
+        /// Left half-done. Also a skip to the engine; "not finished" is the
+        /// only difference, and it is a difference the athlete sees.
+        var interrupted: Pattern?
+    }
+
+    /// - Parameters:
+    ///   - exIndex: the exercise in front of the athlete when it stopped.
+    ///   - setsBehind: sets of THAT exercise already over, skips included.
+    ///   - currentIsDone: every set of it is behind — the rest that follows a
+    ///     last set, the summary of a finished hold, or the rating screen.
+    static func settlement(in exercises: [SessionExercise],
+                           exIndex: Int,
+                           setsBehind: Int,
+                           currentIsDone: Bool,
+                           alreadySkipped: Skips) -> Settlement {
+        var out = Settlement(setsSkipped: alreadySkipped)
+        guard exIndex < exercises.count else { return out }
+        var firstUnfinished = exIndex
+        if currentIsDone {
+            firstUnfinished = exIndex + 1
+        } else {
+            let ex = exercises[exIndex]
+            let already = alreadySkipped[ex.pattern] ?? 0
+            let left = max(0, ex.sets - setsBehind)
+            let performed = setsBehind - already
+            // Enough of the movement is behind to leave a trained one: keep
+            // its numbers and let the remainder travel as skipped SETS, the
+            // same statement an in-workout skip makes. Otherwise there is no
+            // movement to keep, and it is named as unfinished instead.
+            if performed >= EngineConfig.setsFloor,
+               skipFits(left, of: ex.sets, alreadySkipped: already) {
+                if left > 0 { out.setsSkipped[ex.pattern, default: 0] += left }
+                firstUnfinished = exIndex + 1
+            } else if setsBehind > 0 {
+                out.interrupted = ex.pattern
+            }
+        }
+        for ex in exercises[min(firstUnfinished, exercises.count)...] {
+            out.skipped.insert(ex.pattern)
+            // A skip wins over a partial count: the movement was not trained.
+            out.setsSkipped.removeValue(forKey: ex.pattern)
+        }
+        return out
+    }
 }
 
 // MARK: - How they read

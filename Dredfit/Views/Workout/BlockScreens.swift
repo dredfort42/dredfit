@@ -16,8 +16,10 @@ struct GetReadyScreen: View {
     /// The way back in after a pause borrows this screen (issue #61) and
     /// names its countdown differently, so the two can be told apart.
     var countdownIdentifier: String = "getready-countdown"
-    let blockSkipTitle: String
-    var blockSkipIdentifier: String?
+    /// Which block this transition belongs to — the transition is the ONE
+    /// block screen both of them share, and through this it names its own
+    /// escape instead of being handed the words twice.
+    let block: GuidedBlock
     let paused: Bool
     /// Whether what is counting down is already the count-in — the last
     /// `GetReady.countInSeconds` of a transition, however it got there.
@@ -30,25 +32,47 @@ struct GetReadyScreen: View {
 
     var body: some View {
         BlockLayout {
-            VStack(spacing: 6) {
-                // The kicker is half a sentence the name finishes; VoiceOver
-                // gets it whole, once, from the name below.
-                Kicker(text: String(localized: "Get ready"))
-                    .accessibilityHidden(true)
-                BlockPositionName(name: name)
-                    .accessibilityLabel(Text("Get ready: \(name)"))
-            }
+            // "Get ready" is under the big number now, not over the name.
+            // It was a 12 pt kicker at the top of the screen, and it was the
+            // ONE thing telling this screen from a position already running —
+            // same name, same 112 pt countdown, same dots — read off a phone
+            // the block itself has just told the person to put on the floor.
+            // Under the digit is where the eye already is, which is where the
+            // work screen says exactly this word (`loadCaption`)
+            // (UX review, 05.09.2026).
+            //
+            // This line used to claim VoiceOver still got the sentence ONCE,
+            // from the name below, and it does not. The kicker carried
+            // `.accessibilityHidden(true)`, which is what made that true; the
+            // caption does not, and `CountdownNumber` never merges it with the
+            // number the way the work screen merges its own pair — the number
+            // is pinned as an element of its own by its identifier and
+            // `.updatesFrequently`. So the reader hears the name's "Get ready:
+            // Cat-cow" and then a bare "Get ready" with nothing attached: once
+            // per transition, twelve times across the two blocks (review
+            // 06.09.2026, open). It closes in `CountdownNumber`'s `caption`
+            // branch and only there — the `paused` branch above it stays
+            // audible, because "Paused" is state the name does not carry, and
+            // combining the pair HERE would swallow the `getready-countdown`
+            // identifier three UI suites query.
+            BlockPositionName(name: name)
+                .accessibilityLabel(Text("Get ready: \(name)"))
 
             TechniqueButton(action: onTechnique)
                 .padding(.top, 10)
 
-            CountdownNumber(value: remaining, identifier: countdownIdentifier, paused: paused)
+            CountdownNumber(value: remaining,
+                            identifier: countdownIdentifier,
+                            paused: paused,
+                            caption: String(localized: "Get ready"))
                 .padding(.top, 20)
 
             BlockPauseButton(paused: paused, action: onPauseToggle)
                 .padding(.top, 12)
 
-            BlockDots(count: count, current: index)
+            // `upcoming`: the position at `index` has not begun, and a
+            // filled accent dot said it had.
+            BlockDots(count: count, current: index, upcoming: true)
                 .padding(.top, 22)
 
             PositionSkipButton(action: onSkipPosition)
@@ -74,10 +98,18 @@ struct GetReadyScreen: View {
                         .accessibilityIdentifier("get-ready-start")
                 }
             }
-            .padding(.bottom, 12)
+            // 12 → 20 (UX review 05.09.2026). "I'm ready" is the tap of every
+            // transition, taken on the way down to the mat; 12 pt under it
+            // stands a button of the same full width and the same 56 pt that
+            // ends the whole block, and it fires on contact. That is the
+            // geometry `SkipConfirmation` was written for — at a LARGER gap
+            // (18 pt, under the button that logs a set) — so until the block
+            // escape gets its question too, the gap at least matches the one
+            // the guarded pair already keeps.
+            .padding(.bottom, 20)
 
-            BlockSkipButton(title: blockSkipTitle,
-                            identifier: blockSkipIdentifier,
+            BlockSkipButton(title: block.skipTitle,
+                            identifier: block.skipIdentifier,
                             action: onSkipBlock)
                 .padding(.bottom, 20)
         }
@@ -120,12 +152,8 @@ struct WarmupMoveScreen: View {
             PositionSkipButton(action: onSkipPosition)
                 .padding(.top, 8)
         } footer: {
-            // `identifier:` stated for the same reason `skip-cooldown` states
-            // it below: the default is `identifier ?? title`, and `title` is
-            // already localized — omitting it makes the identifier move with
-            // the display language.
-            BlockSkipButton(title: String(localized: "Skip warm-up"),
-                            identifier: "skip-warmup",
+            BlockSkipButton(title: GuidedBlock.warmup.skipTitle,
+                            identifier: GuidedBlock.warmup.skipIdentifier,
                             action: onSkipBlock)
                 .padding(.bottom, 20)
         }
@@ -167,11 +195,44 @@ struct CooldownPositionScreen: View {
             PositionSkipButton(action: onSkipPosition)
                 .padding(.top, 8)
         } footer: {
-            BlockSkipButton(title: String(localized: "cooldown.skip",
-                                          defaultValue: "Skip cool-down"),
-                            identifier: "skip-cooldown",
+            BlockSkipButton(title: GuidedBlock.cooldown.skipTitle,
+                            identifier: GuidedBlock.cooldown.skipIdentifier,
                             action: onSkipBlock)
                 .padding(.bottom, 20)
+        }
+    }
+}
+
+/// Which of the two guided blocks a screen belongs to — and the words and
+/// name of its block-level escape.
+///
+/// ONE definition per action, for the three places the escape appears: the
+/// offer screen, the transition's footer and the running position's footer.
+/// UX review 05.09.2026 found two English keys for one button — "Skip the
+/// warm-up" on the offer against "Skip warm-up" in the footers — which five
+/// languages had already collapsed into the same sentence typed twice, while
+/// Spanish had drifted apart ("Omitir el calentamiento" against "Omitir
+/// calentamiento"). A second key is a second thing to keep in step; the
+/// keeping-in-step is what failed.
+enum GuidedBlock {
+    case warmup, cooldown
+
+    var skipTitle: String {
+        switch self {
+        case .warmup:
+            return String(localized: "Skip warm-up")
+        case .cooldown:
+            return String(localized: "cooldown.skip", defaultValue: "Skip cool-down")
+        }
+    }
+
+    /// Stated rather than left to `BlockSkipButton`'s `identifier ?? title`:
+    /// the title is localized, so an omitted identifier moves with the
+    /// display language.
+    var skipIdentifier: String {
+        switch self {
+        case .warmup:   return "skip-warmup"
+        case .cooldown: return "skip-cooldown"
         }
     }
 }
@@ -218,15 +279,25 @@ private struct SplitStageLine: View {
 
     var body: some View {
         switch phase {
-        case .switching:       accent(words.switching)
-        case .secondHalf:      accent(words.secondHalf)
+        // The switch is a TIER LOUDER than the second half that follows it,
+        // and the work screen already draws this exact distinction: the pause
+        // is the one moment a split position asks for something new, so it
+        // takes the 17 pt accent its own count-in and side switch take under
+        // the big number (`WorkoutFlowView.loadCaptionEmphasis`), while
+        // "second side" — a state, not an instruction — keeps 14. From the
+        // 1.5-2 m this screen is read at, 17 pt is no more legible than 14
+        // (both under the 5' a letter needs) and what carries is the colour;
+        // the size is what puts the line where it belongs in the hierarchy
+        // (UX review, 05.09.2026).
+        case .switching:       accent(words.switching, size: 17)
+        case .secondHalf:      accent(words.secondHalf, size: 14)
         case .beforeTheSwitch: quiet(words.everyHalf)
         }
     }
 
-    private func accent(_ text: String) -> some View {
+    private func accent(_ text: String, size: CGFloat) -> some View {
         Text(text)
-            .dredfitFont(14, weight: .semibold)
+            .dredfitFont(size, weight: .semibold)
             .foregroundStyle(Theme.accentText)
     }
 
@@ -314,6 +385,11 @@ private struct BlockPositionName: View {
     var body: some View {
         Text(name)
             .dredfitFont(23, weight: .bold)
+            // The token, not the inherited `.primary`: the biggest word on
+            // three screens of the flow was the one drawn in the system label
+            // colour, so in the dark scheme it was a shade the palette never
+            // measured against `bg` (UX review, 05.09.2026).
+            .foregroundStyle(Theme.ink)
             .multilineTextAlignment(.center)
             .frame(maxWidth: 300)
             .fixedSize(horizontal: false, vertical: true)

@@ -20,10 +20,10 @@ struct ExerciseRow: View {
     /// number and not beside it — the sentence is longer than the column, and
     /// the load must keep its place.
     ///
-    /// A LIST because two of them can be true at once: a set that came back is
-    /// about the number on the right, and a probe is about a set the number
-    /// does not count at all. Joined into one sentence they would read as one
-    /// fact with two halves.
+    /// A LIST because all three can be true at once: an easier variation is
+    /// about the name on the left, a set that came back is about the number on
+    /// the right, and a probe is about a set the number does not count at all.
+    /// Joined into one sentence they would read as one fact with three halves.
     var notes: [String] = []
     @Environment(\.displayScale) private var displayScale
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -64,9 +64,16 @@ struct ExerciseRow: View {
     /// The store answers whether there is anything to say
     /// (`AppStore.aSetJustCameBack(in:)`); the sentence for it lives on this
     /// side of the line, with the view that draws it.
+    ///
+    /// The second half of it — "your body is keeping up" — is gone. Nothing
+    /// here measured a body: the set returns because the plan's own counter
+    /// ran out and the cut fell (SetsHandle §38), and the same sentence would
+    /// have been shown to somebody who spent the last session taking sets off
+    /// because they were ill. A note under a number says what happened to the
+    /// number (UX review 05.09.2026).
     static func note(setCameBack: Bool) -> String? {
         guard setCameBack else { return nil }
-        return String(localized: "A set is back — your body is keeping up.")
+        return String(localized: "A set is back.")
     }
 
     /// The other one, and it exists because the row was quietly lying without
@@ -84,11 +91,45 @@ struct ExerciseRow: View {
                       defaultValue: "Then a probe: one set of \(probe.name) · \(probe.display)")
     }
 
-    /// Both, in the order they are read: what happened to the number on the
-    /// right, then what is standing after it. One place, so Today and the
-    /// next-workout sheet cannot drift into two explanations of one plan.
-    static func notes(_ exercise: SessionExercise, setCameBack: Bool) -> [String] {
-        [note(setCameBack: setCameBack), probeNote(exercise)].compactMap { $0 }
+    /// The third one, and it is about the NAME rather than the number: a
+    /// movement standing on an easier variation than the last workout left it
+    /// on has changed under a name the person recognises, and a row that got
+    /// easier by itself reads as a bug exactly the way one that got harder
+    /// does (UX review 05.09.2026, finding 3).
+    ///
+    /// Two sentences, because in one of the two cases the app knows the cause
+    /// and saying it is the whole answer: the athlete pulled "make it easier"
+    /// themselves. That case stands ALONE rather than narrowing the other —
+    /// the handle can be pulled before the first workout ever exists, and
+    /// `aVariationJustDropped` has no earlier record to measure against there.
+    /// The remaining movers (the blind-zone decay, an accepted comeback) are
+    /// not named, because a note that guessed at one of them would be wrong
+    /// about the other.
+    static func variationNote(easedByHand: Bool, dropped: Bool) -> String? {
+        if easedByHand {
+            return String(localized: "plan.easedByHand",
+                          defaultValue: "You made this one easier.")
+        }
+        guard dropped else { return nil }
+        return String(localized: "plan.variationDropped",
+                      defaultValue: "An easier variation than last time.")
+    }
+
+    /// All three, in the order they are read: what happened to the name on the
+    /// left, then to the number on the right, then what stands after both. One
+    /// place, so Today and the next-workout sheet cannot drift into two
+    /// explanations of one plan.
+    ///
+    /// The two newer facts carry a default because `false` here means "no
+    /// claim", never "did not happen" — a caller with nothing to say says
+    /// nothing. Both screens pass all four explicitly; the default is what
+    /// keeps the pair the tests pin readable as the pair it was.
+    static func notes(_ exercise: SessionExercise, setCameBack: Bool,
+                      easedByHand: Bool = false,
+                      variationDropped: Bool = false) -> [String] {
+        [variationNote(easedByHand: easedByHand, dropped: variationDropped),
+         note(setCameBack: setCameBack),
+         probeNote(exercise)].compactMap { $0 }
     }
 
     /// Text concatenation is the only SwiftUI flow that lets the pill follow
@@ -133,7 +174,10 @@ struct ExerciseRow: View {
 }
 
 /// Cached per text, display scale, Dynamic Type size AND appearance.
-/// accentText on accentSoft — accent itself is 2.91:1 on that fill.
+/// `ink` on accentSoft — accentText on that fill is 4.20:1 in the dark
+/// scheme and accent itself 2.91:1, so neither carries an 11 pt pill
+/// (UX review 05.09.2026, finding 16; the pair is gated in
+/// `BrandPaletteTests`).
 ///
 /// The appearance is part of the key because the product here is a BITMAP:
 /// `ImageRenderer` resolves the two tokens once, at render time, and both

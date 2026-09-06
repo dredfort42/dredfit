@@ -256,39 +256,243 @@ final class SetsNoticeTests: AppStoreTestCase {
     /// One key that is not there — a rename on one side, a sentence typed
     /// straight into a view — and the string falls back to English in all six
     /// translated languages at once, which is how last release lost them.
-    func testEveryPlainLocalizedLiteralIsACatalogKey() throws {
-        let data = try Data(contentsOf: repoRoot.appendingPathComponent("Dredfit/Localizable.xcstrings"))
-        let json = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
-        let keys = Set(try XCTUnwrap(json["strings"] as? [String: Any]).keys)
-
-        // The class excludes a backslash on purpose, so an interpolated
-        // literal — whose catalog key is the %@/%lld form, not the source
-        // text — is skipped rather than wrongly reported.
-        let patterns = try [
-            #"String\(localized:\s*"([^"\\]*)"\s*\)"#,
-            #"\bText\(\s*"([^"\\]*)"\s*\)"#,
-            #"\bButton\(\s*"([^"\\]*)"\s*[,)]"#,
-        ].map { try NSRegularExpression(pattern: $0) }
-        let sources = try XCTUnwrap(FileManager.default.enumerator(
-            at: repoRoot.appendingPathComponent("Dredfit"), includingPropertiesForKeys: nil))
-
-        var checked = 0
-        for case let url as URL in sources where url.pathExtension == "swift" {
-            let src = try String(contentsOf: url, encoding: .utf8)
-            let range = NSRange(src.startIndex..<src.endIndex, in: src)
-            for pattern in patterns {
-                for match in pattern.matches(in: src, range: range) {
-                    guard let found = Range(match.range(at: 1), in: src) else { continue }
-                    let literal = String(src[found])
-                    // An empty literal is a spacer, not a sentence.
-                    guard !literal.isEmpty else { continue }
-                    checked += 1
-                    XCTAssertTrue(keys.contains(literal),
-                                  "\(url.lastPathComponent): \"\(literal)\" is not in the catalog")
-                }
+    /// A key that IS its own English text can never carry `%1$@`-style
+    /// specifiers, because nothing generates one: `String(localized:)` and
+    /// `Text(_:)` build the key from the interpolation and always emit the
+    /// bare `%@` / `%lld` form. A positional key is therefore a key nothing
+    /// will ever look up — the string falls back to English in all six
+    /// languages while both gates stay green, since the completeness check
+    /// only asks whether the catalog's own keys are translated, and the scan
+    /// above normalises the two forms to the same token on purpose.
+    ///
+    /// Six of them were written by hand in one wave (self-review 06.09.2026).
+    /// A KEYED entry is exempt and stays exempt: its key is an identifier, so
+    /// its value is free to reorder arguments, which is the whole reason
+    /// positional specifiers exist.
+    func testNoTextKeyCarriesPositionalSpecifiers() throws {
+        for catalog in ["Dredfit/Localizable.xcstrings", "DredfitWidgets/Localizable.xcstrings"] {
+            let data = try Data(contentsOf: repoRoot.appendingPathComponent(catalog))
+            let json = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+            let keys = try XCTUnwrap(json["strings"] as? [String: Any]).keys
+            let identifier = try NSRegularExpression(
+                pattern: #"^[a-z][A-Za-z0-9]*(\.[A-Za-z0-9-]+)+$"#)
+            let positional = try NSRegularExpression(pattern: #"%\d+\$"#)
+            for key in keys {
+                let range = NSRange(key.startIndex..<key.endIndex, in: key)
+                guard identifier.firstMatch(in: key, range: range) == nil else { continue }
+                XCTAssertNil(positional.firstMatch(in: key, range: range),
+                             "\(catalog): \"\(key)\" is a text key with a positional "
+                                + "specifier — the runtime looks up the bare form and "
+                                + "never finds this entry")
             }
         }
-        XCTAssertGreaterThan(checked, 100, "the scan found almost nothing — check the pattern")
+    }
+
+    func testEveryPlainLocalizedLiteralIsACatalogKey() throws {
+        // BOTH catalogs, each against its own sources. The widget target was
+        // never scanned at all, and three of its strings were missing when a
+        // review finally looked (self-review 05.09.2026).
+        try assertLiteralsAreKeys(sources: "Dredfit", catalog: "Dredfit/Localizable.xcstrings")
+        try assertLiteralsAreKeys(sources: "DredfitWidgets",
+                                  catalog: "DredfitWidgets/Localizable.xcstrings",
+                                  minimum: 10)
+    }
+
+    /// Comparison runs on a NORMALISED form: every interpolation in the source
+    /// and every format specifier in the catalog collapses to one token, and
+    /// runs of whitespace collapse to a single space.
+    ///
+    /// That is what lets the scan cover the two shapes it used to be blind to,
+    /// and both had really gone missing by the time anyone checked:
+    ///
+    /// - INTERPOLATED literals. The old scan excluded a backslash on purpose,
+    ///   reasoning that the catalog key is the `%@`/`%lld` form rather than
+    ///   the source text — true, and it meant `"≈ \(floor)–\(full) min"` was
+    ///   never checked against anything.
+    /// - MULTI-LINE literals. Every pattern wanted `"…"` on one line, so a
+    ///   `"""` block was invisible; a reworded alert orphaned its old key and
+    ///   the new one reached no catalog.
+    ///
+    /// Normalising both sides costs the ability to catch a wrong specifier
+    /// TYPE (`%@` where `%lld` belongs), which no test here ever had. What it
+    /// buys is that a string cannot go missing entirely, which is the failure
+    /// that actually happens: English in all six languages, both gates green.
+    private func assertLiteralsAreKeys(sources: String, catalog: String,
+                                       minimum: Int = 100,
+                                       file: StaticString = #filePath,
+                                       line: UInt = #line) throws {
+        let data = try Data(contentsOf: repoRoot.appendingPathComponent(catalog))
+        let json = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let keys = Set(try XCTUnwrap(json["strings"] as? [String: Any]).keys.map(Self.normalized))
+
+        // `Text(verbatim:)` and `Button(action:)` do not match: both patterns
+        // require a quote straight after the paren.
+        let call = #"(?:String\(\s*localized:|(?<![\w.])Text\(|(?<![\w.])Button\()"#
+        // ONE pass with an alternation, not two passes over the same file: a
+        // `"""` body and a single-line body can never both claim the same
+        // text, so the overlap that has to be reasoned about simply does not
+        // arise. `[\s\S]` rather than `.` plus an option — the body of a block
+        // spans lines by definition, and spelling that into the class leaves
+        // nothing for a matching option to get wrong.
+        //
+        // Escapes are allowed in the single-line arm, so an interpolation no
+        // longer ends the match. The keyed form
+        // `String(localized: "key", defaultValue:)` lands there too and
+        // captures the key — which is what the catalog is asked for.
+        //
+        // The quote is spelled `\x22` throughout. Written literally, a run of
+        // three inside a raw string is read by eye as a delimiter by the next
+        // person and — as this scan found out — is easy to miscount by one
+        // while editing, which silently turns the block arm into "one quote,
+        // then anything".
+        let quote = #"\x22"#
+        let literal = try NSRegularExpression(
+            pattern: call + #"\s*(?:"# + quote + "{3}" + #"([\s\S]*?)"# + quote + "{3}"
+                + #"|"# + quote + #"((?:[^"# + quote + #"\\\n]|\\.)+)"# + quote + #")"#)
+
+        let dir = repoRoot.appendingPathComponent(sources)
+        let found = try XCTUnwrap(FileManager.default.enumerator(at: dir,
+                                                                 includingPropertiesForKeys: nil))
+        var checked = 0
+        for case let url as URL in found where url.pathExtension == "swift" {
+            let src = try String(contentsOf: url, encoding: .utf8)
+            let whole = NSRange(src.startIndex..<src.endIndex, in: src)
+            for match in literal.matches(in: src, range: whole) {
+                // Group 1 is the block body, group 2 the single-line one;
+                // exactly one of the two arms took part in any given match.
+                let body = Range(match.range(at: 1), in: src)
+                    ?? Range(match.range(at: 2), in: src)
+                guard let body else { continue }
+                let text = String(src[body])
+                let key = Self.normalized(Self.unescaped(text))
+                // An empty literal is a spacer, not a sentence.
+                guard !key.isEmpty else { continue }
+                checked += 1
+                XCTAssertTrue(keys.contains(key),
+                              "\(url.lastPathComponent): \"\(text)\" is not in \(catalog)",
+                              file: file, line: line)
+            }
+        }
+        XCTAssertGreaterThan(checked, minimum, "the scan of \(sources) found almost nothing",
+                             file: file, line: line)
+    }
+
+    /// Interpolations, format specifiers and line breaks all become one token,
+    /// so a source literal and its catalog key compare equal.
+    /// The scan's own arithmetic, pinned directly: it is the only logic in
+    /// this file that a green run does NOT exercise, because the shapes it
+    /// handles are the ones no source literal happens to use today. A helper
+    /// nobody tests is how a gate starts passing for the wrong reason.
+    func testTheScanNormalisesSourceAndCatalogToTheSameForm() {
+        // An escaped literal and the catalog's real newline are the same key.
+        XCTAssertEqual(Self.normalized(Self.unescaped(#"First\nSecond"#)),
+                       Self.normalized("First\nSecond"))
+        XCTAssertEqual(Self.normalized(Self.unescaped(#"He said \"go\"."#)),
+                       Self.normalized("He said \"go\"."))
+        // Interpolation against its specifier, including two in a row — the
+        // pair that used to collapse into one token and hid a present key.
+        XCTAssertEqual(Self.normalized(#"\(sets) × \(dose)\(side)"#),
+                       Self.normalized("%lld × %lld%@"))
+        XCTAssertEqual(Self.normalized(#"\(a) · \(b)"#),
+                       Self.normalized("%1$@ · %2$@"),
+                       "positional and bare forms name the same string")
+        // A nested call is one token, not two.
+        XCTAssertEqual(Self.normalized(#"was \(date.formatted(.relative(presentation: .named)))."#),
+                       Self.normalized("was %@."))
+        // A lone percent is a percent sign, and must not eat what follows.
+        XCTAssertEqual(Self.normalized("100% of %@"), Self.normalized(#"100% of \(x)"#))
+        // A multi-line body's continuations and indentation are layout.
+        XCTAssertEqual(Self.normalized("Two\n    lines"), Self.normalized("Two lines"))
+        // And two different strings must NOT collide.
+        XCTAssertNotEqual(Self.normalized("%lld sets"), Self.normalized("%lld reps"))
+    }
+
+    /// What the compiler makes of the source text, on the SOURCE side only:
+    /// the catalog's keys arrive through `JSONSerialization` already
+    /// unescaped, so touching them again would double-unescape.
+    ///
+    /// The single-line arm of the scan admits escapes (`\\.`), which is what
+    /// lets it see interpolation at all — and the same step made a literal
+    /// like `Text("First\nSecond")` visible for the first time. Compared raw,
+    /// its two characters `\` and `n` never equal the catalog's real newline,
+    /// so a string that IS present and IS translated would be reported
+    /// missing, sending the next reader to `verbatim` or to weakening the
+    /// assertion (review 06.09.2026). No such literal exists today; this is
+    /// the guard that keeps the first one from looking like a catalog bug.
+    ///
+    /// `\(` is deliberately left standing: it is an interpolation, and
+    /// `normalized` is what turns it into a token. A line continuation
+    /// (`\` before a real newline) is left too, for the same reason.
+    private static func unescaped(_ text: String) -> String {
+        var out = ""
+        var index = text.startIndex
+        while index < text.endIndex {
+            guard text[index] == "\\", text.index(after: index) < text.endIndex else {
+                out.append(text[index])
+                index = text.index(after: index)
+                continue
+            }
+            let next = text[text.index(after: index)]
+            switch next {
+            case "(", "\n":
+                out.append(text[index])
+                out.append(next)
+            case "n", "t":
+                out.append(" ")
+            default:
+                out.append(next)
+            }
+            index = text.index(index, offsetBy: 2)
+        }
+        return out
+    }
+
+    private static func normalized(_ text: String) -> String {
+        var out = ""
+        var rest = Substring(text)
+        while let open = rest.range(of: "\\(") ?? rest.range(of: "%") {
+            out += rest[rest.startIndex..<open.lowerBound]
+            rest = rest[open.lowerBound...]
+            if rest.hasPrefix("\\(") {
+                // Balanced, so a nested call like `\(a.b(c))` is one token.
+                var depth = 0
+                var index = rest.index(rest.startIndex, offsetBy: 1)
+                while index < rest.endIndex {
+                    if rest[index] == "(" { depth += 1 }
+                    if rest[index] == ")" {
+                        depth -= 1
+                        if depth == 0 { break }
+                    }
+                    index = rest.index(after: index)
+                }
+                guard index < rest.endIndex else { break }
+                rest = rest[rest.index(after: index)...]
+            } else {
+                // EXACTLY ONE specifier, never a run of them: scanning by
+                // character class swallowed `%lld%@` whole, because `%` is
+                // itself in the class — so a two-argument key normalised to
+                // one token, stopped matching its own source literal, and the
+                // scan reported a key that was present all along.
+                var scan = rest.dropFirst()                      // past the "%"
+                scan = scan.drop(while: \.isNumber)
+                if scan.first == "$" { scan = scan.dropFirst() } else { scan = rest.dropFirst() }
+                let width = ["@", "lld", "d", "f"].first { scan.hasPrefix($0) }
+                // A lone "%" is a percent sign, not a placeholder.
+                guard let width else {
+                    out += "%"
+                    rest = rest.dropFirst()
+                    continue
+                }
+                rest = scan.dropFirst(width.count)
+            }
+            out += "\u{FFFC}"
+        }
+        out += rest
+        // A multi-line literal's continuations, indentation and newlines are
+        // layout; the catalog key holds the sentence.
+        return out.replacingOccurrences(of: "\\\n", with: " ")
+            .split(whereSeparator: \.isWhitespace)
+            .joined(separator: " ")
     }
 
     // SNIPPED: five tests of the pain line and the pain cut. "Time to see a

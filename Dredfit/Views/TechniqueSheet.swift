@@ -94,6 +94,16 @@ struct TechniqueSheet: View {
         planned ? Library.unit(target.pattern, shownVariation) : target.unit
     }
 
+    /// The rung under the one being shown, and the whole condition for the
+    /// block that offers it: only the door that may take the step (`planned`,
+    /// i.e. Today) and only where the ladder has somewhere to go. Named
+    /// because the technique HINT is spent on this same question now — a
+    /// promise is kept or it is not, and the block is what keeps it
+    /// (UX review 05.09.2026).
+    private var stepBelow: AppStore.EasierStep? {
+        planned ? store.easierStep(target.pattern) : nil
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             ScrollView {
@@ -120,7 +130,7 @@ struct TechniqueSheet: View {
                     // finishes that sentence. In the footer it would have to be
                     // scrolled to, and a handle nobody reaches is the state
                     // this block was moved here to leave behind.
-                    if planned, let step = store.easierStep(target.pattern) {
+                    if let step = stepBelow {
                         stepDown(step)
                             .padding(.top, 18)
                     }
@@ -182,10 +192,27 @@ struct TechniqueSheet: View {
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .presentationBackground(Theme.bg)
-        // Spends the one line on Today that says this door exists — from any
-        // of the three doors, because the sentence is about the door and not
-        // about the plan row that happens to be the widest of them.
-        .task { store.markTechniqueOpened() }
+        // Spends the one line on Today ONLY when this sheet delivered what
+        // that line promised — "and for the version one step below it". Any
+        // open used to spend it, and the doors are FOUR, not the three the
+        // comment here used to count: the work screen, the rest screen and the
+        // next-workout preview all open this sheet without `planned`, so none
+        // of them ever carries the block. Worse, on a fresh install no door
+        // does — all ten movements start on variation 1, where `easierStep` is
+        // nil — so the sentence was reliably burned by the one case in which it
+        // was false (UX review 05.09.2026).
+        // Spent when the sheet delivered what the SHOWN line promised, and
+        // there are two lines: with no rung below anywhere in today's plan
+        // Today prints `plan.techniqueHintNoStep`, whose whole promise is the
+        // sheet itself. Gating only on `stepBelow` left that hint standing
+        // forever on a fresh install, where all ten movements are on variation
+        // 1 — the two halves of one wave landed in two files and missed each
+        // other (self-review 05.09.2026).
+        .task {
+            let promisedARungBelow = store.nextSession.exercises
+                .contains { store.canMakeEasier($0.pattern) }
+            if stepBelow != nil || !promisedARungBelow { store.markTechniqueOpened() }
+        }
         // The same guard the four skips carry, and for the same reason: this
         // plan has no undo (owner, 01.09.2026). An ALERT, like them — iOS 26
         // draws a confirmationDialog as an anchored popover, which suppresses
@@ -244,12 +271,26 @@ struct TechniqueSheet: View {
     @ViewBuilder
     private func stepDown(_ step: AppStore.EasierStep) -> some View {
         let description = VStack(alignment: .leading, spacing: 4) {
-            // ink2, not ink3: this kicker labels the one thing on the sheet
-            // that DOES something, and 12 pt semibold is small text — 4.5:1 or
-            // it does not ship (R16–R21).
+            // Half of the comparison this block exists to make was missing.
+            // The capsule above prints the grid the whole library shares
+            // ("4–15 reps"), never today's number, so the only precise dose on
+            // the screen was the one being OFFERED — and the plan row carrying
+            // the other one sits behind a .large sheet, two taps away
+            // (UX review 05.09.2026).
+            if let now = nowLine {
+                Text(now)
+                    .dredfitFont(13)
+                    .foregroundStyle(Theme.ink2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.bottom, 2)
+            }
+            // The tone is no longer said here: `Kicker` defaults to ink2 for
+            // every kicker in the app now, because 12 pt semibold is small
+            // text and ink3 reads 2.35:1 in light (UX review 05.09.2026,
+            // finding 68). Passing it again would only hide the day that
+            // default moves.
             Kicker(text: String(localized: "technique.stepDown.kicker",
-                                defaultValue: "One step below"),
-                   color: Theme.ink2)
+                                defaultValue: "One step below"))
             Text(step.name)
                 .dredfitFont(15.5, weight: .semibold)
                 .foregroundStyle(Theme.ink)
@@ -321,10 +362,27 @@ struct TechniqueSheet: View {
         return "\(step.dose) · \(note)"
     }
 
+    /// "Now: 3×12" — today's dose of the movement the sheet is describing,
+    /// taken from the same generator as the rung below it so the two lines are
+    /// one comparison rather than two formats. It will not match the plan row
+    /// byte for byte (the row prints its own `shortLoad`, "3 × 12"), and that
+    /// is the right trade: the block is read against ITSELF, on a sheet that
+    /// covers the row.
+    ///
+    /// Nil when the pattern is not in the session — which the `planned` door
+    /// cannot produce, since it only opens off a row of that session.
+    private var nowLine: String? {
+        guard let dose = store.nextSession.exercises
+            .first(where: { $0.pattern == target.pattern })?.display else { return nil }
+        return String(localized: "technique.stepDown.now", defaultValue: "Now: \(dose)")
+    }
+
     private func a11yDescription(_ step: AppStore.EasierStep) -> String {
         let kicker = String(localized: "technique.stepDown.kicker",
                             defaultValue: "One step below")
-        return "\(kicker): \(step.name), \(doseLine(step))"
+        let below = "\(kicker): \(step.name), \(doseLine(step))"
+        guard let now = nowLine else { return below }
+        return "\(now). \(below)"
     }
 
     /// "variation 3 of 7 · pull · 4–15 reps". The total comes from the library

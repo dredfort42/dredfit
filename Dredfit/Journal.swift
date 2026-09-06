@@ -123,6 +123,14 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     var cooldownSec: Int?
     /// Only `true` is ever written; nil means "not exported yet".
     var healthExported: Bool?
+    /// The movement left half-done, when the workout was cut short on it.
+    ///
+    /// To the engine it is a skip like any other and it is inside `skipped`;
+    /// this names WHICH one, so the history can say "not finished" where it
+    /// used to say "skipped" about a movement the athlete did start (owner,
+    /// 05.09.2026 — the difference is worth seeing). Optional with a nil
+    /// default like every field added to a persisted type.
+    var interrupted: Pattern?
 
     /// The journal is an input too. The engine heals the state it is handed,
     /// but its own snapshots come back out of this file and straight into
@@ -163,6 +171,7 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
         cooldownSec = try c.decodeIfPresent(Int.self, forKey: .cooldownSec)
             .map { clamp($0, 0, EngineConfig.countMax) }
         healthExported = try c.decodeIfPresent(Bool.self, forKey: .healthExported)
+        interrupted = try c.decodeIfPresent(Pattern.self, forKey: .interrupted)
     }
 
     init(sessionNumber: Int, date: Date, result: FeedbackResult,
@@ -174,7 +183,8 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
          positionsAfter: [Pattern: RecordedPosition]? = nil,
          durationSec: Int? = nil,
          warmupSec: Int? = nil, cooldownSec: Int? = nil,
-         healthExported: Bool? = nil) {
+         healthExported: Bool? = nil,
+         interrupted: Pattern? = nil) {
         self.sessionNumber = sessionNumber
         self.date = date
         self.result = result
@@ -191,6 +201,7 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
         self.warmupSec = warmupSec
         self.cooldownSec = cooldownSec
         self.healthExported = healthExported
+        self.interrupted = interrupted
     }
 }
 
@@ -281,6 +292,16 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// than a new claim.
     var warmupSec: Int?
     var cooldownSec: Int?
+    /// Seconds the athlete spent AWAY across resumes, accumulated.
+    ///
+    /// `durationSec` is wall clock from `workoutStart`, and `workoutStart`
+    /// survives a resume — so a workout interrupted for two hours and picked
+    /// up again claimed two extra hours in Health, which is what a person
+    /// actually reads there (UX review 05.09.2026). The guided blocks already
+    /// cap their measured length at the planned one for the same reason:
+    /// idle time is not effort. Optional with a nil default, like every field
+    /// added to a persisted type.
+    var awaySec: Int?
 
     /// What the flow restores into. A snapshot from before this shape kept
     /// one number per exercise, and that number was in force from the first
@@ -310,6 +331,19 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// where it is read for the same reason as everything above it.
     var approximateSets: Set<Int> {
         Set((approxSets ?? []).filter { (0..<EngineConfig.setsMax).contains($0) })
+    }
+
+    /// Whether anything happened worth keeping. A snapshot from the moment the
+    /// warm-up ended has nothing to offer and nothing to settle.
+    ///
+    /// Named once because it answers two questions that must never disagree:
+    /// whether to OFFER this workout back, and whether to RECORD it when the
+    /// occasion has passed. Two inline copies were one copy that could drift.
+    var hasProgress: Bool {
+        atFeedback == true || atExerciseSummary == true || restEndDate != nil
+            || exIndex > 0 || setIndex > 0
+            || !facts.isEmpty || !skipped.isEmpty
+            || !(discomfort ?? []).isEmpty
     }
 
     static func fingerprint(of session: Session) -> String {

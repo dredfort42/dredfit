@@ -25,6 +25,26 @@ extension AppStore {
         return d
     }
 
+    /// Whether the PLAN rests on this day — the question Today and the widget
+    /// ask, as opposed to "is this weekday marked as rest", which is what
+    /// `isRestDay` answers for the settings rows and the calendar grid.
+    ///
+    /// Rest is rest FROM something. An install that has never trained lands on
+    /// a rest day whenever onboarding happens to end on one, and the first
+    /// thing the app then says is "come back on Tuesday" — to the one person
+    /// who has just decided to start (UX review 05.09.2026, finding 7). The
+    /// marked weekdays keep their meaning everywhere else, including the next
+    /// training date: the difference is only that nothing is being rested yet.
+    ///
+    /// The widget reads it for TODAY as well (`widgetStatus`), or the two
+    /// disagree on the first day — which they did until review 06.09.2026,
+    /// while this line already claimed otherwise. Only for today: the other
+    /// thirteen days of the widget's grid are the plan ahead, and the marked
+    /// weekdays still describe it.
+    func restApplies(on date: Date) -> Bool { !records.isEmpty && isRestDay(date) }
+
+    var restAppliesToday: Bool { restApplies(on: today) }
+
     /// The week is Monday–Sunday regardless of locale.
     struct WeekSummary: Equatable {
         let workouts: Int

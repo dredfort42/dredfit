@@ -73,7 +73,11 @@ final class WorkoutActivityController {
     /// updating. Removal is endOrphans()'s job, not this.
     static func staleDate(for state: RestActivityAttributes.ContentState,
                           now: Date = .now) -> Date {
-        if state.phase == .rest, let end = state.restEndDate {
+        // Any phase that carries an end date, not just the rest: a hold sends
+        // its own through the same field, and dimming a finished hold only
+        // after the flat 20 minutes below is the same defect the rest was
+        // given this branch for (UX review 05.09.2026).
+        if state.phase != .work, let end = state.restEndDate {
             return end.addingTimeInterval(60)
         }
         return now.addingTimeInterval(20 * 60)

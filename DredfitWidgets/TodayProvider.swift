@@ -21,6 +21,11 @@ struct TodayEntry: TimelineEntry {
     let nextLabel: String?
     let planSessionNumber: Int?
     let planMinutes: Int?
+    /// `var` with no initializer, so the memberwise initializer defaults it:
+    /// a snapshot written before the floor existed carries none, and the
+    /// lock-screen line then prints the full number alone as it always did
+    /// (UX review 05.09.2026).
+    var planMinutesFloor: Int?
     let plan: [WidgetSnapshot.PlanRow]
 
     /// Computed, not a `static let`: a stored static would freeze `.now` at
@@ -89,6 +94,7 @@ struct TodayProvider: TimelineProvider {
                     nextLabel: day.nextLabel,
                     planSessionNumber: snapshot.planSessionNumber,
                     planMinutes: snapshot.planMinutes,
+                    planMinutesFloor: snapshot.planMinutesFloor,
                     plan: snapshot.plan ?? []
                 )
             }

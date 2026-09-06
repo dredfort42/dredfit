@@ -88,6 +88,23 @@ extension AppStore {
         return exercise.sets > before
     }
 
+    /// True when this movement stands on an EASIER variation than the one the
+    /// last workout left it on — the plan quietly changed under a name the
+    /// person recognises, and a row that got easier by itself reads as a bug
+    /// exactly the way one that got harder does (UX review 05.09.2026,
+    /// finding 3). A fact, not a line: `ExerciseRow` owns the words.
+    ///
+    /// Measured against the last record's `positionsAfter`, which is the state
+    /// the journal vouches for. Everything the rating itself did is already
+    /// inside that snapshot, so what is left for this to catch is exactly what
+    /// moved the plan AFTERWARDS and without a word: the handle, the
+    /// blind-zone decay, an accepted comeback. A pattern the snapshot does not
+    /// carry (a record written before v3) claims nothing.
+    func aVariationJustDropped(in exercise: SessionExercise) -> Bool {
+        guard let before = records.last?.positionsAfter?[exercise.pattern] else { return false }
+        return exercise.variation < before.variation
+    }
+
     /// The set count this movement's card carried at its last appearance.
     /// Read from the journal rather than the state because it is what the
     /// person actually saw. A record too old to know its exercises ends the
@@ -164,5 +181,57 @@ extension AppStore {
     func shouldAskAboutSuspect() -> Bool {
         guard settings.weakLinkPromptAnsweredFor != records.last?.sessionNumber else { return false }
         return unnamedLessSuspect() != nil
+    }
+}
+
+// MARK: - Who moved the plan (UX review 05.09.2026, findings 27 and 64)
+
+/// The read side of `PlanMoves`. Everything here is stamped at the moment the
+/// plan moves — see the type — because the journal cannot be asked afterwards:
+/// between two entries the state is also moved by the silent decay and by an
+/// accepted comeback, so a difference of two records credits the workout with
+/// a descent that was not its doing.
+extension AppStore {
+
+    /// The stamped facts, and only while they still describe the session being
+    /// asked about. A stale stamp says nothing rather than something about
+    /// another week.
+    func planMoves(for session: Int) -> PlanMoves? {
+        guard let moves = settings.planMoves, moves.session == session else { return nil }
+        return moves
+    }
+
+    /// The same question of the slot the rating owns. Separate from the one
+    /// above because the two are stamped one session apart: while a single
+    /// slot held both, a handle pulled on the next plan overwrote what the
+    /// last rating had named (review 06.09.2026).
+    func ratingMoves(for session: Int) -> PlanMoves? {
+        guard let moves = settings.ratingMoves, moves.session == session else { return nil }
+        return moves
+    }
+
+    /// Movements the athlete lowered by hand for the plan STILL AHEAD — the
+    /// one Today is showing. Spent by the workout that follows, which is when
+    /// the same facts become the last record's.
+    var easedByHandAhead: [Pattern] { planMoves(for: engineState.counter + 1)?.byHand ?? [] }
+
+    /// Which movements a finished workout's rating actually eased, and which
+    /// ones the athlete eased by hand around it.
+    ///
+    /// THE LAST WORKOUT ONLY. Nothing is written into the journal itself, so
+    /// an earlier record has no attribution to give and this returns empty
+    /// rather than guessing — and the identity check is by `id`, because
+    /// `sessionNumber` restarts at a reset and would otherwise let a stamp
+    /// belong to two different workouts.
+    func easedByRating(in record: WorkoutRecord) -> [Pattern] { moves(of: record)?.byRating ?? [] }
+
+    func easedByHand(in record: WorkoutRecord) -> [Pattern] { moves(of: record)?.byHand ?? [] }
+
+    /// From `ratingMoves`, never from `planMoves`: the finished session's facts
+    /// move into the rating's slot as the rating lands, and the plan-ahead slot
+    /// belongs to the handle from that moment on.
+    private func moves(of record: WorkoutRecord) -> PlanMoves? {
+        guard records.last?.id == record.id else { return nil }
+        return ratingMoves(for: record.sessionNumber)
     }
 }

@@ -1,5 +1,93 @@
 # Changelog
 
+## 2.3.0
+
+**A workout you trained and never rated is no longer lost.** The journal was
+written by one thing only — the tap on a rating card — so putting the phone
+down on "How did it go?" and letting iOS unload the app overnight erased the
+whole session: no entry, no calendar mark, nothing in Health, no step on any
+ladder. The workout now survives the way it should, and how it is settled
+depends on how long it stood. Inside three hours it is the same occasion and
+the card offers to carry on. Past that and up to twelve hours the card ASKS
+instead of deciding — **Continue**, or **Finish now**, which opens the rating
+so you say how it went yourself; the movements you never reached are marked
+skipped, exactly as the same words do inside a workout. Only a session nobody
+came back to for twelve hours is recorded without being asked, and it is
+recorded *on plan* — the neutral answer standing in for one nobody gave — dated
+to the day it actually happened rather than the morning it was noticed.
+
+**A rating can be taken back.** It was one tap and it was spent, which mattered
+little while every rating was given on purpose and matters a great deal now
+that a forgotten workout can be settled on your behalf. **Change the rating**
+sits on Today and in the workout's history entry; the other answer is applied
+to the state the first one was applied to, so the plan lands exactly where it
+would have landed had you tapped the other card. The door closes as soon as the
+answer stops being the last thing that happened — another workout, a handle
+pulled, an accepted comeback.
+
+**"Finish now" keeps the sets you already reported.** Leaving a workout mid-way
+promised to keep what you had done and then dropped the numbers of the movement
+you were standing in, along with the movement itself. It now keeps them: enough
+sets behind you and the movement counts as trained with the rest recorded as
+skipped sets, and the summary screen of a finished hold is no longer mistaken
+for an abandoned one. **Finish later** is new beside it — it keeps your place
+and Today offers to pick the workout up.
+
+**Two things you can now choose.** **Appearance** in Settings holds the app to
+Light or Dark instead of following the system, for the early mornings and the
+late evenings the whole product is built around; widgets and the Lock Screen
+keep following the system, as they must. And the countdown tones can be made to
+play **with the ringer switch off** — the tones are how a hold counts you in and
+out while the phone lies on the floor, and the hardware switch used to take the
+whole channel away. Both are off by default: nothing changes for anyone who
+does not go looking.
+
+**A warm-up move can be set aside.** The technique sheet of any warm-up or
+cool-down position now offers to stop showing it — a wrist that objects to the
+cat-cow does not have to be argued with every session — and the block simply
+composes itself from what is left. Three at most, and any of them can be
+brought back from the same place.
+
+**The screen reads from the floor.** Quiet grey carried text it should never
+have carried: at 2.35:1 in the light scheme it is a colour for lines and rings,
+not for words, and it had spread to kickers, captions and the chart's own axis
+labels, which were additionally frozen at 10 pt and ignored Dynamic Type
+outright. Words take the darker ink now and the axes scale with the reader's
+setting. The dots that count sets and positions moved off the hairline they
+were drawn in — at 1.17:1 the ones still ahead of you were invisible from two
+metres, which is the distance the phone actually lies at.
+
+**The header's minutes stop lying on holds.** A hold you set your own time for,
+or one you stopped early, changed what the rest of the session would cost, and
+the "≈ N min left" in the header went on counting the plan. It counts what you
+actually declared and what you actually did. The probe, which the rest before
+it announces by name, no longer drops out of that number and reappear when its
+screen opens.
+
+**A hold now counts down on the Lock Screen.** The Live Activity had a phase for
+the rest and none for the hold — the one part of a workout done face-down with
+the phone out of reach — so the surface that exists to spare you the screen was
+silent for exactly the effort that needs it.
+
+**History says which movement was left half-done**, instead of calling it
+skipped like one you never started. The workout's own duration no longer counts
+the hours a phone spent locked in the middle of it, and a rest that ran to its
+end counts as training whether or not the app survived it.
+
+**Smaller, and all of it measured.** Starting over from the resume card asks
+first — it was one tap away from throwing a half-finished workout away, while
+skipping a single set has always asked. The number panel's steppers are 44 pt
+like everything else in the flow. A signal played to a suspended app no longer
+starts a plank that was counted in while nobody could hear it, and the same rule
+now covers the pause between the two sides of a hold. Twelve-hundred-odd words
+across the app were read again in seven languages.
+
+**The engine is untouched.** `DredfitCore` carries no change in this release,
+`golden.json` is byte-for-byte the fixture 2.2.0 shipped, and there is no
+migration: the state and journal formats are the same, with one optional field
+added to each in the way every added field is added — absent from anything an
+older build wrote, and read as "not measured" rather than as zero.
+
 ## 2.2.1
 
 **Seven languages read against the canon, and the canon wins.** A review of

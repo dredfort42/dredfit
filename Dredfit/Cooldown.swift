@@ -1,7 +1,15 @@
 //
-//  Six positions × 30 s, materialising the 3 minutes `cooldownMin` reserves —
-//  so no estimate anywhere changes. Composition is deterministic from what was
-//  actually performed.
+//  Six positions × 30 s plus their transitions. Composition is deterministic
+//  from what was actually performed.
+//
+//  The header used to say "materialising the 3 minutes `cooldownMin` reserves
+//  — so no estimate anywhere changes", and both halves had gone stale:
+//  `cooldownMin` is 4 (it rose from 3 to pay for the 10-second transition),
+//  while the block's own arithmetic is 270…295 s on EVERY composition, which
+//  `cooldownIntroMinutes` rounds up to 5. The number is not restated here any
+//  more, precisely because it moved twice without this line moving: what the
+//  offer screen promises is derived, and the engine's reserve is the engine's
+//  (see `GetReady.setupSupplementSec` for how it is spent).
 //
 //  No levels, no journal entry, no engine involvement.
 //
@@ -195,24 +203,71 @@ enum Cooldown {
 
     // MARK: - Composition
 
+    /// The whole pool of nine, in no particular order — for `honoured` below
+    /// and for the sheet's name lookup. `mappedPool` is the six that a
+    /// movement can point at; these three are the fixed frame around them.
+    private static var wholePool: [CooldownPosition] {
+        [hipFlexors, chestWall, restPose] + mappedPool
+    }
+
     /// Two fixed positions, three from the session's movements (session
-    /// order, deduplicated, topped up from the pool), rest pose last.
+    /// order, deduplicated, topped up from the pool), rest pose last —
+    /// minus anything in `hidden`.
+    ///
+    /// A hidden FIXED position does not leave a hole: the middle grows into
+    /// its slot, so the block is six either way (UX review 05.09.2026, finding
+    /// 49 — "Chest and shoulders at the wall" stood second in every single
+    /// cool-down, and someone with no free wall had no way to say so once).
+    /// With nothing hidden the arithmetic below is the old one exactly: two
+    /// fixed, three mapped, rest pose.
     ///
     /// Empty input returns an empty cool-down — the flow skips the block.
-    static func positions(performed: [Pattern]) -> [CooldownPosition] {
+    static func positions(performed: [Pattern],
+                          hiding hidden: Set<String>) -> [CooldownPosition] {
         guard !performed.isEmpty else { return [] }
+        let setAside = honoured(hidden)
+
+        let opening = [hipFlexors, chestWall].filter { !setAside.contains($0.id) }
+        let closing = [restPose].filter { !setAside.contains($0.id) }
+        let middleCount = max(positionCount - opening.count - closing.count, 0)
 
         var mapped: [CooldownPosition] = []
-        for pattern in performed {
+        for pattern in performed where mapped.count < middleCount {
             let candidate = position(for: pattern)
-            if !mapped.contains(candidate) { mapped.append(candidate) }
-            if mapped.count == 3 { break }
+            guard !setAside.contains(candidate.id), !mapped.contains(candidate) else { continue }
+            mapped.append(candidate)
         }
-        for candidate in mappedPool where mapped.count < 3 {
-            if !mapped.contains(candidate) { mapped.append(candidate) }
+        for candidate in mappedPool where mapped.count < middleCount {
+            guard !setAside.contains(candidate.id), !mapped.contains(candidate) else { continue }
+            mapped.append(candidate)
         }
 
-        return [hipFlexors, chestWall] + mapped + [restPose]
+        return opening + mapped + closing
+    }
+
+    /// The block's own rule with nothing set aside. The app never calls it, and
+    /// the reserve gate calls it only where the claim IS about the block before
+    /// anything was set aside — see `Warmup.moves(sessionNumber:)` for what
+    /// walking it as if it were the shipped rule cost (review 06.09.2026).
+    static func positions(performed: [Pattern]) -> [CooldownPosition] {
+        positions(performed: performed, hiding: [])
+    }
+
+    /// As many of `hidden` as the block can afford, in pool order — the twin
+    /// of `Warmup.honoured` and for the same reason: the guarantee that a
+    /// block never empties belongs to the composer, not to the settings that
+    /// hold the list. Nine in the pool against six on screen, so three.
+    private static func honoured(_ hidden: Set<String>) -> Set<String> {
+        let whole = wholePool
+        let affordable = max(whole.count - positionCount, 0)
+        guard hidden.count > affordable else { return hidden }
+        return Set(whole.map(\.id).filter(hidden.contains).prefix(affordable))
+    }
+
+    /// The name behind an id — see `Warmup.name(ofMove:)`. nil for an id from
+    /// the warm-up's pool.
+    static func name(ofPosition id: String) -> String? {
+        wholePool.first { $0.id == id }?.name
     }
 
     // MARK: - The stage machine (issue #35)

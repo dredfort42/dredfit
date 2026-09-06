@@ -12,10 +12,16 @@ struct ProgressScreen: View {
     /// side by side without pushing itself off both edges.
     @Environment(\.dynamicTypeSize) private var typeSize
     @State private var chartPattern: Pattern?   // nil = the total-steps view
-    @State private var cardURL: URL?            // the share card
+    /// The share card: the file that travels and the picture of it.
+    @State private var card: ShareCardFactory.Card?
     /// Rendering is a main-thread 1080×1350 pass plus a PNG write — worth
     /// skipping when nothing moved.
     @State private var renderedCardKey: [Int]?
+    /// The record a tap on the chart opens.
+    @State private var historyRecord: WorkoutRecord?
+    /// 120 of chart plus room for the date axis — and that axis is text now,
+    /// so the room has to grow with it (UX review, 05.09.2026).
+    @ScaledMetric(relativeTo: .caption2) private var chartHeight: CGFloat = 134
 
     private var canShare: Bool { !store.records.isEmpty }
 
@@ -24,19 +30,31 @@ struct ProgressScreen: View {
     // which broke mid-digit.
     @ViewBuilder
     private var shareButton: some View {
-        if canShare, let cardURL {
-            ShareLink(item: cardURL,
-                      preview: SharePreview(summaryHeadline)) {
+        if canShare, let card {
+            // The preview carries the PICTURE, not the headline alone. The
+            // card is rendered before the sheet opens, so the one thing an
+            // athlete could check before sending — what it says about them —
+            // was the one thing the share sheet did not show (UX review,
+            // 05.09.2026).
+            ShareLink(item: card.url,
+                      preview: SharePreview(summaryHeadline, image: card.image)) {
                 Image(systemName: "square.and.arrow.up")
                     // Capped: the ring does not grow with type size, and past
                     // ~22 pt the arrow spills out of it.
                     .dredfitFont(15, weight: .semibold, cap: 22)
                     .foregroundStyle(Theme.ink2)
                     .frame(width: 38, height: 38)
+                    // The fill is the page's own ground, so the ring is the
+                    // only thing saying this glyph is a control — which is
+                    // what 1.4.11 asks 3:1 of, and hairline gave 1.17:1 in
+                    // light. `targetStroke`, the same role the milestone
+                    // screen's Share button takes, not a local ink2: the two
+                    // buttons are the same control and must move together
+                    // (finding 31, UX review 05.09.2026).
                     .background(
                         Circle()
                             .fill(Theme.bg)
-                            .overlay(Circle().strokeBorder(Theme.hairline, lineWidth: 1.5))
+                            .overlay(Circle().strokeBorder(Theme.targetStroke, lineWidth: 1.5))
                     )
             }
             .accessibilityLabel(Text("Share progress"))
@@ -81,6 +99,12 @@ struct ProgressScreen: View {
         // A bare staticTexts["0"] query can match a chart axis label.
         Text("\(store.totalProgress)")
             .dredfitFont(56, weight: .heavy, cap: 84)
+            // Named, not inherited. Without it SwiftUI hands the largest
+            // number on the screen `.primary` — #FFFFFF in dark against the
+            // ink token's #F2F2F4, and #000000 in light against #111214 — so
+            // the one element the palette is most careful about was the one
+            // element outside it (UX review 05.09.2026).
+            .foregroundStyle(Theme.ink)
             .tracking(-2)
             .monospacedDigit()
             .lineLimit(1)
@@ -154,7 +178,7 @@ struct ProgressScreen: View {
                     let bands = breakBands(points)
 
                     stepsChart(points, bands)
-                        .frame(height: 134)   // 120 of chart + room for the date axis
+                        .frame(height: chartHeight)
                         .padding(.top, 8)
 
                     breakFactLine(bands)
@@ -173,6 +197,9 @@ struct ProgressScreen: View {
                 .padding(.bottom, 12)
             }
         }
+        .sheet(item: $historyRecord) { record in
+            HistorySheet(record: record)
+        }
         .onAppear { refreshCard() }
         .onChange(of: store.records.count) { refreshCard() }
         .onChange(of: store.totalProgress) { refreshCard() }
@@ -180,15 +207,19 @@ struct ProgressScreen: View {
 
     private func refreshCard() {
         guard canShare else {
-            cardURL = nil
+            card = nil
             renderedCardKey = nil
             return
         }
         let key = [store.records.count, store.totalProgress]
         guard key != renderedCardKey else { return }
         renderedCardKey = key
-        cardURL = ShareCardFactory.fileURL(headline: summaryHeadline, slot: .progress,
-                                           steps: store.progressCurve())
+        // `progressCurve()` rather than a second walk of the journal: it is
+        // cut at the reset too now, so the milestone card and this one draw
+        // the same line — and after a reset neither sends out the old peak
+        // under a headline that says 0 (UX review 05.09.2026, finding 36).
+        card = ShareCardFactory.card(headline: summaryHeadline, slot: .progress,
+                                     steps: store.progressCurve())
     }
 
     private var barBranchExists: Bool {
@@ -265,8 +296,15 @@ struct ProgressScreen: View {
     /// the causal half is claimed only where the steps actually fell.
     @ViewBuilder
     private func breakFactLine(_ bands: [BreakBand]) -> some View {
-        if let longest = bands.max(by: { $0.days < $1.days }) {
-            Text(breakFact(longest, of: bands.count))
+        // The freshest band that actually COST steps, and only failing that
+        // the longest. Choosing by length alone put the explanation on a
+        // harmless gap while the visible drop beside it went unexplained —
+        // and then withheld "The plan met you lower.", the half of the line
+        // written so a dip would not read as a failure (UX review,
+        // 05.09.2026).
+        if let band = bands.last(where: { $0.costSteps })
+            ?? bands.max(by: { $0.days < $1.days }) {
+            Text(breakFact(band, of: bands.count))
                 .dredfitFont(12.5)
                 .foregroundStyle(Theme.ink2)
                 .fixedSize(horizontal: false, vertical: true)
@@ -307,7 +345,7 @@ struct ProgressScreen: View {
     /// written before v3 — their numbers belong to a scale this chart does
     /// not draw. The line starts where the measured ladder does.
     private var chartPoints: [StepPoint] {
-        let plotted = store.records.compactMap { record in
+        let plotted = store.recordsSinceReset.compactMap { record in
             effectivePattern.map { plot(record, $0) } ?? plotTotal(record)
         }
         return plotted.enumerated().map { index, point in
@@ -350,10 +388,14 @@ struct ProgressScreen: View {
                        ownSkips: !(record.setsSkipped?.isEmpty ?? true))
     }
 
+    /// The variation alone. Behind "\(p.displayName) — " the kicker ran out
+    /// of width and truncated its TAIL — and the tail is the differentiator
+    /// ("on a step", "with a pause"), so two rungs of one ladder drew the
+    /// same title in six of the seven languages. The movement is named by the
+    /// row that was just tapped and tinted (UX review, 05.09.2026).
     private var chartTitle: String {
         guard let p = effectivePattern else { return String(localized: "total steps") }
-        let variation = Library.name(p, store.engineState.position(p).variation)
-        return "\(p.displayName) — \(variation)"
+        return Library.name(p, store.engineState.position(p).variation)
     }
 
     /// Both ends are dates, and Swift Charts extracts a mark's labels into
@@ -363,21 +405,27 @@ struct ProgressScreen: View {
     private func breakBandMark(_ band: BreakBand, in points: [StepPoint]) -> some ChartContent {
         RectangleMark(xStart: .value("date", band.from),
                       xEnd: .value("date", band.to))
-            .foregroundStyle(Theme.hairline.opacity(0.55))
+            .foregroundStyle(Theme.restFill)
             .annotation(position: .overlay, alignment: .center) {
                 if labelFits(band, in: points) {
-                    // ink2, not ink3: this text sits ON a fill rather than on
-                    // the ground, and ink3 read 2.16:1 light / 2.57:1 dark
-                    // against it — under the 4.5:1 the wave that drew this
-                    // band set for itself, and under the 3.53:1 mockup that
-                    // same wave turned down. Same reasoning as the calendar's
-                    // rest digit, which is ink2 for exactly this reason. The
-                    // fill is hairline at 55 % over bg, so the ground is
-                    // #F5F5F6 light and #1B1D20 dark; ink2 gives 4.55 and
-                    // 5.94, and 5.99 / 6.54 in the two Increased Contrast
-                    // variants. 11, not 10: nothing else in the interface is
-                    // smaller than 11, and the calendar's weekday header —
-                    // the other 11 — is what this now matches.
+                    // ink, not ink2, because the FILL changed under it. The
+                    // band used to be hairline at 55 % over bg, measured only
+                    // for the text on it: against the page that ground is
+                    // 1.09:1 light and 1.17:1 dark — fainter than the very
+                    // hairline this project calls too faint for a 13 pt legend
+                    // dot, so the line "Others are marked too." pointed at
+                    // marks nobody could see, and a narrow band (the
+                    // interesting kind, since its label is dropped) showed
+                    // nothing at all. restFill is the token for exactly this
+                    // role — quiet but visible, 1.28:1 light and 1.64:1 dark —
+                    // and the calendar's rest day already uses it. On it ink2
+                    // would read 3.84:1, under the 4.5:1 this label was moved
+                    // to ink2 for in the first place; ink gives 14.6:1 light
+                    // and 10.8:1 dark (UX review, 05.09.2026).
+                    //
+                    // 11, not 10: nothing else in the interface is smaller
+                    // than 11, and the calendar's weekday header — the other
+                    // 11 — is what this matches.
                     //
                     // dredfitFont, unlike the axis labels below: an
                     // annotation IS a View, and `labelFits` reserves a wider
@@ -385,7 +433,7 @@ struct ProgressScreen: View {
                     // label grows.
                     Text("\(band.days) days")
                         .dredfitFont(11)
-                        .foregroundStyle(Theme.ink2)
+                        .foregroundStyle(Theme.ink)
                 }
             }
     }
@@ -414,22 +462,38 @@ struct ProgressScreen: View {
                 }
             }
             .chartYScale(domain: 0...max(points.map(\.value).max() ?? 1, 8))
+            .chartOverlay { proxy in
+                GeometryReader { geo in
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .onTapGesture { location in
+                            openRecord(near: location, proxy, geo, in: points)
+                        }
+                }
+            }
             .chartXAxis {
                 AxisMarks(values: xAxisDates(points)) { value in
                     AxisValueLabel(format: .dateTime.month(.abbreviated).day(),
                                    anchor: Self.xLabelAnchor(index: value.index,
                                                              count: value.count))
-                        .font(.system(size: 10))
-                        .foregroundStyle(Theme.ink3)
+                        .font(.caption2)
+                        .foregroundStyle(Theme.ink2)
                 }
             }
             .chartYAxis {
                 AxisMarks(position: .trailing, values: .automatic(desiredCount: 3)) {
                     AxisGridLine().foregroundStyle(Theme.hairline)
                     AxisValueLabel()
-                        // Chart axis marks are not Views — no dredfitFont.
-                        .font(.system(size: 10))
-                        .foregroundStyle(Theme.ink3)
+                        // A text STYLE, not a point size. An axis mark is not
+                        // a View, so `dredfitFont` cannot reach it — but what
+                        // Charts takes is a `Font`, and `.caption2` scales
+                        // with the reader's setting where `.system(size: 10)`
+                        // froze both axes of the only chart in the app: a
+                        // graph whose scale cannot be read is a picture. ink2,
+                        // not ink3: ink3 is a graphics tone (2.35:1 on bg in
+                        // light) and these are words (UX review, 05.09.2026).
+                        .font(.caption2)
+                        .foregroundStyle(Theme.ink2)
                 }
             }
         } else {
@@ -443,6 +507,27 @@ struct ProgressScreen: View {
                         .padding(.horizontal, 16)
                 )
         }
+    }
+
+    /// The chart is where "why did it drop" gets asked, and until now it had
+    /// no gesture at all: the only door into a session was its circle in the
+    /// calendar grid, three taps of "‹" away for a workout three months back.
+    /// The band and the line under it explain a break; a drop the athlete's
+    /// own answer caused has no prose anywhere, and only the record can
+    /// answer it (UX review, 05.09.2026).
+    ///
+    /// Nearest point in x rather than a hit box on the mark: the line is 2 pt
+    /// wide and dates crowd towards the right of a long history.
+    private func openRecord(near location: CGPoint, _ proxy: ChartProxy,
+                            _ geo: GeometryProxy, in points: [StepPoint]) {
+        guard let plot = proxy.plotFrame else { return }
+        let x = location.x - geo[plot].origin.x
+        guard let tapped = proxy.value(atX: x, as: Date.self) else { return }
+        let nearest = points.min {
+            abs($0.date.timeIntervalSince(tapped)) < abs($1.date.timeIntervalSince(tapped))
+        }
+        guard let nearest else { return }
+        historyRecord = store.record(on: nearest.date)
     }
 
     // MARK: - Per-pattern progress bar
@@ -487,44 +572,25 @@ struct ProgressScreen: View {
             // The all-patterns view answers "where am I", not "what is next
             // on each" — the detail belongs to the projected pattern only.
             VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 12) {
-                    // Wide enough for "Горизонтальный жим" on one line: at
-                    // 116 the long names wrapped.
-                    Text(p.displayName)
-                        .dredfitFont(13.5, weight: .medium)
-                        .foregroundStyle(Theme.ink)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.85)
-                        .frame(width: 152, alignment: .leading)
-                    progressBar(p, steps: steps)
-                    Text("\(steps)")
-                        .dredfitFont(13.5, weight: .semibold)
-                        .monospacedDigit()
-                        .foregroundStyle(Theme.ink2)
-                        .frame(width: 44, alignment: .trailing)
-                }
-                // "Squat, 18" was a number with no scale: the bar carries the
-                // scale visually and carries nothing at all to VoiceOver. The
-                // element is this row only — the selected line below keeps its
-                // own label, and a label on the Button would swallow it.
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel(Text(verbatim: p.displayName + ", ")
-                    + Text("step \(steps) of \(Engine.ladderSpan(p))"))
+                rowHead(p, steps: steps, selected: selected)
+                    // "Squat, 18" was a number with no scale: the bar carries
+                    // the scale visually and carries nothing at all to
+                    // VoiceOver. The element is this row only — the selected
+                    // line below keeps its own label, and a label on the
+                    // Button would swallow it.
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(Text(verbatim: p.displayName + ", ")
+                        + Text("step \(steps) of \(Engine.ladderSpan(p))"))
                 if selected {
-                    // Verbatim: the pieces are either core-localized (the
-                    // name) or language-neutral (the numbers).
-                    HStack(alignment: .firstTextBaseline, spacing: 8) {
-                        Text(verbatim: detailLine(variation, position, of: total))
-                            .accessibilityLabel(Text(verbatim: variation + ", ")
-                                + Text("variation \(position.variation) of \(total)"))
-                        Spacer(minLength: 8)
-                        nextMilestoneLabel(nextMilestone(p))
-                            .monospacedDigit()
-                    }
-                    .dredfitFont(11)
-                    .foregroundStyle(Theme.ink2)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
+                    selectedDetail(p, variation, position, of: total)
+                        .dredfitFont(11)
+                        .foregroundStyle(Theme.ink2)
+                        .lineLimit(typeSize.isAccessibilitySize ? nil : 1)
+                        // 0.85, not 0.7: at the old floor this line rendered
+                        // at 7.7 pt AND still lost its tail, and the tail is
+                        // the dose — the one number no other part of this
+                        // screen carries (UX review, 05.09.2026).
+                        .minimumScaleFactor(0.85)
                 }
             }
             .padding(.vertical, 8)
@@ -536,6 +602,101 @@ struct ProgressScreen: View {
         .padding(.horizontal, -8)
         // Colour alone doesn't reach VoiceOver — state has to be a trait.
         .accessibilityAddTraits(selected ? [.isSelected] : [])
+    }
+
+    /// The head of a movement row: name, scale, number, and the marker that
+    /// says the row does something.
+    ///
+    /// One line while the type is ordinary. The 152 pt the name is given and
+    /// the 44 pt the number is given are literals that Dynamic Type does not
+    /// move, so at AX3 and up the name was cut to a few letters and a
+    /// two-digit step count was truncated inside its column; at accessibility
+    /// sizes the bar drops under the pair instead, which is the move `statRow`
+    /// above already makes (UX review, 05.09.2026).
+    @ViewBuilder
+    private func rowHead(_ p: Pattern, steps: Int, selected: Bool) -> some View {
+        if typeSize.isAccessibilitySize {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 12) {
+                    patternName(p)
+                    Spacer(minLength: 8)
+                    stepsNumber(steps)
+                    disclosure(selected)
+                }
+                progressBar(p, steps: steps)
+            }
+        } else {
+            HStack(spacing: 12) {
+                // Wide enough for "Горизонтальный жим" on one line: at
+                // 116 the long names wrapped.
+                patternName(p).frame(width: 152, alignment: .leading)
+                progressBar(p, steps: steps)
+                HStack(spacing: 6) {
+                    stepsNumber(steps).frame(width: 44, alignment: .trailing)
+                    disclosure(selected)
+                }
+            }
+        }
+    }
+
+    private func patternName(_ p: Pattern) -> some View {
+        Text(p.displayName)
+            .dredfitFont(13.5, weight: .medium)
+            .foregroundStyle(Theme.ink)
+            .lineLimit(1)
+            .minimumScaleFactor(0.85)
+    }
+
+    private func stepsNumber(_ steps: Int) -> some View {
+        Text("\(steps)")
+            .dredfitFont(13.5, weight: .semibold)
+            .monospacedDigit()
+            .foregroundStyle(Theme.ink2)
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+    }
+
+    /// The row carried no sign at all that it could be tapped, so the answer
+    /// to "what comes next" — which lives inside the opened row and nowhere
+    /// else — was reachable only by poking at random (UX review, 05.09.2026).
+    ///
+    /// Down/up rather than the `chevron.right` of Today and Settings: there it
+    /// means a sheet opens, and this row opens nothing — it projects the chart
+    /// above and closes again on a second tap. Capped for the same reason the
+    /// share ring is: in the compact row the columns beside it are literals,
+    /// and a marker that grew would take the width from the bar.
+    private func disclosure(_ selected: Bool) -> some View {
+        Image(systemName: selected ? "chevron.up" : "chevron.down")
+            .dredfitFont(11, weight: .semibold, cap: 15)
+            .foregroundStyle(Theme.ink2)
+    }
+
+    /// One line while both halves fit it, two when they do not. A long
+    /// variation name next to the countdown drove this line into its scale
+    /// floor and truncated it anyway; the rule that the row above must not
+    /// move when a pattern is picked does not reach here, because this line
+    /// does not exist until it is (UX review, 05.09.2026).
+    ///
+    /// Verbatim: the pieces are either core-localized (the name) or
+    /// language-neutral (the numbers).
+    @ViewBuilder
+    private func selectedDetail(_ p: Pattern, _ variation: String,
+                                _ position: Position, of total: Int) -> some View {
+        let detail = Text(verbatim: detailLine(variation, position, of: total))
+            .accessibilityLabel(Text(verbatim: variation + ", ")
+                + Text("variation \(position.variation) of \(total)"))
+        let milestone = nextMilestoneLabel(nextMilestone(p)).monospacedDigit()
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                detail
+                Spacer(minLength: 8)
+                milestone
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                detail
+                milestone
+            }
+        }
     }
 
     /// "Bulgarian split squat · 3/6 · 3×11" — the movement, where it stands on
@@ -572,7 +733,14 @@ struct ProgressScreen: View {
     @ViewBuilder
     private func nextMilestoneLabel(_ milestone: NextMilestone) -> some View {
         switch milestone {
-        case .probe(let steps): Text("next movement in \(steps)")
+        // "movement" named the whole ladder everywhere else in the app — the
+        // milestone kicker, the plan badge, the explainer's first section —
+        // while here it named one rung of it, so "next movement in 4" could
+        // be read as a different exercise altogether. And what this counts to
+        // is not the change of variation but the PROBE that opens it (§40.4),
+        // one event earlier, so the honest words are the glossary's two
+        // (UX review, 05.09.2026).
+        case .probe(let steps): Text("next variation probe in \(steps)")
         case .set(let steps): Text("+1 set in \(steps)")
         case .ceiling: EmptyView()
         }

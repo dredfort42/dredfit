@@ -30,3 +30,31 @@ struct PlanLength: View {
         }
     }
 }
+
+/// What the number above is made of at both ends. Ten of those minutes are the
+/// warm-up and the cool-down, and they are 10–41 % of the announced length —
+/// the share is largest on exactly the shortest sessions, where the person
+/// deciding "will this fit" is reading the highest number they will ever be
+/// asked to fit (UX review 05.09.2026).
+///
+/// It states the fact and stops there: whether to skip a block is a question
+/// the flow asks with the block in front of the person, and answering it here,
+/// before they have seen one, would be an invitation rather than a disclosure.
+///
+/// Beside `PlanLength` rather than inside it: the range carries an
+/// accessibility label of its own ("about 24 to 32 minutes · 6 exercises"), and
+/// a second line under the same identifier would rewrite what a query reads.
+struct PlanEndsNote: View {
+    let warmupMin: Int
+    let cooldownMin: Int
+
+    var body: some View {
+        Text("Includes about \(warmupMin + cooldownMin) min of warm-up and cool-down.")
+            .dredfitFont(13.5)
+            // ink2, not ink3: ink3 is 2.35:1 on the light ground and fails the
+            // 4.5:1 small-text floor (owner, 05.09.2026 — the low contrast was
+            // an oversight, not a choice).
+            .foregroundStyle(Theme.ink2)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+}

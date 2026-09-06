@@ -89,18 +89,32 @@ struct TodayStatusView: View {
 
     private var rectangular: some View {
         VStack(alignment: .leading, spacing: 1) {
+            // Dynamic Type, not three frozen sizes: `.system(size:)` ignores
+            // the reader's setting outright, and the lock screen is the one
+            // surface read without picking the phone up — or the glasses
+            // (finding 60, UX review 05.09.2026). The sibling lock-screen file
+            // settled the same question the same way: `RestLiveActivity` caps
+            // only its display NUMBER and lets every word scale, so no `cap:`
+            // here. What one line can take is bounded by the two rules already
+            // on it — one line, and shrink before truncating.
             Text("Today")
-                .font(.system(size: 11, weight: .semibold))
+                .dredfitFont(11, weight: .semibold)
                 .kerning(0.6)
                 .textCase(.uppercase)
                 .widgetAccentable()
             Text(headline)
-                .font(.system(size: 15, weight: .bold))
+                .dredfitFont(15, weight: .bold)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
             Text(subline)
-                .font(.system(size: 12))
+                .dredfitFont(12)
                 .lineLimit(1)
+                // The only line here that carries a fact, and the one that
+                // was losing the day it names to an ellipsis in the longer
+                // languages. Same factor as the headline two lines up: one
+                // rule inside one view (UX review 05.09.2026).
+                .minimumScaleFactor(0.8)
+                .accessibilityLabel(sublineSpoken)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .containerBackground(.clear, for: .widget)
@@ -111,7 +125,11 @@ struct TodayStatusView: View {
             switch entry.status {
             case .workout:
                 if let n = entry.sessionNumber, let min = entry.planMinutes {
-                    Text("Workout \(n)") + Text(verbatim: " · ") + Text("≈ \(min) min")
+                    // Both ends here too — inline and rectangular sit on the
+                    // same lock screen, and one of them saying "32 min" while
+                    // the other says "24–32 min" reads as two plans
+                    // (UX review 05.09.2026).
+                    Text("Workout \(n)") + Text(verbatim: " · ") + minutesText(full: min)
                 } else {
                     Text(headline)
                 }
@@ -122,6 +140,16 @@ struct TodayStatusView: View {
             Image(systemName: glyph)
         }
         .containerBackground(.clear, for: .widget)
+    }
+
+    /// Inline composes its line out of `Text` fragments, so the length clause
+    /// is a Text here rather than the resolved String the other surfaces
+    /// compare in tests (I-8). Same two ends as `subline`.
+    private func minutesText(full: Int) -> Text {
+        if let floor = entry.planMinutesFloor, floor < full {
+            return Text("≈ \(floor)–\(full) min")
+        }
+        return Text("≈ \(full) min")
     }
 
     // MARK: Pieces
@@ -172,10 +200,15 @@ struct TodayStatusView: View {
                 VStack(spacing: 5) {
                     Text(day.date.formatted(.dateTime.weekday(.narrow)))
                         .font(.system(size: 10, weight: .semibold))
-                        // A missed day carries no mark, so without dimming its
-                        // letter the column reads as a failed render.
-                        .foregroundStyle(day.status == .unmarked
-                                         ? Theme.ink3 : Theme.ink2)
+                        // One tone for all seven letters. Dimming the missed
+                        // day to ink3 put TEXT at 2.35:1 in light and 3.02:1 in
+                        // dark, both under the 4.5 this size needs, and it did
+                        // it to the one column a person is most likely to be
+                        // looking for (finding 69; owner's call, UX review
+                        // 05.09.2026 — ink3 is a graphics tone). The day's
+                        // state is the MARK below, which is what carries it for
+                        // the other three statuses too.
+                        .foregroundStyle(Theme.ink2)
                     mark(for: day)
                 }
                 .frame(maxWidth: .infinity)
@@ -236,12 +269,26 @@ struct TodayStatusView: View {
                         // Shrink rather than truncate (I-12): sibling
                         // variations differ at the END of the name, which is
                         // exactly what an ellipsis would hide.
-                        .minimumScaleFactor(0.8)
+                        //
+                        // 0.8 was measured against English only, and every
+                        // other language overruns it: the ellipsis then landed
+                        // on the tail and drew the two calf steps — "on a
+                        // step" and "with a pause" — as the same row
+                        // (UX review 05.09.2026). Shrink further first, and
+                        // when even that is not enough drop the HEAD, which
+                        // is the half the sibling names share.
+                        .minimumScaleFactor(0.7)
+                        .truncationMode(.head)
                     Spacer(minLength: 0)
                     Text(row.detail)
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(Theme.ink2)
                         .monospacedDigit()
+                        // "3×30 sec per side" is the longest dose there is,
+                        // and without this it wraps to a second line under
+                        // pressure — growing every row of a list that already
+                        // fills the widget (UX review 05.09.2026).
+                        .lineLimit(1)
                 }
                 .padding(.vertical, 6)
             }
@@ -296,16 +343,39 @@ struct TodayStatusView: View {
     }
 
     var subline: String {
-        switch entry.status {
-        case .workout:
-            if let min = entry.planMinutes, !entry.plan.isEmpty {
-                return String(localized: "≈ \(min) min · \(entry.plan.count) exercises")
-            }
-            return String(localized: "Dredfit")
-        default:
-            if let when = entry.nextLabel { return String(localized: "Next workout \(when)") }
+        if let length = planLength { return length.printed }
+        // The label points at the NEXT workout, so a workout day never shows
+        // one — and a day with neither a plan nor a label signs itself rather
+        // than guessing.
+        guard entry.status != .workout, let when = entry.nextLabel else {
             return String(localized: "Dredfit")
         }
+        return String(localized: "Next workout \(when)")
+    }
+
+    /// What the subline is read out as. Only the range differs: VoiceOver
+    /// gets a dash between the two numbers otherwise, and the app's own line
+    /// already spells this out (PlanLength).
+    var sublineSpoken: String { planLength?.spoken ?? subline }
+
+    /// The workout day's length, in the two forms the one sentence needs.
+    ///
+    /// It is the RANGE, not the full number alone: the lock screen is where
+    /// "will this fit today" gets answered without opening the app, and the
+    /// full number alone overstates what the person is agreeing to — the
+    /// reason Today prints both ends (PlanLength, UX review 05.09.2026). A
+    /// snapshot written before the floor existed carries one number and still
+    /// prints one. nil on any day with no plan to describe.
+    private var planLength: (printed: String, spoken: String)? {
+        guard entry.status == .workout, let full = entry.planMinutes,
+              !entry.plan.isEmpty else { return nil }
+        let count = entry.plan.count
+        guard let floor = entry.planMinutesFloor, floor < full else {
+            let one = String(localized: "≈ \(full) min · \(count) exercises")
+            return (one, one)
+        }
+        return (String(localized: "≈ \(floor)–\(full) min · \(count) exercises"),
+                String(localized: "about \(floor) to \(full) minutes · \(count) exercises"))
     }
 
     private var glyph: String {

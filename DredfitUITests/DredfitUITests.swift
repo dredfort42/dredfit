@@ -520,7 +520,7 @@ final class DredfitUITests: XCTestCase {
                       "the explainer did not open")
         for section in ["What your answer does", "Deload", "Rotation",
                         "Weekly rhythm",   // issue #36
-                        "Trying the next movement",   // §40.4
+                        "Trying the next variation",   // §40.4
                         "Skips", "Why there are no questionnaires"] {
             XCTAssertTrue(app.staticTexts[section].exists,
                           "section \"\(section)\" is missing")
@@ -561,9 +561,20 @@ extension DredfitUITests {
     }
 
     // MARK: - Rest days
+    //
+    // Both walks seed a WORKOUT as well as the marked weekday, and the second
+    // flag is the arrange, not belt-and-braces: rest is rest FROM something,
+    // so since the UX review of 05.09.2026 `restApplies` is "weekday marked
+    // AND journal not empty" — a fresh install is no longer told to come back
+    // on Tuesday. `--uitest-restday` marks today and writes nothing, so alone
+    // it now draws the PLAN, which is how both of these failed.
+    // `--uitest-session2` is the cheapest journal there is (session 1 done
+    // YESTERDAY: one record, no break, nothing done today), and the hook order
+    // makes the pair safe — applyUITestHooks sets the rest weekday after the
+    // session-2 seed clears it. Do not drop it to "simplify the seed".
 
     func testRestDayShowsRestStateInsteadOfALivePlan() {
-        app.seedLaunchArguments("--uitest-restday")
+        app.seedLaunchArguments("--uitest-session2", "--uitest-restday")
         app.launch()
         XCTAssertTrue(app.staticTexts["Rest day"].waitForExistence(timeout: 5),
                       "a rest day must say so on Today")
@@ -574,7 +585,7 @@ extension DredfitUITests {
     }
 
     func testTrainAnywayStartsTheWorkoutOnARestDay() {
-        app.seedLaunchArguments("--uitest-restday")
+        app.seedLaunchArguments("--uitest-session2", "--uitest-restday")
         app.launch()
         XCTAssertTrue(app.buttons[AX.trainAnyway].waitForExistence(timeout: 5))
         app.buttons[AX.trainAnyway].tap()
@@ -605,18 +616,21 @@ extension DredfitUITests {
         XCTAssertTrue(app.staticTexts.matching(identifier: AX.jubileeRetro).firstMatch.exists,
                       "the jubilee should show the then → now line")
         // Match on the rendered label: Kicker uppercases, so the catalog key
-        // ("More volume") and what is on screen deliberately differ.
+        // ("More sets") and what is on screen deliberately differ.
         XCTAssertEqual(app.staticTexts.matching(
-            NSPredicate(format: "label == %@", "MORE VOLUME")).count, 2,
+            NSPredicate(format: "label == %@", "MORE SETS")).count, 2,
             "both set-band rows should be listed")
         // NO life line here, and that is the rule, not a gap: the line belongs
         // to a NEW VARIATION (issue #25), and both rows above are SET BANDS —
         // since v3 a seed can only plant those, because entering a variation
         // needs a probe passed inside the workout (§40.4). Their kicker says
-        // "More volume" since the UI-truth audit (27.08.2026) — it used to
-        // say "New variation" over more sets of the same movement, which is
-        // the wording BACKLOG had logged. The variation-up row and its life
-        // line stay covered by MilestoneTests at unit level.
+        // "More sets" since the UX review of 05.09.2026, and the two earlier
+        // words were each a different lie: "New variation" about WHICH
+        // movement (the UI-truth audit, 27.08.2026), then "More volume" about
+        // the amount — entering a band cuts the dose per set, so total work
+        // at the transition holds or falls. Sets are the axis that moves, so
+        // that is the word this assert pins. The variation-up row and its
+        // life line stay covered by MilestoneTests at unit level.
         XCTAssertEqual(
             app.staticTexts.matching(identifier: AX.milestoneLife).count, 0,
             "a set band is the same ability grown — it carries no life line")
