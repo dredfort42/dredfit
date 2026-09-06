@@ -520,7 +520,7 @@ final class DredfitUITests: XCTestCase {
                       "the explainer did not open")
         for section in ["What your answer does", "Deload", "Rotation",
                         "Weekly rhythm",   // issue #36
-                        "Trying the next movement",   // §40.4
+                        "Trying the next variation",   // §40.4
                         "Skips", "Why there are no questionnaires"] {
             XCTAssertTrue(app.staticTexts[section].exists,
                           "section \"\(section)\" is missing")

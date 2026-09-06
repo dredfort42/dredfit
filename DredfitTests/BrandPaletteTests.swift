@@ -60,7 +60,8 @@ final class BrandPaletteTests: XCTestCase {
 
     /// The acceptance list of the token wave (#116) — dark scheme only. The
     /// light values predate these floors and are pinned by value instead:
-    /// light hairline-on-bg is 1.17 and ink3-on-bg 2.35 by design.
+    /// light hairline-on-bg is 1.17 and ink3-on-bg 2.35 by design (that 2.35
+    /// has its own pin below, because Theme.swift now quotes it in prose).
     private static let darkFloors = [
         Floor(ink: "ink", ground: "bg", ratio: 7),
         Floor(ink: "ink", ground: "cardBG", ratio: 7),
@@ -75,25 +76,62 @@ final class BrandPaletteTests: XCTestCase {
         Floor(ink: "cardBG", ground: "bg", ratio: 1.2),
     ]
 
-    /// accentText ON accentSoft is NOT in the floors above, and that is the
-    /// finding rather than an oversight (I-21, 01.09.2026): it measures
-    /// 4.20:1 in the dark scheme, under the 4.5 small text needs. The pair
-    /// carries the probe badge and the out-of-order-maximum note, so the
-    /// value is pinned here — a gate on the number that HOLDS, since a floor
-    /// on the number that ought to hold would just be a red test nobody in
-    /// this wave is authorised to make green (the tokens are the owner's, and
-    /// moving one invalidates the whole store screenshot set).
+    // I-21 used to live here as a PIN on 4.20 — accentText on accentSoft,
+    // under the 4.5 small text needs — recorded as a number that holds rather
+    // than a floor, because at the time six places drew that pair and nobody
+    // in that wave was authorised to move a token.
+    //
+    // It is gone because the finding is closed from the other side: no view
+    // draws accentText on accentSoft any more. The probe badge, the held-set
+    // card, the maximum note, Today's "day N in a row" card and the
+    // onboarding chip moved to `ink` first, and `Theme.badgePillColors` — the
+    // last of the six, and the only one that could not be fixed at its call
+    // site because the pill is a bitmap — followed in this wave (UX review
+    // 05.09.2026, finding 16). Nothing was repainted: accentText keeps its
+    // four values, and every pair still on it (accentText on bg) keeps its
+    // floors above.
+    //
+    // A pin on a pair nobody draws gates nothing, so what replaces it is the
+    // floor for the pair that is now drawn everywhere — see `lightTextFloors`
+    // below, which was the one appearance of ink-on-accentSoft with no gate.
+
+    /// The light scheme has no acceptance list of its own — but these pairs
+    /// are what the text rule in Theme.swift rests on since `Kicker` moved off
+    /// ink3 (UX review 05.09.2026: ink3 text was an oversight). Lightening
+    /// light ink2 would quietly take every kicker, every card sub-line and the
+    /// accented figures back under 4.5:1; it fails here instead.
     ///
-    /// Anything that raises it is welcome and will fail this; anything that
-    /// LOWERS it fails it too, which is the half that matters. New text on
-    /// that fill uses `ink`, which is gated at 4.5 dark and 7 in Increased
-    /// Contrast one block above.
-    func testTheAccentedPillIsPinnedWhereItActuallyStands() throws {
-        let ink = components(of: try resolved("accentText", style: .dark, contrast: .normal))
-        let ground = components(of: try resolved("accentSoft", style: .dark, contrast: .normal))
-        XCTAssertEqual(contrast(ink, on: ground), 4.20, accuracy: 0.01,
-                       "accentText on accentSoft moved — re-read I-21 before "
-                        + "deciding whether that is a fix or a regression")
+    /// ink-on-accentSoft is the accented fill's ONLY text pair now (finding
+    /// 16). Dark gates it at 4.5 and Increased Contrast at 7 in the two lists
+    /// beside this one; the light scheme was the appearance nothing measured,
+    /// which is where the badge pill is read most. It stands at 15.23:1, so 7
+    /// is a floor with room, not a value pinned to today's hexes.
+    private static let lightTextFloors = [
+        Floor(ink: "ink", ground: "bg", ratio: 7),
+        Floor(ink: "ink", ground: "cardBG", ratio: 7),
+        Floor(ink: "ink2", ground: "bg", ratio: 4.5),
+        Floor(ink: "ink2", ground: "cardBG", ratio: 4.5),
+        Floor(ink: "accentText", ground: "bg", ratio: 4.5),
+        Floor(ink: "ink", ground: "accentSoft", ratio: 7),
+    ]
+
+    func testLightSchemeTextTokensClearTheFloorTheKickerRuleRestsOn() throws {
+        try assertFloors(Self.lightTextFloors, style: .light, contrast: .normal)
+    }
+
+    /// ink3 is quoted by number in two places in Theme.swift — its own doc and
+    /// the `Kicker` default that stopped using it — and the rule those numbers
+    /// decide is "ink3 never carries text" (UX review 05.09.2026). The old
+    /// justification mixed schemes ("4.96:1 against 3.02:1": light ink2 against
+    /// DARK ink3), which is exactly the failure a pin prevents: prose cannot
+    /// go stale beside a moved token without a red test. A pin on the value
+    /// that HOLDS, both directions — a floor would say nothing about the
+    /// sentence being true.
+    func testInk3StandsWhereTheTextRuleQuotesIt() throws {
+        try assertRatio("ink3", on: "bg", equals: 2.35, style: .light, contrast: .normal)
+        try assertRatio("ink3", on: "bg", equals: 4.68, style: .light, contrast: .high)
+        try assertRatio("ink3", on: "bg", equals: 3.02, style: .dark, contrast: .normal)
+        try assertRatio("ink3", on: "bg", equals: 4.76, style: .dark, contrast: .high)
     }
 
     /// One tier up for Increased Contrast (#119), both schemes. The one
@@ -188,6 +226,20 @@ final class BrandPaletteTests: XCTestCase {
                        accuracy: accuracy, "\(name) green, \(scheme)")
         XCTAssertEqual(actual.blue, Double(rgb & 0xFF) / 255,
                        accuracy: accuracy, "\(name) blue, \(scheme)")
+    }
+
+    /// A pin rather than a floor: it fails on any move of the pair, in either
+    /// direction, which is what a number quoted in prose needs.
+    private func assertRatio(_ ink: String, on ground: String, equals ratio: Double,
+                             style: UIUserInterfaceStyle,
+                             contrast: UIAccessibilityContrast) throws {
+        let inkRGB = components(of: try resolved(ink, style: style,
+                                                 contrast: contrast))
+        let groundRGB = components(of: try resolved(ground, style: style,
+                                                    contrast: contrast))
+        XCTAssertEqual(self.contrast(inkRGB, on: groundRGB), ratio, accuracy: 0.01,
+                       "\(ink) on \(ground) moved in \(label(style, contrast)) — "
+                        + "Theme.swift quotes this number")
     }
 
     private func assertFloors(_ floors: [Floor], style: UIUserInterfaceStyle,

@@ -12,6 +12,15 @@ import SwiftUI
 /// compact, one slot under the countdown, the same weight as the technique
 /// affordance above it. The outline says "control" where a bare label would
 /// read as one more caption.
+///
+/// `Theme.targetStroke` for that outline — not hairline, and no longer ink3
+/// either. Both were stop-gaps for one problem: on `bg` hairline comes to
+/// 1.17:1, so the border that is the whole point of the control was simply
+/// not there, and ink3 reads 2.35:1 in the light scheme, still short of the
+/// 3:1 that 1.4.11 asks of the line a person is supposed to aim at. The token
+/// names the ROLE, which is what keeps the three outlines of this file, the
+/// adjuster's steppers and the summary cards from drifting apart a second
+/// time (finding 31, UX review 05.09.2026).
 struct BlockPauseButton: View {
     let paused: Bool
     let action: () -> Void
@@ -24,7 +33,7 @@ struct BlockPauseButton: View {
                 .foregroundStyle(paused ? Theme.accentText : Theme.ink2)
                 .padding(.horizontal, 18)
                 .frame(minHeight: 44)
-                .overlay(Capsule().stroke(Theme.hairline, lineWidth: 1.5))
+                .overlay(Capsule().stroke(Theme.targetStroke, lineWidth: 1.5))
         }
         // The identifier carries the state, not just the control: a localized
         // run must still be able to tell a paused block from a running one.
@@ -63,7 +72,14 @@ struct BlockSkipButton: View {
                 .dredfitFont(17, weight: .medium)
                 .foregroundStyle(Theme.ink2)
                 .frame(maxWidth: .infinity, minHeight: Self.height)
-                .overlay(RoundedRectangle(cornerRadius: 18).stroke(Theme.hairline, lineWidth: 1.5))
+                // targetStroke, like the pause capsule above and the two
+                // secondary labels below. Nothing else says this is a control:
+                // hairline on `bg` is 1.17:1 and the outline of a full-width
+                // button disappeared outright, while ink3 — what wave 2 moved
+                // it to — is 2.35:1 light, under the 3:1 of 1.4.11
+                // (finding 31, UX review 05.09.2026).
+                .overlay(RoundedRectangle(cornerRadius: 18)
+                    .stroke(Theme.targetStroke, lineWidth: 1.5))
         }
         .accessibilityIdentifier(identifier ?? title)
     }
@@ -184,11 +200,14 @@ struct ExerciseActionsRow: View {
 /// app does — the filled one is what the screen expects, the outlined one is
 /// the other answer.
 ///
-/// ink3 for the outline, not hairline. `pairedSecondaryLabel` uses hairline,
-/// but both of its call sites draw on `cardBG`; here the ground is `bg`, where
-/// hairline comes to ≈1.2:1 and the border is simply not there. ink3 reads
-/// ≈2.4:1 — past the 1.5:1 the palette holds for quiet graphics — while the
-/// ink2 label keeps the 4.5:1 small text needs.
+/// `targetStroke` for the outline, and `pairedSecondaryLabel` is on it too
+/// now — the two used to disagree (hairline there, ink3 here) about one
+/// question, and both answers were wrong: hairline is ≈1.2:1 on `bg` and the
+/// border is not there at all, ink3 ≈2.4:1 and still under the 3:1 that
+/// 1.4.11 asks of the boundary of a target. Passing "quiet graphics" was the
+/// wrong bar to measure an outline nobody can aim at against
+/// (finding 31, UX review 05.09.2026). The ink2 label keeps the 4.5:1 small
+/// text needs.
 struct WentDifferentlyButton: View {
     let action: () -> Void
 
@@ -267,7 +286,7 @@ extension View {
             .foregroundStyle(Theme.ink2)
             .frame(maxWidth: .infinity, minHeight: 46)
             .background(RoundedRectangle(cornerRadius: 14)
-                .strokeBorder(Theme.ink3, lineWidth: 1.5))
+                .strokeBorder(Theme.targetStroke, lineWidth: 1.5))
     }
 }
 

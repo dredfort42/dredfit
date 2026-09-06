@@ -98,6 +98,19 @@ final class AppStore {
     /// Read through `resumableWorkout`, which applies the validity checks.
     var pendingWorkout: WorkoutSnapshot?
 
+    /// Whether the workout flow is on screen RIGHT NOW, in this process.
+    ///
+    /// Not persisted and deliberately so: after a process death nothing owns
+    /// the snapshot any more, which is exactly when the settlement should run.
+    /// Its only reader is `settleAbandonedWorkout` — `activate()` fires on
+    /// every foreground, including one that lands straight back INTO a running
+    /// workout, and the store cannot otherwise tell that case from a session
+    /// nobody is holding (self-review 06.09.2026).
+    private(set) var workoutIsOnScreen = false
+
+    func workoutFlowAppeared() { workoutIsOnScreen = true }
+    func workoutFlowDisappeared() { workoutIsOnScreen = false }
+
     /// Views derive "today" from this rather than `Date.now`, so crossing
     /// midnight while suspended invalidates them: mutating it is what
     /// re-renders every date-derived view.
@@ -235,6 +248,11 @@ final class AppStore {
     /// Order matters: the decay can only correct a journal that has loaded.
     func activate(now: Date = .now) {
         reloadIfNeeded()
+        // BEFORE the day is re-anchored, never after: the settlement writes a
+        // journal entry dated to the day it happened, and the silent decay and
+        // the comeback both measure their gap from the last record. Settling
+        // afterwards would decay a state that had just been trained.
+        settleAbandonedWorkout(now: now)
         refreshDay(now: now)
         rescheduleReminders(now: now)
         // Off the sequence, because it is the only step that leaves the
@@ -475,8 +493,34 @@ final class AppStore {
     /// before v3 carry no point on this scale and are left out rather than
     /// plotted on the wrong one.
     func progressCurve(through date: Date? = nil) -> [Int] {
-        let history = date.map { cut in records.filter { $0.date <= cut } } ?? records
+        let run = recordsSinceReset
+        let history = date.map { cut in run.filter { $0.date <= cut } } ?? run
         return history.compactMap(\.totalProgressAfter)
+    }
+
+    /// Where the journal starts describing the CURRENT plan. `resetProgress`
+    /// restarts the session counter and leaves the journal standing — which is
+    /// what `WorkoutRecord.id` already says out loud — so the first record
+    /// whose number does not exceed its predecessor's opens the new run.
+    ///
+    /// The curve is cut here rather than at each caller because the milestone
+    /// card and the share card drew the pre-reset PEAK above a plan that had
+    /// just been wiped (UX review 05.09.2026, finding 36). Progress cut its own
+    /// chart and nothing else did. The workout COUNT still spans the whole
+    /// journal: the history really does stay, which is what the reset promises.
+    var recordsSinceReset: [WorkoutRecord] {
+        let resumed = records.indices.dropFirst().last {
+            records[$0].sessionNumber <= records[$0 - 1].sessionNumber
+        }
+        // The falling pair finds a reset only from the NEXT workout on:
+        // `resetProgress` writes no record of its own, it just returns the
+        // engine to `.initial` and leaves the journal standing. In the window
+        // between the reset and the first workout after it there is no pair to
+        // find, so the whole journal came back while `totalProgress` was
+        // already 0 — the chart drew the old peak under a headline saying zero
+        // (self-review 05.09.2026). The counter moves at the reset itself.
+        return records[(resumed ?? records.startIndex)...]
+            .filter { $0.sessionNumber <= engineState.counter }
     }
 
     var lastRecord: WorkoutRecord? { records.last }
@@ -524,6 +568,11 @@ final class AppStore {
                          /// Seconds the guided blocks actually ran; nil when
                          /// the flow did not measure them.
                          warmupSec: Int? = nil, cooldownSec: Int? = nil,
+                         /// The movement left half-done, if any. Already
+                         /// inside `skipped` for the engine; this names which,
+                         /// so the history can tell "not finished" from
+                         /// "skipped" (owner, 05.09.2026).
+                         interrupted: Pattern? = nil,
                          date: Date = .now) -> [Milestone] {
         // Mirror of the engine's replay guard: a session that does not belong
         // to this state must not append a duplicate journal entry either.
@@ -551,6 +600,14 @@ final class AppStore {
                                            setsSkipped: setsSkipped,
                                            gapDays: gapFraction(now: date),
                                            probes: probes)
+        // What it takes to change this rating afterwards, and which movements
+        // it actually eased. Both are facts of THIS moment and of no other:
+        // the state before the rating cannot be reconstructed from the journal
+        // — the silent decay and an accepted comeback move it between entries
+        // — and neither can the list the descent landed on (UX review
+        // 05.09.2026, findings 25 and 27).
+        settings.lastRatingUndo = RatingUndo(state: before, session: session)
+        noteRatingLanded(session: session, before: before)
         records.append(WorkoutRecord(
             sessionNumber: session.sessionNumber,
             date: date,
@@ -572,10 +629,18 @@ final class AppStore {
             skipped: skipped.isEmpty ? nil : skipped,
             positionsAfter: currentPositions,
             durationSec: durationSec,
-            warmupSec: warmupSec, cooldownSec: cooldownSec))
+            warmupSec: warmupSec, cooldownSec: cooldownSec,
+            interrupted: interrupted))
         persist()
         // A morning workout takes tonight's reminder down with it.
-        rescheduleReminders(now: date)
+        // NOT `now: date`: the record's date is about the JOURNAL, and
+        // `settleAbandonedWorkout` dates a record to the day it happened —
+        // yesterday. Reminders look forward, and scheduling them from a
+        // past `now` re-opens the very hole the `fire > now` guard exists
+        // to close: today's slot, already gone, passes the check against
+        // yesterday and sits in the pending list where it can never fire
+        // (self-review 05.09.2026).
+        rescheduleReminders()
         if settings.healthEnabled {
             // Same contiguous path as the manual backfill: an older failed
             // export retries first, so a success cannot leapfrog a hole.
@@ -584,6 +649,45 @@ final class AppStore {
         return MilestoneDetector.detect(before: before, after: engineState,
                                         session: session,
                                         skipped: skipped)
+    }
+
+    /// Which movements of the session the rating actually made easier, by the
+    /// engine's own ordinal before and after — never by re-deriving the rule
+    /// here. It answers "who was that for?" on the screen that follows a
+    /// "tough", where the plan is otherwise silent about where the tap landed.
+    private func noteRatingLanded(session: Session, before: EngineState) {
+        let eased = session.exercises.map(\.pattern).filter {
+            Engine.progress(engineState, $0) < Engine.progress(before, $0)
+        }
+        // The plan ahead has become the plan behind, so the hand's list for
+        // this session moves with the rating into the slot History reads. It
+        // used to stay in the ONE shared slot, stamped one session below what
+        // `noteEasedByHand` asks for: the next tap on "easier" found no match,
+        // started a fresh record and erased both lists — the named promise the
+        // athlete had just been shown fell back to the generic wording, for
+        // good and in silence (review 06.09.2026). `ratingMoves` first so a
+        // rating changed by `changeLastRating` re-enters on its own record.
+        var moves = ratingMoves(for: session.sessionNumber)
+            ?? planMoves(for: session.sessionNumber)
+            ?? PlanMoves(session: session.sessionNumber)
+        moves.byRating = eased
+        settings.ratingMoves = moves
+        // Leave the handle's slot empty rather than stale: it names the plan
+        // AHEAD, and that is now a session this record knows nothing about.
+        if settings.planMoves?.session == session.sessionNumber { settings.planMoves = nil }
+    }
+
+    /// The plan a handle moves is the one AHEAD — `counter + 1` — and stays
+    /// that until it is rated. A tap against an older stamp starts the list
+    /// over rather than adding to it, so a movement eased two sessions ago
+    /// cannot be credited to this one. What that start-over used to take with
+    /// it was the last rating's list, sharing the slot; it has its own now
+    /// (`ratingMoves`), so this writes about the plan ahead and nothing else.
+    private func noteEasedByHand(_ pattern: Pattern) {
+        let session = engineState.counter + 1
+        var moves = planMoves(for: session) ?? PlanMoves(session: session)
+        if !moves.byHand.contains(pattern) { moves.byHand.append(pattern) }
+        settings.planMoves = moves
     }
 
     // MARK: - The shown plan
@@ -619,51 +723,6 @@ final class AppStore {
         guard recorded != engineState else { return }
         engineState = recorded
         persist()
-    }
-
-    // MARK: - Workout in progress
-
-    /// Older than this is a different training occasion, not an interrupted
-    /// one.
-    static let workoutResumeWindow: TimeInterval = 3 * 60 * 60
-
-    /// Valid only while it still matches the engine, regenerates the very
-    /// same exercises, holds actual progress, nothing was completed today,
-    /// and is fresh enough to be the same occasion.
-    func resumableWorkout(now: Date = .now) -> WorkoutSnapshot? {
-        guard let snap = pendingWorkout,
-              snap.sessionNumber == engineState.counter + 1,
-              // The same number can be a different session: the bar toggle
-              // and an accepted comeback regenerate the list without moving
-              // the counter, and the snapshot's indices belong to the OLD one.
-              snap.fingerprint == WorkoutSnapshot.fingerprint(of: nextSession),
-              !doneToday,
-              now.timeIntervalSince(snap.savedAt) < Self.workoutResumeWindow,
-              // Mirror of the flow's hasProgress: a snapshot from the moment
-              // the warm-up ended has nothing to offer.
-              snap.atFeedback == true || snap.restEndDate != nil
-                  || snap.exIndex > 0 || snap.setIndex > 0
-                  || !snap.facts.isEmpty || !snap.skipped.isEmpty
-                  || !(snap.discomfort ?? []).isEmpty
-        else { return nil }
-        return snap
-    }
-
-    /// Called on every phase transition — some 35 times a session.
-    /// `refreshWidget: false` is not an optimization but the truth: none of
-    /// the widget's states can change while a workout is in progress, and
-    /// poking WidgetKit per set would spend the day's reload budget on
-    /// identical content.
-    func saveWorkoutSnapshot(_ snapshot: WorkoutSnapshot) {
-        pendingWorkout = snapshot
-        persist(refreshWidget: false)
-    }
-
-    /// Widget untouched for the same reason as saveWorkoutSnapshot.
-    func clearWorkoutSnapshot() {
-        guard pendingWorkout != nil else { return }
-        pendingWorkout = nil
-        persist(refreshWidget: false)
     }
 
     // MARK: - Settings
@@ -748,8 +807,17 @@ final class AppStore {
     func shouldOfferComeback(now: Date? = nil) -> Bool {
         guard let last = records.last, let gap = gapDays(now: now) else { return false }
         guard gap >= EngineConfig.comebackMinGapDays, !isRhythmBreak(gap) else { return false }
-        guard let decided = settings.comebackDecidedFor else { return true }
-        return !Calendar.current.isDate(decided, inSameDayAs: last.date)
+        guard let decided = settings.comebackDecidedFor,
+              Calendar.current.isDate(decided, inSameDayAs: last.date) else { return true }
+        // Once per break — unless the break has since grown a door the answer
+        // could not have been about. "Start from scratch" appears only from
+        // `comebackFreshStartDays`, so someone who declined on day 20 of a
+        // break that ran to three months never saw the one offer meant for
+        // exactly them: the threshold was unreachable by anyone who answered
+        // early (UX review 05.09.2026, finding 8). At most ONE extra ask —
+        // closing the question again stamps the gap it was answered at.
+        guard let answeredAt = settings.comebackDecidedAtGap else { return false }
+        return answeredAt < Self.comebackFreshStartDays && gap >= Self.comebackFreshStartDays
     }
 
     // MARK: - Silent decay for the 7–13 day blind zone (issue #37)
@@ -796,7 +864,7 @@ final class AppStore {
         guard let gap = gapDays(now: now) else { return }
         engineState = Engine.applyComeback(state: engineState, gapDays: gap,
                                            alreadyDecayed: silentDecayAppliedForCurrentBreak)
-        closeComebackQuestion()
+        closeComebackQuestion(now: now)
     }
 
     // MARK: - The handles
@@ -815,11 +883,15 @@ final class AppStore {
     func makeEasier(_ pattern: Pattern) {
         guard canMakeEasier(pattern) else { return }
         engineState = Engine.easierVariation(state: engineState, pattern: pattern)
+        // A step down taken by hand looks exactly like one the engine took,
+        // and history explained neither (finding 64). This is the only moment
+        // that knows which it was.
+        noteEasedByHand(pattern)
         persist()
     }
 
-    func declineComeback() {
-        closeComebackQuestion()
+    func declineComeback(now: Date? = nil) {
+        closeComebackQuestion(now: now)
     }
 
     // `setTimeBudget`, the "what's new" notice about its default, and
@@ -839,13 +911,21 @@ final class AppStore {
         engineState = .initial
         engineState.hasBar = hadBar
         // Session numbers restart: a pre-reset snapshot would collide with
-        // the new counter and resume into the wrong workout.
+        // the new counter and resume into the wrong workout. The rating undo
+        // goes for a stronger reason — it holds a whole PRE-RESET state, and
+        // taking a rating back would quietly restore the plan that was wiped.
         pendingWorkout = nil
+        settings.lastRatingUndo = nil
+        settings.planMoves = nil
+        settings.ratingMoves = nil
         closeComebackQuestion()
     }
 
-    private func closeComebackQuestion() {
+    private func closeComebackQuestion(now: Date? = nil) {
         settings.comebackDecidedFor = records.last?.date
+        // How long the break was when it was answered, so a break that keeps
+        // growing can ask once more (see shouldOfferComeback).
+        settings.comebackDecidedAtGap = gapDays(now: now)
         // persist() already mirrors to the widget — accepting a comeback moves
         // the levels the plan is drawn from, and it reaches the snapshot on
         // that one write. A second call here is a second reloadAllTimelines()
@@ -941,6 +1021,9 @@ extension AppStore {
     func makeSuspectEasier(_ pattern: Pattern) {
         settings.weakLinkPromptAnsweredFor = records.last?.sessionNumber
         engineState = Engine.easierVariation(state: engineState, pattern: pattern)
+        // The second door of the same event, and it must be attributed the
+        // same way (finding 64).
+        noteEasedByHand(pattern)
         persist()
     }
 

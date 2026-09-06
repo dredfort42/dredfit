@@ -19,39 +19,100 @@ extension WorkoutFlowView {
     /// arriving already warm is ordinary, and the screen says so rather than
     /// making the person justify a skip by walking out of a countdown.
     var warmupIntroView: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Spacer()
-            Text("Warm-up")
-                .dredfitFont(32, weight: .heavy)
-                .tracking(-0.5)
-                .foregroundStyle(Theme.ink)
-            Text("A few easy minutes to get the body ready. Skip it if you are already warm.")
-                .dredfitFont(15)
-                .foregroundStyle(Theme.ink2)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.top, 8)
-            Text("\(warmupMoves.count) positions · about \(warmupIntroMinutes) min")
-                .dredfitFont(13.5)
-                .foregroundStyle(Theme.ink3)
-                .padding(.top, 6)
-            Spacer()
-            PrimaryButton(title: String(localized: "Start the warm-up")) { beginWarmup() }
-                .accessibilityIdentifier("warmup-start")
-            Button(String(localized: "Skip the warm-up")) { declineWarmup() }
-                .dredfitFont(14.5)
-                .foregroundStyle(Theme.ink2)
-                .frame(maxWidth: .infinity, minHeight: 44)
-                .padding(.top, 4)
-                .accessibilityIdentifier("warmup-intro-skip")
+        // The scroll of `BlockLayout`, for the reason stated there and one
+        // more of its own (UX review 05.09.2026): this screen and its
+        // cool-down twin were the only ones of the flow NOT wrapped, and they
+        // now carry two lines more. At the accessibility text sizes a bare
+        // VStack overflows both ends and takes the decline button off the
+        // bottom with it. Below that size nothing scrolls and nothing moved.
+        GeometryReader { geometry in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    Spacer(minLength: 0)
+                    Text("Warm-up")
+                        .dredfitFont(32, weight: .heavy)
+                        .tracking(-0.5)
+                        .foregroundStyle(Theme.ink)
+                    Text("A few easy minutes to get the body ready. Skip it if you are already warm.")
+                        .dredfitFont(15)
+                        .foregroundStyle(Theme.ink2)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.top, 8)
+                    // ink3 → ink2: this is small TEXT, and ink3 is 2.35:1 on
+                    // the light background — under the 4.5:1 small text needs.
+                    // Owner's call, UX review 05.09.2026: the low-contrast ink3
+                    // text across the app was an oversight, and ink3 is a
+                    // graphics tone from here on.
+                    Text("\(warmupMoves.count) positions · about \(warmupIntroMinutes) min")
+                        .dredfitFont(13.5)
+                        .foregroundStyle(Theme.ink2)
+                        .padding(.top, 6)
+                    warmupCompositionLines
+                    Spacer(minLength: 0)
+                    PrimaryButton(title: String(localized: "Start the warm-up")) { beginWarmup() }
+                        .accessibilityIdentifier("warmup-start")
+                    // No question on THIS one, unlike the escape inside the
+                    // block: the offer's own "no" is the answer it asked for.
+                    Button(GuidedBlock.warmup.skipTitle) { declineWarmup() }
+                        .dredfitFont(14.5)
+                        .foregroundStyle(Theme.ink2)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .padding(.top, 4)
+                        .accessibilityIdentifier("warmup-intro-skip")
+                }
+                .padding(.horizontal, 20)
+                .frame(maxWidth: .infinity, minHeight: geometry.size.height,
+                       alignment: .leading)
+            }
+            .scrollBounceBehavior(.basedOnSize)
         }
-        .padding(.horizontal, 20)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    /// What the offer is actually offering.
+    ///
+    /// UX review 05.09.2026: the only screen where "do it or not" is decided
+    /// named no movement at all, while the composition changes from session to
+    /// session (six compositions of six out of a pool of nine) and could be
+    /// read only one name at a time INSIDE the block being decided about. The
+    /// names are already localized — they are the same strings the running
+    /// screen shows — and the list needs no separator of its own: the locale's
+    /// own list format has one.
+    ///
+    /// The second line is the mechanic that has existed since 1.7 and lived
+    /// behind the very decision it should be changing: someone with twenty
+    /// minutes instead of thirty cut the whole block because the screen
+    /// offered nothing smaller.
+    ///
+    /// ink2, like every other word on the screen: at 2.35:1 in the light
+    /// theme ink3 does not carry small text (owner, 05.09.2026 — the
+    /// low-contrast ink3 text was an oversight, not a decision).
+    @ViewBuilder
+    private var warmupCompositionLines: some View {
+        Text(warmupMoves.map(\.name).formatted(.list(type: .and)))
+            .dredfitFont(13.5)
+            .foregroundStyle(Theme.ink2)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.top, 10)
+        Text("Any position can be skipped as you go.")
+            .dredfitFont(13.5)
+            .foregroundStyle(Theme.ink2)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.top, 6)
     }
 
     /// The six moves of THIS session (§40.1: nine in the pool, six on
-    /// screen). A pure function of the session number, so a restored snapshot
-    /// recomputes the same list rather than carrying it.
-    var warmupMoves: [WarmupMove] { Warmup.moves(for: session) }
+    /// screen). A pure function of the session number and of what the athlete
+    /// has set aside, so a restored snapshot recomputes the same list rather
+    /// than carrying it.
+    ///
+    /// The hidden set is read LIVE, which the cool-down's twin is not — its
+    /// composition is drawn once into `cooldownPositions`. That difference is
+    /// why `rebaseWarmupOnComposition` exists below: hiding the move on screen
+    /// changes this list under a countdown that is still standing on the old
+    /// one (UX review 05.09.2026, finding 49).
+    var warmupMoves: [WarmupMove] {
+        Warmup.moves(for: session, hiding: store.settings.hiddenBlockMoveIDs)
+    }
 
     /// What the offer screen promises for THIS session's composition.
     var warmupIntroMinutes: Int { Warmup.introMinutes(warmupMoves) }
@@ -66,6 +127,9 @@ extension WorkoutFlowView {
     func beginWarmup() {
         phase = .warmup
         warmupBeganAt = .now
+        // The pair is per BLOCK, and this block starts here.
+        blockPausedSec = 0
+        blockFrozenAt = nil
         startWarmupPosition(0)
         // "Start the warm-up" is a start tap like "I'm ready", so the block
         // opens on the count-in, not on the full travel time between two
@@ -86,35 +150,114 @@ extension WorkoutFlowView {
     /// is the same beat: the name of the position, the 3-2-1, then the
     /// position. Only the seconds it counts and what "I'm ready" cuts short
     /// differ.
-    @ViewBuilder
     var warmupView: some View {
-        if reentering || warmupStage == .getReady {
-            GetReadyScreen(name: warmupMove.name,
-                           remaining: reentering ? blockPause.reentryRemaining : warmupRemaining,
-                           index: warmupIndex, count: warmupMoves.count,
-                           countdownIdentifier: countdownIdentifier(reentering: reentering),
-                           blockSkipTitle: String(localized: "Skip warm-up"),
-                           // Stated for the same reason `skip-cooldown` states it
-                           // on the cool-down twin below: the default is
-                           // `identifier ?? title`, and `title` is already
-                           // localized, so an omitted argument makes the
-                           // accessibility identifier move with the display
-                           // language. The warm-up side was the only one of the
-                           // two that never said it.
-                           blockSkipIdentifier: "skip-warmup",
-                           paused: blockPause.isHeld,
-                           // The way back in is not a transition to cut: its
-                           // "I'm ready" ends it outright, so it keeps one.
-                           countingIn: !reentering
-                               && warmupRemaining <= GetReady.countInSeconds,
-                           onTechnique: { openWarmupTechnique() },
-                           onStart: { reentering ? endBlockReentry() : countInWarmupMove() },
-                           onPauseToggle: { toggleBlockPause() },
-                           onSkipPosition: { skipWarmupPosition() },
-                           onSkipBlock: { finishWarmup() })
-        } else {
-            warmupMoveView
+        // The Group is what carries the observer below: the two branches are
+        // different screens and swap as the stage does, and a modifier applied
+        // inside either of them would be torn down with it.
+        Group {
+            if reentering || warmupStage == .getReady {
+                GetReadyScreen(name: warmupMove.name,
+                               remaining: reentering ? blockPause.reentryRemaining : warmupRemaining,
+                               index: warmupIndex, count: warmupMoves.count,
+                               countdownIdentifier: countdownIdentifier(reentering: reentering),
+                               block: .warmup,
+                               paused: blockPause.isHeld,
+                               // The way back in is not a transition to cut: its
+                               // "I'm ready" ends it outright, so it keeps one.
+                               countingIn: !reentering
+                                   && warmupRemaining <= GetReady.countInSeconds,
+                               onTechnique: { openWarmupTechnique() },
+                               onStart: { reentering ? endBlockReentry() : countInWarmupMove() },
+                               onPauseToggle: { toggleBlockPause() },
+                               onSkipPosition: { skipWarmupPosition() },
+                               onSkipBlock: { finishWarmup() })
+            } else {
+                warmupMoveView
+            }
         }
+        // The OLD list is what the rebase needs and the only place it still
+        // exists: `warmupMoves` is computed, so by the time this runs it
+        // already answers with the new composition (review 06.09.2026).
+        .onChange(of: warmupMoves.map(\.id)) { previous, _ in
+            rebaseWarmupOnComposition(was: previous)
+        }
+    }
+
+    /// The composition changed while the block was running it.
+    ///
+    /// There is exactly one way that happens (UX review 05.09.2026, finding
+    /// 49): the technique sheet setting the move on screen aside, or bringing
+    /// an earlier one back. The list is a pure function of the session number
+    /// and the hidden set, so the write lands instantly and `warmupIndex`
+    /// suddenly names a different move — the name on screen would change under
+    /// the seconds of the move it replaced, and a split move would inherit the
+    /// `.move` stage of one that has no halves.
+    ///
+    /// So the slot restarts on its own transition instead. A move nobody
+    /// announced must not begin under the thumb, and the transition is the one
+    /// screen that can open it honestly — the same ending `skipWarmupPosition`
+    /// gives the next move.
+    ///
+    /// WHICH slot is `rebaseLanding`'s rule, and `was` is the composition the
+    /// block was running: the clamp this replaced kept the ordinal, and an
+    /// ordinal is not a stable name for a slot across a recomposition.
+    func rebaseWarmupOnComposition(was previous: [String]) {
+        guard phase == .warmup else { return }
+        let moves = warmupMoves
+        // `Warmup.honoured` guarantees six, so this is the belt to its braces:
+        // an empty list would index out of bounds on the very next read.
+        guard !moves.isEmpty else { finishWarmup(); return }
+        // The prefix of the OLD list is what the block has already been
+        // through, run or skipped. `max(0,)` because the index is state.
+        let passed = Set(previous.prefix(max(0, warmupIndex)))
+        guard let index = Self.rebaseLanding(in: moves.map(\.id), after: passed) else {
+            // Everything the new composition holds is behind the athlete —
+            // ending the block is the honest answer, not reopening one of them.
+            finishWarmup()
+            return
+        }
+        warmupIndex = index
+        warmupStage = .getReady
+        warmupRemaining = Warmup.stageSeconds(.getReady, of: moves[index])
+        // NOT through `enterWarmupStage`: that clears the pause and closes the
+        // freeze, and the sheet that got us here is still open with both held.
+        // The date is rebuilt only if one was running — `resumePositionCountdown`
+        // puts it back from these seconds when the sheet closes, and a paused
+        // block waits for Resume. Either order of the two is safe.
+        if warmupEndDate != nil {
+            warmupEndDate = Date.now.addingTimeInterval(TimeInterval(warmupRemaining))
+        }
+    }
+
+    /// Where a recomposed block picks up — the rule for BOTH of them.
+    ///
+    /// Land AFTER the last slot the athlete has already left behind, never on
+    /// one of them. `warmupIndex` and `cooldownIndex` are ordinals, and a
+    /// recomposition is not a deletion: `Warmup.moves(sessionNumber:hiding:)`
+    /// re-derives its rotation window from what is LEFT and
+    /// `Cooldown.positions` re-grows its middle, so slot i after the write can
+    /// name the move that stood at i-1 before it. Both blocks used to clamp the
+    /// ordinal, which reopened a move finished a minute earlier — session 4 did
+    /// it at three of its six slots, and the cool-down's "Bring back" did it at
+    /// every slot past the one it restores (review 06.09.2026).
+    ///
+    /// Landing on the FIRST move not yet run would be the other error. What
+    /// advances from here is an ordinal machine (`skipWarmupPosition`,
+    /// `Warmup.advance`), one slot at a time, so a landing behind the athlete
+    /// replays everything between it and where they were. Forward-only is also
+    /// what survives a second and a third change of the composition without
+    /// carrying a set of ids through the block: whatever the recomposition put
+    /// before the landing is left behind with the rest of the prefix, and stays
+    /// left behind next time.
+    ///
+    /// The cost is that a move brought back mid-block may not appear until the
+    /// next workout. That is the honest half of the trade: the block keeps the
+    /// length it promised and never runs a position twice.
+    ///
+    /// nil when nothing is left — the block is over.
+    static func rebaseLanding(in ids: [String], after passed: Set<String>) -> Int? {
+        let index = (ids.lastIndex { passed.contains($0) }).map { $0 + 1 } ?? 0
+        return index < ids.count ? index : nil
     }
 
     var warmupMoveView: some View {
@@ -190,12 +333,28 @@ extension WorkoutFlowView {
             }
             // Animated so contentTransition(.numericText) rolls the digits —
             // a bare mutation swaps them with no transaction.
-            withAnimation(.linear(duration: 0.3)) { warmupRemaining = newRemaining }
+            withAnimation(countdownAnimation) { warmupRemaining = newRemaining }
             return
         }
-        // Warmup.advance absorbs whatever a long absence already covered.
+        let overshoot = Int(max(0, -end.timeIntervalSinceNow))
+        // A boundary crossed while the phone was elsewhere is not a boundary
+        // the person was at (UX review 05.09.2026). The block used to swallow
+        // whole stages here, and an absence long enough to cover the rest of
+        // it played `done` and put someone into the first working set cold,
+        // announced by a signal nobody could hear. The rest already refuses
+        // that — `SetFacts.restHandsOverWithCountIn` hands the next set a
+        // count-in when its go went nowhere — and the warm-up needs no new
+        // screen to do the same: freeze on the stage that was running, and
+        // the way back in is Resume with the 3-2-1 it already has.
+        if overshoot > BlockPause.absenceSeconds {
+            // The absence itself is handed over: it is time the block stood
+            // still, and `warmupSec` is wall clock (see `blockPausedSec`).
+            pauseBlock(absence: overshoot)
+            return
+        }
+        // Warmup.advance absorbs whatever a short overrun already covered.
         guard let next = Warmup.advance(from: (warmupIndex, warmupStage),
-                                        overshoot: Int(max(0, -end.timeIntervalSinceNow)),
+                                        overshoot: overshoot,
                                         moves: warmupMoves) else {
             // The block is over: done, not go — a tap starts the first exercise (#186).
             playDone()
@@ -212,11 +371,31 @@ extension WorkoutFlowView {
         // The switch of §41.12 is its own tone, and it is chosen the way the
         // cool-down chooses it (`tickCooldown`): a done only where a whole
         // move ended, never at the halfway point of a unilateral one.
+        //
+        // Each audible boundary is SPOKEN as well (UX review 05.09.2026).
+        // VoiceOver stays where it was and the subtree it was in has just been
+        // replaced, so nothing is read: the tone was the only channel, and it
+        // is behind the same switch as the haptic. The words are the ones the
+        // new screen already shows — no string of their own to drift.
+        let move = warmupMoves[next.index]
         switch (next.entered, next.stage) {
-        case (.getReady, .getReady):         playDone()
-        case (.getReady, _), (_, .getReady): break
-        case (.switchPause, _):              playSwitch()
-        default:                             playGo()
+        case (.getReady, .getReady):
+            playDone()
+            announce(String(localized: "Get ready: \(move.name)"))
+        case (.getReady, _), (_, .getReady):
+            break
+        case (.switchPause, _):
+            playSwitch()
+            // Only a split move has this stage, so `halves` is there — and
+            // nothing is invented if it somehow is not.
+            if let halves = move.halves { announce(SplitStageWords(halves: halves).switching) }
+        default:
+            playGo()
+            if next.stage == .secondHalf, let halves = move.halves {
+                announce(SplitStageWords(halves: halves).secondHalf)
+            } else {
+                announce(move.name)
+            }
         }
         enterWarmupStage(index: next.index, stage: next.stage, remaining: next.remaining)
     }
@@ -228,7 +407,12 @@ extension WorkoutFlowView {
         // runs again on a re-entry and a second span would be the whole
         // detour, not the block.
         if warmupSec == nil {
-            warmupSec = BlockRun.seconds(began: warmupBeganAt, ended: .now)
+            // Minus what the block stood still for. Wall clock alone billed a
+            // pause, an open technique sheet and an absence to the stretching,
+            // and what reads it is the energy Health is told about
+            // (UX review 05.09.2026).
+            warmupSec = max(0, BlockRun.seconds(began: warmupBeganAt, ended: .now)
+                            - blockPausedSec)
         }
         warmupEndDate = nil
         phase = .work

@@ -5,13 +5,19 @@
 
 import AVFoundation
 
-/// `.ambient` + `.mixWithOthers` mixes with whatever is already playing
-/// instead of pausing it; the silent switch still mutes it (haptics remain
-/// the silent-mode channel).
+/// `.mixWithOthers` in every category, always: a countdown must never pause
+/// the music somebody is training to. The category itself is what the ringer
+/// switch reads — `.ambient` obeys it, `.playback` plays through it — and it
+/// starts at `.ambient`, with haptics as the silent-mode channel.
 @MainActor
 final class CountdownSounds {
 
     static let shared = CountdownSounds()
+
+    /// Whether the tones are allowed past the ringer switch
+    /// (`AppSettings.playsTonesInSilentMode`). Pushed in rather than read:
+    /// this file must not learn how the app persists anything.
+    private(set) var playsInSilentMode = false
 
     private let tick: AVAudioPlayer?
     private let go: AVAudioPlayer?
@@ -23,13 +29,17 @@ final class CountdownSounds {
     // for the notification channel.
 
     private init() {
-        try? AVAudioSession.sharedInstance().setCategory(.ambient, options: .mixWithOthers)
         tick = try? AVAudioPlayer(data: SignalTone.tick)
         go = try? AVAudioPlayer(data: SignalTone.go)
         switchSides = try? AVAudioPlayer(data: SignalTone.switchSides)
         done = try? AVAudioPlayer(data: SignalTone.done)
         workoutDone = try? AVAudioPlayer(data: SignalTone.workoutDone)
         milestone = try? AVAudioPlayer(data: SignalTone.milestone)
+        // After the players are assigned — Swift forbids reaching for `self`
+        // any earlier — but still before `prepareToPlay`, which is the order
+        // that matters: the category decides what the hardware is prepared
+        // for.
+        applyCategory()
         tick?.prepareToPlay()
         go?.prepareToPlay()
         switchSides?.prepareToPlay()
@@ -41,6 +51,31 @@ final class CountdownSounds {
     /// Construction is the actual work (category, tone generation,
     /// prepareToPlay); calling this early means the first tick pays none of it.
     func prime() {}
+
+    /// The half of "Play tones in Silent mode" that makes the switch true
+    /// (finding 53, UX review 05.09.2026). A phone silenced in a gym is
+    /// silenced on purpose, so this is off until the athlete says otherwise —
+    /// and a Settings row without this call is a control that lies.
+    ///
+    /// Called from ONE place, `RootView`'s observer of
+    /// `AppSettings.playsTonesInSilentMode`, and that is what covers all three
+    /// writers: the tap in Settings, an imported backup, and every launch
+    /// after either — an audio category is process state, so a preference
+    /// saved yesterday configures nothing by itself.
+    func setPlaysInSilentMode(_ on: Bool) {
+        guard on != playsInSilentMode else { return }
+        playsInSilentMode = on
+        applyCategory()
+    }
+
+    /// Category only, never `setActive`: playing a prepared `AVAudioPlayer`
+    /// activates the session on its own, and an explicit activation here would
+    /// be one more thing to get wrong while music is running.
+    private func applyCategory() {
+        try? AVAudioSession.sharedInstance()
+            .setCategory(playsInSilentMode ? .playback : .ambient,
+                         options: .mixWithOthers)
+    }
 
     func playTick() { play(tick) }
     func playGo() { play(go) }

@@ -10,6 +10,14 @@ struct ComebackCard: View {
     /// The two offers as the same movement in numbers (#127): what the plan
     /// holds if left alone, and what "easier" actually is. Nil hides the rows.
     let preview: (was: String, easier: String)?
+    /// Whether the silent decay already took a step off this same break —
+    /// true for anyone who opened the app between day 7 and day 13.
+    ///
+    /// It is the only place the quiet drop can be named before a workout: the
+    /// line on Progress appears only AFTER the next session, and "As it was:"
+    /// beside it describes the plan as it stands now, not as it was left
+    /// (UX review 05.09.2026).
+    let alreadyDecayed: Bool
     let onAccept: () -> Void
     let onDecline: () -> Void
     let onFreshStart: () -> Void
@@ -27,6 +35,14 @@ struct ComebackCard: View {
                 .lineSpacing(2.5)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 8)
+
+            if alreadyDecayed {
+                Text("During the break the plan already came down a step.")
+                    .dredfitFont(13.5, weight: .medium)
+                    .foregroundStyle(Theme.ink2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, 8)
+            }
 
             // The choice in numbers, not adjectives (#127): after a long
             // break "leave as it was" used to hand out the old plan blind.

@@ -227,16 +227,26 @@ enum ShareCardFactory {
             + String(localized: "\(totalSteps) steps")
     }
 
+    /// The one render everything else here is made of: a main-thread
+    /// 1080×1350 rasterisation, so the file that travels and the picture the
+    /// share sheet shows must come out of the same pass.
     @MainActor
-    static func png(headline: String, date: Date = .now,
-                    subline: String? = nil, steps: [Int] = []) -> Data? {
+    private static func rendered(headline: String, date: Date,
+                                 subline: String?, steps: [Int]) -> UIImage? {
         let renderer = ImageRenderer(
             content: ShareCard(headline: headline, date: date,
                                steps: steps, subline: subline))
         // Specified in final pixels, so scale stays at 1 — anything else
         // silently produces a 2160×2700 image.
         renderer.scale = 1
-        return renderer.uiImage?.pngData()
+        return renderer.uiImage
+    }
+
+    @MainActor
+    static func png(headline: String, date: Date = .now,
+                    subline: String? = nil, steps: [Int] = []) -> Data? {
+        rendered(headline: headline, date: date,
+                 subline: subline, steps: steps)?.pngData()
     }
 
     /// So the two sources never overwrite each other's file while a share
@@ -246,12 +256,36 @@ enum ShareCardFactory {
         case progress = "dredfit-progress"
     }
 
-    /// One fixed name per slot, so the temporary directory never accumulates.
     @MainActor
     static func fileURL(headline: String, slot: Slot, date: Date = .now,
                         subline: String? = nil, steps: [Int] = []) -> URL? {
-        guard let data = png(headline: headline, date: date,
-                             subline: subline, steps: steps) else { return nil }
+        write(png(headline: headline, date: date, subline: subline, steps: steps), to: slot)
+    }
+
+    /// The file that travels and the picture of it, from one render.
+    ///
+    /// `ShareLink` previews a file URL with the headline alone unless it is
+    /// handed an `image:`, so the card — rendered and written before the sheet
+    /// even opens — was the one thing the sender could not look at before
+    /// sending it. The card carries a date, a word-mark and the whole curve
+    /// besides the two numbers the headline names (UX review, 05.09.2026).
+    struct Card {
+        let url: URL
+        let image: Image
+    }
+
+    @MainActor
+    static func card(headline: String, slot: Slot, date: Date = .now,
+                     subline: String? = nil, steps: [Int] = []) -> Card? {
+        guard let image = rendered(headline: headline, date: date,
+                                   subline: subline, steps: steps),
+              let url = write(image.pngData(), to: slot) else { return nil }
+        return Card(url: url, image: Image(uiImage: image))
+    }
+
+    /// One fixed name per slot, so the temporary directory never accumulates.
+    private static func write(_ data: Data?, to slot: Slot) -> URL? {
+        guard let data else { return nil }
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("\(slot.rawValue).png")
         do {

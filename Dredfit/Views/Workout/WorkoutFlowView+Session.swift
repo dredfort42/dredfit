@@ -19,6 +19,30 @@ extension WorkoutFlowView {
 
     // MARK: - Hold countdown
 
+    /// The lock screen's copy of a running hold.
+    ///
+    /// `.hold` rather than `.work` is what puts a countdown on the tile at
+    /// all (`RestLiveActivity`), and it is the phase that needs one: the hold
+    /// is the one screen whose own copy asks the athlete to put the phone
+    /// down, and it was the phase showing a static dot while the rest — the
+    /// beat you are allowed to miss — counted down beside it (UX review
+    /// 05.09.2026). It does NOT promise a sound from under the lock: a
+    /// suspended app plays nothing (R28), and the tile shows seconds, which is
+    /// the one thing it can keep.
+    func showHoldActivity(until end: Date, detail: String) {
+        liveActivity.update(.init(phase: .hold, title: current.name,
+                                  detail: detail, restEndDate: end))
+    }
+
+    /// What the tile calls the set a hold is running — the same words
+    /// `activityWorkState` uses, so the lock screen does not rename the set
+    /// halfway through it.
+    var holdActivityDetail: String {
+        current.isProbe
+            ? String(localized: "Probe")
+            : String(localized: "set \(setIndex + 1) of \(totalSets)")
+    }
+
     /// The tap arms the set; the clock waits out a count-in first. It used to
     /// start the hold under the thumb, and on a hold that is not only a jolt:
     /// the seconds spent getting down into the plank came off the number the
@@ -93,11 +117,17 @@ extension WorkoutFlowView {
             // second side starts on the switch pause's (`tickHoldSwitchPause`).
             holdCountInRemaining = 0
             holdCountInEndDate = nil
-            holdEndDate = Date.now.addingTimeInterval(TimeInterval(holdTotal))
+            let end = Date.now.addingTimeInterval(TimeInterval(holdTotal))
+            holdEndDate = end
+            showHoldActivity(until: end, detail: holdActivityDetail)
             return
         }
         holdCountInRemaining = GetReady.countInSeconds
-        holdCountInEndDate = Date.now.addingTimeInterval(TimeInterval(holdCountInRemaining))
+        let countInEnd = Date.now.addingTimeInterval(TimeInterval(holdCountInRemaining))
+        holdCountInEndDate = countInEnd
+        // The count-in goes to the tile too — it is the beat that ends on the
+        // go, and a phone already on the floor shows it where the eye is.
+        showHoldActivity(until: countInEnd, detail: String(localized: "Get ready"))
     }
 
     /// 3-2-1 and then the go, like every transition in the guided blocks —
@@ -108,18 +138,55 @@ extension WorkoutFlowView {
         let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
         guard newRemaining != holdCountInRemaining else { return }
         if newRemaining == 0 {
+            // The rest applies this rule and says it in words: "a signal
+            // nobody could hear cannot be what started a plank". The count-in
+            // did not apply it to ITSELF — the comment beside it only covered
+            // the LENGTH of the set, not the moment it began — so a call taken
+            // inside these five seconds put the athlete in a plank that had
+            // already started (UX review 05.09.2026). Same rule, same
+            // constant: count them in again rather than start under a signal
+            // played to a suspended app.
+            let overshoot = -end.timeIntervalSinceNow
+            guard overshoot <= SetFacts.restGoHeardWithinSec else {
+                holdCountInRemaining = GetReady.countInSeconds
+                let again = Date.now
+                    .addingTimeInterval(TimeInterval(GetReady.countInSeconds))
+                holdCountInEndDate = again
+                showHoldActivity(until: again, detail: String(localized: "Get ready"))
+                return
+            }
             holdCountInEndDate = nil
             playGo()
+            // …and said, for the reason the two blocks say their boundaries
+            // out loud: VoiceOver stays where it was while the screen turns
+            // into a running hold, and the go is behind the sounds switch
+            // (UX review 05.09.2026). The words are the movement's own name,
+            // exactly as at a block's go.
+            announce(current.name)
             // The hold's own total was fixed at the tap, so a long absence
             // during the count-in still starts a FULL set rather than the
             // remains of one.
             holdRemaining = holdTotal
-            holdEndDate = Date.now.addingTimeInterval(TimeInterval(holdTotal))
+            let holdEnd = Date.now.addingTimeInterval(TimeInterval(holdTotal))
+            holdEndDate = holdEnd
+            showHoldActivity(until: holdEnd, detail: holdActivityDetail)
         } else {
             if newRemaining <= Self.countdownSignalSeconds && newRemaining < holdCountInRemaining {
                 playTick()
             }
-            withAnimation(.linear(duration: 0.3)) { holdCountInRemaining = newRemaining }
+            // A second before the signalling window, exactly as the rest does
+            // it. `prepare()` holds the Taptic Engine for a few seconds only,
+            // and this count-in opens after a silence as long as any: Skip
+            // rest plays nothing at all, and a tap on Start hold can come half
+            // a minute after the screen appeared. Unprimed, the first tick
+            // pays the engine's wake-up and lands late — in silent mode, where
+            // the haptic is the whole channel, the 3-2-1 is heard as "2-1-go"
+            // (review 06.09.2026). Here rather than at the tap, so the restart
+            // above is warmed too.
+            if newRemaining == Self.countdownSignalSeconds + 1 && store.settings.soundsEnabled {
+                WorkoutSignals.prime()
+            }
+            withAnimation(countdownAnimation) { holdCountInRemaining = newRemaining }
         }
     }
 
@@ -135,7 +202,7 @@ extension WorkoutFlowView {
             if newRemaining <= Self.countdownSignalSeconds && newRemaining < holdRemaining {
                 playTick()
             }
-            withAnimation(.linear(duration: 0.3)) { holdRemaining = newRemaining }
+            withAnimation(countdownAnimation) { holdRemaining = newRemaining }
         }
     }
 
@@ -157,6 +224,9 @@ extension WorkoutFlowView {
         if held < Self.holdMistapSeconds {
             holdEndDate = nil
             holdRemaining = holdTotal
+            // The set is handed back, so the tile stops counting to a date
+            // nothing is running to any more (see `showHoldActivity`).
+            liveActivity.update(activityWorkState())
             return
         }
         // A set that ended under a thumb is an ESTIMATE and says so on the
@@ -205,6 +275,10 @@ extension WorkoutFlowView {
         // be corrected, not only this one.
         if current.isProbe {
             holdSettled = true
+            // The effort is over and the screen waits for a tap: the tile goes
+            // back to naming the set rather than counting to a date that has
+            // already passed.
+            liveActivity.update(activityWorkState())
             persistProgress()   // a recorded hold is worth keeping before the tap
             return
         }
@@ -231,7 +305,12 @@ extension WorkoutFlowView {
     func startHoldSwitchPause() {
         playSwitch()
         holdPauseRemaining = Cooldown.switchPauseSeconds
-        holdPauseEndDate = Date.now.addingTimeInterval(TimeInterval(holdPauseRemaining))
+        let end = Date.now.addingTimeInterval(TimeInterval(holdPauseRemaining))
+        holdPauseEndDate = end
+        // The one instruction of this whole exercise that is not "keep still",
+        // and the phone is on the floor by then: the tile counts the five
+        // seconds and names them (UX review 05.09.2026).
+        showHoldActivity(until: end, detail: String(localized: "Switch sides"))
     }
 
     /// No 3-2-1 inside the pause: ticks would bury the switch tone.
@@ -240,8 +319,34 @@ extension WorkoutFlowView {
         let newRemaining = max(0, Int(end.timeIntervalSinceNow.rounded()))
         guard newRemaining != holdPauseRemaining else { return }
         if newRemaining == 0 {
+            // The same rule the count-in applies to itself, and the same
+            // constant: a signal nobody could hear cannot be what started the
+            // second side. Two five-second pauses forty lines apart, and only
+            // one of them checked (self-review 05.09.2026) — a call taken
+            // inside this one used to start the second side while the phone
+            // was still in the athlete's hand, and `finishHold` then recorded
+            // min(side one, side two) as a full set nobody held.
+            let overshoot = -end.timeIntervalSinceNow
+            guard overshoot <= SetFacts.restGoHeardWithinSec else {
+                holdPauseRemaining = Cooldown.switchPauseSeconds
+                let again = Date.now
+                    .addingTimeInterval(TimeInterval(Cooldown.switchPauseSeconds))
+                holdPauseEndDate = again
+                // The pause's OWN words, the way the count-in's restart
+                // repeats "Get ready". This branch named the stage that comes
+                // NEXT, so a phone on the floor said "second side" while the
+                // screen beside it still said "Switch sides" and the five
+                // seconds on the tile belonged to the pause (review
+                // 06.09.2026).
+                showHoldActivity(until: again, detail: String(localized: "Switch sides"))
+                return
+            }
             holdPauseEndDate = nil
             playGo()
+            // Spoken as well, like every other go in the flow: the switch is
+            // the moment nobody can afford to miss, and the tone is behind the
+            // sounds switch (UX review 05.09.2026).
+            announce(SplitStageWords(halves: .sides).secondHalf)
             // BOTH SIDES OF ONE SET CARRY THE SAME LOAD (owner, 27.08.2026).
             // The second side runs for what the first actually ran, not for
             // what the plan asked. Before this, a first side stopped at 20 s
@@ -257,9 +362,12 @@ extension WorkoutFlowView {
             holdTotal = SetFacts.holdSideSeconds(planned: holdTotal,
                                                  firstSideHeld: firstSideHeld)
             holdRemaining = holdTotal
-            holdEndDate = Date.now.addingTimeInterval(TimeInterval(holdTotal))
+            let holdEnd = Date.now.addingTimeInterval(TimeInterval(holdTotal))
+            holdEndDate = holdEnd
+            showHoldActivity(until: holdEnd,
+                             detail: SplitStageWords(halves: .sides).secondHalf)
         } else {
-            withAnimation(.linear(duration: 0.3)) { holdPauseRemaining = newRemaining }
+            withAnimation(countdownAnimation) { holdPauseRemaining = newRemaining }
         }
     }
 
@@ -383,7 +491,8 @@ extension WorkoutFlowView {
             holdDeclaredSec: holdDeclared,
             approxSets: holdApproxSets.isEmpty ? nil : Array(holdApproxSets).sorted(),
             interrupted: interruptedPattern,
-            warmupSec: warmupSec, cooldownSec: cooldownSec))
+            warmupSec: warmupSec, cooldownSec: cooldownSec,
+            awaySec: awaySec == 0 ? nil : awaySec))
     }
 
     /// A rest still running resumes inside it; one that ran out lands on the
@@ -400,6 +509,25 @@ extension WorkoutFlowView {
         probeActuals = snap.probeFacts
         skippedPatterns = snap.skipped
         workoutStart = snap.workoutStart
+        // The absence begins where the workout stopped owing the athlete
+        // anything — NOT at the last write. `savedAt` is the moment of the
+        // last phase transition; nothing stamps the moment the app stopped
+        // living, so a rest of 60–120 s is an unwritten tail of a session that
+        // was still running. Counting that tail as absence made an ordinary
+        // kill for memory during a rest subtract real minutes: a phone locked
+        // at the top of a 90 s rest and opened at its end reported a workout a
+        // minute and a half shorter than it was, which is the mirror of the
+        // lie the away time was added to fix (review 06.09.2026). A rest
+        // running on schedule is training whether or not the process survived
+        // it, so the gap is measured from its end. What is left over is the
+        // absence, and it accumulates across however many resumes.
+        //
+        // The work screen carries no such end date, so a kill inside a hold
+        // still charges the set to the absence; closing that needs the moment
+        // of leaving stamped on the snapshot itself.
+        awaySec = (snap.awaySec ?? 0)
+            + SetFacts.awayGained(savedAt: snap.savedAt,
+                                  restEndDate: snap.restEndDate, now: .now)
         interruptedPattern = snap.interrupted
         // A restore lands past the warm-up either way, so a snapshot that
         // carries no measurement is a session killed inside a block: the
@@ -451,8 +579,7 @@ extension WorkoutFlowView {
         }
         if case .rest = phase {
             return .init(phase: .rest, title: nextLabel,
-                         detail: String(localized: "Next up"),
-                         restEndDate: restEndDate)
+                         detail: restActivityDetail, restEndDate: restEndDate)
         }
         return activityWorkState()
     }
@@ -488,26 +615,36 @@ extension WorkoutFlowView {
         holdDeclaring = false
         holdApproxSets.removeAll()
         summarySet = nil
-        var firstUnfinished = exIndex
-        if case .rest = phase, isLastSet { firstUnfinished = exIndex + 1 }
+        // A movement is BEHIND US in two places, not one. The summary of a
+        // finished hold is the same fact as the rest after a last set: every
+        // set is done and its seconds are on the screen. Counting it as
+        // unfinished handed a FULLY PERFORMED movement to the engine as a
+        // skip and erased the very numbers that screen exists to confirm
+        // (UX review 05.09.2026, 🔴 02).
+        var currentIsDone = false
+        if case .rest = phase, isLastSet { currentIsDone = true }
+        if case .exerciseSummary = phase { currentIsDone = true }
+        // In rest the set that just ended is still `setIndex` — the flow
+        // advances after the rest, not before it.
+        var setsBehind = setIndex
+        if case .rest = phase { setsBehind = setIndex + 1 }
+        // The arithmetic itself lives in `SetFacts`, where a test can reach it
+        // and where the settlement of a workout that was never rated reads the
+        // very same rules — the two used to describe one interruption
+        // differently depending on whether the app stayed alive.
+        let settled = SetFacts.settlement(in: exercises,
+                                          exIndex: exIndex,
+                                          setsBehind: setsBehind,
+                                          currentIsDone: currentIsDone,
+                                          alreadySkipped: setsSkipped)
+        setsSkipped = settled.setsSkipped
         // "not finished", not "skipped": the engine still freezes the level
         // like any skip, the label is the only difference.
-        if firstUnfinished == exIndex {
-            let midway: Bool
-            if case .rest = phase {
-                midway = true   // a between-set rest means a set is behind
-            } else {
-                midway = setIndex > 0 || actuals[exercise.pattern] != nil
-            }
-            if midway { interruptedPattern = exercise.pattern }
-        }
-        if firstUnfinished < exercises.count {
-            for ex in exercises[firstUnfinished...] {
-                actuals.removeValue(forKey: ex.pattern)   // a skip wins over an actual
-                probeActuals.removeValue(forKey: ex.pattern)
-                setsSkipped.removeValue(forKey: ex.pattern)
-                skippedPatterns.insert(ex.pattern)
-            }
+        interruptedPattern = settled.interrupted
+        for pattern in settled.skipped {
+            actuals.removeValue(forKey: pattern)   // a skip wins over an actual
+            probeActuals.removeValue(forKey: pattern)
+            skippedPatterns.insert(pattern)
         }
         restEndDate = nil
         restRemaining = 0

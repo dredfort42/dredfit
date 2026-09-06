@@ -10,18 +10,47 @@ import UIKit
 @MainActor
 enum WorkoutSignals {
 
+    // Held, not built per firing, and re-primed after every one. The Taptic
+    // Engine idles between countdowns — a rest is 60–120 s and the ticks are
+    // its last three seconds — and an unprepared generator pays the engine's
+    // wake-up on its first impulse, so the first tick of every countdown
+    // arrived after its second. The tone half of each pair has bought that
+    // cost ahead of time since #84 (`CountdownSounds.prime()`); the haptic
+    // half, which is the whole channel in silent mode, never did
+    // (UX review 05.09.2026).
+    private static let light = UIImpactFeedbackGenerator(style: .light)
+    private static let medium = UIImpactFeedbackGenerator(style: .medium)
+    private static let rigid = UIImpactFeedbackGenerator(style: .rigid)
+    private static let notice = UINotificationFeedbackGenerator()
+
+    /// Warms every generator, including the ones the caller is not about to
+    /// use: a countdown ends `tick, tick, tick, go`, and the go is a
+    /// different generator than the ticks.
+    ///
+    /// Worth calling a second or two BEFORE a countdown reaches its signalling
+    /// window — `prepare()` holds the engine for a few seconds only, so this
+    /// is not the same kind of one-off as the audio session's `prime()`.
+    static func prime() {
+        light.prepare()
+        medium.prepare()
+        rigid.prepare()
+        notice.prepare()
+    }
+
     /// One second of the countdown — the lightest touch.
     static func tick(_ enabled: Bool) {
         guard enabled else { return }
         CountdownSounds.shared.playTick()
-        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        light.impactOccurred()
+        prime()
     }
 
     /// Something starts.
     static func go(_ enabled: Bool) {
         guard enabled else { return }
         CountdownSounds.shared.playGo()
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        notice.notificationOccurred(.success)
+        prime()
     }
 
     /// Change sides — its own haptic weight, so silent mode can tell it
@@ -29,7 +58,8 @@ enum WorkoutSignals {
     static func switchSides(_ enabled: Bool) {
         guard enabled else { return }
         CountdownSounds.shared.playSwitch()
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        medium.impactOccurred()
+        prime()
     }
 
     /// The hold is over — release. `.rigid`, so silent mode can tell "stop
@@ -37,14 +67,16 @@ enum WorkoutSignals {
     static func done(_ enabled: Bool) {
         guard enabled else { return }
         CountdownSounds.shared.playDone()
-        UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
+        rigid.impactOccurred()
+        prime()
     }
 
     /// The workout is assembled.
     static func workoutDone(_ enabled: Bool) {
         guard enabled else { return }
         CountdownSounds.shared.playWorkoutDone()
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        notice.notificationOccurred(.success)
+        prime()
     }
 
     /// A milestone was earned. One `.success` only: the tone itself is the
@@ -53,6 +85,7 @@ enum WorkoutSignals {
     static func milestone(_ enabled: Bool) {
         guard enabled else { return }
         CountdownSounds.shared.playMilestone()
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        notice.notificationOccurred(.success)
+        prime()
     }
 }

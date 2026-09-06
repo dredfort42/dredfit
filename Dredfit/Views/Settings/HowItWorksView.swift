@@ -117,12 +117,18 @@ struct HowItWorksView: View {
                     overshooting costs one rep in one set instead of a whole \
                     variation.
                     """)),
+            // "Movement" is the PATTERN — pull, squat, hinge — and a probe
+            // never hands you one of those: it offers the next VARIATION of
+            // the movement you are already doing. §1 of this very screen sets
+            // that vocabulary up ("a ladder of four to seven variations"), and
+            // §10 then spent it, which is the one place a reader learns what a
+            // probe is (UX review 05.09.2026, finding 37).
             Section(id: 10,
-                    title: String(localized: "Trying the next movement"),
+                    title: String(localized: "Trying the next variation"),
                     body: String(localized: """
                     A harder variation is never handed to you on a guess. When \
                     you top out the reps, the LAST set of that exercise becomes \
-                    a probe: one set of the next movement, four reps or fifteen \
+                    a probe: one set of the next variation, four reps or fifteen \
                     seconds. Manage it and the next workout starts you there, \
                     at three sets of four. Fall short and nothing moves — you \
                     stay where you are and the probe comes round again. There \

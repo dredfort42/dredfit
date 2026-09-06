@@ -34,13 +34,22 @@ extension TodayView {
     /// shape a tap into the gap reaches nothing — which now costs the whole
     /// handle, not just a sheet, because the sheet is where the handle lives.
     func planRow(_ ex: SessionExercise, debuts: Set<Pattern>) -> some View {
-        Button {
+        // Hoisted out of the label so the four facts fit a line each. The
+        // easier-variation pair is asked in the order the row answers it: the
+        // handle names itself, and everything else that moved the plan after
+        // the last record only says that it moved (ExerciseRow.variationNote).
+        let notes = ExerciseRow.notes(
+            ex,
+            setCameBack: store.aSetJustCameBack(in: ex),
+            easedByHand: store.easedByHandAhead.contains(ex.pattern),
+            variationDropped: store.aVariationJustDropped(in: ex))
+        return Button {
             techniqueFor = TechniqueTarget(ex)
         } label: {
             ExerciseRow(exercise: ex,
                         badge: debuts.contains(ex.pattern)
                             ? String(localized: "new variation") : nil,
-                        notes: ExerciseRow.notes(ex, setCameBack: store.aSetJustCameBack(in: ex)))
+                        notes: notes)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

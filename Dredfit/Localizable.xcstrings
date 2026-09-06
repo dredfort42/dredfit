@@ -18074,6 +18074,3510 @@
           }
         }
       }
+    },
+    "3–4 rest days a week is the recommended rhythm. At least one training day always stays.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3–4 Ruhetage pro Woche sind der empfohlene Rhythmus. Mindestens ein Trainingstag bleibt immer."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3–4 días de descanso por semana es el ritmo recomendado. Siempre queda al menos un día de entrenamiento."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3–4 jours de repos par semaine, c’est le rythme recommandé. Il reste toujours au moins un jour d’entraînement."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3–4 giorni di riposo a settimana sono il ritmo consigliato. Resta sempre almeno un giorno di allenamento."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3–4 dias de descanso por semana é o ritmo recomendado. Pelo menos um dia de treino sempre fica."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3–4 дня отдыха в неделю — рекомендуемый ритм. Хотя бы один тренировочный день остается всегда."
+          }
+        }
+      }
+    },
+    "A set is back.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Satz ist zurück."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una serie de vuelta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une série est revenue."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una serie è tornata."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma série de volta."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавили подход."
+          }
+        }
+      }
+    },
+    "A week without training — the plan starts a step lower. It catches up quickly.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine Woche ohne Training – der Plan startet eine Stufe tiefer. Er holt schnell auf."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una semana sin entrenar: el plan empieza un paso más abajo. Se recupera rápido."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une semaine sans entraînement — le plan repart un cran plus bas. Il remonte vite."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una settimana senza allenamenti – il piano riparte un gradino più in basso. Risale in fretta."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma semana sem treinar — o plano começa um passo abaixo. Ele se recupera rápido."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Неделя без тренировок — план начнется на ступень ниже. Догонит он быстро."
+          }
+        }
+      }
+    },
+    "Any position can be skipped as you go.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jede Position lässt sich unterwegs überspringen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puedes omitir cualquier posición sobre la marcha."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chaque position peut être passée en cours de route."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puoi saltare qualsiasi posizione strada facendo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dá para pular qualquer posição pelo caminho."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Любую позицию можно пропустить по ходу."
+          }
+        }
+      }
+    },
+    "Couldn't build the backup file.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Backup-Datei konnte nicht erstellt werden."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo crear el archivo de respaldo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de créer le fichier de sauvegarde."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile creare il file di backup."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível criar o arquivo de backup."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось собрать файл резервной копии."
+          }
+        }
+      }
+    },
+    "During the break the plan already came down a step.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In der Trainingspause ist der Plan schon eine Stufe heruntergegangen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Durante la pausa el plan ya bajó un paso."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pendant la coupure, le plan est déjà descendu d’un cran."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Durante la pausa il piano è già sceso di un gradino."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Durante a pausa o plano já desceu um passo."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "За перерыв план уже опустился на ступень."
+          }
+        }
+      }
+    },
+    "Each set asks a little less — there's one more of them.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jeder Satz verlangt etwas weniger – dafür gibt es einen mehr."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cada serie pide un poco menos: ahora hay una más."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chaque série demande un peu moins — il y en a une de plus."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ogni serie chiede un po’ meno – ce n’è una in più."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cada série pede um pouco menos — e agora há uma a mais."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Каждый подход просит чуть меньше — а их на один больше."
+          }
+        }
+      }
+    },
+    "Everything done in this workout is dropped — the logged sets and the numbers. It starts from the warm-up.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alles aus diesem Training wird verworfen – die schon gemachten Sätze und die Zahlen. Es geht wieder beim Aufwärmen los."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se descarta todo lo hecho en este entrenamiento: las series registradas y los números. Empieza desde el calentamiento."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout ce qui a été fait dans cette séance est effacé — les séries enregistrées et les chiffres. Elle repart de l’échauffement."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tutto quello che hai fatto in questo allenamento va perso – le serie registrate e i numeri. Si riparte dal riscaldamento."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tudo o que você fez neste treino é descartado — as séries registradas e os números. Ele recomeça pelo aquecimento."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Все сделанное в этой тренировке пропадет — записанные подходы и числа. Она начнется с разминки."
+          }
+        }
+      }
+    },
+    "In Silent mode the tones go quiet — the vibration keeps going.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Im Lautlos-Modus bleiben die Töne stumm – die Vibration läuft weiter."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En modo silencio no suenan los tonos, pero la vibración sigue."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En mode Silencieux, les sons se taisent — la vibration continue."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In modalità Silenzioso i suoni si spengono – la vibrazione continua."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No modo Silencioso os sons ficam mudos — a vibração continua."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В бесшумном режиме звуки молчат — вибрация продолжает работать."
+          }
+        }
+      }
+    },
+    "More or fewer than planned? Tap “Went differently” — the next plan starts from your number.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mehr oder weniger als geplant? Tippe auf „Lief anders“ – der nächste Plan geht von deiner Zahl aus."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Más o menos que el plan? Toca «Fue distinto»: el siguiente plan parte de tu número."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plus ou moins que prévu ? Touche « Ça s’est passé autrement » — le plan suivant part de ton chiffre."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hai fatto di più o di meno del previsto? Tocca “È andata diversamente” – il piano successivo parte dal tuo numero."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mais ou menos que o previsto? Toque em “Foi diferente” — o próximo plano parte do seu número."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Больше или меньше плана? Нажми «Получилось иначе» — следующий план начнется от твоего числа."
+          }
+        }
+      }
+    },
+    "More sets": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mehr Sätze"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Más series"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plus de séries"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Più serie"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mais séries"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Больше подходов"
+          }
+        }
+      }
+    },
+    "Notifications are off for Dredfit, so the reminder can't be set from here.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitteilungen sind für Dredfit aus – die Erinnerung lässt sich hier nicht einstellen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las notificaciones de Dredfit están desactivadas: el recordatorio no se puede activar desde aquí."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les notifications sont désactivées pour Dredfit : le rappel ne peut pas être activé ici."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le notifiche di Dredfit sono disattivate, quindi il promemoria non si può impostare da qui."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As notificações do Dredfit estão desativadas, então o lembrete não pode ser ativado por aqui."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Уведомления для Dredfit выключены — напоминание отсюда не включить."
+          }
+        }
+      }
+    },
+    "On training days only — never on a rest day, and never after you have trained.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur an Trainingstagen – nie an einem Ruhetag und nie, nachdem du trainiert hast."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo en días de entrenamiento: nunca en un día de descanso ni después de entrenar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uniquement les jours d’entraînement — jamais un jour de repos, ni une fois la séance faite."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo nei giorni di allenamento – mai in un giorno di riposo e mai ad allenamento già fatto."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Só nos dias de treino — nunca em dia de descanso, e nunca depois que você já treinou."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Только в тренировочные дни — никогда в день отдыха и никогда после тренировки."
+          }
+        }
+      }
+    },
+    "Open iOS Settings": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iOS-Einstellungen öffnen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir Configuración de iOS"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir les réglages iOS"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri Impostazioni di iOS"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir os Ajustes do iOS"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть настройки iOS"
+          }
+        }
+      }
+    },
+    "Rate the workout": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Training einschätzen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valorar el entrenamiento"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Donner mon ressenti"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valuta l’allenamento"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaliar o treino"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оценить тренировку"
+          }
+        }
+      }
+    },
+    "Runs on its own from here — the countdown stays on the screen. Sound is off in Settings.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Läuft ab hier von allein – der Countdown bleibt auf dem Bildschirm. Der Ton ist in den Einstellungen aus."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A partir de aquí va solo: los segundos van bajando en la pantalla. El sonido está desactivado en Configuración."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À partir d’ici, ça se déroule tout seul — le décompte reste à l’écran. Le son est désactivé dans Réglages."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Da qui va da solo – il conto alla rovescia resta sullo schermo. Il suono è disattivato nelle Impostazioni."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daqui em diante roda sozinho: a contagem fica na tela. O som está desativado nos Ajustes."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дальше все идет само — отсчет остается на экране. Звук выключен в Настройках."
+          }
+        }
+      }
+    },
+    "Sets skipped": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sätze übersprungen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Series omitidas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Séries ignorées"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Serie saltate"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Séries puladas"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пропущенные подходы"
+          }
+        }
+      }
+    },
+    "Start over?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Von vorn beginnen?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Empezar de nuevo?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recommencer ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ricominciare da capo?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Começar de novo?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Начать заново?"
+          }
+        }
+      }
+    },
+    "Starts by itself": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Startet von allein"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empieza solo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Démarre tout seul"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parte da sé"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Começa sozinho"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Начнется само"
+          }
+        }
+      }
+    },
+    "What you did today": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Was du heute gemacht hast"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lo que hiciste hoy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce que tu as fait aujourd’hui"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quello che hai fatto oggi"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O que você fez hoje"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Что сделано сегодня"
+          }
+        }
+      }
+    },
+    "s left": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "s übrig"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "s restantes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "s restantes"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "s rimasti"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "s restantes"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "сек осталось"
+          }
+        }
+      }
+    },
+    "the next one adds a step where there's room": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "das nächste legt eine Stufe drauf, wo Luft ist"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "el siguiente sube un paso donde hay margen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "la prochaine ajoute un cran là où il y a de la marge"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "il prossimo aggiunge un gradino dove c’è margine"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "o próximo sobe um passo onde houver margem"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "следующая прибавит ступень там, где есть куда расти"
+          }
+        }
+      }
+    },
+    "the next one adds as much as each movement allows": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "das nächste legt drauf, was jede Bewegung zulässt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "el siguiente sube lo que permita cada movimiento"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "la prochaine ajoute autant que chaque mouvement le permet"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "il prossimo sale quanto ogni movimento consente"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "o próximo sobe o quanto cada movimento permitir"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "следующая прибавит каждому движению столько, сколько можно"
+          }
+        }
+      }
+    },
+    "the next one eases off where it's hardest": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "das nächste wird leichter, wo es am schwersten war"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "el siguiente afloja donde más costó"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "la prochaine allège là où c’est le plus difficile"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "il prossimo alleggerisce dov’è stato più duro"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "o próximo alivia onde ficou mais difícil"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "следующая станет легче там, где тяжелее всего"
+          }
+        }
+      }
+    },
+    "Drop today's unfinished workout?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Angefangenes Training von heute verwerfen?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Descartar el entrenamiento sin terminar de hoy?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abandonner la séance inachevée du jour ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminare l’allenamento di oggi non completato?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descartar o treino não concluído de hoje?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отбросить незавершенную тренировку?"
+          }
+        }
+      }
+    },
+    "Finish later": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Später beenden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminar después"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminer plus tard"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Termina dopo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminar depois"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Завершить позже"
+          }
+        }
+      }
+    },
+    "Going all out on one set weakens the ones after it. What counts is the whole exercise.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In einem Satz alles zu geben, schwächt die Sätze danach. Es zählt die ganze Übung."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Darlo todo en una serie le quita fuerza a las siguientes. Cuenta el ejercicio entero."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout donner sur une série enlève de la force aux suivantes. C’est tout l’exercice qui compte."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dare il massimo in una serie toglie forza a quelle successive. Conta tutto l’esercizio."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ir ao máximo em uma série tira força das seguintes. O que conta é o exercício inteiro."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Максимум в одном подходе забирает силы у следующих. Считается все упражнение целиком."
+          }
+        }
+      }
+    },
+    "Keep the workout": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Training behalten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conservar el entrenamiento"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garder la séance"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantieni l’allenamento"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manter o treino"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оставить тренировку"
+          }
+        }
+      }
+    },
+    "Switch the bar": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stange umschalten"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambiar la barra"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changer la barre"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambia la sbarra"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mudar a barra"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Переключить турник"
+          }
+        }
+      }
+    },
+    "Tap a number to change it — these are the numbers the next plan starts from.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe eine Zahl an, um sie zu ändern – von diesen Zahlen startet der nächste Plan."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca un número para cambiarlo: el próximo plan empieza desde estos números."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touche un nombre pour le modifier — c’est de ces nombres que part le prochain plan."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocca un numero per cambiarlo – il prossimo piano parte da questi numeri."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toque em um número para alterá-lo — o próximo plano começa a partir destes números."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажми на число, чтобы изменить, — следующий план начнется от этих чисел."
+          }
+        }
+      }
+    },
+    "Trying the next variation": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die nächste Variante ausprobieren"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Probar la siguiente variación"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Essayer la variante suivante"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Provare la variante successiva"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Testar a próxima variação"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проба следующей вариации"
+          }
+        }
+      }
+    },
+    "“Finish now” goes to the rating and marks the rest as skipped. “Finish later” keeps your place — Today offers to pick it up.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Jetzt beenden“ öffnet die Einschätzung und markiert den Rest als übersprungen. „Später beenden“ behält deine Stelle – „Heute“ bietet an, das Training fortzusetzen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Terminar ahora» pasa a la valoración y marca el resto como omitido. «Terminar después» guarda dónde te quedaste — la pantalla Hoy te ofrece retomarlo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« Terminer maintenant » passe au ressenti et marque le reste comme ignoré. « Terminer plus tard » garde ta place — Aujourd’hui te propose de reprendre."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Termina ora” passa alla valutazione e segna gli esercizi rimanenti come saltati. “Termina dopo” conserva il punto in cui sei – la schermata Oggi ti propone di riprenderlo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Terminar agora” vai para a avaliação e marca os exercícios restantes como pulados. “Terminar depois” guarda onde você parou — a tela Hoje oferece continuar."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Завершить сейчас» откроет оценку, а остальные упражнения отметит как пропущенные. «Завершить позже» сохранит место в тренировке — вкладка «Сегодня» предложит продолжить."
+          }
+        }
+      }
+    },
+    "Appearance": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erscheinungsbild"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apariencia"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apparence"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aspetto"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aparência"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оформление"
+          }
+        }
+      }
+    },
+    "Bring back": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wieder anzeigen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volver a mostrar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réafficher"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ripristina"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trazer de volta"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вернуть"
+          }
+        }
+      }
+    },
+    "Don't show this again": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht mehr anzeigen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No volver a mostrar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne plus afficher"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non mostrare più questa posizione"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não mostrar mais"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Больше не показывать"
+          }
+        }
+      }
+    },
+    "Not shown any more": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht mehr angezeigt"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ya no se muestran"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne s’affichent plus"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Da non mostrare più"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não aparecem mais"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Больше не показываются"
+          }
+        }
+      }
+    },
+    "Play tones in Silent mode": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Töne im Lautlos-Modus abspielen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reproducir los tonos en modo silencio"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jouer les sons en mode Silencieux"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suoni anche in modalità Silenzioso"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocar sons no modo Silencioso"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Звуки в бесшумном режиме"
+          }
+        }
+      }
+    },
+    "Something else takes its place.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stattdessen kommt eine andere Position."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En su lugar entra otra posición."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une autre position prend sa place."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Al suo posto ne arriva un’altra."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Outra posição entra no lugar."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Эту позицию заменит другая."
+          }
+        }
+      }
+    },
+    "The tones play even with the ringer switch off.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Töne spielen auch, wenn der Stummschalter auf lautlos steht."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los tonos suenan aunque el interruptor de silencio esté activado."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les sons se font entendre même quand la sonnerie est coupée."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I suoni si sentono anche con la suoneria disattivata."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os sons tocam mesmo com o interruptor no silencioso."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Звуки играют, даже когда переключатель звонка выключен."
+          }
+        }
+      }
+    },
+    "Widgets and the Lock Screen keep following the system.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Widgets und der Sperrbildschirm richten sich weiter nach dem System."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los widgets y la pantalla bloqueada siguen la apariencia del sistema."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les widgets et l’écran verrouillé continuent de suivre le système."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I widget e la schermata di blocco continuano a seguire il sistema."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os widgets e a Tela Bloqueada continuam seguindo o sistema."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Виджеты и экран блокировки по-прежнему следуют системе."
+          }
+        }
+      }
+    },
+    "appearance.dark": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dunkel"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dark"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oscuro"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sombre"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scuro"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escuro"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Темное"
+          }
+        }
+      }
+    },
+    "appearance.light": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hell"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claro"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clair"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiaro"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claro"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Светлое"
+          }
+        }
+      }
+    },
+    "appearance.system": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sistema"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Système"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sistema"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sistema"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Системное"
+          }
+        }
+      }
+    },
+    "history.changeRating": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einschätzung ändern"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change rating"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambiar la valoración"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changer le ressenti"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambia valutazione"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alterar a avaliação"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изменить оценку"
+          }
+        }
+      }
+    },
+    "history.changeRating.body": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der nächste Plan wird von dort neu gebaut, wo dieses Training ihn hinterlassen hat – genau so, wie es mit der anderen Antwort gewesen wäre."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The next plan is rebuilt from where this workout left it, exactly as the other answer would have."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El siguiente plan se vuelve a construir desde donde lo dejó este entrenamiento, exactamente como lo habría hecho la otra respuesta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le plan suivant est reconstruit à partir du point où cette séance l’a laissé, exactement comme l’aurait fait l’autre réponse."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il piano successivo viene ricostruito dal punto in cui questo allenamento lo ha lasciato, esattamente come sarebbe successo con l’altra risposta."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O próximo plano é refeito a partir de onde este treino parou, exatamente como a outra resposta teria feito."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Следующий план построится заново от того места, где его оставила эта тренировка, — ровно так, как построил бы другой ответ."
+          }
+        }
+      }
+    },
+    "history.changeRating.keep": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einschätzung behalten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep this rating"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conservar esta valoración"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garder ce ressenti"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantieni questa valutazione"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manter esta avaliação"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оставить эту оценку"
+          }
+        }
+      }
+    },
+    "history.changeRating.title": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einschätzung ändern?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change the rating?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Cambiar la valoración?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changer le ressenti ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambiare la valutazione?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alterar a avaliação?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изменить оценку?"
+          }
+        }
+      }
+    },
+    "history.earlier": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Früheres Training"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Earlier workout"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entrenamiento anterior"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Séance précédente"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allenamento precedente"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Treino anterior"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Предыдущая тренировка"
+          }
+        }
+      }
+    },
+    "history.easedByHand": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vor diesem Training hast du eine leichtere Variante gewählt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You chose an easier variation before this workout"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elegiste una variación más fácil antes de este entrenamiento"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu as choisi une variante plus facile avant cette séance"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prima di questo allenamento hai scelto una variante più facile"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Você escolheu uma variação mais fácil antes deste treino"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перед этой тренировкой выбрана вариация полегче"
+          }
+        }
+      }
+    },
+    "history.later": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Späteres Training"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Later workout"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entrenamiento siguiente"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Séance suivante"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allenamento successivo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Treino seguinte"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Следующая тренировка"
+          }
+        }
+      }
+    },
+    "plan.easedByHand": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du hast diese Übung leichter gemacht."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You made this one easier."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lo hiciste más fácil tú."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu as rendu ce mouvement plus facile."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hai scelto tu una variante più facile."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Você deixou este movimento mais fácil."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вариация полегче — по твоему выбору."
+          }
+        }
+      }
+    },
+    "plan.techniqueHintNoStep": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe auf eine Bewegung – dort steht die Technik."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap a movement for how it's done."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca un movimiento para ver la técnica."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touche un mouvement : la technique s’y trouve."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocca un movimento: lì trovi la tecnica."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toque em um movimento para ver a técnica."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажми на движение — там техника."
+          }
+        }
+      }
+    },
+    "plan.variationDropped": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine leichtere Variante als beim letzten Mal."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An easier variation than last time."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una variación más fácil que la vez anterior."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une variante plus facile que la dernière fois."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una variante più facile rispetto alla volta scorsa."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma variação mais fácil que a da última vez."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вариация полегче, чем в прошлый раз."
+          }
+        }
+      }
+    },
+    "today.changeRating": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einschätzung ändern"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change the rating"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambiar la valoración"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changer le ressenti"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambia la valutazione"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alterar a avaliação"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изменить оценку"
+          }
+        }
+      }
+    },
+    "today.changeRating.body": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Am Training selbst ändert sich nichts – die Sätze, die Zahlen und das Datum bleiben. Nur der nächste Plan wird neu gebaut, aus der neuen Antwort."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The workout itself does not change — the sets, the numbers and the date all stay. Only the next plan is built again, from the new answer."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El entrenamiento en sí no cambia: las series, los números y la fecha siguen igual. Solo se vuelve a construir el siguiente plan, a partir de la nueva respuesta."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La séance elle-même ne change pas — les séries, les chiffres et la date restent. Seul le plan suivant est reconstruit, à partir de la nouvelle réponse."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’allenamento in sé non cambia – le serie, i numeri e la data restano. Viene ricostruito solo il piano successivo, a partire dalla nuova risposta."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O treino em si não muda — as séries, os números e a data ficam como estão. Só o próximo plano é refeito, a partir da nova resposta."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сама тренировка не меняется — подходы, числа и дата остаются как были. Заново строится только следующий план, от нового ответа."
+          }
+        }
+      }
+    },
+    "today.changeRating.keep": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einschätzung behalten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep this rating"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conservar esta valoración"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garder ce ressenti"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantieni questa valutazione"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manter esta avaliação"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оставить эту оценку"
+          }
+        }
+      }
+    },
+    "today.changeRating.title": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wie lief es wirklich?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How did it actually go?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Cómo fue en realidad?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comment ça s’est vraiment passé ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Com’è andata davvero?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Como foi de verdade?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Как прошло на самом деле?"
+          }
+        }
+      }
+    },
+    "feedback.setsSkipped.count": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld von %2$lld"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld of %2$lld"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld de %2$lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld sur %2$lld"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld su %2$lld"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld de %2$lld"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld из %2$lld"
+          }
+        }
+      }
+    },
+    "history.after": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Danach: %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "After: %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Después: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Après : %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dopo: %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Depois: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стало: %@"
+          }
+        }
+      }
+    },
+    "history.afterVariation": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Danach: %1$@ · %2$@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "After: %1$@ · %2$@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Después: %1$@ · %2$@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Après : %1$@ · %2$@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dopo: %1$@ · %2$@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Depois: %1$@ · %2$@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стало: %1$@ · %2$@"
+          }
+        }
+      }
+    },
+    "history.setsSkipped": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sätze übersprungen: %1$lld von %2$lld"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sets skipped: %1$lld of %2$lld"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Series omitidas: %1$lld de %2$lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Séries ignorées : %1$lld sur %2$lld"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Serie saltate: %1$lld su %2$lld"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Séries puladas: %1$lld de %2$lld"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пропущено подходов: %1$lld из %2$lld"
+          }
+        }
+      }
+    },
+    "history.toughEased": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einschätzung: schwer – das nächste Training wird leichter bei: %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rating: tough — the next one eases off: %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valoración: difícil — el siguiente afloja: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ressenti : difficile — la prochaine séance lève le pied : %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valutazione: faticoso – il prossimo alleggerisce: %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaliação: difícil — o próximo alivia: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оценка: тяжело — следующая будет легче: %@"
+          }
+        }
+      }
+    },
+    "technique.stepDown.now": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jetzt: %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Now: %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ahora: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maintenant : %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ora: %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agora: %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сейчас: %@"
+          }
+        }
+      }
+    },
+    "today.ratingLessNamed": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einschätzung: schwer – das nächste Training wird leichter bei %@"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rating: tough — the next one eases off on %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valoración: difícil — el siguiente afloja en %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ressenti : difficile — la prochaine séance lève le pied sur %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valutazione: faticoso – il prossimo alleggerisce %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avaliação: difícil — o próximo alivia %@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оценка: тяжело — следующая будет легче: %@"
+          }
+        }
+      }
+    },
+    "%lld is the most that can be set aside. Bring one back to make room.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mehr als %lld Positionen lassen sich nicht ausblenden. Zeig eine wieder an, um Platz zu machen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld es el máximo que se puede dejar fuera. Vuelve a mostrar una para hacer espacio."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu peux mettre de côté %lld positions au maximum. Réaffiche l’une d’elles pour faire de la place."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non puoi nasconderne più di %lld. Ripristinane una per fare spazio."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld é o máximo que dá para deixar de lado. Traga uma de volta para abrir espaço."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скрытых позиций может быть не больше %lld. Верни одну, чтобы освободить место."
+          }
+        }
+      }
+    },
+    "A harder variation is never handed to you on a guess. When you top out the reps, the LAST set of that exercise becomes a probe: one set of the next variation, four reps or fifteen seconds. Manage it and the next workout starts you there, at three sets of four. Fall short and nothing moves — you stay where you are and the probe comes round again. There is no wrong answer to give it, and the volume of the workout does not change either way.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine schwerere Variante bekommst du nie auf Verdacht. Wenn du bei den Wiederholungen oben angekommen bist, wird der LETZTE Satz dieser Übung zur Probe: ein Satz der nächsten Variante, vier Wiederholungen oder fünfzehn Sekunden. Schaffst du ihn, beginnt das nächste Training genau dort – mit drei Sätzen zu je vier. Schaffst du ihn nicht, bewegt sich nichts: Du bleibst, wo du bist, und die Probe kommt wieder. Eine falsche Antwort gibt es hier nicht, und der Umfang des Trainings ändert sich so oder so nicht."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una variación más difícil nunca se te da a ciegas. Cuando llegas al tope de repeticiones, la ÚLTIMA serie de ese ejercicio se convierte en una prueba: una serie de la siguiente variación, cuatro repeticiones o quince segundos. Si la pasas, el próximo entrenamiento ya empieza ahí, con tres series de cuatro. Si no llegas, no se mueve nada: te quedas donde estás y la prueba vuelve la próxima vez. No hay respuesta equivocada, y el volumen del entrenamiento no cambia en ningún caso."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une variante plus dure ne t’est jamais donnée au jugé. Quand les répétitions plafonnent, la DERNIÈRE série de cet exercice devient un essai : une série de la variante suivante, quatre répétitions ou quinze secondes. Si tu la réussis, la séance suivante démarre là, à trois séries de quatre. Sinon, rien ne bouge : tu restes où tu es et l’essai revient la fois d’après. Il n’y a pas de mauvaise réponse, et le volume de la séance ne change ni dans un cas ni dans l’autre."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una variante più difficile non ti viene mai data a intuito. Quando le ripetizioni arrivano al tetto, l’ULTIMA serie di quell’esercizio diventa una prova: una serie della variante successiva, quattro ripetizioni o quindici secondi. Se ce la fai, l’allenamento dopo parte già da lì, con tre serie da quattro. Se non ce la fai, non si muove nulla: resti dove sei e la prova torna la volta successiva. Non c’è una risposta sbagliata, e il volume dell’allenamento non cambia in nessuno dei due casi."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uma variação mais difícil nunca é entregue no palpite. Quando as repetições chegam ao teto, a ÚLTIMA série daquele exercício vira um teste: uma série da próxima variação, quatro repetições ou quinze segundos. Se der conta, o próximo treino já começa ali, com três séries de quatro. Se não der, nada se move: você fica onde está e o teste volta na próxima vez. Não existe resposta errada, e o volume do treino não muda de um jeito nem de outro."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сложную вариацию тебе никогда не выдают наугад. Когда повторы упираются в потолок, ПОСЛЕДНИЙ подход этого упражнения становится пробой: один подход следующей вариации, четыре повтора или пятнадцать секунд. Справился — следующая тренировка начнется уже там, с трех подходов по четыре. Не справился — ничего не сдвинется: останешься на месте, а проба вернется в следующий раз. Неправильного ответа тут нет, и объем тренировки в любом случае не меняется."
+          }
+        }
+      }
+    },
+    "Bring back %@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ wieder anzeigen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volver a mostrar %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réafficher %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ripristina %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trazer %@ de volta"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вернуть: %@"
+          }
+        }
+      }
+    },
+    "Dredfit gives you a plan, you say how it went, and the next plan shifts. Answer honestly afterwards and the load becomes yours, step by step.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dredfit gibt dir einen Plan, du sagst, wie es lief, und der nächste Plan zieht nach. Antworte danach ehrlich, und die Belastung passt sich dir Stufe für Stufe an."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dredfit te da un plan, tú dices cómo fue y el siguiente plan se mueve. Responde con sinceridad al terminar y la carga se hará tuya, paso a paso."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dredfit te donne un plan, tu dis comment ça s’est passé, et le plan suivant s’ajuste. Réponds ensuite honnêtement, et la charge deviendra la tienne, cran après cran."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dredfit ti dà un piano, tu dici com’è andata e il piano successivo si sposta. Alla fine rispondi con sincerità e il carico diventa tuo, un gradino alla volta."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Dredfit te dá um plano, você diz como foi e o plano seguinte se ajusta. Depois, responda com sinceridade e a carga vira sua, passo a passo."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dredfit дает план, ты говоришь, как прошло, — следующий план сдвигается. Ответь честно после тренировки — и нагрузка шаг за шагом станет твоей."
+          }
+        }
+      }
+    },
+    "Includes about %lld min of warm-up and cool-down.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enthält etwa %lld min Aufwärmen und Abwärmen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incluye unos %lld min de calentamiento y enfriamiento."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dont environ %lld min d’échauffement et de retour au calme."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Include circa %lld min di riscaldamento e defaticamento."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inclui cerca de %lld min de aquecimento e desaquecimento."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Из них около %lld мин — разминка и заминка."
+          }
+        }
+      }
+    },
+    "It counts as not trained, and any number you entered for it is not kept. Its plan stays exactly as it is.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das gilt als nicht trainiert, und eingegebene Zahlen dazu werden nicht behalten. Der Plan dafür bleibt genau so, wie er ist."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuenta como no entrenado y no se guarda ningún número que hayas introducido para él. Su plan se queda exactamente igual."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il compte comme non entraîné, et aucun nombre saisi pour lui n’est conservé. Son plan reste exactement tel quel."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conta come non allenato e i numeri che hai inserito per questo esercizio non vengono conservati. Il suo piano resta esattamente com’è."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conta como não treinado, e nenhum número que você tenha inserido para ele é guardado. O plano dele fica exatamente como está."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Считается несделанным, и введенные по нему числа не сохранятся. План по нему останется ровно таким же."
+          }
+        }
+      }
+    },
+    "No questions about your goal, your level or how much time you have. Open the app and train — the first workout is already waiting. About half an hour, no equipment.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Fragen nach deinem Ziel, deinem Level oder deiner Zeit. Öffne die App und trainiere – das erste Training wartet schon. Rund eine halbe Stunde, ohne Geräte."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin preguntas sobre tu objetivo, tu nivel o el tiempo que tienes. Abre la app y entrena: el primer entrenamiento ya te espera. Alrededor de media hora, sin equipamiento."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune question sur ton objectif, ton niveau ou le temps que tu as. Ouvre l’app et entraîne-toi : la première séance t’attend déjà. Environ une demi-heure, sans matériel."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niente domande su obiettivo, livello o quanto tempo hai. Apri l’app e allenati: il primo allenamento ti aspetta già. Circa mezz’ora, senza attrezzi."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sem perguntas sobre seu objetivo, seu nível ou quanto tempo você tem. Abra o app e treine: o primeiro treino já está esperando. Cerca de meia hora, sem equipamento."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Никаких вопросов про цель, уровень и свободное время. Открывай и тренируйся: первая тренировка уже готова. Около получаса, без инвентаря."
+          }
+        }
+      }
+    },
+    "The bar changes today's plan, so the workout you started can't be picked up again and the sets already done won't be recorded. Finish it first and nothing is lost.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Klimmzugstange ändert den heutigen Plan, deshalb lässt sich das begonnene Training nicht mehr fortsetzen und die schon gemachten Sätze werden nicht gespeichert. Beende es zuerst, dann geht nichts verloren."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La barra cambia el plan de hoy, así que el entrenamiento que empezaste no se podrá retomar y las series ya hechas no quedarán registradas. Termínalo primero y no se pierde nada."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La barre change le plan du jour : la séance que tu as commencée ne pourra plus être reprise et les séries déjà faites ne seront pas enregistrées. Termine-la d’abord et rien n’est perdu."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La sbarra cambia il piano di oggi: l’allenamento che hai iniziato non si può riprendere e le serie già fatte non vengono registrate. Se prima lo finisci, non va perso nulla."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A barra muda o plano de hoje, então o treino que você começou não pode mais ser retomado e as séries já feitas não serão registradas. Termine o treino primeiro e nada se perde."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Турник меняет сегодняшний план, поэтому начатую тренировку уже не продолжить, а сделанные подходы не запишутся. Сначала заверши ее — и ничего не пропадет."
+          }
+        }
+      }
+    },
+    "The file holds your history, your plan and your settings — including your weight, if you entered one. It goes only where you send it.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Datei enthält deinen Verlauf, deinen Plan und deine Einstellungen – auch dein Gewicht, falls du eins eingetragen hast. Sie geht nur dorthin, wohin du sie schickst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El archivo contiene tu historial, tu plan y tu configuración, incluido tu peso si lo has introducido. Solo va adonde tú lo envíes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le fichier contient ton historique, ton plan et tes réglages — dont ton poids, si tu en as saisi un. Il ne va que là où tu l’envoies."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il file contiene lo storico, il piano e le impostazioni – compreso il peso, se l’hai inserito. Va solo dove lo mandi tu."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O arquivo guarda seu histórico, seu plano e seus ajustes — incluindo seu peso, se você informou algum. Ele só vai para onde você mandar."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В файле — история, план и настройки, включая вес тела, если он введен. Файл уходит только туда, куда ты его отправишь."
+          }
+        }
+      }
+    },
+    "The last set was %@.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der letzte Satz war %@."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La última serie fue %@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dernière série : %@."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’ultima serie è stata %@."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A última série foi %@."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Последний подход — %@."
+          }
+        }
+      }
+    },
+    "The work is done. A few minutes of stretching helps it settle. Some of the positions follow the movements you did today.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Arbeit ist getan. Ein paar Minuten Dehnen helfen dem Körper, zur Ruhe zu kommen. Einige Positionen richten sich nach den Bewegungen, die du heute gemacht hast."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El trabajo está hecho. Unos minutos de estiramiento ayudan a asentarlo. Algunas posiciones siguen los movimientos que hiciste hoy."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le travail est fait. Quelques minutes d’étirements aident à l’assimiler. Certaines positions reprennent les mouvements que tu as faits aujourd’hui."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il lavoro è fatto. Qualche minuto di stretching aiuta a farlo sedimentare. Alcune posizioni seguono i movimenti che hai fatto oggi."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O trabalho está feito. Alguns minutos de alongamento ajudam a assentar. Algumas das posições seguem os movimentos que você fez hoje."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Работа сделана. Несколько минут растяжки помогут телу остыть. Часть позиций подобрана под движения сегодняшней тренировки."
+          }
+        }
+      }
+    },
+    "Took %lld min, pauses included": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hat %lld min gedauert, Pausen eingerechnet"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duró %lld min, pausas incluidas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A duré %lld min, repos et pauses compris"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "È durato %lld min, pause comprese"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Durou %lld min, pausas incluídas"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Заняла %lld мин, вместе с паузами"
+          }
+        }
+      }
+    },
+    "Your history couldn't be read on this launch, so it can't be backed up. Unlock the phone and open Dredfit again.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Verlauf konnte bei diesem Start nicht gelesen werden, deshalb lässt sich kein Backup davon anlegen. Entsperre das Telefon und öffne Dredfit noch einmal."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En este arranque no se pudo leer tu historial, así que no se puede respaldar. Desbloquea el teléfono y vuelve a abrir Dredfit."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ton historique n’a pas pu être lu à ce lancement, il ne peut donc pas être sauvegardé. Déverrouille le téléphone et rouvre Dredfit."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A questo avvio non è stato possibile leggere lo storico, quindi non se ne può fare il backup. Sblocca il telefono e riapri Dredfit."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível ler seu histórico nesta abertura do app, então ele não pode ser salvo em backup. Desbloqueie o celular e abra o Dredfit de novo."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "При этом запуске историю прочитать не удалось, поэтому и резервную копию не сделать. Разблокируй телефон и открой Dredfit снова."
+          }
+        }
+      }
+    },
+    "next variation probe in %lld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Probe der nächsten Variante in %lld"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "prueba de la siguiente variación en %lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "essai de la variante suivante dans %lld"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "prova nuova variante tra %lld"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "teste da próxima variação em %lld"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "проба следующей вариации через %lld"
+          }
+        }
+      }
+    },
+    "we start at %lld × %lld s%@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "wir starten bei %1$lld × %2$lld s%3$@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "empezamos con %1$lld × %2$lld s%3$@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "on démarre à %1$lld × %2$lld s%3$@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "si parte da %1$lld × %2$lld s%3$@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "começamos com %1$lld × %2$lld s%3$@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "начинаем с %1$lld × %2$lld сек%3$@"
+          }
+        }
+      }
+    },
+    "we start at %lld × %lld%@": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "wir starten bei %1$lld × %2$lld%3$@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "empezamos con %1$lld × %2$lld%3$@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "on démarre à %1$lld × %2$lld%3$@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "si parte da %1$lld × %2$lld%3$@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "começamos com %1$lld × %2$lld%3$@"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "начинаем с %1$lld × %2$lld%3$@"
+          }
+        }
+      }
+    },
+    "“Less · On plan · More” — that is enough. If you want to be exact, tap “Went differently” right on the exercise and put in your number. The first workout is deliberately easy: it is the starting point, not a test.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Weniger · Nach Plan · Mehr“ – das reicht. Wenn du es genau haben willst, tippe direkt in der Übung auf „Lief anders“ und trag deine Zahl ein. Das erste Training ist bewusst leicht – es ist der Ausgangspunkt, kein Test."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Menos · Según el plan · Más»: con eso basta. Si quieres precisión, toca «Fue distinto» en el propio ejercicio y escribe tu número. El primer entrenamiento es fácil a propósito: es el punto de partida, no un examen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« Moins · Comme prévu · Plus » — c’est suffisant. Si tu veux plus de précision, touche « Ça s’est passé autrement » directement sur l’exercice et saisis ton chiffre. La première séance est volontairement facile : c’est le point de départ, pas un test."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Meno · Come previsto · Più”: non serve altro. Se vuoi più precisione, tocca “È andata diversamente” direttamente sull’esercizio e scrivi quanto hai fatto davvero. Il primo allenamento è facile apposta: è il punto di partenza, non un test."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Menos · Como planejado · Mais”: isso basta. Se quiser precisão, toque em “Foi diferente” no próprio exercício e escreva o seu número. O primeiro treino é leve de propósito: é o ponto de partida, não uma prova."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "«Меньше · По плану · Больше» — этого достаточно. Захочешь точности — нажми «Получилось иначе» прямо в упражнении и впиши, сколько вышло на самом деле. Первая тренировка нарочно легкая: это точка отсчета, а не проверка."
+          }
+        }
+      }
+    },
+    "%@, %lld of %lld sets skipped": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@, %2$lld von %3$lld Sätzen übersprungen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@, series omitidas: %2$lld de %3$lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@, séries ignorées : %2$lld sur %3$lld"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@, serie saltate: %2$lld su %3$lld"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@, %2$lld de %3$lld séries puladas"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@, пропущено подходов: %2$lld из %3$lld"
+          }
+        }
+      }
+    },
+    "%@, today": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, heute"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, hoy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, aujourd’hui"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, oggi"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, hoje"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, сегодня"
+          }
+        }
+      }
+    },
+    "Keep this workout?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Training behalten?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Conservar este entrenamiento?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garder cette séance ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantenere l’allenamento?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manter este treino?"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохранить тренировку?"
+          }
+        }
+      }
     }
   },
   "version": "1.1"

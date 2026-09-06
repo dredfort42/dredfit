@@ -70,12 +70,22 @@ struct FeedbackView: View {
                     // knowable only after the feedback is applied, because it
                     // depends on what the session was made of, which is why no
                     // caption here can be exact for six exercises at once.
+                    //
+                    // They also share a SHAPE and a register (UX review
+                    // 05.09.2026). "next workout eases off" was four plain
+                    // words against fourteen of engine vocabulary, and it was
+                    // the only caption that named the whole workout: an
+                    // unnamed "less" moves ONE movement (Feedback.lessTargets)
+                    // until the third in a row, so the shortest, friendliest
+                    // sentence on the screen was also the one a person could
+                    // check the next morning and find false. All three now say
+                    // what the next workout does AND where.
                     VStack(spacing: 14) {
                         optionCard(title: String(localized: "Tough, did less"),
-                                   caption: String(localized: "next workout eases off"),
+                                   caption: String(localized: "the next one eases off where it's hardest"),
                                    result: .less, enabled: true)
                         optionCard(title: String(localized: "On plan"),
-                                   caption: String(localized: "the next one adds a step to the movements that have room for one"),
+                                   caption: String(localized: "the next one adds a step where there's room"),
                                    result: .plan, enabled: true)
                         // The one rating that claims MORE than the plan is the
                         // one the plan has to have been finished for. The other
@@ -83,7 +93,7 @@ struct FeedbackView: View {
                         // never gated, and "on plan" is the truth about a
                         // session that fell short of nothing it recorded.
                         optionCard(title: String(localized: "Easy, could do more"),
-                                   caption: String(localized: "the next one asks as much more as each movement allows"),
+                                   caption: String(localized: "the next one adds as much as each movement allows"),
                                    result: .more, enabled: didFullPlan)
                     }
 
@@ -114,7 +124,7 @@ struct FeedbackView: View {
 
                     Spacer(minLength: 20)
 
-                    if !overrides.isEmpty || !skipped.isEmpty {
+                    if !overrides.isEmpty || !skipped.isEmpty || !trainedShort.isEmpty {
                         adjustedSummary
                             .padding(.bottom, 24)
                     }
@@ -147,6 +157,41 @@ struct FeedbackView: View {
                                   reported: Int((overrides[ex.pattern] ?? 0).rounded()))
                 }
             }
+            // A movement that lost a set, and how much came off it
+            // (UX review 05.09.2026). It was the one shortfall this screen
+            // never named: `setsSkipped` reached the view and was read exactly
+            // once, to spend the "Easy" card — so the card went dim with its
+            // reason unnamed, and a workout whose only shortfall was a dropped
+            // set built no summary at all.
+            //
+            // ABOVE the "Skipped" block, not inside it: the sentence that
+            // closes that block says the rating does NOT apply to what is
+            // listed there, and a movement that lost a set is governed by the
+            // rating like any other — it is inside `applies`.
+            if !trainedShort.isEmpty {
+                Kicker(text: String(localized: "Sets skipped"))
+                    .padding(.top, 8)
+            }
+            ForEach(trainedShort) { ex in
+                HStack {
+                    Text(ex.name)
+                        .dredfitFont(14, weight: .medium)
+                    Spacer()
+                    // "1 of 3" under a header that says SETS SKIPPED: the
+                    // loss and the size of the movement in one figure, and
+                    // no plural to inflect in any of the seven languages.
+                    Text(String(localized: "feedback.setsSkipped.count",
+                                defaultValue: "\(setsLost(ex)) of \(ex.sets)"))
+                        .dredfitFont(14, weight: .semibold)
+                        .monospacedDigit()
+                        .foregroundStyle(Theme.accentText)
+                }
+                // The header is a separate element to VoiceOver, so the row
+                // has to carry the word "skipped" itself.
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(
+                    Text("\(ex.name), \(setsLost(ex)) of \(ex.sets) sets skipped"))
+            }
             // The "Discomfort" section is gone with the input that filled it.
             // Nothing is set aside for pain any more — a movement the person
             // found too hard is either skipped or done at the number they
@@ -162,7 +207,15 @@ struct FeedbackView: View {
                     // LOOKS dimmed.
                     Text(ex.name)
                         .dredfitFont(14, weight: .medium)
-                        .foregroundStyle(Theme.ink3)
+                        // ink2, not ink3: on `cardBG` ink3 comes to ≈2.2:1 in
+                        // light, and 14 pt is small text, where the floor is
+                        // 4.5 — a set-aside movement is meant to read quieter,
+                        // not to be the one name on the screen a person has to
+                        // squint at (owner's call, UX review 05.09.2026). The
+                        // state it used to carry by dimming alone is said in
+                        // three other places: the "Skipped" header above, the
+                        // "not finished" tag beside it, and the label below.
+                        .foregroundStyle(Theme.ink2)
                         .accessibilityLabel(ex.pattern == interrupted
                             ? Text("\(ex.name), not finished")
                             : Text("\(ex.name), skipped"))
@@ -206,6 +259,18 @@ struct FeedbackView: View {
 
     private var applies: Int { session.exercises.count - skipped.count - adjusted }
 
+    /// Movements trained short of their sets. A movement that was LEFT is
+    /// excluded rather than trusted to be absent: `leaveExercise` clears its
+    /// set count on the way out, and a row printed from a stale entry would
+    /// count sets off a movement the same screen calls skipped.
+    private var trainedShort: [SessionExercise] {
+        session.exercises.filter {
+            setsLost($0) > 0 && !skipped.contains($0.pattern)
+        }
+    }
+
+    private func setsLost(_ ex: SessionExercise) -> Int { setsSkipped[ex.pattern] ?? 0 }
+
     private var total: Int { session.exercises.count }
 
     /// One sentence, shared by the line under the cards and by the dimmed
@@ -223,32 +288,46 @@ struct FeedbackView: View {
         Button {
             onComplete(result, overrides)
         } label: {
-            HStack {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(title)
-                        .dredfitFont(18, weight: .semibold)
-                        .foregroundStyle(Theme.ink)
-                    // A button's label centres its own multiline text, so a
-                    // caption that wraps stops agreeing with the title above
-                    // it. Stated rather than inherited.
-                    Text(caption)
-                        .dredfitFont(13)
-                        .foregroundStyle(Theme.ink2)
-                        .multilineTextAlignment(.leading)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .foregroundStyle(Theme.ink3)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .dredfitFont(18, weight: .semibold)
+                    .foregroundStyle(Theme.ink)
+                // A button's label centres its own multiline text, so a
+                // caption that wraps stops agreeing with the title above
+                // it. Stated rather than inherited.
+                Text(caption)
+                    .dredfitFont(13)
+                    .foregroundStyle(Theme.ink2)
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
+                    // Two lines held open, never capped (UX review
+                    // 05.09.2026). The comment above says three EQUAL cards
+                    // and the screen had three unequal ones — ≈79.5 pt against
+                    // ≈94.8 — because one caption wrapped and two did not, so
+                    // the honest answer downward carried the smallest target.
+                    // A range, not `lineLimit(2)`: at accessibility sizes a
+                    // caption takes three lines and must not be cut.
+                    .lineLimit(2...)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 22)
             .padding(.vertical, 20)
             .background(
                 RoundedRectangle(cornerRadius: 20)
                     .fill(Theme.bg)
+                    // The border does the work the chevron used to do — and
+                    // that chevron was a lie, because everywhere else in the
+                    // app it opens something you can back out of, while here
+                    // one tap writes the journal and applies the rating (UX
+                    // review 05.09.2026).
+                    //
+                    // `targetStroke`, because it is the ONLY thing marking the
+                    // card as a control: hairline is ≈1.2:1 on `bg` and the
+                    // border is simply not there, and ink3 — where this landed
+                    // first — is 2.35:1 in light, still under the 3:1 that
+                    // boundary owes (finding 31, 1.4.11).
                     .overlay(RoundedRectangle(cornerRadius: 20)
-                        .stroke(Theme.hairline, lineWidth: 1.5))
+                        .stroke(Theme.targetStroke, lineWidth: 1.5))
             )
         }
         .disabled(!enabled)

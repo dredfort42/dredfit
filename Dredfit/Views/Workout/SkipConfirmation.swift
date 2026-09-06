@@ -53,9 +53,17 @@ struct SkipConfirmation: Identifiable {
                 sets off next time.
                 """)
         case .exercise:
+            // ONE NOUN, and it is the title's (UX review 05.09.2026). The
+            // question above says "exercise" — the word the control that
+            // raised it uses too — and the answer used to say "movement", so
+            // the reader had to sew two nouns into one thing under a running
+            // clock. The canon does distinguish them (GLOSSARY: a movement is
+            // the pattern, an exercise is the row in today's plan); this
+            // sentence simply stops restating the noun instead of choosing a
+            // side the explainer has not chosen yet.
             return String(localized: """
-                The movement counts as not trained, and any number you \
-                entered for it is not kept. Its plan stays exactly as it is.
+                It counts as not trained, and any number you entered for it \
+                is not kept. Its plan stays exactly as it is.
                 """)
         }
     }

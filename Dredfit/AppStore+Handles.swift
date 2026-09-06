@@ -73,6 +73,25 @@ extension AppStore {
                               unitChanged: $0.unit != before, variation: $0.variation) }
     }
 
+    // MARK: - What the equipment switch would cost
+
+    /// True when flipping the pull-up bar to `on` would throw away a workout
+    /// the athlete could still resume.
+    ///
+    /// Asked rather than assumed: the snapshot survives only while it matches
+    /// the session the engine would hand out now (`WorkoutSnapshot`'s
+    /// fingerprint), so the honest answer is to generate the session the
+    /// switch WOULD produce and compare. The card on Today simply disappears
+    /// otherwise — `resumableWorkout()` returns nil and says nothing about why
+    /// (UX review 05.09.2026, finding 6). What the settings row does with this
+    /// is ask first.
+    func barToggleWouldDiscardWorkout(_ on: Bool, now: Date = .now) -> Bool {
+        guard let snap = resumableWorkout(now: now) else { return false }
+        var after = engineState
+        after.hasBar = on
+        return snap.fingerprint != WorkoutSnapshot.fingerprint(of: Engine.generateSession(after))
+    }
+
     // MARK: - How long today can be
 
     /// The two ends of today's session: the full plan, and the same

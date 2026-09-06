@@ -63,5 +63,18 @@ nonisolated struct WidgetSnapshot: Codable {
     let weekStart: Date?
     let planSessionNumber: Int?
     let planMinutes: Int?
+
+    // The low end of the same range the app prints on Today (PlanLength): the
+    // plan with every movement on its sets floor. The lock screen carried the
+    // full number alone, which overstates what the person is agreeing to on
+    // the very surface where "will this fit today" is answered without
+    // opening the app (UX review 05.09.2026).
+    //
+    // Absent means "written before this field existed" — the widget then
+    // prints the one number it has, as it always did. Declared `var` with no
+    // initializer so the memberwise initializer defaults it: a snapshot built
+    // without the floor is still a snapshot.
+    var planMinutesFloor: Int?
+
     let plan: [PlanRow]?
 }

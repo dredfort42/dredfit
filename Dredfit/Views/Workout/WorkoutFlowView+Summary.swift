@@ -55,7 +55,14 @@ extension WorkoutFlowView {
             // same rule: one thing to read at a time, so the sentence stands
             // down while a number is being entered.
             if !adjusting {
-                Text("These are the numbers the next plan starts from.")
+                // ONE sentence about one thing. The screen used to say "tap a
+                // number to change it" under the cards and "These are the
+                // numbers the next plan starts from" at the bottom — the same
+                // invitation twice, in two slots, 13 pt apart. The affordance
+                // itself is on the cards now (their outline), so what is left
+                // is the reason to take it, and it stands where the flow keeps
+                // what it has to say (UX review 05.09.2026).
+                Text("Tap a number to change it — these are the numbers the next plan starts from.")
                     .dredfitFont(14)
                     .foregroundStyle(Theme.ink2)
                     .multilineTextAlignment(.center)
@@ -75,6 +82,13 @@ extension WorkoutFlowView {
                         // A number the person typed is not an estimate any
                         // more, whatever produced the one it replaced.
                         holdApproxSets.remove(index)
+                        // The second door of the same channel, and it spends
+                        // the same one-way flag: the work screen's hint asks
+                        // people to say a number of their own, and correcting
+                        // a card here IS saying one. Without this call the
+                        // hint went on being shown to somebody who had
+                        // already answered it (UX review, 05.09.2026).
+                        store.markOwnNumberReported()
                     }
                     adjusting = false
                     summarySet = nil
@@ -123,28 +137,24 @@ extension WorkoutFlowView {
         }
     }
 
-    /// The plan, and the invitation to argue with the numbers above it.
+    /// The plan the numbers above were run against.
     ///
     /// "each" is held back on an UNEVEN plan, where it would be false: 9-8-8
     /// asks different things of different sets, and the cards carry their own
     /// planned figure there instead.
+    ///
+    /// The invitation to change a number left this slot with the wave that
+    /// merged it into the line at the foot of the screen — see there for why
+    /// one sentence and not two.
     @ViewBuilder
     private var summaryPlanLine: some View {
-        VStack(spacing: 6) {
-            if exercise.loads == nil {
-                Text("planned \(exercise.load) s each")
-                    .dredfitFont(14)
-                    .monospacedDigit()
-                    .foregroundStyle(Theme.ink2)
-            }
-            // ink2, not ink3. ink3 is a floor of 3:1 on `bg` by design — the
-            // palette keeps it for quiet GRAPHICS — and this is small text
-            // that has to be read, which needs 4.5 (BrandPaletteTests).
-            Text("tap a number to change it")
-                .dredfitFont(13)
+        if exercise.loads == nil {
+            Text("planned \(exercise.load) s each")
+                .dredfitFont(14)
+                .monospacedDigit()
                 .foregroundStyle(Theme.ink2)
+                .padding(.top, 18)
         }
-        .padding(.top, 18)
     }
 
     /// Opens the entry on the card that was tapped, not on the set the flow

@@ -113,32 +113,46 @@ struct OnboardingView: View {
         }
     }
 
+    // UX review 05.09.2026: the minute count was spelled out here and went
+    // stale the moment the engine moved — PR #233 lifted warmupMin 5 → 6 and
+    // the first session became 31.5 min, while Today prints "≈ 24–32 min".
+    // No test pinned the "31", and none could: prose cannot hold a number
+    // only the engine knows. It names the size instead, and stops competing
+    // with the very next screen.
     private var card1: some View {
         cardShell(title: String(localized: "Training at home. No questionnaires."),
                   body: String(localized: """
                   No questions about your goal, your level or how much time you have. \
                   Open the app and train — the first workout is already waiting. \
-                  About 31 minutes, no equipment.
+                  About half an hour, no equipment.
                   """)) { EmptyView() }
     }
 
+    // UX review 05.09.2026: "the first workout is deliberately easy" moved
+    // from here to card 3. Skip jumps from card 1 straight to the care card,
+    // so this was the ONE sentence a skipper never saw — and it is the one
+    // that explains the very small numbers waiting on the other side of the
+    // button. On card 3 both readers get it.
     private var card2: some View {
         cardShell(title: String(localized: "It adjusts like a thermostat."),
                   body: String(localized: """
                   Dredfit gives you a plan, you say how it went, and the next plan \
-                  shifts. The first workout is deliberately easy — it is the starting \
-                  point. Answer honestly afterwards and the load becomes yours, \
+                  shifts. Answer honestly afterwards and the load becomes yours, \
                   step by step.
                   """)) {
             loopDiagram.padding(.top, 28)
         }
     }
 
+    /// The card Skip lands on, so everything a skipper must not miss lives
+    /// here — the care note, and now the sentence that sizes the first
+    /// workout (see card 2).
     private var card3: some View {
         cardShell(title: String(localized: "One tap after the workout."),
                   body: String(localized: """
                   “Less · On plan · More” — that is enough. If you want to be exact, \
-                  tap “Went differently” right on the exercise and put in your number.
+                  tap “Went differently” right on the exercise and put in your number. \
+                  The first workout is deliberately easy: it is the starting point, not a test.
                   """)) {
             careBlock.padding(.top, 28)
         }
@@ -162,7 +176,13 @@ struct OnboardingView: View {
     private func chip(_ text: String, filled: Bool) -> some View {
         Text(text)
             .dredfitFont(13, weight: .semibold)
-            .foregroundStyle(filled ? Theme.accentText : Theme.ink2)
+            // ink, not accentText: accentText ON accentSoft is 4.20:1 (I-21)
+            // and 13 pt semibold is small text, where the floor is 4.5:1.
+            // `ink` on accentSoft is the pair BrandPaletteTests pins at 4.5,
+            // and the filled chip is still told apart by its ground — the
+            // colour was carrying the contrast, not the meaning
+            // (UX review 05.09.2026, finding 16).
+            .foregroundStyle(filled ? Theme.ink : Theme.ink2)
             .padding(.horizontal, 12)
             .padding(.vertical, 7)
             .background(filled ? Theme.accentSoft : Theme.cardBG,

@@ -31,6 +31,27 @@ enum BlockPause {
     /// and this can only make a paused session shorter.
     static var reentrySeconds: Int { GetReady.countInSeconds }
 
+    /// How far past a stage boundary a block may run and still just carry on.
+    ///
+    /// Beyond it the phone was somewhere else — a call, another app, a pocket
+    /// — and the block freezes instead of absorbing the stages the absence
+    /// covered (UX review 05.09.2026). The threshold is the count-in for the
+    /// reason the rest uses three seconds for its own version of this: past
+    /// it, whatever the block would have said was said to nobody, and a
+    /// signal nobody could hear must not be what started a position.
+    ///
+    /// One value for both blocks, and the DEBUG override is not cosmetic:
+    /// under `--uitest-fast` a whole stage is one second, so the real
+    /// threshold would read an ordinary late tick on a saturated runner as an
+    /// absence and freeze a suite that never left the foreground. What is
+    /// being detected is a real absence, and no test takes one.
+    static var absenceSeconds: Int {
+        #if DEBUG
+        if CommandLine.arguments.contains("--uitest-fast") { return 60 }
+        #endif
+        return GetReady.countInSeconds
+    }
+
     /// The seconds a REST picks up when the pause ends (R32).
     ///
     /// A rest is not a position to be counted back into — it is time being

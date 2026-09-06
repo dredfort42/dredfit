@@ -13,6 +13,12 @@ struct RootView: View {
     @State private var tab: Tab = .today
     @State private var settingsShown = false
     @State private var onboardingShown = false
+    /// Whether the audio session has been told the silent-mode choice at least
+    /// once this launch. `CountdownSounds` generates every tone the moment it
+    /// is first touched, and it starts at the category the default choice
+    /// wants — so a launch that never turns the option on must not build it
+    /// (finding 53, UX review 05.09.2026).
+    @State private var silentModeApplied = false
 
     var body: some View {
         TabView(selection: $tab) {
@@ -77,6 +83,43 @@ struct RootView: View {
             default:
                 break
             }
+        }
+        // The audio category is PROCESS state, not a setting: a choice saved
+        // yesterday configures nothing by itself, and the switch in Settings
+        // has to be audible on the very next countdown. One observer covers
+        // both, plus the third writer nobody would remember — importing a
+        // backup replaces the whole settings block (finding 53).
+        //
+        // The guard is what keeps a launch on the default free: a `false` that
+        // has never been contradicted asks for exactly the category
+        // `CountdownSounds` starts at, so touching the singleton to say so
+        // would only pay for six tone buffers nobody has asked to hear yet.
+        .onChange(of: store.settings.playsTonesInSilentMode, initial: true) { _, on in
+            guard on || silentModeApplied else { return }
+            silentModeApplied = true
+            CountdownSounds.shared.setPlaysInSilentMode(on)
+        }
+        // The ONE place the theme is applied, and the reason it is here rather
+        // than in the Settings sheet that offers it: from the root of the
+        // window it also covers the workout's full-screen cover, every sheet
+        // and every alert. A picker that leaves the workout on the system
+        // theme would be worse than no picker (finding 54).
+        //
+        // Widgets and the Live Activity are drawn by another process, which
+        // never sees this — which is what the caption under the picker says.
+        .preferredColorScheme(store.settings.appearance.colorScheme)
+    }
+}
+
+private extension AppearanceChoice {
+    /// `nil` is not "no answer" here — it is how `preferredColorScheme` spells
+    /// "follow the system", which is why the mapping lives beside its one
+    /// caller instead of in `AppSettings` (which imports no SwiftUI).
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .system: nil
+        case .light: .light
+        case .dark: .dark
         }
     }
 }

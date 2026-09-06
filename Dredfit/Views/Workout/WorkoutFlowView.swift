@@ -29,9 +29,21 @@ import DredfitCore
 struct WorkoutFlowView: View {
     let session: Session
     var resume: WorkoutSnapshot?
+    /// Open straight on the rating, cataloguing whatever is unfinished — the
+    /// answer to "keep this workout?" on Today. The athlete says how it went
+    /// themselves; nothing is rated on their behalf inside the day
+    /// (owner, 06.09.2026).
+    var settleImmediately = false
     @Environment(\.dismiss) var dismiss
     @Environment(AppStore.self) var store
     @Environment(\.requestReview) private var requestReview
+    /// Reduce Motion, and it is not a question of taste on these screens:
+    /// seven tick handlers roll their digits on a 0.3 s linear animation and
+    /// the rest ring's arc sweeps under them, which is the movement the
+    /// setting is turned on to stop (UX review 05.09.2026). Declared without
+    /// `private` because Swift's `private` is file-scoped and six of those
+    /// seven ticks live in the sibling files.
+    @Environment(\.accessibilityReduceMotion) var reduceMotion
 
     enum Phase: Equatable {
         /// The warm-up no longer starts itself either. Being dropped straight
@@ -89,8 +101,10 @@ struct WorkoutFlowView: View {
     /// What this transition planned, kept because the phase carries the
     /// current total and the extension cap is twice the PLANNED one.
     @State var restPlanned = 0
-    // Captured at tap time (not a bool): the rest countdown keeps ticking
-    // while the sheet is open and may flip the phase underneath.
+    // Captured at tap time (not a bool): an ordinary rest keeps ticking while
+    // the sheet is open and may flip the phase underneath. The rest of a
+    // hands-free run does NOT — it would start the next set under the sheet,
+    // so `openRestTechnique` freezes that one (UX review 05.09.2026).
     @State var techniqueTarget: TechniqueTarget?
     // Unlike techniqueTarget, presenting this freezes the countdown.
     @State private var positionTechnique: PositionTechnique?
@@ -118,6 +132,10 @@ struct WorkoutFlowView: View {
     @State var maximumWarning: String?
     @State var adjustValue = 0
     @State var workoutStart: Date?   // actual duration for Health
+    /// Seconds spent away across resumes, subtracted from the duration
+    /// Health is told about. Wall clock alone charged the break to the
+    /// workout (UX review 05.09.2026).
+    @State var awaySec = 0
     /// The two guided blocks, measured rather than assumed. `*BeganAt` is the
     /// moment the person said yes; `*Sec` is what the block cost once it
     /// ended, and it stays nil only while the block has not ended yet. A
@@ -128,6 +146,15 @@ struct WorkoutFlowView: View {
     @State var warmupSec: Int?
     @State var cooldownBeganAt: Date?
     @State var cooldownSec: Int?
+    /// Seconds a guided block STOOD STILL — a pause, an open technique sheet,
+    /// or the absence a tick found on its way into one. `warmupSec` and
+    /// `cooldownSec` are wall clock (`BlockRun.seconds`), so without this a
+    /// warm-up paused for a phone call billed the call to the warm-up and
+    /// Health was told the person stretched for eleven minutes (UX review
+    /// 05.09.2026). One pair for both blocks, like every other pair above:
+    /// they never run at once, and each block resets them when it begins.
+    @State var blockPausedSec = 0
+    @State var blockFrozenAt: Date?
     @State private var lastResult: FeedbackResult?   // gates the review ask
     @State var liveActivity = WorkoutActivityController()
     @State private var exitConfirmShown = false
@@ -218,6 +245,9 @@ struct WorkoutFlowView: View {
     @State private var pendingSkip: SkipConfirmation?
 
     @ScaledMetric(relativeTo: .largeTitle) private var restRingSize: CGFloat = 240
+    /// The set dots of the work screen. A dot is the size of the caption it
+    /// stands over, so it follows the same setting (UX review 05.09.2026).
+    @ScaledMetric(relativeTo: .caption) var setDotSize: CGFloat = 10
 
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -266,6 +296,13 @@ struct WorkoutFlowView: View {
     var holding: Bool { holdEndDate != nil }
     var holdSwitchPausing: Bool { holdPauseEndDate != nil }
     var holdCountingIn: Bool { holdCountInEndDate != nil }
+
+    /// The digit roll every countdown in the flow shares, and nothing at all
+    /// under Reduce Motion — `withAnimation(nil)` is how a transaction is told
+    /// to make no movement. One definition rather than seven literals: each
+    /// tick handler spelled `.linear(duration: 0.3)` out by hand, which is how
+    /// a setting comes to be honoured on some of them and not the rest.
+    var countdownAnimation: Animation? { reduceMotion ? nil : .linear(duration: 0.3) }
     private var isMilestone: Bool { if case .milestone = phase { return true }; return false }
 
     /// The stamp is written whether or not iOS shows the prompt — Apple
@@ -320,10 +357,17 @@ struct WorkoutFlowView: View {
                         // set of a movement that is not in the plan yet.
                         probes: probeActuals,
                         durationSec: workoutStart.map {
-                            // max: the wall clock can move backwards mid-workout
-                            max(0, Int(Date.now.timeIntervalSince($0)))
+                            // max: the wall clock can move backwards mid-workout.
+                            // Minus the measured absence: a workout picked up
+                            // two hours later is not a two-hour workout, and
+                            // duration is what a person reads in Health.
+                            max(0, Int(Date.now.timeIntervalSince($0)) - awaySec)
                         },
-                        warmupSec: warmupSec, cooldownSec: cooldownSec)
+                        warmupSec: warmupSec, cooldownSec: cooldownSec,
+                        // Named in the journal, not just on this screen: the
+                        // history says "not finished" about a movement that
+                        // was started, and "skipped" about one that was not.
+                        interrupted: interruptedPattern)
                     if earned.isEmpty {
                         dismiss()
                     } else {
@@ -369,13 +413,30 @@ struct WorkoutFlowView: View {
             }
         }
         .onAppear {
+            // Claims the snapshot for as long as this flow is up, so a
+            // foreground three hours into an idle session cannot settle the
+            // workout out from under the athlete still in it.
+            store.workoutFlowAppeared()
             UIApplication.shared.isIdleTimerDisabled = true
             guard !didStart else { return }
             didStart = true
             // Pay the audio-session setup here, not on the first tick.
-            if store.settings.soundsEnabled { CountdownSounds.shared.prime() }
+            // BOTH halves of the pair, not just the tone. The Taptic Engine
+            // idles between countdowns and pays its wake-up on the first
+            // impulse, so the first tick of a 3-2-1 landed after the second —
+            // and with the ring switch flipped the haptic is the whole channel
+            // (UX review 05.09.2026). `prepare()` holds for a few seconds
+            // only, which is why `tickRest` primes again on its way in.
+            if store.settings.soundsEnabled {
+                CountdownSounds.shared.prime()
+                WorkoutSignals.prime()
+            }
             if let resume { restore(from: resume) }
             if workoutStart == nil { workoutStart = .now }
+            // After the restore, so it catalogues the real position: the same
+            // call the in-flow "Finish now" makes, which is why the card
+            // beside it says the same words.
+            if settleImmediately, phase != .feedback { finishNow() }
             // Nothing for the lock screen to describe on the rating.
             if phase != .feedback {
                 liveActivity.start(sessionNumber: session.sessionNumber,
@@ -383,6 +444,7 @@ struct WorkoutFlowView: View {
             }
         }
         .onDisappear {
+            store.workoutFlowDisappeared()
             UIApplication.shared.isIdleTimerDisabled = false
             liveActivity.end()
         }
@@ -402,7 +464,7 @@ struct WorkoutFlowView: View {
         // straight past the rung they just chose, undoing the decision without
         // saying so. The engine is right; the two states simply must not move
         // at once.
-        .sheet(item: $techniqueTarget) { target in
+        .sheet(item: $techniqueTarget, onDismiss: resumeRestCountdown) { target in
             TechniqueSheet(target: target)
         }
         .sheet(item: $positionTechnique, onDismiss: resumePositionCountdown) { technique in
@@ -426,11 +488,20 @@ struct WorkoutFlowView: View {
             // it does. "Cancel" answers "cancel what?"; this one does not.
             Button(String(localized: "Keep training"), role: .cancel) { }
             Button(String(localized: "Finish now")) { finishNow() }
+            // The answer the flow could always give and never offered. Every
+            // number here is persisted at every transition (`persistProgress`),
+            // so stepping out keeps the workout and Today offers to pick it up
+            // — while the two buttons around it were the whole choice: rate an
+            // unfinished session as if it were over, or throw it away (UX
+            // review 05.09.2026). Past the resume window what was done is
+            // settled on plan rather than lost (`settleAbandonedWorkout`), so
+            // neither ending drops the work.
+            Button(String(localized: "Finish later")) { dismiss() }
             Button(String(localized: "Discard workout"), role: .destructive) {
                 discardWorkout()
             }
         } message: {
-            Text("“Finish now” keeps what you've done and goes to the rating — the remaining exercises are marked as skipped.")
+            Text("“Finish now” goes to the rating and marks the rest as skipped. “Finish later” keeps your place — Today offers to pick it up.")
         }
         // Beside the exit alert rather than on the work screen itself: a
         // confirmed skip can retire that screen (into the next exercise, or
@@ -446,7 +517,12 @@ struct WorkoutFlowView: View {
         if phase != .feedback, !isMilestone {
             FlowHeader(title: headerTitle,
                        steps: isWarmingUp ? 0 : exercises.count,
-                       doneIndex: exIndex,
+                       // The cool-down is past the LAST exercise, not on it:
+                       // `exIndex` stops at count - 1 and the final capsule
+                       // stayed "under way" for the whole block, so the bar
+                       // could never say the work was done (review 06.09.2026).
+                       doneIndex: phase == .cooldown || phase == .cooldownIntro
+                           ? exercises.count : exIndex,
                        minutesLeft: minutesLeft) {
                 if hasProgress {
                     exitConfirmShown = true
@@ -461,9 +537,11 @@ struct WorkoutFlowView: View {
     /// body pass, so a skipped set takes its minutes off at the moment it is
     /// skipped rather than at the next screen.
     ///
-    /// Offered on the work and rest screens only. The guided blocks carry a
-    /// countdown of their own and nothing on them shortens the session, and
-    /// the rating is past the question entirely.
+    /// Offered on the work and rest screens and inside the cool-down — the
+    /// three screens where "how much longer" is a live question. The warm-up
+    /// is left out: it stands before the work it cannot shorten, and its own
+    /// offer screen already states its length. The rating is past the question
+    /// entirely.
     private var minutesLeft: Int? {
         var index = exIndex
         var behind = setIndex
@@ -476,14 +554,48 @@ struct WorkoutFlowView: View {
             // counting its set as still ahead would quietly add a set's worth
             // of minutes to a movement that is over.
             behind += 1
-            if behind >= exercise.sets { index += 1; behind = 0 }
+            // `totalSets`, not `exercise.sets`: the probe is a set of this
+            // exercise too. Counted by the working sets alone, the exercise
+            // left the list on the rest that ANNOUNCES the probe by name, so
+            // the header dropped the probe's own minute and then grew by it
+            // when the probe's screen opened — a number moving without the
+            // person having moved it (self-review 05.09.2026). Identical for
+            // an exercise without one, where the two are equal.
+            if behind >= totalSets { index += 1; behind = 0 }
+        case .cooldown:
+            // The block the header stopped answering for. The work screen
+            // counts the cool-down into what is left (`ends:` below), and then
+            // the number vanished on the one screen where the person is
+            // actually waiting it out — so the block that was reserved four
+            // minutes a moment ago reported nothing at all (UX review
+            // 05.09.2026). Its own arithmetic, not the session's: what is left
+            // here is stretches, and it is counted the way the offer counted
+            // them. The intro screen is left out on purpose — it prints the
+            // same number in its own body, and a header would say it twice.
+            return cooldownMinutesLeft
         default:
             return nil
         }
         // The cool-down is the only fixed block still ahead; the warm-up is
         // behind by the time the work screen is up.
+        //
+        // WITH THE FACTS, not the plan alone. The clock on a hold runs from
+        // `SetFacts.holdTarget` — the time the athlete declared, or the
+        // shortfall a set cut short carries onto the sets after it — while
+        // this number was built out of `plannedLoad`, so the header went on
+        // promising 30 s a set to somebody who had just set the clock to 45,
+        // and went on promising 40 to somebody whose remaining sets were now
+        // 19 (UX review 05.09.2026). The two disagree exactly when the person
+        // has deviated from the plan, which is when the question gets asked.
+        //
+        // The declaration is the CURRENT exercise's, so it travels only while
+        // `index` still points at it: past the last set the flow is standing
+        // in front of the next movement, and a time set for the plank says
+        // nothing about the side plank (`resetHoldExercise`).
         return SessionAhead.minutes(exercises, exIndex: index, setsBehind: behind,
-                                    ends: session.cooldownMin)
+                                    ends: session.cooldownMin,
+                                    facts: actuals,
+                                    declared: index == exIndex ? holdDeclared : nil)
     }
 
     private var headerTitle: String {
@@ -507,6 +619,10 @@ struct WorkoutFlowView: View {
         warmupEndDate = nil
         cooldownEndDate = nil
         blockPause.freezeForSheet()
+        // And the block stops costing time while it is read: reading is not
+        // stretching either, and the block's own length is wall clock
+        // (UX review 05.09.2026, see `blockPausedSec`).
+        beginBlockFreeze()
     }
 
     private func resumePositionCountdown() {
@@ -515,6 +631,10 @@ struct WorkoutFlowView: View {
         // restart a block the user stopped (issue #34 vs #61).
         blockPause.thawAfterSheet(now: .now)
         guard !blockPause.isPaused else { return }
+        // After the guard: a block the person had PAUSED goes on standing
+        // still, and closing the interval here would stop counting a pause
+        // that has not ended.
+        endBlockFreeze()
         switch phase {
         case .warmup:
             warmupEndDate = Date.now.addingTimeInterval(TimeInterval(warmupRemaining))
@@ -548,6 +668,56 @@ struct WorkoutFlowView: View {
 
     // MARK: - Rest
 
+    /// What the lock screen calls the rest it is counting down. Two rests look
+    /// identical and end differently — an ordinary one hands the screen back
+    /// and waits for a tap, the rest inside a hands-free hold run STARTS the
+    /// next set on its own go — and the tile said "Next up" about both, so the
+    /// one rest that cannot be missed looked exactly like the one that can
+    /// (UX review 05.09.2026). The words are the rest screen's own
+    /// (FlowChrome+Rest), keyed off the same fact, so the two cannot drift.
+    var restActivityDetail: String {
+        restStartsTheNextSet
+            ? String(localized: "Starts by itself")
+            : String(localized: "Next up")
+    }
+
+    /// Reading about what comes next must not cost the set it describes.
+    ///
+    /// The sheet covers the screen while the rest keeps counting underneath
+    /// it, and on a hands-free run the end of that rest is what STARTS the
+    /// next hold — so the person came back from a technique page into a plank
+    /// already under way. The guided blocks freeze their countdown for exactly
+    /// this tap (`openPositionTechnique`); this is that tap on the one rest
+    /// with something to lose (UX review 05.09.2026). An ordinary rest is left
+    /// running: it hands the screen back and waits, and freezing it would only
+    /// make the workout longer.
+    private func openRestTechnique() {
+        if restStartsTheNextSet {
+            restEndDate = nil
+            // The tile counts down to a DATE, so a frozen rest has to take the
+            // date away — the same reason `pauseBlock` does.
+            liveActivity.update(.init(phase: .rest, title: nextLabel,
+                                      detail: restActivityDetail, restEndDate: nil))
+            // A frozen rest is persisted as the rest it will be when the sheet
+            // closes, for the reason `persistProgress` states about a paused
+            // one: written with no date it reads back as "no rest was running".
+            persistProgress()
+        }
+        techniqueTarget = restTechniqueTarget
+    }
+
+    /// …and hands back exactly what it froze. A rest held by the PAUSE stays
+    /// held — the person's own stop outranks the sheet's, the same order
+    /// `resumePositionCountdown` keeps.
+    private func resumeRestCountdown() {
+        guard case .rest = phase, restEndDate == nil, !blockPause.isPaused else { return }
+        let end = Date.now.addingTimeInterval(TimeInterval(max(restRemaining, 1)))
+        restEndDate = end
+        liveActivity.update(.init(phase: .rest, title: nextLabel,
+                                  detail: restActivityDetail, restEndDate: end))
+        persistProgress()
+    }
+
     private var restView: some View {
         RestRing(remaining: restRemaining,
                  fraction: progressFraction,
@@ -564,7 +734,7 @@ struct WorkoutFlowView: View {
                  // control that promises to stop something that is not moving
                  // is worse than no control.
                  onPauseToggle: restStartsTheNextSet ? { toggleBlockPause() } : nil,
-                 onTechnique: { techniqueTarget = restTechniqueTarget },
+                 onTechnique: { openRestTechnique() },
                  onExtend: extendRest,
                  onSkip: {
                      clearBlockPause()
@@ -596,8 +766,7 @@ struct WorkoutFlowView: View {
         restRemaining = max(0, Int(newEnd.timeIntervalSinceNow.rounded()))
         phase = .rest(seconds: total + Self.restExtensionSeconds)
         liveActivity.update(.init(phase: .rest, title: nextLabel,
-                                  detail: String(localized: "Next up"),
-                                  restEndDate: newEnd))
+                                  detail: restActivityDetail, restEndDate: newEnd))
         persistProgress()
     }
 
@@ -705,11 +874,18 @@ extension WorkoutFlowView {
         // is written down.
         guard SetFacts.maximumOutOfOrder(adjustValue, exercise, set: setIndex) else { return }
         maximumNoted.insert(pattern)
-        withAnimation(.easeOut(duration: 0.25)) {
-            maximumWarning = String(localized: """
-                A maximum now takes the strength out of the sets after it. \
-                What counts is the whole exercise, not one set.
-                """)
+        // Reduce Motion covers this one too: the note slides up from the
+        // bottom edge under a `.transition`, and with no animation running
+        // that transition simply appears (UX review 05.09.2026).
+        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.25)) {
+            // "A maximum" was a term this app defines nowhere, in a
+            // twenty-one word paragraph on a screen read between sets. What
+            // replaced it names the ACT — going all out on one set — and keeps
+            // both thoughts, because the second one is not decoration: without
+            // it the line reads as a correction of the number, which is the
+            // one thing it must never be (UX review 05.09.2026).
+            maximumWarning = String(localized:
+                "Going all out on one set weakens the ones after it. What counts is the whole exercise.")
         }
     }
 
@@ -902,8 +1078,7 @@ extension WorkoutFlowView {
         restPlanned = seconds
         phase = .rest(seconds: seconds)
         liveActivity.update(.init(phase: .rest, title: nextLabel,
-                                  detail: String(localized: "Next up"),
-                                  restEndDate: restEndDate))
+                                  detail: restActivityDetail, restEndDate: restEndDate))
         persistProgress()
     }
 
@@ -914,17 +1089,50 @@ extension WorkoutFlowView {
         if newRemaining == 0 {
             restEndDate = nil
             restRemaining = 0
-            playGo()
+            let overshoot = -end.timeIntervalSinceNow
             // A suspended app comes back to a rest that ended while it could
             // sound nothing; the beat is still owed then (R32).
-            advanceAfterRest(countIn: SetFacts.restHandsOverWithCountIn(
-                endedByTap: false, overshootSec: -end.timeIntervalSinceNow))
+            let countIn = SetFacts.restHandsOverWithCountIn(endedByTap: false,
+                                                            overshootSec: overshoot)
+            // THE RUN IS A PROMISE TO SOMEBODY WHO IS HERE. Past the absence
+            // threshold the phone was somewhere else — a call, a pocket — and
+            // starting the next hold five seconds after the app comes back
+            // drops a plank on someone who is still walking to the mat. The
+            // threshold is `BlockPause.absenceSeconds`, the same one the two
+            // blocks freeze on, and it means the same thing here (UX review
+            // 05.09.2026). The exercise is not over: the work screen comes
+            // back with its own button and one tap buys the sets that are left.
+            if restStartsTheNextSet, overshoot > Double(BlockPause.absenceSeconds) {
+                holdAutoRun = false
+            }
+            // …and then the go, which marks the end of the rest — and on a
+            // hands-free run is also the start of the hold, because the set
+            // opens on it. When the rest hands over WITH a count-in instead,
+            // that count-in ends on a go of its own five seconds later, so
+            // this one announced the same beginning twice (UX review
+            // 05.09.2026). Read AFTER the clearing above, so a dropped run
+            // takes its count-in — and this suppression — with it.
+            let countInFollows = countIn && restStartsTheNextSet
+            if !countInFollows { playGo() }
+            // Spoken as well as sounded, for the reason the two blocks state:
+            // the subtree VoiceOver was in is replaced outright by the next
+            // screen, so without this the end of a rest reaches nobody who
+            // cannot see it — and the tone is behind the sounds switch.
+            announce(nextLabel)
+            advanceAfterRest(countIn: countIn)
         } else {
             // no tick spam after backgrounding
             if newRemaining <= Self.countdownSignalSeconds && newRemaining < restRemaining {
                 playTick()
             }
-            withAnimation(.linear(duration: 0.3)) { restRemaining = newRemaining }
+            // A second or two BEFORE the signalling window, which is what the
+            // generator's `prepare()` is worth: primed at the top of a
+            // two-minute rest it has long gone cold by the 3 (UX review
+            // 05.09.2026).
+            if newRemaining == Self.countdownSignalSeconds + 1 && store.settings.soundsEnabled {
+                WorkoutSignals.prime()
+            }
+            withAnimation(countdownAnimation) { restRemaining = newRemaining }
         }
     }
 }
