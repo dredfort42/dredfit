@@ -127,6 +127,7 @@ required, so a third-party action outage can never wedge your merges. Promote an
 | Script | What it does |
 |---|---|
 | `check_localization.py` | Fails if any shipping language (de, es, fr, it, pt-BR, ru) is missing a translation. Run with no args to check all tracked `*.xcstrings`. |
+| `check_translation_rules.py` | Fails if a shipped translation breaks a rule the completeness check cannot see: ru `ё` and formal `вы`, fr `U+00A0`/`U+202F`/apostrophe and `vous`, it apostrophe and `Lei`, de `—`/`Min.`/`Workout`/`Sie`, es `usted`, weight units, double spaces, placeholder parity. Proves every rule can still fail before it reports success; `--list` prints the rules. Exceptions with their reasons live in `scripts/translation_rules_config.json`. |
 | `check_version.py <release/x.y.z \| x.y.z>` | Verifies marketing version, build-number agreement, and a changelog section. |
 | `check_engine_gates.py` | Runs every engine gate the `TESTPLAN.md` table names and fails on any that did not print its clean line. `--contract` parses the table without running anything — that is what CI does, since `reference/` is gitignored and never on a runner. |
 | `changelog_section.py <version>` | Prints the `CHANGELOG.md` section for a version (used for release notes). |
