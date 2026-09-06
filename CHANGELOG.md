@@ -151,11 +151,11 @@ top of a ladder. The number, and what it counts to, are unchanged.
 moved: `golden.json` is byte-for-byte the fixture 2.2.0 shipped, and the
 reference's own verifier still reports 74 772 property checks with zero
 failures. What did change inside `DredfitCore` is text — one technique
-instruction reworded in English, and the translations the language review above
-brought back to the canon. There is no migration either: the state and journal formats are
-the same, with one optional field added to each in the way every added field is
-added — absent from anything an older build wrote, and read as "not measured"
-rather than as zero.
+instruction reworded in English, and the translations the language review
+above brought back to the canon. There is no migration either: the state and
+journal formats are the same, with one optional field added to each in the way
+every added field is added — absent from anything an older build wrote, and
+read as "not measured" rather than as zero.
 
 ## 2.2.0
 
