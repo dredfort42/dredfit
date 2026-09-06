@@ -74,6 +74,16 @@ skipped like one you never started. The workout's own duration no longer counts
 the hours a phone spent locked in the middle of it, and a rest that ran to its
 end counts as training whether or not the app survived it.
 
+**The waits between positions are shorter.** Ten seconds to move from one
+warm-up move or cool-down position to the next was longer than the change
+takes, and the block spent the difference standing still. A transition is now
+eight seconds, and twelve where the position has to be set up — down to the
+floor, or a prop fetched. Turning over inside one position takes four seconds
+rather than five, and so does the count-in after you say you are ready.
+Nothing was taken from the stretching itself: every position holds for exactly
+as long as it did, and the announced length of a session is unchanged — the
+two blocks simply finish inside it with a little room to spare.
+
 **Smaller, and all of it measured.** Starting over from the resume card asks
 first — it was one tap away from throwing a half-finished workout away, while
 skipping a single set has always asked. The number panel's steppers are 44 pt

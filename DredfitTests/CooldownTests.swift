@@ -84,7 +84,7 @@ final class CooldownTests: XCTestCase {
         XCTAssertEqual(Cooldown.sideSeconds * 2, Cooldown.positionSeconds,
                        "the sides must consume the whole slot")
         XCTAssertEqual(Cooldown.sideSeconds, 15)
-        XCTAssertEqual(Cooldown.sideSwitchPauseSec, 5)
+        XCTAssertEqual(Cooldown.sideSwitchPauseSec, 4)   // on trial, 06.09.2026
     }
 
     // MARK: - The stage machine (issue #35)
@@ -140,15 +140,17 @@ final class CooldownTests: XCTestCase {
 
     func testAdvanceAbsorbsBackgroundedTimeAcrossStages() {
         // 22 s past the first side's end: the pause (5) and the second side
-        // (15) are consumed whole, landing 2 s into the next position — which
-        // since #52 opens with its 5 s transition, so 2 s into that.
+        // (15) are consumed whole, landing 3 s into the next position — which
+        // since #52 opens with its transition, so 3 s into that. It was 2 s
+        // while the switch pause was five; the pause is on trial at four
+        // (06.09.2026) and the overshoot simply reaches one second further.
         let positions = machinePositions
         let landing = Cooldown.advance(from: (0, .firstSide), overshoot: 22,
                                        positions: positions)
         XCTAssertEqual(landing?.index, 1)
         XCTAssertEqual(landing?.stage, .getReady)
         XCTAssertEqual(landing?.remaining,
-                       GetReady.seconds + GetReady.setupSupplementSec - 2,
+                       GetReady.seconds + GetReady.setupSupplementSec - 3,
                        "chest wall carries the supplement of issue #83")
         // An overshoot past the whole block is simply over.
         XCTAssertNil(Cooldown.advance(from: (0, .firstSide), overshoot: 10_000,

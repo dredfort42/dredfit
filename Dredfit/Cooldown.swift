@@ -39,7 +39,18 @@ enum Cooldown {
     /// The re-set pause between sides of timed unilateral work (issue #35).
     /// One app-layer constant shared by the cool-down and the workout's
     /// per-side holds — changing it moves both.
-    static let sideSwitchPauseSec = 5
+    ///
+    /// 5 → 4 ON TRIAL (owner, 06.09.2026), alongside the transition going
+    /// 10 → 8: turning over inside one position is not travel to another, and
+    /// four seconds may be enough for it. Written down as a trial because it
+    /// is meant to be judged in use and rolled back if it turns out to rush —
+    /// the revert is this one line, and the arithmetic that depends on it is
+    /// derived rather than restated (`BlockReserveTests`, `GetReadyTests`).
+    ///
+    /// It costs nothing at the reserve: shortening only ever leaves slack, and
+    /// the pause carries no 3-2-1 to collide with (a tick would bury the
+    /// switch tone — `tickHoldSwitchPause`).
+    static let sideSwitchPauseSec = 4
 
     static var sideSeconds: Int { positionSeconds / 2 }
 

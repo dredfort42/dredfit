@@ -48,10 +48,12 @@ final class GetReadyTests: XCTestCase {
     /// did NOT follow it, because they are not the same thing — travelling to
     /// another position takes time, turning over inside one does not. So what
     /// is pinned now is the split, in both directions, and its arithmetic
-    /// counts the pause as five.
+    /// counts the pause as five. The transition moved again on 06.09.2026
+    /// (10 → 8) and the pause still did not follow: they part on WHAT they
+    /// are, not on how long they happen to be.
     func testTheTransitionAndTheSideSwitchPauseAreNoLongerTheSame() {
-        XCTAssertEqual(GetReady.seconds, 10)
-        XCTAssertEqual(Cooldown.sideSwitchPauseSec, 5)
+        XCTAssertEqual(GetReady.seconds, 8)
+        XCTAssertEqual(Cooldown.sideSwitchPauseSec, 4)   // on trial, 06.09.2026
         XCTAssertNotEqual(GetReady.seconds, Cooldown.sideSwitchPauseSec,
                           "the two lengths parted in v2.26 and must stay apart")
         XCTAssertEqual(GetReady.stageSeconds(needsSetup: false), GetReady.seconds)
@@ -63,7 +65,7 @@ final class GetReadyTests: XCTestCase {
     func testAPositionThatHasToBeGotIntoGetsTheSupplement() {
         // The differentiated pause of issue #83: base plus supplement for a
         // position that changes the starting position or needs a prop.
-        XCTAssertEqual(GetReady.setupSupplementSec, 5)
+        XCTAssertEqual(GetReady.setupSupplementSec, 4)
         XCTAssertEqual(GetReady.stageSeconds(needsSetup: true),
                        GetReady.seconds + GetReady.setupSupplementSec)
         let positions = Cooldown.positions(performed: [.pull])
@@ -141,16 +143,25 @@ final class GetReadyTests: XCTestCase {
             + cost(of: anyComposition[5])
         let reserved = (EngineConfig.warmupMin + EngineConfig.cooldownMin) * 60
 
-        // 215 → 245 → 260, because the base transition doubled (§37.7а) and
-        // then the dearest composition took three switch pauses (§41.12); 265
-        // → 295 on the cool-down side. The transition made the reserve grow,
-        // which is what made it an engine change and not an app one.
-        XCTAssertEqual(warmup, 260)
-        XCTAssertEqual(fixed + worstMapped, 295)
+        // 215 → 245 → 260 → 247, and 265 → 295 → 277 on the cool-down side:
+        // the base transition doubled (§37.7а), the dearest composition took
+        // three switch pauses (§41.12), and then the transition shortened to
+        // eight (owner, 06.09.2026). Lengthening it is what makes the reserve
+        // an engine constraint; shortening only ever leaves slack.
+        XCTAssertEqual(warmup, 244)
+        XCTAssertEqual(fixed + worstMapped, 272)
         XCTAssertLessThanOrEqual(warmup + fixed + worstMapped, reserved,
                                  "the worst case overruns the reserved minutes")
-        XCTAssertLessThan(reserved - (warmup + fixed + worstMapped), 60,
-                          "a whole minute of slack: the reserve could be given back")
+        // Ten minutes stopped being the smallest whole minute that fits when
+        // the transition shortened, and the owner kept it (06.09.2026): giving
+        // the minute back is `cooldownMin` 4 → 3 through the reference chain,
+        // and it would take a minute off every announced duration to reclaim
+        // slack nobody is short of. What is guarded is drift, not tightness —
+        // `BlockReserveTests` holds the same floor and ceiling over the axis
+        // the app actually composes on.
+        XCTAssertLessThan(reserved - (warmup + fixed + worstMapped), 120,
+                          "two whole minutes of slack: the reserve is no longer "
+                          + "sized against the blocks it exists for")
     }
 
     func testARealCompositionLeavesRoom() {

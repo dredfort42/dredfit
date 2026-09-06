@@ -5,11 +5,18 @@
 //
 //  `warmupMin + cooldownMin` is the whole budget the engine sets aside for the
 //  two blocks, and the worst composition spent it TO THE SECOND until §41.12
-//  gave the warm-up its side switch. That is why neither the doubled transition
-//  nor that switch could be done in this target alone: ten seconds more and the
-//  reserve breaks, which is a change to the engine — and both times it was one.
-//  What the reserve is now is the SMALLEST whole minute that fits, which is the
-//  exact property the equality became.
+//  gave the warm-up its side switch. That is why lengthening the transition can
+//  never be done in this target alone: seconds more and the reserve breaks,
+//  which is a change to the engine — and twice it was one.
+//
+//  SHORTENING it is the direction that does not break, and on 06.09.2026 the
+//  transition went 10 → 8 (the supplemented stage 15 → 12). The worst pair fell
+//  560 → 520 against an unchanged 600, so the reserve is no longer the smallest
+//  whole minute that fits — nine would hold it. The owner kept ten rather than
+//  spend an engine wave and a minute off every announced duration to reclaim
+//  slack nobody is short of. What is asserted below is therefore a floor and a
+//  ceiling, not an equality: the blocks may never overrun the reserve, and the
+//  reserve may never hold two spare minutes.
 //
 //  Everything below is computed from the app's own constants and from the real
 //  composition rule, never from the spec's numbers restated. The worst case is
@@ -22,11 +29,9 @@
 //  `Cooldown.positions(performed:)` for the tests alone — which walked exactly
 //  those, so the reserve was measured on compositions the app can no longer
 //  draw. A move set aside widens the rotation's window, and the widened window
-//  draws a fourth split move: the shipped worst warm-up is 265 s where the
-//  no-hiding walk found 260, and the pair is 560 s where this file asserted 555
-//  (review 06.09.2026). Nothing overran — but the gate whose whole job is to
-//  make the next second an engine change was blind to the axis that spends
-//  seconds.
+//  draws a fourth split move (review 06.09.2026). Nothing overran — but the
+//  gate whose whole job is to make the next second an engine change was blind
+//  to the axis that spends seconds. Numbers below are the eight-second ones.
 //
 //  The last section reads the same composition rule the other way: where a
 //  block that is RUNNING picks up when the athlete changes the composition
@@ -194,21 +199,31 @@ final class BlockReserveTests: XCTestCase {
     /// switch cost 15 s, and a reserve is whole minutes: 9:00 no longer fits,
     /// 10:00 fits with 40 s to spare, and equality became unreachable. An
     /// unreachable assert gets deleted, and then nothing watches the two numbers
-    /// at all — so what is pinned is the property that IS still exact: the
-    /// reserve is the SMALLEST whole minute that fits. Drift in either direction
-    /// breaks it, and a whole minute of slack would mean the engine is holding a
-    /// minute the blocks no longer need.
+    /// at all — so what is pinned is what the reserve still HAS to be.
     ///
-    /// 555 → 560 (review 06.09.2026): the 555 was measured on the no-hiding
-    /// overloads, and the app stopped calling those when finding 49 landed.
-    func testTheReserveIsTheSmallestWholeMinuteThatFits() {
+    /// It stopped being the smallest whole minute that fits on 06.09.2026, when
+    /// the transition shortened (10 → 8, and the supplemented stage 15 → 12) and
+    /// the worst pair fell 560 → 520 against an unchanged 600. Nine minutes
+    /// would now hold it. **The owner kept ten**: giving the minute back is an
+    /// engine change — `cooldownMin` 4 → 3 through the whole reference chain —
+    /// and it would take a minute off every announced duration, off the
+    /// onboarding line and off the store listing, to buy slack nobody is short
+    /// of. The mirror of that trade was made once already, in the other
+    /// direction, when the base went 5 → 10 and `cooldownMin` rose 3 → 4.
+    ///
+    /// So two properties, and the names say which is which. The floor is
+    /// safety and is not negotiable: the blocks must never overrun what the
+    /// engine reserves. The ceiling is drift: one spare minute is a decision,
+    /// two would mean the reserve had quietly stopped being about the blocks.
+    func testTheReserveHoldsTheBlocksWithOneSpareMinuteAtMost() {
         let reserve = (EngineConfig.warmupMin + EngineConfig.cooldownMin) * 60
         let worst = worstWarmupSec() + worstCooldownSec()
-        XCTAssertEqual(worst, 560, "the worst pair the app can compose is 265 + 295")
+        XCTAssertEqual(worst, 520, "the worst pair the app can compose is 248 + 272")
         XCTAssertGreaterThanOrEqual(reserve - worst, 0,
                                     "the blocks overrun what the engine reserves")
-        XCTAssertLessThan(reserve - worst, 60,
-                          "a whole minute of slack: the reserve could be given back")
+        XCTAssertLessThan(reserve - worst, 120,
+                          "two whole minutes of slack: the reserve is no longer "
+                          + "sized against the blocks it exists for")
     }
 
     /// The two halves separately, so a failure says WHICH block moved. The
@@ -238,24 +253,35 @@ final class BlockReserveTests: XCTestCase {
         }
     }
 
+    /// Six slots, each a transition plus the move itself — the whole of a
+    /// warm-up before any supplement or switch pause is added.
+    private var slotsSec: Int {
+        Warmup.moveCount * (GetReady.seconds + Warmup.moveSeconds)
+    }
+
     func testEachBlockCostsWhatTheSpecSays() {
-        // EVERY composition, not just one. With nothing set aside a composition
-        // costs the 245 s of §37.7a plus one switch pause per SPLIT move it
-        // draws (§41.12) — written as arithmetic over the composition rather
-        // than as a table of six numbers, because a table says nothing about WHY
-        // they differ.
+        // EVERY composition, not just one, and written as arithmetic over the
+        // composition rather than as a table of six numbers, because a table
+        // says nothing about WHY they differ.
+        //
+        // DERIVED from the transition constants, not from the spec's totals
+        // restated. §37.7a's 245 s encoded a ten-second base inside a literal,
+        // so shortening the transition (owner, 06.09.2026: 10 → 8 and 15 → 12)
+        // broke six asserts that were only ever about the composition. The
+        // slot cost belongs to `GetReady`, and the test now asks it.
         for session in 1...Warmup.compositionCount {
             let split = Warmup.moves(sessionNumber: session).filter(\.isSplit).count
             XCTAssertEqual(warmupSec(session: session, hiding: []),
-                           245 + split * Cooldown.sideSwitchPauseSec,
+                           slotsSec + GetReady.setupSupplementSec
+                               + split * Cooldown.sideSwitchPauseSec,
                            "§41.12: composition \(session) draws \(split) split moves")
             XCTAssertGreaterThanOrEqual(split, 2,
                                         "arm circles are permanent and cat-cow is not split, "
                                         + "so every composition pays at least the circles")
         }
-        // Once a move can be set aside the 245 splits in two: 240 for six slots
-        // and their transitions, and the 5 s trip down to the floor only when
-        // the composition HAS a floor move — three of the nine are on the floor,
+        // Once a move can be set aside the total splits in two: the six slots
+        // with their transitions, and the trip down to the floor only when the
+        // composition HAS a floor move — three of the nine are on the floor,
         // and hiding all three is inside the cap.
         for hidden in hiddenSets(of: warmupPoolIDs) {
             for session in 1...Warmup.compositionCount {
@@ -266,20 +292,27 @@ final class BlockReserveTests: XCTestCase {
                 XCTAssertEqual(setup, moves.contains(where: \.onFloor) ? 1 : 0,
                                "\(named): only the FIRST floor move pays the supplement")
                 XCTAssertEqual(warmupSec(session: session, hiding: hidden),
-                               240 + setup * GetReady.setupSupplementSec
+                               slotsSec + setup * GetReady.setupSupplementSec
                                    + split * Cooldown.sideSwitchPauseSec,
                                "\(named): \(split) split moves, \(setup) trip to the floor")
             }
         }
-        XCTAssertEqual(worstWarmupSec(hiding: []), 260,
-                       "§41.12: with nothing set aside the dearest warm-up is 260 s")
-        XCTAssertEqual(worstWarmupSec(), 265,
-                       "the dearest warm-up the APP can compose is 265 s — a set-aside move "
+        XCTAssertEqual(worstWarmupSec(hiding: []), 244,
+                       "§41.12: with nothing set aside the dearest warm-up is 244 s")
+        XCTAssertEqual(worstWarmupSec(), 248,
+                       "the dearest warm-up the APP can compose is 248 s — a set-aside move "
                        + "widens the rotation's window onto a fourth split move")
-        XCTAssertEqual(worstCooldownSec(), 295, "§37.7a: the worst cool-down is 295 s")
-        XCTAssertEqual(reachableCooldownSec(), worstCooldownSec(),
-                       "a real session reaches the dearest six of the pool, so the ceiling "
-                       + "the reserve is measured against is the worst case and not a bound")
+        XCTAssertEqual(worstCooldownSec(), 272, "the worst cool-down the app can compose is 272 s")
+        // ONE SECOND apart since the transition shortened (owner, 06.09.2026):
+        // the dearest six of the pool is a BOUND the reserve is measured
+        // against, and at an eight-second base no real composition quite
+        // reaches it. Asserted as a bound rather than an equality, with the gap
+        // named — an equality here would go red on arithmetic that is correct.
+        XCTAssertEqual(reachableCooldownSec(), 272,
+                       "the dearest cool-down a real session reaches")
+        XCTAssertLessThanOrEqual(reachableCooldownSec(), worstCooldownSec(),
+                                 "a real session cannot beat the ceiling the reserve "
+                                 + "is measured against")
     }
 
     /// Four of the nine, and the rotation's own window can hold three — which is
@@ -445,19 +478,25 @@ final class BlockReserveTests: XCTestCase {
         XCTAssertNil(WorkoutFlowView.rebaseLanding(in: [], after: []))
     }
 
-    /// The transition doubled; the supplement did not.
-    func testTheTransitionIsTenSecondsAndTheSupplementIsFive() {
-        XCTAssertEqual(GetReady.seconds, 10)
-        XCTAssertEqual(GetReady.setupSupplementSec, 5)
-        XCTAssertEqual(GetReady.stageSeconds(needsSetup: false), 10)
-        XCTAssertEqual(GetReady.stageSeconds(needsSetup: true), 15)
+    /// 5 → 10 → 8, and the supplemented stage 10 → 15 → 12 (owner, 06.09.2026).
+    /// Pinned by value on purpose: these two numbers are spent against a reserve
+    /// the ENGINE owns, so neither may drift without the arithmetic below being
+    /// re-read.
+    func testTheTransitionIsEightSecondsAndTheSupplementIsFour() {
+        XCTAssertEqual(GetReady.seconds, 8)
+        XCTAssertEqual(GetReady.setupSupplementSec, 4)
+        XCTAssertEqual(GetReady.stageSeconds(needsSetup: false), 8)
+        XCTAssertEqual(GetReady.stageSeconds(needsSetup: true), 12)
     }
 
     /// The side-switch pause did NOT follow the transition to ten. It is a
     /// pause inside one position, not travel to another, and its own arithmetic
     /// counts it as five.
-    func testTheSideSwitchPauseStayedAtFive() {
-        XCTAssertEqual(Cooldown.sideSwitchPauseSec, 5)
+    /// 5 → 4 on trial (owner, 06.09.2026). Pinned by value so the revert is a
+    /// red test and not a shrug: the pause is judged in use, and a number under
+    /// trial has to be visible when it moves.
+    func testTheSideSwitchPauseIsOnTrialAtFour() {
+        XCTAssertEqual(Cooldown.sideSwitchPauseSec, 4)
         // And the warm-up reads that same constant rather than owning a second
         // one (§41.12): it is the same gesture in both blocks, and two
         // constants for it would part company the first time either moved.
