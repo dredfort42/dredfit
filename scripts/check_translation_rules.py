@@ -19,8 +19,12 @@ What it deliberately does NOT carry: terminology, naturalness, tone, length.
 Those are the translator's judgement (`instructions/TRANSLATOR_PROMPT.md`) and a
 reviewer's, and a script that guessed at them would cry wolf until someone
 turned it off. The website (`sitegen/content`) and the App Store package
-(`appstore/release_texts_*.md`) are gitignored and never reach a runner, so they
-cannot be gated here at all — they stay the translator's pass, by hand.
+(`appstore/release_texts_*.md`) are gitignored and never reach a runner, so
+neither can be gated in CI. The package is not therefore ungated: run
+`scripts/check_release_texts.py` on it by hand before it goes to App Store
+Connect — it carries the same class of rule and exists because the 2.3.0 file
+shipped eleven Cyrillic words containing a Latin `e`. The website is still a
+translator's pass, by hand.
 
 **Every rule is proved to be able to fail.** Before checking anything, the
 script runs each rule against a string that must trip it and one that must not,
