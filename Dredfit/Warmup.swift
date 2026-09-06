@@ -17,15 +17,19 @@
 //  switch — the only thing that has ever moved this block's length. Four of the
 //  nine have one: two are unilateral (single-leg RDL, bird dog) and two are
 //  circles whose own steps say to reverse direction halfway (arm circles, hip
-//  circles). A composition costs 240 s for its six slots and their transitions,
-//  plus the 5 s trip down to the floor when it draws a floor move, plus 5 s per
-//  split move: 255 to 260 with nothing set aside, and 250 to 265 once a move can
+//  circles). A composition costs 228 s for its six slots and their transitions,
+//  plus the 4 s trip down to the floor when it draws a floor move, plus 4 s per
+//  split move: 240 to 244 with nothing set aside, and up to 248 once a move can
 //  be (finding 49 widened the rotation's window, and a widened window draws all
 //  four split moves — review 06.09.2026, which found `BlockReserveTests` still
-//  walking the no-hiding overload and so pinning 260 as the worst).
-//  `warmupMin` grew from 5 to 6 to pay for it — an ENGINE change, made through
-//  the reference chain, because the pair of blocks had spent the old reserve to
-//  the second.
+//  walking the no-hiding overload and so pinning the wrong worst case).
+//  These numbers are the EIGHT-second ones: the transition went 10 → 8 and its
+//  supplement 5 → 4 on 06.09.2026, and this comment described the old pair for
+//  one release because nothing here is derived — see `BlockReserveTests`, which
+//  computes the same figures from the constants and is what actually fails.
+//  `warmupMin` grew from 5 to 6 to pay for §41.12 — an ENGINE change, made
+//  through the reference chain, because the pair of blocks had spent the old
+//  reserve to the second.
 //
 //  Torso rotations and cat-cow are NOT split, and the distinction is the steps,
 //  not the shape of the movement: both alternate continuously — every rep, every
