@@ -196,12 +196,29 @@ struct WorkoutDriver {
                            file: StaticString = #filePath, line: UInt = #line) -> Bool {
         let skip = app.buttons[AX.skipCooldown]
         let rating = app.staticTexts[ratingLabel]
-        guard coordinateTap(skip) else {
+        // `coordinateTap` refuses a control whose frame is not finite, and a
+        // block screen rebuilt behind a closing sheet reports exactly that for
+        // a snapshot or two — `skipExercises` documents the same state for the
+        // work screen's escapes. One first attempt spent on it read as "there
+        // is no way out of the block at all" (nightly 06.09.2026: the escape
+        // existed at t = 74.00 and was refused at t = 74.03, while the same
+        // run shows another escape refused at 6.24 and tapped at 6.29).
+        //
+        // Retried INSIDE the seconds this already spends, never beyond them:
+        // two here come out of the four below, so the total stays nine and the
+        // budget argument holds — the decision still lands before a block that
+        // can only end 16-22 s after its escape first appeared. A block that
+        // did end takes the escape out of the tree, so this spins out and the
+        // failure below still says what it always said.
+        var aimed = false
+        let deadline = Date.now.addingTimeInterval(2)
+        repeat { aimed = coordinateTap(skip) } while !aimed && Date.now < deadline
+        guard aimed else {
             XCTFail("the running cool-down must offer a way out of the block",
                     file: file, line: line)
             return false
         }
-        if !skip.waitForNonExistence(timeout: 4), !rating.exists {
+        if !skip.waitForNonExistence(timeout: 2), !rating.exists {
             coordinateTap(skip)
         }
         XCTAssertTrue(rating.waitForExistence(timeout: 5),

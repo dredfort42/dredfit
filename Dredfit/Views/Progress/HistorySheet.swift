@@ -103,7 +103,14 @@ struct HistorySheet: View {
                 .padding(.horizontal, 24)
                 .padding(.bottom, 16)
         }
-        .presentationDetents([.large, .medium])
+        // `.large` alone, like the app's four other sheets: SwiftUI opens on
+        // the SMALLEST detent, so medium meant a record opened showing two of
+        // its six movements. It used to fit three — this wave's own additions
+        // to the screen, the "Took N min" line in the header and the "Change
+        // rating" button in the footer, took the third (nightly 06.09.2026).
+        // A record is opened to be read, and a scroll to reach the third row
+        // is not reading.
+        .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .presentationBackground(Theme.bg)
         .alert(String(localized: "history.changeRating.title",
@@ -145,6 +152,13 @@ struct HistorySheet: View {
                         Text(Self.skipWord(ex, in: shown))
                             .dredfitFont(12.5)
                             .foregroundStyle(Theme.ink2)
+                            // The one line on this row without a name of its
+                            // own, while every neighbour carries one — so a
+                            // test could only count anonymous labels, and
+                            // counting them measured what fit on screen rather
+                            // than what happened (nightly 06.09.2026).
+                            .accessibilityIdentifier(
+                                "history-skipword-\(ex.pattern.rawValue)")
                     } else if let fact = Self.setFacts(ex, in: shown) {
                         SetFactsLabel(values: fact.values,
                                       reported: fact.reported, size: 12.5)

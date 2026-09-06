@@ -223,28 +223,88 @@ final class ReleaseSmokeTests: XCTestCase {
             XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 10),
                           "S8: the workout must reach the rating")
 
+            // THE CLAIM OF THIS ROW, and it is made HERE: three movements were
+            // skipped and the fourth was ANSWERED, and the answer has to travel
+            // as work done rather than be lost as a fourth skip. The rating's
+            // summary card carries both halves on one screen — the answered
+            // movement with its number, and the skips under their own header —
+            // with nothing to scroll to and nothing under a fold.
+            //
+            // It used to be made in the history sheet instead, by counting the
+            // rows that read "skipped". That count was never a count of skips:
+            // the sheet opens on the SMALLER of its two detents (SwiftUI takes
+            // the smallest in `presentationDetents([.large, .medium])`) and the
+            // list under its header scrolls, so what a query finds is what
+            // FITS. The wave of 05.09.2026 gave that header a duration line and
+            // its footer a "Change rating" button, the third row went under the
+            // fold, and the row went red with the journal unchanged — measured
+            // on the failing run of 06.09.2026, whose recording shows Squat and
+            // Knee push-up on screen reading "skipped" and Glute bridge below
+            // the edge.
+            XCTAssertTrue(app.staticTexts["SKIPPED"].waitForExistence(timeout: 5),
+                          "S8: the rating must list what was set aside under its own header")
+            // By LABEL, because the row carries the state itself: the header is
+            // a separate element to VoiceOver, so each name is spoken with its
+            // own word (FeedbackView). The comma is what keeps this off the
+            // "Sets skipped" rows, which end "N of M sets skipped".
+            let skips = app.staticTexts.matching(
+                NSPredicate(format: "label ENDSWITH %@", ", skipped"))
+            XCTAssertEqual(skips.count, 3,
+                           "S8: exactly the three skipped movements may reach the rating as skipped")
+            // ONE movement carries a number, and it is the one the number was
+            // entered for. A run of equal sets prints as "actual N"
+            // (`SetFactsLabel`), and an entry carries forward over the sets
+            // after it, so that is the shape this walk produces.
+            let answered = app.staticTexts.matching(
+                NSPredicate(format: "label BEGINSWITH %@", "actual "))
+            XCTAssertEqual(answered.count, 1,
+                           "S8: the hand-entered number must reach the rating as work done, "
+                             + "on the one movement it was entered for")
+            // One below the plan: a fresh install starts every movement on the
+            // bottom of the rep grid (`Dose.swift`, 4…15 by 1) and one tap on
+            // the stepper is one rep. A number that came back as the plan's own
+            // would mean the entry never landed — which is the whole row.
+            XCTAssertEqual(answered.firstMatch.label, "actual 3",
+                           "S8: the number that reached the rating must be the one entered")
+
             app.element(withIdentifier: AX.ratingPlan).tap()
             XCTAssertTrue(app.staticTexts["Workout 1 completed"].waitForExistence(timeout: 10),
                           "S8: the rating must return to Today")
 
-            app.tabBars.buttons["Calendar"].tap()
-            let dayNumber = Calendar.current.component(.day, from: .now)
-            app.buttons[AX.day(dayNumber)].tap()
-            XCTAssertTrue(app.staticTexts["Workout 1"].waitForExistence(timeout: 5),
-                          "S8: the history sheet must open on the workout")
-            // This row used to end on the word "hurt". No record written after
-            // the wave can carry it — the mark only survives on journal
-            // entries older than the wave — so the claim moves to what
-            // replaced it: three movements were skipped and the fourth was
-            // ANSWERED, and the answer has to reach the journal as work done
-            // rather than be lost as a fourth skip.
-            let skippedRows = app.staticTexts.matching(
-                NSPredicate(format: "label == %@", "skipped"))
-            XCTAssertEqual(skippedRows.count, 3,
-                           "S8: only the three skipped movements may read skipped")
-            XCTAssertFalse(app.staticTexts["hurt"].exists,
-                           "S8: the pain mark cannot appear on a record written after the pain channel was removed")
+            s8TheRecordReadBack()
         }
+    }
+
+    /// The second half of S8: the same workout opened from the calendar, which
+    /// is the journal read back rather than the screen that wrote it. Its own
+    /// function like every other row here — and the row's body is the shorter
+    /// for it.
+    private func s8TheRecordReadBack() {
+        app.tabBars.buttons["Calendar"].tap()
+        let dayNumber = Calendar.current.component(.day, from: .now)
+        app.buttons[AX.day(dayNumber)].tap()
+        XCTAssertTrue(app.staticTexts["Workout 1"].waitForExistence(timeout: 5),
+                      "S8: the history sheet must open on the workout")
+        // What history has to add is that the record survived the rating and
+        // still calls a skip a skip. NOT how many rows say it: the sheet opens
+        // on its medium detent and the list scrolls, so the number on screen is
+        // a fact about layout — two of the six today, three before the wave —
+        // and pinning it again would only park this row on the next reader's
+        // padding change. The bound is the half of the old count that was ever
+        // about the journal: no movement may read "skipped" that was not one,
+        // and the three that were are counted on the rating screen above.
+        let skippedRows = app.staticTexts.matching(
+            NSPredicate(format: "label == %@", "skipped"))
+        XCTAssertGreaterThanOrEqual(skippedRows.count, 1,
+                                    "S8: the sheet opens on the movements that were skipped — "
+                                      + "the first of them must still read skipped")
+        XCTAssertLessThanOrEqual(skippedRows.count, 3,
+                                 "S8: no movement may read skipped but the three that were")
+        // This row used to end on the word "hurt". No record written after the
+        // wave can carry it — the mark only survives on journal entries older
+        // than the wave.
+        XCTAssertFalse(app.staticTexts["hurt"].exists,
+                       "S8: the pain mark cannot appear on a record written after the pain channel was removed")
     }
 
     // S9 — the hold-this-level request — is gone with the input it

@@ -63,11 +63,54 @@ extension DredfitUITests {
                        "there is nothing to continue — the card must not show")
     }
 
+    /// "Start over" asks before it acts (owner, UX review 05.09.2026): it
+    /// throws away the only copy of a half-finished workout — the logged sets,
+    /// the numbers, the probe — and it used to do that on one tap beside
+    /// "Continue", while skipping a single set already raised a question. So
+    /// the walk answers the question; reaching the warm-up without answering
+    /// it is the behaviour that was deliberately removed, not the goal.
     func testResumeCardCanStartOver() {
         let relaunch = relaunchOnAnInterruptedWorkout()
         relaunch.buttons[AX.resumeRestart].tap()
+
+        // Scoped to the alert, and by LABEL because an alert button carries no
+        // identifier into the accessibility tree. The destructive answer
+        // repeats the words of the card button that raised it, so an unscoped
+        // "Start over" matches two controls and resolves by tree order — the
+        // same constraint HandlesUITests documents for the step-down question.
+        let question = relaunch.alerts["Start over?"]
+        XCTAssertTrue(question.waitForExistence(timeout: 5),
+                      "throwing a half-finished workout away must ask first")
+        question.buttons["Start over"].tap()
+
         XCTAssertTrue(relaunch.buttons[AX.warmupStart].waitForExistence(timeout: 5),
                       "starting over must open a fresh session at the warm-up offer")
+    }
+
+    /// The half of that confirmation that can rot silently: a cancel which
+    /// performs the action anyway looks exactly like a working question,
+    /// because nobody taps the cancel twice to check. Proven by RESUMING into
+    /// the kept workout rather than by the card being drawn — the card is
+    /// state the alert never touched, the snapshot is what "Start over" drops.
+    func testStartOverCanBeDeclinedAndKeepsTheWorkout() {
+        let relaunch = relaunchOnAnInterruptedWorkout()
+        relaunch.buttons[AX.resumeRestart].tap()
+
+        let question = relaunch.alerts["Start over?"]
+        XCTAssertTrue(question.waitForExistence(timeout: 5),
+                      "throwing a half-finished workout away must ask first")
+        question.buttons["Keep my progress"].tap()
+        XCTAssertTrue(question.waitForNonExistence(timeout: 3),
+                      "the way to keep the workout must close the question")
+
+        XCTAssertTrue(relaunch.staticTexts["Continue the workout?"].exists,
+                      "declining must leave the workout on offer")
+        relaunch.buttons[AX.resumeContinue].tap()
+        // The snapshot was taken entering rest, so the rest screen is the
+        // proof that the set logged before the kill outlived the declined
+        // "Start over".
+        XCTAssertTrue(relaunch.buttons[AX.skipRest].waitForExistence(timeout: 5),
+                      "declining dropped the workout it promised to keep")
     }
 
     func testSkipAllExercisesStillReachesRating() {
