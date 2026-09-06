@@ -92,14 +92,6 @@ starts a plank that was counted in while nobody could hear it, and the same rule
 now covers the pause between the two sides of a hold. Twelve-hundred-odd words
 across the app were read again in seven languages.
 
-**The engine is untouched.** `DredfitCore` carries no change in this release,
-`golden.json` is byte-for-byte the fixture 2.2.0 shipped, and there is no
-migration: the state and journal formats are the same, with one optional field
-added to each in the way every added field is added — absent from anything an
-older build wrote, and read as "not measured" rather than as zero.
-
-## 2.2.1
-
 **Seven languages read against the canon, and the canon wins.** A review of
 every string a person can read — the four String Catalogs in six languages and
 their English source, the website, the App Store copy and the screenshot
@@ -154,6 +146,16 @@ the screen names, on the smallest type the screen sets, and it said nothing
 about the distance it was appended to. It is gone. The line now reads "next
 movement in 9", the same shape as the "+1 set in 9" that takes its place at the
 top of a ladder. The number, and what it counts to, are unchanged.
+
+**The engine's behaviour is untouched.** Not one rule and not one number
+moved: `golden.json` is byte-for-byte the fixture 2.2.0 shipped, and the
+reference's own verifier still reports 74 772 property checks with zero
+failures. What did change inside `DredfitCore` is text — one technique
+instruction reworded in English, and the translations the language review
+above brought back to the canon. There is no migration either: the state and
+journal formats are the same, with one optional field added to each in the way
+every added field is added — absent from anything an older build wrote, and
+read as "not measured" rather than as zero.
 
 ## 2.2.0
 
