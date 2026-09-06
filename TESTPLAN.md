@@ -1,6 +1,6 @@
 # Dredfit — manual QA checklist
 
-Automated coverage (657 tests: 70 core + 513 app units + 74 UI tests, all confirmed green — the UI run is a single `** TEST SUCCEEDED **`, no `Failing tests:`, zero relaunches, so its own closing tally is trustworthy) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
+Automated coverage (705 tests: 70 core + 558 app units + 77 UI tests, all confirmed green — the UI run is a single `** TEST SUCCEEDED **`, no `Failing tests:`, zero relaunches, so its own closing tally is trustworthy) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
 
 **How to use.** Run the *Release smoke* block before every release. Run *Full pass* when the engine, persistence or an integration changed. Device-only rows cannot pass on a simulator and are marked ⌚. Record anything that fails in the [Issue registry](#issue-registry) at the bottom rather than fixing it silently.
 
@@ -1032,7 +1032,7 @@ the repository, like `reference/` itself.
 | Command | Must print | Clean means |
 |---|---|---|
 | `python3 scripts/update_reference_manifest.py --check` | `OK:` | the local `reference/` really is the one that produced the fixture. It is not versioned, so it goes stale silently |
-| `node verify2.js` | `провалов: 0` | every block of the verifier — 74 772 checks on engine 3.3.0 |
+| `node verify2.js` | `провалов: 0` | every block of the verifier — 74 772 checks on engine 3.4.0 |
 | `node accept.js` | `ПРИЁМКА ЧИСТА` | not one `ПРОВАЛ` line across the twenty wave-acceptance blocks below. It is the wave's own gate: every wave replaces the copy in `reference/` with the one written for it |
 | `node passcheck_v3.js` | `Провалов всего: 0` | П1 and П2 both PASS — the two passability claims of §40, that every variation can be reached and that entering one never lengthens the session |
 | `node audit_static.js` | `НОВЫХ СРАБАТЫВАНИЙ НЕТ` | no new hit of the "fix applied to one branch of two" class |
