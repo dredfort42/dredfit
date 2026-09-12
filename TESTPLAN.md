@@ -1019,6 +1019,33 @@ rotations and cat-cow alternate continuously and must stay one countdown.
 | 53.10 | Today, on a fresh install | The plan line is **one minute longer than 2.1.0** — ≈ 24–32 min. The reserve for the two blocks grew to 10:00 to pay for the switch pause, and the price is on every announced duration |
 
 
+### 54. The hold summary keeps the past and the future apart (app + engine §41.13)
+
+Found on the owner's workout 37 (12.09.2026): the second set of two holds stood at 30 on
+a plan of 30-25-25, orange, captioned "+5", and the retrospective printed "30 · 30 · 25"
+in accent under the plan with no word on it. Read as "the app added five seconds and
+recorded them as done". It had not — the sentence under the cards invited the number the
+next plan "starts from", the person entered what they wanted next time, and
+`recordingSet` wrote it as held. Two tenses, two blocks now.
+
+| # | Check | Expected |
+|---|---|---|
+| 54.1 | The screen after the last set of any hold movement | **Held**, the name, and a card per set: the seconds, "set N", and **"plan P" on every card** — even when the plan is the same on all of them. No card is filled in accent, whatever it ran. Under the row: "That is what counts. Wrong number? Tap it and fix it." (with "per side" on a unilateral hold) |
+| 54.2 | Tap a card that is **not** the last | The panel opens under the question **"How long was set N held?"**; "+" is dimmed and dead, and a line says "the clock saw N s — no more than that goes in". "−" works down to 5 |
+| 54.3 | Tap the **last** card | Both directions live, up to 90: nothing followed that set, and the person may have kept holding. This is the "Went differently" of the last hold (2.0.1), on its card |
+| 54.4 | Stop a set early, then tap its card | It opens at the ≈ number, and "+" is dead at it: the three-second allowance is not handed back by hand |
+| 54.5 | The block **Next time** under the sentence | One sentence naming the plan the app will set — "The app will set 30-30-25 sec — from what was held." when a number differs from the plan, "… if you rate the workout “on plan”." when none does — and a stepper reading **+0 s** |
+| 54.6 | Tap **+** | The SENTENCE changes to the raised plan (30-30-25 → 30-30-30); the stepper reads +5 s; the block turns accent. No card changes. **−** takes it back and the sentence returns |
+| 54.7 | Tap **+** past two steps | It dims at +10 s (`EngineConfig.raiseStepsMax`). On a movement at the top of its grid (3×45 s) there is no stepper at all — "This is the most for this movement." |
+| 54.8 | Tap a card while the block is on screen | The block and the sentence under the cards stand down while the panel is open — one thing to read at a time — and come back on OK |
+| 54.9 | Rate the workout | The rating screen lists **Your additions** — "Plank · +5 s" — beside the facts, which now read **"actual 30 · 22 · 25"** with the word on the varying case too |
+| 54.10 | Rate "tough" with an addition standing | The addition lands over the rating: one step down, then the person's step up. Changing the rating afterwards (Today, history) keeps the addition |
+| 54.11 | Kill the app between the summary and the rating, relaunch, continue | The addition is still standing on the rating screen — it travels in the snapshot |
+| 54.12 | The history entry | Three named lines under a hold: **"plan 30-25-25 sec"** on the right, **"Held: 30-22-25 sec"** in accent at full width (a reps movement says **"Actual: 12-12-11"**; a uniform shortfall prints as a plan does, "3×20 sec"), and **"After: 30-30-30 sec · +5 s of it is your addition"**. A movement that ran to plan has no fact line, as before |
+| 54.13 | Today, the plan after that workout | The raised movement's row carries **"+5 s — your addition"** under it, in the slot of "A set is back". The note stands down once anything else moves the movement (an easier variation, a decay) |
+| 54.14 | The engine gates | `node verify2.js` block 31 sweeps every position: one step is one growth event along the dose, never a set, never a variation, standing at the grid's ceiling; block 30 is on the guard list now (it was not). The fixture carries `raise_dose` (8 steps) and `beforeRaise` pins the order "rating, then the raise" — the Swift replay asserts it |
+| 54.15 | All seven languages | The sentence with the plan, the question, the ceiling line, "Your additions", "Held:" / "Actual:" and "your addition" read naturally and do not clip on an SE; French keeps its spaces before "?" and ":" |
+
 ## Engine gates before a release
 
 Not a manual row — the five automated gates a release runs from `reference/`,
@@ -1032,7 +1059,7 @@ the repository, like `reference/` itself.
 | Command | Must print | Clean means |
 |---|---|---|
 | `python3 scripts/update_reference_manifest.py --check` | `OK:` | the local `reference/` really is the one that produced the fixture. It is not versioned, so it goes stale silently |
-| `node verify2.js` | `провалов: 0` | every block of the verifier — 74 772 checks on engine 3.4.0 |
+| `node verify2.js` | `провалов: 0` | every block of the verifier — 88 425 checks on engine 3.5.0 |
 | `node accept.js` | `ПРИЁМКА ЧИСТА` | not one `ПРОВАЛ` line across the twenty wave-acceptance blocks below. It is the wave's own gate: every wave replaces the copy in `reference/` with the one written for it |
 | `node passcheck_v3.js` | `Провалов всего: 0` | П1 and П2 both PASS — the two passability claims of §40, that every variation can be reached and that entering one never lengthens the session |
 | `node audit_static.js` | `НОВЫХ СРАБАТЫВАНИЙ НЕТ` | no new hit of the "fix applied to one branch of two" class |
