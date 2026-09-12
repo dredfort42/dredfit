@@ -14,10 +14,11 @@ nonisolated enum RaiseLabel {
         max(0, steps) * Dose.grid(unit).step
     }
 
-    /// "+5 s" / "+1" — verbatim, no words to translate.
+    /// "+5 s" / "+1". The unit is a word — "сек" in Russian — so the hold
+    /// form goes through the catalog like the panel's own "%lld s" does.
     static func text(steps: Int, unit: LoadUnit) -> String {
         let n = added(steps: steps, unit: unit)
-        return unit == .hold ? "+\(n) s" : "+\(n)"
+        return unit == .hold ? String(localized: "+\(n) s") : "+\(n)"
     }
 
     static func spoken(steps: Int, unit: LoadUnit) -> String {

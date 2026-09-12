@@ -81,7 +81,10 @@ struct HeldSetCard: View {
                 }
             }
             .foregroundStyle(Theme.ink)
-            .frame(minWidth: 78, minHeight: 72)
+            // maxHeight: the estimate's third line makes one card taller,
+            // and a row of cards of three heights reads as three kinds of
+            // thing. Stretched, they share the tallest.
+            .frame(minWidth: 78, minHeight: 72, maxHeight: .infinity)
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
             // One fill for every card. The accented fill a set above its plan

@@ -43,6 +43,11 @@ extension WorkoutFlowView {
                         Spacer(minLength: 0)
                         summaryHead
                         HeldSetsRow(sets: heldSets, onEdit: startSummaryAdjusting)
+                            // The row asks for its IDEAL height — the tallest
+                            // card — and the cards stretch to it: without this
+                            // the cards' `maxHeight: .infinity` filled the whole
+                            // scroll view instead of levelling the row.
+                            .fixedSize(horizontal: false, vertical: true)
                             .padding(.top, 22)
                         // ONE sentence, about the past, under the cards. It
                         // used to say "these are the numbers the next plan
