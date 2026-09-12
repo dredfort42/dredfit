@@ -31,7 +31,7 @@ final class GoldenTests: XCTestCase {
     /// re-baseline every number instead of catching a port bug.
     func testGeneratorIsThePinnedReferenceVersion() throws {
         let g = try loadGolden()
-        XCTAssertEqual(g.generator, "adaptive_engine.js v3.4.0",
+        XCTAssertEqual(g.generator, "adaptive_engine.js v3.5.0",
                        "golden.json regenerated from an unexpected reference version")
     }
 
@@ -186,7 +186,8 @@ final class GoldenTests: XCTestCase {
         let probes = try patternKeyed(step.own.probes ?? [:])
         let skipped = Set(try (step.own.skipped ?? []).map { try XCTUnwrap(Pattern(rawValue: $0)) })
         let setsSkipped = try patternKeyed(step.own.skipSets ?? [:])
-        guard !setsSkipped.isEmpty else {
+        let raised = try patternKeyed(step.own.raiseDose ?? [:])
+        guard !setsSkipped.isEmpty || !raised.isEmpty else {
             return Engine.applyFeedback(state: state, session: session, result: result,
                                         overrides: overrides, skipped: skipped,
                                         gapDays: step.own.gapDays, probes: probes)
@@ -202,10 +203,25 @@ final class GoldenTests: XCTestCase {
             XCTAssertEqual(order.map { feedbackOnly.cutOf($0) }, before,
                            ctx + " (cut before the skip)")
         }
+        // §41.13: the raise lands after the feedback AND after the skip. The
+        // position it found is asserted first, for the reason the cut before
+        // the skip is: a fact above the plan makes fast adaptation zero the
+        // sub-step, so a raise applied earlier is erased, and only this
+        // number tells the two orders apart.
+        if let before = step.own.beforeRaise {
+            let unraised = Engine.applyFeedback(
+                state: state, session: session, result: result, overrides: overrides,
+                skipped: skipped, setsSkipped: setsSkipped, gapDays: step.own.gapDays,
+                probes: probes)
+            XCTAssertEqual(order.map { unraised.doses[$0] }, before.doses,
+                           ctx + " (dose before the raise)")
+            XCTAssertEqual(order.map { unraised.sub[$0] ?? 0 }, before.sub,
+                           ctx + " (sub-step before the raise)")
+        }
         return Engine.applyFeedback(state: state, session: session, result: result,
                                     overrides: overrides, skipped: skipped,
                                     setsSkipped: setsSkipped, gapDays: step.own.gapDays,
-                                    probes: probes)
+                                    probes: probes, raised: raised)
     }
 
     // MARK: - Assertions

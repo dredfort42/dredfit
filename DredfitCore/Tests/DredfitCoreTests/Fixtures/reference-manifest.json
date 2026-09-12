@@ -1,10 +1,10 @@
 {
-  "generator": "adaptive_engine.js v3.4.0",
-  "golden.json": "795e1145710694b7bf833226717f3e3248df956e0e8c40fe2b30c81b358da28c",
+  "generator": "adaptive_engine.js v3.5.0",
+  "golden.json": "0118f1734e406a6f26eecf651e5a422d5eace9097bcec51072cfa9a4a5a6b5b1",
   "reference": {
-    "SPEC-v2.md": "2de5f0587de87850a628ec35d0dbfe6215a512df3ffaa08265ab9905a3b0bbe6",
-    "adaptive_engine.js": "fd8800e74e307f99b216c4b0a88922589eb335fbd85af49f226be3d503af4485",
-    "make_golden.js": "4c2e72592ac97195139593f013bd37b6137ac369beda5ba16d29b785b3ba167a",
-    "verify2.js": "58b753383e6a7ecd13835619fa95aa74c71b0e4db3e7abe71ba9d3f1595b44a1"
+    "SPEC-v2.md": "b014a0641229d00a7155a88d9899ae6f7a6733d618c746306a87d2ff8c347177",
+    "adaptive_engine.js": "bea7cba555cd12139a5c769430ae7ed2a83a0192777efaccbe52dabb4ee00613",
+    "make_golden.js": "ee37a95de41f3672f05c5624019ffd322f3173e810a7b974d7752759e3ff0fa2",
+    "verify2.js": "1ed4a112661d65eeb6fab8454eba7c24613efd0ab708041344945029e057f03e"
   }
 }

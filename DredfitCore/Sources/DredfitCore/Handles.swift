@@ -49,6 +49,48 @@ extension Engine {
         return next
     }
 
+    /// "Next time, more" on one movement (§41.13): the position rises by
+    /// `steps` growth events along the DOSE axis only — a sub-step or a rung
+    /// of the grid, as the dose branch of `riseBy` does. Never a set back and
+    /// never the band of §40.5: the person asked for seconds (or reps), not
+    /// for a set, and the "+5 s" on the screen has to be literally true. It
+    /// never crosses a variation — a probe is the only way into one (§40.4)
+    /// — and on the grid's ceiling it honestly stands still: the remaining
+    /// steps burn rather than carry.
+    ///
+    /// The sub-step counts against the sets ON SCREEN (after the cut), not
+    /// against the band as `riseBy` does. There the band keeps the price of
+    /// a rung, and a set comes back before the dose grows anyway; here no
+    /// set comes back, and a band count under a cut would clamp straight
+    /// back (`effSub`, Ф5): the second step would leave the plan as it was
+    /// while the screen said "+10 s". Without a cut the two agree step for
+    /// step (verify2, block 31).
+    ///
+    /// `maxUp` and the weekly cap do not apply: they bound growth the ENGINE
+    /// assigns; this dose is the person's own, as under fast adaptation
+    /// (§40.3). Input sanitized per §17.4: negative reads as zero, the top is
+    /// `raiseStepsMax`. Zero returns the state AS IS.
+    public static func raiseDose(state dirty: EngineState, pattern p: Pattern,
+                                 steps: Int) -> EngineState {
+        let k = min(EngineConfig.raiseStepsMax, max(0, steps))
+        guard k > 0 else { return dirty }
+        let state = dirty.sanitized()
+        var cur = fit(p, state.position(p))
+        for _ in 0..<k {
+            let g = Dose.grid(Library.unit(p, cur.variation))
+            if cur.dose >= g.max { break }
+            if cur.sub + 1 < cur.sets - cur.cut {
+                cur.sub += 1
+            } else {
+                cur.dose += g.step
+                cur.sub = 0
+            }
+        }
+        var next = state
+        setPosition(&next, p, cur)
+        return next
+    }
+
     /// Feedback plus the sets skipped DURING the session, in the one order
     /// that is correct (§38.2, rule 1): `applyFeedback` FIRST, then `setCut`.
     ///
@@ -67,6 +109,14 @@ extension Engine {
     /// remains is ordinary, not an error. A movement already at the floor has
     /// nothing to take: that skip travels as an ordinary skipped EXERCISE, in
     /// `skipped`, never as a fact of 0 reps.
+    ///
+    /// `raised` (§41.13) lands LAST, over the feedback and the cut: it is a
+    /// decision on top of the result, not an input to it. With a fact above
+    /// the plan, fast adaptation sets the dose from the fact and zeroes the
+    /// sub-step — a raise applied before it would be erased in silence, and
+    /// the fixture pins the position before the raise so that a port which
+    /// swaps the order fails by number. The last parameter, with a default,
+    /// so no caller written before it shifts an argument (§40.11 п. 2).
     public static func applyFeedback(
         state: EngineState,
         session: Session,
@@ -75,7 +125,8 @@ extension Engine {
         skipped: Set<Pattern> = [],
         setsSkipped: [Pattern: Int],
         gapDays: Double? = nil,
-        probes: [Pattern: Int] = [:]) -> EngineState {
+        probes: [Pattern: Int] = [:],
+        raised: [Pattern: Int] = [:]) -> EngineState {
         var next = Self.applyFeedback(state: state, session: session, result: result,
                                       overrides: overrides, skipped: skipped,
                                       gapDays: gapDays, probes: probes)
@@ -85,6 +136,10 @@ extension Engine {
         for p in Pattern.allCases {
             guard let k = setsSkipped[p], k > 0 else { continue }
             next = Self.setCut(state: next, pattern: p, cut: next.cutOf(p) + k)
+        }
+        for p in Pattern.allCases {
+            guard let k = raised[p], k > 0 else { continue }
+            next = Self.raiseDose(state: next, pattern: p, steps: k)
         }
         return next
     }

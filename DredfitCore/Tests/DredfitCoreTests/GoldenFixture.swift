@@ -151,6 +151,14 @@ struct Golden: Decodable {
         /// itself: a port that skipped first would have to reproduce this
         /// number too, and it cannot.
         let cutBeforeSkip: [Int]?
+        /// §41.13: steps added "for next time", landed LAST — after the
+        /// feedback and after the skip.
+        let raiseDose: [String: Int]?
+        /// The dose and sub-step the raise found, per pattern in
+        /// `patternOrder`. Present exactly when `raiseDose` is: a port
+        /// that raised before the feedback cannot reproduce these numbers
+        /// on a step whose fact lands above the plan.
+        let beforeRaise: BeforeRaise?
         let silentDecay: BreakStep?
         let comeback: ComebackStep?
         let failStreakAfter: [Int]
@@ -159,6 +167,11 @@ struct Golden: Decodable {
         let lessHistAfter: [String: Int]
         let returnRunAfter: Int
         let creditPausedAfter: [Int]
+    }
+
+    struct BeforeRaise: Decodable {
+        let doses: [Int]
+        let sub: [Int]
     }
 
     /// applySilentDecay invoked before this step's session — and before the

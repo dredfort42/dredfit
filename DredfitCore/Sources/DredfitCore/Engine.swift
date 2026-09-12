@@ -126,6 +126,11 @@ public enum EngineConfig {
     /// so it holds for any composition of cuts.
     public static let setsFloor = 2
     static let setsBackPerSession = 1
+    /// §41.13: how many steps a person may add to ONE movement for next
+    /// time, per session. Two is a ceiling, not a norm — the owner's call,
+    /// kept here so it changes in one line. Public because the summary's
+    /// stepper stops where the handle would stop clamping.
+    public static let raiseStepsMax = 2
     /// How many APPEARANCES a returned set is held before the next one may
     /// come back. The set axis is an order of magnitude coarser than the dose.
     public static let setsBackHold = 2
