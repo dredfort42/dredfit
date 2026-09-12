@@ -2,6 +2,24 @@
 
 ## 2.4.0
 
+This release is about one screen: the summary that closes a hold — a plank, a
+hollow hold, a side plank — after its last set. That screen used to ask for
+next time's number in the past tense, and the app wrote the wish down as a
+fact. It now keeps the two tenses apart: the cards say what was held, a
+**Next time** block above **Done** says what will be asked, and a rise you add
+there is called your addition everywhere it lands — on the rating screen, in
+history and under tomorrow's plan. The engine moves with it, reference
+**3.4.0 → 3.5.0**, by exactly one new handle, `raiseDose`, applied after the
+rating: every earlier fixture scenario reproduces bit-for-bit, so no existing
+ladder, rating, descent, break or probe changed what it does. The saved state
+and the journal gain four optional fields — `raisedSteps` and `raisedLanded` on
+a workout record, `holdMeasuredSec` and `raisedSteps` on the in-progress
+snapshot — with no migration: a file an older build wrote reads as it always
+did, and going back to 2.3.0 loses no journal. Health, backup, permissions and
+the App Privacy answers, the widgets, and every screen outside the hold
+summary — the work screen, the probe, technique, skipping, Progress, "How it
+works", the comeback card, settings, onboarding — are untouched.
+
 **The summary of a hold keeps the past and the future apart.** After the last
 set of a plank, a hollow hold or a side plank, the screen used to show a card
 per set with a set that ran longer than its plan turned orange and captioned
@@ -34,7 +52,11 @@ reads as one the app took by itself. Those two lines name the share that
 actually landed: on the top rung of a grid the engine parks what it cannot
 add, and a rise the rating or your own numbers took is not called your
 addition — while the journal keeps what you tapped, so changing the rating
-replays your decision, not the share.
+replays your decision, not the share. The summary holds itself to the same
+rule before anything is rated: correct the **last** set upward to where the
+grid ends, and the stepper is cut back to what still changes the plan — "+0 s"
+and "This is the most for this movement." — rather than reading "+10 s" over
+a plan the fact has already taken to the top.
 
 **History and the rating screen name what they print.** The per-set facts
 used to appear as bare numbers — "30 · 30 · 25" in orange under a grey plan
@@ -50,10 +72,42 @@ the corpse rather than the string — and six languages were being asked to
 keep them translated. They are gone, and a unit test now fails on any key
 with no literal in the sources.
 
-Engine reference 3.5.0: one new handle, `raiseDose`, walking the dose axis
+Engine reference 3.4.0 → 3.5.0: one new handle, `raiseDose`, walking the dose axis
 only — never a set, never a variation, parked on the grid's ceiling — and
 applied last, over the rating and the skipped sets. Every earlier fixture
 scenario reproduces bit-for-bit; the new one pins the order.
+
+### Housekeeping
+
+- **The repository is the home of two platforms now.** Everything Xcode opens
+  moved under `ios/` and the store materials under `store/appstore/`, as one
+  unit, so every relative path inside the project and the test plan is what
+  it was; the fixture regenerated after the move is byte-for-byte the same
+  file (#244). `android/` and `store/playstore/` exist with a README each
+  saying what goes there, so the Kotlin port arrives as a sibling rather than
+  a subfolder of the iOS app (#245).
+- **The build compiles without a warning on Xcode 26** (#246). The theme
+  built its trait collection through `UITraitCollection(traitsFrom:)`, which
+  the SDK now deprecates, and the v2 state decoder read one field through
+  `decodeIfPresent` and then cast it again, a double optional the compiler
+  had started to flag. Both are rewritten in place; the behaviour of neither
+  changed.
+- **The skip paths moved out of `WorkoutFlowView.swift`** into
+  `WorkoutFlowView+Skips.swift` (#247), unchanged — the file stood at 1159
+  of the 1200 lines SwiftLint allows, and the next feature would have paid
+  for the split at the worst moment.
+- **705 → 723 automated tests**, counted across the same three layers 2.3.0
+  counted: **74** in the engine package, **571** in the app, **78** in the UI
+  suite. The engine's four pin the new handle — it walks the sub-steps and
+  then the rung, stands on the ceiling and clamps its input, counts the sets
+  on screen under a cut, and lands after the feedback. The app's thirteen sit
+  on what this wave could have got wrong quietly: a correction that cannot
+  exceed the clock except on the last set, the preview being exactly what the
+  rating will set, the share that landed kept apart from the steps that were
+  tapped, a raise read off disk clamped to what the engine takes, the stepper
+  counting only the steps that still move the plan — and the catalog test
+  that fails on any key no source asks for. The one UI test added walks an
+  addition from the summary to the rating screen.
 
 ## 2.3.0
 
