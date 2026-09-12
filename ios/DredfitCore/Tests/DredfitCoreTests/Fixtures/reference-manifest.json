@@ -4,7 +4,7 @@
   "reference": {
     "SPEC-v2.md": "b014a0641229d00a7155a88d9899ae6f7a6733d618c746306a87d2ff8c347177",
     "adaptive_engine.js": "bea7cba555cd12139a5c769430ae7ed2a83a0192777efaccbe52dabb4ee00613",
-    "make_golden.js": "ee37a95de41f3672f05c5624019ffd322f3173e810a7b974d7752759e3ff0fa2",
+    "make_golden.js": "1659d2551a55f7ee4037313a324fc36dbc0be25831527fa2dce2c5df76ace526",
     "verify2.js": "1ed4a112661d65eeb6fab8454eba7c24613efd0ab708041344945029e057f03e"
   }
 }

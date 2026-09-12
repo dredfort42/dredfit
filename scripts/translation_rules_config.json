@@ -1,7 +1,7 @@
 {
   "_comment": "Exceptions for scripts/check_translation_rules.py. Each rule id maps a '<catalog path>::<key>' to the REASON the string is allowed to break that rule — a bare list would let the next reader assume someone had thought about it. There are none today: the catalogs obey every rule as of the seven-language review wave of 2026-09 (PR #237). Before adding one, check that the rule is wrong rather than the string: a false positive is a defect in the check and belongs in check_translation_rules.py, and only a string the canon really does exempt belongs here. The known shape of a true exception is a proper name or a quoted foreign UI label — for example a German string that has to quote Apple's own 'Workout' type name, or a French one quoting an English product term with a straight apostrophe inside.",
   "_example": {
-    "Dredfit/Localizable.xcstrings::some key": "why this one string is allowed to break the rule"
+    "ios/Dredfit/Localizable.xcstrings::some key": "why this one string is allowed to break the rule"
   },
   "ru-yo": {},
   "ru-formal-address": {},

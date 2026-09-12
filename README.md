@@ -122,7 +122,13 @@ State is one JSON file in Application Support. Old records survive every update 
 ## Architecture
 
 ```text
-DredfitCore/            Swift package — the engine, pure functions, no UI imports
+ios/                    everything Xcode opens — the project, the test plan,
+                        the package and the five targets. The repo is a home
+                        for two platforms; the Android side lives beside it
+                        in android/ when it arrives, with its own Kotlin port
+                        of the engine verified against the same fixture.
+
+ios/DredfitCore/        Swift package — the engine, pure functions, no UI imports
   Engine.swift          state → session; state × session × feedback → state
   SubStep.swift         a position and its measure: variation, sets, dose,
                         sub-step, cut — and the ordinal that counts growth
@@ -150,7 +156,7 @@ DredfitCore/            Swift package — the engine, pure functions, no UI impo
     ManifestTests.swift    the fixture's provenance
     Fixtures/golden.json
 
-Dredfit/                SwiftUI app target
+ios/Dredfit/            SwiftUI app target
   AppStore.swift        the only mutable state + JSON persistence; split by
                         extension (+Cadence/Calendar/Comeback/Handles/Signals/
                         Health/Reminders/Backup, and +Workout/+Rating which
@@ -169,10 +175,17 @@ Dredfit/                SwiftUI app target
   Views/Settings/       settings, onboarding, "How it works"
   Design/Theme.swift    ink scale + one accent (and its soft tint)
 
-DredfitWidgets/         widget extension — TodayStatusWidget, RestLiveActivity
-Shared/                 the App Group snapshot contract
+ios/DredfitWidgets/     widget extension — TodayStatusWidget, RestLiveActivity
+ios/Shared/             the App Group snapshot contract
 
-docs/                   the dredfit.com site — GitHub Pages, static, no build
+store/appstore/         App Store materials — icons, the framed screenshots per
+                        locale, and the capture/compose tools (release texts
+                        are written here too, and stay local)
+scripts/                the gates, shared by both platforms: localization,
+                        version, the engine gate contract, the fixture manifest
+
+docs/                   the dredfit.com site — GitHub Pages, static, no build;
+                        stays at the root because Pages serves / or /docs, nothing else
   index.html            landing + privacy.html, mirrored under ru/ es/ pt-br/ de/ fr/ it/
   CNAME, robots.txt, sitemap.xml, og.png
 ```
@@ -219,14 +232,14 @@ locally before cutting a release branch instead.
 
 ## Building
 
-1. Open the Xcode project (iOS 17+, Xcode 15+).
-2. The `DredfitCore` package is local — add it via *File → Add Package Dependencies → Add Local* if not already linked.
+1. Open `ios/Dredfit.xcodeproj` (iOS 17+, Xcode 15+).
+2. The `ios/DredfitCore` package is local — add it via *File → Add Package Dependencies → Add Local* if not already linked.
 3. `⌘U` on the package first: golden tests are the gate. From the command line the package needs `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`, because `xcode-select` points at the Command Line Tools.
 4. Run on any iPhone simulator. UI tests expect an English locale and drive the app through DEBUG-only launch flags — `--uitest-reset` for a clean slate, `--uitest-fast` to collapse rest countdowns, `--uitest-long-transition` to hold a "Get ready" transition open so the tests that tap it are not racing its eight seconds, `--uitest-hold-short` / `--uitest-hold-long` to seed a hold's planned length at either end of its corridor, and a few that seed a specific state (`--uitest-milestone`, `--uitest-comeback`, `--uitest-comeback-long`, `--uitest-restday`, `--uitest-onboarding`, `--uitest-session2`, `--uitest-long-session`).
 
 ## Localization
 
-English is the source language; Russian, Spanish, Brazilian Portuguese, German, French and Italian each ship complete — 815 of 820 keys translated across four String Catalogs (467 app + 329 core + 21 widgets + 3 InfoPlist) — five keys are exempt from the check, not identical across languages: two `%lld` placeholders marked `shouldTranslate: false`, `CFBundleName` and ` · %@` genuinely are identical everywhere, but `on %@` is translated in four languages (`de: "am %@"`, `es: "el %@"`, `fr: "le %@"`, `it: "%@"`) and only missing in ru and pt-BR, where `AppStore.nextTrainingDateLabel` composes the phrase in code instead of the catalog; `check_localization.py`'s own exception list only names three of the five, so the gate is green without seeing all of them. All exercise technique is translated. English base strings live inline at each call site; translations live in the catalogs. Every translation is idiomatic rather than literal: Russian avoids anglicisms and calques and uses `е` rather than `ё` throughout; Spanish, Brazilian Portuguese, German, French and Italian address the reader informally (`tú` / `você` / lowercase `du` / `tu`) and take their exercise and pattern vocabulary from the same glossary as the [marketing site](https://dredfit.com/), which ships in the same seven languages. Two gates guard this in CI, in one required job: `check_localization.py` for completeness, and `check_translation_rules.py` for the rules a completeness check cannot see — the Russian `е`, the French non-breaking spaces and typographic apostrophe, the German short dash and `min`, the informal address in the five languages that have such a rule (ru, es, de, fr, it — pt-BR has none), and placeholder parity. The second one exists because the seven-language review of 2026-09 found 43 Russian strings drifted back to `ё` and 36 German ones to the long dash, every one of them under a green completeness check: a gate of completeness is not a gate of truthfulness. It proves each of its rules can still fail before it reports success. A third check, `check_release_texts.py`, applies the same class of rule to the App Store / TestFlight package — it runs by hand rather than in CI, because `appstore/release_texts_*.md` is gitignored and never reaches a runner, and it exists because the 2.3.0 package shipped eleven Russian words written with a Latin `e` inside them while a check that counted `ё` reported success.
+English is the source language; Russian, Spanish, Brazilian Portuguese, German, French and Italian each ship complete — 815 of 820 keys translated across four String Catalogs (467 app + 329 core + 21 widgets + 3 InfoPlist) — five keys are exempt from the check, not identical across languages: two `%lld` placeholders marked `shouldTranslate: false`, `CFBundleName` and ` · %@` genuinely are identical everywhere, but `on %@` is translated in four languages (`de: "am %@"`, `es: "el %@"`, `fr: "le %@"`, `it: "%@"`) and only missing in ru and pt-BR, where `AppStore.nextTrainingDateLabel` composes the phrase in code instead of the catalog; `check_localization.py`'s own exception list only names three of the five, so the gate is green without seeing all of them. All exercise technique is translated. English base strings live inline at each call site; translations live in the catalogs. Every translation is idiomatic rather than literal: Russian avoids anglicisms and calques and uses `е` rather than `ё` throughout; Spanish, Brazilian Portuguese, German, French and Italian address the reader informally (`tú` / `você` / lowercase `du` / `tu`) and take their exercise and pattern vocabulary from the same glossary as the [marketing site](https://dredfit.com/), which ships in the same seven languages. Two gates guard this in CI, in one required job: `check_localization.py` for completeness, and `check_translation_rules.py` for the rules a completeness check cannot see — the Russian `е`, the French non-breaking spaces and typographic apostrophe, the German short dash and `min`, the informal address in the five languages that have such a rule (ru, es, de, fr, it — pt-BR has none), and placeholder parity. The second one exists because the seven-language review of 2026-09 found 43 Russian strings drifted back to `ё` and 36 German ones to the long dash, every one of them under a green completeness check: a gate of completeness is not a gate of truthfulness. It proves each of its rules can still fail before it reports success. A third check, `check_release_texts.py`, applies the same class of rule to the App Store / TestFlight package — it runs by hand rather than in CI, because `store/appstore/release_texts_*.md` is gitignored and never reaches a runner, and it exists because the 2.3.0 package shipped eleven Russian words written with a Latin `e` inside them while a check that counted `ё` reported success.
 
 ## Design principles
 
