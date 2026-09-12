@@ -1,7 +1,8 @@
 //
-//  The flow's half of the exercise summary: what the phase shows, and what
-//  the tap on a card writes. The cards themselves are ExerciseSummary.swift —
-//  what a card looks like is not what the phase decides.
+//  The flow's half of the exercise summary: what the phase shows, what the
+//  tap on a card writes, and what the "next time" block asks the engine. The
+//  leaves themselves are ExerciseSummary.swift — what a card looks like is
+//  not what the phase decides.
 //
 //  A file of its own because WorkoutFlowView.swift is bounded at 1200 lines
 //  by the lint as an ERROR, and it is the FILE that a split cures; an
@@ -41,60 +42,87 @@ extension WorkoutFlowView {
                     VStack(spacing: 0) {
                         Spacer(minLength: 0)
                         summaryHead
-                        HeldSetsRow(sets: heldSets, unevenPlan: exercise.loads != nil,
-                                    onEdit: startSummaryAdjusting)
+                        HeldSetsRow(sets: heldSets, onEdit: startSummaryAdjusting)
                             .padding(.top, 22)
-                        summaryPlanLine
+                        // ONE sentence, about the past, under the cards. It
+                        // used to say "these are the numbers the next plan
+                        // starts from", which is a sentence about the
+                        // future — and people answered it in the future
+                        // tense, entering the number they wanted next time
+                        // into a card that records what was held. The future
+                        // has its own block now.
+                        Text(exercise.perSide
+                             ? String(localized: "That is what counts, per side. Wrong number? Tap it and fix it.")
+                             : String(localized: "That is what counts. Wrong number? Tap it and fix it."))
+                            .dredfitFont(14)
+                            .foregroundStyle(Theme.ink2)
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(2)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .padding(.top, 18)
+                            .padding(.horizontal, 8)
+                            .accessibilityIdentifier("summary-counted")
+                        // Stands down while a number is being entered: one
+                        // thing to read at a time, the rule of every message
+                        // slot in the flow.
+                        if !adjusting {
+                            NextTimeBlock(exercise: exercise,
+                                          steps: raisedSteps[exercise.pattern] ?? 0,
+                                          factEntered: SetFacts.override(actuals, for: exercise) != nil,
+                                          preview: nextPlan(withAdditions:),
+                                          onChange: setRaise)
+                                .padding(.top, 22)
+                        }
                         Spacer(minLength: 0)
                     }
                     .frame(maxWidth: .infinity, minHeight: proxy.size.height)
                 }
             }
 
-            // The same slot the work screen keeps for its messages, and the
-            // same rule: one thing to read at a time, so the sentence stands
-            // down while a number is being entered.
-            if !adjusting {
-                // ONE sentence about one thing. The screen used to say "tap a
-                // number to change it" under the cards and "These are the
-                // numbers the next plan starts from" at the bottom — the same
-                // invitation twice, in two slots, 13 pt apart. The affordance
-                // itself is on the cards now (their outline), so what is left
-                // is the reason to take it, and it stands where the flow keeps
-                // what it has to say (UX review 05.09.2026).
-                Text("Tap a number to change it — these are the numbers the next plan starts from.")
+            // The entry opens in the slot of the button it will hand back to,
+            // exactly as it does on the work screen — with the question it
+            // is answering above it. The panel itself has no words, and
+            // without any this was a stepper on a screen whose only sentence
+            // invited planning; the past tense is what separates a
+            // correction from a wish (§41.13).
+            if adjusting, let index = summarySet {
+                Text("How long was set \(index + 1) held?")
                     .dredfitFont(14)
                     .foregroundStyle(Theme.ink2)
                     .multilineTextAlignment(.center)
-                    .lineSpacing(2)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.bottom, 18)
-                    .accessibilityIdentifier("summary-starts-from")
-            }
-
-            // The entry opens in the slot of the button it will hand back to,
-            // exactly as it does on the work screen.
-            if adjusting {
-                AdjustPanel(value: $adjustValue, unit: .hold) {
-                    if let index = summarySet {
-                        actuals = SetFacts.recordingSet(adjustValue, in: actuals,
-                                                        exercise, set: index)
-                        // A number the person typed is not an estimate any
-                        // more, whatever produced the one it replaced.
-                        holdApproxSets.remove(index)
-                        // The second door of the same channel, and it spends
-                        // the same one-way flag: the work screen's hint asks
-                        // people to say a number of their own, and correcting
-                        // a card here IS saying one. Without this call the
-                        // hint went on being shown to somebody who had
-                        // already answered it (UX review, 05.09.2026).
-                        store.markOwnNumberReported()
-                    }
+                    .padding(.bottom, 10)
+                    .accessibilityIdentifier("summary-question")
+                AdjustPanel(value: $adjustValue, unit: .hold,
+                            range: summaryRange(set: index)) {
+                    actuals = SetFacts.recordingSet(adjustValue, in: actuals,
+                                                    exercise, set: index)
+                    // A number the person typed is not an estimate any
+                    // more, whatever produced the one it replaced.
+                    holdApproxSets.remove(index)
+                    // The second door of the same channel, and it spends
+                    // the same one-way flag: the work screen's hint asks
+                    // people to say a number of their own, and correcting
+                    // a card here IS saying one. Without this call the
+                    // hint went on being shown to somebody who had
+                    // already answered it (UX review, 05.09.2026).
+                    store.markOwnNumberReported()
                     adjusting = false
                     summarySet = nil
                     persistProgress()
                 }
-                .padding(.bottom, 18)
+                .padding(.bottom, summaryCeilingNote(set: index) == nil ? 18 : 8)
+                // THE CLOCK IS THE CEILING on every set but the last
+                // (`SetFacts.correctionRange`): the "+" above is dimmed at
+                // it, and this says why — a dimmed control with no reason
+                // is a control that looks broken.
+                if let note = summaryCeilingNote(set: index) {
+                    Text(note)
+                        .dredfitFont(13)
+                        .foregroundStyle(Theme.ink2)
+                        .multilineTextAlignment(.center)
+                        .padding(.bottom, 18)
+                        .accessibilityIdentifier("summary-ceiling")
+                }
             }
 
             // "Done", like every other tap that logs work in this app, and
@@ -137,26 +165,6 @@ extension WorkoutFlowView {
         }
     }
 
-    /// The plan the numbers above were run against.
-    ///
-    /// "each" is held back on an UNEVEN plan, where it would be false: 9-8-8
-    /// asks different things of different sets, and the cards carry their own
-    /// planned figure there instead.
-    ///
-    /// The invitation to change a number left this slot with the wave that
-    /// merged it into the line at the foot of the screen — see there for why
-    /// one sentence and not two.
-    @ViewBuilder
-    private var summaryPlanLine: some View {
-        if exercise.loads == nil {
-            Text("planned \(exercise.load) s each")
-                .dredfitFont(14)
-                .monospacedDigit()
-                .foregroundStyle(Theme.ink2)
-                .padding(.top, 18)
-        }
-    }
-
     /// Opens the entry on the card that was tapped, not on the set the flow
     /// happens to be standing on — the whole point of the screen is that any
     /// of them can be corrected.
@@ -164,5 +172,41 @@ extension WorkoutFlowView {
         summarySet = index
         adjustValue = SetFacts.inForce(actuals, exercise, set: index)
         adjusting = true
+    }
+
+    /// The rule is `SetFacts.correctionRange`, where a test can reach it;
+    /// what is measured is what the card shows.
+    func summaryRange(set index: Int) -> ClosedRange<Int> {
+        SetFacts.correctionRange(measured: SetFacts.inForce(actuals, exercise, set: index),
+                                 isLastSet: index == exercise.sets - 1)
+    }
+
+    /// The reason the "+" is dimmed, on the sets that have one.
+    func summaryCeilingNote(set index: Int) -> String? {
+        let range = summaryRange(set: index)
+        guard range.upperBound < SetFacts.corridor(for: .hold).upperBound else { return nil }
+        return String(localized: "the clock saw \(range.upperBound) s — no more than that goes in")
+    }
+
+    /// The plan this movement will get with `steps` additions — the engine's
+    /// own answer, dry-run through the store with everything this session
+    /// has recorded so far (§41.13).
+    func nextPlan(withAdditions steps: Int) -> SessionExercise? {
+        var raised = raisedSteps
+        raised[exercise.pattern] = steps > 0 ? steps : nil
+        return store.previewPosition(after: session, pattern: exercise.pattern,
+                                     overrides: SetFacts.overrides(actuals, in: exercises),
+                                     skipped: skippedPatterns, setsSkipped: setsSkipped,
+                                     probes: probeActuals, raised: raised)?
+            .asPlanned(exercise.pattern)
+    }
+
+    /// The stepper's write: a DECISION, kept apart from the facts and
+    /// persisted like them — a kill between here and the rating must not
+    /// drop it.
+    func setRaise(_ steps: Int) {
+        let clamped = min(max(steps, 0), EngineConfig.raiseStepsMax)
+        raisedSteps[exercise.pattern] = clamped > 0 ? clamped : nil
+        persistProgress()
     }
 }

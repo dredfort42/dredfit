@@ -58,8 +58,10 @@ final class SetFactsUITests: XCTestCase {
 
         driver.completeWorkout()
         // Matched by accessibility label, which is the comma-separated twin of
-        // the "4 · 4 · 1" on screen — the same list, spoken rather than set.
-        XCTAssertTrue(app.staticTexts["4, 4, 1"].exists,
+        // the "actual 4 · 4 · 1" on screen — the same list, spoken rather than
+        // set, and carrying its word: bare numbers under a plan read as
+        // anything (§41.13).
+        XCTAssertTrue(app.staticTexts["actual 4, 4, 1"].exists,
                       "the rating screen must show the sets as they ran, not 1 three times")
         XCTAssertFalse(app.staticTexts["actual 1"].exists,
                        "1 was one set of three — it must not stand for the exercise")
@@ -72,7 +74,9 @@ final class SetFactsUITests: XCTestCase {
         let day = Calendar.current.component(.day, from: .now)
         app.buttons[AX.day(day)].tap()
         XCTAssertTrue(app.staticTexts["Workout 1"].waitForExistence(timeout: 3))
-        XCTAssertTrue(app.staticTexts["4, 4, 1"].exists, "the history row lost the sets")
+        // In the plan's own spelling, and named — the row's three lines are
+        // "plan", "Actual:" and "After:", each with its word.
+        XCTAssertTrue(app.staticTexts["Actual: 4-4-1"].exists, "the history row lost the sets")
         app.buttons[AX.historyDone].tap()
     }
 }

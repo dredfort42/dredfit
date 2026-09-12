@@ -76,7 +76,18 @@ enum AX {
 
     /// The cards are 1-based, like the captions they carry.
     static func summarySet(_ number: Int) -> String { "summary-set-\(number)" }
-    static let summaryStartsFrom = "summary-starts-from"
+    /// The one sentence under the cards, about the past.
+    static let summaryCounted = "summary-counted"
+    /// The "next time" block (§41.13): the sentence that names the plan the
+    /// engine will set, and the stepper that raises it. The sentence is what
+    /// a test reads — it changes with every tap on the stepper, which is the
+    /// whole promise of the block.
+    static let summaryNextPlan = "summary-next-plan"
+    static let raisePlus = "raise-plus"
+    static let raiseMinus = "raise-minus"
+    static let raiseValue = "raise-value"
+    /// The addition, listed on the rating screen per movement.
+    static func feedbackRaised(_ pattern: String) -> String { "feedback-raised-\(pattern)" }
     /// The kicker. Named because `.textCase(.uppercase)` folds the string the
     /// tree carries — a query for "Held" as written matches nothing.
     static let summaryHeld = "summary-held"

@@ -131,6 +131,14 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     /// 05.09.2026 — the difference is worth seeing). Optional with a nil
     /// default like every field added to a persisted type.
     var interrupted: Pattern?
+    /// Steps the athlete ADDED for next time, per movement (§41.13) — the
+    /// count handed to the engine's raise after the rating landed. Written
+    /// so the plan that follows can say which part of it was the person's
+    /// own decision rather than the engine's: without it the retrospective
+    /// and tomorrow's plan would show a step nobody could account for.
+    /// Optional with a nil default like every field added to a persisted
+    /// type.
+    var raisedSteps: [Pattern: Int]?
 
     /// The journal is an input too. The engine heals the state it is handed,
     /// but its own snapshots come back out of this file and straight into
@@ -172,6 +180,9 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
             .map { clamp($0, 0, EngineConfig.countMax) }
         healthExported = try c.decodeIfPresent(Bool.self, forKey: .healthExported)
         interrupted = try c.decodeIfPresent(Pattern.self, forKey: .interrupted)
+        // The range the engine itself accepts (`raiseStepsMax`).
+        raisedSteps = try c.decodeIfPresent([Pattern: Int].self, forKey: .raisedSteps)?
+            .mapValues { clamp($0, 0, EngineConfig.raiseStepsMax) }
     }
 
     init(sessionNumber: Int, date: Date, result: FeedbackResult,
@@ -184,7 +195,8 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
          durationSec: Int? = nil,
          warmupSec: Int? = nil, cooldownSec: Int? = nil,
          healthExported: Bool? = nil,
-         interrupted: Pattern? = nil) {
+         interrupted: Pattern? = nil,
+         raisedSteps: [Pattern: Int]? = nil) {
         self.sessionNumber = sessionNumber
         self.date = date
         self.result = result
@@ -202,6 +214,7 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
         self.cooldownSec = cooldownSec
         self.healthExported = healthExported
         self.interrupted = interrupted
+        self.raisedSteps = raisedSteps
     }
 }
 
@@ -302,6 +315,12 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// idle time is not effort. Optional with a nil default, like every field
     /// added to a persisted type.
     var awaySec: Int?
+    /// Steps added "for next time" on the summaries of the movements already
+    /// behind (§41.13), carried to the rating. A kill between a summary and
+    /// the rating must not drop a decision the person has already made on
+    /// screen. Optional with a nil default, like every field added to a
+    /// persisted type.
+    var raisedSteps: [Pattern: Int]?
 
     /// What the flow restores into. A snapshot from before this shape kept
     /// one number per exercise, and that number was in force from the first
@@ -325,6 +344,16 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// has no decoder of its own and everything here comes back off disk.
     var skips: SetFacts.Skips {
         SetFacts.sanitized(skips: setsSkipped ?? [:])
+    }
+
+    /// The additions, sanitized where they are read like everything above:
+    /// the engine clamps its own input too, but a number on screen should
+    /// never exceed what the stepper could have produced.
+    var raises: [Pattern: Int] {
+        (raisedSteps ?? [:]).compactMapValues { value in
+            let k = min(max(value, 0), EngineConfig.raiseStepsMax)
+            return k > 0 ? k : nil
+        }
     }
 
     /// The estimate marks, bounded by what an exercise can hold. Sanitized

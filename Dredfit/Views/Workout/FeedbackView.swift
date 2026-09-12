@@ -24,6 +24,10 @@ struct FeedbackView: View {
     /// this screen needs it (see `didFullPlan`).
     var setsSkipped: SetFacts.Skips = [:]
     var skipped: Set<Pattern> = []
+    /// Steps added "for next time" on the summaries of the holds behind
+    /// (§41.13). Shown so the decision is seen to have reached the rating
+    /// — it lands after it, through the engine, and nothing here changes it.
+    var raised: [Pattern: Int] = [:]
     /// To the engine a skip like the others; the label says "not finished".
     var interrupted: Pattern?
     let onComplete: (FeedbackResult, [Pattern: Double]) -> Void
@@ -124,7 +128,8 @@ struct FeedbackView: View {
 
                     Spacer(minLength: 20)
 
-                    if !overrides.isEmpty || !skipped.isEmpty || !trainedShort.isEmpty {
+                    if !overrides.isEmpty || !skipped.isEmpty || !trainedShort.isEmpty
+                        || !raisedRows.isEmpty {
                         adjustedSummary
                             .padding(.bottom, 24)
                     }
@@ -191,6 +196,29 @@ struct FeedbackView: View {
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel(
                     Text("\(ex.name), \(setsLost(ex)) of \(ex.sets) sets skipped"))
+            }
+            // The additions, named where the rating is given: a person who
+            // added five seconds on a summary three movements ago should
+            // see here that the decision is still standing, and not have to
+            // find out from tomorrow's plan.
+            if !raisedRows.isEmpty {
+                Kicker(text: String(localized: "Your additions"))
+                    .padding(.top, 8)
+            }
+            ForEach(raisedRows) { ex in
+                HStack {
+                    Text(ex.name)
+                        .dredfitFont(14, weight: .medium)
+                    Spacer()
+                    Text(verbatim: RaiseLabel.text(steps: raised[ex.pattern] ?? 0, unit: ex.unit))
+                        .dredfitFont(14, weight: .semibold)
+                        .monospacedDigit()
+                        .foregroundStyle(Theme.accentText)
+                }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(Text(verbatim: "\(ex.name), "
+                    + RaiseLabel.spoken(steps: raised[ex.pattern] ?? 0, unit: ex.unit)))
+                .accessibilityIdentifier("feedback-raised-\(ex.pattern.rawValue)")
             }
             // The "Discomfort" section is gone with the input that filled it.
             // Nothing is set aside for pain any more — a movement the person
@@ -270,6 +298,15 @@ struct FeedbackView: View {
     }
 
     private func setsLost(_ ex: SessionExercise) -> Int { setsSkipped[ex.pattern] ?? 0 }
+
+    /// Movements with an addition standing, in session order. A movement
+    /// that was LEFT cannot carry one — the summary is the last set's screen
+    /// — but the filter is written down rather than trusted.
+    private var raisedRows: [SessionExercise] {
+        session.exercises.filter {
+            (raised[$0.pattern] ?? 0) > 0 && !skipped.contains($0.pattern)
+        }
+    }
 
     private var total: Int { session.exercises.count }
 

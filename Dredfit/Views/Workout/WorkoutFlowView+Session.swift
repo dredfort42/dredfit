@@ -492,7 +492,8 @@ extension WorkoutFlowView {
             approxSets: holdApproxSets.isEmpty ? nil : Array(holdApproxSets).sorted(),
             interrupted: interruptedPattern,
             warmupSec: warmupSec, cooldownSec: cooldownSec,
-            awaySec: awaySec == 0 ? nil : awaySec))
+            awaySec: awaySec == 0 ? nil : awaySec,
+            raisedSteps: raisedSteps.isEmpty ? nil : raisedSteps))
     }
 
     /// A rest still running resumes inside it; one that ran out lands on the
@@ -541,6 +542,7 @@ extension WorkoutFlowView {
         // the decision without saying so, and the sets already recorded would
         // then be followed by a shorter one for no reason anybody could see.
         holdDeclared = snap.holdDeclaredSec
+        raisedSteps = snap.raises
         if snap.atFeedback == true {
             phase = .feedback
             return

@@ -80,6 +80,9 @@ extension AppStore {
             durationSec: redo.record.durationSec,
             warmupSec: redo.record.warmupSec, cooldownSec: redo.record.cooldownSec,
             interrupted: redo.record.interrupted,
+            // The addition was the person's decision about the movement, not
+            // about the rating: a changed rating keeps it.
+            raised: redo.record.raisedSteps ?? [:],
             date: redo.record.date)
         // Apple Health already holds this workout and nothing about it changed
         // — same day, same duration, same effort. Carrying the mark over is

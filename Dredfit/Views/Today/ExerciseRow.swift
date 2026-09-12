@@ -115,19 +115,31 @@ struct ExerciseRow: View {
                       defaultValue: "An easier variation than last time.")
     }
 
-    /// All three, in the order they are read: what happened to the name on the
-    /// left, then to the number on the right, then what stands after both. One
-    /// place, so Today and the next-workout sheet cannot drift into two
-    /// explanations of one plan.
+    /// The part of this plan the person asked for themselves on the last
+    /// workout's summary (§41.13). Said in the plan's own row, where the
+    /// number stands: a rise that was your decision must not read as the
+    /// app's — the step-down note above exists for exactly the mirror case.
+    static func raisedNote(steps: Int, unit: LoadUnit) -> String? {
+        guard steps > 0 else { return nil }
+        return String(localized: "plan.raised",
+                      defaultValue: "\(RaiseLabel.text(steps: steps, unit: unit)) — your addition")
+    }
+
+    /// All of them, in the order they are read: what happened to the name on
+    /// the left, then to the number on the right, then what stands after
+    /// both. One place, so Today and the next-workout sheet cannot drift into
+    /// two explanations of one plan.
     ///
-    /// The two newer facts carry a default because `false` here means "no
-    /// claim", never "did not happen" — a caller with nothing to say says
-    /// nothing. Both screens pass all four explicitly; the default is what
+    /// The newer facts carry a default because `false` (or zero) here means
+    /// "no claim", never "did not happen" — a caller with nothing to say says
+    /// nothing. Both screens pass all five explicitly; the default is what
     /// keeps the pair the tests pin readable as the pair it was.
     static func notes(_ exercise: SessionExercise, setCameBack: Bool,
                       easedByHand: Bool = false,
-                      variationDropped: Bool = false) -> [String] {
+                      variationDropped: Bool = false,
+                      raisedSteps: Int = 0) -> [String] {
         [variationNote(easedByHand: easedByHand, dropped: variationDropped),
+         raisedNote(steps: raisedSteps, unit: exercise.unit),
          note(setCameBack: setCameBack),
          probeNote(exercise)].compactMap { $0 }
     }

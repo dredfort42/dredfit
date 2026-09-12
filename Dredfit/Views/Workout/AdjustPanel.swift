@@ -12,6 +12,10 @@ struct AdjustPanel: View {
     /// alike, so what this panel offers and what a hold stopped early rounds
     /// to are the same grid.
     let unit: LoadUnit
+    /// A narrower range than the corridor, when the caller knows one. The
+    /// summary of a hold passes the clock as the ceiling on every set but
+    /// the last (`SetFacts.correctionRange`); nil is the corridor itself.
+    var range: ClosedRange<Int>?
     let onConfirm: () -> Void
 
     /// How long a finger has to stay down before the panel starts counting on
@@ -66,10 +70,20 @@ struct AdjustPanel: View {
         .onDisappear { endRepeat() }
     }
 
+    private var bounds: ClosedRange<Int> { range ?? SetFacts.corridor(for: unit) }
+
     private func bump(_ dir: Int) {
-        let range = SetFacts.corridor(for: unit)
         let stepped = value + dir
-        value = min(max(stepped, range.lowerBound), range.upperBound)
+        value = min(max(stepped, bounds.lowerBound), bounds.upperBound)
+    }
+
+    /// A stepper at its bound is a stepper with nothing to do in that
+    /// direction, and it says so rather than swallowing the tap: on the
+    /// summary the upper bound is the clock, and a "+" that looked live over
+    /// a number that would not move was the one control on the screen that
+    /// lied (§41.13).
+    private func atBound(_ dir: Int) -> Bool {
+        dir < 0 ? value <= bounds.lowerBound : value >= bounds.upperBound
     }
 
     /// 44, not 40. These were the only targets in the whole workout flow under
@@ -105,6 +119,10 @@ struct AdjustPanel: View {
         .buttonStyle(PressReportingButtonStyle { pressing in
             if pressing { beginRepeat(dir) } else { endRepeat() }
         })
+        // Dimmed AND disabled: the height stays, the tap goes nowhere, and
+        // VoiceOver hears "dimmed" instead of a control that does nothing.
+        .opacity(atBound(dir) ? 0.3 : 1)
+        .disabled(atBound(dir))
         .accessibilityLabel(Text(icon == "minus"
                                  ? String(localized: "Fewer")
                                  : String(localized: "More")))

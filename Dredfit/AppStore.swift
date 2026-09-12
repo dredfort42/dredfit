@@ -573,6 +573,12 @@ final class AppStore {
                          /// so the history can tell "not finished" from
                          /// "skipped" (owner, 05.09.2026).
                          interrupted: Pattern? = nil,
+                         /// Steps added "for next time" per movement
+                         /// (§41.13). Landed by the engine AFTER the rating
+                         /// and the skipped sets — the composed entry point
+                         /// owns that order, which is why the app never
+                         /// applies the raise itself.
+                         raised: [Pattern: Int] = [:],
                          date: Date = .now) -> [Milestone] {
         // Mirror of the engine's replay guard: a session that does not belong
         // to this state must not append a duplicate journal entry either.
@@ -599,7 +605,8 @@ final class AppStore {
                                            skipped: skipped,
                                            setsSkipped: setsSkipped,
                                            gapDays: gapFraction(now: date),
-                                           probes: probes)
+                                           probes: probes,
+                                           raised: raised)
         // What it takes to change this rating afterwards, and which movements
         // it actually eased. Both are facts of THIS moment and of no other:
         // the state before the rating cannot be reconstructed from the journal
@@ -630,7 +637,8 @@ final class AppStore {
             positionsAfter: currentPositions,
             durationSec: durationSec,
             warmupSec: warmupSec, cooldownSec: cooldownSec,
-            interrupted: interrupted))
+            interrupted: interrupted,
+            raisedSteps: raised.isEmpty ? nil : raised))
         persist()
         // A morning workout takes tonight's reminder down with it.
         // NOT `now: date`: the record's date is about the JOURNAL, and
