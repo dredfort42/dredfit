@@ -123,48 +123,6 @@
         }
       }
     },
-    "“Less · On plan · More” — that is enough. If you want to be exact, tap “Went differently” right on the exercise and put in your number.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "„Weniger · Nach Plan · Mehr“ – das reicht. Wenn du es genau haben willst, tippe direkt in der Übung auf „Lief anders“ und trag deine Zahl ein."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "«Menos · Según el plan · Más»: con eso basta. Si quieres precisión, toca «Fue distinto» en el propio ejercicio y escribe tu número."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "« Moins · Comme prévu · Plus » — c’est suffisant. Si tu veux plus de précision, touche « Ça s’est passé autrement » directement sur l’exercice et saisis ton chiffre."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "“Meno · Come previsto · Più”: non serve altro. Se vuoi più precisione, tocca “È andata diversamente” direttamente sull’esercizio e scrivi quanto hai fatto davvero."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "“Menos · Como planejado · Mais”: isso basta. Se quiser precisão, toque em “Foi diferente” no próprio exercício e escreva o seu número."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "«Меньше · По плану · Больше» — этого достаточно. Захочешь точности — нажми «Получилось иначе» прямо в упражнении и впиши, сколько вышло на самом деле."
-          }
-        }
-      },
-      "comment": "'Less' and 'More' are prose shorthand for the full rating answers 'Tough, did less' and 'Easy, could do more' — not a fourth term; use the glossary's rating words."
-    },
     "%@ · %lld×%lld": {
       "localizations": {
         "de": {
@@ -760,53 +718,6 @@
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "%lld min": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld min"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld min"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld min"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld min"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld min"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld min"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld мин"
           }
         }
       }
@@ -2176,52 +2087,6 @@
         }
       }
     },
-    "3–4 rest days a week is the recommended rhythm": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "3–4 Ruhetage pro Woche sind der empfohlene Rhythmus"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "3–4 rest days a week is the recommended rhythm"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "3–4 días de descanso por semana es el ritmo recomendado"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "3–4 jours de repos par semaine, c’est le rythme recommandé"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "3–4 giorni di riposo a settimana sono il ritmo consigliato"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "3–4 dias de descanso por semana é o ritmo recomendado"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "3–4 дня отдыха в неделю — рекомендуемый ритм"
-          }
-        }
-      }
-    },
     "3–4 workouts a week is the sweet spot: strength grows while joints and tendons keep up. Muscle adapts in weeks, tendons in months — rest days protect the slower half.": {
       "localizations": {
         "de": {
@@ -2452,52 +2317,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Несколько легких минут, чтобы подготовить тело. Пропусти, если оно уже разогрето."
-          }
-        }
-      }
-    },
-    "A set is back — your body is keeping up.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ein Satz ist zurück – dein Körper kommt mit."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A set is back — your body is keeping up."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Una serie de vuelta: el cuerpo lo está llevando bien."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Une série revient — ton corps suit."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Una serie è tornata – il corpo regge."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uma série de volta — o corpo está dando conta."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Добавили подход — организм справляется."
           }
         }
       }
@@ -5589,52 +5408,6 @@
         }
       }
     },
-    "A maximum now takes the strength out of the sets after it. What counts is the whole exercise, not one set.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A maximum now takes the strength out of the sets after it. What counts is the whole exercise, not one set."
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ein Maximum jetzt nimmt den Sätzen danach die Kraft. Es zählt die ganze Übung, nicht ein einzelner Satz."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Un máximo ahora le quita fuerza a las series siguientes. Cuenta el ejercicio entero, no una sola serie."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Un maximum maintenant enlève de la force aux séries suivantes. C’est tout l’exercice qui compte, pas une seule série."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Un massimo adesso toglie forza alle serie successive. Conta tutto l’esercizio, non una sola serie."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Um máximo agora tira força das séries seguintes. Conta o exercício inteiro, não uma série só."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Максимум сейчас заберет силы у следующих подходов. Считается все упражнение целиком, а не один подход."
-          }
-        }
-      }
-    },
     "Done": {
       "localizations": {
         "de": {
@@ -5671,47 +5444,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Готово"
-          }
-        }
-      }
-    },
-    "Dredfit gives you a plan, you say how it went, and the next plan shifts. The first workout is deliberately easy — it is the starting point. Answer honestly afterwards and the load becomes yours, step by step.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dredfit gibt dir einen Plan, du sagst, wie es lief, und der nächste Plan zieht nach. Das erste Training ist bewusst leicht – es ist der Ausgangspunkt. Antworte danach ehrlich, und die Belastung passt sich dir Stufe für Stufe an."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dredfit te da un plan, tú dices cómo fue y el siguiente plan se mueve. El primer entrenamiento es fácil a propósito: es el punto de partida. Responde con sinceridad al terminar y la carga se hará tuya, paso a paso."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dredfit te donne un plan, tu dis comment ça s’est passé, et le plan suivant s’ajuste. La première séance est volontairement facile : c’est le point de départ. Réponds ensuite honnêtement, et la charge deviendra la tienne, cran après cran."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dredfit ti dà un piano, tu dici com’è andata e il piano successivo si sposta. Il primo allenamento è facile apposta: è il punto di partenza. Alla fine rispondi con sincerità e il carico diventa tuo, un gradino alla volta."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "O Dredfit te dá um plano, você diz como foi e o plano seguinte se ajusta. O primeiro treino é leve de propósito: é o ponto de partida. Responda com sinceridade depois dele e a carga vira sua, passo a passo."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dredfit дает план, ты говоришь, как прошло, — следующий план сдвигается. Первая тренировка нарочно легкая: это точка отсчета. Ответь после нее честно — и нагрузка шаг за шагом станет твоей."
           }
         }
       }
@@ -6683,47 +6415,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Вращения тазом"
-          }
-        }
-      }
-    },
-    "History": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verlauf"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Historial"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Historique"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Storico"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Histórico"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "История"
           }
         }
       }
@@ -8069,46 +7760,6 @@
         }
       }
     },
-    "More volume": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mehr Volumen"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Más volumen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Plus de volume"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Più volume"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mais volume"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Больше объема"
-          }
-        }
-      }
-    },
     "Next": {
       "localizations": {
         "de": {
@@ -8309,46 +7960,6 @@
         }
       }
     },
-    "next workout eases off": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "das nächste Training wird leichter"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "el siguiente afloja un poco"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "la prochaine séance lève le pied"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "il prossimo sarà più leggero"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "o próximo alivia um pouco"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "следующая будет полегче"
-          }
-        }
-      }
-    },
     "Next: workout %lld · %@": {
       "localizations": {
         "de": {
@@ -8425,47 +8036,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Детали этой тренировки не сохранились."
-          }
-        }
-      }
-    },
-    "No questions about your goal, your level or how much time you have. Open the app and train — the first workout is already waiting. About 31 minutes, no equipment.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keine Fragen nach deinem Ziel, deinem Level oder deiner Zeit. Öffne die App und trainiere – das erste Training wartet schon. Rund 31 Minuten, ohne Geräte."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sin preguntas sobre tu objetivo, tu nivel o el tiempo que tienes. Abre la app y entrena: el primer entrenamiento ya te espera. Unos 31 minutos, sin equipamiento."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aucune question sur ton objectif, ton niveau ou le temps que tu as. Ouvre l’app et entraîne-toi : la première séance t’attend déjà. Environ 31 minutes, sans matériel."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Niente domande su obiettivo, livello o quanto tempo hai. Apri l’app e allenati: il primo allenamento ti aspetta già. Circa 31 minuti, senza attrezzi."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sem perguntas sobre seu objetivo, seu nível ou quanto tempo você tem. Abra o app e treine: o primeiro treino já está esperando. Cerca de 31 minutos, sem equipamento."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Никаких вопросов про цель, уровень и свободное время. Открывай и тренируйся: первая тренировка уже готова. Около 31 минуты, без инвентаря."
           }
         }
       }
@@ -11080,46 +10650,6 @@
         }
       }
     },
-    "tap a number to change it": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tippe eine Zahl an, um sie zu ändern"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "toca un número para cambiarlo"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "touche un nombre pour le modifier"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "tocca un numero per cambiarlo"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "toque em um número para alterá-lo"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "нажми на число, чтобы изменить"
-          }
-        }
-      }
-    },
     "Share": {
       "localizations": {
         "de": {
@@ -11408,99 +10938,6 @@
         }
       }
     },
-    "Skip the cool-down": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Abwärmen überspringen"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Skip the cool-down"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Omitir el enfriamiento"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Passer le retour au calme"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Salta il defaticamento"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pular o desaquecimento"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Пропустить заминку"
-          }
-        }
-      }
-    },
-    "Skip the warm-up": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aufwärmen überspringen"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Skip the warm-up"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Omitir el calentamiento"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Passer l’échauffement"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Salta il riscaldamento"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pular o aquecimento"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Пропустить разминку"
-          }
-        }
-      }
-    },
     "Skip this position": {
       "localizations": {
         "de": {
@@ -11601,6 +11038,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aufwärmen überspringen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip warm-up"
           }
         },
         "es": {
@@ -12490,86 +11933,6 @@
         }
       }
     },
-    "the next one adds a step to the movements that have room for one": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "das nächste legt bei den Bewegungen eine Stufe drauf, die noch Luft haben"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "el siguiente sube un paso en los movimientos que tienen margen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "la prochaine ajoute un cran aux mouvements qui ont de la marge"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "il prossimo aggiunge un gradino ai movimenti che hanno margine"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "o próximo sobe um passo nos movimentos que têm margem"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "следующая прибавит ступень тем движениям, которым есть куда расти"
-          }
-        }
-      }
-    },
-    "the next one asks as much more as each movement allows": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "das nächste legt so viel drauf, wie jede Bewegung zulässt"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "el siguiente pide más, lo que permita cada movimiento"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "la prochaine en demande plus, autant que chaque mouvement le permet"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "il prossimo chiede di più, fin dove ogni movimento lo consente"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "o próximo pede mais, o que cada movimento permitir"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "следующая попросит больше — сколько позволит каждое движение"
-          }
-        }
-      }
-    },
     "The plan met you lower.": {
       "localizations": {
         "de": {
@@ -12606,53 +11969,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "План встретил тебя ниже."
-          }
-        }
-      }
-    },
-    "The work is done. A few minutes of stretching helps it settle.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Die Arbeit ist getan. Ein paar Minuten Dehnen helfen dem Körper, zur Ruhe zu kommen."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The work is done. A few minutes of stretching helps it settle."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "El trabajo está hecho. Unos minutos de estiramiento ayudan a asentarlo."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Le travail est fait. Quelques minutes d’étirements aident à l’assimiler."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Il lavoro è fatto. Qualche minuto di stretching aiuta a farlo sedimentare."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "O trabalho está feito. Alguns minutos de alongamento ajudam a assentar."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Работа сделана. Несколько минут растяжки помогут телу остыть."
           }
         }
       }
@@ -15085,54 +14401,6 @@
         }
       }
     },
-    "next movement in %lld": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "next movement in %lld"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "nächste Bewegung in %lld"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "nuevo movimiento en %lld"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "nouveau mouvement dans %lld"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "nuovo movimento tra %lld"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "novo movimento em %lld"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "новое движение через %lld"
-          }
-        }
-      },
-      "comment": "Progress row, beside the step count: N is the number of STEPS until the probe of the next variation is offered — not days, not workouts. The '— the probe decides' clause was dropped deliberately."
-    },
     "Total steps after: %lld": {
       "extractionState": "manual",
       "localizations": {
@@ -15456,52 +14724,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Перерыв — это нормально. Начнем на несколько ступеней легче: чем длиннее пауза, тем ниже план тебя встретит, а догонит он быстро."
-          }
-        }
-      }
-    },
-    "Did far more than planned? Tap “Went differently” and enter what you actually did — the next plan starts from what you showed.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Deutlich mehr geschafft als geplant? Tippe auf „Lief anders“ und trage ein, was du tatsächlich gemacht hast – der nächste Plan geht von dem aus, was du gezeigt hast."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Did far more than planned? Tap “Went differently” and enter what you actually did — the next plan starts from what you showed."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "¿Te salió muy por encima del plan? Toca «Fue distinto» y pon lo que hiciste de verdad: el siguiente plan parte de lo que mostraste."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tu as fait bien plus que prévu ? Touche « Ça s’est passé autrement » et saisis ce que tu as vraiment fait : le plan suivant part de ce que tu as montré."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hai fatto molto più del previsto? Tocca “È andata diversamente” e inserisci quello che hai fatto davvero – il piano successivo parte da quello che hai mostrato."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Saiu bem acima do plano? Toque em “Foi diferente” e informe o que você realmente fez: o próximo plano parte do que você mostrou."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Вышло сильно больше плана? Нажми «Получилось иначе» и впиши факт — следующий план начнется от показанного."
           }
         }
       }
@@ -16158,100 +15380,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Анкета может ошибаться, факт — нет. Dredfit узнает, что тебе по силам, по реальным тренировкам и держит нагрузку на самой границе."
-          }
-        }
-      }
-    },
-    "Trying the next movement": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Die nächste Bewegung ausprobieren"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trying the next movement"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Probar el siguiente movimiento"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Essayer le mouvement suivant"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Provare il movimento successivo"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Testar o próximo movimento"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Проба следующего движения"
-          }
-        }
-      }
-    },
-    "A harder variation is never handed to you on a guess. When you top out the reps, the LAST set of that exercise becomes a probe: one set of the next movement, four reps or fifteen seconds. Manage it and the next workout starts you there, at three sets of four. Fall short and nothing moves — you stay where you are and the probe comes round again. There is no wrong answer to give it, and the volume of the workout does not change either way.": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Eine schwerere Variante bekommst du nie auf Verdacht. Wenn du bei den Wiederholungen oben angekommen bist, wird der LETZTE Satz dieser Übung zur Probe: ein Satz der nächsten Bewegung, vier Wiederholungen oder fünfzehn Sekunden. Schaffst du ihn, beginnt das nächste Training genau dort – mit drei Sätzen zu je vier. Schaffst du ihn nicht, bewegt sich nichts: Du bleibst, wo du bist, und die Probe kommt wieder. Eine falsche Antwort gibt es hier nicht, und der Umfang des Trainings ändert sich so oder so nicht."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A harder variation is never handed to you on a guess. When you top out the reps, the LAST set of that exercise becomes a probe: one set of the next movement, four reps or fifteen seconds. Manage it and the next workout starts you there, at three sets of four. Fall short and nothing moves — you stay where you are and the probe comes round again. There is no wrong answer to give it, and the volume of the workout does not change either way."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Una variación más difícil nunca se te da a ciegas. Cuando llegas al tope de repeticiones, la ÚLTIMA serie de ese ejercicio se convierte en una prueba: una serie del siguiente movimiento, cuatro repeticiones o quince segundos. Si la pasas, el próximo entrenamiento ya empieza ahí, con tres series de cuatro. Si no llegas, no se mueve nada: te quedas donde estás y la prueba vuelve la próxima vez. No hay respuesta equivocada, y el volumen del entrenamiento no cambia en ningún caso."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Une variante plus dure ne t’est jamais donnée au jugé. Quand les répétitions plafonnent, la DERNIÈRE série de cet exercice devient un essai : une série du mouvement suivant, quatre répétitions ou quinze secondes. Si tu la réussis, la séance suivante démarre là, à trois séries de quatre. Sinon, rien ne bouge : tu restes où tu es et l’essai revient la fois d’après. Il n’y a pas de mauvaise réponse, et le volume de la séance ne change ni dans un cas ni dans l’autre."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Una variante più difficile non ti viene mai data a intuito. Quando le ripetizioni arrivano al tetto, l’ULTIMA serie di quell’esercizio diventa una prova: una serie del movimento successivo, quattro ripetizioni o quindici secondi. Se ce la fai, l’allenamento dopo parte già da lì, con tre serie da quattro. Se non ce la fai, non si muove nulla: resti dove sei e la prova torna la volta successiva. Non c’è una risposta sbagliata, e il volume dell’allenamento non cambia in nessuno dei due casi."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uma variação mais difícil nunca é entregue no palpite. Quando as repetições chegam ao teto, a ÚLTIMA série daquele exercício vira um teste: uma série do próximo movimento, quatro repetições ou quinze segundos. Se der conta, o próximo treino já começa ali, com três séries de quatro. Se não der, nada se move: você fica onde está e o teste volta na próxima vez. Não existe resposta errada, e o volume do treino não muda de um jeito nem de outro."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Сложную вариацию тебе никогда не выдают наугад. Когда повторы упираются в потолок, ПОСЛЕДНИЙ подход этого упражнения становится пробой: один подход следующего движения, четыре повтора или пятнадцать секунд. Справился — следующая тренировка начнется уже там, с трех подходов по четыре. Не справился — ничего не сдвинется: останешься на месте, а проба вернется в следующий раз. Неправильного ответа тут нет, и объем тренировки в любом случае не меняется."
           }
         }
       }
@@ -17178,52 +16306,6 @@
         }
       }
     },
-    "The movement counts as not trained, and any number you entered for it is not kept. Its plan stays exactly as it is.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Die Bewegung gilt als nicht trainiert, und eingegebene Zahlen dazu werden nicht behalten. Der Plan dafür bleibt genau so, wie er ist."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The movement counts as not trained, and any number you entered for it is not kept. Its plan stays exactly as it is."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "El movimiento cuenta como no entrenado y no se guarda ningún número que hayas introducido para él. Su plan se queda exactamente igual."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Le mouvement compte comme non entraîné, et aucun nombre saisi pour lui n’est conservé. Son plan reste exactement tel quel."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Il movimento conta come non allenato e i numeri che hai inserito per questo esercizio non vengono conservati. Il suo piano resta esattamente com’è."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "O movimento conta como não treinado, e nenhum número que você tenha inserido para ele é guardado. O plano dele fica exatamente como está."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Движение считается несделанным, и введенные по нему числа не сохранятся. План по нему останется ровно таким же."
-          }
-        }
-      }
-    },
     "Held": {
       "localizations": {
         "de": {
@@ -17915,6 +16997,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ein Satz ist zurück."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A set is back."
           }
         },
         "es": {
@@ -18915,6 +18003,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "In einem Satz alles zu geben, schwächt die Sätze danach. Es zählt die ganze Übung."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Going all out on one set weakens the ones after it. What counts is the whole exercise."
           }
         },
         "es": {
@@ -20941,6 +20035,12 @@
             "value": "Die Arbeit ist getan. Ein paar Minuten Dehnen helfen dem Körper, zur Ruhe zu kommen. Einige Positionen richten sich nach den Bewegungen, die du heute gemacht hast."
           }
         },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The work is done. A few minutes of stretching helps it settle. Some of the positions follow the movements you did today."
+          }
+        },
         "es": {
           "stringUnit": {
             "state": "translated",
@@ -21712,7 +20812,7 @@
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "плюс %lld повт. в следующий раз"
+            "value": "в следующий раз повторов: +%lld"
           }
         }
       }

@@ -39,6 +39,13 @@ plan says "plan", the fact is a full-width line in the plan's own spelling
 ("Held: 30-22-25 sec", "Actual: 12-12-11"), and the rating screen's list
 reads "actual 30 · 22 · 25" rather than the numbers alone.
 
+The string catalog carries only keys somebody asks for. Twenty-one entries
+had no caller left — sentences reworded on screen in earlier waves whose old
+spelling stayed behind, three of them pinned by name in a test that guarded
+the corpse rather than the string — and six languages were being asked to
+keep them translated. They are gone, and a unit test now fails on any key
+with no literal in the sources.
+
 Engine reference 3.5.0: one new handle, `raiseDose`, walking the dose axis
 only — never a set, never a variation, parked on the grid's ceiling — and
 applied last, over the rating and the skipped sets. Every earlier fixture

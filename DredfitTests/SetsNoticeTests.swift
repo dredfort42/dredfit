@@ -147,6 +147,11 @@ final class SetsNoticeTests: AppStoreTestCase {
     /// exactly what happened last release. Every sentence the wave's screens
     /// carry, all shipping languages, checked against the file rather than the
     /// bundle.
+    ///
+    /// The keys are the LIVE ones. Three entries here kept naming sentences
+    /// that later waves had reworded on screen, so the catalog carried three
+    /// dead keys nobody could delete without going red — a pin that guards
+    /// the corpse rather than the string (12.09.2026).
     func testTheWavesLinesAreInTheCatalogInEveryLanguage() throws {
         let catalogURL = repoRoot.appendingPathComponent("Dredfit/Localizable.xcstrings")
         let data = try Data(contentsOf: catalogURL)
@@ -159,7 +164,7 @@ final class SetsNoticeTests: AppStoreTestCase {
         // went with the third: R30 moved the variation handle into the
         // technique sheet, and the six keys below are what it says there.
         let keys = [
-            "A set is back — your body is keeping up.",
+            "A set is back.",
             "Make it easier",
             "Enter what you actually did. The plan follows your numbers.",
             // The two escapes under the button that logs the set, and what
@@ -181,14 +186,14 @@ final class SetsNoticeTests: AppStoreTestCase {
             "plan.techniqueHint",
             "plan.probeNote",
             "%lld positions · about %lld min",
-            "A maximum now takes the strength out of the sets after it. What counts is the whole exercise, not one set.",
+            "Going all out on one set weakens the ones after it. What counts is the whole exercise.",
             "Cool-down",
             "Start the cool-down",
-            "Skip the cool-down",
-            "The work is done. A few minutes of stretching helps it settle.",
+            "cooldown.skip",
+            "The work is done. A few minutes of stretching helps it settle. Some of the positions follow the movements you did today.",
             "Warm-up",
             "Start the warm-up",
-            "Skip the warm-up",
+            "Skip warm-up",
             "A few easy minutes to get the body ready. Skip it if you are already warm.",
         ]
         for key in keys {
@@ -317,6 +322,67 @@ final class SetsNoticeTests: AppStoreTestCase {
     /// TYPE (`%@` where `%lld` belongs), which no test here ever had. What it
     /// buys is that a string cannot go missing entirely, which is the failure
     /// that actually happens: English in all six languages, both gates green.
+    /// The reverse of the scan above: every key the catalog carries is a
+    /// literal some source file still asks for. Eleven keys sat in the
+    /// catalog with no caller left — three of them pinned by name in
+    /// `testTheWavesLinesAreInTheCatalogInEveryLanguage` after later waves
+    /// had reworded the sentences on screen, so nobody could delete the
+    /// corpses without going red, and six languages went on being asked to
+    /// keep them translated (12.09.2026).
+    ///
+    /// Comments are stripped first: a sentence quoted in a comment is not a
+    /// caller, and four of the eleven were found by a plain grep exactly
+    /// that way. Every quoted literal counts, whatever construct it stands
+    /// in — `Label`, `Section`, `.alert` — because the question here is
+    /// only whether the key is asked for at all.
+    func testEveryCatalogKeyIsStillAskedForBySomeSource() throws {
+        try assertKeysAreLiterals(sources: "Dredfit", catalog: "Dredfit/Localizable.xcstrings")
+        try assertKeysAreLiterals(sources: "DredfitWidgets",
+                                  catalog: "DredfitWidgets/Localizable.xcstrings",
+                                  minimum: 10)
+    }
+
+    private func assertKeysAreLiterals(sources: String, catalog: String,
+                                       minimum: Int = 100,
+                                       file: StaticString = #filePath,
+                                       line: UInt = #line) throws {
+        let data = try Data(contentsOf: repoRoot.appendingPathComponent(catalog))
+        let json = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let keys = try XCTUnwrap(json["strings"] as? [String: Any]).keys
+        let quote = #"\x22"#
+        let literal = try NSRegularExpression(
+            pattern: quote + "{3}" + #"([\s\S]*?)"# + quote + "{3}"
+                + #"|"# + quote + #"((?:[^"# + quote + #"\\\n]|\\.)+)"# + quote)
+        let lineComment = try NSRegularExpression(pattern: #"//[^\n]*"#)
+        let blockComment = try NSRegularExpression(pattern: #"/\*[\s\S]*?\*/"#)
+
+        let dir = repoRoot.appendingPathComponent(sources)
+        let found = try XCTUnwrap(FileManager.default.enumerator(at: dir,
+                                                                 includingPropertiesForKeys: nil))
+        var asked = Set<String>()
+        for case let url as URL in found where url.pathExtension == "swift" {
+            var src = try String(contentsOf: url, encoding: .utf8)
+            for stripper in [blockComment, lineComment] {
+                src = stripper.stringByReplacingMatches(
+                    in: src, range: NSRange(src.startIndex..<src.endIndex, in: src),
+                    withTemplate: "")
+            }
+            let whole = NSRange(src.startIndex..<src.endIndex, in: src)
+            for match in literal.matches(in: src, range: whole) {
+                let body = Range(match.range(at: 1), in: src)
+                    ?? Range(match.range(at: 2), in: src)
+                guard let body else { continue }
+                asked.insert(Self.normalized(Self.unescaped(String(src[body]))))
+            }
+        }
+        XCTAssertGreaterThan(asked.count, minimum, "the scan of \(sources) found almost nothing",
+                             file: file, line: line)
+        for key in keys where !asked.contains(Self.normalized(key)) {
+            XCTFail("\(catalog): \"\(key)\" has no caller left in \(sources) — a dead key "
+                    + "is six translations nobody reads", file: file, line: line)
+        }
+    }
+
     private func assertLiteralsAreKeys(sources: String, catalog: String,
                                        minimum: Int = 100,
                                        file: StaticString = #filePath,
