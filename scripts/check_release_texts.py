@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Fail if the App Store / TestFlight package breaks a rule a script can decide.
 
-    python3 scripts/check_release_texts.py                     # newest appstore/release_texts_*.md
+    python3 scripts/check_release_texts.py                     # newest store/appstore/release_texts_*.md
     python3 scripts/check_release_texts.py path/to/file.md ...
     python3 scripts/check_release_texts.py --list              # the rules and their reasons
 
 `check_translation_rules.py` gates the String Catalogs and says in its own
 docstring that the App Store package cannot be gated, because
-`appstore/release_texts_*.md` is gitignored and never reaches a runner. That is
+`store/appstore/release_texts_*.md` is gitignored and never reaches a runner. That is
 true of CI and was read as "nothing checks it at all" — so the package shipped
 with defects the catalogs could not have: on 2026-09-06 the 2.3.0 file carried
 **eleven Russian words written with a LATIN `e` inside Cyrillic** (лeгкой, трeх,
@@ -180,7 +180,7 @@ def load_config():
 
 
 def newest_package():
-    files = sorted((ROOT / "appstore").glob("release_texts_*.md"))
+    files = sorted((ROOT / "store" / "appstore").glob("release_texts_*.md"))
     return [files[-1]] if files else []
 
 
@@ -245,7 +245,7 @@ def main(argv):
     paths = [a for a in argv if not a.startswith("-")] or newest_package()
     if not paths:
         print("FAIL: no release texts file to check "
-              "(appstore/release_texts_*.md is gitignored — it exists only locally)")
+              "(store/appstore/release_texts_*.md is gitignored — it exists only locally)")
         return 2
 
     config = load_config()

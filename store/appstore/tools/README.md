@@ -72,13 +72,13 @@ the state file and clears the snapshot with it.
 
 ## 2. Capture raw screens
 
-Drop `StoreScreenshots.swift.reference` into `DredfitUITests/` as
+Drop `StoreScreenshots.swift.reference` into `ios/DredfitUITests/` as
 `StoreScreenshots.swift` (synchronized groups pick it up automatically), then:
 
 ```bash
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 TEST_RUNNER_SCREENSHOT_DIR=/path/to/raw xcodebuild test \
-  -project Dredfit.xcodeproj -scheme Dredfit \
+  -project ios/Dredfit.xcodeproj -scheme Dredfit \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max,OS=26.5' \
   -only-testing:DredfitUITests/StoreScreenshots/testSeededRussian \
   -parallel-testing-enabled NO
@@ -215,7 +215,7 @@ would hand a reworded caption the power to break the capture of six locales.
 ## 4. Remove the driver
 
 ```bash
-rm DredfitUITests/StoreScreenshots.swift
+rm ios/DredfitUITests/StoreScreenshots.swift
 ```
 
 It is not part of the suite and must not be left behind: it is slow, it depends

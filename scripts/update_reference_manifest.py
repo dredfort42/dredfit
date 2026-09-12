@@ -4,7 +4,7 @@
 The reference contour (spec, adaptive_engine.js, verify2.js, make_golden.js)
 deliberately lives outside this repository, so "which reference produced this
 fixture" used to be an unprovable claim. This script writes
-DredfitCore/Tests/DredfitCoreTests/Fixtures/reference-manifest.json with the
+ios/DredfitCore/Tests/DredfitCoreTests/Fixtures/reference-manifest.json with the
 generator string and sha256 hashes of the four contour files and of
 golden.json itself. ManifestTests asserts the bundled fixture matches the
 manifest, so CI fails on any fixture changed without provenance.
@@ -25,7 +25,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 REFERENCE = ROOT / "reference"
-FIXTURES = ROOT / "DredfitCore" / "Tests" / "DredfitCoreTests" / "Fixtures"
+FIXTURES = ROOT / "ios" / "DredfitCore" / "Tests" / "DredfitCoreTests" / "Fixtures"
 GOLDEN = FIXTURES / "golden.json"
 MANIFEST = FIXTURES / "reference-manifest.json"
 CONTOUR = ["SPEC-v2.md", "adaptive_engine.js", "make_golden.js", "verify2.js"]

@@ -19,7 +19,7 @@ What it deliberately does NOT carry: terminology, naturalness, tone, length.
 Those are the translator's judgement (`instructions/TRANSLATOR_PROMPT.md`) and a
 reviewer's, and a script that guessed at them would cry wolf until someone
 turned it off. The website (`sitegen/content`) and the App Store package
-(`appstore/release_texts_*.md`) are gitignored and never reach a runner, so
+(`store/appstore/release_texts_*.md`) are gitignored and never reach a runner, so
 neither can be gated in CI. The package is not therefore ungated: run
 `scripts/check_release_texts.py` on it by hand before it goes to App Store
 Connect — it carries the same class of rule and exists because the 2.3.0 file

@@ -32,7 +32,7 @@ build/
 # Swift Package Manager
 #
 # Package.resolved stays tracked: the day DredfitCore takes a dependency, the
-# pinned versions have to travel with the repo. DredfitCore/.swiftpm holds a
+# pinned versions have to travel with the repo. ios/DredfitCore/.swiftpm holds a
 # shared scheme that is tracked too — only the per-user data under it is
 # ignored, by the xcuserdata rule above.
 .swiftpm/configuration/
@@ -40,7 +40,7 @@ build/
 # macOS
 .DS_Store
 
-# Python tooling (scripts/, sitegen/, appstore/tools/)
+# Python tooling (scripts/, sitegen/, store/appstore/tools/)
 __pycache__/
 *.py[cod]
 .venv/
@@ -77,6 +77,16 @@ __pycache__/
 .trae/
 .windsurf/
 CLAUDE.md
+
+# Android (android/ arrives with the Kotlin port; the rules are here first so a
+# keystore or a local SDK path cannot be committed by the scaffold PR itself)
+.gradle/
+.kotlin/
+local.properties
+.idea/
+*.iml
+*.jks
+*.keystore
 
 # Local-only working material
 #

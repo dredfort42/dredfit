@@ -23,7 +23,7 @@ updates:
   # has no external dependencies — kept so updates start flowing (grouped) the
   # day one is added.
   - package-ecosystem: swift
-    directory: /DredfitCore
+    directory: /ios/DredfitCore
     schedule:
       interval: weekly
     target-branch: develop

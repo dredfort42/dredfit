@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Compose framed App Store screenshots in the existing Dredfit style.
 
-Style constants measured from appstore/screenshots/en/s1.png:
+Style constants measured from store/appstore/screenshots/en/s1.png:
 canvas 1320x2868, bg gradient (246,245,242)->(237,235,230),
 frame rect (119,448)-(1200,2715) color (26,26,28) radius ~166, border 30,
 screen rect (149,476)-(1170,2687) radius ~136, pill 320x92 at y506 centered,

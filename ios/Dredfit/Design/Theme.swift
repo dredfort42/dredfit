@@ -9,7 +9,7 @@ import UIKit
 ///
 /// The table is the source of truth for the tools that cannot read an asset
 /// catalog — the landing CSS (`sitegen/build.py`) and the store frame
-/// composer (`appstore/tools/compose.py`). Without it the palette audit has
+/// composer (`store/appstore/tools/compose.py`). Without it the palette audit has
 /// nothing to compare against.
 ///
 ///     token       light     light HC  dark      dark HC

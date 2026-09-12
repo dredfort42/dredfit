@@ -22,15 +22,18 @@ final class SetsNoticeTests: AppStoreTestCase {
     override var tempURLPrefix: String { "dredfit-notice" }
 
     /// The checkout root, from this file's own compile-time path. Derived in
-    /// ONE place — same reasoning as `LifeBenefitTests.repoRoot`: the two
+    /// ONE place — same reasoning as `LifeBenefitTests.iosRoot`: the two
     /// `deletingLastPathComponent()` steps used to be written out twice
     /// below, so moving this file one directory would have had to be noticed
     /// twice, and each copy fails with "no such file" rather than a clear
     /// mis-derived-path error.
-    private var repoRoot: URL {
+    /// Two steps up is `ios/` — the platform root, not the repository root,
+    /// since the Swift side moved under it. Every catalog this test opens
+    /// lives under `ios/`, so the paths below stay relative to it.
+    private var iosRoot: URL {
         URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()   // DredfitTests/
-            .deletingLastPathComponent()   // repo root
+            .deletingLastPathComponent()   // ios/
     }
 
     /// Seeded through the state file, like the app's own load. The pull slot
@@ -153,7 +156,7 @@ final class SetsNoticeTests: AppStoreTestCase {
     /// dead keys nobody could delete without going red — a pin that guards
     /// the corpse rather than the string (12.09.2026).
     func testTheWavesLinesAreInTheCatalogInEveryLanguage() throws {
-        let catalogURL = repoRoot.appendingPathComponent("Dredfit/Localizable.xcstrings")
+        let catalogURL = iosRoot.appendingPathComponent("Dredfit/Localizable.xcstrings")
         let data = try Data(contentsOf: catalogURL)
         let root = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
         let strings = try XCTUnwrap(root["strings"] as? [String: Any])
@@ -276,7 +279,7 @@ final class SetsNoticeTests: AppStoreTestCase {
     /// positional specifiers exist.
     func testNoTextKeyCarriesPositionalSpecifiers() throws {
         for catalog in ["Dredfit/Localizable.xcstrings", "DredfitWidgets/Localizable.xcstrings"] {
-            let data = try Data(contentsOf: repoRoot.appendingPathComponent(catalog))
+            let data = try Data(contentsOf: iosRoot.appendingPathComponent(catalog))
             let json = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
             let keys = try XCTUnwrap(json["strings"] as? [String: Any]).keys
             let identifier = try NSRegularExpression(
@@ -346,7 +349,7 @@ final class SetsNoticeTests: AppStoreTestCase {
                                        minimum: Int = 100,
                                        file: StaticString = #filePath,
                                        line: UInt = #line) throws {
-        let data = try Data(contentsOf: repoRoot.appendingPathComponent(catalog))
+        let data = try Data(contentsOf: iosRoot.appendingPathComponent(catalog))
         let json = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
         let keys = try XCTUnwrap(json["strings"] as? [String: Any]).keys
         let quote = #"\x22"#
@@ -356,7 +359,7 @@ final class SetsNoticeTests: AppStoreTestCase {
         let lineComment = try NSRegularExpression(pattern: #"//[^\n]*"#)
         let blockComment = try NSRegularExpression(pattern: #"/\*[\s\S]*?\*/"#)
 
-        let dir = repoRoot.appendingPathComponent(sources)
+        let dir = iosRoot.appendingPathComponent(sources)
         let found = try XCTUnwrap(FileManager.default.enumerator(at: dir,
                                                                  includingPropertiesForKeys: nil))
         var asked = Set<String>()
@@ -387,7 +390,7 @@ final class SetsNoticeTests: AppStoreTestCase {
                                        minimum: Int = 100,
                                        file: StaticString = #filePath,
                                        line: UInt = #line) throws {
-        let data = try Data(contentsOf: repoRoot.appendingPathComponent(catalog))
+        let data = try Data(contentsOf: iosRoot.appendingPathComponent(catalog))
         let json = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
         let keys = Set(try XCTUnwrap(json["strings"] as? [String: Any]).keys.map(Self.normalized))
 
@@ -416,7 +419,7 @@ final class SetsNoticeTests: AppStoreTestCase {
             pattern: call + #"\s*(?:"# + quote + "{3}" + #"([\s\S]*?)"# + quote + "{3}"
                 + #"|"# + quote + #"((?:[^"# + quote + #"\\\n]|\\.)+)"# + quote + #")"#)
 
-        let dir = repoRoot.appendingPathComponent(sources)
+        let dir = iosRoot.appendingPathComponent(sources)
         let found = try XCTUnwrap(FileManager.default.enumerator(at: dir,
                                                                  includingPropertiesForKeys: nil))
         var checked = 0

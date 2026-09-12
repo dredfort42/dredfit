@@ -26,10 +26,13 @@ final class LifeBenefitTests: XCTestCase {
     /// would have had to be noticed three times — and each copy fails with
     /// "no such file", which reads like a missing catalog rather than a
     /// mis-derived path.
-    private var repoRoot: URL {
+    /// Two steps up is `ios/` — the platform root, not the repository root,
+    /// since the Swift side moved under it. Every catalog this test opens
+    /// lives under `ios/`, so the paths below stay relative to it.
+    private var iosRoot: URL {
         URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()   // DredfitTests/
-            .deletingLastPathComponent()   // repo root
+            .deletingLastPathComponent()   // ios/
     }
 
     // MARK: - Base lines
@@ -114,7 +117,7 @@ final class LifeBenefitTests: XCTestCase {
     // MARK: - Catalog completeness (all shipping languages)
 
     func testCatalogCarriesAllShippingLanguagesForEveryLifeKey() throws {
-        let data = try Data(contentsOf: repoRoot
+        let data = try Data(contentsOf: iosRoot
             .appendingPathComponent("Dredfit/Localizable.xcstrings"))
         let root = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
         let strings = try XCTUnwrap(root["strings"] as? [String: Any])
@@ -136,7 +139,7 @@ final class LifeBenefitTests: XCTestCase {
     }
 
     func testRussianLinesAvoidYo() throws {
-        let data = try Data(contentsOf: repoRoot
+        let data = try Data(contentsOf: iosRoot
             .appendingPathComponent("Dredfit/Localizable.xcstrings"))
         let root = try XCTUnwrap(try JSONSerialization.jsonObject(with: data) as? [String: Any])
         let strings = try XCTUnwrap(root["strings"] as? [String: Any])
@@ -164,7 +167,7 @@ final class LifeBenefitTests: XCTestCase {
     /// `check_localization.py` cannot see it either — the value is present and
     /// non-empty, it is simply the key.
     func testNoCatalogEntryIsItsOwnKey() throws {
-        let root = repoRoot
+        let root = iosRoot
         for catalog in ["Dredfit/Localizable.xcstrings",
                         "DredfitWidgets/Localizable.xcstrings",
                         "DredfitCore/Sources/DredfitCore/Resources/Localizable.xcstrings"] {

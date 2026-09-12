@@ -30,7 +30,7 @@ jobs:
         uses: ./.github/actions/setup-xcode
 
       - name: Run tests
-        working-directory: DredfitCore
+        working-directory: ios/DredfitCore
         run: swift test --parallel
 
   gate-contract:
@@ -107,7 +107,7 @@ jobs:
           # JournalSanitizationTests was found at all, after three days of runs
           # that reported nothing.
           xcodebuild test \
-            -project Dredfit.xcodeproj \
+            -project ios/Dredfit.xcodeproj \
             -scheme Dredfit \
             -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.device }}" \
             -skip-testing:DredfitUITests \

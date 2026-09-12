@@ -16,7 +16,7 @@ punctuation, the brand name) — are listed under allow_untranslated in the
 config, or marked "shouldTranslate": false in Xcode (both are honored here).
 
 Stdlib only (runs on the CI runner's Python 3.9), same rules as sitegen and
-appstore/tools.
+store/appstore/tools.
 """
 import json
 import pathlib

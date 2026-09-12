@@ -3,7 +3,7 @@
 //  DredfitUITests
 //
 //  Marketing-screenshot driver — NOT part of the suite: copy into
-//  DredfitUITests/ to capture, delete afterwards. See tools/README.md.
+//  ios/DredfitUITests/ to capture, delete afterwards. See tools/README.md.
 //
 //  It deliberately carries NO `--uitest-*` flag of its own. The live set of
 //  those flags is twelve, and every one of them is passed by a test of the

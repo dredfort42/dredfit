@@ -75,7 +75,7 @@ The App Store build itself is produced and uploaded manually from Xcode (Archive
    ```sh
    xcrun simctl shutdown all && xcrun simctl erase "iPhone 17 Pro"
    set -o pipefail
-   xcodebuild test -project Dredfit.xcodeproj -scheme Dredfit -testPlan Dredfit \
+   xcodebuild test -project ios/Dredfit.xcodeproj -scheme Dredfit -testPlan Dredfit \
      -destination "platform=iOS Simulator,name=iPhone 17 Pro" \
      -parallel-testing-enabled NO -retry-tests-on-failure -test-iterations 3 \
      CODE_SIGNING_ALLOWED=NO
