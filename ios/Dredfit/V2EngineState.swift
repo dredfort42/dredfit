@@ -33,8 +33,12 @@ struct V2EngineState: Codable {
             throw DecodingError.dataCorruptedError(forKey: .levels, in: c,
                                                    debugDescription: "not a v2 state")
         }
-        counter = (try? c.decodeIfPresent(Int.self, forKey: .counter)) as? Int ?? 0
-        hasBar = (try? c.decodeIfPresent(Bool.self, forKey: .hasBar)) as? Bool ?? false
+        // `decode`, not `decodeIfPresent`: under `try?` a missing key and a
+        // malformed one both fall to the default either way, and the plain
+        // form is a single optional — the `as?` that used to flatten the
+        // double one did nothing, as Xcode 26 now says on every build.
+        counter = (try? c.decode(Int.self, forKey: .counter)) ?? 0
+        hasBar = (try? c.decode(Bool.self, forKey: .hasBar)) ?? false
         failStreak = (try? Self.patternMap(c, .failStreak)) ?? [:]
     }
 
