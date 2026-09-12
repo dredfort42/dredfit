@@ -122,6 +122,13 @@ struct WorkoutFlowView: View {
     /// its number into the mean of the working sets would average two
     /// variations. It reaches the engine through its own argument.
     @State var probeActuals: [Pattern: Int] = [:]
+    /// Steps added "for next time" on the summary of a finished hold, per
+    /// movement (§41.13). A DECISION, not a fact: it never touches `actuals`
+    /// and reaches the engine through its own argument, landed after the
+    /// rating. Kept for the session like the facts are, and carried across a
+    /// process death for the same reason the declared time is — coming back
+    /// without it would undo a choice already made on screen.
+    @State var raisedSteps: [Pattern: Int] = [:]
     @State var skippedPatterns: Set<Pattern> = []
     /// Kept apart from `skippedPatterns`: the engine treats both as skips for
     /// the session, but the rating and the history say different things.
@@ -222,6 +229,15 @@ struct WorkoutFlowView: View {
     /// three-second reach allowance. Indices, because that is what the summary
     /// prints beside; cleared with the exercise it describes.
     @State var holdApproxSets: Set<Int> = []
+    /// What the CLOCK wrote for each set of the exercise in front of us, by
+    /// set index — the number `recordHoldActual` produced, before any
+    /// correction by hand. The summary reads its ceiling off this rather
+    /// than off the number in force: a set corrected from 7 down to 5 kept
+    /// re-opening under "the clock saw 5 s", naming a number the person had
+    /// typed as the clock's, and could never be put back up to the 7 the
+    /// clock actually counted (owner, 12.09.2026). Per exercise, like the
+    /// estimate marks, and carried across a process death with them.
+    @State var holdMeasured: [Int: Int] = [:]
     /// Which card of the summary the adjuster is editing, so the panel writes
     /// to the set that was tapped rather than to the set the flow is on.
     @State var summarySet: Int?
@@ -342,6 +358,7 @@ struct WorkoutFlowView: View {
                 FeedbackView(session: session, facts: actuals,
                              setsSkipped: setsSkipped,
                              skipped: skippedPatterns,
+                             raised: raisedSteps,
                              interrupted: interruptedPattern) { result, overrides in
                     let earned = store.completeWorkout(
                         session: session, result: result,
@@ -367,7 +384,10 @@ struct WorkoutFlowView: View {
                         // Named in the journal, not just on this screen: the
                         // history says "not finished" about a movement that
                         // was started, and "skipped" about one that was not.
-                        interrupted: interruptedPattern)
+                        interrupted: interruptedPattern,
+                        // The additions, landed by the engine over the rating
+                        // — never applied here (§41.13).
+                        raised: raisedSteps)
                     if earned.isEmpty {
                         dismiss()
                     } else {
@@ -953,6 +973,7 @@ extension WorkoutFlowView {
         holdDeclared = nil
         holdDeclaring = false
         holdApproxSets.removeAll()
+        holdMeasured.removeAll()
     }
 
     /// Past the exercise in front of us, however it ended — into the next one,

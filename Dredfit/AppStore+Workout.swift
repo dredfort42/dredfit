@@ -150,6 +150,11 @@ extension AppStore {
                                 - (snap.awaySec ?? 0)),
             warmupSec: snap.warmupSec, cooldownSec: snap.cooldownSec,
             interrupted: snap.interrupted ?? settled.interrupted,
+            // Decided on the summaries of movements that are behind; a
+            // movement the settlement skips cannot carry one — the summary
+            // is the last set's screen, and a skipped movement never got
+            // there.
+            raised: snap.raises.filter { !skipped.contains($0.key) },
             date: snap.workoutStart)
         return true
     }

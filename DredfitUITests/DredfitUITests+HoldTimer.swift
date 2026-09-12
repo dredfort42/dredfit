@@ -571,6 +571,12 @@ extension DredfitUITests {
     /// and truncates what follows — correct as it stands, since those sets
     /// have not happened — so before this there was no writer that could
     /// touch set one without deleting sets two and three.
+    ///
+    /// Rewritten with §41.13: THE CLOCK IS THE CEILING on every set but the
+    /// last, so the correction that leaves the others standing is now made
+    /// on the LAST card — the one that may go up — and the first card is
+    /// asked to prove the other half of the rule: its "+" is dead, because
+    /// the clock counted 15 s and a longer 15 s cannot have been held.
     func testCorrectingOneSetOnTheSummaryLeavesTheOthersStanding() {
         launchIntoSession2AndReachPlank("--uitest-fast", "--uitest-hold-short")
         coordinateTap(app.buttons[AX.holdStartExercise])
@@ -578,22 +584,84 @@ extension DredfitUITests {
         let first = app.buttons[AX.summarySet(1)]
         XCTAssertTrue(first.waitForExistence(timeout: 90),
                       "the movement did not reach its summary")
+        let firstBefore = first.label
         let secondBefore = app.buttons[AX.summarySet(2)].label
         let thirdBefore = app.buttons[AX.summarySet(3)].label
-        let firstBefore = first.label
 
+        // Set one: the clock is the ceiling, and the panel says so.
         coordinateTap(first)
         let plus = app.buttons[AX.adjustPlus]
         XCTAssertTrue(plus.waitForExistence(timeout: 5), "the card did not open the stepper")
+        XCTAssertFalse(plus.isEnabled,
+                       "a set the clock ended cannot be corrected UPWARDS — "
+                         + "longer than the clock counted was not held")
+        XCTAssertTrue(app.element(withIdentifier: "summary-ceiling").exists,
+                      "a dimmed control with no reason on screen looks broken")
+        XCTAssertFalse(app.staticTexts[AX.summaryNextPlan].exists,
+                       "the panel takes the block's slot — one thing at a time")
+        app.buttons[AX.adjustConfirm].tap()
+
+        // Set three: nothing follows it, so both directions are open — and
+        // the line above the panel says only what the clock counted.
+        let last = app.buttons[AX.summarySet(3)]
+        XCTAssertTrue(last.waitForExistence(timeout: 5))
+        coordinateTap(last)
+        XCTAssertTrue(plus.waitForExistence(timeout: 5), "the last card did not open the stepper")
+        XCTAssertTrue(plus.isEnabled, "the last set may have been held past the signal")
+        XCTAssertFalse(app.element(withIdentifier: "summary-ceiling").exists,
+                       "the last set has no ceiling to explain")
         for _ in 0..<3 { plus.tap() }
         app.buttons[AX.adjustConfirm].tap()
 
-        XCTAssertTrue(app.buttons[AX.summarySet(1)].waitForExistence(timeout: 5))
-        XCTAssertNotEqual(app.buttons[AX.summarySet(1)].label, firstBefore,
+        XCTAssertTrue(app.buttons[AX.summarySet(3)].waitForExistence(timeout: 5))
+        XCTAssertNotEqual(app.buttons[AX.summarySet(3)].label, thirdBefore,
                           "the tapped card must take the new number")
+        XCTAssertEqual(app.buttons[AX.summarySet(1)].label, firstBefore,
+                       "correcting set three must not touch set one")
         XCTAssertEqual(app.buttons[AX.summarySet(2)].label, secondBefore,
-                       "correcting set one must not touch set two")
-        XCTAssertEqual(app.buttons[AX.summarySet(3)].label, thirdBefore,
-                       "…nor set three, which is the defect this screen exists for")
+                       "…nor set two, which is the defect this screen exists for")
+
+        // Re-opened, the line still names what the CLOCK counted — not the
+        // number just typed. It used to read the corrected value back as the
+        // clock's (owner, 12.09.2026).
+        coordinateTap(app.buttons[AX.summarySet(3)])
+        let line = app.element(withIdentifier: "summary-panel-line")
+        XCTAssertTrue(line.waitForExistence(timeout: 5))
+        XCTAssertTrue(line.label.hasSuffix("the clock saw 5 s"),
+                      "the panel's line must name the clock's number, got “\(line.label)”")
+        app.buttons[AX.adjustConfirm].tap()
+    }
+
+    /// §41.13: the addition "for next time" is its own block and its own
+    /// channel — a tap on it rewrites the sentence that names the next plan,
+    /// touches no card, and reaches the rating as a decision of its own.
+    func testAnAdditionForNextTimeRewritesThePlanAndReachesTheRating() {
+        launchIntoSession2AndReachPlank("--uitest-fast", "--uitest-hold-short")
+        coordinateTap(app.buttons[AX.holdStartExercise])
+
+        let sentence = app.staticTexts[AX.summaryNextPlan]
+        XCTAssertTrue(sentence.waitForExistence(timeout: 90),
+                      "the summary must say what the next plan will be")
+        let cardsBefore = (1...3).map { app.buttons[AX.summarySet($0)].label }
+        let promised = sentence.label
+        // The spoken label, which is what `.label` returns for a text that
+        // carries one: "+0 s" is what the eye reads.
+        XCTAssertEqual(app.staticTexts[AX.raiseValue].label, "plus 0 seconds for next time")
+
+        app.buttons[AX.raisePlus].tap()
+        XCTAssertEqual(app.staticTexts[AX.raiseValue].label, "plus 5 seconds for next time")
+        XCTAssertNotEqual(sentence.label, promised,
+                          "the sentence itself must show the raised plan — "
+                            + "not a total beside the stepper")
+        XCTAssertEqual((1...3).map { app.buttons[AX.summarySet($0)].label }, cardsBefore,
+                       "an addition for next time is not a fact about today")
+        app.buttons[AX.raiseMinus].tap()
+        XCTAssertEqual(sentence.label, promised, "minus takes the addition back")
+        app.buttons[AX.raisePlus].tap()
+
+        // The decision travels: it is listed where the rating is given.
+        driver.completeWorkout()
+        XCTAssertTrue(app.element(withIdentifier: AX.feedbackRaised("core_anti_ext")).exists,
+                      "the rating screen must list the addition, so it is seen to stand")
     }
 }

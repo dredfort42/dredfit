@@ -396,4 +396,67 @@ final class EngineV3Tests: XCTestCase {
         XCTAssertEqual(down.doses[.pullBar], 15, "the floor of the hold grid, not its ceiling")
         XCTAssertEqual(Library.unit(.pullBar, down.vars[.pullBar]!), .hold)
     }
+
+    // MARK: - §41.13: "next time, more"
+
+    /// One step is one growth event along the dose: a sub-step, then the
+    /// rung. Two steps from 3×8 give 9-9-8; the raise touches nothing else.
+    func testRaiseDoseWalksSubStepsThenTheRung() {
+        let s = state(.squat, variation: 2, dose: 8, Seed(shown: [2: 8]))
+        let one = Engine.raiseDose(state: s, pattern: .squat, steps: 1)
+        XCTAssertEqual(one.doses[.squat], 8)
+        XCTAssertEqual(one.sub[.squat], 1)
+        let two = Engine.raiseDose(state: s, pattern: .squat, steps: 2)
+        XCTAssertEqual(two.sub[.squat], 2)
+        XCTAssertEqual(two.shown, s.shown, "the journal is written by an appearance, never by a wish")
+        XCTAssertEqual(two.counter, s.counter)
+        // Three sub-steps on a band of three is the next rung.
+        var three = two
+        three = Engine.raiseDose(state: three, pattern: .squat, steps: 1)
+        XCTAssertEqual(three.doses[.squat], 9)
+        XCTAssertNil(three.sub[.squat])
+    }
+
+    /// The grid's ceiling parks the raise: the steps burn, nothing crosses
+    /// into a variation, and the clamp on the input is the engine's
+    /// (`raiseStepsMax`), not the caller's good manners.
+    func testRaiseDoseStandsOnTheCeilingAndClampsItsInput() {
+        let top = squatAtCeiling()
+        let parked = Engine.raiseDose(state: top, pattern: .squat, steps: 2)
+        XCTAssertEqual(parked.doses[.squat], 15)
+        XCTAssertEqual(parked.vars[.squat], 1, "a raise never crosses a variation")
+        let s = state(.squat, variation: 2, dose: 8)
+        XCTAssertEqual(Engine.raiseDose(state: s, pattern: .squat, steps: 99).sub[.squat],
+                       EngineConfig.raiseStepsMax)
+        XCTAssertEqual(Engine.raiseDose(state: s, pattern: .squat, steps: -1), s)
+        XCTAssertEqual(Engine.raiseDose(state: s, pattern: .squat, steps: 0), s)
+    }
+
+    /// Under a cut the sub-step counts the sets ON SCREEN: with one set
+    /// taken off a band of three, the second step must still change the plan
+    /// — the band count would clamp it straight back (`effSub`).
+    func testRaiseDoseCountsTheSetsOnScreenUnderACut() {
+        var s = state(.squat, variation: 2, dose: 8)
+        s.cut[.squat] = 1
+        let one = Engine.raiseDose(state: s, pattern: .squat, steps: 1)
+        XCTAssertEqual(one.sub[.squat], 1)
+        let two = Engine.raiseDose(state: s, pattern: .squat, steps: 2)
+        XCTAssertEqual(two.doses[.squat], 9, "the second step is the rung, not a clamped repeat")
+        XCTAssertNil(two.sub[.squat])
+        XCTAssertEqual(two.cut[.squat], 1, "the cut is not the raise's to touch")
+    }
+
+    /// The composed entry point lands the raise LAST: a fact above the plan
+    /// sets the dose from the fact and zeroes the sub-step, and a raise
+    /// applied before it would vanish. Here it survives.
+    func testRaiseLandsAfterTheFeedback() throws {
+        let s = state(.squat, variation: 2, dose: 8, Seed(shown: [2: 8]))
+        let session = Engine.generateSession(s)
+        let next = Engine.applyFeedback(state: s, session: session, result: .plan,
+                                        overrides: [.squat: 10], skipped: [],
+                                        setsSkipped: [:], gapDays: 7 / 3,
+                                        probes: [:], raised: [.squat: 1])
+        XCTAssertEqual(next.doses[.squat], 10, "fast adaptation: the fact is the next dose")
+        XCTAssertEqual(next.sub[.squat], 1, "…and the raise sits on top of it")
+    }
 }

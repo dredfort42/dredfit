@@ -42,7 +42,8 @@ struct NextWorkoutSheet: View {
                     ex,
                     setCameBack: store.aSetJustCameBack(in: ex),
                     easedByHand: store.easedByHandAhead.contains(ex.pattern),
-                    variationDropped: store.aVariationJustDropped(in: ex))
+                    variationDropped: store.aVariationJustDropped(in: ex),
+            raisedSteps: store.raisedForNextPlan(ex.pattern))
                 Button {
                     techniqueFor = TechniqueTarget(ex)
                 } label: {

@@ -137,7 +137,14 @@ struct HistorySheet: View {
                     .foregroundStyle(Theme.ink)
                 Spacer()
                 VStack(alignment: .trailing, spacing: 2) {
-                    Text(ex.display)
+                    // NAMED. Three rows of numbers can stand under one
+                    // movement — the plan, what was done, what it became —
+                    // and this one used to be the only one without a word.
+                    // With the fact in accent directly under it and "After:"
+                    // directly below, the reader had to guess which of the
+                    // three was which, and guessed that the accent was the
+                    // future (owner, workout 37, 12.09.2026).
+                    Text("plan \(ex.display)")
                         .dredfitFont(15)
                         .monospacedDigit()
                         .foregroundStyle(Theme.ink2)
@@ -159,12 +166,10 @@ struct HistorySheet: View {
                             // than what happened (nightly 06.09.2026).
                             .accessibilityIdentifier(
                                 "history-skipword-\(ex.pattern.rawValue)")
-                    } else if let fact = Self.setFacts(ex, in: shown) {
-                        SetFactsLabel(values: fact.values,
-                                      reported: fact.reported, size: 12.5)
                     }
                 }
             }
+            factRow(ex)
             if let probe = Self.probeLine(ex, in: shown) {
                 Text(probe)
                     .dredfitFont(12.5)
@@ -202,6 +207,27 @@ struct HistorySheet: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .accessibilityIdentifier("history-after-\(ex.pattern.rawValue)")
             }
+        }
+    }
+
+    /// The fact, under the row at full width and in the PLAN'S OWN SPELLING
+    /// — "30-30-25 sec per side", not "30 · 30 · 25" — so the two lines can
+    /// be read against each other digit for digit. Accented, because it is
+    /// the one line that says the session went differently from the plan;
+    /// the word in front of it is what stops the accent being read as "next
+    /// time" (owner, workout 37, 12.09.2026).
+    @ViewBuilder
+    private func factRow(_ ex: SessionExercise) -> some View {
+        if shown.skipped?.contains(ex.pattern) != true,
+           shown.discomfort?.contains(ex.pattern) != true,
+           let fact = Self.factLine(ex, in: shown) {
+            Text(fact)
+                .dredfitFont(12.5, weight: .semibold)
+                .monospacedDigit()
+                .foregroundStyle(Theme.accentText)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityIdentifier("history-actual-\(ex.pattern.rawValue)")
         }
     }
 
@@ -373,20 +399,50 @@ struct HistorySheet: View {
     static func afterLine(_ ex: SessionExercise, in record: WorkoutRecord) -> String? {
         guard let after = record.positionsAfter?[ex.pattern],
               (1...Library.count(ex.pattern)).contains(after.variation) else { return nil }
-        let stood = asPlanned(ex.pattern, after)
-        guard after.variation != ex.variation else {
+        let stood = after.asPlanned(ex.pattern)
+        let line: String
+        if after.variation == ex.variation {
             guard stood.display != ex.display,
                   !onlyMoreSets(stood, than: ex) else { return nil }
-            return String(localized: "history.after",
+            line = String(localized: "history.after",
                           defaultValue: "After: \(stood.display)")
+        } else {
+            // A movement that changed variation says which one: the dose
+            // alone reads like a collapse ("3×15" → "3×4") where it is the
+            // grid floor of a harder movement, and the probe line above says
+            // a probe passed without ever saying where it landed.
+            let name = Library.name(ex.pattern, after.variation)
+            line = String(localized: "history.afterVariation",
+                          defaultValue: "After: \(name) · \(stood.display)")
         }
-        // A movement that changed variation says which one: the dose alone
-        // reads like a collapse ("3×15" → "3×4") where it is the grid floor of
-        // a harder movement, and the probe line above says a probe passed
-        // without ever saying where it landed.
-        let name = Library.name(ex.pattern, after.variation)
-        return String(localized: "history.afterVariation",
-                      defaultValue: "After: \(name) · \(stood.display)")
+        // The part of the step that was the person's own (§41.13). Two weeks
+        // on, the chart shows a rise and nothing else on this sheet would say
+        // who took it.
+        guard let steps = record.raisedSteps?[ex.pattern], steps > 0 else { return line }
+        let unit = Library.unit(ex.pattern, after.variation)
+        return String(localized: "history.afterRaised",
+                      defaultValue: "\(line) · \(RaiseLabel.text(steps: steps, unit: unit)) of it is your addition")
+    }
+
+    /// What was actually done, in the plan's own spelling — or nil when it
+    /// simply ran to plan, exactly as `setFacts` decides. Sets that all ran
+    /// at one number print as a uniform plan does, "2×40"; a single number
+    /// from a record written before per-set facts stood for every set of the
+    /// plan, which is what "3×10" says.
+    static func factLine(_ ex: SessionExercise, in record: WorkoutRecord) -> String? {
+        guard let fact = setFacts(ex, in: record) else { return nil }
+        let uniform = fact.values.allSatisfy { $0 == fact.values[0] }
+        let perSet = record.setActuals?[ex.pattern] != nil
+        let done = SessionExercise(pattern: ex.pattern, name: ex.name,
+                                   variation: ex.variation, unit: ex.unit,
+                                   load: uniform ? fact.values[0] : ex.load,
+                                   perSide: ex.perSide,
+                                   sets: perSet ? fact.values.count : max(ex.sets, 1),
+                                   restSetSec: 0, restExerciseSec: 0,
+                                   loads: uniform ? nil : fact.values, probe: nil)
+        return ex.unit == .hold
+            ? String(localized: "history.held", defaultValue: "Held: \(done.display)")
+            : String(localized: "history.actual", defaultValue: "Actual: \(done.display)")
     }
 
     /// Whether the one thing separating a position from the plan that ran is
@@ -411,47 +467,6 @@ struct HistorySheet: View {
     /// exercise it is handed rather than from the position behind it.
     private static func subSteps(_ ex: SessionExercise) -> Int {
         ex.loads?.filter { $0 > ex.load }.count ?? 0
-    }
-
-    /// One recorded position stated the way a plan states one.
-    ///
-    /// Built as a `SessionExercise` rather than spelled out here so the line
-    /// under a row is written in the same words as the line on it — the use of
-    /// that initialiser from outside the engine that its own doc comment
-    /// sanctions — and so the two can be compared at all.
-    ///
-    /// Two of the six coordinates have to be resolved first. `cut` takes sets
-    /// off WITHOUT moving `sets`, so the raw coordinate would read HIGHER than
-    /// the plan right after a descent took some away (§36.3); `sub` is what
-    /// makes a plan read "9-8-8" instead of "3×8". Both resolve the way
-    /// `Engine.fit` resolves them, the top-rung disable included — above it the
-    /// next rung belongs to another band, and adding a step there would print a
-    /// dose the grid does not have.
-    private static func asPlanned(_ pattern: Pattern,
-                                  _ position: RecordedPosition) -> SessionExercise {
-        let unit = Library.unit(pattern, position.variation)
-        let grid = Dose.grid(unit)
-        // Bounded by the SCALE, not by the record: `sets` comes back out of the
-        // journal clamped only to a million, and this runs in a row body on the
-        // main thread — the allocation `SessionExercise.perSetLoads` documents.
-        // No position ever had more sets than the scale has bands, so the valid
-        // domain never notices.
-        let standing = position.sets
-            - min(max(position.cut ?? 0, 0), Engine.cutMax(sets: position.sets))
-        let sets = min(max(standing, 0), EngineConfig.setsMax)
-        let sub = position.dose >= grid.max
-            ? 0
-            : min(max(position.sub ?? 0, 0), max(sets - 1, 0))
-        let loads: [Int]? = sub > 0
-            ? (0..<sets).map { $0 < sub ? position.dose + grid.step : position.dose }
-            : nil
-        return SessionExercise(pattern: pattern,
-                               name: Library.name(pattern, position.variation),
-                               variation: position.variation, unit: unit,
-                               load: position.dose,
-                               perSide: Library.sides(pattern, position.variation) == 2,
-                               sets: sets, restSetSec: 0, restExerciseSec: 0,
-                               loads: loads, probe: nil)
     }
 
     /// How long the workout occupied, and only while that clock can still be

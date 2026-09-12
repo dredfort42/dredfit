@@ -381,6 +381,9 @@ extension WorkoutFlowView {
             return
         }
         actuals = SetFacts.recording(held, in: actuals, exercise, set: setIndex)
+        // The clock's own word on this set, kept apart from the fact it may
+        // later be corrected into — see `holdMeasured`.
+        holdMeasured[setIndex] = held
     }
 
     // MARK: - Audible countdown of the last rest seconds
@@ -404,6 +407,7 @@ extension WorkoutFlowView {
     /// this movement earns, or the cool-down when it was the last one.
     func leaveExerciseSummary() {
         holdApproxSets.removeAll()
+        holdMeasured.removeAll()
         completeSet()
     }
 
@@ -490,9 +494,11 @@ extension WorkoutFlowView {
             atExerciseSummary: phase == .exerciseSummary ? true : nil,
             holdDeclaredSec: holdDeclared,
             approxSets: holdApproxSets.isEmpty ? nil : Array(holdApproxSets).sorted(),
+            holdMeasuredSec: holdMeasured.isEmpty ? nil : holdMeasured,
             interrupted: interruptedPattern,
             warmupSec: warmupSec, cooldownSec: cooldownSec,
-            awaySec: awaySec == 0 ? nil : awaySec))
+            awaySec: awaySec == 0 ? nil : awaySec,
+            raisedSteps: raisedSteps.isEmpty ? nil : raisedSteps))
     }
 
     /// A rest still running resumes inside it; one that ran out lands on the
@@ -536,11 +542,13 @@ extension WorkoutFlowView {
         warmupSec = snap.warmupSec
         cooldownSec = snap.cooldownSec
         holdApproxSets = snap.approximateSets
+        holdMeasured = snap.measuredHold
         // A declared time outlives a process death, and it has to: coming back
         // to the plan's number after saying you would hold longer would undo
         // the decision without saying so, and the sets already recorded would
         // then be followed by a shorter one for no reason anybody could see.
         holdDeclared = snap.holdDeclaredSec
+        raisedSteps = snap.raises
         if snap.atFeedback == true {
             phase = .feedback
             return
@@ -614,6 +622,7 @@ extension WorkoutFlowView {
         holdDeclared = nil
         holdDeclaring = false
         holdApproxSets.removeAll()
+        holdMeasured.removeAll()
         summarySet = nil
         // A movement is BEHIND US in two places, not one. The summary of a
         // finished hold is the same fact as the rest after a last set: every

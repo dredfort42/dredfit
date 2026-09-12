@@ -1,5 +1,56 @@
 # Changelog
 
+## 2.4.0
+
+**The summary of a hold keeps the past and the future apart.** After the last
+set of a plank, a hollow hold or a side plank, the screen used to show a card
+per set with a set that ran longer than its plan turned orange and captioned
+"+5", and one sentence under the row: "these are the numbers the next plan
+starts from". Read literally — and it was — that sentence asked for the number
+you wanted next time, and the app wrote it down as held. The cards are only
+the past now: the seconds, "set 2", and **the plan on every card**, in the
+same grey whatever the set ran, and one line under them in the words the
+work screen already uses for the act: "Went differently? Tap and correct."
+Correcting a set opens the stepper under one line — **"set 2 · the clock saw 6 s — no more than that goes in"** — because
+on every set but the last the clock is the ceiling: a hold ends when the
+clock says so, so longer than it counted cannot have been held, shorter can,
+and "+" is dimmed at the number the clock saw. The last set has nothing after
+it, and you may have kept holding, so both directions stay open there.
+
+**Next time is its own block, with the one control that changes it.** Above
+**Done**, where the entry panel opens, **Next time** names the plan the app will set — "The app will set
+30-30-25 sec", or "… if you rate the workout on plan" when nothing differed
+from the plan — and a stepper adds to it by steps of the
+ladder, five seconds to one set at a time, up to two. The sentence rewrites
+itself on every tap, so what you read is what will be asked of you, and the
+block turns orange only once you have added something: the accent on this
+screen means your decision, and nothing else. A movement already at the top
+of its grid says so instead of offering a dead control. The addition never
+touches the journal of this workout. It is landed by the engine after your
+rating (§41.13), the rating screen lists it under **Your additions**, history
+says "After: 30-30-30 sec · +5 s of it is your addition", and tomorrow's plan
+carries "+5 s — your addition" under the row so a rise you asked for never
+reads as one the app took by itself.
+
+**History and the rating screen name what they print.** The per-set facts
+used to appear as bare numbers — "30 · 30 · 25" in orange under a grey plan
+and above "After: 30-30-25 sec", three rows with one word between them. The
+plan says "plan", the fact is a full-width line in the plan's own spelling
+("Held: 30-22-25 sec", "Actual: 12-12-11"), and the rating screen's list
+reads "actual 30 · 22 · 25" rather than the numbers alone.
+
+The string catalog carries only keys somebody asks for. Twenty-one entries
+had no caller left — sentences reworded on screen in earlier waves whose old
+spelling stayed behind, three of them pinned by name in a test that guarded
+the corpse rather than the string — and six languages were being asked to
+keep them translated. They are gone, and a unit test now fails on any key
+with no literal in the sources.
+
+Engine reference 3.5.0: one new handle, `raiseDose`, walking the dose axis
+only — never a set, never a variation, parked on the grid's ceiling — and
+applied last, over the rating and the skipped sets. Every earlier fixture
+scenario reproduces bit-for-bit; the new one pins the order.
+
 ## 2.3.0
 
 **A workout you trained and never rated is no longer lost.** The journal was
