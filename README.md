@@ -203,7 +203,7 @@ outside this repository; the recorded fixture is what ships.)
 
 ## Testing
 
-Three layers, 723 automated tests: 74 core + 571 app units + 78 UI tests, all confirmed green on this wave's run — core `[74/74]`, app units `Executed 571 tests, with 0 failures`, and UI a single `** TEST SUCCEEDED **` with no `Failing tests:` section and zero runner relaunches, so the closing tally belongs to the one session that ran (`Executed 77 tests, with 0 failures (0 unexpected) in 2795.7s`, simulator erased before the run).
+Three layers, 723 automated tests: 74 core + 571 app units + 78 UI tests, all confirmed green on this wave's run — core `[74/74]`, app units `Executed 571 tests, with 0 failures`, and UI a single `** TEST SUCCEEDED **` with no `Failing tests:` section and zero runner relaunches, so the closing tally belongs to the one session that ran (`Executed 78 tests, with 0 failures (0 unexpected) in 2901.1s`, simulator erased before the run).
 
 | Layer | Count | What it covers |
 | --- | --- | --- |
