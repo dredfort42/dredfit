@@ -597,14 +597,19 @@ extension DredfitUITests {
                          + "longer than the clock counted was not held")
         XCTAssertTrue(app.element(withIdentifier: "summary-ceiling").exists,
                       "a dimmed control with no reason on screen looks broken")
+        XCTAssertFalse(app.staticTexts[AX.summaryNextPlan].exists,
+                       "the panel takes the block's slot — one thing at a time")
         app.buttons[AX.adjustConfirm].tap()
 
-        // Set three: nothing follows it, so both directions are open.
+        // Set three: nothing follows it, so both directions are open — and
+        // the line above the panel says only what the clock counted.
         let last = app.buttons[AX.summarySet(3)]
         XCTAssertTrue(last.waitForExistence(timeout: 5))
         coordinateTap(last)
         XCTAssertTrue(plus.waitForExistence(timeout: 5), "the last card did not open the stepper")
         XCTAssertTrue(plus.isEnabled, "the last set may have been held past the signal")
+        XCTAssertFalse(app.element(withIdentifier: "summary-ceiling").exists,
+                       "the last set has no ceiling to explain")
         for _ in 0..<3 { plus.tap() }
         app.buttons[AX.adjustConfirm].tap()
 

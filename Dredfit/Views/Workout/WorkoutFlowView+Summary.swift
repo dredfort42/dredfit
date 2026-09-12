@@ -67,36 +67,38 @@ extension WorkoutFlowView {
                             .padding(.top, 18)
                             .padding(.horizontal, 8)
                             .accessibilityIdentifier("summary-counted")
-                        // Stands down while a number is being entered: one
-                        // thing to read at a time, the rule of every message
-                        // slot in the flow.
-                        if !adjusting {
-                            NextTimeBlock(exercise: exercise,
-                                          steps: raisedSteps[exercise.pattern] ?? 0,
-                                          factEntered: SetFacts.override(actuals, for: exercise) != nil,
-                                          preview: nextPlan(withAdditions:),
-                                          onChange: setRaise)
-                                .padding(.top, 22)
-                        }
                         Spacer(minLength: 0)
                     }
                     .frame(maxWidth: .infinity, minHeight: proxy.size.height)
                 }
             }
 
-            // The entry opens in the slot of the button it will hand back to,
-            // exactly as it does on the work screen — with the question it
-            // is answering above it. The panel itself has no words, and
-            // without any this was a stepper on a screen whose only sentence
-            // invited planning; the past tense is what separates a
-            // correction from a wish (§41.13).
+            // ONE SLOT above the button, two occupants. The "next time"
+            // block stands there — the same distance from Done that the
+            // entry panel keeps, because it is the same kind of thing: the
+            // control the screen is about (owner, 12.09.2026; it used to
+            // float under the cards with the whole spare height between it
+            // and the button). While a number is being entered the panel
+            // takes the slot and the block stands down: one thing to read at
+            // a time, the rule of every message slot in the flow.
             if adjusting, let index = summarySet {
-                Text("How long was set \(index + 1) held?")
+                // What the panel is standing on, said above it: which set,
+                // and what the clock counted. On every set but the last the
+                // clock is the ceiling (`SetFacts.correctionRange`) — the "+"
+                // is dimmed at it, and this line is the reason, because a
+                // dimmed control with no reason on screen looks broken. The
+                // last set says only what was counted: nothing followed it,
+                // and both directions are the person's.
+                Text(summaryPanelLine(set: index))
                     .dredfitFont(14)
+                    .monospacedDigit()
                     .foregroundStyle(Theme.ink2)
                     .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
                     .padding(.bottom, 10)
-                    .accessibilityIdentifier("summary-question")
+                    .accessibilityIdentifier(summaryRange(set: index).upperBound
+                                             < SetFacts.corridor(for: .hold).upperBound
+                                             ? "summary-ceiling" : "summary-panel-line")
                 AdjustPanel(value: $adjustValue, unit: .hold,
                             range: summaryRange(set: index)) {
                     actuals = SetFacts.recordingSet(adjustValue, in: actuals,
@@ -115,19 +117,14 @@ extension WorkoutFlowView {
                     summarySet = nil
                     persistProgress()
                 }
-                .padding(.bottom, summaryCeilingNote(set: index) == nil ? 18 : 8)
-                // THE CLOCK IS THE CEILING on every set but the last
-                // (`SetFacts.correctionRange`): the "+" above is dimmed at
-                // it, and this says why — a dimmed control with no reason
-                // is a control that looks broken.
-                if let note = summaryCeilingNote(set: index) {
-                    Text(note)
-                        .dredfitFont(13)
-                        .foregroundStyle(Theme.ink2)
-                        .multilineTextAlignment(.center)
-                        .padding(.bottom, 18)
-                        .accessibilityIdentifier("summary-ceiling")
-                }
+                .padding(.bottom, 18)
+            } else {
+                NextTimeBlock(exercise: exercise,
+                              steps: raisedSteps[exercise.pattern] ?? 0,
+                              factEntered: SetFacts.override(actuals, for: exercise) != nil,
+                              preview: nextPlan(withAdditions:),
+                              onChange: setRaise)
+                    .padding(.bottom, 18)
             }
 
             // "Done", like every other tap that logs work in this app, and
@@ -186,11 +183,14 @@ extension WorkoutFlowView {
                                  isLastSet: index == exercise.sets - 1)
     }
 
-    /// The reason the "+" is dimmed, on the sets that have one.
-    func summaryCeilingNote(set index: Int) -> String? {
+    /// The line above the panel: the set, what the clock counted, and — on
+    /// every set but the last — that nothing above it goes in.
+    func summaryPanelLine(set index: Int) -> String {
+        let measured = SetFacts.inForce(actuals, exercise, set: index)
         let range = summaryRange(set: index)
-        guard range.upperBound < SetFacts.corridor(for: .hold).upperBound else { return nil }
-        return String(localized: "the clock saw \(range.upperBound) s — no more than that goes in")
+        return range.upperBound < SetFacts.corridor(for: .hold).upperBound
+            ? String(localized: "set \(index + 1) · the clock saw \(measured) s — no more than that goes in")
+            : String(localized: "set \(index + 1) · the clock saw \(measured) s")
     }
 
     /// The plan this movement will get with `steps` additions — the engine's
