@@ -30,7 +30,11 @@ touches the journal of this workout. It is landed by the engine after your
 rating (§41.13), the rating screen lists it under **Your additions**, history
 says "After: 30-30-30 sec · +5 s of it is your addition", and tomorrow's plan
 carries "+5 s — your addition" under the row so a rise you asked for never
-reads as one the app took by itself.
+reads as one the app took by itself. Those two lines name the share that
+actually landed: on the top rung of a grid the engine parks what it cannot
+add, and a rise the rating or your own numbers took is not called your
+addition — while the journal keeps what you tapped, so changing the rating
+replays your decision, not the share.
 
 **History and the rating screen name what they print.** The per-set facts
 used to appear as bare numbers — "30 · 30 · 25" in orange under a grey plan

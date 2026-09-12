@@ -109,6 +109,90 @@ final class NextTimeTests: AppStoreTestCase {
         XCTAssertEqual(store.raisedForNextPlan(hold.pattern), 1)
     }
 
+    /// The journal names the share that LANDED and keeps the decision apart
+    /// from it. On the grid's ceiling the engine parks the steps (§41.13):
+    /// "+10 s" on a plan of 3×40 s rated "easy" lands five — the rating's two
+    /// events take the base to 45-45-40, one step turns that into 3×45 and
+    /// the other burns — so tomorrow's plan and the history say five, while
+    /// a changed rating replays the two the person asked for and, under "on
+    /// plan", lands both (review, 12.09.2026).
+    func testTheJournalNamesTheShareThatLandedAndKeepsTheDecision() throws {
+        let store = AppStore(storageURL: tempURL)
+        let pattern = Pattern.coreAntiExt
+        var tries = 0
+        while !store.nextSession.exercises.contains(where: { $0.pattern == pattern }), tries < 12 {
+            store.completeWorkout(session: store.nextSession, result: .plan)
+            tries += 1
+        }
+        // One rung under the top of the hold grid, and never shown there:
+        // the plan reads 3×40 s with no gate in the way.
+        store.engineState.doses[pattern] = Dose.hold.max - Dose.hold.step
+        let session = store.nextSession
+        let hold = try XCTUnwrap(session.exercises.first { $0.pattern == pattern })
+        XCTAssertEqual(hold.load, Dose.hold.max - Dose.hold.step, "the premise: 3×40 s")
+        XCTAssertNil(hold.loads, "the premise: a uniform plan")
+        XCTAssertEqual(hold.sets, EngineConfig.setsBase)
+
+        store.completeWorkout(session: session, result: .more, raised: [pattern: 2])
+        let record = try XCTUnwrap(store.records.last)
+        XCTAssertEqual(record.raisedSteps, [pattern: 2], "the decision is kept as tapped")
+        XCTAssertEqual(record.raisedLanded, [pattern: 1], "one step landed, the other burned")
+        let after = try XCTUnwrap(store.currentPositions[pattern])
+        XCTAssertEqual(after.dose, Dose.hold.max)
+        XCTAssertNil(after.sub)
+        XCTAssertEqual(store.raisedForNextPlan(pattern), 1, "tomorrow's note names the landed share")
+        let base = String(localized: "history.after",
+                          defaultValue: "After: \(hold.withLoads(nil, load: Dose.hold.max).display)")
+        XCTAssertEqual(HistorySheet.afterLine(hold, in: record),
+                       String(localized: "history.afterRaised",
+                              defaultValue: "\(base) · \(RaiseLabel.text(steps: 1, unit: .hold)) of it is your addition"))
+
+        // Under "on plan" the base is 45-40-40 and both steps land.
+        store.changeLastRating(to: .plan)
+        let redone = try XCTUnwrap(store.records.last)
+        XCTAssertEqual(redone.raisedSteps, [pattern: 2], "the decision survived the change")
+        XCTAssertEqual(redone.raisedLanded, [pattern: 2])
+        XCTAssertEqual(store.raisedForNextPlan(pattern), 2)
+        XCTAssertEqual(store.currentPositions[pattern]?.dose, Dose.hold.max)
+    }
+
+    /// The share is what the screens read; a record written before the share
+    /// existed falls back to the decision, and a record that says nothing
+    /// landed says so even though the decision is on it.
+    func testTheShareFallsBackToTheDecisionOnlyWhereThereIsNone() {
+        var record = WorkoutRecord(sessionNumber: 1, date: .now, result: .plan,
+                                   raisedSteps: [.squat: 2])
+        XCTAssertEqual(record.raisedShare(.squat), 2)
+        record.raisedLanded = [:]
+        XCTAssertEqual(record.raisedShare(.squat), 0)
+        record.raisedLanded = [.squat: 1]
+        XCTAssertEqual(record.raisedShare(.squat), 1)
+        XCTAssertEqual(record.raisedShare(.pushH), 0)
+    }
+
+    /// The summary's count after a correction: steps whose plan equals the
+    /// plan one step below are steps the engine will park, and they come off
+    /// the count from the top. A preview that cannot be had leaves the count
+    /// alone — an unknown is not "nothing moves".
+    func testTheStepperCountsOnlyTheStepsThatStillMoveThePlan() {
+        let flat = SessionExercise(pattern: .coreAntiExt, name: "Plank", variation: 1,
+                                   unit: .hold, load: 40, perSide: false, sets: 3,
+                                   restSetSec: 60, restExerciseSec: 60, loads: nil, probe: nil)
+        let raised = flat.withLoads([45, 40, 40])
+        let top = flat.withLoads(nil, load: 45)
+        // 0 → 45-40-40, 1 → 3×45, 2 → 3×45: the second step burns.
+        let plans = [raised, top, top]
+        XCTAssertEqual(NextTimeBlock.stepsThatStillMove(2, preview: { plans[min($0, 2)] }), 1)
+        XCTAssertEqual(NextTimeBlock.stepsThatStillMove(1, preview: { plans[min($0, 2)] }), 1)
+        // Everything parked: the count goes to zero.
+        XCTAssertEqual(NextTimeBlock.stepsThatStillMove(2, preview: { _ in top }), 0)
+        // Every step live: nothing comes off.
+        let live = [raised, top, top.withLoads(nil, load: 50)]
+        XCTAssertEqual(NextTimeBlock.stepsThatStillMove(2, preview: { live[min($0, 2)] }), 2)
+        XCTAssertEqual(NextTimeBlock.stepsThatStillMove(2, preview: { _ in nil }), 2)
+        XCTAssertEqual(NextTimeBlock.stepsThatStillMove(-1, preview: { _ in top }), 0)
+    }
+
     /// The note on tomorrow's plan belongs to a rise that is still standing:
     /// once something else moves the movement, the note stands down. A
     /// fresh store's hold sits on the first variation, where "easier" is
@@ -141,11 +225,13 @@ final class NextTimeTests: AppStoreTestCase {
     func testARaiseOffDiskIsClampedToWhatTheEngineTakes() throws {
         let json = """
         {"sessionNumber": 3, "date": 1000, "result": "plan",
-         "raisedSteps": ["core_anti_ext", 40, "squat", -2]}
+         "raisedSteps": ["core_anti_ext", 40, "squat", -2],
+         "raisedLanded": ["core_anti_ext", 9]}
         """
         let record = try JSONDecoder().decode(WorkoutRecord.self, from: Data(json.utf8))
         XCTAssertEqual(record.raisedSteps?[.coreAntiExt], EngineConfig.raiseStepsMax)
         XCTAssertEqual(record.raisedSteps?[.squat], 0)
+        XCTAssertEqual(record.raisedLanded?[.coreAntiExt], EngineConfig.raiseStepsMax)
     }
 
     // MARK: - The words

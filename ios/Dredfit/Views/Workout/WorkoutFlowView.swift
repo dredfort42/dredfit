@@ -10,16 +10,18 @@ import StoreKit
 import UIKit
 import DredfitCore
 
-// The type is split across five sibling files: the two guided blocks
+// The type is split across seven sibling files: the two guided blocks
 // (+Warmup, +Cooldown), the screen a set is performed on (+Work), the holds
-// and session persistence (+Session), and the pause of a guided block
-// (+BlockPause). The reason is a CI error rather than a style opinion — the
-// lint's hard ceiling on a file is 1200 lines, and this file stood at 1101
-// when the hands-free hold wave arrived with a phase to add.
+// and session persistence (+Session), the pause of a guided block
+// (+BlockPause), the summary of a finished hold (+Summary) and the skips
+// made during the workout (+Skips). The reason is a CI error rather than a
+// style opinion — the lint's hard ceiling on a file is 1200 lines, and this
+// file stood at 1101 when the hands-free hold wave arrived with a phase to
+// add, and at 1159 after §41.13.
 //
 // Swift's `private` is FILE-scoped, so the state and helpers those siblings
 // reach for are declared without it. They are internal to the module and to
-// this type, not API: nothing outside these six files touches them.
+// this type, not API: nothing outside these eight files touches them.
 //
 // The extension at the bottom of THIS file is a different matter. It is here
 // rather than in a sibling because the second ceiling — 600 lines for the
@@ -258,7 +260,7 @@ struct WorkoutFlowView: View {
     @State var holdAutoRun = false
     /// The skip a thumb has asked for and not confirmed yet — see
     /// SkipConfirmation.swift for why one is asked for at all.
-    @State private var pendingSkip: SkipConfirmation?
+    @State var pendingSkip: SkipConfirmation?
 
     @ScaledMetric(relativeTo: .largeTitle) private var restRingSize: CGFloat = 240
     /// The set dots of the work screen. A dot is the size of the caption it
@@ -913,7 +915,7 @@ extension WorkoutFlowView {
     /// pain report — and the report is gone. A person who finds the movement
     /// too hard now reaches for a handle instead, which keeps the movement in
     /// the plan rather than taking it out for weeks.
-    private func leaveExercise() {
+    func leaveExercise() {
         adjusting = false
         holdSecondSide = false
         firstSideHeld = nil
@@ -979,7 +981,7 @@ extension WorkoutFlowView {
     /// Past the exercise in front of us, however it ended — into the next one,
     /// or into the cool-down when there is none. `startCooldown` degrades to
     /// the rating when nothing was performed.
-    private func advancePastExercise() {
+    func advancePastExercise() {
         resetHoldSides()
         resetHoldExercise()
         if isLastExercise {
@@ -992,100 +994,6 @@ extension WorkoutFlowView {
             liveActivity.update(activityWorkState())
             persistProgress()
         }
-    }
-
-    // MARK: - The skip that happens DURING the workout
-
-    /// Whether a skip still leaves a trained movement behind, asked of the
-    /// plan in front of us — the arithmetic itself is `SetFacts.skipFits`,
-    /// where it can be tested without a screen.
-    private func skipsLeaveAMovement(_ count: Int) -> Bool {
-        SetFacts.skipFits(count, of: exercise.sets,
-                          alreadySkipped: setsSkipped[exercise.pattern] ?? 0)
-    }
-
-    /// Sets of this exercise already behind and actually performed.
-    private var setsPerformedHere: Int {
-        setIndex - (setsSkipped[exercise.pattern] ?? 0)
-    }
-
-    /// "Skip this set": the set is not performed and the next one is up.
-    ///
-    /// No rest on the way out — there is nothing to recover from, and the
-    /// minutes are the whole point of the tap.
-    private func skipSet() {
-        // Skipping the PROBE takes no volume off anything: it was never a set
-        // of the planned movement. The outcome is "unresolved" (§40.4) — the
-        // probe simply comes back next time — and the appearance is spent
-        // exactly as it would have been.
-        if onProbeSet {
-            adjusting = false
-            probeActuals.removeValue(forKey: exercise.pattern)
-            advancePastExercise()
-            return
-        }
-        guard skipsLeaveAMovement(1) else { leaveExercise(); return }
-        adjusting = false
-        setsSkipped[exercise.pattern, default: 0] += 1
-        if isLastSet {
-            advancePastExercise()
-        } else {
-            resetHoldSides()   // see `resetHoldSides`: this path skips it otherwise
-            setIndex += 1
-            phase = .work
-            liveActivity.update(activityWorkState())
-            persistProgress()
-        }
-    }
-
-    /// "Skip the remaining sets": one tap for the whole movement. Sixteen
-    /// separate taps to fit a session into 45 minutes is a thing nobody does;
-    /// three to six is.
-    private func skipRestOfExercise() {
-        // Only the WORKING sets can be taken off; on the probe set there are
-        // none left, and the probe itself is not volume.
-        let left = max(0, exercise.sets - setIndex)
-        guard skipsLeaveAMovement(left) else { leaveExercise(); return }
-        adjusting = false
-        setsSkipped[exercise.pattern, default: 0] += left
-        advancePastExercise()
-    }
-
-    /// The set-level skip, or nil when it would take the movement with it —
-    /// then the escape beside it says so in its own label instead of doing it
-    /// quietly under a word that promises less.
-    var setSkipAction: (() -> Void)? {
-        // The probe can ALWAYS be skipped (§40.4): it is not a set of the
-        // planned movement, so skipping it takes no volume off anything and
-        // cannot leave the movement untrained. The outcome is "unresolved",
-        // and the probe comes back on the next appearance.
-        if onProbeSet {
-            return { pendingSkip = SkipConfirmation(kind: .probeSet) { skipSet() } }
-        }
-        guard skipsLeaveAMovement(1) else { return nil }
-        return { pendingSkip = SkipConfirmation(kind: .workingSet) { skipSet() } }
-    }
-
-    /// The exercise-level escape, and the landing its label names. The two
-    /// controls collapse into one whenever they would do the same thing: on
-    /// the floor both take the movement, and on the last set "the remaining
-    /// sets" ARE this set.
-    var exerciseEscape: ExerciseActionsRow.Escape? {
-        // On the probe set the working sets are already behind: "skip the
-        // exercise" would throw away a movement that was in fact trained.
-        // Skipping the probe is the set-level control beside this one.
-        guard !onProbeSet else { return nil }
-        let leave = ExerciseActionsRow.Escape(
-            title: String(localized: "Skip exercise"),
-            identifier: "exercise-skip",
-            action: { pendingSkip = SkipConfirmation(kind: .exercise) { leaveExercise() } })
-        guard skipsLeaveAMovement(1) else { return leave }
-        guard !isLastSet else { return nil }
-        guard setsPerformedHere >= EngineConfig.setsFloor else { return leave }
-        return ExerciseActionsRow.Escape(
-            title: String(localized: "Skip remaining sets"),
-            identifier: "exercise-skip-rest",
-            action: { pendingSkip = SkipConfirmation(kind: .restOfSets) { skipRestOfExercise() } })
     }
 
     private func startRest(_ seconds: Int) {

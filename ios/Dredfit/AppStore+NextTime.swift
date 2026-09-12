@@ -42,11 +42,33 @@ extension AppStore {
     /// too once anything else has moved the movement since the rating (an
     /// easier variation by hand, a decay): the note names a rise that is
     /// still standing, not one that was.
+    ///
+    /// The LANDED share, not the taps: on the grid's ceiling the engine
+    /// parks a raise, and the note is about the rise that stood.
     func raisedForNextPlan(_ pattern: Pattern) -> Int {
         guard let last = records.last,
               last.sessionNumber == engineState.counter,
-              let steps = last.raisedSteps?[pattern], steps > 0,
               last.positionsAfter?[pattern] == currentPositions[pattern] else { return 0 }
-        return min(steps, EngineConfig.raiseStepsMax)
+        return min(max(last.raisedShare(pattern), 0), EngineConfig.raiseStepsMax)
+    }
+
+    /// The share of `raised` that moved a position: the growth events
+    /// between the state the rating alone would have left and the one it
+    /// left with the raise on top. One step of `raiseDose` is exactly one
+    /// event along the ladder's measure — a sub-step, or the rung a full
+    /// band of sub-steps turns into — so the difference of the two
+    /// ordinals counts the steps that landed, and the engine's own
+    /// parking on the ceiling (§41.13) shows up here as steps that did
+    /// not. Bounded by the taps: nothing else moves between the two
+    /// states, but a count the journal will print should not be able to
+    /// exceed the decision it describes even if that changes.
+    static func landed(_ raised: [Pattern: Int],
+                       from unraised: EngineState, to next: EngineState) -> [Pattern: Int] {
+        var out: [Pattern: Int] = [:]
+        for (pattern, steps) in raised where steps > 0 {
+            let moved = Engine.progress(next, pattern) - Engine.progress(unraised, pattern)
+            if moved > 0 { out[pattern] = min(steps, moved) }
+        }
+        return out
     }
 }

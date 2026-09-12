@@ -139,6 +139,27 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     /// Optional with a nil default like every field added to a persisted
     /// type.
     var raisedSteps: [Pattern: Int]?
+    /// The share of `raisedSteps` that MOVED the position, per movement —
+    /// the part of the plan after this record that may be called the
+    /// person's own. The engine parks a raise on the grid's ceiling
+    /// (§41.13): a fact above the plan or a "more" rating lands the base on
+    /// the top rung and the steps burn, and a note reading "+10 s — your
+    /// addition" about a rise the fact took inverts the sentence
+    /// `raisedSteps` exists for (review, 12.09.2026). Kept apart from it
+    /// because a changed rating replays the DECISION (`changeLastRating`)
+    /// and the share can differ under the new rating. Written whenever
+    /// `raisedSteps` is, empty when nothing landed; nil only on a record
+    /// from before the field, where `raisedShare` falls back to the
+    /// decision. Optional with a nil default like every field added to a
+    /// persisted type.
+    var raisedLanded: [Pattern: Int]?
+
+    /// What the plan after this record may call the person's own addition
+    /// to one movement: the landed share where the record has one, the
+    /// decision where it predates the share.
+    func raisedShare(_ pattern: Pattern) -> Int {
+        (raisedLanded ?? raisedSteps)?[pattern] ?? 0
+    }
 
     /// The journal is an input too. The engine heals the state it is handed,
     /// but its own snapshots come back out of this file and straight into
@@ -183,6 +204,8 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
         // The range the engine itself accepts (`raiseStepsMax`).
         raisedSteps = try c.decodeIfPresent([Pattern: Int].self, forKey: .raisedSteps)?
             .mapValues { clamp($0, 0, EngineConfig.raiseStepsMax) }
+        raisedLanded = try c.decodeIfPresent([Pattern: Int].self, forKey: .raisedLanded)?
+            .mapValues { clamp($0, 0, EngineConfig.raiseStepsMax) }
     }
 
     init(sessionNumber: Int, date: Date, result: FeedbackResult,
@@ -196,7 +219,8 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
          warmupSec: Int? = nil, cooldownSec: Int? = nil,
          healthExported: Bool? = nil,
          interrupted: Pattern? = nil,
-         raisedSteps: [Pattern: Int]? = nil) {
+         raisedSteps: [Pattern: Int]? = nil,
+         raisedLanded: [Pattern: Int]? = nil) {
         self.sessionNumber = sessionNumber
         self.date = date
         self.result = result
@@ -215,6 +239,7 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
         self.healthExported = healthExported
         self.interrupted = interrupted
         self.raisedSteps = raisedSteps
+        self.raisedLanded = raisedLanded
     }
 }
 

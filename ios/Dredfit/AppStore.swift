@@ -607,6 +607,21 @@ final class AppStore {
                                            gapDays: gapFraction(now: date),
                                            probes: probes,
                                            raised: raised)
+        // The share of the raise that MOVED the position — the same call
+        // once more without it, and the ordinals compared. On the grid's
+        // ceiling the engine parks a raise (§41.13), so the taps and the
+        // rise can differ, and the journal names the rise: the taps stay in
+        // `raisedSteps` because a changed rating replays them.
+        var landed: [Pattern: Int] = [:]
+        if !raised.isEmpty {
+            let unraised = Engine.applyFeedback(state: before, session: session,
+                                                result: result, overrides: overrides,
+                                                skipped: skipped,
+                                                setsSkipped: setsSkipped,
+                                                gapDays: gapFraction(now: date),
+                                                probes: probes)
+            landed = Self.landed(raised, from: unraised, to: engineState)
+        }
         // What it takes to change this rating afterwards, and which movements
         // it actually eased. Both are facts of THIS moment and of no other:
         // the state before the rating cannot be reconstructed from the journal
@@ -638,7 +653,8 @@ final class AppStore {
             durationSec: durationSec,
             warmupSec: warmupSec, cooldownSec: cooldownSec,
             interrupted: interrupted,
-            raisedSteps: raised.isEmpty ? nil : raised))
+            raisedSteps: raised.isEmpty ? nil : raised,
+            raisedLanded: raised.isEmpty ? nil : landed))
         persist()
         // A morning workout takes tonight's reminder down with it.
         // NOT `now: date`: the record's date is about the JOURNAL, and
