@@ -97,12 +97,18 @@ enum Theme {
 /// picture leaving the app, fixed in the light palette on purpose, so it
 /// has no appearance to follow.
 extension Theme {
+    /// Main-actor, like its one caller (`BadgePill`, which renders on the
+    /// main thread anyway): the mutable traits it builds are main-actor
+    /// isolated in the iOS 26 SDK.
+    @MainActor
     static func badgePillColors(colorScheme: ColorScheme,
                                 contrast: ColorSchemeContrast) -> (text: Color, fill: Color) {
-        let traits = UITraitCollection(traitsFrom: [
-            UITraitCollection(userInterfaceStyle: colorScheme == .dark ? .dark : .light),
-            UITraitCollection(accessibilityContrast: contrast == .increased ? .high : .normal),
-        ])
+        // `init(mutations:)`: `init(traitsFrom:)` is deprecated from iOS 17,
+        // the app's floor, and the build said so on every compile.
+        let traits = UITraitCollection { mutable in
+            mutable.userInterfaceStyle = colorScheme == .dark ? .dark : .light
+            mutable.accessibilityContrast = contrast == .increased ? .high : .normal
+        }
         // `ink`, not accentText: on the accentSoft fill accentText measures
         // 4.20:1 in the dark scheme, under the 4.5 an 11 pt semibold pill owes
         // (I-21). This was the LAST of the six sites drawing that pair — the
