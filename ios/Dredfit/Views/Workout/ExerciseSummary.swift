@@ -190,11 +190,32 @@ struct NextTimeBlock: View {
     private var planned: SessionExercise? { preview(steps) }
 
     /// The grid's ceiling parks the raise (§41.13): one more step would set
-    /// the same plan. Compared on what is printed, which is what the person
-    /// would be promised.
+    /// the same plan.
     private var atCeiling: Bool {
         guard let now = planned, let next = preview(steps + 1) else { return true }
-        return now.display == next.display && now.variation == next.variation
+        return Self.samePlan(now, next)
+    }
+
+    /// Whether two previews promise one plan — compared on what is printed,
+    /// which is what the person would be promised.
+    static func samePlan(_ a: SessionExercise, _ b: SessionExercise) -> Bool {
+        a.display == b.display && a.variation == b.variation
+    }
+
+    /// How many of `steps` still change the plan. The taps are made against
+    /// the plan of the moment, and a correction made AFTER them can move the
+    /// base — the last card corrected upward lands the plan on the fact
+    /// (§40.3) — onto the grid's ceiling, where the engine parks what was
+    /// added. Walked down from the count while the step below promises the
+    /// same plan; a preview that cannot be had leaves the count alone rather
+    /// than reading as "nothing moves". Static so a test can reach the rule
+    /// without a screen.
+    static func stepsThatStillMove(_ steps: Int, preview: (Int) -> SessionExercise?) -> Int {
+        var k = max(0, steps)
+        while k > 0, let now = preview(k), let below = preview(k - 1), samePlan(now, below) {
+            k -= 1
+        }
+        return k
     }
 
     var body: some View {

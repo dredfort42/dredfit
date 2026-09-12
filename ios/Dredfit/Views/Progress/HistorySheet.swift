@@ -417,8 +417,11 @@ struct HistorySheet: View {
         }
         // The part of the step that was the person's own (§41.13). Two weeks
         // on, the chart shows a rise and nothing else on this sheet would say
-        // who took it.
-        guard let steps = record.raisedSteps?[ex.pattern], steps > 0 else { return line }
+        // who took it. The share that LANDED, not the taps: parked on the
+        // ceiling, a raise the fact or the rating already took is nobody's
+        // addition.
+        let steps = record.raisedShare(ex.pattern)
+        guard steps > 0 else { return line }
         let unit = Library.unit(ex.pattern, after.variation)
         return String(localized: "history.afterRaised",
                       defaultValue: "\(line) · \(RaiseLabel.text(steps: steps, unit: unit)) of it is your addition")

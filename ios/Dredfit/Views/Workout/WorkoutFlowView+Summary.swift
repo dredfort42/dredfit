@@ -107,6 +107,11 @@ extension WorkoutFlowView {
                             range: summaryRange(set: index)) {
                     actuals = SetFacts.recordingSet(adjustValue, in: actuals,
                                                     exercise, set: index)
+                    // The correction moves the base under an addition already
+                    // made: on the grid's ceiling the steps added before it
+                    // burn, and the stepper read "+10 s" over a sentence that
+                    // showed the plan "+5 s" shows (review, 12.09.2026).
+                    trimRaiseToWhatStillMoves()
                     // A number the person typed is not an estimate any
                     // more, whatever produced the one it replaced.
                     holdApproxSets.remove(index)
@@ -226,5 +231,14 @@ extension WorkoutFlowView {
         let clamped = min(max(steps, 0), EngineConfig.raiseStepsMax)
         raisedSteps[exercise.pattern] = clamped > 0 ? clamped : nil
         persistProgress()
+    }
+
+    /// The count after a correction: the rule is `NextTimeBlock`'s — the
+    /// same comparison its "+" is disabled with — walked down from the
+    /// count. Persisted by the caller with the correction it follows.
+    func trimRaiseToWhatStillMoves() {
+        let steps = raisedSteps[exercise.pattern] ?? 0
+        let live = NextTimeBlock.stepsThatStillMove(steps, preview: nextPlan(withAdditions:))
+        if live != steps { raisedSteps[exercise.pattern] = live > 0 ? live : nil }
     }
 }
