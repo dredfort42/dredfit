@@ -229,6 +229,15 @@ struct WorkoutFlowView: View {
     /// three-second reach allowance. Indices, because that is what the summary
     /// prints beside; cleared with the exercise it describes.
     @State var holdApproxSets: Set<Int> = []
+    /// What the CLOCK wrote for each set of the exercise in front of us, by
+    /// set index — the number `recordHoldActual` produced, before any
+    /// correction by hand. The summary reads its ceiling off this rather
+    /// than off the number in force: a set corrected from 7 down to 5 kept
+    /// re-opening under "the clock saw 5 s", naming a number the person had
+    /// typed as the clock's, and could never be put back up to the 7 the
+    /// clock actually counted (owner, 12.09.2026). Per exercise, like the
+    /// estimate marks, and carried across a process death with them.
+    @State var holdMeasured: [Int: Int] = [:]
     /// Which card of the summary the adjuster is editing, so the panel writes
     /// to the set that was tapped rather than to the set the flow is on.
     @State var summarySet: Int?
@@ -964,6 +973,7 @@ extension WorkoutFlowView {
         holdDeclared = nil
         holdDeclaring = false
         holdApproxSets.removeAll()
+        holdMeasured.removeAll()
     }
 
     /// Past the exercise in front of us, however it ended — into the next one,

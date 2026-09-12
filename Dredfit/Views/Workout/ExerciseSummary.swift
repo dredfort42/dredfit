@@ -248,12 +248,18 @@ struct NextTimeBlock: View {
     /// The plan, and a name only when the variation changes — a probe passed
     /// on this movement lands the next plan on another exercise, and "3×15 s"
     /// with no name would read as a collapse rather than a promotion.
+    ///
+    /// With a fact entered the sentence is the plan and nothing else: it
+    /// used to add "— from what was held", and the clause explained the
+    /// number's origin to a reader who only wants the number (owner,
+    /// 12.09.2026). Without a fact the condition stays, because the number
+    /// is not a promise until the rating is given.
     private func sentence(for planned: SessionExercise) -> Text {
         let what = planned.variation == exercise.variation
             ? planned.display
             : "\(planned.name) · \(planned.display)"
         return factEntered
-            ? Text("The app will set \(what) — from what was held.")
+            ? Text("The app will set \(what).")
             : Text("The app will set \(what) if you rate the workout “on plan”.")
     }
 }

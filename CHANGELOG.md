@@ -9,8 +9,9 @@ per set with a set that ran longer than its plan turned orange and captioned
 starts from". Read literally — and it was — that sentence asked for the number
 you wanted next time, and the app wrote it down as held. The cards are only
 the past now: the seconds, "set 2", and **the plan on every card**, in the
-same grey whatever the set ran. Correcting one opens the stepper under one
-line — **"set 2 · the clock saw 6 s — no more than that goes in"** — because
+same grey whatever the set ran, and one line under them in the words the
+work screen already uses for the act: "Went differently? Tap and correct."
+Correcting a set opens the stepper under one line — **"set 2 · the clock saw 6 s — no more than that goes in"** — because
 on every set but the last the clock is the ceiling: a hold ends when the
 clock says so, so longer than it counted cannot have been held, shorter can,
 and "+" is dimmed at the number the clock saw. The last set has nothing after
@@ -18,8 +19,8 @@ it, and you may have kept holding, so both directions stay open there.
 
 **Next time is its own block, with the one control that changes it.** Above
 **Done**, where the entry panel opens, **Next time** names the plan the app will set — "The app will set
-30-30-25 sec — from what was held", or "… if you rate the workout on plan"
-when nothing differed from the plan — and a stepper adds to it by steps of the
+30-30-25 sec", or "… if you rate the workout on plan" when nothing differed
+from the plan — and a stepper adds to it by steps of the
 ladder, five seconds to one set at a time, up to two. The sentence rewrites
 itself on every tap, so what you read is what will be asked of you, and the
 block turns orange only once you have added something: the accent on this

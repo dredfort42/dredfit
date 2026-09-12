@@ -363,8 +363,16 @@ struct FeedbackView: View {
                     // border is simply not there, and ink3 — where this landed
                     // first — is 2.35:1 in light, still under the 3:1 that
                     // boundary owes (finding 31, 1.4.11).
+                    //
+                    // `strokeBorder`, not `stroke`: a plain stroke sits
+                    // centred on the edge, half of it outside the card, and
+                    // that outer half was clipped along the top and bottom —
+                    // the border read 0.75 pt on the long sides and 1.5 pt on
+                    // the short ones (owner, 12.09.2026). Inset, the whole
+                    // line is drawn inside the shape, as the summary's cards
+                    // already draw theirs.
                     .overlay(RoundedRectangle(cornerRadius: 20)
-                        .stroke(Theme.targetStroke, lineWidth: 1.5))
+                        .strokeBorder(Theme.targetStroke, lineWidth: 1.5))
             )
         }
         .disabled(!enabled)

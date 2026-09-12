@@ -124,6 +124,18 @@ final class NextTimeTests: AppStoreTestCase {
         XCTAssertEqual(store.raisedForNextPlan(hold.pattern), 0)
     }
 
+    /// The clock's numbers come back off disk bounded like the estimate
+    /// marks: a set the scale does not have, or a number outside the
+    /// corridor, is dropped rather than shown as "what the clock saw".
+    func testTheClocksNumbersOffDiskAreBounded() {
+        var snap = WorkoutSnapshot(sessionNumber: 3, exIndex: 0, setIndex: 0,
+                                   restEndDate: nil, restTotalSec: nil,
+                                   workoutStart: .now, savedAt: .now)
+        XCTAssertEqual(snap.measuredHold, [:])
+        snap.holdMeasuredSec = [0: 30, 1: 7, 9: 30, 2: 400, 3: -1]
+        XCTAssertEqual(snap.measuredHold, [0: 30, 1: 7])
+    }
+
     /// Off disk the count is clamped to what the engine accepts, like every
     /// other stored number.
     func testARaiseOffDiskIsClampedToWhatTheEngineTakes() throws {

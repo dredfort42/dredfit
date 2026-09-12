@@ -296,6 +296,12 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// array
     /// because a `Set<Int>` is one on the wire anyway; read back as a set.
     var approxSets: [Int]?
+    /// What the clock wrote for each set of the exercise in front of us, by
+    /// set index (`WorkoutFlowView.holdMeasured`). The summary's ceiling is
+    /// read off it, so a kill on that screen must not turn a corrected
+    /// number into "what the clock saw". Optional with a nil default, like
+    /// every field added to a persisted type.
+    var holdMeasuredSec: [Int: Int]?
     var interrupted: Pattern?
     /// The two blocks as measured so far, carried across a process death so a
     /// declined warm-up is not silently restored as a performed one. A kill
@@ -354,6 +360,19 @@ struct WorkoutSnapshot: Codable, Equatable {
             let k = min(max(value, 0), EngineConfig.raiseStepsMax)
             return k > 0 ? k : nil
         }
+    }
+
+    /// The clock's numbers, bounded like the estimate marks are — a set the
+    /// scale does not have, or a number outside the corridor, is a
+    /// hand-edited file, not a workout.
+    var measuredHold: [Int: Int] {
+        var out: [Int: Int] = [:]
+        let corridor = SetFacts.corridor(for: .hold)
+        for (index, seconds) in holdMeasuredSec ?? [:]
+        where (0..<EngineConfig.setsMax).contains(index) && corridor.contains(seconds) {
+            out[index] = seconds
+        }
+        return out
     }
 
     /// The estimate marks, bounded by what an exercise can hold. Sanitized

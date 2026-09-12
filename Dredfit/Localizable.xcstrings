@@ -21797,126 +21797,6 @@
         }
       }
     },
-    "That is what counts, per side. Wrong number? Tap it and fix it.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "So wird es gezählt, pro Seite. Falsche Zahl? Antippen und korrigieren."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Así se cuenta, por lado. ¿Número incorrecto? Tócalo y corrígelo."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "C’est ce qui compte, par côté. Mauvais nombre ? Touche-le et corrige."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Così viene contato, per lato. Numero sbagliato? Toccalo e correggilo."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "É isso que conta, por lado. Número errado? Toque e corrija."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Так и засчитано, на сторону. Не то число — нажми и поправь."
-          }
-        }
-      }
-    },
-    "That is what counts. Wrong number? Tap it and fix it.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "So wird es gezählt. Falsche Zahl? Antippen und korrigieren."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Así se cuenta. ¿Número incorrecto? Tócalo y corrígelo."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "C’est ce qui compte. Mauvais nombre ? Touche-le et corrige."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Così viene contato. Numero sbagliato? Toccalo e correggilo."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "É isso que conta. Número errado? Toque e corrija."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Так и засчитано. Не то число — нажми и поправь."
-          }
-        }
-      }
-    },
-    "The app will set %@ — from what was held.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Die App setzt %@ – nach dem, was gehalten wurde."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "La app pondrá %@, según lo aguantado."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "L’app mettra %@ — d’après ce qui a été maintenu."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "L’app imposterà %@ – in base a quanto tenuto."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "O app vai definir %@ — pelo que foi sustentado."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Приложение поставит %@ — по тому, что удержано."
-          }
-        }
-      }
-    },
     "The app will set %@ if you rate the workout “on plan”.": {
       "localizations": {
         "de": {
@@ -22113,6 +21993,126 @@
           "stringUnit": {
             "state": "translated",
             "value": "подход %lld · часы засекли %lld сек"
+          }
+        }
+      }
+    },
+    "Went differently? Tap and correct.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lief anders? Antippen und korrigieren."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Fue distinto? Toca y corrige."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ça s’est passé autrement ? Touche et corrige."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "È andata diversamente? Tocca e correggi."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foi diferente? Toque e corrija."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Получилось иначе? Нажми и скорректируй."
+          }
+        }
+      }
+    },
+    "Went differently? Tap and correct — the numbers are per side.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lief anders? Antippen und korrigieren – die Zahlen gelten pro Seite."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Fue distinto? Toca y corrige: los números son por lado."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ça s’est passé autrement ? Touche et corrige — les nombres sont par côté."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "È andata diversamente? Tocca e correggi – i numeri sono per lato."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foi diferente? Toque e corrija — os números são por lado."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Получилось иначе? Нажми и скорректируй — числа на сторону."
+          }
+        }
+      }
+    },
+    "The app will set %@.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die App setzt %@."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La app pondrá %@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’app mettra %@."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’app imposterà %@."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O app vai definir %@."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Приложение поставит %@."
           }
         }
       }

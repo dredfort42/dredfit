@@ -49,16 +49,20 @@ extension WorkoutFlowView {
                             // scroll view instead of levelling the row.
                             .fixedSize(horizontal: false, vertical: true)
                             .padding(.top, 22)
-                        // ONE sentence, about the past, under the cards. It
+                        // ONE sentence, about the past, under the cards, in
+                        // the words the app already uses for this act: "Went
+                        // differently" is the control that corrects a set on
+                        // the work screen, and the summary says the same
+                        // thing about the same act (owner, 12.09.2026). It
                         // used to say "these are the numbers the next plan
-                        // starts from", which is a sentence about the
-                        // future — and people answered it in the future
-                        // tense, entering the number they wanted next time
-                        // into a card that records what was held. The future
-                        // has its own block now.
+                        // starts from" — a sentence about the future, which
+                        // people answered in the future tense, entering the
+                        // number they wanted next time into a card that
+                        // records what was held. The future has its own
+                        // block now.
                         Text(exercise.perSide
-                             ? String(localized: "That is what counts, per side. Wrong number? Tap it and fix it.")
-                             : String(localized: "That is what counts. Wrong number? Tap it and fix it."))
+                             ? String(localized: "Went differently? Tap and correct — the numbers are per side.")
+                             : String(localized: "Went differently? Tap and correct."))
                             .dredfitFont(14)
                             .foregroundStyle(Theme.ink2)
                             .multilineTextAlignment(.center)
@@ -176,17 +180,26 @@ extension WorkoutFlowView {
         adjusting = true
     }
 
+    /// What the clock counted for a set — the number before any correction.
+    /// A set no clock ran for (skipped mid-movement, restored from a snapshot
+    /// written before the field) falls back to what the card shows, which is
+    /// what the ceiling used to be read off for every set.
+    func summaryMeasured(set index: Int) -> Int {
+        holdMeasured[index] ?? SetFacts.inForce(actuals, exercise, set: index)
+    }
+
     /// The rule is `SetFacts.correctionRange`, where a test can reach it;
-    /// what is measured is what the card shows.
+    /// what is measured is the CLOCK's number, not the card's — a card
+    /// corrected downwards must be correctable back up to what was counted.
     func summaryRange(set index: Int) -> ClosedRange<Int> {
-        SetFacts.correctionRange(measured: SetFacts.inForce(actuals, exercise, set: index),
+        SetFacts.correctionRange(measured: summaryMeasured(set: index),
                                  isLastSet: index == exercise.sets - 1)
     }
 
     /// The line above the panel: the set, what the clock counted, and — on
     /// every set but the last — that nothing above it goes in.
     func summaryPanelLine(set index: Int) -> String {
-        let measured = SetFacts.inForce(actuals, exercise, set: index)
+        let measured = summaryMeasured(set: index)
         let range = summaryRange(set: index)
         return range.upperBound < SetFacts.corridor(for: .hold).upperBound
             ? String(localized: "set \(index + 1) · the clock saw \(measured) s — no more than that goes in")

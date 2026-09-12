@@ -620,6 +620,16 @@ extension DredfitUITests {
                        "correcting set three must not touch set one")
         XCTAssertEqual(app.buttons[AX.summarySet(2)].label, secondBefore,
                        "…nor set two, which is the defect this screen exists for")
+
+        // Re-opened, the line still names what the CLOCK counted — not the
+        // number just typed. It used to read the corrected value back as the
+        // clock's (owner, 12.09.2026).
+        coordinateTap(app.buttons[AX.summarySet(3)])
+        let line = app.element(withIdentifier: "summary-panel-line")
+        XCTAssertTrue(line.waitForExistence(timeout: 5))
+        XCTAssertTrue(line.label.hasSuffix("the clock saw 5 s"),
+                      "the panel's line must name the clock's number, got “\(line.label)”")
+        app.buttons[AX.adjustConfirm].tap()
     }
 
     /// §41.13: the addition "for next time" is its own block and its own
