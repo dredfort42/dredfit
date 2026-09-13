@@ -48,10 +48,20 @@ struct HeldSet: Identifiable {
 /// only just cleared it would fail the moment somebody turned text up (R18).
 struct HeldSetCard: View {
     let held: HeldSet
+    /// Only the last set of the movement: nothing followed it, so what it
+    /// ran is the person's to correct in both directions. Every earlier set
+    /// ended on its signal or under a thumb and stands as it ran — the
+    /// card is inert, without the outline that says "tap me", and the
+    /// hint that promised a change is gone with it (owner, 13.09.2026). It
+    /// stays a button in the tree so the tests that read the cards by
+    /// identifier keep reading them.
+    let correctable: Bool
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            if correctable { action() }
+        } label: {
             VStack(spacing: 2) {
                 // Verbatim: a bare numeral with a maths sign carries no words
                 // to translate, and the "≈" is drawn in the number's OWN
@@ -105,11 +115,11 @@ struct HeldSetCard: View {
             // the light scheme: the affordance existed but sat under the 3:1
             // 1.4.11 asks of it (finding 31, UX review 05.09.2026).
             .overlay(RoundedRectangle(cornerRadius: 16)
-                .strokeBorder(Theme.targetStroke, lineWidth: 1.5))
+                .strokeBorder(correctable ? Theme.targetStroke : Theme.cardBG, lineWidth: 1.5))
         }
         .accessibilityIdentifier("summary-set-\(held.index + 1)")
         .accessibilityLabel(Text(spoken))
-        .accessibilityHint(Text(String(localized: "Change this number")))
+        .accessibilityHint(Text(correctable ? String(localized: "Change this number") : ""))
     }
 
     /// Spoken as a sentence, with the plan in it: "48" and "set 2" read out
@@ -158,7 +168,9 @@ struct HeldSetsRow: View {
     @ViewBuilder
     private func cards(_ sets: [HeldSet]) -> some View {
         ForEach(sets) { held in
-            HeldSetCard(held: held) { onEdit(held.index) }
+            HeldSetCard(held: held, correctable: held.index == self.sets.count - 1) {
+                onEdit(held.index)
+            }
         }
     }
 }
