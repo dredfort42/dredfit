@@ -40,15 +40,16 @@ struct AdjustPanel: View {
             stepButton("minus", -1)
             // ONE line, whatever the unit's word is: "10 сек" at 26 pt heavy
             // is wider than "10 s", and between two 44 pt targets and OK it
-            // broke into "10" over "сек" (owner, 13.09.2026). The number
-            // yields size before it yields the line, and it wins the width
-            // contest against the buttons' spacing.
+            // broke into "10" over "сек" (owner, 13.09.2026). The number is
+            // the one flexible thing in the row — it yields size before it
+            // yields the line — and OK below is pinned to its own width, so
+            // on a narrow phone it is the number that shrinks, not the word
+            // on the button.
             Text(unit == .hold ? "\(value) s" : "\(value)")
                 .dredfitFont(26, weight: .heavy)
                 .monospacedDigit()
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
-                .layoutPriority(1)
                 .frame(minWidth: 76)
             stepButton("plus", +1)
 
@@ -59,6 +60,7 @@ struct AdjustPanel: View {
                     .padding(.horizontal, 22)
                     .padding(.vertical, 10)
                     .background(Theme.ink, in: Capsule())
+                    .fixedSize()
             }
             // Named, like the two steppers beside it: "OK" is also what a
             // system alert calls its button, so a query for the label alone
@@ -90,7 +92,7 @@ struct AdjustPanel: View {
     static func holdStep(_ value: Int, _ dir: Int) -> Int {
         let grid = 5
         if dir > 0 { return (value / grid + 1) * grid }
-        return value % grid == 0 ? value - grid : (value / grid) * grid
+        return value.isMultiple(of: grid) ? value - grid : (value / grid) * grid
     }
 
     private func bump(_ dir: Int) {

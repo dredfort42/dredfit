@@ -835,7 +835,7 @@ extension SettingsSheet {
     /// jump group to group, which is what a kicker is for. The identifier is
     /// what a UI test anchors on to say "Settings opened": the words are
     /// localized and uppercased, the identifier is neither.
-    func settingsKicker(_ text: String, id: String) -> some View {
+    fileprivate func settingsKicker(_ text: String, id: String) -> some View {
         Kicker(text: text)
             .accessibilityAddTraits(.isHeader)
             .accessibilityIdentifier(id)
@@ -845,7 +845,7 @@ extension SettingsSheet {
     /// than truncating whatever the text size is, and placed by its caller
     /// 6 pt under the control it explains — closer than the 14 pt to the
     /// next control, which is what says what it belongs to.
-    func caption(_ text: String) -> some View {
+    fileprivate func caption(_ text: String) -> some View {
         Text(text)
             .dredfitFont(12.5)
             .foregroundStyle(Theme.ink2)

@@ -19,10 +19,24 @@ VoiceOver, so the rotor can jump group to group. Nothing a setting does
 changed, and "How it works" stays the first thing on the screen. The engine,
 the state format and the journal are untouched.
 
+**On the hold summary only the last set opens the panel.** The cards for the
+earlier sets used to open the entry too, with "+" and "−" both dead at the
+floor — a control that could do nothing and looked broken for it. Those
+cards are inert now: no outline, no editor, and the line under the row says
+which card to tap and why the others stand — "Went differently? Tap the last
+set and correct — the others stand as they ran." A set stopped by hand is
+named as the estimate it is when its panel opens ("stopped by hand at about
+5 s"), not as something the clock saw. The panel's number stays on one line
+in every language — "10 сек" used to break in two between the buttons — and
+**a hold is set and corrected in five-second steps**, the grid its plan is on:
+from 30 one tap says 35, from a hand-stopped 38 the first tap lands on 40 or
+35. The addition for next time steps the same way.
+
 - Housekeeping: the four UI tests that proved "Settings opened" by the
   uppercase word REST DAYS anchor on the group's identifier now — the words
-  are localized and were renamed once already; three manual-plan rows that
-  quoted captions the screen no longer shows are corrected.
+  are localized and were renamed once already; the summary test asks the
+  first card to open nothing; four manual-plan rows quote what the screens
+  show. 727 → 728 automated tests: the five-second step has its own.
 
 ## 2.4.0
 
