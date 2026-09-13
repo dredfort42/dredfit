@@ -71,8 +71,8 @@ extension WorkoutFlowView {
                         // One literal per key, because the literal is the key.
                         Text(exercise.perSide
                              // swiftlint:disable:next line_length
-                             ? String(localized: "Went differently? Tap the last set and correct — the numbers are per side, and the earlier sets stand as they ran.")
-                             : String(localized: "Went differently? Tap the last set and correct — the earlier sets stand as they ran."))
+                             ? String(localized: "Went differently? Tap the last set and correct — the numbers are per side, and the others stand as they ran.")
+                             : String(localized: "Went differently? Tap the last set and correct — the others stand as they ran."))
                             .dredfitFont(14)
                             .foregroundStyle(Theme.ink2)
                             .multilineTextAlignment(.center)
