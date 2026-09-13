@@ -523,6 +523,8 @@ struct WorkoutFlowView: View {
                 discardWorkout()
             }
         } message: {
+            // One literal, because the literal is the catalog key.
+            // swiftlint:disable:next line_length
             Text("“Finish now” goes to the rating and marks the rest as skipped. “Finish later” keeps your place — Today offers to pick it up.")
         }
         // Beside the exit alert rather than on the work screen itself: a

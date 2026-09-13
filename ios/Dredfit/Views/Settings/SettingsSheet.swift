@@ -602,7 +602,6 @@ extension SettingsSheet {
         }
     }
 
-
     // MARK: - Sounds past the ringer switch
 
     /// The other half of "Sounds and haptics", and the half a silent phone

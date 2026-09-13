@@ -326,15 +326,15 @@ final class SetsNoticeTests: AppStoreTestCase {
     /// buys is that a string cannot go missing entirely, which is the failure
     /// that actually happens: English in all six languages, both gates green.
     /// The reverse of the scan above: every key the catalog carries is a
-    /// literal some source file still asks for. Eleven keys sat in the
-    /// catalog with no caller left — three of them pinned by name in
+    /// literal some source file still asks for. Twenty-two keys sat in the
+    /// catalog with no caller left — five of them pinned by name in
     /// `testTheWavesLinesAreInTheCatalogInEveryLanguage` after later waves
     /// had reworded the sentences on screen, so nobody could delete the
     /// corpses without going red, and six languages went on being asked to
     /// keep them translated (12.09.2026).
     ///
     /// Comments are stripped first: a sentence quoted in a comment is not a
-    /// caller, and four of the eleven were found by a plain grep exactly
+    /// caller, and several of the twenty-two were found by a plain grep exactly
     /// that way. Every quoted literal counts, whatever construct it stands
     /// in — `Label`, `Section`, `.alert` — because the question here is
     /// only whether the key is asked for at all.

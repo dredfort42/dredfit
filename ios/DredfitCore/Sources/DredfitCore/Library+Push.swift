@@ -5,6 +5,12 @@
 //  about coordination, not volume. Its technique lives on in `WarmupTechnique`.
 //
 
+// swiftlint:disable line_length
+// A technique line is ONE literal, because the literal IS the catalog key:
+// wrapping it across lines would change what the catalog scanner and the
+// compiler read, and shortening the prose to fit a ruler would change the
+// technique. The lint's width rule is right for code, and this file is text.
+
 import Foundation
 
 extension ExerciseLibrary {
@@ -277,3 +283,4 @@ extension ExerciseLibrary {
         ]
     }
 }
+// swiftlint:enable line_length

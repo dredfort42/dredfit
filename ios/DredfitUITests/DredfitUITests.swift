@@ -381,7 +381,10 @@ final class DredfitUITests: XCTestCase {
         app.buttons[AX.day(day)].tap()
         XCTAssertTrue(app.staticTexts["Workout 1"].waitForExistence(timeout: 3),
                       "history did not open on the day tap")
-        XCTAssertTrue(app.staticTexts["actual 3"].exists, "the actual is not shown in the history")
+        // In the plan's own spelling and named (§41.13): the first set was
+        // corrected to 3 and the number carries down the sets that followed,
+        // so the row prints a uniform fact the way a plan prints one.
+        XCTAssertTrue(app.staticTexts["Actual: 3×3"].exists, "the actual is not shown in the history")
         app.buttons[AX.historyDone].tap()
     }
 

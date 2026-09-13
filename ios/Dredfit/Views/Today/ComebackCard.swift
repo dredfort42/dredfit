@@ -29,6 +29,8 @@ struct ComebackCard: View {
                 .tracking(-0.3)
                 .foregroundStyle(Theme.ink)
 
+            // One literal, because the literal is the catalog key.
+            // swiftlint:disable:next line_length
             Text("A break is normal. Let's start a few steps easier — the longer the break, the lower the plan meets you, and it catches up quickly.")
                 .dredfitFont(14.5)
                 .foregroundStyle(Theme.ink2)

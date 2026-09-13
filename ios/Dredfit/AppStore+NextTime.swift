@@ -21,8 +21,7 @@ extension AppStore {
     ///
     /// Nil when the session is not the one this state generated: a preview
     /// of a rating the engine would refuse is a preview of nothing.
-    // swiftlint:disable:next function_parameter_count
-    func previewPosition(after session: Session, pattern: Pattern,
+    func previewPosition(after session: Session, pattern: Pattern, // swiftlint:disable:this function_parameter_count
                          overrides: [Pattern: Double], skipped: Set<Pattern>,
                          setsSkipped: SetFacts.Skips, probes: [Pattern: Int],
                          raised: [Pattern: Int]) -> RecordedPosition? {
