@@ -80,14 +80,16 @@ wrong number, taken again every time the app came to the front, with no way
 to say otherwise; a restored backup carrying the right weight was overwritten
 by it too. The rule is now the one a person would expect: the more recent
 statement wins. The number remembers when it was stated — the date of the
-Health sample, or the moment it was typed — and a Health sample replaces it
-only when it is newer than that date, or when there is no number at all. A
-number from a file written before the date was kept yields to any sample.
-The row is always editable, and its caption names where the number in force
-came from and when: "From Health, 12 Sep 2026. A newer weight — typed here or
-logged there — takes over." or "Typed here on 12 Sep 2026. A newer weight
-logged in Health takes over." — so a stale reading is seen for what it is
-rather than trusted for being Health's. Clearing the weight by hand drops the
+Health sample, or the moment it was typed or restored — and a Health sample
+replaces it only when it is newer than that date, or when there is no number
+at all. A number from a file written before the date was kept yields to any
+sample. The row is always editable, and its caption names where the number
+in force came from and when: "From Health, <the date>. A newer weight — typed
+here or logged there — takes over." or "Set in the app, <the date>. A newer
+weight logged in Health takes over." — "set in the app" rather than "typed",
+because a restored backup sets the number too, dated by its journal, and
+naming a hand and a day would be a lie about both. So a stale reading is seen
+for what it is rather than trusted for being Health's. Clearing the weight by hand drops the
 date, so Health may fill it again; Health going quiet erases nothing. A
 restored backup brings its own date, and one from a build that kept none is
 dated to the latest workout in it, so an old scale reading no longer beats
@@ -130,7 +132,7 @@ scenario reproduces bit-for-bit; the new one pins the order.
   counted: **74** in the engine package, **575** in the app, **78** in the UI
   suite. The engine's four pin the new handle — it walks the sub-steps and
   then the rung, stands on the ceiling and clamps its input, counts the sets
-  on screen under a cut, and lands after the feedback. The app's eighteen sit
+  on screen under a cut, and lands after the feedback. The app's seventeen sit
   on what this wave could have got wrong quietly: a correction that cannot
   exceed the clock except on the last set, the preview being exactly what the
   rating will set, the share that landed kept apart from the steps that were
