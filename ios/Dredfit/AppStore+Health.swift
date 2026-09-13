@@ -65,7 +65,7 @@ extension AppStore {
     /// which on the owner's phone meant a month-old scale reading overwrote
     /// the weight on every foreground and a restored backup with the right
     /// number was reset to it again (13.09.2026). The rule is
-    /// `Self.adopts(reading:over:)`, where a test can reach it.
+    /// `Self.adopts(reading:over:statedAt:)`, where a test can reach it.
     ///
     /// A `nil` reading NEVER clears anything: an empty Health and a refused
     /// read are the same nil (HealthKit does not distinguish them), and

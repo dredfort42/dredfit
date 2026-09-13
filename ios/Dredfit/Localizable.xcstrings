@@ -82,42 +82,42 @@
         }
       }
     },
-    "Typed here on %@. A newer weight logged in Health takes over.": {
+    "Set in the app, %@. A newer weight logged in Health takes over.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hier eingetragen am %@ – ein neueres Gewicht aus Health übernimmt."
+            "value": "In der App gesetzt, %@ – ein neueres Gewicht aus Health übernimmt."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Escrito aquí el %@. Un peso más reciente registrado en Salud gana."
+            "value": "Puesto en la app, %@. Un peso más reciente registrado en Salud gana."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saisi ici le %@. Un poids plus récent noté dans l’app Santé prend le relais."
+            "value": "Défini dans l’app, %@. Un poids plus récent noté dans l’app Santé prend le relais."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Digitato qui il %@ – un peso più recente registrato in Salute prende il sopravvento."
+            "value": "Impostato nell’app, %@ – un peso più recente registrato in Salute prende il sopravvento."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Digitado aqui em %@. Um peso mais novo registrado no app Saúde assume."
+            "value": "Definido no app, %@. Um peso mais novo registrado no app Saúde assume."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Введено здесь %@. Более новое значение из «Здоровья» становится основным."
+            "value": "Указано в приложении, %@. Более новое значение из «Здоровья» становится основным."
           }
         }
       }

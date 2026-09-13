@@ -74,8 +74,9 @@ extension AppStore {
         // export mark above and as the reminder authorization below, and a
         // backup cannot prove any of them. Left inherited, a restore onto a
         // new phone showed an imported number under "Taken from Health" while
-        // this device's Health had never been asked, and the row would not
-        // open to be corrected. The first activation re-earns the flag.
+        // this device's Health had never been asked. The flag names the
+        // origin in the caption now, nothing more; a later Health sample
+        // re-earns it, an older one does not (`refreshBodyMassFromHealth`).
         settings.bodyMassFromHealth = false
         // The number's DATE does travel: it says when the weight was stated,
         // and that is a fact about the person, not the device. A backup from

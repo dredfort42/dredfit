@@ -355,7 +355,10 @@ struct SettingsSheet: View {
     /// it. Present with Health off: nothing to explain — it is the typed
     /// number and nothing competes with it. A number with no date (a file
     /// from before the date was kept) says nothing rather than a guessed
-    /// day; the next activation dates it.
+    /// day; the next activation dates it. "Set in the app", not "typed
+    /// here": a restored backup sets the number too, dated by the journal
+    /// it came with, and a caption claiming it was typed on this phone
+    /// would be wrong about both the hand and the day.
     private var bodyMassCaption: String? {
         guard store.settings.bodyMassKg != nil else {
             return String(localized: "Without it, workouts are saved with no calorie estimate.")
@@ -364,7 +367,7 @@ struct SettingsSheet: View {
         let when = date.formatted(date: .abbreviated, time: .omitted)
         return store.settings.bodyMassFromHealth
             ? String(localized: "From Health, \(when). A newer weight — typed here or logged there — takes over.")
-            : String(localized: "Typed here on \(when). A newer weight logged in Health takes over.")
+            : String(localized: "Set in the app, \(when). A newer weight logged in Health takes over.")
     }
 
     private func bodyMassContent(chevron: Bool) -> some View {
@@ -388,8 +391,8 @@ struct SettingsSheet: View {
         .foregroundStyle(Theme.ink)
         .padding(.horizontal, 16)
         .padding(.vertical, 13)
-        // The read-only row keeps the tappable row's height, so switching
-        // between them does not move the toggle underneath.
+        // 44 pt: the row is a target, and it keeps that height whatever the
+        // caption under it does, so the toggle underneath does not move.
         .frame(minHeight: 44)
         .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 14))
     }

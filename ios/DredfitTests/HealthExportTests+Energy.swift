@@ -244,7 +244,7 @@ extension HealthExportTests {
 
     /// A refused read and an empty Health are the same `nil` — and neither may
     /// erase the weight, because an erased weight is calories switched off.
-    /// It hands the field back instead.
+    /// The typed number stands, and so does its origin.
     func testAnAbsentHealthWeightKeepsTheTypedOneAndTheField() async {
         let spy = HealthSpy()
         let store = AppStore(storageURL: tempURL, health: spy)
