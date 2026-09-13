@@ -140,7 +140,7 @@ re-armed on its own — a Stop inside the mis-tap grace, and the probe set.
 
 | # | Check | Expected |
 |---|---|---|
-| 6.1 | Settings → **REST DAYS**, fresh install | Monday, **Wednesday and Friday** highlighted — four workouts a week, the rhythm both captions name; captions "Highlighted days are rest days" and "2–3 rest days a week is the recommended rhythm". An install upgrading from a file without the key keeps Sunday only (issue #36) |
+| 6.1 | Settings → **WEEKLY RHYTHM** → Rest days, fresh install | Monday, **Wednesday and Friday** highlighted — four workouts a week, the rhythm both captions name; captions "Highlighted days are rest days" and "3–4 rest days a week is the recommended rhythm. At least one training day always stays." under the chips, and **Reminder** with its caption in the same group. An install upgrading from a file without the key keeps Sunday only (issue #36) |
 | 6.2 | Chip order | Starts at the locale's first weekday (Monday for ru and de, Sunday for en-US) |
 | 6.3 | Select a second rest day | Both highlighted; Calendar marks both |
 | 6.4 | Try to select a **7th** rest day | Refused — six is the maximum |
@@ -178,7 +178,7 @@ re-armed on its own — a Stop inside the mis-tap grace, and the probe set.
 
 | # | Check | Expected |
 |---|---|---|
-| 9.1 | Settings → **EQUIPMENT** → enable **Pull-up bar** | Caption: "Every other workout swaps the row for a vertical pull" |
+| 9.1 | Settings → **EQUIPMENT** → enable **Pull-up bar** | Caption: "Every other workout swaps the horizontal pull for a vertical one" |
 | 9.2 | Look at the next workout, then the one after | The pull slot **alternates**: floor pull, then vertical pull, and so on |
 | 9.3 | Technique for a bar exercise | Opens correctly for Bar hang / Negative pull-up / Partial pull-up / Pull-up |
 | 9.4 | Train the bar branch a few sessions | Its level rises independently of the floor pull's level |
@@ -379,7 +379,7 @@ on a page that does — see I-11.
 | 20.2 | Milestone after a session rated **less** | No review prompt |
 | 20.3 | Milestone, ≥5 workouts, not rated less, never asked before | System review prompt may appear (iOS may still suppress it) |
 | 20.4 | Trigger the conditions again the next day | No second prompt — the 60-day floor is recorded even if iOS showed nothing |
-| 20.5 | Settings → About → **Rate in App Store** | Opens the App Store review sheet for id6791739610 |
+| 20.5 | Settings → About → **Rate on the App Store** | Opens the App Store review sheet for id6791739610 |
 | 20.6 | Settings → About → **Recommend Dredfit** | System share sheet with the App Store link |
 
 ### 21. Calibration on the first workout (1.5)

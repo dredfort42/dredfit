@@ -122,6 +122,46 @@
         }
       }
     },
+    "Sounds": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Töne"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sonidos"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sons"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suoni"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sons"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Звуки"
+          }
+        }
+      }
+    },
     "“Easy, could do more” is for a workout done in full.": {
       "comment": "Why the third rating card is dimmed: it is offered only for a plan finished in full. Shown centred under the three cards and read as the dimmed card's VoiceOver hint, so it wraps freely — but the quoted words must match that card's own title in this language, verbatim.",
       "localizations": {

@@ -1,5 +1,29 @@
 # Changelog
 
+## 2.4.1
+
+**Settings read as groups again.** The screen had nine blocks in two
+grammars: six under a small uppercase name, two — Sounds and Reminder — with
+none, so the eye attached Sounds to Equipment above it and Reminder to
+Appearance, and every caption stood at the same grey and the same distance
+from the control above and the control below, so what it explained was a
+guess. Every group opens with its name now, and the names are the app's own:
+**Weekly rhythm** — the rest days, with their two captions under the chips,
+and the reminder, which fires on training days only and is rescheduled
+whenever a rest day changes; **Equipment**; **Sounds**; **Appearance**;
+**Health**, with the weight and the calorie switch under it; **Backup**, whose
+note still stands above the rows because it has to be read before the file
+goes; **About**. Inside a group a caption sits close under the control it
+explains and further from the next one, and every group name is a heading to
+VoiceOver, so the rotor can jump group to group. Nothing a setting does
+changed, and "How it works" stays the first thing on the screen. The engine,
+the state format and the journal are untouched.
+
+- Housekeeping: the four UI tests that proved "Settings opened" by the
+  uppercase word REST DAYS anchor on the group's identifier now — the words
+  are localized and were renamed once already; three manual-plan rows that
+  quoted captions the screen no longer shows are corrected.
+
 ## 2.4.0
 
 This release is about one screen: the summary that closes a hold — a plank, a
