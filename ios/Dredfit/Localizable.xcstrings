@@ -42,6 +42,86 @@
       },
       "comment": "Suffix appended straight after the sets × reps figure ('3 × 10 /side'). The LEADING SPACE is load-bearing and invisible in the editor — keep it."
     },
+    "From Health, %@. A newer weight — typed here or logged there — takes over.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus der Health-App, %@ – eine neuere Zahl, hier oder in Health erfasst, übernimmt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De Salud, %@. Un peso más reciente —escrito aquí o registrado allí— gana."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Depuis l’app Santé, %@. Un poids plus récent — saisi ici ou noté là-bas — prend le relais."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Da Salute, %@ – un peso più recente, digitato qui o registrato lì, prende il sopravvento."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vem do app Saúde, %@. Um peso mais novo — digitado aqui ou registrado lá — assume."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Из «Здоровья», %@. Более позднее значение — введенное здесь или записанное там — становится основным."
+          }
+        }
+      }
+    },
+    "Set in the app, %@. A newer weight logged in Health takes over.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In der App gesetzt, %@ – ein neueres Gewicht aus Health übernimmt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puesto en la app, %@. Un peso más reciente registrado en Salud gana."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Défini dans l’app, %@. Un poids plus récent noté dans l’app Santé prend le relais."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impostato nell’app, %@ – un peso più recente registrato in Salute prende il sopravvento."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Definido no app, %@. Um peso mais novo registrado no app Saúde assume."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Указано в приложении, %@. Более новое значение из «Здоровья» становится основным."
+          }
+        }
+      }
+    },
     "“Easy, could do more” is for a workout done in full.": {
       "comment": "Why the third rating card is dimmed: it is offered only for a plan finished in full. Shown centred under the three cards and read as the dimmed card's VoiceOver hint, so it wraps freely — but the quoted words must match that card's own title in this language, verbatim.",
       "localizations": {
@@ -11769,46 +11849,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Смени сторону"
-          }
-        }
-      }
-    },
-    "Taken from Health, and kept up to date.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kommt aus der Health-App und bleibt aktuell."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Se toma de Salud y se mantiene actualizado."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Repris de l’app Santé et tenu à jour."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Preso dall’app Salute e sempre aggiornato."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vem do app Saúde e fica sempre atualizado."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Берется из «Здоровья» и обновляется."
           }
         }
       }

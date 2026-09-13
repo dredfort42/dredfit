@@ -53,7 +53,24 @@ struct AppSettings: Codable, Equatable {
     /// Persisted rather than held in memory because the async read lands
     /// AFTER the first render: without a remembered answer the row would come
     /// up editable on every launch and turn read-only a moment later.
+    ///
+    /// Since 13.09.2026 the row is never read-only: this flag only names the
+    /// number's origin in the caption. What decides who wins is the date
+    /// below.
     var bodyMassFromHealth = false
+    /// When the number in force was STATED: the sample's date when it came
+    /// from Health, the moment of typing when it was typed. The rule that
+    /// reads it is "the later statement wins" — a Health sample newer than
+    /// this replaces the number, an older one does not, however many times
+    /// the app comes to the foreground. Nil for a file written before the
+    /// key and for a cleared weight, and nil ranks below any dated sample,
+    /// which is exactly what those files got before. Found on the owner's
+    /// own phone: the last scale reading was a month old, the app took it on
+    /// every activation and gave no way to correct it, and a restored backup
+    /// with the right weight was overwritten by it again (13.09.2026).
+    /// Optional with a nil default like every field added to a persisted
+    /// type.
+    var bodyMassDate: Date?
     /// The escape hatch behind the overlap sweep. HealthKit never says whether
     /// a read was granted, so a refusal looks exactly like "no other workout
     /// found" — and that is precisely the person whose watch is recording the
@@ -149,7 +166,7 @@ struct AppSettings: Codable, Equatable {
     private enum CodingKeys: String, CodingKey {
         case restWeekdays, soundsEnabled, reminderEnabled, reminderHour, reminderMinute
         case healthEnabled, healthExportedThrough, bodyMassKg, watchRecordsWorkouts
-        case bodyMassFromHealth
+        case bodyMassFromHealth, bodyMassDate
         case onboardingCompleted, careAcknowledgedAt, lastReviewRequestAt
         case comebackDecidedFor, weakLinkPromptAnsweredFor
         case silentDecayAppliedFor, migrationNoticePending, hasOpenedTechnique
@@ -178,6 +195,8 @@ struct AppSettings: Codable, Equatable {
         // read-only at "Not set" — calories off, no field to fix it in.
         bodyMassFromHealth = (try c.decodeIfPresent(Bool.self, forKey: .bodyMassFromHealth) ?? false)
             && bodyMassKg != nil
+        // A date with no number is no statement — same invariant as the flag.
+        bodyMassDate = bodyMassKg == nil ? nil : try c.decodeIfPresent(Date.self, forKey: .bodyMassDate)
         watchRecordsWorkouts = try c.decodeIfPresent(Bool.self, forKey: .watchRecordsWorkouts) ?? false
         onboardingCompleted = try c.decodeIfPresent(Bool.self, forKey: .onboardingCompleted) ?? false
         careAcknowledgedAt = try c.decodeIfPresent(Date.self, forKey: .careAcknowledgedAt)

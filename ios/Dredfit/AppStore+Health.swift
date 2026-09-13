@@ -28,7 +28,8 @@ extension AppStore {
         if granted {
             settings.healthEnabled = true
             persist()
-            // The weight follows Health from here on, this reading included.
+            // Health's reading is adopted from here on — if it is the later
+            // statement about the weight (see `refreshBodyMassFromHealth`).
             await refreshBodyMassFromHealth()
         }
         return granted
@@ -46,44 +47,68 @@ extension AppStore {
     /// answer: no weight means no calories, not calories from a default.
     func setBodyMass(_ kg: Double?) {
         settings.bodyMassKg = kg.flatMap(Self.sanitizedBodyMass)
-        // Typed, so it is not Health's — until the next activation finds a
-        // reading, which takes the row back. This flag is what the settings
-        // row reads to decide whether it may be edited at all.
+        // Typed, so it is not Health's: the flag names the origin in the
+        // caption, and the DATE is what keeps the number standing — a Health
+        // sample older than this moment does not replace it, a newer one
+        // does. A cleared weight carries no date: clearing is not a claim
+        // about a number, and Health may fill the field again.
         settings.bodyMassFromHealth = false
+        settings.bodyMassDate = settings.bodyMassKg == nil ? nil : .now
         persist()
     }
 
-    /// Health is the owner's weight and the phone has one owner, so the number
-    /// the app shows — and multiplies every calorie by — follows Health rather
-    /// than being a copy taken once when the toggle went on. Called on every
-    /// activation and at the head of every export run.
+    /// The number the app shows — and multiplies every calorie by — follows
+    /// the LATEST statement about the weight, wherever it was made: Health's
+    /// newest sample when that sample is newer than the number in force, the
+    /// number in force otherwise. Called on every activation and at the head
+    /// of every export run. It used to take Health's reading unconditionally,
+    /// which on the owner's phone meant a month-old scale reading overwrote
+    /// the weight on every foreground and a restored backup with the right
+    /// number was reset to it again (13.09.2026). The rule is
+    /// `Self.adopts(reading:over:statedAt:)`, where a test can reach it.
     ///
     /// A `nil` reading NEVER clears anything: an empty Health and a refused
     /// read are the same nil (HealthKit does not distinguish them), and
-    /// erasing on it would silently switch a person's calories off. It only
-    /// hands the field back, so the weight stays typeable.
+    /// erasing on it would silently switch a person's calories off. Nor does
+    /// it touch the origin flag: the number still came from where it came.
     ///
     /// Writes only on a real change: this runs on every foreground, and an
     /// unconditional `persist()` would rewrite the journal file for a number
     /// that did not move.
     func refreshBodyMassFromHealth() async {
         guard settings.healthEnabled, health.isAvailable else { return }
-        let reading = await health.latestBodyMassKg().flatMap(Self.sanitizedBodyMass)
+        let reading = await health.latestBodyMass()
+            .flatMap { r in Self.sanitizedBodyMass(r.kg).map { BodyMassReading(kg: $0, date: r.date) } }
         // Both re-checks are about that await, not about the guard above. The
         // toggle can go down while the query hangs — the backfill loop below
         // re-reads it at every boundary for exactly this reason — and a newer
         // activation may have cancelled this run, in which case its reading is
         // the older of the two and must not land on top of the newer one.
         guard settings.healthEnabled, !Task.isCancelled else { return }
-        let mass = reading ?? settings.bodyMassKg
-        let fromHealth = reading != nil
-        guard settings.bodyMassKg != mass || settings.bodyMassFromHealth != fromHealth
+        guard let reading,
+              Self.adopts(reading: reading, over: settings.bodyMassKg, statedAt: settings.bodyMassDate)
         else { return }
-        settings.bodyMassKg = mass
-        settings.bodyMassFromHealth = fromHealth
+        guard settings.bodyMassKg != reading.kg || !settings.bodyMassFromHealth
+                || settings.bodyMassDate != reading.date
+        else { return }
+        settings.bodyMassKg = reading.kg
+        settings.bodyMassFromHealth = true
+        settings.bodyMassDate = reading.date
         // The weight reaches nothing the widget shows (same argument as the
         // export flags below).
         persist(refreshWidget: false)
+    }
+
+    /// Whether a Health sample replaces the number in force: yes when there
+    /// is no number, yes when the sample is NEWER than the number's own
+    /// statement, no otherwise — the person who typed a weight this morning
+    /// is the later source than the scale they last stood on a month ago.
+    /// A number with no date (a file from before the date was kept) ranks
+    /// below any sample, which is what such files always got.
+    static func adopts(reading: BodyMassReading, over kg: Double?, statedAt: Date?) -> Bool {
+        guard kg != nil else { return true }
+        guard let statedAt else { return true }
+        return reading.date > statedAt
     }
 
     func setWatchRecordsWorkouts(_ on: Bool) {

@@ -323,35 +323,51 @@ struct SettingsSheet: View {
     /// Weight is the factor the whole estimate is multiplied by, so an absent
     /// one is not an empty field — it is the reason no calories are written.
     ///
-    /// Two rows, one look. While Health supplies the weight the row does not
-    /// open an editor: the phone has one owner, their weight is re-read on
-    /// every activation, and a field that accepted a number only to have the
-    /// next foreground replace it would be a lie. The field comes back the
-    /// moment Health stops answering — no record there, or the read refused.
+    /// The row ALWAYS opens the editor. It used to go read-only while Health
+    /// supplied the number, on the argument that the next foreground would
+    /// replace whatever was typed — and that argument is what was wrong: on
+    /// the owner's phone the scale's last reading was a month old, the app
+    /// took it on every activation, and the row gave no way to say otherwise
+    /// (13.09.2026). The later statement wins now, so a typed number stands
+    /// until Health logs a NEWER one, and the caption says where the number
+    /// in force came from and when, so a stale reading is seen for what it
+    /// is rather than trusted for being Health's.
     private var bodyMassRow: some View {
         VStack(alignment: .leading, spacing: 6) {
-            if store.settings.bodyMassFromHealth {
-                bodyMassContent(chevron: false)
-                    .accessibilityIdentifier("body-mass-row")
-                    .accessibilityElement(children: .combine)
-                Text("Taken from Health, and kept up to date.")
+            Button {
+                bodyMassField = editableBodyMass
+                bodyMassPromptShown = true
+            } label: {
+                bodyMassContent(chevron: true)
+            }
+            .accessibilityIdentifier("body-mass-row")
+            if let caption = bodyMassCaption {
+                Text(caption)
                     .dredfitFont(12.5)
                     .foregroundStyle(Theme.ink2)
-            } else {
-                Button {
-                    bodyMassField = editableBodyMass
-                    bodyMassPromptShown = true
-                } label: {
-                    bodyMassContent(chevron: true)
-                }
-                .accessibilityIdentifier("body-mass-row")
-                if store.settings.bodyMassKg == nil {
-                    Text("Without it, workouts are saved with no calorie estimate.")
-                        .dredfitFont(12.5)
-                        .foregroundStyle(Theme.ink2)
-                }
+                    .accessibilityIdentifier("body-mass-caption")
             }
         }
+    }
+
+    /// Absent: why that matters. Present and Health is on: where the number
+    /// came from, when, and that a newer statement from either side replaces
+    /// it. Present with Health off: nothing to explain — it is the typed
+    /// number and nothing competes with it. A number with no date (a file
+    /// from before the date was kept) says nothing rather than a guessed
+    /// day; the next activation dates it. "Set in the app", not "typed
+    /// here": a restored backup sets the number too, dated by the journal
+    /// it came with, and a caption claiming it was typed on this phone
+    /// would be wrong about both the hand and the day.
+    private var bodyMassCaption: String? {
+        guard store.settings.bodyMassKg != nil else {
+            return String(localized: "Without it, workouts are saved with no calorie estimate.")
+        }
+        guard store.settings.healthEnabled, let date = store.settings.bodyMassDate else { return nil }
+        let when = date.formatted(date: .abbreviated, time: .omitted)
+        return store.settings.bodyMassFromHealth
+            ? String(localized: "From Health, \(when). A newer weight — typed here or logged there — takes over.")
+            : String(localized: "Set in the app, \(when). A newer weight logged in Health takes over.")
     }
 
     private func bodyMassContent(chevron: Bool) -> some View {
@@ -375,8 +391,8 @@ struct SettingsSheet: View {
         .foregroundStyle(Theme.ink)
         .padding(.horizontal, 16)
         .padding(.vertical, 13)
-        // The read-only row keeps the tappable row's height, so switching
-        // between them does not move the toggle underneath.
+        // 44 pt: the row is a target, and it keeps that height whatever the
+        // caption under it does, so the toggle underneath does not move.
         .frame(minHeight: 44)
         .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 14))
     }

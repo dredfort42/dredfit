@@ -156,16 +156,74 @@ extension HealthExportTests {
         XCTAssertEqual(store.settings.bodyMassKg, 72.5)
     }
 
-    /// The phone has one owner, so Health is the truth about their weight:
-    /// a number typed before the toggle went on does not outrank the scale.
-    func testHealthOverridesAnEnteredBodyMassOnEnabling() async {
+    /// The LATER statement wins, on enabling as on every activation: a scale
+    /// stood on after the number was typed outranks it; one stood on before
+    /// does not. "Health is the truth about the owner's weight" was the
+    /// earlier rule, and it is what let a month-old reading overwrite a
+    /// weight typed this morning on the owner's own phone (13.09.2026).
+    func testOnEnablingANewerHealthReadingReplacesTheTypedWeightAndAnOlderOneDoesNot() async {
+        let newer = HealthSpy()
+        newer.bodyMassKg = 72.5
+        newer.bodyMassDate = .now.addingTimeInterval(60)
+        let a = AppStore(storageURL: tempURL, health: newer)
+        a.setBodyMass(90)
+        _ = await a.enableHealth()
+        XCTAssertEqual(a.settings.bodyMassKg, 72.5, "the scale spoke later")
+        XCTAssertTrue(a.settings.bodyMassFromHealth)
+        XCTAssertEqual(a.settings.bodyMassDate, newer.bodyMassDate)
+
+        let older = HealthSpy()
+        older.bodyMassKg = 72.5
+        older.bodyMassDate = .now.addingTimeInterval(-30 * 86_400)
+        let b = AppStore(storageURL: tempURL.appendingPathExtension("older"), health: older)
+        b.setBodyMass(90)
+        _ = await b.enableHealth()
+        XCTAssertEqual(b.settings.bodyMassKg, 90, "the typed number is the later statement")
+        XCTAssertFalse(b.settings.bodyMassFromHealth)
+        XCTAssertEqual(older.massQueries, 1, "Health was asked, and its answer ranked lower")
+    }
+
+    /// The defect of 13.09.2026 in one walk: Health's last reading is a
+    /// month old, the person corrects the weight by hand, and every later
+    /// activation finds the same old sample — it must not win, however many
+    /// times it is read. The moment the scale is stood on again, it does.
+    func testAStaleHealthReadingDoesNotOverwriteATypedWeightUntilANewerOneArrives() async {
         let spy = HealthSpy()
         spy.bodyMassKg = 72.5
+        spy.bodyMassDate = .now.addingTimeInterval(-30 * 86_400)
         let store = AppStore(storageURL: tempURL, health: spy)
-        store.setBodyMass(90)
         _ = await store.enableHealth()
-        XCTAssertEqual(store.settings.bodyMassKg, 72.5)
-        XCTAssertTrue(store.settings.bodyMassFromHealth, "and the row goes read-only")
+        XCTAssertEqual(store.settings.bodyMassKg, 72.5, "nothing typed yet: the reading is adopted, old or not")
+
+        store.setBodyMass(80)
+        for _ in 0..<3 {
+            store.activate()
+            await store.bodyMassTask?.value
+            XCTAssertEqual(store.settings.bodyMassKg, 80, "the typed number stands on every foreground")
+            XCTAssertFalse(store.settings.bodyMassFromHealth)
+        }
+
+        spy.bodyMassKg = 78
+        spy.bodyMassDate = .now.addingTimeInterval(1)
+        store.activate()
+        await store.bodyMassTask?.value
+        XCTAssertEqual(store.settings.bodyMassKg, 78, "a newer weigh-in takes over")
+        XCTAssertTrue(store.settings.bodyMassFromHealth)
+    }
+
+    /// The rule itself, where nothing async sits between a test and it.
+    func testAReadingIsAdoptedOnlyOverNothingOrOverAnOlderStatement() {
+        let sample = BodyMassReading(kg: 70, date: Date(timeIntervalSince1970: 1_000))
+        XCTAssertTrue(AppStore.adopts(reading: sample, over: nil, statedAt: nil))
+        XCTAssertTrue(AppStore.adopts(reading: sample, over: 80, statedAt: nil),
+                      "an undated number is a file from before the date was kept")
+        XCTAssertTrue(AppStore.adopts(reading: sample, over: 80,
+                                      statedAt: Date(timeIntervalSince1970: 999)))
+        XCTAssertFalse(AppStore.adopts(reading: sample, over: 80,
+                                       statedAt: Date(timeIntervalSince1970: 1_000)),
+                       "the same moment is not later")
+        XCTAssertFalse(AppStore.adopts(reading: sample, over: 80,
+                                       statedAt: Date(timeIntervalSince1970: 1_001)))
     }
 
     /// The defect this whole change exists for: the weight used to be copied
@@ -186,7 +244,7 @@ extension HealthExportTests {
 
     /// A refused read and an empty Health are the same `nil` — and neither may
     /// erase the weight, because an erased weight is calories switched off.
-    /// It hands the field back instead.
+    /// The typed number stands, and so does its origin.
     func testAnAbsentHealthWeightKeepsTheTypedOneAndTheField() async {
         let spy = HealthSpy()
         let store = AppStore(storageURL: tempURL, health: spy)
@@ -199,9 +257,11 @@ extension HealthExportTests {
         XCTAssertFalse(store.settings.bodyMassFromHealth, "so the row stays editable")
     }
 
-    /// Health going quiet later — the record deleted, the read revoked — hands
-    /// the field back too, keeping the last known number until it is retyped.
-    func testHealthGoingQuietHandsTheFieldBack() async {
+    /// Health going quiet later — the record deleted, the read revoked —
+    /// keeps the last known number, and keeps saying where it came from: the
+    /// row is editable either way now, and a nil reading is not a statement
+    /// about the number's origin.
+    func testHealthGoingQuietKeepsTheLastReadingAndItsOrigin() async {
         let spy = HealthSpy()
         spy.bodyMassKg = 72.5
         let store = AppStore(storageURL: tempURL, health: spy)
@@ -211,7 +271,7 @@ extension HealthExportTests {
         store.activate()
         await store.bodyMassTask?.value
         XCTAssertEqual(store.settings.bodyMassKg, 72.5, "the last reading stands")
-        XCTAssertFalse(store.settings.bodyMassFromHealth)
+        XCTAssertTrue(store.settings.bodyMassFromHealth, "and it still came from Health")
     }
 
     /// Nothing is read while the integration is off — the toggle is the whole
@@ -344,6 +404,52 @@ extension HealthExportTests {
                        "the claim about where it came from does not")
     }
 
+    /// The second half of the owner's defect: a backup restored with the
+    /// right weight was reset to the stale scale reading on the next
+    /// activation. The restored number carries its date and outranks an
+    /// older sample; a backup from before the date was kept is dated by the
+    /// newest workout in it, which is at least as late as the number was in
+    /// force — and both outrank a month-old sample.
+    func testARestoredWeightOutranksAnOlderHealthReading() async throws {
+        let donor = AppStore(storageURL: tempURL, health: HealthSpy())
+        donor.completeWorkout(session: donor.nextSession, result: .plan)
+        donor.setBodyMass(80)
+        let backup = try donor.exportURL()
+        defer { try? FileManager.default.removeItem(at: backup) }
+
+        let stale = HealthSpy()
+        stale.bodyMassKg = 72.5
+        stale.bodyMassDate = .now.addingTimeInterval(-30 * 86_400)
+        let restoredURL = tempURL.appendingPathExtension("restored")
+        defer { try? FileManager.default.removeItem(at: restoredURL) }
+        let fresh = AppStore(storageURL: restoredURL, health: stale)
+        _ = await fresh.enableHealth()
+        XCTAssertEqual(fresh.settings.bodyMassKg, 72.5, "before the restore Health's number is all there is")
+        try fresh.importBackup(from: backup)
+        fresh.activate()
+        await fresh.bodyMassTask?.value
+        XCTAssertEqual(fresh.settings.bodyMassKg, 80, "the restored weight is the later statement")
+
+        // The same backup with the date stripped — a file from before the key.
+        var json = try XCTUnwrap(try JSONSerialization.jsonObject(with: Data(contentsOf: backup))
+                                    as? [String: Any])
+        var settings = try XCTUnwrap(json["settings"] as? [String: Any])
+        XCTAssertNotNil(settings.removeValue(forKey: "bodyMassDate"), "the date travels in the file")
+        json["settings"] = settings
+        let legacy = tempURL.appendingPathExtension("legacy-backup")
+        defer { try? FileManager.default.removeItem(at: legacy) }
+        try JSONSerialization.data(withJSONObject: json).write(to: legacy)
+        let again = AppStore(storageURL: tempURL.appendingPathExtension("restored2"), health: stale)
+        defer { try? FileManager.default.removeItem(at: tempURL.appendingPathExtension("restored2")) }
+        _ = await again.enableHealth()
+        try again.importBackup(from: legacy)
+        XCTAssertEqual(again.settings.bodyMassDate, again.records.map(\.date).max(),
+                       "dated by the newest workout it came with")
+        again.activate()
+        await again.bodyMassTask?.value
+        XCTAssertEqual(again.settings.bodyMassKg, 80)
+    }
+
     /// "From Health" is a claim about a number, so without the number it is a
     /// lie the file can tell: the row went read-only at "Not set" — calories
     /// off, and no field left to turn them back on.
@@ -359,6 +465,24 @@ extension HealthExportTests {
         let store = AppStore(storageURL: tempURL, health: HealthSpy())
         XCTAssertNil(store.settings.bodyMassKg)
         XCTAssertFalse(store.settings.bodyMassFromHealth, "no number, no claim about it")
+    }
+
+    /// The date is a claim about a number too: without one it is dropped,
+    /// and clearing the weight by hand drops it with the number.
+    func testTheDateOfTheWeightIsNeverKeptWithoutTheNumber() throws {
+        let seed = AppStore(storageURL: tempURL, health: HealthSpy())
+        var settings = seed.settings
+        settings.bodyMassDate = .now                // and no bodyMassKg
+        let data = try JSONEncoder().encode(AppData(engineState: seed.engineState,
+                                                    records: [], settings: settings))
+        try data.write(to: tempURL, options: .atomic)
+        let store = AppStore(storageURL: tempURL, health: HealthSpy())
+        XCTAssertNil(store.settings.bodyMassDate)
+
+        store.setBodyMass(80)
+        XCTAssertNotNil(store.settings.bodyMassDate)
+        store.setBodyMass(nil)
+        XCTAssertNil(store.settings.bodyMassDate, "clearing is not a claim about a number")
     }
 
     /// Where the number came from survives a relaunch: the row must not come
