@@ -1,5 +1,43 @@
 # Changelog
 
+## 2.4.1
+
+**Settings read as groups again.** The screen had nine blocks in two
+grammars: six under a small uppercase name, two — Sounds and Reminder — with
+none, so the eye attached Sounds to Equipment above it and Reminder to
+Appearance, and every caption stood at the same grey and the same distance
+from the control above and the control below, so what it explained was a
+guess. Every group opens with its name now, and the names are the app's own:
+**Weekly rhythm** — the rest days, with their two captions under the chips,
+and the reminder, which fires on training days only and is rescheduled
+whenever a rest day changes; **Equipment**; **Sounds**; **Appearance**;
+**Health**, with the weight and the calorie switch under it; **Backup**, whose
+note still stands above the rows because it has to be read before the file
+goes; **About**. Inside a group a caption sits close under the control it
+explains and further from the next one, and every group name is a heading to
+VoiceOver, so the rotor can jump group to group. Nothing a setting does
+changed, and "How it works" stays the first thing on the screen. The engine,
+the state format and the journal are untouched.
+
+**On the hold summary only the last set opens the panel.** The cards for the
+earlier sets used to open the entry too, with "+" and "−" both dead at the
+floor — a control that could do nothing and looked broken for it. Those
+cards are inert now: no outline, no editor, and the line under the row says
+which card to tap and why the others stand — "Went differently? Tap the last
+set and correct — the others stand as they ran." A set stopped by hand is
+named as the estimate it is when its panel opens ("stopped by hand at about
+5 s"), not as something the clock saw. The panel's number stays on one line
+in every language — "10 сек" used to break in two between the buttons — and
+**a hold is set and corrected in five-second steps**, the grid its plan is on:
+from 30 one tap says 35, from a hand-stopped 38 the first tap lands on 40 or
+35. The addition for next time steps the same way.
+
+- Housekeeping: the four UI tests that proved "Settings opened" by the
+  uppercase word REST DAYS anchor on the group's identifier now — the words
+  are localized and were renamed once already; the summary test asks the
+  first card to open nothing; four manual-plan rows quote what the screens
+  show. 727 → 728 automated tests: the five-second step has its own.
+
 ## 2.4.0
 
 This release is about one screen: the summary that closes a hold — a plank, a

@@ -246,31 +246,31 @@ nonisolated enum SetFacts {
     /// The range a hold's recorded seconds may be corrected within on the
     /// movement's summary.
     ///
-    /// THE CLOCK IS THE CEILING on every set but the last. A hold ends when
-    /// the clock says so: longer than it counted cannot have been held,
-    /// shorter can — the phone is on the floor (R28), the person came off at
-    /// 20 s of 30 and the clock wrote 30. Before this rule the panel opened
-    /// on the whole corridor in both directions on every card, and the
-    /// sentence under the cards invited a number "the next plan starts
-    /// from": people entered what they WANTED next time, and `recordingSet`
-    /// wrote it down as held — a 30 s set in the journal of a workout whose
-    /// second set ran 25 (owner, workout 37, 12.09.2026). What is wanted
-    /// next time is a different channel now (`raisedSteps`).
+    /// ONLY THE LAST SET IS CORRECTED. It has nothing after it — no rest
+    /// starts on its signal, and the person may have kept holding — so both
+    /// directions stay open there, up to the corridor. That is the "Went
+    /// differently" of the last hold (2.0.1), on its card. Every earlier set
+    /// ended on its signal or under a thumb and stands as it ran: its range
+    /// is the number itself. The 12.09.2026 rule let those sets be corrected
+    /// DOWN to the clock's ceiling; the panel that offered it stood with
+    /// both ends dead at the floor and read as a broken control, and the
+    /// owner took the entry off those sets altogether (13.09.2026).
     ///
-    /// The LAST set has nothing after it — no rest starts on its signal, and
-    /// the person may have kept holding — so both directions stay open
-    /// there, up to the corridor. That is the "Went differently" of the last
-    /// hold (2.0.1), on its card.
+    /// Before either rule the panel opened on the whole corridor in both
+    /// directions on every card, and the sentence under the cards invited a
+    /// number "the next plan starts from": people entered what they WANTED
+    /// next time, and `recordingSet` wrote it down as held (owner, workout
+    /// 37, 12.09.2026). What is wanted next time is a different channel now
+    /// (`raisedSteps`).
     ///
     /// `measured` is what the card shows. For a set ended by tap that is
     /// already the clock less the reach allowance, and the allowance is not
-    /// handed back: it is a guess about a walk to the phone either way, and
-    /// letting it be reclaimed by hand would make the guess the person's.
+    /// handed back: it is a guess about a walk to the phone either way.
     static func correctionRange(measured: Int, isLastSet: Bool) -> ClosedRange<Int> {
         let corridor = corridor(for: .hold)
         guard !isLastSet else { return corridor }
-        let ceiling = min(max(measured, corridor.lowerBound), corridor.upperBound)
-        return corridor.lowerBound...ceiling
+        let fixed = min(max(measured, corridor.lowerBound), corridor.upperBound)
+        return fixed...fixed
     }
 
     // MARK: - What a hold is worth when a thumb ends it

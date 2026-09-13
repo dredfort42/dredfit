@@ -63,6 +63,18 @@ final class HoldFactsTests: XCTestCase {
     /// …and `recording` still truncates, because on the work screen the sets
     /// after the one under way have not happened yet. Both halves in one test:
     /// the pair is the rule.
+    /// The panel walks a hold in fives, on the grid the plan is set on: from
+    /// a grid line one tap is one line, from a number off the grid — the
+    /// clock's 38 — the first tap lands on the next line in that direction.
+    @MainActor
+    func testTheHoldPanelStepsByFiveOntoTheGrid() {
+        XCTAssertEqual(AdjustPanel.holdStep(30, +1), 35)
+        XCTAssertEqual(AdjustPanel.holdStep(30, -1), 25)
+        XCTAssertEqual(AdjustPanel.holdStep(38, +1), 40)
+        XCTAssertEqual(AdjustPanel.holdStep(38, -1), 35)
+        XCTAssertEqual(AdjustPanel.holdStep(5, -1), 0, "the corridor, not the step, is the floor")
+    }
+
     func testTheWorkScreenWriterStillTruncates() {
         var facts = SetFacts.recording(40, in: [:], hold, set: 0)
         facts = SetFacts.recording(38, in: facts, hold, set: 1)

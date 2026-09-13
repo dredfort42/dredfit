@@ -145,6 +145,11 @@ enum AX {
 
     static let totalSteps = "total-steps"
     static let historyDone = "history-done"
+    /// The first group's kicker — the anchor for "Settings opened". By
+    /// identifier: the words are localized and uppercased by `Kicker`, and
+    /// the group was renamed once already (Rest days → Weekly rhythm,
+    /// 13.09.2026), which turned four tests red for a label.
+    static let settingsRhythm = "settings-rhythm"
     static let howItWorks = "how-it-works"
     static let howItWorksDone = "how-it-works-done"
     static let hasBarToggle = "hasbar-toggle"

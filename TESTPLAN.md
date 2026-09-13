@@ -1,6 +1,6 @@
 # Dredfit — manual QA checklist
 
-Automated coverage (727 tests: 74 core + 575 app units + 78 UI tests, all confirmed green — the UI run is a single `** TEST SUCCEEDED **`, no `Failing tests:`, zero relaunches, so its own closing tally is trustworthy) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
+Automated coverage (728 tests: 74 core + 576 app units + 78 UI tests, all confirmed green — the UI run is a single `** TEST SUCCEEDED **`, no `Failing tests:`, zero relaunches, so its own closing tally is trustworthy) is described in [README.md](README.md#testing). This document covers what a simulator or a device has to be driven by hand to confirm: system integrations, wall-clock behavior, locale passes, and anything that only misbehaves on a real screen.
 
 **How to use.** Run the *Release smoke* block before every release. Run *Full pass* when the engine, persistence or an integration changed. Device-only rows cannot pass on a simulator and are marked ⌚. Record anything that fails in the [Issue registry](#issue-registry) at the bottom rather than fixing it silently.
 
@@ -140,7 +140,7 @@ re-armed on its own — a Stop inside the mis-tap grace, and the probe set.
 
 | # | Check | Expected |
 |---|---|---|
-| 6.1 | Settings → **REST DAYS**, fresh install | Monday, **Wednesday and Friday** highlighted — four workouts a week, the rhythm both captions name; captions "Highlighted days are rest days" and "2–3 rest days a week is the recommended rhythm". An install upgrading from a file without the key keeps Sunday only (issue #36) |
+| 6.1 | Settings → **WEEKLY RHYTHM** → Rest days, fresh install | Monday, **Wednesday and Friday** highlighted — four workouts a week, the rhythm both captions name; captions "Highlighted days are rest days" and "3–4 rest days a week is the recommended rhythm. At least one training day always stays." under the chips, and **Reminder** with its caption in the same group. An install upgrading from a file without the key keeps Sunday only (issue #36) |
 | 6.2 | Chip order | Starts at the locale's first weekday (Monday for ru and de, Sunday for en-US) |
 | 6.3 | Select a second rest day | Both highlighted; Calendar marks both |
 | 6.4 | Try to select a **7th** rest day | Refused — six is the maximum |
@@ -178,7 +178,7 @@ re-armed on its own — a Stop inside the mis-tap grace, and the probe set.
 
 | # | Check | Expected |
 |---|---|---|
-| 9.1 | Settings → **EQUIPMENT** → enable **Pull-up bar** | Caption: "Every other workout swaps the row for a vertical pull" |
+| 9.1 | Settings → **EQUIPMENT** → enable **Pull-up bar** | Caption: "Every other workout swaps the horizontal pull for a vertical one" |
 | 9.2 | Look at the next workout, then the one after | The pull slot **alternates**: floor pull, then vertical pull, and so on |
 | 9.3 | Technique for a bar exercise | Opens correctly for Bar hang / Negative pull-up / Partial pull-up / Pull-up |
 | 9.4 | Train the bar branch a few sessions | Its level rises independently of the floor pull's level |
@@ -379,7 +379,7 @@ on a page that does — see I-11.
 | 20.2 | Milestone after a session rated **less** | No review prompt |
 | 20.3 | Milestone, ≥5 workouts, not rated less, never asked before | System review prompt may appear (iOS may still suppress it) |
 | 20.4 | Trigger the conditions again the next day | No second prompt — the 60-day floor is recorded even if iOS showed nothing |
-| 20.5 | Settings → About → **Rate in App Store** | Opens the App Store review sheet for id6791739610 |
+| 20.5 | Settings → About → **Rate on the App Store** | Opens the App Store review sheet for id6791739610 |
 | 20.6 | Settings → About → **Recommend Dredfit** | System share sheet with the App Store link |
 
 ### 21. Calibration on the first workout (1.5)
@@ -1030,10 +1030,10 @@ next plan "starts from", the person entered what they wanted next time, and
 
 | # | Check | Expected |
 |---|---|---|
-| 54.1 | The screen after the last set of any hold movement | **Held**, the name, and a card per set: the seconds, "set N", and **"plan P" on every card** — even when the plan is the same on all of them. No card is filled in accent, whatever it ran. Under the row: **"Went differently? Tap and correct."** — the work screen's own words for the same act — with "the numbers are per side" on a unilateral hold |
-| 54.2 | Tap a card that is **not** the last | The panel opens in the slot of the **Next time** block, under one line: **"set 2 · the clock saw 6 s — no more than that goes in"**; "+" is dimmed and dead, "−" works down to 5. No question in the past tense anywhere — the line names the set and what the clock counted (owner, 12.09.2026) |
+| 54.1 | The screen after the last set of any hold movement | **Held**, the name, and a card per set: the seconds, "set N", and **"plan P" on every card** — even when the plan is the same on all of them. No card is filled in accent, whatever it ran; only the LAST card wears the outline. Under the row: **"Went differently? Tap the last set and correct — the others stand as they ran."** — with "the numbers are per side" on a unilateral hold |
+| 54.2 | Tap a card that is **not** the last | Nothing opens: the card is inert, the **Next time** block stays. Earlier sets stand as they ran — the line under the cards says so (owner, 13.09.2026; before that the panel opened with "+" dead at the clock and read as broken) |
 | 54.3 | Tap the **last** card | The line reads **"set 3 · the clock saw 6 s"** and both directions are live, up to 90: nothing followed that set, and the person may have kept holding. This is the "Went differently" of the last hold (2.0.1), on its card |
-| 54.4 | Stop a set early, then tap its card | It opens at the ≈ number, and "+" is dead at it: the three-second allowance is not handed back by hand |
+| 54.4 | Stop the **last** set early, then tap its card | The line above the panel reads **"set 3 · stopped by hand at about 5 s"** — an estimate, not "the clock saw" — and both directions are open. An earlier set stopped by hand is inert like the others |
 | 54.5 | The block **Next time**, standing directly above **Done** — the same distance the entry panel keeps | One sentence naming the plan the app will set — "The app will set 30-30-25 sec." when a number differs from the plan, "… if you rate the workout “on plan”." when none does — and a stepper reading **+0 s** |
 | 54.6 | Tap **+** | The SENTENCE changes to the raised plan (30-30-25 → 30-30-30); the stepper reads +5 s; the block turns accent. No card changes. **−** takes it back and the sentence returns |
 | 54.7 | Tap **+** past two steps | It dims at +10 s (`EngineConfig.raiseStepsMax`). On a movement at the top of its grid (3×45 s) there is no stepper at all — "This is the most for this movement." |
