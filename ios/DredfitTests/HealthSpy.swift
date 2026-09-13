@@ -29,6 +29,9 @@ final class HealthSpy: WorkoutHealthWriting, @unchecked Sendable {
     /// which is also what a refused read looks like — HealthKit does not
     /// distinguish the two, and neither can the app.
     var bodyMassKg: Double?
+    /// When the scale was stood on. Defaults to the moment of the read — a
+    /// fresh weigh-in — so tests about the ordering rule set it explicitly.
+    var bodyMassDate: Date?
     var profile = BodyProfile()
     var basalKcal: Double?
     var foreign: [DateInterval] = []
@@ -46,10 +49,10 @@ final class HealthSpy: WorkoutHealthWriting, @unchecked Sendable {
 
     func requestAuthorization() async -> Bool { grant }
 
-    func latestBodyMassKg() async -> Double? {
+    func latestBodyMass() async -> BodyMassReading? {
         massQueries += 1
         await massGate?.wait()
-        return bodyMassKg
+        return bodyMassKg.map { BodyMassReading(kg: $0, date: bodyMassDate ?? .now) }
     }
 
     func profile() async -> BodyProfile { profile }

@@ -134,7 +134,7 @@ final class JournalSanitizationTests: AppStoreTestCase {
     private struct AcceptingHealth: WorkoutHealthWriting {
         var isAvailable: Bool { true }
         func requestAuthorization() async -> Bool { true }
-        func latestBodyMassKg() async -> Double? { nil }
+        func latestBodyMass() async -> BodyMassReading? { nil }
         func profile() async -> BodyProfile { BodyProfile() }
         func restingKcal(start: Date, end: Date) async -> Double? { nil }
         func foreignWorkoutIntervals(start: Date, end: Date) async -> [DateInterval] { [] }

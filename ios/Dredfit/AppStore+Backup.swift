@@ -77,6 +77,16 @@ extension AppStore {
         // this device's Health had never been asked, and the row would not
         // open to be corrected. The first activation re-earns the flag.
         settings.bodyMassFromHealth = false
+        // The number's DATE does travel: it says when the weight was stated,
+        // and that is a fact about the person, not the device. A backup from
+        // before the date was kept gets the newest workout in it as the
+        // date — the number was in force at least until then — so the
+        // first activation compares it with Health's sample instead of
+        // letting a stale scale reading overwrite a restored weight
+        // (owner, 13.09.2026).
+        if settings.bodyMassKg != nil, settings.bodyMassDate == nil {
+            settings.bodyMassDate = records.map(\.date).max()
+        }
         // Old backups carry only the mark — turn whichever won into flags.
         migrateHealthMarkToFlags()
         persist()

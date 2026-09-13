@@ -15,6 +15,12 @@ nonisolated struct WorkoutOrigin: Equatable, Sendable {
     let end: Date
 }
 
+/// One weigh-in as Health reports it: the kilograms and when they were true.
+struct BodyMassReading: Equatable {
+    var kg: Double
+    var date: Date
+}
+
 /// Injectable seam: unit tests substitute a spy.
 protocol WorkoutHealthWriting {
     var isAvailable: Bool { get }
@@ -22,9 +28,13 @@ protocol WorkoutHealthWriting {
     /// type — energy sharing, and all four reads — may be refused on its own,
     /// and each refusal only costs the feature that needs it.
     func requestAuthorization() async -> Bool
-    /// Latest recorded body mass in kilograms, or nil when there is none and
-    /// when the read was refused. HealthKit does not distinguish the two.
-    func latestBodyMassKg() async -> Double?
+    /// Latest recorded body mass in kilograms, with the date the sample was
+    /// taken, or nil when there is none and when the read was refused.
+    /// HealthKit does not distinguish the two. The date is what decides
+    /// whether the reading outranks a number typed into the app: whichever
+    /// was stated later wins, and a scale not stepped on for a month must
+    /// not keep overwriting a weight typed this morning (owner, 13.09.2026).
+    func latestBodyMass() async -> BodyMassReading?
     /// Height, age and sex in one snapshot; every field independently absent.
     func profile() async -> BodyProfile
     /// Basal (resting) energy Apple already computed for this interval.
@@ -79,8 +89,9 @@ struct HealthKitWorkoutWriter: WorkoutHealthWriting {
         return store.authorizationStatus(for: .workoutType()) == .sharingAuthorized
     }
 
-    func latestBodyMassKg() async -> Double? {
-        await latestQuantity(.bodyMass, unit: .gramUnit(with: .kilo))
+    func latestBodyMass() async -> BodyMassReading? {
+        await latestSample(.bodyMass, unit: .gramUnit(with: .kilo))
+            .map { BodyMassReading(kg: $0.value, date: $0.date) }
     }
 
     func profile() async -> BodyProfile {
@@ -206,6 +217,15 @@ struct HealthKitWorkoutWriter: WorkoutHealthWriting {
     }
 
     private func latestQuantity(_ id: HKQuantityTypeIdentifier, unit: HKUnit) async -> Double? {
+        await latestSample(id, unit: unit)?.value
+    }
+
+    /// The newest sample of a type, with the moment it was taken (`endDate`:
+    /// a weigh-in is an instant, and for a ranged sample the end is when the
+    /// value was known). The value is finite and positive or the sample is
+    /// treated as absent.
+    private func latestSample(_ id: HKQuantityTypeIdentifier,
+                              unit: HKUnit) async -> (value: Double, date: Date)? {
         guard let type = HKObjectType.quantityType(forIdentifier: id) else { return nil }
         let sort = [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]
         let samples: [HKSample] = await withCheckedContinuation { continuation in
@@ -217,6 +237,6 @@ struct HealthKitWorkoutWriter: WorkoutHealthWriting {
         }
         guard let sample = samples.first as? HKQuantitySample else { return nil }
         let value = sample.quantity.doubleValue(for: unit)
-        return value.isFinite && value > 0 ? value : nil
+        return value.isFinite && value > 0 ? (value, sample.endDate) : nil
     }
 }
