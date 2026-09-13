@@ -80,7 +80,7 @@ wrong number, taken again every time the app came to the front, with no way
 to say otherwise; a restored backup carrying the right weight was overwritten
 by it too. The rule is now the one a person would expect: the more recent
 statement wins. The number remembers when it was stated — the date of the
-Health sample, or the moment it was typed or restored — and a Health sample
+Health sample, or the moment it was typed — and a Health sample
 replaces it only when it is newer than that date, or when there is no number
 at all. A number from a file written before the date was kept yields to any
 sample. The row is always editable, and its caption names where the number
