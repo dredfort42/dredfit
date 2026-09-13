@@ -191,7 +191,6 @@ struct ExerciseActionsRow: View {
     }
 }
 
-
 /// "Went differently" — the SECOND control of the pair, standing above the
 /// primary one rather than under it (owner, 27.08.2026).
 ///

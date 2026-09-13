@@ -45,11 +45,16 @@ public extension Engine {
         .pullBar: [1, 5, 6, 7],
     ]
 
+    // swiftlint:disable comma
     /// A SNAPSHOT of a removed format. v2's `decodeLevel` was a pure function of
     /// L ∈ [0, 47], so its forty-eight rows are baked here rather than dragging
     /// live copies of dead tables (`repStart`, `repStartBand`, `holdLadderFor`)
     /// into v3. A row is [tier, sets, reps, seconds]. Taken from
     /// `adaptive_engine.v2.27-baseline.js`, checked across all 48 values.
+    ///
+    /// The rows keep the baseline's own spelling, `[1,3,8,20]`, so the 48
+    /// values can be compared with the JS by eye — spacing them to the
+    /// lint's taste would make every row differ from its source.
     static let v2LevelTable: [[Int]] = [
         [1,3,8,20], [1,3,9,22], [1,3,10,24], [1,3,11,26], [1,3,12,29], [1,3,13,32],
         [1,3,14,35], [1,3,15,39], [2,3,6,15], [2,3,7,17], [2,3,8,19], [2,3,9,21],
@@ -60,6 +65,7 @@ public extension Engine {
         [4,4,10,32], [4,4,11,35], [4,4,12,38], [4,4,13,41], [4,5,8,24], [4,5,9,27],
         [4,5,10,30], [4,5,11,33], [4,5,12,36], [4,5,13,39], [4,5,14,42], [4,5,15,45],
     ]
+    // swiftlint:enable comma
 
     /// What a v2 state carries, as far as v3 needs to read it.
     struct V2State {

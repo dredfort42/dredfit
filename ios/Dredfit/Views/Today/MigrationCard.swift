@@ -22,6 +22,8 @@ struct MigrationCard: View {
                 .tracking(-0.3)
                 .foregroundStyle(Theme.ink)
 
+            // One literal, because the literal is the catalog key.
+            // swiftlint:disable:next line_length
             Text("The exercises were rebuilt: the ladders have more variations, and the plan follows what you actually do. You pick up where you left off.")
                 .dredfitFont(14.5)
                 .foregroundStyle(Theme.ink2)

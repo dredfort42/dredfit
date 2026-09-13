@@ -13,6 +13,12 @@
 //  Mirrors WARMUP_TECHNIQUE in the reference adaptive_engine.js.
 //
 
+// swiftlint:disable line_length
+// A technique line is ONE literal, because the literal IS the catalog key:
+// wrapping it across lines would change what the catalog scanner and the
+// compiler read, and shortening the prose to fit a ruler would change the
+// technique. The lint's width rule is right for code, and this file is text.
+
 import Foundation
 
 public struct WarmupMovement: Equatable, Sendable {
@@ -73,3 +79,4 @@ public enum WarmupTechnique {
             ])
     }
 }
+// swiftlint:enable line_length

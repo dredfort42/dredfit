@@ -152,7 +152,6 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
         XCTAssertEqual(store.records.count, 1)
     }
 
-
     // MARK: - The band where the athlete is asked (owner, 06.09.2026)
 
     /// Three hours is a long lunch, not a lost session. Past the occasion the
