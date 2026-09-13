@@ -79,4 +79,30 @@ final class SetFactsUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Actual: 4-4-1"].exists, "the history row lost the sets")
         app.buttons[AX.historyDone].tap()
     }
+
+    /// The stepper's target is its whole frame, corners included. A Button
+    /// takes taps only where its label draws, and the label drew a ring: the
+    /// four corners of the 44 pt frame and everything past the ring took no
+    /// tap, so a thumb that landed at the ring's edge missed, and missed the
+    /// same way on every repeat — "the − sticks" (owner, 13.09.2026, build
+    /// 22). The frame is now 62 × 68 pt of hit shape over the same ring, and
+    /// this taps its two far corners — 40 pt from the centre, twice the ring's
+    /// radius — where the ring alone would have taken nothing.
+    func testTheStepperTakesATapAtTheCornerOfItsFrame() {
+        app.launch()
+        driver.startWorkout()
+        XCTAssertTrue(app.buttons[AX.exerciseDone].waitForExistence(timeout: 5),
+                      "the first work screen never came up")
+        app.buttons[AX.exerciseAdjust].tap()
+        let minus = app.buttons[AX.adjustMinus]
+        XCTAssertTrue(minus.waitForExistence(timeout: 3), "the stepper did not open")
+        // Plan 4: a corner tap each — the top-left and the bottom-right of the
+        // reported frame, inset by a hair so the tap is on the shape, not on
+        // its edge.
+        minus.coordinate(withNormalizedOffset: CGVector(dx: 0.06, dy: 0.06)).tap()
+        minus.coordinate(withNormalizedOffset: CGVector(dx: 0.94, dy: 0.94)).tap()
+        app.buttons[AX.adjustConfirm].tap()
+        XCTAssertTrue(app.staticTexts["actual 2"].waitForExistence(timeout: 3),
+                      "two corner taps must step 4 → 2; a miss leaves the plan and no caption")
+    }
 }
