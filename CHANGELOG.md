@@ -1,5 +1,24 @@
 # Changelog
 
+## 2.4.2
+
+**The stepper's "−" and "+" take a tap on their whole frame.** On build 22
+a tap on "−" could do nothing, and do nothing again on every repeat — "the
+button sticks". The cause was the target, not the arithmetic: a Button takes
+taps only where its label draws, and the label drew a 44 pt ring, so the four
+corners of the frame and everything past the ring took no tap at all. A
+thumb reaching across the phone to "−" lands its centroid at the ring's
+edge or just past it, and lands there again on the next try. The hit shape
+is now 62 × 68 pt — the frame, the panel's own padding above and below, and
+half the gap to the number — laid over the same ring, so nothing in the row
+moves, on the summary and on the work screen alike. Measured before the
+change with taps at the frame's corners: none landed; after: all four do.
+The step itself, the five-second grid and the press-and-hold repeat are
+untouched, and so are the engine, the state format and the journal.
+
+- Housekeeping: 728 → 729 automated tests — the corner tap has its own UI
+  test, which fails against the ring alone.
+
 ## 2.4.1
 
 **Settings read as groups again.** The screen had nine blocks in two
