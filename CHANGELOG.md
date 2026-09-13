@@ -1,5 +1,148 @@
 # Changelog
 
+## 2.4.0
+
+This release is about one screen: the summary that closes a hold — a plank, a
+hollow hold, a side plank — after its last set. That screen used to ask for
+next time's number in the past tense, and the app wrote the wish down as a
+fact. It now keeps the two tenses apart: the cards say what was held, a
+**Next time** block above **Done** says what will be asked, and a rise you add
+there is called your addition everywhere it lands — on the rating screen, in
+history and under tomorrow's plan. The engine moves with it, reference
+**3.4.0 → 3.5.0**, by exactly one new handle, `raiseDose`, applied after the
+rating: every earlier fixture scenario reproduces bit-for-bit, so no existing
+ladder, rating, descent, break or probe changed what it does. The saved state
+and the journal gain four optional fields — `raisedSteps` and `raisedLanded` on
+a workout record, `holdMeasuredSec` and `raisedSteps` on the in-progress
+snapshot — with no migration: a file an older build wrote reads as it always
+did, and going back to 2.3.0 loses no journal. Health, backup, permissions and
+the App Privacy answers, the widgets, and the screens outside the hold
+summary — technique, skipping, Progress, "How it works", the comeback card,
+settings, onboarding — are untouched. The work screen and the probe are not
+on that list for one reason only: the entry panel they open is the same
+component the summary uses, and its "+" and "−" now dim at the edges of the
+corridor instead of silently doing nothing.
+
+**The summary of a hold keeps the past and the future apart.** After the last
+set of a plank, a hollow hold or a side plank, the screen used to show a card
+per set with a set that ran longer than its plan turned orange and captioned
+"+5", and one sentence under the row: "these are the numbers the next plan
+starts from". Read literally — and it was — that sentence asked for the number
+you wanted next time, and the app wrote it down as held. The cards are only
+the past now: the seconds, "set 2", and **the plan on every card**, in the
+same grey whatever the set ran, and one line under them in the words the
+work screen already uses for the act: "Went differently? Tap and correct."
+Correcting a set opens the stepper under one line — **"set 2 · the clock saw 6 s — no more than that goes in"** — because
+on every set but the last the clock is the ceiling: a hold ends when the
+clock says so, so longer than it counted cannot have been held, shorter can,
+and "+" is dimmed at the number the clock saw. The last set has nothing after
+it, and you may have kept holding, so both directions stay open there. The
+same is now true at the edges of the corridor wherever the panel opens — on
+the work screen and on a probe too: a "+" or "−" that can do nothing is
+dimmed and disabled rather than accepting a tap that used to clamp in silence.
+
+**Next time is its own block, with the one control that changes it.** Above
+**Done**, where the entry panel opens, **Next time** names the plan the app will set — "The app will set
+30-30-25 sec", or "… if you rate the workout “on plan”" when nothing differed
+from the plan — and a stepper adds to it by steps of the
+ladder, five seconds to one set at a time, up to two. The sentence rewrites
+itself on every tap, so what you read is what will be asked of you, and the
+block turns orange only once you have added something: the accent on this
+screen means your decision, and nothing else. A movement already at the top
+of its grid says so instead of offering a dead control. The addition never
+touches the seconds recorded for the sets of this workout. It is landed by
+the engine after your rating (§41.13), the rating screen lists it under **Your additions**, history
+says "After: 30-30-30 sec · +5 s of it is your addition", and tomorrow's plan
+carries "+5 s — your addition" under the row so a rise you asked for never
+reads as one the app took by itself. Those two lines name the share that
+actually landed: on the top rung of a grid the engine parks what it cannot
+add, and a rise the rating or your own numbers took is not called your
+addition — while the journal keeps what you tapped, so changing the rating
+replays your decision, not the share. The summary holds itself to the same
+rule before anything is rated: correct the **last** set upward to where the
+grid ends, and the stepper is cut back to what still changes the plan —
+here nothing, so the stepper goes and "This is the most for this movement."
+stands in its place — rather than reading "+10 s" over a plan the fact has
+already taken to the top.
+
+**History and the rating screen name what they print.** The per-set facts
+used to appear as bare numbers — "30 · 30 · 25" in orange under a grey plan
+and above "After: 30-30-25 sec", three rows with one word between them. The
+plan says "plan", the fact is a full-width line in the plan's own spelling
+("Held: 30-22-25 sec", "Actual: 12-12-11"), and the rating screen's list
+reads "actual 30 · 22 · 25" rather than the numbers alone.
+
+**The later weight wins.** With Health on, the app took the last body-weight
+sample from Health on every activation, unconditionally, and the **Body
+weight** row in Settings went read-only under it — "Taken from Health, and
+kept up to date." On a phone whose scale last spoke a month ago that was the
+wrong number, taken again every time the app came to the front, with no way
+to say otherwise; a restored backup carrying the right weight was overwritten
+by it too. The rule is now the one a person would expect: the more recent
+statement wins. The number remembers when it was stated — the date of the
+Health sample, or the moment it was typed — and a Health sample
+replaces it only when it is newer than that date, or when there is no number
+at all. A number from a file written before the date was kept yields to any
+sample. The row is always editable, and its caption names where the number
+in force came from and when: "From Health, <the date>. A newer weight — typed
+here or logged there — takes over." or "Set in the app, <the date>. A newer
+weight logged in Health takes over." — "set in the app" rather than "typed",
+because a restored backup sets the number too, dated by its journal, and
+naming a hand and a day would be a lie about both. So a stale reading is seen
+for what it is rather than trusted for being Health's. Clearing the weight by hand drops the
+date, so Health may fill it again; Health going quiet erases nothing. A
+restored backup brings its own date, and one from a build that kept none is
+dated to the latest workout in it, so an old scale reading no longer beats
+it. Nothing new is read from Health — the same body-mass type, now with the
+sample's own date beside the value — and the App Privacy answers do not
+change.
+
+The string catalog carries only keys somebody asks for. Twenty-two entries
+had no caller left — sentences reworded on screen in earlier waves whose old
+spelling stayed behind, five of them pinned by name in a test that guarded
+the corpse rather than the string — and six languages were being asked to
+keep them translated. They are gone, and a unit test now fails on any key
+with no literal in the sources.
+
+Engine reference 3.4.0 → 3.5.0: one new handle, `raiseDose`, walking the dose axis
+only — never a set, never a variation, parked on the grid's ceiling — and
+applied last, over the rating and the skipped sets. Every earlier fixture
+scenario reproduces bit-for-bit; the new one pins the order.
+
+### Housekeeping
+
+- **The repository is the home of two platforms now.** Everything Xcode opens
+  moved under `ios/` and the store materials under `store/appstore/`, as one
+  unit, so every relative path inside the project and the test plan is what
+  it was; the fixture regenerated after the move is byte-for-byte the same
+  file (#244). `android/` and `store/playstore/` exist with a README each
+  saying what goes there, so the Kotlin port arrives as a sibling rather than
+  a subfolder of the iOS app (#245).
+- **The build compiles without a warning on Xcode 26** (#246). The theme
+  built its trait collection through `UITraitCollection(traitsFrom:)`, which
+  the SDK now deprecates, and the v2 state decoder read two fields —
+  `counter` and `hasBar` — through `decodeIfPresent` and then cast them
+  again, a double optional the compiler had started to flag. Both are rewritten in place; the behaviour of neither
+  changed.
+- **The skip paths moved out of `WorkoutFlowView.swift`** into
+  `WorkoutFlowView+Skips.swift` (#247), unchanged — the file stood at 1159
+  of the 1200 lines SwiftLint allows, and the next feature would have paid
+  for the split at the worst moment.
+- **705 → 727 automated tests**, counted across the same three layers 2.3.0
+  counted: **74** in the engine package, **575** in the app, **78** in the UI
+  suite. The engine's four pin the new handle — it walks the sub-steps and
+  then the rung, stands on the ceiling and clamps its input, counts the sets
+  on screen under a cut, and lands after the feedback. The app's seventeen sit
+  on what this wave could have got wrong quietly: a correction that cannot
+  exceed the clock except on the last set, the preview being exactly what the
+  rating will set, the share that landed kept apart from the steps that were
+  tapped, a raise read off disk clamped to what the engine takes, the stepper
+  counting only the steps that still move the plan, the catalog test that
+  fails on any key no source asks for — and, for the weight, that a Health
+  sample newer than the typed number replaces it while an older one does not,
+  and that a restored backup keeps its own date. The one UI test added walks
+  an addition from the summary to the rating screen.
+
 ## 2.3.0
 
 **A workout you trained and never rated is no longer lost.** The journal was

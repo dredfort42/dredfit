@@ -19,7 +19,7 @@ import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-PBXPROJ = ROOT / "Dredfit.xcodeproj" / "project.pbxproj"
+PBXPROJ = ROOT / "ios" / "Dredfit.xcodeproj" / "project.pbxproj"
 CHANGELOG = ROOT / "CHANGELOG.md"
 
 MARKETING_RE = re.compile(r"MARKETING_VERSION = ([^;]+);")

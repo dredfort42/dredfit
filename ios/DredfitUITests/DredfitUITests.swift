@@ -1,0 +1,651 @@
+//
+//  English locale, clean state — and where a walk must instead read back what
+//  it just wrote, it says so by name (`launchedOnStoredState`). Both forms
+//  live in AccessibilityID.swift because two tests here used to assign
+//  `launchArguments` outright and drop --uitest-reset with it.
+//
+
+import XCTest
+
+@MainActor
+final class DredfitUITests: XCTestCase {
+
+    var app: XCUIApplication!
+
+    // `async throws`, and that is the whole of the fix for sixteen build
+    // warnings: a synchronous `setUp()` override inherits XCTestCase's
+    // non-isolated declaration whatever the class is annotated with, so
+    // main-actor `XCUIApplication` was reached from a non-isolated context.
+    // Only the async form may add the class's isolation.
+    override func setUp() async throws {
+        try await super.setUp()
+        continueAfterFailure = false
+        app = XCUIApplication()
+        app.seedLaunchArguments()
+    }
+
+    // Thin wrappers over WorkoutDriver. Internal, not private:
+    // DredfitUITests+Cooldown.swift extends this class from another file.
+    var driver: WorkoutDriver { WorkoutDriver(app: app) }
+
+    func startWorkout() {
+        driver.startWorkout()
+    }
+
+    /// Adds seed flags to the clean-state launch `setUp` prepared instead of
+    /// replacing it: the two that replaced it lost `--uitest-reset` and ran on
+    /// the leftovers of the test before them, which ends mid-workout.
+    func seed(_ flags: String...) {
+        app.launchArguments.append(contentsOf: flags)
+    }
+
+    /// The rating tap and the state it has to land in — the same two lines at
+    /// ten call sites, by identifier because the cards are reworded often.
+    func rate(_ card: String = AX.ratingPlan, landsOn done: String = "Workout 1 completed") {
+        app.element(withIdentifier: card).tap()
+        XCTAssertTrue(app.staticTexts[done].waitForExistence(timeout: 5),
+                      "the rating must return to Today reading \"\(done)\"")
+    }
+
+    /// A workout interrupted mid-rest, then cold-started: the arrange of the
+    /// resume tests, which differ only in what they then answer.
+    func relaunchOnAnInterruptedWorkout() -> XCUIApplication {
+        app.launch()
+        startWorkout()
+        app.buttons[AX.exerciseDone].tap()          // set 1 done → rest (snapshot written)
+        XCTAssertTrue(app.buttons[AX.skipRest].waitForExistence(timeout: 3),
+                      "the set has to be logged before the kill, or there is nothing to resume")
+        app.terminate()
+        let relaunch = XCUIApplication.launchedOnStoredState()
+        XCTAssertTrue(relaunch.staticTexts["Continue the workout?"].waitForExistence(timeout: 5),
+                      "a fresh interrupted workout must be offered back")
+        return relaunch
+    }
+
+    /// Opens "Went differently" and hands back the stepper asked for.
+    func openAdjuster(_ step: String) -> XCUIElement {
+        app.buttons[AX.exerciseAdjust].tap()
+        let button = app.buttons[step]
+        XCTAssertTrue(button.waitForExistence(timeout: 3), "the stepper did not open")
+        return button
+    }
+
+    /// Taps the exercise-level skip until `goal` shows, at most `limit` times.
+    /// On the GOAL rather than counting taps: the skip keeps its identifier
+    /// across exercises, so there is no disappearance edge to confirm one by —
+    /// a dropped tap is retried, and over-skipping cannot happen. The wall
+    /// clock bounds it as well as the tap count, because an iteration that
+    /// finds no skip to tap does not advance the count.
+    func skipExercises(until goal: XCUIElement, limit: Int) {
+        let skip = app.buttons[AX.exerciseSkip]
+        // 30 s per exercise, not 15. One skip is a tap, an answer and two
+        // queries of the tree, and on the nightly runner a single query has
+        // taken seconds — the walk was running out of budget before it ran out
+        // of exercises, and what failed then was the assertion AFTER this
+        // helper (nightly 2026-09-02, `testBarWorkoutFlowsToRating`). The
+        // widening costs nothing in the ordinary case because of the exit
+        // below: the loop now leaves as soon as there is nothing left to skip,
+        // instead of spinning out whatever budget it was given.
+        let deadline = Date.now.addingTimeInterval(TimeInterval(limit) * 30)
+        // The block the work ends on. Reached with every exercise behind, and
+        // it is the CALLER's question to answer (`declineCooldownIfAsked`) —
+        // so arriving here is this loop's exit, not a state to wait out. It
+        // used to spin against it until the deadline whenever `limit` was
+        // generous, which is most call sites: `limit: 6` on a session of six
+        // with one exercise already done burned forty seconds doing nothing,
+        // in a suite whose whole problem is that it runs out of runner.
+        let cooldownAsks = app.buttons[AX.cooldownIntroSkip]
+        var skips = 0
+        while !goal.exists && skips < limit && Date.now < deadline {
+            if cooldownAsks.exists { return }
+            // The escape asks before it acts (SkipConfirmation.swift), and it
+            // is the ANSWER that advances the flow — so the answer, not the
+            // escape, is what counts as a skip here. A question left standing
+            // by a dropped tap is answered on the next pass instead.
+            if driver.confirmSkip(timeout: 0) {
+                skips += 1
+            } else if skip.exists && skip.isEnabled {
+                // `isEnabled`, not `exists` alone. The escapes stand down
+                // during a count-in, a hold and a side switch as
+                // `.opacity(0).disabled()` — reserved height keeps the layout
+                // still — so they stay in the tree with a degenerate frame,
+                // and since a hold exercise runs itself now, a skip-through
+                // meets that state on the way past every hold.
+                coordinateTap(skip)
+            }
+            _ = goal.waitForExistence(timeout: 1)   // settle + goal check
+        }
+    }
+
+    /// Taps an element at the centre of its own frame, bypassing hittability
+    /// resolution — see WorkoutDriver for why this is not `.tap()`, and why
+    /// it declines to tap an element that has already left.
+    @discardableResult
+    func coordinateTap(_ element: XCUIElement) -> Bool {
+        driver.coordinateTap(element)
+    }
+
+    /// Launch, walk the whole workout, answer the rating: the arrange of
+    /// several tests about what Today, the calendar, Progress or a relaunch
+    /// look like AFTERWARDS. Not private: DredfitUITests+Resume.swift needs
+    /// it too, for the relaunch-after-a-completed-workout tests.
+    func walkAWholeWorkout(adjustFirstExercise: Bool = false,
+                           rating card: String = AX.ratingPlan) {
+        seed("--uitest-fast")
+        app.launch()
+        completeWorkout(adjustFirstExercise: adjustFirstExercise)
+        rate(card)
+    }
+
+    /// This wrapper only adds the adjustment step; the walk is the driver's.
+    private func completeWorkout(adjustFirstExercise: Bool = false,
+                                 deadline: TimeInterval = 420) {
+        startWorkout()
+
+        if adjustFirstExercise {
+            // Plan 4 → 3. A clean start IS the bottom of the grid (§40.8),
+            // so a first-session actual can only be BELOW it — there is no
+            // "lower but still on the ladder" number to type here any more.
+            openAdjuster(AX.adjustMinus).tap()
+            app.buttons[AX.adjustConfirm].tap()
+            XCTAssertTrue(app.staticTexts["actual 3"].exists, "the actual marker did not appear")
+        }
+
+        // The cool-down has its own test and the release smoke walks it.
+        driver.completeWorkout(skipCooldown: true, deadline: deadline)
+    }
+
+    // MARK: - Full pass
+
+    func testFullWorkoutFlowWithAdjustment() {
+        seed("--uitest-fast")
+        app.launch()
+
+        XCTAssertTrue(app.staticTexts["Workout 1"].waitForExistence(timeout: 5))
+        let start = app.buttons[AX.startWorkout]
+        XCTAssertTrue(start.isHittable, "the Start button is unavailable (covered by the tab bar?)")
+
+        completeWorkout(adjustFirstExercise: true)
+
+        // The card header states the scope once — the adjusted exercise sits
+        // outside it, carrying its own number.
+        XCTAssertTrue(app.staticTexts["Your rating applies to 5 of 6"].exists,
+                      "no actuals summary on the rating screen")
+        XCTAssertTrue(app.staticTexts["actual 3"].exists)
+
+        // The adjusted exercise finished under its planned volume, so the one
+        // rating that claims MORE is spent — and says so. The LINE is the
+        // assertion, not the card's state: a dimmed card is still in the tree.
+        XCTAssertTrue(app.staticTexts["“Easy, could do more” is for a workout done in full."].exists,
+                      "no reason given for the rating that is not on offer")
+
+        rate()
+        XCTAssertFalse(app.buttons[AX.startWorkout].exists, "Start must not show after completion")
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label BEGINSWITH 'Workout 2 ·'")).firstMatch.exists,
+            "no next-workout card")
+    }
+
+    func testNextWorkoutPreviewHasNoStartButton() {
+        walkAWholeWorkout()
+
+        // `rate()` returns as soon as "Workout 1 completed" EXISTS, and the
+        // rating is a fullScreenCover: Today's tree is already underneath it
+        // while it animates away, so this card exists before it can be
+        // tapped. A plain `.tap()` here lands on the cover and is lost —
+        // silently, because the card is still there to be found afterwards.
+        // Hence the driver's coordinateTap, which is what the rest of the
+        // suite uses for a control the flow may still be transitioning over.
+        let card = app.staticTexts.matching(
+            NSPredicate(format: "label BEGINSWITH 'Workout 2 ·'")).firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 5), "no next-workout card to open")
+        let title = app.staticTexts["Workout 2"]
+        // On the GOAL rather than counting taps, like `skipExercises`: a tap
+        // the dismissing cover swallowed is retried, and the card cannot be
+        // over-opened — once the sheet is up the loop is done. The wall clock
+        // bounds it as well as the tap count, for that helper's reason: an
+        // iteration that finds no card to tap does not advance the count, so
+        // the count alone would spin forever on a card that went away.
+        var taps = 0
+        let deadline = Date.now.addingTimeInterval(30)
+        while !title.exists && taps < 5 && Date.now < deadline {
+            if card.exists { coordinateTap(card); taps += 1 }
+            _ = title.waitForExistence(timeout: 3)
+        }
+        XCTAssertTrue(title.exists, "the next-workout card did not open its preview")
+        XCTAssertFalse(app.buttons[AX.startWorkout].exists, "the preview must not have Start")
+        app.buttons[AX.nextWorkoutDone].tap()
+    }
+
+    // MARK: - Technique
+
+    func testTechniqueSheetFromTodayList() {
+        app.launch()
+        _ = app.staticTexts["Workout 1"].waitForExistence(timeout: 5)
+        // The first plan row by identifier: "3 ×" is a rendered load — a
+        // number format and a locale, not an identity.
+        app.buttons.matching(
+            NSPredicate(format: "identifier BEGINSWITH %@", AX.planRowPrefix)).firstMatch.tap()
+        XCTAssertTrue(app.staticTexts["TECHNIQUE"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["COMMON MISTAKES"].exists)
+        // The "why" section is always present, below the mistakes.
+        XCTAssertTrue(app.staticTexts["IN LIFE"].exists)
+        XCTAssertTrue(app.staticTexts[AX.techniqueLife].exists)
+        app.buttons[AX.techniqueDone].tap()
+        XCTAssertTrue(app.buttons[AX.startWorkout].waitForExistence(timeout: 3))
+    }
+
+    func testTechniqueSheetDuringWorkout() {
+        app.launch()
+        startWorkout()
+        app.buttons[AX.technique].tap()
+        XCTAssertTrue(app.staticTexts["TECHNIQUE"].waitForExistence(timeout: 3))
+        app.buttons[AX.techniqueDone].tap()
+        XCTAssertTrue(app.buttons[AX.exerciseDone].waitForExistence(timeout: 3))
+    }
+
+    // MARK: - Exit and data integrity
+
+    /// One set logged and the dialog open over it — the arrange of the three
+    /// tests below, which differ only in which answer they take.
+    ///
+    /// No `.firstMatch` on the exit tap any more, and that is a fix rather
+    /// than tidying: the header carries TWO controls reading "Exit" — the real
+    /// one and a hidden twin balancing the title — so the query was ambiguous
+    /// and `.firstMatch` resolved it by tree order. Named now
+    /// (`workout-exit`, `workout-exit-spacer`).
+    private func exitDialogOverOneLoggedSet() {
+        app.launch()
+        startWorkout()
+        app.buttons[AX.exerciseDone].tap()
+        XCTAssertTrue(app.buttons[AX.skipRest].waitForExistence(timeout: 3),
+                      "the set has to be logged first, or there is nothing to confirm")
+        app.buttons[AX.workoutExit].tap()
+    }
+
+    func testExitDiscardsWorkoutAfterConfirmation() {
+        exitDialogOverOneLoggedSet()
+        let discard = app.buttons["Discard workout"]
+        XCTAssertTrue(discard.waitForExistence(timeout: 3),
+                      "Exit with progress must ask for confirmation")
+        discard.tap()
+        XCTAssertTrue(app.buttons[AX.startWorkout].waitForExistence(timeout: 3),
+                      "after a discard the workout must not count as completed")
+    }
+
+    func testExitWithNoProgressNeedsNoConfirmation() {
+        app.launch()
+        startWorkout()
+        app.buttons[AX.workoutExit].tap()
+        XCTAssertTrue(app.buttons[AX.startWorkout].waitForExistence(timeout: 3),
+                      "an empty workout should exit without a dialog")
+    }
+
+    /// The stray tap, and what it must NOT cost. A question that can throw a
+    /// workout away has to survive being brushed against.
+    ///
+    /// The behaviour asserted here INVERTED on 27.08.2026, so its history is
+    /// worth keeping straight. As a `confirmationDialog` this question was
+    /// presented as an anchored POPOVER, and a popover IS dismissed by the tap
+    /// outside — that was the cancel, and the only way back, because a popover
+    /// suppresses its cancel action and the declared `Button(role: .cancel)`
+    /// was drawn nowhere and stood nowhere in the accessibility tree.
+    ///
+    /// It is an `.alert` now, and an alert is modal: the tap outside is
+    /// swallowed whole. It does not answer the question, and it does not reach
+    /// the rest screen underneath. That is the stronger behaviour — the escape
+    /// is a button a person can SEE, pinned by the test below — so what this
+    /// one pins is the other half: the tap that misses costs nothing.
+    ///
+    /// The old name said "dismissed without answering", which an alert has no
+    /// way to be; the assertion it carried could only go red.
+    func test_exitDialog_aTapOutsideNeitherAnswersItNorReachesTheScreenUnder() {
+        exitDialogOverOneLoggedSet()
+        let dialog = app.alerts["Leave the workout?"]
+        XCTAssertTrue(dialog.waitForExistence(timeout: 3),
+                      "exiting over a logged set must ask before it throws the set away")
+        // dy 0.95 is below the alert and over the rest screen it covers — the
+        // one place a stray tap could both miss the alert and land on
+        // something. Waiting for a non-existence that must NOT arrive, rather
+        // than reading `exists` straight after the tap: a dismissal the tap
+        // wrongly started would be animating, not instant.
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.95)).tap()
+        XCTAssertFalse(dialog.waitForNonExistence(timeout: 2),
+                       "a modal question must not be answered by a tap that missed it")
+        app.buttons["Keep training"].tap()
+        XCTAssertTrue(dialog.waitForNonExistence(timeout: 3),
+                      "the visible way back must close the question")
+        // Today's controls stay in the tree under the workout cover, so the
+        // proof of "still inside" is the rest screen, not the absence of Start.
+        XCTAssertTrue(app.buttons[AX.skipRest].exists,
+                      "the rest screen the dialog covered must be exactly as it was")
+        app.buttons[AX.workoutExit].tap()
+        XCTAssertTrue(app.buttons["Discard workout"].waitForExistence(timeout: 3),
+                      "the set logged before the stray tap must still be there — an "
+                        + "empty workout is not asked to confirm")
+    }
+
+    /// The visible way back out. Before 27.08.2026 the only one was the tap
+    /// outside, which nothing on screen mentions — and both buttons that WERE
+    /// drawn led out of the workout, one of them destructively. It carries the
+    /// `.cancel` role as well now, so the escape gesture and the button people
+    /// can see are the same thing.
+    func test_exitDialog_keepTrainingIsDrawnAndLeavesTheWorkoutStanding() {
+        exitDialogOverOneLoggedSet()
+        let keep = app.buttons["Keep training"]
+        XCTAssertTrue(keep.waitForExistence(timeout: 3),
+                      "the question must offer a VISIBLE way to stay, not only a tap outside")
+        keep.tap()
+
+        XCTAssertTrue(app.alerts["Leave the workout?"].waitForNonExistence(timeout: 3),
+                      "the way to stay must close the question")
+        XCTAssertTrue(app.buttons[AX.skipRest].exists,
+                      "staying must leave the rest screen the dialog covered as it was")
+        app.buttons[AX.workoutExit].tap()
+        XCTAssertTrue(app.buttons["Discard workout"].waitForExistence(timeout: 3),
+                      "the set logged before is still there — an empty workout is not asked")
+    }
+
+    func testExitCanFinishNowThroughTheRating() {
+        exitDialogOverOneLoggedSet()
+        let finishNow = app.buttons["Finish now"]
+        XCTAssertTrue(finishNow.waitForExistence(timeout: 3))
+        finishNow.tap()
+
+        // 15 s, not 3: the rating is the screen a whole workout ends on, and
+        // every wait for it stands at the end of a chain of taps. Three
+        // seconds is not a check on a loaded runner, it is a coin toss —
+        // I-22, and the nightly has now lost this transition twice.
+        XCTAssertTrue(app.staticTexts["How did it go?"].waitForExistence(timeout: 15),
+                      "Finish now must lead to the rating screen")
+        // "not finished" is the one per-row word that differs from the section
+        // header and therefore stays visible.
+        XCTAssertTrue(app.staticTexts.matching(
+            NSPredicate(format: "label CONTAINS 'not finished'")).firstMatch.exists,
+            "the interrupted exercise must read 'not finished', not 'skipped'")
+        XCTAssertTrue(app.staticTexts["SKIPPED"].exists,
+                      "the skips section carries its header")
+
+        rate()
+    }
+
+    // MARK: - Calendar and history
+
+    func testCalendarShowsHistoryAfterWorkout() {
+        walkAWholeWorkout(adjustFirstExercise: true)
+        app.tabBars.buttons["Calendar"].tap()
+        XCTAssertTrue(app.staticTexts["Completed today ✓"].waitForExistence(timeout: 3))
+
+        // By identifier: the label carries the full spoken date and state.
+        let day = Calendar.current.component(.day, from: .now)
+        app.buttons[AX.day(day)].tap()
+        XCTAssertTrue(app.staticTexts["Workout 1"].waitForExistence(timeout: 3),
+                      "history did not open on the day tap")
+        // In the plan's own spelling and named (§41.13): the first set was
+        // corrected to 3 and the number carries down the sets that followed,
+        // so the row prints a uniform fact the way a plan prints one.
+        XCTAssertTrue(app.staticTexts["Actual: 3×3"].exists, "the actual is not shown in the history")
+        app.buttons[AX.historyDone].tap()
+    }
+
+    // MARK: - Progress
+
+    func testProgressReflectsCompletedWorkout() {
+        walkAWholeWorkout(rating: AX.ratingMore)
+        app.tabBars.buttons["Progress"].tap()
+        XCTAssertTrue(app.staticTexts["steps"].waitForExistence(timeout: 3))
+        // 6 patterns × (+2) = 12, on the identified element. The scale is
+        // an ordinal along each ladder now (§40.2); the identifier kept
+        // its old name, the CAPTION did not.
+        let totalLevel = app.staticTexts[AX.totalSteps]
+        XCTAssertEqual(totalLevel.label, "12", "the total level after \"easy\" should be 12")
+        XCTAssertTrue(app.staticTexts["1 workout"].exists,
+                      "\"1 workout\" must use the singular (plural variations lost?)")
+    }
+
+    // MARK: - Warm-up
+
+    func testWarmupShowsAndSkips() {
+        // Both transition labels below are asserted while it is on screen — a
+        // five-second window at its real length, so it is held open instead.
+        seed("--uitest-long-transition")
+        app.launch()
+        app.buttons[AX.startWorkout].tap()
+        XCTAssertTrue(app.staticTexts["WARM-UP"].waitForExistence(timeout: 3),
+                      "the workout must open with the warm-up")
+        // The block is offered, not started — say yes before walking it.
+        app.buttons[AX.warmupStart].tap()
+        // Since #52 the block opens on the transition announcing the first
+        // move; this label is the one VoiceOver reads.
+        XCTAssertTrue(app.staticTexts["Get ready: Marching in place"].exists,
+                      "the first warm-up move is missing")
+        // one impossible move must not cost the other five
+        app.buttons["Skip this position"].tap()
+        XCTAssertTrue(app.staticTexts["Get ready: Arm circles"].waitForExistence(timeout: 3),
+                      "skipping one move must advance to the next, not exit")
+        app.buttons[AX.skipWarmup].tap()
+        XCTAssertTrue(app.buttons[AX.exerciseDone].waitForExistence(timeout: 3),
+                      "skipping the warm-up must lead to the first exercise")
+    }
+
+    // The transition itself has its own suite: GetReadyUITests (issue #52).
+
+    /// The position mini-sheet (issue #34): opens from the warm-up move,
+    /// freezes its countdown while it's up, and lets the countdown resume
+    /// once the sheet closes.
+    func testPositionTechniqueSheetFreezesTheCountdown() {
+        // Past the transition and into the move it announced. Nothing here is
+        // raced: the block opens on the offer's count-in and hands the move
+        // over by itself, with no tap to deliver in a closing window.
+        app.launch()
+        app.buttons[AX.startWorkout].tap()
+        app.buttons[AX.warmupStart].tap()
+        XCTAssertTrue(app.staticTexts[AX.getReadyCountdown].waitForExistence(timeout: 5),
+                      "the warm-up must open on the transition")
+        let countdown = app.staticTexts[AX.warmupCountdown]
+        XCTAssertTrue(countdown.waitForExistence(timeout: 10),
+                      "the warm-up countdown is missing")
+
+        app.buttons[AX.technique].tap()
+        let gotIt = app.buttons[AX.positionTechniqueDone]
+        XCTAssertTrue(gotIt.waitForExistence(timeout: 3), "the mini-sheet did not open")
+        XCTAssertTrue(app.staticTexts["warm-up · 30 s"].exists, "no block capsule on the sheet")
+
+        // Frozen: the number must not move while the sheet is up.
+        let frozen = Int(countdown.label) ?? -1
+        Thread.sleep(forTimeInterval: 3)
+        XCTAssertEqual(Int(countdown.label), frozen,
+                       "the countdown must freeze under the sheet")
+
+        gotIt.tap()
+        XCTAssertTrue(gotIt.waitForNonExistence(timeout: 3), "Got it did not close the sheet")
+        // Resumed: the number moves again within a few seconds.
+        let deadline = Date.now.addingTimeInterval(6)
+        var moved = false
+        while Date.now < deadline && !moved {
+            moved = (Int(countdown.label) ?? frozen) < frozen
+            if !moved { Thread.sleep(forTimeInterval: 0.5) }
+        }
+        XCTAssertTrue(moved, "the countdown must resume after the sheet closes")
+    }
+
+    // MARK: - Settings
+
+    /// The chip has to CHANGE STATE, not merely absorb the tap: it used to be
+    /// tapped twice with nothing asserted in between, so the test stayed green
+    /// through a chip that had stopped doing anything. `isSelected` is the
+    /// claim rather than a colour — the chip carries that trait because colour
+    /// alone does not reach VoiceOver — and it is asserted on the chip, not on
+    /// Today, because whether Monday is today is the calendar's business.
+    func testSettingsTogglesRestDay() {
+        app.launch()
+        // the settings icon overlays every tab — reachable straight from Today
+        app.buttons[AX.settings].tap()
+        XCTAssertTrue(app.staticTexts["REST DAYS"].waitForExistence(timeout: 3),
+                      "the settings sheet did not open")
+
+        let monday = app.buttons[AX.weekday(2)]
+        XCTAssertFalse(monday.isSelected, "--uitest-reset clears the rest days")
+        monday.tap()
+        XCTAssertTrue(monday.isSelected, "the tap must mark Monday as a rest day")
+
+        // Closed and reopened: a chip that only repaints itself is not a
+        // setting, and the file is what the plan reads.
+        app.buttons[AX.settingsDone].tap()
+        app.buttons[AX.settings].tap()
+        XCTAssertTrue(monday.waitForExistence(timeout: 3))
+        XCTAssertTrue(monday.isSelected, "the rest day must survive closing the sheet")
+        monday.tap()
+        XCTAssertFalse(monday.isSelected, "tapping again must take the rest day back off")
+        app.buttons[AX.settingsDone].tap()
+        XCTAssertTrue(app.staticTexts["Workout 1"].waitForExistence(timeout: 3),
+                      "closing settings should return to Today")
+    }
+
+    func testSettingsReachableFromEveryTab() {
+        app.launch()
+        for tab in ["Calendar", "Progress"] {
+            app.tabBars.buttons[tab].tap()
+            app.buttons[AX.settings].tap()
+            XCTAssertTrue(app.staticTexts["REST DAYS"].waitForExistence(timeout: 3),
+                          "settings must open from the \(tab) tab too")
+            app.buttons[AX.settingsDone].tap()
+        }
+    }
+
+    func testHowItWorksOpensFromSettings() {
+        app.launch()
+        app.buttons[AX.settings].tap()
+        XCTAssertTrue(app.buttons[AX.howItWorks].waitForExistence(timeout: 3),
+                      "the explainer row should be the first thing in settings")
+        app.buttons[AX.howItWorks].tap()
+        XCTAssertTrue(app.staticTexts["Variation and dose"].waitForExistence(timeout: 3),
+                      "the explainer did not open")
+        for section in ["What your answer does", "Deload", "Rotation",
+                        "Weekly rhythm",   // issue #36
+                        "Trying the next variation",   // §40.4
+                        "Skips", "Why there are no questionnaires"] {
+            XCTAssertTrue(app.staticTexts[section].exists,
+                          "section \"\(section)\" is missing")
+        }
+
+        app.buttons[AX.howItWorksDone].tap()
+        XCTAssertTrue(app.staticTexts["REST DAYS"].waitForExistence(timeout: 3),
+                      "closing the explainer should return to settings")
+    }
+
+}
+
+// An extension rather than more class body, and the reason is a hard gate
+// rather than taste: SwiftLint bounds a type's OWN body at 600 lines as an
+// error and that body had reached 599. An extension weighs nothing against it
+// — splitting the FILE would not have moved the number at all. Same file, so
+// every private helper above stays reachable.
+extension DredfitUITests {
+
+    // MARK: - About section
+    //
+    // Was "Pull-up bar" until testBarWorkoutFlowsToRating moved to
+    // DredfitUITests+HoldTimer.swift — it is a hold-timer walk in substance
+    // (maximiseHold, holdStart/holdStop), and this test is what was left.
+
+    /// Both deliberate ways to leave a review live in settings, so a user
+    /// never has to wait for the automatic ask.
+    func testAboutSectionOffersBothWaysToRecommend() {
+        app.launch()
+        app.buttons[AX.settings].tap()
+        XCTAssertTrue(app.staticTexts["REST DAYS"].waitForExistence(timeout: 3))
+        app.swipeUp()
+        app.swipeUp()
+        XCTAssertTrue(app.staticTexts["ABOUT"].waitForExistence(timeout: 3),
+                      "no About section in settings")
+        XCTAssertTrue(app.staticTexts["Rate on the App Store"].exists)
+        XCTAssertTrue(app.staticTexts["Recommend Dredfit"].exists)
+    }
+
+    // MARK: - Rest days
+    //
+    // Both walks seed a WORKOUT as well as the marked weekday, and the second
+    // flag is the arrange, not belt-and-braces: rest is rest FROM something,
+    // so since the UX review of 05.09.2026 `restApplies` is "weekday marked
+    // AND journal not empty" — a fresh install is no longer told to come back
+    // on Tuesday. `--uitest-restday` marks today and writes nothing, so alone
+    // it now draws the PLAN, which is how both of these failed.
+    // `--uitest-session2` is the cheapest journal there is (session 1 done
+    // YESTERDAY: one record, no break, nothing done today), and the hook order
+    // makes the pair safe — applyUITestHooks sets the rest weekday after the
+    // session-2 seed clears it. Do not drop it to "simplify the seed".
+
+    func testRestDayShowsRestStateInsteadOfALivePlan() {
+        app.seedLaunchArguments("--uitest-session2", "--uitest-restday")
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Rest day"].waitForExistence(timeout: 5),
+                      "a rest day must say so on Today")
+        XCTAssertFalse(app.buttons[AX.startWorkout].exists,
+                       "a rest day must not offer a live workout as the main action")
+        XCTAssertTrue(app.buttons[AX.trainAnyway].exists,
+                      "rest is a plan, not a lockout — training anyway stays available")
+    }
+
+    func testTrainAnywayStartsTheWorkoutOnARestDay() {
+        app.seedLaunchArguments("--uitest-session2", "--uitest-restday")
+        app.launch()
+        XCTAssertTrue(app.buttons[AX.trainAnyway].waitForExistence(timeout: 5))
+        app.buttons[AX.trainAnyway].tap()
+        XCTAssertTrue(app.buttons[AX.warmupStart].waitForExistence(timeout: 5),
+                      "Train anyway must open the workout flow")
+    }
+
+    // MARK: - Milestones
+
+    func testMilestoneScreenListsEverythingEarned() {
+        app.seedLaunchArguments("--uitest-milestone", "--uitest-fast")
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Workout 10"].waitForExistence(timeout: 5),
+                      "the seeded state should offer the tenth workout")
+
+        // 900 s, not the driver's default 420: this walk is the longest in the
+        // suite and spent 205 s of that default on a healthy runner — ×2.05,
+        // the thinnest margin anywhere, and the next seed that adds a hold
+        // would eat the rest of it in silence.
+        completeWorkout(deadline: 900)
+        app.element(withIdentifier: AX.ratingPlan).tap()
+
+        XCTAssertTrue(app.staticTexts["WORKOUT #10"].waitForExistence(timeout: 5),
+                      "the jubilee row is missing")
+        // The seed plants one snapshot record nine weeks back, so the jubilee
+        // must carry its "then → now" comparison (issue #26) — built by the
+        // real Retrospective path, not stubbed.
+        XCTAssertTrue(app.staticTexts.matching(identifier: AX.jubileeRetro).firstMatch.exists,
+                      "the jubilee should show the then → now line")
+        // Match on the rendered label: Kicker uppercases, so the catalog key
+        // ("More sets") and what is on screen deliberately differ.
+        XCTAssertEqual(app.staticTexts.matching(
+            NSPredicate(format: "label == %@", "MORE SETS")).count, 2,
+            "both set-band rows should be listed")
+        // NO life line here, and that is the rule, not a gap: the line belongs
+        // to a NEW VARIATION (issue #25), and both rows above are SET BANDS —
+        // since v3 a seed can only plant those, because entering a variation
+        // needs a probe passed inside the workout (§40.4). Their kicker says
+        // "More sets" since the UX review of 05.09.2026, and the two earlier
+        // words were each a different lie: "New variation" about WHICH
+        // movement (the UI-truth audit, 27.08.2026), then "More volume" about
+        // the amount — entering a band cuts the dose per set, so total work
+        // at the transition holds or falls. Sets are the axis that moves, so
+        // that is the word this assert pins. The variation-up row and its
+        // life line stay covered by MilestoneTests at unit level.
+        XCTAssertEqual(
+            app.staticTexts.matching(identifier: AX.milestoneLife).count, 0,
+            "a set band is the same ability grown — it carries no life line")
+
+        app.buttons[AX.milestoneDone].tap()
+        XCTAssertTrue(app.staticTexts["Workout 10 completed"].waitForExistence(timeout: 5),
+                      "Done should return to Today with the workout recorded")
+    }
+
+    func testNoMilestoneScreenForAnOrdinaryWorkout() {
+        walkAWholeWorkout()
+        XCTAssertFalse(app.buttons[AX.milestoneDone].exists,
+                       "workout 1 earns nothing and must not show the screen")
+    }
+}

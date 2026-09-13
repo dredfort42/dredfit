@@ -9,13 +9,13 @@
     "ru"
   ],
   "allow_untranslated": {
-    "Dredfit/Localizable.xcstrings": [
+    "ios/Dredfit/Localizable.xcstrings": [
       "on %@"
     ],
-    "Dredfit/InfoPlist.xcstrings": [
+    "ios/Dredfit/InfoPlist.xcstrings": [
       "CFBundleName"
     ],
-    "DredfitWidgets/Localizable.xcstrings": [
+    "ios/DredfitWidgets/Localizable.xcstrings": [
       " · %@"
     ]
   }

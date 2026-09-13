@@ -82,7 +82,7 @@ jobs:
           # that tally belongs to the resumed session alone. The authoritative
           # verdict is "** TEST FAILED **" and the "Failing tests:" list.
           xcodebuild test \
-            -project Dredfit.xcodeproj \
+            -project ios/Dredfit.xcodeproj \
             -scheme Dredfit \
             -testPlan Dredfit \
             -only-testing:DredfitUITests \

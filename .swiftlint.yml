@@ -1,16 +1,20 @@
+# The config stays at the repo root so `swiftlint lint` keeps working from
+# there — every command in the docs, CI and the agent cards runs it that way.
+# The Swift sources moved under ios/ when the repo became a home for two
+# platforms; the Android side lints through Gradle and has no entry here.
 included:
-  - Dredfit
-  - DredfitCore
-  - DredfitTests
-  - DredfitUITests
+  - ios/Dredfit
+  - ios/DredfitCore
+  - ios/DredfitTests
+  - ios/DredfitUITests
   # Both were outside the list and so went unlinted in CI and locally —
   # 623 lines nobody was checking. They were clean when added, so adding
   # them cost nothing today and stops the next file there going unread.
-  - DredfitWidgets
-  - Shared
+  - ios/DredfitWidgets
+  - ios/Shared
 
 excluded:
-  - DredfitCore/.build
+  - ios/DredfitCore/.build
 
 disabled_rules:
   # Trailing commas in collection literals are valid modern Swift and used throughout this codebase
