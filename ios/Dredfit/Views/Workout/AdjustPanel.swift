@@ -38,9 +38,17 @@ struct AdjustPanel: View {
     var body: some View {
         HStack(spacing: 18) {
             stepButton("minus", -1)
+            // ONE line, whatever the unit's word is: "10 сек" at 26 pt heavy
+            // is wider than "10 s", and between two 44 pt targets and OK it
+            // broke into "10" over "сек" (owner, 13.09.2026). The number
+            // yields size before it yields the line, and it wins the width
+            // contest against the buttons' spacing.
             Text(unit == .hold ? "\(value) s" : "\(value)")
                 .dredfitFont(26, weight: .heavy)
                 .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+                .layoutPriority(1)
                 .frame(minWidth: 76)
             stepButton("plus", +1)
 

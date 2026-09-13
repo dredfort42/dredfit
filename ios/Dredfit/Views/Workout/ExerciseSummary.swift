@@ -299,6 +299,11 @@ struct RaiseStepper: View {
             Text(verbatim: RaiseLabel.text(steps: steps, unit: unit))
                 .dredfitFont(22, weight: .heavy)
                 .monospacedDigit()
+                // One line in every language — "+10 сек" is the widest — the
+                // same rule the entry panel's number follows.
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+                .layoutPriority(1)
                 .frame(minWidth: 64)
                 .accessibilityLabel(Text(verbatim: RaiseLabel.spoken(steps: steps, unit: unit)))
                 .accessibilityIdentifier("raise-value")

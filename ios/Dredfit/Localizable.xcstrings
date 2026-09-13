@@ -21097,46 +21097,6 @@
         }
       }
     },
-    "set %lld · the clock saw %lld s — no more than that goes in": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Satz %lld · die Uhr hat %lld s gemessen – mehr lässt sich nicht eintragen"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "serie %lld · el reloj marcó %lld s: no se puede anotar más"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "série %lld · le chrono a mesuré %lld s — impossible d’en inscrire plus"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "serie %lld · il timer ha misurato %lld s – non si può registrare di più"
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "série %lld · o relógio marcou %lld s — não dá para registrar mais"
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "подход %lld · часы засекли %lld сек — дольше не запишешь"
-          }
-        }
-      }
-    },
     "set %lld · the clock saw %lld s": {
       "localizations": {
         "de": {

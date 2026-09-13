@@ -574,9 +574,10 @@ extension DredfitUITests {
     ///
     /// Rewritten with §41.13: THE CLOCK IS THE CEILING on every set but the
     /// last, so the correction that leaves the others standing is now made
-    /// on the LAST card — the one that may go up — and the first card is
-    /// asked to prove the other half of the rule: its "+" is dead, because
-    /// the clock counted 15 s and a longer 15 s cannot have been held.
+    /// on the LAST card — the one that may go up. Since 13.09.2026 the other
+    /// cards open no stepper at all: a panel with both ends dead at the
+    /// floor read as a broken control, so the first card is asked to show
+    /// the clock's word and an OK, and nothing to enter.
     func testCorrectingOneSetOnTheSummaryLeavesTheOthersStanding() {
         launchIntoSession2AndReachPlank("--uitest-fast", "--uitest-hold-short")
         coordinateTap(app.buttons[AX.holdStartExercise])
@@ -588,17 +589,14 @@ extension DredfitUITests {
         let secondBefore = app.buttons[AX.summarySet(2)].label
         let thirdBefore = app.buttons[AX.summarySet(3)].label
 
-        // Set one: the clock is the ceiling, and the panel says so.
+        // Set one: the clock's word and OK — no stepper, nothing to enter.
         coordinateTap(first)
+        let clock = app.element(withIdentifier: "summary-clock")
+        XCTAssertTrue(clock.waitForExistence(timeout: 5), "the card did not say what the clock counted")
         let plus = app.buttons[AX.adjustPlus]
-        XCTAssertTrue(plus.waitForExistence(timeout: 5), "the card did not open the stepper")
-        XCTAssertFalse(plus.isEnabled,
-                       "a set the clock ended cannot be corrected UPWARDS — "
-                         + "longer than the clock counted was not held")
-        XCTAssertTrue(app.element(withIdentifier: "summary-ceiling").exists,
-                      "a dimmed control with no reason on screen looks broken")
+        XCTAssertFalse(plus.exists, "a set the clock ended opens no stepper")
         XCTAssertFalse(app.staticTexts[AX.summaryNextPlan].exists,
-                       "the panel takes the block's slot — one thing at a time")
+                       "the line takes the block's slot — one thing at a time")
         app.buttons[AX.adjustConfirm].tap()
 
         // Set three: nothing follows it, so both directions are open — and
@@ -608,8 +606,7 @@ extension DredfitUITests {
         coordinateTap(last)
         XCTAssertTrue(plus.waitForExistence(timeout: 5), "the last card did not open the stepper")
         XCTAssertTrue(plus.isEnabled, "the last set may have been held past the signal")
-        XCTAssertFalse(app.element(withIdentifier: "summary-ceiling").exists,
-                       "the last set has no ceiling to explain")
+        XCTAssertFalse(clock.exists, "the last set opens the panel, not the clock-only line")
         for _ in 0..<3 { plus.tap() }
         app.buttons[AX.adjustConfirm].tap()
 

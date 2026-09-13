@@ -86,13 +86,14 @@ extension WorkoutFlowView {
             // takes the slot and the block stands down: one thing to read at
             // a time, the rule of every message slot in the flow.
             if adjusting, let index = summarySet {
-                // What the panel is standing on, said above it: which set,
-                // and what the clock counted. On every set but the last the
-                // clock is the ceiling (`SetFacts.correctionRange`) — the "+"
-                // is dimmed at it, and this line is the reason, because a
-                // dimmed control with no reason on screen looks broken. The
-                // last set says only what was counted: nothing followed it,
-                // and both directions are the person's.
+                // Which set, and what the clock counted, said above whatever
+                // stands in the slot. ONLY THE LAST SET OPENS THE STEPPER:
+                // nothing followed it and the person may have kept holding,
+                // so both directions are theirs. Every other set ended on the
+                // clock — the number is the clock's, and a panel whose "+"
+                // and "−" were dead at the floor read as a broken control
+                // (owner, 13.09.2026). So a tap on one of those cards says
+                // what the clock counted and offers OK, nothing to enter.
                 Text(summaryPanelLine(set: index))
                     .dredfitFont(14)
                     .monospacedDigit()
@@ -100,9 +101,12 @@ extension WorkoutFlowView {
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.bottom, 10)
-                    .accessibilityIdentifier(summaryRange(set: index).upperBound
-                                             < SetFacts.corridor(for: .hold).upperBound
-                                             ? "summary-ceiling" : "summary-panel-line")
+                    .accessibilityIdentifier(isLastSummarySet(index)
+                                             ? "summary-panel-line" : "summary-clock")
+                if !isLastSummarySet(index) {
+                    clockOnlyRow
+                        .padding(.bottom, 18)
+                } else {
                 AdjustPanel(value: $adjustValue, unit: .hold,
                             range: summaryRange(set: index)) {
                     actuals = SetFacts.recordingSet(adjustValue, in: actuals,
@@ -127,6 +131,7 @@ extension WorkoutFlowView {
                     persistProgress()
                 }
                 .padding(.bottom, 18)
+                }
             } else {
                 NextTimeBlock(exercise: exercise,
                               steps: raisedSteps[exercise.pattern] ?? 0,
@@ -193,22 +198,46 @@ extension WorkoutFlowView {
         holdMeasured[index] ?? SetFacts.inForce(actuals, exercise, set: index)
     }
 
+    func isLastSummarySet(_ index: Int) -> Bool { index == exercise.sets - 1 }
+
     /// The rule is `SetFacts.correctionRange`, where a test can reach it;
     /// what is measured is the CLOCK's number, not the card's — a card
     /// corrected downwards must be correctable back up to what was counted.
+    /// Only the last set reaches this from the screen now.
     func summaryRange(set index: Int) -> ClosedRange<Int> {
         SetFacts.correctionRange(measured: summaryMeasured(set: index),
-                                 isLastSet: index == exercise.sets - 1)
+                                 isLastSet: isLastSummarySet(index))
     }
 
-    /// The line above the panel: the set, what the clock counted, and — on
-    /// every set but the last — that nothing above it goes in.
+    /// The line above the slot: the set, and what the clock counted.
     func summaryPanelLine(set index: Int) -> String {
-        let measured = summaryMeasured(set: index)
-        let range = summaryRange(set: index)
-        return range.upperBound < SetFacts.corridor(for: .hold).upperBound
-            ? String(localized: "set \(index + 1) · the clock saw \(measured) s — no more than that goes in")
-            : String(localized: "set \(index + 1) · the clock saw \(measured) s")
+        String(localized: "set \(index + 1) · the clock saw \(summaryMeasured(set: index)) s")
+    }
+
+    /// What a card that is not the last opens: the clock's word stands
+    /// above, and this hands the slot back. The same OK the panel wears,
+    /// so the way out is the one the person already knows.
+    var clockOnlyRow: some View {
+        HStack {
+            Spacer()
+            Button {
+                adjusting = false
+                summarySet = nil
+            } label: {
+                Text("OK")
+                    .dredfitFont(15, weight: .semibold)
+                    .foregroundStyle(Theme.bg)
+                    .padding(.horizontal, 22)
+                    .padding(.vertical, 10)
+                    .background(Theme.ink, in: Capsule())
+            }
+            .accessibilityIdentifier("adjust-confirm")
+            Spacer()
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .frame(maxWidth: .infinity)
+        .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 18))
     }
 
     /// The plan this movement will get with `steps` additions — the engine's
