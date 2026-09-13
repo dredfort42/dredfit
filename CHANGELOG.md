@@ -72,6 +72,29 @@ plan says "plan", the fact is a full-width line in the plan's own spelling
 ("Held: 30-22-25 sec", "Actual: 12-12-11"), and the rating screen's list
 reads "actual 30 · 22 · 25" rather than the numbers alone.
 
+**The later weight wins.** With Health on, the app took the last body-weight
+sample from Health on every activation, unconditionally, and the **Body
+weight** row in Settings went read-only under it — "Taken from Health, and
+kept up to date." On a phone whose scale last spoke a month ago that was the
+wrong number, taken again every time the app came to the front, with no way
+to say otherwise; a restored backup carrying the right weight was overwritten
+by it too. The rule is now the one a person would expect: the more recent
+statement wins. The number remembers when it was stated — the date of the
+Health sample, or the moment it was typed — and a Health sample replaces it
+only when it is newer than that date, or when there is no number at all. A
+number from a file written before the date was kept yields to any sample.
+The row is always editable, and its caption names where the number in force
+came from and when: "From Health, 12 Sep 2026. A newer weight — typed here or
+logged there — takes over." or "Typed here on 12 Sep 2026. A newer weight
+logged in Health takes over." — so a stale reading is seen for what it is
+rather than trusted for being Health's. Clearing the weight by hand drops the
+date, so Health may fill it again; Health going quiet erases nothing. A
+restored backup brings its own date, and one from a build that kept none is
+dated to the latest workout in it, so an old scale reading no longer beats
+it. Nothing new is read from Health — the same body-mass type, now with the
+sample's own date beside the value — and the App Privacy answers do not
+change.
+
 The string catalog carries only keys somebody asks for. Twenty-two entries
 had no caller left — sentences reworded on screen in earlier waves whose old
 spelling stayed behind, five of them pinned by name in a test that guarded
@@ -103,18 +126,20 @@ scenario reproduces bit-for-bit; the new one pins the order.
   `WorkoutFlowView+Skips.swift` (#247), unchanged — the file stood at 1159
   of the 1200 lines SwiftLint allows, and the next feature would have paid
   for the split at the worst moment.
-- **705 → 723 automated tests**, counted across the same three layers 2.3.0
-  counted: **74** in the engine package, **571** in the app, **78** in the UI
+- **705 → 727 automated tests**, counted across the same three layers 2.3.0
+  counted: **74** in the engine package, **575** in the app, **78** in the UI
   suite. The engine's four pin the new handle — it walks the sub-steps and
   then the rung, stands on the ceiling and clamps its input, counts the sets
-  on screen under a cut, and lands after the feedback. The app's thirteen sit
+  on screen under a cut, and lands after the feedback. The app's eighteen sit
   on what this wave could have got wrong quietly: a correction that cannot
   exceed the clock except on the last set, the preview being exactly what the
   rating will set, the share that landed kept apart from the steps that were
   tapped, a raise read off disk clamped to what the engine takes, the stepper
-  counting only the steps that still move the plan — and the catalog test
-  that fails on any key no source asks for. The one UI test added walks an
-  addition from the summary to the rating screen.
+  counting only the steps that still move the plan, the catalog test that
+  fails on any key no source asks for — and, for the weight, that a Health
+  sample newer than the typed number replaces it while an older one does not,
+  and that a restored backup keeps its own date. The one UI test added walks
+  an addition from the summary to the rating screen.
 
 ## 2.3.0
 
