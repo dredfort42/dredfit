@@ -43,12 +43,21 @@ struct SettingsSheet: View {
                         .tracking(-0.5)
                         .padding(.top, 26)
 
+                    // ONE grammar for the whole screen, so that what a line
+                    // belongs to is read off the page and not guessed (owner,
+                    // 13.09.2026: everything ran into one heap). Every group
+                    // opens with a kicker; inside a group a caption sits
+                    // 6 pt under the control it explains and 14 pt from the
+                    // next control; groups stand 28 pt apart. Two blocks used
+                    // to have no kicker — Sounds read as part of Equipment,
+                    // Reminder as part of Appearance — and the reminder lives
+                    // with the rest days now: it fires on training days only,
+                    // and toggling a rest day reschedules it (`toggleRestDay`).
                     howItWorksSection
-                    restDaysSection
+                    rhythmSection
                     equipmentSection
                     soundsSection
                     appearanceSection
-                    reminderSection
                     healthSection
                     backupSection
                     aboutSection
@@ -128,23 +137,34 @@ struct SettingsSheet: View {
         return (0..<7).map { ((first - 1 + $0) % 7) + 1 }
     }
 
-    private var restDaysSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Kicker(text: String(localized: "Rest days"))
-            HStack(spacing: 8) {
-                ForEach(weekdaysInDisplayOrder, id: \.self) { wd in
-                    dayChip(wd)
+    /// The rest days and the reminder under one name — the one "How it
+    /// works" gives this rule (`Weekly rhythm`, glossary): the reminder is
+    /// about the same week, fires on training days only, and toggling a
+    /// rest day reschedules it. It used to stand three groups lower with no
+    /// kicker, where the eye attached it to Appearance.
+    private var rhythmSection: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            settingsKicker(String(localized: "Weekly rhythm"), id: "settings-rhythm")
+            VStack(alignment: .leading, spacing: 6) {
+                // A titled field, like the reminder under it: the chips are
+                // the control and this is what they set.
+                Text("Rest days")
+                    .dredfitFont(16, weight: .medium)
+                    .padding(.bottom, 4)
+                HStack(spacing: 8) {
+                    ForEach(weekdaysInDisplayOrder, id: \.self) { wd in
+                        dayChip(wd)
+                    }
                 }
+                caption(String(localized: "Highlighted days are rest days"))
+                // The second sentence names the rule `toggleRestDay` enforces by
+                // refusing the seventh chip. Worth saying now that the chip which
+                // cannot act is dimmed rather than silent (UX review 05.09.2026)
+                // — and it belongs under the chips, not under the reminder that
+                // follows them, or it reads as the reminder's rule.
+                caption(String(localized: "3–4 rest days a week is the recommended rhythm. At least one training day always stays."))
             }
-            Text("Highlighted days are rest days")
-                .dredfitFont(12.5)
-                .foregroundStyle(Theme.ink2)
-            // The second sentence names the rule `toggleRestDay` enforces by
-            // refusing the seventh chip. Worth saying now that the chip which
-            // cannot act is dimmed rather than silent (UX review 05.09.2026).
-            Text("3–4 rest days a week is the recommended rhythm. At least one training day always stays.")
-                .dredfitFont(12.5)
-                .foregroundStyle(Theme.ink2)
+            reminderField
         }
     }
 
@@ -207,7 +227,10 @@ struct SettingsSheet: View {
     // MARK: - Sounds
 
     private var soundsSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 14) {
+            // Named like every other group: without a kicker the switch read
+            // as the last row of Equipment.
+            settingsKicker(String(localized: "Sounds"), id: "settings-sounds")
             Toggle(isOn: Binding(
                 get: { store.settings.soundsEnabled },
                 set: { store.setSounds($0) })) {
@@ -224,26 +247,26 @@ struct SettingsSheet: View {
 
     // MARK: - Reminder
 
-    private var reminderSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Toggle(isOn: Binding(
-                get: { store.settings.reminderEnabled },
-                set: { on in
-                    reminderRequested = on
-                    reminderDenied = false
-                    store.setReminderEnabled(on)
-                })) {
-                Text("Reminder")
-                    .dredfitFont(16, weight: .medium)
+    private var reminderField: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 6) {
+                Toggle(isOn: Binding(
+                    get: { store.settings.reminderEnabled },
+                    set: { on in
+                        reminderRequested = on
+                        reminderDenied = false
+                        store.setReminderEnabled(on)
+                    })) {
+                    Text("Reminder")
+                        .dredfitFont(16, weight: .medium)
+                }
+                .tint(Theme.accent)
+                // The rule was written nowhere a person could read it — not
+                // here, not in How it works, not in the notification itself —
+                // and it is the objection reminders get refused over (UX
+                // review 05.09.2026).
+                caption(String(localized: "On training days only — never on a rest day, and never after you have trained."))
             }
-            .tint(Theme.accent)
-            // The rule was written nowhere a person could read it — not here,
-            // not in How it works, not in the notification itself — and it is
-            // the objection reminders get refused over (UX review 05.09.2026).
-            Text("On training days only — never on a rest day, and never after you have trained.")
-                .dredfitFont(12.5)
-                .foregroundStyle(Theme.ink2)
-
             if store.settings.reminderEnabled {
                 DatePicker(String(localized: "Time"),
                            selection: reminderTimeBinding,
@@ -282,16 +305,16 @@ struct SettingsSheet: View {
     // MARK: - Apple Health
 
     private var healthSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Kicker(text: String(localized: "Health"))
-            Toggle(isOn: healthBinding) {
-                Text("Save workouts to Health")
-                    .dredfitFont(16, weight: .medium)
+        VStack(alignment: .leading, spacing: 14) {
+            settingsKicker(String(localized: "Health"), id: "settings-health")
+            VStack(alignment: .leading, spacing: 6) {
+                Toggle(isOn: healthBinding) {
+                    Text("Save workouts to Health")
+                        .dredfitFont(16, weight: .medium)
+                }
+                .tint(Theme.accent)
+                caption(String(localized: "Workouts appear in the Health app. Nothing leaves your device."))
             }
-            .tint(Theme.accent)
-            Text("Workouts appear in the Health app. Nothing leaves your device.")
-                .dredfitFont(12.5)
-                .foregroundStyle(Theme.ink2)
             if store.settings.healthEnabled {
                 bodyMassRow
                 watchToggle
@@ -341,10 +364,8 @@ struct SettingsSheet: View {
                 bodyMassContent(chevron: true)
             }
             .accessibilityIdentifier("body-mass-row")
-            if let caption = bodyMassCaption {
-                Text(caption)
-                    .dredfitFont(12.5)
-                    .foregroundStyle(Theme.ink2)
+            if let text = bodyMassCaption {
+                caption(text)
                     .accessibilityIdentifier("body-mass-caption")
             }
         }
@@ -418,13 +439,11 @@ struct SettingsSheet: View {
             }
             .tint(Theme.accent)
             .accessibilityIdentifier("watch-records-toggle")
-            Text("""
+            caption(String(localized: """
                  Turn it on if an Apple Watch records the same workouts — \
                  otherwise the session counts twice — or if you simply want \
                  no estimate written.
-                 """)
-                .dredfitFont(12.5)
-                .foregroundStyle(Theme.ink2)
+                 """))
         }
     }
 
@@ -453,21 +472,21 @@ struct SettingsSheet: View {
 
     private var backupSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Kicker(text: String(localized: "Backup"))
+            settingsKicker(String(localized: "Backup"), id: "settings-backup")
             // The control says "history"; the file holds the whole `settings`
             // block too, weight included (AppStore+Backup.exportURL). The one
             // line that ever named settings stood in the IMPORT alert — read,
             // if at all, long after the file had been sent somewhere. Not a
             // broken promise (nothing here goes anywhere by itself) but an
             // under-described one — so this line stands ABOVE the rows, where
-            // the other sections put theirs below (UX review 05.09.2026).
-            Text("""
+            // the other groups put theirs below: it has to be read BEFORE the
+            // tap, because after Export the file has already gone (UX review
+            // 05.09.2026).
+            caption(String(localized: """
                  The file holds your history, your plan and your settings — \
                  including your weight, if you entered one. It goes only where \
                  you send it.
-                 """)
-                .dredfitFont(12.5)
-                .foregroundStyle(Theme.ink2)
+                 """))
             exportRow
             Button {
                 importPickerShown = true
@@ -504,7 +523,7 @@ struct SettingsSheet: View {
 
     private var aboutSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Kicker(text: String(localized: "About"))
+            settingsKicker(String(localized: "About"), id: "settings-about")
             Link(destination: Self.reviewURL) {
                 backupRow(icon: "star", title: String(localized: "Rate on the App Store"))
             }
@@ -515,9 +534,7 @@ struct SettingsSheet: View {
             // version line is the string a bug report is read off. Quiet is
             // the ROLE of this line; unreadable was an oversight
             // (owner's call, UX review 05.09.2026).
-            Text(versionLine)
-                .dredfitFont(12.5)
-                .foregroundStyle(Theme.ink2)
+            caption(versionLine)
         }
     }
 
@@ -560,8 +577,9 @@ extension SettingsSheet {
     // member reachable.
 
     private var equipmentSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Kicker(text: String(localized: "Equipment"))
+        VStack(alignment: .leading, spacing: 6) {
+            settingsKicker(String(localized: "Equipment"), id: "settings-equipment")
+                .padding(.bottom, 8)
             Toggle(isOn: Binding(
                 get: { pendingBarToggle ?? store.engineState.hasBar },
                 set: { on in
@@ -583,9 +601,7 @@ extension SettingsSheet {
             }
             .tint(Theme.accent)
             .accessibilityIdentifier("hasbar-toggle")
-            Text("Every other workout swaps the horizontal pull for a vertical one")
-                .dredfitFont(12.5)
-                .foregroundStyle(Theme.ink2)
+            caption(String(localized: "Every other workout swaps the horizontal pull for a vertical one"))
         }
         // An ALERT, like every other question in this app: iOS 26 draws a
         // confirmationDialog as an anchored popover, which suppresses its own
@@ -643,15 +659,9 @@ extension SettingsSheet {
             }
             .tint(Theme.accent)
             .accessibilityIdentifier("silent-mode-toggle")
-            Group {
-                if store.settings.playsTonesInSilentMode {
-                    Text("The tones play even with the ringer switch off.")
-                } else {
-                    Text("In Silent mode the tones go quiet — the vibration keeps going.")
-                }
-            }
-            .dredfitFont(12.5)
-            .foregroundStyle(Theme.ink2)
+            caption(store.settings.playsTonesInSilentMode
+                    ? String(localized: "The tones play even with the ringer switch off.")
+                    : String(localized: "In Silent mode the tones go quiet — the vibration keeps going."))
         }
     }
 
@@ -662,8 +672,9 @@ extension SettingsSheet {
     /// chips the rest days use: the choice is small, always visible, and worth
     /// no more room than a week of weekdays.
     private var appearanceSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Kicker(text: String(localized: "Appearance"))
+        VStack(alignment: .leading, spacing: 6) {
+            settingsKicker(String(localized: "Appearance"), id: "settings-appearance")
+                .padding(.bottom, 8)
             HStack(spacing: 8) {
                 appearanceChip(.system, String(localized: "appearance.system",
                                                defaultValue: "System"))
@@ -675,9 +686,7 @@ extension SettingsSheet {
             // The one limit worth saying out loud: widgets and the Lock Screen
             // are drawn by another process, which never sees this choice.
             // Better said here than discovered as a bug on the Home Screen.
-            Text("Widgets and the Lock Screen keep following the system.")
-                .dredfitFont(12.5)
-                .foregroundStyle(Theme.ink2)
+            caption(String(localized: "Widgets and the Lock Screen keep following the system."))
         }
     }
 
@@ -798,27 +807,49 @@ extension SettingsSheet {
     /// A frozen launch shows an empty history everywhere and disables both
     /// backup rows, and said so nowhere in the app.
     private var frozenNote: some View {
-        Text("""
+        caption(String(localized: """
              Your history couldn't be read on this launch, so it can't be \
              backed up. Unlock the phone and open Dredfit again.
-             """)
-            .dredfitFont(12.5)
-            .foregroundStyle(Theme.ink2)
+             """))
     }
 
     /// The one setting with no way back from inside the app: after a refusal
     /// iOS never asks again, so without this the switch just bounces.
     private var reminderDeniedNote: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Notifications are off for Dredfit, so the reminder can't be set from here.")
-                .dredfitFont(12.5)
-                .foregroundStyle(Theme.ink2)
+            caption(String(localized: "Notifications are off for Dredfit, so the reminder can't be set from here."))
             if let url = URL(string: UIApplication.openSettingsURLString) {
                 Link(destination: url) {
                     backupRow(icon: "bell", title: String(localized: "Open iOS Settings"))
                 }
             }
         }
+    }
+}
+
+// MARK: - The grammar of the screen
+
+extension SettingsSheet {
+
+    /// The name of a group, read by VoiceOver as a heading — the rotor can
+    /// jump group to group, which is what a kicker is for. The identifier is
+    /// what a UI test anchors on to say "Settings opened": the words are
+    /// localized and uppercased, the identifier is neither.
+    fileprivate func settingsKicker(_ text: String, id: String) -> some View {
+        Kicker(text: text)
+            .accessibilityAddTraits(.isHeader)
+            .accessibilityIdentifier(id)
+    }
+
+    /// The one caption style of the screen: 12.5 pt ink2, wrapping rather
+    /// than truncating whatever the text size is, and placed by its caller
+    /// 6 pt under the control it explains — closer than the 14 pt to the
+    /// next control, which is what says what it belongs to.
+    fileprivate func caption(_ text: String) -> some View {
+        Text(text)
+            .dredfitFont(12.5)
+            .foregroundStyle(Theme.ink2)
+            .fixedSize(horizontal: false, vertical: true)
     }
 }
 

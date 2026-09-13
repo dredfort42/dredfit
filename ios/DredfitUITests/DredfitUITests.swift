@@ -481,7 +481,7 @@ final class DredfitUITests: XCTestCase {
         app.launch()
         // the settings icon overlays every tab — reachable straight from Today
         app.buttons[AX.settings].tap()
-        XCTAssertTrue(app.staticTexts["REST DAYS"].waitForExistence(timeout: 3),
+        XCTAssertTrue(app.staticTexts[AX.settingsRhythm].waitForExistence(timeout: 3),
                       "the settings sheet did not open")
 
         let monday = app.buttons[AX.weekday(2)]
@@ -507,7 +507,7 @@ final class DredfitUITests: XCTestCase {
         for tab in ["Calendar", "Progress"] {
             app.tabBars.buttons[tab].tap()
             app.buttons[AX.settings].tap()
-            XCTAssertTrue(app.staticTexts["REST DAYS"].waitForExistence(timeout: 3),
+            XCTAssertTrue(app.staticTexts[AX.settingsRhythm].waitForExistence(timeout: 3),
                           "settings must open from the \(tab) tab too")
             app.buttons[AX.settingsDone].tap()
         }
@@ -530,7 +530,7 @@ final class DredfitUITests: XCTestCase {
         }
 
         app.buttons[AX.howItWorksDone].tap()
-        XCTAssertTrue(app.staticTexts["REST DAYS"].waitForExistence(timeout: 3),
+        XCTAssertTrue(app.staticTexts[AX.settingsRhythm].waitForExistence(timeout: 3),
                       "closing the explainer should return to settings")
     }
 
@@ -554,7 +554,7 @@ extension DredfitUITests {
     func testAboutSectionOffersBothWaysToRecommend() {
         app.launch()
         app.buttons[AX.settings].tap()
-        XCTAssertTrue(app.staticTexts["REST DAYS"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts[AX.settingsRhythm].waitForExistence(timeout: 3))
         app.swipeUp()
         app.swipeUp()
         XCTAssertTrue(app.staticTexts["ABOUT"].waitForExistence(timeout: 3),

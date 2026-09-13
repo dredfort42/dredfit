@@ -17,19 +17,19 @@ final class NextTimeTests: AppStoreTestCase {
 
     // MARK: - The clock is the ceiling
 
-    /// Every set but the last: down only, to what the clock recorded. The
-    /// last: the whole corridor — nothing follows it, and the person may
-    /// have kept holding.
-    func testACorrectionCannotExceedTheClockExceptOnTheLastSet() {
+    /// Every set but the last stands as it ran — its range is the number
+    /// itself. The last: the whole corridor — nothing follows it, and the
+    /// person may have kept holding.
+    func testOnlyTheLastSetOpensARange() {
         let corridor = SetFacts.corridor(for: .hold)
-        XCTAssertEqual(SetFacts.correctionRange(measured: 30, isLastSet: false),
-                       corridor.lowerBound...30)
+        XCTAssertEqual(SetFacts.correctionRange(measured: 30, isLastSet: false), 30...30)
         XCTAssertEqual(SetFacts.correctionRange(measured: 30, isLastSet: true), corridor)
-        // Off the corridor either way, the ceiling is still a number the
-        // panel can stand on.
+        // Off the corridor either way, the number is still one the panel
+        // could stand on.
         XCTAssertEqual(SetFacts.correctionRange(measured: 2, isLastSet: false),
                        corridor.lowerBound...corridor.lowerBound)
-        XCTAssertEqual(SetFacts.correctionRange(measured: 500, isLastSet: false), corridor)
+        XCTAssertEqual(SetFacts.correctionRange(measured: 500, isLastSet: false),
+                       corridor.upperBound...corridor.upperBound)
     }
 
     // MARK: - The addition through the store

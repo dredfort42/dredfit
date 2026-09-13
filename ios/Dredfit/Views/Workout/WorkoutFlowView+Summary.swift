@@ -60,9 +60,19 @@ extension WorkoutFlowView {
                         // number they wanted next time into a card that
                         // records what was held. The future has its own
                         // block now.
+                        //
+                        // It names the LAST set because only the last set
+                        // can be corrected: every earlier one ended on its
+                        // signal or under a thumb, and the card carries that
+                        // number as it ran (owner, 13.09.2026). The reason
+                        // is said as "stand as they ran", not "ended on the
+                        // clock": a set stopped by hand is on this row too,
+                        // marked ≈, and it did not end on the clock.
+                        // One literal per key, because the literal is the key.
                         Text(exercise.perSide
-                             ? String(localized: "Went differently? Tap and correct — the numbers are per side.")
-                             : String(localized: "Went differently? Tap and correct."))
+                             // swiftlint:disable:next line_length
+                             ? String(localized: "Went differently? Tap the last set and correct — the numbers are per side, and the others stand as they ran.")
+                             : String(localized: "Went differently? Tap the last set and correct — the others stand as they ran."))
                             .dredfitFont(14)
                             .foregroundStyle(Theme.ink2)
                             .multilineTextAlignment(.center)
@@ -86,13 +96,12 @@ extension WorkoutFlowView {
             // takes the slot and the block stands down: one thing to read at
             // a time, the rule of every message slot in the flow.
             if adjusting, let index = summarySet {
-                // What the panel is standing on, said above it: which set,
-                // and what the clock counted. On every set but the last the
-                // clock is the ceiling (`SetFacts.correctionRange`) — the "+"
-                // is dimmed at it, and this line is the reason, because a
-                // dimmed control with no reason on screen looks broken. The
-                // last set says only what was counted: nothing followed it,
-                // and both directions are the person's.
+                // Which set and what was recorded for it, said above the
+                // panel. ONLY THE LAST SET OPENS THE PANEL: nothing followed
+                // it and the person may have kept holding, so both directions
+                // are theirs. Every earlier card is inert (`HeldSetCard`) — a
+                // panel whose "+" and "−" were dead at the floor read as a
+                // broken control (owner, 13.09.2026).
                 Text(summaryPanelLine(set: index))
                     .dredfitFont(14)
                     .monospacedDigit()
@@ -100,9 +109,7 @@ extension WorkoutFlowView {
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.bottom, 10)
-                    .accessibilityIdentifier(summaryRange(set: index).upperBound
-                                             < SetFacts.corridor(for: .hold).upperBound
-                                             ? "summary-ceiling" : "summary-panel-line")
+                    .accessibilityIdentifier("summary-panel-line")
                 AdjustPanel(value: $adjustValue, unit: .hold,
                             range: summaryRange(set: index)) {
                     actuals = SetFacts.recordingSet(adjustValue, in: actuals,
@@ -176,10 +183,11 @@ extension WorkoutFlowView {
         }
     }
 
-    /// Opens the entry on the card that was tapped, not on the set the flow
-    /// happens to be standing on — the whole point of the screen is that any
-    /// of them can be corrected.
+    /// Opens the entry on the card that was tapped. Only the last card
+    /// calls this (`HeldSetsRow`); the guard keeps it true if a caller
+    /// changes.
     func startSummaryAdjusting(set index: Int) {
+        guard isLastSummarySet(index) else { return }
         summarySet = index
         adjustValue = SetFacts.inForce(actuals, exercise, set: index)
         adjusting = true
@@ -193,21 +201,26 @@ extension WorkoutFlowView {
         holdMeasured[index] ?? SetFacts.inForce(actuals, exercise, set: index)
     }
 
+    func isLastSummarySet(_ index: Int) -> Bool { index == exercise.sets - 1 }
+
     /// The rule is `SetFacts.correctionRange`, where a test can reach it;
     /// what is measured is the CLOCK's number, not the card's — a card
     /// corrected downwards must be correctable back up to what was counted.
+    /// Only the last set reaches this from the screen now.
     func summaryRange(set index: Int) -> ClosedRange<Int> {
         SetFacts.correctionRange(measured: summaryMeasured(set: index),
-                                 isLastSet: index == exercise.sets - 1)
+                                 isLastSet: isLastSummarySet(index))
     }
 
-    /// The line above the panel: the set, what the clock counted, and — on
-    /// every set but the last — that nothing above it goes in.
+    /// The line above the panel: the set, and what was recorded for it —
+    /// what the clock counted, or, for a set stopped by hand, the estimate
+    /// the summary prints with "≈" (the clock less the reach allowance,
+    /// `SetFacts.holdEndedByTap`). Saying "the clock saw" about that number
+    /// would call a guess a measurement.
     func summaryPanelLine(set index: Int) -> String {
         let measured = summaryMeasured(set: index)
-        let range = summaryRange(set: index)
-        return range.upperBound < SetFacts.corridor(for: .hold).upperBound
-            ? String(localized: "set \(index + 1) · the clock saw \(measured) s — no more than that goes in")
+        return holdApproxSets.contains(index)
+            ? String(localized: "set \(index + 1) · stopped by hand at about \(measured) s")
             : String(localized: "set \(index + 1) · the clock saw \(measured) s")
     }
 

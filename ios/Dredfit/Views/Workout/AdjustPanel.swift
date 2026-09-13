@@ -38,9 +38,18 @@ struct AdjustPanel: View {
     var body: some View {
         HStack(spacing: 18) {
             stepButton("minus", -1)
+            // ONE line, whatever the unit's word is: "10 сек" at 26 pt heavy
+            // is wider than "10 s", and between two 44 pt targets and OK it
+            // broke into "10" over "сек" (owner, 13.09.2026). The number is
+            // the one flexible thing in the row — it yields size before it
+            // yields the line — and OK below is pinned to its own width, so
+            // on a narrow phone it is the number that shrinks, not the word
+            // on the button.
             Text(unit == .hold ? "\(value) s" : "\(value)")
                 .dredfitFont(26, weight: .heavy)
                 .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
                 .frame(minWidth: 76)
             stepButton("plus", +1)
 
@@ -51,6 +60,7 @@ struct AdjustPanel: View {
                     .padding(.horizontal, 22)
                     .padding(.vertical, 10)
                     .background(Theme.ink, in: Capsule())
+                    .fixedSize()
             }
             // Named, like the two steppers beside it: "OK" is also what a
             // system alert calls its button, so a query for the label alone
@@ -72,8 +82,21 @@ struct AdjustPanel: View {
 
     private var bounds: ClosedRange<Int> { range ?? SetFacts.corridor(for: unit) }
 
+    /// One rep, or FIVE seconds: a hold is set and corrected on the grid it
+    /// is planned on (`Dose.hold` steps by 5), and a panel that walked one
+    /// second at a time asked nine taps of a person standing over the phone
+    /// to say "45" (owner, 13.09.2026). A number that is not on the grid —
+    /// a hand-stopped 38 s the summary opened on — moves to the next grid
+    /// line in the tapped direction, so the first tap already lands where
+    /// every later one will.
+    static func holdStep(_ value: Int, _ dir: Int) -> Int {
+        let grid = 5
+        if dir > 0 { return (value / grid + 1) * grid }
+        return value.isMultiple(of: grid) ? value - grid : (value / grid) * grid
+    }
+
     private func bump(_ dir: Int) {
-        let stepped = value + dir
+        let stepped = unit == .hold ? Self.holdStep(value, dir) : value + dir
         value = min(max(stepped, bounds.lowerBound), bounds.upperBound)
     }
 
@@ -110,12 +133,13 @@ struct AdjustPanel: View {
                 // (finding 31, UX review 05.09.2026).
                 .background(Circle().stroke(Theme.targetStroke, lineWidth: 1.5))
         }
-        // The step stays ONE unit — the five-second grid was taken off holds
-        // deliberately (`SetFacts.snap`), and a hand-stopped 38 s has to stay
-        // sayable. What was wrong is the price of a step, not its size: this
-        // panel is the screen that exists to correct a number, and correcting
-        // a 45 s hold to 25 cost twenty separate taps, which is a price people
-        // pay by not correcting it (UX review, 05.09.2026).
+        // A rep is one unit; a hold steps by five seconds (`holdStep`). The
+        // five-second grid was once taken off this panel so that a
+        // hand-stopped 38 s stayed sayable — but 38 is what the clock writes
+        // on its own, and the panel is for what the person says, which is
+        // in fives (owner, 13.09.2026). The press-and-hold repeat stays: it
+        // is the price of a step that was wrong, not its size (UX review,
+        // 05.09.2026).
         .buttonStyle(PressReportingButtonStyle { pressing in
             if pressing { beginRepeat(dir) } else { endRepeat() }
         })
