@@ -54,6 +54,19 @@ struct WorkoutDriver {
         return true
     }
 
+    /// The four corners of an element's reported frame, inset by a hair so a
+    /// tap is on the shape and not on its edge — for proving a hit zone, not
+    /// for driving the flow. A round 44 pt stepper takes none of them: at
+    /// 0.06 of a 44 pt frame the tap is 27 pt from the centre, past a ring
+    /// 22 pt in radius, which is how "the − sticks" was found on build 22
+    /// (#251). On the 62 × 68 pt shape the fix laid over the ring the same
+    /// corner is 40 pt out and still inside.
+    static let topLeft = CGVector(dx: 0.06, dy: 0.06)
+    static let topRight = CGVector(dx: 0.94, dy: 0.06)
+    static let bottomLeft = CGVector(dx: 0.06, dy: 0.94)
+    static let bottomRight = CGVector(dx: 0.94, dy: 0.94)
+    static let corners = [topLeft, topRight, bottomLeft, bottomRight]
+
     /// All four in-workout skips ask before they act (SkipConfirmation.swift),
     /// and all four answer to the same short button — deliberately, because
     /// the alert's layout follows its label widths and per-kind labels made

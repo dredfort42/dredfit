@@ -323,9 +323,9 @@ struct RaiseStepper: View {
         .frame(maxWidth: .infinity)
     }
 
-    /// The panel's own steppers, with the same 44 pt targets and the same
-    /// outline (`AdjustPanel`). Dimmed AND disabled at a bound, so the tap
-    /// goes nowhere and VoiceOver hears why.
+    /// The panel's own steppers, with the same 44 pt ring, the same outline
+    /// and the same 62 × 68 pt hit shape over it (`AdjustPanel`). Dimmed AND
+    /// disabled at a bound, so the tap goes nowhere and VoiceOver hears why.
     private func stepButton(_ icon: String, enabled: Bool,
                             action: @escaping () -> Void) -> some View {
         Button(action: action) {
@@ -334,6 +334,25 @@ struct RaiseStepper: View {
                 .foregroundStyle(Theme.ink)
                 .frame(width: 44, height: 44)
                 .background(Circle().stroke(Theme.targetStroke, lineWidth: 1.5))
+                // The TARGET is bigger than the ring, as on the panel (#251).
+                // A Button takes taps only where its label draws, so this
+                // pair had exactly the dead corners the panel's "−" was found
+                // with on build 22: the doc comment above promised "the same
+                // 44 pt targets" while the shape was a ring 22 pt in radius,
+                // and a thumb reaching across the phone lands at its edge and
+                // misses there again on every repeat. The margins are this
+                // row's own, not the panel's copied: half the 18 pt gap to
+                // the number either side, and 12 pt above and below — inside
+                // the block's 14 pt bottom padding, so the shape stays 20 pt
+                // clear of "Done" under the block, and 2 pt over the 10 pt
+                // gap to the sentence above, which is text and takes no tap.
+                // 62 × 68 pt of hit shape over the same 44 pt of layout, so
+                // nothing in the row moves — and the promise above is true.
+                .padding(.vertical, 12)
+                .padding(.horizontal, 9)
+                .contentShape(Rectangle())
+                .padding(.vertical, -12)
+                .padding(.horizontal, -9)
         }
         .opacity(enabled ? 1 : 0.3)
         .disabled(!enabled)

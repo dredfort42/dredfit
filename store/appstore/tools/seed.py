@@ -195,10 +195,12 @@ POS_C = dict(POS_A, push_h=(2, 15))
 # shown as three and the frame would be a lie the driver could not see.
 #
 # ONE movement in the band, not ten. `--uitest-long-session` plants every
-# ladder at four sets and produces a 67-minute session; this file's listing
-# promises 30.5 min for a full one. With the band on hinge alone the header on
-# the frame reads "≈ 30 min left" — verified against Engine.estimatedMin
-# through SessionAhead's own arithmetic, not eyeballed.
+# ladder at four sets and produces a 67-minute session; the listing promises
+# ~30 min for a full one (30.5 on the 2.1.0 sweep, 31.5 on reference 3.5.0
+# since #240 — read the current release_texts, not this line). With the band
+# on hinge alone the header on the frame reads "≈ 30 min left" — verified
+# against Engine.estimatedMin through SessionAhead's own arithmetic, not
+# eyeballed.
 POS_D = dict(POS_A, hinge=(7, 11))
 
 # counter, positions, per-pattern sets above the base, ordinal total, ramp
@@ -249,6 +251,15 @@ data = {
         # reads pixels. Spent here, the sheet's guard returns early, the state
         # file is never rewritten, and every `today_` is the same screen.
         "hasOpenedTechnique": True,
+        # SPENT UP FRONT, for the same reason. Since #238 the work screen's
+        # "More or fewer than planned? Tap “Went differently”…" paragraph is
+        # gated on this flag (`AppSettings.showsDifferentNumberHint`) and no
+        # longer on an empty journal, so a seed without the key put two lines
+        # of hint over the button on the first reps exercise — `probe_`,
+        # `skip_` and (until 2.4.2) `set_` — while the frames signed off
+        # before that gate were clean. The driver never reports a number, so
+        # nothing else can spend it: seven frames off one state, or none.
+        "hasReportedOwnNumber": True,
     },
 }
 
