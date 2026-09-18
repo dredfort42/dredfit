@@ -132,6 +132,22 @@ struct AdjustPanel: View {
                 // one idiom answers for every outline a thumb aims at
                 // (finding 31, UX review 05.09.2026).
                 .background(Circle().stroke(Theme.targetStroke, lineWidth: 1.5))
+                // The TARGET is bigger than the ring. A Button takes taps
+                // only where its label draws — here the glyph and the
+                // circle's interior — not on the 44 pt frame around them,
+                // so the frame's four corners and everything past the ring
+                // took no tap at all. A thumb reaching across the phone to
+                // "−" lands its centroid at the ring's edge or just past it,
+                // and it lands there again on every repeat: the button
+                // "sticks" (owner, 13.09.2026, build 22). The shape is the
+                // square plus the panel's own padding and half the gap to
+                // the number — 62 × 68 pt — laid over the same 44 pt of
+                // layout, so nothing in the row moves.
+                .padding(.vertical, 12)
+                .padding(.horizontal, 9)
+                .contentShape(Rectangle())
+                .padding(.vertical, -12)
+                .padding(.horizontal, -9)
         }
         // A rep is one unit; a hold steps by five seconds (`holdStep`). The
         // five-second grid was once taken off this panel so that a

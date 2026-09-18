@@ -130,10 +130,11 @@ struct HowItWorksView: View {
                     you top out the reps, the LAST set of that exercise becomes \
                     a probe: one set of the next variation, four reps or fifteen \
                     seconds. Manage it and the next workout starts you there, \
-                    at three sets of four. Fall short and nothing moves — you \
-                    stay where you are and the probe comes round again. There \
-                    is no wrong answer to give it, and the volume of the \
-                    workout does not change either way.
+                    at three sets of four. Fall short and nothing moves — the \
+                    working sets stand as they were, and the probe is offered \
+                    again while the movement stays at the top of its range and \
+                    the last answer was not “tough”. The volume of the workout \
+                    does not change either way.
                     """)),
             Section(id: 11,
                     title: String(localized: "Why there are no questionnaires"),

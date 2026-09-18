@@ -141,14 +141,18 @@ jobs = [
     (f"{RAW}/technique_de.png",   ["Immer eine", "leichtere Variante"], "Technik zu jeder Bewegung – und die leichtere Variante.", f"{OUT}/de/s5.png"),
     (f"{RAW}/technique_fr.png",   ["Toujours une", "variante plus facile"], "La technique de chaque mouvement — et la variante plus facile.", f"{OUT}/fr/s5.png"),
     (f"{RAW}/technique_it.png",   ["Sempre c’è una", "variante che puoi fare"], "Tecnica per ogni movimento — e la variante più facile.", f"{OUT}/it/s5.png"),
-    # --- 6. set_
-    (f"{RAW}/set_en.png",        ["One focus at a time"], "Big numbers, one tap per set.", f"{OUT}/en/s6.png"),
-    (f"{RAW}/set_ru.png",        ["Одно дело за раз"], "Крупные цифры, одно касание на подход.", f"{OUT}/ru/s6.png"),
-    (f"{RAW}/set_es.png",        ["Una cosa a la vez"], "Números grandes, un toque por serie.", f"{OUT}/es/s6.png"),
-    (f"{RAW}/set_pt-br.png",     ["Um foco por vez"], "Números grandes, um toque por série.", f"{OUT}/pt-br/s6.png"),
-    (f"{RAW}/set_de.png",        ["Ein Fokus auf einmal"], "Große Zahlen, ein Fingertipp pro Satz.", f"{OUT}/de/s6.png"),
-    (f"{RAW}/set_fr.png",        ["Une série à la fois"], "De grands chiffres, une pression par série.", f"{OUT}/fr/s6.png"),
-    (f"{RAW}/set_it.png",        ["Un obiettivo alla volta"], "Numeri grandi, un tocco per ogni serie.", f"{OUT}/it/s6.png"),
+    # --- 6. summary_ — new in 2.4.2, replaces `set_` (see the slot history
+    #        below). The summary of a finished hold (§41.13): every set as the
+    #        clock counted it, the plan beside each, and the "Next time" block
+    #        AS IT OPENS — "+0", the stepper untouched. Taken on the walk to
+    #        the rating, not on a route of its own.
+    (f"{RAW}/summary_en.png",    ["Facts, not guesses"], "Every set as it ran — and your addition for next time.", f"{OUT}/en/s6.png"),
+    (f"{RAW}/summary_ru.png",    ["Факты, а не догадки"], "Каждый подход как был — и прибавка на следующий раз.", f"{OUT}/ru/s6.png"),
+    (f"{RAW}/summary_es.png",    ["Hechos, no suposiciones"], "Cada serie como fue — y tu añadido para la próxima.", f"{OUT}/es/s6.png"),
+    (f"{RAW}/summary_pt-br.png", ["Fatos, não suposições"], "Cada série como foi — seu acréscimo para a próxima.", f"{OUT}/pt-br/s6.png"),
+    (f"{RAW}/summary_de.png",    ["Fakten,", "keine Vermutungen"], "Jeder Satz, wie er lief – die Zugabe fürs nächste Mal.", f"{OUT}/de/s6.png"),
+    (f"{RAW}/summary_fr.png",    ["Des faits,", "pas des suppositions"], "Chaque série réelle — et ton ajout pour la prochaine fois.", f"{OUT}/fr/s6.png"),
+    (f"{RAW}/summary_it.png",    ["Fatti, non ipotesi"], "Ogni serie come è andata – e l’aggiunta per la prossima volta.", f"{OUT}/it/s6.png"),
     # --- 7. skip_ — the decision inside the workout (§38.2).
     (f"{RAW}/skip_en.png",       ["Too much today?"], "Skip a set while you are doing it. The clock follows.", f"{OUT}/en/s7.png"),
     (f"{RAW}/skip_ru.png",       ["Сегодня многовато?"], "Пропусти подход прямо по ходу. Время пересчитается.", f"{OUT}/ru/s7.png"),
@@ -251,6 +255,20 @@ jobs = [
 # whole screen. A future wave that wants it back needs no repair — it needs a
 # weaker frame to displace, and the `exercise-adjust` walk put back into
 # StoreScreenshots.swift.reference.
+#
+# 2.4.2: ONE SLOT REPLACED, no renumbering — `set_` left slot 6 and
+# `summary_` took it. `set_` left ALIVE, by the `dial_` argument and not the
+# `milestone_` one: the work screen it showed ("set 2 of 3", the big number,
+# Done, the escapes) is the very screen slots 4 (`probe_`) and 7 (`skip_`)
+# already carry, so three frames of ten were one layout. What took the slot is
+# the one screen new since 2.1.0 that a person meets in their FIRST workout:
+# the summary after the last set of a hold — the sets as the clock counted
+# them, the plan beside each, and the "Next time" block with its stepper
+# (§41.13). Captured as it opens, "+0", the stepper untouched: an addition is
+# the person's choice, and a driver that made it would also put "Your
+# additions" onto the rating frame. Free to take: `walkToRating` crosses it on
+# seed A's sixth exercise ("High plank") and already tapped its Done. The set
+# is recaptured whole for the fourth time (every .xcstrings moved since 03.09).
 #
 # A slot that changes meaning changes its caption in all seven languages, and
 # the author can only measure the pair he writes. The five he cannot are STAGED

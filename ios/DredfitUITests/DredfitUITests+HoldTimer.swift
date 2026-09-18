@@ -657,4 +657,73 @@ extension DredfitUITests {
         XCTAssertTrue(app.element(withIdentifier: AX.feedbackRaised("core_anti_ext")).exists,
                       "the rating screen must list the addition, so it is seen to stand")
     }
+
+    /// The "Next time" stepper's target is its whole frame, corners included
+    /// — the same defect the panel's "−" was found with on build 22
+    /// (`SetFactsUITests.testTheStepperTakesATapAtTheCornerOfItsFrame`, #251).
+    /// This pair was built as a copy of the panel's ring and its comment
+    /// promised "the same 44 pt targets": the same ring 22 pt in radius, and
+    /// the same four dead corners, on the very screen "the − sticks" was
+    /// reported from. Against the unfixed stepper this is red on its first
+    /// corner: every tap below lands at a corner of the 44 pt frame
+    /// (`WorkoutDriver.corners`), 27 pt from the centre, the ring takes none
+    /// of them, and the label never leaves "plus 0 seconds".
+    ///
+    /// Each of the eight taps is asserted on its own, because the addition
+    /// cannot count to four: `EngineConfig.raiseStepsMax` is 2, so "+" is
+    /// dead after two hits and a final value could not tell four hits from
+    /// two. The walk climbs to 2 and comes back to 0 twice, with "+" and "−"
+    /// each tapped once at every corner, and the label must move on every
+    /// tap — a miss anywhere stalls it where the tap before left it.
+    func testTheNextTimeStepperTakesATapAtTheCornerOfItsFrame() {
+        launchIntoSession2AndReachPlank("--uitest-fast", "--uitest-hold-short")
+        coordinateTap(app.buttons[AX.holdStartExercise])
+
+        XCTAssertTrue(app.staticTexts[AX.summaryNextPlan].waitForExistence(timeout: 90),
+                      "the summary must say what the next plan will be")
+        expectRaised(0, "the summary opens with nothing added")
+        let plus = app.buttons[AX.raisePlus]
+        let minus = app.buttons[AX.raiseMinus]
+        let walk = [
+            CornerTap(plus, WorkoutDriver.topLeft, leaves: 1),
+            CornerTap(plus, WorkoutDriver.bottomRight, leaves: 2),
+            CornerTap(minus, WorkoutDriver.topRight, leaves: 1),
+            CornerTap(minus, WorkoutDriver.bottomLeft, leaves: 0),
+            CornerTap(plus, WorkoutDriver.topRight, leaves: 1),
+            CornerTap(plus, WorkoutDriver.bottomLeft, leaves: 2),
+            CornerTap(minus, WorkoutDriver.topLeft, leaves: 1),
+            CornerTap(minus, WorkoutDriver.bottomRight, leaves: 0),
+        ]
+        for tap in walk {
+            tap.button.coordinate(withNormalizedOffset: tap.corner).tap()
+            expectRaised(tap.leaves,
+                         "\(tap.button.identifier) at (\(tap.corner.dx), \(tap.corner.dy)) must take the tap")
+        }
+    }
+
+    /// One corner tap of the walk above and the addition it must leave.
+    private struct CornerTap {
+        let button: XCUIElement
+        let corner: CGVector
+        let leaves: Int
+
+        init(_ button: XCUIElement, _ corner: CGVector, leaves: Int) {
+            self.button = button
+            self.corner = corner
+            self.leaves = leaves
+        }
+    }
+
+    /// The addition as VoiceOver reads it — `RaiseLabel.spoken`, which is
+    /// what `.label` returns for the value — waited for rather than read at
+    /// once, so a tap still being delivered is not counted as a miss.
+    private func expectRaised(_ steps: Int, _ message: String,
+                              file: StaticString = #filePath, line: UInt = #line) {
+        let spoken = "plus \(steps * 5) seconds for next time"
+        let value = app.staticTexts.matching(identifier: AX.raiseValue)
+            .matching(NSPredicate(format: "label == %@", spoken)).firstMatch
+        XCTAssertTrue(value.waitForExistence(timeout: 3),
+                      "\(message): expected “\(spoken)”, got “\(app.staticTexts[AX.raiseValue].label)”",
+                      file: file, line: line)
+    }
 }
