@@ -78,7 +78,7 @@ prints the dose in 112 pt and the unit beneath it — "reps", "reps per side"
 because it "no longer agrees with a number": one form per language. True for
 English and German, where "reps" and "Wdh." read the same under any number,
 and false for Russian, where the word declines — «4 повторов» is the genitive
-plural that only 5 and up take, and under a 4 it reads as a mistake. The
+plural that 5 to 20 take, and under a 4 it reads as a mistake. The
 caption is a plural key now, `%lld reps` and `%lld reps per side`: the number
 is still printed once, above, but it picks the form — повтор, повтора,
 повторов; rep, reps; Wdh. unchanged. Nothing about the number, the plan or
