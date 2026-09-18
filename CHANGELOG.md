@@ -34,8 +34,10 @@ it asks is supposed to say so in the reader's own language. English, French
 and Brazilian Portuguese named sex among them; German, Spanish, Italian and
 Russian named weight, height, age and resting energy and left it out, while
 the review notes on file promised the string says "the same in all seven
-languages". The four now name it. Not one read was added or removed: the
-sentence caught up with the code, not the other way round.
+languages". The four now name it — and the English fallback in Info.plist,
+which a device outside the seven languages reads, with them. Not one read
+was added or removed: the sentence caught up with the code, not the other
+way round.
 
 **The site describes the app that ships.** Two sentences on dredfit.com, in
 all seven languages, had outlived the product. "Adjust in the moment" said
@@ -52,8 +54,18 @@ seconds that are called yours; and a failed probe leaves the working sets as
 they were and is offered again while the movement stays at the top of its
 range and the last answer was not "tough".
 
+**"How it works" says what the engine does about a failed probe.** Section
+ten of the explainer in Settings made the site's promise in the app's own
+voice — "you stay where you are and the probe comes round again" — and it is
+the one place a reader learns what a probe is. It now says what §40.4
+actually rules: fall short and the working sets stand as they were, and the
+probe is offered again while the movement stays at the top of its range and
+the last answer was not "tough". Seven languages, the same sentence; the
+numbers on that screen — four reps or fifteen seconds, three sets of four —
+are unchanged, because the engine is.
+
 **Ten App Store frames, recaptured from build 23 in seven languages.** The
-set on the storefront was captured for 2.1.0, and the catalog has moved eight
+set on the storefront was captured for 2.1.0, and the catalog has moved seven
 times since. Slot 6 now shows the hold summary — the cards that say what was
 held and the **Next time** block — instead of a second frame of the work
 screen; that frame told no lie, it duplicated slots 4 and 7, and the summary
