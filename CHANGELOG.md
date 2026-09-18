@@ -72,6 +72,18 @@ screen; that frame told no lie, it duplicated slots 4 and 7, and the summary
 is the screen every release since 2.4.0 has been about and had no frame at
 all.
 
+**The unit under the big number agrees with it in Russian.** The work screen
+prints the dose in 112 pt and the unit beneath it — "reps", "reps per side"
+— and the comment on that caption said the unit needs no plural forms
+because it "no longer agrees with a number": one form per language. True for
+English and German, where "reps" and "Wdh." read the same under any number,
+and false for Russian, where the word declines — «4 повторов» is the genitive
+plural that only 5 and up take, and under a 4 it reads as a mistake. The
+caption is a plural key now, `%lld reps` and `%lld reps per side`: the number
+is still printed once, above, but it picks the form — повтор, повтора,
+повторов; rep, reps; Wdh. unchanged. Nothing about the number, the plan or
+the engine moved, and the hold captions are untouched.
+
 - Housekeeping: 728 → 730 automated tests — the corner tap has its own UI
   test on the entry panel, which fails against the ring alone and strikes
   all four corners of the frame, and a second one on the "Next time"

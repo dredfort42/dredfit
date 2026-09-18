@@ -9870,82 +9870,426 @@
         }
       }
     },
-    "reps": {
+    "%lld reps": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wdh."
+            "value": "%#@reps@"
+          },
+          "substitutions": {
+            "reps": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Wdh."
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Wdh."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@reps@"
+          },
+          "substitutions": {
+            "reps": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "rep"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "reps"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "reps"
+            "value": "%#@reps@"
+          },
+          "substitutions": {
+            "reps": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "rep"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "reps"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "reps"
+            "value": "%#@reps@"
+          },
+          "substitutions": {
+            "reps": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "rep"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "reps"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "reps"
+            "value": "%#@reps@"
+          },
+          "substitutions": {
+            "reps": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "rep"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "reps"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "reps"
+            "value": "%#@reps@"
+          },
+          "substitutions": {
+            "reps": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "rep"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "reps"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "повторов"
+            "value": "%#@reps@"
+          },
+          "substitutions": {
+            "reps": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "few": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "повтора"
+                    }
+                  },
+                  "many": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "повторов"
+                    }
+                  },
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "повтор"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "повтора"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
     },
-    "reps per side": {
+    "%lld reps per side": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wdh. pro Seite"
+            "value": "%#@reps@"
+          },
+          "substitutions": {
+            "reps": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Wdh. pro Seite"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "Wdh. pro Seite"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%#@reps@"
+          },
+          "substitutions": {
+            "reps": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "rep per side"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "reps per side"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "reps por lado"
+            "value": "%#@reps@"
+          },
+          "substitutions": {
+            "reps": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "rep por lado"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "reps por lado"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "reps par côté"
+            "value": "%#@reps@"
+          },
+          "substitutions": {
+            "reps": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "rep par côté"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "reps par côté"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "reps per lato"
+            "value": "%#@reps@"
+          },
+          "substitutions": {
+            "reps": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "rep per lato"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "reps per lato"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "reps de cada lado"
+            "value": "%#@reps@"
+          },
+          "substitutions": {
+            "reps": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "rep de cada lado"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "reps de cada lado"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "повторов на сторону"
+            "value": "%#@reps@"
+          },
+          "substitutions": {
+            "reps": {
+              "argNum": 1,
+              "formatSpecifier": "lld",
+              "variations": {
+                "plural": {
+                  "few": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "повтора на сторону"
+                    }
+                  },
+                  "many": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "повторов на сторону"
+                    }
+                  },
+                  "one": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "повтор на сторону"
+                    }
+                  },
+                  "other": {
+                    "stringUnit": {
+                      "state": "translated",
+                      "value": "повтора на сторону"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }

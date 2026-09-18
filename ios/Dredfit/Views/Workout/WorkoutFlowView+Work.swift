@@ -614,11 +614,21 @@ extension WorkoutFlowView {
         if holding { return String(localized: "s left") }
         // The unit only: the 112 pt number above already says how many, and
         // printing it twice is the kind of noise that makes a screen feel
-        // busy. Because the caption no longer agrees with a number, these
-        // keys need no ICU plurals — one form per language.
+        // busy. The count is still PASSED for reps, because the word has to
+        // agree with a number it does not print: Russian declines the unit
+        // by count (повтор / повтора / повторов), and one form under every
+        // number put "4 повторов" on an App Store frame (18.09.2026). In the
+        // catalog the value is a substitution (`%#@reps@`) whose plural forms
+        // carry no number token, so the argument picks the form and never
+        // reaches the screen a second time — a whole-string plural variation
+        // cannot do this: `xcstringstool` refuses a form that does not print
+        // the number. Holds stay one form per language: the corridor is
+        // 5…90 s on a grid of 5, so no value a hold caption can show takes a
+        // singular anywhere, and Russian abbreviates the unit ("сек"), which
+        // does not decline at all.
         switch (current.unit, current.perSide) {
-        case (.reps, false): return String(localized: "reps")
-        case (.reps, true):  return String(localized: "reps per side")
+        case (.reps, false): return String(localized: "\(workNumber) reps")
+        case (.reps, true):  return String(localized: "\(workNumber) reps per side")
         case (.hold, false): return String(localized: "seconds")
         case (.hold, true):  return String(localized: "seconds per side")
         }
