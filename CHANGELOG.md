@@ -53,7 +53,7 @@ they were and is offered again while the movement stays at the top of its
 range and the last answer was not "tough".
 
 **Ten App Store frames, recaptured from build 23 in seven languages.** The
-set on the storefront was captured for 2.1.0, and the catalog has moved seven
+set on the storefront was captured for 2.1.0, and the catalog has moved eight
 times since. Slot 6 now shows the hold summary — the cards that say what was
 held and the **Next time** block — instead of a second frame of the work
 screen; that frame told no lie, it duplicated slots 4 and 7, and the summary
