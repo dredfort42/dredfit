@@ -86,8 +86,15 @@ final class SetFactsUITests: XCTestCase {
     /// tap, so a thumb that landed at the ring's edge missed, and missed the
     /// same way on every repeat — "the − sticks" (owner, 13.09.2026, build
     /// 22). The frame is now 62 × 68 pt of hit shape over the same ring, and
-    /// this taps its two far corners — 40 pt from the centre, twice the ring's
-    /// radius — where the ring alone would have taken nothing.
+    /// this taps each of its four corners once (`WorkoutDriver.corners`) —
+    /// 40 pt from the centre, twice the ring's radius — where the ring alone
+    /// would have taken nothing.
+    ///
+    /// Plan 4 to 0, one corner per step, and the caption has to read the
+    /// number that only four hits produce: the rep corridor starts at 0
+    /// (`SetFacts.corridor`), a miss on every corner leaves the plan standing
+    /// and so no caption at all, and two hits read "actual 2". "actual 0"
+    /// cannot be reached any other way.
     func testTheStepperTakesATapAtTheCornerOfItsFrame() {
         app.launch()
         driver.startWorkout()
@@ -96,13 +103,12 @@ final class SetFactsUITests: XCTestCase {
         app.buttons[AX.exerciseAdjust].tap()
         let minus = app.buttons[AX.adjustMinus]
         XCTAssertTrue(minus.waitForExistence(timeout: 3), "the stepper did not open")
-        // Plan 4: a corner tap each — the top-left and the bottom-right of the
-        // reported frame, inset by a hair so the tap is on the shape, not on
-        // its edge.
-        minus.coordinate(withNormalizedOffset: CGVector(dx: 0.06, dy: 0.06)).tap()
-        minus.coordinate(withNormalizedOffset: CGVector(dx: 0.94, dy: 0.94)).tap()
+        for corner in WorkoutDriver.corners {
+            minus.coordinate(withNormalizedOffset: corner).tap()
+        }
         app.buttons[AX.adjustConfirm].tap()
-        XCTAssertTrue(app.staticTexts["actual 2"].waitForExistence(timeout: 3),
-                      "two corner taps must step 4 → 2; a miss leaves the plan and no caption")
+        XCTAssertTrue(app.staticTexts["actual 0"].waitForExistence(timeout: 3),
+                      "four corner taps must step 4 → 0; a miss leaves the plan and no caption, "
+                        + "two misses read “actual 2”")
     }
 }

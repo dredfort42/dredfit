@@ -16,8 +16,21 @@ change with taps at the frame's corners: none landed; after: all four do.
 The step itself, the five-second grid and the press-and-hold repeat are
 untouched, and so are the engine, the state format and the journal.
 
-- Housekeeping: 728 → 729 automated tests — the corner tap has its own UI
-  test, which fails against the ring alone.
+**The "Next time" stepper on the same summary takes the same tap.** The "+"
+and "−" above **Done**, which add five seconds to next time's plan, were
+built as the same 44 pt ring without the shape — a tester told the stepper
+was fixed would have pressed this one at the edge of its frame and reported
+it still stuck. Its hit shape is now the same 62 × 68 pt laid over the same
+ring — half the gap to the number either side, twelve points above and
+below, still clear of Done — so "+5 s" lands from the corner of the frame
+as it does from the centre. The addition itself, its five-second step, the
+ceiling at "This is the most for this movement." and everything the addition
+is written into are untouched.
+
+- Housekeeping: 728 → 730 automated tests — the corner tap has its own UI
+  test on the entry panel, which fails against the ring alone and strikes
+  all four corners of the frame, and a second one on the "Next time"
+  stepper.
 
 ## 2.4.1
 
