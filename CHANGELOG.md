@@ -1,5 +1,25 @@
 # Changelog
 
+## 2.4.3
+
+**A hold run exactly to an uneven plan is recorded as the plan.** A plan of
+35-30-30 s held as asked came out on the summary, in the journal and in the
+"Next time" sentence as 35-35-30 — on every hold of a plan whose first set
+stands one rung above the rest, with nothing typed, nothing declared and
+nothing corrected. The clock records every set of a hold, and when it wrote
+the third the two sets already behind were filled in from the first set's
+number rather than each from its own plan, so a movement done exactly as
+written turned into a record that no longer matched the plan — 35 s on a
+set the clock had counted down from 30. Reproduced in the simulator before
+the change (set two counted 30 s down and the card said 35); the fill is
+now what the screen showed and the clock ran, set for set, the same rule the
+summary's own writer already used. It reached the reps side too: "Went
+differently" entered on a later set of an 8-7-7 plan filled the untouched
+second set with 8. In workout 42 the engine's step was the same either way,
+so no position moved for it; records already written keep the numbers they
+were written with. The engine, the state format and the journal format are
+untouched. 650 → 653 app unit tests: three, all red before the change.
+
 ## 2.4.2
 
 **The stepper's "−" and "+" take a tap on their whole frame.** On build 22
