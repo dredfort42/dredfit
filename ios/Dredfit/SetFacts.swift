@@ -188,13 +188,25 @@ nonisolated enum SetFacts {
     /// sets]`. Against the flat `load` an uneven plan performed exactly as
     /// written — 9-8-8 — would read as a shortfall on its first set and hand
     /// the engine a number nobody meant to report.
+    ///
+    /// THE GAPS ARE FILLED AS THE SCREEN READ THEM — `inForce`, set for set —
+    /// never with the last number carried forward. The fill used to append
+    /// `values.last`, which is only the same thing on a uniform plan: on
+    /// 35-30-30 a hold recording its THIRD set with nothing said before it
+    /// filled set two with set ONE's 35, the record no longer matched the
+    /// plan, and a movement held exactly as asked reached the summary and
+    /// the journal as 35-35-30 — on every hold of every uneven plan, since
+    /// the clock records every set (owner, workout 42, 21.09.2026). The same
+    /// carry also filled a set after a surplus with the surplus, though the
+    /// clock had run that set at the plan (`inForce`'s asymmetry).
     static func recording(_ value: Int, in facts: PerSet,
                           _ ex: SessionExercise, set index: Int) -> PerSet {
         var facts = facts
         var values = facts[ex.pattern] ?? []
         let index = max(index, 0)
         while values.count < index {
-            values.append(values.last ?? ex.plannedLoad(set: values.count))
+            let planned = ex.plannedLoad(set: values.count)
+            values.append(min(values.last ?? planned, planned))
         }
         values = Array(values.prefix(index)) + [value]
         let onPlan = values.enumerated().allSatisfy { $0.element == ex.plannedLoad(set: $0.offset) }
