@@ -134,6 +134,60 @@ final class HoldFactsTests: XCTestCase {
                        "a negative index is set one, as everywhere else")
     }
 
+    // MARK: - The clock records every set of an uneven plan
+
+    /// Workout 42 (owner, 21.09.2026): 35-30-30 held exactly as asked came
+    /// out as 35-35-30 on the summary, in the journal and in the next plan —
+    /// on BOTH holds of the session, with nothing typed and nothing declared.
+    /// The clock records every set through `recording`, so a hold to plan
+    /// writes set 1 (nothing said), set 2 (nothing said), then set 3 — and
+    /// the fill for the two sets already behind carried set ONE's number
+    /// onto set two instead of set two's own plan. Walked the way the flow
+    /// walks it: the clock is set from `holdTarget`, then records what ran.
+    func testAHoldRunExactlyToAnUnevenPlanSaysNothing() throws {
+        let uneven = try XCTUnwrap(unevenHold())
+        let plan = (0..<uneven.sets).map { uneven.plannedLoad(set: $0) }
+        XCTAssertGreaterThan(plan[0], plan[1], "the top set is what makes it uneven")
+        var facts: SetFacts.PerSet = [:]
+        for set in 0..<uneven.sets {
+            let ran = SetFacts.holdTarget(facts, uneven, set: set, declared: nil)
+            XCTAssertEqual(ran, plan[set], "set \(set + 1) counts down from its own plan")
+            facts = SetFacts.recording(ran, in: facts, uneven, set: set)
+            XCTAssertNil(facts[uneven.pattern],
+                         "set \(set + 1) held as asked is nothing said — the "
+                            + "record must not diverge from the plan on its own")
+        }
+        XCTAssertEqual(SetFacts.allSets(facts, uneven), plan)
+        XCTAssertNil(SetFacts.override(facts, for: uneven), "the rating governs the pattern")
+    }
+
+    /// The fill itself, on the set that showed the defect: a third set
+    /// recorded with nothing said before it gets sets one and two AT THEIR
+    /// OWN PLAN — what `inForce` showed and the clock ran — not set one's
+    /// number twice. The summary's writer already filled this way
+    /// (`testGapsBeforeTheCorrectedSetAreFilledWithTheirOwnPlan`); the work
+    /// screen's did not.
+    func testGapsBeforeTheSetUnderWayAreFilledAsTheScreenReadThem() throws {
+        let uneven = try XCTUnwrap(unevenHold())
+        let plan = (0..<uneven.sets).map { uneven.plannedLoad(set: $0) }
+        let facts = SetFacts.recording(plan[2] - 5, in: [:], uneven, set: 2)
+        XCTAssertEqual(SetFacts.allSets(facts, uneven), [plan[0], plan[1], plan[2] - 5],
+                       "sets 1 and 2 ran silently, each at its own planned dose")
+    }
+
+    /// The same rule after a SURPLUS. A number above the plan stays on its
+    /// own set (`inForce`), so the clock of the set after it ran the plan —
+    /// and that is what the fill has to say it ran at once a later set is
+    /// recorded. The carry used to put the surplus there too.
+    func testTheFillAfterASurplusIsThePlanTheClockRan() {
+        var facts = SetFacts.recording(hold.load + 5, in: [:], hold, set: 0)
+        XCTAssertEqual(SetFacts.holdTarget(facts, hold, set: 1, declared: nil), hold.load,
+                       "set two counts down from the plan, not from the surplus")
+        facts = SetFacts.recording(hold.load - 5, in: facts, hold, set: 2)
+        XCTAssertEqual(SetFacts.allSets(facts, hold),
+                       [hold.load + 5, hold.load, hold.load - 5])
+    }
+
     // MARK: - The allowance a thumb pays
 
     /// The tap lands after the effort has stopped — the person comes off the
@@ -294,12 +348,18 @@ final class HoldFactsTests: XCTestCase {
     /// Off a CLEAN state, not this suite's: the sub-step is disabled on the
     /// top rung of a grid (§40.1), which is exactly where `setUp` puts
     /// everything, so an uneven plan cannot be built there at all.
-    private func unevenReps() -> SessionExercise? {
+    private func unevenReps() -> SessionExercise? { uneven(reps.pattern) }
+
+    /// The same shape on a hold — 20-15-15 s off the initial state, the plan
+    /// workout 42 met as 35-30-30 (`testAHoldRunExactlyToAnUnevenPlanSaysNothing`).
+    private func unevenHold() -> SessionExercise? { uneven(hold.pattern) }
+
+    private func uneven(_ pattern: Pattern) -> SessionExercise? {
         var state = EngineState.initial
         state.counter = 1
-        state.sub[reps.pattern] = 1
+        state.sub[pattern] = 1
         let session = Engine.generateSession(state)
-        guard let ex = session.exercises.first(where: { $0.pattern == reps.pattern }),
+        guard let ex = session.exercises.first(where: { $0.pattern == pattern }),
               let loads = ex.loads, Set(loads).count > 1 else { return nil }
         return ex
     }
