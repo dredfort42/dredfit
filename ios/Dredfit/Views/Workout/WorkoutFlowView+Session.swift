@@ -570,6 +570,10 @@ extension WorkoutFlowView {
                     exIndex += 1
                     maximumWarning = nil   // the note belongs to its own exercise
                     setIndex = 0
+                    // As `advanceAfterRest` does: the declaration restored
+                    // above belongs to the movement behind, and kept it set
+                    // the next movement's clock after a process death.
+                    resetHoldExercise()
                 } else {
                     setIndex += 1
                 }

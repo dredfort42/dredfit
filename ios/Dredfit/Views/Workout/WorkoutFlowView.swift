@@ -404,8 +404,10 @@ struct WorkoutFlowView: View {
             case .milestone(let earned):
                 MilestoneView(milestones: earned,
                               steps: store.progressCurve(through: store.lastRecord?.date),
+                              // The current run, as the curve beside it: after
+                              // a fresh start "then" is the new run's first.
                               retrospective: Retrospective.make(
-                                  records: store.records,
+                                  records: store.recordsSinceReset,
                                   current: store.currentPositions)) {
                     askForReviewIfEarned()
                     dismiss()
@@ -415,6 +417,13 @@ struct WorkoutFlowView: View {
         .padding(.horizontal, 24)
         .background(Theme.bg.ignoresSafeArea())
         .onReceive(timer) { _ in
+            // Nothing the clocks drive happens behind "Leave the workout?": a
+            // hands-free rest ran out under it, started the next hold on its
+            // go and logged it as held. Every countdown is an end DATE, so a
+            // skipped tick loses nothing — after "Keep training" the next tick
+            // meets whatever ran out, under the rules a backgrounded app
+            // already lives by.
+            guard !exitConfirmShown else { return }
             switch phase {
             case .warmup:
                 if blockPause.isPaused { tickBlockPause() } else { tickWarmup() }

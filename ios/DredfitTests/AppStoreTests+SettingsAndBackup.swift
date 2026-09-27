@@ -79,4 +79,40 @@ extension AppStoreTests {
                              "a foreign JSON must not import")
         XCTAssertTrue(store.records.isEmpty, "state must stay intact after a failed import")
     }
+
+    /// One setting of an unexpected shape costs that setting, never the
+    /// journal beside it (it used to fail the whole file into quarantine).
+    func testAMalformedSettingDoesNotCostTheJournal() throws {
+        let store = AppStore(storageURL: tempURL)
+        store.completeWorkout(session: store.nextSession, result: .plan)
+        var json = try XCTUnwrap(try JSONSerialization.jsonObject(with: Data(contentsOf: tempURL))
+            as? [String: Any])
+        var settings = try XCTUnwrap(json["settings"] as? [String: Any])
+        settings["soundsEnabled"] = "loud"
+        settings["reminderHour"] = 99
+        json["settings"] = settings
+        try JSONSerialization.data(withJSONObject: json).write(to: tempURL)
+
+        let relaunched = AppStore(storageURL: tempURL)
+        XCTAssertEqual(relaunched.records.count, 1, "the journal must survive")
+        XCTAssertTrue(relaunched.settings.soundsEnabled, "the bad field falls back to its default")
+        XCTAssertEqual(relaunched.settings.reminderHour, 23, "held to the clock")
+    }
+
+    /// The lenient launch decode reads `{"records":[]}` as a clean start. As
+    /// an import it would have replaced a whole history with nothing.
+    func testImportRefusesAFileItCannotReadInFull() throws {
+        let otherURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("dredfit-partial-\(UUID().uuidString).json")
+        defer { try? FileManager.default.removeItem(at: otherURL) }
+        let store = AppStore(storageURL: otherURL)
+        store.completeWorkout(session: store.nextSession, result: .plan)
+        let before = store.engineState
+        for junk in [#"{"records":[]}"#, #"{"engineState":{"nonsense":true},"records":[]}"#] {
+            try Data(junk.utf8).write(to: tempURL)
+            XCTAssertThrowsError(try store.importBackup(from: tempURL), junk)
+            XCTAssertEqual(store.records.count, 1, "the journal must survive a refused import")
+            XCTAssertEqual(store.engineState, before)
+        }
+    }
 }

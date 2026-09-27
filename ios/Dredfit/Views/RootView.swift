@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct RootView: View {
     @Environment(AppStore.self) private var store
@@ -83,6 +84,15 @@ struct RootView: View {
             default:
                 break
             }
+        }
+        // Midnight inside a live scene: a workout's cover keeps the phase
+        // `.active`, so `activate()` never comes and Today showed the next
+        // workout under yesterday's date. UIKit posts this on the main thread
+        // at midnight and on clock or time-zone changes. The DATE only — the
+        // decay stays with `activate()`.
+        .onReceive(NotificationCenter.default.publisher(
+            for: UIApplication.significantTimeChangeNotification)) { _ in
+            store.reanchorToday()
         }
         // The audio category is PROCESS state, not a setting: a choice saved
         // yesterday configures nothing by itself, and the switch in Settings

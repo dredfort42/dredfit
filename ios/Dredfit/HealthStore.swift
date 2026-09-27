@@ -99,9 +99,13 @@ struct HealthKitWorkoutWriter: WorkoutHealthWriting {
         // Characteristics are synchronous and THROW when unauthorised, which
         // is the same throw as "never filled in" — one catch covers both, and
         // it has to, because HealthKit will not say which happened.
+        // Gregorian, not `Calendar.current`: HealthKit hands the birthday over
+        // in the Gregorian calendar, and a Buddhist or Japanese calendar read
+        // 1990 as a different year — an age the bound below then dropped.
+        let gregorian = Calendar(identifier: .gregorian)
         if let components = try? store.dateOfBirthComponents(),
-           let birth = Calendar.current.date(from: components) {
-            let years = Calendar.current.dateComponents([.year], from: birth, to: .now).year
+           let birth = gregorian.date(from: components) {
+            let years = gregorian.dateComponents([.year], from: birth, to: .now).year
             if let years, years >= 0, years < 130 { profile.ageYears = Double(years) }
         }
         if let sex = try? store.biologicalSex().biologicalSex {
@@ -167,6 +171,13 @@ struct HealthKitWorkoutWriter: WorkoutHealthWriting {
 
     func saveWorkout(start: Date, end: Date, activeKcal: Double?,
                      journalID: String) async -> Bool {
+        // The journal flag is written AFTER Health confirms, so a save can
+        // land while its flag never reaches disk (the process reclaimed right
+        // after, a failed journal write, a backup from before the export), and
+        // a retry wrote a second workout the app cannot tidy. Health is asked
+        // first; a lookup that fails answers "not found" — today's behaviour.
+        // Workouts from builds before the tag below carry nothing to find.
+        if await ownWorkoutExists(journalID: journalID) { return true }
         let configuration = HKWorkoutConfiguration()
         configuration.activityType = .functionalStrengthTraining
         let builder = HKWorkoutBuilder(healthStore: store,
@@ -174,6 +185,10 @@ struct HealthKitWorkoutWriter: WorkoutHealthWriting {
                                        device: .local())
         do {
             try await builder.beginCollection(at: start)
+            // What the lookup above finds. Best-effort: an untagged workout is
+            // what every earlier build wrote, and a failed save would stop the
+            // whole backfill tail.
+            try? await builder.addMetadata([HKMetadataKeyExternalUUID: journalID])
             if let sample = energySample(activeKcal, start: start, end: end,
                                          journalID: journalID) {
                 try await builder.addSamples([sample])
@@ -185,8 +200,30 @@ struct HealthKitWorkoutWriter: WorkoutHealthWriting {
             let workout: HKWorkout? = try await builder.finishWorkout()
             return workout != nil
         } catch {
+            // Nothing half-written is left open in HealthKit; the record stays
+            // unflagged and the next backfill tries again.
+            builder.discardWorkout()
             return false
         }
+    }
+
+    /// A workout THIS app wrote for this journal entry. Our own samples are
+    /// readable with every read permission refused, so this works for anyone
+    /// who can write at all.
+    private func ownWorkoutExists(journalID: String) async -> Bool {
+        let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+            HKQuery.predicateForObjects(from: HKSource.default()),
+            HKQuery.predicateForObjects(withMetadataKey: HKMetadataKeyExternalUUID,
+                                        allowedValues: [journalID]),
+        ])
+        let samples: [HKSample] = await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(sampleType: .workoutType(), predicate: predicate,
+                                      limit: 1, sortDescriptors: nil) { _, result, _ in
+                continuation.resume(returning: result ?? [])
+            }
+            store.execute(query)
+        }
+        return !samples.isEmpty
     }
 
     /// `nil` unless there is a number AND permission to write it. Sharing

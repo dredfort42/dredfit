@@ -602,6 +602,13 @@ nonisolated enum SetFacts {
                            currentIsDone: Bool,
                            alreadySkipped: Skips) -> Settlement {
         var out = Settlement(setsSkipped: alreadySkipped)
+        // Clamped from below the way `restore(from:)` clamps a resume: both
+        // numbers come off disk, and a negative index trapped here inside
+        // `activate()` before the snapshot was cleared — so every launch
+        // after it trapped too. Past the end is NOT clamped: it means all
+        // behind. A negative count settles exactly like zero.
+        let exIndex = max(exIndex, 0)
+        let setsBehind = max(setsBehind, 0)
         guard exIndex < exercises.count else { return out }
         var firstUnfinished = exIndex
         if currentIsDone {

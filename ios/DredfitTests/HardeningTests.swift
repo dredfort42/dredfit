@@ -27,6 +27,20 @@ final class HardeningTests: AppStoreTestCase {
         XCTAssertEqual(store.today, anchor, "a same-day refresh must be a no-op")
     }
 
+    /// A workout run across midnight: the scene never leaves `.active`, so
+    /// only the time-change observer moves the anchor — and it moves nothing
+    /// but the date (the decay stays with `activate()`).
+    func testAWorkoutFinishedPastMidnightReadsDoneOnceTheDateMoves() {
+        let store = AppStore(storageURL: tempURL)
+        let pastMidnight = Calendar.current.date(byAdding: .day, value: 1, to: .now)!
+        store.completeWorkout(session: store.nextSession, result: .plan, date: pastMidnight)
+        XCTAssertFalse(store.doneToday, "the stale anchor still reads yesterday")
+        let state = store.engineState
+        store.reanchorToday(now: pastMidnight)
+        XCTAssertTrue(store.doneToday)
+        XCTAssertEqual(store.engineState, state, "re-anchoring must not touch the plan")
+    }
+
     // MARK: - Cold-launch activation (issue #93)
 
     /// Seeds a journal whose last workout happened `daysAgo` days ago —

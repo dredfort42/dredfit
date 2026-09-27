@@ -49,9 +49,9 @@ final class EngineV3Tests: XCTestCase {
     // MARK: - §40.8 · no migration, so an incompatible state starts clean
 
     /// A state written by v2 carries `levels` and no `vars`, and the decode
-    /// FAILS on it. That failure IS the no-migration decision: the app reads
-    /// it as "hand the engine `initial`" and keeps the workout journal, which
-    /// lives in a different file.
+    /// FAILS on it. That failure is the DISPATCH: since §41.7 the app then
+    /// reads the v2 shape and migrates it (`Engine.migrateFromV2`); only a
+    /// state that is neither shape starts from `initial`.
     func testStateFromV2FailsToDecode() throws {
         let v2 = #"""
         {"counter":42,"levels":["squat",34,"push_h",20],"failStreak":["squat",0],

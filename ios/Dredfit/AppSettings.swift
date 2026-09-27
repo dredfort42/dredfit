@@ -178,14 +178,17 @@ struct AppSettings: Codable, Equatable {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         // [1], not the fresh-install default: an upgrade must not add a rest
         // day the person never chose (issue #36).
-        restWeekdays = try c.decodeIfPresent(Set<Int>.self, forKey: .restWeekdays) ?? [1]
-        soundsEnabled = try c.decodeIfPresent(Bool.self, forKey: .soundsEnabled) ?? true
-        reminderEnabled = try c.decodeIfPresent(Bool.self, forKey: .reminderEnabled) ?? false
-        reminderHour = try c.decodeIfPresent(Int.self, forKey: .reminderHour) ?? 9
-        reminderMinute = try c.decodeIfPresent(Int.self, forKey: .reminderMinute) ?? 0
-        healthEnabled = try c.decodeIfPresent(Bool.self, forKey: .healthEnabled) ?? false
-        healthExportedThrough = try c.decodeIfPresent(Int.self, forKey: .healthExportedThrough) ?? 0
-        bodyMassKg = try c.decodeIfPresent(Double.self, forKey: .bodyMassKg)
+        restWeekdays = ((try? c.decodeIfPresent(Set<Int>.self, forKey: .restWeekdays)) ?? [1])
+            .filter { (1...7).contains($0) }
+        soundsEnabled = (try? c.decodeIfPresent(Bool.self, forKey: .soundsEnabled)) ?? true
+        reminderEnabled = (try? c.decodeIfPresent(Bool.self, forKey: .reminderEnabled)) ?? false
+        // Held to the clock and the week: a backup is a JSON a person can
+        // edit, and an hour of 99 built a trigger that never fires.
+        reminderHour = min(max((try? c.decodeIfPresent(Int.self, forKey: .reminderHour)) ?? 9, 0), 23)
+        reminderMinute = min(max((try? c.decodeIfPresent(Int.self, forKey: .reminderMinute)) ?? 0, 0), 59)
+        healthEnabled = (try? c.decodeIfPresent(Bool.self, forKey: .healthEnabled)) ?? false
+        healthExportedThrough = (try? c.decodeIfPresent(Int.self, forKey: .healthExportedThrough)) ?? 0
+        bodyMassKg = try? c.decodeIfPresent(Double.self, forKey: .bodyMassKg)
         // Absent reads as "typed by hand", which is what every file written
         // before this key holds: the row stays editable until Health answers.
         //
@@ -193,39 +196,36 @@ struct AppSettings: Codable, Equatable {
         // invariant of the code that writes it, not of the file: a backup is
         // a JSON a person can edit, and `true` with no weight left the row
         // read-only at "Not set" — calories off, no field to fix it in.
-        bodyMassFromHealth = (try c.decodeIfPresent(Bool.self, forKey: .bodyMassFromHealth) ?? false)
+        bodyMassFromHealth = ((try? c.decodeIfPresent(Bool.self, forKey: .bodyMassFromHealth)) ?? false)
             && bodyMassKg != nil
         // A date with no number is no statement — same invariant as the flag.
-        bodyMassDate = bodyMassKg == nil ? nil : try c.decodeIfPresent(Date.self, forKey: .bodyMassDate)
-        watchRecordsWorkouts = try c.decodeIfPresent(Bool.self, forKey: .watchRecordsWorkouts) ?? false
-        onboardingCompleted = try c.decodeIfPresent(Bool.self, forKey: .onboardingCompleted) ?? false
-        careAcknowledgedAt = try c.decodeIfPresent(Date.self, forKey: .careAcknowledgedAt)
-        lastReviewRequestAt = try c.decodeIfPresent(Date.self, forKey: .lastReviewRequestAt)
-        comebackDecidedFor = try c.decodeIfPresent(Date.self, forKey: .comebackDecidedFor)
-        weakLinkPromptAnsweredFor = try c.decodeIfPresent(Int.self, forKey: .weakLinkPromptAnsweredFor)
+        bodyMassDate = bodyMassKg == nil ? nil : (try? c.decodeIfPresent(Date.self, forKey: .bodyMassDate))
+        watchRecordsWorkouts = (try? c.decodeIfPresent(Bool.self, forKey: .watchRecordsWorkouts)) ?? false
+        onboardingCompleted = (try? c.decodeIfPresent(Bool.self, forKey: .onboardingCompleted)) ?? false
+        careAcknowledgedAt = try? c.decodeIfPresent(Date.self, forKey: .careAcknowledgedAt)
+        lastReviewRequestAt = try? c.decodeIfPresent(Date.self, forKey: .lastReviewRequestAt)
+        comebackDecidedFor = try? c.decodeIfPresent(Date.self, forKey: .comebackDecidedFor)
+        weakLinkPromptAnsweredFor = try? c.decodeIfPresent(Int.self, forKey: .weakLinkPromptAnsweredFor)
         // A settings file written by an older build may still carry the
         // cancelled `pendingPinned`; an unknown key decodes away silently, so
         // nothing to migrate and nothing to clean up.
-        silentDecayAppliedFor = try c.decodeIfPresent(Date.self, forKey: .silentDecayAppliedFor)
-        migrationNoticePending = try c.decodeIfPresent(Bool.self, forKey: .migrationNoticePending)
+        silentDecayAppliedFor = try? c.decodeIfPresent(Date.self, forKey: .silentDecayAppliedFor)
+        migrationNoticePending = try? c.decodeIfPresent(Bool.self, forKey: .migrationNoticePending)
         // Absent means "never opened one", which is exactly right for a file
         // written before this key existed: the sentence is shown once and
         // spent by the first visit to the sheet.
-        hasOpenedTechnique = try c.decodeIfPresent(Bool.self, forKey: .hasOpenedTechnique) ?? false
-        hasReportedOwnNumber = try c.decodeIfPresent(Bool.self, forKey: .hasReportedOwnNumber) ?? false
-        hiddenBlockMoveIDs = try c.decodeIfPresent(Set<String>.self, forKey: .hiddenBlockMoveIDs) ?? []
-        playsTonesInSilentMode = try c
-            .decodeIfPresent(Bool.self, forKey: .playsTonesInSilentMode) ?? false
-        // `try?`: a raw value this build does not know THROWS, and the throw
-        // would leave AppData's plain `try` on the settings — and with it the
-        // journal — in quarantine. A file written by a build that grows a
-        // fourth choice opens here on the system theme instead.
+        hasOpenedTechnique = (try? c.decodeIfPresent(Bool.self, forKey: .hasOpenedTechnique)) ?? false
+        hasReportedOwnNumber = (try? c.decodeIfPresent(Bool.self, forKey: .hasReportedOwnNumber)) ?? false
+        hiddenBlockMoveIDs = (try? c.decodeIfPresent(Set<String>.self, forKey: .hiddenBlockMoveIDs)) ?? []
+        playsTonesInSilentMode = (try? c
+            .decodeIfPresent(Bool.self, forKey: .playsTonesInSilentMode)) ?? false
+        // Every field is `try?`: a value of a shape this build does not know
+        // THROWS, and one throw used to fail the whole settings block — and,
+        // through AppData, send the journal to quarantine. Now it costs that
+        // one field its default: a fourth appearance choice opens on the
+        // system theme, a malformed undo costs one button.
         appearance = (try? c.decodeIfPresent(AppearanceChoice.self, forKey: .appearance)) ?? .system
-        comebackDecidedAtGap = try c.decodeIfPresent(Int.self, forKey: .comebackDecidedAtGap)
-        // `try?`, not `try`, for these two alone: they carry a whole engine
-        // state and a whole session, and AppData decodes the settings with a
-        // plain `try` — one unreadable shape here would quarantine the file
-        // and cost the journal. Losing an undo costs one button.
+        comebackDecidedAtGap = try? c.decodeIfPresent(Int.self, forKey: .comebackDecidedAtGap)
         planMoves = try? c.decodeIfPresent(PlanMoves.self, forKey: .planMoves)
         // Absent in every file written before the slot was split, which is
         // right: it fills on the next rating, and until then the history line

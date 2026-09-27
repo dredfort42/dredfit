@@ -240,6 +240,19 @@ final class EngineTests: XCTestCase {
         XCTAssertEqual(twice, once)
     }
 
+    /// И6 for the composed entry point too: the skipped sets and the raise
+    /// must not land a second time on a replayed session.
+    func testReplayedFeedbackWithCutsAndRaisesIsANoOp() {
+        let state = EngineState.initial
+        let session = Engine.generateSession(state)
+        let p = session.exercises[0].pattern
+        let once = Engine.applyFeedback(state: state, session: session, result: .plan,
+                                        setsSkipped: [p: 1], raised: [p: 1])
+        let twice = Engine.applyFeedback(state: once, session: session, result: .plan,
+                                         setsSkipped: [p: 1], raised: [p: 1])
+        XCTAssertEqual(twice, once)
+    }
+
     // MARK: - Breaks
 
     /// The silent decay acts only inside the blind zone of 7…13 days.
