@@ -64,9 +64,15 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
         XCTAssertTrue(relaunched.settleAbandonedWorkout())
         let record = try XCTUnwrap(relaunched.records.first)
         XCTAssertEqual(record.date.timeIntervalSince1970,
-                       lastNight.addingTimeInterval(-30 * 60).timeIntervalSince1970,
+                       lastNight.timeIntervalSince1970,
                        accuracy: 1,
-                       "dated from workoutStart, not from the moment it was noticed")
+                       "dated where it ended (savedAt), not from the moment it was noticed")
+        // A record's date is its END, as the Health export reads it: the
+        // interval it spans starts at workoutStart, not half an hour early.
+        let duration = TimeInterval(try XCTUnwrap(record.durationSec))
+        XCTAssertEqual(record.date.addingTimeInterval(-duration).timeIntervalSince1970,
+                       lastNight.addingTimeInterval(-30 * 60).timeIntervalSince1970,
+                       accuracy: 1)
     }
 
     func testAFreshSnapshotIsLeftAloneToBeResumed() {
@@ -221,6 +227,25 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
 
     // MARK: - Time charged to an absence
 
+    /// An absence the process lived through (locked overnight, not killed):
+    /// charged from the moment of leaving, a running rest still owed, and
+    /// the stamp spent once.
+    func testALivedThroughAbsenceIsChargedOnceFromTheMomentOfLeaving() {
+        let t = Date(timeIntervalSinceReferenceDate: 800_000_000)
+        var absence = SetFacts.Absence()
+        XCTAssertEqual(absence.comeBack(now: t), 0, "nothing stamped, nothing owed")
+
+        absence.leave(now: t, restEndDate: nil)
+        absence.leave(now: t.addingTimeInterval(600), restEndDate: nil)   // the first leaving wins
+        XCTAssertEqual(absence.comeBack(now: t.addingTimeInterval(11 * 3600)), 11 * 3600)
+        XCTAssertEqual(absence.comeBack(now: t.addingTimeInterval(12 * 3600)), 0, "spent")
+
+        absence.leave(now: t, restEndDate: t.addingTimeInterval(90))
+        XCTAssertEqual(absence.comeBack(now: t.addingTimeInterval(85)), 0, "inside the rest")
+        absence.leave(now: t, restEndDate: t.addingTimeInterval(90))
+        XCTAssertEqual(absence.comeBack(now: t.addingTimeInterval(3000)), 2910)
+    }
+
     /// The rule the away time rests on, and it had no test at all: the flow
     /// changed what "absence" means and nothing anywhere read the result back
     /// (review 06.09.2026). A rest running on schedule is training whether or
@@ -270,6 +295,19 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
                        "every set is done — it was trained")
         XCTAssertNil(settled.interrupted)
         XCTAssertEqual(settled.setsSkipped[exercises[0].pattern] ?? 0, 0)
+    }
+
+    /// Both numbers come off disk. A negative index trapped inside
+    /// `activate()` on every launch; it now reads as the first exercise.
+    func testANegativeSnapshotIndexSettlesLikeTheFirstExercise() {
+        let exercises = AppStore(storageURL: tempURL).nextSession.exercises
+        for done in [false, true] {
+            let clamped = SetFacts.settlement(in: exercises, exIndex: -3, setsBehind: -5,
+                                              currentIsDone: done, alreadySkipped: [:])
+            let first = SetFacts.settlement(in: exercises, exIndex: 0, setsBehind: 0,
+                                            currentIsDone: done, alreadySkipped: [:])
+            XCTAssertEqual(clamped, first)
+        }
     }
 
     /// 🔴 03: "finish now" promises to keep what you have done. A movement

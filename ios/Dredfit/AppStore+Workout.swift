@@ -106,7 +106,7 @@ extension AppStore {
     ///
     /// Recorded "on plan" — it happened, and the regulator's neutral answer is
     /// the honest stand-in for one nobody gave (owner, 05.09.2026). Dated from
-    /// `workoutStart`, never `.now`: settling yesterday's session this morning
+    /// `savedAt`, never `.now`: settling yesterday's session this morning
     /// would otherwise move it into today's calendar, today's Health export
     /// and today's gap arithmetic.
     @discardableResult
@@ -123,7 +123,9 @@ extension AppStore {
             in: session.exercises,
             exIndex: snap.exIndex,
             // In rest the set that just ended is still `setIndex`.
-            setsBehind: snap.restEndDate != nil ? snap.setIndex + 1 : snap.setIndex,
+            // Capped before the `+ 1`: the index comes off disk, and Int.max
+            // trapped here inside `activate()` on every launch.
+            setsBehind: snap.restEndDate != nil ? min(snap.setIndex, Int.max - 1) + 1 : snap.setIndex,
             currentIsDone: snap.atFeedback == true || snap.atExerciseSummary == true,
             alreadySkipped: snap.skips)
         let skipped = settled.skipped.union(snap.skipped)
@@ -155,7 +157,11 @@ extension AppStore {
             // is the last set's screen, and a skipped movement never got
             // there.
             raised: snap.raises.filter { !skipped.contains($0.key) },
-            date: snap.workoutStart)
+            // The END, as every record is dated: the rating tap stamps `.now`
+            // and the Health export reads a record's date as the moment the
+            // workout ended. From `workoutStart`, 18:00–18:40 went to Health
+            // as 17:20–18:00. `savedAt` is where `durationSec` above ends too.
+            date: snap.savedAt)
         return true
     }
 

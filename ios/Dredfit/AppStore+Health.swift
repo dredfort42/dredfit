@@ -42,6 +42,18 @@ extension AppStore {
         persist()
     }
 
+    /// The switch follows the permission, which HealthKit grants per device:
+    /// a restored backup or an offloaded app brings the flag without it, and the
+    /// person can take the workout share back in Health at any time. Every
+    /// save then failed under a switch that read "on" (owner, 27.09.2026).
+    /// Nothing is lost — mark and flags are kept, and turning it back on asks
+    /// again and offers what is pending. Never prompts.
+    func reconcileHealthAuthorization() {
+        guard settings.healthEnabled,
+              !(health.isAvailable && health.workoutShareGranted) else { return }
+        disableHealth()
+    }
+
     /// Kilograms in, kilograms out — the pounds a US field displays are
     /// converted before they get here. `nil` clears it, and clearing is a real
     /// answer: no weight means no calories, not calories from a default.

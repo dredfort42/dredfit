@@ -15,6 +15,8 @@ extension AppStore {
     enum BackupError: Error {
         /// The journal could not be read on this launch (see journalFrozen).
         case journalUnavailable
+        /// The file decoded only in part — see `importBackup`.
+        case incompleteBackup
     }
 
     func exportURL() throws -> URL {
@@ -30,7 +32,8 @@ extension AppStore {
         return url
     }
 
-    /// Throws when the file is not a Dredfit backup — the caller alerts.
+    /// Throws when the file is not a Dredfit backup this build can read in
+    /// full — the caller alerts.
     func importBackup(from url: URL) throws {
         // Restoring into a frozen store would look like it worked and be gone
         // at the next launch.
@@ -39,6 +42,17 @@ extension AppStore {
         defer { if secured { url.stopAccessingSecurityScopedResource() } }
         let data = try Data(contentsOf: url)
         let decoded = try JSONDecoder().decode(AppData.self, from: data)
+        // All or nothing. `AppData` decodes LENIENTLY because on launch the
+        // file is the only copy of the journal. An import has a second copy —
+        // the file itself — so one this build cannot read IN FULL is refused
+        // before anything moves: a newer build's backup, a damaged one, or
+        // none at all (`{"records":[]}` decoded, and replaced a whole history
+        // with an empty one). Every backup a release has written reads in
+        // full: v2 migrates (§41.7).
+        guard !decoded.engineStateReset, !decoded.settingsUnreadable,
+              decoded.droppedRecordCount == 0 else {
+            throw BackupError.incompleteBackup
+        }
         // The Health mark tracks an external side effect (HKWorkouts already
         // written) and must never move backwards on import: an older backup
         // would re-export samples the export has no way to notice are already
@@ -55,6 +69,10 @@ extension AppStore {
         let priorHealthMark = settings.healthExportedThrough
         let currentIDs = Set(records.map(\.id))
         let sameLineage = decoded.records.contains { currentIDs.contains($0.id) }
+        // Flags are facts about THIS device's Health store: an entry exported
+        // here since the backup was taken stays exported, or the backfill
+        // writes it a second time.
+        let exportedHere = Set(records.filter { $0.healthExported == true }.map(\.id))
         engineState = decoded.engineState
         records = decoded.records
         settings = decoded.settings ?? AppSettings()
@@ -90,6 +108,16 @@ extension AppStore {
         }
         // Old backups carry only the mark — turn whichever won into flags.
         migrateHealthMarkToFlags()
+        // The switch is a device-local fact, like the reminder authorization
+        // below: a backup cannot prove this phone ever granted the share.
+        // Not asked here — the restored workouts go through the backfill
+        // choice when the person turns it back on.
+        reconcileHealthAuthorization()
+        // After the mark: a flag set here first would turn that migration
+        // into a no-op for a mark-only backup.
+        for i in records.indices where exportedHere.contains(records[i].id) {
+            records[i].healthExported = true
+        }
         persist()
         if settings.reminderEnabled {
             // Authorization is per-device: a backup restored onto a new phone

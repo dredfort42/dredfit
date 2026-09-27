@@ -115,7 +115,10 @@ private struct CountdownLabel: View {
         // outside dredfitFont would sit above the font that modifier sets and
         // lose to it — and non-monospaced digits are the jump the frame below
         // exists to prevent.
-        Text(timerInterval: Date.now...end, countsDown: true)
+        // `min`: the caller checked `end > .now` a moment earlier, and a
+        // range built from a SECOND read of the clock traps once `end` has
+        // passed in between. Clamped, that instant shows 0:00 instead.
+        Text(timerInterval: min(Date.now, end)...end, countsDown: true)
             .monospacedDigit()
             .dredfitFont(design, weight: .heavy, cap: cap)
             .foregroundStyle(Theme.accent)

@@ -363,6 +363,19 @@ final class HealthExportTests: AppStoreTestCase {
         XCTAssertFalse(store.settings.healthEnabled, "denial must leave the toggle off")
     }
 
+    /// A share taken back in Health turns the switch off on the next
+    /// foreground; one still granted leaves it alone.
+    func testRevokedShareTurnsTheToggleOffOnActivation() async {
+        let spy = HealthSpy()
+        let store = AppStore(storageURL: tempURL, health: spy)
+        _ = await store.enableHealth()
+        store.activate()
+        XCTAssertTrue(store.settings.healthEnabled)
+        spy.shareGranted = false
+        store.activate()
+        XCTAssertFalse(store.settings.healthEnabled, "the switch follows the permission")
+    }
+
     func testHealthBackfillExportsOnceAndNeverDuplicates() async {
         let spy = HealthSpy()
         let store = AppStore(storageURL: tempURL, health: spy)
