@@ -49,7 +49,8 @@ extension AppStore {
         // none at all (`{"records":[]}` decoded, and replaced a whole history
         // with an empty one). Every backup a release has written reads in
         // full: v2 migrates (§41.7).
-        guard !decoded.engineStateReset, decoded.droppedRecordCount == 0 else {
+        guard !decoded.engineStateReset, !decoded.settingsUnreadable,
+              decoded.droppedRecordCount == 0 else {
             throw BackupError.incompleteBackup
         }
         // The Health mark tracks an external side effect (HKWorkouts already

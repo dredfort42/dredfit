@@ -16,7 +16,10 @@ final class DoseTotalityTests: XCTestCase {
             XCTAssertEqual(Dose.snap(unit, .min), Dose.snap(unit, -EngineConfig.countMax))
             XCTAssertEqual(Dose.snap(unit, .max), Dose.snap(unit, EngineConfig.countMax))
             XCTAssertEqual(Dose.snapToInt(unit, .nan), Dose.snapToInt(unit, 0))
-            XCTAssertEqual(Dose.snapToInt(unit, -.infinity), Dose.snapToInt(unit, -Double(EngineConfig.countMax)))
+            XCTAssertEqual(Dose.snapToInt(unit, -.infinity), Dose.snapToInt(unit, 0),
+                           "a non-finite fact reads as 0, as sanitizeActual rules")
+            XCTAssertEqual(Dose.snapToInt(unit, -.greatestFiniteMagnitude),
+                           Dose.snapToInt(unit, -Double(EngineConfig.countMax)))
         }
     }
 

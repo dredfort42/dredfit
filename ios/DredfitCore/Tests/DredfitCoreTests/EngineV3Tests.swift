@@ -46,7 +46,7 @@ final class EngineV3Tests: XCTestCase {
                       "\(p.rawValue) is not in this session")
     }
 
-    // MARK: - §40.8 · no migration, so an incompatible state starts clean
+    // MARK: - A v2 state does not decode as v3 (it is dispatched to MigrationV2)
 
     /// A state written by v2 carries `levels` and no `vars`, and the decode
     /// FAILS on it. That failure is the DISPATCH: since §41.7 the app then
@@ -59,7 +59,7 @@ final class EngineV3Tests: XCTestCase {
         """#
         XCTAssertThrowsError(
             try JSONDecoder().decode(EngineState.self, from: Data(v2.utf8)),
-            "a v2 state must not decode — code that reads the old shape is deliberately absent")
+            "a v2 state must not decode as v3 — it is dispatched to the v2 reader")
     }
 
     /// And a clean start is exactly what §40.8 promises: every pattern on its

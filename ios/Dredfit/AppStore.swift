@@ -29,10 +29,15 @@ struct AppData: Codable {
         case engineState, records, settings, pendingWorkout
     }
 
-    /// True when the engine state on disk could not be read and the engine
-    /// started clean. Not an error and not a corruption: §40.8 says a state
-    /// written before v3 gives the engine `initState`, and this is that.
+    /// True when the engine state on disk was neither v3 nor v2 (§41.7
+    /// migrates v2) and the engine started clean; the loader copies the
+    /// original aside, and an import refuses the file.
     var engineStateReset = false
+
+    /// True when a settings block was present but not an object this build
+    /// can read. On launch it costs the settings their defaults; an import
+    /// refuses the file instead.
+    var settingsUnreadable = false
 
     /// True when a state written before v3 was read and carried over (§41.7).
     /// A property of THIS decode, not of the file: the loader turns it into
@@ -69,6 +74,8 @@ struct AppData: Codable {
         // try?, and every field inside it too: one setting of a shape this
         // build does not know must cost that setting, never the journal.
         settings = try? c.decodeIfPresent(AppSettings.self, forKey: .settings)
+        settingsUnreadable = settings == nil && c.contains(.settings)
+            && !((try? c.decodeNil(forKey: .settings)) ?? false)
         // try?, not try: a snapshot written by a newer version must degrade
         // to "nothing to resume", never to a quarantined journal.
         pendingWorkout = try? c.decodeIfPresent(WorkoutSnapshot.self, forKey: .pendingWorkout)
@@ -222,6 +229,11 @@ final class AppStore {
             // Same stamp as the launch path: a frozen launch is exactly the one
             // that must not swallow the announcement.
             if loaded.engineStateMigrated { settings.migrationNoticePending = true }
+            if loaded.engineStateReset {
+                // As on launch: the next persist rewrites the positions.
+                Self.quarantineStateFile(at: storageURL, keepOriginal: true)
+                Self.log.notice("engine state unreadable in both shapes on reload — started clean, journal kept")
+            }
             if loaded.droppedRecordCount > 0 {
                 Self.quarantineStateFile(at: storageURL, keepOriginal: true)
                 Self.log.error("dropped \(loaded.droppedRecordCount) unreadable record(s) on reload, original kept aside")

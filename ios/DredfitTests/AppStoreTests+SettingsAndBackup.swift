@@ -114,5 +114,15 @@ extension AppStoreTests {
             XCTAssertEqual(store.records.count, 1, "the journal must survive a refused import")
             XCTAssertEqual(store.engineState, before)
         }
+        // A whole backup whose settings block is not an object: on launch
+        // that costs the settings their defaults, as an import it is refused.
+        let backup = try store.exportURL()
+        defer { try? FileManager.default.removeItem(at: backup) }
+        var json = try XCTUnwrap(try JSONSerialization.jsonObject(with: Data(contentsOf: backup))
+            as? [String: Any])
+        json["settings"] = 42
+        try JSONSerialization.data(withJSONObject: json).write(to: tempURL)
+        XCTAssertThrowsError(try store.importBackup(from: tempURL))
+        XCTAssertEqual(store.records.count, 1)
     }
 }

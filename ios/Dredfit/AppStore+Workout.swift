@@ -123,7 +123,9 @@ extension AppStore {
             in: session.exercises,
             exIndex: snap.exIndex,
             // In rest the set that just ended is still `setIndex`.
-            setsBehind: snap.restEndDate != nil ? snap.setIndex + 1 : snap.setIndex,
+            // Capped before the `+ 1`: the index comes off disk, and Int.max
+            // trapped here inside `activate()` on every launch.
+            setsBehind: snap.restEndDate != nil ? min(snap.setIndex, Int.max - 1) + 1 : snap.setIndex,
             currentIsDone: snap.atFeedback == true || snap.atExerciseSummary == true,
             alreadySkipped: snap.skips)
         let skipped = settled.skipped.union(snap.skipped)
