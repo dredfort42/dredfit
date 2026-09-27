@@ -570,6 +570,33 @@ nonisolated enum SetFacts {
         return max(0, Int(now.timeIntervalSince(owedUntil)))
     }
 
+    /// An absence the PROCESS LIVED THROUGH: the flow sent to the background
+    /// and brought back without dying. Charged by the same rule `restore`
+    /// uses, from the moment of leaving — a phone locked overnight used to
+    /// send an eleven-hour workout to Health (owner, 27.09.2026: subtract it).
+    /// The rest end is taken AS IT STOOD WHEN THE SCENE LEFT: on the way back
+    /// the timer may tick first, and the tick that ends a rest clears its date.
+    struct Absence {
+        private var leftAt: Date?
+        private var restEndDate: Date?
+
+        /// The first leaving wins.
+        mutating func leave(now: Date, restEndDate: Date?) {
+            guard leftAt == nil else { return }
+            leftAt = now
+            self.restEndDate = restEndDate
+        }
+
+        /// Seconds to add to the away time (0 if nothing was stamped); spends
+        /// the stamp.
+        mutating func comeBack(now: Date) -> Int {
+            guard let leftAt else { return 0 }
+            let gained = SetFacts.awayGained(savedAt: leftAt, restEndDate: restEndDate, now: now)
+            self = Absence()
+            return gained
+        }
+    }
+
     // MARK: - An interrupted workout
 
     /// What an interruption amounts to: which movements were never trained,

@@ -227,6 +227,25 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
 
     // MARK: - Time charged to an absence
 
+    /// An absence the process lived through (locked overnight, not killed):
+    /// charged from the moment of leaving, a running rest still owed, and
+    /// the stamp spent once.
+    func testALivedThroughAbsenceIsChargedOnceFromTheMomentOfLeaving() {
+        let t = Date(timeIntervalSinceReferenceDate: 800_000_000)
+        var absence = SetFacts.Absence()
+        XCTAssertEqual(absence.comeBack(now: t), 0, "nothing stamped, nothing owed")
+
+        absence.leave(now: t, restEndDate: nil)
+        absence.leave(now: t.addingTimeInterval(600), restEndDate: nil)   // the first leaving wins
+        XCTAssertEqual(absence.comeBack(now: t.addingTimeInterval(11 * 3600)), 11 * 3600)
+        XCTAssertEqual(absence.comeBack(now: t.addingTimeInterval(12 * 3600)), 0, "spent")
+
+        absence.leave(now: t, restEndDate: t.addingTimeInterval(90))
+        XCTAssertEqual(absence.comeBack(now: t.addingTimeInterval(85)), 0, "inside the rest")
+        absence.leave(now: t, restEndDate: t.addingTimeInterval(90))
+        XCTAssertEqual(absence.comeBack(now: t.addingTimeInterval(3000)), 2910)
+    }
+
     /// The rule the away time rests on, and it had no test at all: the flow
     /// changed what "absence" means and nothing anywhere read the result back
     /// (review 06.09.2026). A rest running on schedule is training whether or

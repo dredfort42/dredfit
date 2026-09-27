@@ -28,6 +28,11 @@ protocol WorkoutHealthWriting {
     /// type — energy sharing, and all four reads — may be refused on its own,
     /// and each refusal only costs the feature that needs it.
     func requestAuthorization() async -> Bool
+    /// The same answer, read now and without asking: whether THIS device lets
+    /// the app write workouts. The share status is the one HealthKit answer
+    /// that is not hidden, so it tells "revoked in Health" and "never asked on
+    /// this phone" truthfully.
+    var workoutShareGranted: Bool { get }
     /// Latest recorded body mass in kilograms, with the date the sample was
     /// taken, or nil when there is none and when the read was refused.
     /// HealthKit does not distinguish the two. The date is what decides
@@ -86,7 +91,11 @@ struct HealthKitWorkoutWriter: WorkoutHealthWriting {
         // is not a feature that failed: refusing the energy share costs the
         // calories, refusing a read costs some accuracy, and the workout still
         // reaches Health in every one of those cases.
-        return store.authorizationStatus(for: .workoutType()) == .sharingAuthorized
+        return workoutShareGranted
+    }
+
+    var workoutShareGranted: Bool {
+        store.authorizationStatus(for: .workoutType()) == .sharingAuthorized
     }
 
     func latestBodyMass() async -> BodyMassReading? {

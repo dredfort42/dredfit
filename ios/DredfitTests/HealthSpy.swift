@@ -19,6 +19,10 @@ struct SavedWorkout: Equatable {
 final class HealthSpy: WorkoutHealthWriting, @unchecked Sendable {
     var available = true
     var grant = true
+    /// The workout share as the device reports it now — taken back in Health
+    /// when false. Separate from `grant`, which answers the prompt.
+    var shareGranted = true
+    var workoutShareGranted: Bool { shareGranted }
     var allFail = false
     var failFromCall: Int?
     var gate: HealthGate?

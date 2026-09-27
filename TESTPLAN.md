@@ -586,11 +586,12 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | 35.11 | Kill the app while paused mid-warm-up | Nothing to resume: the warm-up writes no snapshot by design, and Today offers no "Continue" card for a workout with nothing done |
 | 35.12 | Kill the app while paused mid-cool-down | Restores onto the rating screen, exactly as an unpaused cool-down does (§4 of the spec) |
 | 35.13 | Working sets and rest | Unchanged — no pause control on the work screen or the rest ring. They are self-paced by design, and an over-run rest only grants extra rest |
-| 35.14 | Estimate on Today, and the duration written to Health | Unchanged by pausing: "≈ N min" promises an uninterrupted flow, and Health still gets the wall-clock truth of the session |
+| 35.14 | Estimate on Today, and the duration written to Health | Unchanged by pausing on screen: "≈ N min" promises an uninterrupted flow, and Health gets the wall-clock truth of the session minus time the app spent in the background (owner, 27.09.2026) |
 | 35.15 | VoiceOver | The control reads "Pause" / "Resume"; toggling announces "Paused" / "Resumed", and the state is also readable under the countdown |
 | 35.16 | All seven languages | «Пауза» / "Pausar" / "Pausar" / "Pausieren" / "Pause" / "Pausa" and «Продолжить» / "Continuar" / "Continuar" / "Fortsetzen" / "Reprendre" / "Riprendi"; the state reads «На паузе» / "En pausa" / "Em pausa" / "Pausiert" / "En pause" / "In pausa" |
 | 35.17 | es / pt-BR / de / fr / it at the largest accessibility sizes | The control keeps its own line under the countdown, the content scrolls as in §34.12, and both footer escapes stay pinned |
 | 35.18 | Pause and leave the phone alone (device only) | The screen dims and locks on the system Auto-Lock as usual — the workout stops holding it open, because a held block is the one state where the app knows nobody is training. Resuming, skipping or leaving the block puts the hold back |
+| 35.19 | Mid-workout, lock the phone for 10+ minutes (process stays alive), unlock, finish and rate | The duration in History and in Health excludes the locked minutes (beyond a rest that was running when the phone was locked) |
 
 ### 36. Discomfort and the growth ceiling (engine v2.5, issues #38 / #64–#67)
 

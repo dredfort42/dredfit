@@ -283,6 +283,9 @@ final class AppStore {
         // device: a HealthKit query must not hold the plan's re-anchoring
         // behind it. The weight is the owner's, and the owner may have
         // weighed themselves since the last foreground.
+        // A share taken back since the last foreground turns the switch off
+        // here, before the read below would query Health for nothing.
+        reconcileHealthAuthorization()
         if settings.healthEnabled {
             // Cancelled, not just replaced: two foregrounds in a row leave two
             // queries in flight, and HealthKit decides which returns first —

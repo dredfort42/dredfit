@@ -460,6 +460,18 @@ extension WorkoutFlowView {
 
     // MARK: - Surviving process death
 
+    /// The other half of `awaySec`: the absence a living process comes back
+    /// from. No persist here — the next transition writes the larger
+    /// `awaySec` with a later `savedAt`, so a later kill cannot count the
+    /// absence twice, and a kill while away is `restore`'s to measure.
+    func sceneMoved(to scene: ScenePhase) {
+        switch scene {
+        case .background: absence.leave(now: .now, restEndDate: restEndDate)
+        case .active: awaySec += absence.comeBack(now: .now)
+        default: break
+        }
+    }
+
     /// Called on every phase transition and whenever an actual changes.
     func persistProgress() {
         var restEnd: Date?

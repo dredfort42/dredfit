@@ -108,6 +108,11 @@ extension AppStore {
         }
         // Old backups carry only the mark — turn whichever won into flags.
         migrateHealthMarkToFlags()
+        // The switch is a device-local fact, like the reminder authorization
+        // below: a backup cannot prove this phone ever granted the share.
+        // Not asked here — the restored workouts go through the backfill
+        // choice when the person turns it back on.
+        reconcileHealthAuthorization()
         // After the mark: a flag set here first would turn that migration
         // into a no-op for a mark-only backup.
         for i in records.indices where exportedHere.contains(records[i].id) {
