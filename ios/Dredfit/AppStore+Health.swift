@@ -43,7 +43,7 @@ extension AppStore {
     }
 
     /// The switch follows the permission, which HealthKit grants per device:
-    /// a restored backup or a reinstall brings the flag without it, and the
+    /// a restored backup or an offloaded app brings the flag without it, and the
     /// person can take the workout share back in Health at any time. Every
     /// save then failed under a switch that read "on" (owner, 27.09.2026).
     /// Nothing is lost — mark and flags are kept, and turning it back on asks
