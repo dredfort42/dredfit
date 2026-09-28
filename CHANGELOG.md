@@ -11,11 +11,11 @@ later resumed. It now applies it, from the moment the app left the screen, to
 an absence it lived through as well. A rest that was running when the phone
 was locked still counts as rest. A hold that was running does not: it is
 recorded as done, but its seconds are taken off with the rest of the absence.
-Pulling down Control Center or a notification is not an absence. The workout's
-length in History now appears for such a workout as well, because that line
-stays hidden once the clock runs past twice the plan. When the time taken off
-leaves a workout shorter than its plan, the calories sent with it are scaled
-down too. The estimate on Today is unchanged.
+Pulling down Control Center or a notification is not an absence. History now
+shows the length of a workout with an absence taken off as well, because that
+line stays hidden once the clock runs past twice the plan. When the time taken
+off leaves a workout shorter than its plan, the calories sent with it are
+scaled down too. The length estimate on Today is unchanged.
 
 **The Health switch follows the permission.** HealthKit grants the workout
 share per device. A restored backup, or an offloaded app installed again,
@@ -87,10 +87,10 @@ read, such as one edited by hand or written by a newer build, failed the whole
 settings block, and that sent the workout journal to quarantine. Now that one
 field falls back to its default. The saved plan is read part by part too.
 Which variation each movement is on, its reps or seconds, and the workout
-counter are still read whole; its set count and the other optional parts open
-empty when unreadable, instead of sending every movement back to the start.
-When any of the parts read whole cannot be read, the file is copied aside
-before the next save overwrites it, both on launch and on reload. A
+counter are still read whole; each movement's set count and the other optional
+parts open empty when unreadable, instead of sending every movement back to
+the start. When any of the parts read whole cannot be read, the file is copied
+aside before the next save overwrites it, both on launch and on reload. A
 quarantined copy is never deleted: a later failure is kept under its own name.
 Reminder hours, minutes and rest days are held to real clock and weekday
 values, because an hour of 99 set a reminder that never fired.
