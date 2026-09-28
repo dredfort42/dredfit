@@ -11,11 +11,11 @@ later resumed. It now applies it, from the moment the app left the screen, to
 an absence it lived through as well. A rest that was running when the phone
 was locked still counts as rest. A hold that was running does not: it is
 recorded as done, but its seconds are taken off with the rest of the absence.
-Pulling down Control Center or a notification is not an absence. When that
+Pulling down Control Center or a notification is not an absence. The workout's
+length in History now appears for such a workout as well, because that line
+stays hidden once the clock runs past twice the plan. When the time taken off
 leaves a workout shorter than its plan, the calories sent with it are scaled
-down too. The workout's length in History now appears for such a workout as
-well, because that line stays hidden once the clock runs past twice the plan.
-The estimate on Today is unchanged.
+down too. The estimate on Today is unchanged.
 
 **The Health switch follows the permission.** HealthKit grants the workout
 share per device. A restored backup, or an offloaded app installed again,
@@ -71,9 +71,9 @@ did.
 keeps the app active, so the day-change check that runs when the app comes to
 the foreground never came. After a workout that ran past midnight, Today
 showed the next workout under yesterday's date. The date now also moves at
-midnight and on a clock or time-zone change. The plan's easing after a week or
-more without training still waits for the next time the app comes to the
-foreground.
+midnight and on a clock or time-zone change. The plan's quiet step back after
+one to two weeks without training still waits for the next time the app comes
+to the foreground.
 
 **The anniversary look back measures the current run.** After starting over,
 the anniversary screen's "then" came from the first run's first workout, so it
@@ -86,13 +86,13 @@ now read one field at a time. Before, a single value this build could not
 read, such as one edited by hand or written by a newer build, failed the whole
 settings block, and that sent the workout journal to quarantine. Now that one
 field falls back to its default. The saved plan is read part by part too.
-Which variation each movement is on, and its reps or seconds, are still read
-whole; its set count and the other optional parts open empty when unreadable,
-instead of sending every movement back to the start. When the variations or
-the reps and seconds cannot be read, the file is copied aside before the next
-save overwrites it, both on launch and on reload.
-A quarantined copy is never deleted: a later failure is kept under its own
-name. Reminder hours, minutes and rest days are held to real clock and weekday
+Which variation each movement is on, its reps or seconds, and the workout
+counter are still read whole; its set count and the other optional parts open
+empty when unreadable, instead of sending every movement back to the start.
+When any of the parts read whole cannot be read, the file is copied aside
+before the next save overwrites it, both on launch and on reload. A
+quarantined copy is never deleted: a later failure is kept under its own name.
+Reminder hours, minutes and rest days are held to real clock and weekday
 values, because an hour of 99 set a reminder that never fired.
 
 **A backup whose history, plan or settings block cannot be read is refused.**
@@ -104,11 +104,11 @@ all is now refused before anything changes, with the same "Couldn't read this
 file." alert as any other bad file. Every backup a release has written still
 restores; v2 files still carry over. A single unreadable setting inside a
 readable block still restores, with that setting's default. So does a plan
-whose movements and doses read but whose set counts or other optional parts do
-not; those parts open empty. A restore keeps this phone's record of which
-workouts are already in Health, so a backup taken before an export does not
-send them twice. A file the picker could not hand over now shows that alert as
-well; before, the tap did nothing.
+whose movements, doses and workout counter read but whose set counts or other
+optional parts do not; those parts open empty. A restore keeps this phone's
+record of which workouts are already in Health, so a backup taken before an
+export does not send them twice. A file the picker could not hand over now
+shows that alert as well; before, the tap did nothing.
 
 **Your age reaches the calorie estimate under a Buddhist or Japanese
 calendar.** Health gives the birthday in the Gregorian calendar, and the app
