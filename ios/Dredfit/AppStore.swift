@@ -29,10 +29,15 @@ struct AppData: Codable {
         case engineState, records, settings, pendingWorkout
     }
 
-    /// True when the engine state on disk could not be read and the engine
-    /// started clean. Not an error and not a corruption: §40.8 says a state
-    /// written before v3 gives the engine `initState`, and this is that.
+    /// True when the engine state on disk was neither v3 nor v2 (§41.7
+    /// migrates v2) and the engine started clean; the loader copies the
+    /// original aside, and an import refuses the file.
     var engineStateReset = false
+
+    /// True when a settings block was present but not an object this build
+    /// can read. On launch it costs the settings their defaults; an import
+    /// refuses the file instead.
+    var settingsUnreadable = false
 
     /// True when a state written before v3 was read and carried over (§41.7).
     /// A property of THIS decode, not of the file: the loader turns it into
@@ -66,7 +71,11 @@ struct AppData: Codable {
             engineState = .initial
             engineStateReset = true
         }
-        settings = try c.decodeIfPresent(AppSettings.self, forKey: .settings)
+        // try?, and every field inside it too: one setting of a shape this
+        // build does not know must cost that setting, never the journal.
+        settings = try? c.decodeIfPresent(AppSettings.self, forKey: .settings)
+        settingsUnreadable = settings == nil && c.contains(.settings)
+            && !((try? c.decodeNil(forKey: .settings)) ?? false)
         // try?, not try: a snapshot written by a newer version must degrade
         // to "nothing to resume", never to a quarantined journal.
         pendingWorkout = try? c.decodeIfPresent(WorkoutSnapshot.self, forKey: .pendingWorkout)
@@ -175,10 +184,12 @@ final class AppStore {
         settings = loaded?.settings ?? AppSettings()
         pendingWorkout = loaded?.pendingWorkout
         if loaded?.engineStateReset == true {
-            // Not a corruption and not quarantined. A v2 state migrates (§41.7),
-            // so reaching here means the state was neither v3 NOR v2 — a file
-            // from a future build, or one damaged past reading. The journal
-            // beside it is whole, and the file is rewritten on the next persist.
+            // A v2 state migrates (§41.7), so reaching here means the state was
+            // neither v3 NOR v2 — a file from a future build, or one damaged
+            // past reading. The journal beside it is whole, but the next
+            // persist rewrites the positions from `initial`: the original is
+            // copied aside first, so the plan can still be recovered.
+            Self.quarantineStateFile(at: storageURL, keepOriginal: true)
             Self.log.notice("engine state unreadable in both shapes — started clean, journal kept")
         }
         // Stamped after the settings are in hand, because that is what carries
@@ -218,6 +229,11 @@ final class AppStore {
             // Same stamp as the launch path: a frozen launch is exactly the one
             // that must not swallow the announcement.
             if loaded.engineStateMigrated { settings.migrationNoticePending = true }
+            if loaded.engineStateReset {
+                // As on launch: the next persist rewrites the positions.
+                Self.quarantineStateFile(at: storageURL, keepOriginal: true)
+                Self.log.notice("engine state unreadable in both shapes on reload — started clean, journal kept")
+            }
             if loaded.droppedRecordCount > 0 {
                 Self.quarantineStateFile(at: storageURL, keepOriginal: true)
                 Self.log.error("dropped \(loaded.droppedRecordCount) unreadable record(s) on reload, original kept aside")
@@ -236,10 +252,18 @@ final class AppStore {
     /// Re-anchors only when the day actually rolled over — mutating `today`
     /// on every activation would re-render for nothing.
     func refreshDay(now: Date = .now) {
-        if !Calendar.current.isDate(today, inSameDayAs: now) { today = now }
+        reanchorToday(now: now)
         // The blind-zone decay rides the same pulse, so by the time Today
         // renders the plan is already corrected.
         applySilentDecayIfNeeded(now: now)
+    }
+
+    /// The date half of `refreshDay` and nothing else, for a midnight that
+    /// passes inside a live scene (a workout's cover keeps it active, so no
+    /// activation comes). Never the decay: this fires under a running workout
+    /// too, and can land before `activate()`, whose order it must not break.
+    func reanchorToday(now: Date = .now) {
+        if !Calendar.current.isDate(today, inSameDayAs: now) { today = now }
     }
 
     /// Everything a scene becoming `.active` must run, in one seam — a cold
@@ -259,6 +283,9 @@ final class AppStore {
         // device: a HealthKit query must not hold the plan's re-anchoring
         // behind it. The weight is the owner's, and the owner may have
         // weighed themselves since the last foreground.
+        // A share taken back since the last foreground turns the switch off
+        // here, before the read below would query Health for nothing.
+        reconcileHealthAuthorization()
         if settings.healthEnabled {
             // Cancelled, not just replaced: two foregrounds in a row leave two
             // queries in flight, and HealthKit decides which returns first —
@@ -269,15 +296,27 @@ final class AppStore {
     }
 
     /// Moves (or copies, when the readable part is kept) the state file to
-    /// `<name>.corrupt.json` so decode failures never cost the journal.
+    /// `<name>.corrupt.json` so decode failures never cost the journal. An
+    /// earlier quarantine is NEVER replaced: after a whole-file failure it is
+    /// the only copy of the journal the app started over from, and the next
+    /// failure used to delete it. A later one gets a unique name; the same
+    /// bytes already kept aside are not kept twice.
     private static func quarantineStateFile(at url: URL, keepOriginal: Bool) {
-        let dest = url.deletingLastPathComponent()
-            .appendingPathComponent(url.deletingPathExtension().lastPathComponent + ".corrupt.json")
-        try? FileManager.default.removeItem(at: dest)
+        let fm = FileManager.default
+        let name = url.deletingPathExtension().lastPathComponent
+        var dest = url.deletingLastPathComponent().appendingPathComponent(name + ".corrupt.json")
+        if fm.fileExists(atPath: dest.path) {
+            if let kept = try? Data(contentsOf: dest), kept == (try? Data(contentsOf: url)) {
+                if !keepOriginal { try? fm.removeItem(at: url) }
+                return
+            }
+            dest = url.deletingLastPathComponent()
+                .appendingPathComponent(name + ".corrupt-\(UUID().uuidString).json")
+        }
         if keepOriginal {
-            try? FileManager.default.copyItem(at: url, to: dest)
+            try? fm.copyItem(at: url, to: dest)
         } else {
-            try? FileManager.default.moveItem(at: url, to: dest)
+            try? fm.moveItem(at: url, to: dest)
         }
     }
 

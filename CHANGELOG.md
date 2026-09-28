@@ -1,5 +1,139 @@
 # Changelog
 
+## 2.4.4
+
+**A workout the phone slept through is no longer sent to Health as an
+eleven-hour one.** The time a workout spends in the background is now taken
+off its length, as long as the app keeps running. Before, a phone locked
+mid-workout and picked up the next morning sent the whole night to Health as
+training. The app already had this rule for a workout it was killed out of and
+later resumed. It now applies it, from the moment the app left the screen, to
+an absence it lived through as well. A rest that was running when the phone
+was locked still counts as rest. A hold that was running does not: it is
+recorded as done, but its seconds are taken off with the rest of the absence.
+Pulling down Control Center or a notification is not an absence. History now
+shows the length of a workout with an absence taken off as well, because that
+line stays hidden once the clock runs past twice the plan. When the time taken
+off leaves a workout shorter than its plan, the calories sent with it are
+scaled down too. The length estimate on Today is unchanged.
+
+**The Health switch follows the permission.** HealthKit grants the workout
+share per device. A restored backup, or an offloaded app installed again,
+brought the switch back "on" without that grant, and taking the share back in
+the Health app left it "on". Every save then failed quietly under a switch
+that said it worked. The switch now turns itself off when the app comes to the
+foreground or restores a backup and this phone does not let it write workouts.
+It never asks on its own. Nothing already recorded is lost. Turning the switch
+back on asks for permission if this phone was never asked; after the share was
+taken back in the Health app, it has to be given back there first. The
+workouts still waiting are offered as soon as the permission is there.
+
+**A workout reaches Health once.** A workout's "sent" mark is written to the
+journal after Health confirms the save. If the app was closed between the two,
+or a backup from before the export was restored, the next export wrote the
+same workout a second time, and the app had no way to tidy the copy. Each new
+workout now carries its journal id, and before writing, the app looks for one
+it already wrote under that id. Workouts written by earlier builds carry no
+id: a copy already in Health stays there, and one of those whose mark was lost
+can still be written a second time. A save that fails no longer leaves a
+half-written workout open in HealthKit: it is discarded, and the workout is
+tried again on the next export.
+
+**An interrupted workout the app closes for you lands in Health at the hour it
+happened.** A workout left without a rating and not reopened for twelve hours
+is closed and recorded "on plan". It was dated from its start, while Health
+reads a record's date as the moment the workout ended. So 18:00–18:40 went to
+Health as 17:20–18:00. It is now dated at the last moment the workout saved,
+as every other record is dated at its end. History, the calendar and the count
+of days since the last workout move with it.
+
+**Nothing starts behind "Leave the workout?".** While the question was on
+screen, a hands-free rest could run out behind it, start the next hold on its
+own and log that hold as done. Now nothing starts or ends while the question
+is open. Every countdown is an end time and keeps running, so whatever ran out
+while the question was open is handled on the first tick after "Keep
+training". If a rest ran out more than a few seconds before that, the next
+hold waits for a tap, as it does after any absence.
+
+**A probe after a declared hold records the number you entered.** The panel
+for the time you set before a hold could be closed by "Start exercise" or a
+skip and still be in "set the time" mode. The probe's "Went differently" that
+followed then wrote into that setting instead of the probe, and a reps probe
+was recorded at its target. The panel is now reset every time it opens.
+
+**A resumed workout no longer carries a hold time into the next movement.**
+When the app was killed on a movement's last rest and the workout was resumed
+past it, the hold time you had set for the finished movement set the next
+movement's clock. Resuming now clears it, as moving on after a rest already
+did.
+
+**Today moves to the new day at midnight during a workout.** A running workout
+keeps the app active, so the day-change check that runs when the app comes to
+the foreground never came. After a workout that ran past midnight, Today
+showed the next workout under yesterday's date. The date now also moves at
+midnight and on a clock or time-zone change. The plan's quiet step back after
+one to two weeks without training still waits for the next time the app comes
+to the foreground.
+
+**The anniversary look back measures the current run.** After starting over,
+the anniversary screen's "then" came from the first run's first workout, so it
+compared the new plan with a history it had been reset from. It now starts
+from the current run's first workout, as the progress curve beside it already
+did.
+
+**One unreadable setting costs that setting, not your history.** Settings are
+now read one field at a time. Before, a single value this build could not
+read, such as one edited by hand or written by a newer build, failed the whole
+settings block, and that sent the workout journal to quarantine. Now that one
+field falls back to its default. The saved plan is read part by part too.
+Which variation each movement is on, its reps or seconds, and the workout
+counter are still read whole; each movement's set count and the other optional
+parts open empty when unreadable, instead of sending every movement back to
+the start. When any of the parts read whole cannot be read, the file is copied
+aside before the next save overwrites it, both on launch and on reload. A
+quarantined copy is never deleted: a later failure is kept under its own name.
+Reminder hours, minutes and rest days are held to real clock and weekday
+values, because an hour of 99 set a reminder that never fired.
+
+**A backup whose history, plan or settings block cannot be read is refused.**
+Before, a backup this build could only partly read was still restored: a
+damaged file, a newer build's file, or one holding just `{"records":[]}`,
+which replaced a whole history with an empty one. A file with an unreadable
+journal entry, an unreadable plan or a settings block that is not settings at
+all is now refused before anything changes, with the same "Couldn't read this
+file." alert as any other bad file. Every backup a release has written still
+restores; v2 files still carry over. A single unreadable setting inside a
+readable block still restores, with that setting's default. So does a plan
+whose movements, doses and workout counter read but whose set counts or other
+optional parts do not; those parts open empty. A restore keeps this phone's
+record of which workouts are already in Health, so a backup taken before an
+export does not send them twice. A file the picker could not hand over now
+shows that alert as well; before, the tap did nothing.
+
+**Your age reaches the calorie estimate under a Buddhist or Japanese
+calendar.** Health gives the birthday in the Gregorian calendar, and the app
+read it in the phone's own calendar. Under a Buddhist or Japanese calendar
+that produced an impossible age, which was dropped, and the calorie estimate
+went on without it. The birthday is now read as Gregorian.
+
+**Crashes on bad saved data.** A few numbers read from the saved file went
+into arithmetic before anything checked them. In the rare case of a damaged
+value, the app crashed on every launch. They are now held back from the
+extremes that crashed it: a workout snapshot's exercise or set index, a stored
+dose, and the count of skipped sets. The rest countdown in the Live Activity
+read the clock twice and could crash in the instant between the two reads; it
+now shows 0:00 there.
+
+**The engine ignores a replayed session.** When the engine was handed a
+session it had already counted, it left the plan alone but still applied the
+set cuts and "next time" raises a second time. The whole update is now
+skipped. This happens only on a stale replay, never on a first rating, so no
+plan a person has seen changes: the golden trace replays unchanged. The
+saved-data and journal formats are unchanged. The app's own file is read more
+leniently and a backup more strictly, and new workouts in Health carry the
+journal id as metadata. No new text on screen. 74 → 78 core tests and 579 →
+585 app unit tests.
+
 ## 2.4.3
 
 **A hold run exactly to an uneven plan is recorded as the plan.** A plan of

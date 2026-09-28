@@ -2,15 +2,12 @@
 //  The engine's state (§40.2): six coordinates per pattern, the journal of
 //  what was shown, and the global counters that survived v2 unchanged.
 //
-//  THERE IS NO MIGRATION FROM v2 — owner's decision, 25.08.2026 (§40.8). A
-//  state written by an older build carries no `vars` and no `doses`, so the
-//  decode below FAILS on it and the app hands the engine `initial`: every
-//  pattern on its first rung at 3×4 (3×15 s). The workout journal — the
-//  history the person has actually lived — is a different file and is not
-//  touched. Code that reads the old shape is deliberately not written: people
-//  walk back to their own level with the honest-numbers rule (§40.3, §40.8),
-//  in about two appearances per variation, and a reader that guessed at old
-//  levels would be predicting exactly what §40.0 forbids.
+//  A state written before v3 carries `levels` and no `vars`/`doses`, so the
+//  decode below FAILS on it — and since §41.7 that failure is the DISPATCH,
+//  not the end: the app then reads the v2 shape and carries it over with
+//  `Engine.migrateFromV2` (MigrationV2.swift). Only a state that is neither
+//  shape starts from `initial`. (§40.8's "no migration, start clean" was
+//  reversed by §41.7 on 26.08.2026.)
 //
 
 import Foundation
@@ -116,41 +113,51 @@ public struct EngineState: Codable, Equatable, Sendable {
         self.weekAgeDays = weekAgeDays
     }
 
-    /// `vars` and `doses` are REQUIRED, and that is the whole of the
-    /// no-migration decision in code: a v2 file has `levels` instead and
-    /// throws here, which is what the app reads as "start clean". Every other
-    /// field is additive and tolerant, exactly as before — a v3 file written
-    /// by a build that predates a later field must keep working.
+    /// `counter`, `vars` and `doses` are REQUIRED: a v2 file has `levels`
+    /// instead and throws here, which is what sends the app to the v2 reader
+    /// and `Engine.migrateFromV2` (§41.7). Every other field is additive and
+    /// tolerant — absent or unreadable, it opens at its default — so a v3 file
+    /// from an older or a newer build keeps its positions.
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         counter = Self.clamped(try c.decode(Int.self, forKey: .counter),
                                0, EngineConfig.countMax)
         vars = try Self.decodeLenient(c, forKey: .vars)
         doses = try Self.decodeLenient(c, forKey: .doses)
-        hasBar = try c.decodeIfPresent(Bool.self, forKey: .hasBar) ?? false
-        sets = c.contains(.sets) ? try Self.decodeLenient(c, forKey: .sets) : [:]
-        sub = c.contains(.sub) ? try Self.decodeLenient(c, forKey: .sub) : [:]
-        cut = c.contains(.cut) ? try Self.decodeLenient(c, forKey: .cut) : [:]
-        shown = c.contains(.shown) ? try Self.decodeShown(c, forKey: .shown) : [:]
-        failStreak = c.contains(.failStreak)
-            ? try Self.decodeLenient(c, forKey: .failStreak) : [:]
-        setsHold = c.contains(.setsHold) ? try Self.decodeLenient(c, forKey: .setsHold) : [:]
-        shownWork = c.contains(.shownWork) ? try Self.decodeLenient(c, forKey: .shownWork) : [:]
-        shownOrd = c.contains(.shownOrd) ? try Self.decodeLenient(c, forKey: .shownOrd) : [:]
-        lastHard = Set((try c.decodeIfPresent([String].self, forKey: .lastHard) ?? [])
+        // Everything past the three fields above is OPTIONAL memory, and an
+        // unreadable one opens empty rather than failing the whole state: the
+        // app's fallback for a failed decode is `.initial` — every position
+        // back to the start — which costs far more than one forgotten map.
+        hasBar = (try? c.decodeIfPresent(Bool.self, forKey: .hasBar)) ?? false
+        sets = Self.optionalMap(c, .sets)
+        sub = Self.optionalMap(c, .sub)
+        cut = Self.optionalMap(c, .cut)
+        shown = c.contains(.shown) ? ((try? Self.decodeShown(c, forKey: .shown)) ?? [:]) : [:]
+        failStreak = Self.optionalMap(c, .failStreak)
+        setsHold = Self.optionalMap(c, .setsHold)
+        shownWork = Self.optionalMap(c, .shownWork)
+        shownOrd = Self.optionalMap(c, .shownOrd)
+        lastHard = Set(((try? c.decodeIfPresent([String].self, forKey: .lastHard)) ?? [])
             .compactMap(Pattern.init(rawValue:)))
-        lessRun = Self.clamped(try c.decodeIfPresent(Int.self, forKey: .lessRun) ?? 0,
+        lessRun = Self.clamped((try? c.decodeIfPresent(Int.self, forKey: .lessRun)) ?? 0,
                                0, EngineConfig.countMax)
-        creditPaused = Set((try c.decodeIfPresent([String].self, forKey: .creditPaused) ?? [])
+        creditPaused = Set(((try? c.decodeIfPresent([String].self, forKey: .creditPaused)) ?? [])
             .compactMap(Pattern.init(rawValue:))).intersection(Pattern.pullSide)
-        returnRun = Self.clamped(try c.decodeIfPresent(Int.self, forKey: .returnRun) ?? 0,
+        returnRun = Self.clamped((try? c.decodeIfPresent(Int.self, forKey: .returnRun)) ?? 0,
                                  0, EngineConfig.countMax)
-        lessHist = c.contains(.lessHist) ? try Self.decodeLenient(c, forKey: .lessHist) : [:]
-        rampWindow = Self.clamped(try c.decodeIfPresent(Int.self, forKey: .rampWindow) ?? 0,
+        lessHist = Self.optionalMap(c, .lessHist)
+        rampWindow = Self.clamped((try? c.decodeIfPresent(Int.self, forKey: .rampWindow)) ?? 0,
                                   0, EngineConfig.rampWindowSessions)
-        weekGain = c.contains(.weekGain) ? try Self.decodeLenient(c, forKey: .weekGain) : [:]
-        weekAgeDays = Self.clamped(try c.decodeIfPresent(Double.self, forKey: .weekAgeDays) ?? 0,
+        weekGain = Self.optionalMap(c, .weekGain)
+        weekAgeDays = Self.clamped((try? c.decodeIfPresent(Double.self, forKey: .weekAgeDays)) ?? 0,
                                    0, Double(EngineConfig.countMax))
+    }
+
+    /// An optional map, absent OR unreadable, opens empty.
+    private static func optionalMap(
+        _ c: KeyedDecodingContainer<CodingKeys>, _ key: CodingKeys) -> [Pattern: Int] {
+        guard c.contains(key) else { return [:] }
+        return (try? decodeLenient(c, forKey: key)) ?? [:]
     }
 
     /// Manual decode of the exact wire format Swift synthesizes for a

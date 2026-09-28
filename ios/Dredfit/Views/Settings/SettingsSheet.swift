@@ -82,9 +82,14 @@ struct SettingsSheet: View {
         }
         .fileImporter(isPresented: $importPickerShown,
                       allowedContentTypes: [.json]) { result in
-            if case .success(let url) = result {
+            switch result {
+            case .success(let url):
                 pendingImportURL = url
                 importConfirmShown = true
+            case .failure(let error):
+                // A file the picker could not hand over could not be read
+                // either; ignoring it left the tap looking dead.
+                if (error as? CocoaError)?.code != .userCancelled { importFailed = true }
             }
         }
         .alert(String(localized: "Replace history?"),

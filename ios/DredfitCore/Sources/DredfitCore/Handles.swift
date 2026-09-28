@@ -127,6 +127,11 @@ extension Engine {
         gapDays: Double? = nil,
         probes: [Pattern: Int] = [:],
         raised: [Pattern: Int] = [:]) -> EngineState {
+        // И6 holds for the whole entry point, not just its feedback half: on
+        // a stale pair the base call returns the state unchanged, and the cut
+        // and the raise below used to land on it anyway — a replayed session
+        // cut sets and raised doses a second time.
+        guard session.sessionNumber == state.sanitized().counter + 1 else { return state }
         var next = Self.applyFeedback(state: state, session: session, result: result,
                                       overrides: overrides, skipped: skipped,
                                       gapDays: gapDays, probes: probes)
@@ -135,7 +140,9 @@ extension Engine {
         // down rather than left to a dictionary's arbitrary order.
         for p in Pattern.allCases {
             guard let k = setsSkipped[p], k > 0 else { continue }
-            next = Self.setCut(state: next, pattern: p, cut: next.cutOf(p) + k)
+            // Held to the technical range: `k` comes off a persisted record.
+            next = Self.setCut(state: next, pattern: p,
+                               cut: next.cutOf(p) + Swift.min(k, EngineConfig.countMax))
         }
         for p in Pattern.allCases {
             guard let k = raised[p], k > 0 else { continue }

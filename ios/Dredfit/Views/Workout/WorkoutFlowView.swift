@@ -37,6 +37,7 @@ struct WorkoutFlowView: View {
     /// (owner, 06.09.2026).
     var settleImmediately = false
     @Environment(\.dismiss) var dismiss
+    @Environment(\.scenePhase) private var scenePhase
     @Environment(AppStore.self) var store
     @Environment(\.requestReview) private var requestReview
     /// Reduce Motion, and it is not a question of taste on these screens:
@@ -145,6 +146,8 @@ struct WorkoutFlowView: View {
     /// Health is told about. Wall clock alone charged the break to the
     /// workout (UX review 05.09.2026).
     @State var awaySec = 0
+    /// The moment the scene left, while the process lives on (`sceneMoved`).
+    @State var absence = SetFacts.Absence()
     /// The two guided blocks, measured rather than assumed. `*BeganAt` is the
     /// moment the person said yes; `*Sec` is what the block cost once it
     /// ended, and it stays nil only while the block has not ended yet. A
@@ -404,8 +407,10 @@ struct WorkoutFlowView: View {
             case .milestone(let earned):
                 MilestoneView(milestones: earned,
                               steps: store.progressCurve(through: store.lastRecord?.date),
+                              // The current run, as the curve beside it: after
+                              // a fresh start "then" is the new run's first.
                               retrospective: Retrospective.make(
-                                  records: store.records,
+                                  records: store.recordsSinceReset,
                                   current: store.currentPositions)) {
                     askForReviewIfEarned()
                     dismiss()
@@ -415,6 +420,13 @@ struct WorkoutFlowView: View {
         .padding(.horizontal, 24)
         .background(Theme.bg.ignoresSafeArea())
         .onReceive(timer) { _ in
+            // Nothing the clocks drive happens behind "Leave the workout?": a
+            // hands-free rest ran out under it, started the next hold on its
+            // go and logged it as held. Every countdown is an end DATE, so a
+            // skipped tick loses nothing — after "Keep training" the next tick
+            // meets whatever ran out, under the rules a backgrounded app
+            // already lives by.
+            guard !exitConfirmShown else { return }
             switch phase {
             case .warmup:
                 if blockPause.isPaused { tickBlockPause() } else { tickWarmup() }
@@ -476,6 +488,9 @@ struct WorkoutFlowView: View {
         .onChange(of: blockPause.isHeld) { _, held in
             UIApplication.shared.isIdleTimerDisabled = !held
         }
+        // Only `.background` is leaving: Control Center or a pulled-down
+        // notification is `.inactive`, and the person is still here.
+        .onChange(of: scenePhase) { _, scene in sceneMoved(to: scene) }
         // WITHOUT `planned:` — the step-below block belongs to the screen that
         // shows the UPCOMING workout, never to one that is running (owner,
         // 01.09.2026). The session is snapshotted at Start, so a switch taken

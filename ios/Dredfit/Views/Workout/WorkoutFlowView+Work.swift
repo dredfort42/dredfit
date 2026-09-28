@@ -526,6 +526,11 @@ extension WorkoutFlowView {
         adjustValue = current.isProbe
             ? (probeActuals[exercise.pattern] ?? current.planned)
             : SetFacts.inForce(actuals, exercise, set: setIndex)
+        // The panel's mode is set by whoever OPENS it, every time. A
+        // declaration's panel closed by "Start exercise" or a skip left the
+        // flag standing, and the probe's OK that followed wrote into the
+        // declaration — a reps probe then went in at target.
+        holdDeclaring = false
         adjusting = true
     }
 

@@ -42,8 +42,15 @@ public enum Dose {
     /// INPUT — a raw reported fact is one — and the rung then goes negative or
     /// past the top. Clipping it at the edge is exactly what broke the
     /// monotonicity of the reading-from-a-fact in #139, so it is not clipped.
+    ///
+    /// It IS held to the technical range, ±`EngineConfig.countMax`: a
+    /// persisted dose reaches here before anything clamps it (`sanitized`,
+    /// `healShown`, `fit`), and near `Int.min` the subtraction traps — a crash
+    /// on every launch. Every caller clamps the result to the grid anyway, so
+    /// this is the identity on anything a person could log, and still monotone.
     static func rung(_ unit: LoadUnit, dose: Int) -> Int {
-        floorDiv(dose - grid(unit).min, grid(unit).step)
+        let d = EngineState.clamped(dose, -EngineConfig.countMax, EngineConfig.countMax)
+        return floorDiv(d - grid(unit).min, grid(unit).step)
     }
 
     static func dose(_ unit: LoadUnit, atRung rung: Int) -> Int {
@@ -72,7 +79,9 @@ public enum Dose {
 
     static func snapToInt(_ unit: LoadUnit, _ x: Double) -> Int {
         let g = grid(unit)
-        let r = Int(((x - Double(g.min)) / Double(g.step)).rounded(.down))
+        // Finite and within ±countMax first: `Int(Double)` traps on NaN or ±inf.
+        let v = Engine.sanitizeActual(x)
+        let r = Int(((v - Double(g.min)) / Double(g.step)).rounded(.down))
         return dose(unit, atRung: r)
     }
 
