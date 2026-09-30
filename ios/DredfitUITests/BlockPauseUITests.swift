@@ -10,18 +10,19 @@ import XCTest
 @MainActor
 final class BlockPauseUITests: XCTestCase {
 
-    private var app: XCUIApplication!
+    nonisolated(unsafe) private var app: XCUIApplication!
     private var driver: WorkoutDriver { WorkoutDriver(app: app) }
 
-    // `async throws`: a synchronous `setUp()` override inherits XCTestCase's
-    // non-isolated declaration whatever the class is annotated with, so
-    // touching main-actor `XCUIApplication` from it warned four times per
-    // file. Only the async form may add the class's isolation.
-    override func setUp() async throws {
-        try await super.setUp()
+    // Synchronous, on purpose: an async setUp kills the CI retries (Apple
+    // #108565878). Why, and why `app` is `nonisolated(unsafe)`: DredfitUITests.setUp.
+    override func setUp() {
+        super.setUp()
         continueAfterFailure = false
-        app = XCUIApplication()
-        app.seedLaunchArguments()
+        app = MainActor.assumeIsolated {
+            let app = XCUIApplication()
+            app.seedLaunchArguments()
+            return app
+        }
     }
 
     func testAPausedMoveStandsStillAndComesBackWhereItStopped() {

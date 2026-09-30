@@ -11,20 +11,21 @@ import XCTest
 @MainActor
 final class SetFactsUITests: XCTestCase {
 
-    private var app: XCUIApplication!
+    nonisolated(unsafe) private var app: XCUIApplication!
     private var driver: WorkoutDriver { WorkoutDriver(app: app) }
 
-    // `async throws`: a synchronous `setUp()` override inherits XCTestCase's
-    // non-isolated declaration whatever the class is annotated with, so
-    // main-actor `XCUIApplication` was reached from a non-isolated context.
-    // Only the async form may add the class's isolation.
-    override func setUp() async throws {
-        try await super.setUp()
+    // Synchronous, on purpose: an async setUp kills the CI retries (Apple
+    // #108565878). Why, and why `app` is `nonisolated(unsafe)`: DredfitUITests.setUp.
+    override func setUp() {
+        super.setUp()
         continueAfterFailure = false
-        app = XCUIApplication()
-        // --uitest-fast: this test completes real sets, so the rests between
-        // them have to collapse.
-        app.seedLaunchArguments("--uitest-fast")
+        app = MainActor.assumeIsolated {
+            let app = XCUIApplication()
+            // --uitest-fast: this test completes real sets, so the rests between
+            // them have to collapse.
+            app.seedLaunchArguments("--uitest-fast")
+            return app
+        }
     }
 
     /// Workout 1 opens at 3×4 reps (§40.8). Two sets on plan, the third at 1:

@@ -10,18 +10,27 @@ import XCTest
 @MainActor
 final class DredfitUITests: XCTestCase {
 
-    var app: XCUIApplication!
+    nonisolated(unsafe) var app: XCUIApplication!
 
-    // `async throws`, and that is the whole of the fix for sixteen build
-    // warnings: a synchronous `setUp()` override inherits XCTestCase's
-    // non-isolated declaration whatever the class is annotated with, so
-    // main-actor `XCUIApplication` was reached from a non-isolated context.
-    // Only the async form may add the class's isolation.
-    override func setUp() async throws {
-        try await super.setUp()
+    // Synchronous, on purpose. An async `setUp()` together with
+    // `continueAfterFailure = false` trips Apple's XCTest defect #108565878:
+    // a failed assertion kills the runner process, xcodebuild resumes at the
+    // NEXT test, and `-retry-tests-on-failure` never re-runs the one that
+    // failed — one timing flake and the whole CI run is red. #59 made setUp
+    // synchronous for that; #212 made it async again to silence isolation
+    // warnings, and from 27.08 to 30.09.2026 no failed assertion was retried.
+    // A synchronous override is non-isolated whatever the class says, so the
+    // app is built in `assumeIsolated` (XCTest calls setUp on the main thread,
+    // and this traps if it ever does not) and `app` is `nonisolated(unsafe)`:
+    // it is written here and read by the tests, all on that one thread.
+    override func setUp() {
+        super.setUp()
         continueAfterFailure = false
-        app = XCUIApplication()
-        app.seedLaunchArguments()
+        app = MainActor.assumeIsolated {
+            let app = XCUIApplication()
+            app.seedLaunchArguments()
+            return app
+        }
     }
 
     // Thin wrappers over WorkoutDriver. Internal, not private:

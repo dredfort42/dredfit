@@ -12,7 +12,7 @@ step-by-step release procedure. All workflows live in
 | **CI** — unit tests (Core + app) + engine-gate contract | `ci.yml` | push/PR to `main`, `develop`, `release/**`, `hotfix/**` | ✅ **required** | ~5–15 min |
 | **Lint** — SwiftLint | `lint.yml` | same | ✅ **required** | ~30 s |
 | **Localization** — String Catalog completeness | `localization.yml` | same | ✅ **required** | ~10 s |
-| **UI Tests** | `ui-tests.yml` | nightly + manual | ❌ non-gating | ~20–45 min |
+| **UI Tests** | `ui-tests.yml` | nightly, only if the app or its UI tests changed + manual | ❌ non-gating | ~75–100 min |
 | **CodeQL** — Swift security scan | `codeql.yml` | push to `main`/`develop` + weekly | ❌ advisory | ~15 min |
 | **PR Title** — Conventional Commits | `pr-title.yml` | PR | ❌ advisory | ~5 s |
 | **Secret Scan** — gitleaks | `gitleaks.yml` | push/PR + weekly | ❌ advisory | ~1 min |
@@ -24,8 +24,9 @@ because it only runs on release branches), but treat a red run as a hard stop:
 it means the version or changelog is wrong.
 
 **The gate is unit tests, not UI tests.** UI tests are slow and occasionally
-flaky on shared runners, so they run nightly and block nothing. Before cutting a
-release you run them locally (see the release procedure below).
+flaky on shared runners, so they run nightly — only when the app changed since
+the last tested commit — and block nothing. Before cutting a release you run
+them locally (see the release procedure below).
 
 ## The pipeline by stage
 
@@ -49,7 +50,9 @@ CI + Lint + Localization also run.
 missing.
 
 ### 5. Scheduled
-Nightly UI tests (default branch), weekly CodeQL and gitleaks, weekly Dependabot
+Nightly UI tests (default branch) — skipped when nothing the suite builds or
+drives changed since the last commit a run tested: unit tests, docs, store
+material and scripts do not count. Weekly CodeQL and gitleaks, weekly Dependabot
 updates for GitHub Actions and DredfitCore's Swift dependencies.
 
 ## Release procedure

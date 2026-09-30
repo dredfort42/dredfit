@@ -227,8 +227,8 @@ rollover, backgrounding during rest, device-only integrations) and a registry of
 found issues with their status.
 
 CI runs the unit suites on every push — that is the gate for merges and
-releases. UI tests run nightly on their own and gate nothing; they are run
-locally before cutting a release branch instead.
+releases. UI tests run nightly on their own when the app has changed, and
+gate nothing; they are run locally before cutting a release branch instead.
 
 ## Building
 
@@ -250,7 +250,8 @@ No third-party dependencies, no network calls, no analytics of any kind — the 
 ## Continuous integration
 
 Every push and PR runs the gate — unit tests (Core + app), SwiftLint, and a
-String Catalog completeness check. UI tests run nightly and gate nothing;
+String Catalog completeness check. UI tests run nightly when the app has
+changed and gate nothing;
 CodeQL, secret scanning, and PR-title linting run alongside as advisory checks. Releases are tagged `vX.Y.Z`, which publishes a GitHub
 Release from the matching `CHANGELOG.md` section. Full details, the release
 procedure, and how to enable branch protection are in
