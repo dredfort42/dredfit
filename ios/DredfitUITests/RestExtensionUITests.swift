@@ -10,18 +10,19 @@ import XCTest
 @MainActor
 final class RestExtensionUITests: XCTestCase {
 
-    private var app: XCUIApplication!
+    nonisolated(unsafe) private var app: XCUIApplication!
     private var driver: WorkoutDriver { WorkoutDriver(app: app) }
 
-    // `async throws`: a synchronous `setUp()` override inherits XCTestCase's
-    // non-isolated declaration whatever the class is annotated with, so
-    // main-actor `XCUIApplication` was reached from a non-isolated context.
-    // Only the async form may add the class's isolation.
-    override func setUp() async throws {
-        try await super.setUp()
+    // Synchronous, on purpose: an async setUp kills the CI retries (Apple
+    // #108565878). Why, and why `app` is `nonisolated(unsafe)`: DredfitUITests.setUp.
+    override func setUp() {
+        super.setUp()
         continueAfterFailure = false
-        app = XCUIApplication()
-        app.seedLaunchArguments()
+        app = MainActor.assumeIsolated {
+            let app = XCUIApplication()
+            app.seedLaunchArguments()
+            return app
+        }
     }
 
     /// A 60-second rest may be pushed to 120 and no further, and the control

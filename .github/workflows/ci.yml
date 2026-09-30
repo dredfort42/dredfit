@@ -4,8 +4,9 @@ name: CI
 #
 # This is the gate: green CI is what a merge and a release branch require.
 # UI tests are deliberately not here. They are slow and occasionally flaky on
-# shared runners, so they run nightly in ui-tests.yml and gate nothing; before
-# cutting a release branch you run them locally instead (.github/WORKFLOWS.md).
+# shared runners, so they run nightly in ui-tests.yml when the app has
+# changed, and gate nothing; before cutting a release branch you run them
+# locally instead (.github/WORKFLOWS.md).
 
 on:
   push:

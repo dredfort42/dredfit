@@ -12,24 +12,25 @@ import XCTest
 @MainActor
 final class ReleaseSmokeTests: XCTestCase {
 
-    private var app: XCUIApplication!
+    nonisolated(unsafe) private var app: XCUIApplication!
     private var driver: WorkoutDriver { WorkoutDriver(app: app) }
 
-    // `async throws`: a synchronous `setUp()` override inherits XCTestCase's
-    // non-isolated declaration whatever the class is annotated with, so
-    // main-actor `XCUIApplication` was reached from a non-isolated context.
-    // Only the async form may add the class's isolation.
-    override func setUp() async throws {
-        try await super.setUp()
+    // Synchronous, on purpose: an async setUp kills the CI retries (Apple
+    // #108565878). Why, and why `app` is `nonisolated(unsafe)`: DredfitUITests.setUp.
+    override func setUp() {
+        super.setUp()
         continueAfterFailure = false
-        app = XCUIApplication()
-        // --uitest-fast collapses rests, cool-down stages and the get-ready
-        // transition (#52); a warm-up MOVE is deliberately not collapsed
-        // anywhere in the app, so S2 checks that the block opens and then
-        // skips it rather than paying three minutes. That asymmetry is what
-        // S2 waits on below: the move's countdown is up for 30 real seconds,
-        // the transition's for one, so only the former is safe to assert.
-        app.seedLaunchArguments("--uitest-fast")
+        app = MainActor.assumeIsolated {
+            let app = XCUIApplication()
+            // --uitest-fast collapses rests, cool-down stages and the get-ready
+            // transition (#52); a warm-up MOVE is deliberately not collapsed
+            // anywhere in the app, so S2 checks that the block opens and then
+            // skips it rather than paying three minutes. That asymmetry is what
+            // S2 waits on below: the move's countdown is up for 30 real seconds,
+            // the transition's for one, so only the former is safe to assert.
+            app.seedLaunchArguments("--uitest-fast")
+            return app
+        }
     }
 
     // MARK: - S1–S6 in English

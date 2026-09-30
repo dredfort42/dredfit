@@ -2,15 +2,26 @@ name: UI Tests
 
 # UI tests only — the unit suites already run on every push in ci.yml.
 #
-# These are slow (~20-45 min) and occasionally flaky on shared runners, so
+# These are slow (~75-100 min) and occasionally flaky on shared runners, so
 # they deliberately do NOT gate anything: no PR checks, no release branches.
 # A red run here is a signal to investigate before the next release, not a
 # reason to hold one back. Release branches are gated by ci.yml (unit tests)
 # plus a local UI run — see .github/WORKFLOWS.md, "Release procedure".
 #
 # Triggers:
-#   - nightly on the default branch (develop)
-#   - manually via "Run workflow" (any branch)
+#   - nightly on the default branch (develop) — but the suite runs only when
+#     something it builds or drives changed since the last commit a run
+#     tested: the app, the engine it links, the widget and shared code
+#     embedded in it, the UI tests, the project and test plan, or this
+#     workflow. Unit tests, docs, store material and scripts do not count.
+#   - manually via "Run workflow" (any branch) — always runs the suite.
+#
+# Until 30.09.2026 every night ran the suite, and most nights re-tested a
+# commit already tested — 11–30.09: 20 nights, 8 commits, d27a561 five
+# times, fc9faa5 four, 47e6d19 three, going red and green on the same code.
+# A night with nothing new now skips it. That includes the night after a red
+# run: a flake stays the latest result until the next change or a manual
+# rerun, and a runner image that changes under unchanged code goes unseen.
 
 on:
   schedule:
@@ -22,10 +33,70 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Anything new for the UI suite?
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read    # the previous runs of this workflow
+      contents: read
+    outputs:
+      run: ${{ steps.diff.outputs.run }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # Any doubt resolves to running the suite: a skipped night that should
+      # have run is the one outcome nobody would notice.
+      - name: Compare with the last tested commit
+        id: diff
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT" != "schedule" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # A completed run that succeeded or failed tested its head commit,
+          # or skipped it for having nothing new — the same thing here.
+          # Cancelled and timed-out runs tested nothing and do not count.
+          if ! last=$(gh run list --workflow ui-tests.yml --branch develop \
+                        --status completed --limit 30 --json headSha,conclusion \
+                        --jq '[.[] | select(.conclusion == "success" or .conclusion == "failure")][0].headSha // ""'); then
+            echo "::warning::Could not read the previous runs; running the suite."
+            last=""
+          fi
+          if [ -z "$last" ] || ! git cat-file -e "$last^{commit}" 2>/dev/null; then
+            echo "No tested commit to compare with; running the suite."
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          changed=$(git diff --name-only "$last" HEAD -- \
+            ios ':(exclude)ios/DredfitTests' ':(exclude)ios/DredfitCore/Tests' \
+            .github/workflows/ui-tests.yml .github/actions/setup-xcode)
+          if [ -n "$changed" ]; then
+            echo "Changed since ${last:0:7}:"
+            echo "$changed"
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Nothing the UI suite builds or drives changed since ${last:0:7}; skipping it." \
+              | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
   ui-suite:
+    needs: changes
+    if: needs.changes.outputs.run == 'true'
     name: DredfitUITests (iOS Simulator)
     runs-on: macos-latest
-    timeout-minutes: 120
+    # A clean run takes 75-100 min, and with the retries working a genuine
+    # regression runs each failing test three times. At 120 the job would be
+    # killed before xcodebuild printed which tests failed.
+    timeout-minutes: 240
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -74,9 +145,13 @@ jobs:
           # whole runner process instead of the test method. xcodebuild then
           # relaunches and resumes at the NEXT test, so the failed one is
           # never re-run — 43 executions for 43 tests, no iteration ever
-          # reached 2. The suite's setUp is synchronous now, which is Apple's
+          # reached 2. The suite's setUp is synchronous, which is Apple's
           # own workaround and restores the retries without giving up
-          # fail-fast. Two symptoms to recognise if it ever regresses: a root
+          # fail-fast. It regressed once: #212 made setUp async again, and
+          # from 27.08 to 30.09.2026 not one failed assertion was retried —
+          # each cost a runner restart and a red run. SwiftLint's
+          # `ui_tests_stay_synchronous` now refuses the async form. Two
+          # symptoms to recognise if it ever regresses anyway: a root
           # suite named "Selected tests", and a closing "Executed N tests,
           # with 0 failures" that omits the failure the job went red for —
           # that tally belongs to the resumed session alone. The authoritative
