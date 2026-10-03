@@ -133,29 +133,29 @@ final class MigrationV2Tests: AppStoreTestCase {
         try v2Payload(levels: ["squat": 20, "pull": 8], counter: 4, hasBar: true)
             .write(to: tempURL)
 
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertTrue(store.showsMigrationNotice, "the upgrade must be announced")
         store.persist()   // the file is v3 from here on — the flag has to carry itself
 
         let onDisk = try JSONDecoder().decode(AppData.self, from: Data(contentsOf: tempURL))
         XCTAssertFalse(onDisk.engineStateMigrated,
                        "the file is v3 from here on, so nothing migrates a second time")
-        XCTAssertTrue(AppStore(storageURL: tempURL).showsMigrationNotice,
+        XCTAssertTrue(makeStore().showsMigrationNotice,
                       "and the card is still owed")
     }
 
     func testDismissingTheCardSpendsItForGood() throws {
         try v2Payload(levels: ["squat": 20], counter: 4, hasBar: false).write(to: tempURL)
 
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.dismissMigrationNotice()
         XCTAssertFalse(store.showsMigrationNotice)
-        XCTAssertFalse(AppStore(storageURL: tempURL).showsMigrationNotice,
+        XCTAssertFalse(makeStore().showsMigrationNotice,
                        "and it must not come back on the next launch")
     }
 
     func testAFreshInstallIsNeverToldAboutAMigration() {
-        XCTAssertFalse(AppStore(storageURL: tempURL).showsMigrationNotice,
+        XCTAssertFalse(makeStore().showsMigrationNotice,
                        "there is nothing to announce to someone with no history")
     }
 
@@ -172,7 +172,7 @@ final class MigrationV2Tests: AppStoreTestCase {
         try v2Payload(levels: ["squat": 20, "pull": 8], counter: 4, hasBar: true)
             .write(to: backup)
 
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertFalse(store.showsMigrationNotice, "nothing to announce before the restore")
 
         try store.importBackup(from: backup)
@@ -181,7 +181,7 @@ final class MigrationV2Tests: AppStoreTestCase {
                        "the restore really did carry the positions over")
         XCTAssertTrue(store.showsMigrationNotice,
                       "restoring a pre-v3 backup is an upgrade too, and has to say so")
-        XCTAssertTrue(AppStore(storageURL: tempURL).showsMigrationNotice,
+        XCTAssertTrue(makeStore().showsMigrationNotice,
                       "and the card outlives the launch that owed it, like the other two doors")
     }
 }
