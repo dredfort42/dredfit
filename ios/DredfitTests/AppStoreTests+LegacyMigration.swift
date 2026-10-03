@@ -27,7 +27,7 @@ extension AppStoreTests {
          "records":[{"sessionNumber":1,"date":700000000,"result":"more","totalLevelAfter":12}]}
         """
         try Data(legacy.utf8).write(to: tempURL)
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertEqual(store.records.count, 1, "the legacy record did not decode")
         XCTAssertNil(store.records[0].exercises, "a legacy record should have no snapshot")
         XCTAssertNil(store.records[0].actuals)
@@ -60,7 +60,7 @@ extension AppStoreTests {
     /// a week. Issue #36 shipped two, which put the default one workout above
     /// what the app itself recommends on two screens.
     func testFreshInstallDefaultsToThreeSpreadRestDays() {
-        let store = AppStore(storageURL: tempURL)   // no file → fresh install
+        let store = makeStore()   // no file → fresh install
         let rest = store.settings.restWeekdays
         XCTAssertEqual(rest, [2, 4, 6],
                        "fresh installs rest on Monday, Wednesday and Friday")
@@ -86,7 +86,7 @@ extension AppStoreTests {
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
         """
         try Data(noKey.utf8).write(to: tempURL)
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertEqual(store.settings.restWeekdays, [1],
                        "an upgrade must not change an existing week")
     }
@@ -104,7 +104,7 @@ extension AppStoreTests {
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
         """
         try Data(v11.utf8).write(to: tempURL)
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertEqual(store.settings.restWeekdays, [1, 2], "old settings must survive")
         XCTAssertFalse(store.settings.soundsEnabled)
         XCTAssertFalse(store.settings.healthEnabled, "Health defaults off for old files")
@@ -127,7 +127,7 @@ extension AppStoreTests {
                      "healthEnabled":true,"healthExportedThrough":3}}
         """
         try Data(v13.utf8).write(to: tempURL)
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         // everything the old file knew about survives untouched
         XCTAssertEqual(store.settings.restWeekdays, [1, 4])
         XCTAssertEqual(store.settings.reminderHour, 7)
