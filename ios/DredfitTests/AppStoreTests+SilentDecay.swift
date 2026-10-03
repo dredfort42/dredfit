@@ -29,7 +29,7 @@ extension AppStoreTests {
         // calendar day (Europe/Berlin, 25.10, a run after 23:00).
         let cal = Calendar.current
         let date = try self.daysAgo(daysAgo)
-        let store = AppStore(storageURL: url)
+        let store = makeStore(storageURL: url)
         // The seeding workouts are one CALENDAR day apart, ending on `date`.
         // Stacked on one instant they age the window by the one-hour floor
         // each, and the weekly ceiling — three SUB-STEPS for the slow tissues
@@ -64,7 +64,7 @@ extension AppStoreTests {
         XCTAssertEqual(AppStore.positions(of: store.engineState), once,
                        "the same break must not decay twice")
         // The stamp survives a relaunch — persisted, not in-memory.
-        let reloaded = AppStore(storageURL: tempURL)
+        let reloaded = makeStore()
         reloaded.applySilentDecayIfNeeded()
         XCTAssertEqual(AppStore.positions(of: reloaded.engineState), once,
                        "a relaunch inside the same break must not decay again")
