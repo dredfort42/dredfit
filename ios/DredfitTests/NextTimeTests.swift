@@ -126,7 +126,7 @@ final class NextTimeTests: AppStoreTestCase {
         }
         // One rung under the top of the hold grid, and never shown there:
         // the plan reads 3×40 s with no gate in the way.
-        store.engineState.doses[pattern] = Dose.hold.max - Dose.hold.step
+        store.update(refreshWidget: false) { $0.engineState.doses[pattern] = Dose.hold.max - Dose.hold.step }
         let session = store.nextSession
         let hold = try XCTUnwrap(session.exercises.first { $0.pattern == pattern })
         XCTAssertEqual(hold.load, Dose.hold.max - Dose.hold.step, "the premise: 3×40 s")
@@ -203,8 +203,9 @@ final class NextTimeTests: AppStoreTestCase {
         let (store, session, hold) = (fx.store, fx.session, fx.hold)
         store.completeWorkout(session: session, result: .plan, raised: [hold.pattern: 1])
         XCTAssertEqual(store.raisedForNextPlan(hold.pattern), 1)
-        store.engineState = Engine.raiseDose(state: store.engineState,
-                                             pattern: hold.pattern, steps: 1)
+        store.update(refreshWidget: false) {
+            $0.engineState = Engine.raiseDose(state: $0.engineState, pattern: hold.pattern, steps: 1)
+        }
         XCTAssertEqual(store.raisedForNextPlan(hold.pattern), 0)
     }
 

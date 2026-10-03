@@ -13,7 +13,7 @@ extension AppStore {
         // Reset means "clean state", not "first run".
         if CommandLine.arguments.contains("--uitest-reset"),
            !CommandLine.arguments.contains("--uitest-onboarding") {
-            settings.onboardingCompleted = true
+            seed { $0.settings.onboardingCompleted = true }
         }
         // The suite must not depend on the weekday it runs on, so these flags
         // clear the rest days outright. --uitest-restday puts today back as a
@@ -26,13 +26,15 @@ extension AppStore {
         let seedFlags = ["--uitest-reset", "--uitest-session2", "--uitest-milestone",
                          "--uitest-long-session"]
         if seedFlags.contains(where: CommandLine.arguments.contains) {
-            settings.restWeekdays = []
+            seed { $0.settings.restWeekdays = [] }
         }
         // Session 1 completed yesterday → today offers session 2, the only
         // deterministic way to reach hold exercises.
         if CommandLine.arguments.contains("--uitest-session2") {
-            engineState = .initial
-            records = []
+            seed {
+                $0.engineState = .initial
+                $0.records = []
+            }
             completeWorkout(session: Engine.generateSession(engineState),
                             result: .plan,
                             date: Calendar.current.date(byAdding: .day, value: -1, to: .now)!)
@@ -40,7 +42,7 @@ extension AppStore {
         seedStateIfRequested()
         // Make today a rest day, whichever weekday that is.
         if CommandLine.arguments.contains("--uitest-restday") {
-            settings.restWeekdays = [Calendar.current.component(.weekday, from: .now)]
+            seed { $0.settings.restWeekdays = [Calendar.current.component(.weekday, from: .now)] }
         }
         // Only workout 95 days ago → the comeback card with the paths it
         // still has: the numbered offers and "Start from scratch" (#127). The
@@ -76,7 +78,7 @@ extension AppStore {
                 seeded.doses[p] = Dose.grid(Library.unit(p, top)).max
                 seeded.sets[p] = 4
             }
-            engineState = seeded
+            seed { $0.engineState = seeded }
         }
         // One workout away from several milestones. Seeds state only — the
         // milestones and the retrospective still come from the real path.
@@ -91,13 +93,15 @@ extension AppStore {
                 seeded.vars[ex.pattern] = top
                 seeded.doses[ex.pattern] = Dose.grid(Library.unit(ex.pattern, top)).max
             }
-            engineState = seeded
-            records = [WorkoutRecord(
-                sessionNumber: 1,
-                date: Calendar.current.date(byAdding: .day, value: -63, to: .now)!,
-                result: .plan,
-                totalProgressAfter: 0,
-                positionsAfter: Self.positions(of: .initial))]
+            seed {
+                $0.engineState = seeded
+                $0.records = [WorkoutRecord(
+                    sessionNumber: 1,
+                    date: Calendar.current.date(byAdding: .day, value: -63, to: .now)!,
+                    result: .plan,
+                    totalProgressAfter: 0,
+                    positionsAfter: Self.positions(of: .initial))]
+            }
         }
         // Only workout 20 days ago → today opens on the comeback card.
         if CommandLine.arguments.contains("--uitest-comeback") {
@@ -120,15 +124,17 @@ extension AppStore {
             for v in 1...target { journal[v] = Dose.grid(Library.unit(p, v)).max }
             seeded.shown[p] = journal
         }
-        engineState = seeded
-        records = [WorkoutRecord(
-            sessionNumber: 11,
-            date: Calendar.current.date(byAdding: .day, value: -daysAgo, to: .now)!,
-            result: .plan,
-            totalProgressAfter: Engine.totalProgress(seeded),
-            positionsAfter: Self.positions(of: seeded))]
-        settings.comebackDecidedFor = nil
-        settings.restWeekdays = []
+        seed {
+            $0.engineState = seeded
+            $0.records = [WorkoutRecord(
+                sessionNumber: 11,
+                date: Calendar.current.date(byAdding: .day, value: -daysAgo, to: .now)!,
+                result: .plan,
+                totalProgressAfter: Engine.totalProgress(seeded),
+                positionsAfter: Self.positions(of: seeded))]
+            $0.settings.comebackDecidedFor = nil
+            $0.settings.restWeekdays = []
+        }
     }
 }
 #endif

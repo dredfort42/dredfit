@@ -284,8 +284,8 @@ struct RatingUndo: Codable, Equatable {
 /// Here rather than in AppStore.swift for the same reason `AppStore+Backup`,
 /// `+Health` and `+Reminders` are where they are: that file sits against the
 /// linter's 1200-line ceiling, which is a CI error rather than a style
-/// opinion. Every one of these writes ONE field and persists — each decision
-/// that also moves the engine stays in AppStore.swift proper.
+/// opinion. Every one of these writes ONE field through `update` — each
+/// decision that also moves the engine stays in AppStore.swift proper.
 extension AppStore {
 
     /// Writes the choice and nothing else. The audio category follows from
@@ -294,15 +294,13 @@ extension AppStore {
     /// importing a backup replaces `settings` wholesale and calls none of
     /// these setters (UX review 05.09.2026, finding 53).
     func setPlaysTonesInSilentMode(_ on: Bool) {
-        settings.playsTonesInSilentMode = on
-        persist()
+        update { $0.settings.playsTonesInSilentMode = on }
     }
 
     /// Same shape, same reason: `RootView` reads the field and applies it with
     /// one `.preferredColorScheme`, so an imported backup arrives themed too.
     func setAppearance(_ choice: AppearanceChoice) {
-        settings.appearance = choice
-        persist()
+        update { $0.settings.appearance = choice }
     }
 
     /// The hint that the plan's number is an offer, both ways. Shown until the
@@ -312,12 +310,11 @@ extension AppStore {
 
     /// Called by the adjuster when a number is actually REPORTED, never when
     /// the panel merely opens: an opened panel proves the control was found,
-    /// which is not the same as knowing what it is for. `persist` only on the
+    /// which is not the same as knowing what it is for. Written only on the
     /// transition — this is spent once in a lifetime and read on every set.
     func markOwnNumberReported() {
         guard !settings.hasReportedOwnNumber else { return }
-        settings.hasReportedOwnNumber = true
-        persist()
+        update { $0.settings.hasReportedOwnNumber = true }
     }
 
     /// Three is the cap, and it is a floor argument rather than a taste: the
@@ -340,11 +337,10 @@ extension AppStore {
     func setBlockMoveHidden(_ id: String, _ hidden: Bool) {
         if hidden {
             guard canHideAnotherBlockMove, !settings.hiddenBlockMoveIDs.contains(id) else { return }
-            settings.hiddenBlockMoveIDs.insert(id)
+            update { $0.settings.hiddenBlockMoveIDs.insert(id) }
         } else {
             guard settings.hiddenBlockMoveIDs.contains(id) else { return }
-            settings.hiddenBlockMoveIDs.remove(id)
+            update { $0.settings.hiddenBlockMoveIDs.remove(id) }
         }
-        persist()
     }
 }

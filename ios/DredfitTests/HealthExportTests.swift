@@ -437,10 +437,12 @@ final class HealthExportTests: AppStoreTestCase {
         // Only a hand-edited journal gets here — which is the input every
         // decoder in this project is written against.
         let stamp = date(2026, 7, 10)
-        store.records = [
-            WorkoutRecord(sessionNumber: 1, date: stamp, result: .plan),
-            WorkoutRecord(sessionNumber: 1, date: stamp, result: .plan),
-        ]
+        store.update(refreshWidget: false) {
+            $0.records = [
+                WorkoutRecord(sessionNumber: 1, date: stamp, result: .plan),
+                WorkoutRecord(sessionNumber: 1, date: stamp, result: .plan),
+            ]
+        }
         XCTAssertEqual(store.records[0].id, store.records[1].id,
                        "the fixture is only a fixture if the ids really collide")
         _ = await store.enableHealth()

@@ -98,14 +98,41 @@ struct AppData: Codable {
     private struct Discard: Decodable { init(from decoder: Decoder) {} }
 }
 
+/// The four things the store persists, as one value a change is made to —
+/// see `AppStore.update`.
+struct PersistedState {
+    var engineState: EngineState
+    var records: [WorkoutRecord]
+    var settings: AppSettings
+    var pendingWorkout: WorkoutSnapshot?
+
+    /// Legacy high-water mark → per-record flags. The mark keeps being
+    /// written so a downgraded build still sees a sane value. Runs only on a
+    /// journal that carries no flags at all — a pre-flag legacy file. Once
+    /// any record is flagged, the flags are the source of truth, and
+    /// re-applying the mark could stamp workouts it was never about: a
+    /// foreign import's records, or a post-reset session 1 sitting under an
+    /// old high mark (issue #103).
+    mutating func migrateHealthMarkToFlags() {
+        guard settings.healthExportedThrough > 0,
+              !records.contains(where: { $0.healthExported != nil }) else { return }
+        for i in records.indices
+        where records[i].sessionNumber <= settings.healthExportedThrough {
+            records[i].healthExported = true
+        }
+    }
+}
+
 @Observable
 final class AppStore {
 
-    var engineState: EngineState = .initial
-    var records: [WorkoutRecord] = []
-    var settings = AppSettings()
+    // Set only in this file: from anywhere else a change goes through
+    // `update`, which writes it in the same call.
+    private(set) var engineState: EngineState = .initial
+    private(set) var records: [WorkoutRecord] = []
+    private(set) var settings = AppSettings()
     /// Read through `resumableWorkout`, which applies the validity checks.
-    var pendingWorkout: WorkoutSnapshot?
+    private(set) var pendingWorkout: WorkoutSnapshot?
 
     /// Whether the workout flow is on screen RIGHT NOW, in this process.
     ///
@@ -209,15 +236,16 @@ final class AppStore {
     /// What a read hands the store, at launch and on a reload alike — one
     /// path, so the two cannot drift apart.
     private func adopt(_ data: AppData?) {
-        engineState = data?.engineState ?? .initial
-        records = data?.records ?? []
-        settings = data?.settings ?? AppSettings()
-        pendingWorkout = data?.pendingWorkout
+        var state = PersistedState(engineState: data?.engineState ?? .initial,
+                                   records: data?.records ?? [],
+                                   settings: data?.settings ?? AppSettings(),
+                                   pendingWorkout: data?.pendingWorkout)
         // Stamped after the settings are in hand, because that is what carries
         // it: the card must survive a launch that ends before anyone reads it,
         // and a frozen launch is exactly the one that must not swallow it.
-        if data?.engineStateMigrated == true { settings.migrationNoticePending = true }
-        migrateHealthMarkToFlags()
+        if data?.engineStateMigrated == true { state.settings.migrationNoticePending = true }
+        state.migrateHealthMarkToFlags()
+        assign(state)
     }
 
     /// Re-anchors only when the day actually rolled over — mutating `today`
@@ -274,22 +302,6 @@ final class AppStore {
     // argument for it (#136): a length nobody chose was 45 minutes rather than
     // "no limit", because the budget shipped switched off and so protected
     // only the people who went looking for it.
-
-    /// Legacy high-water mark → per-record flags. The mark keeps being
-    /// written so a downgraded build still sees a sane value. Runs only on a
-    /// journal that carries no flags at all — a pre-flag legacy file. Once
-    /// any record is flagged, the flags are the source of truth, and
-    /// re-applying the mark could stamp workouts it was never about: a
-    /// foreign import's records, or a post-reset session 1 sitting under an
-    /// old high mark (issue #103).
-    func migrateHealthMarkToFlags() {
-        guard settings.healthExportedThrough > 0,
-              !records.contains(where: { $0.healthExported != nil }) else { return }
-        for i in records.indices
-        where records[i].sessionNumber <= settings.healthExportedThrough {
-            records[i].healthExported = true
-        }
-    }
 
     // MARK: - Derived
 
@@ -842,15 +854,42 @@ final class AppStore {
     static let reviewMinWorkouts = 5
     static let reviewMinDaysBetween = 60
 
-    // Apple Health, the local reminders and backup import/export moved to
-    // AppStore+Health, +Reminders and +Backup when this class body reached
-    // the linter's ceiling. What they still reach from here is why `persist`,
-    // the property setters, `migrateHealthMarkToFlags` and the two
-    // collaborators are no longer private.
-
     // MARK: - Persistence
 
-    func persist(refreshWidget: Bool = true) {
+    /// The way into the persisted state from outside this file: the change
+    /// and its write are one call, so no caller can make the one without the
+    /// other. Only what changed is assigned back, so a view that reads one
+    /// field is not invalidated by a change to another.
+    func update(refreshWidget: Bool = true, _ change: (inout PersistedState) -> Void) {
+        var state = persisted
+        change(&state)
+        assign(state)
+        persist(refreshWidget: refreshWidget)
+    }
+
+    #if DEBUG
+    /// The UI-test seeds: state set up in memory, as a launch would have read
+    /// it, and written with the first real change.
+    func seed(_ change: (inout PersistedState) -> Void) {
+        var state = persisted
+        change(&state)
+        assign(state)
+    }
+    #endif
+
+    private var persisted: PersistedState {
+        PersistedState(engineState: engineState, records: records,
+                       settings: settings, pendingWorkout: pendingWorkout)
+    }
+
+    private func assign(_ state: PersistedState) {
+        if state.engineState != engineState { engineState = state.engineState }
+        if state.records != records { records = state.records }
+        if state.settings != settings { settings = state.settings }
+        if state.pendingWorkout != pendingWorkout { pendingWorkout = state.pendingWorkout }
+    }
+
+    private func persist(refreshWidget: Bool = true) {
         // A journal that could not be read must never be overwritten by the
         // empty state that replaced it. The change stays in memory for this
         // launch and pins the freeze, so a later reload cannot swap it out.
@@ -945,6 +984,55 @@ extension AppStore {
         persist()
     }
 
+}
+
+// MARK: - Taking a rating back
+
+// Whether it can be taken back is AppStore+Rating's.
+extension AppStore {
+
+    /// - Returns: the milestones the NEW rating earns, exactly as the first
+    ///   tap would have. Empty when there is nothing to change.
+    @discardableResult
+    func changeLastRating(to result: FeedbackResult) -> [Milestone] {
+        guard let redo = ratingRedo(), redo.record.result != result else { return [] }
+        // A clean rollback, nothing carried across. The one thing the engine
+        // wrote after the rating is the shown-plan memory of the NEXT plan
+        // (`recordPlanShown` → `shownWork`/`shownOrd`), and `applyFeedback`
+        // rewrites that pair for every movement of the session it settles —
+        // so re-applying reproduces the post-rating state exactly, and the
+        // next render of Today, which is the screen this button is on, writes
+        // the new plan's memory back. Carrying the later pair over instead
+        // would describe a plan that no longer exists.
+        engineState = redo.undo.state
+        records.removeLast()
+        let facts = redo.record.setActuals ?? [:]
+        let milestones = completeWorkout(
+            session: redo.undo.session,
+            result: result,
+            overrides: SetFacts.overrides(facts, in: redo.undo.session.exercises),
+            setActuals: facts,
+            skipped: redo.record.skipped ?? [],
+            setsSkipped: redo.record.setsSkipped ?? [:],
+            probes: redo.record.probes ?? [:],
+            durationSec: redo.record.durationSec,
+            warmupSec: redo.record.warmupSec, cooldownSec: redo.record.cooldownSec,
+            interrupted: redo.record.interrupted,
+            // The addition was the person's decision about the movement, not
+            // about the rating: a changed rating keeps it.
+            raised: redo.record.raisedSteps ?? [:],
+            date: redo.record.date)
+        // Apple Health already holds this workout and nothing about it changed
+        // — same day, same duration, same effort. Carrying the mark over is
+        // what stops the backfill writing a second copy, and it lands in time:
+        // the export task is created on this actor and cannot begin until this
+        // call has returned.
+        if let last = records.indices.last {
+            records[last].healthExported = redo.record.healthExported
+        }
+        persist()
+        return milestones
+    }
 }
 
 // The pending pain report is gone. It existed to carry a "yes, it hurts"
