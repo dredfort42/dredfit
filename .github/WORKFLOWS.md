@@ -171,6 +171,40 @@ with a fallback to the latest stable if that major isn't on the runner. To move
 to a new Xcode major, change the `default` in
 `.github/actions/setup-xcode/action.yml` (one place, all jobs).
 
+### Compiler warnings are errors in CI
+
+Every compile in `ci.yml` treats a compiler warning as an error:
+`swift test --parallel -Xswiftc -warnings-as-errors` for the core package, and
+`SWIFT_TREAT_WARNINGS_AS_ERRORS=YES GCC_TREAT_WARNINGS_AS_ERRORS=YES` on the
+`xcodebuild` command line of the app unit tests, the Europe/Berlin run and the
+Release build. The settings live in the workflow, not in `project.pbxproj`, so
+a local build in Xcode is never blocked by them.
+
+The consequence is deliberate: when the runner gets a new Xcode, or the pinned
+major moves, any new compiler warning fails the job that compiles it until the
+code is fixed. In the two required jobs that blocks a merge — and the app
+unit-test job builds every test target, the UI-test sources included, so a
+warning in `ios/DredfitUITests` blocks one too, although the UI tests themselves
+gate nothing. A warning that only the Release build sees (say, a value that
+only `#if DEBUG` code reads, left unused without it) reddens the advisory
+`release-build` job alone.
+Reproduce a red run locally by passing the same flags:
+
+```sh
+xcodebuild build-for-testing -project ios/Dredfit.xcodeproj -scheme Dredfit \
+  -destination "platform=iOS Simulator,name=iPhone 17 Pro" \
+  CODE_SIGNING_ALLOWED=NO \
+  SWIFT_TREAT_WARNINGS_AS_ERRORS=YES GCC_TREAT_WARNINGS_AS_ERRORS=YES
+cd ios/DredfitCore && swift test --parallel -Xswiftc -warnings-as-errors
+```
+
+Build-tool notices that are not compiler diagnostics (for example
+`appintentsmetadataprocessor`'s "Metadata extraction skipped") are not affected.
+SwiftLint is not run with `--strict`: its warning/error split is intentional,
+and only its errors fail the Lint job.
+
+### SwiftLint version
+
 SwiftLint in CI runs from a pinned container image (`lint.yml`). Dependabot
 does not bump container images, so move that tag by hand, together with the
 local `swiftlint`.
