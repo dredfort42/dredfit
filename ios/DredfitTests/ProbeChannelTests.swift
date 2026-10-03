@@ -76,7 +76,7 @@ final class ProbeChannelTests: AppStoreTestCase {
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
         """
         try Data(json.utf8).write(to: tempURL)
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         // A state that fails to decode starts clean, and every assertion below
         // would then be true of a state nobody wrote. Position AND journal AND
         // lastHard: a clean start carries no journal at all, so checking the
