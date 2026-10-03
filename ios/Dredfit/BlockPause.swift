@@ -101,8 +101,10 @@ enum BlockPause {
 
     struct State: Equatable {
         private(set) var isPaused = false
-        private(set) var reentryRemaining = 0
-        private(set) var reentryEndDate: Date?
+        private var reentry = Countdown()
+
+        var reentryRemaining: Int { reentry.remaining }
+        var reentryEndDate: Date? { reentry.endDate }
 
         /// Frozen and standing still — the screen says so and nothing moves.
         var isHeld: Bool { isPaused && reentryRemaining == 0 }
@@ -116,8 +118,7 @@ enum BlockPause {
         /// the lead-in starts over on the next resume.
         mutating func hold() {
             isPaused = true
-            reentryRemaining = 0
-            reentryEndDate = nil
+            reentry.stand(at: 0)
         }
 
         /// A zero-length way back in would leave an end date the tick can
@@ -125,31 +126,33 @@ enum BlockPause {
         mutating func beginReentry(seconds: Int, now: Date) {
             guard seconds > 0 else { return hold() }
             isPaused = true
-            reentryRemaining = seconds
-            reentryEndDate = now.addingTimeInterval(TimeInterval(seconds))
+            reentry.start(seconds, now: now)
         }
 
         mutating func clear() { self = State() }
 
         /// The technique mini-sheet (issue #34) freezes the way back in like
         /// it freezes a position: reading is not getting back into position.
-        mutating func freezeForSheet() { reentryEndDate = nil }
+        mutating func freezeForSheet() { reentry.freeze() }
 
         /// ...and hands back exactly what it froze. A held block stays held —
         /// the user's pause outranks the sheet's, so the two cannot fight.
         mutating func thawAfterSheet(now: Date) {
             guard isReentering else { return }
-            reentryEndDate = now.addingTimeInterval(TimeInterval(reentryRemaining))
+            reentry.resume(now: now)
         }
 
         mutating func tick(now: Date, signalSeconds: Int) -> Tick {
-            guard let end = reentryEndDate else { return .nothing }
-            let remaining = max(0, Int(end.timeIntervalSince(now).rounded()))
-            guard remaining != reentryRemaining else { return .nothing }
-            guard remaining > 0 else { return .over }
-            let audible = remaining <= signalSeconds && remaining < reentryRemaining
-            reentryRemaining = remaining
-            return audible ? .signal : .redraw
+            switch reentry.read(now: now) {
+            case .unchanged:
+                return .nothing
+            case .ended:
+                return .over
+            case .second(let second):
+                let audible = reentry.signals(second, within: signalSeconds)
+                reentry.show(second)
+                return audible ? .signal : .redraw
+            }
         }
     }
 }

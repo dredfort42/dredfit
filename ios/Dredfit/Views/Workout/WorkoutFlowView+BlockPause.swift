@@ -48,10 +48,10 @@ extension WorkoutFlowView {
         // wall clock, so both used to be billed to the stretching (UX review
         // 05.09.2026, see `blockPausedSec`).
         beginBlockFreeze(absence: absence)
-        warmupEndDate = nil
-        cooldownEndDate = nil
+        warmupClock.freeze()
+        cooldownClock.freeze()
         if case .rest = phase {
-            restEndDate = nil
+            restClock.freeze()
             // The lock screen counts down to a date, so a frozen rest has to
             // take the date away — otherwise it keeps counting to zero and
             // then shows a rest that ended while the app is holding it.
@@ -134,15 +134,16 @@ extension WorkoutFlowView {
     private func restartFrozenStage() {
         switch phase {
         case .warmup:
-            warmupEndDate = Date.now.addingTimeInterval(TimeInterval(warmupRemaining))
+            warmupClock.resume(now: .now)
         case .cooldown:
-            cooldownEndDate = Date.now.addingTimeInterval(TimeInterval(cooldownRemaining))
+            cooldownClock.resume(now: .now)
         case .rest(let total):
-            restRemaining = BlockPause.restAfterPause(remaining: restRemaining, total: total)
-            restEndDate = Date.now.addingTimeInterval(TimeInterval(restRemaining))
+            let end = restClock.start(BlockPause.restAfterPause(remaining: restClock.remaining,
+                                                                total: total),
+                                      now: .now)
             liveActivity.update(.init(phase: .rest, title: nextLabel,
                                       detail: restActivityDetail,
-                                      restEndDate: restEndDate))
+                                      restEndDate: end))
             persistProgress()
         default:
             break
