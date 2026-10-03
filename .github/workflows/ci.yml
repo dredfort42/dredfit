@@ -149,6 +149,25 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Print failures and crashes from the result bundle
+        # xcbeautify drops xcodebuild's crash lines ("Restarting after
+        # unexpected exit…"), so a test killed by a crash shows only its name.
+        # The bundle keeps the message; print it where the log can be read.
+        if: failure()
+        run: |
+          xcresult=$(find ~/Library/Developer/Xcode/DerivedData -type d -name '*.xcresult' -path '*/Logs/Test/*' 2>/dev/null | sort | tail -1)
+          [ -n "$xcresult" ] || exit 0
+          xcrun xcresulttool get test-results tests --path "$xcresult" 2>/dev/null \
+            | python3 -c 'import json,sys
+          def walk(n, path=""):
+              name = n.get("name", "")
+              if n.get("nodeType") in ("Failure Message", "Runtime Warning") or "crash" in name.lower():
+                  print(path, "::", name)
+              for c in n.get("children", []):
+                  walk(c, path + "/" + name if n.get("nodeType") == "Test Case" else path or name)
+          d = json.load(sys.stdin)
+          for t in d.get("testNodes", []): walk(t)' | head -200 || true
+
       - name: Upload test results on failure
         if: failure()
         uses: actions/upload-artifact@v7
