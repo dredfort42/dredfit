@@ -36,7 +36,7 @@ extension AppStoreTests {
         // same-instant taps — every workout here gets its own day.
         let start = Date()
         for (url, performed) in [(tempURL!, true), (hurtURL, false)] {
-            let store = AppStore(storageURL: url)
+            let store = makeStore(storageURL: url)
             var day = 0
             // Every probe is passed: since §40.4 that is the only door into a
             // new movement, so a walk that ignored them would never get there.

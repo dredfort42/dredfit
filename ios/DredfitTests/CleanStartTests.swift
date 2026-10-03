@@ -49,7 +49,7 @@ final class CleanStartTests: AppStoreTestCase {
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
         """
         try Data(json.utf8).write(to: tempURL)
-        return AppStore(storageURL: tempURL)
+        return makeStore()
     }
 
     /// The engine keeps the place the person had earned. L=24 is tier 4 in v2
@@ -152,7 +152,7 @@ final class CleanStartTests: AppStoreTestCase {
     func testGarbageStillGivesACleanStart() throws {
         try Data(#"{"engineState":{"nonsense":1},"records":[],"settings":null}"#.utf8)
             .write(to: tempURL)
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         for p in Pattern.allCases {
             XCTAssertEqual(store.engineState.vars[p], 1, "\(p.rawValue): first rung")
         }

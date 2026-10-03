@@ -76,7 +76,7 @@ final class SetsNoticeTests: AppStoreTestCase {
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
         """
         try Data(json.utf8).write(to: tempURL)
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         // The seed must actually load — a state that failed to decode would
         // start clean and make every assertion here vacuous. Both coordinates
         // are checked: the position, and the journal a clean start has none of.

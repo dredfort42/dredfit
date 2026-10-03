@@ -54,7 +54,7 @@ final class MilestoneTests: AppStoreTestCase {
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
         """
         try Data(json.utf8).write(to: tempURL)
-        return AppStore(storageURL: tempURL)
+        return makeStore()
     }
 
     /// The session for a given counter, as a pure engine function — the probe

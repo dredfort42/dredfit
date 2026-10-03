@@ -68,7 +68,7 @@ final class FrozenLaunchTests: AppStoreTestCase {
     private func frozenStore(over payload: Data) throws -> AppStore {
         try payload.write(to: tempURL)
         try setPermissions(0o000)
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertTrue(store.journalFrozen,
                       "the fixture must actually freeze, or this suite is testing the cold path twice")
         XCTAssertFalse(store.showsMigrationNotice,
@@ -126,7 +126,7 @@ final class FrozenLaunchTests: AppStoreTestCase {
                        "and it announces nothing, because it has still not read the v2 state")
         XCTAssertEqual(try Data(contentsOf: tempURL), payload,
                        "the v2 file itself must be untouched — that is what carries the announcement on")
-        XCTAssertTrue(AppStore(storageURL: tempURL).showsMigrationNotice,
+        XCTAssertTrue(makeStore().showsMigrationNotice,
                       "so the very next launch announces it: deferred, never spent")
     }
 }

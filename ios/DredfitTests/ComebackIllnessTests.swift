@@ -49,7 +49,7 @@ final class ComebackIllnessTests: AppStoreTestCase {
         // nobody had seeded.
         try JSONEncoder().encode(Seed(engineState: state, records: [record]))
             .write(to: tempURL)
-        return AppStore(storageURL: tempURL)
+        return makeStore()
     }
 
     // MARK: - #128 the reentrancy guard

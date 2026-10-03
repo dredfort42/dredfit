@@ -42,7 +42,7 @@ final class ComebackTests: AppStoreTestCase {
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
         """
         try Data(json.utf8).write(to: tempURL)
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertEqual(store.engineState.doses[.pull], Self.seededDose,
                        "the seed must actually load — a state that failed to decode "
                        + "would start clean and make every assertion here vacuous")
@@ -66,7 +66,7 @@ final class ComebackTests: AppStoreTestCase {
     }
 
     func testNoCardWithoutHistory() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertFalse(store.shouldOfferComeback(),
                        "a fresh install has nothing to come back from")
         XCTAssertNil(store.gapDays())
@@ -110,7 +110,7 @@ final class ComebackTests: AppStoreTestCase {
         let store = try storeWithLastWorkout(daysAgo: 40)
         store.declineComeback()
 
-        let reloaded = AppStore(storageURL: tempURL)
+        let reloaded = makeStore()
         XCTAssertFalse(reloaded.shouldOfferComeback(),
                        "the answer is persisted, not just held in memory")
     }
@@ -178,7 +178,7 @@ final class ComebackTests: AppStoreTestCase {
                      "onboardingCompleted":true}}
         """
         try Data(v14.utf8).write(to: tempURL)
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
 
         // everything the old file knew survives
         XCTAssertEqual(store.settings.restWeekdays, [3])
@@ -208,7 +208,7 @@ final class ComebackTests: AppStoreTestCase {
         store.acceptComeback()
         let stamped = store.settings.comebackDecidedFor
 
-        let reloaded = AppStore(storageURL: tempURL)
+        let reloaded = makeStore()
         XCTAssertEqual(reloaded.settings.comebackDecidedFor, stamped)
     }
 }

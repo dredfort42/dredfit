@@ -42,7 +42,7 @@ final class NextTimeTests: AppStoreTestCase {
     }
 
     private func storeWithHold() throws -> HoldFixture {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         // The second session is the first with a hold in it (the rotation).
         store.completeWorkout(session: store.nextSession, result: .plan)
         let session = store.nextSession
@@ -56,7 +56,7 @@ final class NextTimeTests: AppStoreTestCase {
     func testTheAdditionLandsOverTheRatingAndIsRecorded() throws {
         let fx = try storeWithHold()
         let (store, session, hold) = (fx.store, fx.session, fx.hold)
-        let alone = AppStore(storageURL: tempURL)
+        let alone = makeStore()
         alone.completeWorkout(session: session, result: .plan)
         store.completeWorkout(session: session, result: .plan, raised: [hold.pattern: 1])
 
@@ -68,7 +68,7 @@ final class NextTimeTests: AppStoreTestCase {
                                        sets: without.sets, dose: without.dose,
                                        sub: without.sub ?? 0, cut: without.cut ?? 0) + 1,
                        "one step for next time is one growth event over the rating's")
-        let record = try XCTUnwrap(AppStore(storageURL: tempURL).records.last)
+        let record = try XCTUnwrap(makeStore().records.last)
         XCTAssertEqual(record.raisedSteps, [hold.pattern: 1], "the journal keeps the decision")
         // …and the store the record came from says so on tomorrow's plan.
         XCTAssertEqual(store.raisedForNextPlan(hold.pattern), 1)
@@ -117,7 +117,7 @@ final class NextTimeTests: AppStoreTestCase {
     /// a changed rating replays the two the person asked for and, under "on
     /// plan", lands both (review, 12.09.2026).
     func testTheJournalNamesTheShareThatLandedAndKeepsTheDecision() throws {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         let pattern = Pattern.coreAntiExt
         var tries = 0
         while !store.nextSession.exercises.contains(where: { $0.pattern == pattern }), tries < 12 {

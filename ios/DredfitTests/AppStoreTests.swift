@@ -8,7 +8,7 @@ final class AppStoreTests: AppStoreTestCase {
     // MARK: - Initial state and persistence
 
     func testFreshStoreStartsEmpty() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertEqual(store.totalProgress, 0)
         XCTAssertTrue(store.records.isEmpty)
         XCTAssertFalse(store.doneToday)
@@ -16,7 +16,7 @@ final class AppStoreTests: AppStoreTestCase {
     }
 
     func testCompleteWorkoutPersistsAndReloads() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         let session = store.nextSession
         let skippedPattern = session.exercises[1].pattern
         store.completeWorkout(session: session, result: .more,
@@ -24,7 +24,7 @@ final class AppStoreTests: AppStoreTestCase {
                               skipped: [skippedPattern])
 
         // a separate store on the same file sees the same state
-        let reloaded = AppStore(storageURL: tempURL)
+        let reloaded = makeStore()
         XCTAssertEqual(reloaded.records.count, 1)
         XCTAssertEqual(reloaded.engineState, store.engineState)
         XCTAssertEqual(reloaded.records.last?.result, .more)
@@ -54,7 +54,7 @@ final class AppStoreTests: AppStoreTestCase {
     /// The journal keeps the sets behind the number, so history can say
     /// "15 · 15 · 10" instead of the bare mean the engine was handed.
     func testTheJournalKeepsTheSetsBehindTheReportedNumber() throws {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         let session = store.nextSession
         let ex = session.exercises[0]
         // One rep short on the last set. A clean start plans 3×4, and the
@@ -65,7 +65,7 @@ final class AppStoreTests: AppStoreTestCase {
         store.completeWorkout(session: session, result: .plan,
                               overrides: overrides, setActuals: facts)
 
-        let record = try XCTUnwrap(AppStore(storageURL: tempURL).records.last)
+        let record = try XCTUnwrap(makeStore().records.last)
         XCTAssertEqual(record.setActuals?[ex.pattern], facts[ex.pattern])
         // ПЕРЕРАЗМЕЧЕНО §41.3 (v3.1): движок получает СЫРОЕ среднее (дробь),
         // а журнал тренировок хранит целое — он персистится, и менять его тип
@@ -77,7 +77,7 @@ final class AppStoreTests: AppStoreTestCase {
     }
 
     func testSkippedExerciseKeepsItsLevel() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         let session = store.nextSession
         let skippedPattern = session.exercises[2].pattern
         store.completeWorkout(session: session, result: .more, skipped: [skippedPattern])
@@ -103,7 +103,7 @@ final class AppStoreTests: AppStoreTestCase {
     /// is the ENGINE's guarantee and not the screen's: it must hold for a call
     /// no button can produce, or the gate would be all that stands behind it.
     func testEasyOverAFullySkippedSessionLeavesTheTotalAtZero() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         let session = store.nextSession
         let skipped = Set(session.exercises.map(\.pattern))
         store.completeWorkout(session: session, result: .more, skipped: skipped)

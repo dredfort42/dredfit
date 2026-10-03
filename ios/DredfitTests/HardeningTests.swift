@@ -13,7 +13,7 @@ final class HardeningTests: AppStoreTestCase {
     /// re-anchor the UI's "today" — the tab must not stay stuck on
     /// yesterday's completed state.
     func testRefreshDayReanchorsAcrossMidnight() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.completeWorkout(session: store.nextSession, result: .plan)
         XCTAssertTrue(store.doneToday)
 
@@ -31,7 +31,7 @@ final class HardeningTests: AppStoreTestCase {
     /// only the time-change observer moves the anchor — and it moves nothing
     /// but the date (the decay stays with `activate()`).
     func testAWorkoutFinishedPastMidnightReadsDoneOnceTheDateMoves() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         let pastMidnight = Calendar.current.date(byAdding: .day, value: 1, to: .now)!
         store.completeWorkout(session: store.nextSession, result: .plan, date: pastMidnight)
         XCTAssertFalse(store.doneToday, "the stale anchor still reads yesterday")
@@ -50,7 +50,7 @@ final class HardeningTests: AppStoreTestCase {
     /// is measured against now that there is no level to subtract from.
     @discardableResult
     private func seedWorkout(daysAgo: Int, at url: URL) -> [Pattern: RecordedPosition] {
-        let store = AppStore(storageURL: url, notifications: NotificationSpy())
+        let store = makeStore(storageURL: url, notifications: NotificationSpy())
         let date = Calendar.current.date(byAdding: .day, value: -daysAgo, to: .now)!
         for _ in 0..<4 {
             _ = store.completeWorkout(session: store.nextSession, result: .plan, date: date)
@@ -81,7 +81,7 @@ final class HardeningTests: AppStoreTestCase {
     func testColdLaunchActivationAppliesSilentDecay() {
         let seeded = seedWorkout(daysAgo: 10, at: tempURL)
 
-        let cold = AppStore(storageURL: tempURL, notifications: NotificationSpy())
+        let cold = makeStore(notifications: NotificationSpy())
         cold.activate()
         assertDecayed(cold, from: seeded, "the cold launch must see the decay")
 
@@ -90,7 +90,7 @@ final class HardeningTests: AppStoreTestCase {
         XCTAssertEqual(AppStore.positions(of: cold.engineState), once,
                        "a second activation in the same break must not decay again")
 
-        let relaunched = AppStore(storageURL: tempURL, notifications: NotificationSpy())
+        let relaunched = makeStore(notifications: NotificationSpy())
         relaunched.activate()
         XCTAssertEqual(AppStore.positions(of: relaunched.engineState), once,
                        "the stamp persists — a relaunch inside the break must not decay again")
@@ -101,7 +101,7 @@ final class HardeningTests: AppStoreTestCase {
             let url = tempURL.deletingPathExtension().appendingPathExtension("gap\(days).json")
             defer { try? FileManager.default.removeItem(at: url) }
             seedWorkout(daysAgo: days, at: url)
-            let cold = AppStore(storageURL: url, notifications: NotificationSpy())
+            let cold = makeStore(storageURL: url, notifications: NotificationSpy())
             let before = cold.engineState
             cold.activate()
             XCTAssertEqual(cold.engineState, before,
@@ -117,7 +117,7 @@ final class HardeningTests: AppStoreTestCase {
         let seeded = seedWorkout(daysAgo: 10, at: tempURL)
         try FileManager.default.setAttributes([.posixPermissions: 0o000],
                                               ofItemAtPath: tempURL.path)
-        let frozen = AppStore(storageURL: tempURL, notifications: NotificationSpy())
+        let frozen = makeStore(notifications: NotificationSpy())
         try FileManager.default.setAttributes([.posixPermissions: 0o644],
                                               ofItemAtPath: tempURL.path)
 
@@ -164,7 +164,7 @@ final class HardeningTests: AppStoreTestCase {
 
     func testEnablingReminderSchedulesWindowOfTrainingDays() async {
         let spy = NotificationSpy()
-        let store = AppStore(storageURL: tempURL, notifications: spy)
+        let store = makeStore(notifications: spy)
         store.setReminderTime(hour: 8, minute: 15)
         store.setReminderEnabled(true)
         await store.reminderAuthTask?.value
@@ -188,7 +188,7 @@ final class HardeningTests: AppStoreTestCase {
 
     func testMorningWorkoutRemovesTodaysReminder() async {
         let spy = NotificationSpy()
-        let store = AppStore(storageURL: tempURL, notifications: spy)
+        let store = makeStore(notifications: spy)
         // Every day trains — no rest-day interference. Read off the current
         // default rather than naming weekdays: spelling them out turned this
         // into a rest-day fixture the moment the default moved.
@@ -212,7 +212,7 @@ final class HardeningTests: AppStoreTestCase {
     /// rebuild must not schedule a new slot into today's past.
     func testEveningWorkoutKeepsWindowIntact() async {
         let spy = NotificationSpy()
-        let store = AppStore(storageURL: tempURL, notifications: spy)
+        let store = makeStore(notifications: spy)
         for wd in store.settings.restWeekdays { store.toggleRestDay(wd) }   // as above
         store.setReminderTime(hour: 9, minute: 0)
         store.setReminderEnabled(true)
@@ -229,7 +229,7 @@ final class HardeningTests: AppStoreTestCase {
 
     func testToggleRestDayReschedulesReminders() async {
         let spy = NotificationSpy()
-        let store = AppStore(storageURL: tempURL, notifications: spy)
+        let store = makeStore(notifications: spy)
         store.setReminderEnabled(true)
         await store.reminderAuthTask?.value
 
@@ -244,7 +244,7 @@ final class HardeningTests: AppStoreTestCase {
 
     func testLegacyWeeklySeriesIsClearedOnReschedule() {
         let spy = NotificationSpy()
-        let store = AppStore(storageURL: tempURL, notifications: spy)
+        let store = makeStore(notifications: spy)
         spy.scheduled.append(ScheduledReminder(id: "reminder-wd-3", fireDate: DateComponents()))
 
         store.rescheduleReminders(now: moment(hour: 6))
@@ -255,12 +255,12 @@ final class HardeningTests: AppStoreTestCase {
     /// A relaunch rebuilds the window on activation, and a time change moves
     /// every slot — the schedule never drifts from the settings.
     func testWindowSurvivesRestartAndTimeChange() async {
-        let first = AppStore(storageURL: tempURL, notifications: NotificationSpy())
+        let first = makeStore(notifications: NotificationSpy())
         first.setReminderEnabled(true)
         await first.reminderAuthTask?.value
 
         let spy = NotificationSpy()
-        let relaunched = AppStore(storageURL: tempURL, notifications: spy)
+        let relaunched = makeStore(notifications: spy)
         relaunched.rescheduleReminders(now: moment(hour: 6))   // scenePhase .active path
         XCTAssertEqual(spy.scheduled.count, 16, "a restart must rebuild the full window")
 
@@ -273,7 +273,7 @@ final class HardeningTests: AppStoreTestCase {
 
     func testDisablingReminderClearsEverything() async {
         let spy = NotificationSpy()
-        let store = AppStore(storageURL: tempURL, notifications: spy)
+        let store = makeStore(notifications: spy)
         store.setReminderEnabled(true)
         await store.reminderAuthTask?.value
         XCTAssertFalse(spy.scheduled.isEmpty)
@@ -285,7 +285,7 @@ final class HardeningTests: AppStoreTestCase {
     func testFrozenLaunchKeepsThePendingReminderWindow() async throws {
         try XCTSkipIf(getuid() == 0, "root reads through 0o000 permissions")
         let spy = NotificationSpy()
-        let seed = AppStore(storageURL: tempURL, notifications: spy)
+        let seed = makeStore(notifications: spy)
         seed.setReminderEnabled(true)
         await seed.reminderAuthTask?.value
         let pending = spy.scheduled.count
@@ -297,7 +297,7 @@ final class HardeningTests: AppStoreTestCase {
             try? FileManager.default.setAttributes([.posixPermissions: 0o644],
                                                    ofItemAtPath: tempURL.path)
         }
-        let frozen = AppStore(storageURL: tempURL, notifications: spy)
+        let frozen = makeStore(notifications: spy)
         frozen.rescheduleReminders()
         XCTAssertEqual(spy.scheduled.count, pending,
                        "a frozen launch must not clear the reminders it cannot see")
@@ -313,7 +313,7 @@ final class HardeningTests: AppStoreTestCase {
     func testReminderDenialFlipsToggleOff() async {
         let spy = NotificationSpy()
         spy.grant = false
-        let store = AppStore(storageURL: tempURL, notifications: spy)
+        let store = makeStore(notifications: spy)
         store.setReminderEnabled(true)
         await store.reminderAuthTask?.value
         XCTAssertFalse(store.settings.reminderEnabled, "denial must be reflected in the toggle")
@@ -324,7 +324,7 @@ final class HardeningTests: AppStoreTestCase {
     /// not let the imported reminderEnabled flag survive a denied authorization.
     func testImportWithRemindersRerunsAuthorization() async throws {
         let sourceSpy = NotificationSpy()
-        let source = AppStore(storageURL: tempURL, notifications: sourceSpy)
+        let source = makeStore(notifications: sourceSpy)
         source.setReminderEnabled(true)
         await source.reminderAuthTask?.value
         let backup = try source.exportURL()
@@ -335,7 +335,7 @@ final class HardeningTests: AppStoreTestCase {
         defer { try? FileManager.default.removeItem(at: otherURL) }
         let spy = NotificationSpy()
         spy.grant = false
-        let fresh = AppStore(storageURL: otherURL, notifications: spy)
+        let fresh = makeStore(storageURL: otherURL, notifications: spy)
         try fresh.importBackup(from: backup)
         await fresh.reminderAuthTask?.value
 

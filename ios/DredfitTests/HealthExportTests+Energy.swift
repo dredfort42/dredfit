@@ -16,7 +16,7 @@ extension HealthExportTests {
     /// which is the whole reason there is no default.
     func testWithoutABodyMassTheWorkoutExportsWithoutCalories() async {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
         store.completeWorkout(session: store.nextSession, result: .plan,
                               durationSec: 35 * 60)
@@ -35,7 +35,7 @@ extension HealthExportTests {
     /// difference: the spy did not count that read at all.
     func testWithoutABodyMassTheTwoSweepsAreSkipped() async {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
         store.completeWorkout(session: store.nextSession, result: .plan)
         await store.healthExportTask?.value
@@ -47,7 +47,7 @@ extension HealthExportTests {
 
     func testABodyMassProducesCalories() async throws {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
         store.setBodyMass(80)
         store.completeWorkout(session: store.nextSession, result: .plan,
@@ -64,7 +64,7 @@ extension HealthExportTests {
     /// only it: the workout itself still exports.
     func testAnOverlappingForeignWorkoutSuppressesOnlyTheCalories() async {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
         store.setBodyMass(80)
         let end = date(2026, 7, 14)
@@ -80,7 +80,7 @@ extension HealthExportTests {
     /// A workout on a neighbouring day is not this session.
     func testADistantForeignWorkoutLeavesTheCaloriesAlone() async {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
         store.setBodyMass(80)
         spy.foreign = [DateInterval(start: date(2026, 7, 12),
@@ -97,7 +97,7 @@ extension HealthExportTests {
     /// answer for exactly the person wearing a watch.
     func testTheWatchToggleSuppressesCalories() async {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
         store.setBodyMass(80)
         store.setWatchRecordsWorkouts(true)
@@ -115,7 +115,7 @@ extension HealthExportTests {
     /// fifty round trips through HealthKit.
     func testTheForeignSweepRunsOncePerBackfill() async {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         store.setBodyMass(80)
         for day in 10...14 {
             store.completeWorkout(session: store.nextSession, result: .plan,
@@ -133,7 +133,7 @@ extension HealthExportTests {
     /// the plan's length instead would inflate the rate and eat the calories.
     func testTheRestingSumIsReadOverTheExportedInterval() async {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
         store.setBodyMass(80)
         store.completeWorkout(session: store.nextSession, result: .plan,
@@ -151,7 +151,7 @@ extension HealthExportTests {
     func testEnablingHealthAdoptsTheRecordedBodyMass() async {
         let spy = HealthSpy()
         spy.bodyMassKg = 72.5
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
         XCTAssertEqual(store.settings.bodyMassKg, 72.5)
     }
@@ -165,7 +165,7 @@ extension HealthExportTests {
         let newer = HealthSpy()
         newer.bodyMassKg = 72.5
         newer.bodyMassDate = .now.addingTimeInterval(60)
-        let a = AppStore(storageURL: tempURL, health: newer)
+        let a = makeStore(health: newer)
         a.setBodyMass(90)
         _ = await a.enableHealth()
         XCTAssertEqual(a.settings.bodyMassKg, 72.5, "the scale spoke later")
@@ -175,7 +175,7 @@ extension HealthExportTests {
         let older = HealthSpy()
         older.bodyMassKg = 72.5
         older.bodyMassDate = .now.addingTimeInterval(-30 * 86_400)
-        let b = AppStore(storageURL: tempURL.appendingPathExtension("older"), health: older)
+        let b = makeStore(storageURL: tempURL.appendingPathExtension("older"), health: older)
         b.setBodyMass(90)
         _ = await b.enableHealth()
         XCTAssertEqual(b.settings.bodyMassKg, 90, "the typed number is the later statement")
@@ -191,7 +191,7 @@ extension HealthExportTests {
         let spy = HealthSpy()
         spy.bodyMassKg = 72.5
         spy.bodyMassDate = .now.addingTimeInterval(-30 * 86_400)
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
         XCTAssertEqual(store.settings.bodyMassKg, 72.5, "nothing typed yet: the reading is adopted, old or not")
 
@@ -233,7 +233,7 @@ extension HealthExportTests {
     func testANewHealthWeightIsPickedUpOnActivation() async {
         let spy = HealthSpy()
         spy.bodyMassKg = 72.5
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
 
         spy.bodyMassKg = 68
@@ -247,7 +247,7 @@ extension HealthExportTests {
     /// The typed number stands, and so does its origin.
     func testAnAbsentHealthWeightKeepsTheTypedOneAndTheField() async {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
         store.setBodyMass(90)
 
@@ -264,7 +264,7 @@ extension HealthExportTests {
     func testHealthGoingQuietKeepsTheLastReadingAndItsOrigin() async {
         let spy = HealthSpy()
         spy.bodyMassKg = 72.5
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
 
         spy.bodyMassKg = nil
@@ -279,7 +279,7 @@ extension HealthExportTests {
     func testTheWeightIsNotReadWhileHealthIsOff() async {
         let spy = HealthSpy()
         spy.bodyMassKg = 72.5
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         store.activate()
         await store.bodyMassTask?.value
         XCTAssertNil(store.settings.bodyMassKg)
@@ -295,8 +295,8 @@ extension HealthExportTests {
         // passed on the stale weight too, and proved nothing about the read.
         let stale = HealthSpy()
         stale.bodyMassKg = 60
-        let staleStore = AppStore(storageURL: tempURL.appendingPathExtension("stale"),
-                                  health: stale)
+        let staleStore = makeStore(storageURL: tempURL.appendingPathExtension("stale"),
+                                   health: stale)
         _ = await staleStore.enableHealth()
         staleStore.completeWorkout(session: staleStore.nextSession, result: .plan,
                                    durationSec: 35 * 60)
@@ -305,7 +305,7 @@ extension HealthExportTests {
 
         let spy = HealthSpy()
         spy.bodyMassKg = 60
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
 
         spy.bodyMassKg = 120   // weighed again, after the toggle went on
@@ -342,7 +342,7 @@ extension HealthExportTests {
     func testTheToggleGoingDownMidReadStopsTheWrite() async {
         let spy = HealthSpy()
         spy.bodyMassKg = 72.5
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
         store.setBodyMass(90)
 
@@ -364,7 +364,7 @@ extension HealthExportTests {
     func testACancelledRefreshDoesNotWrite() async {
         let spy = HealthSpy()
         spy.bodyMassKg = 68
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
         store.setBodyMass(90)
 
@@ -386,7 +386,7 @@ extension HealthExportTests {
     func testARestoredBackupDoesNotInheritTheHealthOrigin() async throws {
         let spy = HealthSpy()
         spy.bodyMassKg = 72.5
-        let donor = AppStore(storageURL: tempURL, health: spy)
+        let donor = makeStore(health: spy)
         _ = await donor.enableHealth()
         XCTAssertTrue(donor.settings.bodyMassFromHealth)
         let backup = try donor.exportURL()
@@ -396,7 +396,7 @@ extension HealthExportTests {
         defer { try? FileManager.default.removeItem(at: restoredURL) }
         // This device's Health answers nothing — as it would before the
         // permission sheet has ever been shown here.
-        let fresh = AppStore(storageURL: restoredURL, health: HealthSpy())
+        let fresh = makeStore(storageURL: restoredURL, health: HealthSpy())
         try fresh.importBackup(from: backup)
 
         XCTAssertEqual(fresh.settings.bodyMassKg, 72.5, "the number travels")
@@ -411,7 +411,7 @@ extension HealthExportTests {
     /// newest workout in it, which is at least as late as the number was in
     /// force — and both outrank a month-old sample.
     func testARestoredWeightOutranksAnOlderHealthReading() async throws {
-        let donor = AppStore(storageURL: tempURL, health: HealthSpy())
+        let donor = makeStore(health: HealthSpy())
         donor.completeWorkout(session: donor.nextSession, result: .plan)
         donor.setBodyMass(80)
         let backup = try donor.exportURL()
@@ -422,7 +422,7 @@ extension HealthExportTests {
         stale.bodyMassDate = .now.addingTimeInterval(-30 * 86_400)
         let restoredURL = tempURL.appendingPathExtension("restored")
         defer { try? FileManager.default.removeItem(at: restoredURL) }
-        let fresh = AppStore(storageURL: restoredURL, health: stale)
+        let fresh = makeStore(storageURL: restoredURL, health: stale)
         _ = await fresh.enableHealth()
         XCTAssertEqual(fresh.settings.bodyMassKg, 72.5, "before the restore Health's number is all there is")
         try fresh.importBackup(from: backup)
@@ -439,7 +439,7 @@ extension HealthExportTests {
         let legacy = tempURL.appendingPathExtension("legacy-backup")
         defer { try? FileManager.default.removeItem(at: legacy) }
         try JSONSerialization.data(withJSONObject: json).write(to: legacy)
-        let again = AppStore(storageURL: tempURL.appendingPathExtension("restored2"), health: stale)
+        let again = makeStore(storageURL: tempURL.appendingPathExtension("restored2"), health: stale)
         defer { try? FileManager.default.removeItem(at: tempURL.appendingPathExtension("restored2")) }
         _ = await again.enableHealth()
         try again.importBackup(from: legacy)
@@ -454,7 +454,7 @@ extension HealthExportTests {
     /// lie the file can tell: the row went read-only at "Not set" — calories
     /// off, and no field left to turn them back on.
     func testAFileClaimingHealthWithoutAWeightDecodesAsTyped() throws {
-        let seed = AppStore(storageURL: tempURL, health: HealthSpy())
+        let seed = makeStore(health: HealthSpy())
         var settings = seed.settings
         settings.healthEnabled = true
         settings.bodyMassFromHealth = true          // and no bodyMassKg
@@ -462,7 +462,7 @@ extension HealthExportTests {
                                                     records: [], settings: settings))
         try data.write(to: tempURL, options: .atomic)
 
-        let store = AppStore(storageURL: tempURL, health: HealthSpy())
+        let store = makeStore(health: HealthSpy())
         XCTAssertNil(store.settings.bodyMassKg)
         XCTAssertFalse(store.settings.bodyMassFromHealth, "no number, no claim about it")
     }
@@ -470,13 +470,13 @@ extension HealthExportTests {
     /// The date is a claim about a number too: without one it is dropped,
     /// and clearing the weight by hand drops it with the number.
     func testTheDateOfTheWeightIsNeverKeptWithoutTheNumber() throws {
-        let seed = AppStore(storageURL: tempURL, health: HealthSpy())
+        let seed = makeStore(health: HealthSpy())
         var settings = seed.settings
         settings.bodyMassDate = .now                // and no bodyMassKg
         let data = try JSONEncoder().encode(AppData(engineState: seed.engineState,
                                                     records: [], settings: settings))
         try data.write(to: tempURL, options: .atomic)
-        let store = AppStore(storageURL: tempURL, health: HealthSpy())
+        let store = makeStore(health: HealthSpy())
         XCTAssertNil(store.settings.bodyMassDate)
 
         store.setBodyMass(80)
@@ -490,10 +490,10 @@ extension HealthExportTests {
     func testTheHealthOriginOfTheWeightPersists() async {
         let spy = HealthSpy()
         spy.bodyMassKg = 72.5
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
 
-        let reloaded = AppStore(storageURL: tempURL, health: HealthSpy())
+        let reloaded = makeStore(health: HealthSpy())
         XCTAssertEqual(reloaded.settings.bodyMassKg, 72.5)
         XCTAssertTrue(reloaded.settings.bodyMassFromHealth)
     }
@@ -502,13 +502,13 @@ extension HealthExportTests {
     /// leave the field empty rather than filled with something.
     func testARefusedBodyMassReadLeavesTheFieldEmpty() async {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
         XCTAssertNil(store.settings.bodyMassKg)
     }
 
     func testAnImpossibleBodyMassIsNotStored() {
-        let store = AppStore(storageURL: tempURL, health: HealthSpy())
+        let store = makeStore(health: HealthSpy())
         for mass in [0.0, -5.0, .nan, .infinity] {
             store.setBodyMass(mass)
             XCTAssertNil(store.settings.bodyMassKg, "\(mass) kg is not a body")
@@ -520,10 +520,10 @@ extension HealthExportTests {
     /// The weight and the watch answer both survive a relaunch — they decide
     /// what every future export writes.
     func testBodyMassAndWatchAnswerPersist() {
-        let store = AppStore(storageURL: tempURL, health: HealthSpy())
+        let store = makeStore(health: HealthSpy())
         store.setBodyMass(77.5)
         store.setWatchRecordsWorkouts(true)
-        let reloaded = AppStore(storageURL: tempURL, health: HealthSpy())
+        let reloaded = makeStore(health: HealthSpy())
         XCTAssertEqual(reloaded.settings.bodyMassKg, 77.5)
         XCTAssertTrue(reloaded.settings.watchRecordsWorkouts)
     }
@@ -565,14 +565,14 @@ extension HealthExportTests {
     /// person who declined both.
     func testDecliningBothBlocksLowersTheCalorie() async throws {
         let withBlocks = HealthSpy()
-        let a = AppStore(storageURL: tempURL, health: withBlocks)
+        let a = makeStore(health: withBlocks)
         _ = await a.enableHealth()
         a.setBodyMass(80)
         a.completeWorkout(session: a.nextSession, result: .plan, durationSec: 35 * 60)
         await a.healthExportTask?.value
 
         let declined = HealthSpy()
-        let b = AppStore(storageURL: tempURL.appendingPathExtension("b"), health: declined)
+        let b = makeStore(storageURL: tempURL.appendingPathExtension("b"), health: declined)
         _ = await b.enableHealth()
         b.setBodyMass(80)
         b.completeWorkout(session: b.nextSession, result: .plan, durationSec: 35 * 60,
@@ -589,8 +589,8 @@ extension HealthExportTests {
         var kcal: [Double] = []
         for seconds in [0, 150, 300] {
             let spy = HealthSpy()
-            let store = AppStore(storageURL: tempURL.appendingPathExtension("\(seconds)"),
-                                 health: spy)
+            let store = makeStore(storageURL: tempURL.appendingPathExtension("\(seconds)"),
+                                  health: spy)
             _ = await store.enableHealth()
             store.setBodyMass(80)
             store.completeWorkout(session: store.nextSession, result: .plan,
@@ -606,7 +606,7 @@ extension HealthExportTests {
     /// calorie at all, even though its blocks really did take minutes.
     func testASessionWithEverythingSkippedWritesNoCalorie() async {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
         store.setBodyMass(80)
         let session = store.nextSession
@@ -622,10 +622,10 @@ extension HealthExportTests {
     /// The measurement is part of what happened, so it has to survive the
     /// relaunch that the record itself survives.
     func testBlockMeasurementsSurviveAReload() throws {
-        let store = AppStore(storageURL: tempURL, health: HealthSpy())
+        let store = makeStore(health: HealthSpy())
         store.completeWorkout(session: store.nextSession, result: .plan,
                               durationSec: 30 * 60, warmupSec: 0, cooldownSec: 210)
-        let reloaded = AppStore(storageURL: tempURL, health: HealthSpy())
+        let reloaded = makeStore(health: HealthSpy())
         let record = try XCTUnwrap(reloaded.records.last)
         XCTAssertEqual(record.warmupSec, 0)
         XCTAssertEqual(record.cooldownSec, 210)
@@ -635,7 +635,7 @@ extension HealthExportTests {
     /// as "unknown", which falls back to the plan — not as "declined".
     func testAnOlderRecordFallsBackToThePlannedBlocks() async throws {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
         store.setBodyMass(80)
         store.completeWorkout(session: store.nextSession, result: .plan, durationSec: 35 * 60)
@@ -654,7 +654,7 @@ extension HealthExportTests {
     /// own history later.
     func testTheEnergySampleCarriesTheRecordIdentity() async throws {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
         store.setBodyMass(80)
         store.completeWorkout(session: store.nextSession, result: .plan, durationSec: 35 * 60)

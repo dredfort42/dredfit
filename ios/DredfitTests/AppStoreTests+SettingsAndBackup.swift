@@ -14,12 +14,12 @@ import DredfitCore
 extension AppStoreTests {
 
     func testSettingsPersistAcrossReload() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.toggleRestDay(3)          // Tuesday joins the Mon+Wed+Fri default
         store.setSounds(false)
         store.setReminderTime(hour: 7, minute: 30)
 
-        let reloaded = AppStore(storageURL: tempURL)
+        let reloaded = makeStore()
         XCTAssertEqual(reloaded.settings.restWeekdays, [2, 3, 4, 6])
         XCTAssertFalse(reloaded.settings.soundsEnabled)
         XCTAssertEqual(reloaded.settings.reminderHour, 7)
@@ -27,7 +27,7 @@ extension AppStoreTests {
     }
 
     func testRestDaysFollowSettings() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertFalse(store.isRestDay(date(2026, 7, 16)), "Thursday is not rest by default")
         store.toggleRestDay(5)          // Thursday (Calendar weekday 5)
         XCTAssertTrue(store.isRestDay(date(2026, 7, 16)), "Thursday must follow the setting")
@@ -36,7 +36,7 @@ extension AppStoreTests {
     }
 
     func testAtLeastOneTrainingDayRemains() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         for weekday in 1...7 { store.toggleRestDay(weekday) }   // tries to rest all week
         XCTAssertLessThanOrEqual(store.settings.restWeekdays.count, 6,
                                  "the last training day must not become rest")
@@ -47,7 +47,7 @@ extension AppStoreTests {
     // MARK: - Backup
 
     func testExportImportRoundTrip() throws {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.completeWorkout(session: store.nextSession, result: .more,
                               date: date(2026, 7, 16))
         store.toggleRestDay(2)
@@ -58,7 +58,7 @@ extension AppStoreTests {
         let otherURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-import-\(UUID().uuidString).json")
         defer { try? FileManager.default.removeItem(at: otherURL) }
-        let fresh = AppStore(storageURL: otherURL)
+        let fresh = makeStore(storageURL: otherURL)
         XCTAssertTrue(fresh.records.isEmpty)
         try fresh.importBackup(from: backup)
 
@@ -66,13 +66,13 @@ extension AppStoreTests {
         XCTAssertEqual(fresh.records, store.records)
         XCTAssertEqual(fresh.settings, store.settings)
         // and the import persisted
-        XCTAssertEqual(AppStore(storageURL: otherURL).records.count, 1)
+        XCTAssertEqual(makeStore(storageURL: otherURL).records.count, 1)
     }
 
     /// The file carries the weight: an export replaces the previous one
     /// instead of leaving a copy behind in tmp.
     func testExportKeepsOnlyTheLatestFile() throws {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         let first = try store.exportURL()
         let second = try store.exportURL()
         defer { try? FileManager.default.removeItem(at: second.deletingLastPathComponent()) }
@@ -88,7 +88,7 @@ extension AppStoreTests {
         let otherURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-badimport-\(UUID().uuidString).json")
         defer { try? FileManager.default.removeItem(at: otherURL) }
-        let store = AppStore(storageURL: otherURL)
+        let store = makeStore(storageURL: otherURL)
         XCTAssertThrowsError(try store.importBackup(from: tempURL),
                              "a foreign JSON must not import")
         XCTAssertTrue(store.records.isEmpty, "state must stay intact after a failed import")
@@ -97,7 +97,7 @@ extension AppStoreTests {
     /// One setting of an unexpected shape costs that setting, never the
     /// journal beside it (it used to fail the whole file into quarantine).
     func testAMalformedSettingDoesNotCostTheJournal() throws {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.completeWorkout(session: store.nextSession, result: .plan)
         var json = try XCTUnwrap(try JSONSerialization.jsonObject(with: Data(contentsOf: tempURL))
             as? [String: Any])
@@ -107,7 +107,7 @@ extension AppStoreTests {
         json["settings"] = settings
         try JSONSerialization.data(withJSONObject: json).write(to: tempURL)
 
-        let relaunched = AppStore(storageURL: tempURL)
+        let relaunched = makeStore()
         XCTAssertEqual(relaunched.records.count, 1, "the journal must survive")
         XCTAssertTrue(relaunched.settings.soundsEnabled, "the bad field falls back to its default")
         XCTAssertEqual(relaunched.settings.reminderHour, 23, "held to the clock")
@@ -119,7 +119,7 @@ extension AppStoreTests {
         let otherURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-partial-\(UUID().uuidString).json")
         defer { try? FileManager.default.removeItem(at: otherURL) }
-        let store = AppStore(storageURL: otherURL)
+        let store = makeStore(storageURL: otherURL)
         store.completeWorkout(session: store.nextSession, result: .plan)
         let before = store.engineState
         for junk in [#"{"records":[]}"#, #"{"engineState":{"nonsense":true},"records":[]}"#] {

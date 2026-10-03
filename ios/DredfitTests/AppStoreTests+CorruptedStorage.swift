@@ -16,7 +16,7 @@ extension AppStoreTests {
 
     func testCorruptedStorageFallsBackToInitial() throws {
         try Data("{not a json".utf8).write(to: tempURL)
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertTrue(store.records.isEmpty, "a corrupted file should give a clean start, not a crash")
         XCTAssertEqual(store.totalProgress, 0)
     }
@@ -27,7 +27,7 @@ extension AppStoreTests {
             .appendingPathComponent(tempURL.deletingPathExtension().lastPathComponent + ".corrupt.json")
         defer { try? FileManager.default.removeItem(at: corruptURL) }
 
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.setSounds(false)   // any persisted mutation
         XCTAssertTrue(FileManager.default.fileExists(atPath: corruptURL.path),
                       "the unreadable file must be kept aside")
@@ -41,7 +41,7 @@ extension AppStoreTests {
     /// resume normal persistence once the file becomes readable again.
     func testUnreadableStateFileFreezesPersistenceUntilReloaded() throws {
         try XCTSkipIf(getuid() == 0, "root reads through 0o000 permissions")
-        let seed = AppStore(storageURL: tempURL)
+        let seed = makeStore()
         seed.completeWorkout(session: seed.nextSession, result: .plan)
         let original = try Data(contentsOf: tempURL)
         try FileManager.default.setAttributes([.posixPermissions: 0o000],
@@ -51,7 +51,7 @@ extension AppStoreTests {
                                                    ofItemAtPath: tempURL.path)
         }
 
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertTrue(store.records.isEmpty, "the unreadable launch degrades to empty state")
         XCTAssertFalse(store.shouldShowOnboarding, "an unread journal is not a fresh install")
         XCTAssertTrue(store.journalFrozen)
@@ -68,20 +68,20 @@ extension AppStoreTests {
         // it — that is the prewarm-before-first-unlock case this is all for.
         try FileManager.default.setAttributes([.posixPermissions: 0o000],
                                               ofItemAtPath: tempURL.path)
-        let untouched = AppStore(storageURL: tempURL)
+        let untouched = makeStore()
         XCTAssertTrue(untouched.journalFrozen)
         try FileManager.default.setAttributes([.posixPermissions: 0o644],
                                               ofItemAtPath: tempURL.path)
         untouched.reloadIfNeeded()
         XCTAssertEqual(untouched.records.count, 1, "the journal must load once readable")
         untouched.setSounds(false)
-        XCTAssertFalse(AppStore(storageURL: tempURL).settings.soundsEnabled,
+        XCTAssertFalse(makeStore().settings.soundsEnabled,
                        "persistence must resume after a successful reload")
     }
 
     func testUsedFrozenLaunchIsNotReplacedByTheFileItCouldNotRead() throws {
         try XCTSkipIf(getuid() == 0, "root reads through 0o000 permissions")
-        let seed = AppStore(storageURL: tempURL)
+        let seed = makeStore()
         for _ in 0..<3 { seed.completeWorkout(session: seed.nextSession, result: .plan) }
         let original = try Data(contentsOf: tempURL)
         try FileManager.default.setAttributes([.posixPermissions: 0o000],
@@ -91,7 +91,7 @@ extension AppStoreTests {
                                                    ofItemAtPath: tempURL.path)
         }
 
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.completeWorkout(session: store.nextSession, result: .plan)
         XCTAssertEqual(store.records.count, 1, "the frozen launch keeps its own work in memory")
 
@@ -123,7 +123,7 @@ extension AppStoreTests {
             .appendingPathComponent(tempURL.deletingPathExtension().lastPathComponent + ".corrupt.json")
         defer { try? FileManager.default.removeItem(at: corruptURL) }
 
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertEqual(store.records.count, 1, "the readable record must survive")
         XCTAssertEqual(store.records.first?.sessionNumber, 1)
         // RE-MARKED §41.7 (v3.1, 26.08.2026), class: the test pinned the defect.

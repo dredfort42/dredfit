@@ -49,7 +49,7 @@ final class SetSkipTests: AppStoreTestCase {
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
         """
         try Data(json.utf8).write(to: tempURL)
-        return AppStore(storageURL: tempURL)
+        return makeStore()
     }
 
     /// Rotation does not show every movement every session, so "the next
@@ -211,7 +211,7 @@ final class SetSkipTests: AppStoreTestCase {
         store.completeWorkout(session: store.nextSession, result: .plan,
                               setsSkipped: [.squat: 2])
 
-        let reloaded = AppStore(storageURL: tempURL)
+        let reloaded = makeStore()
         XCTAssertEqual(reloaded.records.last?.setsSkipped, [.squat: 2],
                        "the journal lost the sets that were skipped")
     }
