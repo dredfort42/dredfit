@@ -483,7 +483,7 @@ struct HistorySheet: View {
     /// It is a wall clock, not a measure of effort — `EnergyEstimate` calls it
     /// "a CEILING, never a source" and clamps it to the plan before pricing
     /// calories, because it also holds a rest run out in the background, a
-    /// paused hold and, for a workout resumed inside `workoutResumeWindow`, the
+    /// paused hold and, for a workout resumed inside `WorkoutSessionStore.resumeWindow`, the
     /// whole gap between two visits. So the line names what it counts, and
     /// stands down once the clock has run past twice the plan: past that the
     /// number is about the day rather than the training, and "took 150 min" is
