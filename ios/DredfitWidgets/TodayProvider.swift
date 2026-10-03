@@ -23,8 +23,7 @@ struct TodayEntry: TimelineEntry {
     let planMinutes: Int?
     /// `var` with no initializer, so the memberwise initializer defaults it:
     /// a snapshot written before the floor existed carries none, and the
-    /// lock-screen line then prints the full number alone as it always did
-    /// (UX review 05.09.2026).
+    /// lock-screen line then prints the full number alone.
     var planMinutesFloor: Int?
     let plan: [WidgetSnapshot.PlanRow]
 
