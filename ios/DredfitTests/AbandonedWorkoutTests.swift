@@ -38,11 +38,11 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
     // MARK: - The defect itself
 
     func testAWorkoutLeftOnTheRatingIsRecordedAfterTheOccasionPasses() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         let last = Date.now.addingTimeInterval(-forgotten - 60)
         store.saveWorkoutSnapshot(atFeedback(for: store, savedAt: last))
 
-        let relaunched = AppStore(storageURL: tempURL)
+        let relaunched = makeStore()
         XCTAssertNil(relaunched.resumableWorkout(),
                      "the occasion is over — it is not offered back")
         XCTAssertTrue(relaunched.settleAbandonedWorkout())
@@ -56,11 +56,11 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
     /// The half of the fix that is easy to leave out: rating yesterday's
     /// session this morning must not move it into today.
     func testTheSettledWorkoutKeepsTheDayItHappenedOn() throws {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         let lastNight = Date.now.addingTimeInterval(-forgotten - 2 * 60 * 60)
         store.saveWorkoutSnapshot(atFeedback(for: store, savedAt: lastNight))
 
-        let relaunched = AppStore(storageURL: tempURL)
+        let relaunched = makeStore()
         XCTAssertTrue(relaunched.settleAbandonedWorkout())
         let record = try XCTUnwrap(relaunched.records.first)
         XCTAssertEqual(record.date.timeIntervalSince1970,
@@ -76,10 +76,10 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
     }
 
     func testAFreshSnapshotIsLeftAloneToBeResumed() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.saveWorkoutSnapshot(atFeedback(for: store, savedAt: .now))
 
-        let relaunched = AppStore(storageURL: tempURL)
+        let relaunched = makeStore()
         XCTAssertFalse(relaunched.settleAbandonedWorkout(),
                        "inside the window it is the same occasion — offer it back")
         XCTAssertNotNil(relaunched.pendingWorkout)
@@ -89,13 +89,13 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
     /// The guards that make the numbers meaningful: a snapshot describing a
     /// plan the engine would no longer hand out has nothing honest to record.
     func testASnapshotOfADifferentPlanIsDroppedRatherThanRecorded() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         let last = Date.now.addingTimeInterval(-forgotten - 60)
         var snap = atFeedback(for: store, savedAt: last)
         snap.fingerprint = "not the plan on offer"
         store.saveWorkoutSnapshot(snap)
 
-        let relaunched = AppStore(storageURL: tempURL)
+        let relaunched = makeStore()
         XCTAssertFalse(relaunched.settleAbandonedWorkout())
         XCTAssertTrue(relaunched.records.isEmpty,
                       "a plan nobody trained must not reach the journal")
@@ -103,14 +103,14 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
     }
 
     func testASnapshotWithoutProgressRecordsNothing() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         let last = Date.now.addingTimeInterval(-forgotten - 60)
         store.saveWorkoutSnapshot(WorkoutSnapshot(
             sessionNumber: 1, exIndex: 0, setIndex: 0,
             workoutStart: last.addingTimeInterval(-60), savedAt: last,
             fingerprint: WorkoutSnapshot.fingerprint(of: store.nextSession)))
 
-        let relaunched = AppStore(storageURL: tempURL)
+        let relaunched = makeStore()
         XCTAssertFalse(relaunched.settleAbandonedWorkout())
         XCTAssertTrue(relaunched.records.isEmpty)
     }
@@ -120,11 +120,11 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
     /// BEFORE the day re-anchors, or the decay measures a gap to a workout
     /// that had not been written yet.
     func testActivateSettlesTheAbandonedWorkout() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.saveWorkoutSnapshot(
             atFeedback(for: store, savedAt: .now.addingTimeInterval(-forgotten - 60)))
 
-        let relaunched = AppStore(storageURL: tempURL)
+        let relaunched = makeStore()
         relaunched.activate()
         XCTAssertEqual(relaunched.records.count, 1)
     }
@@ -140,7 +140,7 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
     /// Every other test here settles through a freshly built store — process
     /// death only — which is why the live-app case was green by omission.
     func testAWorkoutStillOnScreenIsNeverSettledUnderneathIt() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.saveWorkoutSnapshot(
             atFeedback(for: store, savedAt: .now.addingTimeInterval(-forgotten - 60)))
         store.workoutFlowAppeared()
@@ -164,11 +164,11 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
     /// card stops offering to carry on and starts ASKING — and nothing is
     /// written until the answer comes.
     func testPastTheOccasionTheWorkoutIsOfferedForAnAnswerAndNotRecorded() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.saveWorkoutSnapshot(
             atFeedback(for: store, savedAt: .now.addingTimeInterval(-window - 60)))
 
-        let relaunched = AppStore(storageURL: tempURL)
+        let relaunched = makeStore()
         XCTAssertNil(relaunched.resumableWorkout(),
                      "not the same occasion any more")
         XCTAssertNotNil(relaunched.unfinishedWorkoutAwaitingAnswer(),
@@ -184,11 +184,11 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
     /// says how it went themselves (owner, 06.09.2026). The only thing decided
     /// for them is a workout nobody came back to for twelve hours.
     func testNothingInThisBandCanBeRecordedWithoutTheAthlete() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.saveWorkoutSnapshot(
             atFeedback(for: store, savedAt: .now.addingTimeInterval(-window - 60)))
 
-        let relaunched = AppStore(storageURL: tempURL)
+        let relaunched = makeStore()
         // Every automatic path there is, run twice for good measure.
         relaunched.activate()
         XCTAssertFalse(relaunched.settleAbandonedWorkout())
@@ -202,11 +202,11 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
     /// midnight `trainingDays` counts: a session left at 23:30 and opened at
     /// 00:30 is one midnight and one hour, and one hour is not "forgotten".
     func testTheQuestionStandsUntilTheWorkoutIsForgotten() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.saveWorkoutSnapshot(
             atFeedback(for: store, savedAt: .now.addingTimeInterval(-forgotten + 60)))
 
-        let relaunched = AppStore(storageURL: tempURL)
+        let relaunched = makeStore()
         XCTAssertNotNil(relaunched.unfinishedWorkoutAwaitingAnswer(),
                         "a minute short of the threshold is still a question")
         XCTAssertFalse(relaunched.settleAbandonedWorkout())
@@ -216,11 +216,11 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
     /// Once it IS forgotten, the question is gone — the card must not offer an
     /// answer to something already recorded.
     func testAForgottenWorkoutIsNoLongerOfferedAsAQuestion() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.saveWorkoutSnapshot(
             atFeedback(for: store, savedAt: .now.addingTimeInterval(-forgotten - 60)))
 
-        let relaunched = AppStore(storageURL: tempURL)
+        let relaunched = makeStore()
         XCTAssertNil(relaunched.unfinishedWorkoutAwaitingAnswer())
         XCTAssertTrue(relaunched.settleAbandonedWorkout())
     }
@@ -285,7 +285,7 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
     /// unfinished, which handed a fully performed movement to the engine as a
     /// skip and erased the seconds that screen exists to confirm.
     func testAFinishedMovementOnItsSummaryIsNotASkip() {
-        let exercises = AppStore(storageURL: tempURL).nextSession.exercises
+        let exercises = makeStore().nextSession.exercises
         let settled = SetFacts.settlement(in: exercises,
                                           exIndex: 0,
                                           setsBehind: exercises[0].sets,
@@ -300,7 +300,7 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
     /// Both numbers come off disk. A negative index trapped inside
     /// `activate()` on every launch; it now reads as the first exercise.
     func testANegativeSnapshotIndexSettlesLikeTheFirstExercise() {
-        let exercises = AppStore(storageURL: tempURL).nextSession.exercises
+        let exercises = makeStore().nextSession.exercises
         for done in [false, true] {
             let clamped = SetFacts.settlement(in: exercises, exIndex: -3, setsBehind: -5,
                                               currentIsDone: done, alreadySkipped: [:])
@@ -336,7 +336,7 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
     /// Below the floor there is no movement to keep, and it is named as
     /// unfinished rather than quietly counted.
     func testASingleSetIntoAMovementLeavesItUnfinished() throws {
-        let exercises = AppStore(storageURL: tempURL).nextSession.exercises
+        let exercises = makeStore().nextSession.exercises
         let settled = SetFacts.settlement(in: exercises,
                                           exIndex: 1,
                                           setsBehind: 1,
@@ -348,7 +348,7 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
     }
 
     func testMovementsNeverReachedAreSkips() {
-        let exercises = AppStore(storageURL: tempURL).nextSession.exercises
+        let exercises = makeStore().nextSession.exercises
         let settled = SetFacts.settlement(in: exercises,
                                           exIndex: 1,
                                           setsBehind: 0,
@@ -366,7 +366,7 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
     /// "not finished" and "skipped" are different facts to a person even
     /// though the engine freezes the ladder either way (owner, 05.09.2026).
     func testTheJournalNamesTheUnfinishedMovement() throws {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         let session = store.nextSession
         store.completeWorkout(session: session, result: .plan,
                               skipped: [session.exercises[2].pattern],
@@ -376,13 +376,13 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
     }
 
     func testTheUnfinishedMovementSurvivesARelaunch() throws {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         let session = store.nextSession
         store.completeWorkout(session: session, result: .plan,
                               skipped: [session.exercises[2].pattern],
                               interrupted: session.exercises[2].pattern)
 
-        let relaunched = AppStore(storageURL: tempURL)
+        let relaunched = makeStore()
         let record = try XCTUnwrap(relaunched.records.first)
         XCTAssertEqual(record.interrupted, session.exercises[2].pattern,
                        "a persisted field that does not come back is not persisted")
