@@ -1,10 +1,10 @@
 //
 //  A recorded position, stated the way a plan states one.
 //
-//  Moved out of HistorySheet when the summary of a finished hold started
-//  saying what the next plan will be (§41.13): two screens describing one
-//  position in two spellings is how "After: 30-30-25 s" and "The app will
-//  set 3×30 s" come to disagree about the same numbers.
+//  Shared by HistorySheet and the summary of a finished hold, which says
+//  what the next plan will be: two screens describing one position in two
+//  spellings is how "After: 30-30-25 s" and "The app will set 3×30 s" come
+//  to disagree about the same numbers.
 //
 
 import Foundation
@@ -20,7 +20,7 @@ extension RecordedPosition {
     ///
     /// Two of the six coordinates have to be resolved first. `cut` takes sets
     /// off WITHOUT moving `sets`, so the raw coordinate would read HIGHER than
-    /// the plan right after a descent took some away (§36.3); `sub` is what
+    /// the plan right after a descent took some away; `sub` is what
     /// makes a plan read "9-8-8" instead of "3×8". Both resolve the way
     /// `Engine.fit` resolves them, the top-rung disable included — above it the
     /// next rung belongs to another band, and adding a step there would print a
