@@ -467,24 +467,24 @@ extension WorkoutFlowView {
     /// the button would be a straight lie.
     ///
     /// Compared as `> holdMistapSeconds` rather than `>=`, and the second is
-    /// not pedantry: `holdRemaining` is the rounded second, so an integer 3
+    /// not pedantry: `holdClock.remaining` is the rounded second, so an integer 3
     /// covers a real 2.5 s that `stopHoldEarly` will still read as a mis-tap.
     /// At 4 the two can no longer disagree.
     var holdStopRecords: Int? {
-        let held = holdTotal - holdRemaining
+        let held = holdTotal - holdClock.remaining
         guard Double(held) > Self.holdMistapSeconds else { return nil }
         return SetFacts.holdEndedByTap(heldSeconds: held)
     }
 
     /// In order of precedence.
     private var workNumber: Int {
-        if holdCountingIn { return holdCountInRemaining }
+        if holdCountingIn { return holdCountInClock.remaining }
         // Before the effort a DECLARED time is what the clock will run from,
         // so it is what the screen shows: the number the person is about to
         // agree to, not the plan they have already decided against.
         if holdExerciseIntro, let holdDeclared { return holdDeclared }
-        if holdSwitchPausing { return holdPauseRemaining }
-        if holding { return holdRemaining }
+        if holdSwitchPausing { return holdSwitchClock.remaining }
+        if holding { return holdClock.remaining }
         if current.isProbe { return probeActuals[exercise.pattern] ?? current.planned }
         return SetFacts.inForce(actuals, exercise, set: setIndex)
     }
