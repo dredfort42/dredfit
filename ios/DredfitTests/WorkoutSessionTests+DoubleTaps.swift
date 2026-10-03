@@ -82,6 +82,18 @@ extension WorkoutSessionTests {
         XCTAssertEqual(flow.phase, .rest(seconds: flow.exercise.restExerciseSec))
     }
 
+    func testAStaleStartHoldDoesNotStartOneInsideTheRest() throws {
+        let store = makeStore()
+        let flow = makeFlow(store, session: holdSession())
+        flow.declineWarmup()
+        flow.exIndex = try index(of: .coreAntiExt, in: flow)
+        flow.startHold()
+        run(flow, for: GetReady.countInSeconds + 15)
+        XCTAssertEqual(flow.phase, .rest(seconds: 60))
+        flow.startHold()
+        XCTAssertFalse(flow.holdCountingIn || flow.holding)
+    }
+
     func testAStaleSkipLandsOnNothingOnceTheSetHasMovedOn() {
         let store = makeStore()
         let flow = makeFlow(store)
