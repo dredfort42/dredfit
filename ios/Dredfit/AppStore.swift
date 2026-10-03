@@ -162,7 +162,7 @@ final class AppStore {
             try? FileManager.default.removeItem(at: storageURL)
         }
         #endif
-        switch stateFile.read() {
+        switch stateFile.read(reload: false) {
         case .absent, .undecodable:
             adopt(nil)
         case .unreadable:
@@ -174,6 +174,9 @@ final class AppStore {
             adopt(nil)
         case .loaded(let data):
             adopt(data)
+            if data.engineStateMigrated {
+                Self.log.notice("engine state migrated from v2 — journal, bar and counter carried over")
+            }
         }
         #if DEBUG
         applyUITestHooks()
@@ -188,8 +191,7 @@ final class AppStore {
         // mid-workout would move the engine counter out from under a running
         // session. Such a launch stays frozen; the file is untouched.
         guard journalFrozen, !mutatedWhileFrozen else { return }
-        let read = stateFile.read()
-        switch read {
+        switch stateFile.read(reload: true) {
         case .absent, .unreadable:
             return
         case .undecodable:
@@ -214,10 +216,7 @@ final class AppStore {
         // Stamped after the settings are in hand, because that is what carries
         // it: the card must survive a launch that ends before anyone reads it,
         // and a frozen launch is exactly the one that must not swallow it.
-        if data?.engineStateMigrated == true {
-            settings.migrationNoticePending = true
-            Self.log.notice("engine state migrated from v2 — journal, bar and counter carried over")
-        }
+        if data?.engineStateMigrated == true { settings.migrationNoticePending = true }
         migrateHealthMarkToFlags()
     }
 

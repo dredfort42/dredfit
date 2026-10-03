@@ -28,18 +28,21 @@ struct StateFile {
         /// the first unlock, or I/O. Nothing is touched: it may be the only
         /// copy of the journal, and perfectly fine.
         case unreadable
-        /// The file does not decode as a whole. It has been moved aside, so the
-        /// next write cannot overwrite the only copy of the journal.
+        /// The file does not decode as a whole. It is moved aside, so the next
+        /// write cannot overwrite the only copy of the journal.
         case undecodable
         case loaded(AppData)
     }
 
-    /// Reads the file. What cannot be kept as it stands goes aside before
-    /// anything is written over it: a file that does not decode is moved, and
-    /// one whose engine state or some of whose records could not be read is
-    /// copied — the next write rewrites the positions from `initial`, or the
-    /// journal without the unreadable entries.
-    func read() -> Read {
+    /// Reads the file. A file that does not decode is moved aside; one whose
+    /// engine state or some of whose records could not be read is copied aside
+    /// first, because the next write rewrites the positions from `initial`, or
+    /// the journal without the unreadable entries. An unreadable settings block
+    /// or a snapshot from a newer build is not copied: it costs only itself.
+    /// `reload` only labels the log lines, so a launch and a reload can be told
+    /// apart in Console.
+    func read(reload: Bool) -> Read {
+        let when = reload ? " on reload" : ""
         guard let bytes = try? Data(contentsOf: url) else {
             return FileManager.default.fileExists(atPath: url.path) ? .unreadable : .absent
         }
@@ -48,7 +51,7 @@ struct StateFile {
             data = try JSONDecoder().decode(AppData.self, from: bytes)
         } catch {
             quarantine(keepOriginal: false)
-            Self.log.fault("state file failed to decode, moved aside: \(error.localizedDescription)")
+            Self.log.fault("state file failed to decode\(when), moved aside: \(error.localizedDescription)")
             return .undecodable
         }
         if data.engineStateReset {
@@ -56,11 +59,11 @@ struct StateFile {
             // neither v3 NOR v2 — a file from a future build, or one damaged
             // past reading. The journal beside it is whole.
             quarantine(keepOriginal: true)
-            Self.log.notice("engine state unreadable in both shapes — started clean, journal kept")
+            Self.log.notice("engine state unreadable in both shapes\(when) — started clean, journal kept")
         }
         if data.droppedRecordCount > 0 {
             quarantine(keepOriginal: true)
-            Self.log.error("dropped \(data.droppedRecordCount) unreadable record(s), original kept aside")
+            Self.log.error("dropped \(data.droppedRecordCount) unreadable record(s)\(when), original kept aside")
         }
         return .loaded(data)
     }

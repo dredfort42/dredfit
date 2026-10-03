@@ -28,14 +28,14 @@ final class StateFileReadTests: XCTestCase {
     }
 
     func testNoFileIsAFreshInstall() {
-        guard case .absent = file.read() else { return XCTFail("nothing on disk reads as absent") }
+        guard case .absent = file.read(reload: false) else { return XCTFail("nothing on disk reads as absent") }
     }
 
     func testAFileThatCannotBeReadIsLeftAlone() throws {
         // A directory where the file should be: it exists and yields no bytes,
         // the way a file still under data protection does.
         try FileManager.default.createDirectory(at: file.url, withIntermediateDirectories: false)
-        guard case .unreadable = file.read() else { return XCTFail("an unreadable file is not a fresh install") }
+        guard case .unreadable = file.read(reload: false) else { return XCTFail("an unreadable file is not a fresh install") }
         XCTAssertTrue(FileManager.default.fileExists(atPath: file.url.path))
         XCTAssertTrue(try corruptCopies().isEmpty, "nothing is moved aside: it may be the only copy")
     }
@@ -44,13 +44,13 @@ final class StateFileReadTests: XCTestCase {
         var state = EngineState.initial
         state.counter = 7
         try file.write(AppData(engineState: state, records: [], settings: AppSettings()))
-        guard case .loaded(let data) = file.read() else { return XCTFail("a written file reads back") }
+        guard case .loaded(let data) = file.read(reload: false) else { return XCTFail("a written file reads back") }
         XCTAssertEqual(data.engineState.counter, 7)
     }
 
     func testAFileThatDoesNotDecodeIsMovedAside() throws {
         try Data("not json".utf8).write(to: file.url)
-        guard case .undecodable = file.read() else { return XCTFail("garbage does not decode") }
+        guard case .undecodable = file.read(reload: false) else { return XCTFail("garbage does not decode") }
         XCTAssertFalse(FileManager.default.fileExists(atPath: file.url.path),
                        "moved, so the next write cannot overwrite the only copy")
         let copies = try corruptCopies()
@@ -60,19 +60,30 @@ final class StateFileReadTests: XCTestCase {
 
     func testASecondFailureNeverReplacesTheFirstCopy() throws {
         try Data("first".utf8).write(to: file.url)
-        _ = file.read()
+        _ = file.read(reload: false)
         try Data("second".utf8).write(to: file.url)
-        _ = file.read()
+        _ = file.read(reload: false)
         let kept = try corruptCopies().map { try Data(contentsOf: $0) }
         XCTAssertEqual(Set(kept), [Data("first".utf8), Data("second".utf8)])
     }
 
     func testAnUnreadableEngineStateKeepsTheJournalAndACopy() throws {
-        let json = #"{"engineState":{"from":"a future build"},"records":[]}"#
-        try Data(json.utf8).write(to: file.url)
-        guard case .loaded(let data) = file.read() else { return XCTFail("the journal beside it is whole") }
+        let record = WorkoutRecord(sessionNumber: 1, date: Date(timeIntervalSince1970: 1_800_000_000),
+                                   result: .plan)
+        try file.write(AppData(engineState: .initial, records: [record], settings: AppSettings()))
+        var json = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: file.url))
+                                 as? [String: Any])
+        json["engineState"] = ["from": "a future build"]
+        let original = try JSONSerialization.data(withJSONObject: json)
+        try original.write(to: file.url)
+
+        guard case .loaded(let data) = file.read(reload: false) else {
+            return XCTFail("the journal beside it is whole")
+        }
         XCTAssertTrue(data.engineStateReset)
+        XCTAssertEqual(data.records.count, 1, "the journal survives a state it cannot read")
         XCTAssertTrue(FileManager.default.fileExists(atPath: file.url.path), "copied, not moved")
-        XCTAssertEqual(try corruptCopies().count, 1, "the plan can still be recovered from the copy")
+        XCTAssertEqual(try corruptCopies().map { try Data(contentsOf: $0) }, [original],
+                       "the plan can still be recovered from the copy")
     }
 }
