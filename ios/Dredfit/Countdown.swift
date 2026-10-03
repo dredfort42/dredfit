@@ -34,9 +34,9 @@ struct Countdown: Equatable {
     }
 
     /// Runs on from the second on screen — the way out of a freeze. `floor`
-    /// is for a countdown frozen at 0: a date that close reads as the 0
-    /// already shown, so no tick would ever see it end. The second on screen
-    /// is left for the next tick to move.
+    /// is the least it runs for, so one frozen at 0 still gets a last second
+    /// instead of ending on the next tick. The second on screen is left for
+    /// the next tick to move.
     mutating func resume(now: Date, atLeast floor: Int = 0) {
         endDate = now.addingTimeInterval(TimeInterval(max(remaining, floor)))
     }
@@ -80,15 +80,16 @@ struct Countdown: Equatable {
     /// is animated, sounded and reset — and in which order.
     ///
     /// Rounded to the nearest second, so a running countdown reaches 0 half a
-    /// second before its end date. One that already shows 0 while its date
-    /// is still set reads `.unchanged` from then on and never ends — see the
-    /// floor on `resume`.
+    /// second before its end date. Zero always ends it, even when 0 is already
+    /// on screen — a rest restored in its last half-second, or a countdown
+    /// started at zero, has no new second to show and would otherwise never
+    /// end.
     func read(now: Date) -> Reading {
         guard let endDate else { return .unchanged }
         let left = endDate.timeIntervalSince(now)
         let second = max(0, Int(left.rounded()))
-        guard second != remaining else { return .unchanged }
-        return second == 0 ? .ended(overshoot: -left) : .second(second)
+        if second == 0 { return .ended(overshoot: -left) }
+        return second == remaining ? .unchanged : .second(second)
     }
 
     /// Shows a second `read` returned.
