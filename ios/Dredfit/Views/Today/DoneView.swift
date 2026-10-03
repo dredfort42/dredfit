@@ -1,18 +1,93 @@
 //
-//  The rating after the fact: the one sentence about what it moved, and the
-//  way to give a different one.
+//  The completed state of Today.
 //
-//  An extension in a file of its own, for the reason `TodayView+PlanRow`
-//  states — the type stands at the linter's body bound and an extension
-//  weighs nothing against it wherever it sits. Together here rather than
-//  apart because they are one thought: the sentence is what a person reads
-//  before deciding the answer was wrong.
+//  The rating after the fact: the one sentence about what it moved, and the
+//  way to give a different one. They are one thought: the sentence is what a
+//  person reads before deciding the answer was wrong.
 //
 
 import SwiftUI
 import DredfitCore
 
-extension TodayView {
+struct DoneView: View {
+    @Environment(AppStore.self) private var store
+    @Binding var destination: TodayView.Destination?
+    @Binding var ratingChangeShown: Bool
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Kicker(text: store.today.screenDateText)
+                Spacer()
+            }
+            .padding(.top, 18)
+
+            Spacer()
+
+            ZStack {
+                Circle()
+                    .fill(Theme.cardBG)
+                    .frame(width: 120, height: 120)
+                Image(systemName: "checkmark")
+                    .dredfitFont(44, weight: .bold, cap: 66)
+                    .foregroundStyle(Theme.ink)
+                    .accessibilityHidden(true)
+            }
+
+            Text("Workout \(store.lastRecord?.sessionNumber ?? 0) completed")
+                .dredfitFont(24, weight: .heavy)
+                .tracking(-0.4)
+                // The palette, not `.primary` — see PlanView's heading.
+                .foregroundStyle(Theme.ink)
+                .padding(.top, 24)
+
+            // Centred and unclipped: naming the movements the rating landed
+            // on made the "tough" line the longest of the three, and this
+            // Text carried neither a wrap rule nor an alignment of its own.
+            Text(resultCaption)
+                .dredfitFont(15)
+                .foregroundStyle(Theme.ink2)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 6)
+
+            // The door back to what was actually done today. A control of its
+            // own rather than the heading made tappable: three UI walks read
+            // "Workout N completed" as a static text, and a button around it
+            // would hand XCUITest one merged element instead.
+            if let record = store.lastRecord {
+                Button {
+                    destination = .history(record)
+                } label: {
+                    Text("What you did today")
+                        .dredfitFont(14.5, weight: .medium)
+                        // accentText, not accent: 3.58:1 does not carry small
+                        // text (owner, 05.09.2026).
+                        .foregroundStyle(Theme.accentText)
+                        .padding(.horizontal, 18)
+                        .frame(minHeight: 44)
+                        .overlay(Capsule().stroke(Theme.hairline, lineWidth: 1.5))
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("today-record")
+                .padding(.top, 18)
+            }
+
+            // Under the common door rather than beside it: correcting a
+            // rating is the rarest thing anyone does on this screen — and
+            // since owner decision 1 (05.09.2026) it is also the only way
+            // back from a rating nobody gave, because a workout left unrated
+            // is now settled as "on plan" on the athlete's behalf. Its words
+            // and its alert are below.
+            changeRatingButton
+
+            Spacer()
+
+            NextWorkoutCard { destination = .nextWorkout }
+                .padding(.bottom, 24)
+        }
+    }
 
     /// The one sentence about what the tap did.
     ///
@@ -28,7 +103,7 @@ extension TodayView {
     /// to say", never "nothing happened", which is why the unnamed sentence
     /// stays as the honest fallback instead of being turned into a claim about
     /// zero movements.
-    var resultCaption: String {
+    private var resultCaption: String {
         guard let record = store.lastRecord else { return "" }
         switch record.result {
         case .less:
@@ -66,7 +141,7 @@ extension TodayView {
     /// (the trap the skip confirmation's placement in WorkoutFlowView is
     /// written against).
     @ViewBuilder
-    var changeRatingButton: some View {
+    private var changeRatingButton: some View {
         if store.canChangeLastRating, let record = store.lastRecord {
             Button {
                 ratingChangeShown = true
