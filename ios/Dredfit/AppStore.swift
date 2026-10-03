@@ -858,8 +858,7 @@ final class AppStore {
 
     /// The way into the persisted state from outside this file: the change
     /// and its write are one call, so no caller can make the one without the
-    /// other. Only what changed is assigned back, so a view that reads one
-    /// field is not invalidated by a change to another.
+    /// other.
     func update(refreshWidget: Bool = true, _ change: (inout PersistedState) -> Void) {
         var state = persisted
         change(&state)
@@ -883,10 +882,10 @@ final class AppStore {
     }
 
     private func assign(_ state: PersistedState) {
-        if state.engineState != engineState { engineState = state.engineState }
-        if state.records != records { records = state.records }
-        if state.settings != settings { settings = state.settings }
-        if state.pendingWorkout != pendingWorkout { pendingWorkout = state.pendingWorkout }
+        engineState = state.engineState
+        records = state.records
+        settings = state.settings
+        pendingWorkout = state.pendingWorkout
     }
 
     private func persist(refreshWidget: Bool = true) {
