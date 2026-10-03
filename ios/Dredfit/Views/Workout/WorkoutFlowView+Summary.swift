@@ -95,7 +95,7 @@ extension WorkoutFlowView {
             // and the button). While a number is being entered the panel
             // takes the slot and the block stands down: one thing to read at
             // a time, the rule of every message slot in the flow.
-            if adjusting, let index = summarySet {
+            if case .summaryCard(let index) = editing {
                 // Which set and what was recorded for it, said above the
                 // panel. ONLY THE LAST SET OPENS THE PANEL: nothing followed
                 // it and the person may have kept holding, so both directions
@@ -129,8 +129,7 @@ extension WorkoutFlowView {
                     // hint went on being shown to somebody who had
                     // already answered it (UX review, 05.09.2026).
                     store.markOwnNumberReported()
-                    adjusting = false
-                    summarySet = nil
+                    editing = nil
                     persistProgress()
                 }
                 .padding(.bottom, 18)
@@ -188,9 +187,8 @@ extension WorkoutFlowView {
     /// changes.
     func startSummaryAdjusting(set index: Int) {
         guard isLastSummarySet(index) else { return }
-        summarySet = index
         adjustValue = SetFacts.inForce(actuals, exercise, set: index)
-        adjusting = true
+        editing = .summaryCard(index)
     }
 
     /// What the clock counted for a set — the number before any correction.

@@ -67,7 +67,7 @@ extension WorkoutFlowView {
     /// ready" and being counted in. That is why a rest cut short by Skip
     /// arrives here with `autoContinued: false`.
     func startHold(autoContinued: Bool = false) {
-        adjusting = false
+        editing = nil
         // On the probe set the countdown is the PROBE's target — a different
         // movement, and possibly a different unit (§40.1, `pull_bar` 2→3).
         // The declaration stands in for the plan while this exercise lasts —
@@ -280,9 +280,7 @@ extension WorkoutFlowView {
 
     /// Every set of the finished hold movement, on one screen.
     func startExerciseSummary() {
-        adjusting = false
-        holdDeclaring = false
-        summarySet = nil
+        editing = nil
         holdSettled = false
         holdAutoRun = false
         phase = .exerciseSummary
@@ -400,19 +398,9 @@ extension WorkoutFlowView {
     /// the beat still owed.
     func advanceAfterRest(countIn: Bool) {
         if isLastSet {
-            exIndex += 1
-            maximumWarning = nil   // the note belongs to the exercise it was about
-            setIndex = 0
-            // One tap bought ONE exercise. The next movement is a decision of
-            // its own, and starting it under a thumb that agreed to something
-            // else is exactly what R23 is against.
-            holdAutoRun = false
-            // …and so is the time that tap was given. This is the ORDINARY way
-            // out of an exercise — the last set rests, and the rest ends here —
-            // and it went through no reset at all, so a declaration made for
-            // the plank arrived at the side plank and set its clock to a
-            // number nobody had asked of that movement.
-            resetHoldExercise()
+            // One tap bought ONE exercise: the next movement is a decision of
+            // its own (R23), and the run and the declared time stay behind.
+            enterNextExercise()
         } else {
             setIndex += 1
         }
@@ -561,13 +549,9 @@ extension WorkoutFlowView {
         } else {
             if snap.restEndDate != nil, !(isLastSet && isLastExercise) {
                 if isLastSet {
-                    exIndex += 1
-                    maximumWarning = nil   // the note belongs to its own exercise
-                    setIndex = 0
-                    // As `advanceAfterRest` does: the declaration restored
-                    // above belongs to the movement behind, and kept it set
-                    // the next movement's clock after a process death.
-                    resetHoldExercise()
+                    // The declaration and the marks restored above belong to
+                    // the movement behind.
+                    enterNextExercise()
                 } else {
                     setIndex += 1
                 }
@@ -608,20 +592,12 @@ extension WorkoutFlowView {
             finishCooldown()
             return
         }
-        adjusting = false
+        editing = nil
         clearBlockPause()
         holdClock.freeze()
         holdCountInClock.freeze()
-        holdSecondSide = false
-        firstSideHeld = nil
         holdSwitchClock.freeze()
-        holdSettled = false
-        holdAutoRun = false
-        holdDeclared = nil
-        holdDeclaring = false
-        holdApproxSets.removeAll()
-        holdMeasured.removeAll()
-        summarySet = nil
+        leaveExerciseState()
         // A movement is BEHIND US in two places, not one. The summary of a
         // finished hold is the same fact as the rest after a last set: every
         // set is done and its seconds are on the screen. Counting it as

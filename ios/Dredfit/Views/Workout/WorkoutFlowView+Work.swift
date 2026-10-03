@@ -186,7 +186,7 @@ extension WorkoutFlowView {
             // same 18 pt above the pair that the escapes stand below it, and
             // that the rest offer stands above Start on Today (owner,
             // 27.08.2026).
-            if !adjusting {
+            if editing == nil {
                 // Opacity, not `if`: the reserved height keeps the layout still
                 // when the hint's job is done mid-exercise.
                 // Reps only since R23. The hold screen no longer carries
@@ -264,15 +264,14 @@ extension WorkoutFlowView {
             // the block after the Spacer is bottom-aligned as a group, so what
             // is added or removed above the button changes where the group
             // starts, never where the button sits.
-            if adjusting {
+            if editing != nil {
                 AdjustPanel(value: $adjustValue, unit: current.unit) {
-                    if holdDeclaring {
+                    if editing == .holdTime {
                         // A TARGET, not a record: it sets what the clock runs
                         // from for this exercise and writes nothing about a
                         // set. What is stored for each set is still whatever
                         // that set's clock produced.
                         holdDeclared = adjustValue
-                        holdDeclaring = false
                     } else if current.isProbe {
                         // The probe's own channel: one number about one set of
                         // another movement, never folded into the mean of the
@@ -292,7 +291,7 @@ extension WorkoutFlowView {
                         // deliberately spends nothing (UX review, 05.09.2026).
                         store.markOwnNumberReported()
                     }
-                    adjusting = false
+                    editing = nil
                     persistProgress()   // an entered actual is worth keeping
                 }
                 .padding(.bottom, 18)
@@ -518,20 +517,14 @@ extension WorkoutFlowView {
     func startDeclaringHoldTime() {
         adjustValue = SetFacts.holdTarget(actuals, exercise, set: setIndex,
                                           declared: holdDeclared)
-        holdDeclaring = true
-        adjusting = true
+        editing = .holdTime
     }
 
     private func startAdjusting() {
         adjustValue = current.isProbe
             ? (probeActuals[exercise.pattern] ?? current.planned)
             : SetFacts.inForce(actuals, exercise, set: setIndex)
-        // The panel's mode is set by whoever OPENS it, every time. A
-        // declaration's panel closed by "Start exercise" or a skip left the
-        // flag standing, and the probe's OK that followed wrote into the
-        // declaration — a reps probe then went in at target.
-        holdDeclaring = false
-        adjusting = true
+        editing = .set
     }
 
     /// What the probe set says under its number. Before a number is entered it

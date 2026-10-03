@@ -41,13 +41,13 @@ extension WorkoutFlowView {
         // probe simply comes back next time — and the appearance is spent
         // exactly as it would have been.
         if onProbeSet {
-            adjusting = false
+            editing = nil
             probeActuals.removeValue(forKey: exercise.pattern)
             advancePastExercise()
             return
         }
         guard skipsLeaveAMovement(1) else { leaveExercise(); return }
-        adjusting = false
+        editing = nil
         setsSkipped[exercise.pattern, default: 0] += 1
         if isLastSet {
             advancePastExercise()
@@ -68,7 +68,7 @@ extension WorkoutFlowView {
         // none left, and the probe itself is not volume.
         let left = max(0, exercise.sets - setIndex)
         guard skipsLeaveAMovement(left) else { leaveExercise(); return }
-        adjusting = false
+        editing = nil
         setsSkipped[exercise.pattern, default: 0] += left
         advancePastExercise()
     }
