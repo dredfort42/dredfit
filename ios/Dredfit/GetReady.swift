@@ -67,7 +67,7 @@ enum GetReady {
     ///
     /// Before a hold it is preparation time that always existed, moved inside
     /// the app's clock: it used to be spent BEFORE the tap. On a transition it
-    /// may only SHORTEN what is already running (see `countInWarmupMove`) —
+    /// may only SHORTEN what is already running (see `WorkoutSession.countIn`) —
     /// the two blocks are budgeted to the second, so a tap that lengthened one
     /// would spend a reserve this layer does not own.
     /// 5 → 4 (owner, 06.09.2026), with the transition and the side-switch

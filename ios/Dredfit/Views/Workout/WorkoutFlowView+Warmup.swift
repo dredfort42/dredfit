@@ -106,21 +106,21 @@ extension WorkoutFlowView {
         // different screens and swap as the stage does, and a modifier applied
         // inside either of them would be torn down with it.
         Group {
-            if flow.reentering || flow.warmupStage == .getReady {
+            if flow.reentering || flow.warmup.stage == .getReady {
                 GetReadyScreen(name: flow.warmupMove.name,
-                               remaining: flow.reentering ? flow.blockPause.reentryRemaining : flow.warmupClock.remaining,
-                               index: flow.warmupIndex, count: flow.warmupMoves.count,
+                               remaining: flow.reentering ? flow.blockPause.reentryRemaining : flow.warmup.clock.remaining,
+                               index: flow.warmup.index, count: flow.warmupMoves.count,
                                countdownIdentifier: countdownIdentifier(reentering: flow.reentering),
                                block: .warmup,
                                paused: flow.blockPause.isHeld,
                                // The way back in is not a transition to cut: its
                                // "I'm ready" ends it outright, so it keeps one.
                                countingIn: !flow.reentering
-                                   && flow.warmupClock.remaining <= GetReady.countInSeconds,
+                                   && flow.warmup.clock.remaining <= GetReady.countInSeconds,
                                onTechnique: { openWarmupTechnique() },
-                               onStart: { flow.reentering ? flow.endBlockReentry() : flow.countInWarmupMove() },
+                               onStart: { flow.reentering ? flow.endBlockReentry() : flow.countIn(.warmup) },
                                onPauseToggle: { flow.toggleBlockPause() },
-                               onSkipPosition: { flow.skipWarmupPosition() },
+                               onSkipPosition: { flow.skipPosition(of: .warmup) },
                                onSkipBlock: { flow.finishWarmup() })
             } else {
                 warmupMoveView
@@ -136,13 +136,13 @@ extension WorkoutFlowView {
 
     var warmupMoveView: some View {
         WarmupMoveScreen(move: flow.warmupMove,
-                         stage: flow.warmupStage,
-                         remaining: flow.warmupClock.remaining,
-                         index: flow.warmupIndex, count: flow.warmupMoves.count,
+                         stage: flow.warmup.stage,
+                         remaining: flow.warmup.clock.remaining,
+                         index: flow.warmup.index, count: flow.warmupMoves.count,
                          paused: flow.blockPause.isHeld,
                          onTechnique: { openWarmupTechnique() },
                          onPauseToggle: { flow.toggleBlockPause() },
-                         onSkipPosition: { flow.skipWarmupPosition() },
+                         onSkipPosition: { flow.skipPosition(of: .warmup) },
                          onSkipBlock: { flow.finishWarmup() })
     }
 

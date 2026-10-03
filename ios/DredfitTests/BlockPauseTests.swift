@@ -65,24 +65,13 @@ final class BlockPauseTests: XCTestCase {
         // Each still has its own signal ahead of it — the 3-2-1 into the go
         // that starts a position, the go into the second side. A lead-in
         // ending on a go of its own would sound the same thing twice.
-        XCTAssertFalse(BlockPause.needsReentry(Warmup.Stage.getReady))
-        XCTAssertFalse(BlockPause.needsReentry(Cooldown.Stage.getReady))
-        XCTAssertFalse(BlockPause.needsReentry(Cooldown.Stage.switchPause),
+        XCTAssertFalse(BlockPause.needsReentry(GuidedStage.getReady))
+        XCTAssertFalse(BlockPause.needsReentry(GuidedStage.switchPause),
                        "the side-switch beat is a transition like any other")
-        // And in the warm-up too since §41.12. Asked of BOTH blocks on
-        // purpose: the rule lived in one of two identical stage machines, and
-        // "applied to one branch of two" is the defect class the whole
-        // reference audit is built around.
-        XCTAssertFalse(BlockPause.needsReentry(Warmup.Stage.switchPause),
-                       "the warm-up's side-switch beat is a transition too")
     }
 
     func testEveryStageThatIsAPositionGetsTheWayBackIn() {
-        for stage in [Warmup.Stage.move, .firstHalf, .secondHalf] {
-            XCTAssertTrue(BlockPause.needsReentry(stage),
-                          "\(stage) drops the user into a move, so it has to count them in")
-        }
-        for stage in [Cooldown.Stage.single, .firstSide, .secondSide] {
+        for stage in [GuidedStage.whole, .firstHalf, .secondHalf] {
             XCTAssertTrue(BlockPause.needsReentry(stage),
                           "\(stage) drops the user into a position, so it has to count them in")
         }
@@ -171,17 +160,17 @@ final class BlockPauseTests: XCTestCase {
         // measures against the reserved minutes.
         let positions = Cooldown.positions(performed: [.pull])
         let warmup = Warmup.moves(sessionNumber: 1)
-        XCTAssertEqual(Warmup.stageSeconds(.move, of: warmup[0]), Warmup.moveSeconds)
-        XCTAssertEqual(Warmup.stageSeconds(.getReady, of: warmup[0]), GetReady.seconds)
-        XCTAssertEqual(Warmup.stageSeconds(.firstHalf, of: warmup[0]), Warmup.halfSeconds)
-        XCTAssertEqual(Warmup.stageSeconds(.switchPause, of: warmup[0]),
+        XCTAssertEqual(GuidedBlock.warmup.stageSeconds(.whole, of: warmup[0]), Warmup.moveSeconds)
+        XCTAssertEqual(GuidedBlock.warmup.stageSeconds(.getReady, of: warmup[0]), GetReady.seconds)
+        XCTAssertEqual(GuidedBlock.warmup.stageSeconds(.firstHalf, of: warmup[0]), Warmup.halfSeconds)
+        XCTAssertEqual(GuidedBlock.warmup.stageSeconds(.switchPause, of: warmup[0]),
                        Cooldown.sideSwitchPauseSec,
                        "§41.12: one gesture, one length — the cool-down's constant")
-        XCTAssertEqual(Cooldown.stageSeconds(.single, of: positions[0]),
+        XCTAssertEqual(GuidedBlock.cooldown.stageSeconds(.whole, of: positions[0]),
                        Cooldown.positionSeconds)
-        XCTAssertEqual(Cooldown.stageSeconds(.firstSide, of: positions[0]),
+        XCTAssertEqual(GuidedBlock.cooldown.stageSeconds(.firstHalf, of: positions[0]),
                        Cooldown.sideSeconds)
-        XCTAssertEqual(Cooldown.stageSeconds(.switchPause, of: positions[0]),
+        XCTAssertEqual(GuidedBlock.cooldown.stageSeconds(.switchPause, of: positions[0]),
                        Cooldown.sideSwitchPauseSec)
     }
 }

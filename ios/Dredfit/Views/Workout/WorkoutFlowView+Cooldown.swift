@@ -76,19 +76,19 @@ extension WorkoutFlowView {
         // Grouped for the reason `warmupView` states: the observer belongs to
         // the block, not to whichever of the two screens is up.
         Group {
-            if flow.reentering || flow.cooldownStage == .getReady {
-                GetReadyScreen(name: flow.cooldownPositions[flow.cooldownIndex].name,
-                               remaining: flow.reentering ? flow.blockPause.reentryRemaining : flow.cooldownClock.remaining,
-                               index: flow.cooldownIndex, count: flow.cooldownPositions.count,
+            if flow.reentering || flow.cooldown.stage == .getReady {
+                GetReadyScreen(name: flow.cooldownPositions[flow.cooldown.index].name,
+                               remaining: flow.reentering ? flow.blockPause.reentryRemaining : flow.cooldown.clock.remaining,
+                               index: flow.cooldown.index, count: flow.cooldownPositions.count,
                                countdownIdentifier: countdownIdentifier(reentering: flow.reentering),
                                block: .cooldown,
                                paused: flow.blockPause.isHeld,
                                countingIn: !flow.reentering
-                                   && flow.cooldownClock.remaining <= GetReady.countInSeconds,
+                                   && flow.cooldown.clock.remaining <= GetReady.countInSeconds,
                                onTechnique: { openCooldownTechnique() },
-                               onStart: { flow.reentering ? flow.endBlockReentry() : flow.countInCooldownPosition() },
+                               onStart: { flow.reentering ? flow.endBlockReentry() : flow.countIn(.cooldown) },
                                onPauseToggle: { flow.toggleBlockPause() },
-                               onSkipPosition: { flow.skipCooldownPosition() },
+                               onSkipPosition: { flow.skipPosition(of: .cooldown) },
                                onSkipBlock: { flow.finishCooldown() })
             } else {
                 cooldownPositionView
@@ -100,19 +100,19 @@ extension WorkoutFlowView {
     }
 
     var cooldownPositionView: some View {
-        CooldownPositionScreen(position: flow.cooldownPositions[flow.cooldownIndex],
-                               stage: flow.cooldownStage,
-                               remaining: flow.cooldownClock.remaining,
-                               index: flow.cooldownIndex, count: flow.cooldownPositions.count,
+        CooldownPositionScreen(position: flow.cooldownPositions[flow.cooldown.index],
+                               stage: flow.cooldown.stage,
+                               remaining: flow.cooldown.clock.remaining,
+                               index: flow.cooldown.index, count: flow.cooldownPositions.count,
                                paused: flow.blockPause.isHeld,
                                onTechnique: { openCooldownTechnique() },
                                onPauseToggle: { flow.toggleBlockPause() },
-                               onSkipPosition: { flow.skipCooldownPosition() },
+                               onSkipPosition: { flow.skipPosition(of: .cooldown) },
                                onSkipBlock: { flow.finishCooldown() })
     }
 
     func openCooldownTechnique() {
-        openPositionTechnique(PositionTechnique(cooldown: flow.cooldownPositions[flow.cooldownIndex]))
+        openPositionTechnique(PositionTechnique(cooldown: flow.cooldownPositions[flow.cooldown.index]))
     }
 
 }

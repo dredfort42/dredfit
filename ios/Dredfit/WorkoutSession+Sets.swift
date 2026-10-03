@@ -79,8 +79,8 @@ extension WorkoutSession {
     /// pause freezes with it — reading is not getting back into position
     /// either.
     func freezeForPositionTechnique() {
-        warmupClock.freeze()
-        cooldownClock.freeze()
+        warmup.clock.freeze()
+        cooldown.clock.freeze()
         blockPause.freezeForSheet()
         // And the block stops costing time while it is read: reading is not
         // stretching either, and the block's own length is wall clock
@@ -100,9 +100,9 @@ extension WorkoutSession {
         endBlockFreeze()
         switch phase {
         case .warmup:
-            warmupClock.resume(now: now())
+            warmup.clock.resume(now: now())
         case .cooldown:
-            cooldownClock.resume(now: now())
+            cooldown.clock.resume(now: now())
         default:
             break
         }

@@ -1,6 +1,7 @@
 //
 //  The cool-down block (issue #28): offered once the work is behind, composed
-//  from the movements actually performed.
+//  once from the movements actually performed, and run on the guided blocks'
+//  engine (+Blocks).
 //
 
 import Foundation
@@ -23,10 +24,10 @@ extension WorkoutSession {
     /// position down would make it drop by a minute at a boundary and stand
     /// still in between.
     var cooldownMinutesLeft: Int? {
-        guard phase == .cooldown, cooldownPositions.indices.contains(cooldownIndex) else {
+        guard phase == .cooldown, cooldownPositions.indices.contains(cooldown.index) else {
             return nil
         }
-        return cooldownMinutes(of: cooldownPositions[cooldownIndex...])
+        return cooldownMinutes(of: cooldownPositions[cooldown.index...])
     }
 
     /// One arithmetic for the offer and for what is left of it: two copies
@@ -69,7 +70,7 @@ extension WorkoutSession {
         guard !recomposed.isEmpty, recomposed != cooldownPositions else { return }
         // Read BEFORE the new list is stored: the prefix of the composition
         // that was running is what the block has already been through.
-        let passed = Set(cooldownPositions.prefix(max(0, cooldownIndex)).map(\.id))
+        let passed = Set(cooldownPositions.prefix(max(0, cooldown.index)).map(\.id))
         guard let index = Self.rebaseLanding(in: recomposed.map(\.id), after: passed) else {
             // Nothing left that is not already behind the athlete. The old
             // composition stays put on the way out — `finishCooldown` is the
@@ -78,12 +79,12 @@ extension WorkoutSession {
             return
         }
         cooldownPositions = recomposed
-        cooldownIndex = index
-        cooldownStage = Cooldown.openingStage
-        // Not through `enterCooldownStage`, and the clock runs on only if it
-        // was running — `rebaseWarmupOnComposition` carries the reasoning.
-        cooldownClock.reset(to: Cooldown.stageSeconds(Cooldown.openingStage, of: recomposed[index]),
-                            now: now())
+        cooldown.index = index
+        cooldown.stage = .getReady
+        // Not through `enterStage`, and the clock runs on only if it was
+        // running — `rebaseWarmupOnComposition` carries the reasoning.
+        cooldown.clock.reset(to: GuidedBlock.cooldown.stageSeconds(.getReady, of: recomposed[index]),
+                             now: now())
         persistProgress()
     }
 
@@ -121,8 +122,8 @@ extension WorkoutSession {
         // The pair is per BLOCK — the warm-up's own standing still is behind.
         blockPausedSec = 0
         blockFrozenAt = nil
-        startCooldownPosition(0)
-        countInCooldownPosition()   // a start tap opens the count-in — see `beginWarmup`
+        startPosition(0, of: .cooldown)
+        countIn(.cooldown)   // a start tap opens the count-in — see `beginWarmup`
         persistProgress()
     }
 
@@ -130,108 +131,6 @@ extension WorkoutSession {
     /// to the rating, with the work counted exactly as it was done.
     func declineCooldown() {
         finishCooldown()
-    }
-
-    func skipCooldownPosition() {
-        if cooldownIndex + 1 < cooldownPositions.count {
-            startCooldownPosition(cooldownIndex + 1)
-        } else {
-            finishCooldown()
-        }
-    }
-
-    func startCooldownPosition(_ index: Int) {
-        enterCooldownStage(index: index, stage: Cooldown.openingStage)
-    }
-
-    /// The warm-up's rule over stretches — see `countInWarmupMove`: the tap
-    /// cuts the transition to a count-in instead of starting the position
-    /// under the thumb. Written out rather than routed through
-    /// `enterCooldownStage`, which owns a stage's FULL length and would hand
-    /// the transition its ten seconds straight back.
-    func countInCooldownPosition() {
-        clearBlockPause()
-        cooldownClock.start(min(cooldownClock.remaining, GetReady.countInSeconds), now: now())
-    }
-
-    func enterCooldownStage(index: Int, stage: Cooldown.Stage) {
-        clearBlockPause()   // a new stage is never entered still frozen
-        cooldownIndex = index
-        cooldownStage = stage
-        cooldownClock.start(Cooldown.stageSeconds(stage, of: cooldownPositions[index]), now: now())
-    }
-
-    func tickCooldown() {
-        let overshoot: Int
-        switch cooldownClock.read(now: now()) {
-        case .unchanged:
-            return
-        case .second(let second):
-            // No 3-2-1 inside the switch pause: ticks would bury the tone it
-            // opened with. The transition is the opposite — the 3-2-1 IS its
-            // signal.
-            if cooldownStage != .switchPause,
-               cooldownClock.signals(second, within: Self.countdownSignalSeconds) {
-                playTick()
-            }
-            animate(.countdown) { cooldownClock.show(second) }
-            return
-        case .ended(let late):
-            overshoot = Int(max(0, late))
-        }
-        // The warm-up's rule, mirrored (UX review 05.09.2026): a boundary
-        // crossed while the phone was elsewhere is not one the person was at,
-        // so the block freezes on the stage that was running instead of
-        // swallowing the stretches that followed it. `tickWarmup` carries the
-        // reasoning; a rule living in one of two identical block machines is
-        // the "applied to one branch of two" defect written out by hand.
-        if overshoot > BlockPause.absenceSeconds {
-            // The absence goes with it, exactly as in `tickWarmup`.
-            pauseBlock(absence: overshoot)
-            return
-        }
-        guard let next = Cooldown.advance(from: (cooldownIndex, cooldownStage),
-                                          overshoot: overshoot,
-                                          positions: cooldownPositions) else {
-            // The whole workout is assembled — the finale, not another start
-            // (#84). Skipping the cool-down stays silent: a tap is a tap.
-            playWorkoutDone()
-            finishCooldown()
-            return
-        }
-        // (boundary crossed, where the overshoot landed). A transition that
-        // is the boundary just crossed means the position before it ended —
-        // done, and for a unilateral position only at its far end, never at
-        // the switch. Landing anywhere else after a long absence stays
-        // silent: the signal belongs to what is on screen (see tickWarmup).
-        //
-        // Spoken as well as sounded, for the reason `tickWarmup` states: the
-        // subtree VoiceOver was in has just been replaced, so without this the
-        // change of screen reaches nobody who cannot see it.
-        let position = cooldownPositions[next.index]
-        switch (next.entered, next.stage) {
-        case (.getReady, .getReady):
-            playDone()
-            announce(String(localized: "Get ready: \(position.name)"))
-        case (.getReady, _), (_, .getReady):
-            break
-        case (.switchPause, _):
-            playSwitch()
-            announce(SplitStageWords(halves: .sides).switching)
-        default:
-            playGo()
-            if next.stage == .secondSide {
-                announce(SplitStageWords(halves: .sides).secondHalf)
-            } else {
-                announce(position.name)
-            }
-        }
-        cooldownIndex = next.index
-        cooldownStage = next.stage
-        cooldownClock.start(next.remaining, now: now())
-        // Re-stamp so a long cool-down keeps the session resumable — it
-        // restores onto the rating, never into a stretch.
-        if next.entered == .getReady { persistProgress() }
     }
 
     func finishCooldown() {
@@ -242,7 +141,7 @@ extension WorkoutSession {
             cooldownSec = max(0, BlockRun.seconds(began: cooldownBeganAt, ended: now())
                               - blockPausedSec)
         }
-        cooldownClock.freeze()
+        cooldown.clock.freeze()
         phase = .feedback
         liveActivity.end()
         persistProgress()

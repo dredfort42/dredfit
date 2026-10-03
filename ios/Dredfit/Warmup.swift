@@ -281,41 +281,15 @@ enum Warmup {
     /// a promise the block overruns is worse than one it beats.
     static func introMinutes(_ moves: [WarmupMove]) -> Int {
         let seconds = moves.reduce(0) { total, move in
-            total + stageSeconds(.getReady, of: move) + slotSeconds(of: move)
+            total + GuidedBlock.warmup.stageSeconds(.getReady, of: move) + slotSeconds(of: move)
         }
         return max(1, Int((Double(seconds) / 60).rounded(.up)))
     }
 }
 
-// MARK: - The stage machine (issue #52)
+// MARK: - The slot
 
 extension Warmup {
-
-    /// `.move` is the whole slot of a move with no halfway boundary; one that
-    /// has a boundary runs `.firstHalf` → `.switchPause` → `.secondHalf`
-    /// instead — 15 + 5 + 15, the cool-down's stages under the cool-down's
-    /// rules (§41.12). Both open with `.getReady` (issue #52).
-    ///
-    /// HALF, not side, where the cool-down says `.firstSide`: half of this
-    /// block's split moves switch a direction rather than a side, and a stage
-    /// named for one of the two kinds would be wrong for the other every time
-    /// it was read. The cool-down keeps its name because it only ever has
-    /// sides.
-    enum Stage { case getReady, move, firstHalf, switchPause, secondHalf }
-
-    /// The transition's length depends on the move it announces (issue #83),
-    /// so a stage alone no longer has one. The move is passed rather than an
-    /// index for the same reason the cool-down passes its position: the list
-    /// is composed per session, and an index into "the moves" no longer names
-    /// anything on its own.
-    static func stageSeconds(_ stage: Stage, of move: WarmupMove) -> Int {
-        switch stage {
-        case .getReady:               return GetReady.stageSeconds(needsSetup: move.needsSetup)
-        case .move:                   return moveSeconds
-        case .firstHalf, .secondHalf: return halfSeconds
-        case .switchPause:            return switchPauseSeconds
-        }
-    }
 
     /// What the move itself takes, its transition excluded: the slot, plus the
     /// switch pause when it has two halves. ONE function rather than the
@@ -324,51 +298,5 @@ extension Warmup {
     /// agree only until one of them is edited.
     static func slotSeconds(of move: WarmupMove) -> Int {
         move.isSplit ? halfSeconds * 2 + switchPauseSeconds : moveSeconds
-    }
-
-    /// nil when the block is over.
-    static func step(after step: (index: Int, stage: Stage),
-                     moves: [WarmupMove]) -> (index: Int, stage: Stage)? {
-        guard step.index < moves.count else { return nil }
-        switch step.stage {
-        case .getReady:
-            return (step.index, moves[step.index].isSplit ? .firstHalf : .move)
-        case .firstHalf:   return (step.index, .switchPause)
-        case .switchPause: return (step.index, .secondHalf)
-        case .move, .secondHalf:
-            let next = step.index + 1
-            guard next < moves.count else { return nil }
-            return (next, .getReady)
-        }
-    }
-
-    /// `entered` names the stage the audible boundary opened; index/stage/
-    /// remaining are where the countdown landed. A long absence crosses
-    /// several boundaries, so the two can disagree — callers choosing a
-    /// signal must read both.
-    struct Advance {
-        let entered: Stage
-        let index: Int
-        let stage: Stage
-        let remaining: Int
-    }
-
-    /// Whole stages a long absence (`overshoot` seconds past the boundary)
-    /// already covered are absorbed — a backgrounded warm-up must not stretch
-    /// itself one move at a time. nil when the block is over, immediately or
-    /// inside the overshoot.
-    static func advance(from current: (index: Int, stage: Stage),
-                        overshoot: Int,
-                        moves: [WarmupMove]) -> Advance? {
-        guard var landing = step(after: current, moves: moves) else { return nil }
-        let entered = landing.stage
-        var remainder = overshoot
-        while remainder >= stageSeconds(landing.stage, of: moves[landing.index]) {
-            remainder -= stageSeconds(landing.stage, of: moves[landing.index])
-            guard let next = step(after: landing, moves: moves) else { return nil }
-            landing = next
-        }
-        return Advance(entered: entered, index: landing.index, stage: landing.stage,
-                       remaining: stageSeconds(landing.stage, of: moves[landing.index]) - remainder)
     }
 }

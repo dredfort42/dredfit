@@ -41,8 +41,8 @@ extension WorkoutSession {
         // wall clock, so both used to be billed to the stretching (UX review
         // 05.09.2026, see `blockPausedSec`).
         beginBlockFreeze(absence: absence)
-        warmupClock.freeze()
-        cooldownClock.freeze()
+        warmup.clock.freeze()
+        cooldown.clock.freeze()
         if case .rest = phase {
             restClock.freeze()
             // The lock screen counts down to a date, so a frozen rest has to
@@ -75,8 +75,8 @@ extension WorkoutSession {
 
     var needsReentry: Bool {
         switch phase {
-        case .warmup:   return BlockPause.needsReentry(warmupStage)
-        case .cooldown: return BlockPause.needsReentry(cooldownStage)
+        case .warmup:   return BlockPause.needsReentry(warmup.stage)
+        case .cooldown: return BlockPause.needsReentry(cooldown.stage)
         // A rest is not a position to be counted back into — it is time being
         // given, and its own 3-2-1 is still ahead of it. What it takes instead
         // is a floor on what is left (`BlockPause.restAfterPause`), so nobody
@@ -104,20 +104,12 @@ extension WorkoutSession {
     func endBlockReentry() {
         playGo()
         // `clearBlockPause()`, not `blockPause.clear()`: the re-entry is a way
-        // out of a pause like any other, and the comment on that method states
-        // the invariant this line used to break — a freeze left open runs to
-        // the end of the block.
-        //
-        // It is reachable: the technique button is drawn on the "Get ready"
-        // screen of a re-entry with no gate, and `openPositionTechnique`
-        // opens a freeze there. Closing it again is `resumePositionCountdown`,
-        // which returns early while `blockPause.isPaused` — and a re-entry IS
-        // paused. In the cool-down nothing else would close it before
-        // `finishCooldown`, because `tickCooldown` writes its stage inline
-        // instead of going through `enterWarmupStage`'s equivalent, so the
-        // measured length of the block came out as the few seconds before the
-        // sheet rather than the five minutes actually stretched — and that
-        // number is persisted and exported to Health (self-review 05.09.2026).
+        // out of a pause like any other. A freeze can be open here — the
+        // technique sheet is reachable from the re-entry's screen, and
+        // `resumePositionCountdown` closes nothing while the re-entry (which
+        // is paused) runs — and left open it would bill the stage that follows
+        // as time the block stood still. The block's measured length is
+        // persisted and exported to Health.
         clearBlockPause()
         restartFrozenStage()
     }
@@ -127,9 +119,9 @@ extension WorkoutSession {
     func restartFrozenStage() {
         switch phase {
         case .warmup:
-            warmupClock.resume(now: now())
+            warmup.clock.resume(now: now())
         case .cooldown:
-            cooldownClock.resume(now: now())
+            cooldown.clock.resume(now: now())
         case .rest(let total):
             let end = restClock.start(BlockPause.restAfterPause(remaining: restClock.remaining,
                                                                 total: total),

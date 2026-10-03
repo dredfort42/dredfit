@@ -119,26 +119,17 @@ final class WorkoutSession {
 
     var phase: Phase = .warmupIntro
 
-    var warmupIndex = 0
-
-    var warmupClock = Countdown()
-
-    // Shares the block's countdown state — one timer, two stages — so
-    // nothing new has to survive backgrounding.
-    var warmupStage: Warmup.Stage = .getReady
+    /// Where each guided block stands: its position, the stage of it, and one
+    /// clock for every stage — so nothing new has to survive backgrounding.
+    var warmup = GuidedBlockRun()
+    var cooldown = GuidedBlockRun()
 
     // Computed once on entry: the composition depends on what was performed.
     var cooldownPositions: [CooldownPosition] = []
 
-    var cooldownIndex = 0
-
-    var cooldownClock = Countdown()
-
-    var cooldownStage: Cooldown.Stage = Cooldown.openingStage
-
     // The pause of the guided blocks (issue #61). One for both, like the
     // stage/clock pairs above: the two blocks never run at once. Held, the
-    // frozen seconds stand in warmupClock / cooldownClock and no end date
+    // frozen seconds stand in the block's clock and no end date
     // exists anywhere; re-entering, only this moves.
     var blockPause = BlockPause.State()
 
@@ -384,13 +375,13 @@ final class WorkoutSession {
     func tick() {
         switch phase {
         case .warmup:
-            if blockPause.isPaused { tickBlockPause() } else { tickWarmup() }
+            if blockPause.isPaused { tickBlockPause() } else { tick(.warmup) }
         case .rest:
             // Paused, the rest has no end date to run out — the way back
             // in owns the clock, exactly as it does in the two blocks.
             if blockPause.isPaused { tickBlockPause() } else { tickRest() }
         case .cooldown:
-            if blockPause.isPaused { tickBlockPause() } else { tickCooldown() }
+            if blockPause.isPaused { tickBlockPause() } else { tick(.cooldown) }
         case .work where holdCountingIn:
             tickHoldCountIn()
         case .work where holdSwitchPausing:

@@ -57,7 +57,7 @@ final class GetReadyTests: XCTestCase {
         XCTAssertNotEqual(GetReady.seconds, Cooldown.sideSwitchPauseSec,
                           "the two lengths parted in v2.26 and must stay apart")
         XCTAssertEqual(GetReady.stageSeconds(needsSetup: false), GetReady.seconds)
-        XCTAssertEqual(Warmup.stageSeconds(.getReady, of: Warmup.moves(sessionNumber: 1)[0]),
+        XCTAssertEqual(GuidedBlock.warmup.stageSeconds(.getReady, of: Warmup.moves(sessionNumber: 1)[0]),
                        GetReady.seconds,
                        "marching starts where the user already stands")
     }
@@ -70,7 +70,7 @@ final class GetReadyTests: XCTestCase {
                        GetReady.seconds + GetReady.setupSupplementSec)
         let positions = Cooldown.positions(performed: [.pull])
         XCTAssertEqual(positions[0].id, "hip-flexors")
-        XCTAssertEqual(Cooldown.stageSeconds(.getReady, of: positions[0]),
+        XCTAssertEqual(GuidedBlock.cooldown.stageSeconds(.getReady, of: positions[0]),
                        GetReady.seconds + GetReady.setupSupplementSec,
                        "the block opens by getting down onto one knee")
     }
@@ -178,26 +178,26 @@ final class GetReadyTests: XCTestCase {
     func testEveryWarmupMoveOpensWithTheTransition() {
         // The first one included: the user has just pressed Start and is
         // still standing by the phone.
-        XCTAssertEqual(Warmup.step(after: (0, .getReady), moves: warmupMoves)?.stage, .move)
-        let next = Warmup.step(after: (0, .move), moves: warmupMoves)
+        XCTAssertEqual(GuidedBlock.step(after: (0, .getReady), positions: warmupMoves)?.stage, .whole)
+        let next = GuidedBlock.step(after: (0, .whole), positions: warmupMoves)
         XCTAssertEqual(next?.index, 1)
         XCTAssertEqual(next?.stage, .getReady)
     }
 
     func testTheWarmupEndsAfterTheLastMove() {
-        XCTAssertNil(Warmup.step(after: (warmupMoves.count - 1, .move), moves: warmupMoves),
+        XCTAssertNil(GuidedBlock.step(after: (warmupMoves.count - 1, .whole), positions: warmupMoves),
                      "the last move hands the flow to the first exercise")
-        XCTAssertNotNil(Warmup.step(after: (warmupMoves.count - 1, .getReady),
-                                    moves: warmupMoves),
+        XCTAssertNotNil(GuidedBlock.step(after: (warmupMoves.count - 1, .getReady),
+                                    positions: warmupMoves),
                         "...but its own transition still has a move to announce")
     }
 
     func testWarmupAdvanceNamesTheStageItEnters() {
-        let intoMove = Warmup.advance(from: (0, .getReady), overshoot: 0, moves: warmupMoves)
-        XCTAssertEqual(intoMove?.entered, .move)
+        let intoMove = GuidedBlock.warmup.advance(from: (0, .getReady), overshoot: 0, positions: warmupMoves)
+        XCTAssertEqual(intoMove?.entered, .whole)
         XCTAssertEqual(intoMove?.remaining, Warmup.moveSeconds)
-        let intoTransition = Warmup.advance(from: (0, .move), overshoot: 0,
-                                            moves: warmupMoves)
+        let intoTransition = GuidedBlock.warmup.advance(from: (0, .whole), overshoot: 0,
+                                            positions: warmupMoves)
         XCTAssertEqual(intoTransition?.entered, .getReady)
         XCTAssertEqual(intoTransition?.index, 1)
         XCTAssertEqual(intoTransition?.remaining, GetReady.seconds)
@@ -213,16 +213,16 @@ final class GetReadyTests: XCTestCase {
         // WHICH stage that move opens on is asked of the machine, not assumed:
         // this line meant "the whole slot" until arm circles became a split
         // move (§41.12) and the second move of the block stopped having one.
-        let opening = try XCTUnwrap(Warmup.step(after: (1, .getReady),
-                                                moves: warmupMoves)?.stage)
-        let landing = Warmup.advance(from: (0, .move), overshoot: GetReady.seconds + 2,
-                                     moves: warmupMoves)
+        let opening = try XCTUnwrap(GuidedBlock.step(after: (1, .getReady),
+                                                positions: warmupMoves)?.stage)
+        let landing = GuidedBlock.warmup.advance(from: (0, .whole), overshoot: GetReady.seconds + 2,
+                                     positions: warmupMoves)
         XCTAssertEqual(landing?.index, 1)
         XCTAssertEqual(landing?.stage, opening)
         XCTAssertEqual(landing?.remaining,
-                       Warmup.stageSeconds(opening, of: warmupMoves[1]) - 2)
+                       GuidedBlock.warmup.stageSeconds(opening, of: warmupMoves[1]) - 2)
         // An absence past the whole block simply ends it.
-        XCTAssertNil(Warmup.advance(from: (0, .move), overshoot: 10_000, moves: warmupMoves))
+        XCTAssertNil(GuidedBlock.warmup.advance(from: (0, .whole), overshoot: 10_000, positions: warmupMoves))
     }
 
     func testWarmupOvershootLandsOnAWholeMoveBoundary() {
@@ -230,9 +230,9 @@ final class GetReadyTests: XCTestCase {
         // and lands at the top of the next transition, not mid-anything. The
         // cycle is the move's OWN: 35 s where the slot has a switch pause in
         // it (§41.12), 30 where it runs straight through.
-        let cycle = Warmup.stageSeconds(.getReady, of: warmupMoves[1])
+        let cycle = GuidedBlock.warmup.stageSeconds(.getReady, of: warmupMoves[1])
             + Warmup.slotSeconds(of: warmupMoves[1])
-        let landing = Warmup.advance(from: (0, .move), overshoot: cycle, moves: warmupMoves)
+        let landing = GuidedBlock.warmup.advance(from: (0, .whole), overshoot: cycle, positions: warmupMoves)
         XCTAssertEqual(landing?.index, 2)
         XCTAssertEqual(landing?.stage, .getReady)
         XCTAssertEqual(landing?.remaining, GetReady.seconds)
@@ -251,11 +251,11 @@ final class GetReadyTests: XCTestCase {
         let onto = floorIndex
         XCTAssertGreaterThan(onto, 0, "the floor is never the first move")
         let supplemented = GetReady.seconds + GetReady.setupSupplementSec
-        XCTAssertEqual(Warmup.stageSeconds(.getReady, of: warmupMoves[onto]), supplemented)
-        let landing = Warmup.advance(from: (onto - 1, .move), overshoot: supplemented + 2,
-                                     moves: warmupMoves)
+        XCTAssertEqual(GuidedBlock.warmup.stageSeconds(.getReady, of: warmupMoves[onto]), supplemented)
+        let landing = GuidedBlock.warmup.advance(from: (onto - 1, .whole), overshoot: supplemented + 2,
+                                     positions: warmupMoves)
         XCTAssertEqual(landing?.index, onto)
-        XCTAssertEqual(landing?.stage, .move)
+        XCTAssertEqual(landing?.stage, .whole)
         XCTAssertEqual(landing?.remaining, Warmup.moveSeconds - 2)
     }
 
@@ -265,17 +265,17 @@ final class GetReadyTests: XCTestCase {
         let moves = dearestComposition
         let index = try XCTUnwrap(moves.firstIndex(where: \.isSplit),
                                   "the dearest composition must draw a split move")
-        XCTAssertEqual(Warmup.step(after: (index, .getReady), moves: moves)?.stage, .firstHalf)
-        XCTAssertEqual(Warmup.step(after: (index, .firstHalf), moves: moves)?.stage, .switchPause)
-        XCTAssertEqual(Warmup.step(after: (index, .switchPause), moves: moves)?.stage, .secondHalf)
+        XCTAssertEqual(GuidedBlock.step(after: (index, .getReady), positions: moves)?.stage, .firstHalf)
+        XCTAssertEqual(GuidedBlock.step(after: (index, .firstHalf), positions: moves)?.stage, .switchPause)
+        XCTAssertEqual(GuidedBlock.step(after: (index, .switchPause), positions: moves)?.stage, .secondHalf)
         // All three stay on the same move: the switch is inside one position,
         // not travel to another, and an index that walked would show the next
         // move's name over the wrong countdown.
-        for stage in [Warmup.Stage.getReady, .firstHalf, .switchPause] {
-            XCTAssertEqual(Warmup.step(after: (index, stage), moves: moves)?.index, index,
+        for stage in [GuidedStage.getReady, .firstHalf, .switchPause] {
+            XCTAssertEqual(GuidedBlock.step(after: (index, stage), positions: moves)?.index, index,
                            "\(stage) must not walk off the move it belongs to")
         }
-        let next = Warmup.step(after: (index, .secondHalf), moves: moves)
+        let next = GuidedBlock.step(after: (index, .secondHalf), positions: moves)
         XCTAssertEqual(next?.index, index + 1, "the far side hands over to the next move")
         XCTAssertEqual(next?.stage, .getReady)
     }
@@ -283,7 +283,7 @@ final class GetReadyTests: XCTestCase {
     func testAMoveWithNoBoundaryNeverSeesAHalf() throws {
         let moves = dearestComposition
         let index = try XCTUnwrap(moves.firstIndex(where: { !$0.isSplit }))
-        XCTAssertEqual(Warmup.step(after: (index, .getReady), moves: moves)?.stage, .move,
+        XCTAssertEqual(GuidedBlock.step(after: (index, .getReady), positions: moves)?.stage, .whole,
                        "a move with no halfway boundary runs the whole slot in one stage")
     }
 
@@ -334,9 +334,9 @@ final class GetReadyTests: XCTestCase {
 
     func testTheTwoHalvesSplitTheSlotAndThePauseRidesOnTop() throws {
         let move = try XCTUnwrap(dearestComposition.first(where: \.isSplit))
-        XCTAssertEqual(Warmup.stageSeconds(.firstHalf, of: move), Warmup.halfSeconds)
-        XCTAssertEqual(Warmup.stageSeconds(.secondHalf, of: move), Warmup.halfSeconds)
-        XCTAssertEqual(Warmup.stageSeconds(.switchPause, of: move), Cooldown.sideSwitchPauseSec)
+        XCTAssertEqual(GuidedBlock.warmup.stageSeconds(.firstHalf, of: move), Warmup.halfSeconds)
+        XCTAssertEqual(GuidedBlock.warmup.stageSeconds(.secondHalf, of: move), Warmup.halfSeconds)
+        XCTAssertEqual(GuidedBlock.warmup.stageSeconds(.switchPause, of: move), Cooldown.sideSwitchPauseSec)
         XCTAssertEqual(Warmup.slotSeconds(of: move),
                        Warmup.moveSeconds + Cooldown.sideSwitchPauseSec,
                        "the two halves ARE the slot; only the pause is added to it")
@@ -345,32 +345,32 @@ final class GetReadyTests: XCTestCase {
     }
 
     func testTheWarmupEndsAfterTheFarHalfOfASplitLastMove() throws {
-        // A composition can end on a split move, and then `.move` is a stage
+        // A composition can end on a split move, and then `.whole` is a stage
         // that never runs: the block has to end on `.secondHalf` instead.
         let moves = try XCTUnwrap((1...Warmup.compositionCount)
             .map(Warmup.moves(sessionNumber:))
             .first { $0.last?.isSplit == true },
             "some composition must end on a split move")
-        XCTAssertNil(Warmup.step(after: (moves.count - 1, .secondHalf), moves: moves),
+        XCTAssertNil(GuidedBlock.step(after: (moves.count - 1, .secondHalf), positions: moves),
                      "the far half of the last move hands the flow to the work")
     }
 
     func testTheWarmupSwitchIsABoundaryTheFlowCanSound() throws {
-        // The tone is chosen from `entered` (see `tickWarmup`), so the pause
+        // The tone is chosen from `entered` (see `WorkoutSession.tick(_:)`), so the pause
         // has to be NAMED when the first side runs out. And a long absence
         // across the whole move must not report a switch nobody is standing
         // at: `entered` and `stage` disagree, and the flow stays silent.
         let moves = dearestComposition
         let index = try XCTUnwrap(moves.firstIndex(where: \.isSplit))
-        let intoPause = Warmup.advance(from: (index, .firstHalf), overshoot: 0, moves: moves)
+        let intoPause = GuidedBlock.warmup.advance(from: (index, .firstHalf), overshoot: 0, positions: moves)
         XCTAssertEqual(intoPause?.entered, .switchPause)
         XCTAssertEqual(intoPause?.remaining, Cooldown.sideSwitchPauseSec)
-        let intoSecond = Warmup.advance(from: (index, .switchPause), overshoot: 0, moves: moves)
+        let intoSecond = GuidedBlock.warmup.advance(from: (index, .switchPause), overshoot: 0, positions: moves)
         XCTAssertEqual(intoSecond?.entered, .secondHalf)
         XCTAssertEqual(intoSecond?.remaining, Warmup.halfSeconds)
-        let landing = Warmup.advance(from: (index, .getReady),
+        let landing = GuidedBlock.warmup.advance(from: (index, .getReady),
                                      overshoot: Warmup.slotSeconds(of: moves[index]) + 1,
-                                     moves: moves)
+                                     positions: moves)
         XCTAssertEqual(landing?.entered, .firstHalf, "the run opened on the first half")
         XCTAssertEqual(landing?.index, index + 1, "...and came to rest past the whole move")
         XCTAssertEqual(landing?.stage, .getReady)
@@ -381,21 +381,21 @@ final class GetReadyTests: XCTestCase {
     func testAdvanceCanLandOnATransitionItDidNotEnter() {
         // Warm-up: one second past a move's own end, so the run opens on the
         // move and rests inside the next position's transition.
-        let warmup = Warmup.advance(from: (0, .getReady),
+        let warmup = GuidedBlock.warmup.advance(from: (0, .getReady),
                                     overshoot: Warmup.moveSeconds + 1,
-                                    moves: warmupMoves)
-        XCTAssertEqual(warmup?.entered, .move, "the run opened on the move")
+                                    positions: warmupMoves)
+        XCTAssertEqual(warmup?.entered, .whole, "the run opened on the move")
         XCTAssertEqual(warmup?.stage, .getReady, "...but came to rest on a transition")
         XCTAssertEqual(warmup?.index, 1)
 
         // Cool-down: the same shape across a whole per-side position.
         let positions = Cooldown.positions(performed: [.pull])
         XCTAssertTrue(positions[0].perSide, "hip flexors open the block per side")
-        let cooldown = Cooldown.advance(
+        let cooldown = GuidedBlock.cooldown.advance(
             from: (0, .getReady),
             overshoot: Cooldown.sideSeconds * 2 + Cooldown.sideSwitchPauseSec + 2,
             positions: positions)
-        XCTAssertEqual(cooldown?.entered, .firstSide, "the run opened on the first side")
+        XCTAssertEqual(cooldown?.entered, .firstHalf, "the run opened on the first side")
         XCTAssertEqual(cooldown?.stage, .getReady, "...but came to rest on a transition")
         XCTAssertEqual(cooldown?.index, 1)
         XCTAssertEqual(cooldown?.remaining,
@@ -407,11 +407,10 @@ final class GetReadyTests: XCTestCase {
 
     func testEveryCooldownPositionOpensWithTheTransition() {
         let positions = Cooldown.positions(performed: [.pull])
-        XCTAssertEqual(Cooldown.openingStage, .getReady)
         for (index, position) in positions.enumerated() {
-            let after = Cooldown.step(after: (index, .getReady), positions: positions)
+            let after = GuidedBlock.step(after: (index, .getReady), positions: positions)
             XCTAssertEqual(after?.index, index, "\(position.id): the transition stays put")
-            XCTAssertEqual(after?.stage, position.perSide ? .firstSide : .single,
+            XCTAssertEqual(after?.stage, position.perSide ? .firstHalf : .whole,
                            "\(position.id): the transition hands over to the position itself")
         }
     }
@@ -422,9 +421,9 @@ final class GetReadyTests: XCTestCase {
         guard let index = positions.firstIndex(where: { !$0.perSide }) else {
             return XCTFail("the composition must contain a bilateral position")
         }
-        XCTAssertEqual(Cooldown.step(after: (index, .getReady), positions: positions)?.stage,
-                       .single)
-        XCTAssertEqual(Cooldown.stageSeconds(.single, of: positions[index]),
+        XCTAssertEqual(GuidedBlock.step(after: (index, .getReady), positions: positions)?.stage,
+                       .whole)
+        XCTAssertEqual(GuidedBlock.cooldown.stageSeconds(.whole, of: positions[index]),
                        Cooldown.positionSeconds)
     }
 
@@ -432,15 +431,15 @@ final class GetReadyTests: XCTestCase {
         // advance() walks stages while the overshoot covers them; a zero-length
         // stage would spin forever.
         for position in Cooldown.positions(performed: [.pull]) {
-            for stage in [Cooldown.Stage.getReady, .single, .firstSide, .switchPause, .secondSide] {
-                XCTAssertGreaterThan(Cooldown.stageSeconds(stage, of: position), 0,
+            for stage in [GuidedStage.getReady, .whole, .firstHalf, .switchPause, .secondHalf] {
+                XCTAssertGreaterThan(GuidedBlock.cooldown.stageSeconds(stage, of: position), 0,
                                      "\(position.id).\(stage) has no length")
             }
         }
         XCTAssertGreaterThan(Cooldown.switchPauseSeconds, 0)
         for move in warmupMoves + dearestComposition {
-            for stage in [Warmup.Stage.getReady, .move, .firstHalf, .switchPause, .secondHalf] {
-                XCTAssertGreaterThan(Warmup.stageSeconds(stage, of: move), 0,
+            for stage in [GuidedStage.getReady, .whole, .firstHalf, .switchPause, .secondHalf] {
+                XCTAssertGreaterThan(GuidedBlock.warmup.stageSeconds(stage, of: move), 0,
                                      "\(stage) at \(move.id) has no length")
             }
         }
