@@ -27,7 +27,7 @@ final class HealthExportTests: AppStoreTestCase {
     /// disagrees with the engine and fails.
     func testAnEstimatedDurationUsesTheEngineSBlockLengths() async {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
 
         let session = store.nextSession
@@ -56,7 +56,7 @@ final class HealthExportTests: AppStoreTestCase {
     /// until a later export succeeds.
     func testHealthFailedSaveKeepsWorkoutRetriable() async {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
         spy.allFail = true
         store.completeWorkout(session: store.nextSession, result: .plan, durationSec: 30 * 60)
@@ -76,7 +76,7 @@ final class HealthExportTests: AppStoreTestCase {
     /// leave workout N's failed export stuck with no chance to retry.
     func testHealthLaterSuccessDoesNotLoseEarlierFailedExport() async {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
 
         spy.allFail = true
@@ -99,7 +99,7 @@ final class HealthExportTests: AppStoreTestCase {
 
     func testResetProgressKeepsRecordIdentityAndHealthStateSound() async {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 10))
         store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 12))
         _ = await store.enableHealth()
@@ -124,7 +124,7 @@ final class HealthExportTests: AppStoreTestCase {
 
     func testHealthBackfillStopsAtFirstFailure() async {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 14))
         store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 15))
         store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 16))
@@ -146,7 +146,7 @@ final class HealthExportTests: AppStoreTestCase {
     /// all.
     func testImportDuringInFlightBackfillDoesNotMisflagByStaleIndex() async throws {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         for day in [10, 12, 14, 16] {
             store.completeWorkout(session: store.nextSession, result: .plan,
                                   date: date(2026, 7, day))
@@ -161,7 +161,7 @@ final class HealthExportTests: AppStoreTestCase {
         let donorURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-donor-\(UUID().uuidString).json")
         defer { try? FileManager.default.removeItem(at: donorURL) }
-        let donor = AppStore(storageURL: donorURL)
+        let donor = makeStore(storageURL: donorURL)
         for day in 1...3 {
             donor.completeWorkout(session: donor.nextSession, result: .plan,
                                   date: date(2026, 7, day))
@@ -189,7 +189,7 @@ final class HealthExportTests: AppStoreTestCase {
 
     func testDisablingHealthStopsAnInFlightBackfill() async {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         for day in [10, 12, 14] {
             store.completeWorkout(session: store.nextSession, result: .plan,
                                   date: date(2026, 7, day))
@@ -215,7 +215,7 @@ final class HealthExportTests: AppStoreTestCase {
     /// forward in time.
     func testNegativeDurationDoesNotPoisonHealthBackfill() async {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         store.completeWorkout(session: store.nextSession, result: .plan,
                               durationSec: -20 * 60, date: date(2026, 7, 14))
         store.completeWorkout(session: store.nextSession, result: .plan,
@@ -236,7 +236,7 @@ final class HealthExportTests: AppStoreTestCase {
     /// journal's real dates — a real old backup keeps them.
     func testImportKeepsHealthMarkMonotonic() async throws {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 14))
         store.completeWorkout(session: store.nextSession, result: .more, date: date(2026, 7, 16))
         _ = await store.enableHealth()
@@ -274,7 +274,7 @@ final class HealthExportTests: AppStoreTestCase {
     /// "already exported" and hid them from the backfill forever (issue #103).
     func testUnrelatedImportDoesNotInheritTheHealthMark() async throws {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 14))
         store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 16))
         _ = await store.enableHealth()
@@ -286,7 +286,7 @@ final class HealthExportTests: AppStoreTestCase {
         let donorURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("dredfit-foreign-\(UUID().uuidString).json")
         defer { try? FileManager.default.removeItem(at: donorURL) }
-        let donor = AppStore(storageURL: donorURL)
+        let donor = makeStore(storageURL: donorURL)
         donor.completeWorkout(session: donor.nextSession, result: .plan, date: date(2026, 6, 1))
         donor.completeWorkout(session: donor.nextSession, result: .plan, date: date(2026, 6, 3))
         let backup = try donor.exportURL()
@@ -310,7 +310,7 @@ final class HealthExportTests: AppStoreTestCase {
             .appendingPathComponent("dredfit-flagged-\(UUID().uuidString).json")
         defer { try? FileManager.default.removeItem(at: donorURL) }
         let donorSpy = HealthSpy()
-        let donor = AppStore(storageURL: donorURL, health: donorSpy)
+        let donor = makeStore(storageURL: donorURL, health: donorSpy)
         donor.completeWorkout(session: donor.nextSession, result: .plan, date: date(2026, 6, 1))
         _ = await donor.enableHealth()
         await donor.backfillHealth()
@@ -321,7 +321,7 @@ final class HealthExportTests: AppStoreTestCase {
         defer { try? FileManager.default.removeItem(at: backup) }
 
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 14))
         try store.importBackup(from: backup)
         XCTAssertEqual(store.healthBackfillCount, 0,
@@ -335,7 +335,7 @@ final class HealthExportTests: AppStoreTestCase {
     /// (issue #103: the legacy migration now runs only on flag-free files).
     func testResetThenReloadDoesNotStampTheNewJournal() async {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 10))
         store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 12))
         _ = await store.enableHealth()
@@ -347,7 +347,7 @@ final class HealthExportTests: AppStoreTestCase {
         XCTAssertEqual(store.records.last?.sessionNumber, 1)
         XCTAssertNil(store.records.last?.healthExported, "not exported: Health is off")
 
-        let reloaded = AppStore(storageURL: tempURL, health: HealthSpy())
+        let reloaded = makeStore(health: HealthSpy())
         XCTAssertNil(reloaded.records.last?.healthExported,
                      "a reload must not stamp the post-reset session 1 by the old mark")
         XCTAssertEqual(reloaded.healthBackfillCount, 1,
@@ -357,7 +357,7 @@ final class HealthExportTests: AppStoreTestCase {
     func testHealthDenialLeavesToggleOff() async {
         let spy = HealthSpy()
         spy.grant = false
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         let granted = await store.enableHealth()
         XCTAssertFalse(granted)
         XCTAssertFalse(store.settings.healthEnabled, "denial must leave the toggle off")
@@ -367,7 +367,7 @@ final class HealthExportTests: AppStoreTestCase {
     /// foreground; one still granted leaves it alone.
     func testRevokedShareTurnsTheToggleOffOnActivation() async {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
         store.activate()
         XCTAssertTrue(store.settings.healthEnabled)
@@ -378,7 +378,7 @@ final class HealthExportTests: AppStoreTestCase {
 
     func testHealthBackfillExportsOnceAndNeverDuplicates() async {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 14))
         store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 16))
 
@@ -403,7 +403,7 @@ final class HealthExportTests: AppStoreTestCase {
 
     func testHealthSkipBackfillMarksHistoryHandled() async {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 14))
         _ = await store.enableHealth()
         store.skipHealthBackfill()
@@ -433,7 +433,7 @@ final class HealthExportTests: AppStoreTestCase {
     func testDuplicateJournalIDsDoNotLoopTheBackfill() async {
         let spy = HealthSpy()
         spy.failFromCall = 5
-        let store = AppStore(storageURL: tempURL, health: spy)
+        let store = makeStore(health: spy)
         // Only a hand-edited journal gets here — which is the input every
         // decoder in this project is written against.
         let stamp = date(2026, 7, 10)
