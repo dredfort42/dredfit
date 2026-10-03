@@ -37,7 +37,7 @@ final class CalendarCaptionTests: AppStoreTestCase {
     // MARK: - The week card's number
 
     func test_weekSummary_whenTheWeeksLastRecordPredatesTheScale_readsZeroRatherThanTheBaselineBackwards() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.records = [journalEntry(date(2026, 7, 3), progress: 40),   // Friday, the week before
                          journalEntry(wednesday, progress: nil)]         // written before v3
 
@@ -50,7 +50,7 @@ final class CalendarCaptionTests: AppStoreTestCase {
     }
 
     func test_weekSummary_whenTheWeekEndsLowerThanItStarted_reportsTheDropInsteadOfHidingIt() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.records = [journalEntry(date(2026, 7, 3), progress: 40),
                          journalEntry(wednesday, progress: 30)]
 
@@ -64,14 +64,14 @@ final class CalendarCaptionTests: AppStoreTestCase {
     /// is rest FROM something), so the next training date is today as well —
     /// it used to say "tomorrow" for the very session Today was offering.
     func test_nextTrainingDate_whenAFreshInstallStartsOnAMarkedWeekday_isToday() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.settings.restWeekdays = [Calendar.current.component(.weekday, from: store.today)]
         XCTAssertFalse(store.restAppliesToday, "Today offers the plan")
         XCTAssertTrue(Calendar.current.isDate(store.nextTrainingDate, inSameDayAs: store.today))
     }
 
     func test_nextTrainingDateLabel_forAGivenDay_speaksFromThatDayAndNotFromToday() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         // Saturday and Sunday off, so Monday is the next training day seen
         // from either — the same date, two different words.
         store.settings.restWeekdays = [7, 1]
@@ -93,7 +93,7 @@ final class CalendarCaptionTests: AppStoreTestCase {
     }
 
     func test_nextTrainingDate_whenEveryWeekdayIsMarkedAsRest_stopsAfterASingleWeek() throws {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         // `toggleRestDay` refuses the seventh day, so this state can only
         // arrive from a file — a restored backup, or one edited by hand. The
         // hop limit is the whole defence: without it the search never ends.
