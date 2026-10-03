@@ -10,11 +10,9 @@ import Foundation
 extension Engine {
 
     /// The result of deciding one exercise. `wantedDown` records the INTENT to
-    /// descend rather than the movement of the plan: "hard" can leave the plan
-    /// as it was — at the bottom of the first variation, or when the set it
-    /// takes was already off the plan under the pull slot's cap — and the
-    /// streak toward the deload and the probe's "not hard" condition count
-    /// the answer, not its effect.
+    /// descend rather than the movement of the plan: "hard" does not always
+    /// change what the next plan shows, and the streak toward the deload and
+    /// the probe's "not hard" condition count the answer, not its effect.
     private struct Step {
         var position: Position
         var wantedDown: Bool
@@ -207,12 +205,13 @@ extension Engine {
         if actual >= ex.load + g.step {
             // FAST ADAPTATION. The mean of the sets is a rung or more above
             // the plan's base and past the "met" window, so the journal writes
-            // it and the next showing is that dose on every set. `maxUp` does
-            // not apply: the cap bounds growth the engine ASSIGNS, and here the
-            // dose is what the person just did on their own. It is the
-            // uncapped way back to a person's own level after a clean start —
-            // ratings and the raise handle climb at most two steps a session
-            // each. A variation can never be jumped by facts — only by a probe.
+            // it and the position takes it as its dose, sub-step cleared.
+            // `maxUp` does not apply: the cap bounds growth the engine ASSIGNS,
+            // and here the dose is what the person just did on their own. It is
+            // the way back to a person's own level after a clean start with no
+            // per-session cap: a rating climbs at most `maxUp` growth events,
+            // the raise handle at most `raiseStepsMax` steps of its own. A
+            // variation can never be jumped by facts — only by a probe.
             var pos = old
             pos.dose = min(g.max, actual)
             pos.sub = 0
@@ -386,9 +385,10 @@ extension Engine {
         let trained = trainedEx.pattern
         let other: Pattern = trained == .pull ? .pullBar : .pull
         // (#141) The mark is set by a "less" for the WHOLE session, named or
-        // not, and by a number entered below this branch's plan. Telling
-        // "the branch really is hard" from "that is how the rhythm fell" is
-        // impossible from the inside, and the cost of the error is asymmetric.
+        // not, and by entered numbers whose mean falls below this branch's
+        // base dose. Telling "the branch really is hard" from "that is how the
+        // rhythm fell" is impossible from the inside, and the cost of the
+        // error is asymmetric.
         let strained = result == .less
             || overrides[trained].map { Dose.snapToInt(trainedEx.unit, $0) < trainedEx.load } ?? false
         if strained { next.creditPaused.insert(trained) } else { next.creditPaused.remove(trained) }

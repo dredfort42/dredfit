@@ -311,7 +311,7 @@ public struct EngineState: Codable, Equatable, Sendable {
     }
 
     /// The last dose recorded for a variation, if the trainee has ever been
-    /// there. The app's progress screens read the ladder through this.
+    /// there. Only tests read it.
     public func shownDose(_ pattern: Pattern, variation: Int) -> Int? {
         shown[pattern]?[variation]
     }

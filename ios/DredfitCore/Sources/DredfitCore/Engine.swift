@@ -81,10 +81,10 @@ public enum EngineConfig {
     /// link suffers, at 3 the descent from an impossible plan costs another
     /// session.
     static let lessRunToGlobal = 2
-    /// The deload: three whole rungs of dose (3 reps per set, −15 s on a
-    /// hold), which keeps v2's deload of three levels at one rung per level.
-    /// On the dose floor a rung becomes a set taken off, then the variation
-    /// below (`fallDoses`).
+    /// The deload: the sub-step comes off and the base dose drops three whole
+    /// rungs (3 reps, 15 s), which keeps v2's deload of three levels at one
+    /// rung per level. On the dose floor a rung becomes a set taken off or a
+    /// step into the variation below (`fallDoses`).
     static let deloadDrop = 3
     /// The two blocks are budgeted in whole minutes: the app's worst warm-up
     /// plus cool-down is 520 s against the 600 this and `cooldownMin` give

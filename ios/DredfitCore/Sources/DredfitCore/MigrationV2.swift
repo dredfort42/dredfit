@@ -104,8 +104,9 @@ public extension Engine {
                 next.sets[p] = EngineState.clamped(v2sets, EngineConfig.setsBase, Engine.setsCeil(p, v))
             }
             // The journal: they really did do this dose in this variation, or
-            // they would never have reached it. Without the record the very
-            // first descent would send them to the floor.
+            // they would never have reached it. Without the record the
+            // journal's readers (`landingDose`, `riseWithinJournal`,
+            // `probeAllowed`) would treat this variation as never shown.
             next.shown[p, default: [:]][v] = dose
             next.failStreak[p] = EngineState.clamped(old.failStreak[p] ?? 0,
                                                      0, EngineConfig.failsToDeload - 1)
