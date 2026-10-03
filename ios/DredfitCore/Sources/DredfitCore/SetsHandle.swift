@@ -25,7 +25,7 @@ extension Engine {
     }
 
     /// The one and only clamp on a set count. Every mechanism that cuts sets —
-    /// the band gate among them — goes through it, so the floor holds for
+    /// the pull-caps-push gate among them — goes through it, so the floor holds for
     /// their COMPOSITION and not just for each cut on its own.
     static func clampSets(_ n: Int, floor: Int) -> Int { max(floor, n) }
 
@@ -107,11 +107,11 @@ extension Engine {
     /// trainee showed nothing in it. After an appearance `riseBy` needs no
     /// bound: it grows from the plan the person has just done.
     ///
-    /// The engine never assigns what was not shown, and an unbounded credit
-    /// would: it REPEATS someone else's gain. The bound keeps what the credit
-    /// is for — the branch does not fall a whole rung behind — and removes the
-    /// prediction: the credit may cross a rung of dose only after the trainee
-    /// has shown that rung IN THIS BRANCH.
+    /// Unbounded, the credit would REPEAT someone else's gain and lift this
+    /// branch past anything shown in it. The bound keeps what the credit is
+    /// for — the branch does not fall a whole rung behind — and removes the
+    /// prediction: the base dose may cross a rung only after the trainee has
+    /// shown that rung IN THIS BRANCH.
     static func riseWithinJournal(_ p: Pattern, _ pos: Position, _ n: Int,
                                   allowSetsBack: Bool,
                                   shown: [Pattern: [Int: Int]]) -> Position {

@@ -1,6 +1,6 @@
 //
-//  The engine's state: six coordinates per pattern, the journal of what was
-//  shown, and the global counters.
+//  The engine's state: a position of five coordinates per pattern, the
+//  journal of what was shown, and the global counters.
 //
 //  A state written before v3 carries `levels` and no `vars`/`doses`, so the
 //  decode below FAILS on it — and that failure is the DISPATCH, not the end:
@@ -301,7 +301,7 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// The sets taken off a pattern, zero when none are.
     public func cutOf(_ pattern: Pattern) -> Int { cut[pattern] ?? 0 }
 
-    /// The pattern's place on its ladder — all six coordinates.
+    /// The pattern's place on its ladder — all five coordinates.
     public func position(_ pattern: Pattern) -> Position {
         Position(variation: vars[pattern] ?? 1,
                  sets: sets[pattern] ?? EngineConfig.setsBase,

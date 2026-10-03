@@ -4,7 +4,7 @@
 //  TWO grids for the entire library: reps 4…15 by 1, holds 15…45 by 5. The
 //  start of any variation is its grid's floor, and the smoothing of the steps
 //  is done by the LADDER itself — the rungs stand at most ×1.50 apart, so one
-//  step of 5 s on 15…45 is between +11 % and +33 % wherever you stand.
+//  step of 5 s on 15…45 is between +12.5 % and +33 % wherever you stand.
 //
 //  Nothing here reads `w`. A dose is measured, never predicted.
 //

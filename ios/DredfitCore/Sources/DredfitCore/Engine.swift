@@ -81,13 +81,19 @@ public enum EngineConfig {
     /// link suffers, at 3 the descent from an impossible plan costs another
     /// session.
     static let lessRunToGlobal = 2
-    /// The deload drops 3 reps per set (−15 s on a hold).
+    /// The deload: three whole rungs of dose (3 reps per set, −15 s on a
+    /// hold), which keeps v2's deload of three levels at one rung per level.
+    /// On the dose floor a rung becomes a set taken off, then the variation
+    /// below (`fallDoses`).
     static let deloadDrop = 3
     /// The two blocks are budgeted in whole minutes: the app's worst warm-up
     /// plus cool-down is 520 s against the 600 this and `cooldownMin` give
     /// (`BlockReserveTests`). Nine minutes would hold it; ten stays because a
     /// minute given back is a change to the reference engine and the golden
-    /// fixture, and shortens every announced session length.
+    /// fixture, and shortens every announced session length. The warm-up's
+    /// six carry the minute for the counted switch of its split moves
+    /// (Warmup.swift), and the Health estimate caps each block at its own
+    /// minutes (`EnergyEstimate`).
     public static let warmupMin = 6
     /// The two blocks share a reserve of `warmupMin + cooldownMin` — see
     /// GetReady.swift for the arithmetic it is spent by.
@@ -246,7 +252,7 @@ public enum Engine {
     /// stores the position rather than the measure because the measure has no
     /// inverse — this is the one direction that exists.
     ///
-    /// All six coordinates: a snapshot replotted without `sub` and `cut` would
+    /// All five coordinates: a snapshot replotted without `sub` and `cut` would
     /// sit off the number beside it by its sub-steps less its cut. A record
     /// that carries neither passes zeros, which is all the shorter form below
     /// does.

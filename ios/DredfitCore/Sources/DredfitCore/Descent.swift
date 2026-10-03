@@ -5,7 +5,9 @@
 //  the variation below with the JOURNAL OF WHAT WAS SHOWN there as its
 //  ceiling (the grid floor where the person has never been), walked down
 //  until the plan weighs no more than the one being left — `landInVar`, which
-//  also names the boundaries where nothing fits.
+//  also names the boundaries where nothing fits. The one crossing that skips
+//  it is a comeback's landing ceiling, which writes the floor of its variation
+//  directly (Breaks.swift).
 //
 
 import Foundation
@@ -34,7 +36,7 @@ extension Engine {
     ///
     /// Two axes, in this order: dose first at the full band, then the cut.
     /// Dose outranks volume — someone who left on two sets would rather have
-    /// three light ones than three heavy ones, and a dropped set comes back in
+    /// three light ones than two heavy ones, and a dropped set comes back in
     /// a single appearance while dose is walked back a rung at a time.
     ///
     /// When no pair fits, the grid floor at the sets they were doing: there is

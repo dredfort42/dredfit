@@ -10,10 +10,11 @@ import Foundation
 extension Engine {
 
     /// The result of deciding one exercise. `wantedDown` records the INTENT to
-    /// descend rather than the movement of the plan: on the floor of a
-    /// variation "hard" moves nothing, and without this the tap would become
-    /// inert — the streak would never build and the deload would be
-    /// unreachable.
+    /// descend rather than the movement of the plan: "hard" can leave the plan
+    /// as it was — at the bottom of the first variation, or when the set it
+    /// takes was already off the plan under the pull slot's cap — and the
+    /// streak toward the deload and the probe's "not hard" condition count
+    /// the answer, not its effect.
     private struct Step {
         var position: Position
         var wantedDown: Bool
@@ -204,13 +205,14 @@ extension Engine {
                                          allowSetsBack: setsBackOk), wantedDown: false)
         }
         if actual >= ex.load + g.step {
-            // FAST ADAPTATION. The worst fact is above the plan, so the
-            // journal writes the fact and the next showing equals WHAT WAS
-            // SHOWN. `maxUp` does not apply: the cap bounds growth the engine
-            // ASSIGNS, and here the dose is what the person just did on their
-            // own. This is the one mechanism that walks a person back to their
-            // own level after a clean start. A variation can never be jumped
-            // by facts — only by a probe.
+            // FAST ADAPTATION. The mean of the sets is a rung or more above
+            // the plan's base and past the "met" window, so the journal writes
+            // it and the next showing is that dose on every set. `maxUp` does
+            // not apply: the cap bounds growth the engine ASSIGNS, and here the
+            // dose is what the person just did on their own. It is the
+            // uncapped way back to a person's own level after a clean start —
+            // ratings and the raise handle climb at most two steps a session
+            // each. A variation can never be jumped by facts — only by a probe.
             var pos = old
             pos.dose = min(g.max, actual)
             pos.sub = 0
@@ -372,9 +374,9 @@ extension Engine {
     /// (#90) The pull slot stands in every session, but with a bar its
     /// accounting splits into two branches, each growing half as fast as the
     /// slot. The applied gain is repeated to the other branch, bounded by ITS
-    /// OWN growth cell and BY ITS OWN JOURNAL: repeating someone else's gain
-    /// unbounded would assign a dose the person never showed in that branch,
-    /// and the engine never assigns what was not shown.
+    /// OWN growth cell and BY ITS OWN JOURNAL: repeated unbounded, someone
+    /// else's gain would lift that branch's base dose past anything the person
+    /// has shown in it.
     private static func crossCredit(_ next: inout EngineState, session: Session,
                                     result: FeedbackResult, overrides: [Pattern: Double],
                                     entryPos: [Pattern: Position]) {
@@ -383,7 +385,8 @@ extension Engine {
         else { return }
         let trained = trainedEx.pattern
         let other: Pattern = trained == .pull ? .pullBar : .pull
-        // (#141) The mark is set by the rating of the WHOLE session. Telling
+        // (#141) The mark is set by a "less" for the WHOLE session, named or
+        // not, and by a number entered below this branch's plan. Telling
         // "the branch really is hard" from "that is how the rhythm fell" is
         // impossible from the inside, and the cost of the error is asymmetric.
         let strained = result == .less

@@ -1,10 +1,10 @@
 //
 //  A position and its measure.
 //
-//  A position is SIX coordinates: a set band cannot be read off the dose —
+//  A position is FIVE coordinates — variation, sets, dose, sub-step, cut.
+//  `sets` is one of them because a set band cannot be read off the dose:
 //  `4×11` and `3×11` carry one dose and different volumes, and entering a band
-//  LOWERS the dose. So `sets` is a coordinate, stored sparsely with a base
-//  of 3.
+//  LOWERS the dose. It is stored sparsely with a base of 3.
 //
 //  The MEASURE is how many growth events separate a position from the very
 //  bottom of its ladder. It is a measure, not an encoding: it has no inverse

@@ -280,8 +280,8 @@ extension Engine {
             let pos = state.position(p)
             let unit = Library.unit(p, pos.variation)
             let sides = Library.sides(p, pos.variation)
-            // ONE order of cuts: band → sets handle → the pull-caps-push
-            // gate → floor. Each next one may only lower.
+            // ONE order of cuts: the sets band → the sets handle → the
+            // pull-caps-push gate → the floor. Each next one may only lower.
             let ownSets = setsAfterCut(sets: pos.sets, cut: pos.cut)
             let floor = min(EngineConfig.setsFloor, ownSets)
             let slotSets = clampSets(
@@ -315,9 +315,8 @@ extension Engine {
         }
 
         // The postcondition "a descent never adds load" is checked ON THE
-        // RESULT rather than derived from the way the cut is built. With no
-        // time budget left, only the band gate can still move sets about — but
-        // it can, so the repair stays.
+        // RESULT rather than derived from the way the cut is built: the
+        // pull-caps-push gate can move a plan's sets on its own.
         var ordNow: [Pattern: Int] = [:]
         for ex in exercises { ordNow[ex.pattern] = posOrd(ex.pattern, state.position(ex.pattern)) }
         let trimmed = repairDescent(exercises, shownWork: state.shownWork,
@@ -395,8 +394,8 @@ extension Engine {
     }
 
     /// Rebuild an exercise on a different set count. The pause is NOT
-    /// recomputed: the sets handle and the band gate take volume off, not
-    /// recovery.
+    /// recomputed: the sets handle and the pull-caps-push gate take volume
+    /// off, not recovery.
     /// The sub-step is rebuilt for the new count — it cannot ask for more sets
     /// than are left, and clamping to `sets-1` keeps "`load` is the plan's
     /// minimum" true.
