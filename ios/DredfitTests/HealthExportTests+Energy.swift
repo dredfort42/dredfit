@@ -218,12 +218,12 @@ extension HealthExportTests {
         XCTAssertTrue(HealthExporter.adopts(reading: sample, over: 80, statedAt: nil),
                       "an undated number is a file from before the date was kept")
         XCTAssertTrue(HealthExporter.adopts(reading: sample, over: 80,
-                                      statedAt: Date(timeIntervalSince1970: 999)))
+                                            statedAt: Date(timeIntervalSince1970: 999)))
         XCTAssertFalse(HealthExporter.adopts(reading: sample, over: 80,
-                                       statedAt: Date(timeIntervalSince1970: 1_000)),
+                                             statedAt: Date(timeIntervalSince1970: 1_000)),
                        "the same moment is not later")
         XCTAssertFalse(HealthExporter.adopts(reading: sample, over: 80,
-                                       statedAt: Date(timeIntervalSince1970: 1_001)))
+                                             statedAt: Date(timeIntervalSince1970: 1_001)))
     }
 
     /// The defect this whole change exists for: the weight used to be copied
