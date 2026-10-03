@@ -101,9 +101,9 @@ struct AppData: Codable {
 @Observable
 final class AppStore {
 
-    var engineState: EngineState
-    var records: [WorkoutRecord]
-    var settings: AppSettings
+    var engineState: EngineState = .initial
+    var records: [WorkoutRecord] = []
+    var settings = AppSettings()
     /// Read through `resumableWorkout`, which applies the validity checks.
     var pendingWorkout: WorkoutSnapshot?
 
@@ -125,7 +125,7 @@ final class AppStore {
     /// re-renders every date-derived view.
     private(set) var today: Date = .now
 
-    private let storageURL: URL
+    private let stateFile: StateFile
     let health: WorkoutHealthWriting
     let notifications: NotificationScheduling
     let widgetSnapshotURL: URL?
@@ -147,11 +147,11 @@ final class AppStore {
 
     private static let log = Logger(subsystem: "app.dredfit", category: "store")
 
-    init(storageURL: URL = AppStore.defaultFileURL,
+    init(storageURL: URL = StateFile.defaultURL,
          health: WorkoutHealthWriting = HealthKitWorkoutWriter(),
          notifications: NotificationScheduling = UserNotificationScheduler(),
          widgetSnapshotURL: URL? = SharedStorage.snapshotURL) {
-        self.storageURL = storageURL
+        stateFile = StateFile(url: storageURL)
         self.health = health
         self.notifications = notifications
         self.widgetSnapshotURL = widgetSnapshotURL
@@ -162,49 +162,19 @@ final class AppStore {
             try? FileManager.default.removeItem(at: storageURL)
         }
         #endif
-        var loaded: AppData?
-        if let data = try? Data(contentsOf: storageURL) {
-            do {
-                loaded = try JSONDecoder().decode(AppData.self, from: data)
-            } catch {
-                // Moved aside, not left in place: the next persist() would
-                // overwrite the only copy of the journal.
-                Self.quarantineStateFile(at: storageURL, keepOriginal: false)
-                Self.log.fault("state file failed to decode, moved aside: \(error.localizedDescription)")
-            }
-        } else if FileManager.default.fileExists(atPath: storageURL.path) {
+        switch stateFile.read() {
+        case .absent, .undecodable:
+            adopt(nil)
+        case .unreadable:
             // Unlike a decode failure, the journal may be perfectly fine —
             // e.g. still protected before first unlock. Freeze rather than
             // quarantine; reloadIfNeeded() lifts it.
             journalFrozen = true
             Self.log.fault("state file exists but could not be read — persistence frozen")
+            adopt(nil)
+        case .loaded(let data):
+            adopt(data)
         }
-        engineState = loaded?.engineState ?? .initial
-        records = loaded?.records ?? []
-        settings = loaded?.settings ?? AppSettings()
-        pendingWorkout = loaded?.pendingWorkout
-        if loaded?.engineStateReset == true {
-            // A v2 state migrates (§41.7), so reaching here means the state was
-            // neither v3 NOR v2 — a file from a future build, or one damaged
-            // past reading. The journal beside it is whole, but the next
-            // persist rewrites the positions from `initial`: the original is
-            // copied aside first, so the plan can still be recovered.
-            Self.quarantineStateFile(at: storageURL, keepOriginal: true)
-            Self.log.notice("engine state unreadable in both shapes — started clean, journal kept")
-        }
-        // Stamped after the settings are in hand, because that is what carries
-        // it: the card must survive a launch that ends before anyone reads it.
-        if loaded?.engineStateMigrated == true {
-            settings.migrationNoticePending = true
-            Self.log.notice("engine state migrated from v2 — journal, bar and counter carried over")
-        }
-        if let dropped = loaded?.droppedRecordCount, dropped > 0 {
-            // Keep the full original before the next persist() rewrites the
-            // file without the unreadable entries.
-            Self.quarantineStateFile(at: storageURL, keepOriginal: true)
-            Self.log.error("dropped \(dropped) unreadable record(s), original kept aside")
-        }
-        migrateHealthMarkToFlags()
         #if DEBUG
         applyUITestHooks()
         #endif
@@ -217,36 +187,38 @@ final class AppStore {
         // Reloading over work already done would erase it silently, and
         // mid-workout would move the engine counter out from under a running
         // session. Such a launch stays frozen; the file is untouched.
-        guard journalFrozen, !mutatedWhileFrozen,
-              let data = try? Data(contentsOf: storageURL) else { return }
-        journalFrozen = false
-        do {
-            let loaded = try JSONDecoder().decode(AppData.self, from: data)
-            engineState = loaded.engineState
-            records = loaded.records
-            settings = loaded.settings ?? AppSettings()
-            pendingWorkout = loaded.pendingWorkout
-            // Same stamp as the launch path: a frozen launch is exactly the one
-            // that must not swallow the announcement.
-            if loaded.engineStateMigrated { settings.migrationNoticePending = true }
-            if loaded.engineStateReset {
-                // As on launch: the next persist rewrites the positions.
-                Self.quarantineStateFile(at: storageURL, keepOriginal: true)
-                Self.log.notice("engine state unreadable in both shapes on reload — started clean, journal kept")
-            }
-            if loaded.droppedRecordCount > 0 {
-                Self.quarantineStateFile(at: storageURL, keepOriginal: true)
-                Self.log.error("dropped \(loaded.droppedRecordCount) unreadable record(s) on reload, original kept aside")
-            }
-            migrateHealthMarkToFlags()
-        } catch {
-            Self.quarantineStateFile(at: storageURL, keepOriginal: false)
-            Self.log.fault("state file failed to decode on reload, moved aside: \(error.localizedDescription)")
+        guard journalFrozen, !mutatedWhileFrozen else { return }
+        let read = stateFile.read()
+        switch read {
+        case .absent, .unreadable:
+            return
+        case .undecodable:
+            break
+        case .loaded(let data):
+            adopt(data)
         }
+        journalFrozen = false
         refreshWidgetSnapshot()
         // Left alone while frozen — rebuild now that the real settings and
         // journal are here.
         rescheduleReminders()
+    }
+
+    /// What a read hands the store, at launch and on a reload alike — one
+    /// path, so the two cannot drift apart.
+    private func adopt(_ data: AppData?) {
+        engineState = data?.engineState ?? .initial
+        records = data?.records ?? []
+        settings = data?.settings ?? AppSettings()
+        pendingWorkout = data?.pendingWorkout
+        // Stamped after the settings are in hand, because that is what carries
+        // it: the card must survive a launch that ends before anyone reads it,
+        // and a frozen launch is exactly the one that must not swallow it.
+        if data?.engineStateMigrated == true {
+            settings.migrationNoticePending = true
+            Self.log.notice("engine state migrated from v2 — journal, bar and counter carried over")
+        }
+        migrateHealthMarkToFlags()
     }
 
     /// Re-anchors only when the day actually rolled over — mutating `today`
@@ -292,31 +264,6 @@ final class AppStore {
             // without this the older reading could land last and stick.
             bodyMassTask?.cancel()
             bodyMassTask = Task { await self.refreshBodyMassFromHealth() }
-        }
-    }
-
-    /// Moves (or copies, when the readable part is kept) the state file to
-    /// `<name>.corrupt.json` so decode failures never cost the journal. An
-    /// earlier quarantine is NEVER replaced: after a whole-file failure it is
-    /// the only copy of the journal the app started over from, and the next
-    /// failure used to delete it. A later one gets a unique name; the same
-    /// bytes already kept aside are not kept twice.
-    private static func quarantineStateFile(at url: URL, keepOriginal: Bool) {
-        let fm = FileManager.default
-        let name = url.deletingPathExtension().lastPathComponent
-        var dest = url.deletingLastPathComponent().appendingPathComponent(name + ".corrupt.json")
-        if fm.fileExists(atPath: dest.path) {
-            if let kept = try? Data(contentsOf: dest), kept == (try? Data(contentsOf: url)) {
-                if !keepOriginal { try? fm.removeItem(at: url) }
-                return
-            }
-            dest = url.deletingLastPathComponent()
-                .appendingPathComponent(name + ".corrupt-\(UUID().uuidString).json")
-        }
-        if keepOriginal {
-            try? fm.copyItem(at: url, to: dest)
-        } else {
-            try? fm.moveItem(at: url, to: dest)
         }
     }
 
@@ -904,13 +851,6 @@ final class AppStore {
 
     // MARK: - Persistence
 
-    static var defaultFileURL: URL {
-        let dir = FileManager.default.urls(for: .applicationSupportDirectory,
-                                           in: .userDomainMask)[0]
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        return dir.appendingPathComponent("dredfit-state.json")
-    }
-
     func persist(refreshWidget: Bool = true) {
         // A journal that could not be read must never be overwritten by the
         // empty state that replaced it. The change stays in memory for this
@@ -925,7 +865,7 @@ final class AppStore {
         let data = AppData(engineState: engineState, records: records,
                            settings: settings, pendingWorkout: pendingWorkout)
         do {
-            try JSONEncoder().encode(data).write(to: storageURL, options: .atomic)
+            try stateFile.write(data)
         } catch {
             // The next mutation retries the full write, but this is the only
             // durability path — a failure must leave a trace.
