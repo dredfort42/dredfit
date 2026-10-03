@@ -1,14 +1,11 @@
 //
-//  The three movements that left the strength ladders for the warm-up (§40.1):
-//  they are about coordination, balance and activation rather than a dose that
-//  can be graded, and inside a ladder each stood as a gap in the density.
+//  The three warm-up movements: they are about coordination, balance and
+//  activation rather than a dose that can be graded, so they are not on any
+//  strength ladder.
 //
-//  Their text lives HERE rather than in the app for one reason: it is the same
-//  text it always was, and moving it would move its keys out of the core
-//  catalog and orphan six languages' worth of translation. Nothing was
-//  deleted — only the ladder they hung on. ("Paused jump lunge" WAS deleted,
-//  with its exercise: a pause inside a jump is not a rung of difficulty, it is
-//  a different movement, and its `w` was invented.)
+//  Their text lives HERE rather than in the app because moving it would move
+//  its keys out of the core catalog and orphan six languages' worth of
+//  translation.
 //
 //  Mirrors WARMUP_TECHNIQUE in the reference adaptive_engine.js.
 //
@@ -30,7 +27,7 @@ public struct WarmupMovement: Equatable, Sendable {
 
 public enum WarmupTechnique {
 
-    /// In the order the spec lists them. The app decides which of them run in
+    /// In display order. The app decides which of them run in
     /// a given session; the catalog only says what they are.
     public static var all: [WarmupMovement] { [ytw, birdDog, singleLegDeadlift] }
 

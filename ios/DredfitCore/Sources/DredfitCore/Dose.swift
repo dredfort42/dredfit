@@ -1,15 +1,12 @@
 //
-//  The dose grids (§40.2) — the whole of what used to be the arithmetic of a
-//  level `L ∈ [0,47]`.
+//  The dose grids.
 //
-//  TWO grids for the entire library: reps 4…15 by 1, holds 15…45 by 5. There
-//  are no per-tier starting doses any more (`repStart`, `repStartBand`,
-//  `holdLadder`, `holdStartBand`): the start of any variation is its grid's
-//  floor, and the "smoothing of the steps" v2.3 spent a table on is done by
-//  the LADDER itself now — the rungs stand at most ×1.50 apart (§40.1), so one
+//  TWO grids for the entire library: reps 4…15 by 1, holds 15…45 by 5. The
+//  start of any variation is its grid's floor, and the smoothing of the steps
+//  is done by the LADDER itself — the rungs stand at most ×1.50 apart, so one
 //  step of 5 s on 15…45 is between +11 % and +33 % wherever you stand.
 //
-//  Nothing here reads `w`. A dose is measured, never predicted (§40.0).
+//  Nothing here reads `w`. A dose is measured, never predicted.
 //
 
 import Foundation
@@ -69,7 +66,7 @@ public enum Dose {
         Swift.min(Swift.max(d, grid(unit).min), grid(unit).max)
     }
 
-    /// §41.3: the same two operations for a FRACTIONAL fact. The reference has
+    /// The same two operations for a FRACTIONAL fact. The reference has
     /// one function that takes any number; Swift needs the pair spelled out.
     /// `snapToInt` still floors to the grid — the fraction never becomes an
     /// assigned dose, it only decides whether the top set was taken.
