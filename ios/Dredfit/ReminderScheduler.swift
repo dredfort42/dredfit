@@ -50,4 +50,10 @@ struct ReminderScheduler {
     func requestAuthorization() async -> Bool {
         await notifications.requestAuthorization()
     }
+
+    // There is no in-workout alert ("your rest is over"): `NotificationScheduling`
+    // fires only on a CALENDAR date (`UNCalendarNotificationTrigger`), and that
+    // alert has to fire after an INTERVAL. One belongs here, with an interval
+    // trigger and a test that proves its cancel removes a request that is
+    // really pending.
 }
