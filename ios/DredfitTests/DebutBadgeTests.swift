@@ -30,13 +30,13 @@ final class DebutBadgeTests: AppStoreTestCase {
     /// Before any workout there is nothing to compare against — the first
     /// plan must not open covered in "new variation" pills.
     func testFreshStoreHasNoDebuts() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertTrue(store.debutPatterns.isEmpty,
                       "nothing has been performed yet, so nothing can be new")
     }
 
     func testDebutAppearsWhenAPatternCrossesIntoANewVariation() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         var sawDebut = false
         // A variation is a whole grid of doses now — twelve rungs at three
         // sets each — so the walk to the first boundary needs room. The
@@ -97,7 +97,7 @@ final class DebutBadgeTests: AppStoreTestCase {
     /// journal now, so the same variation must not announce itself twice —
     /// once it has been trained, its debut is done.
     func testDebutClearsAfterTheVariationIsPerformed() throws {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         guard let debut = try walkToAPullDebut(store) else {
             return XCTFail("the pull slot never reached a new variation — the walk is "
                            + "broken, and nothing below would be about the badge")
@@ -109,7 +109,7 @@ final class DebutBadgeTests: AppStoreTestCase {
     }
 
     func testSkippingTheDebutKeepsTheBadge() throws {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         guard let debut = try walkToAPullDebut(store) else {
             return XCTFail("the pull slot never reached a new variation — the walk is "
                            + "broken, and nothing below would be about the badge")
