@@ -1,7 +1,7 @@
 //
-//  One screen for everything a workout earned. Calibration can hand a first
-//  workout several tier-ups at once, so the layout holds 2–4 rows: the
-//  headline steps down as rows are added and the whole thing scrolls.
+//  One screen for everything a workout earned. One workout can earn several
+//  at once — a probe passed on more than one movement, a jubilee besides —
+//  so the headline steps down as rows are added and the whole thing scrolls.
 //
 
 import SwiftUI
@@ -17,11 +17,11 @@ struct MilestoneView: View {
 
     @State private var ruleDrawn = false
     /// The file that travels AND a picture of it — `SharePreview` shows the
-    /// headline alone unless it is handed an `image:` (finding 35).
+    /// headline alone unless it is handed an `image:`.
     @State private var card: ShareCardFactory.Card?
     /// The one animation on this screen is decoration — a 56 pt rule sweeping
     /// out from nothing — and decoration is exactly what "Reduce Motion" is
-    /// asked for (UX review 05.09.2026).
+    /// asked for.
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var headlineSize: CGFloat {
@@ -54,8 +54,8 @@ struct MilestoneView: View {
 
             if let card {
                 // The card is rendered and written before the sheet opens, so
-                // the one person who could not see what they were about to
-                // send was the sender (UX review 05.09.2026). It carries a
+                // without the preview image the sender would be the one person
+                // who cannot see what they are about to send. It carries a
                 // date, the word-mark and the whole curve besides the words
                 // the headline repeats.
                 ShareLink(item: card.url,
@@ -65,8 +65,8 @@ struct MilestoneView: View {
                         .foregroundStyle(Theme.ink)
                         .frame(maxWidth: .infinity, minHeight: 52)
                         // The outline is the whole button — nothing else says
-                        // it is one — so it owes 3:1 and hairline gave 1.17:1
-                        // in light (finding 31, 1.4.11).
+                        // it is one — so it owes 3:1 (1.4.11), and hairline is
+                        // 1.17:1 in light.
                         .background(
                             RoundedRectangle(cornerRadius: 18)
                                 .strokeBorder(Theme.targetStroke, lineWidth: 1.5))
@@ -172,19 +172,16 @@ struct MilestoneView: View {
         case .variationUp:
             return String(localized: "New variation")
         case .setBand:
-            // The same movement grown, not a new one — the caption below and
-            // the life-line rule both already said so, and the kicker used to
-            // contradict them both (UI-truth audit, 27.08.2026; the wording
-            // BACKLOG logged).
+            // The same movement grown, not a new one — as the caption below
+            // and the life-line rule say.
             //
-            // "More volume" was the fix that overshot (UX review 05.09.2026):
-            // entering a band resets the dose to ⌊sets × ceiling ÷ (sets+1)⌋,
-            // so by the reference fixture ALL TEN transitions carry the same
+            // Not "more volume" either: entering a band resets the dose to
+            // ⌊sets × ceiling ÷ (sets+1)⌋, snapped down to the grid
+            // (`Engine.bandEntryDose`), so a transition carries the same
             // total work or less (3×15 → 4×11 is 45 → 44; 3×45 s → 4×30 s is
             // 135 → 120), while the dose per set falls by a fifth to a third.
-            // The screen announced more volume in the one moment volume does
-            // not rise. The axis that did move is the sets, and it is the one
-            // the headline names.
+            // The axis that moves is the sets, and it is the one the headline
+            // names.
             return String(localized: "More sets")
         case .jubilee(let workouts):
             return String(localized: "Workout #\(workouts)")
@@ -207,8 +204,8 @@ struct MilestoneView: View {
     private func caption(_ milestone: Milestone) -> String? {
         switch milestone {
         case .variationUp(let pattern, let variation, _):
-            // The ladders are no longer all four rungs long (§40.1: four to
-            // seven), so the total is read from the library rather than typed.
+            // The ladders are four to seven rungs long, so the total is read
+            // from the library rather than typed.
             return "\(pattern.displayName) · "
                 + String(localized: "variation \(variation) of \(Library.count(pattern))")
                 + " · " + entryPlan(pattern, variation)
@@ -220,14 +217,13 @@ struct MilestoneView: View {
     }
 
     /// What entering a variation costs, said where it is celebrated rather
-    /// than found in the plan the next morning (UX review 05.09.2026).
+    /// than found in the plan the next morning.
     ///
     /// The figure is not read from anywhere because it cannot vary: a passed
     /// probe enters at three sets of the grid's floor and nothing else
     /// (`Feedback.resolveProbe` — "ENTRY IS ALWAYS 3×4 (3×15 s)"), so this is
-    /// the same statement the engine makes, not a guess about it. It is the
-    /// largest drop in numbers the product shows — 3×15 becomes 3×4 — and
-    /// until now it was spelled out in one place only: section 10 of "How it
+    /// the same statement the engine makes, not a guess about it. A drop as
+    /// large as 3×15 to 3×4 should not be spelled out only in "How it
     /// works", behind the settings sheet.
     private func entryPlan(_ pattern: Pattern, _ variation: Int) -> String {
         let unit = Library.unit(pattern, variation)
@@ -242,14 +238,13 @@ struct MilestoneView: View {
     }
 
     /// The trade a set band makes, for the only milestone whose numbers move
-    /// in two directions at once (UX review 05.09.2026).
+    /// in two directions at once.
     ///
-    /// Both halves are true at every transition the fixture holds: a set is
-    /// added, and the dose per set lands strictly below the one already shown
+    /// Both halves are true at every band transition: a set is added, and the
+    /// dose per set lands strictly below the one already shown
     /// (`Engine.bandEntryDose`). The exact new dose is not printed here —
     /// `Milestone.setBand` carries the movement and the set count, not the
-    /// position — and the sentence has to hold for all ten transitions
-    /// anyway.
+    /// position — and the sentence has to hold for every transition anyway.
     private func noteLine(_ milestone: Milestone) -> String? {
         switch milestone {
         case .setBand:

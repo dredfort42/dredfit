@@ -1,26 +1,21 @@
 //
-//  The buttons a person taps to change course mid-block: pause, skip this
-//  position, skip the block outright, or say what an exercise actually did.
-//  FlowChrome.swift held these next to the header and the countdown only
-//  because all ten started small; this file gives the controls their own
-//  place.
+//  The buttons a person taps to change course mid-workout: pause, the skips,
+//  "Went differently", and a hold's "Set the time" and Stop. The header, the
+//  countdown and the dots live in FlowChrome.swift.
 //
 
 import SwiftUI
 
-/// The pause both guided blocks carry on every timed screen (issue #61) —
-/// compact, one slot under the countdown, the same weight as the technique
+/// The pause of the guided blocks (issue #61) and of a rest that starts the
+/// next set by itself — compact, the same weight as the technique
 /// affordance above it. The outline says "control" where a bare label would
 /// read as one more caption.
 ///
-/// `Theme.targetStroke` for that outline — not hairline, and no longer ink3
-/// either. Both were stop-gaps for one problem: on `bg` hairline comes to
-/// 1.17:1, so the border that is the whole point of the control was simply
-/// not there, and ink3 reads 2.35:1 in the light scheme, still short of the
-/// 3:1 that 1.4.11 asks of the line a person is supposed to aim at. The token
-/// names the ROLE, which is what keeps the three outlines of this file, the
-/// adjuster's steppers and the summary cards from drifting apart a second
-/// time (finding 31, UX review 05.09.2026).
+/// `Theme.targetStroke` for that outline: on `bg` hairline is 1.17:1 and ink3
+/// 2.35:1 in the light scheme, both short of the 3:1 that 1.4.11 asks of the
+/// line a person is supposed to aim at. The token names the ROLE, which keeps
+/// the three outlines of this file, the adjuster's steppers and the summary
+/// cards from drifting apart.
 struct BlockPauseButton: View {
     let paused: Bool
     let action: () -> Void
@@ -56,7 +51,7 @@ struct PositionSkipButton: View {
 }
 
 /// The full-width outline escape at the bottom of a block — "Skip warm-up",
-/// "Skip rest", "Skip cool-down".
+/// "Skip rest", "Skip cool-down" — and the rest's "+N s" beside it.
 struct BlockSkipButton: View {
     /// Named because the rest screen lays its pair out by hand and has to
     /// reserve exactly this much: two definitions of 56 would drift.
@@ -74,10 +69,9 @@ struct BlockSkipButton: View {
                 .frame(maxWidth: .infinity, minHeight: Self.height)
                 // targetStroke, like the pause capsule above and the two
                 // secondary labels below. Nothing else says this is a control:
-                // hairline on `bg` is 1.17:1 and the outline of a full-width
-                // button disappeared outright, while ink3 — what wave 2 moved
-                // it to — is 2.35:1 light, under the 3:1 of 1.4.11
-                // (finding 31, UX review 05.09.2026).
+                // hairline on `bg` is 1.17:1, so the outline of a full-width
+                // button would disappear outright, and ink3 is 2.35:1 light,
+                // under the 3:1 of 1.4.11.
                 .overlay(RoundedRectangle(cornerRadius: 18)
                     .stroke(Theme.targetStroke, lineWidth: 1.5))
         }
@@ -85,31 +79,19 @@ struct BlockSkipButton: View {
     }
 }
 
-/// What you can say about an exercise instead of doing it as planned
-/// (issues #66, #78).
-///
-/// "hold this level" went with the input it armed, and "Something hurt" with
-/// the channel behind it. What arrived instead is the other half of the same
-/// idea: the two handles that used to stand on the plan are gone, and the
-/// decision they asked for BEFORE the workout is taken here, mid-set, where
-/// the person actually knows the answer.
-///
-/// So the row carries three things now — the honest number, the set in front
-/// of you, and the movement. The engine measures the first against the tap it
-/// replaces: honest numbers take someone with a capacity of one rep from
-/// L24/tier 4 to L0/tier 1 in FOUR appearances, while the pain tap stranded
-/// them at L16/tier 3 indefinitely.
+/// The two escapes of an exercise: skip the set in front of you, or the rest
+/// of the movement. The decision is taken here, mid-set, where the person
+/// actually knows the answer.
 struct ExerciseActionsRow: View {
     /// The set-level skip. Absent when it would take the whole movement with
     /// it — the escape below then says so in its own label.
     let onSkipSet: (() -> Void)?
     /// True when the set under the buttons is the PROBE: skipping it takes no
-    /// volume off anything — the probe just comes back next appearance
-    /// (§40.4) — so the hint that promises "kept off next time" would be
-    /// false there (UI-truth audit, 27.08.2026).
+    /// volume off anything — the probe just comes back next appearance — so
+    /// the hint that promises "kept off next time" would be false there.
     let skipsProbe: Bool
     /// The exercise-level escape, and the landing its title names. Absent on
-    /// the last set, where "the remaining sets" are the one beside it.
+    /// the probe set, and on a last set the set-level skip already covers.
     let escape: Escape?
 
     struct Escape {
@@ -120,13 +102,13 @@ struct ExerciseActionsRow: View {
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
-    /// The two escapes. "Went differently" left this row on 27.08.2026 and
-    /// became a control of its own ABOVE the primary button — it answers a
-    /// different question from these two, and it is the one people use.
+    /// The two escapes. "Went differently" is a control of its own, ABOVE the
+    /// primary button: it answers a different question from these two.
     ///
-    /// One row while both labels fit it, stacked when they do not. Measured
-    /// rather than assumed: the same words are half again as long in German,
-    /// and a row that truncates the escape is a row that hides the way out.
+    /// One row while both labels fit it, stacked when they do not, and always
+    /// stacked at accessibility sizes. Measured rather than assumed: the same
+    /// words run longer in German, and a row that truncates the escape is a
+    /// row that hides the way out.
     var body: some View {
         if dynamicTypeSize.isAccessibilitySize {
             VStack(spacing: 12) {
@@ -147,9 +129,9 @@ struct ExerciseActionsRow: View {
         }
     }
 
-    /// 44 pt like the two beside it, and ink2 like the escape: skipping a set
-    /// is an ordinary answer, not a failure, and it must not read louder than
-    /// the number that says what was actually done.
+    /// 44 pt and ink2, like the escape beside it: skipping a set is an
+    /// ordinary answer, not a failure, and it must not read louder than the
+    /// number that says what was actually done.
     @ViewBuilder
     private var skipSetButton: some View {
         if let onSkipSet {
@@ -192,20 +174,15 @@ struct ExerciseActionsRow: View {
 }
 
 /// "Went differently" — the SECOND control of the pair, standing above the
-/// primary one rather than under it (owner, 27.08.2026).
+/// primary one rather than under it.
 ///
 /// Secondary, not accent: it is the alternative to finishing the set at plan,
-/// not a rival to it, and the pair now reads the way every other pair in the
-/// app does — the filled one is what the screen expects, the outlined one is
-/// the other answer.
+/// not a rival to it — the filled button is what the screen expects, the
+/// outlined one is the other answer.
 ///
-/// `targetStroke` for the outline, and `pairedSecondaryLabel` is on it too
-/// now — the two used to disagree (hairline there, ink3 here) about one
-/// question, and both answers were wrong: hairline is ≈1.2:1 on `bg` and the
-/// border is not there at all, ink3 ≈2.4:1 and still under the 3:1 that
-/// 1.4.11 asks of the boundary of a target. Passing "quiet graphics" was the
-/// wrong bar to measure an outline nobody can aim at against
-/// (finding 31, UX review 05.09.2026). The ink2 label keeps the 4.5:1 small
+/// `targetStroke` for the outline, as on `pairedSecondaryLabel`: hairline is
+/// 1.17:1 on `bg` and ink3 2.35:1 in light, both under the 3:1 that 1.4.11
+/// asks of the boundary of a target. The ink2 label keeps the 4.5:1 small
 /// text needs.
 struct WentDifferentlyButton: View {
     let action: () -> Void
@@ -225,21 +202,19 @@ struct WentDifferentlyButton: View {
 }
 
 /// "Stop · 60 s" — the primary control of a running hold, naming the figure it
-/// will write (R29).
+/// will write.
 ///
 /// A hold ends with the phone out of reach, so the number the tap records has
 /// to be legible from the floor: without it the only way to learn what a Stop
-/// was worth was to take it. It is `PrimaryButton`'s look, restated rather
+/// is worth would be to take it. It is `PrimaryButton`'s look, restated rather
 /// than wrapped, because the label needs `monospacedDigit` and a numeric
 /// transition — a figure that changes every second must not make the whole
 /// button breathe.
 ///
-/// ONE localized string per state, never a concatenation. The mock paints the
-/// separator and the figure a step quieter than the word, and that is what a
-/// concatenation would buy: three `Text`s resolve to the verbatim initializer
-/// and never reach the catalog, which is the warning already standing on
-/// `WentDifferentlyButton`. The figure is the point of the control, so it
-/// keeps the label's own contrast (`Theme.bg` on `Theme.ink`) instead.
+/// ONE localized string per state, never a concatenation of `Text`s, so a
+/// translation places the figure itself. The figure is the point of the
+/// control, so it keeps the label's own contrast (`Theme.bg` on `Theme.ink`)
+/// rather than a quieter step.
 struct HoldStopButton: View {
     /// What a tap right now records — nil inside the mis-tap grace, where the
     /// tap cancels the set and writes nothing at all. A figure there would be
@@ -294,8 +269,8 @@ extension View {
 ///
 /// It is not "Went differently" under a kinder name, and the difference is
 /// the tense. That control asks how a set WENT, which before the effort is a
-/// question about something that has not happened — the objection that took
-/// it off this screen. This one asks what the clock should be set to, which
+/// question about something that has not happened — which is why this screen
+/// does not carry it. This one asks what the clock should be set to, which
 /// is the only question a person standing in front of a plank can actually
 /// answer, and the answer is a target: what reaches the engine is still
 /// whatever the clock then measured, cut down by Stop if the hold ends early.

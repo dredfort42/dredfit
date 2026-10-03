@@ -1,28 +1,25 @@
 //
-//  Every set of a finished hold movement, on one screen, with any number one
+//  Every set of a finished hold movement, on one screen, with the last one a
 //  tap from being corrected — and, under them, what the next plan will be
-//  and the one control that can raise it (§41.13).
+//  and the one control that can raise it.
 //
-//  It replaces the settled hold that used to stand on the work screen. That
-//  showed ONE number — the last set's — and the sets before it had never been
-//  correctable at all: the only writer the work screen has records the set
-//  under way and truncates what follows, because on that screen the sets after
-//  it have not happened yet. Here they have, so the writer is
-//  `SetFacts.recordingSet`, which changes one and leaves the rest standing.
+//  The work screen's writer records the set under way and truncates what
+//  follows, because on that screen the sets after it have not happened yet.
+//  Here they have, so the writer is `SetFacts.recordingSet`, which changes
+//  one and leaves the rest standing.
 //
 //  TWO TENSES, TWO BLOCKS. The cards are the past — what the clock counted,
-//  correctable only in the past tense ("how long was set 2 held?"). The
-//  block under them is the future — what the app will set, and how much the
-//  person adds to it. The screen used to fold both into the cards: a set
-//  above its plan turned orange with "+5", and the sentence under the row
-//  said "the next plan starts from these numbers", so people entered what
-//  they WANTED next time and the journal recorded it as held (owner,
-//  workout 37, 12.09.2026). Nothing on the cards is accented any more; the
-//  accent belongs to the one thing on this screen that is a decision.
+//  correctable only in the past tense ("how long was the last set held?").
+//  The block under them is the future — what the app will set, and how much
+//  the person adds to it. Folded into the cards — a set above its plan in
+//  orange with "+5", a line saying "the next plan starts from these
+//  numbers" — the future would invite people to enter what they WANT next
+//  time, and the journal would record it as held. Nothing on the cards is
+//  accented; the accent belongs to the one thing on this screen that is a
+//  decision.
 //
-//  The leaf views live apart from the flow (WorkoutFlowView+Summary.swift)
-//  for the reason every other screen in this folder does: what a card looks
-//  like is not what the phase decides.
+//  The leaf views live apart from the flow (WorkoutFlowView+Summary.swift):
+//  what a card looks like is not what the phase decides.
 //
 
 import SwiftUI
@@ -45,16 +42,15 @@ struct HeldSet: Identifiable {
 
 /// One tappable number. 44 pt is the floor for the target, not for the card:
 /// the number alone is 40 pt tall at the default text size and a card that
-/// only just cleared it would fail the moment somebody turned text up (R18).
+/// only just cleared it would fail the moment somebody turned text up.
 struct HeldSetCard: View {
     let held: HeldSet
     /// Only the last set of the movement: nothing followed it, so what it
     /// ran is the person's to correct in both directions. Every earlier set
     /// ended on its signal or under a thumb and stands as it ran — the
-    /// card is inert, without the outline that says "tap me", and the
-    /// hint that promised a change is gone with it (owner, 13.09.2026). It
-    /// stays a button in the tree so the tests that read the cards by
-    /// identifier keep reading them.
+    /// card is inert, without the outline that says "tap me" and without
+    /// the hint that promises a change. It stays a button in the tree so
+    /// the tests that read the cards by identifier keep reading them.
     let correctable: Bool
     let action: () -> Void
 
@@ -66,7 +62,7 @@ struct HeldSetCard: View {
                 // Verbatim: a bare numeral with a maths sign carries no words
                 // to translate, and the "≈" is drawn in the number's OWN
                 // colour rather than a quieter one — a mark that says "this
-                // figure is an estimate" is not decoration (R16).
+                // figure is an estimate" is not decoration.
                 Text(verbatim: held.approximate ? "≈\(held.seconds)" : "\(held.seconds)")
                     .dredfitFont(34, weight: .heavy, cap: 46)
                     .monospacedDigit()
@@ -76,9 +72,9 @@ struct HeldSetCard: View {
                     .foregroundStyle(Theme.ink2)
                 // THE PLAN ON EVERY CARD, even when it is the same on all of
                 // them. The comparison is the reader's to make, and it is
-                // made by two numbers standing together — not by the "+5"
-                // the card used to print, which read as easily as "next time
-                // +5" as it did as "5 s over the plan".
+                // made by two numbers standing together — not by a "+5",
+                // which reads as easily as "next time +5" as it does as
+                // "5 s over the plan".
                 Text("plan \(held.planned)")
                     .dredfitFont(12, weight: .semibold)
                     .monospacedDigit()
@@ -97,23 +93,19 @@ struct HeldSetCard: View {
             .frame(minWidth: 78, minHeight: 72, maxHeight: .infinity)
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
-            // One fill for every card. The accented fill a set above its plan
-            // used to get is gone: on this app's screens the accent means "a
-            // decision beyond the ordinary", and a card of measured seconds
-            // is not one — it read as the app having changed something. The
-            // block under the row is where that colour lives now.
+            // One fill for every card, never the accent: on this app's
+            // screens the accent means "a decision beyond the ordinary", and a
+            // card of measured seconds is not one — accented, it would read as
+            // the app having changed something. The block under the row is
+            // where that colour lives.
             .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 16))
-            // The outline is the affordance. Dressed in fill and radius alone
-            // the card was identical to the flow's NON-tappable information
-            // panel (FeedbackView), and the only thing saying these numbers
-            // can be corrected was one 13 pt grey line under the row — the
-            // slot the owner has already called the one place nobody reads.
+            // The outline is the affordance. In fill and radius alone the
+            // card would look like the flow's NON-tappable information panel
+            // (FeedbackView).
             //
-            // `targetStroke` at 1.5, the same token every outlined control of
-            // the flow now wears (`flowSecondaryLabel`, the block escapes, the
-            // adjuster's steppers). Wave 2 put ink3 here, which is 2.35:1 in
-            // the light scheme: the affordance existed but sat under the 3:1
-            // 1.4.11 asks of it (finding 31, UX review 05.09.2026).
+            // `targetStroke` at 1.5, the token `flowSecondaryLabel`, the block
+            // escapes and the adjuster's steppers wear: ink3 is 2.35:1 in the
+            // light scheme, under the 3:1 1.4.11 asks of an affordance.
             .overlay(RoundedRectangle(cornerRadius: 16)
                 .strokeBorder(correctable ? Theme.targetStroke : Theme.cardBG, lineWidth: 1.5))
         }
@@ -184,7 +176,7 @@ struct HeldSetsRow: View {
 /// the sentence itself — "The app will set 30-30-30 s" — rather than printing
 /// a running total beside the control: two numbers about one plan is one
 /// number too many, and what the person wants to see is what will actually be
-/// asked of them (owner, 12.09.2026). The stepper carries only its own
+/// asked of them. The stepper carries only its own
 /// value; what "+" and "−" do needs no caption.
 struct NextTimeBlock: View {
     let exercise: SessionExercise
@@ -201,7 +193,7 @@ struct NextTimeBlock: View {
 
     private var planned: SessionExercise? { preview(steps) }
 
-    /// The grid's ceiling parks the raise (§41.13): one more step would set
+    /// The grid's ceiling parks the raise: one more step would set
     /// the same plan.
     private var atCeiling: Bool {
         guard let now = planned, let next = preview(steps + 1) else { return true }
@@ -216,8 +208,8 @@ struct NextTimeBlock: View {
 
     /// How many of `steps` still change the plan. The taps are made against
     /// the plan of the moment, and a correction made AFTER them can move the
-    /// base — the last card corrected upward lands the plan on the fact
-    /// (§40.3) — onto the grid's ceiling, where the engine parks what was
+    /// base — the last card corrected upward lands the plan on the fact —
+    /// onto the grid's ceiling, where the engine parks what was
     /// added. Walked down from the count while the step below promises the
     /// same plan; a preview that cannot be had leaves the count alone rather
     /// than reading as "nothing moves". Static so a test can reach the rule
@@ -269,8 +261,9 @@ struct NextTimeBlock: View {
         // The accent goes on when the person has added something — and only
         // then. Off, the block is an outlined panel like the cards; on, it is
         // the one orange thing on the screen, and it is the person's own
-        // decision. `ink` on the fill, never accentText: that pair is 4.20:1
-        // in the dark scheme (I-21), under what 14 pt text needs.
+        // decision. `ink` for the sentence on the fill, never accentText:
+        // that pair is 4.20:1 in the dark scheme (I-21), under what 14 pt
+        // text needs.
         .background(steps > 0 ? Theme.accentSoft : Theme.cardBG,
                     in: RoundedRectangle(cornerRadius: 16))
         .overlay(RoundedRectangle(cornerRadius: 16)
@@ -282,11 +275,9 @@ struct NextTimeBlock: View {
     /// on this movement lands the next plan on another exercise, and "3×15 s"
     /// with no name would read as a collapse rather than a promotion.
     ///
-    /// With a fact entered the sentence is the plan and nothing else: it
-    /// used to add "— from what was held", and the clause explained the
-    /// number's origin to a reader who only wants the number (owner,
-    /// 12.09.2026). Without a fact the condition stays, because the number
-    /// is not a promise until the rating is given.
+    /// With a fact entered the sentence is the plan and nothing else: the
+    /// reader wants the number, not its origin. Without a fact the condition
+    /// stays, because the number is not a promise until the rating is given.
     private func sentence(for planned: SessionExercise) -> Text {
         let what = planned.variation == exercise.variation
             ? planned.display
@@ -335,19 +326,16 @@ struct RaiseStepper: View {
                 .frame(width: 44, height: 44)
                 .background(Circle().stroke(Theme.targetStroke, lineWidth: 1.5))
                 // The TARGET is bigger than the ring, as on the panel (#251).
-                // A Button takes taps only where its label draws, so this
-                // pair had exactly the dead corners the panel's "−" was found
-                // with on build 22: the doc comment above promised "the same
-                // 44 pt targets" while the shape was a ring 22 pt in radius,
-                // and a thumb reaching across the phone lands at its edge and
-                // misses there again on every repeat. The margins are this
-                // row's own, not the panel's copied: half the 18 pt gap to
-                // the number either side, and 12 pt above and below — inside
-                // the block's 14 pt bottom padding, so the shape stays 20 pt
-                // clear of "Done" under the block, and 2 pt over the 10 pt
-                // gap to the sentence above, which is text and takes no tap.
-                // 62 × 68 pt of hit shape over the same 44 pt of layout, so
-                // nothing in the row moves — and the promise above is true.
+                // A Button takes taps only where its label draws, so without
+                // this the frame's corners would be dead, and a thumb reaching
+                // across the phone lands at the ring's edge and misses there
+                // again on every repeat. The margins are this row's own, not
+                // the panel's copied: half the 18 pt gap to the number either
+                // side, and 12 pt above and below — inside the block's 14 pt
+                // bottom padding, and 2 pt over the 10 pt gap to the sentence
+                // above, which is text and takes no tap. 62 × 68 pt of hit
+                // shape over the same 44 pt of layout, so nothing in the row
+                // moves.
                 .padding(.vertical, 12)
                 .padding(.horizontal, 9)
                 .contentShape(Rectangle())

@@ -5,8 +5,9 @@
 //  "Easy, could do more" is the exception: it is offered only for a plan
 //  finished in full. The engine already keeps that rating away from a skipped
 //  exercise and from one carrying its own number, but NOT from a movement that
-//  lost a set — there the tap still buys the full +2 on the dose. The card is
-//  the cheapest place to close that, and the only one that can also say why.
+//  lost a set — there the tap still buys the "more" step on the dose. The card
+//  is the cheapest place to close that, and the only one that can also say
+//  why.
 //
 
 import SwiftUI
@@ -24,8 +25,8 @@ struct FeedbackView: View {
     /// this screen needs it (see `didFullPlan`).
     var setsSkipped: SetFacts.Skips = [:]
     var skipped: Set<Pattern> = []
-    /// Steps added "for next time" on the summaries of the holds behind
-    /// (§41.13). Shown so the decision is seen to have reached the rating
+    /// Steps added "for next time" on the summaries of the holds behind.
+    /// Shown so the decision is seen to have reached the rating
     /// — it lands after it, through the engine, and nothing here changes it.
     var raised: [Pattern: Int] = [:]
     /// To the engine a skip like the others; the label says "not finished".
@@ -66,24 +67,20 @@ struct FeedbackView: View {
                     // as "the correct answer is the middle one" and an
                     // agreeable user would pick it over the honest one.
                     //
-                    // Captions promise a DIRECTION, never an amount. "Easy"
-                    // used to promise double speed; that is no longer true —
-                    // EngineConfig.maxUpByPatternTier caps growth per movement
-                    // and per variation, so a session made of fourth
-                    // variations climbs exactly like "on plan". The size is
-                    // knowable only after the feedback is applied, because it
-                    // depends on what the session was made of, which is why no
-                    // caption here can be exact for six exercises at once.
+                    // Captions promise a DIRECTION, never an amount.
+                    // `EngineConfig.maxUp` caps growth per movement and per
+                    // variation, so where the ceiling is one step "easy"
+                    // climbs exactly like "on plan". The size is knowable only
+                    // after the feedback is applied, because it depends on
+                    // what the session was made of, which is why no caption
+                    // here can be exact for six exercises at once.
                     //
-                    // They also share a SHAPE and a register (UX review
-                    // 05.09.2026). "next workout eases off" was four plain
-                    // words against fourteen of engine vocabulary, and it was
-                    // the only caption that named the whole workout: an
-                    // unnamed "less" moves ONE movement (Feedback.lessTargets)
-                    // until the third in a row, so the shortest, friendliest
-                    // sentence on the screen was also the one a person could
-                    // check the next morning and find false. All three now say
-                    // what the next workout does AND where.
+                    // They also share a SHAPE and a register: all three say
+                    // what the next workout does AND where. An unnamed "less"
+                    // moves ONE movement (`Feedback.lessTargets`) until the
+                    // third in a row, so a caption naming the whole workout
+                    // would be one a person could check the next morning and
+                    // find false.
                     VStack(spacing: 14) {
                         optionCard(title: String(localized: "Tough, did less"),
                                    caption: String(localized: "the next one eases off where it's hardest"),
@@ -107,11 +104,10 @@ struct FeedbackView: View {
                     //
                     // CENTRED, and against the rest of this left-aligned
                     // screen: centred under the three cards it reads as a
-                    // caption for the group, while flush left it read as a
-                    // stray paragraph. An icon was the other candidate and is
-                    // wrong here — `info.circle` already means "tap me for the
-                    // explainer" in this app (TodayView, TechniqueButton), and
-                    // this line opens nothing.
+                    // caption for the group, while flush left it would read as
+                    // a stray paragraph. An icon is wrong here — `info.circle`
+                    // already means "tap me for the explainer" in this app
+                    // (`TechniqueButton`), and this line opens nothing.
                     if !didFullPlan {
                         Text(easyGateReason)
                             .dredfitFont(13)
@@ -143,10 +139,9 @@ struct FeedbackView: View {
 
     private var adjustedSummary: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // The card is the only place that states the rating's scope. A
-            // banner above the cards used to say the same thing, and two
-            // elements under a standing order never to contradict each other
-            // are one element that got split.
+            // The card is the only place that states the rating's scope: a
+            // second statement of it would be one more thing to keep from
+            // contradicting this one.
             Text("Your rating applies to \(applies) of \(total)")
                 .dredfitFont(13, weight: .semibold)
                 .foregroundStyle(Theme.ink2)
@@ -155,19 +150,17 @@ struct FeedbackView: View {
                     Text(ex.name)
                         .dredfitFont(14, weight: .medium)
                     Spacer()
-                    // §41.3: the screen shows a whole number. The fraction is
+                    // The screen shows a whole number. The fraction is
                     // how the engine decides whether the top set was taken; a
                     // person reading "you did 7.33" would learn nothing.
                     SetFactsLabel(values: SetFacts.allSets(facts, ex),
                                   reported: Int((overrides[ex.pattern] ?? 0).rounded()))
                 }
             }
-            // A movement that lost a set, and how much came off it
-            // (UX review 05.09.2026). It was the one shortfall this screen
-            // never named: `setsSkipped` reached the view and was read exactly
-            // once, to spend the "Easy" card — so the card went dim with its
-            // reason unnamed, and a workout whose only shortfall was a dropped
-            // set built no summary at all.
+            // A movement that lost a set, and how much came off it: without
+            // these rows the "Easy" card would go dim with its reason
+            // unnamed, and a workout whose only shortfall was a dropped set
+            // would build no summary at all.
             //
             // ABOVE the "Skipped" block, not inside it: the sentence that
             // closes that block says the rating does NOT apply to what is
@@ -220,10 +213,6 @@ struct FeedbackView: View {
                     + RaiseLabel.spoken(steps: raised[ex.pattern] ?? 0, unit: ex.unit)))
                 .accessibilityIdentifier("feedback-raised-\(ex.pattern.rawValue)")
             }
-            // The "Discomfort" section is gone with the input that filled it.
-            // Nothing is set aside for pain any more — a movement the person
-            // found too hard is either skipped or done at the number they
-            // actually managed.
             if !skipped.isEmpty {
                 Kicker(text: String(localized: "feedback.skipped", defaultValue: "Skipped"))
                     .padding(.top, 8)
@@ -239,10 +228,9 @@ struct FeedbackView: View {
                         // light, and 14 pt is small text, where the floor is
                         // 4.5 — a set-aside movement is meant to read quieter,
                         // not to be the one name on the screen a person has to
-                        // squint at (owner's call, UX review 05.09.2026). The
-                        // state it used to carry by dimming alone is said in
-                        // three other places: the "Skipped" header above, the
-                        // "not finished" tag beside it, and the label below.
+                        // squint at. The state is said without dimming: by the
+                        // "Skipped" header above, the label below and, for an
+                        // interrupted movement, the "not finished" tag.
                         .foregroundStyle(Theme.ink2)
                         .accessibilityLabel(ex.pattern == interrupted
                             ? Text("\(ex.name), not finished")
@@ -258,13 +246,8 @@ struct FeedbackView: View {
             }
             if !skipped.isEmpty {
                 // Names the RATING, which is the thing the reader is about to
-                // press, and says the outcome. It read "These keep their place
-                // either way" and needed explaining (owner, 27.08.2026): a
-                // bare plural demonstrative over a list that usually holds ONE
-                // movement, "their place" in nothing the screen names, and the
-                // part that matters — whichever of the three cards you choose
-                // — folded into an idiom. "These movements" also covers the
-                // row that says "not finished", which is in this list too.
+                // press, and says the outcome. "These movements" also covers
+                // the row that says "not finished", which is in this list too.
                 Text("The rating doesn't apply to these movements — they stay as they were.")
                     .dredfitFont(12.5)
                     .foregroundStyle(Theme.ink2)
@@ -276,9 +259,8 @@ struct FeedbackView: View {
     }
 
     /// Adjusted exercises follow their actual number, not the rating (see
-    /// Engine.applyFeedback), so they are outside the scope too. The
-    /// arithmetic is the banner's, unchanged: the session minus what was set
-    /// aside minus what carries its own number.
+    /// Engine.applyFeedback), so they are outside the scope too: the session
+    /// minus what was set aside minus what carries its own number.
     private var adjusted: Int {
         session.exercises.filter {
             overrides[$0.pattern] != nil && !skipped.contains($0.pattern)
@@ -318,8 +300,8 @@ struct FeedbackView: View {
     }
 
     /// `enabled` is passed at every call site rather than defaulted: an
-    /// omitted gate argument is the defect class this project has already
-    /// paid for twice, and a compile error is a stronger guard than a grep.
+    /// omitted gate argument is a known defect class in this project, and a
+    /// compile error is a stronger guard than a grep.
     private func optionCard(title: String, caption: String,
                             result: FeedbackResult, enabled: Bool) -> some View {
         Button {
@@ -337,13 +319,11 @@ struct FeedbackView: View {
                     .foregroundStyle(Theme.ink2)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
-                    // Two lines held open, never capped (UX review
-                    // 05.09.2026). The comment above says three EQUAL cards
-                    // and the screen had three unequal ones — ≈79.5 pt against
-                    // ≈94.8 — because one caption wrapped and two did not, so
-                    // the honest answer downward carried the smallest target.
-                    // A range, not `lineLimit(2)`: at accessibility sizes a
-                    // caption takes three lines and must not be cut.
+                    // Two lines held open, never capped: the three cards are
+                    // EQUAL only if one caption that wraps does not make its
+                    // card taller than the other two. A range, not
+                    // `lineLimit(2)`: at accessibility sizes a caption takes
+                    // three lines and must not be cut.
                     .lineLimit(2...)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -352,25 +332,21 @@ struct FeedbackView: View {
             .background(
                 RoundedRectangle(cornerRadius: 20)
                     .fill(Theme.bg)
-                    // The border does the work the chevron used to do — and
-                    // that chevron was a lie, because everywhere else in the
-                    // app it opens something you can back out of, while here
-                    // one tap writes the journal and applies the rating (UX
-                    // review 05.09.2026).
+                    // A border, not a chevron: a chevron elsewhere in the app
+                    // opens something you can back out of, while here one tap
+                    // writes the journal and applies the rating.
                     //
                     // `targetStroke`, because it is the ONLY thing marking the
-                    // card as a control: hairline is ≈1.2:1 on `bg` and the
-                    // border is simply not there, and ink3 — where this landed
-                    // first — is 2.35:1 in light, still under the 3:1 that
-                    // boundary owes (finding 31, 1.4.11).
+                    // card as a control: hairline is 1.17:1 on `bg` and ink3
+                    // 2.35:1 in light, both under the 3:1 that boundary owes
+                    // (1.4.11).
                     //
                     // `strokeBorder`, not `stroke`: a plain stroke sits
                     // centred on the edge, half of it outside the card, and
-                    // that outer half was clipped along the top and bottom —
-                    // the border read 0.75 pt on the long sides and 1.5 pt on
-                    // the short ones (owner, 12.09.2026). Inset, the whole
-                    // line is drawn inside the shape, as the summary's cards
-                    // already draw theirs.
+                    // that outer half gets clipped along the top and bottom —
+                    // the border would read 0.75 pt on the long sides and
+                    // 1.5 pt on the short ones. Inset, the whole line is drawn
+                    // inside the shape, as the summary's cards draw theirs.
                     .overlay(RoundedRectangle(cornerRadius: 20)
                         .strokeBorder(Theme.targetStroke, lineWidth: 1.5))
             )
@@ -378,8 +354,8 @@ struct FeedbackView: View {
         .disabled(!enabled)
         // Derived from the RESULT rather than passed in, so a fourth card
         // could not be added with a copied identifier. Every walk that ends a
-        // workout taps one of these three, and until now all of them reached
-        // for the English caption.
+        // workout taps one of these three, and an identifier keeps it off the
+        // English caption.
         .accessibilityIdentifier("rating-\(result.rawValue)")
         // `.disabled` alone changes nothing on a custom label — the same trap
         // the rest extension records. The card has to LOOK spent while keeping
