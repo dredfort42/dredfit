@@ -383,9 +383,9 @@ extension Engine {
         else { return }
         let trained = trainedEx.pattern
         let other: Pattern = trained == .pull ? .pullBar : .pull
-        // (#141) The mark is set by the rating of the WHOLE session. Telling "the branch really is
-        // hard" from "that is how the rhythm fell" is impossible from the
-        // inside, and the cost of the error is asymmetric.
+        // (#141) The mark is set by the rating of the WHOLE session. Telling
+        // "the branch really is hard" from "that is how the rhythm fell" is
+        // impossible from the inside, and the cost of the error is asymmetric.
         let strained = result == .less
             || overrides[trained].map { Dose.snapToInt(trainedEx.unit, $0) < trainedEx.load } ?? false
         if strained { next.creditPaused.insert(trained) } else { next.creditPaused.remove(trained) }
