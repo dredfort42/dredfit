@@ -58,11 +58,7 @@ struct RestView: View {
 
             // A "train anyway" session interrupted mid-way comes back here
             // too — the rest day must not eat it.
-            if !store.canStartWorkout {
-                // "Train anyway" starts the same unsaveable workout as Start.
-                FrozenJournalCard()
-                    .padding(.bottom, 14)
-            } else if let pending = store.pendingWorkoutCard {
+            if let pending = store.pendingWorkoutCard {
                 ResumeCard(snap: pending.snapshot, awaitingAnswer: pending.awaitingAnswer,
                            activeWorkout: $activeWorkout,
                            startOverConfirmShown: $startOverConfirmShown)

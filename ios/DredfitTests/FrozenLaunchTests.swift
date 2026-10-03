@@ -138,11 +138,11 @@ final class FrozenLaunchTests: AppStoreTestCase {
         XCTAssertFalse(store.canStartWorkout,
                        "a workout done now is kept in memory only, and the person must be told instead")
 
-        store.reloadIfNeeded()   // what the card's Try again calls — still unreadable
+        store.activate()   // what the card's Try again calls — still unreadable
         XCTAssertFalse(store.canStartWorkout, "a read that fails again changes nothing")
 
         try setPermissions(0o644)
-        store.reloadIfNeeded()
+        store.activate()
         XCTAssertTrue(store.canStartWorkout, "the second read lifts the freeze, and Start comes back")
     }
 

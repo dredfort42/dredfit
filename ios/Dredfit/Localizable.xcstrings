@@ -21017,42 +21017,42 @@
         }
       }
     },
-    "Couldn't save your progress. It's kept only until you close the app.": {
+    "Couldn't save your latest changes. They'll be lost if the app closes before a save works.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dein Fortschritt konnte nicht gespeichert werden. Er bleibt nur erhalten, bis du die App schließt."
+            "value": "Deine letzten Änderungen konnten nicht gespeichert werden. Sie gehen verloren, wenn die App sich schließt, bevor das Speichern klappt."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se pudo guardar tu progreso. Se conserva solo hasta que cierres la app."
+            "value": "No se pudieron guardar tus últimos cambios. Se perderán si la app se cierra antes de que se pueda guardar."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossible d’enregistrer ta progression. Elle n’est conservée que jusqu’à la fermeture de l’app."
+            "value": "Impossible d’enregistrer tes derniers changements. Ils seront perdus si l’app se ferme avant qu’un enregistrement réussisse."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossibile salvare i tuoi progressi. Restano solo finché non chiudi l’app."
+            "value": "Impossibile salvare le tue ultime modifiche. Andranno perse se l’app si chiude prima che il salvataggio riesca."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Não foi possível salvar seu progresso. Ele fica guardado só até você fechar o app."
+            "value": "Não foi possível salvar suas últimas alterações. Elas serão perdidas se o app fechar antes de um salvamento funcionar."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Не удалось сохранить прогресс. Он останется только до закрытия приложения."
+            "value": "Не удалось сохранить последние изменения. Они пропадут, если приложение закроется раньше, чем сохранение получится."
           }
         }
       }
@@ -21721,46 +21721,6 @@
         }
       }
     },
-    "You can't start a workout yet, because it couldn't be saved. Unlock the phone and try again. If that doesn't help, close Dredfit and open it again.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Du kannst noch kein Training starten, denn es könnte nicht gespeichert werden. Entsperre das Telefon und versuche es erneut. Hilft das nicht, schließe Dredfit und öffne es noch einmal."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aún no puedes empezar un entrenamiento, porque no se podría guardar. Desbloquea el teléfono e inténtalo de nuevo. Si no ayuda, cierra Dredfit y ábrelo otra vez."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tu ne peux pas encore commencer une séance, car elle ne pourrait pas être enregistrée. Déverrouille le téléphone et réessaie. Si ça ne suffit pas, ferme Dredfit et rouvre-le."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Non puoi ancora iniziare un allenamento, perché non potrebbe essere salvato. Sblocca il telefono e riprova. Se non basta, chiudi Dredfit e riaprilo."
-          }
-        },
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Você ainda não pode começar um treino, porque ele não poderia ser salvo. Desbloqueie o celular e tente de novo. Se não resolver, feche o Dredfit e abra de novo."
-          }
-        },
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Начать тренировку пока нельзя, иначе она не сохранится. Разблокируй телефон и попробуй снова. Если не поможет, закрой Dredfit и открой его заново."
-          }
-        }
-      }
-    },
     "Your history couldn't be read": {
       "localizations": {
         "de": {
@@ -21797,6 +21757,46 @@
           "stringUnit": {
             "state": "translated",
             "value": "Не удалось прочитать историю"
+          }
+        }
+      }
+    },
+    "Your saved history can't be read right now, so a workout started now can't be saved. Try again, or close Dredfit and open it again.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein gespeicherter Verlauf lässt sich gerade nicht lesen, deshalb kann ein jetzt gestartetes Training nicht gespeichert werden. Versuche es erneut oder schließe Dredfit und öffne es noch einmal."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu historial guardado no se puede leer ahora, así que un entrenamiento empezado ahora no se puede guardar. Inténtalo de nuevo o cierra Dredfit y ábrelo otra vez."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ton historique enregistré est illisible pour le moment, donc une séance commencée maintenant ne peut pas être enregistrée. Réessaie, ou ferme Dredfit et rouvre-le."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lo storico salvato non si può leggere al momento, quindi un allenamento iniziato ora non può essere salvato. Riprova, oppure chiudi Dredfit e riaprilo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seu histórico salvo não pode ser lido agora, então um treino começado agora não pode ser salvo. Tente de novo ou feche o Dredfit e abra de novo."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохраненную историю сейчас не удается прочитать, поэтому начатая сейчас тренировка не сохранится. Повтори попытку или закрой Dredfit и открой его заново."
           }
         }
       }

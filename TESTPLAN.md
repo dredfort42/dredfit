@@ -1055,22 +1055,26 @@ next plan "starts from", the person entered what they wanted next time, and
 
 ### 55. A failed save and an unread journal say so (app)
 
-The write that fails is `StateFile.write` (one atomic file: state, journal, settings, the workout in progress). Unit tests cover the store's side; these rows are what only a person can see. To provoke a failed write **in the simulator**: `xcrun simctl get_app_container booted app.dredfit data`, then `chmod 555 Library/Application\ Support` on the folder that holds `dredfit-state.json`; restore with `chmod 755` afterwards. **On a device**: fill the storage until the system says it is full (Settings → General → iPhone Storage), then train.
+The write that fails is `StateFile.write` (one atomic file: state, journal, settings, the workout in progress). Unit tests cover the store's side; these rows are what only a person can see. The simulator's bundle id is `com.dredfit.Dredfit` (`app.dredfit` is only the log subsystem). Container: `C=$(xcrun simctl get_app_container booted com.dredfit.Dredfit data)`, state file `$C/Library/Application Support/dredfit-state.json`.
+
+- **Provoke a failed write:** `chmod 555 "$C/Library/Application Support"` (an atomic write needs a writable folder); undo with `chmod 755`. On a device, fill the storage until the system says it is full instead.
+- **Provoke an unread journal:** finish onboarding and one change so the file exists, terminate the app, `chmod 000` the state file, launch again; undo with `chmod 644`. (A real device gets here when the file is still protected after a restart, which cannot be reached by hand: the first unlock comes before the app can open.)
 
 | # | Check | Expected |
 |---|---|---|
-| 55.1 | With the folder made read-only, change any setting (Settings → Sounds) | A banner appears at the top: "Couldn't save your progress. It's kept only until you close the app." with **Try again**. Nothing else on screen changes, and nothing blocks |
-| 55.2 | Start a workout with the folder still read-only, go through a set and a rest | The banner is on the work screen too, below the status bar; it covers no control (Skip, Exit, the number cards and the primary button are all tappable) |
-| 55.3 | Tap **Try again** while the folder is still read-only | The banner stays. Restore the permissions and tap it again: the banner goes away at once and the state file's modification time moves |
-| 55.4 | Fail a write, restore the permissions, send the app to the background and back | The banner is gone on return, without a tap (`activate()` retries) |
-| 55.5 | Fail a write, restore the permissions, make any change | The banner goes away with that change |
-| 55.6 | Largest Dynamic Type, then dark mode, with the banner showing | The message wraps in full and **Try again** drops under it; the banner stays readable and the button keeps a 44 pt target; the gear in the corner is not covered |
-| 55.7 | VoiceOver on the banner | The message is read as a sentence, then **Try again** as a button; it is reachable on Today and inside the workout |
-| 55.8 | **On a device:** restart the phone and open Dredfit from a notification or the widget before the first unlock (the state file is still protected) | Today shows the card "Your history couldn't be read" with **Try again** in place of **Start** (on a rest day: in place of "Train anyway"). No **Start** anywhere |
-| 55.9 | Unlock the phone, return to Dredfit | The card is gone and **Start** is back with the real plan and history (the scene's activation re-reads the file). If the phone was unlocked first and the card is still up, **Try again** does the same |
-| 55.10 | While the card is up, open Settings and change something, unlock, tap **Try again** | The card stays — a used launch is never reloaded over its own changes. The card's last sentence (close Dredfit and open it again) is the way out and it works |
-| 55.11 | VoiceOver on the card | The title and the explanation are read as one element; **Try again** is the next stop |
-| 55.12 | The card in all seven languages, at the largest Dynamic Type | Nothing clips; French keeps its spaces; German and Russian do not overflow the button |
+| 55.1 | With the folder made read-only, change any setting (Settings → Sounds) | A banner appears at the top of the Settings sheet, under the grabber: "Couldn't save your latest changes. They'll be lost if the app closes before a save works." with **Try again**. The sheet's content sits below it, not under it |
+| 55.2 | Close Settings; look at Today, Calendar and Progress | The banner is on all three, content below it, the settings gear beside **Try again** and not over it |
+| 55.3 | Start a workout with the folder still read-only, go through a set and a rest | The banner is on the work screen too, below the status bar; it covers no control (Exit, Skip, the number cards and the primary button are all tappable) |
+| 55.4 | Tap **Try again** while the folder is still read-only | The banner stays. Restore the permissions and tap it again: the banner goes away at once and the state file's modification time moves |
+| 55.5 | Fail a write, restore the permissions, send the app to the background and back | The banner is gone on return, without a tap (`activate()` retries) |
+| 55.6 | Fail a write, restore the permissions, make any change | The banner goes away with that change |
+| 55.7 | Largest Dynamic Type, then dark mode, with the banner showing on Calendar | The message wraps in full and **Try again** drops under it; the button keeps a 44 pt target. (On Today the screen already overflows at the largest sizes and the banner shares that; judge Calendar and Progress) |
+| 55.8 | VoiceOver on, then make a write fail | The message is announced the moment the banner appears, without a swipe; **Try again** is reachable on Today, Settings and inside the workout |
+| 55.9 | With the state file at `000`, launch the app | Today shows the plan and the card "Your history couldn't be read" with **Try again**, and no **Start** anywhere. No onboarding |
+| 55.10 | Tap **Try again** with the file still at `000` | Nothing changes: the card stays, no crash, no Start. Restore `chmod 644` and tap it again: the card goes, **Start** is back, and the plan and history are the real ones, with the silent decay applied if the gap warrants one (the card runs the scene's whole activation, not only the read) |
+| 55.11 | With the file at `000`, open Settings and change something (a launch that has been used), restore `chmod 644`, tap **Try again** | The card stays: a used launch is never reloaded over its own changes. Terminate and relaunch: the card is gone and the real state is back |
+| 55.12 | VoiceOver on the card | The title and the explanation are read as one element; **Try again** is the next stop |
+| 55.13 | The card in all seven languages, at the largest Dynamic Type | Nothing clips; French keeps its spaces; German and Russian do not overflow the button; the Russian text says «Повтори попытку» and the button «Повторить» |
 
 ## Engine gates before a release
 

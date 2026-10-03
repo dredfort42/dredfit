@@ -2,8 +2,8 @@
 //  A write that fails must say so, and the next write that works must take
 //  the message back.
 //
-//  The store used to log a failed write and carry on, so a person training on
-//  a full disk saw nothing until the workout was gone. The writer is made to
+//  The store logs a failed write and carries on, so a person training on a
+//  full disk would see nothing until the workout was gone. The writer is made to
 //  fail the plain way: its file sits in a directory that does not exist yet,
 //  and creating the directory is what "the disk recovered" means. No fake
 //  writer — `StateFile.write` is the real one, atomicity included.

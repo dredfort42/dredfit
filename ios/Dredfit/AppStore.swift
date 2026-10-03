@@ -168,8 +168,10 @@ final class AppStore {
     /// session — so a store that has been used stays frozen until relaunch.
     private var mutatedWhileFrozen = false
     /// Why the last write failed, until a write succeeds. The change itself
-    /// stays in memory, so this is the only sign that a quit would lose it;
-    /// the banner reads it and `activate()` retries on it.
+    /// stays in memory and the last file stays as it was, so this is the only
+    /// sign that changes since the last save are at risk. (A frozen launch
+    /// keeps its changes in memory too, with this nil: it has its own card.)
+    /// The banner reads it and `activate()` retries on it.
     private(set) var lastPersistError: (any Error)?
     var backfillInFlight = false   // guards concurrent Health backfills
     /// Held so tests can await the fire-and-forget path instead of sleeping.

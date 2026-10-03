@@ -3,9 +3,11 @@
 //
 //  A workout done on a frozen launch is kept in memory only (persist() will
 //  not overwrite the file that holds the real history), so starting one meant
-//  losing it. Retry is the second read the scene's activation already makes;
-//  once the launch has been used it cannot lift the freeze, which is why the
-//  words also name the one thing that always works.
+//  losing it. Try again is the whole of the scene's activation, not just its
+//  read: a thaw that skipped the rest would leave an abandoned workout
+//  unsettled and the plan without its silent decay. It cannot promise to
+//  help — the file may still be unreadable, and a launch that has been used
+//  is never reloaded — so the words promise neither it nor the relaunch.
 //
 
 import SwiftUI
@@ -24,7 +26,7 @@ struct FrozenJournalCard: View {
                     .foregroundStyle(Theme.ink)
                 // One literal, because the literal is the catalog key.
                 // swiftlint:disable:next line_length
-                Text("You can't start a workout yet, because it couldn't be saved. Unlock the phone and try again. If that doesn't help, close Dredfit and open it again.")
+                Text("Your saved history can't be read right now, so a workout started now can't be saved. Try again, or close Dredfit and open it again.")
                     .dredfitFont(14.5)
                     .foregroundStyle(Theme.ink2)
                     .lineSpacing(2.5)
@@ -34,7 +36,7 @@ struct FrozenJournalCard: View {
             .accessibilityIdentifier("frozen-card-text")
 
             Button {
-                store.reloadIfNeeded()
+                store.activate()
             } label: {
                 Text("Try again")
                     .pairedPrimaryLabel()

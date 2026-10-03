@@ -152,15 +152,17 @@ struct PlanView: View {
                     .padding(.bottom, 16)
             }
 
-            // The card replaces Start — its own two actions already are
-            // "continue" and "start over".
             if !store.canStartWorkout {
                 // Nothing to resume either — the snapshot lives in the file
-                // that could not be read.
+                // that could not be read. Today is always the plan while
+                // frozen: a frozen launch has no records, and a rest day
+                // needs one.
                 FrozenJournalCard()
                     .padding(.top, 10)
                     .padding(.bottom, 14)
             } else if let pending = store.pendingWorkoutCard {
+                // The card replaces Start — its own two actions already are
+                // "continue" and "start over".
                 ResumeCard(snap: pending.snapshot, awaitingAnswer: pending.awaitingAnswer,
                            activeWorkout: $activeWorkout,
                            startOverConfirmShown: $startOverConfirmShown)
