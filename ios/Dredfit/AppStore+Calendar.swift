@@ -1,8 +1,7 @@
 //
 //  Where the plan lands on a calendar: the next training day, the label the
 //  cards show for it, and the week summary. All read-only — the mutating
-//  decisions stay in AppStore proper. Split out when the class outgrew the
-//  lint's ceiling; the code is unchanged.
+//  decisions stay in AppStore proper.
 //
 
 import Foundation
@@ -27,27 +26,26 @@ extension AppStore {
 
     /// Whether the PLAN rests on this day — the question Today and the widget
     /// ask, as opposed to "is this weekday marked as rest", which is what
-    /// `isRestDay` answers for the settings rows and the calendar grid.
+    /// `isRestDay` answers for the calendar grid and the reminders.
     ///
     /// Rest is rest FROM something. An install that has never trained lands on
-    /// a rest day whenever onboarding happens to end on one, and the first
-    /// thing the app then says is "come back on Tuesday" — to the one person
-    /// who has just decided to start (UX review 05.09.2026, finding 7). The
-    /// marked weekdays keep their meaning everywhere else, including the next
-    /// training date: the difference is only that nothing is being rested yet.
+    /// a rest day whenever onboarding happens to end on one, and without this
+    /// the first thing the app would say is "come back on Tuesday" — to the
+    /// one person who has just decided to start. The marked weekdays keep
+    /// their meaning for every day but today: the difference is only that
+    /// nothing is being rested yet.
     ///
     /// The widget reads it for TODAY as well (`widgetStatus`), or the two
-    /// disagree on the first day — which they did until review 06.09.2026,
-    /// while this line already claimed otherwise. Only for today: the other
-    /// thirteen days of the widget's grid are the plan ahead, and the marked
-    /// weekdays still describe it.
+    /// would disagree on the first day. Only for today: on every other day of
+    /// the widget's grid the marked weekdays still decide.
     func restApplies(on date: Date) -> Bool { !records.isEmpty && isRestDay(date) }
 
     /// Whether the PLAN rests on `day`, seen from `today`: today follows
     /// `restApplies`, every other day the marked weekdays. One rule for the
     /// widget's grid and the next training date, so neither names a different
     /// first day than Today does — a fresh install on a marked weekday is
-    /// offered the plan, and the calendar used to call that workout "tomorrow".
+    /// offered the plan today, and the next training date must not call that
+    /// workout "tomorrow".
     func planRests(on day: Date, today: Date) -> Bool {
         Calendar.current.isDate(day, inSameDayAs: today) ? restApplies(on: day) : isRestDay(day)
     }
