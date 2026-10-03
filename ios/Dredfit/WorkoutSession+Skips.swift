@@ -26,6 +26,7 @@ extension WorkoutSession {
     /// No rest on the way out — there is nothing to recover from, and the
     /// minutes are the whole point of the tap.
     func skipSet() {
+        guard phase == .work else { return }
         // Skipping the PROBE takes no volume off anything: it was never a set
         // of the planned movement. The outcome is "unresolved" (§40.4) — the
         // probe simply comes back next time — and the appearance is spent
@@ -54,6 +55,7 @@ extension WorkoutSession {
     /// separate taps to fit a session into 45 minutes is a thing nobody does;
     /// three to six is.
     func skipRestOfExercise() {
+        guard phase == .work else { return }
         // Only the WORKING sets can be taken off; on the probe set there are
         // none left, and the probe itself is not volume.
         let left = max(0, exercise.sets - setIndex)

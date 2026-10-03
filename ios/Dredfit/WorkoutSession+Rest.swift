@@ -47,6 +47,7 @@ extension WorkoutSession {
     /// "Skip rest": the rest ends now, and the set it leads into earns its
     /// count-in — a tap is not a rest that ran out under the person's eyes.
     func skipRest() {
+        guard case .rest = phase else { return }
         clearBlockPause()
         restClock.stand(at: 0)
         advanceAfterRest(countIn: true)
@@ -190,6 +191,9 @@ extension WorkoutSession {
     /// its own 3-2-1, and only a tap or a go the app could not sound leaves
     /// the beat still owed.
     func advanceAfterRest(countIn: Bool) {
+        // Only a rest ends into the next set: a second tap on "Skip rest", or
+        // a tick racing it, must not walk the flow a set further.
+        guard case .rest = phase else { return }
         if isLastSet {
             // One tap bought ONE exercise: the next movement is a decision of
             // its own (R23), and the run and the declared time stay behind.

@@ -128,6 +128,9 @@ extension WorkoutSession {
     }
 
     func completeSet() {
+        // A set ends on the work screen or on the summary of a hold; a second
+        // Done, landing after either has moved on, ends nothing.
+        guard phase == .work || phase == .exerciseSummary else { return }
         // All three ways a set ends meet here (#186): the Done tap, the hold
         // reaching zero, an early stop past the mis-tap window. A per-side
         // hold's first side goes to the switch pause instead, not here.

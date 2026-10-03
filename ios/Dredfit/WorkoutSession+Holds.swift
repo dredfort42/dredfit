@@ -56,6 +56,7 @@ extension WorkoutSession {
     /// ready" and being counted in. That is why a rest cut short by Skip
     /// arrives here with `autoContinued: false`.
     func startHold(autoContinued: Bool = false) {
+        guard phase == .work else { return }
         editing = nil
         // On the probe set the countdown is the PROBE's target — a different
         // movement, and possibly a different unit (§40.1, `pull_bar` 2→3).
@@ -374,6 +375,7 @@ extension WorkoutSession {
     /// logged the set, so the flow past it has to be the same flow — the rest
     /// this movement earns, or the cool-down when it was the last one.
     func leaveExerciseSummary() {
+        guard phase == .exerciseSummary else { return }
         holdApproxSets.removeAll()
         holdMeasured.removeAll()
         completeSet()

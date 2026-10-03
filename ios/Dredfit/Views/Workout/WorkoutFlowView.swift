@@ -118,6 +118,7 @@ struct WorkoutFlowView: View {
                 }
             }
         }
+        .settleWindow(after: screen)
         .padding(.horizontal, 24)
         .background(Theme.bg.ignoresSafeArea())
         .onReceive(timer) { _ in
@@ -216,6 +217,29 @@ struct WorkoutFlowView: View {
         // into the cool-down), and an alert dismissing together with the view
         // it hangs on is how a presentation gets stuck.
         .skipConfirmation($pendingSkip)
+    }
+
+    /// The screens a settle window is keyed by: the phase without its payload,
+    /// and for a guided block whether its transition or its position is up.
+    private enum Screen: Hashable {
+        case warmupIntro, warmupTransition, warmupPosition, work, rest, exerciseSummary
+        case cooldownIntro, cooldownTransition, cooldownPosition, feedback, milestone
+    }
+
+    private var screen: Screen {
+        switch flow.phase {
+        case .warmupIntro: return .warmupIntro
+        case .warmup:
+            return flow.reentering || flow.warmup.stage == .getReady ? .warmupTransition : .warmupPosition
+        case .work: return .work
+        case .rest: return .rest
+        case .exerciseSummary: return .exerciseSummary
+        case .cooldownIntro: return .cooldownIntro
+        case .cooldown:
+            return flow.reentering || flow.cooldown.stage == .getReady ? .cooldownTransition : .cooldownPosition
+        case .feedback: return .feedback
+        case .milestone: return .milestone
+        }
     }
 
     private func discardWorkout() {

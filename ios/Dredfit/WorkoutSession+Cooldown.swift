@@ -117,6 +117,7 @@ extension WorkoutSession {
 
     /// The person said yes on the intro screen.
     func beginCooldown() {
+        guard phase == .cooldownIntro else { return }
         phase = .cooldown
         cooldownBeganAt = now()
         // The pair is per BLOCK — the warm-up's own standing still is behind.
@@ -130,10 +131,12 @@ extension WorkoutSession {
     /// …or no. The same ending a fully skipped cool-down already had: straight
     /// to the rating, with the work counted exactly as it was done.
     func declineCooldown() {
+        guard phase == .cooldownIntro else { return }
         finishCooldown()
     }
 
     func finishCooldown() {
+        guard phase == .cooldown || phase == .cooldownIntro else { return }
         clearBlockPause()
         // Written once, for the reason `finishWarmup` states.
         if cooldownSec == nil {
