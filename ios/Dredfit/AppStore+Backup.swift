@@ -24,8 +24,15 @@ extension AppStore {
         // looks like a backup and destroys their history when imported.
         guard !journalFrozen else { throw BackupError.journalUnavailable }
         let stamp = Date.now.formatted(.iso8601.year().month().day().dateSeparator(.dash))
-        let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("Dredfit-backup-\(stamp).json")
+        // The file carries the weight, so no copy should outlive the next
+        // export: a folder emptied each time keeps at most one in tmp and
+        // still lets the person see a dated name. The previous share sheet
+        // is closed by the time the row can be tapped again.
+        let folder = FileManager.default.temporaryDirectory
+            .appendingPathComponent("Backup", isDirectory: true)
+        try? FileManager.default.removeItem(at: folder)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        let url = folder.appendingPathComponent("Dredfit-backup-\(stamp).json")
         let data = try JSONEncoder().encode(
             AppData(engineState: engineState, records: records, settings: settings))
         try data.write(to: url, options: .atomic)

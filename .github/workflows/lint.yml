@@ -14,7 +14,10 @@ jobs:
   swiftlint:
     name: SwiftLint
     runs-on: ubuntu-latest
-    container: ghcr.io/realm/swiftlint:latest
+    # Pinned so a SwiftLint release cannot turn main red on its own. Dependabot
+    # does not bump container images: move this by hand, alongside the local
+    # swiftlint, after running the new version over the tree.
+    container: ghcr.io/realm/swiftlint:0.65.1
     steps:
       - name: Checkout
         uses: actions/checkout@v7

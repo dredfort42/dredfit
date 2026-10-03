@@ -36,6 +36,21 @@ final class AppStoreTests: AppStoreTestCase {
         XCTAssertEqual(reloaded.records.last?.positionsAfter, store.currentPositions)
     }
 
+    /// The same session can arrive twice — a double tap, or a rating landing
+    /// after the settlement already recorded it. The engine ignores a replay,
+    /// but only `completeWorkout`'s own guard keeps a second journal entry out.
+    func testCompletingTheSameSessionTwiceRecordsItOnce() {
+        let store = makeStore()
+        let session = store.nextSession
+        store.completeWorkout(session: session, result: .plan)
+        let replay = store.completeWorkout(session: session, result: .more)
+        XCTAssertTrue(replay.isEmpty, "a replay earns no milestones")
+        XCTAssertEqual(store.records.count, 1)
+        XCTAssertEqual(store.records.first?.result, .plan, "the first answer stands")
+        XCTAssertEqual(store.engineState.counter, 1)
+        XCTAssertEqual(makeStore().records.count, 1, "and only one entry reached the file")
+    }
+
     /// The journal keeps the sets behind the number, so history can say
     /// "15 · 15 · 10" instead of the bare mean the engine was handed.
     func testTheJournalKeepsTheSetsBehindTheReportedNumber() throws {

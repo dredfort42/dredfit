@@ -60,6 +60,16 @@ final class CalendarCaptionTests: AppStoreTestCase {
 
     // MARK: - The word for the next training day
 
+    /// A fresh install on a marked weekday is offered the plan on Today (rest
+    /// is rest FROM something), so the next training date is today as well —
+    /// it used to say "tomorrow" for the very session Today was offering.
+    func test_nextTrainingDate_whenAFreshInstallStartsOnAMarkedWeekday_isToday() {
+        let store = AppStore(storageURL: tempURL)
+        store.settings.restWeekdays = [Calendar.current.component(.weekday, from: store.today)]
+        XCTAssertFalse(store.restAppliesToday, "Today offers the plan")
+        XCTAssertTrue(Calendar.current.isDate(store.nextTrainingDate, inSameDayAs: store.today))
+    }
+
     func test_nextTrainingDateLabel_forAGivenDay_speaksFromThatDayAndNotFromToday() {
         let store = AppStore(storageURL: tempURL)
         // Saturday and Sunday off, so Monday is the next training day seen

@@ -15,7 +15,7 @@ extension AppStore {
     func nextTrainingDate(from now: Date) -> Date {
         let cal = Calendar.current
         var d = now
-        if isDone(on: now) || isRestDay(d) {
+        if isDone(on: now) || planRests(on: now, today: today) {
             var hops = 0
             repeat {
                 d = cal.date(byAdding: .day, value: 1, to: d)!
@@ -42,6 +42,15 @@ extension AppStore {
     /// thirteen days of the widget's grid are the plan ahead, and the marked
     /// weekdays still describe it.
     func restApplies(on date: Date) -> Bool { !records.isEmpty && isRestDay(date) }
+
+    /// Whether the PLAN rests on `day`, seen from `today`: today follows
+    /// `restApplies`, every other day the marked weekdays. One rule for the
+    /// widget's grid and the next training date, so neither names a different
+    /// first day than Today does — a fresh install on a marked weekday is
+    /// offered the plan, and the calendar used to call that workout "tomorrow".
+    func planRests(on day: Date, today: Date) -> Bool {
+        Calendar.current.isDate(day, inSameDayAs: today) ? restApplies(on: day) : isRestDay(day)
+    }
 
     var restAppliesToday: Bool { restApplies(on: today) }
 
