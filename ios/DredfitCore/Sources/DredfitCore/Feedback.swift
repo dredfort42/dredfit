@@ -204,8 +204,10 @@ extension Engine {
         }
         if actual >= ex.load + g.step {
             // FAST ADAPTATION. The mean of the sets is a rung or more above
-            // the plan's base and past the "met" window, so the journal writes
-            // it and the position takes it as its dose, sub-step cleared.
+            // the plan's base and past the "met" window, so the dose becomes
+            // that mean on the grid (no higher than the variation's ceiling),
+            // sub-step cleared — unless a probe in the same appearance moves
+            // the position instead.
             // `maxUp` does not apply: the cap bounds growth the engine ASSIGNS,
             // and here the dose is what the person just did on their own. It is
             // the way back to a person's own level after a clean start with no
@@ -385,8 +387,7 @@ extension Engine {
         let trained = trainedEx.pattern
         let other: Pattern = trained == .pull ? .pullBar : .pull
         // (#141) The mark is set by a "less" for the WHOLE session, named or
-        // not, and by entered numbers whose mean falls below this branch's
-        // base dose. Telling "the branch really is hard" from "that is how the
+        // not, and by an override for this branch below its base dose. Telling "the branch really is hard" from "that is how the
         // rhythm fell" is impossible from the inside, and the cost of the
         // error is asymmetric.
         let strained = result == .less
