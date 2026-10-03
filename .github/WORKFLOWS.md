@@ -181,8 +181,14 @@ Release build. The settings live in the workflow, not in `project.pbxproj`, so
 a local build in Xcode is never blocked by them.
 
 The consequence is deliberate: when the runner gets a new Xcode, or the pinned
-major moves, any new deprecation or diagnostic it reports turns CI red until
-the code is fixed. Reproduce a red run locally by passing the same flags:
+major moves, any new compiler warning fails the job that compiles it until the
+code is fixed. In the two required jobs that blocks a merge — and the app
+unit-test job builds every test target, the UI-test sources included, so a
+warning in `ios/DredfitUITests` blocks one too, although the UI tests themselves
+gate nothing. A warning that only the Release build sees (say, a value that
+only `#if DEBUG` code reads, left unused without it) reddens the advisory
+`release-build` job alone.
+Reproduce a red run locally by passing the same flags:
 
 ```sh
 xcodebuild build-for-testing -project ios/Dredfit.xcodeproj -scheme Dredfit \

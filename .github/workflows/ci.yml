@@ -41,8 +41,8 @@ jobs:
 
       - name: Run tests
         working-directory: ios/DredfitCore
-        # Compiler warnings fail CI, here and in every xcodebuild step below:
-        # a new Xcode's deprecations turn the build red on purpose
+        # A compiler warning is an error here and in every xcodebuild step
+        # below, so a new Xcode's deprecations turn the build red on purpose
         # (WORKFLOWS.md, "Compiler warnings are errors in CI").
         run: swift test --parallel -Xswiftc -warnings-as-errors
 
