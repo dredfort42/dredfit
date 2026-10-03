@@ -1,13 +1,13 @@
 //
-//  Split out of TodayStatusWidget.swift so the unit tests can compile the
-//  mapping without the views' palette.
+//  The widget's timeline: one entry per day, mapped from the App Group
+//  snapshot. The views that draw an entry are in TodayStatusWidget.swift.
 //
 
 import WidgetKit
 import Foundation
 
-// @MainActor is spelled out on the types below (and in the view files)
-// rather than inherited: the widget target compiles with default MainActor
+// @MainActor is spelled out on the types below (and on the views in
+// TodayStatusWidget.swift) rather than inherited: the widget target compiles with default MainActor
 // isolation, the test target does not.
 
 @MainActor

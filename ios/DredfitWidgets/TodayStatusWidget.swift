@@ -1,7 +1,7 @@
 //
 //  The app writes a two-week snapshot into the App Group; the widget only
 //  reads it, one timeline entry per day. The timeline itself lives in
-//  TodayProvider.swift, where the unit tests can reach it.
+//  TodayProvider.swift.
 //
 
 import WidgetKit
@@ -268,7 +268,7 @@ struct TodayStatusView: View {
                         //
                         // 0.8 fits English only; other languages overrun it,
                         // and a tail ellipsis would draw the two calf steps —
-                        // "on a step" and "with a pause" — as the same row.
+                        // "on a step" and "with pause" — as the same row.
                         // So shrink further first (0.7), and when even that is
                         // not enough drop the HEAD, which is the half the
                         // sibling names share.
@@ -279,10 +279,10 @@ struct TodayStatusView: View {
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundStyle(Theme.ink2)
                         .monospacedDigit()
-                        // "3×30 sec per side" is the longest dose there is,
-                        // and without this it wraps to a second line under
-                        // pressure — growing every row of a list that already
-                        // fills the widget.
+                        // One line, or the dose wraps under pressure and grows
+                        // every row of a list that already fills the widget.
+                        // An uneven dose ("40-35-35-35-35 sec per side") is
+                        // cut with an ellipsis instead.
                         .lineLimit(1)
                 }
                 .padding(.vertical, 6)
