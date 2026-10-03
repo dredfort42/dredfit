@@ -45,7 +45,7 @@ extension Engine {
         sets <= EngineConfig.setsBase ? Dose.grid(unit).min : bandEntryDose(unit, setsFrom: sets - 1)
     }
 
-    /// Bands exist only above the top variation of a ladder.
+    /// Bands exist only on the top variation of a ladder.
     static func setsCeil(_ p: Pattern, _ v: Int) -> Int {
         Library.isTop(p, v) ? EngineConfig.setsMax : EngineConfig.setsBase
     }
@@ -105,8 +105,7 @@ extension Engine {
     /// position rises WITHOUT the pattern appearing — the cross-credit:
     /// the pull slot's other branch was not in today's plan, and the
     /// trainee showed nothing in it. After an appearance `riseBy` needs no
-    /// bound: the journal was just written by the plan, so the next step is
-    /// "shown + 1" by construction.
+    /// bound: it grows from the plan the person has just done.
     ///
     /// The engine never assigns what was not shown, and an unbounded credit
     /// would: it REPEATS someone else's gain. The bound keeps what the credit

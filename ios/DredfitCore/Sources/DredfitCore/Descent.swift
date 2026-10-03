@@ -1,10 +1,11 @@
 //
 //  Descent and the "no harder" gate.
 //
-//  There are no TIER FLOORS. Every descent through a variation boundary lands
-//  in the JOURNAL OF WHAT WAS SHOWN — "exactly what you have already done in
-//  this variation" — so entry is never blind (it is a probe) and a descent
-//  never rolls back through a target.
+//  There are no TIER FLOORS. A descent through a variation boundary lands in
+//  the variation below with the JOURNAL OF WHAT WAS SHOWN there as its
+//  ceiling (the grid floor where the person has never been), walked down
+//  until the plan weighs no more than the one being left — `landInVar`, which
+//  also names the boundaries where nothing fits.
 //
 
 import Foundation
@@ -28,8 +29,8 @@ extension Engine {
     /// entered without showing its grid maximum, so `shown[v]` equals that
     /// maximum for everyone who passed through — landing on it would hand the
     /// trainee the LARGEST volume they had ever done in that movement, right
-    /// after they said it was too hard (work rose on every boundary, worst
-    /// ×11.25 in time under load).
+    /// after they said it was too hard — more work than the floor they leave
+    /// on every boundary, up to ×11.25 in time under load.
     ///
     /// Two axes, in this order: dose first at the full band, then the cut.
     /// Dose outranks volume — someone who left on two sets would rather have
@@ -65,7 +66,7 @@ extension Engine {
     /// variation along the growth path, step there (exactly the reverse of a
     /// growth event). On the dose floor the step down becomes a set
     /// taken off. On the floor of the variation — dose floor AND set floor —
-    /// the step down is the variation below, landing in the journal.
+    /// the step down is the variation below, landing under its journal.
     ///
     /// A descent deliberately does NOT cross a band downward: (4,11) → (3,15)
     /// would raise the dose per set from 11 to 15, i.e. the descent would make
@@ -141,30 +142,28 @@ extension Engine {
                         total: (sets * pos.dose + s * step) * sides)
     }
 
-    /// The gate is a CHECK rather than a filter: no path of descent may
-    /// break it by construction.
-    ///
-    /// The measure across a variation boundary IS A SHOWN FACT — landing in
-    /// `shown[var−1]` means "exactly what you have already done here" — so
-    /// comparing reps of two different variations is not required.
+    /// The gate is a CHECK rather than a filter: the paths of descent are
+    /// built to pass it, and the tests call it on what they produce — no
+    /// production code does. The accepted gaps `landInVar` names are the only
+    /// landings that fail it.
     ///
     ///   • inside a variation — dose per set and total work with sides both
     ///     stay put or fall (the quantities are commensurable: same variation,
     ///     same unit, same sides);
-    ///   • across a boundary downward — the assigned dose is no higher than
-    ///     the target variation's journal (or its floor, if there is none),
-    ///     and the set count is no higher than the base.
+    ///   • across a boundary downward — the dose is no higher than the target
+    ///     variation's journal (or its floor, if there is none), the set count
+    ///     no higher than the base, and the total work with sides no higher
+    ///     than the plan being left: the same quantity `landInVar` budgets,
+    ///     compared across two movements.
     static func noHarder(_ p: Pattern, from: Position, to: Position,
                          shown: [Pattern: [Int: Int]]) -> Bool {
         let a = planLoad(p, fit(p, from))
         let b = planLoad(p, fit(p, to))
         if to.variation > from.variation { return false }        // up is not a descent
         if to.variation == from.variation { return b.load <= a.load && b.total <= a.total }
-        // Across a boundary this compares the SAME quantity as inside one
-        // (`b.total <= a.total`). Checking only `b.load <= journal && b.sets <=
-        // setsBase` would be a tautology: `to` only ever arrives from
-        // `landInVar`, which sets exactly those two equalities, so the
-        // predicate could never return false.
+        // The first two clauses cannot fail on a `landInVar` landing — it
+        // starts at the journal on the base sets and only walks down — so
+        // without `b.total <= a.total` the gate would pass every landing.
         let journal = landingDose(p, to.variation, shown: shown)
         return b.load <= journal && b.sets <= EngineConfig.setsBase && b.total <= a.total
     }

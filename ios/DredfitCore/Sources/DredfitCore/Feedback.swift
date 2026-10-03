@@ -1,7 +1,8 @@
 //
 //  What one rating does to the state.
 //
-//  Split out of Engine.swift: both files sit against the lint's ceilings.
+//  Kept apart from Engine.swift: together the two would pass the lint's
+//  file-length warning.
 //
 
 import Foundation
@@ -116,12 +117,10 @@ extension Engine {
         // While the hold ticks, growth goes into the DOSE.
         let setsBackOk = (next.setsHold[p] ?? 0) == 0
         let cap = EngineConfig.maxUp(pattern: p, variation: old.variation)
-        // The MAXIMUM dose per set in the plan that was shown. On an uneven
-        // plan 9-8-8 the person showed a nine, and the next step — "shown + 1
-        // rep in one set" — counts from that nine. Counting from the BASE
-        // would break "an assignment never exceeds the journal" on the
-        // boundary of every rung: three growth events off a plan of 8-7-7 give
-        // 3×8 while the journal would hold 7.
+        // The MAXIMUM dose per set in the plan that was shown — what a tap
+        // journals: on 9-8-8 the person showed a nine. Journalling the BASE
+        // would let the plan outrun the journal at every rung boundary: two
+        // growth events off 8-7-7 give 3×8 while the journal would hold 7.
         let planTop = ex.load
             + ((ex.loads?.contains { $0 > ex.load } ?? false) ? g.step : 0)
         // The plan's MEAN — what a trainee shows by doing it set for set.
@@ -144,9 +143,10 @@ extension Engine {
         // stands on it.
         let actualRaw = overrides[p]
         let actual = actualRaw.map { Dose.snapToInt(unit, $0) }
-        // "the plan was met" is a WINDOW one rung wide: for reps it collapses
-        // to equality, for a hold it is five seconds (#139). It is
-        // measured from the plan's MEAN (`planMean`), not its base or its top.
+        // "the plan was met" is a WINDOW one rung wide — one rep, five seconds
+        // (#139) — from the plan's MEAN (`planMean`), not its base or its top.
+        // The raw mean of the facts is fractional, so on reps it is a window
+        // too: [8,7,7] on 7-7-7 is 7.33 and meets the plan.
         let metPlan = actualRaw.map { $0 >= planMean && $0 < planMean + Double(g.step) } ?? false
         if let actual {
             step = stepFromFact(p, ex: ex, actual: actual, metPlan: metPlan, old: old,
@@ -218,7 +218,7 @@ extension Engine {
         }
         if actual < g.min {
             // A fact below the floor of the variation: a variation down,
-            // landing in the journal.
+            // landing under its journal.
             let pos = old.variation > 1
                 ? landInVar(p, old.variation - 1, shown: shown, from: old)
                 : fit(p, Position(variation: old.variation, sets: old.sets,

@@ -1,5 +1,6 @@
 //
-//  The three warm-up movements: they are about coordination, balance and
+//  The technique of three of the warm-up's nine movements (the pool lives in
+//  the app's Warmup.swift): they are about coordination, balance and
 //  activation rather than a dose that can be graded, so they are not on any
 //  strength ladder.
 //
@@ -27,8 +28,9 @@ public struct WarmupMovement: Equatable, Sendable {
 
 public enum WarmupTechnique {
 
-    /// In display order. The app decides which of them run in
-    /// a given session; the catalog only says what they are.
+    /// All three, for the library pin to sweep. The app takes them one by one
+    /// into its pool, which sets their order and which of them run; the
+    /// catalog only says what they are.
     public static var all: [WarmupMovement] { [ytw, birdDog, singleLegDeadlift] }
 
     public static var ytw: WarmupMovement {

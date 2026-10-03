@@ -2,10 +2,10 @@
 //  The athlete's handles.
 //
 //  The app does not guess what a person can do. It offers handles and works
-//  out the consequences. Both of these change the state THROUGH the engine —
-//  the app layer writing state directly would bypass the floor, the sanitizer
-//  and the postcondition repair, which is why they are entry points and not
-//  helpers.
+//  out the consequences. The handles that change the state do it THROUGH the
+//  engine — the app layer writing state directly would bypass the floor, the
+//  sanitizer and the postcondition repair, which is why they are entry points
+//  and not helpers.
 //
 
 import Foundation

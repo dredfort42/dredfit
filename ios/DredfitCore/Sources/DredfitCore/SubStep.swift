@@ -8,9 +8,10 @@
 //
 //  The MEASURE is how many growth events separate a position from the very
 //  bottom of its ladder. It is a measure, not an encoding: it has no inverse
-//  and needs none. A growth event is exactly +1 and a step of a descent
-//  exactly −1, which keeps the growth cells, the weekly window and the
-//  cross-credit integer arithmetic.
+//  and needs none. A growth event is exactly +1, which keeps the growth cells,
+//  the weekly window and the cross-credit integer arithmetic. A descent has no
+//  such unit: a whole dose rung (`fallDoses`) costs `sets`, and a crossing
+//  lands wherever `landInVar` finds room.
 //
 
 import Foundation
@@ -64,9 +65,9 @@ extension Engine {
     }
 
     /// The sub-step actually in force. A sub-step may not ask for more sets
-    /// than the cut left standing: without that the measure saw
-    /// the upper sub-steps and the plan did not, so every third tap of a
-    /// descent moved nothing at all.
+    /// than the cut left standing: otherwise the measure would count upper
+    /// sub-steps the plan cannot show, and a descent would spend taps on them
+    /// without changing the plan.
     static func effSub(_ p: Pattern, _ pos: Position, sets: Int?) -> Int {
         guard !subDisabled(p, pos) else { return 0 }
         let top = max(0, (sets ?? (pos.sets - pos.cut)) - 1)

@@ -30,11 +30,15 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// Sets taken off. Sparse.
     public var cut: [Pattern: Int]
     /// THE JOURNAL OF WHAT WAS SHOWN: per variation touched, the last dose
-    /// actually performed, in that variation's own unit. Written after every
-    /// appearance — by the fact when numbers are entered, by the plan when the
-    /// tap is used.
+    /// actually performed, in that variation's own unit. Feedback writes it
+    /// for every exercise done — the fold when numbers were entered, the
+    /// plan's top on a tap. A probing exercise writes the probe's number under
+    /// the NEXT variation instead, and nothing at all when the probe went
+    /// unanswered or this movement came out "hard".
     ///
-    /// It is both the point of return and the ceiling on any assignment. Doubly sparse: a pattern with no entries is not
+    /// It is the point of return (`landingDose`), the bound on the
+    /// cross-credit (`riseWithinJournal`) and the evidence the probe gate
+    /// reads (`probeAllowed`). Doubly sparse: a pattern with no entries is not
     /// stored, a variation with no entry is not stored.
     public var shown: [Pattern: [Int: Int]]
 
@@ -43,8 +47,9 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// Appearances left before the next set may come back. While it ticks, a
     /// growth event goes into the DOSE.
     public var setsHold: [Pattern: Int]
-    /// The work shown in the last COMPLETED appearance, and the position it
-    /// was shown AT — the two inputs to the postcondition repair.
+    /// The work of the last plan SHOWN, done or not — written by `recordShown`
+    /// when the app shows a plan, and again by feedback — and the position it
+    /// was shown AT: the two inputs to the postcondition repair.
     public var shownWork: [Pattern: Int]
     public var shownOrd: [Pattern: Int]
     public var failStreak: [Pattern: Int]

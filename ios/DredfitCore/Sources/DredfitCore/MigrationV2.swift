@@ -1,9 +1,9 @@
 //
 //  Reading a state written by an engine before v3.
 //
-//  There is a migration, and it must never start anyone over: the only line in
-//  the app that explains how to enter facts shows when the journal is EMPTY,
-//  and an upgrading trainee's journal is intact, so they would never see it.
+//  It must never start anyone over: a reset would throw away the rung and the
+//  dose every upgrading trainee had earned on every movement. A v2 state is
+//  read and carried over instead.
 //
 //  Mirrors `migrateFromV2` in the reference engine. The golden fixture does NOT
 //  pin it: `make_golden.js` seeds scenario `migration_v2` with the OUTPUT of the
@@ -80,6 +80,8 @@ public extension Engine {
     static func migrateFromV2(_ old: V2State) -> EngineState? {
         guard !old.levels.isEmpty else { return nil }
         var next = EngineState.initial
+        // Neither is progress, but both are the person's: `counter` decides
+        // which movements come next, `hasBar` is their answer about the bar.
         next.counter = EngineState.clamped(old.counter, 0, EngineConfig.countMax)
         next.hasBar = old.hasBar
         for p in Pattern.allCases {

@@ -60,7 +60,7 @@ public enum Pattern: String, Codable, CaseIterable, Sendable {
 public enum EngineConfig {
     /// Sets on any variation but the bands of the top one.
     public static let setsBase = 3
-    /// The ceiling on sets (bands 4 and 5 exist above the top variation).
+    /// The ceiling on sets (bands 4 and 5 exist only on the top variation).
     public static let setsMax = 5
     public static let restSetSec = 60
     public static let restExerciseSec = 60
@@ -83,11 +83,10 @@ public enum EngineConfig {
     static let lessRunToGlobal = 2
     /// The deload drops 3 reps per set (−15 s on a hold).
     static let deloadDrop = 3
-    /// The warm-up includes the cool-down's side-switch pause, so its worst
-    /// composition costs 255 s and the pair of blocks 550 — more than a
-    /// 9:00 reserve holds. A reserve is whole minutes, so 10:00 is the
-    /// nearest that fits: 50 s of slack, less than a minute, with nothing to
-    /// give back.
+    /// The two blocks are budgeted in whole minutes: the app's worst warm-up
+    /// plus cool-down is 520 s against the 600 this and `cooldownMin` give
+    /// (`BlockReserveTests`). Nine minutes would hold it; ten stays because
+    /// giving one back would shorten every announced session length.
     public static let warmupMin = 6
     /// The two blocks share a reserve of `warmupMin + cooldownMin` — see
     /// GetReady.swift for the arithmetic it is spent by.
@@ -98,7 +97,7 @@ public enum EngineConfig {
     /// (#144) Grgic 2018 and Schoenfeld 2016 give trained users ≥2 min on hard
     /// variations. On bands 1–3 the TOP VARIATION of a ladder gets 90 s
     /// instead of 60.
-    /// Bands 4 and 5 exist only there and read `restSetByBand` as before.
+    /// Bands 4 and 5 exist only there and take their pause from `restSetByBand`.
     static let restSetTopVarSec = 90
     public static let comebackMinGapDays = 14
     static let comebackBase = 2
@@ -246,10 +245,9 @@ public enum Engine {
     /// stores the position rather than the measure because the measure has no
     /// inverse — this is the one direction that exists.
     ///
-    /// All six coordinates: a chart replotting a snapshot without `sub` and
-    /// `cut` sat up to two steps off the number beside it. The shorter form below
-    /// keeps every older call site and every older record meaning what it
-    /// always did.
+    /// All six coordinates: a snapshot replotted without `sub` and `cut` would
+    /// sit off the number beside it by exactly those two. A record that
+    /// carries neither passes zeros, which is all the shorter form below does.
     public static func progress(_ p: Pattern, variation: Int, sets: Int, dose: Int,
                                 sub: Int, cut: Int) -> Int {
         posOrd(p, fit(p, Position(variation: variation, sets: sets, dose: dose,
@@ -273,10 +271,11 @@ public enum Engine {
         (2...Library.count(p)).map { varBase(p, $0) }
     }
 
-    /// How many growth events still separate a pattern from the top of its
-    /// CURRENT variation — the point where a probe starts being offered.
-    /// Zero means the probe is on the next plan (unless the last answer was
-    /// "hard", which the plan decides, not this).
+    /// How many growth events still separate a pattern from the dose ceiling
+    /// of its CURRENT variation; sets taken off are not counted. Zero does not
+    /// promise a probe: `probeAllowed` also wants a variation that is not the
+    /// top one, the journal on that ceiling, and a last answer that was not
+    /// "hard".
     public static func stepsToVariationCeiling(_ state: EngineState, _ p: Pattern) -> Int {
         let pos = state.sanitized().position(p)
         var ceiling = pos
@@ -289,9 +288,9 @@ public enum Engine {
     /// state and can call this right after showing the plan — then "a descent
     /// never adds load" holds against a plan that was seen and not done.
     ///
-    /// An exercise WITH A PROBE writes its memory too, by its WORKING sets —
-    /// `exerciseWork` counts only those, because the probe is a set of another
-    /// movement. Otherwise the base would stay a showing two appearances old:
+    /// An exercise WITH A PROBE writes its memory too, by `shownWorkOf`: the
+    /// working sets plus the slot the probe occupies (see there for why).
+    /// Otherwise the base would stay a showing two appearances old:
     /// a descent would knock the dose off the ceiling, the probe would go with
     /// it, the third working set would come back, and the "easier" plan would
     /// ask +40 % of the work the person had actually seen.

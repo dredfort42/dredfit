@@ -11,7 +11,7 @@ public enum LoadUnit: String, Codable, Sendable {
     case reps, hold
 }
 
-/// The last set of an exercise, swapped for one set of the NEXT variation
+/// The last set of an exercise, swapped for one set of the NEXT variation.
 /// It is not a question and not a new screen: the number comes back through
 /// the per-set channel that already exists.
 public struct SessionProbe: Codable, Equatable, Sendable {
