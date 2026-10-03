@@ -1,6 +1,6 @@
 //
-//  What the app asks of Apple Health and writes to it: one workout per journal
-//  record, the calories it carries, and the weight they are priced from.
+//  What the app reads from Apple Health and writes to it: one workout per
+//  journal record, the calories it carries, and the weight they are priced from.
 //  Health is best-effort — every answer may be "no" — and nothing here touches
 //  the journal: the store flags a record exported only after the save this
 //  reports has been confirmed, so a hole in the export is always retriable.
@@ -134,9 +134,8 @@ struct HealthExporter {
     }
 
     /// For records that predate duration capture. Reads the session's segments
-    /// rather than spelling the sum out again: the two copies that used to
-    /// exist disagreed about the cool-down by a minute. Records without a
-    /// snapshot get a flat 35 min.
+    /// rather than spelling the sum out again, so the estimate cannot drift
+    /// from the plan's own length. Records without a snapshot get a flat 35 min.
     ///
     /// The whole sum runs in Double because the exercise snapshot comes back
     /// out of the journal file: in Int the products would trap on a

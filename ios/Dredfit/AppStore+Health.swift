@@ -1,13 +1,12 @@
 //
 //  The store's half of Apple Health: the switch, the weight in force and the
-//  export flags — the state. Everything that talks to Health or computes for
-//  it is HealthExporter's. The rule this half keeps: a record is flagged
-//  exported only after Health confirms the save, so a hole in the export is
-//  always still retriable.
+//  export flags — the state, and the permission checks that flip the switch.
+//  The export and its arithmetic are HealthExporter's. The rule this half
+//  keeps: a record is flagged exported only after Health confirms the save,
+//  so a hole in the export is always still retriable.
 //
 
 import Foundation
-import DredfitCore
 
 extension AppStore {
 
