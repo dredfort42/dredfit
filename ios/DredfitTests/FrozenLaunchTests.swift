@@ -129,6 +129,38 @@ final class FrozenLaunchTests: AppStoreTestCase {
                       "so the very next launch announces it: deferred, never spent")
     }
 
+    // MARK: - Starting a workout
+
+    func test_frozenLaunch_cannotStartAWorkout_andRetryingTheReadLiftsThat() throws {
+        try XCTSkipIf(getuid() == 0, "root reads through 0o000 permissions")
+        let store = try frozenStore(over: v3Payload(counter: 5))
+        defer { try? setPermissions(0o644) }
+        XCTAssertFalse(store.canStartWorkout,
+                       "a workout done now is kept in memory only, and the person must be told instead")
+
+        store.reloadIfNeeded()   // what the card's Try again calls — still unreadable
+        XCTAssertFalse(store.canStartWorkout, "a read that fails again changes nothing")
+
+        try setPermissions(0o644)
+        store.reloadIfNeeded()
+        XCTAssertTrue(store.canStartWorkout, "the second read lifts the freeze, and Start comes back")
+    }
+
+    func test_frozenLaunch_retryingTheWrite_doesNotPinTheFreeze() throws {
+        try XCTSkipIf(getuid() == 0, "root reads through 0o000 permissions")
+        let store = try frozenStore(over: v3Payload(counter: 5))
+        defer { try? setPermissions(0o644) }
+
+        store.retryPersist()
+        try setPermissions(0o644)
+        store.reloadIfNeeded()
+
+        XCTAssertFalse(store.journalFrozen,
+                       "an empty retry is not work done on this launch — counting it would pin the freeze "
+                       + "and leave only a relaunch")
+        XCTAssertEqual(store.engineState.counter, 5)
+    }
+
     // MARK: - What the reload finds
 
     /// The copies a read put aside for this test's file.
