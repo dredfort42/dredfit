@@ -2,8 +2,8 @@
 //  Stands where "Start" would, while the journal could not be read.
 //
 //  A workout done on a frozen launch is kept in memory only (persist() will
-//  not overwrite the file that holds the real history), so starting one meant
-//  losing it. Try again is the whole of the scene's activation, not just its
+//  not overwrite the file that holds the real history), so starting one would
+//  lose it. Try again is the whole of the scene's activation, not just its
 //  read: a thaw that skipped the rest would leave an abandoned workout
 //  unsettled and the plan without its silent decay. It cannot promise to
 //  help — the file may still be unreadable, and a launch that has been used

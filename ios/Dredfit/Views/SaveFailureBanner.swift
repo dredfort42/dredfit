@@ -2,9 +2,9 @@
 //  The line that says a write failed, on every screen the person can be on
 //  (see `saveFailureBanner` for the list).
 //
-//  The store keeps a failed change in memory and keeps working, so nothing on
-//  screen changed when the disk refused it — and a quit then lost the workout
-//  without a word. This is that word, and the way to answer it.
+//  The store keeps a failed change in memory and keeps working, so without
+//  this nothing on screen would change when the disk refuses a write, and a
+//  quit would lose the change without a word.
 //
 
 import SwiftUI
@@ -54,7 +54,7 @@ struct SaveFailureBanner: View {
         .padding(.horizontal, 16)
         .padding(.top, 4)
         // Its own height at any type size: squeezed by a tall screen below it,
-        // the banner overflowed upward under the status bar.
+        // the banner would overflow upward under the status bar.
         .fixedSize(horizontal: false, vertical: true)
         // One container for VoiceOver: the message is read first, the button
         // is the next stop. The appearance itself is announced by RootView.
