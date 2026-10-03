@@ -61,7 +61,7 @@ final class ShownPlanTests: AppStoreTestCase {
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
         """
         try Data(json.utf8).write(to: tempURL)
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         // The seed must actually load — a state that failed to decode would
         // start clean and make every assertion here vacuous. The journal is
         // checked alongside the position because a clean start carries none at
@@ -222,7 +222,7 @@ final class ShownPlanTests: AppStoreTestCase {
                                                    ofItemAtPath: tempURL.path)
         }
 
-        let frozen = AppStore(storageURL: tempURL)
+        let frozen = makeStore()
         XCTAssertTrue(frozen.journalFrozen)
         frozen.recordPlanShown(frozen.nextSession)
         XCTAssertTrue(frozen.engineState.shownWork.isEmpty,
