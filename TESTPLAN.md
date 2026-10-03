@@ -66,6 +66,7 @@ about pixels, not about strings. Walk those on a device before submitting.
 | 1.10b | Choose **Discard workout** | Returns to Today; nothing is recorded and no resume card appears later |
 | 1.10c | Choose **Cancel** | Back in the workout exactly where it was |
 | 1.10d | Tap **Exit** during the warm-up or on the very first set with nothing done | Leaves quietly — no dialog, nothing to protect |
+| 1.11 | Double-tap **Start the warm-up**, **Start the cool-down**, **Done** on a hold's summary and **Skip rest** — fast, as one gesture | The second tap does nothing: the block is not skipped, the rest is not skipped or extended, and the next set is not skipped |
 
 ### 2. Rest ring and backgrounding
 

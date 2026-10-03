@@ -207,6 +207,7 @@ extension WorkoutSession {
     /// too hard now reaches for a handle instead, which keeps the movement in
     /// the plan rather than taking it out for weeks.
     func leaveExercise() {
+        guard phase == .work else { return }
         editing = nil
         holdSwitchClock.freeze()
         holdCountInClock.freeze()
