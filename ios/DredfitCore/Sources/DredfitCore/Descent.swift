@@ -69,7 +69,8 @@ extension Engine {
     ///
     /// A descent deliberately does NOT cross a band downward: (4,11) → (3,15)
     /// would raise the dose per set from 11 to 15, i.e. the descent would make
-    /// the plan HEAVIER — precisely the defect class the gate was written for. Volume inside a band is taken off by the `cut` axis.
+    /// the plan HEAVIER — precisely the defect class the gate was written for.
+    /// Volume inside a band is taken off by the `cut` axis.
     static func fallBy(_ p: Pattern, _ pos: Position, _ n: Int,
                        shown: [Pattern: [Int: Int]]) -> Position {
         var cur = fit(p, pos)
