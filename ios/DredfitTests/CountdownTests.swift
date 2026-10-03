@@ -104,10 +104,15 @@ final class CountdownTests: XCTestCase {
     }
 
     func testStandingStopsTheClockOnTheSecondGiven() {
+        // A hold handed back inside the mis-tap grace stands on its full
+        // length again; a rest that is skipped stands on 0.
         var clock = Countdown()
         clock.start(30, now: start)
-        clock.stand(at: 0)
+        clock.show(28)
+        clock.stand(at: 30)
         XCTAssertFalse(clock.isRunning)
+        XCTAssertEqual(clock.remaining, 30)
+        clock.stand(at: 0)
         XCTAssertEqual(clock.remaining, 0)
     }
 

@@ -79,8 +79,10 @@ struct Countdown: Equatable {
     /// Reads the clock without changing anything, so the owner decides what
     /// is animated, sounded and reset — and in which order.
     ///
-    /// Rounded to the nearest second, so 0 is reached half a second before
-    /// the end date and a countdown never shows a 0 it then sits on.
+    /// Rounded to the nearest second, so a running countdown reaches 0 half a
+    /// second before its end date. One that already shows 0 while its date
+    /// is still set reads `.unchanged` from then on and never ends — see the
+    /// floor on `resume`.
     func read(now: Date) -> Reading {
         guard let endDate else { return .unchanged }
         let left = endDate.timeIntervalSince(now)
