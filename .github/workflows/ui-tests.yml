@@ -116,9 +116,6 @@ jobs:
           fi
           echo "Using simulator: $device ($udid)"
           echo "device=$device" >> "$GITHUB_OUTPUT"
-          # Tested by id, not name: a name can match a device on more than one
-          # runtime, and xcodebuild may then pick one that was never booted.
-          echo "udid=$udid" >> "$GITHUB_OUTPUT"
           # Pre-boot and wait for readiness so the first test isn't racing a
           # cold simulator boot under load (a frequent 'launch timed out').
           xcrun simctl boot "$udid" || true
@@ -164,7 +161,7 @@ jobs:
             -scheme Dredfit \
             -testPlan Dredfit \
             -only-testing:DredfitUITests \
-            -destination "platform=iOS Simulator,id=${{ steps.sim.outputs.udid }}" \
+            -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.device }}" \
             -parallel-testing-enabled NO \
             -retry-tests-on-failure \
             -test-iterations 3 \

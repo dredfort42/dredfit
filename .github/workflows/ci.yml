@@ -83,9 +83,6 @@ jobs:
           fi
           echo "Using simulator: $device ($udid)"
           echo "device=$device" >> "$GITHUB_OUTPUT"
-          # Tested by id, not name: a name can match a device on more than one
-          # runtime, and xcodebuild may then pick one that was never booted.
-          echo "udid=$udid" >> "$GITHUB_OUTPUT"
           # Pre-boot and wait for readiness, as ui-tests.yml does: the first
           # test should not race a cold simulator boot under load.
           xcrun simctl boot "$udid" || true
@@ -122,7 +119,7 @@ jobs:
           xcodebuild test \
             -project ios/Dredfit.xcodeproj \
             -scheme Dredfit \
-            -destination "platform=iOS Simulator,id=${{ steps.sim.outputs.udid }}" \
+            -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.device }}" \
             -skip-testing:DredfitUITests \
             -parallel-testing-enabled NO \
             -test-timeouts-enabled YES \
@@ -205,7 +202,6 @@ jobs:
           fi
           echo "Using simulator: $device ($udid)"
           echo "device=$device" >> "$GITHUB_OUTPUT"
-          echo "udid=$udid" >> "$GITHUB_OUTPUT"
           xcrun simctl boot "$udid" || true
           xcrun simctl bootstatus "$udid" || true
 
@@ -222,7 +218,7 @@ jobs:
           xcodebuild test \
             -project ios/Dredfit.xcodeproj \
             -scheme Dredfit \
-            -destination "platform=iOS Simulator,id=${{ steps.sim.outputs.udid }}" \
+            -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.device }}" \
             -skip-testing:DredfitUITests \
             -parallel-testing-enabled NO \
             -test-timeouts-enabled YES \
