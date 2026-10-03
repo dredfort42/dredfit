@@ -76,9 +76,7 @@ extension AppStore {
         // exact person it was removed for (review 06.09.2026). Only today,
         // though: the marked weekdays still describe the thirteen days ahead,
         // and a blanket swap would paint the whole fortnight as workouts.
-        let rests = Calendar.current.isDate(day, inSameDayAs: today)
-            ? restApplies(on: day) : isRestDay(day)
-        if rests { return .rest }
+        if planRests(on: day, today: today) { return .rest }
         return day < today ? .unmarked : .workout
     }
 }

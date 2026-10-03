@@ -203,6 +203,9 @@ struct ProgressScreen: View {
         .onAppear { refreshCard() }
         .onChange(of: store.records.count) { refreshCard() }
         .onChange(of: store.totalProgress) { refreshCard() }
+        // The card prints its day: a tab left alive past midnight kept
+        // yesterday's date until the numbers moved.
+        .onChange(of: store.today) { refreshCard() }
     }
 
     private func refreshCard() {
@@ -211,7 +214,13 @@ struct ProgressScreen: View {
             renderedCardKey = nil
             return
         }
-        let key = [store.records.count, store.totalProgress]
+        // Everything the card DRAWS — its numbers, its day and its curve — so
+        // the main-thread render runs exactly when the picture would change.
+        // Keyed on the two numbers alone it kept the day it was first drawn
+        // on, and a restored journal with the same count kept the old curve.
+        let curve = store.progressCurve()
+        let day = Calendar.current.ordinality(of: .day, in: .era, for: store.today) ?? 0
+        let key = [store.records.count, store.totalProgress, day] + curve
         guard key != renderedCardKey else { return }
         renderedCardKey = key
         // `progressCurve()` rather than a second walk of the journal: it is
@@ -219,7 +228,7 @@ struct ProgressScreen: View {
         // the same line — and after a reset neither sends out the old peak
         // under a headline that says 0 (UX review 05.09.2026, finding 36).
         card = ShareCardFactory.card(headline: summaryHeadline, slot: .progress,
-                                     steps: store.progressCurve())
+                                     steps: curve)
     }
 
     private var barBranchExists: Bool {
