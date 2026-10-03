@@ -193,8 +193,8 @@ struct OnboardingView: View {
     // MARK: - Card 3: the quiet duty-of-care note (#101)
 
     /// Statements, not questions: the checklist is read, not filled in, and
-    /// what is stored is only when it was acknowledged — the
-    /// zero-questionnaires principle holds.
+    /// nothing about the person is stored — the zero-questionnaires
+    /// principle holds.
     private var careBlock: some View {
         Text(String(localized: """
         All your data stays on your device.
