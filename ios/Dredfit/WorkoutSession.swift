@@ -4,14 +4,16 @@
 //  tick count), so locking the phone loses nothing.
 //
 //  The view renders this and forwards taps. Nothing here imports SwiftUI, so
-//  every rule of the flow can be driven from a unit test; what the flow needs
-//  from the device — the clock, the tones, the lock-screen tile, motion — is
-//  handed in.
+//  what a tap, a tick or a process death does can be driven from a unit test;
+//  what the flow needs from the device — the clock, the tones, the
+//  lock-screen tile, motion — is handed in. What the screens make of it
+//  (which escape is offered, which number is the big one) stays in the view.
 //
 //  Split by what each part of the flow does: +Sets, +Rest, +Holds, +Summary,
 //  +Skips, +Warmup, +Cooldown, +BlockPause, +Snapshot. Swift's `private` is
 //  file-scoped, so the state those files share is internal; only this type
-//  writes it, and the view writes nothing but `adjustValue` through the panel.
+//  writes it. The view writes `adjustValue` through the panel and hands in
+//  `animator` and `reduceMotion`, nothing else.
 //
 
 import Foundation
@@ -366,9 +368,10 @@ final class WorkoutSession {
     var holdCountingIn: Bool { holdCountInClock.isRunning }
 
     /// Nonisolated on purpose. Under the target's default MainActor isolation
-    /// an implicit deinit is an isolated one, and on the iOS 26.2 runtime that
-    /// path crashed freeing a store in the unit tests (#258). Nothing here
-    /// needs the main actor to be torn down.
+    /// an implicit deinit is an isolated one, going through the back-deployed
+    /// `swift_task_deinitOnExecutor`, and in the CI runs of #258 on the iOS
+    /// 26.2 simulator that path crashed every time a store was freed. Nothing
+    /// here needs the main actor to be torn down.
     nonisolated deinit {}
 
     func animate(_ motion: Motion, _ change: () -> Void) {
@@ -462,7 +465,8 @@ final class WorkoutSession {
             interrupted: interruptedPattern,
             // The additions, landed by the engine over the rating — never
             // applied here (§41.13).
-            raised: raisedSteps)
+            raised: raisedSteps,
+            date: now())
     }
 
     /// At the transition, not when the milestone screen appears: that can

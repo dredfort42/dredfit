@@ -78,7 +78,7 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     var setActuals: [Pattern: [Int]]?
     /// What the PROBE set showed, per movement (§40.4) — and the fact that it
     /// was performed at all: a probe that was skipped, or whose movement was,
-    /// leaves no entry (`WorkoutFlowView` clears it on both paths).
+    /// leaves no entry (`WorkoutSession` clears it on both paths).
     ///
     /// Its own key rather than a fold into `actuals`, for the reason the
     /// engine keeps the two apart: the probe is a DIFFERENT exercise, and one
@@ -245,9 +245,8 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
 
 /// How long one guided block ran, resolved once at its ending.
 ///
-/// Pure, and here rather than inline in the flow, because the flow's own call
-/// sites sit inside a SwiftUI view that nothing automated drives — this is the
-/// part of the measurement that can be held to a test.
+/// Pure, and here rather than inline in the flow, so the measurement can be
+/// held to a test on its own.
 nonisolated enum BlockRun {
     /// No start means the block was DECLINED: zero, not unknown. The whole
     /// downstream model turns on that difference — unknown falls back to the

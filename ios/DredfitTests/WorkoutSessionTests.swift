@@ -203,6 +203,19 @@ final class WorkoutSessionTests: AppStoreTestCase {
         XCTAssertNil(flow.actuals[flow.exercise.pattern])
     }
 
+    func testTheRestBeforeAProbeOffersTheProbesTechnique() throws {
+        let store = makeStore()
+        let flow = makeFlow(store, session: try probeSession())
+        flow.declineWarmup()
+        flow.setIndex = flow.exercise.sets - 1
+        flow.completeSet()
+        XCTAssertEqual(flow.phase, .rest(seconds: flow.exercise.restSetSec))
+        let probe = try XCTUnwrap(flow.exercise.probe)
+        XCTAssertEqual(flow.restTechniqueTarget,
+                       TechniqueTarget(probe: probe, of: flow.exercise.pattern),
+                       "the one movement on this screen nobody has done before")
+    }
+
     // MARK: - Skips
 
     func testSkippingASetCountsItAndOpensTheNext() {

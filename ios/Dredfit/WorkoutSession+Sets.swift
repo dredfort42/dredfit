@@ -133,10 +133,8 @@ extension WorkoutSession {
         // hold's first side goes to the switch pause instead, not here.
         //
         // §41.2: finishing the PROBE set records its target. The rule and the
-        // reason live in `SetFacts.recordingProbe` — it is called rather than
-        // written out here because a policy inside a SwiftUI view body is a
-        // policy no unit test can reach, and this one unfreezes eight ladders
-        // out of ten.
+        // reason live in `SetFacts.recordingProbe`, stated once: it unfreezes
+        // eight ladders out of ten.
         probeActuals = SetFacts.recordingProbe(probeActuals, exercise.pattern,
                                                isProbe: current.isProbe,
                                                target: current.planned)
