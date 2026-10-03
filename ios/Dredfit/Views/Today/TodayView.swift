@@ -69,7 +69,7 @@ struct TodayView: View {
         .padding(.horizontal, 24)
         .fullScreenCover(item: $activeWorkout) { active in
             WorkoutFlowView(session: active.session, resume: active.resume,
-                            settleImmediately: active.settleImmediately)
+                            settleImmediately: active.settleImmediately, store: store)
         }
         // `planned: true` — these six movements are the workout about to be
         // done, so the sheet carries the step below each of them. It is the

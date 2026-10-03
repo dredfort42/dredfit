@@ -1,14 +1,8 @@
 //
-//  The flow's half of the exercise summary: what the phase shows, what the
-//  tap on a card writes, and what the "next time" block asks the engine. The
-//  leaves themselves are ExerciseSummary.swift — what a card looks like is
-//  not what the phase decides.
-//
-//  A file of its own because WorkoutFlowView.swift is bounded at 1200 lines
-//  by the lint as an ERROR, and it is the FILE that a split cures; an
-//  extension only moves the other ceiling, the 600 a type's own body gets.
-//  Swift's `private` is file-scoped, so what this reaches for is declared
-//  without it, like the five siblings before it.
+//  The exercise summary as the phase shows it. What a tap on a card writes
+//  and what the "next time" block asks the engine are WorkoutSession's
+//  (+Summary); the leaves themselves are ExerciseSummary.swift — what a card
+//  looks like is not what the phase decides.
 //
 
 import SwiftUI
@@ -23,10 +17,10 @@ extension WorkoutFlowView {
     /// cannot disagree about a number — and `recordingSet` freezes exactly
     /// this list before it changes one of them.
     var heldSets: [HeldSet] {
-        SetFacts.allSets(actuals, exercise).enumerated().map { index, seconds in
+        SetFacts.allSets(flow.actuals, flow.exercise).enumerated().map { index, seconds in
             HeldSet(index: index, seconds: seconds,
-                    planned: exercise.plannedLoad(set: index),
-                    approximate: holdApproxSets.contains(index))
+                    planned: flow.exercise.plannedLoad(set: index),
+                    approximate: flow.holdApproxSets.contains(index))
         }
     }
 
@@ -42,7 +36,7 @@ extension WorkoutFlowView {
                     VStack(spacing: 0) {
                         Spacer(minLength: 0)
                         summaryHead
-                        HeldSetsRow(sets: heldSets, onEdit: startSummaryAdjusting)
+                        HeldSetsRow(sets: heldSets, onEdit: flow.startSummaryAdjusting)
                             // The row asks for its IDEAL height — the tallest
                             // card — and the cards stretch to it: without this
                             // the cards' `maxHeight: .infinity` filled the whole
@@ -69,7 +63,7 @@ extension WorkoutFlowView {
                         // clock": a set stopped by hand is on this row too,
                         // marked ≈, and it did not end on the clock.
                         // One literal per key, because the literal is the key.
-                        Text(exercise.perSide
+                        Text(flow.exercise.perSide
                              // swiftlint:disable:next line_length
                              ? String(localized: "Went differently? Tap the last set and correct — the numbers are per side, and the others stand as they ran.")
                              : String(localized: "Went differently? Tap the last set and correct — the others stand as they ran."))
@@ -95,7 +89,7 @@ extension WorkoutFlowView {
             // and the button). While a number is being entered the panel
             // takes the slot and the block stands down: one thing to read at
             // a time, the rule of every message slot in the flow.
-            if case .summaryCard(let index) = editing {
+            if case .summaryCard(let index) = flow.editing {
                 // Which set and what was recorded for it, said above the
                 // panel. ONLY THE LAST SET OPENS THE PANEL: nothing followed
                 // it and the person may have kept holding, so both directions
@@ -110,35 +104,17 @@ extension WorkoutFlowView {
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.bottom, 10)
                     .accessibilityIdentifier("summary-panel-line")
-                AdjustPanel(value: $adjustValue, unit: .hold,
-                            range: summaryRange(set: index)) {
-                    actuals = SetFacts.recordingSet(adjustValue, in: actuals,
-                                                    exercise, set: index)
-                    // The correction moves the base under an addition already
-                    // made: on the grid's ceiling the steps added before it
-                    // burn, and the stepper read "+10 s" over a sentence that
-                    // showed the plan "+5 s" shows (review, 12.09.2026).
-                    trimRaiseToWhatStillMoves()
-                    // A number the person typed is not an estimate any
-                    // more, whatever produced the one it replaced.
-                    holdApproxSets.remove(index)
-                    // The second door of the same channel, and it spends
-                    // the same one-way flag: the work screen's hint asks
-                    // people to say a number of their own, and correcting
-                    // a card here IS saying one. Without this call the
-                    // hint went on being shown to somebody who had
-                    // already answered it (UX review, 05.09.2026).
-                    store.markOwnNumberReported()
-                    editing = nil
-                    persistProgress()
+                AdjustPanel(value: $flow.adjustValue, unit: .hold,
+                            range: flow.summaryRange(set: index)) {
+                    flow.commitSummaryEdit(set: index)
                 }
                 .padding(.bottom, 18)
             } else {
-                NextTimeBlock(exercise: exercise,
-                              steps: raisedSteps[exercise.pattern] ?? 0,
-                              factEntered: SetFacts.override(actuals, for: exercise) != nil,
-                              preview: nextPlan(withAdditions:),
-                              onChange: setRaise)
+                NextTimeBlock(exercise: flow.exercise,
+                              steps: flow.raisedSteps[flow.exercise.pattern] ?? 0,
+                              factEntered: SetFacts.override(flow.actuals, for: flow.exercise) != nil,
+                              preview: flow.nextPlan(withAdditions:),
+                              onChange: flow.setRaise)
                     .padding(.bottom, 18)
             }
 
@@ -150,7 +126,7 @@ extension WorkoutFlowView {
             // learned; what comes next is the flow's business, not the
             // button's (owner, 01.09.2026).
             PrimaryButton(title: String(localized: "Done")) {
-                leaveExerciseSummary()
+                flow.leaveExerciseSummary()
             }
             .accessibilityIdentifier("exercise-done")
             .padding(.bottom, 10)
@@ -175,39 +151,11 @@ extension WorkoutFlowView {
                 .textCase(.uppercase)
                 .foregroundStyle(Theme.accentText)
                 .accessibilityIdentifier("summary-held")
-            Text(verbatim: exercise.name)
+            Text(verbatim: flow.exercise.name)
                 .dredfitFont(23, weight: .bold)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 300)
         }
-    }
-
-    /// Opens the entry on the card that was tapped. Only the last card
-    /// calls this (`HeldSetsRow`); the guard keeps it true if a caller
-    /// changes.
-    func startSummaryAdjusting(set index: Int) {
-        guard isLastSummarySet(index) else { return }
-        adjustValue = SetFacts.inForce(actuals, exercise, set: index)
-        editing = .summaryCard(index)
-    }
-
-    /// What the clock counted for a set — the number before any correction.
-    /// A set no clock ran for (skipped mid-movement, restored from a snapshot
-    /// written before the field) falls back to what the card shows, which is
-    /// what the ceiling used to be read off for every set.
-    func summaryMeasured(set index: Int) -> Int {
-        holdMeasured[index] ?? SetFacts.inForce(actuals, exercise, set: index)
-    }
-
-    func isLastSummarySet(_ index: Int) -> Bool { index == exercise.sets - 1 }
-
-    /// The rule is `SetFacts.correctionRange`, where a test can reach it;
-    /// what is measured is the CLOCK's number, not the card's — a card
-    /// corrected downwards must be correctable back up to what was counted.
-    /// Only the last set reaches this from the screen now.
-    func summaryRange(set index: Int) -> ClosedRange<Int> {
-        SetFacts.correctionRange(measured: summaryMeasured(set: index),
-                                 isLastSet: isLastSummarySet(index))
     }
 
     /// The line above the panel: the set, and what was recorded for it —
@@ -216,40 +164,10 @@ extension WorkoutFlowView {
     /// `SetFacts.holdEndedByTap`). Saying "the clock saw" about that number
     /// would call a guess a measurement.
     func summaryPanelLine(set index: Int) -> String {
-        let measured = summaryMeasured(set: index)
-        return holdApproxSets.contains(index)
+        let measured = flow.summaryMeasured(set: index)
+        return flow.holdApproxSets.contains(index)
             ? String(localized: "set \(index + 1) · stopped by hand at about \(measured) s")
             : String(localized: "set \(index + 1) · the clock saw \(measured) s")
     }
 
-    /// The plan this movement will get with `steps` additions — the engine's
-    /// own answer, dry-run through the store with everything this session
-    /// has recorded so far (§41.13).
-    func nextPlan(withAdditions steps: Int) -> SessionExercise? {
-        var raised = raisedSteps
-        raised[exercise.pattern] = steps > 0 ? steps : nil
-        return store.previewPosition(after: session, pattern: exercise.pattern,
-                                     overrides: SetFacts.overrides(actuals, in: exercises),
-                                     skipped: skippedPatterns, setsSkipped: setsSkipped,
-                                     probes: probeActuals, raised: raised)?
-            .asPlanned(exercise.pattern)
-    }
-
-    /// The stepper's write: a DECISION, kept apart from the facts and
-    /// persisted like them — a kill between here and the rating must not
-    /// drop it.
-    func setRaise(_ steps: Int) {
-        let clamped = min(max(steps, 0), EngineConfig.raiseStepsMax)
-        raisedSteps[exercise.pattern] = clamped > 0 ? clamped : nil
-        persistProgress()
-    }
-
-    /// The count after a correction: the rule is `NextTimeBlock`'s — the
-    /// same comparison its "+" is disabled with — walked down from the
-    /// count. Persisted by the caller with the correction it follows.
-    func trimRaiseToWhatStillMoves() {
-        let steps = raisedSteps[exercise.pattern] ?? 0
-        let live = NextTimeBlock.stepsThatStillMove(steps, preview: nextPlan(withAdditions:))
-        if live != steps { raisedSteps[exercise.pattern] = live > 0 ? live : nil }
-    }
 }

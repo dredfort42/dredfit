@@ -413,7 +413,7 @@ final class BlockReserveTests: XCTestCase {
     //
     // The same composition rule read the other way. A block running when the
     // athlete sets a move aside has to land somewhere in the list that comes
-    // back, and `WorkoutFlowView.rebaseLanding` is the rule both blocks use.
+    // back, and `WorkoutSession.rebaseLanding` is the rule both blocks use.
     // It shipped as a clamp of the ordinal with no test of any kind — the two
     // scenarios below are the ones that clamp got wrong.
 
@@ -434,7 +434,7 @@ final class BlockReserveTests: XCTestCase {
         let passed = Set(before.prefix(4))
         XCTAssertTrue(passed.contains(after[4]),
                       "the ordinal the clamp kept names a move already done")
-        let landing = try XCTUnwrap(WorkoutFlowView.rebaseLanding(in: after, after: passed))
+        let landing = try XCTUnwrap(WorkoutSession.rebaseLanding(in: after, after: passed))
         XCTAssertEqual(after[landing], "y-t-w")
         XCTAssertFalse(passed.contains(after[landing]), "the block reopened a finished move")
     }
@@ -454,7 +454,7 @@ final class BlockReserveTests: XCTestCase {
         let passed = Set(before.prefix(4))
         XCTAssertTrue(passed.contains(after[4]),
                       "the ordinal the clamp kept names a position already done")
-        let landing = try XCTUnwrap(WorkoutFlowView.rebaseLanding(in: after, after: passed))
+        let landing = try XCTUnwrap(WorkoutSession.rebaseLanding(in: after, after: passed))
         XCTAssertEqual(after[landing], "rest-pose")
         XCTAssertFalse(passed.contains(after[landing]), "the block reopened a finished stretch")
     }
@@ -465,17 +465,17 @@ final class BlockReserveTests: XCTestCase {
     /// them is over rather than repeated.
     func testTheLandingIsForwardOnlyAndEndsTheBlockWhenNothingIsLeft() {
         let ids = ["a", "b", "c"]
-        XCTAssertEqual(WorkoutFlowView.rebaseLanding(in: ids, after: []), 0,
+        XCTAssertEqual(WorkoutSession.rebaseLanding(in: ids, after: []), 0,
                        "nothing behind the athlete: the block opens where it is")
-        XCTAssertEqual(WorkoutFlowView.rebaseLanding(in: ids, after: ["a"]), 1)
+        XCTAssertEqual(WorkoutSession.rebaseLanding(in: ids, after: ["a"]), 1)
         // Measured from the LAST id behind them, not from the first one that is
         // not: "b" sits between two passed slots, and landing on it would put
         // the ordinal machine back through "c".
-        XCTAssertNil(WorkoutFlowView.rebaseLanding(in: ids, after: ["a", "c"]),
+        XCTAssertNil(WorkoutSession.rebaseLanding(in: ids, after: ["a", "c"]),
                      "every slot is behind the athlete: the block is over")
-        XCTAssertEqual(WorkoutFlowView.rebaseLanding(in: ids, after: ["x"]), 0,
+        XCTAssertEqual(WorkoutSession.rebaseLanding(in: ids, after: ["x"]), 0,
                        "a set-aside id that is not in the list moves nothing")
-        XCTAssertNil(WorkoutFlowView.rebaseLanding(in: [], after: []))
+        XCTAssertNil(WorkoutSession.rebaseLanding(in: [], after: []))
     }
 
     /// 5 → 10 → 8, and the supplemented stage 10 → 15 → 12 (owner, 06.09.2026).

@@ -411,7 +411,7 @@ final class ProbeChannelTests: AppStoreTestCase {
 //
 //  * `WorkoutFlowView.probeCaption` — the three things the probe set says
 //    under its number ("one set to try it", "next time: X", "we'll stay").
-//  * `WorkoutFlowView.restTechniqueTarget` — that the technique offered
+//  * `WorkoutSession.restTechniqueTarget` — that the technique offered
 //    during the rest BEFORE a probe is the probe's movement.
 //
 // Both are `private` members of a SwiftUI view, so `@testable import` does

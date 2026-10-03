@@ -292,7 +292,7 @@ nonisolated enum SetFacts {
     /// The tap happens AFTER the effort has stopped: the person comes off the
     /// floor and reaches for the phone, and the timestamp of the thumb is not
     /// the timestamp of the last second held. A relative of
-    /// `WorkoutFlowView.holdMistapSeconds`, which exists for the other half of
+    /// `WorkoutSession.holdMistapSeconds`, which exists for the other half of
     /// the same fact — a tap is evidence about a hand, not about a plank.
     ///
     /// Three rather than a measurement: the honest direction is DOWN, because

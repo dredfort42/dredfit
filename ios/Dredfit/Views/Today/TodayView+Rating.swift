@@ -63,7 +63,8 @@ extension TodayView {
     /// The alert hangs on the button, which survives its own action: the
     /// re-application stamps a fresh `RatingUndo` for the new answer, so the
     /// door stays open and nothing is dismissed out from under a presentation
-    /// (the trap WorkoutFlowView.swift:439-443 is written against).
+    /// (the trap the skip confirmation's placement in WorkoutFlowView is
+    /// written against).
     @ViewBuilder
     var changeRatingButton: some View {
         if store.canChangeLastRating, let record = store.lastRecord {

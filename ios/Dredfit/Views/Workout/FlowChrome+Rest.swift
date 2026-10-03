@@ -20,7 +20,7 @@ import SwiftUI
 struct WorkStatusCaption: View {
     let secondSide: Bool
     /// The movement's LAST hold is behind and its seconds are recorded, but
-    /// the set is not closed yet (`WorkoutFlowView.holdSettled`). It outranks
+    /// the set is not closed yet (`WorkoutSession.holdSettled`). It outranks
     /// the actual below deliberately: in this state the big number above IS
     /// what was held, so "actual 25" would repeat it while saying less — and
     /// what the screen has to say instead is that the effort is over and the

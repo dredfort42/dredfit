@@ -322,7 +322,7 @@ struct WorkoutSnapshot: Codable, Equatable {
     /// because a `Set<Int>` is one on the wire anyway; read back as a set.
     var approxSets: [Int]?
     /// What the clock wrote for each set of the exercise in front of us, by
-    /// set index (`WorkoutFlowView.holdMeasured`). The summary's ceiling is
+    /// set index (`WorkoutSession.holdMeasured`). The summary's ceiling is
     /// read off it, so a kill on that screen must not turn a corrected
     /// number into "what the clock saw". Optional with a nil default, like
     /// every field added to a persisted type.
