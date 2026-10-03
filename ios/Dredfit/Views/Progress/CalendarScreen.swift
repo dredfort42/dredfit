@@ -1,7 +1,6 @@
 //
 //  Missed days are deliberately unmarked — no ring, no fill, just the date.
-//  Unmarked, not unreadable: the digit itself sits on ink2 like every other
-//  word on this screen (UX review 05.09.2026).
+//  Unmarked, not unreadable: the digit itself is ink2, a text tone.
 //
 
 import SwiftUI
@@ -15,10 +14,9 @@ struct CalendarScreen: View {
 
     private var calendar: Calendar { .current }
 
-    /// Inside a scroll, like the four screens beside it and for their reason:
-    /// this was the one main screen that simply let the legend and the card
-    /// under the grid leave the bottom of the display at large type sizes,
-    /// with nothing to reach them by (UX review, 05.09.2026).
+    /// Inside a scroll, so at large type sizes the legend and the card under
+    /// the grid do not leave the bottom of the display with nothing to reach
+    /// them by.
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 0) {
@@ -30,13 +28,11 @@ struct CalendarScreen: View {
                         .dredfitFont(19, weight: .bold)
                         // Named, not inherited: `.primary` is #FFFFFF in dark
                         // against the ink token's #F2F2F4 and #000000 in light
-                        // against #111214, so the heading of the screen was
-                        // the one thing on it drawn outside the palette
-                        // (UX review 05.09.2026, finding 15 — the same defect
-                        // named there for "Workout N" and total steps).
+                        // against #111214, so the heading would be drawn
+                        // outside the palette.
                         .foregroundStyle(Theme.ink)
                     Spacer()
-                    // 44pt frames: the bare glyphs were ~20pt targets 26pt apart.
+                    // 44 pt frames: the bare glyphs are far smaller targets.
                     HStack(spacing: 4) {
                         Button { monthOffset -= 1 } label: {
                             Image(systemName: "chevron.left")
@@ -62,12 +58,10 @@ struct CalendarScreen: View {
                         Text(d)
                             .dredfitFont(11, weight: .semibold)
                             // ink2, not ink3: these are the seven WORDS that
-                            // say which column is which, and ink3 reads 2.35:1
-                            // on bg in light — the app's smallest size at its
-                            // lowest contrast, the pairing least likely to
-                            // survive a real screen. ink3 stays a graphics
-                            // tone (the planned ring below keeps it); text
-                            // takes ink2 (owner's call, UX review 05.09.2026).
+                            // say which column is which, at 11 pt, and ink3
+                            // reads 2.35:1 on bg in light. ink3 stays a
+                            // graphics tone (the planned ring below keeps it);
+                            // text takes ink2.
                             .foregroundStyle(Theme.ink2)
                             .frame(maxWidth: .infinity)
                     }
@@ -85,11 +79,10 @@ struct CalendarScreen: View {
                 legend.padding(.top, 22)
 
                 // The count under the grid follows the month ON SCREEN, so the
-                // card that replaces it may only do so on that month. Paged
-                // back to August, the grid showed August while the slab under
-                // it said "Completed today ✓ / Next: workout 41 · tomorrow" —
-                // and the only per-month number in the app was then missing
-                // from every month but this one (UX review, 05.09.2026).
+                // card that replaces it may only do so on today's month: paged
+                // back, the grid would sit over "Completed today", and the
+                // only per-month number in the app would be missing from every
+                // month but this one.
                 if store.doneToday
                     && calendar.isDate(shownMonth, equalTo: store.today, toGranularity: .month) {
                     doneCard.padding(.top, 20)
@@ -189,11 +182,9 @@ struct CalendarScreen: View {
             .foregroundStyle(foreground(day.state))
             // The medallion cannot grow with the digit — seven columns of a
             // 375 pt screen leave each cell about 40 pt, so a circle that
-            // scaled would overflow its column rather than its glyph. Without
-            // these two the number lost its tail instead ("2…" from AX3 up),
-            // and on a completed day what survived was bg on ink: the one
-            // screen that says what was actually done, unreadable at the
-            // sizes that need it most (UX review, 05.09.2026).
+            // scaled would overflow its column rather than its glyph. These
+            // two shrink the digit instead of truncating it to "2…" at large
+            // type sizes, on the one screen that says what was actually done.
             .lineLimit(1)
             .minimumScaleFactor(0.5)
             .frame(width: 36, height: 36)
@@ -221,10 +212,10 @@ struct CalendarScreen: View {
             // The label carries the full spoken date, so it is not a stable
             // query key for UI tests.
             //
-            // Only for a day of the month on screen. A grid carries up to two
-            // weeks of neighbouring months, and those cells repeat real
-            // numbers — three cells could answer to "day-1". Being
-            // accessibilityHidden keeps them out of the tree today, so this
+            // Only for a day of the month on screen. A grid carries up to
+            // twelve days of neighbouring months, and those cells repeat real
+            // numbers — two cells could answer to "day-1". Being
+            // accessibilityHidden already keeps them out of the tree, so this
             // is not a live flake; it is the identifier not claiming a name
             // it has no business holding, so that unhiding a cell can never
             // silently make a query ambiguous.
@@ -252,9 +243,8 @@ struct CalendarScreen: View {
         // ink2, not ink3: the digit has to be readable on the rest fill.
         case .rest:    return Theme.ink2
         // ink2 as well, and for the same reason the rest day has it: this is
-        // a DIGIT, and ink3 reads 2.35:1 on bg in light (owner's call, UX
-        // review 05.09.2026 — low-contrast ink3 text was an oversight, ink3
-        // stays for graphics). Quiet is still the design: a missed day carries
+        // a DIGIT, and ink3 reads 2.35:1 on bg in light; ink3 stays for
+        // graphics. Quiet is still the design: a missed day carries
         // no ring and no fill, which is what marks it, and ink2 against the
         // ink the planned and today cells use keeps it a step back. Being
         // unmarked was never meant to make the date itself hard to read —
@@ -325,14 +315,11 @@ struct CalendarScreen: View {
 
     // MARK: - Legend and month stat
 
-    /// One row while the four fit it, two by two when they do not. German
-    /// ("abgeschlossen · geplant · Ruhetag · heute") overflows a 375 pt screen
-    /// at the default type size and English follows one Dynamic Type step
-    /// later; single-word labels then truncate and two-word ones wrap, leaving
-    /// a ragged legend explaining a grid nothing else explains (UX review,
-    /// 05.09.2026). ViewThatFits over a hard `dynamicTypeSize` branch because
-    /// the language decides this as much as the type size does — the same
-    /// pattern HeldSetsRow and the workout's escape row already use.
+    /// One row while the four fit it, two by two when they do not: a row that
+    /// does not fit truncates single-word labels and wraps two-word ones,
+    /// leaving a ragged legend explaining a grid nothing else explains.
+    /// ViewThatFits over a hard `dynamicTypeSize` branch because the language
+    /// decides this as much as the type size does.
     private var legend: some View {
         ViewThatFits(in: .horizontal) {
             HStack(spacing: 16) {
@@ -386,7 +373,7 @@ struct CalendarScreen: View {
                 .monospacedDigit()
                 // The month's only number, and the twin of the heading above:
                 // inherited `.primary` sits outside the palette in both
-                // schemes (finding 15).
+                // schemes.
                 .foregroundStyle(Theme.ink)
         }
         .padding(.horizontal, 18)
