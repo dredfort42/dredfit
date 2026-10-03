@@ -60,9 +60,9 @@ extension AppStore {
     /// does.
     ///
     /// A fact, not a line: this says WHETHER there is something to explain,
-    /// and `ExerciseRow` owns the words for it. Sets come off because the
-    /// person skipped them, so the card has to say when the engine gives one
-    /// back on its own.
+    /// and `ExerciseRow` owns the words for it. Sets come off for several
+    /// reasons — a skip, a descent on the dose floor, the deload, a break —
+    /// so the card has to say when the engine gives one back on its own.
     ///
     /// The hold is armed by the very transition that handed a set back and
     /// spends a tick each time the movement is trained after it, so "full"
@@ -121,8 +121,8 @@ extension AppStore {
     /// The case it exists for: someone who only knows the one-tap gesture
     /// rates "tough" whenever the pushes come up. Because the pushes are in
     /// most sessions, that reads to the model as "the whole programme is too
-    /// hard", while the movement that is actually the problem stays in every
-    /// plan.
+    /// hard", while the movement that is actually the problem keeps its
+    /// place in the rotation.
     ///
     /// The prompt routes to the easier VARIATION: a lighter variation changes
     /// exactly the thing the person is complaining about, immediately, and

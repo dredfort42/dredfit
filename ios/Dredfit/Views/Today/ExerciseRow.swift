@@ -98,9 +98,9 @@ struct ExerciseRow: View {
     /// themselves. That case stands ALONE rather than narrowing the other —
     /// it comes from the stamp the handle writes, while
     /// `aVariationJustDropped` needs a last record that carries positions.
-    /// The other movers (the blind-zone decay, an accepted comeback) are not
-    /// named, because a note that guessed at one of them would be wrong about
-    /// the rest.
+    /// The other movers (among them the blind-zone decay, an accepted
+    /// comeback and a fresh start) are not named, because a note that guessed
+    /// at one of them would be wrong about the rest.
     static func variationNote(easedByHand: Bool, dropped: Bool) -> String? {
         if easedByHand {
             return String(localized: "plan.easedByHand",

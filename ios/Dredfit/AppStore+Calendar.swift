@@ -31,9 +31,9 @@ extension AppStore {
     /// Rest is rest FROM something. An install that has never trained lands on
     /// a rest day whenever onboarding happens to end on one, and without this
     /// the first thing the app would say is "come back on Tuesday" — to the
-    /// one person who has just decided to start. The marked weekdays keep
-    /// their meaning for every day but today: the difference is only that
-    /// nothing is being rested yet.
+    /// one person who has just decided to start. Only today's plan changes:
+    /// the marked weekdays still mean rest everywhere else, and the reminders
+    /// still skip a marked today.
     ///
     /// The widget reads it for TODAY as well (`widgetStatus`), or the two
     /// would disagree on the first day. Only for today: on every other day of

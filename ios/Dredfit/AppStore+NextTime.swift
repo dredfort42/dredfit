@@ -44,8 +44,9 @@ extension AppStore {
     /// still standing, not one that was.
     ///
     /// The landed share the record keeps (`raisedShare`, as `landed` counted
-    /// it), not the taps: on the grid's ceiling the engine parks a raise, and
-    /// the note is about the rise that stood.
+    /// it; a record written before that share was kept falls back to the
+    /// taps): on the grid's ceiling the engine parks a raise, and the note is
+    /// about the rise that stood.
     func raisedForNextPlan(_ pattern: Pattern) -> Int {
         guard let last = records.last,
               last.sessionNumber == engineState.counter,

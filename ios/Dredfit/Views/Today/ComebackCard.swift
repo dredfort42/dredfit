@@ -90,9 +90,8 @@ struct ComebackCard: View {
                         // ink3 for the stroke, not hairline: the card ground is
                         // `cardBG`, where hairline comes to ≈1.1–1.2:1 and
                         // simply is not there. ink3 reads ≈2.2:1 in the light
-                        // scheme — past the floors the palette holds for quiet
-                        // graphics (1.3:1, 1.5:1 under Increased Contrast), and
-                        // still quieter than the label it surrounds.
+                        // scheme and more in the others: visible, and still
+                        // quieter than the label it surrounds.
                         .overlay(RoundedRectangle(cornerRadius: 14)
                             .strokeBorder(Theme.ink3, lineWidth: 1.5))
                 }
