@@ -200,7 +200,7 @@ extension WorkoutSession {
     /// this records.
     func stopHoldEarly() {
         guard let end = holdClock.endDate else { return }
-        let remaining = max(0, end.timeIntervalSinceNow)
+        let remaining = max(0, end.timeIntervalSince(now()))
         let held = Double(holdTotal) - remaining
         if held < Self.holdMistapSeconds {
             holdClock.stand(at: holdTotal)
