@@ -1,8 +1,8 @@
 //
-//  The two push ladders and the two core ladders of §40.1.
+//  The two push ladders and the two core ladders.
 //
-//  Bird-dog left the rotation ladder for the warm-up (§40.1): a hold there is
-//  about coordination, not volume. Its technique lives on in `WarmupTechnique`.
+//  Bird-dog is not on the rotation ladder: a hold there is about
+//  coordination, not volume. Its technique lives in `WarmupTechnique`.
 //
 
 // swiftlint:disable line_length

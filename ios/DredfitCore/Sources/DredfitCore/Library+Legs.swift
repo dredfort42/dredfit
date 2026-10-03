@@ -1,11 +1,11 @@
 //
-//  The four lower-body ladders of §40.1 — squat, hinge, lunge, calf.
+//  The four lower-body ladders — squat, hinge, lunge, calf.
 //  Split out of Library.swift so neither file approaches the lint's ceiling;
-//  the ladders themselves are one table each, in the spec's order.
+//  the ladders themselves are one table each.
 //
-//  The single-leg Romanian deadlift left the hinge ladder for the warm-up
-//  (§40.1): it is about balance, not dose, and it stood in the ladder as a
-//  gap. Its technique lives on in `WarmupTechnique`.
+//  The single-leg Romanian deadlift is not on the hinge ladder: it is about
+//  balance, not dose, and would be a gap in the ladder. Its technique lives
+//  in `WarmupTechnique`.
 //
 
 // swiftlint:disable line_length
