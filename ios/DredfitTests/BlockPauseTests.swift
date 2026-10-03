@@ -89,7 +89,7 @@ final class BlockPauseTests: XCTestCase {
     }
 
     func testAZeroLengthWayBackInJustHolds() {
-        // It would otherwise leave an end date no tick can ever retire.
+        // It would otherwise end on the next tick, with a go and no count.
         var state = BlockPause.State()
         state.beginReentry(seconds: 0, now: .now)
         XCTAssertTrue(state.isHeld)

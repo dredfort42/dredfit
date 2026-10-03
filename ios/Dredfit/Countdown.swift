@@ -34,8 +34,8 @@ struct Countdown: Equatable {
     }
 
     /// Runs on from the second on screen — the way out of a freeze. `floor`
-    /// is the least it runs for, so one frozen at 0 still gets a last second
-    /// instead of ending on the next tick. The second on screen is left for
+    /// is the least it runs for, so one frozen at 0 gets an end date ahead of
+    /// it rather than one already reached. The second on screen is left for
     /// the next tick to move.
     mutating func resume(now: Date, atLeast floor: Int = 0) {
         endDate = now.addingTimeInterval(TimeInterval(max(remaining, floor)))
@@ -66,7 +66,7 @@ struct Countdown: Equatable {
 
     /// What a tick found.
     enum Reading: Equatable {
-        /// Not running, or still on the second already shown.
+        /// Not running, or still above zero on the second already shown.
         case unchanged
         /// A new second to show; nothing has been shown yet — see `show`.
         case second(Int)
