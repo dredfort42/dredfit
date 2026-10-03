@@ -15,7 +15,7 @@ import DredfitCore
 extension AppStoreTests {
 
     func testProgressCurveIsCutAtTheGivenDate() throws {
-        let store = AppStore(storageURL: tempURL, widgetSnapshotURL: nil)
+        let store = makeStore(widgetSnapshotURL: nil)
         _ = store.completeWorkout(session: store.nextSession, result: .plan)
 
         XCTAssertEqual(store.progressCurve(), store.records.compactMap(\.totalProgressAfter))
@@ -28,7 +28,7 @@ extension AppStoreTests {
     // MARK: - Week summary
 
     func testWeekSummaryUsesMondayFirstIsoWeeks() throws {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         // Sunday Jul 12, 2026 closes the ISO week Mon Jul 6 – Sun Jul 12.
         _ = store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 12))
         let sundaySteps = try XCTUnwrap(store.records.last?.totalProgressAfter)
@@ -52,7 +52,7 @@ extension AppStoreTests {
     }
 
     func testWeekSummaryEmptyWeekIsZero() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.completeWorkout(session: store.nextSession, result: .more, date: date(2026, 7, 10))
         let week = store.weekSummary(for: date(2026, 7, 22))
         XCTAssertEqual(week, AppStore.WeekSummary(workouts: 0, stepsDelta: 0),
@@ -62,7 +62,7 @@ extension AppStoreTests {
     // MARK: - Pull-up bar
 
     func testHasBarPersistsAndDrivesAlternation() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.setHasBar(true)
         // session 1 (counter 0) stays horizontal even with the bar on
         XCTAssertFalse(store.nextSession.exercises.contains { $0.pattern == .pullBar })
@@ -83,7 +83,7 @@ extension AppStoreTests {
                        RecordedPosition(variation: barPosition.variation,
                                         sets: barPosition.sets, dose: barPosition.dose),
                        "the journal snapshot must include the pull_bar position")
-        let reloaded = AppStore(storageURL: tempURL)
+        let reloaded = makeStore()
         XCTAssertTrue(reloaded.engineState.hasBar)
         XCTAssertEqual(reloaded.engineState.position(.pullBar), barPosition)
 
@@ -97,7 +97,7 @@ extension AppStoreTests {
     // MARK: - Calendar logic
 
     func testIsRestDayOnTheDefaultWeekdays() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertTrue(store.isRestDay(date(2026, 7, 20)), "Monday is a default rest day")
         XCTAssertTrue(store.isRestDay(date(2026, 7, 15)), "and Wednesday")
         XCTAssertTrue(store.isRestDay(date(2026, 7, 17)), "and Friday")
@@ -106,14 +106,14 @@ extension AppStoreTests {
     }
 
     func testNextTrainingDateFromFreeWeekday() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         let thursday = date(2026, 7, 16)
         XCTAssertEqual(store.nextTrainingDate(from: thursday), thursday,
                        "no workout today and not a rest day → today")
     }
 
     func testNextTrainingDateSkipsARestDay() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         let monday = date(2026, 7, 20)
         let next = store.nextTrainingDate(from: monday)
         XCTAssertTrue(Calendar.current.isDate(next, inSameDayAs: date(2026, 7, 21)),
@@ -121,7 +121,7 @@ extension AppStoreTests {
     }
 
     func testNextTrainingDateAfterADoneSundaySkipsToTuesday() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         let sunday = date(2026, 7, 19)
         store.completeWorkout(session: store.nextSession, result: .plan, date: sunday)
         let next = store.nextTrainingDate(from: sunday)
@@ -130,7 +130,7 @@ extension AppStoreTests {
     }
 
     func testDoneTodayAndRecordLookup() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         let day = date(2026, 7, 16)
         store.completeWorkout(session: store.nextSession, result: .plan, date: day)
         XCTAssertTrue(store.isDone(on: day))
@@ -143,7 +143,7 @@ extension AppStoreTests {
     // MARK: - A full month of workouts
 
     func testMonthOfWorkoutsAccumulatesConsistently() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         var day = date(2026, 7, 1)
         var completed = 0
         while completed < 24 {
@@ -157,6 +157,6 @@ extension AppStoreTests {
         XCTAssertEqual(store.records.map(\.sessionNumber), Array(1...24))
         let chart = store.records.compactMap(\.totalProgressAfter)
         XCTAssertEqual(chart, chart.sorted(), "the total must not drop with \"on plan\"")
-        XCTAssertEqual(AppStore(storageURL: tempURL).records.count, 24)
+        XCTAssertEqual(makeStore().records.count, 24)
     }
 }
