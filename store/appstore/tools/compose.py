@@ -132,7 +132,7 @@ jobs = [
     (f"{RAW}/probe_fr.png",      ["Rien ne se débloque", "tout seul"], "Une série de la variante suivante décide, pas le calendrier.", f"{OUT}/fr/s4.png"),
     (f"{RAW}/probe_it.png",      ["Niente si sblocca", "da solo"], "Decide una serie del movimento nuovo, non il calendario.", f"{OUT}/it/s4.png"),
     # --- 5. technique_ — new in 2.1.0. The sheet FROM THE PLAN: `planned:
-    #        true` lives in one place in the project (TodayView.swift:46) and
+    #        true` lives in one place in the project (TodayView.swift:101) and
     #        is what draws the step below, so no other door composes this.
     (f"{RAW}/technique_en.png",   ["Always a version", "you can do"], "Technique for every movement — and the easier version.", f"{OUT}/en/s5.png"),
     (f"{RAW}/technique_ru.png",   ["Всегда есть", "вариация полегче"], "У каждого движения — техника и вариация полегче.", f"{OUT}/ru/s5.png"),

@@ -312,7 +312,7 @@ final class StoreScreenshots: XCTestCase {
         Thread.sleep(forTimeInterval: 1)
         snap("today_\(l.tag)")
 
-        // The technique sheet, FROM THE PLAN ROW. `TodayView.swift:46` is the
+        // The technique sheet, FROM THE PLAN ROW. `TodayView.swift:101` is the
         // only place in the project that passes `planned: true`, and the step
         // below is drawn under `if planned` alone (`TechniqueSheet.swift:123`)
         // — deliberately, because moving a position mid-session would move the

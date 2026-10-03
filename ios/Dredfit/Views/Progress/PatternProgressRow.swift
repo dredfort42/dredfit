@@ -92,8 +92,8 @@ struct PatternProgressRow: View {
     /// the 44 pt the number is given are literals that Dynamic Type does not
     /// move, so at AX3 and up the name was cut to a few letters and a
     /// two-digit step count was truncated inside its column; at accessibility
-    /// sizes the bar drops under the pair instead, which is the move `statRow`
-    /// above already makes (UX review, 05.09.2026).
+    /// sizes the bar drops under the pair instead, which is the move
+    /// `ProgressScreen.statRow` already makes (UX review, 05.09.2026).
     @ViewBuilder
     private func rowHead(_ p: Pattern, steps: Int, selected: Bool) -> some View {
         if typeSize.isAccessibilitySize {

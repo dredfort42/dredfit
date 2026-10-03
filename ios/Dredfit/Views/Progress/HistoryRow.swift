@@ -10,7 +10,7 @@ struct HistoryRow: View {
     /// The record being read: the walk can leave it on a neighbour of the one
     /// the sheet was opened with.
     let shown: WorkoutRecord
-    /// Handed down by the sheet, which reads it once for the whole record.
+    /// Handed down by the sheet: the answer is about the record, not the row.
     let easedByHand: [Pattern]
 
     /// The movement, what it cost, and — under both, at full width — what its

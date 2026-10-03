@@ -14,8 +14,8 @@ struct BackupSection: SettingsGroup {
     @State private var importFailed = false
     @State private var exportFailed = false
 
-    /// Raises the share sheet for a file that was just built. The screen owns
-    /// every sheet, so this section only says which file.
+    /// Raises the share sheet for a file that was just built. The share sheet
+    /// is one of the screen's own, so this section only says which file.
     let onExport: (URL) -> Void
 
     var body: some View {

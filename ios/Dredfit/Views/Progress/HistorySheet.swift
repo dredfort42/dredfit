@@ -123,8 +123,8 @@ struct HistorySheet: View {
         }
     }
 
-    /// Read once per sheet rather than per row: the answer is the same for
-    /// every movement, and it is empty for every record but the last.
+    /// The same answer for every movement of the record, and empty for every
+    /// record but the last; each row asks for it.
     private var easedByHand: [Pattern] { store.easedByHand(in: shown) }
 
     /// The facts worth printing for one exercise, or nil when it simply ran
@@ -434,13 +434,8 @@ struct HistorySheet: View {
         case .more: return String(localized: "Rating: easy — progressing as fast as each movement allows")
         }
     }
-}
 
-// MARK: - Walking the journal (UX review 05.09.2026, finding 34)
-
-/// An extension rather than more of the struct above: `type_body_length` is a
-/// CI error at 600 lines and a file split is the wrong cure for it.
-extension HistorySheet {
+    // MARK: - Walking the journal (UX review 05.09.2026, finding 34)
 
     /// The entries either side of the one being read. The journal is
     /// oldest-first, so "previous" is the workout before this one in time.
@@ -499,11 +494,8 @@ extension HistorySheet {
         .accessibilityHidden(target == nil)
         .accessibilityIdentifier(identifier)
     }
-}
 
-// MARK: - Taking the rating back (UX review 05.09.2026, finding 25)
-
-extension HistorySheet {
+    // MARK: - Taking the rating back (UX review 05.09.2026, finding 25)
 
     /// The rating is the one act of the workout that cannot be undone — every
     /// other irreversible step in the flow asks first — and since owner

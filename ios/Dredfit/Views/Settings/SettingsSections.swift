@@ -1,6 +1,6 @@
 //
-//  The groups of the settings screen that own no sheet: the week, the
-//  equipment, sounds, the theme and the footer.
+//  The smaller groups of the settings screen: the week, the equipment,
+//  sounds, the theme and the footer.
 //
 
 import SwiftUI

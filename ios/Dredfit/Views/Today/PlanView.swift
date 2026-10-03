@@ -181,9 +181,7 @@ struct PlanView: View {
     }
 
     /// The two quiet sentences the plan says about ITSELF, before any card
-    /// asks for a decision. Together in one property because `body`'s stack
-    /// stands at the ten children a ViewBuilder takes, and a note is the
-    /// cheapest thing to group.
+    /// asks for a decision.
     @ViewBuilder
     private var planNotes: some View {
         // The one surface the silent decay has. A week off takes a step off

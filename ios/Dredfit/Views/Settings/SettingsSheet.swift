@@ -5,8 +5,8 @@
 import SwiftUI
 import UIKit
 
-/// Every sheet the screen raises, behind one `.sheet(item:)` so that two can
-/// never be up at once.
+/// The screen's own sheets, behind one `.sheet(item:)` so that two can never be
+/// up at once. The import's file picker belongs to BackupSection.
 private enum Destination: Identifiable {
     case howItWorks
     case export(URL)
