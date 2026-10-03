@@ -1,6 +1,7 @@
 //
-//  The pause of the guided blocks and of a hands-free rest. Both blocks
-//  share one pause, so it belongs to neither block's file.
+//  The pause of the guided blocks, moved out of WorkoutFlowView when that
+//  file neared the lint's hard ceiling. Both blocks share one pause, so it
+//  belongs to neither block's file; the code moved unchanged.
 //
 
 import SwiftUI
@@ -35,16 +36,17 @@ extension WorkoutFlowView {
     /// tick guard goes quiet and no tone can be reached, while the seconds on
     /// screen stay put and rebuild it later.
     ///
-    /// Not private: the two block ticks call it when they find a boundary
-    /// that was crossed while the phone was elsewhere. That is the same fact
-    /// this control states — nobody is training — reached without a tap, so
-    /// it takes the same path rather than a second copy of it.
+    /// Not private since 05.09.2026: the two block ticks call it when they
+    /// find a boundary that was crossed while the phone was elsewhere. That is
+    /// the same fact this control states — nobody is training — reached
+    /// without a tap, so it takes the same path rather than a second copy of
+    /// it (UX review 05.09.2026).
     func pauseBlock(absence: Int = 0) {
         blockPause.hold()
         // The seconds from here to Resume are not seconds of the block, and
         // neither is the absence that led here — `warmupSec`/`cooldownSec` are
-        // wall clock, so without this both would be billed to the stretching
-        // (see `blockPausedSec`).
+        // wall clock, so both used to be billed to the stretching (UX review
+        // 05.09.2026, see `blockPausedSec`).
         beginBlockFreeze(absence: absence)
         warmupClock.freeze()
         cooldownClock.freeze()
@@ -110,7 +112,8 @@ extension WorkoutFlowView {
         playGo()
         // `clearBlockPause()`, not `blockPause.clear()`: the re-entry is a way
         // out of a pause like any other, and the comment on that method states
-        // the invariant — a freeze left open runs to the end of the block.
+        // the invariant this line used to break — a freeze left open runs to
+        // the end of the block.
         //
         // It is reachable: the technique button is drawn on the "Get ready"
         // screen of a re-entry with no gate, and `openPositionTechnique`
@@ -118,10 +121,10 @@ extension WorkoutFlowView {
         // which returns early while `blockPause.isPaused` — and a re-entry IS
         // paused. In the cool-down nothing else would close it before
         // `finishCooldown`, because `tickCooldown` writes its stage inline
-        // instead of going through `enterCooldownStage`, so the measured
-        // length of the block would come out as the few seconds before the
-        // sheet rather than the minutes actually stretched — and that number
-        // is persisted and exported to Health.
+        // instead of going through `enterWarmupStage`'s equivalent, so the
+        // measured length of the block came out as the few seconds before the
+        // sheet rather than the five minutes actually stretched — and that
+        // number is persisted and exported to Health (self-review 05.09.2026).
         clearBlockPause()
         restartFrozenStage()
     }
@@ -189,9 +192,11 @@ extension WorkoutFlowView {
     /// VoiceOver stays on the control it has just used, so the state change
     /// has to be spoken; everyone else reads it under the countdown.
     ///
-    /// Not private either: the automatic boundaries of both blocks are the
-    /// same problem in a harder form — the subtree the focus was in is
-    /// replaced outright, so nothing is read at all.
+    /// Not private since 05.09.2026 either: the automatic boundaries of both
+    /// blocks are the same problem in a harder form — the subtree the focus
+    /// was in is replaced outright, so nothing is read at all — and this was
+    /// the one place in the tree that already solved it (UX review
+    /// 05.09.2026).
     func announce(_ message: String) {
         AccessibilityNotification.Announcement(message).post()
     }
