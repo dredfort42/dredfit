@@ -23,7 +23,7 @@ final class SafetySignalsTests: AppStoreTestCase {
     // MARK: - Consecutive training days (#98)
 
     func testConsecutiveDaysCountRunsAndBreakOnAGap() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         for offset in [-5, -4, -2, -1] {
             store.completeWorkout(session: store.nextSession, result: .plan,
                                   date: day(offset))
@@ -36,7 +36,7 @@ final class SafetySignalsTests: AppStoreTestCase {
     }
 
     func testTwoWorkoutsOnOneDayCountOnce() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         store.completeWorkout(session: store.nextSession, result: .plan, date: day(-1))
         store.completeWorkout(session: store.nextSession, result: .plan,
                               date: day(-1).addingTimeInterval(3600))
@@ -48,7 +48,7 @@ final class SafetySignalsTests: AppStoreTestCase {
     /// row, and never once today's workout is done — it is an offer before
     /// the fact, not a remark after it.
     func testLongRunOfferThreshold() {
-        let two = AppStore(storageURL: tempURL)
+        let two = makeStore()
         for offset in [-2, -1] {
             two.completeWorkout(session: two.nextSession, result: .plan, date: day(offset))
         }
@@ -57,7 +57,7 @@ final class SafetySignalsTests: AppStoreTestCase {
 
         let threeURL = tempURL.deletingPathExtension().appendingPathExtension("three.json")
         defer { try? FileManager.default.removeItem(at: threeURL) }
-        let three = AppStore(storageURL: threeURL)
+        let three = makeStore(storageURL: threeURL)
         for offset in [-3, -2, -1] {
             three.completeWorkout(session: three.nextSession, result: .plan, date: day(offset))
         }
