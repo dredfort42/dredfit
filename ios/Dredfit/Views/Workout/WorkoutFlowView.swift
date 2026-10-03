@@ -1004,10 +1004,12 @@ extension WorkoutFlowView {
         setIndex = 0
     }
 
-    /// Everything scoped to the exercise in front of us goes with it: its
-    /// sides, its settled hold, its run, its declared time, its estimate
-    /// marks and its note. One function, so a way forward that forgets one of
-    /// them cannot exist.
+    /// Everything scoped to the exercise in front of us: its sides, its
+    /// settled hold, its run, its declared time, its estimate marks and its
+    /// note. Cleared on the way into the next exercise (`enterNextExercise`)
+    /// and on the early ways out — a skip past the last one, "Finish now".
+    /// The last set's ordinary way into the cool-down leaves them standing;
+    /// nothing reads them once the work is behind.
     func leaveExerciseState() {
         resetHoldSides()
         resetHoldExercise()
