@@ -160,9 +160,11 @@ ios/Dredfit/            SwiftUI app target
   AppStore.swift        the only mutable state + JSON persistence (read,
                         quarantine and the one atomic write: StateFile.swift);
                         split by extension (+Cadence/Calendar/Comeback/Handles/
-                        Signals/Health/Reminders/Backup/Workout/Rating). The
-                        state is private(set): from another file a change goes
-                        through `update`, which writes it in the same call
+                        NextTime/Signals/Health/Reminders/Backup/Workout/Rating,
+                        and the DEBUG +UITestHooks). The state is private(set):
+                        from another file a change goes through `update`,
+                        which writes it in the same call (the UI-test `seed`
+                        sets it without writing)
   HealthExporter.swift  what is read from and written to Apple Health
   ReminderScheduler.swift  the window of pending reminder requests
   WorkoutSessionStore.swift  which snapshot of a workout in progress is still

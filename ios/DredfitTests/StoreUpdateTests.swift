@@ -14,11 +14,6 @@ final class StoreUpdateTests: AppStoreTestCase {
     /// the mutation that triggers it — here, on the main actor of the test.
     private final class Flag: @unchecked Sendable { var raised = false }
 
-    private func makeStore() -> AppStore {
-        AppStore(storageURL: tempURL, health: HealthSpy(), notifications: QuietNotifications(),
-                 widgetSnapshotURL: nil)
-    }
-
     func testAChangeIsOnDiskWhenUpdateReturns() throws {
         let store = makeStore()
         store.update { $0.settings.soundsEnabled = false }
@@ -52,23 +47,19 @@ final class StoreUpdateTests: AppStoreTestCase {
 
     func testAnImportOntoAPhoneWithoutTheShareTurnsHealthOff() async throws {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy, notifications: QuietNotifications(),
-                             widgetSnapshotURL: nil)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
         let backup = try store.exportURL()
         defer { try? FileManager.default.removeItem(at: backup) }
         spy.shareGranted = false
         try store.importBackup(from: backup)
         XCTAssertFalse(store.settings.healthEnabled, "a backup cannot prove this phone granted the share")
-        let reread = AppStore(storageURL: tempURL, health: spy, notifications: QuietNotifications(),
-                              widgetSnapshotURL: nil)
-        XCTAssertFalse(reread.settings.healthEnabled, "and the file says so too")
+        XCTAssertFalse(makeStore(health: spy).settings.healthEnabled, "and the file says so too")
     }
 
     func testAnEntryExportedHereStaysExportedThroughTheImport() async throws {
         let spy = HealthSpy()
-        let store = AppStore(storageURL: tempURL, health: spy, notifications: QuietNotifications(),
-                             widgetSnapshotURL: nil)
+        let store = makeStore(health: spy)
         _ = await store.enableHealth()
         store.completeWorkout(session: store.nextSession, result: .plan, date: date(2026, 7, 14))
         await store.healthExportTask?.value

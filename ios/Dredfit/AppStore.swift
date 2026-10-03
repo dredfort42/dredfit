@@ -127,7 +127,8 @@ struct PersistedState {
 final class AppStore {
 
     // Set only in this file: from anywhere else a change goes through
-    // `update`, which writes it in the same call.
+    // `update`, which writes it in the same call — or, in DEBUG, through the
+    // UI-test `seed`, which does not write.
     private(set) var engineState: EngineState = .initial
     private(set) var records: [WorkoutRecord] = []
     private(set) var settings = AppSettings()
@@ -858,7 +859,7 @@ final class AppStore {
 
     /// The way into the persisted state from outside this file: the change
     /// and its write are one call, so no caller can make the one without the
-    /// other.
+    /// other. (`seed` below is the DEBUG-only exception.)
     func update(refreshWidget: Bool = true, _ change: (inout PersistedState) -> Void) {
         var state = persisted
         change(&state)
