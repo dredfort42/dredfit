@@ -1,8 +1,8 @@
 //
 //  The lifecycle of a workout in progress, as the store keeps it: the
 //  snapshot the flow writes on every phase transition, and what becomes of it.
-//  What counts as still the same occasion, and what a settlement records, is
-//  WorkoutSessionStore's.
+//  WorkoutSessionStore holds the windows and decides what a settlement
+//  records; the store measures against them and writes the result.
 //
 
 import Foundation
@@ -86,6 +86,8 @@ extension AppStore {
         let settled = WorkoutSessionStore.settlement(of: snap, in: session)
         completeWorkout(
             session: session,
+            // It happened, and the regulator's neutral answer is the honest
+            // stand-in for a rating nobody gave.
             result: .plan,
             overrides: settled.overrides,
             setActuals: settled.setActuals,

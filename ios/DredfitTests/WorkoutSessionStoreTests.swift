@@ -52,6 +52,14 @@ final class WorkoutSessionStoreTests: XCTestCase {
         XCTAssertEqual(settled.raised, [first: 1])
         XCTAssertTrue(settled.skipped.contains(second))
         XCTAssertEqual(settled.skipped, Set(plan.exercises.dropFirst().map(\.pattern)),
-                       "everything from the movement it stopped at on is a skip")
+                       "the movement skipped by hand, and everything from where it stopped on")
+    }
+
+    func testASetIndexOffDiskCannotTrapTheSettlement() {
+        var snap = snapshot(setIndex: .max, setActuals: [plan.exercises[0].pattern: [6, 6, 6]])
+        snap.restEndDate = start + 3_600
+        let settled = WorkoutSessionStore.settlement(of: snap, in: plan)
+        XCTAssertFalse(settled.skipped.contains(plan.exercises[0].pattern),
+                       "in its rest, every set of the movement is behind")
     }
 }

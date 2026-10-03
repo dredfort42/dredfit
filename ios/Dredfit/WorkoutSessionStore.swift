@@ -1,8 +1,8 @@
 //
 //  The workout in progress as the journal sees it: whether a snapshot still
-//  describes the plan ahead, how old it may be and still be picked up, and
-//  what settling a forgotten one records. Pure; the store keeps the snapshot
-//  and writes what this decides.
+//  describes the plan ahead, the two windows that bound how long it is worth
+//  picking up, and what settling a forgotten one records. Pure; the store
+//  applies the windows, keeps the snapshot and writes what this decides.
 //
 
 import Foundation
@@ -11,12 +11,12 @@ import DredfitCore
 enum WorkoutSessionStore {
 
     /// Older than this is a different training occasion, not an interrupted
-    /// one — but "not the same occasion" is not the same as "abandoned", and
-    /// the two used to be one window (owner, 06.09.2026).
+    /// one — but "not the same occasion" is not "abandoned": that is
+    /// `forgottenAfter`, a window of its own.
     static let resumeWindow: TimeInterval = 3 * 60 * 60
 
     /// Past this the workout was not interrupted, it was FORGOTTEN, and only
-    /// then is it recorded without being asked about (owner, 06.09.2026).
+    /// then is it recorded without being asked about.
     ///
     /// Elapsed time, not the calendar day `trainingDays` counts. That rule is
     /// right about rhythm — midnights are what "yesterday" means to a person —
@@ -58,22 +58,17 @@ enum WorkoutSessionStore {
         var date: Date
     }
 
-    /// Writes what was done and clears the snapshot either way: a snapshot
-    /// that can no longer be recorded honestly must not linger to be asked
-    /// about again tomorrow.
-    ///
-    /// Recorded "on plan" — it happened, and the regulator's neutral answer is
-    /// the honest stand-in for one nobody gave (owner, 05.09.2026). Dated from
-    /// `savedAt`, never `.now`: settling yesterday's session this morning
-    /// would otherwise move it into today's calendar, today's Health export
-    /// and today's gap arithmetic.
+    /// What a workout nobody came back to records. Dated from `savedAt`, never
+    /// `.now`: settling yesterday's session this morning would otherwise move
+    /// it into today's calendar, today's Health export and today's gap
+    /// arithmetic.
     static func settlement(of snap: WorkoutSnapshot, in session: Session) -> Settlement {
         let settled = SetFacts.settlement(
             in: session.exercises,
             exIndex: snap.exIndex,
             // In rest the set that just ended is still `setIndex`.
             // Capped before the `+ 1`: the index comes off disk, and Int.max
-            // trapped here inside `activate()` on every launch.
+            // would trap here inside `activate()` on every launch.
             setsBehind: snap.restEndDate != nil ? min(snap.setIndex, Int.max - 1) + 1 : snap.setIndex,
             currentIsDone: snap.atFeedback == true || snap.atExerciseSummary == true,
             alreadySkipped: snap.skips)
