@@ -219,24 +219,30 @@ struct WorkoutFlowView: View {
         .skipConfirmation($pendingSkip)
     }
 
-    /// The screens a settle window is keyed by: the phase without its payload,
-    /// and for a guided block whether its transition or its position is up.
+    /// The screens a settle window is keyed by: the phase without its payload.
+    /// Three things the phase alone does not show also change the button under
+    /// the finger: a guided block's transition giving way to its position, the
+    /// next position's transition after a skip, and a hold's Stop turning into
+    /// Done when its clock runs out.
     private enum Screen: Hashable {
-        case warmupIntro, warmupTransition, warmupPosition, work, rest, exerciseSummary
-        case cooldownIntro, cooldownTransition, cooldownPosition, feedback, milestone
+        case warmupIntro, rest, exerciseSummary, cooldownIntro, feedback, milestone
+        case warmupTransition(Int), warmupPosition(Int), cooldownTransition(Int), cooldownPosition(Int)
+        case work(settled: Bool)
     }
 
     private var screen: Screen {
         switch flow.phase {
         case .warmupIntro: return .warmupIntro
         case .warmup:
-            return flow.reentering || flow.warmup.stage == .getReady ? .warmupTransition : .warmupPosition
-        case .work: return .work
+            return flow.reentering || flow.warmup.stage == .getReady
+                ? .warmupTransition(flow.warmup.index) : .warmupPosition(flow.warmup.index)
+        case .work: return .work(settled: flow.holdSettled)
         case .rest: return .rest
         case .exerciseSummary: return .exerciseSummary
         case .cooldownIntro: return .cooldownIntro
         case .cooldown:
-            return flow.reentering || flow.cooldown.stage == .getReady ? .cooldownTransition : .cooldownPosition
+            return flow.reentering || flow.cooldown.stage == .getReady
+                ? .cooldownTransition(flow.cooldown.index) : .cooldownPosition(flow.cooldown.index)
         case .feedback: return .feedback
         case .milestone: return .milestone
         }

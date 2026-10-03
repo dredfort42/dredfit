@@ -106,4 +106,84 @@ extension WorkoutSessionTests {
         XCTAssertTrue(flow.setsSkipped.isEmpty)
         XCTAssertTrue(flow.skippedPatterns.isEmpty)
     }
+
+    // Each guard on its own. The pairs above (skipRest → advanceAfterRest,
+    // declineWarmup → finishWarmup, leaveExerciseSummary → completeSet,
+    // declineCooldown → finishCooldown) stop a second tap with either guard
+    // alone; these reach each one where its partner cannot.
+
+    func testASkipRestOutsideARestLeavesAPausedBlockPaused() {
+        let flow = makeFlow(makeStore())
+        flow.beginWarmup()
+        flow.pauseBlock()
+        XCTAssertTrue(flow.blockPause.isPaused, "the premise")
+        flow.skipRest()
+        XCTAssertTrue(flow.blockPause.isPaused)
+    }
+
+    func testAnAdvanceOutsideARestLeavesTheSetWhereItIs() {
+        let flow = makeFlow(makeStore())
+        flow.declineWarmup()
+        flow.advanceAfterRest(countIn: true)
+        XCTAssertEqual(flow.setIndex, 0)
+        XCTAssertEqual(flow.phase, .work)
+    }
+
+    func testADeclineDuringTheWarmUpDoesNotEndIt() {
+        let flow = makeFlow(makeStore())
+        flow.beginWarmup()
+        flow.declineWarmup()
+        XCTAssertEqual(flow.phase, .warmup)
+    }
+
+    func testAStaleWarmUpEndingLeavesTheRestAlone() {
+        let flow = makeFlow(makeStore())
+        flow.declineWarmup()
+        flow.completeSet()
+        flow.finishWarmup()
+        XCTAssertEqual(flow.phase, .rest(seconds: 60))
+    }
+
+    func testTheSummarysDoneOnTheWorkScreenLogsNoSet() {
+        let flow = makeFlow(makeStore())
+        flow.declineWarmup()
+        flow.leaveExerciseSummary()
+        XCTAssertEqual(flow.phase, .work)
+        XCTAssertEqual(flow.setIndex, 0)
+    }
+
+    func testStartingTheCoolDownTwiceDoesNotStartItOver() {
+        let flow = makeFlow(makeStore())
+        flow.declineWarmup()
+        flow.exIndex = flow.exercises.count - 1
+        flow.setIndex = 2
+        flow.completeSet()
+        flow.beginCooldown()
+        let began = flow.cooldownBeganAt
+        run(flow, for: 2)
+        flow.beginCooldown()
+        XCTAssertEqual(flow.cooldownBeganAt, began)
+        XCTAssertEqual(flow.cooldown.clock.remaining, GetReady.countInSeconds - 2)
+    }
+
+    func testADeclineDuringTheCoolDownDoesNotEndIt() {
+        let flow = makeFlow(makeStore())
+        flow.declineWarmup()
+        flow.exIndex = flow.exercises.count - 1
+        flow.setIndex = 2
+        flow.completeSet()
+        flow.beginCooldown()
+        flow.declineCooldown()
+        XCTAssertEqual(flow.phase, .cooldown)
+    }
+
+    func testAStaleSkipOfTheRestOfAMovementTakesNoSetsOff() {
+        let flow = makeFlow(makeStore())
+        flow.declineWarmup()
+        flow.setIndex = 2
+        flow.completeSet()
+        XCTAssertEqual(flow.phase, .rest(seconds: flow.exercise.restExerciseSec), "the premise")
+        flow.skipRestOfExercise()
+        XCTAssertTrue(flow.setsSkipped.isEmpty)
+    }
 }

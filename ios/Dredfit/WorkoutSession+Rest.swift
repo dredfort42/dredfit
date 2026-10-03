@@ -191,8 +191,8 @@ extension WorkoutSession {
     /// its own 3-2-1, and only a tap or a go the app could not sound leaves
     /// the beat still owed.
     func advanceAfterRest(countIn: Bool) {
-        // Only a rest ends into the next set: a second tap on "Skip rest", or
-        // a tick racing it, must not walk the flow a set further.
+        // Only a rest ends into the next set. Its callers already stand in a
+        // rest; this keeps it true for any later one.
         guard case .rest = phase else { return }
         if isLastSet {
             // One tap bought ONE exercise: the next movement is a decision of
