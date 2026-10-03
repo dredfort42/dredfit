@@ -214,15 +214,15 @@ extension HealthExportTests {
     /// The rule itself, where nothing async sits between a test and it.
     func testAReadingIsAdoptedOnlyOverNothingOrOverAnOlderStatement() {
         let sample = BodyMassReading(kg: 70, date: Date(timeIntervalSince1970: 1_000))
-        XCTAssertTrue(AppStore.adopts(reading: sample, over: nil, statedAt: nil))
-        XCTAssertTrue(AppStore.adopts(reading: sample, over: 80, statedAt: nil),
+        XCTAssertTrue(HealthExporter.adopts(reading: sample, over: nil, statedAt: nil))
+        XCTAssertTrue(HealthExporter.adopts(reading: sample, over: 80, statedAt: nil),
                       "an undated number is a file from before the date was kept")
-        XCTAssertTrue(AppStore.adopts(reading: sample, over: 80,
+        XCTAssertTrue(HealthExporter.adopts(reading: sample, over: 80,
                                       statedAt: Date(timeIntervalSince1970: 999)))
-        XCTAssertFalse(AppStore.adopts(reading: sample, over: 80,
+        XCTAssertFalse(HealthExporter.adopts(reading: sample, over: 80,
                                        statedAt: Date(timeIntervalSince1970: 1_000)),
                        "the same moment is not later")
-        XCTAssertFalse(AppStore.adopts(reading: sample, over: 80,
+        XCTAssertFalse(HealthExporter.adopts(reading: sample, over: 80,
                                        statedAt: Date(timeIntervalSince1970: 1_001)))
     }
 
