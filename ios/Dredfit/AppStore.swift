@@ -167,6 +167,10 @@ final class AppStore {
     /// silently, and mid-workout it moves the engine counter under a running
     /// session — so a store that has been used stays frozen until relaunch.
     private var mutatedWhileFrozen = false
+    /// Why the last write failed, until a write succeeds. The change itself
+    /// stays in memory, so this is the only sign that a quit would lose it;
+    /// the banner reads it and `activate()` retries on it.
+    private(set) var lastPersistError: (any Error)?
     var backfillInFlight = false   // guards concurrent Health backfills
     /// Held so tests can await the fire-and-forget path instead of sleeping.
     private(set) var healthExportTask: Task<Void, Never>?
@@ -272,6 +276,10 @@ final class AppStore {
     /// Order matters: the decay can only correct a journal that has loaded.
     func activate(now: Date = .now) {
         reloadIfNeeded()
+        // The disk may have recovered while the app was away (storage freed,
+        // protection lifted); without this a failed write waits for the next
+        // unrelated change, and a quiet session never gets one.
+        if lastPersistError != nil { retryPersist() }
         // BEFORE the day is re-anchored, never after: the settlement writes a
         // journal entry dated to the day it happened, and the silent decay and
         // the comeback both measure their gap from the last record. Settling
@@ -904,10 +912,12 @@ final class AppStore {
                            settings: settings, pendingWorkout: pendingWorkout)
         do {
             try stateFile.write(data)
+            lastPersistError = nil
         } catch {
             // The next mutation retries the full write, but this is the only
             // durability path — a failure must leave a trace.
             Self.log.fault("persist failed: \(error.localizedDescription)")
+            lastPersistError = error
         }
         // Except the changes that provably cannot alter what it shows.
         if refreshWidget { refreshWidgetSnapshot() }

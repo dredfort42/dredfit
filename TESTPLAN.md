@@ -1053,6 +1053,25 @@ next plan "starts from", the person entered what they wanted next time, and
 | 54.16 | A hold one rung under the top of its grid (3×40 s), **+10 s** on the summary, then rate **"easy"** | The rating's two events take the base to 45-45-40 and only ONE of the two steps can land before the ceiling (3×45 s). History says **"After: 3×45 sec · +5 s of it is your addition"** and Today **"+5 s — your addition"** — the share that landed, not the taps. Change the rating to "on plan" (Today): both land, and the lines say +10 s — the decision was kept apart from the share (review, 12.09.2026) |
 | 54.17 | The same hold, **+10 s** on the summary, then correct the **last** card up to 60 s | The sentence shows 3×45 s and the stepper is cut back to what still changes the plan — **+0 s**, and "This is the most for this movement." — rather than reading "+10 s" over a plan the fact already took to the top |
 
+### 55. A failed save and an unread journal say so (app)
+
+The write that fails is `StateFile.write` (one atomic file: state, journal, settings, the workout in progress). Unit tests cover the store's side; these rows are what only a person can see. To provoke a failed write **in the simulator**: `xcrun simctl get_app_container booted app.dredfit data`, then `chmod 555 Library/Application\ Support` on the folder that holds `dredfit-state.json`; restore with `chmod 755` afterwards. **On a device**: fill the storage until the system says it is full (Settings → General → iPhone Storage), then train.
+
+| # | Check | Expected |
+|---|---|---|
+| 55.1 | With the folder made read-only, change any setting (Settings → Sounds) | A banner appears at the top: "Couldn't save your progress. It's kept only until you close the app." with **Try again**. Nothing else on screen changes, and nothing blocks |
+| 55.2 | Start a workout with the folder still read-only, go through a set and a rest | The banner is on the work screen too, below the status bar; it covers no control (Skip, Exit, the number cards and the primary button are all tappable) |
+| 55.3 | Tap **Try again** while the folder is still read-only | The banner stays. Restore the permissions and tap it again: the banner goes away at once and the state file's modification time moves |
+| 55.4 | Fail a write, restore the permissions, send the app to the background and back | The banner is gone on return, without a tap (`activate()` retries) |
+| 55.5 | Fail a write, restore the permissions, make any change | The banner goes away with that change |
+| 55.6 | Largest Dynamic Type, then dark mode, with the banner showing | The message wraps in full and **Try again** drops under it; the banner stays readable and the button keeps a 44 pt target; the gear in the corner is not covered |
+| 55.7 | VoiceOver on the banner | The message is read as a sentence, then **Try again** as a button; it is reachable on Today and inside the workout |
+| 55.8 | **On a device:** restart the phone and open Dredfit from a notification or the widget before the first unlock (the state file is still protected) | Today shows the card "Your history couldn't be read" with **Try again** in place of **Start** (on a rest day: in place of "Train anyway"). No **Start** anywhere |
+| 55.9 | Unlock the phone, return to Dredfit | The card is gone and **Start** is back with the real plan and history (the scene's activation re-reads the file). If the phone was unlocked first and the card is still up, **Try again** does the same |
+| 55.10 | While the card is up, open Settings and change something, unlock, tap **Try again** | The card stays — a used launch is never reloaded over its own changes. The card's last sentence (close Dredfit and open it again) is the way out and it works |
+| 55.11 | VoiceOver on the card | The title and the explanation are read as one element; **Try again** is the next stop |
+| 55.12 | The card in all seven languages, at the largest Dynamic Type | Nothing clips; French keeps its spaces; German and Russian do not overflow the button |
+
 ## Engine gates before a release
 
 Not a manual row — the five automated gates a release runs from `reference/`,

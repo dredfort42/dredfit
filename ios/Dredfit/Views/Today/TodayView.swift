@@ -88,6 +88,8 @@ struct TodayView: View {
             }
         }
         .padding(.horizontal, 24)
+        // The settings gear floats over the top-trailing corner.
+        .saveFailureBanner(store, trailingClearance: 44)
         .fullScreenCover(item: $activeWorkout) { active in
             WorkoutFlowView(session: active.session, resume: active.resume,
                             settleImmediately: active.settleImmediately, store: store)

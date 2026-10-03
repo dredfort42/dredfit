@@ -21017,6 +21017,46 @@
         }
       }
     },
+    "Couldn't save your progress. It's kept only until you close the app.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Fortschritt konnte nicht gespeichert werden. Er bleibt nur erhalten, bis du die App schließt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo guardar tu progreso. Se conserva solo hasta que cierres la app."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible d’enregistrer ta progression. Elle n’est conservée que jusqu’à la fermeture de l’app."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile salvare i tuoi progressi. Restano solo finché non chiudi l’app."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível salvar seu progresso. Ele fica guardado só até você fechar o app."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось сохранить прогресс. Он останется только до закрытия приложения."
+          }
+        }
+      }
+    },
     "history.actual": {
       "localizations": {
         "de": {
@@ -21637,6 +21677,126 @@
           "stringUnit": {
             "state": "translated",
             "value": "Приложение поставит %@."
+          }
+        }
+      }
+    },
+    "Try again": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erneut versuchen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reintentar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réessayer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riprova"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tentar de novo"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повторить"
+          }
+        }
+      }
+    },
+    "You can't start a workout yet, because it couldn't be saved. Unlock the phone and try again. If that doesn't help, close Dredfit and open it again.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du kannst noch kein Training starten, denn es könnte nicht gespeichert werden. Entsperre das Telefon und versuche es erneut. Hilft das nicht, schließe Dredfit und öffne es noch einmal."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aún no puedes empezar un entrenamiento, porque no se podría guardar. Desbloquea el teléfono e inténtalo de nuevo. Si no ayuda, cierra Dredfit y ábrelo otra vez."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu ne peux pas encore commencer une séance, car elle ne pourrait pas être enregistrée. Déverrouille le téléphone et réessaie. Si ça ne suffit pas, ferme Dredfit et rouvre-le."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non puoi ancora iniziare un allenamento, perché non potrebbe essere salvato. Sblocca il telefono e riprova. Se non basta, chiudi Dredfit e riaprilo."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Você ainda não pode começar um treino, porque ele não poderia ser salvo. Desbloqueie o celular e tente de novo. Se não resolver, feche o Dredfit e abra de novo."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Начать тренировку пока нельзя, иначе она не сохранится. Разблокируй телефон и попробуй снова. Если не поможет, закрой Dredfit и открой его заново."
+          }
+        }
+      }
+    },
+    "Your history couldn't be read": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Verlauf konnte nicht gelesen werden"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo leer tu historial"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ton historique n’a pas pu être lu"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non è stato possibile leggere il tuo storico"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível ler seu histórico"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось прочитать историю"
           }
         }
       }
