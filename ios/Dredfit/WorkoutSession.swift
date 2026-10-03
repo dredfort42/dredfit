@@ -365,6 +365,12 @@ final class WorkoutSession {
 
     var holdCountingIn: Bool { holdCountInClock.isRunning }
 
+    /// Nonisolated on purpose. Under the target's default MainActor isolation
+    /// an implicit deinit is an isolated one, and on the iOS 26.2 runtime that
+    /// path crashed freeing a store in the unit tests (#258). Nothing here
+    /// needs the main actor to be torn down.
+    nonisolated deinit {}
+
     func animate(_ motion: Motion, _ change: () -> Void) {
         animator(reduceMotion ? nil : motion, change)
     }

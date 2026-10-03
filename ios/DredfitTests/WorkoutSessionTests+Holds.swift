@@ -125,6 +125,19 @@ extension WorkoutSessionTests {
         XCTAssertEqual(signals.tones, [], "the summary's Done confirms numbers; the end already sounded")
     }
 
+    func testFinishNowOnTheSummaryCountsEverySetOfTheMovementDone() throws {
+        let (flow, _) = try holdFlow(.coreAntiExt)
+        flow.setIndex = 2
+        flow.startHold()
+        run(flow, for: GetReady.countInSeconds + 15)
+        XCTAssertEqual(flow.phase, .exerciseSummary)
+        flow.finishNow()
+        XCTAssertNil(flow.setsSkipped[.coreAntiExt],
+                     "every set is behind and on the screen — none of them was skipped")
+        XCTAssertFalse(flow.skippedPatterns.contains(.coreAntiExt))
+        XCTAssertNil(flow.interruptedPattern)
+    }
+
     func testTheSummaryCorrectsOnlyTheCardThatWasTapped() throws {
         let (flow, _) = try holdFlow(.coreAntiExt)
         flow.setIndex = 2
