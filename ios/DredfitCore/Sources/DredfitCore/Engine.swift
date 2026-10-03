@@ -1,9 +1,9 @@
 //
-//  Port of the reference adaptive_engine.js 3.1.0 ("the measured ladder").
+//  Port of the reference adaptive_engine.js ("the measured ladder").
 //  Behavior is verified by the golden tests (Fixtures/golden.json) generated
 //  from that reference — any divergence is a port bug.
 //
-//  THE PRINCIPLE (§40.0). The engine does not predict — it measures.
+//  THE PRINCIPLE. The engine does not predict — it measures.
 //  Everything assigned was either already shown by the trainee (assignment =
 //  what was shown + 1 rep in one set) or is being shown right now by a probe.
 //  There are no rep-prediction formulas (Epley or any other). The difficulty
@@ -60,7 +60,7 @@ public enum Pattern: String, Codable, CaseIterable, Sendable {
 public enum EngineConfig {
     /// Sets on any variation but the bands of the top one.
     public static let setsBase = 3
-    /// The ceiling on sets (§40.5: bands 4 and 5 above the top variation).
+    /// The ceiling on sets (bands 4 and 5 exist above the top variation).
     public static let setsMax = 5
     public static let restSetSec = 60
     public static let restExerciseSec = 60
@@ -69,7 +69,7 @@ public enum EngineConfig {
     /// Over eight sessions each rotating pattern comes up exactly five times.
     static let rotationStep = 3
     /// "less" is counted in growth events — one position back along the very
-    /// path growth took (§34.1, §40.3).
+    /// path growth took.
     static let deltaLess = -1
     static let deltaPlan = 1
     public static let deltaMore = 2
@@ -81,14 +81,13 @@ public enum EngineConfig {
     /// link suffers, at 3 the descent from an impossible plan costs another
     /// session.
     static let lessRunToGlobal = 2
-    /// §40.3: "1 old level = 1 rep per set". The deload was −3 levels and is
-    /// now −3 reps per set (−15 s on a hold).
+    /// The deload drops 3 reps per set (−15 s on a hold).
     static let deloadDrop = 3
-    /// v3.4 (§41.12): 5 → 6. The warm-up gained the cool-down's side-switch
-    /// pause, so its worst composition costs 255 s rather than 245 and the
-    /// pair of blocks 550 — past a reserve of 9:00 that was already spent to
-    /// the second. A reserve is whole minutes, so 10:00 is the nearest that
-    /// fits: 50 s of slack, less than a minute, with nothing to give back.
+    /// The warm-up includes the cool-down's side-switch pause, so its worst
+    /// composition costs 255 s and the pair of blocks 550 — more than a
+    /// 9:00 reserve holds. A reserve is whole minutes, so 10:00 is the
+    /// nearest that fits: 50 s of slack, less than a minute, with nothing to
+    /// give back.
     public static let warmupMin = 6
     /// The two blocks share a reserve of `warmupMin + cooldownMin` — see
     /// GetReady.swift for the arithmetic it is spent by.
@@ -96,9 +95,9 @@ public enum EngineConfig {
     /// Rest between sets by BAND (the sets in the state, not the sets on
     /// screen): a cut takes volume off, not recovery.
     static let restSetByBand = [1: 60, 2: 60, 3: 60, 4: 90, 5: 120]
-    /// v2.17 (§28.2, #144) carried into v3: Grgic 2018 and Schoenfeld 2016 give
-    /// trained users ≥2 min on hard variations. "Tier 4" of the old grid is the
-    /// TOP VARIATION of a ladder; on bands 1–3 it gets 90 s instead of 60.
+    /// (#144) Grgic 2018 and Schoenfeld 2016 give trained users ≥2 min on hard
+    /// variations. On bands 1–3 the TOP VARIATION of a ladder gets 90 s
+    /// instead of 60.
     /// Bands 4 and 5 exist only there and read `restSetByBand` as before.
     static let restSetTopVarSec = 90
     public static let comebackMinGapDays = 14
@@ -122,35 +121,33 @@ public enum EngineConfig {
     /// always a source error, not a fact; without the floor the engine simply
     /// freezes for good.
     static let minSessionAgeDays = 1.0 / 24.0
-    /// v2.24 (§35.1): the SHARED floor on sets. It goes through `clampSets`,
+    /// The SHARED floor on sets. It goes through `clampSets`,
     /// so it holds for any composition of cuts.
     public static let setsFloor = 2
     static let setsBackPerSession = 1
-    /// §41.13: how many steps a person may add to ONE movement for next
-    /// time, per session. Two is a ceiling, not a norm — the owner's call,
-    /// kept here so it changes in one line. Public because the summary's
+    /// How many steps a person may add to ONE movement for next time, per
+    /// session. Two is a ceiling, not a norm — kept here so it changes in one
+    /// line. Public because the summary's
     /// stepper stops where the handle would stop clamping.
     public static let raiseStepsMax = 2
     /// How many APPEARANCES a returned set is held before the next one may
     /// come back. The set axis is an order of magnitude coarser than the dose.
     public static let setsBackHold = 2
-    /// The chronic signal (§26.1, #137): a window of recent appearances.
+    /// The chronic signal (#137): a window of recent appearances.
     public static let chronicWindow = 4
     public static let chronicHits = 3
     static let chronicStep = -2
-    /// Ceilings on where a comeback may land, past the end of the return
-    /// table. Rows are [minimum gap, "floor" of the old grid, 1…4], by
-    /// descending gap; the first match wins.
+    /// Ceilings on where a comeback may land. Rows are [minimum gap, ceiling
+    /// "floor" 1…4 (see `ceilVar`)], by descending gap; the first match wins.
     static let comebackLandingCeil = [(365, 1), (119, 2), (77, 3), (56, 4)]
     static let comebackCeilFloors = 4
 
-    /// v2.5 (#64, §15.3) carried into v3: the growth ceiling is a table, not a
-    /// scalar. Tendon and fascia remodel more slowly than muscle, and the one
-    /// handle that acts BEFORE an overload is the rate of growth.
+    /// (#64) The growth ceiling is a table, not a scalar. Tendon and fascia
+    /// remodel more slowly than muscle, and the one handle that acts BEFORE an
+    /// overload is the rate of growth.
     ///
-    /// The old `maxUpByPatternTier` set a ceiling of 1 by TIER; v3 carries it
-    /// over as "how many of a ladder's TOP variations carry a ceiling of 1":
-    /// calves — all of them (everything loads the Achilles), pull and vertical
+    /// Each entry is "how many of a ladder's TOP variations carry a ceiling of
+    /// 1": calves — all of them (everything loads the Achilles), pull and vertical
     /// pull — the top three (#76: the fixed slot puts the pull in every
     /// session), vertical push — the top two (wall handstand work loads the
     /// shoulder girdle), everything else — the top one.
@@ -189,20 +186,20 @@ public enum Engine {
     /// Rotating patterns (all except pull — it appears in every session).
     static let rotating: [Pattern] = Pattern.ordered.filter { $0 != .pull }
 
-    /// A reported number, clamped to the technical range. Past it every fact
-    /// already saturates, so this is identity on anything a person could log.
-    /// §41.3: a fact is NOT rounded on the way in. The mean of an uneven plan
-    /// sits strictly between its base and its top (8-7-7 → 7.33), and it is the
-    /// fraction that answers "did they take the top set": [7,7,7] gives 7.00,
-    /// [8,7,7] gives 7.33. Snapping to the integer grid made those two
-    /// indistinguishable, which is exactly why the engine used to substitute
-    /// the plan's top into the journal. The fraction lives only in comparisons;
-    /// every ASSIGNED dose is still an integer on the grid (§40.0).
-    /// A probe's number is one set of one movement — an integer by nature.
+    /// A probe's number is one set of one movement — an integer by nature —
+    /// clamped to the technical range.
     static func sanitizeProbe(_ raw: Int) -> Int {
         EngineState.clamped(raw, -EngineConfig.countMax, EngineConfig.countMax)
     }
 
+    /// A reported number, clamped to the technical range. Past it every fact
+    /// already saturates, so this is identity on anything a person could log.
+    /// A fact is NOT rounded on the way in. The mean of an uneven plan sits
+    /// strictly between its base and its top (8-7-7 → 7.33), and it is the
+    /// fraction that answers "did they take the top set": [7,7,7] gives 7.00,
+    /// [8,7,7] gives 7.33. Snapping to the integer grid would make those two
+    /// indistinguishable. The fraction lives only in comparisons; every
+    /// ASSIGNED dose is still an integer on the grid.
     static func sanitizeActual(_ raw: Double) -> Double {
         guard raw.isFinite else { return 0 }
         return min(max(raw, -Double(EngineConfig.countMax)), Double(EngineConfig.countMax))
@@ -239,20 +236,20 @@ public enum Engine {
                                   dose: Dose.grid(unit).max, sub: 0, cut: 0))
     }
 
-    /// How far along its ladder a pattern stands — the ordinal §40.2 puts in
-    /// place of the level for every screen that showed one.
+    /// How far along its ladder a pattern stands — the ordinal every
+    /// screen that shows progress reads.
     public static func progress(_ state: EngineState, _ p: Pattern) -> Int {
         posOrd(p, state.sanitized().position(p))
     }
 
     /// The same measure for a position the app recorded earlier. The journal
     /// stores the position rather than the measure because the measure has no
-    /// inverse (§40.0) — this is the one direction that exists.
+    /// inverse — this is the one direction that exists.
     ///
     /// All six coordinates: a chart replotting a snapshot without `sub` and
-    /// `cut` sat up to two steps off the number beside it (UI-truth audit,
-    /// 27.08.2026). Additive only — the shorter form below keeps every older
-    /// call site and every older record meaning what it always did.
+    /// `cut` sat up to two steps off the number beside it. The shorter form below
+    /// keeps every older call site and every older record meaning what it
+    /// always did.
     public static func progress(_ p: Pattern, variation: Int, sets: Int, dose: Int,
                                 sub: Int, cut: Int) -> Int {
         posOrd(p, fit(p, Position(variation: variation, sets: sets, dose: dose,
@@ -263,7 +260,7 @@ public enum Engine {
         progress(p, variation: variation, sets: sets, dose: dose, sub: 0, cut: 0)
     }
 
-    /// The sum of those ordinals — what "total level" used to be.
+    /// The sum of those ordinals — the total progress across all patterns.
     public static func totalProgress(_ state: EngineState) -> Int {
         let clean = state.sanitized()
         return Pattern.allCases.reduce(0) { $0 + posOrd($1, clean.position($1)) }
@@ -277,7 +274,7 @@ public enum Engine {
     }
 
     /// How many growth events still separate a pattern from the top of its
-    /// CURRENT variation — the point where §40.4 starts offering a probe.
+    /// CURRENT variation — the point where a probe starts being offered.
     /// Zero means the probe is on the next plan (unless the last answer was
     /// "hard", which the plan decides, not this).
     public static func stepsToVariationCeiling(_ state: EngineState, _ p: Pattern) -> Int {
@@ -288,17 +285,16 @@ public enum Engine {
         return max(0, posOrd(p, fit(p, ceiling)) - posOrd(p, pos))
     }
 
-    /// v2.25 (round 6): record the plan the person SAW, with no feedback. The
-    /// app owns the state and can call this right after showing the plan —
-    /// then "a descent never adds load" holds against a plan that was seen and
-    /// not done.
+    /// Record the plan the person SAW, with no feedback. The app owns the
+    /// state and can call this right after showing the plan — then "a descent
+    /// never adds load" holds against a plan that was seen and not done.
     ///
-    /// §41.10 (v3.2): an exercise WITH A PROBE writes its memory too, by its
-    /// WORKING sets — `exerciseWork` counts only those, because the probe is a
-    /// set of another movement. It used to write nothing, and the base stayed
-    /// a showing two appearances old: a descent knocked the dose off the
-    /// ceiling, the probe went with it, the third working set came back, and
-    /// the "easier" plan asked +40 % of the work the person had actually seen.
+    /// An exercise WITH A PROBE writes its memory too, by its WORKING sets —
+    /// `exerciseWork` counts only those, because the probe is a set of another
+    /// movement. Otherwise the base would stay a showing two appearances old:
+    /// a descent would knock the dose off the ceiling, the probe would go with
+    /// it, the third working set would come back, and the "easier" plan would
+    /// ask +40 % of the work the person had actually seen.
     public static func recordShown(state dirty: EngineState, session: Session) -> EngineState {
         let state = dirty.sanitized()
         var next = state
