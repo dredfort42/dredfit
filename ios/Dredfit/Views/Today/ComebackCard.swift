@@ -10,13 +10,13 @@ struct ComebackCard: View {
     /// The two offers as the same movement in numbers (#127): what the plan
     /// holds if left alone, and what "easier" actually is. Nil hides the rows.
     let preview: (was: String, easier: String)?
-    /// Whether the silent decay already took a step off this same break —
-    /// true for anyone who opened the app between day 7 and day 13.
+    /// Whether the silent decay already took a step off this same break — an
+    /// open between day 7 and day 13 of it, outside the trainee's rhythm.
     ///
-    /// It is the only place the quiet drop can be named before a workout: the
-    /// line on Progress appears only AFTER the next session, and "As it was:"
-    /// beside it describes the plan as it stands now, not as it was left
-    /// (UX review 05.09.2026).
+    /// While the card is up it is the only place on Today that names the
+    /// quiet drop — Today's own decay line stands down for it — and "As it
+    /// was:" beside it describes the plan as it stands now, not as it was
+    /// left.
     let alreadyDecayed: Bool
     let onAccept: () -> Void
     let onDecline: () -> Void
@@ -46,8 +46,9 @@ struct ComebackCard: View {
                     .padding(.top, 8)
             }
 
-            // The choice in numbers, not adjectives (#127): after a long
-            // break "leave as it was" used to hand out the old plan blind.
+            // The choice in numbers, not adjectives (#127): without them,
+            // "leave as it was" hands out the old plan blind after a long
+            // break.
             if let preview {
                 VStack(alignment: .leading, spacing: 5) {
                     previewRow(label: String(localized: "Easier:"), value: preview.easier)
@@ -71,16 +72,6 @@ struct ComebackCard: View {
             }
             .padding(.top, 16)
 
-            // The "I was sick" tap is gone. The lens it armed made the plan
-            // HEAVIER in 76 cells out of 480, which is the opposite of what
-            // the button offered. Someone coming back short on strength skips
-            // sets on the work screen instead, where the decision is made with
-            // the movement in front of them rather than before any of it.
-            //
-            // Its `.padding(.top, 4)` outlived it here for a while: a leading
-            // dot on the next line joins the chain above THROUGH a comment, so
-            // the row of buttons quietly carried 20 pt instead of 16.
-
             if offersFreshStart {
                 Button(action: onFreshStart) {
                     // ink2, not ink3: an interactive control has to pass 3:1.
@@ -89,19 +80,19 @@ struct ComebackCard: View {
                         .foregroundStyle(Theme.ink2)
                         .frame(maxWidth: .infinity, minHeight: 44)
                         // Bordered and set apart, not a third line under the
-                        // pair. It used to sit flush under "Start easier" /
-                        // "Leave as it was" at 13 pt with a 30 pt target, so
-                        // the one control on this card that throws progress
-                        // away read as a quiet extra of that same row. The
-                        // border is the idiom "Train anyway" already uses for
-                        // a whole-width quiet choice, and 44 pt is the floor
+                        // pair: it is the one control on this card that throws
+                        // progress away, and must not read as a quiet extra of
+                        // the "Start easier" / "Leave as it was" row. The
+                        // border is the idiom "Train anyway" uses for a
+                        // whole-width quiet choice, and 44 pt is the floor
                         // this project set in #193.
                         //
                         // ink3 for the stroke, not hairline: the card ground is
-                        // `cardBG`, where hairline comes to ≈1.1:1 and simply
-                        // is not there. ink3 reads ≈2.2:1 — past the 1.5:1 the
-                        // palette holds for quiet graphics, and still quieter
-                        // than the label it surrounds.
+                        // `cardBG`, where hairline comes to ≈1.1–1.2:1 and
+                        // simply is not there. ink3 reads ≈2.2:1 in the light
+                        // scheme — past the floors the palette holds for quiet
+                        // graphics (1.3:1, 1.5:1 under Increased Contrast), and
+                        // still quieter than the label it surrounds.
                         .overlay(RoundedRectangle(cornerRadius: 14)
                             .strokeBorder(Theme.ink3, lineWidth: 1.5))
                 }
