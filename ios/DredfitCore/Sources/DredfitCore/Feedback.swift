@@ -1,7 +1,7 @@
 //
 //  What one rating does to the state.
 //
-//  Kept apart from Engine.swift: together the two would pass the lint's
+//  Kept apart from Engine.swift: together the two would exceed the lint's
 //  file-length warning.
 //
 

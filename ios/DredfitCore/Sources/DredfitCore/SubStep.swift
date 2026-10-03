@@ -8,8 +8,10 @@
 //
 //  The MEASURE is how many growth events separate a position from the very
 //  bottom of its ladder. It is a measure, not an encoding: it has no inverse
-//  and needs none. A growth event is exactly +1, which keeps the growth cells,
-//  the weekly window and the cross-credit integer arithmetic. A descent has no
+//  and needs none. A growth event is +1 on it, which keeps the growth cells,
+//  the weekly window and the cross-credit in one integer unit — save one
+//  corner: under a cut, when no set may come back, `riseBy` can add a
+//  sub-step the cut hides, and that event moves nothing. A descent has no
 //  such unit: a whole dose rung (`fallDoses`) costs `sets`, and a crossing
 //  lands wherever `landInVar` finds room.
 //

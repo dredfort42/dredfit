@@ -48,8 +48,8 @@ public struct EngineState: Codable, Equatable, Sendable {
     /// growth event goes into the DOSE.
     public var setsHold: [Pattern: Int]
     /// The work of the last plan SHOWN, done or not — written by `recordShown`
-    /// when the app shows a plan, and again by feedback — and the position it
-    /// was shown AT: the two inputs to the postcondition repair.
+    /// when the app records a showing, and again by feedback — and the
+    /// position it was shown AT: the two inputs to the postcondition repair.
     public var shownWork: [Pattern: Int]
     public var shownOrd: [Pattern: Int]
     public var failStreak: [Pattern: Int]

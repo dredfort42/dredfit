@@ -85,8 +85,9 @@ public enum EngineConfig {
     static let deloadDrop = 3
     /// The two blocks are budgeted in whole minutes: the app's worst warm-up
     /// plus cool-down is 520 s against the 600 this and `cooldownMin` give
-    /// (`BlockReserveTests`). Nine minutes would hold it; ten stays because
-    /// giving one back would shorten every announced session length.
+    /// (`BlockReserveTests`). Nine minutes would hold it; ten stays because a
+    /// minute given back is a change to the reference engine and the golden
+    /// fixture, and shortens every announced session length.
     public static let warmupMin = 6
     /// The two blocks share a reserve of `warmupMin + cooldownMin` — see
     /// GetReady.swift for the arithmetic it is spent by.
@@ -246,8 +247,9 @@ public enum Engine {
     /// inverse — this is the one direction that exists.
     ///
     /// All six coordinates: a snapshot replotted without `sub` and `cut` would
-    /// sit off the number beside it by exactly those two. A record that
-    /// carries neither passes zeros, which is all the shorter form below does.
+    /// sit off the number beside it by its sub-steps less its cut. A record
+    /// that carries neither passes zeros, which is all the shorter form below
+    /// does.
     public static func progress(_ p: Pattern, variation: Int, sets: Int, dose: Int,
                                 sub: Int, cut: Int) -> Int {
         posOrd(p, fit(p, Position(variation: variation, sets: sets, dose: dose,
