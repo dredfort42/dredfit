@@ -22,6 +22,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          # The tags and their history: the build number is compared with the
+          # one the previous release tag shipped.
+          fetch-depth: 0
 
       - name: Check version and changelog
         run: python3 scripts/check_version.py "${GITHUB_REF_NAME}"

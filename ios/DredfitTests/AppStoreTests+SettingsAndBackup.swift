@@ -69,6 +69,20 @@ extension AppStoreTests {
         XCTAssertEqual(AppStore(storageURL: otherURL).records.count, 1)
     }
 
+    /// The file carries the weight: an export replaces the previous one
+    /// instead of leaving a copy behind in tmp.
+    func testExportKeepsOnlyTheLatestFile() throws {
+        let store = AppStore(storageURL: tempURL)
+        let first = try store.exportURL()
+        let second = try store.exportURL()
+        defer { try? FileManager.default.removeItem(at: second.deletingLastPathComponent()) }
+        let folder = second.deletingLastPathComponent()
+        XCTAssertEqual(first.deletingLastPathComponent(), folder)
+        let left = try FileManager.default.contentsOfDirectory(atPath: folder.path)
+        XCTAssertEqual(left, [second.lastPathComponent])
+        XCTAssertNoThrow(try Data(contentsOf: second))
+    }
+
     func testImportRejectsForeignFile() throws {
         try Data("{\"foo\": 1}".utf8).write(to: tempURL)
         let otherURL = FileManager.default.temporaryDirectory

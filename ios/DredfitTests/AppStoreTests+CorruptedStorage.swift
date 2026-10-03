@@ -136,4 +136,49 @@ extension AppStoreTests {
         XCTAssertTrue(FileManager.default.fileExists(atPath: corruptURL.path),
                       "the full original must be kept aside when entries are dropped")
     }
+
+    /// After a whole-file failure the quarantined copy is the ONLY copy of
+    /// the journal the app started over from — a second failure must keep it
+    /// and set its own file aside under a new name.
+    func testASecondQuarantineDoesNotReplaceTheFirst() throws {
+        let dir = tempURL.deletingLastPathComponent()
+        let name = tempURL.deletingPathExtension().lastPathComponent
+        let quarantined = {
+            ((try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil)) ?? [])
+                .filter { $0.lastPathComponent.hasPrefix(name + ".corrupt") }
+        }
+        defer { quarantined().forEach { try? FileManager.default.removeItem(at: $0) } }
+        let first = Data("{first garbage".utf8)
+        let second = Data("{second garbage".utf8)
+
+        try first.write(to: tempURL)
+        _ = makeStore()
+        try second.write(to: tempURL)
+        _ = makeStore()
+
+        let corruptURL = dir.appendingPathComponent(name + ".corrupt.json")
+        XCTAssertEqual(try Data(contentsOf: corruptURL), first, "the first quarantine must survive")
+        let later = quarantined().filter { $0.lastPathComponent.hasPrefix(name + ".corrupt-") }
+        XCTAssertEqual(later.count, 1, "the second failure gets a file of its own")
+        let secondURL = try XCTUnwrap(later.first)
+        XCTAssertEqual(try Data(contentsOf: secondURL), second)
+    }
+
+    /// An engine state neither v3 nor v2 starts clean beside an intact
+    /// journal, and the next persist rewrites the positions from `initial` —
+    /// so the original must already be copied aside at launch.
+    func testAnUnreadableEngineStateKeepsTheOriginalAside() throws {
+        let original = Data(#"{"engineState":{"nonsense":true},"records":[],"settings":null}"#.utf8)
+        try original.write(to: tempURL)
+        let corruptURL = tempURL.deletingLastPathComponent()
+            .appendingPathComponent(tempURL.deletingPathExtension().lastPathComponent + ".corrupt.json")
+        defer { try? FileManager.default.removeItem(at: corruptURL) }
+
+        let store = makeStore()
+        XCTAssertEqual(store.engineState, .initial, "the unreadable state starts clean")
+        XCTAssertTrue(FileManager.default.fileExists(atPath: corruptURL.path),
+                      "the plan must stay recoverable")
+        XCTAssertEqual(try Data(contentsOf: corruptURL), original,
+                       "the copy must be the original bytes")
+    }
 }

@@ -1,8 +1,12 @@
 name: CI
 
-# Unit tests only (~5-15 min) — core package plus app units, no UI.
+# Unit tests only (~5-15 min) — core package plus app units, no UI — and an
+# unsigned Release build beside them.
 #
 # This is the gate: green CI is what a merge and a release branch require.
+# The two advisory jobs (app-tests-timezone, release-build) are
+# continue-on-error, so a failure there shows on the job but leaves the run,
+# and the README badge, green.
 # UI tests are deliberately not here. They are slow and occasionally flaky on
 # shared runners, so they run nightly in ui-tests.yml when the app has
 # changed, and gate nothing; before cutting a release branch you run them
@@ -13,9 +17,14 @@ on:
     branches: [main, develop, "release/**", "hotfix/**"]
   pull_request:
     branches: [main, develop]
+  # Manual runs, any branch — mostly for app-tests-timezone (below), which
+  # does not run on pull requests.
+  workflow_dispatch:
 
 concurrency:
-  group: ci-${{ github.ref }}
+  # Manual runs get their own group, so starting one does not cancel the push
+  # run already going on the same branch.
+  group: ci-${{ github.ref }}-${{ github.event_name == 'workflow_dispatch' && 'manual' || 'auto' }}
   cancel-in-progress: true
 
 jobs:
@@ -74,6 +83,9 @@ jobs:
           fi
           echo "Using simulator: $device ($udid)"
           echo "device=$device" >> "$GITHUB_OUTPUT"
+          # Tested by id, not name: a name can match a device on more than one
+          # runtime, and xcodebuild may then pick one that was never booted.
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
           # Pre-boot and wait for readiness, as ui-tests.yml does: the first
           # test should not race a cold simulator boot under load.
           xcrun simctl boot "$udid" || true
@@ -110,7 +122,7 @@ jobs:
           xcodebuild test \
             -project ios/Dredfit.xcodeproj \
             -scheme Dredfit \
-            -destination "platform=iOS Simulator,name=${{ steps.sim.outputs.device }}" \
+            -destination "platform=iOS Simulator,id=${{ steps.sim.outputs.udid }}" \
             -skip-testing:DredfitUITests \
             -parallel-testing-enabled NO \
             -test-timeouts-enabled YES \
@@ -144,3 +156,94 @@ jobs:
           name: xcresult
           path: ~/Library/Developer/Xcode/DerivedData/**/Logs/Test/*.xcresult
           if-no-files-found: ignore
+
+  # The same unit tests in a zone that is not UTC. The runner's clock is UTC,
+  # so a day boundary computed in UTC by mistake passes app-tests unseen.
+  # Advisory and kept off pull requests: it is another macOS runner beside
+  # app-tests, not a second gate. Runs after a merge, or by hand.
+  app-tests-timezone:
+    name: Dredfit app unit tests (Europe/Berlin, advisory)
+    if: github.event_name != 'pull_request'
+    continue-on-error: true
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Select Xcode
+        uses: ./.github/actions/setup-xcode
+
+      - name: Select and boot iPhone simulator
+        id: sim
+        run: |
+          line=$(xcrun simctl list devices available | grep -E '^\s+iPhone' | head -1)
+          device=$(echo "$line" | sed 's/ (.*//' | xargs)
+          udid=$(echo "$line" | grep -oE '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}' | head -1)
+          if [ -z "$device" ] || [ -z "$udid" ]; then
+            echo "No iPhone simulator found on runner" >&2
+            exit 1
+          fi
+          echo "Using simulator: $device ($udid)"
+          echo "device=$device" >> "$GITHUB_OUTPUT"
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+          xcrun simctl boot "$udid" || true
+          xcrun simctl bootstatus "$udid" || true
+
+      - name: Build and test in Europe/Berlin (UI tests excluded)
+        timeout-minutes: 35
+        env:
+          # xcodebuild hands TEST_RUNNER_-prefixed variables to the test
+          # process with the prefix stripped, so the tests see TZ — and
+          # TimeZone.current follows it. Berlin has DST, which UTC lacks.
+          TEST_RUNNER_TZ: Europe/Berlin
+        run: |
+          set -o pipefail
+          # Flags as in app-tests, for the same reasons; no coverage.
+          xcodebuild test \
+            -project ios/Dredfit.xcodeproj \
+            -scheme Dredfit \
+            -destination "platform=iOS Simulator,id=${{ steps.sim.outputs.udid }}" \
+            -skip-testing:DredfitUITests \
+            -parallel-testing-enabled NO \
+            -test-timeouts-enabled YES \
+            -default-test-execution-time-allowance 300 \
+            -maximum-test-execution-time-allowance 600 \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcbeautify --renderer github-actions
+
+      - name: Upload test results on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: xcresult-timezone
+          path: ~/Library/Developer/Xcode/DerivedData/**/Logs/Test/*.xcresult
+          if-no-files-found: ignore
+
+  # The archive configuration, which no test run builds: code behind
+  # `#if DEBUG`, or that only compiles without it, breaks here and nowhere
+  # else until someone archives in Xcode. Unsigned, so it needs no secrets.
+  release-build:
+    name: Dredfit Release build (generic iOS, unsigned)
+    # Advisory for now, like app-tests-timezone: reported, never reddens CI.
+    continue-on-error: true
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Select Xcode
+        uses: ./.github/actions/setup-xcode
+
+      - name: Build Release
+        timeout-minutes: 25
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project ios/Dredfit.xcodeproj \
+            -scheme Dredfit \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcbeautify --renderer github-actions

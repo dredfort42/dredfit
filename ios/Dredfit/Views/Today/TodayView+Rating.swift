@@ -120,7 +120,7 @@ extension TodayView {
         }
         // The same gate the rating screen puts on "easy", so a correction
         // cannot become the way around it.
-        if record.result != .more, didFullPlan(record) {
+        if record.result != .more, record.didFullPlan {
             Button(String(localized: "Easy, could do more")) { store.changeLastRating(to: .more) }
         }
         // Names what it keeps, like the other three questions on this screen:
@@ -128,9 +128,13 @@ extension TodayView {
         Button(String(localized: "today.changeRating.keep",
                       defaultValue: "Keep this rating"), role: .cancel) { }
     }
+}
 
+extension WorkoutRecord {
     /// `SetFacts.didFullPlan`, over the journal entry instead of over the live
-    /// session — the same rule, the same arguments.
+    /// session — the same rule, the same arguments. Shared by both doors onto
+    /// a changed rating (Today and the history sheet) so their "easy" gates
+    /// cannot drift apart.
     ///
     /// A record that does not carry its own exercises answers NO rather than
     /// vacuously yes: `allSatisfy` over an empty plan is true, which would
@@ -138,11 +142,11 @@ extension TodayView {
     /// reachable is in that state today — the undo this door needs is written
     /// by the same call that writes the exercises — and the guard is here so
     /// that stays a fact rather than a coincidence.
-    private func didFullPlan(_ record: WorkoutRecord) -> Bool {
-        guard let exercises = record.exercises, !exercises.isEmpty else { return false }
-        return SetFacts.didFullPlan(record.setActuals ?? [:],
-                                    skips: record.setsSkipped ?? [:],
-                                    skipped: record.skipped ?? [],
+    var didFullPlan: Bool {
+        guard let exercises, !exercises.isEmpty else { return false }
+        return SetFacts.didFullPlan(setActuals ?? [:],
+                                    skips: setsSkipped ?? [:],
+                                    skipped: skipped ?? [],
                                     in: exercises)
     }
 }

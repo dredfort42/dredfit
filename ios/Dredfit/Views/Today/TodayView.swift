@@ -28,8 +28,6 @@ private struct SuspectStepDown: Identifiable {
 
 struct TodayView: View {
     @Environment(AppStore.self) var store
-    @Environment(\.displayScale) private var displayScale
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var activeWorkout: ActiveWorkout?
     @State var techniqueFor: TechniqueTarget?
     @State private var nextPreviewShown = false
@@ -540,6 +538,18 @@ struct TodayView: View {
                      onFreshStart: { freshStartConfirmShown = true })
     }
 
+    /// The bordered, unfilled label "Train anyway" and the quiet "Start"
+    /// share, in one place so the two cannot drift apart. Takes a `Text` so
+    /// the literal stays at the call site, where string extraction finds it.
+    private func quietButtonLabel(_ title: Text) -> some View {
+        title
+            .dredfitFont(17, weight: .medium)
+            .foregroundStyle(Theme.ink2)
+            .frame(maxWidth: .infinity, minHeight: 56)
+            .overlay(RoundedRectangle(cornerRadius: 18)
+                .strokeBorder(Theme.hairline, lineWidth: 1.5))
+    }
+
     /// The plan's primary, in the two weights it now has. `quiet` borrows the
     /// bordered idiom "Train anyway" uses — same size, same place, same word,
     /// one fill less — so that while the comeback card is up the only filled
@@ -550,12 +560,7 @@ struct TodayView: View {
             Button {
                 activeWorkout = ActiveWorkout(session: store.nextSession)
             } label: {
-                Text("Start")
-                    .dredfitFont(17, weight: .medium)
-                    .foregroundStyle(Theme.ink2)
-                    .frame(maxWidth: .infinity, minHeight: 56)
-                    .overlay(RoundedRectangle(cornerRadius: 18)
-                        .strokeBorder(Theme.hairline, lineWidth: 1.5))
+                quietButtonLabel(Text("Start"))
             }
             .accessibilityIdentifier("start-workout")
         } else {
@@ -695,12 +700,7 @@ struct TodayView: View {
                 Button {
                     activeWorkout = ActiveWorkout(session: store.nextSession)
                 } label: {
-                    Text("Train anyway")
-                        .dredfitFont(17, weight: .medium)
-                        .foregroundStyle(Theme.ink2)
-                        .frame(maxWidth: .infinity, minHeight: 56)
-                        .overlay(RoundedRectangle(cornerRadius: 18)
-                            .strokeBorder(Theme.hairline, lineWidth: 1.5))
+                    quietButtonLabel(Text("Train anyway"))
                 }
                 .accessibilityIdentifier("train-anyway")
                 .padding(.bottom, 14)

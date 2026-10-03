@@ -14,6 +14,15 @@
 //
 
 import XCTest
+@testable import Dredfit
+
+/// Reminders that go nowhere, for a store whose test is not about them.
+struct QuietNotifications: NotificationScheduling {
+    func requestAuthorization() async -> Bool { false }
+    func removePendingRequests(withIdentifiers ids: [String]) {}
+    func addReminder(id: String, title: String, body: String,
+                     fireDate: DateComponents) {}
+}
 
 @MainActor
 class AppStoreTestCase: XCTestCase {
@@ -34,6 +43,19 @@ class AppStoreTestCase: XCTestCase {
     override func tearDown() async throws {
         try? FileManager.default.removeItem(at: tempURL)
         try await super.tearDown()
+    }
+
+    /// A store kept away from everything outside the test. The bundle runs
+    /// hosted in the signed app, so `AppStore`'s defaults are the real App
+    /// Group snapshot, HealthKit and the notification centre.
+    func makeStore(storageURL: URL? = nil,
+                   health: WorkoutHealthWriting = HealthSpy(),
+                   notifications: NotificationScheduling = QuietNotifications(),
+                   widgetSnapshotURL: URL? = nil) -> AppStore {
+        let url: URL = storageURL ?? tempURL
+        return AppStore(storageURL: url, health: health,
+                        notifications: notifications,
+                        widgetSnapshotURL: widgetSnapshotURL)
     }
 
     /// A fixed hour-10 date on the given day — shared by the AppStore and

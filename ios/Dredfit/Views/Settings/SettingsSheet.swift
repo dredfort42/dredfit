@@ -297,9 +297,14 @@ struct SettingsSheet: View {
     private var reminderTimeBinding: Binding<Date> {
         Binding(
             get: {
-                Calendar.current.date(from: DateComponents(
-                    hour: store.settings.reminderHour,
-                    minute: store.settings.reminderMinute)) ?? .now
+                // Today's date under the time: hour and minute alone make a
+                // year-0001 date, where historical time-zone offsets skew the
+                // shown time. Not `date(bySettingHour:)`, which can shift on
+                // a DST day.
+                var c = Calendar.current.dateComponents([.year, .month, .day], from: .now)
+                c.hour = store.settings.reminderHour
+                c.minute = store.settings.reminderMinute
+                return Calendar.current.date(from: c) ?? .now
             },
             set: {
                 let c = Calendar.current.dateComponents([.hour, .minute], from: $0)
@@ -759,19 +764,17 @@ extension SettingsSheet {
             .formatted(.number.precision(.fractionLength(0...1)).grouping(.never))
     }
 
-    /// An empty or unreadable field CLEARS the weight rather than keeping the
-    /// old one. What it no longer does is switch the calories off: Health
-    /// re-supplies the number on the next activation, and while it does, this
-    /// field is not even reachable. "Write no estimate" is said with the
-    /// toggle below instead — that promise moved, it did not disappear. The
-    /// comma is accepted because half the shipping locales type one.
+    /// Only an EMPTY field clears the weight; an unreadable one keeps the old
+    /// number, because a typo is not a request to erase it. Clearing does not
+    /// switch the calories off either: "write no estimate" is said with the
+    /// toggle below. The comma is accepted because half the shipping locales
+    /// type one.
     private func commitBodyMass() {
         let typed = bodyMassField
             .replacingOccurrences(of: ",", with: ".")
             .trimmingCharacters(in: .whitespaces)
-        guard let value = Double(typed), value > 0 else {
-            return store.setBodyMass(nil)
-        }
+        guard !typed.isEmpty else { return store.setBodyMass(nil) }
+        guard let value = Double(typed), value.isFinite, value > 0 else { return }
         store.setBodyMass(Measurement(value: value, unit: massUnit)
             .converted(to: .kilograms).value)
     }

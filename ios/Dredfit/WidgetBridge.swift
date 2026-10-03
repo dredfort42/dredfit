@@ -1,7 +1,9 @@
 //
 //  After every persisted change the app rewrites the two-week snapshot and
 //  pokes WidgetKit; the widget never computes rest days itself. Without the
-//  entitlement (or in unit tests) everything degrades silently.
+//  entitlement everything degrades silently. Unit tests run hosted in the
+//  app, and on a signed local run the default URL is the real App Group, so
+//  a test store passes `widgetSnapshotURL: nil` or a temp URL.
 //
 
 import Foundation

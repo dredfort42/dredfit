@@ -654,7 +654,7 @@ extension HistorySheet {
         if shown.result != .plan {
             Button(String(localized: "On plan")) { change(to: .plan) }
         }
-        if shown.result != .more && canClaimEasy {
+        if shown.result != .more && shown.didFullPlan {
             Button(String(localized: "Easy, could do more")) { change(to: .more) }
         }
         // An alert, not a confirmationDialog, for the reason written out at
@@ -664,14 +664,6 @@ extension HistorySheet {
         // role and a name that says what it keeps.
         Button(String(localized: "history.changeRating.keep",
                       defaultValue: "Keep this rating"), role: .cancel) { }
-    }
-
-    private var canClaimEasy: Bool {
-        guard let exercises = shown.exercises, !exercises.isEmpty else { return false }
-        return SetFacts.didFullPlan(shown.setActuals ?? [:],
-                                    skips: shown.setsSkipped ?? [:],
-                                    skipped: shown.skipped ?? [],
-                                    in: exercises)
     }
 
     /// The milestones the new answer earns are deliberately dropped. The
