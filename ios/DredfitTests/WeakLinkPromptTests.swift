@@ -52,7 +52,7 @@ final class WeakLinkPromptTests: AppStoreTestCase {
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
         """
         try? Data(json.utf8).write(to: tempURL)
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         for _ in 0..<count {
             let session = store.nextSession
             let carries = session.exercises.contains { $0.pattern == culprit }
@@ -68,7 +68,7 @@ final class WeakLinkPromptTests: AppStoreTestCase {
     }
 
     func testAnHonestTraineeIsNeverAsked() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         for _ in 0..<12 {
             _ = store.completeWorkout(session: store.nextSession, result: .plan)
         }
@@ -80,7 +80,7 @@ final class WeakLinkPromptTests: AppStoreTestCase {
         // Naming the movement used to mean reporting pain on it; the surviving
         // way to name one is an exact number below the plan, and that is the
         // answer the prompt is trying to reach.
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         for _ in 0..<12 {
             let session = store.nextSession
             let carried = session.exercises.first { $0.pattern == .pushV }
