@@ -16,14 +16,14 @@ final class CareNoteTests: AppStoreTestCase {
     /// button since #101 — records the acknowledgement, and it survives a
     /// relaunch.
     func testCompletingOnboardingRecordsTheAcknowledgement() {
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertNil(store.settings.careAcknowledgedAt)
 
         store.completeOnboarding()
         XCTAssertTrue(store.settings.onboardingCompleted)
         XCTAssertNotNil(store.settings.careAcknowledgedAt)
 
-        let reloaded = AppStore(storageURL: tempURL)
+        let reloaded = makeStore()
         XCTAssertNotNil(reloaded.settings.careAcknowledgedAt,
                         "the acknowledgement must survive a relaunch")
     }
