@@ -28,7 +28,7 @@ final class JournalSanitizationTests: AppStoreTestCase {
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
         """
         try Data(json.utf8).write(to: tempURL)
-        return AppStore(storageURL: tempURL)
+        return makeStore()
     }
 
     // MARK: - Numbers that would trap the arithmetic downstream
@@ -122,7 +122,7 @@ final class JournalSanitizationTests: AppStoreTestCase {
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
         """
         try Data(json.utf8).write(to: tempURL)
-        return AppStore(storageURL: tempURL, health: AcceptingHealth())
+        return makeStore(health: AcceptingHealth())
     }
 
     /// A stand-in for the HealthKit writer. Not a convenience: pointed at the
