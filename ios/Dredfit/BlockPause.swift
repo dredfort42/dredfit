@@ -5,9 +5,9 @@
 //  granted extra rest — so they are the only part that needs a way to stand
 //  still.
 //
-//  Orthogonal to both stage machines: neither Warmup nor Cooldown knows a
-//  pause exists. The frozen seconds stay with the block; this owns only the
-//  fact that they are frozen and how far the way back in has got.
+//  Orthogonal to the blocks' stage machine: `GuidedBlock` knows nothing of a
+//  pause. The frozen seconds stay with the block; this owns only the fact
+//  that they are frozen and how far the way back in has got.
 //
 
 import Foundation

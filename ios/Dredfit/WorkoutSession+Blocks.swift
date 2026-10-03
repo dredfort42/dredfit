@@ -1,8 +1,9 @@
 //
 //  The run of a guided block — the warm-up's or the cool-down's — on the one
-//  engine both share (GuidedBlock.swift). What differs between the two blocks
-//  is how each begins, what it is composed of and where it ends; those live
-//  in +Warmup and +Cooldown.
+//  engine both share (GuidedBlock.swift). How each block begins, what it is
+//  composed of and where it ends live in +Warmup and +Cooldown; the few
+//  differences inside a run — the tone it ends on, the cool-down's snapshot —
+//  are named where they happen.
 //
 
 import Foundation
@@ -48,10 +49,10 @@ extension WorkoutSession {
     /// out, so the 3-2-1 and the go still arrive. The tap means "I'm in
     /// position", not "start the clock this instant".
     ///
-    /// `min`, never a plain count-in: the reserve the two blocks are budgeted
-    /// against is spent to the second (`GetReady.setupSupplementSec`), so a
-    /// tap may only shorten what is already running. Tapped with less than
-    /// the count-in left, it changes nothing — there was no jump to soften.
+    /// `min`, never a plain count-in: a tap may only shorten what is already
+    /// running, never lengthen a block past what its offer announced. Tapped
+    /// with less than the count-in left, it changes nothing — there was no
+    /// jump to soften.
     func countIn(_ block: GuidedBlock) {
         let run = self[run: block]
         enterStage(index: run.index, stage: .getReady,

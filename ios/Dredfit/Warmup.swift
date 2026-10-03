@@ -60,7 +60,7 @@ struct WarmupMove: Equatable, Identifiable {
     ///
     /// A property of the movement, not of where it sits in the composition —
     /// and it decides the WORDS, never the seconds: sides and directions both
-    /// run 15 + 5 + 15. "Switch sides" over a circle the person is about to
+    /// run 15 + 4 + 15. "Switch sides" over a circle the person is about to
     /// reverse would be the same lie in the other direction as the silence
     /// this replaced.
     let halves: WarmupHalves?

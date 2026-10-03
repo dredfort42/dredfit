@@ -29,11 +29,10 @@ extension WorkoutSession {
     /// tick guard goes quiet and no tone can be reached, while the seconds on
     /// screen stay put and rebuild it later.
     ///
-    /// Not private since 05.09.2026: the two block ticks call it when they
-    /// find a boundary that was crossed while the phone was elsewhere. That is
-    /// the same fact this control states — nobody is training — reached
-    /// without a tap, so it takes the same path rather than a second copy of
-    /// it (UX review 05.09.2026).
+    /// The blocks' tick calls it too, when it finds a boundary that was crossed
+    /// while the phone was elsewhere. That is the same fact this control
+    /// states — nobody is training — reached without a tap, so it takes the
+    /// same path rather than a second copy of it.
     func pauseBlock(absence: Int = 0) {
         blockPause.hold()
         // The seconds from here to Resume are not seconds of the block, and

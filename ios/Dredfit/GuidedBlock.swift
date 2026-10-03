@@ -1,8 +1,9 @@
 //
 //  The warm-up and the cool-down run the same machine: each position is
 //  announced by a transition, then held whole or in two halves with a switch
-//  between them, all on one clock. One engine for both, so a rule cannot live
-//  in one block and be missing from the other.
+//  between them, all on one clock. One engine for both, so a rule of the
+//  machine cannot live in one block and be missing from the other; where the
+//  two differ on purpose, the code says so by name (`self == .cooldown`).
 //
 
 import Foundation
@@ -25,7 +26,8 @@ protocol GuidedPosition {
 extension WarmupMove: GuidedPosition {}
 
 extension CooldownPosition: GuidedPosition {
-    /// A stretch has two halves only when it is held on each side in turn.
+    /// A stretch has two halves only when it is held on each side in turn —
+    /// no stretch of the pool reverses, so the halves are always `.sides`.
     var halves: WarmupHalves? { perSide ? .sides : nil }
 }
 
