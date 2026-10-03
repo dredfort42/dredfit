@@ -253,7 +253,7 @@ struct CalendarScreen: View {
         // The one exception, and not a text decision: these are the
         // neighbouring months' filler cells, accessibilityHidden and carrying
         // no information at all. They are padding drawn faintly, so raising
-        // them would give the grid two weeks of numbers that mean nothing.
+        // them would give the grid up to twelve numbers that mean nothing.
         case .out:     return Theme.hairline
         }
     }

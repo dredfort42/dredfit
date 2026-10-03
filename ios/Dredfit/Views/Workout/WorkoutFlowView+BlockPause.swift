@@ -6,7 +6,7 @@
 import SwiftUI
 import DredfitCore
 
-// MARK: - The pause of the guided blocks (issue #61) and of a hands-free rest
+// MARK: - The pause of the guided blocks (issue #61) and of a hands-free rest (R32)
 //
 // The state machine is BlockPause.State; this is the flow's half — the frozen
 // screen's own end dates, the tones, and the way back in. Two blocks and one

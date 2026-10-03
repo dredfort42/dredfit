@@ -77,7 +77,7 @@ struct FeedbackView: View {
                     //
                     // They also share a SHAPE and a register: all three say
                     // what the next workout does AND where. An unnamed "less"
-                    // moves ONE movement (`Feedback.lessTargets`) until the
+                    // moves ONE movement (`Engine.lessTargets`) until the
                     // third in a row, so a caption naming the whole workout
                     // would be one a person could check the next morning and
                     // find false.

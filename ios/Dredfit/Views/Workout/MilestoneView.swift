@@ -221,7 +221,7 @@ struct MilestoneView: View {
     ///
     /// The figure is not read from anywhere because it cannot vary: a passed
     /// probe enters at three sets of the grid's floor and nothing else
-    /// (`Feedback.resolveProbe` — "ENTRY IS ALWAYS 3×4 (3×15 s)"), so this is
+    /// (`Engine.resolveProbe` — "ENTRY IS ALWAYS 3×4 (3×15 s)"), so this is
     /// the same statement the engine makes, not a guess about it. A drop as
     /// large as 3×15 to 3×4 should not be spelled out only in "How it
     /// works", behind the settings sheet.

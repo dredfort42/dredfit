@@ -42,7 +42,7 @@ struct HeldSet: Identifiable {
 
 /// One tappable number. 44 pt is the floor for the target, not for the card:
 /// the number alone is 40 pt tall at the default text size and a card that
-/// only just cleared it would fail the moment somebody turned text up.
+/// only just cleared it would fail the moment somebody turned text up (R18).
 struct HeldSetCard: View {
     let held: HeldSet
     /// Only the last set of the movement: nothing followed it, so what it
@@ -62,7 +62,7 @@ struct HeldSetCard: View {
                 // Verbatim: a bare numeral with a maths sign carries no words
                 // to translate, and the "≈" is drawn in the number's OWN
                 // colour rather than a quieter one — a mark that says "this
-                // figure is an estimate" is not decoration.
+                // figure is an estimate" is not decoration (R16).
                 Text(verbatim: held.approximate ? "≈\(held.seconds)" : "\(held.seconds)")
                     .dredfitFont(34, weight: .heavy, cap: 46)
                     .monospacedDigit()
@@ -259,7 +259,7 @@ struct NextTimeBlock: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
         // The accent goes on when the person has added something — and only
-        // then. Off, the block is an outlined panel like the cards; on, it is
+        // then. Off, the block is a panel with a hairline outline; on, it is
         // the one orange thing on the screen, and it is the person's own
         // decision. `ink` for the sentence on the fill, never accentText:
         // that pair is 4.20:1 in the dark scheme (I-21), under what 14 pt

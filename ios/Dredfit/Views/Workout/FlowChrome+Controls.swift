@@ -202,7 +202,7 @@ struct WentDifferentlyButton: View {
 }
 
 /// "Stop · 60 s" — the primary control of a running hold, naming the figure it
-/// will write.
+/// will write (R29).
 ///
 /// A hold ends with the phone out of reach, so the number the tap records has
 /// to be legible from the floor: without it the only way to learn what a Stop

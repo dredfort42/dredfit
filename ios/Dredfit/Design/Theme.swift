@@ -245,7 +245,7 @@ struct Kicker: View {
     let text: String
     /// ink2, not ink3. On `bg` ink3 is 2.35:1 light / 3.02:1 dark, and 12 pt
     /// semibold is small text, where the floor is 4.5. ink2 clears it in
-    /// both — 4.96:1 / 6.97:1 — so every kicker takes it. `color` stays for
+    /// both — 4.96:1 / 6.97:1 — so every kicker takes it (R16–R21). `color` stays for
     /// the rare kicker that wants another tone; nothing in the app may hand
     /// it ink3 back.
     var color: Color = Theme.ink2

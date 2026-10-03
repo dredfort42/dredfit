@@ -193,7 +193,7 @@ struct OnboardingView: View {
     // MARK: - Card 3: the quiet duty-of-care note (#101)
 
     /// Statements, not questions: the checklist is read, not filled in, and
-    /// nothing about the person is stored — the zero-questionnaires
+    /// nothing the checklist names is stored — the zero-questionnaires
     /// principle holds.
     private var careBlock: some View {
         Text(String(localized: """

@@ -34,8 +34,7 @@ struct V2EngineState: Codable {
                                                    debugDescription: "not a v2 state")
         }
         // `decode`, not `decodeIfPresent`: under `try?` a missing key and a
-        // malformed one both fall to the default either way, and the plain
-        // form yields a single optional rather than a double one.
+        // malformed one both fall to the default either way.
         counter = (try? c.decode(Int.self, forKey: .counter)) ?? 0
         hasBar = (try? c.decode(Bool.self, forKey: .hasBar)) ?? false
         failStreak = (try? Self.patternMap(c, .failStreak)) ?? [:]
