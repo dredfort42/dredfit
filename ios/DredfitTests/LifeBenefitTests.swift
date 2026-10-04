@@ -2,11 +2,8 @@
 //  The life-benefit layer (issue #25) is pure data with one rule
 //  (override → base), so the tests pin three things: every movement has a
 //  line, the override list is exactly the closed list from the spec, and
-//  the catalog carries all SEVEN shipping languages for every life.* key.
-//  It said "all four" for three languages longer than that was true — the
-//  list the check actually walks is en + the six translations named in
-//  CLAUDE.md (de, es, fr, it, pt-BR, ru), and it is written out in full in
-//  the test rather than summarised here again.
+//  the catalog carries all SEVEN shipping languages for every life.* key —
+//  en and the six translations, written out in full in the test.
 //
 //  The catalog checks read the .xcstrings FILE, never the bundle:
 //  Dredfit.xctestplan pins the run to en/US, so a runtime lookup cannot see
@@ -20,15 +17,13 @@ import DredfitCore
 @MainActor
 final class LifeBenefitTests: XCTestCase {
 
-    /// The checkout root, from this file's own compile-time path. Derived in
-    /// ONE place: the same two `deletingLastPathComponent()` steps were
-    /// written out three times below, so moving this file one directory
-    /// would have had to be noticed three times — and each copy fails with
-    /// "no such file", which reads like a missing catalog rather than a
-    /// mis-derived path.
-    /// Two steps up is `ios/` — the platform root, not the repository root,
-    /// since the Swift side moved under it. Every catalog this test opens
-    /// lives under `ios/`, so the paths below stay relative to it.
+    /// `ios/`, from this file's own compile-time path. Derived in ONE place:
+    /// written out at each use, a move of this file one directory would have
+    /// to be noticed at each — and every copy fails with "no such file",
+    /// which reads like a missing catalog rather than a mis-derived path.
+    /// Two steps up is `ios/` — the platform root, not the repository root.
+    /// Every catalog this test opens lives under `ios/`, so the paths below
+    /// stay relative to it.
     private var iosRoot: URL {
         URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()   // DredfitTests/
@@ -54,17 +49,17 @@ final class LifeBenefitTests: XCTestCase {
 
     // MARK: - Override rule (closed list)
 
-    /// The closed list from the spec, pinned to library tiers. If a future
-    /// library reshuffle moves these variations, this test is the tripwire.
+    /// The closed list from the spec, pinned to library variations. If a
+    /// future library reshuffle moves these variations, this test is the
+    /// tripwire.
     private struct OverridePin {
         let pattern: Pattern
         let variation: Int
         let variationName: String
     }
 
-    /// The indices moved with §40.1 — every one of them. The movements did
-    /// not, which is why the pins are written by NAME and cross-checked
-    /// against the library below.
+    /// Written by NAME and cross-checked against the library below: a
+    /// reshuffle of the ladders moves the indices, not the movements.
     private let closedList: [OverridePin] = [
         OverridePin(pattern: .squat, variation: 5, variationName: "Pistol squat"),
         OverridePin(pattern: .pushH, variation: 3, variationName: "Push-up"),
@@ -79,12 +74,11 @@ final class LifeBenefitTests: XCTestCase {
             XCTAssertNotEqual(LifeBenefit.text(for: pin.pattern, variation: pin.variation),
                               LifeBenefit.baseText(for: pin.pattern),
                               "override for \(pin.pattern.rawValue) v\(pin.variation) equals the base line")
-            // The same guard the base lines have had since wave 4, and it is
-            // here because the overrides went without it: v3 renamed these four
-            // keys and filled their English value with the KEY, so an English
-            // device read "life.override.pull-up" where the line should be.
-            // A catalog entry for "en" wins over the `defaultValue:` at the call
-            // site, so nothing in the Swift looked wrong.
+            // The same guard the base lines have: an English value equal to
+            // the KEY would show "life.override.pull-up" on an English device
+            // where the line should be. A catalog entry for "en" wins over the
+            // `defaultValue:` at the call site, so nothing in the Swift would
+            // look wrong.
             XCTAssertFalse(
                 LifeBenefit.text(for: pin.pattern, variation: pin.variation).hasPrefix("life."),
                 "override for \(pin.pattern.rawValue) v\(pin.variation) is rendering its own key")
@@ -158,12 +152,9 @@ final class LifeBenefitTests: XCTestCase {
     /// No dotted key may be its own translation, in any language.
     ///
     /// Lives beside the `life.*` scans because this is where the catalog is
-    /// already read; the check itself is catalog-wide on purpose. v3 shipped
-    /// FIVE entries whose English value was the key text —
-    /// `progress.stepsLabel` under the big number on Progress and the four
-    /// renamed `life.override.*` lines — and nothing caught it: an explicit
+    /// already read; the check itself is catalog-wide on purpose. An explicit
     /// "en" entry beats the `defaultValue:` at the call site, so the Swift
-    /// reads correctly while the screen shows "progress.stepsLabel".
+    /// reads correctly while the screen shows the key itself.
     /// `check_localization.py` cannot see it either — the value is present and
     /// non-empty, it is simply the key.
     func testNoCatalogEntryIsItsOwnKey() throws {

@@ -246,6 +246,28 @@ extension WorkoutSessionTests {
                        "the work screen comes back with its own button")
     }
 
+    /// The same threshold as the blocks', to the fraction
+    /// (`testAWarmUpBoundaryMissedByAFractionPastTheThresholdFreezes`).
+    func testARestMissedByAFractionPastTheThresholdDropsTheRun() throws {
+        let (flow, _) = try holdFlow(.coreAntiExt)
+        flow.startHoldExercise()
+        run(flow, for: GetReady.countInSeconds + 15)
+        let end = try XCTUnwrap(flow.restClock.endDate, "the premise: a rest is running")
+        clock = end.addingTimeInterval(Double(BlockPause.absenceSeconds) + 0.6)
+        flow.tick()
+        XCTAssertFalse(flow.holdAutoRun)
+    }
+
+    func testARestMissedByExactlyTheThresholdKeepsTheRun() throws {
+        let (flow, _) = try holdFlow(.coreAntiExt)
+        flow.startHoldExercise()
+        run(flow, for: GetReady.countInSeconds + 15)
+        let end = try XCTUnwrap(flow.restClock.endDate, "the premise: a rest is running")
+        clock = end.addingTimeInterval(Double(BlockPause.absenceSeconds))
+        flow.tick()
+        XCTAssertTrue(flow.holdAutoRun)
+    }
+
     func testSkippingTheRestOfARunCountsTheNextSetIn() throws {
         let (flow, _) = try holdFlow(.coreAntiExt)
         flow.startHoldExercise()

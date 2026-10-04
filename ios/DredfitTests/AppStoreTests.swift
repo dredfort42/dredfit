@@ -31,7 +31,7 @@ final class AppStoreTests: AppStoreTestCase {
         XCTAssertEqual(reloaded.records.last?.exercises?.count,
                        session.exercises.count, "workout snapshot was not saved")
         XCTAssertEqual(reloaded.records.last?.actuals?[session.exercises[0].pattern], 6)
-        // skips and the per-pattern level snapshot survive the reload
+        // skips and the per-pattern position snapshot survive the reload
         XCTAssertEqual(reloaded.records.last?.skipped, [skippedPattern])
         XCTAssertEqual(reloaded.records.last?.positionsAfter, store.currentPositions)
     }
@@ -58,8 +58,8 @@ final class AppStoreTests: AppStoreTestCase {
         let session = store.nextSession
         let ex = session.exercises[0]
         // One rep short on the last set. A clean start plans 3×4, and the
-        // corridor floor is 0 — "minus five" would have been clamped there and
-        // the assertion would have compared two clamps.
+        // corridor floor is 0 — "minus five" would be clamped there and the
+        // assertion would compare two clamps.
         let facts = SetFacts.recording(ex.load - 1, in: [:], ex, set: ex.sets - 1)
         let overrides = SetFacts.overrides(facts, in: session.exercises)
         store.completeWorkout(session: session, result: .plan,
@@ -67,10 +67,10 @@ final class AppStoreTests: AppStoreTestCase {
 
         let record = try XCTUnwrap(makeStore().records.last)
         XCTAssertEqual(record.setActuals?[ex.pattern], facts[ex.pattern])
-        // ПЕРЕРАЗМЕЧЕНО §41.3 (v3.1): движок получает СЫРОЕ среднее (дробь),
-        // а журнал тренировок хранит целое — он персистится, и менять его тип
-        // ради десятой доли, которую человек не читает, нельзя. Утверждение то
-        // же: записано ровно то число, по которому движок и действовал.
+        // The engine is handed the RAW mean, a fraction; the journal of
+        // workouts keeps an integer — it is persisted, and its type does not
+        // change for a decimal nobody reads. So what is stored is the number
+        // the engine acted on, rounded.
         XCTAssertEqual(record.actuals?[ex.pattern],
                        overrides[ex.pattern].map { Int($0.rounded()) },
                        "the stored number is the one the engine acted on")
@@ -85,19 +85,18 @@ final class AppStoreTests: AppStoreTestCase {
                        "a skipped pattern must not level up")
         XCTAssertEqual(store.engineState.sub[skippedPattern] ?? 0, 0,
                        "nor collect a sub-step")
-        // "moves by the rating" is two SUB-STEPS, which at level zero is not
-        // yet a level.
+        // "moves by the rating" is two SUB-STEPS, which on a clean start is
+        // not yet a whole rung of dose.
         XCTAssertEqual(store.engineState.sub[session.exercises[0].pattern],
                        EngineConfig.deltaMore,
                        "a trained pattern must still move by the rating")
         XCTAssertEqual(store.records.last?.skipped, [skippedPattern])
     }
 
-    /// The claim a UI walk used to make by tapping "easy" on a session where
-    /// nothing was trained. It cannot tap it any more — the card is offered
-    /// only for a plan finished in full (`SetFacts.didFullPlan`) — so the
-    /// invariant is pinned here instead, in the terms the screen stated it in:
-    /// the number on Progress.
+    /// A UI walk cannot tap "easy" on a session where nothing was trained —
+    /// the card is offered only for a plan finished in full
+    /// (`SetFacts.didFullPlan`) — so the invariant is pinned here, in the terms
+    /// the screen states it in: the number on Progress.
     ///
     /// The rating is still handed to the engine as `.more`, because the point
     /// is the ENGINE's guarantee and not the screen's: it must hold for a call

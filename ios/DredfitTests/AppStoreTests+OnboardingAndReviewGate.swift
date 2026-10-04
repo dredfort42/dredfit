@@ -1,10 +1,9 @@
 //
-//  The onboarding screen and the App Store review prompt, moved out of
-//  AppStoreTests.swift to keep it under the linter's file and type-body
+//  The onboarding screen and the App Store review prompt, in their own file
+//  to keep AppStoreTests.swift under the linter's file and type-body
 //  ceilings. Grouped together because both are one-time gates keyed on
 //  persisted flags and counters (a completed-onboarding bit, a workout
-//  count, a cooldown window) rather than on the workout data itself. The
-//  code moved unchanged.
+//  count, a cooldown window) rather than on the workout data itself.
 //
 
 import XCTest

@@ -41,9 +41,9 @@ struct DoneView: View {
                 .foregroundStyle(Theme.ink)
                 .padding(.top, 24)
 
-            // Centred and unclipped: naming the movements the rating landed
-            // on made the "tough" line the longest of the three, and this
-            // Text carried neither a wrap rule nor an alignment of its own.
+            // Centred and unclipped: every caption here can run to a second
+            // line, and the "tough" one names the movements the rating landed
+            // on, so this Text carries a wrap rule and an alignment of its own.
             Text(resultCaption)
                 .dredfitFont(15)
                 .foregroundStyle(Theme.ink2)
@@ -52,7 +52,7 @@ struct DoneView: View {
                 .padding(.top, 6)
 
             // The door back to what was actually done today. A control of its
-            // own rather than the heading made tappable: three UI walks read
+            // own rather than the heading made tappable: the UI walks read
             // "Workout N completed" as a static text, and a button around it
             // would hand XCUITest one merged element instead.
             if let record = store.lastRecord {
@@ -61,8 +61,8 @@ struct DoneView: View {
                 } label: {
                     Text("What you did today")
                         .dredfitFont(14.5, weight: .medium)
-                        // accentText, not accent: 3.58:1 does not carry small
-                        // text (owner, 05.09.2026).
+                        // accentText, not accent: 3.58:1 in the light scheme
+                        // does not carry small text.
                         .foregroundStyle(Theme.accentText)
                         .padding(.horizontal, 18)
                         .frame(minHeight: 44)
@@ -75,11 +75,10 @@ struct DoneView: View {
             }
 
             // Under the common door rather than beside it: correcting a
-            // rating is the rarest thing anyone does on this screen — and
-            // since owner decision 1 (05.09.2026) it is also the only way
-            // back from a rating nobody gave, because a workout left unrated
-            // is now settled as "on plan" on the athlete's behalf. Its words
-            // and its alert are below.
+            // rating is the rarest thing anyone does on this screen — and it
+            // is also a way back from a rating nobody gave, because a workout
+            // left unrated is settled as "on plan" on the athlete's behalf.
+            // Its words and its alert are below.
             changeRatingButton
 
             Spacer()
@@ -92,11 +91,10 @@ struct DoneView: View {
     /// The one sentence about what the tap did.
     ///
     /// After a "tough" it NAMES the movements the descent landed on. The
-    /// rating card promised "the next one eases off where it's hardest", and
-    /// until now nothing anywhere said WHERE that was — an unnamed "less"
-    /// moves one movement, not the workout, so the person reading this line
-    /// the next morning could not check the promise against the plan
-    /// (UX review 05.09.2026, finding 27).
+    /// rating card promises "the next one eases off where it's hardest", and
+    /// an unnamed "less" moves one movement, not the workout — without the
+    /// names, the person reading this line the next morning could not check
+    /// the promise against the plan.
     ///
     /// The attribution exists for the LAST workout only and is stamped at the
     /// moment the rating is applied (`PlanMoves`); an empty list means "nothing
@@ -125,10 +123,9 @@ struct DoneView: View {
 
     // MARK: - Giving a different answer
 
-    /// The way back from a rating, and it is not a nicety: owner decision 1
-    /// (05.09.2026) settles a workout nobody rated as "on plan" while the app
-    /// is not even running, so the first rating a person ever meets may be one
-    /// they never gave (UX review 05.09.2026, finding 25).
+    /// The way back from a rating, and it is not a nicety: a workout nobody
+    /// rated is settled as "on plan" on the athlete's behalf, so the first
+    /// rating a person ever meets may be one they never gave.
     ///
     /// Quiet, and last on the screen: it is the rarest control here, and the
     /// door beside it — "What you did today" — is the common one. Every guard
@@ -146,8 +143,8 @@ struct DoneView: View {
             Button {
                 ratingChangeShown = true
             } label: {
-                // accentText, not accent: 3.58:1 does not carry small text
-                // (owner, 05.09.2026). 44 pt, because a bare 14 pt word is
+                // accentText, not accent: 3.58:1 in the light scheme does
+                // not carry small text. 44 pt, because a bare 14 pt word is
                 // about 17 pt of hit area (#193's floor).
                 Text(verbatim: String(localized: "today.changeRating",
                                       defaultValue: "Change the rating"))
@@ -178,8 +175,8 @@ struct DoneView: View {
     /// vocabularies.
     ///
     /// The current answer is absent because re-applying it is a no-op
-    /// (`changeLastRating` refuses it), and a button that does nothing is the
-    /// ghost control this wave has been taking out everywhere else.
+    /// (`changeLastRating` refuses it), and a button that does nothing is a
+    /// ghost control.
     ///
     /// The milestones the new answer earns are dropped on purpose. That screen
     /// is a moment INSIDE a workout — it is how the flow tells someone

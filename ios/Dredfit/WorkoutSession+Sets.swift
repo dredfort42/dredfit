@@ -12,8 +12,8 @@ extension WorkoutSession {
     /// body pass, so a skipped set takes its minutes off at the moment it is
     /// skipped rather than at the next screen.
     ///
-    /// Offered on the work and rest screens and inside the cool-down — the
-    /// three screens where "how much longer" is a live question. The warm-up
+    /// Offered on the work, rest and summary screens and inside the cool-down
+    /// — the screens where "how much longer" is a live question. The warm-up
     /// is left out: it stands before the work it cannot shorten, and its own
     /// offer screen already states its length. The rating is past the question
     /// entirely.
@@ -31,22 +31,20 @@ extension WorkoutSession {
             behind += 1
             // `totalSets`, not `exercise.sets`: the probe is a set of this
             // exercise too. Counted by the working sets alone, the exercise
-            // left the list on the rest that ANNOUNCES the probe by name, so
-            // the header dropped the probe's own minute and then grew by it
-            // when the probe's screen opened — a number moving without the
-            // person having moved it (self-review 05.09.2026). Identical for
-            // an exercise without one, where the two are equal.
+            // would leave the list on the rest that ANNOUNCES the probe by
+            // name: the header would drop the probe's own minute and then grow
+            // by it when the probe's screen opened — a number moving without
+            // the person having moved it. Identical for an exercise without
+            // one, where the two are equal.
             if behind >= totalSets { index += 1; behind = 0 }
         case .cooldown:
-            // The block the header stopped answering for. The work screen
-            // counts the cool-down into what is left (`ends:` below), and then
-            // the number vanished on the one screen where the person is
-            // actually waiting it out — so the block that was reserved four
-            // minutes a moment ago reported nothing at all (UX review
-            // 05.09.2026). Its own arithmetic, not the session's: what is left
-            // here is stretches, and it is counted the way the offer counted
-            // them. The intro screen is left out on purpose — it prints the
-            // same number in its own body, and a header would say it twice.
+            // The work screen counts the cool-down into what is left (`ends:`
+            // below), so the number must not vanish on the one screen where
+            // the person is actually waiting it out. Its own arithmetic, not
+            // the session's: what is left here is stretches, and it is counted
+            // the way the offer counted them. The intro screen is left out on
+            // purpose — it prints the same number in its own body, and a
+            // header would say it twice.
             return cooldownMinutesLeft
         default:
             return nil
@@ -56,12 +54,11 @@ extension WorkoutSession {
         //
         // WITH THE FACTS, not the plan alone. The clock on a hold runs from
         // `SetFacts.holdTarget` — the time the athlete declared, or the
-        // shortfall a set cut short carries onto the sets after it — while
-        // this number was built out of `plannedLoad`, so the header went on
-        // promising 30 s a set to somebody who had just set the clock to 45,
-        // and went on promising 40 to somebody whose remaining sets were now
-        // 19 (UX review 05.09.2026). The two disagree exactly when the person
-        // has deviated from the plan, which is when the question gets asked.
+        // shortfall a set cut short carries onto the sets after it — so a
+        // number built out of `plannedLoad` would go on promising 30 s a set
+        // to somebody who had just set the clock to 45. The two disagree
+        // exactly when the person has deviated from the plan, which is when
+        // the question gets asked.
         //
         // The declaration is the CURRENT exercise's, so it travels only while
         // `index` still points at it: past the last set the flow is standing
@@ -83,8 +80,8 @@ extension WorkoutSession {
         cooldown.clock.freeze()
         blockPause.freezeForSheet()
         // And the block stops costing time while it is read: reading is not
-        // stretching either, and the block's own length is wall clock
-        // (UX review 05.09.2026, see `blockPausedSec`).
+        // stretching either, and the block's own length is wall clock (see
+        // `blockPausedSec`).
         beginBlockFreeze()
     }
 
@@ -117,7 +114,7 @@ extension WorkoutSession {
         // The probe set is one set of the NEXT variation, and the in-app
         // screen says so — the lock screen and the Dynamic Island must not
         // call it by the old movement's name while the person is doing the
-        // new one (UI-truth audit, 27.08.2026).
+        // new one.
         if current.isProbe {
             return .init(phase: .work, title: current.name,
                          detail: String(localized: "Probe"), restEndDate: nil)
@@ -135,9 +132,8 @@ extension WorkoutSession {
         // reaching zero, an early stop past the mis-tap window. A per-side
         // hold's first side goes to the switch pause instead, not here.
         //
-        // §41.2: finishing the PROBE set records its target. The rule and the
-        // reason live in `SetFacts.recordingProbe`, stated once: it unfreezes
-        // eight ladders out of ten.
+        // Finishing the PROBE set records its target. The rule and the reason
+        // live in `SetFacts.recordingProbe`, stated once.
         probeActuals = SetFacts.recordingProbe(probeActuals, exercise.pattern,
                                                isProbe: current.isProbe,
                                                target: current.planned)
@@ -176,7 +172,7 @@ extension WorkoutSession {
     ///
     /// What it must NOT say is that the system measures the last set more
     /// accurately. Under a mean the ORDER OF SETS DOES NOT REACH THE ENGINE at
-    /// all: 12, 8, 8 and 8, 8, 12 both collapse to 9. The advice is about
+    /// all: 12, 8, 8 and 8, 8, 12 both collapse to 9⅓. The advice is about
     /// training — a maximum attempt fatigues what follows it — and the wording
     /// says exactly that and nothing more.
     func noteMaximumOutOfOrder() {
@@ -189,23 +185,22 @@ extension WorkoutSession {
         maximumNoted.insert(pattern)
         // Reduce Motion covers this one too: the note slides up from the
         // bottom edge under a `.transition`, and with no animation running
-        // that transition simply appears (UX review 05.09.2026).
+        // that transition simply appears.
         animate(.note) {
-            // "A maximum" was a term this app defines nowhere, in a
-            // twenty-one word paragraph on a screen read between sets. What
-            // replaced it names the ACT — going all out on one set — and keeps
-            // both thoughts, because the second one is not decoration: without
-            // it the line reads as a correction of the number, which is the
-            // one thing it must never be (UX review 05.09.2026).
+            // The line names the ACT — going all out on one set — rather than
+            // "a maximum", a term this app defines nowhere. Both thoughts
+            // stay, because the second one is not decoration: without it the
+            // line reads as a correction of the number, which is the one thing
+            // it must never be.
             maximumWarning = String(localized:
                 "Going all out on one set weakens the ones after it. What counts is the whole exercise.")
         }
     }
 
-    /// Leaving an exercise early. There used to be two ways — a skip and a
-    /// pain report — and the report is gone. A person who finds the movement
-    /// too hard now reaches for a handle instead, which keeps the movement in
-    /// the plan rather than taking it out for weeks.
+    /// Leaving an exercise early is a skip and nothing more: the engine does
+    /// not advance a skipped movement, so its position stays where it was.
+    /// Someone who finds the movement too hard reaches for a handle instead,
+    /// which makes it easier rather than leaving it out.
     func leaveExercise() {
         guard phase == .work else { return }
         editing = nil
@@ -223,12 +218,12 @@ extension WorkoutSession {
 
     /// The pair that makes ONE set of a per-side hold. `finishHold` clears
     /// them when a set ends normally, and every OTHER way out of a set has to
-    /// clear them too. They used to survive a skip: a Stop inside the mis-tap
-    /// grace is the one moment the actions row is live with `holdSecondSide`
-    /// still true, and skipping from there carried it into the next set —
-    /// where `finishHold` took the second-side branch, so that set ended after
-    /// ONE side, and the smaller-of-the-two-sides rule capped its record with
-    /// a number from the set before. The `min` does not ask whether the
+    /// clear them too. Left standing across a skip they leak into the next
+    /// set: a Stop inside the mis-tap grace is the one moment the actions row
+    /// is live with `holdSecondSide` still true, and from there `finishHold`
+    /// would take the second-side branch in the next set, end it after ONE
+    /// side, and cap its record with a number from the set before by the
+    /// smaller-of-the-two-sides rule. The `min` does not ask whether the
     /// movement is per-side, so a stale side plank could cap a plain plank.
     func resetHoldSides() {
         holdSecondSide = false
@@ -290,11 +285,11 @@ extension WorkoutSession {
     }
 
     /// Everything scoped to the exercise in front of us: its sides, its
-    /// settled hold, its run, its declared time, its estimate marks and its
-    /// note. Cleared on the way into the next exercise (`enterNextExercise`)
-    /// and on the early ways out — a skip past the last one, "Finish now".
-    /// The last set's ordinary way into the cool-down leaves them standing;
-    /// nothing reads them once the work is behind.
+    /// settled hold, its run, its declared time, its estimate marks, what its
+    /// clock measured and its note. Cleared on the way into the next exercise
+    /// (`enterNextExercise`) and on the early ways out — a skip past the last
+    /// one, "Finish now". The last set's ordinary way into the cool-down
+    /// leaves them standing; nothing reads them once the work is behind.
     func leaveExerciseState() {
         resetHoldSides()
         resetHoldExercise()
@@ -335,7 +330,7 @@ extension WorkoutSession {
             // proves the control was found, which is not the same
             // as knowing what it is for, and the declaration
             // branch above is a TARGET rather than a report, so it
-            // deliberately spends nothing (UX review, 05.09.2026).
+            // deliberately spends nothing.
             store.markOwnNumberReported()
         }
         editing = nil

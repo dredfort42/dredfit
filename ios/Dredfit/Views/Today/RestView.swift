@@ -38,19 +38,17 @@ struct RestView: View {
 
             Spacer()
 
-            // The rest day was the one screen with no way to the plan at all:
-            // the same sentence on the completed day is a door, here it was
-            // dead text over an empty Spacer, and "Train anyway" had to be
-            // answered without seeing what it starts. Same card, same sheet —
-            // it invites nothing (UX review 05.09.2026).
+            // The door to the plan, as on the completed day: without it
+            // "Train anyway" would have to be answered without seeing what it
+            // starts. Same card, same sheet — it invites nothing.
             NextWorkoutCard { destination = .nextWorkout }
                 .padding(.bottom, 12)
 
-            // The comeback offer lived in `PlanView` alone, so a return that
-            // landed on a rest day — three days in seven as shipped — met the
-            // pre-break plan with no way to start lower, and "Train anyway"
-            // spends the question for good. The card is self-contained; it
-            // moves as one (UX review 05.09.2026).
+            // The comeback offer stands here as well as in `PlanView`: a
+            // return that lands on a rest day — three days in seven by
+            // default — would otherwise meet the pre-break plan with no way
+            // to start lower, and "Train anyway" spends the question for
+            // good. The card is self-contained; it moves as one.
             if store.shouldOfferComeback() {
                 ComebackOffer(onFreshStart: { freshStartConfirmShown = true })
                     .padding(.bottom, 12)

@@ -7,10 +7,9 @@ final class DebutBadgeTests: AppStoreTestCase {
     /// Every workout gets its own day: stacked on a single instant the weekly
     /// ceiling would hold the walk short of any ladder boundary forever.
     ///
-    /// And every probe the plan offers is PASSED. In v3 that is the only door
-    /// into a new movement (§40.4) — a run of "easy" taps alone can no longer
-    /// cross a variation, so a walk that did not answer its probes would never
-    /// produce a debut at all.
+    /// And every probe the plan offers is PASSED. That is the only door into a
+    /// new movement — a run of "easy" taps alone cannot cross a variation, so a
+    /// walk that did not answer its probes would never produce a debut at all.
     private var day = 0
     private func train(_ store: AppStore, _ result: FeedbackResult,
                        skipped: Set<Pattern> = []) {
@@ -38,9 +37,8 @@ final class DebutBadgeTests: AppStoreTestCase {
     func testDebutAppearsWhenAPatternCrossesIntoANewVariation() {
         let store = makeStore()
         var sawDebut = false
-        // A variation is a whole grid of doses now — twelve rungs at three
-        // sets each — so the walk to the first boundary needs room. The
-        // subject (a crossing raises the badge) is unchanged.
+        // A variation is a whole grid of doses — twelve rungs at three sets
+        // each — so the walk to the first boundary needs room.
         for _ in 0..<120 {
             let debuts = store.debutPatterns
             if !debuts.isEmpty {
@@ -69,17 +67,17 @@ final class DebutBadgeTests: AppStoreTestCase {
 
     /// The subject of the two tests below, walked to until it has a debut.
     ///
-    /// Deliberately NOT `store.debutPatterns.first`. That was a `Set`, Swift
+    /// Deliberately NOT `store.debutPatterns.first`. That is a `Set`, Swift
     /// randomises the hash seed per process, and one session can carry several
     /// debuts at once (MilestoneTests.testSeveralNewVariationsInOneWorkout) —
-    /// so "first" named a different movement from run to run and the mutation
-    /// these tests exist to catch went red only on some runs.
+    /// so "first" would name a different movement from run to run, and the
+    /// mutation these tests exist to catch would go red only on some runs.
     ///
     /// The pull SLOT, specifically: it stands in every session, only its
     /// branch rotates. That is what lets the badge still be asked about after
     /// the workout that skipped it — a rotating movement is simply absent from
-    /// the next plan, and the skip test used to wrap its only real assertion
-    /// in "if it is still there" and pass in silence when it was not.
+    /// the next plan, and a test that wraps its only real assertion in "if it
+    /// is still there" passes in silence when it is not.
     private func walkToAPullDebut(_ store: AppStore, sessions limit: Int = 200) throws -> Pattern? {
         let slot = try XCTUnwrap(
             store.nextSession.exercises.first { Pattern.pullSide.contains($0.pattern) }?.pattern,
@@ -93,7 +91,7 @@ final class DebutBadgeTests: AppStoreTestCase {
         return slot
     }
 
-    /// Performing the new variation retires its badge: the tier is in the
+    /// Performing the new variation retires its badge: the variation is in the
     /// journal now, so the same variation must not announce itself twice —
     /// once it has been trained, its debut is done.
     func testDebutClearsAfterTheVariationIsPerformed() throws {
@@ -116,8 +114,8 @@ final class DebutBadgeTests: AppStoreTestCase {
         }
         train(store, .plan, skipped: [debut])
         // Asserted, not assumed: the claim underneath is vacuous if the
-        // movement left the plan, and "if it is still there" is how the old
-        // version of this test said nothing at all on a third of its runs.
+        // movement left the plan, and an "if it is still there" would say
+        // nothing at all whenever it had.
         XCTAssertTrue(store.nextSession.exercises.contains { $0.pattern == debut },
                       "the pull slot stays in every plan, so the badge is still being asked about")
         XCTAssertTrue(store.debutPatterns.contains(debut),

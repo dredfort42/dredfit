@@ -25,15 +25,15 @@ extension WorkoutSession {
                                         exercise, set: index)
         // The correction moves the base under an addition already
         // made: on the grid's ceiling the steps added before it
-        // burn, and the stepper read "+10 s" over a sentence that
-        // showed the plan "+5 s" shows (review, 12.09.2026).
+        // burn, and untrimmed the stepper would read "+10 s" over
+        // a sentence that shows the plan "+5 s" shows.
         trimRaiseToWhatStillMoves()
         // The second door of the same channel, and it spends
         // the same one-way flag: the work screen's hint asks
         // people to say a number of their own, and correcting
         // a card here IS saying one. Without this call the
-        // hint went on being shown to somebody who had
-        // already answered it (UX review, 05.09.2026).
+        // hint would go on being shown to somebody who has
+        // already answered it.
         store.markOwnNumberReported()
         editing = nil
         persistProgress()
@@ -41,8 +41,7 @@ extension WorkoutSession {
 
     /// What the clock counted for a set — the number before any correction.
     /// A set no clock ran for (skipped mid-movement, restored from a snapshot
-    /// written before the field) falls back to what the card shows, which is
-    /// what the ceiling used to be read off for every set.
+    /// written before the field) falls back to what the card shows.
     func summaryMeasured(set index: Int) -> Int {
         holdMeasured[index] ?? SetFacts.inForce(actuals, exercise, set: index)
     }
@@ -76,7 +75,7 @@ extension WorkoutSession {
     /// The rule is `SetFacts.correctionRange`, where a test can reach it;
     /// what is measured is the CLOCK's number, not the card's — a card
     /// corrected downwards must be correctable back up to what was counted.
-    /// Only the last set reaches this from the screen now.
+    /// Only the last set reaches this from the screen.
     func summaryRange(set index: Int) -> ClosedRange<Int> {
         SetFacts.correctionRange(measured: summaryMeasured(set: index),
                                  isLastSet: isLastSummarySet(index))
@@ -84,7 +83,7 @@ extension WorkoutSession {
 
     /// The plan this movement will get with `steps` additions — the engine's
     /// own answer, dry-run through the store with everything this session
-    /// has recorded so far (§41.13).
+    /// has recorded so far.
     func nextPlan(withAdditions steps: Int) -> SessionExercise? {
         var raised = raisedSteps
         raised[exercise.pattern] = steps > 0 ? steps : nil
