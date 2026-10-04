@@ -111,6 +111,10 @@ extension WorkoutSession {
             return
         }
         let countInEnd = holdCountInClock.start(GetReady.countInSeconds, now: now())
+        // The count-in opens after a silence as long as any — Skip rest plays
+        // nothing at all, and a tap on Start hold can come half a minute after
+        // the screen appeared — and on the second before its 3-2-1.
+        primeBeforeTheCount(showing: holdCountInClock.remaining)
         // The count-in goes to the tile too — it is the beat that ends on the
         // go, and a phone already on the floor shows it where the eye is.
         showHoldActivity(until: countInEnd, detail: String(localized: "Get ready"))
@@ -134,6 +138,7 @@ extension WorkoutSession {
             // played to a suspended app.
             guard overshoot <= SetFacts.restGoHeardWithinSec else {
                 let again = holdCountInClock.start(GetReady.countInSeconds, now: now())
+                primeBeforeTheCount(showing: holdCountInClock.remaining)
                 showHoldActivity(until: again, detail: String(localized: "Get ready"))
                 return
             }
@@ -154,18 +159,11 @@ extension WorkoutSession {
             if holdCountInClock.signals(second, within: Self.countdownSignalSeconds) {
                 playTick()
             }
-            // A second before the signalling window, exactly as the rest does
-            // it. `prepare()` holds the Taptic Engine for a few seconds only,
-            // and this count-in opens after a silence as long as any: Skip
-            // rest plays nothing at all, and a tap on Start hold can come half
-            // a minute after the screen appeared. Unprimed, the first tick
-            // pays the engine's wake-up and lands late — in silent mode, where
-            // the haptic is the whole channel, the 3-2-1 is heard as "2-1-go"
-            // (review 06.09.2026). Here rather than at the tap, so the restart
-            // above is warmed too.
-            if second == Self.countdownSignalSeconds + 1 && store.settings.soundsEnabled {
-                signals.prime()
-            }
+            // A count-in that opens above the second before its 3-2-1 comes to
+            // it here, on the way down; one that opens on it was primed at its
+            // start. Both ask, so the prime does not hang on the count-in's
+            // length.
+            primeBeforeTheCount(showing: second)
             animate(.countdown) { holdCountInClock.show(second) }
         }
     }
@@ -354,6 +352,22 @@ extension WorkoutSession {
     }
 
     static let countdownSignalSeconds = 3
+
+    /// Wakes the haptics one second before a 3-2-1. `prepare()` holds the
+    /// Taptic Engine for a few seconds only, and a countdown reaches its last
+    /// seconds after a silence long enough to let it go cold: unprimed, the
+    /// first tick pays the engine's wake-up and lands late — in silent mode,
+    /// where the haptic is the whole channel, the 3-2-1 is felt as "2-1-go".
+    ///
+    /// `second` is the one a countdown has just come to show, by a tick or by
+    /// a start, and both have to ask: `Countdown.read` reports only a NEW
+    /// second, so a countdown started on this one never reports it. One that
+    /// asks from both is primed once, whichever way it got here.
+    func primeBeforeTheCount(showing second: Int) {
+        if second == Self.countdownSignalSeconds + 1 && store.settings.soundsEnabled {
+            signals.prime()
+        }
+    }
 
     /// Thin wrappers: each signal's tone + haptic pair lives in
     /// WorkoutSignals, gated here by the one sounds toggle.

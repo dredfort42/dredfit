@@ -176,9 +176,7 @@ extension WorkoutSession {
             // generator's `prepare()` is worth: primed at the top of a
             // two-minute rest it has long gone cold by the 3 (UX review
             // 05.09.2026).
-            if second == Self.countdownSignalSeconds + 1 && store.settings.soundsEnabled {
-                signals.prime()
-            }
+            primeBeforeTheCount(showing: second)
             animate(.countdown) { restClock.show(second) }
         }
     }

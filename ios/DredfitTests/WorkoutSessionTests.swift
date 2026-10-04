@@ -12,8 +12,11 @@ final class SignalSpy: WorkoutSignalling {
     var events: [Event] = []
     /// The tones alone — announcements are VoiceOver's, not the sounds'.
     var tones: [Event] { events.filter { if case .announce = $0 { return false }; return true } }
+    /// Haptic primes, counted apart from `events`: a prime makes no tone, and
+    /// every test that compares the tones exactly would otherwise see one.
+    var primes = 0
 
-    func prime() {}
+    func prime() { primes += 1 }
     func primeSounds() {}
     func tick(_ enabled: Bool) { if enabled { events.append(.tick) } }
     func go(_ enabled: Bool) { if enabled { events.append(.go) } }
@@ -131,6 +134,25 @@ final class WorkoutSessionTests: AppStoreTestCase {
         XCTAssertEqual(flow.setIndex, 1)
         XCTAssertEqual(signals.tones, [.done, .tick, .tick, .tick, .go],
                        "the set's done, the rest's 3-2-1 and its go — nothing twice")
+    }
+
+    func testARestIsPrimedOnceASecondBeforeItsFirstTick() {
+        let store = makeStore()
+        let flow = makeFlow(store)
+        flow.declineWarmup()
+        signals.primes = 0
+        flow.completeSet()
+        signals.events.removeAll()
+
+        let primedAt = WorkoutSession.countdownSignalSeconds + 1
+        run(flow, until: { flow.restClock.remaining == primedAt + 1 })
+        XCTAssertEqual(signals.primes, 0, "primed at the top of the rest, it would be cold by the 3")
+        run(flow, for: 1)
+        XCTAssertEqual(signals.primes, 1)
+        XCTAssertEqual(signals.tones, [])
+        run(flow, for: primedAt)
+        XCTAssertEqual(signals.tones, [.tick, .tick, .tick, .go])
+        XCTAssertEqual(signals.primes, 1, "one prime per 3-2-1")
     }
 
     func testARestIsExtendedUpToTwiceWhatItPlannedAndNoFurther() {
