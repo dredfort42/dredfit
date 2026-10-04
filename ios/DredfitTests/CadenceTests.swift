@@ -66,7 +66,7 @@ final class CadenceTests: AppStoreTestCase {
                      "reminderEnabled":false,"reminderHour":9,"reminderMinute":0}}
         """
         try Data(json.utf8).write(to: tempURL)
-        let store = AppStore(storageURL: tempURL)
+        let store = makeStore()
         XCTAssertEqual(store.engineState.doses[.pull], Self.seededDose,
                        "the seed must actually load — a state that failed to decode "
                        + "would start clean and make every assertion here vacuous")
@@ -225,7 +225,7 @@ final class CadenceTests: AppStoreTestCase {
     }
 
     func testAnEmptyJournalHasNoGapAtAll() {
-        let fresh = AppStore(storageURL: tempURL)
+        let fresh = makeStore()
         XCTAssertNil(fresh.gapFraction(), "nothing to measure from")
     }
 
