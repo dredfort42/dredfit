@@ -78,11 +78,12 @@ extension AppStore {
     private func settlePendingWorkout(now: Date) -> Bool {
         guard pendingWorkout != nil else { return false }
         guard let (snap, session) = validPendingWorkout() else {
-            pendingWorkout = nil
-            persist()
+            update { $0.pendingWorkout = nil }
             return false
         }
-        pendingWorkout = nil
+        // `completeWorkout` clears the snapshot in the same write that records
+        // the workout: a write of its own first would leave a moment where
+        // the file holds neither.
         let settled = WorkoutSessionStore.settlement(of: snap, in: session)
         completeWorkout(
             session: session,
@@ -108,14 +109,12 @@ extension AppStore {
     /// poking WidgetKit per set would spend the day's reload budget on
     /// identical content.
     func saveWorkoutSnapshot(_ snapshot: WorkoutSnapshot) {
-        pendingWorkout = snapshot
-        persist(refreshWidget: false)
+        update(refreshWidget: false) { $0.pendingWorkout = snapshot }
     }
 
     /// Widget untouched for the same reason as saveWorkoutSnapshot.
     func clearWorkoutSnapshot() {
         guard pendingWorkout != nil else { return }
-        pendingWorkout = nil
-        persist(refreshWidget: false)
+        update(refreshWidget: false) { $0.pendingWorkout = nil }
     }
 }

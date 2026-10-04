@@ -158,11 +158,17 @@ ios/DredfitCore/        Swift package — the engine, pure functions, no UI impo
 
 ios/Dredfit/            SwiftUI app target
   AppStore.swift        the only mutable state + JSON persistence (read,
-                        quarantine and the one atomic write: StateFile.swift); split by
-                        extension (+Cadence/Calendar/Comeback/Handles/Signals/
-                        Health/Reminders/Backup, and +Workout/+Rating which
-                        mutate) — every other mutating decision stays in
-                        AppStore.swift proper
+                        quarantine and the one atomic write: StateFile.swift);
+                        split by extension (+Cadence/Calendar/Comeback/Handles/
+                        NextTime/Signals/Health/Reminders/Backup/Workout/Rating,
+                        and the DEBUG +UITestHooks). The state is private(set):
+                        from another file a change goes through `update`,
+                        which writes it in the same call (the UI-test `seed`
+                        sets it without writing)
+  HealthExporter.swift  what is read from and written to Apple Health
+  ReminderScheduler.swift  the window of pending reminder requests
+  WorkoutSessionStore.swift  which snapshot of a workout in progress is still
+                        valid, and what a forgotten one records
   HealthStore.swift     HealthKit bridge, stateless: writes the workout and
                         its energy sample, reads the five values the estimate
                         needs plus the workouts that cancel it

@@ -135,7 +135,7 @@ final class MigrationV2Tests: AppStoreTestCase {
 
         let store = makeStore()
         XCTAssertTrue(store.showsMigrationNotice, "the upgrade must be announced")
-        store.persist()   // the file is v3 from here on — the flag has to carry itself
+        store.update { _ in }   // any write: the file is v3 from here on — the flag has to carry itself
 
         let onDisk = try JSONDecoder().decode(AppData.self, from: Data(contentsOf: tempURL))
         XCTAssertFalse(onDisk.engineStateMigrated,

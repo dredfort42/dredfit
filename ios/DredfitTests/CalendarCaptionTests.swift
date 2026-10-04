@@ -38,8 +38,10 @@ final class CalendarCaptionTests: AppStoreTestCase {
 
     func test_weekSummary_whenTheWeeksLastRecordPredatesTheScale_readsZeroRatherThanTheBaselineBackwards() {
         let store = makeStore()
-        store.records = [journalEntry(date(2026, 7, 3), progress: 40),   // Friday, the week before
-                         journalEntry(wednesday, progress: nil)]         // written before v3
+        store.update(refreshWidget: false) {
+            $0.records = [journalEntry(date(2026, 7, 3), progress: 40),   // Friday, the week before
+                          journalEntry(wednesday, progress: nil)]         // written before v3
+        }
 
         let week = store.weekSummary(for: wednesday)
 
@@ -51,8 +53,10 @@ final class CalendarCaptionTests: AppStoreTestCase {
 
     func test_weekSummary_whenTheWeekEndsLowerThanItStarted_reportsTheDropInsteadOfHidingIt() {
         let store = makeStore()
-        store.records = [journalEntry(date(2026, 7, 3), progress: 40),
-                         journalEntry(wednesday, progress: 30)]
+        store.update(refreshWidget: false) {
+            $0.records = [journalEntry(date(2026, 7, 3), progress: 40),
+                          journalEntry(wednesday, progress: 30)]
+        }
 
         XCTAssertEqual(store.weekSummary(for: wednesday).stepsDelta, -10,
                        "a deload week is negative, and that is honest rather than an error to clamp away")
@@ -65,7 +69,9 @@ final class CalendarCaptionTests: AppStoreTestCase {
     /// it used to say "tomorrow" for the very session Today was offering.
     func test_nextTrainingDate_whenAFreshInstallStartsOnAMarkedWeekday_isToday() {
         let store = makeStore()
-        store.settings.restWeekdays = [Calendar.current.component(.weekday, from: store.today)]
+        store.update(refreshWidget: false) {
+            $0.settings.restWeekdays = [Calendar.current.component(.weekday, from: store.today)]
+        }
         XCTAssertFalse(store.restAppliesToday, "Today offers the plan")
         XCTAssertTrue(Calendar.current.isDate(store.nextTrainingDate, inSameDayAs: store.today))
     }
@@ -74,7 +80,7 @@ final class CalendarCaptionTests: AppStoreTestCase {
         let store = makeStore()
         // Saturday and Sunday off, so Monday is the next training day seen
         // from either — the same date, two different words.
-        store.settings.restWeekdays = [7, 1]
+        store.update(refreshWidget: false) { $0.settings.restWeekdays = [7, 1] }
 
         let fromSaturday = store.nextTrainingDateLabel(from: saturday)
         let fromSunday = store.nextTrainingDateLabel(from: sunday)
@@ -97,7 +103,7 @@ final class CalendarCaptionTests: AppStoreTestCase {
         // `toggleRestDay` refuses the seventh day, so this state can only
         // arrive from a file — a restored backup, or one edited by hand. The
         // hop limit is the whole defence: without it the search never ends.
-        store.settings.restWeekdays = Set(1...7)
+        store.update(refreshWidget: false) { $0.settings.restWeekdays = Set(1...7) }
 
         let aWeekOn = try XCTUnwrap(Calendar.current.date(byAdding: .day, value: 7, to: monday),
                                     "the calendar must be able to step a week forward")

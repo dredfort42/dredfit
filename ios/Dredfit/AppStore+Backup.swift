@@ -79,52 +79,56 @@ extension AppStore {
         // here since the backup was taken stays exported, or the backfill
         // writes it a second time.
         let exportedHere = Set(records.filter { $0.healthExported == true }.map(\.id))
-        engineState = decoded.engineState
-        records = decoded.records
-        settings = decoded.settings ?? AppSettings()
-        // The THIRD door into this decode, and the one that used to drop the
-        // announcement: a backup taken before v3 migrates here exactly as it
-        // does on launch (§41.7), and the settings that just overwrote the
-        // flag came from that same pre-v3 file. `AppStore.init` and
-        // `reloadIfNeeded` both stamp it; restoring is not a quieter kind of
-        // upgrade.
-        if decoded.engineStateMigrated { settings.migrationNoticePending = true }
-        // A half-finished workout does not travel with a restored history.
-        pendingWorkout = nil
-        if sameLineage {
-            settings.healthExportedThrough = max(priorHealthMark, settings.healthExportedThrough)
+        update { state in
+            state = PersistedState(engineState: decoded.engineState,
+                                   records: decoded.records,
+                                   settings: decoded.settings ?? AppSettings(),
+                                   // A half-finished workout does not travel
+                                   // with a restored history.
+                                   pendingWorkout: nil)
+            // The THIRD door into this decode, and the one that used to drop
+            // the announcement: a backup taken before v3 migrates here exactly
+            // as it does on launch (§41.7), and the settings that just
+            // overwrote the flag came from that same pre-v3 file.
+            // `AppStore.init` and `reloadIfNeeded` both stamp it; restoring is
+            // not a quieter kind of upgrade.
+            if decoded.engineStateMigrated { state.settings.migrationNoticePending = true }
+            if sameLineage {
+                state.settings.healthExportedThrough = max(priorHealthMark,
+                                                           state.settings.healthExportedThrough)
+            }
+            // Whose weight it is, is a fact about THIS DEVICE — same class as
+            // the export mark above and as the reminder authorization below,
+            // and a backup cannot prove any of them. Left inherited, a restore
+            // onto a new phone showed an imported number under "Taken from
+            // Health" while this device's Health had never been asked. The
+            // flag names the origin in the caption now, nothing more; a later
+            // Health sample re-earns it, an older one does not
+            // (`refreshBodyMassFromHealth`).
+            state.settings.bodyMassFromHealth = false
+            // The number's DATE does travel: it says when the weight was
+            // stated, and that is a fact about the person, not the device. A
+            // backup from before the date was kept gets the newest workout in
+            // it as the date — the number was in force at least until then —
+            // so the first activation compares it with Health's sample instead
+            // of letting a stale scale reading overwrite a restored weight
+            // (owner, 13.09.2026).
+            if state.settings.bodyMassKg != nil, state.settings.bodyMassDate == nil {
+                state.settings.bodyMassDate = state.records.map(\.date).max()
+            }
+            // Old backups carry only the mark — turn whichever won into flags.
+            state.migrateHealthMarkToFlags()
+            // After the mark: a flag set here first would turn that migration
+            // into a no-op for a mark-only backup.
+            for i in state.records.indices where exportedHere.contains(state.records[i].id) {
+                state.records[i].healthExported = true
+            }
         }
-        // Whose weight it is, is a fact about THIS DEVICE — same class as the
-        // export mark above and as the reminder authorization below, and a
-        // backup cannot prove any of them. Left inherited, a restore onto a
-        // new phone showed an imported number under "Taken from Health" while
-        // this device's Health had never been asked. The flag names the
-        // origin in the caption now, nothing more; a later Health sample
-        // re-earns it, an older one does not (`refreshBodyMassFromHealth`).
-        settings.bodyMassFromHealth = false
-        // The number's DATE does travel: it says when the weight was stated,
-        // and that is a fact about the person, not the device. A backup from
-        // before the date was kept gets the newest workout in it as the
-        // date — the number was in force at least until then — so the
-        // first activation compares it with Health's sample instead of
-        // letting a stale scale reading overwrite a restored weight
-        // (owner, 13.09.2026).
-        if settings.bodyMassKg != nil, settings.bodyMassDate == nil {
-            settings.bodyMassDate = records.map(\.date).max()
-        }
-        // Old backups carry only the mark — turn whichever won into flags.
-        migrateHealthMarkToFlags()
         // The switch is a device-local fact, like the reminder authorization
         // below: a backup cannot prove this phone ever granted the share.
         // Not asked here — the restored workouts go through the backfill
         // choice when the person turns it back on.
         reconcileHealthAuthorization()
-        // After the mark: a flag set here first would turn that migration
-        // into a no-op for a mark-only backup.
-        for i in records.indices where exportedHere.contains(records[i].id) {
-            records[i].healthExported = true
-        }
-        persist()
         if settings.reminderEnabled {
             // Authorization is per-device: a backup restored onto a new phone
             // must actually ask, and a denial must flip the toggle off.

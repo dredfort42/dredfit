@@ -19,8 +19,7 @@ extension AppStore {
         guard health.isAvailable else { return false }
         let granted = await health.requestAuthorization()
         if granted {
-            settings.healthEnabled = true
-            persist()
+            update { $0.settings.healthEnabled = true }
             // Health's reading is adopted from here on — if it is the later
             // statement about the weight (see `refreshBodyMassFromHealth`).
             await refreshBodyMassFromHealth()
@@ -31,8 +30,7 @@ extension AppStore {
     /// Keeps the high-water mark: re-enabling later must not duplicate
     /// workouts already in Health.
     func disableHealth() {
-        settings.healthEnabled = false
-        persist()
+        update { $0.settings.healthEnabled = false }
     }
 
     /// The switch follows the permission, which HealthKit grants per device:
@@ -51,15 +49,16 @@ extension AppStore {
     /// converted before they get here. `nil` clears it, and clearing is a real
     /// answer: no weight means no calories, not calories from a default.
     func setBodyMass(_ kg: Double?) {
-        settings.bodyMassKg = kg.flatMap(HealthExporter.sanitizedBodyMass)
-        // Typed, so it is not Health's: the flag names the origin in the
-        // caption, and the DATE is what keeps the number standing — a Health
-        // sample older than this moment does not replace it, a newer one
-        // does. A cleared weight carries no date: clearing is not a claim
-        // about a number, and Health may fill the field again.
-        settings.bodyMassFromHealth = false
-        settings.bodyMassDate = settings.bodyMassKg == nil ? nil : .now
-        persist()
+        update {
+            $0.settings.bodyMassKg = kg.flatMap(HealthExporter.sanitizedBodyMass)
+            // Typed, so it is not Health's: the flag names the origin in the
+            // caption, and the DATE is what keeps the number standing — a
+            // Health sample older than this moment does not replace it, a
+            // newer one does. A cleared weight carries no date: clearing is
+            // not a claim about a number, and Health may fill the field again.
+            $0.settings.bodyMassFromHealth = false
+            $0.settings.bodyMassDate = $0.settings.bodyMassKg == nil ? nil : .now
+        }
     }
 
     /// The number the app shows — and multiplies every calorie by — follows
@@ -75,7 +74,7 @@ extension AppStore {
     /// it touch the origin flag: the number still came from where it came.
     ///
     /// Writes only on a real change: this runs on every foreground, and an
-    /// unconditional `persist()` would rewrite the journal file for a number
+    /// unconditional write would rewrite the journal file for a number
     /// that did not move.
     func refreshBodyMassFromHealth() async {
         guard settings.healthEnabled, health.isAvailable else { return }
@@ -93,17 +92,17 @@ extension AppStore {
         guard settings.bodyMassKg != reading.kg || !settings.bodyMassFromHealth
                 || settings.bodyMassDate != reading.date
         else { return }
-        settings.bodyMassKg = reading.kg
-        settings.bodyMassFromHealth = true
-        settings.bodyMassDate = reading.date
         // The weight reaches nothing the widget shows (same argument as the
         // export flags below).
-        persist(refreshWidget: false)
+        update(refreshWidget: false) {
+            $0.settings.bodyMassKg = reading.kg
+            $0.settings.bodyMassFromHealth = true
+            $0.settings.bodyMassDate = reading.date
+        }
     }
 
     func setWatchRecordsWorkouts(_ on: Bool) {
-        settings.watchRecordsWorkouts = on
-        persist()
+        update { $0.settings.watchRecordsWorkouts = on }
     }
 
     var healthBackfillCount: Int {
@@ -149,23 +148,25 @@ extension AppStore {
             guard let i = records.firstIndex(where: {
                 $0.id == record.id && $0.healthExported != true
             }) else { continue }
-            records[i].healthExported = true
-            settings.healthExportedThrough = max(settings.healthExportedThrough,
-                                                 record.sessionNumber)
             // Durability per record, yes. Poking WidgetKit per record, no:
             // the export flags reach nothing the widget shows, so a full
             // backfill would spend the day's reload budget on identical
             // content (same reason as saveWorkoutSnapshot).
-            persist(refreshWidget: false)
+            update(refreshWidget: false) {
+                $0.records[i].healthExported = true
+                $0.settings.healthExportedThrough = max($0.settings.healthExportedThrough,
+                                                        record.sessionNumber)
+            }
         }
     }
 
     /// Past workouts are declared handled so they never export later, even
     /// after toggling off and on.
     func skipHealthBackfill() {
-        for i in records.indices { records[i].healthExported = true }
-        settings.healthExportedThrough = max(settings.healthExportedThrough,
-                                             records.last?.sessionNumber ?? 0)
-        persist()
+        update {
+            for i in $0.records.indices { $0.records[i].healthExported = true }
+            $0.settings.healthExportedThrough = max($0.settings.healthExportedThrough,
+                                                    $0.records.last?.sessionNumber ?? 0)
+        }
     }
 }
