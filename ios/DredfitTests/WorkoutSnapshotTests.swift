@@ -69,10 +69,10 @@ final class WorkoutSnapshotTests: AppStoreTestCase {
         let saved = Date.now
         store.saveWorkoutSnapshot(makeSnapshot(for: store, savedAt: saved))
 
-        let justInside = saved.addingTimeInterval(AppStore.workoutResumeWindow - 60)
+        let justInside = saved.addingTimeInterval(WorkoutSessionStore.resumeWindow - 60)
         XCTAssertNotNil(store.resumableWorkout(now: justInside))
 
-        let justPast = saved.addingTimeInterval(AppStore.workoutResumeWindow + 60)
+        let justPast = saved.addingTimeInterval(WorkoutSessionStore.resumeWindow + 60)
         XCTAssertNil(store.resumableWorkout(now: justPast),
                      "the resume offer must expire with the occasion")
     }

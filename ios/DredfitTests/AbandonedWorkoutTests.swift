@@ -19,8 +19,8 @@ final class AbandonedWorkoutTests: AppStoreTestCase {
 
     override var tempURLPrefix: String { "dredfit-abandoned" }
 
-    private let window = AppStore.workoutResumeWindow
-    private let forgotten = AppStore.workoutForgottenAfter
+    private let window = WorkoutSessionStore.resumeWindow
+    private let forgotten = WorkoutSessionStore.forgottenAfter
 
     /// A snapshot parked on the rating screen: every exercise behind, nothing
     /// left to do but answer.

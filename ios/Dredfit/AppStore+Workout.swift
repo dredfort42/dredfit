@@ -1,12 +1,8 @@
 //
-//  The lifecycle of a workout in progress: the snapshot the flow writes on
-//  every phase transition, whether it is still the same training occasion,
-//  and what happens to it when it is not.
-//
-//  Split out of AppStore.swift when that file passed 1140 of the lint's hard
-//  1200 (CLAUDE.md: split rather than grow). These four members mutate, so
-//  they sit apart from the read-only extensions — the snapshot's whole
-//  lifecycle is easier to check in one place than buried in the main file.
+//  The lifecycle of a workout in progress, as the store keeps it: the
+//  snapshot the flow writes on every phase transition, and what becomes of it.
+//  WorkoutSessionStore holds the windows and decides what a settlement
+//  records; the store measures against them and writes the result.
 //
 
 import Foundation
@@ -14,36 +10,10 @@ import DredfitCore
 
 extension AppStore {
 
-    /// Older than this is a different training occasion, not an interrupted
-    /// one — but "not the same occasion" is not the same as "abandoned", and
-    /// the two used to be one window (owner, 06.09.2026).
-    static let workoutResumeWindow: TimeInterval = 3 * 60 * 60
-
-    /// Past this the workout was not interrupted, it was FORGOTTEN, and only
-    /// then is it recorded without being asked about (owner, 06.09.2026).
-    ///
-    /// Elapsed time, not the calendar day `trainingDays` counts. That rule is
-    /// right about rhythm — midnights are what "yesterday" means to a person —
-    /// and wrong here: a session left at 23:30 and opened at 00:30 is one
-    /// midnight and one hour, and recording it unasked after an hour is the
-    /// very thing this threshold exists to prevent.
-    ///
-    /// Twelve hours, so a session and the next opening of the app fall on
-    /// opposite sides of a night or a working day: an evening workout left at
-    /// 21:00 is still a question the next morning, and one left in the morning
-    /// stops being one by the evening.
-    static let workoutForgottenAfter: TimeInterval = 12 * 60 * 60
-
-    /// The snapshot is only worth anything while it still describes the plan
-    /// the engine would hand out: the bar toggle and an accepted comeback
-    /// regenerate a different session under the same number, and then its
-    /// indices and numbers belong to a plan nobody trained.
     private func validPendingWorkout() -> (snapshot: WorkoutSnapshot, session: Session)? {
         let session = nextSession
-        guard let snap = pendingWorkout,
-              snap.sessionNumber == engineState.counter + 1,
-              snap.fingerprint == WorkoutSnapshot.fingerprint(of: session),
-              snap.hasProgress
+        guard let snap = WorkoutSessionStore.valid(pendingWorkout, plan: session,
+                                                   counter: engineState.counter)
         else { return nil }
         return (snap, session)
     }
@@ -51,7 +21,7 @@ extension AppStore {
     /// Fresh enough to be the same occasion, and nothing completed today.
     func resumableWorkout(now: Date = .now) -> WorkoutSnapshot? {
         guard let snap = validPendingWorkout()?.snapshot, !doneToday,
-              now.timeIntervalSince(snap.savedAt) < Self.workoutResumeWindow
+              now.timeIntervalSince(snap.savedAt) < WorkoutSessionStore.resumeWindow
         else { return nil }
         return snap
     }
@@ -71,7 +41,8 @@ extension AppStore {
     func unfinishedWorkoutAwaitingAnswer(now: Date = .now) -> WorkoutSnapshot? {
         guard let snap = validPendingWorkout()?.snapshot, !doneToday else { return nil }
         let age = now.timeIntervalSince(snap.savedAt)
-        guard age >= Self.workoutResumeWindow, age < Self.workoutForgottenAfter else { return nil }
+        guard age >= WorkoutSessionStore.resumeWindow,
+              age < WorkoutSessionStore.forgottenAfter else { return nil }
         return snap
     }
 
@@ -95,7 +66,7 @@ extension AppStore {
         // (self-review 06.09.2026).
         guard !workoutIsOnScreen,
               let snap = pendingWorkout,
-              now.timeIntervalSince(snap.savedAt) >= Self.workoutForgottenAfter
+              now.timeIntervalSince(snap.savedAt) >= WorkoutSessionStore.forgottenAfter
         else { return false }
         return settlePendingWorkout(now: now)
     }
@@ -103,12 +74,6 @@ extension AppStore {
     /// Writes what was done and clears the snapshot either way: a snapshot
     /// that can no longer be recorded honestly must not linger to be asked
     /// about again tomorrow.
-    ///
-    /// Recorded "on plan" — it happened, and the regulator's neutral answer is
-    /// the honest stand-in for one nobody gave (owner, 05.09.2026). Dated from
-    /// `savedAt`, never `.now`: settling yesterday's session this morning
-    /// would otherwise move it into today's calendar, today's Health export
-    /// and today's gap arithmetic.
     @discardableResult
     private func settlePendingWorkout(now: Date) -> Bool {
         guard pendingWorkout != nil else { return false }
@@ -118,50 +83,22 @@ extension AppStore {
             return false
         }
         pendingWorkout = nil
-
-        let settled = SetFacts.settlement(
-            in: session.exercises,
-            exIndex: snap.exIndex,
-            // In rest the set that just ended is still `setIndex`.
-            // Capped before the `+ 1`: the index comes off disk, and Int.max
-            // trapped here inside `activate()` on every launch.
-            setsBehind: snap.restEndDate != nil ? min(snap.setIndex, Int.max - 1) + 1 : snap.setIndex,
-            currentIsDone: snap.atFeedback == true || snap.atExerciseSummary == true,
-            alreadySkipped: snap.skips)
-        let skipped = settled.skipped.union(snap.skipped)
-        var facts = snap.facts
-        var probes = snap.probeFacts
-        // A skip wins over an actual, the same way it does in the flow.
-        for pattern in skipped {
-            facts.removeValue(forKey: pattern)
-            probes.removeValue(forKey: pattern)
-        }
+        let settled = WorkoutSessionStore.settlement(of: snap, in: session)
         completeWorkout(
             session: session,
+            // It happened, and the regulator's neutral answer is the honest
+            // stand-in for a rating nobody gave.
             result: .plan,
-            overrides: SetFacts.overrides(facts, in: session.exercises),
-            setActuals: facts,
-            skipped: skipped,
+            overrides: settled.overrides,
+            setActuals: settled.setActuals,
+            skipped: settled.skipped,
             setsSkipped: settled.setsSkipped,
-            probes: probes,
-            // Minus the measured absence, exactly as the flow's own path does
-            // it: without this the same break was charged to the workout or
-            // not depending only on whether the process survived to the rating
-            // tap — the very circumstance this wave removed.
-            durationSec: max(0, Int(snap.savedAt.timeIntervalSince(snap.workoutStart))
-                                - (snap.awaySec ?? 0)),
-            warmupSec: snap.warmupSec, cooldownSec: snap.cooldownSec,
-            interrupted: snap.interrupted ?? settled.interrupted,
-            // Decided on the summaries of movements that are behind; a
-            // movement the settlement skips cannot carry one — the summary
-            // is the last set's screen, and a skipped movement never got
-            // there.
-            raised: snap.raises.filter { !skipped.contains($0.key) },
-            // The END, as every record is dated: the rating tap stamps `.now`
-            // and the Health export reads a record's date as the moment the
-            // workout ended. From `workoutStart`, 18:00–18:40 went to Health
-            // as 17:20–18:00. `savedAt` is where `durationSec` above ends too.
-            date: snap.savedAt)
+            probes: settled.probes,
+            durationSec: settled.durationSec,
+            warmupSec: settled.warmupSec, cooldownSec: settled.cooldownSec,
+            interrupted: settled.interrupted,
+            raised: settled.raised,
+            date: settled.date)
         return true
     }
 
