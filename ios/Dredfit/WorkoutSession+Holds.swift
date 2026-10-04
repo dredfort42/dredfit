@@ -159,10 +159,10 @@ extension WorkoutSession {
             if holdCountInClock.signals(second, within: Self.countdownSignalSeconds) {
                 playTick()
             }
-            // A count-in that opens above the second before its 3-2-1 comes to
-            // it here, on the way down; one that opens on it was primed at its
-            // start. Both ask, so the prime does not hang on the count-in's
-            // length.
+            // Never fires while the count-in is four seconds — the start has
+            // primed it — but a longer count-in reaches its four here, so the
+            // prime does not hang on the count-in's length: a length change
+            // silently stopping a prime keyed to one second is how it broke.
             primeBeforeTheCount(showing: second)
             animate(.countdown) { holdCountInClock.show(second) }
         }
@@ -362,8 +362,9 @@ extension WorkoutSession {
     /// `second` is the one a countdown has just come to show, by a tick or by
     /// a start: `Countdown.read` reports only a NEW second, so a countdown
     /// started on this one never reports it, and a caller that asks from both
-    /// places primes it once, whichever way it got here. The count-in and the
-    /// hands-free rest ask from both.
+    /// places primes it whichever way it got here. The count-in and the
+    /// hands-free rest ask from both. A rest paused on its four and resumed
+    /// is primed a second time, on purpose: the first has gone cold by then.
     func primeBeforeTheCount(showing second: Int) {
         if second == Self.countdownSignalSeconds + 1 && store.settings.soundsEnabled {
             signals.prime()
