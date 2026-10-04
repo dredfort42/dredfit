@@ -73,7 +73,8 @@ enum BlockPause {
     /// on a "Get ready" — are what someone who has just come back needs, and
     /// one frozen a second or two from its end, by a tap or by an absence,
     /// would otherwise drop them into the position on a partial count or none.
-    /// The side switch is no longer than the count-in, so it comes back whole.
+    /// In production the side switch is no longer than the count-in, so it
+    /// comes back whole.
     /// A position takes the re-entry instead and keeps exactly the seconds it
     /// froze with.
     static func stageAfterPause(remaining: Int, stage: GuidedStage) -> Int {
