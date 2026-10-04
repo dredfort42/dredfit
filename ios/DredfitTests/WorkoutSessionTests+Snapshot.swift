@@ -270,6 +270,55 @@ extension WorkoutSessionTests {
         flow.toggleBlockPause()
         XCTAssertFalse(flow.blockPause.isPaused)
         XCTAssertEqual(flow.cooldown.clock.endDate, clock + TimeInterval(GetReady.countInSeconds))
+        signals.events.removeAll()
+        run(flow, for: GetReady.countInSeconds)
+        XCTAssertEqual(signals.tones, [.tick, .tick, .tick, .go])
+    }
+
+    func testAMovePausedNearItsEndKeepsItsSecondsAfterTheWayBackIn() {
+        let store = makeStore()
+        let flow = makeFlow(store)
+        flow.beginWarmup()
+        run(flow, until: { BlockPause.needsReentry(flow.warmup.stage) && flow.warmup.clock.remaining == 2 },
+            limit: 1_000)
+        flow.toggleBlockPause()
+        clock += 30
+        flow.toggleBlockPause()
+        XCTAssertTrue(flow.blockPause.isReentering)
+        run(flow, for: BlockPause.reentrySeconds)
+        XCTAssertFalse(flow.blockPause.isPaused)
+        XCTAssertEqual(flow.warmup.clock.endDate, clock + 2, "the floor is a transition's, never a position's")
+    }
+
+    func testACoolDownStretchPausedNearItsEndKeepsItsSecondsAfterTheWayBackIn() {
+        let store = makeStore()
+        let flow = makeFlow(store)
+        flow.declineWarmup()
+        flow.exIndex = flow.exercises.count - 1
+        flow.setIndex = 2
+        flow.completeSet()
+        flow.beginCooldown()
+        run(flow, until: { BlockPause.needsReentry(flow.cooldown.stage) && flow.cooldown.clock.remaining == 2 })
+        flow.toggleBlockPause()
+        clock += 30
+        flow.toggleBlockPause()
+        run(flow, for: BlockPause.reentrySeconds)
+        XCTAssertFalse(flow.blockPause.isPaused)
+        XCTAssertEqual(flow.cooldown.clock.endDate, clock + 2,
+                       "the cool-down's own stage decides, whatever the warm-up was left on")
+    }
+
+    func testTheTechniqueSheetHandsATransitionBackExactlyWhatItFroze() {
+        let store = makeStore()
+        let flow = makeFlow(store)
+        flow.beginWarmup()
+        run(flow, for: GetReady.countInSeconds - 1)
+        XCTAssertEqual(flow.warmup.clock.remaining, 1)
+        flow.freezeForPositionTechnique()
+        clock += 30
+        flow.resumePositionCountdown()
+        XCTAssertEqual(flow.warmup.clock.endDate, clock + 1,
+                       "reading is not a pause: the floor belongs to the way back from one")
     }
 
     func testTheCoolDownIsOfferedAfterTheLastSetAndEndsOnTheRating() {

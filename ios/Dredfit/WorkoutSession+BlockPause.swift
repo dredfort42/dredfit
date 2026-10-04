@@ -62,7 +62,7 @@ extension WorkoutSession {
         // spent getting back into the position.
         endBlockFreeze()
         guard needsReentry else {
-            // A frozen transition is its own way back in: its 3-2-1 and its
+            // A frozen transition is its own way back in: its count and its
             // go are still ahead of it (`BlockPause.stageAfterPause` keeps
             // them there), and a lead-in here would count one position down
             // twice.
@@ -114,13 +114,14 @@ extension WorkoutSession {
         restartFrozenStage()
     }
 
-    /// The stage picks up the seconds it froze with, never its whole length:
+    /// A position picks up the seconds it froze with, never its whole length:
     /// a pause must not quietly make the user hold a position twice. A
     /// transition picks up at least the count-in (`BlockPause.stageAfterPause`).
     ///
     /// Started, not resumed, so the screen shows that floor before counting
-    /// down from it: resumed from the lower second on screen, the first tick
-    /// would be a step UP, and the 3-2-1 would lose its 3.
+    /// down from it: resumed from the lower second still on screen, the next
+    /// tick can read as a step UP, which `signals` refuses — and the 3-2-1
+    /// loses its 3.
     func restartFrozenStage() {
         switch phase {
         case .warmup:
