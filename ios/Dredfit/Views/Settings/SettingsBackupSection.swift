@@ -22,14 +22,13 @@ struct BackupSection: SettingsGroup {
         VStack(alignment: .leading, spacing: 12) {
             settingsKicker(String(localized: "Backup"), id: "settings-backup")
             // The control says "history"; the file holds the whole `settings`
-            // block too, weight included (AppStore+Backup.exportURL). The one
-            // line that ever named settings stood in the IMPORT alert — read,
-            // if at all, long after the file had been sent somewhere. Not a
-            // broken promise (nothing here goes anywhere by itself) but an
-            // under-described one — so this line stands ABOVE the rows, where
-            // the other groups put theirs below: it has to be read BEFORE the
-            // tap, because after Export the file has already gone (UX review
-            // 05.09.2026).
+            // block too, weight included (AppStore+Backup.exportURL). The
+            // IMPORT alert names settings as well, but it is read, if at all,
+            // long after the file has been sent somewhere. Nothing here goes
+            // anywhere by itself, yet the person has to know what they send —
+            // so this line stands ABOVE the rows, where the other groups put
+            // theirs below: it has to be read BEFORE the tap, because after
+            // Export the file has already gone.
             caption(String(localized: """
                  The file holds your history, your plan and your settings — \
                  including your weight, if you entered one. It goes only where \
@@ -70,18 +69,14 @@ struct BackupSection: SettingsGroup {
             // An alert has no anchor — every one of these is the same window,
             // centred, whatever it was raised from.
             //
-            // And the workaround the popover forced is gone with it. A popover
-            // suppresses its cancel action, because tapping outside IS the
-            // cancel, so the escape had to be a SECOND, role-less button. An
-            // alert does not: measured on iPhone 17 Pro / iOS 26.5, the node is
-            // `Alert` with no `Popover` beside it, and all four buttons stood in
-            // the accessibility tree — the `.cancel` one included. So the escape
-            // is one button again, carrying the role AND the name that says what
-            // it does. "Cancel" answers "cancel what?"; this one does not.
-            // It also carries the cancel action's own cleanup: dismissing by a
-            // tap outside never ran `pendingImportURL = nil`, so the picked
-            // file stayed in state with no way to reach the line that clears
-            // it.
+            // An alert also keeps its cancel action, which a popover suppresses
+            // because tapping outside IS the cancel: measured on iPhone 17
+            // Pro / iOS 26.5, the node is `Alert` with no `Popover` beside it,
+            // and the `.cancel` button stands in the accessibility tree. So
+            // the escape is one button, carrying the role AND the name that
+            // says what it does. "Cancel" answers "cancel what?"; this one
+            // does not. It also carries the cleanup, so the picked file does
+            // not stay in state once the person keeps their history.
             Button(String(localized: "Keep my history"), role: .cancel) { pendingImportURL = nil }
             Button(String(localized: "Replace"), role: .destructive) { runImport() }
         } message: {
@@ -102,12 +97,12 @@ struct BackupSection: SettingsGroup {
         }
     }
 
-    /// The file is built by the TAP and only then shared, where before it was
-    /// handed to `ShareLink` as a lazy `Transferable`. The old shape had
-    /// nowhere to put a failure: the throw happened inside the transfer
-    /// representation, so a file that could not be written produced silence and
-    /// left the belief that a backup existed. Import has always had its alert;
-    /// the rescuing half of the pair has one now too (UX review 05.09.2026).
+    /// The file is built by the TAP and only then shared, not handed to
+    /// `ShareLink` as a lazy `Transferable`: that shape has nowhere to put a
+    /// failure — the throw happens inside the transfer representation, so a
+    /// file that could not be written produces silence and leaves the belief
+    /// that a backup exists. Built here, a failure gets an alert, as an import
+    /// does.
     ///
     /// The alert hangs HERE rather than on the root view, which already
     /// carries the screen's sheet.
@@ -131,8 +126,7 @@ struct BackupSection: SettingsGroup {
         }
     }
 
-    /// A frozen launch shows an empty history everywhere and disables both
-    /// backup rows, and said so nowhere in the app.
+    /// A frozen launch disables both backup rows; this says why, beside them.
     private var frozenNote: some View {
         caption(String(localized: """
              Your history couldn't be read on this launch, so it can't be \

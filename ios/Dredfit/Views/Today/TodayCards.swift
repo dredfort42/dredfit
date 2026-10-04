@@ -5,9 +5,9 @@
 import SwiftUI
 import DredfitCore
 
-    /// The door to the next plan. It stood on the completed day only; the rest
-    /// day carried the same sentence as plain text, which made rest the one
-    /// screen in the app with no way to the plan (UX review 05.09.2026).
+    /// The door to the next plan, on the completed day and on the rest day
+    /// alike: as plain text it would leave rest the one screen in the app with
+    /// no way to the plan.
 struct NextWorkoutCard: View {
     @Environment(AppStore.self) private var store
     let action: () -> Void

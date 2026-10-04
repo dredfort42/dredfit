@@ -7,7 +7,7 @@
 //  to be able to read how that movement is done before doing it. An
 //  exercise-shaped sheet could not show a movement that is not in the plan.
 //
-//  That same property is why the easier-variation handle lives here (R30). A control
+//  That same property is why the easier-variation handle lives here. A control
 //  that swaps the movement for the one below it needs a screen that can show a
 //  movement which is not in the plan, and the sheet already owns the ladder as
 //  a concept: the tag above the block says "variation 3 of 7", so the rung
@@ -241,7 +241,7 @@ struct TechniqueSheet: View {
 
     // MARK: - One step below
 
-    /// The handle, in a place where it can carry more than a name (R30).
+    /// The handle, in a place where it can carry more than a name.
     ///
     /// The block is NOT a button and the capsule is: a step down is one-way —
     /// the way back up is a probe, and a probe is several appearances away —
