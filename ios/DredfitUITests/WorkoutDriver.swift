@@ -29,9 +29,9 @@ struct WorkoutDriver {
     ///
     /// This narrows the window rather than closing it: XCUITest delivers the
     /// tap some time after the check, and on a degraded runner that gap has
-    /// been ten seconds (nightly 2026-08-04, run 30875292377). A test whose
-    /// target can expire on the app's own timer must widen its margin too —
-    /// launch it with `--uitest-hold-long`.
+    /// been ten seconds (nightly run 30875292377). A test whose target can
+    /// expire on the app's own timer must widen its margin too — launch it
+    /// with `--uitest-hold-long`.
     /// An INFINITE frame is refused as well, and that is not belt and braces:
     /// a control standing down as `.opacity(0).disabled()` keeps its place in
     /// the tree and can report `CGRect.null`, whose origin is infinite —
@@ -121,11 +121,10 @@ struct WorkoutDriver {
     /// The work, walked until the cool-down is OFFERED — the question that
     /// stands between the last exercise and the rating — without answering it.
     ///
-    /// Three copies of this loop stood outside the driver (HandlesUITests,
-    /// BlockPauseUITests, DredfitUITests+Cooldown) at the same time as the
-    /// warning at the top of this file, which the last drift had already cost
-    /// six red nightly runs to earn. It is one loop now; what each caller
-    /// wants from the offer is still the caller's own business.
+    /// One loop for HandlesUITests, BlockPauseUITests and
+    /// DredfitUITests+Cooldown rather than a copy in each: that is the drift
+    /// the warning at the top of this file is about. What each caller wants
+    /// from the offer is the caller's own business.
     ///
     /// Returns whether the offer arrived, so a caller can fail with its own
     /// sentence instead of inheriting the driver's.
@@ -133,10 +132,10 @@ struct WorkoutDriver {
     func walkToCooldownOffer(deadline seconds: TimeInterval = 360,
                              ratingLabel: String = "How did it go?") -> Bool {
         let done = app.buttons[AX.exerciseDone]
-        // ONE tap per hold exercise since R23: the sets after the first count
-        // themselves in and this control does not come back. `holdStart` is
-        // still tapped when it does — the probe set, which the auto-run leaves
-        // to the person — so both stay in the loop.
+        // ONE tap per hold exercise: the sets after the first start on their
+        // rest's own go and this control does not come back. `holdStart` is
+        // tapped when it appears — the probe set, which the auto-run leaves to
+        // the person — so both stay in the loop.
         let startHold = app.buttons[AX.holdStartExercise]
         let startOneHold = app.buttons[AX.holdStart]
         let offer = app.buttons[AX.cooldownStart]
@@ -182,19 +181,19 @@ struct WorkoutDriver {
     ///
     /// CONFIRMED and retried once, because a single unconfirmed `.tap()` on a
     /// control inside the workout's fullScreenCover GETS LOST, and a lost tap
-    /// leaves the button standing. Measured on the local full run of
-    /// 02.09.2026 (I-22): the tap was synthesized dead centre of an enabled
-    /// `skip-cooldown` ({{24, 764}, {354, 56}}, so (201, 792)) with no
-    /// interrupting elements, and the app never acted on it — the block ran on
-    /// through all seven positions with the escape still on screen. So the
-    /// confirmation is the button's disappearance and the recovery is a second
-    /// tap: the rule at the top of this file, and the same retry
-    /// `BlockPauseUITests` already carries for its own resumed block.
+    /// leaves the button standing. Measured on a local full run (I-22): the
+    /// tap was synthesized dead centre of an enabled `skip-cooldown`
+    /// ({{24, 764}, {354, 56}}, so (201, 792)) with no interrupting elements,
+    /// and the app never acted on it — the block ran on through every position
+    /// with the escape still on screen. So the confirmation is the button's
+    /// disappearance and the recovery is a second tap: the rule at the top of
+    /// this file, and the same retry `BlockPauseUITests` already carries for
+    /// its own resumed block.
     ///
     /// THE BUDGET IS THE CHECK — DO NOT RAISE THESE SECONDS. Under
     /// `--uitest-fast` the block also ends by itself, ~17 s after the escape is
-    /// first offered on position 1 of 7. 4 s + one retry + 5 s holds the whole
-    /// wait under 9 s, so a rating that arrives in time can only be the skip.
+    /// first offered. 4 s + one retry + 5 s holds the whole wait under 9 s, so
+    /// a rating that arrives in time can only be the skip.
     /// Widened to 20 s the test goes green on the block merely running out,
     /// having stopped checking the skip at all: I-22's first fix already moved
     /// this wait 3 s → 15 s and the transition was lost anyway, so the next
@@ -211,11 +210,10 @@ struct WorkoutDriver {
         let rating = app.staticTexts[ratingLabel]
         // `coordinateTap` refuses a control whose frame is not finite, and a
         // block screen rebuilt behind a closing sheet reports exactly that for
-        // a snapshot or two — `skipExercises` documents the same state for the
-        // work screen's escapes. One first attempt spent on it read as "there
-        // is no way out of the block at all" (nightly 06.09.2026: the escape
-        // existed at t = 74.00 and was refused at t = 74.03, while the same
-        // run shows another escape refused at 6.24 and tapped at 6.29).
+        // a snapshot or two. One first attempt spent on it read as "there is
+        // no way out of the block at all" (on a nightly, the escape existed at
+        // t = 74.00 and was refused at t = 74.03, while the same run shows
+        // another escape refused at 6.24 and tapped at 6.29).
         //
         // Retried INSIDE the seconds this already spends, never beyond them:
         // two here come out of the four below, so the total stays nine and the
@@ -255,10 +253,10 @@ struct WorkoutDriver {
     /// `deadline` is wall-clock and therefore sensitive to how loaded the
     /// runner is, which is why it is a parameter rather than a constant: the
     /// longest consumer (`testMilestoneScreenListsEverythingEarned`) spent
-    /// 205 s of the old fixed 420 on a healthy machine, a margin of ×2.05, and
+    /// 205 s of the default 420 on a healthy machine, a margin of ×2.05, and
     /// the next seed that adds a hold would eat the rest of it silently. The
-    /// failure now reports the time actually spent, so a runner that ran out
-    /// of budget cannot be read as a flow that never reached the rating.
+    /// failure reports the time actually spent, so a runner that ran out of
+    /// budget cannot be read as a flow that never reached the rating.
     @discardableResult
     func completeWorkout(skipCooldown skipsCooldown: Bool = true,
                          deadline seconds: TimeInterval = 420,
