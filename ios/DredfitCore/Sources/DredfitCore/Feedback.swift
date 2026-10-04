@@ -16,8 +16,8 @@ extension Engine {
     private struct Step {
         var position: Position
         var wantedDown: Bool
-        /// Fast adaptation: the dose is what the person did. The one rise the
-        /// weekly ceiling leaves alone.
+        /// Fast adaptation: the dose is what the person did, so the weekly
+        /// ceiling leaves the rise alone.
         var adapted = false
     }
 
@@ -82,7 +82,7 @@ extension Engine {
         // one" is a statement about one movement, not about the plan.
         next.lessRun = unnamedLess ? state.lessRun + 1 : 0
 
-        // Patterns that adapted fast by their numbers — the one rise the weekly
+        // Patterns that adapted fast by their numbers — a rise the weekly
         // ceiling below leaves alone. Keyed on what the loop did, not on a
         // number being there: a number for a movement outside the session is
         // discarded, and must not lift the ceiling off the credit that
@@ -116,7 +116,7 @@ extension Engine {
     // MARK: - One exercise
 
     // One exercise of the session. Answers whether it adapted fast by its
-    // number — the one rise the weekly ceiling leaves alone.
+    // number — a rise the weekly ceiling leaves alone.
     // swiftlint:disable:next function_parameter_count
     private static func advance(_ next: inout EngineState, ex: SessionExercise,
                                 old: Position, state: EngineState, result: FeedbackResult,
@@ -460,12 +460,12 @@ extension Engine {
     /// rise of this session — the cross-credit included, which would otherwise
     /// walk around the budget.
     ///
-    /// Fast adaptation by facts is the one rise NOT subject to it: there the
-    /// dose equals what was shown rather than what was assigned, and trimming
-    /// it would be telling the person they did not do what they did. A number
-    /// that merely met the plan is subject to it: its +1 is the engine's, as a
-    /// tap's is, and exempting it let a daily logger outgrow the window on the
-    /// slow tissues by half again.
+    /// Fast adaptation by facts is NOT subject to it: there the dose equals
+    /// what was shown rather than what was assigned, and trimming it would be
+    /// telling the person they did not do what they did. A number that merely
+    /// met the plan is subject to it: its +1 is the engine's, as a tap's is,
+    /// and exempting it let a daily logger outgrow the window on the slow
+    /// tissues by half again.
     ///
     /// A RESOLVED PROBE is left alone too — the person showed the new
     /// variation themselves — and rebuilding through `riseBy` would

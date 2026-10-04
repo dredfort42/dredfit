@@ -2,9 +2,9 @@
   "generator": "adaptive_engine.js v3.7.0",
   "golden.json": "38b89f3e73bb4ce318b5c21d477185d7d640870700e117162789bcc9c71cf7e1",
   "reference": {
-    "SPEC-v2.md": "8c4b391b23141545a51a50a0a449a9a195a535de0d0f88ed91d708071d60816f",
-    "adaptive_engine.js": "1763b9493b768949cf7972a824fdf4c1b482cded83e92128fc0e3535566dbb5d",
+    "SPEC-v2.md": "842ddf5df50c0057c6c54b5d4396b48c80d673da208aab2cf9704b1a24ae3f67",
+    "adaptive_engine.js": "a3d834998d0a9cfdd172589d9d0d0698570b8dd54db54f7032a23663274e01dd",
     "make_golden.js": "48506dcb0519240064773e86fa220bf84502df75ec4b32c5eacc7b045fe9c678",
-    "verify2.js": "e147cb44f5efa820b0cb2b380a1fd7c37525ceca09ad2d76eb73bd7f1128acd1"
+    "verify2.js": "d471ce4b757608a4d527081dc4f34f78ae986d704133ea68428b5c911963a40b"
   }
 }
