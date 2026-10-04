@@ -60,11 +60,12 @@ extension Engine {
     ///
     /// The sub-step counts against the sets ON SCREEN (after the cut), not
     /// against the band as `riseBy` does. There the band keeps the price of
-    /// a rung, and a set comes back before the dose grows anyway; here no
-    /// set comes back, and a band count under a cut would clamp straight
-    /// back (`effSub`): the second step would leave the plan as it was
-    /// while the screen said "+10 s". Without a cut the two agree step for
-    /// step (checked in the reference's verify2).
+    /// a rung; here no set comes back, and a band count under a cut would
+    /// clamp straight back (`effSub`): the second step would leave the plan
+    /// as it was while the screen said "+10 s". `riseBy` meets the same clamp
+    /// while the hold ticks and loses that event — accepted there, not
+    /// inherited here. Without a cut the two agree step for step (checked in
+    /// the reference's verify2).
     ///
     /// `maxUp` and the weekly cap do not apply: they bound growth the ENGINE
     /// assigns; this dose is the person's own, as under fast adaptation.
