@@ -96,9 +96,7 @@ extension WorkoutSession {
             // the pause opened with, so there is nothing to prime either. The
             // transition is the opposite — the 3-2-1 IS its signal.
             if self[run: block].stage != .switchPause {
-                if self[run: block].clock.signals(second, within: Self.countdownSignalSeconds) {
-                    playTick()
-                }
+                if self[run: block].clock.signals(second, within: Self.countdownSignalSeconds) { playTick() }
                 // A stage that reaches its four by a tick runs eight to thirty
                 // seconds, opened by a done, a go or the silence of a skip:
                 // the engine is cold by its 3-2-1.
