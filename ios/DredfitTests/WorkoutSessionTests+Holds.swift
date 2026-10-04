@@ -244,6 +244,38 @@ extension WorkoutSessionTests {
         XCTAssertEqual(signals.primes, 1, "one prime per 3-2-1")
     }
 
+    func testARunsRestResumedWithTimeLeftIsPrimedOnlyAtItsFour() throws {
+        let (flow, _) = try holdFlow(.coreAntiExt)
+        flow.startHoldExercise()
+        run(flow, for: GetReady.countInSeconds + 15)
+        XCTAssertTrue(flow.restStartsTheNextSet, "the premise")
+        run(flow, until: { flow.restClock.remaining == 30 })
+        flow.toggleBlockPause()
+        clock += 120
+        signals.primes = 0
+
+        flow.toggleBlockPause()
+        XCTAssertEqual(flow.restClock.remaining, 30, "the premise: a rest with time left keeps it")
+        XCTAssertEqual(signals.primes, 0, "thirty seconds out, a prime would be cold again by the 3")
+        run(flow, until: { flow.restClock.remaining == BlockPause.reentrySeconds })
+        XCTAssertEqual(signals.primes, 1)
+        run(flow, for: BlockPause.reentrySeconds)
+        XCTAssertEqual(signals.primes, 1, "one prime per 3-2-1")
+    }
+
+    func testNothingIsPrimedWithTheSoundsOff() throws {
+        let (flow, store) = try holdFlow(.coreAntiExt)
+        store.update(refreshWidget: false) { $0.settings.soundsEnabled = false }
+        signals.primes = 0
+        flow.startHoldExercise()
+        run(flow, for: GetReady.countInSeconds + 15)
+        XCTAssertTrue(flow.restStartsTheNextSet, "the premise")
+        flow.skipRest()
+        XCTAssertTrue(flow.holdCountingIn, "the premise")
+        run(flow, for: GetReady.countInSeconds)
+        XCTAssertEqual(signals.primes, 0, "the haptic is half of a signal the switch has turned off")
+    }
+
     func testReadingTheTechniqueFreezesOnlyTheRestThatStartsASet() throws {
         let (flow, store) = try holdFlow(.coreAntiExt)
         flow.startHoldExercise()

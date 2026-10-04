@@ -360,9 +360,10 @@ extension WorkoutSession {
     /// where the haptic is the whole channel, the 3-2-1 is felt as "2-1-go".
     ///
     /// `second` is the one a countdown has just come to show, by a tick or by
-    /// a start, and both have to ask: `Countdown.read` reports only a NEW
-    /// second, so a countdown started on this one never reports it. One that
-    /// asks from both is primed once, whichever way it got here.
+    /// a start: `Countdown.read` reports only a NEW second, so a countdown
+    /// started on this one never reports it, and a caller that asks from both
+    /// places primes it once, whichever way it got here. The count-in and the
+    /// hands-free rest ask from both.
     func primeBeforeTheCount(showing second: Int) {
         if second == Self.countdownSignalSeconds + 1 && store.settings.soundsEnabled {
             signals.prime()
