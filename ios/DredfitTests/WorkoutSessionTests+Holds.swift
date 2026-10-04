@@ -138,22 +138,6 @@ extension WorkoutSessionTests {
         XCTAssertNil(flow.interruptedPattern)
     }
 
-    func testTheSummaryCorrectsOnlyTheCardThatWasTapped() throws {
-        let (flow, _) = try holdFlow(.coreAntiExt)
-        flow.setIndex = 2
-        flow.actuals[.coreAntiExt] = [15, 15]
-        flow.startHold()
-        run(flow, for: GetReady.countInSeconds + 15)
-        flow.startSummaryAdjusting(set: 0)
-        XCTAssertNil(flow.editing, "only the last card opens the panel")
-        flow.startSummaryAdjusting(set: 2)
-        XCTAssertEqual(flow.editing, .summaryCard(2))
-        flow.adjustValue = 20
-        flow.commitSummaryEdit(set: 2)
-        XCTAssertEqual(flow.actuals[.coreAntiExt], [15, 15, 20])
-        XCTAssertNil(flow.editing)
-    }
-
     /// A set a thumb ended at 33 s on the clock records 30, the clock less the
     /// reach allowance, and the line above its panel names that number as the
     /// estimate it is. A correction does not change who ended the set, so the
@@ -218,6 +202,22 @@ extension WorkoutSessionTests {
         run(flow, until: { flow.phase == .exerciseSummary })
         XCTAssertTrue(flow.summaryCardIsApproximate(set: 0), "set one recorded an estimate")
         XCTAssertFalse(flow.summaryCardIsApproximate(set: 1), "set two recorded nothing")
+    }
+
+    func testTheSummaryCorrectsOnlyTheCardThatWasTapped() throws {
+        let (flow, _) = try holdFlow(.coreAntiExt)
+        flow.setIndex = 2
+        flow.actuals[.coreAntiExt] = [15, 15]
+        flow.startHold()
+        run(flow, for: GetReady.countInSeconds + 15)
+        flow.startSummaryAdjusting(set: 0)
+        XCTAssertNil(flow.editing, "only the last card opens the panel")
+        flow.startSummaryAdjusting(set: 2)
+        XCTAssertEqual(flow.editing, .summaryCard(2))
+        flow.adjustValue = 20
+        flow.commitSummaryEdit(set: 2)
+        XCTAssertEqual(flow.actuals[.coreAntiExt], [15, 15, 20])
+        XCTAssertNil(flow.editing)
     }
 
     // MARK: - The hands-free run
