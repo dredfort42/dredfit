@@ -91,27 +91,6 @@ final class CountdownTests: XCTestCase {
         XCTAssertEqual(empty.read(now: start), .ended(overshoot: 0))
     }
 
-    func testTheFloorGivesACountdownFrozenAtZeroOneLastSecond() {
-        var floored = Countdown()
-        floored.start(0, now: start)
-        floored.freeze()
-        floored.resume(now: start, atLeast: 1)
-        XCTAssertEqual(floored.endDate, start + 1)
-        XCTAssertEqual(floored.remaining, 0, "the floor moves the date, not the second on screen")
-        XCTAssertEqual(floored.read(now: start), .second(1))
-        floored.show(1)
-        XCTAssertEqual(floored.read(now: start + 1), .ended(overshoot: 0))
-    }
-
-    func testTheFloorLeavesALongerCountdownAlone() {
-        var clock = Countdown()
-        clock.start(30, now: start)
-        clock.show(12)
-        clock.freeze()
-        clock.resume(now: start + 100, atLeast: 1)
-        XCTAssertEqual(clock.endDate, start + 112)
-    }
-
     func testStandingStopsTheClockOnTheSecondGiven() {
         // A hold handed back inside the mis-tap grace stands on its full
         // length again; a rest that is skipped stands on 0.

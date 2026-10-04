@@ -572,6 +572,9 @@ nonisolated enum SetFacts {
         private var leftAt: Date?
         private var restEndDate: Date?
 
+        /// A leaving is stamped and not spent yet.
+        var isAway: Bool { leftAt != nil }
+
         /// The first leaving wins.
         mutating func leave(now: Date, restEndDate: Date?) {
             guard leftAt == nil else { return }

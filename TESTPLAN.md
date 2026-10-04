@@ -96,7 +96,8 @@ re-armed on its own — a Stop inside the mis-tap grace, and the probe set.
 | 3.1 | Tap **Start exercise** | Countdown runs down from the planned seconds. The screen before the tap says how many sets and how long the rest between them, and promises the exercise runs itself |
 | 3.1a | Do not touch the phone again | Every set after the first begins when its rest ends, on the rest's own go — **no second count-in and no second signal** (R32). The rest counts its own last three seconds down; the minute between sets is the minute it says |
 | 3.1b | Cut a rest short with **Skip rest** | THAT set is counted in — four seconds, the beat every start tap earns. A tap is somebody saying they are ready, and the hold must not land under the thumb that skipped |
-| 3.1c | On the rest between two sets of a hold, tap **Pause** | The ring freezes, the number dims and reads **Paused**, and the set does NOT start while it is frozen — leave it a minute and check. **Resume** hands the clock back, and a rest resumed with a second left still gives five before the hold begins. The same rest on an exercise of REPS offers no pause: nothing there starts without you |
+| 3.1c | On the rest between two sets of a hold, tap **Pause** | The ring freezes, the number dims and reads **Paused**, and the set does NOT start while it is frozen — leave it a minute and check. **Resume** hands the clock back, and a rest resumed with a second left still gives four, with the whole 3-2-1, before the hold begins. The same rest on an exercise of REPS offers no pause: nothing there starts without you |
+| 3.1d | On that rest, open **technique**, wait a minute, close it. Then **Pause** it, open **technique** again and close it | The first time, the rest freezes under the sheet and the set does not start. Closing the sheet gives back the seconds it froze with, never fewer than four, exactly as **Resume** does in 3.1c. The second time, the rest stays paused, and the lock screen still says **Paused**, not "Starts by itself", until **Resume** |
 | 3.2 | Let it finish on a set that is **not** the movement's last | 3-2-1 signals, then the two-tone finale, and the rest begins automatically — no tap between the effort and the recovery. The movement comes back, so there is nothing to correct here |
 | 3.2a | Let it finish on the movement's **last** set | The same finale at the moment the effort stops — and then the screen **stays**. The seconds held stand under a **Held** caption, **Went differently** is live again, and the primary button reads **Done**. The set is logged, and the flow moves on, on that tap. Nothing about this movement comes back, so this is the only moment its seconds can be corrected |
 | 3.2b | While a hold runs, read the primary button | It says **Stop · N s** — N being what the tap would record right now, updating each second. Inside the first three seconds it says plain **Stop**: that tap cancels the set and stores nothing |
@@ -537,11 +538,11 @@ Simulate process death by swipe-killing the app from the app switcher (or `termi
 | # | Check | Expected |
 |---|---|---|
 | 32.1 | Every warm-up move and cool-down position | A **technique** affordance under the name; the mini-sheet opens with the name, a block capsule ("warm-up · 30 s" / "cool-down · 30 s" / "cool-down · 15 s per side"), 2–3 numbered steps and **Got it** — all 15 positions |
-| 32.2 | The countdown while the sheet is open | **Frozen** — the number does not move; closing the sheet resumes from the same second. A deliberate divergence from the rest-phase sheet, where the timer keeps ticking |
+| 32.2 | The countdown while the sheet is open | **Frozen** — the number does not move; closing the sheet resumes from the same second. A deliberate divergence from the sheet on an ordinary rest, where the timer keeps ticking (32.6) |
 | 32.3 | Open during a side-switch pause (issue #35) | The 5→1 pause countdown freezes too and resumes on close |
 | 32.4 | Signals under the sheet | No ticks or go while frozen — the countdown is simply not running |
 | 32.5 | es / pt-BR / de / large Dynamic Type | Long strings wrap inside the sheet (scrolls at the biggest accessibility sizes); nothing clips or overlaps |
-| 32.6 | The work and rest screens | Their technique button still opens the full exercise sheet — with the timer ticking on rest, as before |
+| 32.6 | The work and rest screens | Their technique button still opens the full exercise sheet. The timer keeps ticking on an ordinary rest; a rest that starts the next set by itself (3.1a) freezes (3.1d) |
 
 ### 33. Silent decay for 7–13 day gaps (engine v2.4, issue #37)
 

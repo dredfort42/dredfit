@@ -90,7 +90,13 @@ extension WorkoutSession {
         // outlives it; a pause outranks it — closing the sheet must never
         // restart a block the user stopped (issue #34 vs #61).
         blockPause.thawAfterSheet(now: now())
-        guard !blockPause.isPaused else { return }
+        // A page read for longer than `prepare()` holds lets the engine go
+        // cold, so whatever comes back inside its last seconds is primed — a
+        // way back in here, a stage below. A held block counts nothing down.
+        guard !blockPause.isPaused else {
+            primeComingBack()
+            return
+        }
         // After the guard: a block the person had PAUSED goes on standing
         // still, and closing the interval here would stop counting a pause
         // that has not ended.
@@ -103,6 +109,7 @@ extension WorkoutSession {
         default:
             break
         }
+        primeComingBack()
     }
 
     /// Strings leave the app pre-localized — the extension renders verbatim.

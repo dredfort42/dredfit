@@ -71,6 +71,9 @@ extension WorkoutSession {
             return
         }
         blockPause.beginReentry(seconds: BlockPause.reentrySeconds, now: now())
+        // The way back in starts on its four, which no tick reports, after a
+        // pause of any length.
+        primeBeforeTheCount(showing: blockPause.reentryRemaining)
     }
 
     var needsReentry: Bool {
@@ -94,8 +97,11 @@ extension WorkoutSession {
         }
         switch result {
         case .signal:            playTick()
+        // Never while the way back in is the count-in's four seconds — the
+        // resume has primed it — but a longer one reaches its four here.
+        case .redraw:            primeBeforeTheCount(showing: blockPause.reentryRemaining)
         case .over:              endBlockReentry()
-        case .nothing, .redraw:  break
+        case .nothing:           break
         }
     }
 
@@ -128,10 +134,16 @@ extension WorkoutSession {
             warmup.clock.start(BlockPause.stageAfterPause(remaining: warmup.clock.remaining,
                                                           stage: warmup.stage),
                                now: now())
+            // A transition paused in its last seconds comes back on its four,
+            // a second no tick reports (`Countdown.read`). A position comes
+            // back on the go of the way back in, which has just primed it as
+            // well.
+            primeComingBack()
         case .cooldown:
             cooldown.clock.start(BlockPause.stageAfterPause(remaining: cooldown.clock.remaining,
                                                             stage: cooldown.stage),
                                  now: now())
+            primeComingBack()
         case .rest(let total):
             let end = restClock.start(BlockPause.restAfterPause(remaining: restClock.remaining,
                                                                 total: total),

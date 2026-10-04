@@ -64,6 +64,9 @@ extension WorkoutSession {
         self[run: block].index = index
         self[run: block].stage = stage
         self[run: block].clock.start(remaining, now: now())
+        // A start tap opens the transition on its four (`countIn`), which no
+        // tick reports. The switch pause starts there too, and sounds no 3-2-1.
+        if stage != .switchPause { primeBeforeTheCount(showing: remaining) }
     }
 
     /// Skipping from the transition skips the position it was announcing.
@@ -90,11 +93,14 @@ extension WorkoutSession {
             return
         case .second(let second):
             // No 3-2-1 inside the switch pause: the ticks would bury the tone
-            // the pause opened with. The transition is the opposite — the
-            // 3-2-1 IS its signal.
-            if self[run: block].stage != .switchPause,
-               self[run: block].clock.signals(second, within: Self.countdownSignalSeconds) {
-                playTick()
+            // the pause opened with, so there is nothing to prime either. The
+            // transition is the opposite — the 3-2-1 IS its signal.
+            if self[run: block].stage != .switchPause {
+                if self[run: block].clock.signals(second, within: Self.countdownSignalSeconds) { playTick() }
+                // A stage that reaches its four by a tick runs eight to thirty
+                // seconds, opened by a done, a go or the silence of a skip:
+                // the engine is cold by its 3-2-1.
+                primeBeforeTheCount(showing: second)
             }
             // Animated so contentTransition(.numericText) rolls the digits —
             // a bare mutation swaps them with no transaction.

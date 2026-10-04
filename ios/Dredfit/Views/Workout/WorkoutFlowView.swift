@@ -129,7 +129,14 @@ struct WorkoutFlowView: View {
             // end DATE, so a skipped tick loses nothing — after "Keep
             // training" the next tick meets whatever ran out, under the rules
             // a backgrounded app already lives by.
-            guard !exitConfirmShown else { return }
+            guard !exitConfirmShown else {
+                // The clocks run on behind the question, so a countdown that
+                // reaches its four there is primed on every beat until it runs
+                // out: the tick that meets it after "Keep training" never
+                // lands on a cold engine.
+                flow.primeComingBack()
+                return
+            }
             flow.tick()
         }
         .onAppear {

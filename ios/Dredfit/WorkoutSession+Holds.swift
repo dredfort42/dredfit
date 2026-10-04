@@ -168,6 +168,9 @@ extension WorkoutSession {
             if holdClock.signals(second, within: Self.countdownSignalSeconds) {
                 playTick()
             }
+            // The go that started this hold is the last impulse before its
+            // own 3-2-1, the whole length of the hold earlier.
+            primeBeforeTheCount(showing: second)
             animate(.countdown) { holdClock.show(second) }
         }
     }
