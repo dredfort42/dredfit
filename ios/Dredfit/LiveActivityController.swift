@@ -83,3 +83,14 @@ final class WorkoutActivityController {
         return now.addingTimeInterval(20 * 60)
     }
 }
+
+/// The lock-screen tile as the workout flow drives it, so a test can watch
+/// what the tile would show without ActivityKit.
+@MainActor
+protocol WorkoutActivityDriving: AnyObject {
+    func start(sessionNumber: Int, state: RestActivityAttributes.ContentState)
+    func update(_ state: RestActivityAttributes.ContentState)
+    func end()
+}
+
+extension WorkoutActivityController: WorkoutActivityDriving {}

@@ -1,15 +1,6 @@
 //
 //  The work screen — the one a set is actually performed on — and the pieces
-//  only it reads. It moved out of WorkoutFlowView.swift when the hands-free
-//  hold wave arrived: that file stood at 1101 lines against the lint's hard
-//  ceiling of 1200, and this wave adds a phase to it. A file split is what
-//  cures THAT ceiling; an extension only cures the other one (a type body at
-//  600). The code moved unchanged apart from the edits of the wave itself.
-//
-//  Swift's `private` is file-scoped, so the members this screen reaches for
-//  lost theirs on the way out — the same price the four siblings before it
-//  paid, and for the same reason. Nothing outside the WorkoutFlowView files
-//  touches them.
+//  only it reads. What a tap on it does is `WorkoutSession`'s.
 //
 
 import SwiftUI
@@ -22,7 +13,7 @@ extension WorkoutFlowView {
     var workView: some View {
         VStack(spacing: 0) {
             Spacer()
-            if current.isProbe {
+            if flow.current.isProbe {
                 // The badge is the whole announcement: one set of a movement
                 // that is not yet yours, to find out whether it is. It is not
                 // a question and there is nothing to answer — the number goes
@@ -44,7 +35,7 @@ extension WorkoutFlowView {
                     .padding(.bottom, 8)
                     .accessibilityIdentifier("probe-badge")
             }
-            Text(current.name)
+            Text(flow.current.name)
                 .dredfitFont(23, weight: .bold)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 300)
@@ -54,7 +45,7 @@ extension WorkoutFlowView {
                 // elements of the flow were the two outside the palette
                 // (UX review, 05.09.2026).
                 .foregroundStyle(Theme.ink)
-                .accessibilityLabel(Text(verbatim: current.name))
+                .accessibilityLabel(Text(verbatim: flow.current.name))
 
             // On the probe set this opens the technique of the NEW movement:
             // nobody should be asked to try something they cannot read up on
@@ -67,11 +58,11 @@ extension WorkoutFlowView {
             // — the work screen cannot, so it takes the offer away instead
             // (UX review, 05.09.2026). opacity + disabled, like the escapes at
             // the bottom: the height stays reserved and nothing jumps.
-            TechniqueButton { techniqueTarget = current.target }
+            TechniqueButton { techniqueTarget = flow.current.target }
                 .padding(.top, 10)
-                .opacity(holdUnderWay ? 0 : 1)
-                .disabled(holdUnderWay)
-                .accessibilityHidden(holdUnderWay)
+                .opacity(flow.holdUnderWay ? 0 : 1)
+                .disabled(flow.holdUnderWay)
+                .accessibilityHidden(flow.holdUnderWay)
 
             VStack(spacing: 4) {
                 Text("\(workNumber)")
@@ -88,7 +79,7 @@ extension WorkoutFlowView {
                     // survives the distance where the word does not, and the
                     // tone that used to be the only other channel is silenced
                     // by the ring switch (UX review, 05.09.2026).
-                    .foregroundStyle(holdSwitchPausing ? Theme.accentText : Theme.ink)
+                    .foregroundStyle(flow.holdSwitchPausing ? Theme.accentText : Theme.ink)
                 Text(loadCaption)
                     .dredfitFont(loadCaptionEmphasis.size, weight: loadCaptionEmphasis.weight)
                     .foregroundStyle(loadCaptionEmphasis.color)
@@ -108,7 +99,7 @@ extension WorkoutFlowView {
             .accessibilityAddTraits(.updatesFrequently)
 
             HStack(spacing: 10) {
-                ForEach(0..<totalSets, id: \.self) { i in
+                ForEach(0..<flow.totalSets, id: \.self) { i in
                     // The probe's dot is hollow: it is the same session and
                     // the same count of sets, but not the same movement.
                     //
@@ -122,12 +113,12 @@ extension WorkoutFlowView {
                     // so the three states stay three (UX review 05.09.2026).
                     Circle()
                         .strokeBorder(Theme.accent,
-                                      lineWidth: exercise.probe != nil && i == exercise.sets ? 2 : 0)
+                                      lineWidth: flow.exercise.probe != nil && i == flow.exercise.sets ? 2 : 0)
                         .background(Circle().fill(
-                            exercise.probe != nil && i == exercise.sets
+                            flow.exercise.probe != nil && i == flow.exercise.sets
                                 ? Color.clear
-                                : (i < setIndex ? Theme.ink
-                                   : (i == setIndex ? Theme.accent : Theme.ink2))))
+                                : (i < flow.setIndex ? Theme.ink
+                                   : (i == flow.setIndex ? Theme.accent : Theme.ink2))))
                         // Off a frozen 10 pt, so the row a person with larger
                         // type reads grows with the rest of the screen.
                         .frame(width: setDotSize, height: setDotSize)
@@ -142,20 +133,20 @@ extension WorkoutFlowView {
             // read it — so the probe keeps its own line throughout, and this
             // slot never announces "set 4 of 4" about a movement the flow
             // calls a probe everywhere else (UX review, 05.09.2026).
-            if holdExerciseIntro && exercise.sets > 1 {
+            if flow.holdExerciseIntro && flow.exercise.sets > 1 {
                 // "set 1 of 3" is not the question on this screen any more.
                 // ONE tap buys the whole exercise, so what the person is
                 // deciding about is the whole exercise: how many sets it is
                 // and how long it will wait between them (R24). Held back on
                 // a single-set plan, where there is no rest between anything
                 // and "1 sets" would be false twice over.
-                Text("\(exercise.sets) sets · \(exercise.restSetSec) s rest between")
+                Text("\(flow.exercise.sets) sets · \(flow.exercise.restSetSec) s rest between")
                     .dredfitFont(14)
                     .monospacedDigit()
                     .foregroundStyle(Theme.ink2)
                     .padding(.top, 10)
                     .accessibilityIdentifier("hold-sets-and-rest")
-            } else if current.isProbe {
+            } else if flow.current.isProbe {
                 probeCaption
                     .padding(.top, 10)
             } else {
@@ -165,13 +156,13 @@ extension WorkoutFlowView {
                 // lock screen — and only this line left it out, so the same
                 // exercise was announced with two denominators
                 // (UX review, 05.09.2026).
-                WorkStatusCaption(secondSide: holdSecondSide,
-                                  settled: holdSettled,
+                WorkStatusCaption(secondSide: flow.holdSecondSide,
+                                  settled: flow.holdSettled,
                                   actual: setActual,
-                                  setIndex: setIndex, sets: totalSets,
+                                  setIndex: flow.setIndex, sets: flow.totalSets,
                                   planned: setInForce,
-                                  uneven: exercise.loads != nil
-                                      || setInForce != exercise.plannedLoad(set: setIndex))
+                                  uneven: flow.exercise.loads != nil
+                                      || setInForce != flow.exercise.plannedLoad(set: flow.setIndex))
                     .padding(.top, 10)
             }
 
@@ -186,7 +177,7 @@ extension WorkoutFlowView {
             // same 18 pt above the pair that the escapes stand below it, and
             // that the rest offer stands above Start on Today (owner,
             // 27.08.2026).
-            if editing == nil {
+            if flow.editing == nil {
                 // Opacity, not `if`: the reserved height keeps the layout still
                 // when the hint's job is done mid-exercise.
                 // Reps only since R23. The hold screen no longer carries
@@ -215,8 +206,8 @@ extension WorkoutFlowView {
                 // the engine acts on hardest (Feedback.swift) and what a first
                 // session most often produces — the one door that was open
                 // was described by the case least likely to be true.
-                if store.showsDifferentNumberHint && exIndex == 0 && current.unit == .reps {
-                    let spent = actuals[exercise.pattern] != nil
+                if store.showsDifferentNumberHint && flow.exIndex == 0 && flow.current.unit == .reps {
+                    let spent = flow.actuals[flow.exercise.pattern] != nil
                     Text("More or fewer than planned? Tap “Went differently” — the next plan starts from your number.")
                         .dredfitFont(14)
                         .foregroundStyle(Theme.ink2)
@@ -224,12 +215,12 @@ extension WorkoutFlowView {
                         .lineSpacing(2)
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.bottom, 18)
-                        .opacity(holdUnderWay || spent ? 0 : 1)
+                        .opacity(flow.holdUnderWay || spent ? 0 : 1)
                         // opacity alone leaves a whole paragraph readable to
                         // VoiceOver on a screen that no longer shows it, which
                         // is the ghost-control defect the placeholder button
                         // below already guards against (UX review, 05.09.2026).
-                        .accessibilityHidden(holdUnderWay || spent)
+                        .accessibilityHidden(flow.holdUnderWay || spent)
                 }
 
                 // Once per exercise per session, and it never blocks the entry
@@ -244,7 +235,7 @@ extension WorkoutFlowView {
                 // 4.5 dark and 7 in Increased Contrast (BrandPaletteTests).
                 // The accent stays as the fill — the note is found by the
                 // colour of the card and read in ink (UX review, 05.09.2026).
-                if let warning = maximumWarning {
+                if let warning = flow.maximumWarning {
                     Text(warning)
                         .dredfitFont(14, weight: .medium)
                         .foregroundStyle(Theme.ink)
@@ -264,38 +255,11 @@ extension WorkoutFlowView {
             // the block after the Spacer is bottom-aligned as a group, so what
             // is added or removed above the button changes where the group
             // starts, never where the button sits.
-            if editing != nil {
-                AdjustPanel(value: $adjustValue, unit: current.unit) {
-                    if editing == .holdTime {
-                        // A TARGET, not a record: it sets what the clock runs
-                        // from for this exercise and writes nothing about a
-                        // set. What is stored for each set is still whatever
-                        // that set's clock produced.
-                        holdDeclared = adjustValue
-                    } else if current.isProbe {
-                        // The probe's own channel: one number about one set of
-                        // another movement, never folded into the mean of the
-                        // working sets.
-                        probeActuals[exercise.pattern] = adjustValue
-                        store.markOwnNumberReported()
-                    } else {
-                        // This set only — the ones behind keep what they ran at.
-                        actuals = SetFacts.recording(adjustValue, in: actuals,
-                                                     exercise, set: setIndex)
-                        noteMaximumOutOfOrder()
-                        // The hint above is spent HERE, on a number actually
-                        // reported — not when the panel opens. Opening it
-                        // proves the control was found, which is not the same
-                        // as knowing what it is for, and the declaration
-                        // branch above is a TARGET rather than a report, so it
-                        // deliberately spends nothing (UX review, 05.09.2026).
-                        store.markOwnNumberReported()
-                    }
-                    editing = nil
-                    persistProgress()   // an entered actual is worth keeping
-                }
+            if flow.editing != nil {
+                AdjustPanel(value: $flow.adjustValue, unit: flow.current.unit,
+                            onConfirm: flow.commitSetEdit)
                 .padding(.bottom, 18)
-            } else if current.unit == .hold && !holdSettled {
+            } else if flow.current.unit == .hold && !flow.holdSettled {
                 // No "Went differently" on a hold, and the reason is the
                 // TENSE rather than the slot. Before the effort it would ask
                 // how a set went that nobody has performed; what belongs here
@@ -308,7 +272,7 @@ extension WorkoutFlowView {
                 // A SETTLED hold keeps it, and the exception is the whole
                 // point rather than a leftover: that is the PROBE's screen,
                 // which the summary deliberately says nothing about (§40.4).
-                if holdExerciseIntro {
+                if flow.holdExerciseIntro {
                     // What the one tap actually buys, said before it is
                     // taken. Deliberately without a numeral — the count is on
                     // the line above, and a second one here would need an ICU
@@ -351,26 +315,26 @@ extension WorkoutFlowView {
                     // the same on a per-side hold, where a clock that ran
                     // past the plan could never have reached the number
                     // (the set records the smaller side).
-                    SetHoldTimeButton { startDeclaringHoldTime() }
+                    SetHoldTimeButton { flow.startDeclaringHoldTime() }
                         .padding(.bottom, 18)
                 }
             } else {
-                WentDifferentlyButton { startAdjusting() }
+                WentDifferentlyButton { flow.startAdjusting() }
                     .padding(.bottom, 18)
                     // no adjusting mid-hold, mid-count-in or mid-pause
-                    .opacity(holdUnderWay ? 0 : 1)
-                    .disabled(holdUnderWay)
-                    .accessibilityHidden(holdUnderWay)
+                    .opacity(flow.holdUnderWay ? 0 : 1)
+                    .disabled(flow.holdUnderWay)
+                    .accessibilityHidden(flow.holdUnderWay)
             }
 
-            if current.unit == .hold {
-                if holding {
+            if flow.current.unit == .hold {
+                if flow.holding {
                     // The control names the figure it will write (R29): two to
                     // four seconds are spent reaching for the phone, and a
                     // person who cannot see what the tap records has no way to
                     // judge whether it is worth taking.
-                    HoldStopButton(records: holdStopRecords) { stopHoldEarly() }
-                } else if holdSwitchPausing || holdCountingIn {
+                    HoldStopButton(records: flow.holdStopRecords) { flow.stopHoldEarly() }
+                } else if flow.holdSwitchPausing || flow.holdCountingIn {
                     // hidden, not opacity: the button must leave the
                     // accessibility tree while keeping its reserved space.
                     // A count-in is armed already — a second tap on the slot
@@ -381,40 +345,38 @@ extension WorkoutFlowView {
                     // must not resolve to this placeholder.
                     PrimaryButton(title: String(localized: "Start hold")) { }.hidden()
                         .accessibilityIdentifier("hold-start-spacer")
-                } else if holdSettled {
+                } else if flow.holdSettled {
                     // The last hold is behind; this tap only logs it. Same
                     // title and same identifier as the reps button, because it
                     // is the same act — the set ends when the person says the
                     // number is right, not when a clock says the effort is
                     // over.
-                    PrimaryButton(title: String(localized: "Done")) { completeSet() }
+                    PrimaryButton(title: String(localized: "Done")) { flow.completeSet() }
                         .accessibilityIdentifier("exercise-done")
-                } else if holdAutoRun || current.isProbe {
+                } else if flow.holdAutoRun || flow.current.isProbe {
                     // ONE set, not the exercise. Two ways in, and both are
                     // about a set that has already been armed once: a Stop
                     // inside the mis-tap grace hands the set back, and the
                     // probe is a different movement — possibly in a different
                     // unit (§40.1) — which the auto-run deliberately does not
                     // start for you.
-                    PrimaryButton(title: String(localized: "Start hold")) { startHold() }
+                    PrimaryButton(title: String(localized: "Start hold")) { flow.startHold() }
                         .accessibilityIdentifier("hold-start")
                 } else {
                     // One tap for the whole exercise (R23). Three sets of a
                     // hold cost four touches before this, three of them taken
                     // between sets by someone lying on the floor.
-                    PrimaryButton(title: String(localized: "Start exercise")) {
-                        holdAutoRun = true
-                        startHold()
-                    }
+                    PrimaryButton(title: String(localized: "Start exercise"),
+                                  action: flow.startHoldExercise)
                     .accessibilityIdentifier("hold-start-exercise")
                 }
             } else {
-                PrimaryButton(title: String(localized: "Done")) { completeSet() }
+                PrimaryButton(title: String(localized: "Done")) { flow.completeSet() }
                     .accessibilityIdentifier("exercise-done")
             }
 
             ExerciseActionsRow(onSkipSet: setSkipAction,
-                               skipsProbe: onProbeSet,
+                               skipsProbe: flow.onProbeSet,
                                escape: exerciseEscape)
             // 18, the measure of this whole stack: the same gap stands between
             // the note and "Went differently", between it and the button, and
@@ -436,61 +398,29 @@ extension WorkoutFlowView {
             // the person cannot see what they swiped onto. The placeholder
             // above says the same thing in the opposite direction: hidden, not
             // opacity (UX review, 05.09.2026).
-            .opacity(holdUnderWay || holdSettled ? 0 : 1)
-            .disabled(holdUnderWay || holdSettled)
-            .accessibilityHidden(holdUnderWay || holdSettled)
+            .opacity(flow.holdUnderWay || flow.holdSettled ? 0 : 1)
+            .disabled(flow.holdUnderWay || flow.holdSettled)
+            .accessibilityHidden(flow.holdUnderWay || flow.holdSettled)
 
         }
     }
 
-    /// The screen a hold exercise OPENS on: nothing running, nothing behind,
-    /// and one tap away from all of it. What 6c adds — the shape of the
-    /// exercise and the promise under it — belongs to this moment only; once
-    /// the run is under way the caption has states of its own to report.
-    var holdExerciseIntro: Bool {
-        current.unit == .hold && !current.isProbe && !holdAutoRun
-            && setIndex == 0 && !holdSettled
-            && !holding && !holdCountingIn && !holdSwitchPausing
-    }
-
-    /// The clock is on the person: a hold is running, counting them in, or
-    /// holding the five seconds between sides. Named once because four things
-    /// on this screen stand down for exactly this, each of them spelling the
-    /// same three flags out by hand — which is how the escapes came to be
-    /// dimmed and disabled but still in the accessibility tree, and the
-    /// technique button to be neither (UX review, 05.09.2026).
-    var holdUnderWay: Bool { holding || holdCountingIn || holdSwitchPausing }
-
-    /// What a Stop right now would RECORD — nil inside the mis-tap grace,
-    /// where the tap cancels the set and writes nothing at all, so a figure on
-    /// the button would be a straight lie.
-    ///
-    /// Compared as `> holdMistapSeconds` rather than `>=`, and the second is
-    /// not pedantry: `holdClock.remaining` is the rounded second, so an integer 3
-    /// covers a real 2.5 s that `stopHoldEarly` will still read as a mis-tap.
-    /// At 4 the two can no longer disagree.
-    var holdStopRecords: Int? {
-        let held = holdTotal - holdClock.remaining
-        guard Double(held) > Self.holdMistapSeconds else { return nil }
-        return SetFacts.holdEndedByTap(heldSeconds: held)
-    }
-
     /// In order of precedence.
     private var workNumber: Int {
-        if holdCountingIn { return holdCountInClock.remaining }
+        if flow.holdCountingIn { return flow.holdCountInClock.remaining }
         // Before the effort a DECLARED time is what the clock will run from,
         // so it is what the screen shows: the number the person is about to
         // agree to, not the plan they have already decided against.
-        if holdExerciseIntro, let holdDeclared { return holdDeclared }
-        if holdSwitchPausing { return holdSwitchClock.remaining }
-        if holding { return holdClock.remaining }
-        if current.isProbe { return probeActuals[exercise.pattern] ?? current.planned }
-        return SetFacts.inForce(actuals, exercise, set: setIndex)
+        if flow.holdExerciseIntro, let declared = flow.holdDeclared { return declared }
+        if flow.holdSwitchPausing { return flow.holdSwitchClock.remaining }
+        if flow.holding { return flow.holdClock.remaining }
+        if flow.current.isProbe { return flow.probeActuals[flow.exercise.pattern] ?? flow.current.planned }
+        return SetFacts.inForce(flow.actuals, flow.exercise, set: flow.setIndex)
     }
 
     /// What THIS set will actually run at — the number the big digit shows.
     private var setInForce: Int {
-        SetFacts.inForce(actuals, exercise, set: setIndex)
+        SetFacts.inForce(flow.actuals, flow.exercise, set: flow.setIndex)
     }
 
     /// The caption's: this set's own number, nothing when it is the plan.
@@ -505,27 +435,11 @@ extension WorkoutFlowView {
     /// through `uneven`, under a word that measures rather than reports
     /// (UX review, 05.09.2026).
     private var setActual: Int? {
-        guard setIndex < (actuals[exercise.pattern]?.count ?? 0) else { return nil }
-        return SetFacts.offPlan(actuals, exercise, set: setIndex)
+        guard flow.setIndex < (flow.actuals[flow.exercise.pattern]?.count ?? 0) else { return nil }
+        return SetFacts.offPlan(flow.actuals, flow.exercise, set: flow.setIndex)
     }
 
     // MARK: - Inline actual adjuster (the panel itself is AdjustPanel.swift)
-
-    /// Opens the adjuster on the DECLARATION — how long this hold will run —
-    /// rather than on a set's record. Seeded with what the clock would use
-    /// right now, so the person is nudging a real number, not typing one.
-    func startDeclaringHoldTime() {
-        adjustValue = SetFacts.holdTarget(actuals, exercise, set: setIndex,
-                                          declared: holdDeclared)
-        editing = .holdTime
-    }
-
-    private func startAdjusting() {
-        adjustValue = current.isProbe
-            ? (probeActuals[exercise.pattern] ?? current.planned)
-            : SetFacts.inForce(actuals, exercise, set: setIndex)
-        editing = .set
-    }
 
     /// What the probe set says under its number. Before a number is entered it
     /// states the target; afterwards it states the outcome — and the failing
@@ -553,9 +467,9 @@ extension WorkoutFlowView {
     /// written above (UX review, 05.09.2026).
     @ViewBuilder
     private var probeCaption: some View {
-        if let entered = probeActuals[exercise.pattern] {
-            if entered >= current.planned && !workingSetsFellShort {
-                Text("Next time: \(current.name)")
+        if let entered = flow.probeActuals[flow.exercise.pattern] {
+            if entered >= flow.current.planned && !workingSetsFellShort {
+                Text("Next time: \(flow.current.name)")
                     .dredfitFont(14, weight: .semibold)
                     .foregroundStyle(Theme.accentText)
                     .multilineTextAlignment(.center)
@@ -587,7 +501,7 @@ extension WorkoutFlowView {
 
     /// The knowable half of the §40.4 gate — see `SetFacts.foldFallsShort`.
     private var workingSetsFellShort: Bool {
-        SetFacts.foldFallsShort(actuals, of: exercise)
+        SetFacts.foldFallsShort(flow.actuals, of: flow.exercise)
     }
 
     /// The slot under the big number, which carries THREE different kinds of
@@ -607,9 +521,9 @@ extension WorkoutFlowView {
     /// same slot said "sec" during the count-in and "seconds" five seconds
     /// later, which German printed as "s" and then "Sekunden".
     private var loadCaption: String {
-        if holdCountingIn { return String(localized: "Get ready") }
-        if holdSwitchPausing { return String(localized: "Switch sides") }
-        if holding { return String(localized: "s left") }
+        if flow.holdCountingIn { return String(localized: "Get ready") }
+        if flow.holdSwitchPausing { return String(localized: "Switch sides") }
+        if flow.holding { return String(localized: "s left") }
         // The unit only: the 112 pt number above already says how many, and
         // printing it twice is the kind of noise that makes a screen feel
         // busy. The count is still PASSED for reps, because the word has to
@@ -624,7 +538,7 @@ extension WorkoutFlowView {
         // 5…90 s on a grid of 5, so no value a hold caption can show takes a
         // singular anywhere, and Russian abbreviates the unit ("сек"), which
         // does not decline at all.
-        switch (current.unit, current.perSide) {
+        switch (flow.current.unit, flow.current.perSide) {
         case (.reps, false): return String(localized: "\(workNumber) reps")
         case (.reps, true):  return String(localized: "\(workNumber) reps per side")
         case (.hold, false): return String(localized: "seconds")
@@ -649,9 +563,9 @@ extension WorkoutFlowView {
     /// that distance is the colour, and the size is what puts the line where
     /// it belongs in the hierarchy (UX review, 05.09.2026).
     private var loadCaptionEmphasis: (size: CGFloat, weight: Font.Weight, color: Color) {
-        if holdCountingIn || holdSwitchPausing { return (17, .semibold, Theme.accentText) }
-        if holding { return (17, .medium, Theme.ink2) }
-        return current.perSide
+        if flow.holdCountingIn || flow.holdSwitchPausing { return (17, .semibold, Theme.accentText) }
+        if flow.holding { return (17, .medium, Theme.ink2) }
+        return flow.current.perSide
             ? (23, .semibold, Theme.accentText)
             : (17, .medium, Theme.ink2)
     }

@@ -214,7 +214,7 @@ need a paired Apple Watch to mean anything.
 | 10.15 | Refuse the **read** permissions, complete a workout | Calories are still written — the app cannot tell a refusal from an empty Health — and 10.14 is the way out |
 | 10.16 | Backfill with history and a weight set | Past days gain calories as well, and each past workout still appears once |
 | 10.17 | Pause mid-workout for ten minutes, then finish | The duration in Health grows by the pause; the calories do not — they are priced from the plan |
-| 10.18 | Decline **both** the warm-up and the cool-down, complete the workout ⌚ | The calories come out roughly a quarter lower than the same plan with both blocks done (≈82 vs ≈107 kcal on a 35-minute plan at 80 kg). The flow's stamping of the two blocks is reachable only through the view — **no automated test covers it**, so this row is the only guard |
+| 10.18 | Decline **both** the warm-up and the cool-down, complete the workout ⌚ | The calories come out roughly a quarter lower than the same plan with both blocks done (≈82 vs ≈107 kcal on a 35-minute plan at 80 kg). The stamping of the two blocks is pinned by `WorkoutSessionTests` (a declined block bills zero, a block that ran bills what it ran); what Health makes of it is checked only here |
 | 10.19 | Start the warm-up, then tap "Skip warm-up" halfway | Charged for the part that ran: the figure lands between 10.18's and a full session's |
 | 10.20 | Skip every exercise, then finish the workout | The entry appears in Health with its duration and **no calories at all** — nothing was performed |
 

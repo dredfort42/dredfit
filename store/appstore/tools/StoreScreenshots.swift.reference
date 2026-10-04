@@ -227,7 +227,7 @@ final class StoreScreenshots: XCTestCase {
         let rating = app.buttons["rating-plan"]
 
         // The summary of a finished hold carries the SAME `exercise-done` as
-        // a set (`WorkoutFlowView+Summary.swift:156` — it is the same act), so
+        // a set (`WorkoutFlowView+Summary.swift` — it is the same act), so
         // the `done` branch below is where the walk stands on it, and the
         // kicker `summary-held` is what tells the two screens apart.
         let summaryHeld = app.staticTexts["summary-held"]

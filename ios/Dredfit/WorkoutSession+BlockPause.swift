@@ -1,31 +1,24 @@
 //
-//  The pause of the guided blocks, moved out of WorkoutFlowView when that
-//  file neared the lint's hard ceiling. Both blocks share one pause, so it
-//  belongs to neither block's file; the code moved unchanged.
+//  The pause of the guided blocks (issue #61) and of a hands-free rest (R32).
+//
+//  The state machine is BlockPause.State; this is the flow's half — the frozen
+//  stage's own clocks, the tones, and the way back in. Two blocks and one rest
+//  share it: the rest of a hands-free hold run STARTS the next set when it
+//  ends, so it is the one screen of the work phase where stepping away costs a
+//  set.
+//
+//  The snapshot: the warm-up writes none by design, the cool-down keeps writing
+//  at position boundaries, and a paused rest is persisted as the rest it will
+//  be when the pause ends (`persistProgress`) — a process death outlives no
+//  pause, and writing nil there would read back as "no rest was running".
 //
 
-import SwiftUI
+import Foundation
 import DredfitCore
 
-// MARK: - The pause of the guided blocks (issue #61) and of a hands-free rest (R32)
-//
-// The state machine is BlockPause.State; this is the flow's half — the frozen
-// screen's own end dates, the tones, and the way back in. Two blocks and one
-// rest share it: the rest of a hands-free hold run STARTS the next set when it
-// ends, so it is the one screen of the work phase where stepping away costs a
-// set.
-//
-// The snapshot: the warm-up writes none by design, the cool-down keeps writing
-// at position boundaries, and a paused rest is persisted as the rest it will
-// be when the pause ends (`persistProgress`) — a process death outlives no
-// pause, and writing nil there would read back as "no rest was running".
-extension WorkoutFlowView {
+extension WorkoutSession {
 
     var reentering: Bool { blockPause.isReentering }
-
-    func countdownIdentifier(reentering: Bool) -> String {
-        reentering ? "reentry-countdown" : "getready-countdown"
-    }
 
     /// Held, the only way on is Resume; counting back in, the tap holds again.
     func toggleBlockPause() {
@@ -63,7 +56,7 @@ extension WorkoutFlowView {
         announce(String(localized: "Paused"))
     }
 
-    private func resumeBlock() {
+    func resumeBlock() {
         announce(String(localized: "Resumed"))
         // The block starts costing time again here, whichever way back in it
         // takes: the re-entry's own count-in IS the block — it is the time
@@ -77,10 +70,10 @@ extension WorkoutFlowView {
             restartFrozenStage()
             return
         }
-        blockPause.beginReentry(seconds: BlockPause.reentrySeconds, now: .now)
+        blockPause.beginReentry(seconds: BlockPause.reentrySeconds, now: now())
     }
 
-    private var needsReentry: Bool {
+    var needsReentry: Bool {
         switch phase {
         case .warmup:   return BlockPause.needsReentry(warmupStage)
         case .cooldown: return BlockPause.needsReentry(cooldownStage)
@@ -96,8 +89,8 @@ extension WorkoutFlowView {
     /// Held there is no end date at all, so nothing moves — the whole point.
     func tickBlockPause() {
         var result = BlockPause.Tick.nothing
-        withAnimation(countdownAnimation) {
-            result = blockPause.tick(now: .now, signalSeconds: Self.countdownSignalSeconds)
+        animate(.countdown) {
+            result = blockPause.tick(now: now(), signalSeconds: Self.countdownSignalSeconds)
         }
         switch result {
         case .signal:            playTick()
@@ -131,16 +124,16 @@ extension WorkoutFlowView {
 
     /// The stage picks up the seconds it froze with, never its whole length:
     /// a pause must not quietly make the user hold a position twice.
-    private func restartFrozenStage() {
+    func restartFrozenStage() {
         switch phase {
         case .warmup:
-            warmupClock.resume(now: .now)
+            warmupClock.resume(now: now())
         case .cooldown:
-            cooldownClock.resume(now: .now)
+            cooldownClock.resume(now: now())
         case .rest(let total):
             let end = restClock.start(BlockPause.restAfterPause(remaining: restClock.remaining,
                                                                 total: total),
-                                      now: .now)
+                                      now: now())
             liveActivity.update(.init(phase: .rest, title: nextLabel,
                                       detail: restActivityDetail,
                                       restEndDate: end))
@@ -175,7 +168,7 @@ extension WorkoutFlowView {
             blockPausedSec += max(0, absence)
             // Never restarted: pausing again while counting back in must not
             // throw away the interval already open.
-            if blockFrozenAt == nil { blockFrozenAt = .now }
+            if blockFrozenAt == nil { blockFrozenAt = now() }
         default:
             break
         }
@@ -185,19 +178,16 @@ extension WorkoutFlowView {
     /// the ways in and several of them run through one another.
     func endBlockFreeze() {
         guard let began = blockFrozenAt else { return }
-        blockPausedSec += max(0, Int(Date.now.timeIntervalSince(began)))
+        blockPausedSec += max(0, Int(now().timeIntervalSince(began)))
         blockFrozenAt = nil
     }
 
     /// VoiceOver stays on the control it has just used, so the state change
-    /// has to be spoken; everyone else reads it under the countdown.
-    ///
-    /// Not private since 05.09.2026 either: the automatic boundaries of both
-    /// blocks are the same problem in a harder form — the subtree the focus
-    /// was in is replaced outright, so nothing is read at all — and this was
-    /// the one place in the tree that already solved it (UX review
-    /// 05.09.2026).
+    /// has to be spoken; everyone else reads it under the countdown. The
+    /// automatic boundaries of both blocks are the same problem in a harder
+    /// form: the subtree the focus was in is replaced outright, so nothing is
+    /// read at all.
     func announce(_ message: String) {
-        AccessibilityNotification.Announcement(message).post()
+        signals.announce(message)
     }
 }

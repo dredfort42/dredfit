@@ -10,10 +10,11 @@
 //  TEN frozen for anyone who only taps.
 //
 //  Everything here is driven through `AppStore`, because the app layer is the
-//  unguarded one. The two rules that stay out of reach — the probe caption's
-//  own wording and the technique offered during the rest before a probe —
-//  live inside a SwiftUI view as `private` members and cannot be reached from
-//  a unit test at all; see the note at the bottom of this file.
+//  unguarded one. The technique offered during the rest before a probe is
+//  `WorkoutSession`'s and is pinned in WorkoutSessionTests. The rule that
+//  stays out of reach — the probe caption's own wording — lives inside a
+//  SwiftUI view as a `private` member; see the note at the bottom of this
+//  file.
 //
 
 import XCTest
@@ -411,11 +412,8 @@ final class ProbeChannelTests: AppStoreTestCase {
 //
 //  * `WorkoutFlowView.probeCaption` — the three things the probe set says
 //    under its number ("one set to try it", "next time: X", "we'll stay").
-//  * `WorkoutFlowView.restTechniqueTarget` — that the technique offered
-//    during the rest BEFORE a probe is the probe's movement.
 //
-// Both are `private` members of a SwiftUI view, so `@testable import` does
-// not reach them, and neither has a value-returning form. Making
-// `probeCaption` an internal `var probeCaptionText: String` and
-// `restTechniqueTarget` internal — the shape `headline`/`subline` were given
-// in the widget after I-8 — would put both under test with no other change.
+// It is a `private` member of a SwiftUI view, so `@testable import` does not
+// reach it, and it has no value-returning form. Making it an internal
+// `var probeCaptionText: String` — the shape `headline`/`subline` were given
+// in the widget after I-8 — would put it under test with no other change.
