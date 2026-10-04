@@ -1,7 +1,6 @@
 //
 //  What a running set is doing right now, and the ring the rest screen counts
-//  down inside — split out of FlowChrome.swift, which had grown into ten
-//  unrelated leaf views sharing one file for no reason but their size.
+//  down inside.
 //
 
 import SwiftUI
@@ -10,31 +9,29 @@ import SwiftUI
 /// order of precedence — the second side, an entered actual, or plainly which
 /// set is up.
 ///
-/// The count-in and the side switch used to open this list, and they moved to
-/// the caption directly under the big number (`WorkoutFlowView.loadCaption`).
-/// Both are read from 1.5-2 m away, off a phone the screen itself told the
-/// person to put on the floor, and at that distance a 14 pt word under the
-/// dots is about 2.6 arc minutes — under the 5' it takes to recognise a
-/// letter at all. Repeating them here as well would only be the same
-/// unreadable word twice (UX review, 05.09.2026).
+/// The count-in and the side switch are not on it: they are the caption
+/// directly under the big number (`WorkoutFlowView.loadCaption`). Both are
+/// read from 1.5-2 m away, off a phone the screen itself told the person to
+/// put on the floor, and at that distance a 14 pt word under the dots is
+/// about 2.6 arc minutes — under the 5' it takes to recognise a letter at
+/// all. Repeating them here as well would only be the same unreadable word
+/// twice.
 struct WorkStatusCaption: View {
     let secondSide: Bool
-    /// The movement's LAST hold is behind and its seconds are recorded, but
-    /// the set is not closed yet (`WorkoutSession.holdSettled`). It outranks
-    /// the actual below deliberately: in this state the big number above IS
-    /// what was held, so "actual 25" would repeat it while saying less — and
-    /// what the screen has to say instead is that the effort is over and the
-    /// number is still editable.
+    /// A hold is behind and its seconds are recorded, but the set is not
+    /// closed yet (`WorkoutSession.holdSettled`). It outranks the actual
+    /// below deliberately: in this state the big number above IS what was
+    /// held, so "actual 25" would repeat it while saying less — and what the
+    /// screen has to say instead is that the effort is over and the number is
+    /// still editable.
     var settled: Bool = false
     /// nil when the exercise is running to plan.
     let actual: Int?
-    /// The hold-this-level mark (issue #78). A pin changes nothing visible in
-    /// the plan, so the caption is where the tap confirms itself.
     let setIndex: Int
     let sets: Int
     /// What THIS set will run at, and whether that is worth printing. On an
-    /// uneven plan the caption says the number, because "set 2 of 3" no longer
-    /// tells you what to do — the sets differ. So does a set whose number was
+    /// uneven plan the caption says the number, because "set 2 of 3" does not
+    /// tell you what to do — the sets differ. So does a set whose number was
     /// carried DOWN by a shortfall behind it: that is a plan the person did
     /// not choose and never saw named. The actual still outranks both: that is
     /// a set already performed.
@@ -64,16 +61,16 @@ struct WorkStatusCaption: View {
 
 /// The rest phase. The ring is the primary element here, which is why neither
 /// control under it is a filled button: someone who is not recovered has to be
-/// able to ask for more time about as easily as to cut the rest short. The
-/// asymmetry that idea replaced was not a comfort problem — standing at an
-/// expired timer or starting a set you cannot finish both reach the engine as
+/// able to ask for more time about as easily as to cut the rest short. Making
+/// either harder to reach is not a comfort problem — standing at an expired
+/// timer or starting a set you cannot finish both reach the engine as
 /// "tough".
 ///
-/// What went with it, on the owner's read of the audit frames, is EQUAL WIDTH.
-/// The two are not asked for equally often: the rest ends and the thumb comes
-/// down on Skip, and halves put "+15 s" under a good share of those taps. It
-/// keeps the same height, the same outline and the same weight — only a third
-/// of the row instead of half.
+/// Equal WIDTH is not part of that: the two are not asked for equally often —
+/// the rest ends and the thumb comes down on Skip, and halves would put
+/// "+15 s" under a good share of those taps. "+15 s" keeps the same height,
+/// the same outline and the same weight — only a third of the row instead of
+/// half.
 struct RestRing: View {
     let remaining: Int
     let fraction: CGFloat
@@ -85,7 +82,7 @@ struct RestRing: View {
     let canExtend: Bool
     /// Frozen: the ring stands still and the button offers the way back in.
     var paused: Bool = false
-    /// nil on a rest whose clock starts nothing (R32). Only the rest of a
+    /// nil on a rest whose clock starts nothing. Only the rest of a
     /// hands-free hold run hands the next set to a timer, and that is the only
     /// rest where stepping away costs a set — everywhere else the person is
     /// what the flow is waiting for, and a Pause would promise to stop
@@ -137,20 +134,20 @@ struct RestRing: View {
             // very likely to be sitting on — this is exactly the trait for it:
             // the reader stops interrupting itself with the new number and the
             // number stays there to be asked for. Without it the only way to
-            // hear the end of the rest was to hear all sixty seconds of it
-            // (UX review, 05.09.2026).
+            // hear the end of the rest would be to hear all sixty seconds of
+            // it.
             .accessibilityAddTraits(.updatesFrequently)
 
             VStack(spacing: 6) {
-                // Two rests look identical and end differently: an ordinary
-                // one hands the screen back and WAITS for a tap, while the
-                // rest inside a hands-free hold run starts the next set on its
-                // own go. Only the Pause capsule below said so, and it says it
-                // by existing — the kicker is where the eye lands after the
-                // ring, so it is where the difference belongs. Keyed off the
-                // pause itself rather than a new flag: `onPauseToggle` is
-                // non-nil on exactly the rest whose clock starts something
-                // (R32, the doc comment above) (UX review, 05.09.2026).
+                // Two rests would look identical and end differently: an
+                // ordinary one hands the screen back and WAITS for a tap, while
+                // the rest inside a hands-free hold run starts the next set on
+                // its own go. The Pause capsule below says so only by existing
+                // — the kicker is where the eye lands after the ring, so it is
+                // where the difference belongs. Keyed off the pause itself
+                // rather than a new flag: `onPauseToggle` is non-nil on exactly
+                // the rest whose clock starts something (the doc comment
+                // above).
                 Kicker(text: onPauseToggle == nil
                        ? String(localized: "Next up")
                        : String(localized: "Starts by itself"))
@@ -191,7 +188,7 @@ struct RestRing: View {
         // to `identifier ?? title`, and `title` has already been through
         // String(localized:) — so an omitted argument makes the accessibility
         // identifier change with the display language, which is the one thing
-        // an identifier exists not to do. `extend-rest` above always stated it.
+        // an identifier exists not to do. `extend-rest` above states it too.
         let skip = BlockSkipButton(title: String(localized: "Skip rest"),
                                    identifier: "skip-rest",
                                    action: onSkip)

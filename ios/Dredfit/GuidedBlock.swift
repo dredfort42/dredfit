@@ -33,7 +33,7 @@ extension CooldownPosition: GuidedPosition {
 
 /// Every position opens with `.getReady` (issue #52). One held whole runs
 /// `.whole`; one with a halfway boundary runs `.firstHalf` → `.switchPause`
-/// → `.secondHalf` — 15 + 4 + 15 (§41.12).
+/// → `.secondHalf` — 15 + 4 + 15.
 ///
 /// HALF, not side: half of the warm-up's split moves switch a direction
 /// rather than a side, and a stage named for one of the two kinds would be

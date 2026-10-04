@@ -8,16 +8,16 @@ import DredfitCore
 
 extension WorkoutSession {
 
-    /// The six moves of THIS session (§40.1: nine in the pool, six on
-    /// screen). A pure function of the session number and of what the athlete
-    /// has set aside, so a restored snapshot recomputes the same list rather
-    /// than carrying it.
+    /// The six moves of THIS session (nine in the pool, six on screen). A
+    /// pure function of the session number and of what the athlete has set
+    /// aside, so a restored snapshot recomputes the same list rather than
+    /// carrying it.
     ///
     /// The hidden set is read LIVE, which the cool-down's twin is not — its
-    /// composition is drawn once into `cooldownPositions`. That difference is
-    /// why `rebaseWarmupOnComposition` exists below: hiding the move on screen
-    /// changes this list under a countdown that is still standing on the old
-    /// one (UX review 05.09.2026, finding 49).
+    /// composition is state, drawn into `cooldownPositions`. That difference
+    /// is why `rebaseWarmupOnComposition` exists below: hiding the move on
+    /// screen changes this list under a countdown that is still standing on
+    /// the old one.
     var warmupMoves: [WarmupMove] {
         Warmup.moves(for: session, hiding: store.settings.hiddenBlockMoveIDs)
     }
@@ -29,9 +29,8 @@ extension WorkoutSession {
     /// is concerned: not a step of the work, and WARM-UP on the lock screen.
     var isWarmingUp: Bool { phase == .warmup || phase == .warmupIntro }
 
-    /// The person said yes. This is the start the view used to make for them
-    /// on appear — nothing is persisted, exactly as before: there is no
-    /// progress yet to survive anything.
+    /// The person said yes. Nothing is persisted: there is no progress yet to
+    /// survive anything.
     func beginWarmup() {
         guard phase == .warmupIntro else { return }
         phase = .warmup
@@ -44,13 +43,14 @@ extension WorkoutSession {
         // opens on the count-in, not on the full travel time between two
         // positions: the person is standing at their mat with a thumb on the
         // glass, not walking to the next one. Only the AUTOMATIC transitions
-        // — the ones no tap opened — keep `GetReady.seconds`.
+        // — the ones no tap opened — keep their full length
+        // (`GetReady.stageSeconds`).
         countIn(.warmup)
     }
 
-    /// …or no. The same ending the footer's "Skip warm-up" already had, and
-    /// the same one taking every move in turn arrives at: straight to the
-    /// work, with nothing recorded about the block either way.
+    /// …or no. The same ending the footer's "Skip warm-up" has, and the same
+    /// one taking every move in turn arrives at: straight to the work. A
+    /// declined block records a length of zero (`finishWarmup`).
     func declineWarmup() {
         guard phase == .warmupIntro else { return }
         finishWarmup()
@@ -58,13 +58,13 @@ extension WorkoutSession {
 
     /// The composition changed while the block was running it.
     ///
-    /// There is exactly one way that happens (UX review 05.09.2026, finding
-    /// 49): the technique sheet setting the move on screen aside, or bringing
-    /// an earlier one back. The list is a pure function of the session number
-    /// and the hidden set, so the write lands instantly and `warmup.index`
-    /// suddenly names a different move — the name on screen would change under
-    /// the seconds of the move it replaced, and a split move would inherit the
-    /// `.whole` stage of one that has no halves.
+    /// There is exactly one way that happens: the technique sheet setting the
+    /// move on screen aside, or bringing an earlier one back. The list is a
+    /// pure function of the session number and the hidden set, so the write
+    /// lands instantly and `warmup.index` suddenly names a different move —
+    /// the name on screen would change under the seconds of the move it
+    /// replaced, and a split move would inherit the `.whole` stage of one
+    /// that has no halves.
     ///
     /// So the slot restarts on its own transition instead. A move nobody
     /// announced must not begin under the thumb, and the transition is the one
@@ -72,8 +72,8 @@ extension WorkoutSession {
     /// the next move.
     ///
     /// WHICH slot is `rebaseLanding`'s rule, and `was` is the composition the
-    /// block was running: the clamp this replaced kept the ordinal, and an
-    /// ordinal is not a stable name for a slot across a recomposition.
+    /// block was running: an ordinal is not a stable name for a slot across a
+    /// recomposition.
     func rebaseWarmupOnComposition(was previous: [String]) {
         guard phase == .warmup else { return }
         let moves = warmupMoves
@@ -107,10 +107,8 @@ extension WorkoutSession {
     /// recomposition is not a deletion: `Warmup.moves(sessionNumber:hiding:)`
     /// re-derives its rotation window from what is LEFT and
     /// `Cooldown.positions` re-grows its middle, so slot i after the write can
-    /// name the move that stood at i-1 before it. Both blocks used to clamp the
-    /// ordinal, which reopened a move finished a minute earlier — session 4 did
-    /// it at three of its six slots, and the cool-down's "Bring back" did it at
-    /// every slot past the one it restores (review 06.09.2026).
+    /// name the move that stood at i-1 before it. Clamping the ordinal would
+    /// reopen a move finished a minute earlier.
     ///
     /// Landing on the FIRST move not yet run would be the other error. What
     /// advances from here is an ordinal machine (`skipPosition`,
@@ -145,10 +143,9 @@ extension WorkoutSession {
         // runs again on a re-entry and a second span would be the whole
         // detour, not the block.
         if warmupSec == nil {
-            // Minus what the block stood still for. Wall clock alone billed a
-            // pause, an open technique sheet and an absence to the stretching,
-            // and what reads it is the energy Health is told about
-            // (UX review 05.09.2026).
+            // Minus what the block stood still for. Wall clock alone would
+            // bill a pause, an open technique sheet and an absence to the
+            // stretching, and what reads it is the energy Health is told about.
             warmupSec = max(0, BlockRun.seconds(began: warmupBeganAt, ended: now())
                             - blockPausedSec)
         }

@@ -1,8 +1,9 @@
 //
-//  Each signal as a pair: the tone (silenced by the mute switch) and its
-//  haptic counterpart (the silent-mode channel), behind the one sounds
-//  toggle. The pairs live here so the flow's wrappers (`WorkoutSession.playTick`
-//  and its siblings) stay one line each.
+//  Each signal as a pair: the tone (silenced by the mute switch unless
+//  `playsTonesInSilentMode` lets it through) and its haptic counterpart (the
+//  silent-mode channel), behind the one sounds toggle. The pairs live here so
+//  the flow's wrappers (`WorkoutSession.playTick` and its siblings) stay one
+//  line each.
 //
 
 import Accessibility
@@ -14,11 +15,10 @@ enum WorkoutSignals {
     // Held, not built per firing, and re-primed after every one. The Taptic
     // Engine idles between countdowns — a rest is 60–120 s and the ticks are
     // its last three seconds — and an unprepared generator pays the engine's
-    // wake-up on its first impulse, so the first tick of every countdown
-    // arrived after its second. The tone half of each pair has bought that
-    // cost ahead of time since #84 (`CountdownSounds.prime()`); the haptic
-    // half, which is the whole channel in silent mode, never did
-    // (UX review 05.09.2026).
+    // wake-up on its first impulse, so the first tick of a countdown would
+    // arrive after its second. The tone half of each pair buys that cost
+    // ahead of time (`CountdownSounds.prime()`, #84); the haptic half, which
+    // is the whole channel in silent mode, has to as well.
     private static let light = UIImpactFeedbackGenerator(style: .light)
     private static let medium = UIImpactFeedbackGenerator(style: .medium)
     private static let rigid = UIImpactFeedbackGenerator(style: .rigid)
