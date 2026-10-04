@@ -308,6 +308,24 @@ extension WorkoutSessionTests {
         XCTAssertEqual(flow.workNumber, probe.load + 1, "the number entered for the probe is the one it names")
     }
 
+    /// While a clock is on the person the big number is that clock: the
+    /// count-in, the hold itself and the pause between the sides each show
+    /// the seconds they have left, never the set's 15.
+    func testWhileAClockRunsTheScreenNamesItsSecondsLeft() throws {
+        let (flow, _) = try holdFlow(.coreRot)
+        flow.startHoldExercise()
+        run(flow, for: 1)
+        XCTAssertTrue(flow.holdCountingIn)
+        XCTAssertEqual(flow.workNumber, GetReady.countInSeconds - 1)
+
+        run(flow, for: GetReady.countInSeconds - 1 + 3)
+        XCTAssertTrue(flow.holding)
+        XCTAssertEqual(flow.workNumber, 15 - 3)
+
+        run(flow, until: { flow.holdSwitchPausing })
+        XCTAssertEqual(flow.workNumber, Cooldown.switchPauseSeconds)
+    }
+
     /// The panel reopens on the time already declared — what the clock would
     /// run now — not on the plan.
     func testTheDeclarationReopensOnTheTimeTheClockWouldRun() throws {
@@ -319,11 +337,12 @@ extension WorkoutSessionTests {
 
     /// A Stop inside the grace on the SECOND side hands that side back, and it
     /// still runs for what the first side ran — so that is the number it
-    /// names, not the set's own: the plan's 15, or a declared 45.
+    /// names, not the set's own: the plan's 15, or a declared 45. Under a
+    /// declaration a first side past the plan counts in full.
     func testASecondSideHandedBackNamesWhatTheFirstSideRan() throws {
         // The time declared before the run, and the seconds the first side
         // ran before the Stop that cut it short.
-        let cases: [(declared: Int?, held: Int)] = [(nil, 10), (45, 13)]
+        let cases: [(declared: Int?, held: Int)] = [(nil, 10), (45, 13), (45, 33)]
         for (declared, held) in cases {
             let (flow, _) = try holdFlow(.coreRot)
             if let declared { declare(declared, on: flow) }

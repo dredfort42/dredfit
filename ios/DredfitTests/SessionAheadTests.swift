@@ -75,6 +75,26 @@ final class SessionAheadTests: XCTestCase {
                        "the sub-step was counted again after it was performed")
     }
 
+    /// The sets left of the exercise under way are priced at what their clock
+    /// will run: a declared time on a hold, and the plan on reps whatever is
+    /// declared beside them — a declaration governs a hold only.
+    func testTheSetsLeftArePricedAtWhatTheirClockWillRun() throws {
+        let hold = SessionExercise(pattern: .coreAntiExt, name: "Plank", variation: 1, unit: .hold,
+                                   load: 30, perSide: false, sets: 3,
+                                   restSetSec: 60, restExerciseSec: 90, loads: nil, probe: nil)
+        let reps = SessionExercise(pattern: .squat, name: "Squat", variation: 1, unit: .reps,
+                                   load: 8, perSide: false, sets: 3,
+                                   restSetSec: 60, restExerciseSec: 90, loads: nil, probe: nil)
+        let held = try XCTUnwrap(SessionAhead.remaining([hold], exIndex: 0, setsBehind: 1,
+                                                        facts: [:], declared: 45).first)
+        XCTAssertEqual([held.plannedLoad(set: 0), held.plannedLoad(set: 1)], [45, 45],
+                       "the clock runs the declared time, so the header prices it")
+        let counted = try XCTUnwrap(SessionAhead.remaining([reps], exIndex: 0, setsBehind: 1,
+                                                           facts: [:], declared: 45).first)
+        XCTAssertEqual([counted.plannedLoad(set: 0), counted.plannedLoad(set: 1)], [8, 8],
+                       "a declaration governs a hold only")
+    }
+
     /// A skipped set is a set behind: the minutes come off at the moment of
     /// the tap, which is the whole promise of a number that recalculates.
     func testASkippedSetTakesItsMinutesOffImmediately() throws {
