@@ -15,6 +15,12 @@ final class WorkoutActivityController {
     /// (rest → "Skip rest" → work) race and strand a stale countdown.
     private var chain: Task<Void, Never>?
 
+    /// Nonisolated for the reason `WorkoutSession`'s deinit gives: an implicit
+    /// deinit here is an isolated one, on the back-deployed path that crashed
+    /// on the iOS 26.2 simulator, and this controller is freed with every
+    /// workout screen. Nothing here needs the main actor to be torn down.
+    nonisolated deinit {}
+
     private func enqueue(_ op: @escaping @Sendable () async -> Void) {
         let previous = chain
         chain = Task.detached {
