@@ -129,7 +129,14 @@ struct WorkoutFlowView: View {
             // end DATE, so a skipped tick loses nothing — after "Keep
             // training" the next tick meets whatever ran out, under the rules
             // a backgrounded app already lives by.
-            guard !exitConfirmShown else { return }
+            guard !exitConfirmShown else {
+                // The clocks run on behind the question, so a countdown that
+                // reaches its four there is primed on every beat until it runs
+                // out: the tick that meets it after "Keep training" never
+                // lands on a cold engine.
+                flow.primeComingBack()
+                return
+            }
             flow.tick()
         }
         .onAppear {
@@ -195,10 +202,7 @@ struct WorkoutFlowView: View {
             // included. So the escape is one button, carrying the role AND the
             // name that says what it does. "Cancel" answers "cancel what?";
             // this one does not.
-            //
-            // No tick runs behind this alert while the clocks do, so the way
-            // back can land inside a 3-2-1 that nothing has primed.
-            Button(String(localized: "Keep training"), role: .cancel) { flow.primeComingBack() }
+            Button(String(localized: "Keep training"), role: .cancel) { }
             Button(String(localized: "Finish now")) { flow.finishNow() }
             // Every number here is persisted at every transition
             // (`persistProgress`), so stepping out keeps the workout and Today
