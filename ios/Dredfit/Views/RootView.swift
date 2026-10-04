@@ -27,9 +27,11 @@ struct RootView: View {
                 .tabItem { Label("Today", systemImage: "circle.inset.filled") }
                 .tag(Tab.today)
             CalendarScreen()
+                .saveFailureBanner(store, trailingClearance: 44)
                 .tabItem { Label("Calendar", systemImage: "calendar") }
                 .tag(Tab.calendar)
             ProgressScreen()
+                .saveFailureBanner(store, trailingClearance: 44)
                 .tabItem { Label("Progress", systemImage: "chart.line.uptrend.xyaxis") }
                 .tag(Tab.progress)
         }
@@ -53,6 +55,7 @@ struct RootView: View {
         }
         .sheet(isPresented: $settingsShown) {
             SettingsSheet()
+                .saveFailureBanner(store)
         }
         .fullScreenCover(isPresented: $onboardingShown) {
             OnboardingView {
@@ -71,6 +74,11 @@ struct RootView: View {
         // to a killed process and must leave the lock screen now, not at the
         // system's hours-long cap.
         .task { WorkoutActivityController.endOrphans() }
+        // The banner appears without anything being touched, so VoiceOver is
+        // told: one announcement from the root, not one per banner copy.
+        .onChange(of: store.lastPersistError != nil) { _, failed in
+            if failed { AccessibilityNotification.Announcement(SaveFailureBanner.message).post() }
+        }
         .onChange(of: scenePhase) { _, phase in
             switch phase {
             case .active:

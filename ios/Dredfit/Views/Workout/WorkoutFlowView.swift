@@ -121,6 +121,7 @@ struct WorkoutFlowView: View {
         .settleWindow(after: screen)
         .padding(.horizontal, 24)
         .background(Theme.bg.ignoresSafeArea())
+        .saveFailureBanner(store)
         .onReceive(timer) { _ in
             // Nothing the clocks drive happens behind "Leave the workout?": a
             // hands-free rest ran out under it, started the next hold on its
