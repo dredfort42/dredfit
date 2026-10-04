@@ -1,7 +1,9 @@
 //
-//  The backup, out and back in. Both directions refuse to run on a frozen
-//  journal: exporting one hands the user a file that destroys their history,
-//  importing into one looks like it worked and is gone next launch.
+//  The backup, out and back in, kept out of AppStore.swift, which stands near
+//  the linter's file_length ceiling — a CI error. Both directions refuse to
+//  run on a frozen journal: exporting one hands the user a file that destroys
+//  their history, importing into one looks like it worked and is gone next
+//  launch.
 //
 
 import Foundation

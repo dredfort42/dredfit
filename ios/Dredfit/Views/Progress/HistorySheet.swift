@@ -140,8 +140,9 @@ struct HistorySheet: View {
     ///
     /// And never cut below what was actually RECORDED. `setsSkipped` counts
     /// the sets that did not run; it does not say WHERE they were. "Skip the
-    /// remaining sets" and the settlement of an abandoned workout drop a
-    /// trailing block, but a skip taken in the MIDDLE of a movement
+    /// remaining sets" and every settlement of an unfinished workout ("Finish
+    /// now", or one never rated) drop a trailing block, but a skip taken in
+    /// the MIDDLE of a movement
     /// (`skipSet`) increments the same counter and then goes on to the next
     /// set, so cutting to `performed` alone would throw away the tail that
     /// did run: plan 3×10, set 2 skipped, set 3 reported as 7 would print no
@@ -177,8 +178,9 @@ struct HistorySheet: View {
     /// The plan carries the probe — `SessionExercise.probe` is in the record's
     /// own CodingKeys — and without this line a session of "2 × 15 plus a
     /// probe" reads in history exactly like a session of two sets. Half of the
-    /// OUTCOME is an inference rather than a fact: the number comes from
-    /// `record.probes`, which older records do not carry.
+    /// OUTCOME is a fact and half an inference: the number comes from
+    /// `record.probes`, which older records do not carry; the verdict is
+    /// inferred, below.
     ///
     /// The verdict does not re-implement the engine's pass rule. It is read off
     /// what actually happened — the position the session ended on, against the
@@ -405,8 +407,9 @@ struct HistorySheet: View {
     /// from the journal: between two entries the silent decay and an accepted
     /// comeback move positions too, so a difference of two records would
     /// credit this workout with a descent that was not its doing. A record
-    /// with no stamp — any record but the last — says nothing, and keeps the
-    /// general sentence, which is true of every "tough", just less useful.
+    /// with no stamp — every record but the last, and the last one after a
+    /// reset or from before the stamp — says nothing, and keeps the general
+    /// sentence, which is true of every "tough", just less useful.
     private var resultCaption: String {
         switch shown.result {
         case .less:

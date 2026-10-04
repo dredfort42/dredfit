@@ -31,8 +31,8 @@ struct HistoryRow: View {
                     // movement — the plan, what was done, what it became —
                     // and each carries a word. With the fact in accent
                     // directly under a bare plan and "After:" directly below,
-                    // the reader has to guess which of the three is which,
-                    // and takes the accent for the future.
+                    // the reader would have to guess which of the three is
+                    // which, and would take the accent for the future.
                     Text("plan \(ex.display)")
                         .dredfitFont(15)
                         .monospacedDigit()

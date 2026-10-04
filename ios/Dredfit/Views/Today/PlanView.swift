@@ -322,9 +322,9 @@ struct PlanView: View {
                 suspectAnswer(String(localized: "Make it easier")) {
                     pendingSuspect = SuspectStepDown(pattern: suspect, name: step.name)
                 }
-                // No third "just hard" answer: the case it would serve — a
-                // plan that ran ahead of the person — is exactly what the
-                // sub-step fixes without asking anyone anything.
+                // No third "just hard" answer: the case it would serve is
+                // exactly what the sub-step fixes without asking anyone
+                // anything.
                 suspectAnswer(String(localized: "It's fine")) {
                     store.dismissSuspectPrompt()
                 }

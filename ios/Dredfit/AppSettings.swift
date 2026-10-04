@@ -1,6 +1,7 @@
 //
 //  The user's own choices, stored beside the engine state and the journal
-//  in the same file.
+//  in the same file. Kept out of AppStore.swift, which stands near the
+//  linter's file_length ceiling — a CI error.
 //
 
 import Foundation

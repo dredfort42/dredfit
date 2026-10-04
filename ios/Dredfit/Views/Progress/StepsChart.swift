@@ -37,8 +37,8 @@ struct StepsChart: View {
         /// "easy" only ever raise a level, so under those — with no number of
         /// the session's own and no set skipped (`StepPoint`) — a drop across
         /// the gap is the silent decay or an accepted comeback, or an easier
-        /// variation the athlete chose by hand in between, which no record
-        /// carries and this flag cannot see.
+        /// variation the athlete chose by hand in between, which this flag
+        /// cannot see.
         let costSteps: Bool
     }
 

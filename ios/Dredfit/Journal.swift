@@ -30,9 +30,9 @@ struct RecordedPosition: Codable, Equatable {
     }
 
     /// Clamped on the way in, for the reason `WorkoutRecord` states below:
-    /// these five go straight into `Engine.progress` when Progress plots a
-    /// pattern, and a hand-edited number must not reach that arithmetic
-    /// unbounded.
+    /// these five go straight into `Engine.progress` — the per-pattern chart
+    /// and the milestone retrospective — and a hand-edited number must not
+    /// reach that arithmetic unbounded.
     ///
     /// `dose` keeps its sign: a descent legitimately reads BELOW a grid's
     /// floor and `Dose.rung` documents the negative term. Every real value
@@ -81,9 +81,9 @@ struct WorkoutRecord: Codable, Identifiable, Equatable {
     /// engine keeps the two apart: the probe is a DIFFERENT exercise, and one
     /// number covering two variations is exactly what the model forbids.
     ///
-    /// Without it the number is gone once the rating lands: the history sheet
-    /// can still read the verdict off `positionsAfter`, but not what the
-    /// probe set showed.
+    /// Without it no record keeps the number: the history sheet can still
+    /// read the verdict off `positionsAfter`, but not what the probe set
+    /// showed.
     var probes: [Pattern: Int]?
     /// Sets skipped DURING the session, per movement — the count the engine
     /// turned into a cut. Written because it is part of what happened: a plan
