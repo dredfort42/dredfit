@@ -31,7 +31,7 @@ nonisolated enum BodySex: Equatable, Sendable { case female, male, other }
 
 /// The seconds a planned session spends in each state it can be in.
 ///
-/// Also the ONE home of the session-duration arithmetic: `estimatedDurationSec`
+/// Also the ONE home of the session-duration arithmetic: `HealthExporter.estimatedDurationSec`
 /// reads `totalSec` from here instead of spelling the sum out again. The two
 /// copies that used to exist disagreed about the cool-down by a minute, and
 /// that minute went to Apple Health unnoticed for a whole release.
