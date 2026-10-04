@@ -28,8 +28,8 @@ extension WorkoutSession {
     func skipSet() {
         guard phase == .work else { return }
         // Skipping the PROBE takes no volume off anything: it was never a set
-        // of the planned movement. The outcome is "unresolved" (§40.4) — the
-        // probe simply comes back next time — and the appearance is spent
+        // of the planned movement. The outcome is "unresolved" — the probe
+        // simply comes back next time — and the appearance is spent
         // exactly as it would have been.
         if onProbeSet {
             editing = nil

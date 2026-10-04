@@ -39,29 +39,27 @@ extension WorkoutFlowView {
                         HeldSetsRow(sets: heldSets, onEdit: flow.startSummaryAdjusting)
                             // The row asks for its IDEAL height — the tallest
                             // card — and the cards stretch to it: without this
-                            // the cards' `maxHeight: .infinity` filled the whole
-                            // scroll view instead of levelling the row.
+                            // the cards' `maxHeight: .infinity` would fill the
+                            // whole scroll view instead of levelling the row.
                             .fixedSize(horizontal: false, vertical: true)
                             .padding(.top, 22)
                         // ONE sentence, about the past, under the cards, in
                         // the words the app already uses for this act: "Went
                         // differently" is the control that corrects a set on
                         // the work screen, and the summary says the same
-                        // thing about the same act (owner, 12.09.2026). It
-                        // used to say "these are the numbers the next plan
-                        // starts from" — a sentence about the future, which
-                        // people answered in the future tense, entering the
-                        // number they wanted next time into a card that
-                        // records what was held. The future has its own
-                        // block now.
+                        // thing about the same act. A sentence about the
+                        // future here would be answered in the future tense,
+                        // with the number wanted next time entered into a
+                        // card that records what was held. The future has its
+                        // own block.
                         //
                         // It names the LAST set because only the last set
                         // can be corrected: every earlier one ended on its
                         // signal or under a thumb, and the card carries that
-                        // number as it ran (owner, 13.09.2026). The reason
-                        // is said as "stand as they ran", not "ended on the
-                        // clock": a set stopped by hand is on this row too,
-                        // marked ≈, and it did not end on the clock.
+                        // number as it ran. The reason is said as "stand as
+                        // they ran", not "ended on the clock": a set stopped
+                        // by hand is on this row too, marked ≈, and it did not
+                        // end on the clock.
                         // One literal per key, because the literal is the key.
                         Text(flow.exercise.perSide
                              // swiftlint:disable:next line_length
@@ -84,18 +82,16 @@ extension WorkoutFlowView {
             // ONE SLOT above the button, two occupants. The "next time"
             // block stands there — the same distance from Done that the
             // entry panel keeps, because it is the same kind of thing: the
-            // control the screen is about (owner, 12.09.2026; it used to
-            // float under the cards with the whole spare height between it
-            // and the button). While a number is being entered the panel
-            // takes the slot and the block stands down: one thing to read at
-            // a time, the rule of every message slot in the flow.
+            // control the screen is about. While a number is being entered
+            // the panel takes the slot and the block stands down: one thing
+            // to read at a time, the rule of every message slot in the flow.
             if case .summaryCard(let index) = flow.editing {
                 // Which set and what was recorded for it, said above the
                 // panel. ONLY THE LAST SET OPENS THE PANEL: nothing followed
                 // it and the person may have kept holding, so both directions
-                // are theirs. Every earlier card is inert (`HeldSetCard`) — a
-                // panel whose "+" and "−" were dead at the floor read as a
-                // broken control (owner, 13.09.2026).
+                // are theirs. Every earlier card is inert (`HeldSetCard`): a
+                // panel whose "+" and "−" are both dead reads as a broken
+                // control.
                 Text(summaryPanelLine(set: index))
                     .dredfitFont(14)
                     .monospacedDigit()
@@ -120,11 +116,10 @@ extension WorkoutFlowView {
 
             // "Done", like every other tap that logs work in this app, and
             // the same identifier: it IS the same act — the movement is
-            // finished when the person says its numbers are right. It briefly
-            // read "Next exercise" off the last set, which named the LANDING
-            // rather than the act and so renamed a control people have already
-            // learned; what comes next is the flow's business, not the
-            // button's (owner, 01.09.2026).
+            // finished when the person says its numbers are right. "Next
+            // exercise" would name the LANDING rather than the act and rename
+            // a control people have already learned; what comes next is the
+            // flow's business, not the button's.
             PrimaryButton(title: String(localized: "Done")) {
                 flow.leaveExerciseSummary()
             }
