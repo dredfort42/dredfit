@@ -335,18 +335,19 @@ extension WorkoutSessionTests {
         XCTAssertEqual(signals.primes, 1, "one prime per 3-2-1")
     }
 
-    func testTicksHeldBackPastTheFourArePrimedWhenTheyResume() {
+    func testTicksHeldBackPastTheFourArePrimedBeforeTheyResume() {
         let flow = makeFlow(makeStore())
         flow.declineWarmup()
         flow.completeSet()
         run(flow, until: { flow.restClock.remaining == 10 })
-        // Behind the exit alert no tick runs, while the rest runs on.
+        // Behind the exit alert no tick runs, while the rest runs on; the
+        // timer's beat there asks for the prime instead.
         clock += TimeInterval(10 - primedAt)
         signals.primes = 0
         signals.events.removeAll()
 
         flow.primeComingBack()
-        XCTAssertEqual(signals.primes, 1, "back on its four, and the first tick back may already be past it")
+        XCTAssertEqual(signals.primes, 1, "on its four, and the first tick back may already be past it")
         clock += 0.9
         flow.tick()
         XCTAssertEqual(signals.tones, [.tick], "the timer kept its own beat: its next tick lands on the 3")
