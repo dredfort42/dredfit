@@ -157,7 +157,8 @@ ios/DredfitCore/        Swift package — the engine, pure functions, no UI impo
     Fixtures/golden.json
 
 ios/Dredfit/            SwiftUI app target
-  AppStore.swift        the only mutable state + JSON persistence; split by
+  AppStore.swift        the only mutable state + JSON persistence (read,
+                        quarantine and the one atomic write: StateFile.swift); split by
                         extension (+Cadence/Calendar/Comeback/Handles/Signals/
                         Health/Reminders/Backup, and +Workout/+Rating which
                         mutate) — every other mutating decision stays in
