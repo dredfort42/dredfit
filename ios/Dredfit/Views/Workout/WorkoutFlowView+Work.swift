@@ -63,7 +63,7 @@ extension WorkoutFlowView {
                 .accessibilityHidden(flow.holdUnderWay)
 
             VStack(spacing: 4) {
-                Text("\(workNumber)")
+                Text("\(flow.workNumber)")
                     .dredfitFont(112, weight: .heavy, cap: 150)
                     .tracking(-4)
                     .monospacedDigit()
@@ -88,7 +88,7 @@ extension WorkoutFlowView {
             // the number alone is meaningless. Both halves are recomputed on
             // every body pass, so the label follows a hold's countdown down.
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Text(verbatim: "\(workNumber) ") + Text(verbatim: loadCaption))
+            .accessibilityLabel(Text(verbatim: "\(flow.workNumber) ") + Text(verbatim: loadCaption))
             // The label is rebuilt every second while a hold runs, and without
             // this VoiceOver has no reason to re-read the element it is sitting
             // on — the one number that moves would be the one number it never
@@ -154,9 +154,19 @@ extension WorkoutFlowView {
                                   settled: flow.holdSettled,
                                   actual: setActual,
                                   setIndex: flow.setIndex, sets: flow.totalSets,
-                                  planned: setInForce,
+                                  // The SET's number, not the big digit's: that
+                                  // one counts down while a hold runs, and on a
+                                  // second side this line names the side and
+                                  // prints no number at all.
+                                  planned: flow.targetInForce,
+                                  // Whether the number is worth printing is
+                                  // asked of the plan and the record, never of
+                                  // a declared time: the person set that one
+                                  // themselves, and on an even plan it would
+                                  // stand under every set saying nothing new.
                                   uneven: flow.exercise.loads != nil
-                                      || setInForce != flow.exercise.plannedLoad(set: flow.setIndex))
+                                      || SetFacts.offPlan(flow.actuals, flow.exercise,
+                                                          set: flow.setIndex) != nil)
                     .padding(.top, 10)
             }
 
@@ -392,24 +402,6 @@ extension WorkoutFlowView {
         }
     }
 
-    /// In order of precedence.
-    private var workNumber: Int {
-        if flow.holdCountingIn { return flow.holdCountInClock.remaining }
-        // Before the effort a DECLARED time is what the clock will run from,
-        // so it is what the screen shows: the number the person is about to
-        // agree to, not the plan they have already decided against.
-        if flow.holdExerciseIntro, let declared = flow.holdDeclared { return declared }
-        if flow.holdSwitchPausing { return flow.holdSwitchClock.remaining }
-        if flow.holding { return flow.holdClock.remaining }
-        if flow.current.isProbe { return flow.probeActuals[flow.exercise.pattern] ?? flow.current.planned }
-        return SetFacts.inForce(flow.actuals, flow.exercise, set: flow.setIndex)
-    }
-
-    /// What THIS set will actually run at — the number the big digit shows.
-    private var setInForce: Int {
-        SetFacts.inForce(flow.actuals, flow.exercise, set: flow.setIndex)
-    }
-
     /// The caption's: this set's own number, nothing when it is the plan.
     /// The plan of THIS SET — against the flat base an untouched top set of
     /// an uneven plan would read as an entered fact.
@@ -519,8 +511,8 @@ extension WorkoutFlowView {
         // language but Russian, and Russian abbreviates the unit ("сек"),
         // which does not decline at all.
         switch (flow.current.unit, flow.current.perSide) {
-        case (.reps, false): return String(localized: "\(workNumber) reps")
-        case (.reps, true):  return String(localized: "\(workNumber) reps per side")
+        case (.reps, false): return String(localized: "\(flow.workNumber) reps")
+        case (.reps, true):  return String(localized: "\(flow.workNumber) reps per side")
         case (.hold, false): return String(localized: "seconds")
         case (.hold, true):  return String(localized: "seconds per side")
         }
