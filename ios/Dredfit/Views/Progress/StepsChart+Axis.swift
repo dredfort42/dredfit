@@ -8,11 +8,11 @@
 import Charts
 import SwiftUI
 
-extension ProgressScreen {
+extension StepsChart {
 
     /// Dates can coincide (several workouts in one span), so duplicates
     /// collapse.
-    func xAxisDates(_ points: [StepPoint]) -> [Date] {
+    static func xAxisDates(_ points: [StepPoint]) -> [Date] {
         guard let first = points.first?.date, let last = points.last?.date else { return [] }
         let mid = points[points.count / 2].date
         var dates = [first]
