@@ -335,9 +335,7 @@ extension WorkoutSession {
     }
 
     func startAdjusting() {
-        adjustValue = current.isProbe
-            ? (probeActuals[exercise.pattern] ?? current.planned)
-            : SetFacts.inForce(actuals, exercise, set: setIndex)
+        adjustValue = targetInForce
         editing = .set
     }
 }
