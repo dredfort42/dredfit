@@ -323,8 +323,9 @@ extension WorkoutSession {
         }
     }
 
-    /// Onto the grid the manual adjuster steps on, and onto the set actually
-    /// held: stopping at 40 s of 55 in the third set is the third set's fact.
+    /// Snapped to a storable number (`SetFacts.snap`), and onto the set
+    /// actually held: stopping at 40 s of 55 in the third set is the third
+    /// set's fact.
     func recordHoldActual(heldSeconds: Int) {
         let held = SetFacts.snap(Double(heldSeconds), unit: .hold)
         // The probe's number goes to the probe's channel — see `probeActuals`.

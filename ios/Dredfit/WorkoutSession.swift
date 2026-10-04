@@ -392,7 +392,8 @@ final class WorkoutSession {
         // halves of the pair, not just the tone. The Taptic Engine idles
         // between countdowns and pays its wake-up on the first impulse, so
         // the first tick of a 3-2-1 would land after the second, and with the
-        // ring switch flipped the haptic is the whole channel. `prepare()`
+        // ring switch flipped — tones not let through — the haptic is the
+        // whole channel. `prepare()`
         // holds for a few seconds only, which is why `tickRest` primes again
         // a second before its 3-2-1.
         if store.settings.soundsEnabled {
