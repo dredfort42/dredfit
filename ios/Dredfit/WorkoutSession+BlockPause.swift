@@ -125,10 +125,10 @@ extension WorkoutSession {
         switch phase {
         case .warmup:
             warmup.clock.resume(now: now())
-            // Paused in its last seconds, a transition comes back with its
-            // 3-2-1 less than a second off, and no tick on the way reports a
-            // four. A position comes back on the go of the way back in, which
-            // has just primed it as well.
+            // Paused in its last seconds, a transition comes back on its four
+            // or inside its 3-2-1, with no tick on the way to report a four. A
+            // position comes back on the go of the way back in, which has just
+            // primed it as well.
             primeComingBack()
         case .cooldown:
             cooldown.clock.resume(now: now())

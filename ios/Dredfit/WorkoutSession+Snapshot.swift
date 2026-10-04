@@ -19,11 +19,14 @@ extension WorkoutSession {
     }
 
     func sceneCameBack() {
+        // Read before `comeBack` spends the stamp.
+        let wasAway = absence.isAway
         awaySec += absence.comeBack(now: now())
-        // Time away is a silence too, usually longer than `prepare()` holds:
-        // a countdown that comes back with a signal less than a second off is
-        // primed here.
-        primeComingBack()
+        // Time away can outlast `prepare()`, so a countdown that comes back on
+        // its four or inside its 3-2-1 is primed. Control Center is not time
+        // away: the countdown went on ticking in front of the person, and its
+        // ticks primed it.
+        if wasAway { primeComingBack() }
     }
 
     /// Called on every phase transition and whenever an actual changes.

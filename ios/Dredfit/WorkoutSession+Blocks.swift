@@ -99,9 +99,9 @@ extension WorkoutSession {
                 if self[run: block].clock.signals(second, within: Self.countdownSignalSeconds) {
                     playTick()
                 }
-                // A transition opens on a done and a position on a go, and
-                // either runs eight to thirty seconds: the engine is cold by
-                // its 3-2-1.
+                // A stage that reaches its four by a tick runs eight to thirty
+                // seconds, opened by a done, a go or the silence of a skip:
+                // the engine is cold by its 3-2-1.
                 primeBeforeTheCount(showing: second)
             }
             // Animated so contentTransition(.numericText) rolls the digits —

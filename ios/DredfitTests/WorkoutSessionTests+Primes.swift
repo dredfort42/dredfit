@@ -289,9 +289,9 @@ extension WorkoutSessionTests {
         XCTAssertEqual(signals.primes, 1, "one prime per 3-2-1")
     }
 
-    func testATransitionPausedWithTimeLeftIsPrimedOnlyAtItsFour() {
+    func testATransitionPausedASecondAboveItsFourIsPrimedOnlyThere() {
         let flow = warmupOnItsSecondTransition()
-        run(flow, until: { flow.warmup.clock.remaining == primedAt + 2 })
+        run(flow, until: { flow.warmup.clock.remaining == primedAt + 1 })
         flow.toggleBlockPause()
         clock += 120
         signals.primes = 0
@@ -328,35 +328,55 @@ extension WorkoutSessionTests {
         signals.events.removeAll()
 
         flow.sceneCameBack()
-        XCTAssertEqual(signals.primes, 1, "a suspended app primed nothing, and its first tick back is inside the 3-2-1")
-        flow.tick()   // the timer's overdue tick, in the same moment
+        XCTAssertEqual(signals.primes, 1, "the time away let the engine go cold, and the next tick is inside the 3-2-1")
+        flow.tick()   // the next tick, a return between two of them
         run(flow, until: { flow.phase == .work })
         XCTAssertEqual(signals.tones, [.tick, .tick, .go])
         XCTAssertEqual(signals.primes, 1, "one prime per 3-2-1")
     }
 
-    func testAReturnOntoTheFourIsPrimedByItsTickAlone() {
+    func testTicksHeldBackPastTheFourArePrimedWhenTheyResume() {
+        let flow = makeFlow(makeStore())
+        flow.declineWarmup()
+        flow.completeSet()
+        run(flow, until: { flow.restClock.remaining == 10 })
+        // Behind the exit alert no tick runs, while the rest runs on.
+        clock += TimeInterval(10 - primedAt)
+        signals.primes = 0
+        signals.events.removeAll()
+
+        flow.primeComingBack()
+        XCTAssertEqual(signals.primes, 1, "back on its four, and the first tick back may already be past it")
+        clock += 0.9
+        flow.tick()
+        XCTAssertEqual(signals.tones, [.tick], "the timer kept its own beat: its next tick lands on the 3")
+        run(flow, until: { flow.phase == .work })
+        XCTAssertEqual(signals.primes, 1, "one prime per 3-2-1")
+    }
+
+    func testAReturnASecondAboveTheFourIsPrimedOnlyByItsTick() {
         let flow = restLeftAtThirty(makeStore())
-        clock += TimeInterval(30 - primedAt)
+        clock += TimeInterval(30 - primedAt - 1)
         signals.primes = 0
 
         flow.sceneCameBack()
-        XCTAssertEqual(signals.primes, 0, "the first tick back reports the four and primes it")
-        flow.tick()
+        XCTAssertEqual(signals.primes, 0, "its four is still ahead, and its tick primes it")
+        run(flow, until: { flow.restClock.remaining == primedAt })
         XCTAssertEqual(signals.primes, 1)
         run(flow, until: { flow.phase == .work })
         XCTAssertEqual(signals.primes, 1, "one prime per 3-2-1")
     }
 
-    func testAReturnWithTimeLeftPrimesNothingBeforeTheFour() {
-        let flow = restLeftAtThirty(makeStore())
-        clock += 10
+    func testAGlanceAtControlCenterPrimesNothing() {
+        let flow = makeFlow(makeStore())
+        flow.declineWarmup()
+        flow.completeSet()
+        run(flow, until: { flow.restClock.remaining == primedAt - 1 })
         signals.primes = 0
-
+        // Control Center turns the scene inactive and active again without
+        // it ever leaving: the rest went on ticking, and its ticks primed it.
         flow.sceneCameBack()
-        XCTAssertEqual(signals.primes, 0, "twenty seconds out, a prime would be cold again by the 3")
-        run(flow, until: { flow.restClock.remaining == primedAt })
-        XCTAssertEqual(signals.primes, 1)
+        XCTAssertEqual(signals.primes, 0)
     }
 
     func testAReturnIntoAHoldsLastSecondsIsPrimed() throws {

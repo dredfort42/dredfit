@@ -194,7 +194,10 @@ struct WorkoutFlowView: View {
             // the accessibility tree — the `.cancel` one included. So the escape
             // is one button again, carrying the role AND the name that says what
             // it does. "Cancel" answers "cancel what?"; this one does not.
-            Button(String(localized: "Keep training"), role: .cancel) { }
+            //
+            // No tick runs behind this alert while the clocks do, so the way
+            // back can land inside a 3-2-1 that nothing has primed.
+            Button(String(localized: "Keep training"), role: .cancel) { flow.primeComingBack() }
             Button(String(localized: "Finish now")) { flow.finishNow() }
             // The answer the flow could always give and never offered. Every
             // number here is persisted at every transition (`persistProgress`),

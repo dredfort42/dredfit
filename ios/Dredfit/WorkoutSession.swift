@@ -384,38 +384,40 @@ final class WorkoutSession {
     /// start on its four asks from both: the count-in, a block's stage, the
     /// way back into a paused position, a rest resumed from a pause. A rest
     /// paused on its four and resumed is primed a second time, on purpose:
-    /// the first has gone cold by then.
+    /// the first has gone cold by then — the reason `primeComingBack` primes
+    /// whatever else comes back after standing still.
     func primeBeforeTheCount(showing second: Int) {
         if second == Self.countdownSignalSeconds + 1 && store.settings.soundsEnabled {
             signals.prime()
         }
     }
 
-    /// …and for a countdown coming back from standing still — a sheet
-    /// closed, a pause ended, the app back from the background — by what its
-    /// NEXT tick will sound. One of its 3-2-1, or its go, less than a second
-    /// away is primed here: no tick on the way reports a four. Further out,
-    /// the four is still ahead, and its tick primes it.
+    /// …and for a countdown coming back from standing still — a sheet closed,
+    /// a pause ended, time away, ticks held back behind the exit alert. On
+    /// its four or inside its 3-2-1 it is primed here: no tick on the way
+    /// reports the four, or the first tick back may already be past it. Back
+    /// on a four that its next tick then reports, it is primed twice a moment
+    /// apart, which costs nothing. Further out, the tick at the four primes it.
     func primeComingBack() {
         guard store.settings.soundsEnabled, let clock = signallingCountdown else { return }
-        let next: Int
+        let showing: Int
         switch clock.read(now: now()) {
         case .unchanged:
-            next = clock.remaining - 1
+            showing = clock.remaining
         case .second(let second):
-            next = second
+            showing = second
         case .ended:
             // It ran out while it stood: its 3-2-1 went unheard, and there is
             // none left to prime for.
             return
         }
-        if next <= Self.countdownSignalSeconds { signals.prime() }
+        if showing <= Self.countdownSignalSeconds + 1 { signals.prime() }
     }
 
     /// The countdown on screen that ends on a 3-2-1 — the one `tick` runs —
     /// while it is running. Never a side-switch pause: its ticks would bury
     /// the tone it opened with, so it has no 3-2-1 to prime for.
-    var signallingCountdown: Countdown? {
+    private var signallingCountdown: Countdown? {
         let clock: Countdown
         switch phase {
         case .warmup, .cooldown:
@@ -471,8 +473,8 @@ final class WorkoutSession {
         // between countdowns and pays its wake-up on the first impulse, so
         // the first tick of a 3-2-1 would land after the second, and with the
         // ring switch flipped the haptic is the whole channel. `prepare()`
-        // holds for a few seconds only, which is why `tickRest` primes again
-        // on its way in.
+        // holds for a few seconds only, which is why every countdown is
+        // primed again a second before its 3-2-1 (`primeBeforeTheCount`).
         if store.settings.soundsEnabled {
             signals.primeSounds()
             signals.prime()
