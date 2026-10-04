@@ -198,11 +198,11 @@ docs/                   the dredfit.com site — GitHub Pages, static, no build;
 ```
 
 The engine was first written and verified as a JavaScript reference, then ported
-to Swift. The reference suite currently runs **1 393 133 property checks with 0
-failures**, alongside an acceptance script of 23 blocks and a model sweep that
+to Swift. The reference suite currently runs **1 501 778 property checks with 0
+failures**, alongside an acceptance script of 28 blocks and a model sweep that
 walks **59 264 transitions** without once assigning more than "what you showed,
-plus one". `golden.json` is the reference's recorded trace — **32 scenarios, 310
-steps**, stamped `adaptive_engine.js v3.6.0` — and the Swift port must reproduce
+plus one". `golden.json` is the reference's recorded trace — **37 scenarios, 346
+steps**, stamped `adaptive_engine.js v3.7.0` — and the Swift port must reproduce
 it exactly. Changing engine behavior means changing the spec first, then the
 reference, re-verifying, regenerating fixtures, then porting. Plausible-but-
 different is a failing test, not a judgment call. (The JS reference lives

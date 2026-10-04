@@ -87,10 +87,10 @@ final class SetsNoticeTests: AppStoreTestCase {
 
     private var trained = 0
 
-    /// One workout, one calendar day apart, so no gap ever reads as a break.
+    /// One workout every two calendar days, so no gap ever reads as a break.
     @discardableResult
-    private func train(_ store: AppStore, result: FeedbackResult = .plan,
-                       setsSkipped: SetFacts.Skips = [:]) -> Session {
+    func train(_ store: AppStore, result: FeedbackResult = .plan,
+               setsSkipped: SetFacts.Skips = [:]) -> Session {
         let session = store.nextSession
         trained += 1
         let date = Calendar.current.date(byAdding: .day, value: -400 + trained * 2,
