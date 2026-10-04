@@ -189,11 +189,16 @@ extension WorkoutSession {
     /// allowance (`SetFacts.holdEndedByTap`): the tap lands after the effort
     /// has stopped, and the number the button already named is the number
     /// this records.
+    ///
+    /// Both halves are read off the button — `holdStopRecords` — and not off
+    /// the clock at the moment of the tap. The figure moves only on a tick,
+    /// the thumb lands between two of them, and the clock there is up to a
+    /// second further on: read from it, about half of all taps would store a
+    /// second the button never named, and a plain "Stop" past three seconds
+    /// would store five.
     func stopHoldEarly() {
-        guard let end = holdClock.endDate else { return }
-        let remaining = max(0, end.timeIntervalSince(now()))
-        let held = Double(holdTotal) - remaining
-        if held < Self.holdMistapSeconds {
+        guard holding else { return }
+        guard let records = holdStopRecords else {
             holdClock.stand(at: holdTotal)
             // The set is handed back, so the tile stops counting to a date
             // nothing is running to any more (see `showHoldActivity`).
@@ -201,11 +206,11 @@ extension WorkoutSession {
             return
         }
         // A set that ended under a thumb is an ESTIMATE and says so on the
-        // summary: the allowance below is a guess about a walk to the phone,
+        // summary: its reach allowance is a guess about a walk to the phone,
         // not a measurement, and a number the app guessed at must not be
         // printed with the same confidence as one the clock produced.
         holdApproxSets.insert(setIndex)
-        finishHold(heldSeconds: SetFacts.holdEndedByTap(heldSeconds: Int(held.rounded())))
+        finishHold(heldSeconds: records)
     }
 
     /// Per-side holds run the pause and the second side by themselves; the
@@ -408,8 +413,8 @@ extension WorkoutSession {
     ///
     /// Compared as `> holdMistapSeconds` rather than `>=`, and the second is
     /// not pedantry: `holdClock.remaining` is the rounded second, so an integer 3
-    /// covers a real 2.5 s that `stopHoldEarly` will still read as a mis-tap.
-    /// At 4 the two can no longer disagree.
+    /// covers a real 2.5 s, and `stopHoldEarly` stores whatever this returns —
+    /// a figure at 3 would turn a mis-tap into a set.
     var holdStopRecords: Int? {
         let held = holdTotal - holdClock.remaining
         guard Double(held) > Self.holdMistapSeconds else { return nil }

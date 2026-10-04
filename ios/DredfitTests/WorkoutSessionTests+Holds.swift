@@ -233,6 +233,95 @@ extension WorkoutSessionTests {
         XCTAssertNil(flow.editing)
     }
 
+    // MARK: - What a Stop records
+
+    /// `ticks` seconds of the running hold pass the way the view's timer runs
+    /// them, then `plus` more with no tick — where a thumb lands — and Stop is
+    /// tapped. Returns the figure the last tick put on the button, read before
+    /// the gap: the button is drawn on the tick, and a figure read at the tap
+    /// would agree with a record taken off the live clock by moving with it.
+    private func tapStop(_ flow: WorkoutSession, afterTicks ticks: Int,
+                         plus: TimeInterval) -> Int? {
+        run(flow, for: ticks)
+        let named = flow.holdStopRecords
+        clock += plus
+        flow.stopHoldEarly()
+        return named
+    }
+
+    /// The figure on the button moves only on a tick, and the clock does not
+    /// wait for one: seven tenths past the tick it is nearer the next second
+    /// than the one the button names, and a tick that comes late leaves the
+    /// button more than a second behind it.
+    func testAStopBetweenTwoTicksStoresTheFigureTheButtonNamed() throws {
+        for gap in [0.7, 1.2] {
+            let (flow, _) = try holdFlow(.coreAntiExt)
+            flow.startHold()
+            run(flow, for: GetReady.countInSeconds)
+            let named = try XCTUnwrap(tapStop(flow, afterTicks: 10, plus: gap))
+            XCTAssertEqual(flow.holdMeasured[0], named, "\(gap) s past the tick")
+        }
+    }
+
+    /// On the tick itself: on the whole second, and on a tick the timer
+    /// delivered late, as it does when the main thread is busy — that one
+    /// puts the clock's ROUNDED second on the button, a second more than a
+    /// truncated clock would store.
+    func testAStopOnATickStoresTheFigureThatTickPutOnTheButton() throws {
+        for late in [0.0, 0.6] {
+            let (flow, _) = try holdFlow(.coreAntiExt)
+            flow.startHold()
+            run(flow, for: GetReady.countInSeconds + 10)
+            clock += late
+            flow.tick()
+            let named = try XCTUnwrap(tapStop(flow, afterTicks: 0, plus: 0))
+            XCTAssertEqual(flow.holdMeasured[0], named, "a tick \(late) s late")
+        }
+    }
+
+    /// A plain "Stop" is the grace, even with the clock already past its
+    /// three seconds: the tap does what the button says, and it names nothing.
+    func testAStopWhileTheButtonNamesNoFigureStoresNothing() throws {
+        let (flow, _) = try holdFlow(.coreAntiExt)
+        flow.startHold()
+        run(flow, for: GetReady.countInSeconds)
+        XCTAssertNil(tapStop(flow, afterTicks: 3, plus: 0.5), "the button names no figure")
+        XCTAssertEqual(flow.holdClock.remaining, 15, "the set stands at its full length again")
+        XCTAssertNil(flow.actuals[.coreAntiExt])
+        XCTAssertTrue(flow.holdApproxSets.isEmpty)
+        XCTAssertEqual(flow.phase, .work)
+    }
+
+    /// The first side's figure is what the second side runs for, and the
+    /// second side's is what the set stores. Declared at 30 s so both figures
+    /// stand clear of the five-second floor, where a second more or less
+    /// would not show.
+    func testEachSideOfAPerSideHoldStoresTheFigureItsButtonNamed() throws {
+        let (flow, _) = try holdFlow(.coreRot)
+        declare(30, on: flow)
+        flow.startHold()
+        run(flow, for: GetReady.countInSeconds)
+        let firstSide = try XCTUnwrap(tapStop(flow, afterTicks: 20, plus: 0.7))
+        XCTAssertEqual(flow.firstSideHeld, firstSide)
+
+        run(flow, for: Cooldown.switchPauseSeconds)
+        XCTAssertTrue(flow.holding, "the second side runs")
+        let secondSide = try XCTUnwrap(tapStop(flow, afterTicks: 12, plus: 0.7))
+        XCTAssertEqual(flow.holdMeasured[0], secondSide)
+    }
+
+    /// A set the hands-free run opened on the rest's own go stops like any
+    /// other.
+    func testAStopInASetTheRunOpenedStoresTheFigureTheButtonNamed() throws {
+        let (flow, _) = try holdFlow(.coreAntiExt)
+        flow.startHoldExercise()
+        run(flow, for: GetReady.countInSeconds + 15 + 60)
+        XCTAssertEqual(flow.setIndex, 1)
+        XCTAssertTrue(flow.holding, "the rest's go opened the set")
+        let named = try XCTUnwrap(tapStop(flow, afterTicks: 10, plus: 0.7))
+        XCTAssertEqual(flow.holdMeasured[1], named)
+    }
+
     // MARK: - The hands-free run
 
     func testAHandsFreeRunOpensTheNextSetOnTheRestsOwnGo() throws {

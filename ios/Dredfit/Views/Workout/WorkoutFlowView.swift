@@ -195,7 +195,12 @@ struct WorkoutFlowView: View {
             // included. So the escape is one button, carrying the role AND the
             // name that says what it does. "Cancel" answers "cancel what?";
             // this one does not.
-            Button(String(localized: "Keep training"), role: .cancel) { }
+            //
+            // Nothing ticked while the question was up, so staying catches the
+            // clocks up at once rather than on the timer's next beat: a hold's
+            // Stop stores the figure on its own button, and for up to a second
+            // that figure would still be the one from before the question.
+            Button(String(localized: "Keep training"), role: .cancel) { flow.tick() }
             Button(String(localized: "Finish now")) { flow.finishNow() }
             // Every number here is persisted at every transition
             // (`persistProgress`), so stepping out keeps the workout and Today

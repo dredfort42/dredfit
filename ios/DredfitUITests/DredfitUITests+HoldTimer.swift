@@ -199,10 +199,11 @@ extension DredfitUITests {
         XCTAssertFalse(app.buttons[AX.holdStartExercise].exists,
                        "a cancelled set re-arms the set, not the whole exercise")
 
-        // a real early stop (past the grace) records the held seconds
+        // a real early stop (past the grace) records the held seconds. The grace
+        // lasts while the button names no figure: until the tick at four seconds.
         coordinateTap(app.buttons[AX.holdStart])
         XCTAssertTrue(stop.waitForExistence(timeout: 10))
-        Thread.sleep(forTimeInterval: 3.5)
+        Thread.sleep(forTimeInterval: 4.5)
         XCTAssertTrue(coordinateTap(stop),
                       "the countdown ended before the stop could be delivered")
         // Set one of several: the stop closes it, and the exercise carries on
@@ -294,7 +295,7 @@ extension DredfitUITests {
         coordinateTap(app.buttons[AX.holdStartExercise])
         let stop = app.buttons[AX.holdStop]
         XCTAssertTrue(stop.waitForExistence(timeout: 10), "no Stop during the count-in")
-        // Past the three-second mis-tap grace, so this is a real early stop.
+        // Past the mis-tap grace, which ends on the tick at four seconds, so this is a real early stop.
         Thread.sleep(forTimeInterval: 5)
         XCTAssertTrue(coordinateTap(stop), "the first side ended before the stop landed")
 
@@ -345,7 +346,7 @@ extension DredfitUITests {
         coordinateTap(app.buttons[AX.holdStartExercise])
         let stop = app.buttons[AX.holdStop]
         XCTAssertTrue(stop.waitForExistence(timeout: 10), "no Stop during the hang countdown")
-        Thread.sleep(forTimeInterval: 3.5)   // past the mis-tap grace
+        Thread.sleep(forTimeInterval: 4.5)   // past the grace, which ends on the tick at 4 s
         XCTAssertTrue(coordinateTap(stop),
                       "the hang ended before the stop could be delivered")
         // The stopped hang closes its own set and the exercise carries on;
