@@ -32,7 +32,10 @@ extension WorkoutSession {
     /// left running: it hands the screen back and waits, and freezing it would
     /// only make the workout longer.
     func freezeRestForTechnique() {
-        guard restStartsTheNextSet else { return }
+        // A paused rest is already held and its tile already says so: the
+        // sheet has nothing to freeze, and re-sending the tile would replace
+        // "Paused" with "Starts by itself" on a rest that is not moving.
+        guard restStartsTheNextSet, !blockPause.isPaused else { return }
         restClock.freeze()
         // The tile counts down to a DATE, so a frozen rest has to take the
         // date away — the same reason `pauseBlock` does.

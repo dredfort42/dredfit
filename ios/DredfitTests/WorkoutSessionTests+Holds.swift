@@ -346,19 +346,23 @@ extension WorkoutSessionTests {
         XCTAssertEqual(flow.restClock.endDate, end, "its end starts nothing, so it takes no floor")
     }
 
-    func testAPausedRunsRestStaysHeldWhenTheSheetCloses() throws {
+    func testAPausedRunsRestStaysHeldAndSaysSoUnderTheSheet() throws {
         let (flow, _) = try holdFlow(.coreAntiExt)
         flow.startHoldExercise()
         run(flow, until: { flow.restStartsTheNextSet })
         run(flow, until: { flow.restClock.remaining == 2 })
         flow.toggleBlockPause()
+        XCTAssertEqual(tile.updates.last?.detail, String(localized: "Paused"), "the premise")
         flow.freezeRestForTechnique()
+        XCTAssertEqual(tile.updates.last?.detail, String(localized: "Paused"),
+                       "the lock screen must not promise that a held rest starts by itself")
         clock += 60
 
         flow.resumeRestCountdown()
         XCTAssertTrue(flow.blockPause.isHeld, "the person's own stop outranks the sheet's")
         XCTAssertFalse(flow.restClock.isRunning)
         XCTAssertNil(tile.updates.last?.restEndDate)
+        XCTAssertEqual(tile.updates.last?.detail, String(localized: "Paused"))
     }
 
     // MARK: - The declared time
