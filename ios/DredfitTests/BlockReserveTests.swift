@@ -4,9 +4,9 @@
 //  preference.
 //
 //  `warmupMin + cooldownMin` is the whole budget the engine sets aside for the
-//  two blocks. That is why lengthening the transition can never be done in
-//  this target alone: enough seconds more and the reserve breaks, which is a
-//  change to the engine.
+//  two blocks. The worst pair leaves 80 s of it over (520 of 600), and every
+//  second added to the transition costs twelve — six transitions per block —
+//  so past 14 s the reserve breaks, which is a change to the engine.
 //
 //  SHORTENING it is the direction that does not break. The worst pair is 520 s
 //  against 600, so the reserve is not the smallest whole minute that fits —

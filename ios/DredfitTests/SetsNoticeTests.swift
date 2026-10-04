@@ -59,8 +59,8 @@ final class SetsNoticeTests: AppStoreTestCase {
             .map { "\"\($0.rawValue)\",\(floorDose($0, at($0)))" }.joined(separator: ",")
         let zeros = Pattern.allCases
             .map { "\"\($0.rawValue)\",0" }.joined(separator: ",")
-        // The journal of what was shown: a descent out of a variation lands IN
-        // it, and the load check below reads it.
+        // The journal of what was shown: a descent out of a variation lands
+        // under it, and the load check below reads it.
         let journal = Pattern.allCases.map { p in
             let rows = (1...at(p)).map { "\"\($0)\":\(floorDose(p, $0))" }.joined(separator: ",")
             return "\"\(p.rawValue)\",{\(rows)}"
@@ -111,8 +111,10 @@ final class SetsNoticeTests: AppStoreTestCase {
     /// went; only the engine knows why it came back.
     func testTheCardSaysWhenASetComesBack() throws {
         let store = try store()
-        // The way a set comes off at all: skipped during the session, and
-        // written by the engine when the rating lands.
+        // A set comes off one of two ways: skipped during the session and
+        // written by the engine when the rating lands — the way taken here —
+        // or by a descent once the dose is on its floor, where this suite is
+        // seeded.
         train(store, setsSkipped: [.pull: 1])
         XCTAssertGreaterThan(store.engineState.cutOf(.pull), 0,
                              "the skipped set did not land as a cut — there is no trajectory")
@@ -302,7 +304,8 @@ final class SetsNoticeTests: AppStoreTestCase {
     ///
     /// - INTERPOLATED literals. The catalog key is the `%@`/`%lld` form rather
     ///   than the source text, so compared raw, `"≈ \(floor)–\(full) min"`
-    ///   would never be checked against anything.
+    ///   can never equal its key: a raw scan has to skip interpolated
+    ///   literals, and then they are checked against nothing.
     /// - MULTI-LINE literals. A pattern that wants `"…"` on one line cannot
     ///   see a `"""` block, and a reworded alert would orphan its old key
     ///   while the new one reached no catalog.
@@ -428,10 +431,11 @@ final class SetsNoticeTests: AppStoreTestCase {
                              file: file, line: line)
     }
 
-    /// The scan's own arithmetic, pinned directly: it is the only logic in
-    /// this file that a green run does NOT exercise, because the shapes it
-    /// handles are the ones no source literal happens to use today. A helper
-    /// nobody tests is how a gate starts passing for the wrong reason.
+    /// The scan's own arithmetic, pinned directly: a green run exercises it
+    /// only on the shapes the sources happen to use today, and some it
+    /// handles — an escaped quote, a lone percent sign — no source literal
+    /// uses at all. A helper nobody tests is how a gate starts passing for the
+    /// wrong reason.
     func testTheScanNormalisesSourceAndCatalogToTheSameForm() {
         // An escaped literal and the catalog's real newline are the same key.
         XCTAssertEqual(Self.normalized(Self.unescaped(#"First\nSecond"#)),

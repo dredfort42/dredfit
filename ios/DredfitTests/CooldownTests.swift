@@ -65,8 +65,8 @@ final class CooldownTests: XCTestCase {
 
     /// The holds alone — 6 × 30 s = 3 min — do not fill the reserved minutes:
     /// the reserve also pays for the transitions and the switch pauses that
-    /// carry them. The whole-block version of that identity lives in
-    /// BlockReserveTests, where both blocks are counted together.
+    /// carry them. The whole-block counterpart lives in BlockReserveTests,
+    /// where both blocks are counted together.
     func testTheHoldsAloneNoLongerFillTheReserve() {
         let holds = Cooldown.positionCount * Cooldown.positionSeconds
         XCTAssertEqual(holds, 180, "six positions of thirty seconds")

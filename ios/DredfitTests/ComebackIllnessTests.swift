@@ -20,7 +20,7 @@ final class ComebackIllnessTests: AppStoreTestCase {
     /// elapsed-seconds seed would get wrong.
     ///
     /// The journal of what was shown is seeded too: the probe at the ceiling
-    /// is offered off it, and a descent out of a variation lands in it.
+    /// is offered off it, and a descent out of a variation lands under it.
     private func returned(after days: Int) throws -> AppStore {
         var state = EngineState.initial
         state.counter = 11

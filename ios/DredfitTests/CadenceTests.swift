@@ -41,7 +41,7 @@ final class CadenceTests: AppStoreTestCase {
     /// — so it loads as written rather than through the v2 migration: a seed
     /// the store silently replaced would make every assertion below true for
     /// the wrong reason. The journal of what was shown is filled in too: a
-    /// descent out of a variation lands in it.
+    /// descent out of a variation lands under it.
     private func store(workoutsAt dates: [Date]) throws -> AppStore {
         let vars = Pattern.allCases
             .map { "\"\($0.rawValue)\",2" }.joined(separator: ",")
@@ -161,8 +161,9 @@ final class CadenceTests: AppStoreTestCase {
         let s = try store(workoutsAt: dates)
         // The window holds eight gaps, and this seed lays down five records —
         // four gaps. The subject here is the 5-7-5 ritual itself, not how far
-        // back the memory reaches, so the last three gaps are what it checks. `testALifeCycleLongerThanThreeGapsIsARhythm`
-        // below is the one that owns the window's length.
+        // back the memory reaches, so the last three gaps are what it checks.
+        // `testALifeCycleLongerThanThreeGapsIsARhythm` below is the one that
+        // owns the window's length.
         XCTAssertEqual(Array(s.recentGaps.suffix(3)), [5, 7, 5])
         let next = try XCTUnwrap(dates.last).addingTimeInterval(6 * 86400 + 2 * 3600)
         XCTAssertEqual(s.gapDays(now: next), 7)

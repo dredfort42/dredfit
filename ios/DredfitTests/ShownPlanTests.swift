@@ -19,7 +19,7 @@ final class ShownPlanTests: AppStoreTestCase {
     /// A trainee well up the ladders, seeded through the state file the way
     /// the app itself loads one: every movement `variation` rungs up (capped
     /// by its own ladder), with the journal of what was shown filled in behind
-    /// it — the journal a descent out of a variation lands in.
+    /// it — the journal a descent out of a variation lands under.
     ///
     /// SEEDED IN THE v3 SHAPE — `vars`/`doses`/`shown`, never `levels`: a v2
     /// shape would go through the migration instead of loading as written,
@@ -224,10 +224,10 @@ final class ShownPlanTests: AppStoreTestCase {
     /// zeroes all of them. What it must NOT take with them: the bar in the
     /// doorway.
     ///
-    /// The `cut` axis is written by the skip inside the workout. It IS one of
-    /// the fields a reset clears, deliberately — starting the ladders over is
-    /// starting the plan over, and sets skipped five rungs up have no meaning
-    /// back on the first variation.
+    /// The `cut` axis is written here by the skip inside the workout. It IS
+    /// one of the fields a reset clears, deliberately — starting the ladders
+    /// over is starting the plan over, and sets skipped five rungs up have no
+    /// meaning back on the first variation.
     func testResetClearsTheSetsAxisAndKeepsTheDoorway() throws {
         let store = try advancedStore()
         store.setHasBar(true)

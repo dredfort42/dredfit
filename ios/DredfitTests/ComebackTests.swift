@@ -8,9 +8,10 @@ final class ComebackTests: AppStoreTestCase {
     override var tempURLPrefix: String { "dredfit-comeback" }
 
     /// The dose every seeded movement stands at, and the one a comeback walks
-    /// down from: the ceiling of `pull`'s second variation. A return is
-    /// measured in rungs of dose — one rep per set — so the comeback
-    /// assertions below read the dose and nothing else.
+    /// down from: the ceiling of `pull`'s second variation. Above the dose
+    /// floor a return is measured in rungs of dose — one rep per set — so the
+    /// assertions below on where a comeback lands, all on `pull`, read the
+    /// dose and nothing else.
     static let seededDose = 15
 
     private func storeWithLastWorkout(daysAgo: Int) throws -> AppStore {
@@ -27,7 +28,9 @@ final class ComebackTests: AppStoreTestCase {
         let zeros = Pattern.allCases
             .map { "\"\($0.rawValue)\",0" }.joined(separator: ",")
         // The journal of what was shown, which a descent out of a variation
-        // lands in. The comebacks below stay inside variation 2.
+        // lands under. In the comebacks below, `pull` — the one movement
+        // asserted on — stays inside variation 2; the hold ladders, seeded on
+        // their 15 s floor, cross into variation 1.
         let shown = Pattern.allCases
             .map { "\"\($0.rawValue)\",{\"1\":\(Self.seededDose),\"2\":\(Self.seededDose)}" }
             .joined(separator: ",")

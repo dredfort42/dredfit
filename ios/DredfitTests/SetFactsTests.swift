@@ -5,7 +5,9 @@ import DredfitCore
 final class SetFactsTests: XCTestCase {
 
     /// Everything at the ceiling of its first variation: 3×15 reps and
-    /// 3×45 s, the plan the arithmetic below is written against.
+    /// 3×45 s, the plan the arithmetic below is written against. Sessions
+    /// come from the engine: a hand-built one would be a plan the app never
+    /// shows.
     private static let planDose = 15
 
     private var state = EngineState.initial
@@ -144,10 +146,13 @@ final class SetFactsTests: XCTestCase {
         XCTAssertLessThan(mean, Double(reps.load), "and it is still short of the plan")
     }
 
-    /// A shortfall must never be reported as MEETING the plan. To the engine
-    /// `actual == load` is the "on plan" step — a near miss rounded up onto
-    /// the plan would claim it. On the one-second reporting grid the near miss
-    /// that still snaps onto the plan is 44 s of a 3×45 s plan — mean 44.67.
+    /// A shortfall must never be reported as MEETING the plan. On the
+    /// one-second reporting grid the near miss that still snaps onto the plan
+    /// is 44 s of a 3×45 s plan — mean 44⅔. Rounded up to 45 it would read to
+    /// the engine as the plan met; handed over raw it misses `metPlan`, which
+    /// compares the raw value, and the engine snaps a fact DOWN to its grid —
+    /// one second short would cost the plan a whole rung, 45 s to 40. So the
+    /// collapse reports nothing, and the session rating governs.
     func testANearMissIsNeverRoundedUpOntoThePlan() {
         let facts = SetFacts.recording(44, in: [:], hold, set: 2)
         XCTAssertEqual(SetFacts.allSets(facts, hold), [45, 45, 44],
@@ -340,15 +345,17 @@ final class SetFactsTests: XCTestCase {
     }
 
     /// On every trajectory that never exceeds the plan, the carry is the plain
-    /// one and the engine is handed the mean of the sets that ran. The
-    /// asymmetry may only ever touch the above-plan case, so this walks every
-    /// set of every exercise at every value from zero to the plan.
+    /// one and the engine is handed the mean of the sets that ran — or
+    /// nothing, when every set ran on plan or the mean is a near miss that
+    /// snaps back onto it. The asymmetry may only ever touch the above-plan
+    /// case, so this walks every set of every exercise at every value from
+    /// zero to the plan.
     ///
-    /// Both expectations are computed here, from the trajectory, never from
-    /// the code under test: expected through `SetFacts.inForce` — the very
-    /// function `allSets` is a map over — or through a second call of
-    /// `SetFacts.overrides`, the sweep would be `f(x) == f(x)` and could not
-    /// fail.
+    /// Both expected values are computed here, from the trajectory, not from
+    /// `SetFacts.inForce` — the very function `allSets` is a map over — or
+    /// from a second call of `SetFacts.overrides`: either way the sweep would
+    /// be `f(x) == f(x)` and could not fail. Whether the engine is expected to
+    /// get the mean or nothing is read off the record and `SetFacts.snap`.
     func test_nothingBelowThePlan_atEverySetAndValue_reachesTheEngineUnchanged() throws {
         for ex in session.exercises {
             // Spelling the expectation out per set is only legitimate on a

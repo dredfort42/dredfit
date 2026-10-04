@@ -253,8 +253,8 @@ final class WidgetTimelineTests: XCTestCase {
 // `testWidgetSnapshotWeekFromBeforeTheScaleChangeStillDecodes`); the RENDER
 // half is not, and cannot be: the function returns a `Text` chain, and two
 // Texts with identical words do not reliably compare equal (I-8) — which is
-// why every other word-builder in that file returns a resolved `String`, and
-// this one still does not.
+// why `headline` and `subline`, the words the tests pin, are resolved
+// `String`s, and this one is not.
 //
 // The minimal change that would make it testable: finish I-8 here too —
 // `func weekSummaryString(_ week: WidgetSnapshot.Week) -> String` built from

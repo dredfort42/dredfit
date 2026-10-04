@@ -72,8 +72,9 @@ final class HoldFactsTests: XCTestCase {
         XCTAssertEqual(AdjustPanel.holdStep(5, -1), 0, "the corridor, not the step, is the floor")
     }
 
-    /// …and `recording` still truncates, because on the work screen the sets
-    /// after the one under way have not happened yet. The pair is the rule.
+    /// `recording`, the work screen's writer, still truncates: there the sets
+    /// after the one under way have not happened yet. This and
+    /// `testCorrectingAnEarlierSetLeavesTheLaterOnesStanding` are one rule.
     func testTheWorkScreenWriterStillTruncates() {
         var facts = SetFacts.recording(40, in: [:], hold, set: 0)
         facts = SetFacts.recording(38, in: facts, hold, set: 1)
@@ -135,14 +136,14 @@ final class HoldFactsTests: XCTestCase {
 
     // MARK: - The clock records every set of an uneven plan
 
-    /// An uneven plan held exactly as asked — 35-30-30 — must not come out as
-    /// 35-35-30 on the summary, in the journal and in the next plan, with
-    /// nothing typed and nothing declared. The clock records every set
-    /// through `recording`, so a hold to plan writes set 1 (nothing said),
-    /// set 2 (nothing said), then set 3 — and the fill for the two sets
-    /// already behind has to give set two its own plan, not set ONE's number.
-    /// Walked the way the flow walks it: the clock is set from `holdTarget`,
-    /// then records what ran.
+    /// An uneven plan held exactly as asked — 20-15-15 here, 35-30-30 in the
+    /// field — must not come out as 20-20-15 (35-35-30) on the summary, in the
+    /// journal and in the next plan, with nothing typed and nothing declared.
+    /// The clock records every set through `recording`, so a hold to plan
+    /// writes set 1 (nothing said), set 2 (nothing said), then set 3 — and
+    /// the fill for the two sets already behind has to give set two its own
+    /// plan, not set ONE's number. Walked the way the flow walks it: the clock
+    /// is set from `holdTarget`, then records what ran.
     func testAHoldRunExactlyToAnUnevenPlanSaysNothing() throws {
         let uneven = try XCTUnwrap(unevenHold())
         let plan = (0..<uneven.sets).map { uneven.plannedLoad(set: $0) }

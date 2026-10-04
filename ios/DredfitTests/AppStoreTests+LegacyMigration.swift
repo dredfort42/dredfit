@@ -55,8 +55,8 @@ extension AppStoreTests {
     // MARK: - Legacy settings files
 
     /// A fresh install starts with three spread-out rest days — four workouts
-    /// a week. Two would put the default one workout above what the app
-    /// itself recommends on two screens.
+    /// a week. Two — what #36 shipped — would put the default one workout
+    /// above what the app itself recommends on two screens.
     func testFreshInstallDefaultsToThreeSpreadRestDays() {
         let store = makeStore()   // no file → fresh install
         let rest = store.settings.restWeekdays

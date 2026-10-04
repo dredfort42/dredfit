@@ -27,8 +27,8 @@ final class GetReadyTests: XCTestCase {
 
     /// What one warm-up move costs uninterrupted: the transition, then the
     /// slot — two halves and the switch pause when the move has a boundary.
-    /// Hand-rolled on purpose: this file's job is to state the arithmetic
-    /// independently of the production formula.
+    /// Hand-rolled on purpose, unlike the cool-down twin below: an
+    /// independent statement of the warm-up arithmetic.
     private func cost(of move: WarmupMove) -> Int {
         let slot = move.isSplit
             ? Warmup.halfSeconds * 2 + Cooldown.sideSwitchPauseSec
@@ -115,8 +115,10 @@ final class GetReadyTests: XCTestCase {
 
     /// The decision this feature rests on: the transitions — supplements
     /// included (#83) — ride on top of the minutes the engine reserves for
-    /// the two blocks. The worst case is exact: the dearest warm-up plus the
-    /// fixed three positions plus the costliest three the mapping can draw.
+    /// the two blocks. The worst case with nothing set aside is exact: the
+    /// dearest warm-up plus the fixed three positions plus the costliest three
+    /// the mapping can draw. BlockReserveTests adds the set-aside axis, where
+    /// the warm-up reaches 248 s.
     ///
     /// The FIT is not exact: a reserve is whole minutes, so it carries slack.
     /// What is guarded is that the slack stays under two minutes — more, and

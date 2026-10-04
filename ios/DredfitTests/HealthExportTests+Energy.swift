@@ -7,7 +7,7 @@ import DredfitCore
 ///
 /// An extension rather than more of `HealthExportTests`: the class body
 /// counts against the linter's body ceiling, which is a CI error and not a
-/// style opinion, and an extension is a body of its own.
+/// style opinion, and `type_body_length` does not measure extensions.
 @MainActor
 extension HealthExportTests {
 

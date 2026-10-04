@@ -51,7 +51,7 @@ final class ProbeChannelTests: AppStoreTestCase {
             Pattern.allCases.map { "\"\($0.rawValue)\",\(value($0))" }.joined(separator: ",")
         }
         // Every rung below the current one is journalled at its own ceiling: a
-        // descent out of a variation lands IN the journal of the one below,
+        // descent out of a variation lands under the journal of the one below,
         // and without it would land on that variation's floor instead of
         // where the movement has actually been.
         let rows = Pattern.allCases.map { p -> String in

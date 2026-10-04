@@ -37,7 +37,7 @@ final class WeakLinkPromptTests: AppStoreTestCase {
             .joined(separator: ",")
         let zeros = Pattern.allCases
             .map { "\"\($0.rawValue)\",0" }.joined(separator: ",")
-        // The journal of what was shown: the handle lands IN it, and a
+        // The journal of what was shown: the handle lands under it, and a
         // persona without one would find an easier variation that offers 3×4.
         let shown = Pattern.allCases.map { p in
             let rows = (1...at(p)).map { "\"\($0)\":\(Dose.grid(Library.unit(p, $0)).max)" }
@@ -104,7 +104,7 @@ final class WeakLinkPromptTests: AppStoreTestCase {
     }
 
     /// Dismissing the question must change no plan: the dismissal touches no
-    /// state, and the movement's next appearance takes no set off.
+    /// engine state, and the movement's next appearance takes no set off.
     func testDismissingTheQuestionChangesNothingAboutThePlan() throws {
         let store = naiveStore(sessions: 12)
         let suspect = try XCTUnwrap(store.unnamedLessSuspect())
